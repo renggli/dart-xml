@@ -1,0 +1,14 @@
+bin
+out
+docs
+packages
+pubspec.lock
+
+.DS_Store
+.settings
+.children
+.project
+*.js
+*.js_
+*.js.map
+*.js.deps
