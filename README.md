@@ -1,19 +1,19 @@
 Dart XML
 ========
 
-Dart XML is a lightweigth library for parsing, traversing, and querying XML documents.
+Dart XML is a lightweight library for parsing, traversing, and querying XML documents.
 
 The library is open source, stable and well tested. Development happens on [GitHub](http://github.com/renggli/dart-xml). Feel free to report issues or create a pull-request there. General questions are best asked on [StackOverflow](http://stackoverflow.com/questions/tagged/dart-xml).
 
-Continuous build results are available from [Jenkins](http://jenkins.lukas-renggli.ch/job/dart-xml/). An introductionary tutorial is part of the class [documentation](http://jenkins.lukas-renggli.ch/job/dart-xml/javadoc/xml.html).
+Continuous build results are available from [Jenkins](http://jenkins.lukas-renggli.ch/job/dart-xml/). An introductionary tutorial is part of the class [documentation](http://jenkins.lukas-renggli.ch/job/dart-xml/javadoc/).
 
 
 Basic Usage
 -----------
 
-## Installation
+### Installation
 
-Add the dependency to the pacakge's pubspec.yaml file:
+Add the dependency to your package's pubspec.yaml file:
 
     dependencies:
       xml: ">=2.0.0 <3.0.0"
@@ -26,7 +26,7 @@ To import the package into your Dart code write:
 
     import 'package:xml/xml.dart';
 
-## Reading and Writing
+### Reading and Writing
 
 To read XML input use the function `parse(String input)`:
 
@@ -50,7 +50,7 @@ To write back the parsed XML document simply call `toString()`:
 
     print(document.toString());
 
-## Traversing and Querying
+### Traversing and Querying
 
 Accessors allow to access all nodes in the XML tree:
 
@@ -95,21 +95,25 @@ This could for example be used to extract all textual contents from the XML tree
     print(textual);
 
 
-Fine Print
-----------
+Misc
+----
 
-## Supports
+### Supports
 
 - Standard well-formed XML and HTML.
 - Decodes and encodes commonly used character entities.
 - Querying and traversing API using Dart iterators.
 
-## Limitations
+### Limitations
 
-- Doens't resolve and validate namespace declarations and usage.
-- Doesn't validate any schema declarations.
-- Doens't parse and enforce DTD.
+- Doesn't resolve and validate namespace declarations and usage.
+- Doesn't validate schema declarations.
+- Doesn't parse and enforce DTD.
 
-## License
+### History
+
+This library started as an example for the [PetitParser](https://github.com/renggli/PetitParserDart) library. To my own surprise various people started to adapt it to read XML files. In April 2014 I was asked to replace the original [dart-xml](http://pub.dartlang.org/packages/xml) library from [John Evans](https://github.com/prujohn/dart-xml).
+
+### License
 
 The MIT License, see [LICENSE](LICENSE).
