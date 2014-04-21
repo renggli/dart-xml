@@ -112,7 +112,7 @@ Misc
 
 ### History
 
-This library started as an example for the [PetitParser](https://github.com/renggli/PetitParserDart) library. To my own surprise various people started to adapt it to read XML files. In April 2014 I was asked to replace the original [dart-xml](http://pub.dartlang.org/packages/xml) library from [John Evans](https://github.com/prujohn/dart-xml).
+This library started as an example for the [PetitParser](https://github.com/renggli/PetitParserDart) library. To my own surprise various people started to adapt it to read XML files. In April 2014 I was asked to replace the original [dart-xml](https://github.com/prujohn/dart-xml) library from John Evans.
 
 ### License
 

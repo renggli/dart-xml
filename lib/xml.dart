@@ -1,11 +1,6 @@
 /**
- * Dart XML is a lightweigth library for parsing, querying and generating XML.
- *
- * Example:
- *
- *     var xml = new XmlParser();
- *     var result = xml.parse('<xml attr="foo"><zork /></xml>');
- *     print(result.value);    // <xml attr="foo"><zork /></xml>
+ * Dart XML is a lightweight library for parsing, traversing, and
+ * querying XML documents.
  */
 library xml;
 
