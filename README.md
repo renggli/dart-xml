@@ -3,9 +3,9 @@ Dart XML
 
 Dart XML is a lightweight library for parsing, traversing, and querying XML documents.
 
-The library is open source, stable and well tested. Development happens on [GitHub](http://github.com/renggli/dart-xml). Feel free to report issues or create a pull-request there. General questions are best asked on [StackOverflow](http://stackoverflow.com/questions/tagged/dart-xml).
+This library is open source, stable and well tested. Development happens on [GitHub](http://github.com/renggli/dart-xml). Feel free to report issues or create a pull-request there. General questions are best asked on [StackOverflow](http://stackoverflow.com/questions/tagged/dart+xml).
 
-Continuous build results are available from [Jenkins](http://jenkins.lukas-renggli.ch/job/dart-xml/). An introductionary tutorial is part of the class [documentation](http://jenkins.lukas-renggli.ch/job/dart-xml/javadoc/).
+Continuous build results are available from [Jenkins](http://jenkins.lukas-renggli.ch/job/dart-xml/). Up-to-date [documentation](http://jenkins.lukas-renggli.ch/job/dart-xml/javadoc/) is created automatically with every new push.
 
 
 Basic Usage
