@@ -12,7 +12,7 @@ abstract class XmlData extends XmlNode {
   final String text;
 
   /**
-   * Create a data section with [value].
+   * Create a data section with [text].
    */
   XmlData(this.text);
 

@@ -58,10 +58,7 @@ abstract class XmlNode extends Object with XmlWritable {
    * Return the text contents of this node and all its descendents.
    */
   String get text {
-    return iterable
-        .where((node) => node is XmlText)
-        .map((node) => node.text)
-        .join();
+    return iterable.where((node) => node is XmlText).map((node) => node.text).join();
   }
 
   /**

@@ -11,7 +11,7 @@ abstract class XmlParent extends XmlNode {
   /**
    * Create a node with a list of [children].
    */
-  XmlParent(Iterable<XmlNode> children) : children = children.toList(growable: false) {
+  XmlParent(Iterable<XmlNode> children): children = children.toList(growable: false) {
     for (var child in children) {
       child._parent = this;
     }

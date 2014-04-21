@@ -61,14 +61,13 @@ class XmlName extends Object with XmlWritable {
   int get hashCode => qualified.hashCode;
 
   @override
-  bool operator == (other) {
+  bool operator ==(other) {
     return other is XmlName && other.qualified == qualified;
   }
 
   bool matches(XmlName other) {
-    return
-        (prefix == _WILDCARD || prefix == other.prefix) &&
-        (local == _WILDCARD || local == other.local);
+    return (prefix == _WILDCARD || prefix == other.prefix)
+        && (local == _WILDCARD || local == other.local);
   }
 
 }
