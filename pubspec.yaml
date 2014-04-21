@@ -1,11 +1,11 @@
 name: xml
 version: 2.0.0
 author: Lukas Renggli <renggli@gmail.com>
-description: A simple, small and fast XML library for Dart.
-homepage: https://github.com/renggli/PetitXmlDart
+description: A lightweight library for parsing, traversing, and querying XML documents.
+homepage: http://github.com/renggli/dart-xml
 environment:
   sdk: '>=1.0.0 <2.0.0'
-documentation: http://jenkins.lukas-renggli.ch/job/PetitXmlDart/javadoc
+documentation: http://jenkins.lukas-renggli.ch/job/dart-xml/javadoc
 dependencies:
   petitparser: '>=1.0.0 <2.0.0'
 dev_dependencies:

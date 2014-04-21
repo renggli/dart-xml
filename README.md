@@ -18,7 +18,7 @@ Add the dependency to your package's pubspec.yaml file:
     dependencies:
       xml: ">=2.0.0 <3.0.0"
 
-And on the command line run:
+Then on the command line run:
 
     $ pub get
 
@@ -28,7 +28,7 @@ To import the package into your Dart code write:
 
 ### Reading and Writing
 
-To read XML input use the function `parse(String input)`:
+To read XML input use the top-level function `parse(String input)`:
 
     var bookshelfXml = '''<?xml version="1.0"?>
         <bookshelf>
@@ -112,7 +112,7 @@ Misc
 
 ### History
 
-This library started as an example for the [PetitParser](https://github.com/renggli/PetitParserDart) library. To my own surprise various people started to adapt it to read XML files. In April 2014 I was asked to replace the original [dart-xml](https://github.com/prujohn/dart-xml) library from John Evans.
+This library started as an example of the [PetitParser](https://github.com/renggli/PetitParserDart) library. To my own surprise various people started to use it to read XML files. In April 2014 I was asked to replace the original [dart-xml](https://github.com/prujohn/dart-xml) library from John Evans.
 
 ### License
 
