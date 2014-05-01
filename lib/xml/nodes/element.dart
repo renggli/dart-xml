@@ -17,9 +17,9 @@ class XmlElement extends XmlBranch {
    * Create an [XmlElement] with the given [name], [attributes], and [children].
    */
   XmlElement(XmlName name, Iterable<XmlAttribute> attributes, Iterable<XmlNode> children)
-      : super(children),
-        name = name,
+      : super(children), name = name,
         attributes = attributes.toList(growable: false) {
+    name._parent = this;
     for (var attribute in attributes) {
       attribute._parent = this;
     }

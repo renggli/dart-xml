@@ -18,7 +18,9 @@ class XmlAttribute extends XmlNode {
   /**
    * Create an attribute with [name] and [value].
    */
-  XmlAttribute(this.name, this.value);
+  XmlAttribute(this.name, this.value) {
+    name._parent = this;
+  }
 
   @override
   XmlNodeType get nodeType => XmlNodeType.ATTRIBUTE;

@@ -3,14 +3,7 @@ part of xml;
 /**
  * Abstract XML node.
  */
-abstract class XmlNode extends Object with XmlWritable {
-
-  XmlNode _parent;
-
-  /**
-   * Return the parent node of this node, or `null` if there is none.
-   */
-  XmlNode get parent => _parent;
+abstract class XmlNode extends Object with XmlWritable, XmlParent {
 
   /**
    * Return the attribute nodes of this node.
@@ -31,12 +24,6 @@ abstract class XmlNode extends Object with XmlWritable {
    * Return the node type of this node.
    */
   XmlNodeType get nodeType;
-
-  /**
-   * Return the root of the tree in which this node is found, whether that's
-   * a document or another element.
-   */
-  XmlNode get root => parent == null ? this : parent.root;
 
   /**
    * Return the document that contains this node, or `null` if the node is

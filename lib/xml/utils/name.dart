@@ -3,7 +3,7 @@ part of xml;
 /**
  * XML entity name.
  */
-class XmlName extends Object with XmlWritable {
+class XmlName extends Object with XmlWritable, XmlParent {
 
   static const _SEPARATOR = ':';
   static const _WILDCARD = '*';
