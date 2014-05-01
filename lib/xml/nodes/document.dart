@@ -3,7 +3,7 @@ part of xml;
 /**
  * XML document node.
  */
-class XmlDocument extends XmlParent {
+class XmlDocument extends XmlBranch {
 
   /**
    * Create a document node with [children].

@@ -3,7 +3,7 @@ part of xml;
 /**
  * XML element node.
  */
-class XmlElement extends XmlParent {
+class XmlElement extends XmlBranch {
 
   /**
    * Return the name of the element.

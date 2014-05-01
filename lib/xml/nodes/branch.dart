@@ -3,7 +3,7 @@ part of xml;
 /**
  * Abstract XML node with actual children.
  */
-abstract class XmlParent extends XmlNode {
+abstract class XmlBranch extends XmlNode {
 
   @override
   final List<XmlNode> children;
@@ -11,7 +11,7 @@ abstract class XmlParent extends XmlNode {
   /**
    * Create a node with a list of [children].
    */
-  XmlParent(Iterable<XmlNode> children): children = children.toList(growable: false) {
+  XmlBranch(Iterable<XmlNode> children): children = children.toList(growable: false) {
     for (var child in children) {
       child._parent = this;
     }
