@@ -46,9 +46,9 @@ To read XML input use the top-level function `parse(String input)`:
 
 The resulting object is an instance of `XmlDocument`. In case the document cannot be parsed, a `ParseError` is thrown.
 
-To write back the parsed XML document simply call `toString()`:
+To write back the parsed XML document simply call `toXml()`:
 
-    print(document.toString());
+    print(document.toXml());
 
 ### Traversing and Querying
 

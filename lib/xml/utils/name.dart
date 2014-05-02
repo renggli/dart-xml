@@ -61,6 +61,9 @@ class XmlName extends Object with XmlWritable, XmlParent {
   int get hashCode => qualified.hashCode;
 
   @override
+  String toString() => '${super.toString()}: ${toXml()}';
+
+  @override
   bool operator ==(other) {
     return other is XmlName && other.qualified == qualified;
   }

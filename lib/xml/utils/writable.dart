@@ -10,8 +10,10 @@ abstract class XmlWritable {
    */
   void writeTo(StringBuffer buffer);
 
-  @override
-  String toString() {
+  /**
+   * Returns an XML string of this object.
+   */
+  String toXml() {
     var buffer = new StringBuffer();
     writeTo(buffer);
     return buffer.toString();
