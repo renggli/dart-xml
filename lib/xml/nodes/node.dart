@@ -78,10 +78,4 @@ abstract class XmlNode extends Object with XmlWritable, XmlParent {
     return null;
   }
 
-  /**
-   * Returns a debug string for this node.
-   */
-  @override
-  String toString() => '${super.toString()}: ${toXml()}';
-
 }

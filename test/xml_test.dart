@@ -8,8 +8,8 @@ import 'xml_examples.dart';
 void validate(String input) {
   var tree = parse(input);
   assertTreeInvariants(tree);
-  var copy = parse(tree.toXml());
-  expect(tree.toXml(), copy.toXml());
+  var copy = parse(tree.toString());
+  expect(tree.toString(), copy.toString());
 }
 
 void assertTreeInvariants(XmlNode xml) {
@@ -88,7 +88,7 @@ void assertQualifiedInvariant(XmlName name) {
   if (name.prefix != null) {
     expect(name.qualified, startsWith(name.prefix));
   }
-  expect(name.qualified, name.toXml());
+  expect(name.qualified, name.toString());
 }
 
 void assertAttributeInvariant(XmlNode xml) {
@@ -185,7 +185,7 @@ void main() {
       expect(node.iterable, hasLength(1));
       expect(node.text, 'Am I or are the other crazy?');
       expect(node.nodeType, XmlNodeType.ELEMENT);
-      expect(node.toXml(), '<ns:data>Am I or are the other crazy?</ns:data>');
+      expect(node.toString(), '<ns:data>Am I or are the other crazy?</ns:data>');
     });
     test('attribute', () {
       XmlDocument document = parse('<data ns:attr="Am I or are the other crazy?" />');
@@ -200,13 +200,13 @@ void main() {
       expect(node.iterable, isEmpty);
       expect(node.text, isEmpty);
       expect(node.nodeType, XmlNodeType.ATTRIBUTE);
-      expect(node.toXml(), 'ns:attr="Am I or are the other crazy?"');
+      expect(node.toString(), 'ns:attr="Am I or are the other crazy?"');
     });
     test('attribute (character references)', () {
       XmlDocument document = parse('<data ns:attr="&lt;&gt;&amp;&apos;&quot;" />');
       XmlAttribute node = document.rootElement.attributes.single;
       expect(node.value, '<>&\'"');
-      expect(node.toXml(), 'ns:attr="<>&\'&quot;"');
+      expect(node.toString(), 'ns:attr="<>&\'&quot;"');
     });
     test('text', () {
       XmlDocument document = parse('<data>Am I or are the other crazy?</data>');
@@ -219,13 +219,13 @@ void main() {
       expect(node.children, isEmpty);
       expect(node.iterable, isEmpty);
       expect(node.nodeType, XmlNodeType.TEXT);
-      expect(node.toXml(), 'Am I or are the other crazy?');
+      expect(node.toString(), 'Am I or are the other crazy?');
     });
     test('text (character references)', () {
       XmlDocument document = parse('<data>&lt;&gt;&amp;&apos;&quot;</data>');
       XmlText node = document.rootElement.children.single;
       expect(node.text, '<>&\'"');
-      expect(node.toXml(), '&lt;>&amp;\'"');
+      expect(node.toString(), '&lt;>&amp;\'"');
     });
     test('text (nested)', () {
       XmlDocument root = parse('<p>Am <i>I</i> or are the <b>other</b><!-- very --> crazy?</p>');
@@ -242,7 +242,7 @@ void main() {
       expect(node.attributes, isEmpty);
       expect(node.children, isEmpty);
       expect(node.nodeType, XmlNodeType.CDATA);
-      expect(node.toXml(), '<![CDATA[Methinks <word> it <word> is like a weasel!]]>');
+      expect(node.toString(), '<![CDATA[Methinks <word> it <word> is like a weasel!]]>');
       expect(node.iterable, isEmpty);
     });
     test('processing', () {
@@ -256,7 +256,7 @@ void main() {
       expect(node.attributes, isEmpty);
       expect(node.children, isEmpty);
       expect(node.nodeType, XmlNodeType.PROCESSING);
-      expect(node.toXml(), '<?xml version="1.0"?>');
+      expect(node.toString(), '<?xml version="1.0"?>');
       expect(node.iterable, isEmpty);
     });
     test('comment', () {
@@ -270,7 +270,7 @@ void main() {
       expect(node.iterable, isEmpty);
       expect(node.text, 'Am I or are the other crazy?');
       expect(node.nodeType, XmlNodeType.COMMENT);
-      expect(node.toXml(), '<!--Am I or are the other crazy?-->');
+      expect(node.toString(), '<!--Am I or are the other crazy?-->');
     });
     test('document', () {
       XmlDocument document = parse('<data />');
@@ -283,7 +283,7 @@ void main() {
       expect(node.iterable, hasLength(1));
       expect(node.text, isNull);
       expect(node.nodeType, XmlNodeType.DOCUMENT);
-      expect(node.toXml(), '<data />');
+      expect(node.toString(), '<data />');
     });
     test('document type', () {
       XmlDocument document = parse('<!DOCTYPE html [<!-- internal subset -->]><data />');
@@ -295,14 +295,14 @@ void main() {
       expect(node.iterable, isEmpty);
       expect(node.text, 'html [<!-- internal subset -->]');
       expect(node.nodeType, XmlNodeType.DOCUMENT_TYPE);
-      expect(node.toXml(), '<!DOCTYPE html [<!-- internal subset -->]>');
+      expect(node.toString(), '<!DOCTYPE html [<!-- internal subset -->]>');
     });
   });
   group('entities', () {
     String decode(String input) => parse('<data>$input</data>').rootElement.text;
-    String encodeText(String input) => new XmlText(input).toXml();
+    String encodeText(String input) => new XmlText(input).toString();
     String encodeAttributeValue(String input) {
-      var attribute = new XmlAttribute(new XmlName('a'), input).toXml();
+      var attribute = new XmlAttribute(new XmlName('a'), input).toString();
       return attribute.substring(3, attribute.length - 1);
     }
     test('decode &#xHHHH;', () {
