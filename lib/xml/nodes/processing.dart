@@ -11,7 +11,7 @@ class XmlProcessing extends XmlData {
   final String target;
 
   /**
-   * Create a processing node with [target] and [text].
+   * Create a processing node with `target` and `text`.
    */
   XmlProcessing(this.target, String text): super(text);
 

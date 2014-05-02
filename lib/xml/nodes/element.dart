@@ -14,7 +14,7 @@ class XmlElement extends XmlBranch {
   final List<XmlAttribute> attributes;
 
   /**
-   * Create an [XmlElement] with the given [name], [attributes], and [children].
+   * Create an [XmlElement] with the given `name`, `attributes`, and `children`.
    */
   XmlElement(XmlName name, Iterable<XmlAttribute> attributes, Iterable<XmlNode> children)
       : super(children), name = name,
@@ -26,7 +26,7 @@ class XmlElement extends XmlBranch {
   }
 
   /**
-   * Return the attribute value with the given [name].
+   * Return the attribute value with the given `name`.
    */
   String getAttribute(name, {String namespace}) {
     var attribute = getAttributeNode(name, namespace: namespace);
@@ -34,7 +34,7 @@ class XmlElement extends XmlBranch {
   }
 
   /**
-   * Return the attribute node with the given [name].
+   * Return the attribute node with the given `name`.
    */
   XmlAttribute getAttributeNode(String name, {String namespace}) {
     var query = new XmlName._forQuery(name, namespace);

@@ -9,7 +9,7 @@ class XmlName extends Object with XmlWritable, XmlParent {
   static const _WILDCARD = '*';
 
   /**
-   * Return the namespace prefix, or [null].
+   * Return the namespace prefix, or `null`.
    */
   final String prefix;
 
@@ -24,7 +24,7 @@ class XmlName extends Object with XmlWritable, XmlParent {
   final String qualified;
 
   /**
-   * Create a qualified [XmlName] from a given [name].
+   * Create a qualified [XmlName] from a given `name`.
    */
   factory XmlName(String name) {
     var index = name.indexOf(_SEPARATOR);
@@ -38,7 +38,7 @@ class XmlName extends Object with XmlWritable, XmlParent {
   }
 
   /**
-   * Create a qualified [XmlName] with a [name] and a possible [namespace].
+   * Create a qualified [XmlName] with a `name` and a possible `namespace`.
    */
   factory XmlName._forQuery(String name, [String namespace]) {
     if (namespace == null) {

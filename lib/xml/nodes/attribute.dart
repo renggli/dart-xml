@@ -16,7 +16,7 @@ class XmlAttribute extends XmlNode {
   final String value;
 
   /**
-   * Create an attribute with [name] and [value].
+   * Create an attribute with `name` and `value`.
    */
   XmlAttribute(this.name, this.value) {
     name._parent = this;

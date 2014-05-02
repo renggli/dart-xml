@@ -6,7 +6,7 @@ part of xml;
 class XmlDoctype extends XmlData {
 
   /**
-   * Create a doctype section with [text].
+   * Create a doctype section with `text`.
    */
   XmlDoctype(String text): super(text);
 

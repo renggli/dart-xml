@@ -6,7 +6,7 @@ part of xml;
 class XmlDocument extends XmlBranch {
 
   /**
-   * Create a document node with [children].
+   * Create a document node with `children`.
    */
   XmlDocument(Iterable<XmlNode> children): super(children);
 

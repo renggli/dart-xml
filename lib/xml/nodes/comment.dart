@@ -6,7 +6,7 @@ part of xml;
 class XmlComment extends XmlData {
 
   /**
-   * Create a comment section with [text].
+   * Create a comment section with `text`.
    */
   XmlComment(String text): super(text);
 

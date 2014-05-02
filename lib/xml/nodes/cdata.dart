@@ -6,7 +6,7 @@ part of xml;
 class XmlCDATA extends XmlData {
 
   /**
-   * Create a CDATA section with [text].
+   * Create a CDATA section with `text`.
    */
   XmlCDATA(String text): super(text);
 

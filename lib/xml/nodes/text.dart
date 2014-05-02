@@ -6,7 +6,7 @@ part of xml;
 class XmlText extends XmlData {
 
   /**
-   * Create a text node with [text].
+   * Create a text node with `text`.
    */
   XmlText(String text): super(text);
 

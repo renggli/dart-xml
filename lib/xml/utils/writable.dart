@@ -6,7 +6,7 @@ part of xml;
 abstract class XmlWritable {
 
   /**
-   * Write the this object to a [buffer].
+   * Write the this object to a `buffer`.
    */
   void writeTo(StringBuffer buffer);
 
