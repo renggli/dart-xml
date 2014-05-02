@@ -7,6 +7,7 @@ class XmlName extends Object with XmlWritable, XmlParent {
 
   static const _SEPARATOR = ':';
   static const _WILDCARD = '*';
+  static const _NAMESPACE = 'xmlns';
 
   /**
    * Return the namespace prefix, or `null`.
@@ -53,6 +54,23 @@ class XmlName extends Object with XmlWritable, XmlParent {
   }
 
   XmlName._(this.qualified, this.prefix, this.local);
+
+  /**
+   * Looks up the namespace URI of this name, or `null` if not present.
+   */
+  String get namespaceURI {
+    var node = parent;
+    while (node != null) {
+      for (var attribute in node.attributes) {
+        if ((attribute.name.local == _NAMESPACE && attribute.name.prefix == null && prefix == null)
+            || (attribute.name.prefix == _NAMESPACE && attribute.name.local == prefix)) {
+          return attribute.value;
+        }
+      }
+      node = node.parent;
+    }
+    return null;
+  }
 
   @override
   void writeTo(StringBuffer buffer) => buffer.write(qualified);
