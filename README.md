@@ -52,12 +52,26 @@ To write back the parsed XML document simply call `toString()`:
 
 ### Traversing and Querying
 
-Accessors allow to access all nodes in the XML tree:
+Accessors allow to access nodes in the XML tree:
 
 - `attributes` returns an iterable over the attributes of the current node.
-- `children` returns an iterable over the direct children of the current node.
+- `children` returns an iterable over the children of the current node.
 
-There are helpers to find elements with a specific tag:
+There are various methods to traverse the XML tree along its axes:
+
+- `preceding` returns an iterable over nodes preceding the opening tag of the current node in document order.
+- `descendants` returns an iterable over the descendants of the current node in document order. This includes the attributes of the current node, its children, the grandchildren, and so on.
+- `following` the nodes following the closing tag of the current node in document order.
+- `ancestors` returns an iterable over the ancestor nodes of the current node, that is the parent, the grandparent, and so on. Note that this is the only iterable that traverses nodes in reverse document order.
+
+For example, the `descendants` iterator could be used to extract all textual contents from an XML tree:
+
+    var textual = document.descendants
+        .where((node) => node is XmlText && !node.text.trim().isEmpty)
+        .join('\n');
+    print(textual);
+
+Additionally, there are helpers to find elements with a specific tag:
 
 - `findElements(String name)` finds direct children of the current node with the provided tag `name`.
 - `findAllElements(String name)` finds direct and indirect children of the current node with the provided tag `name`.
@@ -83,18 +97,6 @@ Similary, to compute the total price of all the books one could write the follow
 
 Note that this first find all the books, and then extracts the price to avoid counting the price tag that is included in the bookshelf.
 
-Finally, there is the `all` iterator:
-
-- `iterable` returns an iterable over the complete sub-tree of the current node in document order. This includes the attributes of the current node, its children, the children of its children, and so on. 
-
-This could for example be used to extract all textual contents from the XML tree:
-
-    var textual = document.iterable
-        .where((node) => node is XmlText && !node.text.trim().isEmpty)
-        .join('\n');
-    print(textual);
-
-
 Misc
 ----
 
@@ -106,7 +108,7 @@ Misc
 
 ### Limitations
 
-- Doesn't resolve and validate namespace declarations and usage.
+- Doesn't validate namespace declarations.
 - Doesn't validate schema declarations.
 - Doesn't parse and enforce DTD.
 

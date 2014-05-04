@@ -17,8 +17,36 @@ abstract class XmlNode extends Object with XmlWritable, XmlParent {
 
   /**
    * Return an iterable over the sub-tree below this node.
+   *
+   * This method is deprecated and will soon be removed, instead use the
+   * more descriptive [descendants] iterator.
    */
-  Iterable<XmlNode> get iterable => new XmlNodeIterable(this);
+  @deprecated
+  Iterable<XmlNode> get iterable => descendants;
+
+  /**
+   * Return an interable of the nodes preceding the opening tag of this node
+   * in document order.
+   */
+  Iterable<XmlNode> get preceding => new _XmlPrecedingIterable(this);
+
+  /**
+   * Return an iterable over the descendants of this node (children, grandchildren,
+   * ...) in document order.
+   */
+  Iterable<XmlNode> get descendants => new _XmlDescendantsIterable(this);
+
+  /**
+   * Return an iterable of the nodes following the closing tag of this node
+   * in document order.
+   */
+  Iterable<XmlNode> get following => new _XmlFollowingIterable(this);
+
+  /**
+   * Return an iterable over the ancestors of this node (parent, grandparent,
+   * ...) in reverse document order.
+   */
+  Iterable<XmlNode> get ancestors => new _XmlAncestorsIterable(this);
 
   /**
    * Return the node type of this node.
@@ -45,7 +73,7 @@ abstract class XmlNode extends Object with XmlWritable, XmlParent {
    * Return the text contents of this node and all its descendents.
    */
   String get text {
-    return iterable.where((node) => node is XmlText).map((node) => node.text).join();
+    return descendants.where((node) => node is XmlText).map((node) => node.text).join();
   }
 
   /**

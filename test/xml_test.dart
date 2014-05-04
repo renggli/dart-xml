@@ -20,11 +20,12 @@ void assertTreeInvariants(XmlNode xml) {
   assertNameInvariant(xml);
   assertAttributeInvariant(xml);
   assertTextInvariant(xml);
+  assertIteratorInvariants(xml);
 }
 
 void assertDocumentInvariant(XmlNode xml) {
   var root = xml.root;
-  for (var child in xml.iterable) {
+  for (var child in xml.descendants) {
     expect(root, same(child.root));
     expect(root, same(child.document));
   }
@@ -36,7 +37,7 @@ void assertDocumentInvariant(XmlNode xml) {
 }
 
 void assertParentInvariant(XmlNode xml) {
-  for (var node in xml.iterable) {
+  for (var node in xml.descendants) {
     expect(node.parent, node is XmlDocument ? isNull : isNotNull);
     for (var child in node.children) {
       expect(child.parent, same(node));
@@ -48,7 +49,7 @@ void assertParentInvariant(XmlNode xml) {
 }
 
 void assertForwardInvariant(XmlNode xml) {
-  for (var node in xml.iterable) {
+  for (var node in xml.descendants) {
     var current = node.firstChild;
     for (var i = 0; i < node.children.length; i++) {
       expect(node.children[i], same(current));
@@ -59,7 +60,7 @@ void assertForwardInvariant(XmlNode xml) {
 }
 
 void assertBackwardInvariant(XmlNode xml) {
-  for (var node in xml.iterable) {
+  for (var node in xml.descendants) {
     var current = node.lastChild;
     for (var i = node.children.length - 1; i >= 0; i--) {
       expect(node.children[i], same(current));
@@ -70,7 +71,7 @@ void assertBackwardInvariant(XmlNode xml) {
 }
 
 void assertNameInvariant(XmlNode xml) {
-  for (var node in xml.iterable) {
+  for (var node in xml.descendants) {
     if (node is XmlElement) {
       var element = node;
       assertQualifiedInvariant(element.name);
@@ -92,7 +93,7 @@ void assertQualifiedInvariant(XmlName name) {
 }
 
 void assertAttributeInvariant(XmlNode xml) {
-  for (var node in xml.iterable) {
+  for (var node in xml.descendants) {
     if (node is XmlElement) {
       var element = node;
       for (var attribute in element.attributes) {
@@ -108,7 +109,7 @@ void assertAttributeInvariant(XmlNode xml) {
 }
 
 void assertTextInvariant(XmlNode xml) {
-  for (var node in xml.iterable) {
+  for (var node in xml.descendants) {
     if (node is XmlDocument) {
       expect(node.text, isNull);
     } else {
@@ -117,25 +118,36 @@ void assertTextInvariant(XmlNode xml) {
   }
 }
 
+void assertIteratorInvariants(XmlNode xml) {
+  var ancestors = new List();
+  void check(XmlNode node) {
+    var all_axis = [node.preceding, [node], node.descendants, node.following]
+        .expand((each) => each);
+    var all_root = [[node.root], node.root.descendants]
+        .expand((each) => each);
+    expect(all_axis, all_root, reason: 'All preceding nodes, the node, all decendant '
+        'nodes, and all following nodes should be equal to all nodes in the tree.');
+    expect(node.ancestors, ancestors.reversed);
+    ancestors.add(node);
+    node.attributes.forEach((each) => check(each));
+    node.children.forEach((each) => check(each));
+    ancestors.removeLast();
+  }
+  check(xml);
+}
+
 void main() {
   group('parsing', () {
     test('comment', () {
-      validate('<?xml version="1.0" encoding="UTF-8"?>'
-          '<schema><!-- comment --></schema>');
+      validate('<?xml version="1.0" encoding="UTF-8"?>' '<schema><!-- comment --></schema>');
     });
     test('comment with xml', () {
-      validate('<?xml version="1.0" encoding="UTF-8"?>'
-          '<schema><!-- <foo></foo> --></schema>');
+      validate('<?xml version="1.0" encoding="UTF-8"?>' '<schema><!-- <foo></foo> --></schema>');
     });
     test('complicated', () {
-      validate('<?xml foo?>\n'
-          '<!DOCTYPE [ something ]>\n'
-          '<ns:foo attr="not namespaced" n1:ans="namespaced 1" n2:ans="namespace 2" >\n'
-          '  <element/>\n'
-          '  <ns:element/>\n'
-          '  <!-- comment -->\n'
-          '  <![CDATA[cdata]]>\n'
-          '  <?processing instruction?>\n'
+      validate('<?xml foo?>\n' '<!DOCTYPE [ something ]>\n'
+          '<ns:foo attr="not namespaced" n1:ans="namespaced 1" n2:ans="namespace 2" >\n' '  <element/>\n'
+          '  <ns:element/>\n' '  <!-- comment -->\n' '  <![CDATA[cdata]]>\n' '  <?processing instruction?>\n'
           '</ns:foo>');
     });
     test('doctype', () {
@@ -182,7 +194,7 @@ void main() {
       expect(node.document, same(document));
       expect(node.attributes, isEmpty);
       expect(node.children, hasLength(1));
-      expect(node.iterable, hasLength(1));
+      expect(node.descendants, hasLength(1));
       expect(node.text, 'Am I or are the other crazy?');
       expect(node.nodeType, XmlNodeType.ELEMENT);
       expect(node.toString(), '<ns:data>Am I or are the other crazy?</ns:data>');
@@ -197,7 +209,7 @@ void main() {
       expect(node.document, same(document));
       expect(node.attributes, isEmpty);
       expect(node.children, isEmpty);
-      expect(node.iterable, isEmpty);
+      expect(node.descendants, isEmpty);
       expect(node.text, isEmpty);
       expect(node.nodeType, XmlNodeType.ATTRIBUTE);
       expect(node.toString(), 'ns:attr="Am I or are the other crazy?"');
@@ -217,7 +229,7 @@ void main() {
       expect(node.document, same(document));
       expect(node.attributes, isEmpty);
       expect(node.children, isEmpty);
-      expect(node.iterable, isEmpty);
+      expect(node.descendants, isEmpty);
       expect(node.nodeType, XmlNodeType.TEXT);
       expect(node.toString(), 'Am I or are the other crazy?');
     });
@@ -243,7 +255,7 @@ void main() {
       expect(node.children, isEmpty);
       expect(node.nodeType, XmlNodeType.CDATA);
       expect(node.toString(), '<![CDATA[Methinks <word> it <word> is like a weasel!]]>');
-      expect(node.iterable, isEmpty);
+      expect(node.descendants, isEmpty);
     });
     test('processing', () {
       XmlDocument document = parse('<?xml version="1.0"?><data/>');
@@ -257,7 +269,7 @@ void main() {
       expect(node.children, isEmpty);
       expect(node.nodeType, XmlNodeType.PROCESSING);
       expect(node.toString(), '<?xml version="1.0"?>');
-      expect(node.iterable, isEmpty);
+      expect(node.descendants, isEmpty);
     });
     test('comment', () {
       XmlDocument document = parse('<data><!--Am I or are the other crazy?--></data>');
@@ -267,7 +279,7 @@ void main() {
       expect(node.document, same(document));
       expect(node.attributes, isEmpty);
       expect(node.children, isEmpty);
-      expect(node.iterable, isEmpty);
+      expect(node.descendants, isEmpty);
       expect(node.text, 'Am I or are the other crazy?');
       expect(node.nodeType, XmlNodeType.COMMENT);
       expect(node.toString(), '<!--Am I or are the other crazy?-->');
@@ -280,7 +292,7 @@ void main() {
       expect(node.document, same(document));
       expect(node.attributes, isEmpty);
       expect(node.children, hasLength(1));
-      expect(node.iterable, hasLength(1));
+      expect(node.descendants, hasLength(1));
       expect(node.text, isNull);
       expect(node.nodeType, XmlNodeType.DOCUMENT);
       expect(node.toString(), '<data />');
@@ -292,7 +304,7 @@ void main() {
       expect(node.document, same(document));
       expect(node.attributes, isEmpty);
       expect(node.children, isEmpty);
-      expect(node.iterable, isEmpty);
+      expect(node.descendants, isEmpty);
       expect(node.text, 'html [<!-- internal subset -->]');
       expect(node.nodeType, XmlNodeType.DOCUMENT_TYPE);
       expect(node.toString(), '<!DOCTYPE html [<!-- internal subset -->]>');
@@ -334,18 +346,108 @@ void main() {
       expect(encodeAttributeValue('"hello"'), '&quot;hello&quot;');
     });
   });
+  group('axis', () {
+    var bookXml = '<book><title lang="en" price="12.00">XML</title><description/></book>';
+    var book = parse(bookXml);
+    test('ancestors', () {
+      expect(book.ancestors, []);
+      expect(book.children[0].ancestors, [
+          book]);
+      expect(book.children[0].children[0].ancestors, [
+          book.children[0],
+          book]);
+      expect(book.children[0].children[0].attributes[0].ancestors, [
+          book.children[0].children[0],
+          book.children[0],
+          book]);
+      expect(book.children[0].children[0].attributes[1].ancestors, [
+          book.children[0].children[0],
+          book.children[0],
+          book]);
+      expect(book.children[0].children[0].children[0].ancestors, [
+          book.children[0].children[0],
+          book.children[0],
+          book]);
+      expect(book.children[0].children[1].ancestors, [
+          book.children[0],
+          book]);
+    });
+    test('preceding', () {
+      expect(book.preceding, []);
+      expect(book.children[0].preceding, [
+          book]);
+      expect(book.children[0].children[0].preceding, [
+          book,
+          book.children[0]]);
+      expect(book.children[0].children[0].attributes[0].preceding, [
+          book,
+          book.children[0],
+          book.children[0].children[0]]);
+      expect(book.children[0].children[0].attributes[1].preceding, [
+          book,
+          book.children[0],
+          book.children[0].children[0],
+          book.children[0].children[0].attributes[0]]);
+      expect(book.children[0].children[0].children[0].preceding, [
+          book,
+          book.children[0],
+          book.children[0].children[0],
+          book.children[0].children[0].attributes[0],
+          book.children[0].children[0].attributes[1]]);
+      expect(book.children[0].children[1].preceding, [
+          book,
+          book.children[0],
+          book.children[0].children[0],
+          book.children[0].children[0].attributes[0],
+          book.children[0].children[0].attributes[1],
+          book.children[0].children[0].children[0]]);
+    });
+    test('descendants', () {
+      expect(book.descendants, [
+          book.children[0],
+          book.children[0].children[0],
+          book.children[0].children[0].attributes[0],
+          book.children[0].children[0].attributes[1],
+          book.children[0].children[0].children[0],
+          book.children[0].children[1]]);
+      expect(book.children[0].descendants, [
+          book.children[0].children[0],
+          book.children[0].children[0].attributes[0],
+          book.children[0].children[0].attributes[1],
+          book.children[0].children[0].children[0],
+          book.children[0].children[1]]);
+      expect(book.children[0].children[0].descendants, [
+          book.children[0].children[0].attributes[0],
+          book.children[0].children[0].attributes[1],
+          book.children[0].children[0].children[0]]);
+      expect(book.children[0].children[0].attributes[0].descendants, []);
+      expect(book.children[0].children[0].attributes[1].descendants, []);
+      expect(book.children[0].children[0].children[0].descendants, []);
+      expect(book.children[0].children[1].descendants, []);
+    });
+    test('following', () {
+      expect(book.following, []);
+      expect(book.children[0].following, []);
+      expect(book.children[0].children[0].following, [
+          book.children[0].children[1]]);
+      expect(book.children[0].children[0].attributes[0].following, [
+          book.children[0].children[0].attributes[1],
+          book.children[0].children[0].children[0],
+          book.children[0].children[1]]);
+      expect(book.children[0].children[0].attributes[1].following, [
+          book.children[0].children[0].children[0],
+          book.children[0].children[1]]);
+      expect(book.children[0].children[0].children[0].following, [
+          book.children[0].children[1]]);
+      expect(book.children[0].children[1].following, []);
+    });
+  });
   group('querying', () {
     var bookstore = parse(bookstoreXml);
     var shiporder = parse(shiporderXsd);
-    test('iterator', () {
-      expect(bookstore.iterable, hasLength(23));
-      expect(shiporder.iterable, hasLength(145));
-    });
-    test('iterator order', () {
-      var root = parse('<p><a href="foo" target="bar">text</a><br/></p>');
-      expect(root.iterable, orderedEquals([root.children[0], root.children[0].children[0],
-          root.children[0].children[0].attributes[0], root.children[0].children[0].attributes[1],
-          root.children[0].children[0].children[0], root.children[0].children[1]]));
+    test('find element counts', () {
+      expect(bookstore.descendants, hasLength(23));
+      expect(shiporder.descendants, hasLength(145));
     });
     test('find elements with plain name', () {
       var elements = shiporder.rootElement.findElements('element');

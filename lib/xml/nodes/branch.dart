@@ -28,7 +28,7 @@ abstract class XmlBranch extends XmlNode {
    * Return the _recursive_ child elements with the specified tag `name`.
    */
   Iterable<XmlElement> findAllElements(String name, {String namespace}) {
-    return _filterElements(iterable, name, namespace);
+    return _filterElements(descendants, name, namespace);
   }
 
   Iterable<XmlElement> _filterElements(Iterable<XmlNode> iterable, String name, String namespace) {

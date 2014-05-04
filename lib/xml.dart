@@ -8,6 +8,11 @@ import 'dart:collection';
 
 import 'package:petitparser/petitparser.dart';
 
+part 'xml/iterators/ancestors.dart';
+part 'xml/iterators/descendants.dart';
+part 'xml/iterators/following.dart';
+part 'xml/iterators/preceding.dart';
+
 part 'xml/nodes/attribute.dart';
 part 'xml/nodes/branch.dart';
 part 'xml/nodes/cdata.dart';
@@ -21,7 +26,6 @@ part 'xml/nodes/processing.dart';
 part 'xml/nodes/text.dart';
 
 part 'xml/utils/entities.dart';
-part 'xml/utils/iterator.dart';
 part 'xml/utils/name.dart';
 part 'xml/utils/parent.dart';
 part 'xml/utils/type.dart';
