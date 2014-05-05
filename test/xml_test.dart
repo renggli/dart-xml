@@ -470,6 +470,34 @@ void main() {
       expect(elements.length, 37);
     });
   });
+  group('builder', () {
+    test('basic', () {
+      var builder = new XmlBuilder();
+      builder.processing('xml', 'encoding="UTF-8"');
+      builder.element('bookstore', () {
+        builder.comment('Only one book?');
+        builder.element('book', () {
+          builder.element('title', () {
+            builder.attribute('lang', 'en');
+            builder.text('Harry ');
+            builder.cdata('Potter');
+          });
+          builder.element('price', 29.99);
+        });
+      });
+      var actual = builder.build().toString();
+      var expected =
+          '<?xml encoding="UTF-8"?>'
+          '<bookstore>'
+            '<!--Only one book?-->'
+            '<book>'
+              '<title lang="en">Harry <![CDATA[Potter]]></title>'
+              '<price>29.99</price>'
+            '</book>'
+          '</bookstore>';
+      expect(actual, expected);
+    });
+  });
   group('examples', () {
     test('books', () {
       validate(booksXml);

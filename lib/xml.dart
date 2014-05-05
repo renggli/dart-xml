@@ -31,6 +31,7 @@ part 'xml/utils/parent.dart';
 part 'xml/utils/type.dart';
 part 'xml/utils/writable.dart';
 
+part 'xml/builder.dart';
 part 'xml/grammar.dart';
 part 'xml/parser.dart';
 
