@@ -32,9 +32,9 @@ abstract class XmlBranch extends XmlNode {
   }
 
   Iterable<XmlElement> _filterElements(Iterable<XmlNode> iterable, String name, String namespace) {
-    var query = new XmlName._forQuery(name, namespace);
+    var matcher = _createMatcher(name, namespace);
     return iterable
-        .where((node) => node is XmlElement && query.matches(node.name))
+        .where((node) => node is XmlElement && matcher(node))
         .map((node) => node as XmlElement);
   }
 

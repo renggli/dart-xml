@@ -35,10 +35,7 @@ class XmlElement extends XmlBranch implements XmlNamed {
    * Return the attribute node with the given `name`.
    */
   XmlAttribute getAttributeNode(String name, {String namespace}) {
-    var query = new XmlName._forQuery(name, namespace);
-    return attributes.firstWhere(
-        (node) => query.matches(node.name),
-        orElse: () => null);
+    return attributes.firstWhere(_createMatcher(name, namespace), orElse: () => null);
   }
 
   @override

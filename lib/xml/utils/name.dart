@@ -1,91 +1,126 @@
 part of xml;
 
+const _SEPARATOR = ':';
+
+const _XML = 'xml';
+const _XML_URI = 'http://www.w3.org/XML/1998/namespace';
+const _XMLNS = 'xmlns';
+
+
 /**
  * XML entity name.
  */
-class XmlName extends Object with XmlWritable, XmlParent {
-
-  static const _SEPARATOR = ':';
-  static const _WILDCARD = '*';
-  static const _NAMESPACE = 'xmlns';
+abstract class XmlName extends Object with XmlWritable, XmlParent {
 
   /**
    * Return the namespace prefix, or `null`.
    */
-  final String prefix;
+  String get prefix;
 
   /**
    * Return the local name, excluding the namespace prefix.
    */
-  final String local;
+  String get local;
 
   /**
-   * Return the fully qualified name, including the namespace if defined.
+   * Return the fully qualified name, including the namespace prefix.
    */
-  final String qualified;
+  String get qualified;
 
   /**
-   * Create a qualified [XmlName] from a given `name`.
+   * Return the namespace URI, or `null`.
    */
-  factory XmlName(String name) {
+  String get namespaceUri;
+
+  /**
+   * Creates a qualified [XmlName] from a `local` name and an optional `prefix`.
+   */
+  factory XmlName(String local, [String prefix]) {
+    return prefix == null || prefix.isEmpty
+        ? new _XmlSimpleName(local)
+        : new _XmlPrefixName('$prefix$_SEPARATOR$local', local, prefix);
+  }
+
+  /**
+   * Create a [XmlName] by parsing the provided `name`.
+   */
+  factory XmlName.fromString(String name) {
     var index = name.indexOf(_SEPARATOR);
-    if (index < 0) {
-      return new XmlName._(name, null, name);
-    } else {
+    if (index > 0) {
       var prefix = name.substring(0, index);
       var local = name.substring(index + 1, name.length);
-      return new XmlName._(name, prefix, local);
-    }
-  }
-
-  /**
-   * Create a qualified [XmlName] with a `name` and a possible `namespace`.
-   */
-  factory XmlName._forQuery(String name, [String namespace]) {
-    if (namespace == null) {
-      if (name.indexOf(_SEPARATOR) < 0) {
-        return new XmlName._('$_WILDCARD$_SEPARATOR$name', _WILDCARD, name);
-      } else {
-        return new XmlName(name);
-      }
+      return new _XmlPrefixName(prefix, local, name);
     } else {
-      return new XmlName._('$namespace$_SEPARATOR$name', namespace, name);
+      return new _XmlSimpleName(name);
     }
   }
-
-  XmlName._(this.qualified, this.prefix, this.local);
 
   /**
-   * Looks up the namespace URI of this name, or `null` if not present.
+   * Private constructor.
    */
-  String get namespaceURI {
-    var node = parent;
-    while (node != null) {
-      for (var attribute in node.attributes) {
-        if ((attribute.name.local == _NAMESPACE && attribute.name.prefix == null && prefix == null)
-            || (attribute.name.prefix == _NAMESPACE && attribute.name.local == prefix)) {
-          return attribute.value;
-        }
-      }
-      node = node.parent;
-    }
-    return null;
-  }
+  XmlName._();
 
   @override
   void writeTo(StringBuffer buffer) => buffer.write(qualified);
 
-  @override
-  int get hashCode => qualified.hashCode;
+}
+
+/**
+ * An XML entity name without a prefix.
+ */
+class _XmlSimpleName extends XmlName {
 
   @override
-  bool operator ==(other) {
-    return other is XmlName && other.qualified == qualified;
+  String get qualified => local;
+
+  @override
+  String get prefix => null;
+
+  @override
+  final String local;
+
+  _XmlSimpleName(this.local) : super._();
+
+  @override
+  String get namespaceUri {
+    for (var node = parent; node != null; node = node.parent) {
+      for (var attribute in node.attributes) {
+        if (attribute.name.prefix == null && attribute.name.local == _XMLNS) {
+          return attribute.value;
+        }
+      }
+    }
+    return null;
   }
 
-  bool matches(XmlName other) {
-    return (prefix == _WILDCARD || prefix == other.prefix) && (local == _WILDCARD || local ==
-        other.local);
+}
+
+/**
+ * An XML entity name with a prefix.
+ */
+class _XmlPrefixName extends XmlName {
+
+  @override
+  final String qualified;
+
+  @override
+  final String prefix;
+
+  @override
+  final String local;
+
+  _XmlPrefixName(this.qualified, this.prefix, this.local) : super._();
+
+  @override
+  String get namespaceUri {
+    for (var node = parent; node != null; node = node.parent) {
+      for (var attribute in node.attributes) {
+        if (attribute.name.prefix == _XMLNS && attribute.name.local == prefix) {
+          return attribute.value;
+        }
+      }
+    }
+    return null;
   }
 
 }
