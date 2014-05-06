@@ -38,28 +38,50 @@ class XmlBuilder {
   }
 
   /**
-   * Adds a [XmlElement] node with the provided tag `name` and `contents`.
+   * Adds a [XmlElement] node with the provided tag `name`.
    *
-   * The `contents` is either a function definition child elements or any
-   * other object that will be converted to a string an added as text.
+   * The optional `contents` can be omitted, if the element has no attributes
+   * or children. It can either be a [Function] definition the child elements or
+   * a [String] that is added as text.
    */
-  void element(String name, contents) {
-    var parent = _current;
-    _current = new _XmlElementBuilder(name);
-    if (contents is Function) {
-      contents();
-    } else {
-      text(contents.toString());
+  void element(String name, {Object contents, String namespace}) {
+    var builder = new _XmlElementBuilder(_current);
+    _current = builder;
+    if (contents != null) {
+      if (contents is Function) {
+        contents();
+      } else {
+        text(contents.toString());
+      }
     }
-    parent.children.add(_current.build());
-    _current = parent;
+    builder.name = _buildName(name, namespace);
+    _current = builder.parent;
   }
 
   /**
    * Adds a [XmlAttribute] node with the provided `name` and `value`.
    */
-  void attribute(String name, String value) {
-    _current.attributes.add(new XmlAttribute(new XmlName(name), value));
+  void attribute(String name, String value, {String namespace}) {
+    _current.attributes.add(new XmlAttribute(_buildName(name, namespace), value));
+  }
+
+  /**
+   * Binds a namespace `prefix` to the provided `uri`. The `prefix` can be
+   * omitted to declare a default namespace. Throws an [ArgumentError] if
+   * the `prefix` conflicts with an existing delcaration.
+   */
+  void namespace(String uri, [String prefix]) {
+    if (prefix == _XMLNS || prefix == _XML) {
+      throw new ArgumentError('The "$prefix" prefix cannot be bound.');
+    }
+    if (_current.namespaces.containsValue(prefix)) {
+      throw new ArgumentError('The "$prefix" prefix conflicts with existing binding.');
+    }
+    var name = prefix == null || prefix.isEmpty
+        ? new XmlName(_XMLNS)
+        : new XmlName(prefix, _XMLNS);
+    _current.attributes.add(new XmlAttribute(name, uri));
+    _current.namespaces[uri] = prefix;
   }
 
   /**
@@ -67,21 +89,36 @@ class XmlBuilder {
    */
   XmlNode build() => _current.build();
 
+  /**
+   * Internal method to build a name.
+   */
+  XmlName _buildName(String name, String uri) {
+    return uri == null || uri.isEmpty
+        ? new XmlName.fromString(name)
+        : new XmlName(name, _current.lookupPrefix(uri));
+  }
+
 }
 
 abstract class _XmlNodeBuilder {
-
+  Map<String, String> get namespaces;
   List<XmlAttribute> get attributes;
   List<XmlNode> get children;
-
   XmlNode build();
-
+  String lookupPrefix(String uri);
 }
 
 class _XmlDocumentBuilder extends _XmlNodeBuilder {
 
   @override
-  List<XmlAttribute> get attributes => throw new ArgumentError();
+  Map<String, String> get namespaces {
+    throw new ArgumentError('Unable to define namespaces at the document level.');
+  }
+
+  @override
+  List<XmlAttribute> get attributes {
+    throw new ArgumentError('Unable to define attributes at the document level.');
+  }
 
   @override
   final List<XmlNode> children = new List();
@@ -89,17 +126,36 @@ class _XmlDocumentBuilder extends _XmlNodeBuilder {
   @override
   XmlNode build() => new XmlDocument(children);
 
+  @override
+  String lookupPrefix(String uri) {
+    return uri == _XML_URI ? _XML : throw new ArgumentError('Undefined namespace: $uri');
+  }
+
 }
 
 class _XmlElementBuilder extends _XmlNodeBuilder {
 
-  final String name;
-  final List<XmlAttribute> attributes = new List();
-  final List<XmlNode> children = new List();
-
-  _XmlElementBuilder(this.name);
+  @override
+  final Map<String, String> namespaces = new Map();
 
   @override
-  XmlNode build() => new XmlElement(new XmlName(name), attributes, children);
+  final List<XmlAttribute> attributes = new List();
+
+  @override
+  final List<XmlNode> children = new List();
+
+  final _XmlNodeBuilder parent;
+
+  XmlName name;
+
+  _XmlElementBuilder(this.parent);
+
+  @override
+  XmlNode build() => new XmlElement(name, attributes, children);
+
+  @override
+  String lookupPrefix(String uri) {
+    return namespaces.containsKey(uri) ? namespaces[uri] : parent.lookupPrefix(uri);
+  }
 
 }

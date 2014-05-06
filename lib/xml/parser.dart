@@ -16,7 +16,7 @@ class XmlParser extends XmlGrammar {
     action('document', (each) => new XmlDocument(each));
     action('element', (each) => new XmlElement(each[0], each[1], each[2]));
     action('processing', (each) => new XmlProcessing(each[0], each[1]));
-    action('qualified', (each) => new XmlName(each));
+    action('qualified', (each) => new XmlName.fromString(each));
     action('characterData', (each) => new XmlText(each));
   }
 

@@ -13,9 +13,14 @@ abstract class XmlNamed {
 }
 
 /**
- * Returns a function that matches [XmlNamed].
+ * Internal function type to match named elements.
  */
-Function _createMatcher(String name, String namespace) {
+typedef bool _XmlNamedMatcher(XmlNamed named);
+
+/**
+ * Internal constructor to create element matchers.
+ */
+_XmlNamedMatcher _createMatcher(String name, String namespace) {
 
   // matches the name part
   var name_matcher = null;
@@ -25,9 +30,7 @@ Function _createMatcher(String name, String namespace) {
 
   // matches the namespace part
   var namespace_matcher = null;
-  if (namespace == null) {
-    namespace_matcher = (XmlName name) => name.prefix == null;
-  } else if (name != '*') {
+  if (name != '*') {
     namespace_matcher = (XmlName name) => name.namespaceUri == namespace;
   }
 

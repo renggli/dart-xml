@@ -42,26 +42,31 @@ abstract class XmlName extends Object with XmlWritable, XmlParent {
   }
 
   /**
-   * Create a [XmlName] by parsing the provided `name`.
+   * Create a [XmlName] by parsing the provided `qualified` name.
    */
-  factory XmlName.fromString(String name) {
-    var index = name.indexOf(_SEPARATOR);
+  factory XmlName.fromString(String qualified) {
+    var index = qualified.indexOf(_SEPARATOR);
     if (index > 0) {
-      var prefix = name.substring(0, index);
-      var local = name.substring(index + 1, name.length);
-      return new _XmlPrefixName(prefix, local, name);
+      var prefix = qualified.substring(0, index);
+      var local = qualified.substring(index + 1, qualified.length);
+      return new _XmlPrefixName(qualified, prefix, local);
     } else {
-      return new _XmlSimpleName(name);
+      return new _XmlSimpleName(qualified);
     }
   }
 
-  /**
-   * Private constructor.
-   */
   XmlName._();
 
   @override
   void writeTo(StringBuffer buffer) => buffer.write(qualified);
+
+  @override
+  bool operator == (Object other) => other is XmlName
+      && other.local == local
+      && other.namespaceUri == namespaceUri;
+
+  @override
+  int get hashCode => local.hashCode;
 
 }
 

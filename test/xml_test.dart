@@ -319,7 +319,7 @@ void main() {
       List<XmlNode> nodes = new List.from(document.descendants)..add(document);
       nodes.forEach((node) {
         if (node is XmlAttribute || node is XmlElement) {
-          expect(node.name.namespaceURI, 'http://www.w3.org/1999/xhtml');
+          expect(node.name.namespaceUri, 'http://www.w3.org/1999/xhtml');
         }
       });
     });
@@ -331,7 +331,7 @@ void main() {
       List<XmlNode> nodes = new List.from(document.descendants)..add(document);
       nodes.forEach((node) {
         if ((node is XmlAttribute && node.name.prefix != 'xmlns') || (node is XmlElement)) {
-          expect(node.name.namespaceURI, 'http://www.w3.org/1999/xhtml');
+          expect(node.name.namespaceUri, 'http://www.w3.org/1999/xhtml');
         }
       });
     });
@@ -500,15 +500,16 @@ void main() {
     test('basic', () {
       var builder = new XmlBuilder();
       builder.processing('xml', 'encoding="UTF-8"');
-      builder.element('bookstore', () {
+      builder.element('bookstore', contents: () {
         builder.comment('Only one book?');
-        builder.element('book', () {
-          builder.element('title', () {
+        builder.element('book', contents: () {
+          builder.element('title', contents: () {
             builder.attribute('lang', 'en');
             builder.text('Harry ');
             builder.cdata('Potter');
           });
-          builder.element('price', 29.99);
+          builder.element('price', contents: 29.99);
+          builder.element('end');
         });
       });
       var actual = builder.build().toString();
@@ -520,6 +521,7 @@ void main() {
               '<title lang="en">Harry <![CDATA[Potter]]></title>'
               '<price>29.99</price>'
             '</book>'
+            '<end/>'
           '</bookstore>';
       expect(actual, expected);
     });
