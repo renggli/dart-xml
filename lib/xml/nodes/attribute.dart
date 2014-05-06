@@ -3,11 +3,9 @@ part of xml;
 /**
  * XML attribute node.
  */
-class XmlAttribute extends XmlNode {
+class XmlAttribute extends XmlNode implements XmlNamed {
 
-  /**
-   * Return the name of the attribute.
-   */
+  @override
   final XmlName name;
 
   /**

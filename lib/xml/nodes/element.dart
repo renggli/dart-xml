@@ -3,11 +3,9 @@ part of xml;
 /**
  * XML element node.
  */
-class XmlElement extends XmlBranch {
+class XmlElement extends XmlBranch implements XmlNamed {
 
-  /**
-   * Return the name of the element.
-   */
+  @override
   final XmlName name;
 
   @override

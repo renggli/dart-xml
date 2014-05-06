@@ -27,6 +27,7 @@ part 'xml/nodes/text.dart';
 
 part 'xml/utils/entities.dart';
 part 'xml/utils/name.dart';
+part 'xml/utils/named.dart';
 part 'xml/utils/parent.dart';
 part 'xml/utils/type.dart';
 part 'xml/utils/writable.dart';
