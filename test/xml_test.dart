@@ -310,6 +310,32 @@ void main() {
       expect(node.toString(), '<!DOCTYPE html [<!-- internal subset -->]>');
     });
   });
+  group('namespaces', () {
+    test('default namespace', () {
+      XmlDocument document = parse(
+          '<html xmlns="http://www.w3.org/1999/xhtml">'
+          '  <body lang="en"/>'
+          '</html>');
+      List<XmlNode> nodes = new List.from(document.descendants)..add(document);
+      nodes.forEach((node) {
+        if (node is XmlAttribute || node is XmlElement) {
+          expect(node.name.namespaceURI, 'http://www.w3.org/1999/xhtml');
+        }
+      });
+    });
+    test('prefix namespace', () {
+      XmlDocument document = parse(
+          '<xhtml:html xmlns:xhtml="http://www.w3.org/1999/xhtml">'
+          '  <xhtml:body xhtml:lang="en"/>'
+          '</xhtml:html>');
+      List<XmlNode> nodes = new List.from(document.descendants)..add(document);
+      nodes.forEach((node) {
+        if ((node is XmlAttribute && node.name.prefix != 'xmlns') || (node is XmlElement)) {
+          expect(node.name.namespaceURI, 'http://www.w3.org/1999/xhtml');
+        }
+      });
+    });
+  });
   group('entities', () {
     String decode(String input) => parse('<data>$input</data>').rootElement.text;
     String encodeText(String input) => new XmlText(input).toString();

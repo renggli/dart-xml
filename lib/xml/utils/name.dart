@@ -84,8 +84,8 @@ class XmlName extends Object with XmlWritable, XmlParent {
   }
 
   bool matches(XmlName other) {
-    return (prefix == _WILDCARD || prefix == other.prefix)
-        && (local == _WILDCARD || local == other.local);
+    return (prefix == _WILDCARD || prefix == other.prefix) && (local == _WILDCARD || local ==
+        other.local);
   }
 
 }
