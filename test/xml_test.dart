@@ -538,24 +538,34 @@ void main() {
           '</bookstore>';
       expect(actual, expected);
     });
-    solo_test('namespace', () {
+    test('namespace binding', () {
       var uri = 'http://www.w3.org/2001/XMLSchema';
       var builder = new XmlBuilder();
       builder.element('schema', contents: () {
         builder.namespace(uri, 'xsd');
         builder.attribute('lang', 'en', namespace: uri);
+        builder.element('element', namespace: uri);
       }, namespace: uri);
       var actual = builder.build().toString();
       var expected =
-          '<?xml encoding="UTF-8"?>'
-          '<bookstore>'
-            '<!--Only one book?-->'
-            '<book>'
-              '<title lang="en">Harry <![CDATA[Potter]]></title>'
-              '<price>29.99</price>'
-            '</book>'
-            '<end/>'
-          '</bookstore>';
+          '<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsd:lang="en">'
+            '<xsd:element />'
+          '</xsd:schema>';
+      expect(actual, expected);
+    });
+    test('default namespace binding', () {
+      var uri = 'http://www.w3.org/2001/XMLSchema';
+      var builder = new XmlBuilder();
+      builder.element('schema', contents: () {
+        builder.namespace(uri);
+        builder.attribute('lang', 'en', namespace: uri);
+        builder.element('element', namespace: uri);
+      }, namespace: uri);
+      var actual = builder.build().toString();
+      var expected =
+          '<schema xmlns="http://www.w3.org/2001/XMLSchema" lang="en">'
+            '<element />'
+          '</schema>';
       expect(actual, expected);
     });
   });
