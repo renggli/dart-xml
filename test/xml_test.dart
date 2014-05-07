@@ -513,15 +513,15 @@ void main() {
     test('basic', () {
       var builder = new XmlBuilder();
       builder.processing('xml', 'encoding="UTF-8"');
-      builder.element('bookstore', contents: () {
+      builder.element('bookstore', to: () {
         builder.comment('Only one book?');
-        builder.element('book', contents: () {
-          builder.element('title', contents: () {
+        builder.element('book', to: () {
+          builder.element('title', to: () {
             builder.attribute('lang', 'en');
             builder.text('Harry ');
             builder.cdata('Potter');
           });
-          builder.element('price', contents: 29.99);
+          builder.element('price', to: 29.99);
           builder.element('special');
         });
       });
@@ -541,7 +541,7 @@ void main() {
     test('namespace binding', () {
       var uri = 'http://www.w3.org/2001/XMLSchema';
       var builder = new XmlBuilder();
-      builder.element('schema', contents: () {
+      builder.element('schema', to: () {
         builder.namespace(uri, 'xsd');
         builder.attribute('lang', 'en', namespace: uri);
         builder.element('element', namespace: uri);
@@ -556,7 +556,7 @@ void main() {
     test('default namespace binding', () {
       var uri = 'http://www.w3.org/2001/XMLSchema';
       var builder = new XmlBuilder();
-      builder.element('schema', contents: () {
+      builder.element('schema', to: () {
         builder.namespace(uri);
         builder.attribute('lang', 'en', namespace: uri);
         builder.element('element', namespace: uri);

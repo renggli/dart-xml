@@ -43,29 +43,36 @@ class XmlBuilder {
    * If a `namespace` URI is provided, the prefix is looked up, verified and
    * combined with the given tag `name`.
    *
-   * If a map of `attributes` is provided the name-value pairs are added to the
-   * element declaration, see also [XmlBuilder#attribute].
-   *
    * If a map of `namespaces` is provided the uri-prefix pairs are added to the
    * element declaration, see also [XmlBuilder#namespace].
    *
-   * Finally, `insert` is used to customize the element and to define children.
-   * Typically `insert` is a [Function] that defines elements using the same
-   * builder object. For convenience `contents` can be a string or an arbitrary
-   * other object that will be added as a text node.
+   * If a map of `attributes` is provided the name-value pairs are added to the
+   * element declaration, see also [XmlBuilder#attribute].
+   *
+   * Finally, `to` is used to customize the element and to define its children.
+   * Typically this is a [Function] that defines elements using the same builder
+   * object. For convenience `to` can also be a string or another common object
+   * that will be converted to a string and added as a text node. Note, that the
+   * name `to` was chosen because it is the only short word that works reasonably
+   * well (think of it as in _adding stuff to_) and that is not a reserved word
+   * in Dart.
    */
   void element(String name, {
       String namespace: null,
-      Map<String, String> attributes: const {},
       Map<String, String> namespaces: const {},
-      Object insert: null}) {
+      Map<String, String> attributes: const {},
+      Object to: null}) {
     var builder = new _XmlElementBuilder(_current);
     _current = builder;
-    attributes.forEach(this.attribute);
+    // first we need to define the namespaces
     namespaces.forEach(this.namespace);
-    if (insert != null) {
-      _insert(insert);
+    // then we can add the attributes
+    attributes.forEach(this.attribute);
+    // finally the contents, with possibly more attributes and namespaces
+    if (to != null) {
+      _insert(to);
     }
+    // last but not least we build the final name
     builder.name = _buildName(name, namespace);
     _current = builder.parent;
     _current.children.add(builder.build());
@@ -114,10 +121,10 @@ class XmlBuilder {
   /**
    * Internal method to add something to the current element.
    */
-  void _insert(value) {
+  void _insert(Object value) {
     if (value is Function) {
       value();
-    } if (value is Iterable) {
+    } else if (value is Iterable) {
       value.forEach((each) => _insert(value));
     } else {
       text(value.toString());
