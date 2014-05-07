@@ -188,7 +188,7 @@ void main() {
     test('element', () {
       XmlDocument document = parse('<ns:data>Am I or are the other crazy?</ns:data>');
       XmlElement node = document.rootElement;
-      expect(node.name, new XmlName('ns:data'));
+      expect(node.name, new XmlName.fromString('ns:data'));
       expect(node.parent, same(document));
       expect(node.root, same(document));
       expect(node.document, same(document));
@@ -202,7 +202,7 @@ void main() {
     test('attribute', () {
       XmlDocument document = parse('<data ns:attr="Am I or are the other crazy?" />');
       XmlAttribute node = document.rootElement.attributes.single;
-      expect(node.name, new XmlName('ns:attr'));
+      expect(node.name, new XmlName.fromString('ns:attr'));
       expect(node.value, 'Am I or are the other crazy?');
       expect(node.parent, same(document.rootElement));
       expect(node.root, same(document));
