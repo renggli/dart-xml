@@ -103,39 +103,42 @@ To build a new XML document use an `XmlBuilder`. The builder implements a small 
 
     var builder = new XmlBuilder();
     builder.processing('xml', 'version="1.0"');
-    builder.element('bookshelf', contents: () {
-      builder.element('book', contents: () {
-        builder.element('title', contents: () {
+    builder.element('bookshelf', to: () {
+      builder.element('book', to: () {
+        builder.element('title', to: () {
           builder.attribute('lang', 'english');
           builder.text('Growing a Language');
         });
-        builder.element('price', contents: 29.99);
+        builder.element('price', to: 29.99);
       });
-      builder.element('book', contents: () {
-        builder.element('title', contents: () {
+      builder.element('book', to: () {
+        builder.element('title', to: () {
           builder.attribute('lang', 'english');
           builder.text('Learning XML');
         });
-        builder.element('price', contents: 39.95);
+        builder.element('price', to: 39.95);
       });
-      builder.element('price', contents: 132.00);
+      builder.element('price', to: 132.00);
     });
     var xml = builder.build();
 
-Note this apporach allows you to extract repeated parts into specific methods. In the example above, one could extract the part that writes a book into a separate method as follows:
+Note the method [XmlBuilder.element]. It is quite sophisticated and supports many different optional named arguments:
+
+- Most common is the `to:` argument which is used to nest contents into the element. In most cases this will be a function that calls more methods on the builder to create elements, but it can also be an arbitrary Dart object that is converted to a string and added as a text node.
+- While attributes can be defined from within the element, for simplicity there is also an argument `attributes:` that takes a map to define simple name-value pairs.
+- Furthermore we can provide an URI as the namespace of the element using `namespace:` and declare new namespace prefixes using `namespaces:`. For details see the documentation of the method.
+
+The builder pattern allows you to easily extract repeated parts into specific methods. In the example above, one could put the part that writes a book into a separate method as follows:
 
     buildBook(XmlBuilder builder, String title, String language, num price) {
-      builder.element('book', contents: () {
-        builder.element('title', contents: () {
+      builder.element('book', to: () {
+        builder.element('title', to: () {
           builder.attribute('lang', 'english');
           builder.text(title);
         });
-        builder.element('price', contents: price);
+        builder.element('price', to: price);
       });
     }
-
-separa the approach with the builder allows to define methods that generate repeated parts, so in the example above it would make sense to extract the part that generates the _book_ element in
-
 
 Misc
 ----
