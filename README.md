@@ -103,40 +103,40 @@ To build a new XML document use an `XmlBuilder`. The builder implements a small 
 
     var builder = new XmlBuilder();
     builder.processing('xml', 'version="1.0"');
-    builder.element('bookshelf', to: () {
-      builder.element('book', to: () {
-        builder.element('title', to: () {
+    builder.element('bookshelf', nest: () {
+      builder.element('book', nest: () {
+        builder.element('title', nest: () {
           builder.attribute('lang', 'english');
           builder.text('Growing a Language');
         });
-        builder.element('price', to: 29.99);
+        builder.element('price', nest: 29.99);
       });
-      builder.element('book', to: () {
-        builder.element('title', to: () {
+      builder.element('book', nest: () {
+        builder.element('title', nest: () {
           builder.attribute('lang', 'english');
           builder.text('Learning XML');
         });
-        builder.element('price', to: 39.95);
+        builder.element('price', nest: 39.95);
       });
-      builder.element('price', to: 132.00);
+      builder.element('price', nest: 132.00);
     });
     var xml = builder.build();
 
-Note the method [XmlBuilder.element]. It is quite sophisticated and supports many different optional named arguments:
+Note the `element` method. It is quite sophisticated and supports many different optional named arguments:
 
-- Most common is the `to:` argument which is used to nest contents into the element. In most cases this will be a function that calls more methods on the builder to create elements, but it can also be an arbitrary Dart object that is converted to a string and added as a text node.
+- The most common is the `nest:` argument which is used to insert contents into the element. In most cases this will be a function that calls more methods on the builder to define attributes, declare namespaces and add child elements. However, the argument can also be a string or an arbitrary Dart object that is converted to a string and added as a text node.
 - While attributes can be defined from within the element, for simplicity there is also an argument `attributes:` that takes a map to define simple name-value pairs.
 - Furthermore we can provide an URI as the namespace of the element using `namespace:` and declare new namespace prefixes using `namespaces:`. For details see the documentation of the method.
 
 The builder pattern allows you to easily extract repeated parts into specific methods. In the example above, one could put the part that writes a book into a separate method as follows:
 
     buildBook(XmlBuilder builder, String title, String language, num price) {
-      builder.element('book', to: () {
-        builder.element('title', to: () {
+      builder.element('book', nest: () {
+        builder.element('title', nest: () {
           builder.attribute('lang', 'english');
           builder.text(title);
         });
-        builder.element('price', to: price);
+        builder.element('price', nest: price);
       });
     }
 

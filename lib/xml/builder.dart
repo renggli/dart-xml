@@ -49,30 +49,23 @@ class XmlBuilder {
    * If a map of `attributes` is provided the name-value pairs are added to the
    * element declaration, see also [XmlBuilder#attribute].
    *
-   * Finally, `to` is used to customize the element and to define its children.
-   * Typically this is a [Function] that defines elements using the same builder
-   * object. For convenience `to` can also be a string or another common object
-   * that will be converted to a string and added as a text node. Note, that the
-   * name `to` was chosen because it is the only short word that works reasonably
-   * well (think of it as in _adding stuff to_) and that is not a reserved word
-   * in Dart.
+   * Finally, `nest` is used to further customize the element and to adds its
+   * children. Typically this is a [Function] that defines elements using the
+   * same builder object. For convenience `nest` can also be a string or another
+   * common object that will be converted to a string and added as a text node.
    */
   void element(String name, {
       String namespace: null,
       Map<String, String> namespaces: const {},
       Map<String, String> attributes: const {},
-      Object to: null}) {
+      Object nest: null}) {
     var builder = new _XmlElementBuilder(_current);
     _current = builder;
-    // first we need to define the namespaces
     namespaces.forEach(this.namespace);
-    // then we can add the attributes
     attributes.forEach(this.attribute);
-    // finally the contents, with possibly more attributes and namespaces
-    if (to != null) {
-      _insert(to);
+    if (nest != null) {
+      _insert(nest);
     }
-    // last but not least we build the final name
     builder.name = _buildName(name, namespace);
     _current = builder.parent;
     _current.children.add(builder.build());

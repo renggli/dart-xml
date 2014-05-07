@@ -8,7 +8,7 @@ void main() {
   var input = booksXml;
 
   var stopwatch = new Stopwatch();
-  var count = 1000;
+  var count = 2000;
 
   stopwatch.start();
   for (var i = 0; i < count; i++) {
