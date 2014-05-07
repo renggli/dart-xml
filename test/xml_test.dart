@@ -468,41 +468,41 @@ void main() {
       expect(book.children[0].children[1].following, []);
     });
   });
-  group('querying', () {
+  group('querying all elements', () {
     var bookstore = parse(bookstoreXml);
     var shiporder = parse(shiporderXsd);
     var xsd = 'http://www.w3.org/2001/XMLSchema';
-    test('find all elements (name defined, namespace undefined)', () {
+    test('name defined, namespace undefined', () {
       var books = bookstore.findAllElements('book');
       expect(books.length, 2);
       var orders = shiporder.findAllElements('element');
       expect(orders.length, 0);
     });
-    test('find all elements (name defined, namespace wildcard)', () {
+    test('name defined, namespace wildcard', () {
       var books = bookstore.findAllElements('book', namespace: '*');
       expect(books.length, 2);
       var orders = shiporder.findAllElements('element', namespace: '*');
       expect(orders.length, 17);
     });
-    test('find all elements (name defined, namespace defined)', () {
+    test('name defined, namespace defined', () {
       var books = bookstore.findAllElements('book', namespace: xsd);
       expect(books.length, 0);
       var orders = shiporder.findAllElements('element', namespace: xsd);
       expect(orders.length, 17);
     });
-    test('find all elements (name wildcard, namespace undefined)', () {
+    test('name wildcard, namespace undefined', () {
       var books = bookstore.findAllElements('*');
       expect(books.length, 7);
       var orders = shiporder.findAllElements('*');
       expect(orders.length, 37);
     });
-    test('find all elements (name wildcard, namespace wildcard)', () {
+    test('name wildcard, namespace wildcard', () {
       var books = bookstore.findAllElements('*', namespace: '*');
       expect(books.length, 7);
       var orders = shiporder.findAllElements('*', namespace: '*');
       expect(orders.length, 37);
     });
-    test('find all elements (name wildcard, namespace defined)', () {
+    test('name wildcard, namespace defined', () {
       var books = bookstore.findAllElements('*', namespace: xsd);
       expect(books.length, 0);
       var orders = shiporder.findAllElements('*', namespace: xsd);
@@ -522,9 +522,29 @@ void main() {
             builder.cdata('Potter');
           });
           builder.element('price', contents: 29.99);
-          builder.element('end');
+          builder.element('special');
         });
       });
+      var actual = builder.build().toString();
+      var expected =
+          '<?xml encoding="UTF-8"?>'
+          '<bookstore>'
+            '<!--Only one book?-->'
+            '<book>'
+              '<title lang="en">Harry <![CDATA[Potter]]></title>'
+              '<price>29.99</price>'
+              '<special />'
+            '</book>'
+          '</bookstore>';
+      expect(actual, expected);
+    });
+    solo_test('namespace', () {
+      var uri = 'http://www.w3.org/2001/XMLSchema';
+      var builder = new XmlBuilder();
+      builder.element('schema', contents: () {
+        builder.namespace(uri, 'xsd');
+        builder.attribute('lang', 'en', namespace: uri);
+      }, namespace: uri);
       var actual = builder.build().toString();
       var expected =
           '<?xml encoding="UTF-8"?>'

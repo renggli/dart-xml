@@ -56,6 +56,7 @@ class XmlBuilder {
     }
     builder.name = _buildName(name, namespace);
     _current = builder.parent;
+    _current.children.add(builder.build());
   }
 
   /**
