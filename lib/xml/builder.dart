@@ -40,19 +40,31 @@ class XmlBuilder {
   /**
    * Adds a [XmlElement] node with the provided tag `name`.
    *
-   * The optional `contents` can be omitted, if the element has no attributes
-   * or children. It can either be a [Function] definition the child elements or
-   * a [String] that is added as text.
+   * If a `namespace` URI is provided, the prefix is looked up, verified and
+   * combined with the given tag `name`.
+   *
+   * If a map of `attributes` is provided the name-value pairs are added to the
+   * element declaration, see also [XmlBuilder#attribute].
+   *
+   * If a map of `namespaces` is provided the uri-prefix pairs are added to the
+   * element declaration, see also [XmlBuilder#namespace].
+   *
+   * Finally, `insert` is used to customize the element and to define children.
+   * Typically `insert` is a [Function] that defines elements using the same
+   * builder object. For convenience `contents` can be a string or an arbitrary
+   * other object that will be added as a text node.
    */
-  void element(String name, {Object contents, String namespace}) {
+  void element(String name, {
+      String namespace: null,
+      Map<String, String> attributes: const {},
+      Map<String, String> namespaces: const {},
+      Object insert: null}) {
     var builder = new _XmlElementBuilder(_current);
     _current = builder;
-    if (contents != null) {
-      if (contents is Function) {
-        contents();
-      } else {
-        text(contents.toString());
-      }
+    attributes.forEach(this.attribute);
+    namespaces.forEach(this.namespace);
+    if (insert != null) {
+      _insert(insert);
     }
     builder.name = _buildName(name, namespace);
     _current = builder.parent;
@@ -97,6 +109,19 @@ class XmlBuilder {
     return uri == null || uri.isEmpty
         ? new XmlName.fromString(name)
         : new XmlName(name, _current.lookupPrefix(uri));
+  }
+
+  /**
+   * Internal method to add something to the current element.
+   */
+  void _insert(value) {
+    if (value is Function) {
+      value();
+    } if (value is Iterable) {
+      value.forEach((each) => _insert(value));
+    } else {
+      text(value.toString());
+    }
   }
 
 }

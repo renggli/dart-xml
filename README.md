@@ -1,9 +1,9 @@
 Dart XML
 ========
 
-Dart XML is a lightweight library for parsing, traversing, and querying XML documents.
+Dart XML is a lightweight library for parsing, traversing, querying and building XML documents.
 
-This library is open source, stable and well tested. Development happens on [GitHub](http://github.com/renggli/dart-xml). Feel free to report issues or create a pull-request there. General questions are best asked on [StackOverflow](http://stackoverflow.com/questions/tagged/dart+xml).
+This library is open source, stable and well tested. Development happens on [GitHub](http://github.com/renggli/dart-xml). Feel free to report issues or create a pull-request there. The most recent stable versions are available through [pub.dartlang.org][http://pub.dartlang.org/packages/xml]. General questions are best asked on [StackOverflow](http://stackoverflow.com/questions/tagged/dart+xml).
 
 Continuous build results are available from [Jenkins](http://jenkins.lukas-renggli.ch/job/dart-xml/). Up-to-date [documentation](http://jenkins.lukas-renggli.ch/job/dart-xml/javadoc/) is created automatically with every new push.
 
@@ -80,7 +80,7 @@ For example, to find all the nodes with the _<title>_ tag you could write:
 
     var titles = document.findAllElements('title');
 
-This returns a lazy iterator that recursively walks through the XML document and yields all the element nodes with the requested tag name. To extract the textual contents call `text`:
+The above code returns a lazy iterator that recursively walks the XML document and yields all the element nodes with the requested tag name. To extract the textual contents call `text`:
 
     titles
         .map((node) => node.text)
@@ -95,7 +95,47 @@ Similary, to compute the total price of all the books one could write the follow
         .reduce((a, b) => a + b);
     print(total);
 
-Note that this first find all the books, and then extracts the price to avoid counting the price tag that is included in the bookshelf.
+Note that this first finds all the books, and then extracts the price to avoid counting the price tag that is included in the bookshelf.
+
+### Building
+
+To build a new XML document use an `XmlBuilder`. The builder implements a small set of methods to build complete XML trees. To create the above bookshelf example one would write:
+
+    var builder = new XmlBuilder();
+    builder.processing('xml', 'version="1.0"');
+    builder.element('bookshelf', contents: () {
+      builder.element('book', contents: () {
+        builder.element('title', contents: () {
+          builder.attribute('lang', 'english');
+          builder.text('Growing a Language');
+        });
+        builder.element('price', contents: 29.99);
+      });
+      builder.element('book', contents: () {
+        builder.element('title', contents: () {
+          builder.attribute('lang', 'english');
+          builder.text('Learning XML');
+        });
+        builder.element('price', contents: 39.95);
+      });
+      builder.element('price', contents: 132.00);
+    });
+    var xml = builder.build();
+
+Note this apporach allows you to extract repeated parts into specific methods. In the example above, one could extract the part that writes a book into a separate method as follows:
+
+    buildBook(XmlBuilder builder, String title, String language, num price) {
+      builder.element('book', contents: () {
+        builder.element('title', contents: () {
+          builder.attribute('lang', 'english');
+          builder.text(title);
+        });
+        builder.element('price', contents: price);
+      });
+    }
+
+separa the approach with the builder allows to define methods that generate repeated parts, so in the example above it would make sense to extract the part that generates the _book_ element in
+
 
 Misc
 ----
