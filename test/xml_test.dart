@@ -471,29 +471,42 @@ void main() {
   group('querying', () {
     var bookstore = parse(bookstoreXml);
     var shiporder = parse(shiporderXsd);
-    test('find element counts', () {
-      expect(bookstore.descendants, hasLength(23));
-      expect(shiporder.descendants, hasLength(145));
+    var xsd = 'http://www.w3.org/2001/XMLSchema';
+    test('find all elements (name defined, namespace undefined)', () {
+      var books = bookstore.findAllElements('book');
+      expect(books.length, 2);
+      var orders = shiporder.findAllElements('element');
+      expect(orders.length, 0);
     });
-    test('find elements with plain name', () {
-      var elements = shiporder.rootElement.findElements('element');
-      expect(elements.length, 2);
+    test('find all elements (name defined, namespace wildcard)', () {
+      var books = bookstore.findAllElements('book', namespace: '*');
+      expect(books.length, 2);
+      var orders = shiporder.findAllElements('element', namespace: '*');
+      expect(orders.length, 17);
     });
-    test('find all elements with plain name', () {
-      var elements = shiporder.rootElement.findAllElements('element');
-      expect(elements.length, 17);
+    test('find all elements (name defined, namespace defined)', () {
+      var books = bookstore.findAllElements('book', namespace: xsd);
+      expect(books.length, 0);
+      var orders = shiporder.findAllElements('element', namespace: xsd);
+      expect(orders.length, 17);
     });
-    test('find all elements with plain wildcard', () {
-      var elements = shiporder.findAllElements('*');
-      expect(elements.length, 37);
+    test('find all elements (name wildcard, namespace undefined)', () {
+      var books = bookstore.findAllElements('*');
+      expect(books.length, 7);
+      var orders = shiporder.findAllElements('*');
+      expect(orders.length, 37);
     });
-    test('find all elements with namespace and name', () {
-      var elements = shiporder.findAllElements('documentation', namespace: 'xsd');
-      expect(elements.length, 1);
+    test('find all elements (name wildcard, namespace wildcard)', () {
+      var books = bookstore.findAllElements('*', namespace: '*');
+      expect(books.length, 7);
+      var orders = shiporder.findAllElements('*', namespace: '*');
+      expect(orders.length, 37);
     });
-    test('find all elements with namespace and wildcard', () {
-      var elements = shiporder.findAllElements('*', namespace: 'xsd');
-      expect(elements.length, 37);
+    test('find all elements (name wildcard, namespace defined)', () {
+      var books = bookstore.findAllElements('*', namespace: xsd);
+      expect(books.length, 0);
+      var orders = shiporder.findAllElements('*', namespace: xsd);
+      expect(orders.length, 37);
     });
   });
   group('builder', () {
