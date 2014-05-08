@@ -36,9 +36,8 @@ abstract class XmlName extends Object with XmlWritable, XmlParent {
    * Creates a qualified [XmlName] from a `local` name and an optional `prefix`.
    */
   factory XmlName(String local, [String prefix]) {
-    return prefix == null || prefix.isEmpty
-        ? new _XmlSimpleName(local)
-        : new _XmlPrefixName('$prefix$_SEPARATOR$local', local, prefix);
+    return prefix == null || prefix.isEmpty ? new _XmlSimpleName(local) : new _XmlPrefixName('$prefix$_SEPARATOR$local',
+        local, prefix);
   }
 
   /**
@@ -61,9 +60,10 @@ abstract class XmlName extends Object with XmlWritable, XmlParent {
   void writeTo(StringBuffer buffer) => buffer.write(qualified);
 
   @override
-  bool operator == (Object other) => other is XmlName
-      && other.local == local
-      && other.namespaceUri == namespaceUri;
+  void prettyWriteTo(StringBuffer buffer, {String indent}) => writeTo(buffer);
+
+  @override
+  bool operator ==(Object other) => other is XmlName && other.local == local && other.namespaceUri == namespaceUri;
 
   @override
   int get hashCode => local.hashCode;

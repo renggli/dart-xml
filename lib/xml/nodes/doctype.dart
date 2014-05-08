@@ -8,7 +8,7 @@ class XmlDoctype extends XmlData {
   /**
    * Create a doctype section with `text`.
    */
-  XmlDoctype(String text): super(text);
+  XmlDoctype(String text) : super(text);
 
   @override
   XmlNodeType get nodeType => XmlNodeType.DOCUMENT_TYPE;
@@ -18,6 +18,13 @@ class XmlDoctype extends XmlData {
     buffer.write('<!DOCTYPE ');
     buffer.write(text);
     buffer.write('>');
+  }
+
+  @override
+  void prettyWriteTo(StringBuffer buffer, {String indent}) {
+    _doPrettyIndent(buffer, indent, ancestors.length - 1);
+    writeTo(buffer);
+    buffer.write('\n');
   }
 
 }

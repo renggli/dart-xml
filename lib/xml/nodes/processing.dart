@@ -13,7 +13,7 @@ class XmlProcessing extends XmlData {
   /**
    * Create a processing node with `target` and `text`.
    */
-  XmlProcessing(this.target, String text): super(text);
+  XmlProcessing(this.target, String text) : super(text);
 
   @override
   XmlNodeType get nodeType => XmlNodeType.PROCESSING;
@@ -27,6 +27,13 @@ class XmlProcessing extends XmlData {
       buffer.write(text);
     }
     buffer.write('?>');
+  }
+
+  @override
+  void prettyWriteTo(StringBuffer buffer, {String indent}) {
+    _doPrettyIndent(buffer, indent, ancestors.length - 1);
+    writeTo(buffer);
+    buffer.write('\n');
   }
 
 }

@@ -31,4 +31,7 @@ class XmlAttribute extends XmlNode implements XmlNamed {
     buffer.write('"');
   }
 
+  @override
+  void prettyWriteTo(StringBuffer buffer, {String indent}) => writeTo(buffer);
+
 }

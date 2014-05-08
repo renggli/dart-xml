@@ -11,7 +11,7 @@ abstract class XmlBranch extends XmlNode {
   /**
    * Create a node with a list of `children`.
    */
-  XmlBranch(Iterable<XmlNode> children): children = children.toList(growable: false) {
+  XmlBranch(Iterable<XmlNode> children) : children = children.toList(growable: false) {
     for (var child in children) {
       child._parent = this;
     }
@@ -33,15 +33,20 @@ abstract class XmlBranch extends XmlNode {
 
   Iterable<XmlElement> _filterElements(Iterable<XmlNode> iterable, String name, String namespace) {
     var matcher = _createMatcher(name, namespace);
-    return iterable
-        .where((node) => node is XmlElement && matcher(node))
-        .map((node) => node as XmlElement);
+    return iterable.where((node) => node is XmlElement && matcher(node)).map((node) => node as XmlElement);
   }
 
   @override
   void writeTo(StringBuffer buffer) {
     for (var node in children) {
       node.writeTo(buffer);
+    }
+  }
+
+  @override
+  void prettyWriteTo(StringBuffer buffer, {String indent}) {
+    for (var node in children) {
+      node.prettyWriteTo(buffer, indent: indent);
     }
   }
 

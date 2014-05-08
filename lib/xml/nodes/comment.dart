@@ -8,7 +8,7 @@ class XmlComment extends XmlData {
   /**
    * Create a comment section with `text`.
    */
-  XmlComment(String text): super(text);
+  XmlComment(String text) : super(text);
 
   @override
   XmlNodeType get nodeType => XmlNodeType.COMMENT;
@@ -18,6 +18,12 @@ class XmlComment extends XmlData {
     buffer.write('<!--');
     buffer.write(text);
     buffer.write('-->');
+  }
+
+  @override
+  void prettyWriteTo(StringBuffer buffer, {String indent}) {
+    _doPrettyIndent(buffer, indent, ancestors.length - 1);
+    writeTo(buffer);
   }
 
 }

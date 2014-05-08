@@ -15,7 +15,8 @@ class XmlElement extends XmlBranch implements XmlNamed {
    * Create an [XmlElement] with the given `name`, `attributes`, and `children`.
    */
   XmlElement(XmlName name, Iterable<XmlAttribute> attributes, Iterable<XmlNode> children)
-      : super(children), name = name,
+      : super(children),
+        name = name,
         attributes = attributes.toList(growable: false) {
     name._parent = this;
     for (var attribute in attributes) {
@@ -54,6 +55,30 @@ class XmlElement extends XmlBranch implements XmlNamed {
     } else {
       buffer.write('>');
       super.writeTo(buffer);
+      buffer.write('</');
+      name.writeTo(buffer);
+      buffer.write('>');
+    }
+  }
+
+  @override
+  void prettyWriteTo(StringBuffer buffer, {String indent}) {
+    _doPrettyIndent(buffer, indent, ancestors.length - 1);
+    buffer.write('<');
+    name.prettyWriteTo(buffer);
+    for (var attribute in attributes) {
+      buffer.write(' ');
+      attribute.prettyWriteTo(buffer, indent: indent);
+    }
+    if (children.isEmpty) {
+      buffer.write(' />');
+    } else {
+      buffer.write('>');
+      super.prettyWriteTo(buffer, indent: indent);
+      bool endsNewline = children.last.nodeType == XmlNodeType.TEXT && children.last.toString().endsWith('\n');
+      if (children.isNotEmpty && ((children.last.nodeType != XmlNodeType.TEXT) || (endsNewline))) {
+        _doPrettyIndent(buffer, indent, ancestors.length - 1, !endsNewline);
+      }
       buffer.write('</');
       name.writeTo(buffer);
       buffer.write('>');

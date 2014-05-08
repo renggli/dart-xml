@@ -8,7 +8,7 @@ class XmlText extends XmlData {
   /**
    * Create a text node with `text`.
    */
-  XmlText(String text): super(text);
+  XmlText(String text) : super(text);
 
   @override
   XmlNodeType get nodeType => XmlNodeType.TEXT;
@@ -17,5 +17,8 @@ class XmlText extends XmlData {
   void writeTo(StringBuffer buffer) {
     buffer.write(_encodeXmlText(text));
   }
+
+  @override
+  void prettyWriteTo(StringBuffer buffer, {String indent}) => writeTo(buffer);
 
 }
