@@ -12,3 +12,4 @@ pubspec.lock
 *.js_
 *.js.map
 *.js.deps
+test/xml_playground.dart
