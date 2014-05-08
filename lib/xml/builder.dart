@@ -11,30 +11,51 @@ class XmlBuilder {
 
   /**
    * Adds a [XmlText] node with the provided `text`.
+   *
+   * For example, to generate _Hello World_ one would write:
+   *
+   *     builder.text('Hello World');
+   *
    */
-  void text(String text) {
-    _stack.last.children.add(new XmlText(text));
+  void text(text) {
+    _stack.last.children.add(new XmlText(text.toString()));
   }
 
   /**
    * Adds a [XmlCDATA] node with the provided `text`.
+   *
+   * For example, to generate __<![CDATA[Hello World]]>__ one
+   * would write:
+   *
+   *     builder.cdata('Hello World');
+   *
    */
-  void cdata(String text) {
-    _stack.last.children.add(new XmlCDATA(text));
+  void cdata(text) {
+    _stack.last.children.add(new XmlCDATA(text.toString()));
   }
 
   /**
    * Adds a [XmlProcessing] node with the provided `target` and `text`.
+   *
+   * For example, to generate _<?xml version="1.0"?>_ one would write:
+   *
+   *     builder.processing('xml', 'version="1.0"');
+   *
    */
-  void processing(String target, String text) {
-    _stack.last.children.add(new XmlProcessing(target, text));
+  void processing(String target, text) {
+    _stack.last.children.add(new XmlProcessing(target, text.toString()));
   }
 
   /**
    * Adds a [XmlComment] node with the provided `text`.
+   *
+   * For example, to generate _<!--Hello World-->_ one would write:
+   *
+   *     builder.comment('Hello World');
+   *
    */
-  void comment(String text) {
-    _stack.last.children.add(new XmlComment(text));
+  void comment(text) {
+    _stack.last.children.add(new XmlComment(text.toString()));
   }
 
   /**
@@ -53,12 +74,25 @@ class XmlBuilder {
    * children. Typically this is a [Function] that defines elements using the
    * same builder object. For convenience `nest` can also be a string or another
    * common object that will be converted to a string and added as a text node.
+   *
+   * For example, to generate _<message>Hello World</message>_ one would write:
+   *
+   *     builder.element('message', nest: 'Hello World');
+   *
+   * To add multiple child elements as in _<message>Hello
+   * World<break /></message>_ one would write:
+   *
+   *     builder.element('message', nest: () {
+   *       builder..text('Hello World')
+   *              ..element('break');
+   *     });
+   *
    */
   void element(String name, {
       String namespace: null,
       Map<String, String> namespaces: const {},
       Map<String, String> attributes: const {},
-      Object nest: null}) {
+      nest: null}) {
     var element = new _XmlElementBuilder();
     _stack.add(element);
     namespaces.forEach(this.namespace);
@@ -72,10 +106,20 @@ class XmlBuilder {
   }
 
   /**
-   * Adds a [XmlAttribute] node with the provided `name` and `value`.
+   * Adds a [XmlAttribute] node with the provided `name` and `value`. If a
+   * `namespace` URI is provided, the prefix is looked up, verified and
+   * combined with the given attribute `name`.
+   *
+   * To generate _<message lang="en" />_ one would write:
+   *
+   *     var builder = new XmlBuilder();
+   *     builder.element('node', nest: () {
+   *        builder.attribute('lang', 'en');
+   *     });
+   *
    */
-  void attribute(String name, String value, {String namespace}) {
-    _stack.last.attributes.add(new XmlAttribute(_buildName(name, namespace), value));
+  void attribute(String name, value, {String namespace}) {
+    _stack.last.attributes.add(new XmlAttribute(_buildName(name, namespace), value.toString()));
   }
 
   /**
@@ -101,6 +145,9 @@ class XmlBuilder {
    * Returns the resulting [XmlNode].
    */
   XmlNode build() => _stack.last.build();
+
+  @override
+  String toString() => build().toString();
 
   // Internal method to build a name.
   XmlName _buildName(String name, String uri) {
