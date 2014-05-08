@@ -148,6 +148,7 @@ Misc
 - Standard well-formed XML and HTML.
 - Decodes and encodes commonly used character entities.
 - Querying and traversing API using Dart iterators.
+- Building XML trees using a builder API.
 
 ### Limitations
 
