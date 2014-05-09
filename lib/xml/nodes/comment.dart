@@ -20,4 +20,10 @@ class XmlComment extends XmlData {
     buffer.write('-->');
   }
 
+  @override
+  void prettyWriteTo(StringBuffer buffer, {String indent, int indentLevel}) {
+    _doPrettyIndent(buffer, indent, indentLevel);
+    writeTo(buffer);
+  }
+
 }
