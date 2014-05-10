@@ -60,4 +60,32 @@ class XmlElement extends XmlBranch implements XmlNamed {
     }
   }
 
+  @override
+  void prettyWriteTo(StringBuffer buffer, {String indent, int indentLevel}) {
+    _doPrettyIndent(buffer, indent, indentLevel);
+    buffer.write('<');
+    name.prettyWriteTo(buffer, indent: indent, indentLevel: indentLevel);
+    for (var attribute in attributes) {
+      buffer.write(' ');
+      attribute.prettyWriteTo(buffer, indent: indent, indentLevel: indentLevel);
+    }
+    if (children.isEmpty) {
+      buffer.write(' />');
+    } else {
+      buffer.write('>');
+      super.prettyWriteTo(buffer, indent: indent, indentLevel: indentLevel + 1);
+      bool endsNewline = buffer.toString().endsWith('\n');
+      if (children.isNotEmpty && children.last.nodeType == XmlNodeType.TEXT && 
+          children.last.toString().trim().isNotEmpty) {
+        // don't indent or add a new line
+      }
+      else {
+        _doPrettyIndent(buffer, indent, indentLevel);
+      }
+      buffer.write('</');
+      name.writeTo(buffer);
+      buffer.write('>');
+    }
+  }
+
 }

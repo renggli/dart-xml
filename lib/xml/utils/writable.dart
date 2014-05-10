@@ -20,4 +20,29 @@ abstract class XmlWritable {
     return buffer.toString();
   }
 
+  /**
+   * Write the this object in a 'pretty' format to a `buffer`.
+   */
+  void prettyWriteTo(StringBuffer buffer, {String indent: '', int indentLevel: 0}) => writeTo(buffer);
+
+  /**
+   * Returns an XML string of this object.
+   */
+  String toPrettyString({String indent: '    '}) {
+    var buffer = new StringBuffer();
+    prettyWriteTo(buffer, indent: indent, indentLevel: 0);
+    return buffer.toString();
+  }
+
+  void _doPrettyIndent(StringBuffer buffer, String indent, int numIndents, [bool startNewline = true]) {
+    if (indent != null) {
+      if (startNewline) {
+        buffer.write('\n');
+      }
+      for (int i = 0; i < numIndents; i++) {
+        buffer.write(indent);
+      }
+    }
+  }
+
 }

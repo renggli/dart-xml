@@ -45,4 +45,11 @@ abstract class XmlBranch extends XmlNode {
     }
   }
 
+  @override
+  void prettyWriteTo(StringBuffer buffer, {String indent, int indentLevel}) {
+    for (var node in children) {
+      node.prettyWriteTo(buffer, indent: indent, indentLevel: indentLevel);
+    }
+  }
+
 }
