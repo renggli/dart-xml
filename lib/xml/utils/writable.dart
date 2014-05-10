@@ -6,42 +6,54 @@ part of xml;
 abstract class XmlWritable {
 
   /**
-   * Write the this object to a `buffer`.
+   * Write this object to a `buffer`.
    */
   void writeTo(StringBuffer buffer);
 
   /**
-   * Returns an XML string of this object.
+   * Write this object in a 'pretty' format to a `buffer`.
+   */
+  void writePrettyTo(StringBuffer buffer, int level, String indent) => writeTo(buffer);
+
+  /**
+   * Return an XML string of this object.
    */
   @override
-  String toString() {
+  String toString() => toXmlString();
+
+  /**
+   * Return an XML string of this object.
+   *
+   * If `pretty` is set to `true` the output is nicely reformatted, otherwise the
+   * tree is emitted verbatimely.
+   *
+   * The option `indent` is only used when pretty formatting to customize the
+   * indention of nodes, by default nodes are indented with 2 spaces.
+   */
+  String toXmlString({bool pretty: false, String indent: '  '}) {
     var buffer = new StringBuffer();
-    writeTo(buffer);
+    if (pretty) {
+      writePrettyTo(buffer, 0, indent);
+    } else {
+      writeTo(buffer);
+    }
     return buffer.toString();
   }
 
-  /**
-   * Write the this object in a 'pretty' format to a `buffer`.
-   */
-  void prettyWriteTo(StringBuffer buffer, {String indent: '', int indentLevel: 0}) => writeTo(buffer);
-
-  /**
-   * Returns an XML string of this object.
-   */
-  String toPrettyString({String indent: '    '}) {
-    var buffer = new StringBuffer();
-    prettyWriteTo(buffer, indent: indent, indentLevel: 0);
-    return buffer.toString();
-  }
-
-  void _doPrettyIndent(StringBuffer buffer, String indent, int numIndents, [bool startNewline = true]) {
+  void _writeIndentTo(StringBuffer buffer, int level, String indent, [bool newline = true]) {
     if (indent != null) {
-      if (startNewline) {
-        buffer.write('\n');
+      if (newline) {
+        _writeNewline(buffer);
       }
-      for (int i = 0; i < numIndents; i++) {
+      for (int i = 0; i < level; i++) {
         buffer.write(indent);
       }
+    }
+  }
+
+  void _writeNewline(StringBuffer buffer) {
+    if (buffer.isNotEmpty) {
+      buffer.write('\n');
     }
   }
 

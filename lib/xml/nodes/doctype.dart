@@ -21,10 +21,9 @@ class XmlDoctype extends XmlData {
   }
 
   @override
-  void prettyWriteTo(StringBuffer buffer, {String indent, int indentLevel}) {
-    _doPrettyIndent(buffer, indent, indentLevel);
+  void writePrettyTo(StringBuffer buffer, int level, String indent) {
+    _writeIndentTo(buffer, level, indent);
     writeTo(buffer);
-    buffer.write('\n');
   }
 
 }

@@ -58,7 +58,9 @@ abstract class XmlName extends Object with XmlWritable, XmlParent {
   XmlName._();
 
   @override
-  void writeTo(StringBuffer buffer) => buffer.write(qualified);
+  void writeTo(StringBuffer buffer, {bool pretty: false, int level: 0, String indent: '  '}) {
+    buffer.write(qualified);
+  }
 
   @override
   bool operator == (Object other) => other is XmlName
