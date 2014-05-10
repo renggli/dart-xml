@@ -8,8 +8,8 @@ import 'xml_examples.dart';
 void validate(String input) {
   var tree = parse(input);
   assertTreeInvariants(tree);
-  var copy = parse(tree.toString());
-  expect(tree.toString(), copy.toString());
+  var copy = parse(tree.toXmlString());
+  expect(tree.toXmlString(), copy.toXmlString());
 }
 
 void assertTreeInvariants(XmlNode xml) {
@@ -21,6 +21,7 @@ void assertTreeInvariants(XmlNode xml) {
   assertAttributeInvariant(xml);
   assertTextInvariant(xml);
   assertIteratorInvariants(xml);
+  assertPrettyPrinting(xml);
 }
 
 void assertDocumentInvariant(XmlNode xml) {
@@ -134,6 +135,39 @@ void assertIteratorInvariants(XmlNode xml) {
     ancestors.removeLast();
   }
   check(xml);
+}
+
+void assertPrettyPrinting(XmlNode xml) {
+  void compare(XmlNode source, XmlNode pretty) {
+    expect(source.nodeType, pretty.nodeType);
+    expect(source.attributes.length, pretty.attributes.length);
+    for (var i = 0; i < source.attributes.length; i++) {
+      compare(source.attributes[i], pretty.attributes[i]);
+    }
+    var source_children = source.children
+        .where((node) => node is! XmlText)
+        .toList();
+    var pretty_children = pretty.children
+        .where((node) => node is! XmlText)
+        .toList();
+    expect(source_children.length, pretty_children.length);
+    for (var i = 0; i < source.attributes.length; i++) {
+      compare(source_children[i], pretty_children[i]);
+    }
+    var source_text = source.children
+        .where((node) => node is XmlText)
+        .map((node) => node.text.trim())
+        .join();
+    var pretty_text= pretty.children
+        .where((node) => node is XmlText)
+        .map((node) => node.text.trim())
+        .join();
+    expect(source_text, pretty_text);
+    if (source is! XmlBranch) {
+      expect(source.toXmlString(), pretty.toXmlString());
+    }
+  }
+  compare(xml, parse(xml.toXmlString(pretty: true)));
 }
 
 void main() {
