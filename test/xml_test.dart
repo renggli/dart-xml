@@ -151,7 +151,7 @@ void assertPrettyPrinting(XmlNode xml) {
         .where((node) => node is! XmlText)
         .toList();
     expect(source_children.length, pretty_children.length);
-    for (var i = 0; i < source.attributes.length; i++) {
+    for (var i = 0; i < source_children.length; i++) {
       compare(source_children[i], pretty_children[i]);
     }
     var source_text = source.children
