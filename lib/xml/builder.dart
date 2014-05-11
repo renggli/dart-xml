@@ -5,7 +5,7 @@ part of xml;
  *
  * API is not finalized yet, do not use.
  */
-class XmlBuilder extends Object with XmlWritable {
+class XmlBuilder {
 
   final List<_XmlNodeBuilder> _stack = new List.from([new _XmlDocumentBuilder()]);
 
@@ -20,6 +20,7 @@ class XmlBuilder extends Object with XmlWritable {
   void text(text) {
     var children = _stack.last.children;
     if (children.isNotEmpty && children.last is XmlText) {
+      // merge consecutive text nodes into one
       var previous = children.removeLast();
       children.add(new XmlText(previous.text + text.toString()));
     } else {
@@ -131,7 +132,7 @@ class XmlBuilder extends Object with XmlWritable {
   /**
    * Binds a namespace `prefix` to the provided `uri`. The `prefix` can be
    * omitted to declare a default namespace. Throws an [ArgumentError] if
-   * the `prefix` conflicts with an existing delcaration.
+   * the `prefix` is invalid or conflicts with an existing delcaration.
    */
   void namespace(String uri, [String prefix]) {
     if (prefix == _XMLNS || prefix == _XML) {
@@ -159,7 +160,7 @@ class XmlBuilder extends Object with XmlWritable {
         : new XmlName(name, _lookup(uri));
   }
 
-  // Internal method to lookup an uri prefix.
+  // Internal method to lookup an namespace prefix.
   String _lookup(String uri) {
     var builder = _stack.lastWhere(
       (builder) => builder.namespaces.containsKey(uri),
@@ -167,7 +168,7 @@ class XmlBuilder extends Object with XmlWritable {
     return builder.namespaces[uri];
   }
 
-  // Internal method to add something to the current element.
+  // Internal method to add children to the current element.
   void _insert(Object value) {
     if (value is Function) {
       value();
@@ -176,16 +177,6 @@ class XmlBuilder extends Object with XmlWritable {
     } else {
       text(value.toString());
     }
-  }
-
-  @override
-  void writeTo(StringBuffer buffer) {
-    build().writeTo(buffer);
-  }
-
-  @override
-  void writePrettyTo(StringBuffer buffer, int level, String indent) {
-    build().writePrettyTo(buffer, level, indent);
   }
 
 }
