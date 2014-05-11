@@ -5,7 +5,7 @@ part of xml;
  *
  * API is not finalized yet, do not use.
  */
-class XmlBuilder {
+class XmlBuilder implements XmlWritable {
 
   final List<_XmlNodeBuilder> _stack = new List.from([new _XmlDocumentBuilder()]);
 
@@ -152,9 +152,6 @@ class XmlBuilder {
    */
   XmlNode build() => _stack.last.build();
 
-  @override
-  String toString() => build().toString();
-
   // Internal method to build a name.
   XmlName _buildName(String name, String uri) {
     return uri == null || uri.isEmpty
@@ -179,6 +176,16 @@ class XmlBuilder {
     } else {
       text(value.toString());
     }
+  }
+
+  @override
+  void writeTo(StringBuffer buffer) {
+    build().writeTo(buffer);
+  }
+
+  @override
+  void writePrettyTo(StringBuffer buffer, int level, String indent) {
+    build().writePrettyTo(buffer, level, indent);
   }
 
 }
