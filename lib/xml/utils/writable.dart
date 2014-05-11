@@ -40,18 +40,12 @@ abstract class XmlWritable {
     return buffer.toString();
   }
 
-  void _writeIndentTo(StringBuffer buffer, int level, String indent, [bool newline = true]) {
-    if (newline) {
-      _writeNewline(buffer);
+  void _writeIndentTo(StringBuffer buffer, int level, String indent) {
+    if (buffer.isNotEmpty) {
+      buffer.write('\n');
     }
     for (int i = 0; i < level; i++) {
       buffer.write(indent);
-    }
-  }
-
-  void _writeNewline(StringBuffer buffer) {
-    if (buffer.isNotEmpty) {
-      buffer.write('\n');
     }
   }
 

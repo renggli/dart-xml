@@ -75,7 +75,7 @@ class XmlElement extends XmlBranch implements XmlNamed {
       buffer.write('>');
       super.writePrettyTo(buffer, level + 1, indent);
       if (!children.every((each) => each is XmlText)) {
-        _writeIndentTo(buffer, level, indent, true);
+        _writeIndentTo(buffer, level, indent);
       }
       buffer.write('</');
       name.writeTo(buffer);
