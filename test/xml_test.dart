@@ -653,6 +653,27 @@ void main() {
           '</schema>';
       expect(actual, expected);
     });
+    test('invalid namespace', () {
+      var builder = new XmlBuilder();
+      builder.element('element', nest: () {
+        expect(() => builder.namespace('http://1.foo.com/', 'xml'), throwsArgumentError);
+        expect(() => builder.namespace('http://2.foo.com/', 'xmlns'), throwsArgumentError);
+      });
+      var actual = builder.build().toString();
+      var expected = '<element />';
+      expect(actual, expected);
+    });
+    test('conflicting namespace', () {
+      var builder = new XmlBuilder();
+      builder.element('element', nest: () {
+        builder.namespace('http://1.foo.com/', 'foo');
+        expect(() => builder.namespace('http://2.foo.com/', 'foo'), throwsArgumentError);
+      }, namespace: 'http://1.foo.com/');
+      var actual = builder.build().toString();
+      var expected = '<foo:element xmlns:foo="http://1.foo.com/" />';
+      expect(actual, expected);
+    });
+
   });
   group('examples', () {
     test('books', () {
