@@ -5,7 +5,7 @@ import 'package:unittest/unittest.dart';
 
 import 'xml_examples.dart';
 
-void validate(String input) {
+void assetParseInvariants(String input) {
   var tree = parse(input);
   assertTreeInvariants(tree);
   var copy = parse(tree.toXmlString());
@@ -74,12 +74,9 @@ void assertBackwardInvariant(XmlNode xml) {
 void assertNameInvariant(XmlNode xml) {
   for (var node in xml.descendants) {
     if (node is XmlElement) {
-      var element = node;
-      assertQualifiedInvariant(element.name);
-    }
-    if (node is XmlAttribute) {
-      var attribute = node;
-      assertQualifiedInvariant(attribute.name);
+      assertQualifiedInvariant(node.name);
+    } else if (node is XmlAttribute) {
+      assertQualifiedInvariant(node.name);
     }
   }
 }
@@ -115,6 +112,14 @@ void assertTextInvariant(XmlNode xml) {
       expect(node.text, isNull);
     } else {
       expect(node.text, (text) => text is String);
+    }
+    if (node is XmlBranch) {
+      var lastWasText = false;
+      for (var child in node.children) {
+        expect(lastWasText && child is XmlText, isFalse,
+            reason: 'Consecutive text nodes detected: ${node.children}');
+        lastWasText = child is XmlText;
+      }
     }
   }
 }
@@ -173,49 +178,49 @@ void assertPrettyPrinting(XmlNode xml) {
 void main() {
   group('parsing', () {
     test('comment', () {
-      validate('<?xml version="1.0" encoding="UTF-8"?>' '<schema><!-- comment --></schema>');
+      assetParseInvariants('<?xml version="1.0" encoding="UTF-8"?>' '<schema><!-- comment --></schema>');
     });
     test('comment with xml', () {
-      validate('<?xml version="1.0" encoding="UTF-8"?>' '<schema><!-- <foo></foo> --></schema>');
+      assetParseInvariants('<?xml version="1.0" encoding="UTF-8"?>' '<schema><!-- <foo></foo> --></schema>');
     });
     test('complicated', () {
-      validate('<?xml foo?>\n' '<!DOCTYPE [ something ]>\n'
+      assetParseInvariants('<?xml foo?>\n' '<!DOCTYPE [ something ]>\n'
           '<ns:foo attr="not namespaced" n1:ans="namespaced 1" n2:ans="namespace 2" >\n' '  <element/>\n'
           '  <ns:element/>\n' '  <!-- comment -->\n' '  <![CDATA[cdata]]>\n' '  <?processing instruction?>\n'
           '</ns:foo>');
     });
     test('doctype', () {
-      validate('<!DOCTYPE with <schema> [ <!-- schema --> ]>\n<schema />');
+      assetParseInvariants('<!DOCTYPE with <schema> [ <!-- schema --> ]>\n<schema />');
     });
     test('empty element', () {
-      validate('<schema/>');
+      assetParseInvariants('<schema/>');
     });
     test('namespace', () {
-      validate('<xs:schema xs:attr="1"></xs:schema>');
+      assetParseInvariants('<xs:schema xs:attr="1"></xs:schema>');
     });
     test('simple', () {
-      validate('<schema></schema>');
+      assetParseInvariants('<schema></schema>');
     });
     test('simple double quote attribute', () {
-      validate('<schema foo="bar"></schema>');
+      assetParseInvariants('<schema foo="bar"></schema>');
     });
     test('simple single quote attribute', () {
-      validate('<schema foo=\'bar\'></schema>');
+      assetParseInvariants('<schema foo=\'bar\'></schema>');
     });
     test('short cdata section', () {
-      validate('<data><![CDATA[]]></data>');
+      assetParseInvariants('<data><![CDATA[]]></data>');
     });
     test('short cdata section', () {
-      validate('<data><![CDATA[<data></data>]]></data>');
+      assetParseInvariants('<data><![CDATA[<data></data>]]></data>');
     });
     test('short processing instruction', () {
-      validate('<?xml?><data />');
+      assetParseInvariants('<?xml?><data />');
     });
     test('long processing instruction', () {
-      validate('<?xml version="1.0"?><data />');
+      assetParseInvariants('<?xml version="1.0"?><data />');
     });
     test('whitespace after prolog', () {
-      validate('<?xml version="1.0" encoding="UTF-8"?>\n\t<schema></schema>\t\n');
+      assetParseInvariants('<?xml version="1.0" encoding="UTF-8"?>\n\t<schema></schema>\t\n');
     });
   });
   group('nodes', () {
@@ -559,7 +564,9 @@ void main() {
           builder.element('special');
         });
       });
-      var actual = builder.build().toString();
+      var xml = builder.build();
+      assertTreeInvariants(xml);
+      var actual = xml.toString();
       var expected =
           '<?xml encoding="UTF-8"?>'
           '<bookstore>'
@@ -580,7 +587,9 @@ void main() {
         builder.attribute('lang', 'en', namespace: uri);
         builder.element('element', namespace: uri);
       }, namespace: uri);
-      var actual = builder.build().toString();
+      var xml = builder.build();
+      assertTreeInvariants(xml);
+      var actual = xml.toString();
       var expected =
           '<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsd:lang="en">'
             '<xsd:element />'
@@ -595,7 +604,9 @@ void main() {
         builder.attribute('lang', 'en', namespace: uri);
         builder.element('element', namespace: uri);
       }, namespace: uri);
-      var actual = builder.build().toString();
+      var xml = builder.build();
+      assertTreeInvariants(xml);
+      var actual = xml.toString();
       var expected =
           '<schema xmlns="http://www.w3.org/2001/XMLSchema" lang="en">'
             '<element />'
@@ -605,16 +616,16 @@ void main() {
   });
   group('examples', () {
     test('books', () {
-      validate(booksXml);
+      assetParseInvariants(booksXml);
     });
     test('bookstore', () {
-      validate(bookstoreXml);
+      assetParseInvariants(bookstoreXml);
     });
     test('atom', () {
-      validate(atomXml);
+      assetParseInvariants(atomXml);
     });
     test('shiporder', () {
-      validate(shiporderXsd);
+      assetParseInvariants(shiporderXsd);
     });
   });
 }
