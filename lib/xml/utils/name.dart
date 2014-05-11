@@ -38,7 +38,7 @@ abstract class XmlName extends Object with XmlWritable, XmlParent {
   factory XmlName(String local, [String prefix]) {
     return prefix == null || prefix.isEmpty
         ? new _XmlSimpleName(local)
-        : new _XmlPrefixName('$prefix$_SEPARATOR$local', local, prefix);
+        : new _XmlPrefixName('$prefix$_SEPARATOR$local', prefix, local);
   }
 
   /**
