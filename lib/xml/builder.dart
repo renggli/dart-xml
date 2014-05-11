@@ -18,7 +18,13 @@ class XmlBuilder {
    *
    */
   void text(text) {
-    _stack.last.children.add(new XmlText(text.toString()));
+    var children = _stack.last.children;
+    if (children.isNotEmpty && children.last is XmlText) {
+      var previous = children.removeLast();
+      children.add(new XmlText(previous.text + text.toString()));
+    } else {
+      children.add(new XmlText(text.toString()));
+    }
   }
 
   /**

@@ -184,9 +184,14 @@ void main() {
       assetParseInvariants('<?xml version="1.0" encoding="UTF-8"?>' '<schema><!-- <foo></foo> --></schema>');
     });
     test('complicated', () {
-      assetParseInvariants('<?xml foo?>\n' '<!DOCTYPE [ something ]>\n'
-          '<ns:foo attr="not namespaced" n1:ans="namespaced 1" n2:ans="namespace 2" >\n' '  <element/>\n'
-          '  <ns:element/>\n' '  <!-- comment -->\n' '  <![CDATA[cdata]]>\n' '  <?processing instruction?>\n'
+      assetParseInvariants('<?xml foo?>\n'
+          '<!DOCTYPE [ something ]>\n'
+          '<ns:foo attr="not namespaced" n1:ans="namespaced 1" n2:ans="namespace 2" >\n'
+          '  <element/>\n'
+          '  <ns:element/>\n'
+          '  <!-- comment -->\n'
+          '  <![CDATA[cdata]]>\n'
+          '  <?processing instruction?>\n'
           '</ns:foo>');
     });
     test('doctype', () {
@@ -577,6 +582,41 @@ void main() {
               '<special />'
             '</book>'
           '</bookstore>';
+      expect(actual, expected);
+    });
+    test('all', () {
+      var builder = new XmlBuilder();
+      builder.processing('processing', 'instruction');
+      builder.element('element1', attributes: {'attribute1': 'value1'}, nest: () {
+        builder.attribute('attribute2', 'value2');
+        builder.element('element2');
+        builder.comment('comment');
+        builder.cdata('cdata');
+        builder.text('textual');
+      });
+      var xml = builder.build();
+      assertTreeInvariants(xml);
+      var actual = xml.toString();
+      var expected = '<?processing instruction?>'
+          '<element1 attribute1="value1" attribute2="value2">'
+            '<element2 />'
+            '<!--comment-->'
+            '<![CDATA[cdata]]>'
+            'textual'
+          '</element1>';
+      expect(actual, expected);
+    });
+    test('text', () {
+      var builder = new XmlBuilder();
+      builder.element('text', nest: () {
+        builder.text('abc');
+        builder.text('');
+        builder.text('def');
+      });
+      var xml = builder.build();
+      assertTreeInvariants(xml);
+      var actual = xml.toString();
+      var expected = '<text>abcdef</text>';
       expect(actual, expected);
     });
     test('namespace binding', () {
