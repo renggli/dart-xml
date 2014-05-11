@@ -41,13 +41,11 @@ abstract class XmlWritable {
   }
 
   void _writeIndentTo(StringBuffer buffer, int level, String indent, [bool newline = true]) {
-    if (indent != null) {
-      if (newline) {
-        _writeNewline(buffer);
-      }
-      for (int i = 0; i < level; i++) {
-        buffer.write(indent);
-      }
+    if (newline) {
+      _writeNewline(buffer);
+    }
+    for (int i = 0; i < level; i++) {
+      buffer.write(indent);
     }
   }
 

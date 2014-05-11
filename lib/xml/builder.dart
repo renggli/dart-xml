@@ -5,7 +5,7 @@ part of xml;
  *
  * API is not finalized yet, do not use.
  */
-class XmlBuilder implements XmlWritable {
+class XmlBuilder extends Object with XmlWritable {
 
   final List<_XmlNodeBuilder> _stack = new List.from([new _XmlDocumentBuilder()]);
 
