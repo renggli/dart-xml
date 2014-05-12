@@ -87,6 +87,8 @@ void assertQualifiedInvariant(XmlName name) {
   if (name.prefix != null) {
     expect(name.qualified, startsWith(name.prefix));
   }
+  expect(name.namespaceUri, anyOf(isNull,
+      (node) => node is String && node.isNotEmpty));
   expect(name.qualified, name.toString());
 }
 
@@ -109,9 +111,11 @@ void assertAttributeInvariant(XmlNode xml) {
 void assertTextInvariant(XmlNode xml) {
   for (var node in xml.descendants) {
     if (node is XmlDocument) {
-      expect(node.text, isNull);
+      expect(node.text, isNull,
+          reason: 'Documents are not supposed to null as their text.');
     } else {
-      expect(node.text, (text) => text is String);
+      expect(node.text, (text) => text is String,
+          reason: 'All nodes are supposed to return text strings.');
     }
     if (node is XmlBranch) {
       var lastWasText = false;
