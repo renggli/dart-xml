@@ -43,6 +43,7 @@ class _XmlFollowingIterator extends Iterator<XmlNode> {
   @override
   bool moveNext() {
     if (todo.isEmpty) {
+      current = null;
       return false;
     } else {
       current = todo.removeLast();
