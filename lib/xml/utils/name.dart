@@ -1,11 +1,12 @@
 part of xml;
 
+// separator between prefix and local name
 const _SEPARATOR = ':';
 
+// xml namespace declarations
 const _XML = 'xml';
 const _XML_URI = 'http://www.w3.org/XML/1998/namespace';
 const _XMLNS = 'xmlns';
-
 
 /**
  * XML entity name.
@@ -38,7 +39,7 @@ abstract class XmlName extends Object with XmlWritable, XmlParent {
   factory XmlName(String local, [String prefix]) {
     return prefix == null || prefix.isEmpty
         ? new _XmlSimpleName(local)
-        : new _XmlPrefixName('$prefix$_SEPARATOR$local', prefix, local);
+        : new _XmlPrefixName(prefix, local, '$prefix$_SEPARATOR$local');
   }
 
   /**
@@ -49,7 +50,7 @@ abstract class XmlName extends Object with XmlWritable, XmlParent {
     if (index > 0) {
       var prefix = qualified.substring(0, index);
       var local = qualified.substring(index + 1, qualified.length);
-      return new _XmlPrefixName(qualified, prefix, local);
+      return new _XmlPrefixName(prefix, local, qualified);
     } else {
       return new _XmlSimpleName(qualified);
     }
@@ -58,7 +59,7 @@ abstract class XmlName extends Object with XmlWritable, XmlParent {
   XmlName._();
 
   @override
-  void writeTo(StringBuffer buffer, {bool pretty: false, int level: 0, String indent: '  '}) {
+  void writeTo(StringBuffer buffer) {
     buffer.write(qualified);
   }
 
@@ -78,15 +79,13 @@ abstract class XmlName extends Object with XmlWritable, XmlParent {
 class _XmlSimpleName extends XmlName {
 
   @override
-  String get qualified => local;
-
-  @override
   String get prefix => null;
 
   @override
   final String local;
 
-  _XmlSimpleName(this.local) : super._();
+  @override
+  String get qualified => local;
 
   @override
   String get namespaceUri {
@@ -100,6 +99,8 @@ class _XmlSimpleName extends XmlName {
     return null;
   }
 
+  _XmlSimpleName(this.local) : super._();
+
 }
 
 /**
@@ -108,15 +109,13 @@ class _XmlSimpleName extends XmlName {
 class _XmlPrefixName extends XmlName {
 
   @override
-  final String qualified;
-
-  @override
   final String prefix;
 
   @override
   final String local;
 
-  _XmlPrefixName(this.qualified, this.prefix, this.local) : super._();
+  @override
+  final String qualified;
 
   @override
   String get namespaceUri {
@@ -129,5 +128,7 @@ class _XmlPrefixName extends XmlName {
     }
     return null;
   }
+
+  _XmlPrefixName(this.prefix, this.local, this.qualified) : super._();
 
 }
