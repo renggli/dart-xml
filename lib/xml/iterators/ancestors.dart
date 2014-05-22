@@ -1,5 +1,8 @@
 part of xml;
 
+/**
+ * Iterable to walk over the ancestors of a node.
+ */
 class _XmlAncestorsIterable extends IterableBase<XmlNode> {
 
   final XmlNode start;
@@ -11,6 +14,9 @@ class _XmlAncestorsIterable extends IterableBase<XmlNode> {
 
 }
 
+/**
+ * Iterator to walk over the ancestors of a node.
+ */
 class _XmlAncestorsIterator extends Iterator<XmlNode> {
 
   _XmlAncestorsIterator(this.current);
