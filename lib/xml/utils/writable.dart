@@ -16,7 +16,7 @@ abstract class XmlWritable {
   void writePrettyTo(StringBuffer buffer, int level, String indent) => writeTo(buffer);
 
   /**
-   * Return an XML string of this object.
+   * Return a default XML string of this object.
    */
   @override
   String toString() => toXmlString();

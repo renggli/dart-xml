@@ -20,10 +20,9 @@ class _XmlAncestorsIterator extends Iterator<XmlNode> {
 
   @override
   bool moveNext() {
-    if (current == null) {
-      return null;
+    if (current != null) {
+      current = current.parent;
     }
-    current = current.parent;
     return current != null;
   }
 
