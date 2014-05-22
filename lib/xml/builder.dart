@@ -2,8 +2,6 @@ part of xml;
 
 /**
  * A builder to create XML trees.
- *
- * API is not finalized yet, do not use.
  */
 class XmlBuilder {
 
@@ -119,7 +117,6 @@ class XmlBuilder {
    *
    * To generate _<message lang="en" />_ one would write:
    *
-   *     var builder = new XmlBuilder();
    *     builder.element('node', nest: () {
    *        builder.attribute('lang', 'en');
    *     });

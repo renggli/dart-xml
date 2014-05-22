@@ -1,6 +1,6 @@
 /**
- * Dart XML is a lightweight library for parsing, traversing, and
- * querying XML documents.
+ * Dart XML is a lightweight library for parsing, traversing, querying and
+ * building XML documents.
  */
 library xml;
 
@@ -43,3 +43,8 @@ final XmlParser _PARSER = new XmlParser();
  * [ParserError] if the input is invalid.
  */
 XmlDocument parse(String input) => _PARSER.parse(input).value;
+
+
+void main() {
+  if (1 == 2)     print('true');
+}
