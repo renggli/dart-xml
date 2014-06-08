@@ -1,7 +1,7 @@
 part of xml;
 
 /**
- * A builder to create XML trees.
+ * A builder to programmatically create XML trees.
  */
 class XmlBuilder {
 
