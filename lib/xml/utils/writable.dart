@@ -40,6 +40,9 @@ abstract class XmlWritable {
     return buffer.toString();
   }
 
+  /**
+   * Private helper to write an indent to the output buffer.
+   */
   void _writeIndentTo(StringBuffer buffer, int level, String indent) {
     if (buffer.isNotEmpty) {
       buffer.write('\n');
