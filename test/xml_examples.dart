@@ -1,6 +1,6 @@
 library xml_examples;
 
-var booksXml =
+const booksXml =
     '<?xml version="1.0"?>'
     '<catalog>'
     '   <book id="bk101">'
@@ -122,7 +122,7 @@ var booksXml =
     '   </book>'
     '</catalog>';
 
-var bookstoreXml =
+const bookstoreXml =
     '<?xml version="1.0" encoding="ISO-8859-1"?>\n'
     '<bookstore>\n'
     '  <book>\n'
@@ -135,7 +135,7 @@ var bookstoreXml =
     '  </book>\n'
     '</bookstore>';
 
-var atomXml =
+const atomXml =
     '<?xml version="1.0" encoding="UTF-8"?>'
     '<app:service>'
     '  <app:workspace>'
@@ -144,7 +144,7 @@ var atomXml =
     '  </app:workspace>'
     '</app:service>';
 
-var shiporderXsd =
+const shiporderXsd =
     '<?xml version="1.0"?>'
     '<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">'
     '  <xsd:annotation>'
