@@ -83,7 +83,7 @@ class XmlGrammar extends CompositeParser {
           if (list[1] == list[4][3]) {
             return [list[1], list[2], list[4][1]];
           } else {
-            throw new ArgumentError('Expected </${list[1]}>');
+            throw new ArgumentError('Expected </${list[1]}>, but found </${list[4][3]}>');
           }
         }
       }));
