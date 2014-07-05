@@ -170,7 +170,7 @@ class XmlBuilder {
     if (value is Function) {
       value();
     } else if (value is Iterable) {
-      value.forEach((each) => _insert(value));
+      value.forEach(_insert);
     } else {
       text(value.toString());
     }
