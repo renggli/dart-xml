@@ -69,7 +69,7 @@ abstract class XmlName extends Object with XmlWritable, XmlParent {
       && other.namespaceUri == namespaceUri;
 
   @override
-  int get hashCode => local.hashCode;
+  int get hashCode => qualified.hashCode;
 
 }
 
