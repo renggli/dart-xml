@@ -39,7 +39,13 @@ part 'xml/parser.dart';
 final XmlParser _PARSER = new XmlParser();
 
 /**
- * Return an [XmlDocument] for the given `input` string, or throws a
- * [ParserError] if the input is invalid.
+ * Return an [XmlDocument] for the given `input` string, or throws an
+ * [ArgumentError] if the input is invalid.
  */
-XmlDocument parse(String input) => _PARSER.parse(input).value;
+XmlDocument parse(String input) {
+  var result = _PARSER.parse(input);
+  if (result.isFailure) {
+    throw new ArgumentError(new ParserError(result).toString());
+  }
+  return result.value;
+}
