@@ -12,6 +12,15 @@ void assetParseInvariants(String input) {
   expect(tree.toXmlString(), copy.toXmlString());
 }
 
+void assertParseError(String input, String message) {
+  try {
+    var result = parse(input);
+    fail('Expected parse error $message, but got $result');
+  } on ArgumentError catch (error, stack) {
+    expect(error.message, message);
+  }
+}
+
 void assertTreeInvariants(XmlNode xml) {
   assertDocumentInvariant(xml);
   assertParentInvariant(xml);
@@ -89,6 +98,7 @@ void assertQualifiedInvariant(XmlName name) {
   }
   expect(name.namespaceUri, anyOf(isNull,
       (node) => node is String && node.isNotEmpty));
+  expect(name.qualified.hashCode, name.hashCode);
   expect(name.qualified, name.toString());
 }
 
@@ -231,6 +241,12 @@ void main() {
     test('whitespace after prolog', () {
       assetParseInvariants('<?xml version="1.0" encoding="UTF-8"?>\n\t<schema></schema>\t\n');
     });
+    test('parse errors', () {
+      assertParseError('<data></tada>', 'Expected </data>, but found </tada>');
+      assertParseError('<data key="ab', '> expected at 1:7');
+      assertParseError('<data key', '> expected at 1:7');
+      assertParseError('<data', '> expected at 1:6');
+    });
   });
   group('nodes', () {
     test('element', () {
@@ -245,6 +261,7 @@ void main() {
       expect(node.descendants, hasLength(1));
       expect(node.text, 'Am I or are the other crazy?');
       expect(node.nodeType, XmlNodeType.ELEMENT);
+      expect(node.nodeType.toString(), 'XmlNodeType.ELEMENT');
       expect(node.toString(), '<ns:data>Am I or are the other crazy?</ns:data>');
     });
     test('attribute', () {
@@ -260,6 +277,7 @@ void main() {
       expect(node.descendants, isEmpty);
       expect(node.text, isEmpty);
       expect(node.nodeType, XmlNodeType.ATTRIBUTE);
+      expect(node.nodeType.toString(), 'XmlNodeType.ATTRIBUTE');
       expect(node.toString(), 'ns:attr="Am I or are the other crazy?"');
     });
     test('attribute (character references)', () {
@@ -279,6 +297,7 @@ void main() {
       expect(node.children, isEmpty);
       expect(node.descendants, isEmpty);
       expect(node.nodeType, XmlNodeType.TEXT);
+      expect(node.nodeType.toString(), 'XmlNodeType.TEXT');
       expect(node.toString(), 'Am I or are the other crazy?');
     });
     test('text (character references)', () {
@@ -302,6 +321,7 @@ void main() {
       expect(node.attributes, isEmpty);
       expect(node.children, isEmpty);
       expect(node.nodeType, XmlNodeType.CDATA);
+      expect(node.nodeType.toString(), 'XmlNodeType.CDATA');
       expect(node.toString(), '<![CDATA[Methinks <word> it <word> is like a weasel!]]>');
       expect(node.descendants, isEmpty);
     });
@@ -316,6 +336,7 @@ void main() {
       expect(node.attributes, isEmpty);
       expect(node.children, isEmpty);
       expect(node.nodeType, XmlNodeType.PROCESSING);
+      expect(node.nodeType.toString(), 'XmlNodeType.PROCESSING');
       expect(node.toString(), '<?xml version="1.0"?>');
       expect(node.descendants, isEmpty);
     });
@@ -330,6 +351,7 @@ void main() {
       expect(node.descendants, isEmpty);
       expect(node.text, 'Am I or are the other crazy?');
       expect(node.nodeType, XmlNodeType.COMMENT);
+      expect(node.nodeType.toString(), 'XmlNodeType.COMMENT');
       expect(node.toString(), '<!--Am I or are the other crazy?-->');
     });
     test('document', () {
@@ -343,7 +365,13 @@ void main() {
       expect(node.descendants, hasLength(1));
       expect(node.text, isNull);
       expect(node.nodeType, XmlNodeType.DOCUMENT);
+      expect(node.nodeType.toString(), 'XmlNodeType.DOCUMENT');
       expect(node.toString(), '<data />');
+    });
+    test('document empty', () {
+      XmlDocument document = new XmlDocument([]);
+      expect(document.doctypeElement, isNull);
+      expect(() => document.rootElement, throwsStateError);
     });
     test('document type', () {
       XmlDocument document = parse('<!DOCTYPE html [<!-- internal subset -->]><data />');
@@ -355,6 +383,7 @@ void main() {
       expect(node.descendants, isEmpty);
       expect(node.text, 'html [<!-- internal subset -->]');
       expect(node.nodeType, XmlNodeType.DOCUMENT_TYPE);
+      expect(node.nodeType.toString(), 'XmlNodeType.DOCUMENT_TYPE');
       expect(node.toString(), '<!DOCTYPE html [<!-- internal subset -->]>');
     });
   });
@@ -407,6 +436,9 @@ void main() {
       expect(decode('&amp;'), '&');
       expect(decode('&apos;'), '\'');
       expect(decode('&quot;'), '"');
+    });
+    test('decode invalid', () {
+      expect(decode('&invalid;'), '&invalid;');
     });
     test('encode text', () {
       expect(encodeText('<'), '&lt;');
@@ -516,10 +548,57 @@ void main() {
       expect(book.children[0].children[1].following, []);
     });
   });
+  group('querying elements', () {
+    var bookstore = parse(bookstoreXml).rootElement;
+    var shiporder = parse(shiporderXsd).rootElement;
+    var xsd = 'http://www.w3.org/2001/XMLSchema';
+    test('invalid', () {
+      expect(() => bookstore.findElements(null), throwsArgumentError);
+    });
+    test('name defined, namespace undefined', () {
+      var books = bookstore.findElements('book');
+      expect(books.length, 2);
+      var orders = shiporder.findElements('element');
+      expect(orders.length, 0);
+    });
+    test('name defined, namespace wildcard', () {
+      var books = bookstore.findElements('book', namespace: '*');
+      expect(books.length, 2);
+      var orders = shiporder.findElements('element', namespace: '*');
+      expect(orders.length, 2);
+    });
+    test('name defined, namespace defined', () {
+      var books = bookstore.findElements('book', namespace: xsd);
+      expect(books.length, 0);
+      var orders = shiporder.findElements('element', namespace: xsd);
+      expect(orders.length, 2);
+    });
+    test('name wildcard, namespace undefined', () {
+      var books = bookstore.findElements('*');
+      expect(books.length, 2);
+      var orders = shiporder.findElements('*');
+      expect(orders.length, 7);
+    });
+    test('name wildcard, namespace wildcard', () {
+      var books = bookstore.findElements('*', namespace: '*');
+      expect(books.length, 2);
+      var orders = shiporder.findElements('*', namespace: '*');
+      expect(orders.length, 7);
+    });
+    test('name wildcard, namespace defined', () {
+      var books = bookstore.findElements('*', namespace: xsd);
+      expect(books.length, 0);
+      var orders = shiporder.findElements('*', namespace: xsd);
+      expect(orders.length, 7);
+    });
+  });
   group('querying all elements', () {
     var bookstore = parse(bookstoreXml);
     var shiporder = parse(shiporderXsd);
     var xsd = 'http://www.w3.org/2001/XMLSchema';
+    test('invalid', () {
+      expect(() => bookstore.findAllElements(null), throwsArgumentError);
+    });
     test('name defined, namespace undefined', () {
       var books = bookstore.findAllElements('book');
       expect(books.length, 2);
@@ -610,6 +689,30 @@ void main() {
           '</element1>';
       expect(actual, expected);
     });
+    test('nested string', () {
+      var builder = new XmlBuilder();
+      builder.element('element', nest: 'string');
+      var xml = builder.build();
+      assertTreeInvariants(xml);
+      var actual = xml.toString();
+      var expected = '<element>string</element>';
+      expect(actual, expected);
+    });
+    test('nested iterable', () {
+      var builder = new XmlBuilder();
+      builder.element('element', nest: [
+          () => builder.text('st'),
+          'ri', ['n', 'g']]);
+      var xml = builder.build();
+      assertTreeInvariants(xml);
+      var actual = xml.toString();
+      var expected = '<element>string</element>';
+      expect(actual, expected);
+    });
+    test('invalid attributes', () {
+      var builder = new XmlBuilder();
+      expect(() => builder.attribute('key', 'value'), throwsArgumentError);
+    });
     test('text', () {
       var builder = new XmlBuilder();
       builder.element('text', nest: () {
@@ -656,6 +759,10 @@ void main() {
             '<element />'
           '</schema>';
       expect(actual, expected);
+    });
+    test('undefined namespace', () {
+      var builder = new XmlBuilder();
+      expect(() => builder.element('element', namespace: 'http://1.foo.com/'), throwsArgumentError);
     });
     test('invalid namespace', () {
       var builder = new XmlBuilder();
