@@ -192,13 +192,16 @@ void assertPrettyPrinting(XmlNode xml) {
 void main() {
   group('parsing', () {
     test('comment', () {
-      assetParseInvariants('<?xml version="1.0" encoding="UTF-8"?>' '<schema><!-- comment --></schema>');
+      assetParseInvariants('<?xml version="1.0" encoding="UTF-8"?>'
+                           '<schema><!-- comment --></schema>');
     });
     test('comment with xml', () {
-      assetParseInvariants('<?xml version="1.0" encoding="UTF-8"?>' '<schema><!-- <foo></foo> --></schema>');
+      assetParseInvariants('<?xml version="1.0" encoding="UTF-8"?>'
+                           '<schema><!-- <foo></foo> --></schema>');
     });
     test('complicated', () {
-      assetParseInvariants('<?xml foo?>\n'
+      assetParseInvariants(
+          '<?xml foo?>\n'
           '<!DOCTYPE [ something ]>\n'
           '<ns:foo attr="not namespaced" n1:ans="namespaced 1" n2:ans="namespace 2" >\n'
           '  <element/>\n'
@@ -229,6 +232,8 @@ void main() {
     test('empty element', () {
       assetParseInvariants('<root/>');
       assetParseInvariants('<root />');
+      assetParseInvariants('<root key="value"/>');
+      assetParseInvariants('<root key="value" />');
     });
     test('namespace', () {
       assetParseInvariants('<xs:schema xs:attr="1"></xs:schema>');
@@ -262,6 +267,7 @@ void main() {
       assertParseError('<data key="ab', '> expected at 1:7');
       assertParseError('<data key', '> expected at 1:7');
       assertParseError('<data', '> expected at 1:6');
+      assertParseError('<>', 'Expected name at 1:2');
     });
   });
   group('nodes', () {
