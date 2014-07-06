@@ -87,7 +87,7 @@ class XmlBuilder {
    *
    *     builder.element('message', nest: 'Hello World');
    *
-   * To add multiple child elements as in one would use the argument [nest]:
+   * To add multiple child elements one would use:
    *
    *     builder.element('message', nest: () {
    *       builder..text('Hello World')
@@ -113,9 +113,10 @@ class XmlBuilder {
   }
 
   /**
-   * Adds a [XmlAttribute] node with the provided [name] and [value]. If a
-   * [namespace] URI is provided, the prefix is looked up, verified and
-   * combined with the given attribute [name].
+   * Adds a [XmlAttribute] node with the provided [name] and [value].
+   *
+   * If a [namespace] URI is provided, the prefix is looked up, verified
+   * and combined with the given attribute [name].
    *
    * To generate an element with the tag _message_ and the attribute _lang="en"_
    * one would write:
