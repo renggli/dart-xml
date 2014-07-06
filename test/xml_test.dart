@@ -209,10 +209,26 @@ void main() {
           '</ns:foo>');
     });
     test('doctype', () {
-      assetParseInvariants('<!DOCTYPE with <schema> [ <!-- schema --> ]>\n<schema />');
+      assetParseInvariants('<!DOCTYPE root-name SYSTEM "uri-reference">'
+                           '<root />');
+      assetParseInvariants('<!DOCTYPE root-name PUBLIC "public-identifier" "uri-reference">'
+                           '<root />');
+      assetParseInvariants('<!DOCTYPE root ['
+                           '  <!ELEMENT root (child)>'
+                           '  <!ATTLIST root attribute #IMPLIED>'
+                           '  <!ENTITY copy "©">'
+                           ']>'
+                           '<root />');
+      assetParseInvariants('<!DOCTYPE root SYSTEM "uri-reference" ['
+                           '  <!ELEMENT root (child)>'
+                           '  <!ATTLIST root attribute #IMPLIED>'
+                           '  <!ENTITY copy "©">'
+                           ']>'
+                           '<root />');
     });
     test('empty element', () {
-      assetParseInvariants('<schema/>');
+      assetParseInvariants('<root/>');
+      assetParseInvariants('<root />');
     });
     test('namespace', () {
       assetParseInvariants('<xs:schema xs:attr="1"></xs:schema>');
