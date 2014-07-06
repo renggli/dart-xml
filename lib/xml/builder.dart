@@ -10,7 +10,7 @@ class XmlBuilder {
   /**
    * Adds a [XmlText] node with the provided [text].
    *
-   * For example, to generate _Hello World_ one would write:
+   * For example, to generate the text _Hello World_ one would write:
    *
    *     builder.text('Hello World');
    *
@@ -29,8 +29,8 @@ class XmlBuilder {
   /**
    * Adds a [XmlCDATA] node with the provided [text].
    *
-   * For example, to generate _&lt;![CDATA[Hello World]]>_ one
-   * would write:
+   * For example, to generate a CDATA element with the text _Hello World_
+   * one would write:
    *
    *     builder.cdata('Hello World');
    *
@@ -42,7 +42,8 @@ class XmlBuilder {
   /**
    * Adds a [XmlProcessing] node with the provided [target] and [text].
    *
-   * For example, to generate _&lt;?xml version="1.0"?>_ one would write:
+   * For example, to generate a processing element with the _xml_ and the
+   * attribute _version="1.0"_ one would write:
    *
    *     builder.processing('xml', 'version="1.0"');
    *
@@ -54,7 +55,8 @@ class XmlBuilder {
   /**
    * Adds a [XmlComment] node with the provided [text].
    *
-   * For example, to generate _&lt;!--Hello World-->_ one would write:
+   * For example, to generate a comment with the text _Hello World_ one
+   * would write:
    *
    *     builder.comment('Hello World');
    *
@@ -80,12 +82,12 @@ class XmlBuilder {
    * same builder object. For convenience `nest` can also be a string or another
    * common object that will be converted to a string and added as a text node.
    *
-   * For example, to generate _&lt;message>Hello World&lt;/message>_ one would write:
+   * For example, to generate an element with the tag _message_ and the contained
+   * text _Hello World_ one would write:
    *
    *     builder.element('message', nest: 'Hello World');
    *
-   * To add multiple child elements as in _&lt;message>Hello
-   * World&lt;break />&lt;/message>_ one would write:
+   * To add multiple child elements as in one would use the argument [nest]:
    *
    *     builder.element('message', nest: () {
    *       builder..text('Hello World')
@@ -115,9 +117,10 @@ class XmlBuilder {
    * [namespace] URI is provided, the prefix is looked up, verified and
    * combined with the given attribute [name].
    *
-   * To generate _&lt;message lang="en" />_ one would write:
+   * To generate an element with the tag _message_ and the attribute _lang="en"_
+   * one would write:
    *
-   *     builder.element('node', nest: () {
+   *     builder.element('message', nest: () {
    *        builder.attribute('lang', 'en');
    *     });
    *
