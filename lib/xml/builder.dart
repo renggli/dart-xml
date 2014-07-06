@@ -8,7 +8,7 @@ class XmlBuilder {
   final List<_XmlNodeBuilder> _stack = new List.from([new _XmlDocumentBuilder()]);
 
   /**
-   * Adds a [XmlText] node with the provided `text`.
+   * Adds a [XmlText] node with the provided [text].
    *
    * For example, to generate _Hello World_ one would write:
    *
@@ -27,9 +27,9 @@ class XmlBuilder {
   }
 
   /**
-   * Adds a [XmlCDATA] node with the provided `text`.
+   * Adds a [XmlCDATA] node with the provided [text].
    *
-   * For example, to generate __<![CDATA[Hello World]]>__ one
+   * For example, to generate _&lt;![CDATA[Hello World]]>_ one
    * would write:
    *
    *     builder.cdata('Hello World');
@@ -40,9 +40,9 @@ class XmlBuilder {
   }
 
   /**
-   * Adds a [XmlProcessing] node with the provided `target` and `text`.
+   * Adds a [XmlProcessing] node with the provided [target] and [text].
    *
-   * For example, to generate _<?xml version="1.0"?>_ one would write:
+   * For example, to generate _&lt;?xml version="1.0"?>_ one would write:
    *
    *     builder.processing('xml', 'version="1.0"');
    *
@@ -52,9 +52,9 @@ class XmlBuilder {
   }
 
   /**
-   * Adds a [XmlComment] node with the provided `text`.
+   * Adds a [XmlComment] node with the provided [text].
    *
-   * For example, to generate _<!--Hello World-->_ one would write:
+   * For example, to generate _&lt;!--Hello World-->_ one would write:
    *
    *     builder.comment('Hello World');
    *
@@ -64,28 +64,28 @@ class XmlBuilder {
   }
 
   /**
-   * Adds a [XmlElement] node with the provided tag `name`.
+   * Adds a [XmlElement] node with the provided tag [name].
    *
-   * If a `namespace` URI is provided, the prefix is looked up, verified and
-   * combined with the given tag `name`.
+   * If a [namespace] URI is provided, the prefix is looked up, verified and
+   * combined with the given tag [name].
    *
-   * If a map of `namespaces` is provided the uri-prefix pairs are added to the
-   * element declaration, see also [XmlBuilder#namespace].
+   * If a map of [namespaces] is provided the uri-prefix pairs are added to the
+   * element declaration, see also [XmlBuilder.namespace].
    *
-   * If a map of `attributes` is provided the name-value pairs are added to the
-   * element declaration, see also [XmlBuilder#attribute].
+   * If a map of [attributes] is provided the name-value pairs are added to the
+   * element declaration, see also [XmlBuilder.attribute].
    *
-   * Finally, `nest` is used to further customize the element and to add its
+   * Finally, [nest] is used to further customize the element and to add its
    * children. Typically this is a [Function] that defines elements using the
    * same builder object. For convenience `nest` can also be a string or another
    * common object that will be converted to a string and added as a text node.
    *
-   * For example, to generate _<message>Hello World</message>_ one would write:
+   * For example, to generate _&lt;message>Hello World&lt;/message>_ one would write:
    *
    *     builder.element('message', nest: 'Hello World');
    *
-   * To add multiple child elements as in _<message>Hello
-   * World<break /></message>_ one would write:
+   * To add multiple child elements as in _&lt;message>Hello
+   * World&lt;break />&lt;/message>_ one would write:
    *
    *     builder.element('message', nest: () {
    *       builder..text('Hello World')
@@ -111,11 +111,11 @@ class XmlBuilder {
   }
 
   /**
-   * Adds a [XmlAttribute] node with the provided `name` and `value`. If a
-   * `namespace` URI is provided, the prefix is looked up, verified and
-   * combined with the given attribute `name`.
+   * Adds a [XmlAttribute] node with the provided [name] and [value]. If a
+   * [namespace] URI is provided, the prefix is looked up, verified and
+   * combined with the given attribute [name].
    *
-   * To generate _<message lang="en" />_ one would write:
+   * To generate _&lt;message lang="en" />_ one would write:
    *
    *     builder.element('node', nest: () {
    *        builder.attribute('lang', 'en');
@@ -127,9 +127,9 @@ class XmlBuilder {
   }
 
   /**
-   * Binds a namespace `prefix` to the provided `uri`. The `prefix` can be
+   * Binds a namespace [prefix] to the provided [uri]. The [prefix] can be
    * omitted to declare a default namespace. Throws an [ArgumentError] if
-   * the `prefix` is invalid or conflicts with an existing delcaration.
+   * the [prefix] is invalid or conflicts with an existing delcaration.
    */
   void namespace(String uri, [String prefix]) {
     if (prefix == _XMLNS || prefix == _XML) {
