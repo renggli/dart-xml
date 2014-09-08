@@ -3,7 +3,7 @@ part of xml;
 /**
  * XML grammar definition.
  */
-class XmlGrammar extends CompositeParser {
+abstract class XmlGrammar extends CompositeParser {
 
   // name patterns
   static const NAME_START_CHARS = ':A-Z_a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF'
@@ -32,6 +32,17 @@ class XmlGrammar extends CompositeParser {
   static const OPEN_PROCESSING = '<?';
   static const CLOSE_PROCESSING = '?>';
 
+  // parser callbacks
+  createAttribute(name, value);
+  createComment(value);
+  createCDATA(value);
+  createDoctype(value);
+  createDocument(Iterable children);
+  createElement(name, Iterable attributes, Iterable children);
+  createProcessing(target, value);
+  createQualified(name);
+  createText(value);
+
   @override
   void initialize() {
     def('start', ref('document').end());
@@ -41,7 +52,7 @@ class XmlGrammar extends CompositeParser {
       .seq(char(EQUALS))
       .seq(ref('whitespace').optional())
       .seq(ref('attributeValue'))
-      .permute([0, 4]));
+      .map((each) => createAttribute(each[0], each[4])));
     def('attributeValue', ref('attributeValueDouble')
       .or(ref('attributeValueSingle'))
       .pick(1));
@@ -58,11 +69,11 @@ class XmlGrammar extends CompositeParser {
     def('comment', string(OPEN_COMMENT)
       .seq(any().starLazy(string(CLOSE_COMMENT)).flatten())
       .seq(string(CLOSE_COMMENT))
-      .pick(1));
+      .map((each) => createComment(each[1])));
     def('cdata', string(OPEN_CDATA)
       .seq(any().starLazy(string(CLOSE_CDATA)).flatten())
       .seq(string(CLOSE_CDATA))
-      .pick(1));
+      .map((each) => createCDATA(each[1])));
     def('content', ref('characterData')
       .or(ref('element'))
       .or(ref('processing'))
@@ -81,15 +92,14 @@ class XmlGrammar extends CompositeParser {
         .flatten())
       .seq(ref('whitespace').optional())
       .seq(char(CLOSE_DOCTYPE))
-      .pick(2));
+      .map((each) => createDoctype(each[2])));
     def('document', ref('processing').optional()
       .seq(ref('misc'))
       .seq(ref('doctype').optional())
       .seq(ref('misc'))
       .seq(ref('element'))
       .seq(ref('misc'))
-      .permute([0, 2, 4])
-      .map((list) => list.where((each) => each != null)));
+      .map((each) => createDocument([each[0], each[2], each[4]].where((each) => each != null))));
     def('element', char(OPEN_ELEMENT)
       .seq(ref('qualified'))
       .seq(ref('attributes'))
@@ -103,10 +113,10 @@ class XmlGrammar extends CompositeParser {
           .seq(char(CLOSE_ELEMENT))))
       .map((list) {
         if (list[4] == CLOSE_END_ELEMENT) {
-          return [list[1], list[2], []];
+          return createElement(list[1], list[2], []);
         } else {
           if (list[1] == list[4][3]) {
-            return [list[1], list[2], list[4][1]];
+            return createElement(list[1], list[2], list[4][1]);
           } else {
             throw new ArgumentError('Expected </${list[1]}>, but found </${list[4][3]}>');
           }
@@ -118,10 +128,10 @@ class XmlGrammar extends CompositeParser {
         .seq(any().starLazy(string(CLOSE_PROCESSING)).flatten())
         .pick(1).optional(''))
       .seq(string(CLOSE_PROCESSING))
-      .permute([1, 2]));
-    def('qualified', ref('nameToken'));
+      .map((each) => createProcessing(each[1], each[2])));
+    def('qualified', ref('nameToken').map(createQualified));
 
-    def('characterData', pattern(CHAR_DATA).plus().flatten().map(_decodeXml));
+    def('characterData', pattern(CHAR_DATA).plus().flatten().map(_decodeXml).map(createText));
     def('misc', ref('whitespace')
       .or(ref('comment'))
       .or(ref('processing'))
