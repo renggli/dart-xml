@@ -17,7 +17,8 @@ class XmlAttribute extends XmlNode implements XmlNamed {
    * Create an attribute with `name` and `value`.
    */
   XmlAttribute(this.name, this.value) {
-    name._parent = this;
+    assert(this.name._parent == null);
+    this.name._parent = this;
   }
 
   @override

@@ -15,10 +15,13 @@ class XmlElement extends XmlBranch implements XmlNamed {
    * Create an [XmlElement] with the given `name`, `attributes`, and `children`.
    */
   XmlElement(XmlName name, Iterable<XmlAttribute> attributes, Iterable<XmlNode> children)
-      : super(children), name = name,
+      : super(children),
+        name = name,
         attributes = attributes.toList(growable: false) {
-    name._parent = this;
-    for (var attribute in attributes) {
+    assert(this.name._parent == null);
+    this.name._parent = this;
+    for (var attribute in this.attributes) {
+      assert(attribute._parent == null);
       attribute._parent = this;
     }
   }
