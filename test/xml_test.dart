@@ -22,18 +22,19 @@ void assertParseError(String input, String message) {
 }
 
 void assertTreeInvariants(XmlNode xml) {
-  assertDocumentInvariant(xml);
-  assertParentInvariant(xml);
-  assertForwardInvariant(xml);
-  assertBackwardInvariant(xml);
-  assertNameInvariant(xml);
-  assertAttributeInvariant(xml);
-  assertTextInvariant(xml);
+  assertDocumentInvariants(xml);
+  assertParentInvariants(xml);
+  assertForwardInvariants(xml);
+  assertBackwardInvariants(xml);
+  assertNameInvariants(xml);
+  assertAttributeInvariants(xml);
+  assertTextInvariants(xml);
   assertIteratorInvariants(xml);
-  assertPrettyPrinting(xml);
+  assertCopyInvariants(xml);
+  assertPrintingInvariants(xml);
 }
 
-void assertDocumentInvariant(XmlNode xml) {
+void assertDocumentInvariants(XmlNode xml) {
   var root = xml.root;
   for (var child in xml.descendants) {
     expect(root, same(child.root));
@@ -46,7 +47,7 @@ void assertDocumentInvariant(XmlNode xml) {
   }
 }
 
-void assertParentInvariant(XmlNode xml) {
+void assertParentInvariants(XmlNode xml) {
   for (var node in xml.descendants) {
     expect(node.parent, node is XmlDocument ? isNull : isNotNull);
     for (var child in node.children) {
@@ -58,7 +59,7 @@ void assertParentInvariant(XmlNode xml) {
   }
 }
 
-void assertForwardInvariant(XmlNode xml) {
+void assertForwardInvariants(XmlNode xml) {
   for (var node in xml.descendants) {
     var current = node.firstChild;
     for (var i = 0; i < node.children.length; i++) {
@@ -69,7 +70,7 @@ void assertForwardInvariant(XmlNode xml) {
   }
 }
 
-void assertBackwardInvariant(XmlNode xml) {
+void assertBackwardInvariants(XmlNode xml) {
   for (var node in xml.descendants) {
     var current = node.lastChild;
     for (var i = node.children.length - 1; i >= 0; i--) {
@@ -80,29 +81,28 @@ void assertBackwardInvariant(XmlNode xml) {
   }
 }
 
-void assertNameInvariant(XmlNode xml) {
+void assertNameInvariants(XmlNode xml) {
   for (var node in xml.descendants) {
-    if (node is XmlElement) {
-      assertQualifiedInvariant(node.name);
-    } else if (node is XmlAttribute) {
-      assertQualifiedInvariant(node.name);
+    if (node is XmlNamed) {
+      assertNamedInvariant(node);
     }
   }
 }
 
-void assertQualifiedInvariant(XmlName name) {
-  expect(name.local, isNot(isEmpty));
-  expect(name.qualified, endsWith(name.local));
-  if (name.prefix != null) {
-    expect(name.qualified, startsWith(name.prefix));
+void assertNamedInvariant(XmlNamed named) {
+  expect(named, same(named.name.parent));
+  expect(named.name.local, isNot(isEmpty));
+  expect(named.name.qualified, endsWith(named.name.local));
+  if (named.name.prefix != null) {
+    expect(named.name.qualified, startsWith(named.name.prefix));
   }
-  expect(name.namespaceUri, anyOf(isNull,
+  expect(named.name.namespaceUri, anyOf(isNull,
       (node) => node is String && node.isNotEmpty));
-  expect(name.qualified.hashCode, name.hashCode);
-  expect(name.qualified, name.toString());
+  expect(named.name.qualified.hashCode, named.name.hashCode);
+  expect(named.name.qualified, named.name.toString());
 }
 
-void assertAttributeInvariant(XmlNode xml) {
+void assertAttributeInvariants(XmlNode xml) {
   for (var node in xml.descendants) {
     if (node is XmlElement) {
       var element = node;
@@ -118,7 +118,7 @@ void assertAttributeInvariant(XmlNode xml) {
   }
 }
 
-void assertTextInvariant(XmlNode xml) {
+void assertTextInvariants(XmlNode xml) {
   for (var node in xml.descendants) {
     if (node is XmlDocument) {
       expect(node.text, isNull,
@@ -156,7 +156,40 @@ void assertIteratorInvariants(XmlNode xml) {
   check(xml);
 }
 
-void assertPrettyPrinting(XmlNode xml) {
+void assertCopyInvariants(XmlNode xml) {
+  void compare(XmlNode original, XmlNode copy) {
+    expect(original, isNot(same(copy)),
+        reason: 'The copied node should not be identical.');
+    expect(original.nodeType, copy.nodeType,
+        reason: 'The copied node type should be the same.');
+    if (original is XmlNamed && copy is XmlNamed) {
+      var original_named = original as XmlNamed;
+      var copy_named = copy as XmlNamed;
+      expect(original_named.name, copy_named.name,
+          reason: 'The copied name should be equal.');
+      expect(original_named.name, isNot(same(copy_named.name)),
+          reason: 'The copied name should not be identical.');
+    }
+    expect(original.attributes.length, copy.attributes.length,
+        reason: 'The amount of copied attributes should be the same.');
+    for (var i = 0; i < original.attributes.length; i++) {
+      compare(original.attributes[i], copy.attributes[i]);
+    }
+    expect(original.children.length, copy.children.length,
+        reason: 'The amount of copied children should be the same.');
+    for (var i = 0; i < original.children.length; i++) {
+      compare(original.children[i], copy.children[i]);
+    }
+  }
+  var copy = new XmlTransformer().visit(xml);
+  assertParentInvariants(xml);
+  assertParentInvariants(copy);
+  assertNameInvariants(xml);
+  assertNameInvariants(copy);
+  compare(xml, copy);
+}
+
+void assertPrintingInvariants(XmlNode xml) {
   void compare(XmlNode source, XmlNode pretty) {
     expect(source.nodeType, pretty.nodeType);
     expect(source.attributes.length, pretty.attributes.length);

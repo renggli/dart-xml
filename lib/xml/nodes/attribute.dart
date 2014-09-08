@@ -25,11 +25,6 @@ class XmlAttribute extends XmlNode implements XmlNamed {
   XmlNodeType get nodeType => XmlNodeType.ATTRIBUTE;
 
   @override
-  void writeTo(StringBuffer buffer) {
-    name.writeTo(buffer);
-    buffer.write('="');
-    buffer.write(_encodeXmlAttributeValue(value));
-    buffer.write('"');
-  }
+  accept(XmlVisitor visitor) => visitor.visitAttribute(this);
 
 }

@@ -39,18 +39,4 @@ abstract class XmlBranch extends XmlNode {
         .map((node) => node as XmlElement);
   }
 
-  @override
-  void writeTo(StringBuffer buffer) {
-    for (var node in children) {
-      node.writeTo(buffer);
-    }
-  }
-
-  @override
-  void writePrettyTo(StringBuffer buffer, int level, String indent) {
-    for (var node in children) {
-      node.writePrettyTo(buffer, level, indent);
-    }
-  }
-
 }

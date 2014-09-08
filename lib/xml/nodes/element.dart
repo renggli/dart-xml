@@ -45,45 +45,6 @@ class XmlElement extends XmlBranch implements XmlNamed {
   XmlNodeType get nodeType => XmlNodeType.ELEMENT;
 
   @override
-  void writeTo(StringBuffer buffer) {
-    buffer.write('<');
-    name.writeTo(buffer);
-    for (var attribute in attributes) {
-      buffer.write(' ');
-      attribute.writeTo(buffer);
-    }
-    if (children.isEmpty) {
-      buffer.write(' />');
-    } else {
-      buffer.write('>');
-      super.writeTo(buffer);
-      buffer.write('</');
-      name.writeTo(buffer);
-      buffer.write('>');
-    }
-  }
-
-  @override
-  void writePrettyTo(StringBuffer buffer, int level, String indent) {
-    _writeIndentTo(buffer, level, indent);
-    buffer.write('<');
-    name.writePrettyTo(buffer, level, indent);
-    for (var attribute in attributes) {
-      buffer.write(' ');
-      attribute.writePrettyTo(buffer, level, indent);
-    }
-    if (children.isEmpty) {
-      buffer.write(' />');
-    } else {
-      buffer.write('>');
-      super.writePrettyTo(buffer, level + 1, indent);
-      if (!children.every((each) => each is XmlText)) {
-        _writeIndentTo(buffer, level, indent);
-      }
-      buffer.write('</');
-      name.writeTo(buffer);
-      buffer.write('>');
-    }
-  }
+  accept(XmlVisitor visitor) => visitor.visitElement(this);
 
 }

@@ -3,7 +3,7 @@ part of xml;
 /**
  * Abstract XML node.
  */
-abstract class XmlNode extends Object with XmlWritable, XmlParent {
+abstract class XmlNode extends Object with XmlVisitable, XmlWritable, XmlParent {
 
   /**
    * Return the attribute nodes of this node.
