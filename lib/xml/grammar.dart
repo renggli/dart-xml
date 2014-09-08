@@ -16,6 +16,7 @@ class XmlGrammar extends CompositeParser {
   static const DOUBLE_QUOTE = '"';
   static const SINGLE_QUOTE = "'";
   static const EQUALS = '=';
+  static const WHITESPACE = ' ';
   static const OPEN_COMMENT = '<!--';
   static const CLOSE_COMMENT = '-->';
   static const OPEN_CDATA = '<![CDATA[';
