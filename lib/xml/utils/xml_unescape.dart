@@ -1,7 +1,9 @@
 /**
- * xml_convert cobbled together from dart-xml and HtmlEscape
- * with some ugly array unrolling... 
- * Tested somewhat...
+ * xml_convert cobbled together from dart-xml and dart HtmlEscape
+ * Due to RegExp poor performance. Issue #19090
+ * 
+ * official XmlUnescape is preferred.
+ * 
  */
 library xml_convert;
 

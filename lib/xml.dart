@@ -44,8 +44,6 @@ part 'xml/parser.dart';
 
 final XmlParser _PARSER = new XmlParser();
 
-final XmlUnescape _XML_UNESCAPE = new XmlUnescape();
-
 /**
  * Return an [XmlDocument] for the given `input` string, or throws an
  * [ArgumentError] if the input is invalid.
