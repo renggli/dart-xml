@@ -7,6 +7,7 @@ library xml;
 import 'dart:collection';
 
 import 'package:petitparser/petitparser.dart';
+import 'xml/utils/xml_unescape.dart';
 
 part 'xml/iterators/ancestors.dart';
 part 'xml/iterators/descendants.dart';
@@ -42,6 +43,8 @@ part 'xml/grammar.dart';
 part 'xml/parser.dart';
 
 final XmlParser _PARSER = new XmlParser();
+
+final XmlUnescape _XML_UNESCAPE = new XmlUnescape();
 
 /**
  * Return an [XmlDocument] for the given `input` string, or throws an

@@ -57,10 +57,10 @@ abstract class XmlGrammar extends CompositeParser {
       .or(ref('attributeValueSingle'))
       .pick(1));
     def('attributeValueDouble', char(DOUBLE_QUOTE)
-      .seq(any().starLazy(char(DOUBLE_QUOTE)).flatten().map(_decodeXml))
+      .seq(any().starLazy(char(DOUBLE_QUOTE)).flatten().map(_XML_UNESCAPE.convert))
       .seq(char(DOUBLE_QUOTE)));
     def('attributeValueSingle', char(SINGLE_QUOTE)
-      .seq(any().starLazy(char(SINGLE_QUOTE)).flatten().map(_decodeXml))
+      .seq(any().starLazy(char(SINGLE_QUOTE)).flatten().map(_XML_UNESCAPE.convert))
       .seq(char(SINGLE_QUOTE)));
     def('attributes', ref('whitespace')
       .seq(ref('attribute'))
