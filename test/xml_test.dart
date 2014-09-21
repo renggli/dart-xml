@@ -495,6 +495,19 @@ void main() {
     test('decode invalid', () {
       expect(decode('&invalid;'), '&invalid;');
     });
+    test('decode incomplete', () {
+      expect(decode('&amp'), '&amp');
+    });
+    test('decode empty', () {
+      expect(decode('&;'), '&;');
+    });
+    test('decode surrounded', () {
+      expect(decode('a&amp;b'), 'a&b');
+      expect(decode('&amp;x&amp;'), '&x&');
+    });
+    test('decode sequence', () {
+      expect(decode('&amp;&amp;'), '&&');
+    });
     test('encode text', () {
       expect(encodeText('<'), '&lt;');
       expect(encodeText('&'), '&amp;');
