@@ -7,6 +7,7 @@ library xml;
 import 'dart:collection';
 
 import 'package:petitparser/petitparser.dart';
+import 'xml/utils/xml_unescape.dart';
 
 part 'xml/iterators/ancestors.dart';
 part 'xml/iterators/descendants.dart';

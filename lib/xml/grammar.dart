@@ -1,6 +1,18 @@
 part of xml;
 
 /**
+ * efficient large-text replacement for RegExp based _decodeXml
+ * performance is somewhat ~-0.08 worse for small-xml-text 
+ * and ~19x better for large-xml-text
+ * small-xml-text
+ * Benchmark XmlUnescape Parsing: 1.20-1.32
+ * Benchmark _decodeXml Parsing: 1.16-1.22 ms
+ * default is _decodeXml, switch if large-text is a problem.
+ */
+//final _XML_UNESCAPE = new XmlUnescape().convert;
+final _XML_UNESCAPE = _decodeXml;
+
+/**
  * XML grammar definition.
  */
 abstract class XmlGrammar extends CompositeParser {
@@ -57,10 +69,10 @@ abstract class XmlGrammar extends CompositeParser {
       .or(ref('attributeValueSingle'))
       .pick(1));
     def('attributeValueDouble', char(DOUBLE_QUOTE)
-      .seq(any().starLazy(char(DOUBLE_QUOTE)).flatten().map(_decodeXml))
+      .seq(any().starLazy(char(DOUBLE_QUOTE)).flatten().map(_XML_UNESCAPE))
       .seq(char(DOUBLE_QUOTE)));
     def('attributeValueSingle', char(SINGLE_QUOTE)
-      .seq(any().starLazy(char(SINGLE_QUOTE)).flatten().map(_decodeXml))
+      .seq(any().starLazy(char(SINGLE_QUOTE)).flatten().map(_XML_UNESCAPE))
       .seq(char(SINGLE_QUOTE)));
     def('attributes', ref('whitespace')
       .seq(ref('attribute'))
@@ -131,7 +143,7 @@ abstract class XmlGrammar extends CompositeParser {
       .map((each) => createProcessing(each[1], each[2])));
     def('qualified', ref('nameToken').map(createQualified));
 
-    def('characterData', pattern(CHAR_DATA).plus().flatten().map(_decodeXml).map(createText));
+    def('characterData', pattern(CHAR_DATA).plus().flatten().map(_XML_UNESCAPE).map(createText));
     def('misc', ref('whitespace')
       .or(ref('comment'))
       .or(ref('processing'))

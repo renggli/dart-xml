@@ -1,20 +1,114 @@
-part of xml;
+/**
+ * xml_convert cobbled together from dart-xml and dart HtmlEscape
+ * Due to RegExp poor performance. Issue #19090
+ * 
+ * official XmlUnescape is preferred.
+ * 
+ */
+library xml_convert;
+
+import 'dart:convert';
+
+class XmlUnescape extends Converter<String, String> {
+
+  String convert(String text) {
+    var val = _convert(text, 0, text.length);
+    return val == null ? text : val;
+  }
+
+  String _convert(String text, int start, int end) {
+    StringBuffer result = new StringBuffer();
+    int la, endla;
+    String replace = null;
+    String codeStr;
+    int code;
+    for (int i = start; i < end; i++) {
+      var ch = text[i];
+      if (ch == '&' || ch == '#') {
+        la = i+1;
+        endla = la + 6;
+        if (endla >= end) endla = end - 1;
+        la++;
+        while (la < endla && text[la] != ';') {
+          la++;
+        }
+        if (text[la] == ';') {
+          if (text[i] == '#') { //hex
+            try {
+              codeStr = text.substring(i + 1, la);
+              code = int.parse(codeStr);
+              replace = new String.fromCharCode(code);
+            } catch (e) {
+            }
+          } else { // lookup
+            if( text[i+1] == '#' ){
+              if( text[i+2] == 'x' ||  text[i+2] == 'X' ){
+                try {
+                  codeStr = text.substring(i + 3, la);
+                  code = int.parse(codeStr, radix:16);
+                  replace = new String.fromCharCode(code);
+                } catch (e) {
+                  print( "Error $e" );
+                }
+              }else{
+                try {
+                  codeStr = text.substring(i + 2, la);
+                  code = int.parse(codeStr);
+                  replace = new String.fromCharCode(code);
+                } catch (e) {
+                  print( "Error $e" );
+                }   
+              }
+            }else{
+              codeStr = text.substring(i + 1, la);
+              if (ENTITY_TO_CHAR.containsKey(codeStr)) {
+                replace = ENTITY_TO_CHAR[codeStr];
+              }else{
+                print("Unknown code ${codeStr}");
+              }
+            }
+          }
+          if (replace != null) {
+            result.write(replace);
+            replace = null;
+            i = la;
+          } else {
+            result.write(ch);
+            while (i < la) {
+              i++;
+              ch = text[i];
+              result.write(ch);
+            }
+          }
+        } else {
+          result.write(ch);
+        }
+      } else {
+        result.write(ch);
+      }
+    }
+
+    return result.toString();
+  }
+
+}
+
 
 /**
  * Decode a string with numeric character references and common named entities
  * to a plain string.
  */
-String _decodeXml(String input) {
-  return input.replaceAllMapped(_ENTITY_PATTERN, (match) {
+String decodeXml(String input) {
+  return input.replaceAllMapped(ENTITY_PATTERN, (match) {
     if (match.group(2) != null) {
       // hexadecimal numeric character reference
       return new String.fromCharCode(int.parse(match.group(2), radix: 16));
     } else if (match.group(3) != null) {
       // decimal numeric character reference
       return new String.fromCharCode(int.parse(match.group(3)));
-    } else if (_ENTITY_TO_CHAR.containsKey(match.group(4))) {
+    } else if (ENTITY_TO_CHAR.containsKey(match.group(4))) {
       // named character reference
-      return _ENTITY_TO_CHAR[match.group(4)];
+      return ENTITY_TO_CHAR[match.group(4)];
     } else {
       // unknown character reference (throw error?)
       return match.group(0);
@@ -22,10 +116,9 @@ String _decodeXml(String input) {
   });
 }
 
-final Pattern _ENTITY_PATTERN = new RegExp(r'&(#[xX]([A-Fa-f0-9]+)|#(\d+)|(\w+));');
+final Pattern ENTITY_PATTERN = new RegExp(r'&(#[xX]([A-Fa-f0-9]+)|#(\d+)|(\w+));');
 
-final Map<String, String> _ENTITY_TO_CHAR = const {
-
+final Map<String, String> ENTITY_TO_CHAR = const {
   // xml entities
   'lt': '<',
   'gt': '>',
@@ -283,23 +376,3 @@ final Map<String, String> _ENTITY_TO_CHAR = const {
   'zwj': '\u200D',
   'zwnj': '\u200C'
 };
-
-/**
- * Encode a string to be serialized as an XML text node.
- */
-String _encodeXmlText(String input) {
-  return input.replaceAllMapped(_TEXT_PATTERN, (match) {
-    // only & and < need to be encoded in text
-    return match.group(0) == '<' ? '&lt;' : '&amp;';
-  });
-}
-
-final Pattern _TEXT_PATTERN = new RegExp(r'[&<]');
-
-/**
- * Encode a string to be serialized as an XML attribute value.
- */
-String _encodeXmlAttributeValue(String input) {
-  // only " needs to be encoded in attribute value
-  return input.replaceAll('"', '&quot;');
-}
