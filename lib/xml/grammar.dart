@@ -57,10 +57,10 @@ abstract class XmlGrammar extends CompositeParser {
       .or(ref('attributeValueSingle'))
       .pick(1));
     def('attributeValueDouble', char(DOUBLE_QUOTE)
-      .seq(any().starLazy(char(DOUBLE_QUOTE)).flatten().map(_decodeXml))
+      .seq(new _XmlCharacterDataParser(DOUBLE_QUOTE, 0))
       .seq(char(DOUBLE_QUOTE)));
     def('attributeValueSingle', char(SINGLE_QUOTE)
-      .seq(any().starLazy(char(SINGLE_QUOTE)).flatten().map(_decodeXml))
+      .seq(new _XmlCharacterDataParser(SINGLE_QUOTE, 0))
       .seq(char(SINGLE_QUOTE)));
     def('attributes', ref('whitespace')
       .seq(ref('attribute'))
@@ -131,7 +131,7 @@ abstract class XmlGrammar extends CompositeParser {
       .map((each) => createProcessing(each[1], each[2])));
     def('qualified', ref('nameToken').map(createQualified));
 
-    def('characterData', pattern(CHAR_DATA).plus().flatten().map(_decodeXml).map(createText));
+    def('characterData', new _XmlCharacterDataParser(OPEN_ELEMENT, 1).map(createText));
     def('misc', ref('whitespace')
       .or(ref('comment'))
       .or(ref('processing'))
