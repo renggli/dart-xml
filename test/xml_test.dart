@@ -335,8 +335,42 @@ void main() {
       expect(node.nodeType.toString(), 'XmlNodeType.ATTRIBUTE');
       expect(node.toString(), 'ns:attr="Am I or are the other crazy?"');
     });
+    test('attribute (empty)', () {
+      XmlDocument document = parse('<data attr="" />');
+      XmlAttribute node = document.rootElement.attributes.single;
+      expect(node.value, '');
+      expect(node.toString(), 'attr=""');
+    });
     test('attribute (character references)', () {
       XmlDocument document = parse('<data ns:attr="&lt;&gt;&amp;&apos;&quot;" />');
+      XmlAttribute node = document.rootElement.attributes.single;
+      expect(node.value, '<>&\'"');
+      expect(node.toString(), 'ns:attr="<>&\'&quot;"');
+    });
+    test('attribute (single)', () {
+      XmlDocument document = parse('<data ns:attr=\'Am I or are the other crazy?\' />');
+      XmlAttribute node = document.rootElement.attributes.single;
+      expect(node.name, new XmlName.fromString('ns:attr'));
+      expect(node.value, 'Am I or are the other crazy?');
+      expect(node.parent, same(document.rootElement));
+      expect(node.root, same(document));
+      expect(node.document, same(document));
+      expect(node.attributes, isEmpty);
+      expect(node.children, isEmpty);
+      expect(node.descendants, isEmpty);
+      expect(node.text, isEmpty);
+      expect(node.nodeType, XmlNodeType.ATTRIBUTE);
+      expect(node.nodeType.toString(), 'XmlNodeType.ATTRIBUTE');
+      expect(node.toString(), 'ns:attr="Am I or are the other crazy?"');
+    });
+    test('attribute (single, empty)', () {
+      XmlDocument document = parse('<data attr=\'\' />');
+      XmlAttribute node = document.rootElement.attributes.single;
+      expect(node.value, '');
+      expect(node.toString(), 'attr=""');
+    });
+    test('attribute (single, character references)', () {
+      XmlDocument document = parse('<data ns:attr=\'&lt;&gt;&amp;&apos;&quot;\' />');
       XmlAttribute node = document.rootElement.attributes.single;
       expect(node.value, '<>&\'"');
       expect(node.toString(), 'ns:attr="<>&\'&quot;"');
