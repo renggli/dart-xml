@@ -402,6 +402,7 @@ void main() {
     test('cdata', () {
       XmlDocument document = parse('<data><![CDATA[Methinks <word> it <word> is like '
           'a weasel!]]></data>');
+      expect(document.rootElement.text, 'Methinks <word> it <word> is like a weasel!');
       XmlCDATA node = document.rootElement.children.single;
       expect(node.text, 'Methinks <word> it <word> is like a weasel!');
       expect(node.parent, same(document.rootElement));
