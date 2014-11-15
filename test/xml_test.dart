@@ -297,9 +297,9 @@ void main() {
     });
     test('parse errors', () {
       assertParseError('<data></tada>', 'Expected </data>, but found </tada>');
-      assertParseError('<data key="ab', '> expected at 1:7');
-      assertParseError('<data key', '> expected at 1:7');
-      assertParseError('<data', '> expected at 1:6');
+      assertParseError('<data key="ab', '">" expected at 1:7');
+      assertParseError('<data key', '">" expected at 1:7');
+      assertParseError('<data', '">" expected at 1:6');
       assertParseError('<>', 'Expected name at 1:2');
     });
   });
