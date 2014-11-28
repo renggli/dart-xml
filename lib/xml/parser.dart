@@ -3,7 +3,7 @@ part of xml;
 /**
  * XML parser that defines standard actions to the the XML tree.
  */
-class XmlParser extends XmlGrammar {
+class XmlParserDefintion extends XmlGrammarDefinition {
 
   @override
   XmlAttribute createAttribute(XmlName name, String text) => new XmlAttribute(name, text);
@@ -22,8 +22,7 @@ class XmlParser extends XmlGrammar {
 
   @override
   XmlElement createElement(XmlName name, Iterable<XmlNode> attributes,
-      Iterable<XmlNode> children) =>
-      new XmlElement(name, attributes, children);
+      Iterable<XmlNode> children) => new XmlElement(name, attributes, children);
 
   @override
   XmlProcessing createProcessing(String target, String text) => new XmlProcessing(target, text);

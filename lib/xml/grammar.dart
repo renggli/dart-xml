@@ -3,7 +3,7 @@ part of xml;
 /**
  * XML grammar definition.
  */
-abstract class XmlGrammar extends CompositeParser {
+abstract class XmlGrammarDefinition extends GrammarDefinition {
 
   // name patterns
   static const NAME_START_CHARS = ':A-Z_a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF'
@@ -43,73 +43,72 @@ abstract class XmlGrammar extends CompositeParser {
   createQualified(name);
   createText(value);
 
-  @override
-  void initialize() {
-    def('start', ref('document').end());
+  // productions
+  start() => ref(document).end();
 
-    def('attribute', ref('qualified')
-      .seq(ref('whitespace').optional())
+  attribute() => ref(qualified)
+      .seq(ref(space).optional())
       .seq(char(EQUALS))
-      .seq(ref('whitespace').optional())
-      .seq(ref('attributeValue'))
-      .map((each) => createAttribute(each[0], each[4])));
-    def('attributeValue', ref('attributeValueDouble')
-      .or(ref('attributeValueSingle'))
-      .pick(1));
-    def('attributeValueDouble', char(DOUBLE_QUOTE)
+      .seq(ref(space).optional())
+      .seq(ref(attributeValue))
+      .map((each) => createAttribute(each[0], each[4]));
+  attributeValue() => ref(attributeValueDouble)
+      .or(ref(attributeValueSingle))
+      .pick(1);
+  attributeValueDouble() => char(DOUBLE_QUOTE)
       .seq(new _XmlCharacterDataParser(DOUBLE_QUOTE, 0))
-      .seq(char(DOUBLE_QUOTE)));
-    def('attributeValueSingle', char(SINGLE_QUOTE)
+      .seq(char(DOUBLE_QUOTE));
+  attributeValueSingle() => char(SINGLE_QUOTE)
       .seq(new _XmlCharacterDataParser(SINGLE_QUOTE, 0))
-      .seq(char(SINGLE_QUOTE)));
-    def('attributes', ref('whitespace')
-      .seq(ref('attribute'))
+      .seq(char(SINGLE_QUOTE));
+  attributes() => ref(space)
+      .seq(ref(attribute))
       .pick(1)
-      .star());
-    def('comment', string(OPEN_COMMENT)
+      .star();
+  comment() => string(OPEN_COMMENT)
       .seq(any().starLazy(string(CLOSE_COMMENT)).flatten())
       .seq(string(CLOSE_COMMENT))
-      .map((each) => createComment(each[1])));
-    def('cdata', string(OPEN_CDATA)
+      .map((each) => createComment(each[1]));
+  cdata() => string(OPEN_CDATA)
       .seq(any().starLazy(string(CLOSE_CDATA)).flatten())
       .seq(string(CLOSE_CDATA))
-      .map((each) => createCDATA(each[1])));
-    def('content', ref('characterData')
-      .or(ref('element'))
-      .or(ref('processing'))
-      .or(ref('comment'))
-      .or(ref('cdata'))
-      .star());
-    def('doctype', string(OPEN_DOCTYPE)
-      .seq(ref('whitespace'))
-      .seq(ref('nameToken')
-        .or(ref('attributeValue'))
+      .map((each) => createCDATA(each[1]));
+  content() => ref(characterData)
+      .or(ref(element))
+      .or(ref(processing))
+      .or(ref(comment))
+      .or(ref(cdata))
+      .star();
+  doctype() => string(OPEN_DOCTYPE)
+      .seq(ref(space))
+      .seq(ref(nameToken)
+        .or(ref(attributeValue))
         .or(any().starLazy(char(OPEN_DOCTYPE_BLOCK))
           .seq(char(OPEN_DOCTYPE_BLOCK))
           .seq(any().starLazy(char(CLOSE_DOCTYPE_BLOCK)))
           .seq(char(CLOSE_DOCTYPE_BLOCK)))
-        .separatedBy(ref('whitespace'))
+        .separatedBy(ref(space))
         .flatten())
-      .seq(ref('whitespace').optional())
+      .seq(ref(space).optional())
       .seq(char(CLOSE_DOCTYPE))
-      .map((each) => createDoctype(each[2])));
-    def('document', ref('processing').optional()
-      .seq(ref('misc'))
-      .seq(ref('doctype').optional())
-      .seq(ref('misc'))
-      .seq(ref('element'))
-      .seq(ref('misc'))
-      .map((each) => createDocument([each[0], each[2], each[4]].where((each) => each != null))));
-    def('element', char(OPEN_ELEMENT)
-      .seq(ref('qualified'))
-      .seq(ref('attributes'))
-      .seq(ref('whitespace').optional())
+      .map((each) => createDoctype(each[2]));
+  document() => ref(processing).optional()
+      .seq(ref(misc))
+      .seq(ref(doctype).optional())
+      .seq(ref(misc))
+      .seq(ref(element))
+      .seq(ref(misc))
+      .map((each) => createDocument([each[0], each[2], each[4]].where((each) => each != null)));
+  element() => char(OPEN_ELEMENT)
+      .seq(ref(qualified))
+      .seq(ref(attributes))
+      .seq(ref(space).optional())
       .seq(string(CLOSE_END_ELEMENT)
         .or(char(CLOSE_ELEMENT)
-          .seq(ref('content'))
+          .seq(ref(content))
           .seq(string(OPEN_END_ELEMENT))
-          .seq(ref('qualified'))
-          .seq(ref('whitespace').optional())
+          .seq(ref(qualified))
+          .seq(ref(space).optional())
           .seq(char(CLOSE_ELEMENT))))
       .map((list) {
         if (list[4] == CLOSE_END_ELEMENT) {
@@ -121,28 +120,27 @@ abstract class XmlGrammar extends CompositeParser {
             throw new ArgumentError('Expected </${list[1]}>, but found </${list[4][3]}>');
           }
         }
-      }));
-    def('processing', string(OPEN_PROCESSING)
-      .seq(ref('nameToken'))
-      .seq(ref('whitespace')
+      });
+  processing() => string(OPEN_PROCESSING)
+      .seq(ref(nameToken))
+      .seq(ref(space)
         .seq(any().starLazy(string(CLOSE_PROCESSING)).flatten())
         .pick(1).optional(''))
       .seq(string(CLOSE_PROCESSING))
-      .map((each) => createProcessing(each[1], each[2])));
-    def('qualified', ref('nameToken').map(createQualified));
+      .map((each) => createProcessing(each[1], each[2]));
+  qualified() => ref(nameToken).map(createQualified);
 
-    def('characterData', new _XmlCharacterDataParser(OPEN_ELEMENT, 1).map(createText));
-    def('misc', ref('whitespace')
-      .or(ref('comment'))
-      .or(ref('processing'))
-      .star());
-    def('whitespace', whitespace().plus());
+  characterData() => new _XmlCharacterDataParser(OPEN_ELEMENT, 1).map(createText);
+  misc() => ref(space)
+      .or(ref(comment))
+      .or(ref(processing))
+      .star();
+  space() => whitespace().plus();
 
-    def('nameToken', ref('nameStartChar')
-      .seq(ref('nameChar').star())
-      .flatten());
-    def('nameStartChar', pattern(NAME_START_CHARS, 'Expected name'));
-    def('nameChar', pattern(NAME_CHARS));
-  }
+  nameToken() => ref(nameStartChar)
+      .seq(ref(nameChar).star())
+      .flatten();
+  nameStartChar() => pattern(NAME_START_CHARS, 'Expected name');
+  nameChar() => pattern(NAME_CHARS);
 
 }
