@@ -6,7 +6,7 @@ part of xml;
 abstract class XmlVisitable {
 
   /**
-   * Dispatch the invokation depending on this type to the [visitor].
+   * Dispatch the invocation depending on this type to the [visitor].
    *
    * Note that the return type of this method is intentionally left unspecified, so
    * that visitors can (but don't have to) pass return values.

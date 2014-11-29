@@ -1,7 +1,7 @@
 part of xml;
 
 /**
- * A visitor that writes XML nodes eactly as they were parsed.
+ * A visitor that writes XML nodes exactly as they were parsed.
  */
 
 class XmlWriter extends XmlVisitor {

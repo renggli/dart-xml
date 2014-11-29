@@ -41,7 +41,7 @@ part 'xml/builder.dart';
 part 'xml/grammar.dart';
 part 'xml/parser.dart';
 
-final Parser _PARSER = new XmlParserDefintion().build();
+final Parser _PARSER = new XmlParserDefinition().build();
 
 /**
  * Return an [XmlDocument] for the given `input` string, or throws an

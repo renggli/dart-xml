@@ -88,7 +88,7 @@ The above code returns a lazy iterator that recursively walks the XML document a
 
 This prints _Growing a Language_ and _Learning XML_.
 
-Similary, to compute the total price of all the books one could write the following expression:
+Similarly, to compute the total price of all the books one could write the following expression:
 
     var total = document.findAllElements('book')
         .map((node) => double.parse(node.findElements('price').single.text))
