@@ -130,22 +130,23 @@ class XmlPrettyWriter extends XmlWriter {
   @override
   visitElement(XmlElement node) {
     newLine();
-    buffer.write('<');
+    buffer.write(XmlGrammarDefinition.OPEN_ELEMENT);
     visit(node.name);
     writeAttributes(node);
     if (node.children.isEmpty) {
-      buffer.write(' />');
+      buffer.write(XmlGrammarDefinition.WHITESPACE);
+      buffer.write(XmlGrammarDefinition.CLOSE_END_ELEMENT);
     } else {
-      buffer.write('>');
+      buffer.write(XmlGrammarDefinition.CLOSE_ELEMENT);
       level++;
       writeChildren(node);
       level--;
       if (!node.children.every((each) => each is XmlText)) {
         newLine();
       }
-      buffer.write('</');
+      buffer.write(XmlGrammarDefinition.OPEN_END_ELEMENT);
       visit(node.name);
-      buffer.write('>');
+      buffer.write(XmlGrammarDefinition.CLOSE_ELEMENT);
     }
   }
 
@@ -166,7 +167,7 @@ class XmlPrettyWriter extends XmlWriter {
 
   void newLine() {
     if (buffer.isNotEmpty) {
-      buffer.write('\n');
+      buffer.writeln();
     }
     for (int i = 0; i < level; i++) {
       buffer.write(indent);
