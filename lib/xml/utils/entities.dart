@@ -80,10 +80,6 @@ class _XmlCharacterDataParser extends Parser {
   Parser copy() => new _XmlCharacterDataParser(_stopper, _minLength);
 }
 
-@deprecated
-final Pattern _ENTITY_PATTERN =
-    new RegExp(r'&(#[xX]([A-Fa-f0-9]+)|#(\d+)|(\w+));');
-
 final Map<String, String> _ENTITY_TO_CHAR = const {
 
   // xml entities
