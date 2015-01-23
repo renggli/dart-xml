@@ -16,7 +16,7 @@ void assertParseError(String input, String message) {
   try {
     var result = parse(input);
     fail('Expected parse error $message, but got $result');
-  } on ArgumentError catch (error, stack) {
+  } on ArgumentError catch (error) {
     expect(error.message, message);
   }
 }

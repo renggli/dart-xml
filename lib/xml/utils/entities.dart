@@ -85,29 +85,6 @@ class _XmlCharacterDataParser extends Parser {
 
 }
 
-/**
- * Decode a string with numeric character references and common named entities
- * to a plain string.
- */
-@deprecated
-String _decodeXml(String input) {
-  return input.replaceAllMapped(_ENTITY_PATTERN, (match) {
-    if (match.group(2) != null) {
-      // hexadecimal numeric character reference
-      return new String.fromCharCode(int.parse(match.group(2), radix: 16));
-    } else if (match.group(3) != null) {
-      // decimal numeric character reference
-      return new String.fromCharCode(int.parse(match.group(3)));
-    } else if (_ENTITY_TO_CHAR.containsKey(match.group(4))) {
-      // named character reference
-      return _ENTITY_TO_CHAR[match.group(4)];
-    } else {
-      // unknown character reference (throw error?)
-      return match.group(0);
-    }
-  });
-}
-
 @deprecated
 final Pattern _ENTITY_PATTERN = new RegExp(r'&(#[xX]([A-Fa-f0-9]+)|#(\d+)|(\w+));');
 
