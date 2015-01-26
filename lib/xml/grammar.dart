@@ -35,15 +35,16 @@ abstract class XmlGrammarDefinition extends GrammarDefinition {
   static const CLOSE_PROCESSING = '?>';
 
   // parser callbacks
-  createAttribute(name, value);
-  createComment(value);
-  createCDATA(value);
-  createDoctype(value);
-  createDocument(Iterable children);
-  createElement(name, Iterable attributes, Iterable children);
-  createProcessing(target, value);
-  createQualified(name);
-  createText(value);
+  XmlAttribute createAttribute(XmlName name, String text);
+  XmlComment createComment(String text);
+  XmlCDATA createCDATA(String text);
+  XmlDoctype createDoctype(String text);
+  XmlDocument createDocument(Iterable<XmlNode> children);
+  XmlElement createElement(XmlName name, Iterable<XmlNode> attributes,
+      Iterable<XmlNode> children);
+  XmlProcessing createProcessing(String target, String text);
+  XmlName createQualified(String name);
+  XmlText createText(String text);
 
   // productions
   start() => ref(document).end();
