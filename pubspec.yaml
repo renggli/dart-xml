@@ -3,6 +3,7 @@ version: 2.2.3
 author: Lukas Renggli <renggli@gmail.com>
 description: A lightweight library for parsing, traversing, querying and building XML documents.
 homepage: https://github.com/renggli/dart-xml
+documentation: http://jenkins.lukas-renggli.ch/job/dart-xml/javadoc
 environment:
   sdk: '>=1.0.0 <2.0.0'
 dependencies:
