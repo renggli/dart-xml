@@ -4,8 +4,29 @@ part of xml;
  * A builder to create XML trees with code.
  */
 class XmlBuilder {
+
+  /**
+   * If [optimizeNamespaces] is true, the builder will perform
+   * namespace optimization.
+   *
+   * This means that
+   *  - namespaces that are defined in an element but are never used in this
+   *    element or its children will not be included in the document;
+   *  - namespaces that are defined in an element but are already defined in
+   *    one of the ancestors of the element will not be included again.
+   */
+  final bool optimizeNamespaces;
+
   final List<_XmlNodeBuilder> _stack =
       new List.from([new _XmlDocumentBuilder()]);
+
+  /**
+   * Construct a new [XmlBuilder].
+   *
+   * For the meaning of the [optimizeNamespaces] parameter, read the
+   * documentation of the [optimizeNamespaces] property.
+   */
+  XmlBuilder({this.optimizeNamespaces: false});
 
   /**
    * Adds a [XmlText] node with the provided [text].
@@ -106,14 +127,18 @@ class XmlBuilder {
       _insert(nest);
     }
     element.name = _buildName(name, namespace);
-    // remove unused namespaces
-    //   the reason we first add them and then remove them again is to keep the order in which they have been added
-    element.namespaces.forEach((uri, meta) {
-      if(meta.used == false) {
-        var name = meta.name;
-        element.attributes.remove(element.attributes.firstWhere((attribute) => attribute.name == name));
-      }
-    });
+    if (optimizeNamespaces == true) {
+      // remove unused namespaces
+      //    the reason we first add them and then remove them again is
+      //    to keep the order in which they have been added
+      element.namespaces.forEach((uri, meta) {
+        if(meta.used == false) {
+          var name = meta.name;
+          element.attributes.remove(element.attributes.firstWhere(
+              (attribute) => attribute.name == name));
+        }
+      });
+    }
     _stack.removeLast();
     _stack.last.children.add(element.build());
   }
@@ -135,9 +160,6 @@ class XmlBuilder {
   void attribute(String name, value, {String namespace}) {
     _stack.last.attributes
         .add(new XmlAttribute(_buildName(name, namespace), value.toString()));
-    if(namespace != null) {
-      _useNamespace(namespace);
-    }
   }
 
   /**
@@ -149,8 +171,10 @@ class XmlBuilder {
     if (prefix == _XMLNS || prefix == _XML) {
       throw new ArgumentError('The "$prefix" prefix cannot be bound.');
     }
-    if (_stack.any((builder) => builder.namespaces[uri] != null && builder.namespaces[uri].prefix == prefix)) {
-      // namespace prefix already correctly specified
+    if (optimizeNamespaces && _stack.any(
+        (builder) => builder.namespaces.containsKey(uri) &&
+                     builder.namespaces[uri].prefix == prefix)) {
+      // namespace prefix already correctly specified in an ancestor
       return;
     }
     if (_stack.last.namespaces.values.any((meta) => meta.prefix == prefix)) {
@@ -169,9 +193,13 @@ class XmlBuilder {
 
   // Internal method to build a name.
   XmlName _buildName(String name, String uri) {
-    return uri == null || uri.isEmpty
-        ? new XmlName.fromString(name)
-        : new XmlName(name, _lookup(uri).prefix);
+    if (uri != null && !uri.isEmpty) {
+      var meta = _lookup(uri);
+      meta.used = true;
+      return new XmlName(name, meta.prefix);
+    } else {
+      return new XmlName.fromString(name);
+    }
   }
 
   // Internal method to lookup an namespace prefix.
@@ -180,14 +208,6 @@ class XmlBuilder {
         (builder) => builder.namespaces.containsKey(uri),
         orElse: () => throw new ArgumentError('Undefined namespace: $uri'));
     return builder.namespaces[uri];
-  }
-
-  // Internal method to mark a namespace as used
-  void _useNamespace(String uri) {
-    var builder = _stack.lastWhere(
-        (builder) => builder.namespaces.containsKey(uri),
-        orElse: () => throw new ArgumentError('Undefined namespace: $uri'));
-    builder.namespaces[uri].use();
   }
 
   // Internal method to add children to the current element.
@@ -211,10 +231,6 @@ class _NamespaceMeta {
   XmlName get name => prefix == null || prefix.isEmpty
       ? new XmlName(_XMLNS)
       : new XmlName(prefix, _XMLNS);
-
-  void use() {
-    used = true;
-  }
 }
 
 abstract class _XmlNodeBuilder {
