@@ -106,6 +106,14 @@ class XmlBuilder {
       _insert(nest);
     }
     element.name = _buildName(name, namespace);
+    // remove unused namespaces
+    //   the reason we first add them and then remove them again is to keep the order in which they have been added
+    element.namespaces.forEach((uri, meta) {
+      if(meta.used == false) {
+        var name = meta.name;
+        element.attributes.remove(element.attributes.firstWhere((attribute) => attribute.name == name));
+      }
+    });
     _stack.removeLast();
     _stack.last.children.add(element.build());
   }
@@ -127,6 +135,9 @@ class XmlBuilder {
   void attribute(String name, value, {String namespace}) {
     _stack.last.attributes
         .add(new XmlAttribute(_buildName(name, namespace), value.toString()));
+    if(namespace != null) {
+      _useNamespace(namespace);
+    }
   }
 
   /**
@@ -138,15 +149,17 @@ class XmlBuilder {
     if (prefix == _XMLNS || prefix == _XML) {
       throw new ArgumentError('The "$prefix" prefix cannot be bound.');
     }
-    if (_stack.last.namespaces.containsValue(prefix)) {
+    if (_stack.any((builder) => builder.namespaces[uri] != null && builder.namespaces[uri].prefix == prefix)) {
+      // namespace prefix already correctly specified
+      return;
+    }
+    if (_stack.last.namespaces.values.any((meta) => meta.prefix == prefix)) {
       throw new ArgumentError(
           'The "$prefix" prefix conflicts with existing binding.');
     }
-    var name = prefix == null || prefix.isEmpty
-        ? new XmlName(_XMLNS)
-        : new XmlName(prefix, _XMLNS);
-    _stack.last.attributes.add(new XmlAttribute(name, uri));
-    _stack.last.namespaces[uri] = prefix;
+    _NamespaceMeta meta = new _NamespaceMeta(prefix, false);
+    _stack.last.attributes.add(new XmlAttribute(meta.name, uri));
+    _stack.last.namespaces[uri] = meta;
   }
 
   /**
@@ -158,15 +171,23 @@ class XmlBuilder {
   XmlName _buildName(String name, String uri) {
     return uri == null || uri.isEmpty
         ? new XmlName.fromString(name)
-        : new XmlName(name, _lookup(uri));
+        : new XmlName(name, _lookup(uri).prefix);
   }
 
   // Internal method to lookup an namespace prefix.
-  String _lookup(String uri) {
+  _NamespaceMeta _lookup(String uri) {
     var builder = _stack.lastWhere(
         (builder) => builder.namespaces.containsKey(uri),
         orElse: () => throw new ArgumentError('Undefined namespace: $uri'));
     return builder.namespaces[uri];
+  }
+
+  // Internal method to mark a namespace as used
+  void _useNamespace(String uri) {
+    var builder = _stack.lastWhere(
+        (builder) => builder.namespaces.containsKey(uri),
+        orElse: () => throw new ArgumentError('Undefined namespace: $uri'));
+    builder.namespaces[uri].use();
   }
 
   // Internal method to add children to the current element.
@@ -181,8 +202,23 @@ class XmlBuilder {
   }
 }
 
+class _NamespaceMeta {
+  final String prefix;
+  bool used;
+
+  _NamespaceMeta(String this.prefix, [bool this.used = false]);
+
+  XmlName get name => prefix == null || prefix.isEmpty
+      ? new XmlName(_XMLNS)
+      : new XmlName(prefix, _XMLNS);
+
+  void use() {
+    used = true;
+  }
+}
+
 abstract class _XmlNodeBuilder {
-  Map<String, String> get namespaces;
+  Map<String, _NamespaceMeta> get namespaces;
   List<XmlAttribute> get attributes;
   List<XmlNode> get children;
   XmlNode build();
@@ -190,7 +226,7 @@ abstract class _XmlNodeBuilder {
 
 class _XmlDocumentBuilder extends _XmlNodeBuilder {
   @override
-  final Map<String, String> namespaces = const {_XML_URI: _XML};
+  final Map<String, _NamespaceMeta> namespaces = {_XML_URI: _XML_META};
 
   @override
   List<XmlAttribute> get attributes {
@@ -207,7 +243,7 @@ class _XmlDocumentBuilder extends _XmlNodeBuilder {
 
 class _XmlElementBuilder extends _XmlNodeBuilder {
   @override
-  final Map<String, String> namespaces = new Map();
+  final Map<String, _NamespaceMeta> namespaces = new Map();
 
   @override
   final List<XmlAttribute> attributes = new List();
