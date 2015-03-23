@@ -930,9 +930,9 @@ void main() {
       var builder = new XmlBuilder();
       builder.element('element', nest: () {
         builder.namespace('http://1.foo.com/', 'foo');
-        builder.element('inner', nest: () {
+        builder.element('outer', nest: () {
           builder.namespace('http://1.foo.com/', 'foo');
-          builder.element('innerinner', nest: () {
+          builder.element('inner', nest: () {
             builder.namespace('http://1.foo.com/', 'foo');
             builder.attribute('lang', 'en', namespace: 'http://1.foo.com/');
           });
@@ -940,19 +940,19 @@ void main() {
       });
       var actual = builder.build().toString();
       var expected = '<element xmlns:foo="http://1.foo.com/">'
-          '<inner xmlns:foo="http://1.foo.com/">'
-          '<innerinner xmlns:foo="http://1.foo.com/" foo:lang="en" />'
-          '</inner>'
+          '<outer xmlns:foo="http://1.foo.com/">'
+          '<inner xmlns:foo="http://1.foo.com/" foo:lang="en" />'
+          '</outer>'
           '</element>';
       expect(actual, expected);
     });
-    test('duplicate namespace (optimized)', () {
+    test('duplicate namespace on attribute (optimized)', () {
       var builder = new XmlBuilder(optimizeNamespaces: true);
       builder.element('element', nest: () {
         builder.namespace('http://1.foo.com/', 'foo');
-        builder.element('inner', nest: () {
+        builder.element('outer', nest: () {
           builder.namespace('http://1.foo.com/', 'foo');
-          builder.element('innerinner', nest: () {
+          builder.element('inner', nest: () {
             builder.namespace('http://1.foo.com/', 'foo');
             builder.attribute('lang', 'en', namespace: 'http://1.foo.com/');
           });
@@ -960,9 +960,26 @@ void main() {
       });
       var actual = builder.build().toString();
       var expected = '<element xmlns:foo="http://1.foo.com/">'
-          '<inner>'
-          '<innerinner foo:lang="en" />'
-          '</inner>'
+          '<outer>'
+          '<inner foo:lang="en" />'
+          '</outer>'
+          '</element>';
+      expect(actual, expected);
+    });
+    test('duplicate namespace on element (optimized)', () {
+      var builder = new XmlBuilder(optimizeNamespaces: true);
+      builder.element('element', nest: () {
+        builder.namespace('http://1.foo.com/', 'foo');
+        builder.element('outer', nest: () {
+          builder.namespace('http://1.foo.com/', 'foo');
+          builder.element('inner', namespace: 'http://1.foo.com/');
+        });
+      });
+      var actual = builder.build().toString();
+      var expected = '<element xmlns:foo="http://1.foo.com/">'
+          '<outer>'
+          '<foo:inner />'
+          '</outer>'
           '</element>';
       expect(actual, expected);
     });
