@@ -36,6 +36,8 @@ String characterData() {
 
 final benchmarks = {
   'books': booksXml,
+  'bookstore': bookstoreXml,
+  'atom': atomXml,
   'shiporder': shiporderXsd,
   'decoding': characterData(),
 };
