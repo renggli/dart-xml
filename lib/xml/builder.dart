@@ -6,7 +6,7 @@ part of xml;
 class XmlBuilder {
 
   /**
-   * If [optimizeNamespaces] is true, the builder will perform
+   * If [optimizeNamespaces] is true, the builder will perform some
    * namespace optimization.
    *
    * This means that
@@ -17,6 +17,9 @@ class XmlBuilder {
    */
   final bool optimizeNamespaces;
 
+  /**
+   * The current node stack of this builder.
+   */
   final List<_XmlNodeBuilder> _stack =
       new List.from([new _XmlDocumentBuilder()]);
 
