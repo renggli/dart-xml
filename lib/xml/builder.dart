@@ -130,12 +130,12 @@ class XmlBuilder {
       _insert(nest);
     }
     element.name = _buildName(name, namespace);
-    if (optimizeNamespaces == true) {
+    if (optimizeNamespaces) {
       // remove unused namespaces
       //    the reason we first add them and then remove them again is
       //    to keep the order in which they have been added
       element.namespaces.forEach((uri, meta) {
-        if(meta.used == false) {
+        if (!meta.used) {
           var name = meta.name;
           element.attributes.remove(element.attributes.firstWhere(
               (attribute) => attribute.name == name));
