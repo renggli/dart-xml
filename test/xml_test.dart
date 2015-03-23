@@ -848,7 +848,7 @@ void main() {
     });
     test('namespace binding', () {
       var uri = 'http://www.w3.org/2001/XMLSchema';
-      var builder = new XmlBuilder(optimizeNamespaces: false);
+      var builder = new XmlBuilder();
       builder.element('schema', nest: () {
         builder.namespace(uri, 'xsd');
         builder.attribute('lang', 'en', namespace: uri);
@@ -858,31 +858,14 @@ void main() {
       assertTreeInvariants(xml);
       var actual = xml.toString();
       var expected =
-      '<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsd:lang="en">'
-      '<xsd:element />'
-      '</xsd:schema>';
-      expect(actual, expected);
-    });
-    test('namespace binding optimized', () {
-      var uri = 'http://www.w3.org/2001/XMLSchema';
-      var builder = new XmlBuilder(optimizeNamespaces: true);
-      builder.element('schema', nest: () {
-        builder.namespace(uri, 'xsd');
-        builder.attribute('lang', 'en', namespace: uri);
-        builder.element('element', namespace: uri);
-      }, namespace: uri);
-      var xml = builder.build();
-      assertTreeInvariants(xml);
-      var actual = xml.toString();
-      var expected =
-      '<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsd:lang="en">'
-      '<xsd:element />'
-      '</xsd:schema>';
+          '<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsd:lang="en">'
+          '<xsd:element />'
+          '</xsd:schema>';
       expect(actual, expected);
     });
     test('default namespace binding', () {
       var uri = 'http://www.w3.org/2001/XMLSchema';
-      var builder = new XmlBuilder(optimizeNamespaces: false);
+      var builder = new XmlBuilder();
       builder.element('schema', nest: () {
         builder.namespace(uri);
         builder.attribute('lang', 'en', namespace: uri);
@@ -892,52 +875,18 @@ void main() {
       assertTreeInvariants(xml);
       var actual = xml.toString();
       var expected =
-      '<schema xmlns="http://www.w3.org/2001/XMLSchema" lang="en">'
-      '<element />'
-      '</schema>';
-      expect(actual, expected);
-    });
-    test('default namespace binding optimized', () {
-      var uri = 'http://www.w3.org/2001/XMLSchema';
-      var builder = new XmlBuilder(optimizeNamespaces: true);
-      builder.element('schema', nest: () {
-        builder.namespace(uri);
-        builder.attribute('lang', 'en', namespace: uri);
-        builder.element('element', namespace: uri);
-      }, namespace: uri);
-      var xml = builder.build();
-      assertTreeInvariants(xml);
-      var actual = xml.toString();
-      var expected =
-      '<schema xmlns="http://www.w3.org/2001/XMLSchema" lang="en">'
-      '<element />'
-      '</schema>';
+          '<schema xmlns="http://www.w3.org/2001/XMLSchema" lang="en">'
+          '<element />'
+          '</schema>';
       expect(actual, expected);
     });
     test('undefined namespace', () {
-      var builder = new XmlBuilder(optimizeNamespaces: false);
-      expect(() => builder.element('element', namespace: 'http://1.foo.com/'),
-          throwsArgumentError);
-    });
-    test('undefined namespace optimized', () {
-      var builder = new XmlBuilder(optimizeNamespaces: true);
+      var builder = new XmlBuilder();
       expect(() => builder.element('element', namespace: 'http://1.foo.com/'),
           throwsArgumentError);
     });
     test('invalid namespace', () {
-      var builder = new XmlBuilder(optimizeNamespaces: false);
-      builder.element('element', nest: () {
-        expect(() => builder.namespace('http://1.foo.com/', 'xml'),
-            throwsArgumentError);
-        expect(() => builder.namespace('http://2.foo.com/', 'xmlns'),
-            throwsArgumentError);
-      });
-      var actual = builder.build().toString();
-      var expected = '<element />';
-      expect(actual, expected);
-    });
-    test('invalid namespace optimized', () {
-      var builder = new XmlBuilder(optimizeNamespaces: true);
+      var builder = new XmlBuilder();
       builder.element('element', nest: () {
         expect(() => builder.namespace('http://1.foo.com/', 'xml'),
             throwsArgumentError);
@@ -949,18 +898,7 @@ void main() {
       expect(actual, expected);
     });
     test('conflicting namespace', () {
-      var builder = new XmlBuilder(optimizeNamespaces: false);
-      builder.element('element', nest: () {
-        builder.namespace('http://1.foo.com/', 'foo');
-        expect(() => builder.namespace('http://2.foo.com/', 'foo'),
-            throwsArgumentError);
-      }, namespace: 'http://1.foo.com/');
-      var actual = builder.build().toString();
-      var expected = '<foo:element xmlns:foo="http://1.foo.com/" />';
-      expect(actual, expected);
-    });
-    test('conflicting namespace optimized', () {
-      var builder = new XmlBuilder(optimizeNamespaces: true);
+      var builder = new XmlBuilder();
       builder.element('element', nest: () {
         builder.namespace('http://1.foo.com/', 'foo');
         expect(() => builder.namespace('http://2.foo.com/', 'foo'),
@@ -971,7 +909,7 @@ void main() {
       expect(actual, expected);
     });
     test('unused namespace', () {
-      var builder = new XmlBuilder(optimizeNamespaces: false);
+      var builder = new XmlBuilder();
       builder.element('element', nest: () {
         builder.namespace('http://1.foo.com/', 'foo');
       });
@@ -979,7 +917,7 @@ void main() {
       var expected = '<element xmlns:foo="http://1.foo.com/" />';
       expect(actual, expected);
     });
-    test('unused namespace optimized', () {
+    test('unused namespace (optimized)', () {
       var builder = new XmlBuilder(optimizeNamespaces: true);
       builder.element('element', nest: () {
         builder.namespace('http://1.foo.com/', 'foo');
@@ -989,7 +927,7 @@ void main() {
       expect(actual, expected);
     });
     test('duplicate namespace', () {
-      var builder = new XmlBuilder(optimizeNamespaces: false);
+      var builder = new XmlBuilder();
       builder.element('element', nest: () {
         builder.namespace('http://1.foo.com/', 'foo');
         builder.element('inner', nest: () {
@@ -1008,7 +946,7 @@ void main() {
           '</element>';
       expect(actual, expected);
     });
-    test('duplicate namespace optimized', () {
+    test('duplicate namespace (optimized)', () {
       var builder = new XmlBuilder(optimizeNamespaces: true);
       builder.element('element', nest: () {
         builder.namespace('http://1.foo.com/', 'foo');
