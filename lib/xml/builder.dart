@@ -137,8 +137,9 @@ class XmlBuilder {
       element.namespaces.forEach((uri, meta) {
         if (!meta.used) {
           var name = meta.name;
-          element.attributes.remove(element.attributes.firstWhere(
-              (attribute) => attribute.name == name));
+          var attribute = element.attributes
+              .firstWhere((attribute) => attribute.name == name);
+          element.attributes.remove(attribute);
         }
       });
     }
@@ -184,7 +185,7 @@ class XmlBuilder {
       throw new ArgumentError(
           'The "$prefix" prefix conflicts with existing binding.');
     }
-    _NamespaceMeta meta = new _NamespaceMeta(prefix, false);
+    _NamespaceData meta = new _NamespaceData(prefix, false);
     _stack.last.attributes.add(new XmlAttribute(meta.name, uri));
     _stack.last.namespaces[uri] = meta;
   }
@@ -206,7 +207,7 @@ class XmlBuilder {
   }
 
   // Internal method to lookup an namespace prefix.
-  _NamespaceMeta _lookup(String uri) {
+  _NamespaceData _lookup(String uri) {
     var builder = _stack.lastWhere(
         (builder) => builder.namespaces.containsKey(uri),
         orElse: () => throw new ArgumentError('Undefined namespace: $uri'));
@@ -225,11 +226,11 @@ class XmlBuilder {
   }
 }
 
-class _NamespaceMeta {
+class _NamespaceData {
   final String prefix;
   bool used;
 
-  _NamespaceMeta(String this.prefix, [bool this.used = false]);
+  _NamespaceData(String this.prefix, [bool this.used = false]);
 
   XmlName get name => prefix == null || prefix.isEmpty
       ? new XmlName(_XMLNS)
@@ -237,7 +238,7 @@ class _NamespaceMeta {
 }
 
 abstract class _XmlNodeBuilder {
-  Map<String, _NamespaceMeta> get namespaces;
+  Map<String, _NamespaceData> get namespaces;
   List<XmlAttribute> get attributes;
   List<XmlNode> get children;
   XmlNode build();
@@ -245,7 +246,7 @@ abstract class _XmlNodeBuilder {
 
 class _XmlDocumentBuilder extends _XmlNodeBuilder {
   @override
-  final Map<String, _NamespaceMeta> namespaces = {_XML_URI: _XML_META};
+  final Map<String, _NamespaceData> namespaces = {_XML_URI: _XML_DATA};
 
   @override
   List<XmlAttribute> get attributes {
@@ -262,7 +263,7 @@ class _XmlDocumentBuilder extends _XmlNodeBuilder {
 
 class _XmlElementBuilder extends _XmlNodeBuilder {
   @override
-  final Map<String, _NamespaceMeta> namespaces = new Map();
+  final Map<String, _NamespaceData> namespaces = new Map();
 
   @override
   final List<XmlAttribute> attributes = new List();
