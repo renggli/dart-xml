@@ -44,7 +44,7 @@ To read XML input use the top-level function `parse(String input)`:
         </bookshelf>''';
     var document = parse(bookshelfXml);
 
-The resulting object is an instance of `XmlDocument`. In case the document cannot be parsed, a `ParseError` is thrown.
+The resulting object is an instance of `XmlDocument`. In case the document cannot be parsed, a `ParserError` is thrown.
 
 To write back the parsed XML document simply call `toString()`:
 
