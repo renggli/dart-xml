@@ -10,9 +10,6 @@ class XmlWriter extends XmlVisitor {
   XmlWriter(this.buffer);
 
   @override
-  String toString() => buffer.toString();
-
-  @override
   visitAttribute(XmlAttribute node) {
     visit(node.name);
     buffer.write(XmlGrammarDefinition.EQUALS);

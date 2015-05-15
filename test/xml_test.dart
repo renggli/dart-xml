@@ -577,6 +577,15 @@ void main() {
     var bookXml =
         '<book><title lang="en" price="12.00">XML</title><description/></book>';
     var book = parse(bookXml);
+    void verifyIterator(Iterable iterable) {
+      var iterator = iterable.iterator;
+      while (iterator.moveNext()) {
+        expect(iterator.current, isNotNull);
+      }
+      expect(iterator.current, isNull);
+      expect(iterator.moveNext(), isFalse);
+      expect(iterator.current, isNull);
+    }
     test('ancestors', () {
       expect(book.ancestors, []);
       expect(book.children[0].ancestors, [book]);
@@ -594,6 +603,7 @@ void main() {
         book
       ]);
       expect(book.children[0].children[1].ancestors, [book.children[0], book]);
+      verifyIterator(book.children[0].children[1].ancestors);
     });
     test('preceding', () {
       expect(book.preceding, []);
@@ -622,6 +632,7 @@ void main() {
         book.children[0].children[0].attributes[1],
         book.children[0].children[0].children[0]
       ]);
+      verifyIterator(book.children[0].children[1].preceding);
     });
     test('descendants', () {
       expect(book.descendants, [
@@ -648,6 +659,7 @@ void main() {
       expect(book.children[0].children[0].attributes[1].descendants, []);
       expect(book.children[0].children[0].children[0].descendants, []);
       expect(book.children[0].children[1].descendants, []);
+      verifyIterator(book.descendants);
     });
     test('following', () {
       expect(book.following, []);
@@ -667,6 +679,7 @@ void main() {
         book.children[0].children[1]
       ]);
       expect(book.children[0].children[1].following, []);
+      verifyIterator(book.following);
     });
   });
   group('querying elements', () {
