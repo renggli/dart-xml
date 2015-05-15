@@ -71,7 +71,7 @@ Additionally, there are helpers to find elements with a specific tag:
 - `findElements(String name)` finds direct children of the current node with the provided tag `name`.
 - `findAllElements(String name)` finds direct and indirect children of the current node with the provided tag `name`.
 
-For example, to find all the nodes with the _<title>_ tag you could write:
+For example, to find all the nodes with the _&lt;title&gt;_ tag you could write:
 
 ```dart
 var titles = document.findAllElements('title');
