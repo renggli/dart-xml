@@ -9,50 +9,39 @@ Dart XML is a lightweight library for parsing, traversing, querying and building
 
 This library is open source, stable and well tested. Development happens on [GitHub](http://github.com/renggli/dart-xml). Feel free to report issues or create a pull-request there. General questions are best asked on [StackOverflow](http://stackoverflow.com/questions/tagged/xml+dart).
 
-Up-to-date [class documentation](http://www.dartdocs.org/documentation/xml/latest/index.html) is automatically created with every new release.
+Up-to-date [class documentation](http://www.dartdocs.org/documentation/xml/latest/index.html) is created with every release.
 
 
 Basic Usage
 -----------
 
-### Installation
-
-Add the dependency to your package's pubspec.yaml file:
-
-    dependencies:
-      xml: ">=2.0.0 <3.0.0"
-
-Then on the command line run:
-
-    $ pub get
-
-To import the package into your Dart code write:
-
-    import 'package:xml/xml.dart';
-
 ### Reading and Writing
 
 To read XML input use the top-level function `parse(String input)`:
 
-    var bookshelfXml = '''<?xml version="1.0"?>
-        <bookshelf>
-          <book>
-            <title lang="english">Growing a Language</title>
-            <price>29.99</price>
-          </book>
-          <book>
-            <title lang="english">Learning XML</title>
-            <price>39.95</price>
-          </book>
-          <price>132.00</price>
-        </bookshelf>''';
-    var document = parse(bookshelfXml);
+```dart
+var bookshelfXml = '''<?xml version="1.0"?>
+    <bookshelf>
+      <book>
+        <title lang="english">Growing a Language</title>
+        <price>29.99</price>
+      </book>
+      <book>
+        <title lang="english">Learning XML</title>
+        <price>39.95</price>
+      </book>
+      <price>132.00</price>
+    </bookshelf>''';
+var document = parse(bookshelfXml);
+```
 
 The resulting object is an instance of `XmlDocument`. In case the document cannot be parsed, a `ParserError` is thrown.
 
 To write back the parsed XML document simply call `toString()`:
 
-    print(document.toString());
+```dart
+print(document.toString());
+```
 
 ### Traversing and Querying
 
@@ -70,10 +59,12 @@ There are various methods to traverse the XML tree along its axes:
 
 For example, the `descendants` iterator could be used to extract all textual contents from an XML tree:
 
-    var textual = document.descendants
-        .where((node) => node is XmlText && !node.text.trim().isEmpty)
-        .join('\n');
-    print(textual);
+```dart
+var textual = document.descendants
+    .where((node) => node is XmlText && !node.text.trim().isEmpty)
+    .join('\n');
+print(textual);
+```
 
 Additionally, there are helpers to find elements with a specific tag:
 
@@ -82,22 +73,28 @@ Additionally, there are helpers to find elements with a specific tag:
 
 For example, to find all the nodes with the _<title>_ tag you could write:
 
-    var titles = document.findAllElements('title');
+```dart
+var titles = document.findAllElements('title');
+```
 
 The above code returns a lazy iterator that recursively walks the XML document and yields all the element nodes with the requested tag name. To extract the textual contents call `text`:
 
-    titles
-        .map((node) => node.text)
-        .forEach(print);
+```dart
+titles
+    .map((node) => node.text)
+    .forEach(print);
+```
 
 This prints _Growing a Language_ and _Learning XML_.
 
 Similarly, to compute the total price of all the books one could write the following expression:
 
-    var total = document.findAllElements('book')
-        .map((node) => double.parse(node.findElements('price').single.text))
-        .reduce((a, b) => a + b);
-    print(total);
+```dart
+var total = document.findAllElements('book')
+    .map((node) => double.parse(node.findElements('price').single.text))
+    .reduce((a, b) => a + b);
+print(total);
+```
 
 Note that this first finds all the books, and then extracts the price to avoid counting the price tag that is included in the bookshelf.
 
@@ -105,26 +102,28 @@ Note that this first finds all the books, and then extracts the price to avoid c
 
 To build a new XML document use an `XmlBuilder`. The builder implements a small set of methods to build complete XML trees. To create the above bookshelf example one would write:
 
-    var builder = new XmlBuilder();
-    builder.processing('xml', 'version="1.0"');
-    builder.element('bookshelf', nest: () {
-      builder.element('book', nest: () {
-        builder.element('title', nest: () {
-          builder.attribute('lang', 'english');
-          builder.text('Growing a Language');
-        });
-        builder.element('price', nest: 29.99);
-      });
-      builder.element('book', nest: () {
-        builder.element('title', nest: () {
-          builder.attribute('lang', 'english');
-          builder.text('Learning XML');
-        });
-        builder.element('price', nest: 39.95);
-      });
-      builder.element('price', nest: 132.00);
+```dart
+var builder = new XmlBuilder();
+builder.processing('xml', 'version="1.0"');
+builder.element('bookshelf', nest: () {
+  builder.element('book', nest: () {
+    builder.element('title', nest: () {
+      builder.attribute('lang', 'english');
+      builder.text('Growing a Language');
     });
-    var xml = builder.build();
+    builder.element('price', nest: 29.99);
+  });
+  builder.element('book', nest: () {
+    builder.element('title', nest: () {
+      builder.attribute('lang', 'english');
+      builder.text('Learning XML');
+    });
+    builder.element('price', nest: 39.95);
+  });
+  builder.element('price', nest: 132.00);
+});
+var xml = builder.build();
+```
 
 Note the `element` method. It is quite sophisticated and supports many different optional named arguments:
 
@@ -134,15 +133,17 @@ Note the `element` method. It is quite sophisticated and supports many different
 
 The builder pattern allows you to easily extract repeated parts into specific methods. In the example above, one could put the part that writes a book into a separate method as follows:
 
-    buildBook(XmlBuilder builder, String title, String language, num price) {
-      builder.element('book', nest: () {
-        builder.element('title', nest: () {
-          builder.attribute('lang', 'english');
-          builder.text(title);
-        });
-        builder.element('price', nest: price);
-      });
-    }
+```dart
+buildBook(XmlBuilder builder, String title, String language, num price) {
+  builder.element('book', nest: () {
+    builder.element('title', nest: () {
+      builder.attribute('lang', 'english');
+      builder.text(title);
+    });
+    builder.element('price', nest: price);
+  });
+}
+```
 
 Misc
 ----
