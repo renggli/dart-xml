@@ -3,11 +3,11 @@ Dart XML
 
 [![Pub Package](https://img.shields.io/pub/v/xml.svg)](https://pub.dartlang.org/packages/xml)
 [![Build Status](https://travis-ci.org/renggli/dart-xml.svg)](https://travis-ci.org/renggli/dart-xml)
-[![Coverage Status](https://coveralls.io/repos/renggli/dart-xml/badge.svg?branch=master)](https://coveralls.io/r/renggli/dart-xml?branch=master)
+[![Coverage Status](https://coveralls.io/repos/renggli/dart-xml/badge.svg)](https://coveralls.io/r/renggli/dart-xml)
 
 Dart XML is a lightweight library for parsing, traversing, querying and building XML documents.
 
-This library is open source, stable and well tested. Development happens on [GitHub](http://github.com/renggli/dart-xml). Feel free to report issues or create a pull-request there. The most recent stable versions are available through [pub.dartlang.org](http://pub.dartlang.org/packages/xml). General questions are best asked on [StackOverflow](http://stackoverflow.com/questions/tagged/dart+xml).
+This library is open source, stable and well tested. Development happens on [GitHub](http://github.com/renggli/dart-xml). Feel free to report issues or create a pull-request there. General questions are best asked on [StackOverflow](http://stackoverflow.com/questions/tagged/xml+dart).
 
 Up-to-date [class documentation](http://www.dartdocs.org/documentation/xml/latest/index.html) is created automatically with every new release.
 
