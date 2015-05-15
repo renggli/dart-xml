@@ -1,7 +1,7 @@
 library xml_test;
 
 import 'package:xml/xml.dart';
-import 'package:unittest/unittest.dart';
+import 'package:test/test.dart';
 
 import 'xml_examples.dart';
 

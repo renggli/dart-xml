@@ -3,8 +3,8 @@ part of xml;
 /**
  * A visitor that writes XML nodes exactly as they were parsed.
  */
-
 class XmlWriter extends XmlVisitor {
+
   final StringBuffer buffer;
 
   XmlWriter(this.buffer);
@@ -100,9 +100,14 @@ class XmlWriter extends XmlVisitor {
   }
 }
 
+
+/**
+ * A visitor that writes XML nodes correctly indented and with whitespaces adapted.
+ */
 class XmlPrettyWriter extends XmlWriter {
+
   int level = 0;
-  String indent;
+  final String indent;
 
   XmlPrettyWriter(buffer, this.level, this.indent) : super(buffer);
 

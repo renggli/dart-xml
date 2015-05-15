@@ -1,6 +1,6 @@
 library all_test;
 
-import 'package:unittest/unittest.dart';
+import 'package:test/test.dart';
 
 import 'xml_test.dart' as xml_test;
 
