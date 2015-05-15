@@ -12,8 +12,8 @@ This library is open source, stable and well tested. Development happens on [Git
 Up-to-date [class documentation](http://www.dartdocs.org/documentation/xml/latest/index.html) is created with every release.
 
 
-Basic Usage
------------
+Tutorial
+--------
 
 ### Reading and Writing
 
@@ -147,6 +147,13 @@ buildBook(XmlBuilder builder, String title, String language, num price) {
 
 Misc
 ----
+
+### Examples
+
+There are various open source projects using this package:
+
+- [csv2xml](https://github.com/taewony/csv2xml) is a library to convert between CSV and XML.
+- [dart-xrd](https://github.com/stevenroose/dart-xrd) is a library to read Extensible Resource Descriptors.
 
 ### Supports
 
