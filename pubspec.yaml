@@ -1,5 +1,5 @@
 name: xml
-version: 2.3.0
+version: 2.3.1
 author: Lukas Renggli <renggli@gmail.com>
 description: A lightweight library for parsing, traversing, querying and building XML documents.
 homepage: https://github.com/renggli/dart-xml
