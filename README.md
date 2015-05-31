@@ -4,6 +4,7 @@ Dart XML
 [![Pub Package](https://img.shields.io/pub/v/xml.svg)](https://pub.dartlang.org/packages/xml)
 [![Build Status](https://travis-ci.org/renggli/dart-xml.svg)](https://travis-ci.org/renggli/dart-xml)
 [![Coverage Status](https://coveralls.io/repos/renggli/dart-xml/badge.svg)](https://coveralls.io/r/renggli/dart-xml)
+[![Github Issues](http://githubbadges.herokuapp.com/renggli/dart-xml/issues.svg)](https://github.com/renggli/dart-xml/issues)
 
 Dart XML is a lightweight library for parsing, traversing, querying and building XML documents.
 
