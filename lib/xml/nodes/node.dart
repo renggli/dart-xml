@@ -9,12 +9,12 @@ abstract class XmlNode extends Object
   /**
    * Return the attribute nodes of this node.
    */
-  List<XmlAttribute> get attributes => [];
+  List<XmlAttribute> get attributes => const [];
 
   /**
    * Return the direct children of this node.
    */
-  List<XmlNode> get children => [];
+  List<XmlNode> get children => const [];
 
   /**
    * Return an iterable of the nodes preceding the opening tag of this node
