@@ -14,7 +14,6 @@ part 'xml/iterators/following.dart';
 part 'xml/iterators/preceding.dart';
 
 part 'xml/nodes/attribute.dart';
-part 'xml/nodes/branch.dart';
 part 'xml/nodes/cdata.dart';
 part 'xml/nodes/comment.dart';
 part 'xml/nodes/data.dart';
@@ -22,13 +21,14 @@ part 'xml/nodes/doctype.dart';
 part 'xml/nodes/document.dart';
 part 'xml/nodes/element.dart';
 part 'xml/nodes/node.dart';
+part 'xml/nodes/parent.dart';
 part 'xml/nodes/processing.dart';
 part 'xml/nodes/text.dart';
 
+part 'xml/utils/child.dart';
 part 'xml/utils/entities.dart';
 part 'xml/utils/name.dart';
 part 'xml/utils/named.dart';
-part 'xml/utils/parent.dart';
 part 'xml/utils/type.dart';
 part 'xml/utils/writable.dart';
 

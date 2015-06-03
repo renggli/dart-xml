@@ -3,7 +3,8 @@ part of xml;
 /**
  * XML element node.
  */
-class XmlElement extends XmlBranch implements XmlNamed {
+class XmlElement extends XmlParent implements XmlNamed {
+
   @override
   final XmlName name;
 

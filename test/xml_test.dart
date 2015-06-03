@@ -129,7 +129,7 @@ void assertTextInvariants(XmlNode xml) {
       expect(node.text, (text) => text is String,
           reason: 'All nodes are supposed to return text strings.');
     }
-    if (node is XmlBranch) {
+    if (node is XmlParent) {
       var lastWasText = false;
       for (var child in node.children) {
         expect(lastWasText && child is XmlText, isFalse,
@@ -219,7 +219,7 @@ void assertPrintingInvariants(XmlNode xml) {
         .map((node) => node.text.trim())
         .join();
     expect(source_text, pretty_text);
-    if (source is! XmlBranch) {
+    if (source is! XmlParent) {
       expect(source.toXmlString(), pretty.toXmlString());
     }
   }

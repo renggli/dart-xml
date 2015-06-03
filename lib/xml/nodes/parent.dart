@@ -3,14 +3,15 @@ part of xml;
 /**
  * Abstract XML node with actual children.
  */
-abstract class XmlBranch extends XmlNode {
+abstract class XmlParent extends XmlNode {
+
   @override
   final List<XmlNode> children;
 
   /**
    * Create a node with a list of `children`.
    */
-  XmlBranch(Iterable<XmlNode> children)
+  XmlParent(Iterable<XmlNode> children)
       : children = children.toList(growable: false) {
     for (var child in this.children) {
       assert(child._parent == null);

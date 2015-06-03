@@ -13,7 +13,7 @@ const _XMLNS = 'xmlns';
  * XML entity name.
  */
 abstract class XmlName extends Object
-    with XmlVisitable, XmlWritable, XmlParent {
+    with XmlVisitable, XmlWritable, XmlOwned {
 
   /**
    * Return the namespace prefix, or `null`.
