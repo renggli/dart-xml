@@ -47,4 +47,5 @@ class XmlElement extends XmlBranch implements XmlNamed {
 
   @override
   accept(XmlVisitor visitor) => visitor.visitElement(this);
+
 }

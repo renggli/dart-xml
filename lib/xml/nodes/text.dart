@@ -15,4 +15,5 @@ class XmlText extends XmlData {
 
   @override
   accept(XmlVisitor visitor) => visitor.visitText(this);
+
 }

@@ -15,4 +15,5 @@ class XmlComment extends XmlData {
 
   @override
   accept(XmlVisitor visitor) => visitor.visitComment(this);
+
 }

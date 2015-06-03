@@ -15,4 +15,5 @@ class XmlDoctype extends XmlData {
 
   @override
   accept(XmlVisitor visitor) => visitor.visitDoctype(this);
+
 }

@@ -15,4 +15,5 @@ class XmlCDATA extends XmlData {
 
   @override
   accept(XmlVisitor visitor) => visitor.visitCDATA(this);
+
 }

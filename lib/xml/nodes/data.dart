@@ -15,4 +15,5 @@ abstract class XmlData extends XmlNode {
    * Create a data section with `text`.
    */
   XmlData(this.text);
+
 }
