@@ -33,6 +33,11 @@ abstract class XmlVisitor {
   visitDocument(XmlDocument node);
 
   /**
+   * Visit an [XmlDocumentFragment] node.
+   */
+  visitDocumentFragment(XmlDocumentFragment node);
+
+  /**
    * Visit an [XmlElement] node.
    */
   visitElement(XmlElement node);
@@ -61,4 +66,5 @@ abstract class XmlVisitor {
    * Visit an [XmlText] node.
    */
   visitText(XmlText node);
+
 }

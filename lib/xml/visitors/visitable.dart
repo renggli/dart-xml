@@ -12,4 +12,5 @@ abstract class XmlVisitable {
    * that visitors can (but don't have to) pass return values.
    */
   accept(XmlVisitor visitor);
+
 }

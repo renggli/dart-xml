@@ -46,6 +46,11 @@ class XmlWriter extends XmlVisitor {
   }
 
   @override
+  visitDocumentFragment(XmlDocumentFragment node) {
+    buffer.write('#document-fragment');
+  }
+
+  @override
   visitElement(XmlElement node) {
     buffer.write(XmlGrammarDefinition.OPEN_ELEMENT);
     visit(node.name);

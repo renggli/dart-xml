@@ -19,6 +19,7 @@ part 'xml/nodes/comment.dart';
 part 'xml/nodes/data.dart';
 part 'xml/nodes/doctype.dart';
 part 'xml/nodes/document.dart';
+part 'xml/nodes/document_fragment.dart';
 part 'xml/nodes/element.dart';
 part 'xml/nodes/node.dart';
 part 'xml/nodes/parent.dart';

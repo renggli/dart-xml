@@ -11,6 +11,7 @@ class XmlNodeType {
   static const PROCESSING = const XmlNodeType._('PROCESSING');
   static const COMMENT = const XmlNodeType._('COMMENT');
   static const DOCUMENT = const XmlNodeType._('DOCUMENT');
+  static const DOCUMENT_FRAGMENT = const XmlNodeType._('DOCUMENT_FRAGMENT');
   static const DOCUMENT_TYPE = const XmlNodeType._('DOCUMENT_TYPE');
 
   final String _type;
