@@ -229,16 +229,19 @@ void assertPrintingInvariants(XmlNode xml) {
 void main() {
   group('parsing', () {
     test('comment', () {
-      assetParseInvariants('<?xml version="1.0" encoding="UTF-8"?>'
+      assetParseInvariants(
+          '<?xml version="1.0" encoding="UTF-8"?>'
           '<schema><!-- comment --></schema>');
     });
     test('comment with xml', () {
-      assetParseInvariants('<?xml version="1.0" encoding="UTF-8"?>'
+      assetParseInvariants(
+          '<?xml version="1.0" encoding="UTF-8"?>'
           '<schema><!-- <foo></foo> --></schema>');
     });
     test('complicated', () {
-      assetParseInvariants('<?xml foo?>\n'
-          '<!DOCTYPE [ something ]>\n'
+      assetParseInvariants(
+          '<?xml foo?>\n'
+          '<!DOCTYPE name [ something ]>\n'
           '<ns:foo attr="not namespaced" n1:ans="namespaced 1" n2:ans="namespace 2" >\n'
           '  <element/>\n'
           '  <ns:element/>\n'
@@ -306,7 +309,8 @@ void main() {
     });
     test('whitespace after prolog', () {
       assetParseInvariants(
-          '<?xml version="1.0" encoding="UTF-8"?>\n\t<schema></schema>\t\n');
+          '<?xml version="1.0" encoding="UTF-8"?>\n\t'
+          '<schema></schema>\t\n');
     });
     test('parse errors', () {
       assertParseError('<data></tada>', 'Expected </data>, but found </tada>');
@@ -507,7 +511,8 @@ void main() {
   });
   group('namespaces', () {
     test('default namespace', () {
-      XmlDocument document = parse('<html xmlns="http://www.w3.org/1999/xhtml">'
+      XmlDocument document = parse(
+          '<html xmlns="http://www.w3.org/1999/xhtml">'
           '  <body lang="en"/>'
           '</html>');
       List<XmlNode> nodes = new List.from(document.descendants)..add(document);
@@ -585,8 +590,7 @@ void main() {
     });
   });
   group('axis', () {
-    var bookXml =
-        '<book><title lang="en" price="12.00">XML</title><description/></book>';
+    var bookXml = '<book><title lang="en" price="12.00">XML</title><description/></book>';
     var book = parse(bookXml);
     void verifyIterator(Iterable iterable) {
       var iterator = iterable.iterator;
@@ -898,24 +902,20 @@ void main() {
       var xml = builder.build();
       assertTreeInvariants(xml);
       var actual = xml.toString();
-      var expected =
-          '<schema xmlns="http://www.w3.org/2001/XMLSchema" lang="en">'
+      var expected = '<schema xmlns="http://www.w3.org/2001/XMLSchema" lang="en">'
           '<element />'
           '</schema>';
       expect(actual, expected);
     });
     test('undefined namespace', () {
       var builder = new XmlBuilder();
-      expect(() => builder.element('element', namespace: 'http://1.foo.com/'),
-          throwsArgumentError);
+      expect(() => builder.element('element', namespace: 'http://1.foo.com/'), throwsArgumentError);
     });
     test('invalid namespace', () {
       var builder = new XmlBuilder();
       builder.element('element', nest: () {
-        expect(() => builder.namespace('http://1.foo.com/', 'xml'),
-            throwsArgumentError);
-        expect(() => builder.namespace('http://2.foo.com/', 'xmlns'),
-            throwsArgumentError);
+        expect(() => builder.namespace('http://1.foo.com/', 'xml'), throwsArgumentError);
+        expect(() => builder.namespace('http://2.foo.com/', 'xmlns'), throwsArgumentError);
       });
       var actual = builder.build().toString();
       var expected = '<element />';
@@ -925,8 +925,7 @@ void main() {
       var builder = new XmlBuilder();
       builder.element('element', nest: () {
         builder.namespace('http://1.foo.com/', 'foo');
-        expect(() => builder.namespace('http://2.foo.com/', 'foo'),
-            throwsArgumentError);
+        expect(() => builder.namespace('http://2.foo.com/', 'foo'), throwsArgumentError);
       }, namespace: 'http://1.foo.com/');
       var actual = builder.build().toString();
       var expected = '<foo:element xmlns:foo="http://1.foo.com/" />';
