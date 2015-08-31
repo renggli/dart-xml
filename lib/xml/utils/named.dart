@@ -9,6 +9,7 @@ abstract class XmlNamed {
    * Return the name of the node.
    */
   XmlName get name;
+
 }
 
 /**

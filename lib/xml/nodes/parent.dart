@@ -40,4 +40,5 @@ abstract class XmlParent extends XmlNode {
         .where((node) => node is XmlElement && matcher(node))
         .map((node) => node as XmlElement);
   }
+
 }

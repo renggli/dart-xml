@@ -43,4 +43,5 @@ abstract class XmlWritable implements XmlVisitable {
     }
     return buffer.toString();
   }
+
 }

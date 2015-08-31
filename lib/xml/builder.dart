@@ -20,8 +20,7 @@ class XmlBuilder {
   /**
    * The current node stack of this builder.
    */
-  final List<_XmlNodeBuilder> _stack =
-      new List.from([new _XmlDocumentBuilder()]);
+  final List<_XmlNodeBuilder> _stack = new List.from([new _XmlDocumentBuilder()]);
 
   /**
    * Construct a new [XmlBuilder].

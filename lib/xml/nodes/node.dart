@@ -99,4 +99,5 @@ abstract class XmlNode extends Object with XmlVisitable, XmlWritable, XmlOwned {
     }
     return null;
   }
+
 }
