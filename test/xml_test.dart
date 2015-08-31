@@ -247,18 +247,26 @@ void main() {
           '  <?processing instruction?>\n'
           '</ns:foo>');
     });
-    test('doctype', () {
-      assetParseInvariants('<!DOCTYPE root-name SYSTEM "uri-reference">'
+    test('doctype (system)', () {
+      assetParseInvariants(
+          '<!DOCTYPE root-name SYSTEM "uri-reference">'
           '<root />');
+    });
+    test('doctype (public)', () {
       assetParseInvariants(
           '<!DOCTYPE root-name PUBLIC "public-identifier" "uri-reference">'
           '<root />');
-      assetParseInvariants('<!DOCTYPE root ['
+    });
+    test('doctype (subset)', () {
+      assetParseInvariants(
+          '<!DOCTYPE root ['
           '  <!ELEMENT root (child)>'
           '  <!ATTLIST root attribute #IMPLIED>'
           '  <!ENTITY copy "©">'
           ']>'
           '<root />');
+    });
+    test('doctype (combined)', () {
       assetParseInvariants('<!DOCTYPE root SYSTEM "uri-reference" ['
           '  <!ELEMENT root (child)>'
           '  <!ATTLIST root attribute #IMPLIED>'
