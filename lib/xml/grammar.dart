@@ -51,9 +51,9 @@ abstract class XmlGrammarDefinition<TNode, TName> extends GrammarDefinition {
   start() => ref(document).end();
 
   attribute() => ref(qualified)
-      .seq(ref(space).optional())
+      .seq(ref(space_optional))
       .seq(char(EQUALS))
-      .seq(ref(space).optional())
+      .seq(ref(space_optional))
       .seq(ref(attributeValue))
       .map((each) => createAttribute(each[0], each[4]));
   attributeValue() =>
@@ -90,7 +90,7 @@ abstract class XmlGrammarDefinition<TNode, TName> extends GrammarDefinition {
               .seq(char(CLOSE_DOCTYPE_BLOCK)))
           .separatedBy(ref(space))
           .flatten())
-      .seq(ref(space).optional())
+      .seq(ref(space_optional))
       .seq(char(CLOSE_DOCTYPE))
       .map((each) => createDoctype(each[2]));
   document() => ref(processing)
@@ -105,12 +105,12 @@ abstract class XmlGrammarDefinition<TNode, TName> extends GrammarDefinition {
   element() => char(OPEN_ELEMENT)
       .seq(ref(qualified))
       .seq(ref(attributes))
-      .seq(ref(space).optional())
+      .seq(ref(space_optional))
       .seq(string(CLOSE_END_ELEMENT).or(char(CLOSE_ELEMENT)
           .seq(ref(content))
           .seq(string(OPEN_END_ELEMENT))
           .seq(ref(qualified))
-          .seq(ref(space).optional())
+          .seq(ref(space_optional))
           .seq(char(CLOSE_ELEMENT))))
       .map((list) {
     if (list[4] == CLOSE_END_ELEMENT) {
@@ -134,6 +134,7 @@ abstract class XmlGrammarDefinition<TNode, TName> extends GrammarDefinition {
       .map((each) => createProcessing(each[1], each[2]));
   qualified() => ref(nameToken).map(createQualified);
 
+  space_optional() => whitespace().star();
   characterData() =>
       new _XmlCharacterDataParser(OPEN_ELEMENT, 1).map(createText);
   misc() => ref(space).or(ref(comment)).or(ref(processing)).star();
