@@ -1,13 +1,9 @@
 part of xml;
 
-/**
- * XML document fragment node.
- */
+/// XML document fragment node.
 class XmlDocumentFragment extends XmlParent {
 
-  /**
-   * Create a document node with `children`.
-   */
+  /// Create a document node with `children`.
   XmlDocumentFragment(Iterable<XmlNode> children) : super(children);
 
   @override

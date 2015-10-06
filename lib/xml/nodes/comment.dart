@@ -1,13 +1,9 @@
 part of xml;
 
-/**
- * XML comment node.
- */
+/// XML comment node.
 class XmlComment extends XmlData {
 
-  /**
-   * Create a comment section with `text`.
-   */
+  /// Create a comment section with `text`.
   XmlComment(String text) : super(text);
 
   @override

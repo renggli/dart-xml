@@ -1,8 +1,6 @@
 part of xml;
 
-/**
- * Enum of the different XML Node types.
- */
+/// Enum of the different XML Node types.
 class XmlNodeType {
 
   static const ELEMENT = const XmlNodeType._('ELEMENT');

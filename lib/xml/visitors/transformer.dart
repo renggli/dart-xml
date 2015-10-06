@@ -1,10 +1,8 @@
 part of xml;
 
-/**
- * Transformer that creates an identical copy of the visited nodes.
- *
- * Subclass and override one or more of the methods to modify the generated copy.
- */
+/// Transformer that creates an identical copy of the visited nodes.
+///
+/// Subclass and override one or more of the methods to modify the generated copy.
 class XmlTransformer extends XmlVisitor {
 
   @override

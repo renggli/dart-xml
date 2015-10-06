@@ -1,8 +1,6 @@
 part of xml;
 
-/**
- * Iterable to walk over the descendants of a node.
- */
+/// Iterable to walk over the descendants of a node.
 class _XmlDescendantsIterable extends IterableBase<XmlNode> {
 
   final XmlNode start;
@@ -14,9 +12,7 @@ class _XmlDescendantsIterable extends IterableBase<XmlNode> {
 
 }
 
-/**
- * Iterator to walk over the descendants of a node.
- */
+/// Iterator to walk over the descendants of a node.
 class _XmlDescendantsIterator extends Iterator<XmlNode> {
 
   final List<XmlNode> todo = new List();

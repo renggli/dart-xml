@@ -1,8 +1,6 @@
 part of xml;
 
-/**
- * XML element node.
- */
+/// XML element node.
 class XmlElement extends XmlParent implements XmlNamed {
 
   @override
@@ -11,9 +9,7 @@ class XmlElement extends XmlParent implements XmlNamed {
   @override
   final List<XmlAttribute> attributes;
 
-  /**
-   * Create an [XmlElement] with the given `name`, `attributes`, and `children`.
-   */
+  /// Create an [XmlElement] with the given `name`, `attributes`, and `children`.
   XmlElement(XmlName name, Iterable<XmlAttribute> attributes,
       Iterable<XmlNode> children)
       : name = name,
@@ -27,17 +23,13 @@ class XmlElement extends XmlParent implements XmlNamed {
     }
   }
 
-  /**
-   * Return the attribute value with the given `name`.
-   */
+  /// Return the attribute value with the given `name`.
   String getAttribute(name, {String namespace}) {
     var attribute = getAttributeNode(name, namespace: namespace);
     return attribute != null ? attribute.value : null;
   }
 
-  /**
-   * Return the attribute node with the given `name`.
-   */
+  /// Return the attribute node with the given `name`.
   XmlAttribute getAttributeNode(String name, {String namespace}) {
     return attributes.firstWhere(_createMatcher(name, namespace),
         orElse: () => null);

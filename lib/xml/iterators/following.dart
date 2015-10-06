@@ -1,8 +1,6 @@
 part of xml;
 
-/**
- * Iterable to walk over the followers of a node.
- */
+/// Iterable to walk over the followers of a node.
 class _XmlFollowingIterable extends IterableBase<XmlNode> {
 
   final XmlNode start;
@@ -14,9 +12,7 @@ class _XmlFollowingIterable extends IterableBase<XmlNode> {
 
 }
 
-/**
- * Iterator to walk over the followers of a node.
- */
+/// Iterator to walk over the followers of a node.
 class _XmlFollowingIterator extends Iterator<XmlNode> {
 
   final List<XmlNode> todo = new List();

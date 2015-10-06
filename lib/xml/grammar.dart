@@ -1,8 +1,6 @@
 part of xml;
 
-/**
- * XML grammar definition with [TNode] and [TName].
- */
+/// XML grammar definition with [TNode] and [TName].
 abstract class XmlGrammarDefinition<TNode, TName> extends GrammarDefinition {
 
   // name patterns
