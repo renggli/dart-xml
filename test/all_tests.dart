@@ -1,4 +1,4 @@
-library all_tests;
+library xml.test.all_tests;
 
 import 'package:test/test.dart';
 

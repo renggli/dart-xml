@@ -1,4 +1,4 @@
-library xml_examples;
+library xml.test.xml_examples;
 
 const booksXml = '<?xml version="1.0"?>'
     '<catalog>'

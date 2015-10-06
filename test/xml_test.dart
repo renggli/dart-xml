@@ -1,4 +1,4 @@
-library xml_test;
+library xml.test.xml_test;
 
 import 'package:xml/xml.dart';
 import 'package:test/test.dart';
@@ -143,14 +143,14 @@ void assertTextInvariants(XmlNode xml) {
 void assertIteratorInvariants(XmlNode xml) {
   var ancestors = new List();
   void check(XmlNode node) {
-    var all_axis = [
+    var allAxis = [
       node.preceding,
       [node],
       node.descendants,
       node.following
     ].expand((each) => each);
-    var all_root = [[node.root], node.root.descendants].expand((each) => each);
-    expect(all_axis, all_root,
+    var allRoot = [[node.root], node.root.descendants].expand((each) => each);
+    expect(allAxis, allRoot,
         reason: 'All preceding nodes, the node, all decendant '
         'nodes, and all following nodes should be equal to all nodes in the tree.');
     expect(node.ancestors, ancestors.reversed);
@@ -169,11 +169,11 @@ void assertCopyInvariants(XmlNode xml) {
     expect(original.nodeType, copy.nodeType,
         reason: 'The copied node type should be the same.');
     if (original is XmlNamed && copy is XmlNamed) {
-      var original_named = original as XmlNamed;
-      var copy_named = copy as XmlNamed;
-      expect(original_named.name, copy_named.name,
+      var originalNamed = original as XmlNamed;
+      var copyNamed = copy as XmlNamed;
+      expect(originalNamed.name, copyNamed.name,
           reason: 'The copied name should be equal.');
-      expect(original_named.name, isNot(same(copy_named.name)),
+      expect(originalNamed.name, isNot(same(copyNamed.name)),
           reason: 'The copied name should not be identical.');
     }
     expect(original.attributes.length, copy.attributes.length,
@@ -202,23 +202,23 @@ void assertPrintingInvariants(XmlNode xml) {
     for (var i = 0; i < source.attributes.length; i++) {
       compare(source.attributes[i], pretty.attributes[i]);
     }
-    var source_children =
+    var sourceChildren =
         source.children.where((node) => node is! XmlText).toList();
-    var pretty_children =
+    var prettyChildren =
         pretty.children.where((node) => node is! XmlText).toList();
-    expect(source_children.length, pretty_children.length);
-    for (var i = 0; i < source_children.length; i++) {
-      compare(source_children[i], pretty_children[i]);
+    expect(sourceChildren.length, prettyChildren.length);
+    for (var i = 0; i < sourceChildren.length; i++) {
+      compare(sourceChildren[i], prettyChildren[i]);
     }
-    var source_text = source.children
+    var sourceText = source.children
         .where((node) => node is XmlText)
         .map((node) => node.text.trim())
         .join();
-    var pretty_text = pretty.children
+    var prettyText = pretty.children
         .where((node) => node is XmlText)
         .map((node) => node.text.trim())
         .join();
-    expect(source_text, pretty_text);
+    expect(sourceText, prettyText);
     if (source is! XmlParent) {
       expect(source.toXmlString(), pretty.toXmlString());
     }

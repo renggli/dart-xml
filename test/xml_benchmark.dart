@@ -1,4 +1,4 @@
-library xml_benchmark;
+library xml.test.xml_benchmark;
 
 import 'package:xml/xml.dart';
 import 'xml_examples.dart';

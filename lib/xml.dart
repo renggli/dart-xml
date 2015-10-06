@@ -40,12 +40,12 @@ part 'xml/builder.dart';
 part 'xml/grammar.dart';
 part 'xml/parser.dart';
 
-final Parser _PARSER = new XmlParserDefinition().build();
+final Parser _parser = new XmlParserDefinition().build();
 
 /// Return an [XmlDocument] for the given `input` string, or throws an
 /// [ArgumentError] if the input is invalid.
 XmlDocument parse(String input) {
-  var result = _PARSER.parse(input);
+  var result = _parser.parse(input);
   if (result.isFailure) {
     throw new ArgumentError(new ParserError(result).toString());
   }
