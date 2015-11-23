@@ -37,14 +37,6 @@ class _XmlCharacterDataParser extends Parser {
     var position = context.position;
     var start = position;
 
-    // helper to append the range scanned up to now
-    appendRun() {
-      if (start != position) {
-        output.write(input.substring(start, position));
-        start = position;
-      }
-    }
-
     // scan over the characters as fast as possible
     while (position < length) {
       var value = input.codeUnitAt(position);
@@ -53,7 +45,7 @@ class _XmlCharacterDataParser extends Parser {
       } else if (value == 38) {
         var result = _ENTITY.parseOn(context.success(null, position));
         if (result.isSuccess && result.value != null) {
-          appendRun();
+          output.write(input.substring(start, position));
           output.write(result.value);
           position = result.position;
           start = position;
@@ -64,7 +56,7 @@ class _XmlCharacterDataParser extends Parser {
         position++;
       }
     }
-    appendRun();
+    output.write(input.substring(start, position));
 
     // check for the minimum length
     return output.length < _minLength
