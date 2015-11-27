@@ -53,15 +53,19 @@ abstract class XmlGrammarDefinition<TNode, TName> extends GrammarDefinition {
       .seq(ref(space_optional))
       .seq(ref(attributeValue))
       .map((each) => createAttribute(each[0], each[4]));
-  attributeValue() =>
-      ref(attributeValueDouble).or(ref(attributeValueSingle)).pick(1);
+  attributeValue() => ref(attributeValueDouble)
+      .or(ref(attributeValueSingle))
+      .pick(1);
   attributeValueDouble() => char(DOUBLE_QUOTE)
       .seq(new _XmlCharacterDataParser(DOUBLE_QUOTE, 0))
       .seq(char(DOUBLE_QUOTE));
   attributeValueSingle() => char(SINGLE_QUOTE)
       .seq(new _XmlCharacterDataParser(SINGLE_QUOTE, 0))
       .seq(char(SINGLE_QUOTE));
-  attributes() => ref(space).seq(ref(attribute)).pick(1).star();
+  attributes() => ref(space)
+      .seq(ref(attribute))
+      .pick(1)
+      .star();
   comment() => string(OPEN_COMMENT)
       .seq(any().starLazy(string(CLOSE_COMMENT)).flatten())
       .seq(string(CLOSE_COMMENT))
@@ -90,8 +94,7 @@ abstract class XmlGrammarDefinition<TNode, TName> extends GrammarDefinition {
       .seq(ref(space_optional))
       .seq(char(CLOSE_DOCTYPE))
       .map((each) => createDoctype(each[2]));
-  document() => ref(processing)
-      .optional()
+  document() => ref(processing).optional()
       .seq(ref(misc))
       .seq(ref(doctype).optional())
       .seq(ref(misc))
