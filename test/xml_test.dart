@@ -362,7 +362,7 @@ void main() {
       XmlDocument document = parse('<data ns:attr="&lt;&gt;&amp;&apos;&quot;" />');
       XmlAttribute node = document.rootElement.attributes.single;
       expect(node.value, '<>&\'"');
-      expect(node.toString(), 'ns:attr="<>&\'&quot;"');
+      expect(node.toString(), 'ns:attr="&lt;>&amp;\'&quot;"');
     });
     test('attribute (single)', () {
       XmlDocument document = parse('<data ns:attr=\'Am I or are the other crazy?\' />');
@@ -390,7 +390,7 @@ void main() {
       XmlDocument document = parse('<data ns:attr=\'&lt;&gt;&amp;&apos;&quot;\' />');
       XmlAttribute node = document.rootElement.attributes.single;
       expect(node.value, '<>&\'"');
-      expect(node.toString(), 'ns:attr="<>&\'&quot;"');
+      expect(node.toString(), 'ns:attr="&lt;>&amp;\'&quot;"');
     });
     test('text', () {
       XmlDocument document = parse('<data>Am I or are the other crazy?</data>');

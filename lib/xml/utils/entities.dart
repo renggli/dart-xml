@@ -342,6 +342,17 @@ final Pattern _TEXT_PATTERN = new RegExp(r'[&<]');
 
 /// Encode a string to be serialized as an XML attribute value.
 String _encodeXmlAttributeValue(String input) {
-  // only " needs to be encoded in attribute value
-  return input.replaceAll('"', '&quot;');
+  // only ", &, and < needs to be encoded in attribute value
+  return input.replaceAllMapped(_ATTRIBUTE_PATTERN, (match) {
+    switch (match.group(0)) {
+      case '"':
+        return '&quot;';
+      case '&':
+        return '&amp;';
+      case '<':
+        return '&lt;';
+    }
+  });
 }
+
+final Pattern _ATTRIBUTE_PATTERN = new RegExp(r'["&<]');
