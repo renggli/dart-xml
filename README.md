@@ -16,6 +16,14 @@ Up-to-date [class documentation](http://www.dartdocs.org/documentation/xml/lates
 Tutorial
 --------
 
+Follow the _Installing_ instructions on https://pub.dartlang.org/packages/xml.
+
+Import the package into your Dart code using:
+
+```dart
+import 'package:xml/xml.dart' as xml;
+```
+
 ### Reading and Writing
 
 To read XML input use the top-level function `parse(String input)`:
@@ -33,7 +41,7 @@ var bookshelfXml = '''<?xml version="1.0"?>
       </book>
       <price>132.00</price>
     </bookshelf>''';
-var document = parse(bookshelfXml);
+var document = xml.parse(bookshelfXml);
 ```
 
 The resulting object is an instance of `XmlDocument`. In case the document cannot be parsed, a `ParserError` is thrown.
