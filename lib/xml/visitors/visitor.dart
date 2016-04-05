@@ -1,44 +1,44 @@
 part of xml;
 
 /// Abstract visitor over [XmlVisitable] nodes.
-abstract class XmlVisitor {
+abstract class XmlVisitor<E> {
 
   /// Helper to visit an [XmlVisitable] using this visitor by dispatching
   /// through the provided [visitable].
-  visit(XmlVisitable visitable) => visitable.accept(this);
+  E visit(XmlVisitable visitable) => visitable.accept(this) as E;
 
   /// Helper to visit an [Iterable] of [XmlVisitable]s using this visitor
   /// by dispatching through the provided [visitables].
-  visitAll(Iterable<XmlVisitable> visitables) => visitables.map(visit);
+  Iterable<E> visitAll(Iterable<XmlVisitable> visitables) => visitables.map(visit);
 
   /// Visit an [XmlName].
-  visitName(XmlName name);
+  E visitName(XmlName name);
 
   /// Visit an [XmlAttribute] node.
-  visitAttribute(XmlAttribute node);
+  E visitAttribute(XmlAttribute node);
 
   /// Visit an [XmlDocument] node.
-  visitDocument(XmlDocument node);
+  E visitDocument(XmlDocument node);
 
   /// Visit an [XmlDocumentFragment] node.
-  visitDocumentFragment(XmlDocumentFragment node);
+  E visitDocumentFragment(XmlDocumentFragment node);
 
   /// Visit an [XmlElement] node.
-  visitElement(XmlElement node);
+  E visitElement(XmlElement node);
 
   /// Visit an [XmlCDATA] node.
-  visitCDATA(XmlCDATA node);
+  E visitCDATA(XmlCDATA node);
 
   /// Visit an [XmlComment] node.
-  visitComment(XmlComment node);
+  E visitComment(XmlComment node);
 
   /// Visit an [XmlDoctype] node.
-  visitDoctype(XmlDoctype node);
+  E visitDoctype(XmlDoctype node);
 
   /// Visit an [XmlProcessing] node.
-  visitProcessing(XmlProcessing node);
+  E visitProcessing(XmlProcessing node);
 
   /// Visit an [XmlText] node.
-  visitText(XmlText node);
+  E visitText(XmlText node);
 
 }

@@ -74,7 +74,7 @@ class XmlWriter extends XmlVisitor {
   visitProcessing(XmlProcessing node) {
     buffer.write(XmlGrammarDefinition.OPEN_PROCESSING);
     buffer.write(node.target);
-    if (!node.text.isEmpty) {
+    if (node.text.isNotEmpty) {
       buffer.write(XmlGrammarDefinition.WHITESPACE);
       buffer.write(node.text);
     }

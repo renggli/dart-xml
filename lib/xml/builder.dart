@@ -105,16 +105,15 @@ class XmlBuilder {
       Map<String, String> attributes: const {}, nest: null}) {
     var element = new _XmlElementBuilder();
     _stack.add(element);
-    namespaces.forEach(this.namespace);
-    attributes.forEach(this.attribute);
+    namespaces.forEach((uri, prefix) => this.namespace(uri, prefix));
+    attributes.forEach((name, value) => this.attribute(name, value));
     if (nest != null) {
       _insert(nest);
     }
     element.name = _buildName(name, namespace);
     if (optimizeNamespaces) {
-      // remove unused namespaces
-      //    the reason we first add them and then remove them again is
-      //    to keep the order in which they have been added
+      // Remove unused namespaces: The reason we first add them and then remove
+      // them again is to keep the order in which they have been added.
       element.namespaces.forEach((uri, meta) {
         if (!meta.used) {
           var name = meta.name;
@@ -172,7 +171,7 @@ class XmlBuilder {
 
   // Internal method to build a name.
   XmlName _buildName(String name, String uri) {
-    if (uri != null && !uri.isEmpty) {
+    if (uri != null && uri.isNotEmpty) {
       var meta = _lookup(uri);
       meta.used = true;
       return new XmlName(name, meta.prefix);
@@ -205,7 +204,7 @@ class _NamespaceData {
   final String prefix;
   bool used;
 
-  _NamespaceData(String this.prefix, [bool this.used = false]);
+  _NamespaceData(this.prefix, [this.used = false]);
 
   XmlName get name => prefix == null || prefix.isEmpty
       ? new XmlName(_XMLNS)

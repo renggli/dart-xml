@@ -10,6 +10,6 @@ class XmlText extends XmlData {
   XmlNodeType get nodeType => XmlNodeType.TEXT;
 
   @override
-  accept(XmlVisitor visitor) => visitor.visitText(this);
+  /*E*/ accept/*<E>*/(XmlVisitor/*<E>*/ visitor) => visitor.visitText(this);
 
 }

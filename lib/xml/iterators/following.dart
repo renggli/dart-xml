@@ -18,7 +18,7 @@ class _XmlFollowingIterator extends Iterator<XmlNode> {
   final List<XmlNode> todo = new List();
 
   _XmlFollowingIterator(XmlNode start) {
-    var following = new List();
+    var following = new List<XmlNode>();
     for (var parent = start.parent, child = start; parent != null; parent = parent.parent, child = child.parent) {
       var attributes_index = parent.attributes.indexOf(child);
       if (attributes_index != -1) {

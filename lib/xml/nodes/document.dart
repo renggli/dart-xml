@@ -43,6 +43,6 @@ class XmlDocument extends XmlParent {
   XmlNodeType get nodeType => XmlNodeType.DOCUMENT;
 
   @override
-  accept(XmlVisitor visitor) => visitor.visitDocument(this);
+  /*E*/ accept/*<E>*/(XmlVisitor/*<E>*/ visitor) => visitor.visitDocument(this);
 
 }

@@ -1,13 +1,13 @@
 part of xml;
 
 // separator between prefix and local name
-const _SEPARATOR = ':';
+final _SEPARATOR = ':';
 
 // xml namespace declarations
-const _XML = 'xml';
+final _XML = 'xml';
 final _XML_DATA = new _NamespaceData(_XML, true);
-const _XML_URI = 'http://www.w3.org/XML/1998/namespace';
-const _XMLNS = 'xmlns';
+final _XML_URI = 'http://www.w3.org/XML/1998/namespace';
+final _XMLNS = 'xmlns';
 
 /// XML entity name.
 abstract class XmlName extends Object with XmlVisitable, XmlWritable, XmlOwned {
@@ -46,7 +46,7 @@ abstract class XmlName extends Object with XmlVisitable, XmlWritable, XmlOwned {
   XmlName._();
 
   @override
-  accept(XmlVisitor visitor) => visitor.visitName(this);
+  /*E*/ accept/*<E>*/(XmlVisitor/*<E>*/ visitor) => visitor.visitName(this);
 
   @override
   bool operator ==(other) => other is XmlName &&

@@ -64,6 +64,7 @@ class _XmlCharacterDataParser extends Parser {
         : context.success(output.toString(), position);
   }
 
+  @override
   List<Parser> get children => [_ENTITY];
 
   @override

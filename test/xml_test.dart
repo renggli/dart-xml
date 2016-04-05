@@ -85,7 +85,7 @@ void assertBackwardInvariants(XmlNode xml) {
 void assertNameInvariants(XmlNode xml) {
   for (var node in xml.descendants) {
     if (node is XmlNamed) {
-      assertNamedInvariant(node);
+      assertNamedInvariant(node as XmlNamed);
     }
   }
 }
@@ -97,8 +97,7 @@ void assertNamedInvariant(XmlNamed named) {
   if (named.name.prefix != null) {
     expect(named.name.qualified, startsWith(named.name.prefix));
   }
-  expect(named.name.namespaceUri,
-      anyOf(isNull, (node) => node is String && node.isNotEmpty));
+  expect(named.name.namespaceUri, anyOf(isNull, (node) => node is String && node.isNotEmpty));
   expect(named.name.qualified.hashCode, named.name.hashCode);
   expect(named.name.qualified, named.name.toString());
 }
@@ -108,10 +107,8 @@ void assertAttributeInvariants(XmlNode xml) {
     if (node is XmlElement) {
       var element = node;
       for (var attribute in element.attributes) {
-        expect(attribute,
-            same(element.getAttributeNode(attribute.name.qualified)));
-        expect(attribute.value,
-            same(element.getAttribute(attribute.name.qualified)));
+        expect(attribute, same(element.getAttributeNode(attribute.name.qualified)));
+        expect(attribute.value, same(element.getAttribute(attribute.name.qualified)));
       }
       if (element.attributes.isEmpty) {
         expect(element.getAttribute('foo'), isNull);
@@ -518,7 +515,7 @@ void main() {
       List<XmlNode> nodes = new List.from(document.descendants)..add(document);
       nodes.forEach((node) {
         if (node is XmlAttribute || node is XmlElement) {
-          expect(node.name.namespaceUri, 'http://www.w3.org/1999/xhtml');
+          expect((node as XmlNamed).name.namespaceUri, 'http://www.w3.org/1999/xhtml');
         }
       });
     });
@@ -531,14 +528,13 @@ void main() {
       nodes.forEach((node) {
         if ((node is XmlAttribute && node.name.prefix != 'xmlns') ||
             (node is XmlElement)) {
-          expect(node.name.namespaceUri, 'http://www.w3.org/1999/xhtml');
+          expect((node as XmlNamed).name.namespaceUri, 'http://www.w3.org/1999/xhtml');
         }
       });
     });
   });
   group('entities', () {
-    String decode(String input) =>
-        parse('<data>$input</data>').rootElement.text;
+    String decode(String input) => parse('<data>$input</data>').rootElement.text;
     String encodeText(String input) => new XmlText(input).toString();
     String encodeAttributeValue(String input) {
       var attribute = new XmlAttribute(new XmlName('a'), input).toString();

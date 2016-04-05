@@ -52,7 +52,7 @@ abstract class XmlGrammarDefinition<TNode, TName> extends GrammarDefinition {
       .seq(char(EQUALS))
       .seq(ref(space_optional))
       .seq(ref(attributeValue))
-      .map((each) => createAttribute(each[0], each[4]));
+      .map((each) => createAttribute(each[0] as TName, each[4]));
   attributeValue() => ref(attributeValueDouble)
       .or(ref(attributeValueSingle))
       .pick(1);
@@ -100,7 +100,8 @@ abstract class XmlGrammarDefinition<TNode, TName> extends GrammarDefinition {
       .seq(ref(misc))
       .seq(ref(element))
       .seq(ref(misc))
-      .map((each) => createDocument([each[0], each[2], each[4]].where((each) => each != null)));
+      .map((each) => createDocument([each[0], each[2], each[4]]
+          .where((each) => each != null) as Iterable<TNode>));
   element() => char(OPEN_ELEMENT)
       .seq(ref(qualified))
       .seq(ref(attributes))
@@ -113,10 +114,10 @@ abstract class XmlGrammarDefinition<TNode, TName> extends GrammarDefinition {
           .seq(char(CLOSE_ELEMENT))))
       .map((list) {
     if (list[4] == CLOSE_END_ELEMENT) {
-      return createElement(list[1], list[2], []);
+      return createElement(list[1] as TName, list[2] as Iterable<TNode>, []);
     } else {
       if (list[1] == list[4][3]) {
-        return createElement(list[1], list[2], list[4][1]);
+        return createElement(list[1] as TName, list[2] as Iterable<TNode>, list[4][1] as Iterable<TNode>);
       } else {
         throw new ArgumentError('Expected </${list[1]}>, but found </${list[4][3]}>');
       }

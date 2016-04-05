@@ -16,6 +16,6 @@ class XmlDocumentFragment extends XmlParent {
   XmlNodeType get nodeType => XmlNodeType.DOCUMENT_FRAGMENT;
 
   @override
-  accept(XmlVisitor visitor) => visitor.visitDocumentFragment(this);
+  /*E*/ accept/*<E>*/(XmlVisitor/*<E>*/ visitor) => visitor.visitDocumentFragment(this);
 
 }

@@ -7,6 +7,6 @@ abstract class XmlVisitable {
   ///
   /// Note that the return type of this method is intentionally left unspecified, so
   /// that visitors can (but don't have to) pass return values.
-  accept(XmlVisitor visitor);
+  /*E*/ accept/*<E>*/(XmlVisitor/*<E>*/ visitor);
 
 }

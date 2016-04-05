@@ -20,7 +20,7 @@ abstract class XmlWritable implements XmlVisitable {
   /// Return an XML string of this object.
   ///
   /// If `pretty` is set to `true` the output is nicely reformatted, otherwise the
-  /// tree is emitted verbatimely.
+  /// tree is emitted verbatim.
   ///
   /// The option `indent` is only used when pretty formatting to customize the
   /// indention of nodes, by default nodes are indented with 2 spaces.
