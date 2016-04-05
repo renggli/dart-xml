@@ -19,6 +19,8 @@ Up-to-date [class documentation](http://www.dartdocs.org/documentation/xml/lates
 Tutorial
 --------
 
+### Installation
+
 Follow the _Installing_ instructions on https://pub.dartlang.org/packages/xml.
 
 Import the package into your Dart code using:
