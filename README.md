@@ -75,7 +75,7 @@ For example, the `descendants` iterator could be used to extract all textual con
 
 ```dart
 var textual = document.descendants
-    .where((node) => node is XmlText && !node.text.trim().isEmpty)
+    .where((node) => node is xml.XmlText && !node.text.trim().isEmpty)
     .join('\n');
 print(textual);
 ```
@@ -117,7 +117,7 @@ Note that this first finds all the books, and then extracts the price to avoid c
 To build a new XML document use an `XmlBuilder`. The builder implements a small set of methods to build complete XML trees. To create the above bookshelf example one would write:
 
 ```dart
-var builder = new XmlBuilder();
+var builder = new xml.XmlBuilder();
 builder.processing('xml', 'version="1.0"');
 builder.element('bookshelf', nest: () {
   builder.element('book', nest: () {
@@ -148,7 +148,7 @@ Note the `element` method. It is quite sophisticated and supports many different
 The builder pattern allows you to easily extract repeated parts into specific methods. In the example above, one could put the part that writes a book into a separate method as follows:
 
 ```dart
-buildBook(XmlBuilder builder, String title, String language, num price) {
+buildBook(xml.XmlBuilder builder, String title, String language, num price) {
   builder.element('book', nest: () {
     builder.element('title', nest: () {
       builder.attribute('lang', 'english');
