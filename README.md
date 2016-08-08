@@ -136,7 +136,7 @@ builder.element('bookshelf', nest: () {
   });
   builder.element('price', nest: 132.00);
 });
-var xml = builder.build();
+var bookshelfXml = builder.build();
 ```
 
 Note the `element` method. It is quite sophisticated and supports many different optional named arguments:
