@@ -33,7 +33,7 @@ abstract class XmlGrammarDefinition<TNode, TName> extends GrammarDefinition {
   static const CLOSE_PROCESSING = '?>';
 
   // parser callbacks
-  TNode createAttribute(TName name, String text);
+  TNode createAttribute(TName name, String text, XmlAttributeType type);
   TNode createComment(String text);
   TNode createCDATA(String text);
   TNode createDoctype(String text);
@@ -52,16 +52,17 @@ abstract class XmlGrammarDefinition<TNode, TName> extends GrammarDefinition {
       .seq(char(EQUALS))
       .seq(ref(space_optional))
       .seq(ref(attributeValue))
-      .map((each) => createAttribute(each[0] as TName, each[4]));
+      .map((each) => createAttribute(each[0] as TName, each[4][0], each[4][1]));
   attributeValue() => ref(attributeValueDouble)
-      .or(ref(attributeValueSingle))
-      .pick(1);
+      .or(ref(attributeValueSingle));
   attributeValueDouble() => char(DOUBLE_QUOTE)
       .seq(new _XmlCharacterDataParser(DOUBLE_QUOTE, 0))
-      .seq(char(DOUBLE_QUOTE));
+      .seq(char(DOUBLE_QUOTE))
+      .map((each) => [each[1], XmlAttributeType.DOUBLE_QUOTE]);
   attributeValueSingle() => char(SINGLE_QUOTE)
       .seq(new _XmlCharacterDataParser(SINGLE_QUOTE, 0))
-      .seq(char(SINGLE_QUOTE));
+      .seq(char(SINGLE_QUOTE))
+      .map((each) => [each[1], XmlAttributeType.SINGLE_QUOTE]);
   attributes() => ref(space)
       .seq(ref(attribute))
       .pick(1)

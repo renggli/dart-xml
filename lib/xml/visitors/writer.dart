@@ -11,9 +11,10 @@ class XmlWriter extends XmlVisitor {
   visitAttribute(XmlAttribute node) {
     visit(node.name);
     buffer.write(XmlGrammarDefinition.EQUALS);
-    buffer.write(XmlGrammarDefinition.DOUBLE_QUOTE);
-    buffer.write(_encodeXmlAttributeValue(node.value));
-    buffer.write(XmlGrammarDefinition.DOUBLE_QUOTE);
+    final attributeQuote = _attributeQuote[node.attributeType];
+    buffer.write(attributeQuote);
+    buffer.write(_encodeXmlAttributeValue(node.value, node.attributeType));
+    buffer.write(attributeQuote);
   }
 
   @override

@@ -139,9 +139,11 @@ class XmlBuilder {
   ///        builder.attribute('lang', 'en');
   ///     });
   ///
-  void attribute(String name, value, {String namespace}) {
-    _stack.last.attributes
-        .add(new XmlAttribute(_buildName(name, namespace), value.toString()));
+  void attribute(String name, Object value, {String namespace, XmlAttributeType attributeType}) {
+    final attribute = new XmlAttribute(
+        _buildName(name, namespace), value.toString(),
+        attributeType ?? XmlAttributeType.DOUBLE_QUOTE);
+    _stack.last.attributes.add(attribute);
   }
 
   /// Binds a namespace [prefix] to the provided [uri]. The [prefix] can be
@@ -162,7 +164,7 @@ class XmlBuilder {
           'The "$prefix" prefix conflicts with existing binding.');
     }
     _NamespaceData meta = new _NamespaceData(prefix, false);
-    _stack.last.attributes.add(new XmlAttribute(meta.name, uri));
+    _stack.last.attributes.add(new XmlAttribute(meta.name, uri, XmlAttributeType.DOUBLE_QUOTE));
     _stack.last.namespaces[uri] = meta;
   }
 

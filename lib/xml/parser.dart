@@ -4,7 +4,9 @@ part of xml;
 class XmlParserDefinition extends XmlGrammarDefinition<XmlNode, XmlName> {
 
   @override
-  XmlAttribute createAttribute(XmlName name, String text) => new XmlAttribute(name, text);
+  XmlAttribute createAttribute(XmlName name, String text, XmlAttributeType attributeType) {
+    return new XmlAttribute(name, text, attributeType);
+  }
 
   @override
   XmlComment createComment(String text) => new XmlComment(text);

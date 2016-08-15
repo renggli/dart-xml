@@ -7,7 +7,7 @@ class XmlTransformer extends XmlVisitor<XmlVisitable> {
 
   @override
   XmlAttribute visitAttribute(XmlAttribute node) {
-    return new XmlAttribute(visit(node.name), node.value);
+    return new XmlAttribute(visit(node.name), node.value, node.attributeType);
   }
 
   @override

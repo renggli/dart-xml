@@ -338,6 +338,7 @@ void main() {
       XmlAttribute node = document.rootElement.attributes.single;
       expect(node.name, new XmlName.fromString('ns:attr'));
       expect(node.value, 'Am I or are the other crazy?');
+      expect(node.attributeType, XmlAttributeType.DOUBLE_QUOTE);
       expect(node.parent, same(document.rootElement));
       expect(node.root, same(document));
       expect(node.document, same(document));
@@ -366,6 +367,7 @@ void main() {
       XmlAttribute node = document.rootElement.attributes.single;
       expect(node.name, new XmlName.fromString('ns:attr'));
       expect(node.value, 'Am I or are the other crazy?');
+      expect(node.attributeType, XmlAttributeType.SINGLE_QUOTE);
       expect(node.parent, same(document.rootElement));
       expect(node.root, same(document));
       expect(node.document, same(document));
@@ -375,19 +377,19 @@ void main() {
       expect(node.text, isEmpty);
       expect(node.nodeType, XmlNodeType.ATTRIBUTE);
       expect(node.nodeType.toString(), 'XmlNodeType.ATTRIBUTE');
-      expect(node.toString(), 'ns:attr="Am I or are the other crazy?"');
+      expect(node.toString(), "ns:attr='Am I or are the other crazy?'");
     });
     test('attribute (single, empty)', () {
       XmlDocument document = parse('<data attr=\'\' />');
       XmlAttribute node = document.rootElement.attributes.single;
       expect(node.value, '');
-      expect(node.toString(), 'attr=""');
+      expect(node.toString(), "attr=''");
     });
     test('attribute (single, character references)', () {
       XmlDocument document = parse('<data ns:attr=\'&lt;&gt;&amp;&apos;&quot;\' />');
       XmlAttribute node = document.rootElement.attributes.single;
       expect(node.value, '<>&\'"');
-      expect(node.toString(), 'ns:attr="&lt;>&amp;\'&quot;"');
+      expect(node.toString(), "ns:attr='&lt;>&amp;&apos;\"'");
     });
     test('text', () {
       XmlDocument document = parse('<data>Am I or are the other crazy?</data>');
@@ -537,7 +539,7 @@ void main() {
     String decode(String input) => parse('<data>$input</data>').rootElement.text;
     String encodeText(String input) => new XmlText(input).toString();
     String encodeAttributeValue(String input) {
-      var attribute = new XmlAttribute(new XmlName('a'), input).toString();
+      var attribute = new XmlAttribute(new XmlName('a'), input, XmlAttributeType.DOUBLE_QUOTE).toString();
       return attribute.substring(3, attribute.length - 1);
     }
     test('decode &#xHHHH;', () {
@@ -816,7 +818,8 @@ void main() {
       builder.processing('processing', 'instruction');
       builder.element('element1',
           attributes: {'attribute1': 'value1'}, nest: () {
-        builder.attribute('attribute2', 'value2');
+        builder.attribute('attribute2', 'value2', attributeType: XmlAttributeType.DOUBLE_QUOTE);
+        builder.attribute('attribute3', 'value3', attributeType: XmlAttributeType.SINGLE_QUOTE);
         builder.element('element2');
         builder.comment('comment');
         builder.cdata('cdata');
@@ -826,7 +829,7 @@ void main() {
       assertTreeInvariants(xml);
       var actual = xml.toString();
       var expected = '<?processing instruction?>'
-          '<element1 attribute1="value1" attribute2="value2">'
+          '<element1 attribute1="value1" attribute2="value2" attribute3=\'value3\'>'
           '<element2 />'
           '<!--comment-->'
           '<![CDATA[cdata]]>'

@@ -1,21 +1,21 @@
 part of xml;
 
 // hexadecimal character reference
-final _ENTITY_HEX = pattern('xX')
+final _entityHex = pattern('xX')
     .seq(pattern('A-Fa-f0-9').plus().flatten().map((value) {
   return new String.fromCharCode(int.parse(value, radix: 16));
 })).pick(1);
 
 // decimal character reference
-final _ENTITY_DIGIT = char('#')
-    .seq(_ENTITY_HEX.or(digit().plus().flatten().map((value) {
+final _entityDigit = char('#')
+    .seq(_entityHex.or(digit().plus().flatten().map((value) {
   return new String.fromCharCode(int.parse(value));
 }))).pick(1);
 
 // named character reference
-final _ENTITY = char('&')
-    .seq(_ENTITY_DIGIT.or(word().plus().flatten().map((value) {
-  return _ENTITY_TO_CHAR[value];
+final _entity = char('&')
+    .seq(_entityDigit.or(word().plus().flatten().map((value) {
+  return _entityToChar[value];
 }))).seq(char(';')).pick(1);
 
 /// Optimized parser to read character data.
@@ -31,7 +31,7 @@ class _XmlCharacterDataParser extends Parser {
 
   @override
   Result parseOn(Context context) {
-    var input = context.buffer;
+    var input = context.buffer as String;
     var length = input.length;
     var output = new StringBuffer();
     var position = context.position;
@@ -43,7 +43,7 @@ class _XmlCharacterDataParser extends Parser {
       if (value == _stopperCode) {
         break;
       } else if (value == 38) {
-        var result = _ENTITY.parseOn(context.success(null, position));
+        var result = _entity.parseOn(context.success(null, position));
         if (result.isSuccess && result.value != null) {
           output.write(input.substring(start, position));
           output.write(result.value);
@@ -65,13 +65,13 @@ class _XmlCharacterDataParser extends Parser {
   }
 
   @override
-  List<Parser> get children => [_ENTITY];
+  List<Parser> get children => [_entity];
 
   @override
   Parser copy() => new _XmlCharacterDataParser(_stopper, _minLength);
 }
 
-final Map<String, String> _ENTITY_TO_CHAR = const {
+final Map<String, String> _entityToChar = const {
 
   // xml entities
   'lt': '<',
@@ -331,20 +331,48 @@ final Map<String, String> _ENTITY_TO_CHAR = const {
   'zwnj': '\u200C'
 };
 
+/// Internal type definition for string replacement functions.
+typedef String _ReplaceFunction(Match match);
+
 /// Encode a string to be serialized as an XML text node.
 String _encodeXmlText(String input) {
-  return input.replaceAllMapped(_TEXT_PATTERN, (match) {
-    // only & and < need to be encoded in text
-    return match.group(0) == '<' ? '&lt;' : '&amp;';
-  });
+  return input.replaceAllMapped(_textPattern, _textReplace);
 }
 
-final Pattern _TEXT_PATTERN = new RegExp(r'[&<]');
+final Pattern _textPattern = new RegExp(r'[&<]');
+final _ReplaceFunction _textReplace = (Match match) {
+  return match.group(0) == '<' ? '&lt;' : '&amp;';
+};
 
 /// Encode a string to be serialized as an XML attribute value.
-String _encodeXmlAttributeValue(String input) {
-  // only ", &, and < needs to be encoded in attribute value
-  return input.replaceAllMapped(_ATTRIBUTE_PATTERN, (match) {
+String _encodeXmlAttributeValue(String input, XmlAttributeType attributeType) {
+  return input.replaceAllMapped(
+      _attributePattern[attributeType],
+      _attributeReplace[attributeType]);
+}
+
+final Map<XmlAttributeType, String> _attributeQuote = {
+  XmlAttributeType.SINGLE_QUOTE: "'",
+  XmlAttributeType.DOUBLE_QUOTE: '"'
+};
+
+final Map<XmlAttributeType, Pattern> _attributePattern = {
+  XmlAttributeType.SINGLE_QUOTE: new RegExp(r"['&<]"),
+  XmlAttributeType.DOUBLE_QUOTE: new RegExp(r'["&<]')
+};
+
+final Map<XmlAttributeType, _ReplaceFunction> _attributeReplace = {
+  XmlAttributeType.SINGLE_QUOTE: (Match match) {
+    switch (match.group(0)) {
+      case "'":
+        return '&apos;';
+      case '&':
+        return '&amp;';
+      case '<':
+        return '&lt;';
+    }
+  },
+  XmlAttributeType.DOUBLE_QUOTE: (Match match) {
     switch (match.group(0)) {
       case '"':
         return '&quot;';
@@ -353,7 +381,5 @@ String _encodeXmlAttributeValue(String input) {
       case '<':
         return '&lt;';
     }
-  });
-}
-
-final Pattern _ATTRIBUTE_PATTERN = new RegExp(r'["&<]');
+  },
+};
