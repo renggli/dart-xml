@@ -476,6 +476,26 @@ void main() {
       expect(node.nodeType.toString(), 'XmlNodeType.DOCUMENT');
       expect(node.toString(), '<data />');
     });
+    test('document definition', () {
+      XmlDocument document = parse('<?xml version="1.0" encoding="UTF-8" ?>'
+          '<element />');
+      XmlDocument node = document.document;
+      expect(node.children, hasLength(2));
+      expect(node.descendants, hasLength(2));
+      expect(node.toString(), '<?xml version="1.0" encoding="UTF-8" ?>'
+          '<element />');
+    });
+    test('document comments and whitespace', () {
+      XmlDocument document = parse('<?xml version="1.0" encoding="UTF-8"?> '
+          '<!-- before -->\n<element />\t<!-- after -->');
+      XmlDocument node = document.document;
+      expect(node.children, hasLength(7));
+      expect(node.descendants, hasLength(7));
+      expect(node.toString(), '<?xml version="1.0" encoding="UTF-8"?> '
+          '<!-- before -->\n<element />\t<!-- after -->');
+      expect(node.toXmlString(pretty: true), '<?xml version="1.0" encoding="UTF-8"?>\n'
+          '<!-- before -->\n<element />\n<!-- after -->');
+    });
     test('document empty', () {
       XmlDocument document = new XmlDocument([]);
       expect(document.doctypeElement, isNull);
@@ -787,6 +807,7 @@ void main() {
     test('basic', () {
       var builder = new XmlBuilder();
       builder.processing('xml', 'version="1.0" encoding="UTF-8"');
+      builder.processing('xml-stylesheet', 'href="/style.css" type="text/css" title="default stylesheet"');
       builder.element('bookstore', nest: () {
         builder.comment('Only one book?');
         builder.element('book', nest: () {
@@ -803,6 +824,7 @@ void main() {
       assertTreeInvariants(xml);
       var actual = xml.toString();
       var expected = '<?xml version="1.0" encoding="UTF-8"?>'
+          '<?xml-stylesheet href="/style.css" type="text/css" title="default stylesheet"?>'
           '<bookstore>'
           '<!--Only one book?-->'
           '<book>'

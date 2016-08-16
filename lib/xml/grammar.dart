@@ -95,14 +95,22 @@ abstract class XmlGrammarDefinition<TNode, TName> extends GrammarDefinition {
       .seq(ref(space_optional))
       .seq(char(CLOSE_DOCTYPE))
       .map((each) => createDoctype(each[2]));
-  document() => ref(processing).optional()
-      .seq(ref(misc))
+  document() => ref(misc)
       .seq(ref(doctype).optional())
       .seq(ref(misc))
       .seq(ref(element))
       .seq(ref(misc))
-      .map((each) => createDocument([each[0], each[2], each[4]]
-          .where((each) => each != null) as Iterable<TNode>));
+      .map((each) {
+        var nodes = new List<TNode>();
+        nodes.addAll(each[0] as Iterable<TNode>);
+        if (each[1] != null) {
+          nodes.add(each[1] as TNode);
+        }
+        nodes.addAll(each[2] as Iterable<TNode>);
+        nodes.add(each[3] as TNode);
+        nodes.addAll(each[4] as Iterable<TNode>);
+        return createDocument(nodes);
+      });
   element() => char(OPEN_ELEMENT)
       .seq(ref(qualified))
       .seq(ref(attributes))
@@ -135,8 +143,9 @@ abstract class XmlGrammarDefinition<TNode, TName> extends GrammarDefinition {
   qualified() => ref(nameToken).map(createQualified);
 
   characterData() => new _XmlCharacterDataParser(OPEN_ELEMENT, 1).map(createText);
-  misc() => ref(space).or(ref(comment)).or(ref(processing)).star();
+  misc() => ref(space_text).or(ref(comment)).or(ref(processing)).star();
   space() => whitespace().plus();
+  space_text() => ref(space).flatten().map(createText);
   space_optional() => whitespace().star();
 
   nameToken() => ref(nameStartChar).seq(ref(nameChar).star()).flatten();
