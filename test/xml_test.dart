@@ -786,7 +786,7 @@ void main() {
   group('builder', () {
     test('basic', () {
       var builder = new XmlBuilder();
-      builder.processing('xml', 'encoding="UTF-8"');
+      builder.processing('xml', 'version="1.0" encoding="UTF-8"');
       builder.element('bookstore', nest: () {
         builder.comment('Only one book?');
         builder.element('book', nest: () {
@@ -802,7 +802,7 @@ void main() {
       var xml = builder.build();
       assertTreeInvariants(xml);
       var actual = xml.toString();
-      var expected = '<?xml encoding="UTF-8"?>'
+      var expected = '<?xml version="1.0" encoding="UTF-8"?>'
           '<bookstore>'
           '<!--Only one book?-->'
           '<book>'
