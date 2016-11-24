@@ -357,8 +357,8 @@ final Map<XmlAttributeType, String> _attributeQuote = {
 };
 
 final Map<XmlAttributeType, Pattern> _attributePattern = {
-  XmlAttributeType.SINGLE_QUOTE: new RegExp(r"['&<]"),
-  XmlAttributeType.DOUBLE_QUOTE: new RegExp(r'["&<]')
+  XmlAttributeType.SINGLE_QUOTE: new RegExp(r"['&<\n\r\t]"),
+  XmlAttributeType.DOUBLE_QUOTE: new RegExp(r'["&<\n\r\t]')
 };
 
 final Map<XmlAttributeType, _ReplaceFunction> _attributeReplace = {
@@ -370,6 +370,12 @@ final Map<XmlAttributeType, _ReplaceFunction> _attributeReplace = {
         return '&amp;';
       case '<':
         return '&lt;';
+      case '\n':
+        return '&#xA;';
+      case '\r':
+        return '&#xD;';
+      case '\t':
+        return '&#x9;';
     }
   },
   XmlAttributeType.DOUBLE_QUOTE: (Match match) {
@@ -380,6 +386,12 @@ final Map<XmlAttributeType, _ReplaceFunction> _attributeReplace = {
         return '&amp;';
       case '<':
         return '&lt;';
+      case '\n':
+        return '&#xA;';
+      case '\r':
+        return '&#xD;';
+      case '\t':
+        return '&#x9;';
     }
   },
 };
