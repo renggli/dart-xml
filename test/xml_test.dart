@@ -357,10 +357,10 @@ void main() {
       expect(node.toString(), 'attr=""');
     });
     test('attribute (character references)', () {
-      XmlDocument document = parse('<data ns:attr="&lt;&gt;&amp;&apos;&quot;" />');
+      XmlDocument document = parse('<data ns:attr="&lt;&gt;&amp;&apos;&quot;&#xA;&#xD;&#x9;" />');
       XmlAttribute node = document.rootElement.attributes.single;
-      expect(node.value, '<>&\'"');
-      expect(node.toString(), 'ns:attr="&lt;>&amp;\'&quot;"');
+      expect(node.value, '<>&\'"\n\r\t');
+      expect(node.toString(), 'ns:attr="&lt;>&amp;\'&quot;&#xA;&#xD;&#x9;"');
     });
     test('attribute (single)', () {
       XmlDocument document = parse('<data ns:attr=\'Am I or are the other crazy?\' />');
@@ -386,10 +386,10 @@ void main() {
       expect(node.toString(), "attr=''");
     });
     test('attribute (single, character references)', () {
-      XmlDocument document = parse('<data ns:attr=\'&lt;&gt;&amp;&apos;&quot;\' />');
+      XmlDocument document = parse('<data ns:attr=\'&lt;&gt;&amp;&apos;&quot;&#xA;&#xD;&#x9;\' />');
       XmlAttribute node = document.rootElement.attributes.single;
-      expect(node.value, '<>&\'"');
-      expect(node.toString(), "ns:attr='&lt;>&amp;&apos;\"'");
+      expect(node.value, '<>&\'"\n\r\t');
+      expect(node.toString(), "ns:attr='&lt;>&amp;&apos;\"&#xA;&#xD;&#x9;'");
     });
     test('text', () {
       XmlDocument document = parse('<data>Am I or are the other crazy?</data>');
@@ -558,8 +558,11 @@ void main() {
   group('entities', () {
     String decode(String input) => parse('<data>$input</data>').rootElement.text;
     String encodeText(String input) => new XmlText(input).toString();
-    String encodeAttributeValue(String input) {
-      var attribute = new XmlAttribute(new XmlName('a'), input, XmlAttributeType.DOUBLE_QUOTE).toString();
+    String encodeAttributeValue(XmlAttributeType type, String input) {
+      var attribute = new XmlAttribute(new XmlName('a'), input, type).toString();
+      var quote = type == XmlAttributeType.SINGLE_QUOTE ? "'" : '"';
+      expect(attribute.substring(0, 3), 'a=' + quote);
+      expect(attribute[attribute.length - 1], quote);
       return attribute.substring(3, attribute.length - 1);
     }
     test('decode &#xHHHH;', () {
@@ -601,10 +604,25 @@ void main() {
       expect(encodeText('hello'), 'hello');
       expect(encodeText('<foo &amp;>'), '&lt;foo &amp;amp;>');
     });
-    test('encode attribute', () {
-      expect(encodeAttributeValue('"'), '&quot;');
-      expect(encodeAttributeValue('hello'), 'hello');
-      expect(encodeAttributeValue('"hello"'), '&quot;hello&quot;');
+    test('encode attribute (single quote)', () {
+      expect(encodeAttributeValue(XmlAttributeType.SINGLE_QUOTE, "'"), '&apos;');
+      expect(encodeAttributeValue(XmlAttributeType.SINGLE_QUOTE, '"'), '"');
+      expect(encodeAttributeValue(XmlAttributeType.SINGLE_QUOTE, '\t'), '&#x9;');
+      expect(encodeAttributeValue(XmlAttributeType.SINGLE_QUOTE, '\n'), '&#xA;');
+      expect(encodeAttributeValue(XmlAttributeType.SINGLE_QUOTE, '\r'), '&#xD;');
+      expect(encodeAttributeValue(XmlAttributeType.SINGLE_QUOTE, 'hello'), 'hello');
+      expect(encodeAttributeValue(XmlAttributeType.SINGLE_QUOTE, "'hello'"), '&apos;hello&apos;');
+      expect(encodeAttributeValue(XmlAttributeType.SINGLE_QUOTE, '"hello"'), '"hello"');
+    });
+    test('encode attribute (double quote)', () {
+      expect(encodeAttributeValue(XmlAttributeType.DOUBLE_QUOTE, "'"), "'");
+      expect(encodeAttributeValue(XmlAttributeType.DOUBLE_QUOTE, '"'), '&quot;');
+      expect(encodeAttributeValue(XmlAttributeType.DOUBLE_QUOTE, '\t'), '&#x9;');
+      expect(encodeAttributeValue(XmlAttributeType.DOUBLE_QUOTE, '\n'), '&#xA;');
+      expect(encodeAttributeValue(XmlAttributeType.DOUBLE_QUOTE, '\r'), '&#xD;');
+      expect(encodeAttributeValue(XmlAttributeType.DOUBLE_QUOTE, 'hello'), 'hello');
+      expect(encodeAttributeValue(XmlAttributeType.DOUBLE_QUOTE, "'hello'"), "'hello'");
+      expect(encodeAttributeValue(XmlAttributeType.DOUBLE_QUOTE, '"hello"'), '&quot;hello&quot;');
     });
   });
   group('axis', () {
