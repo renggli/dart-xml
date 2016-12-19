@@ -5,7 +5,7 @@ abstract class XmlVisitor<E> {
 
   /// Helper to visit an [XmlVisitable] using this visitor by dispatching
   /// through the provided [visitable].
-  E visit(XmlVisitable visitable) => visitable.accept(this) as E;
+  E visit(XmlVisitable visitable) => visitable.accept(this);
 
   /// Helper to visit an [Iterable] of [XmlVisitable]s using this visitor
   /// by dispatching through the provided [visitables].

@@ -13,6 +13,6 @@ class XmlProcessing extends XmlData {
   XmlNodeType get nodeType => XmlNodeType.PROCESSING;
 
   @override
-  /*E*/ accept/*<E>*/(XmlVisitor/*<E>*/ visitor) => visitor.visitProcessing(this);
+  E accept<E>(XmlVisitor<E> visitor) => visitor.visitProcessing(this);
 
 }

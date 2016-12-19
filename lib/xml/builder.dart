@@ -28,7 +28,7 @@ class XmlBuilder {
   ///
   ///     builder.text('Hello World');
   ///
-  void text(text) {
+  void text(Object text) {
     var children = _stack.last.children;
     if (children.isNotEmpty && children.last is XmlText) {
       // merge consecutive text nodes into one
@@ -46,7 +46,7 @@ class XmlBuilder {
   ///
   ///     builder.cdata('Hello World');
   ///
-  void cdata(text) {
+  void cdata(Object text) {
     _stack.last.children.add(new XmlCDATA(text.toString()));
   }
 
@@ -57,7 +57,7 @@ class XmlBuilder {
   ///
   ///     builder.processing('xml', 'version="1.0"');
   ///
-  void processing(String target, text) {
+  void processing(String target, Object text) {
     _stack.last.children.add(new XmlProcessing(target, text.toString()));
   }
 
@@ -68,7 +68,7 @@ class XmlBuilder {
   ///
   ///     builder.comment('Hello World');
   ///
-  void comment(text) {
+  void comment(Object text) {
     _stack.last.children.add(new XmlComment(text.toString()));
   }
 

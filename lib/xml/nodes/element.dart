@@ -39,6 +39,6 @@ class XmlElement extends XmlParent implements XmlNamed {
   XmlNodeType get nodeType => XmlNodeType.ELEMENT;
 
   @override
-  /*E*/ accept/*<E>*/(XmlVisitor/*<E>*/ visitor) => visitor.visitElement(this);
+  E accept<E>(XmlVisitor<E> visitor) => visitor.visitElement(this);
 
 }

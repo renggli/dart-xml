@@ -46,7 +46,7 @@ abstract class XmlName extends Object with XmlVisitable, XmlWritable, XmlOwned {
   XmlName._();
 
   @override
-  /*E*/ accept/*<E>*/(XmlVisitor/*<E>*/ visitor) => visitor.visitName(this);
+  E accept<E>(XmlVisitor<E> visitor) => visitor.visitName(this);
 
   @override
   bool operator ==(other) => other is XmlName &&

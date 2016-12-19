@@ -22,7 +22,7 @@ class XmlAttribute extends XmlNode implements XmlNamed {
   XmlNodeType get nodeType => XmlNodeType.ATTRIBUTE;
 
   @override
-  /*E*/ accept/*<E>*/(XmlVisitor/*<E>*/ visitor) => visitor.visitAttribute(this);
+  E accept<E>(XmlVisitor<E> visitor) => visitor.visitAttribute(this);
 
 }
 
