@@ -121,17 +121,20 @@ void assertAttributeInvariants(XmlNode xml) {
 void assertTextInvariants(XmlNode xml) {
   for (var node in xml.descendants) {
     if (node is XmlDocument || node is XmlDocumentFragment) {
-      expect(node.text, isNull, reason: 'Documents are not supposed to null as their text.');
+      expect(node.text, isNull,
+          reason: 'Document nodes are supposed to return null text.');
     } else {
       expect(node.text, (text) => text is String,
           reason: 'All nodes are supposed to return text strings.');
     }
     if (node is XmlParent) {
-      var lastWasText = false;
-      for (var child in node.children) {
-        expect(lastWasText && child is XmlText, isFalse,
-            reason: 'Consecutive text nodes detected: ${node.children}');
-        lastWasText = child is XmlText;
+      var previousType = null;
+      var nodeTypes = node.children
+          .map((XmlNode node) => node.nodeType);
+      for (var currentType in nodeTypes) {
+        expect(previousType == XmlNodeType.TEXT && currentType == XmlNodeType.TEXT,
+            isFalse, reason: 'Consecutive text nodes detected: $nodeTypes');
+        previousType = currentType;
       }
     }
   }
