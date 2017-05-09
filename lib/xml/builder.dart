@@ -102,7 +102,7 @@ class XmlBuilder {
   ///
   void element(String name, {String namespace: null,
       Map<String, String> namespaces: const {},
-      Map<String, String> attributes: const {}, nest: null}) {
+      Map<String, String> attributes: const {}, Object nest: null}) {
     var element = new _XmlElementBuilder();
     _stack.add(element);
     namespaces.forEach((uri, prefix) => this.namespace(uri, prefix));
@@ -150,7 +150,7 @@ class XmlBuilder {
   /// omitted to declare a default namespace. Throws an [ArgumentError] if
   /// the [prefix] is invalid or conflicts with an existing declaration.
   void namespace(String uri, [String prefix]) {
-    if (prefix == _XMLNS || prefix == _XML) {
+    if (prefix == _xmlns || prefix == _xml) {
       throw new ArgumentError('The "$prefix" prefix cannot be bound.');
     }
     if (optimizeNamespaces && _stack.any(
@@ -209,8 +209,8 @@ class _NamespaceData {
   _NamespaceData(this.prefix, [this.used = false]);
 
   XmlName get name => prefix == null || prefix.isEmpty
-      ? new XmlName(_XMLNS)
-      : new XmlName(prefix, _XMLNS);
+      ? new XmlName(_xmlns)
+      : new XmlName(prefix, _xmlns);
 }
 
 abstract class _XmlNodeBuilder {
@@ -222,7 +222,7 @@ abstract class _XmlNodeBuilder {
 
 class _XmlDocumentBuilder extends _XmlNodeBuilder {
   @override
-  final Map<String, _NamespaceData> namespaces = {_XML_URI: _XML_DATA};
+  final Map<String, _NamespaceData> namespaces = {_xmlUri: _xmlData};
 
   @override
   List<XmlAttribute> get attributes {

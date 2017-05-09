@@ -20,13 +20,13 @@ class _XmlFollowingIterator extends Iterator<XmlNode> {
   _XmlFollowingIterator(XmlNode start) {
     var following = new List<XmlNode>();
     for (var parent = start.parent, child = start; parent != null; parent = parent.parent, child = child.parent) {
-      var attributes_index = parent.attributes.indexOf(child);
-      if (attributes_index != -1) {
-        following.addAll(parent.attributes.sublist(attributes_index + 1));
+      var attributesIndex = parent.attributes.indexOf(child);
+      if (attributesIndex != -1) {
+        following.addAll(parent.attributes.sublist(attributesIndex + 1));
         following.addAll(parent.children);
       } else {
-        var children_index = parent.children.indexOf(child);
-        following.addAll(parent.children.sublist(children_index + 1));
+        var childrenIndex = parent.children.indexOf(child);
+        following.addAll(parent.children.sublist(childrenIndex + 1));
       }
     }
     todo.addAll(following.reversed);

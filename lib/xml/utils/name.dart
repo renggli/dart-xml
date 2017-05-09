@@ -1,13 +1,13 @@
 part of xml;
 
 // separator between prefix and local name
-final _SEPARATOR = ':';
+final _separator = ':';
 
 // xml namespace declarations
-final _XML = 'xml';
-final _XML_DATA = new _NamespaceData(_XML, true);
-final _XML_URI = 'http://www.w3.org/XML/1998/namespace';
-final _XMLNS = 'xmlns';
+final _xml = 'xml';
+final _xmlData = new _NamespaceData(_xml, true);
+final _xmlUri = 'http://www.w3.org/XML/1998/namespace';
+final _xmlns = 'xmlns';
 
 /// XML entity name.
 abstract class XmlName extends Object with XmlVisitable, XmlWritable, XmlOwned {
@@ -28,12 +28,12 @@ abstract class XmlName extends Object with XmlVisitable, XmlWritable, XmlOwned {
   factory XmlName(String local, [String prefix]) {
     return prefix == null || prefix.isEmpty
         ? new _XmlSimpleName(local)
-        : new _XmlPrefixName(prefix, local, '$prefix$_SEPARATOR$local');
+        : new _XmlPrefixName(prefix, local, '$prefix$_separator$local');
   }
 
   /// Create a [XmlName] by parsing the provided `qualified` name.
   factory XmlName.fromString(String qualified) {
-    var index = qualified.indexOf(_SEPARATOR);
+    var index = qualified.indexOf(_separator);
     if (index > 0) {
       var prefix = qualified.substring(0, index);
       var local = qualified.substring(index + 1, qualified.length);
@@ -49,7 +49,7 @@ abstract class XmlName extends Object with XmlVisitable, XmlWritable, XmlOwned {
   E accept<E>(XmlVisitor<E> visitor) => visitor.visitName(this);
 
   @override
-  bool operator ==(other) => other is XmlName &&
+  bool operator ==(Object other) => other is XmlName &&
       other.local == local &&
       other.namespaceUri == namespaceUri;
 
@@ -74,7 +74,7 @@ class _XmlSimpleName extends XmlName {
   String get namespaceUri {
     for (var node = parent; node != null; node = node.parent) {
       for (var attribute in node.attributes) {
-        if (attribute.name.prefix == null && attribute.name.local == _XMLNS) {
+        if (attribute.name.prefix == null && attribute.name.local == _xmlns) {
           return attribute.value;
         }
       }
@@ -102,7 +102,7 @@ class _XmlPrefixName extends XmlName {
   String get namespaceUri {
     for (var node = parent; node != null; node = node.parent) {
       for (var attribute in node.attributes) {
-        if (attribute.name.prefix == _XMLNS && attribute.name.local == prefix) {
+        if (attribute.name.prefix == _xmlns && attribute.name.local == prefix) {
           return attribute.value;
         }
       }

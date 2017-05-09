@@ -24,7 +24,7 @@ class XmlElement extends XmlParent implements XmlNamed {
   }
 
   /// Return the attribute value with the given `name`.
-  String getAttribute(name, {String namespace}) {
+  String getAttribute(String name, {String namespace}) {
     var attribute = getAttributeNode(name, namespace: namespace);
     return attribute != null ? attribute.value : null;
   }

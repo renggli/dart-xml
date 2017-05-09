@@ -8,7 +8,7 @@ class XmlWriter extends XmlVisitor {
   XmlWriter(this.buffer);
 
   @override
-  visitAttribute(XmlAttribute node) {
+  void visitAttribute(XmlAttribute node) {
     visit(node.name);
     buffer.write(XmlGrammarDefinition.EQUALS);
     final attributeQuote = _attributeQuote[node.attributeType];
@@ -18,21 +18,21 @@ class XmlWriter extends XmlVisitor {
   }
 
   @override
-  visitCDATA(XmlCDATA node) {
+  void visitCDATA(XmlCDATA node) {
     buffer.write(XmlGrammarDefinition.OPEN_CDATA);
     buffer.write(node.text);
     buffer.write(XmlGrammarDefinition.CLOSE_CDATA);
   }
 
   @override
-  visitComment(XmlComment node) {
+  void visitComment(XmlComment node) {
     buffer.write(XmlGrammarDefinition.OPEN_COMMENT);
     buffer.write(node.text);
     buffer.write(XmlGrammarDefinition.CLOSE_COMMENT);
   }
 
   @override
-  visitDoctype(XmlDoctype node) {
+  void visitDoctype(XmlDoctype node) {
     buffer.write(XmlGrammarDefinition.OPEN_DOCTYPE);
     buffer.write(XmlGrammarDefinition.WHITESPACE);
     buffer.write(node.text);
@@ -40,17 +40,17 @@ class XmlWriter extends XmlVisitor {
   }
 
   @override
-  visitDocument(XmlDocument node) {
+  void visitDocument(XmlDocument node) {
     writeChildren(node);
   }
 
   @override
-  visitDocumentFragment(XmlDocumentFragment node) {
+  void visitDocumentFragment(XmlDocumentFragment node) {
     buffer.write('#document-fragment');
   }
 
   @override
-  visitElement(XmlElement node) {
+  void visitElement(XmlElement node) {
     buffer.write(XmlGrammarDefinition.OPEN_ELEMENT);
     visit(node.name);
     writeAttributes(node);
@@ -67,12 +67,12 @@ class XmlWriter extends XmlVisitor {
   }
 
   @override
-  visitName(XmlName name) {
+  void visitName(XmlName name) {
     buffer.write(name.qualified);
   }
 
   @override
-  visitProcessing(XmlProcessing node) {
+  void visitProcessing(XmlProcessing node) {
     buffer.write(XmlGrammarDefinition.OPEN_PROCESSING);
     buffer.write(node.target);
     if (node.text.isNotEmpty) {
@@ -83,18 +83,18 @@ class XmlWriter extends XmlVisitor {
   }
 
   @override
-  visitText(XmlText node) {
+  void visitText(XmlText node) {
     buffer.write(_encodeXmlText(node.text));
   }
 
-  writeAttributes(XmlNode node) {
+  void writeAttributes(XmlNode node) {
     for (var attribute in node.attributes) {
       buffer.write(XmlGrammarDefinition.WHITESPACE);
       visit(attribute);
     }
   }
 
-  writeChildren(XmlNode node) {
+  void writeChildren(XmlNode node) {
     for (var child in node.children) {
       visit(child);
     }
@@ -111,25 +111,25 @@ class XmlPrettyWriter extends XmlWriter {
   XmlPrettyWriter(buffer, this.level, this.indent) : super(buffer);
 
   @override
-  visitCDATA(XmlCDATA node) {
+  void visitCDATA(XmlCDATA node) {
     newLine();
     super.visitCDATA(node);
   }
 
   @override
-  visitComment(XmlComment node) {
+  void visitComment(XmlComment node) {
     newLine();
     super.visitComment(node);
   }
 
   @override
-  visitDoctype(XmlDoctype node) {
+  void visitDoctype(XmlDoctype node) {
     newLine();
     super.visitDoctype(node);
   }
 
   @override
-  visitElement(XmlElement node) {
+  void visitElement(XmlElement node) {
     newLine();
     buffer.write(XmlGrammarDefinition.OPEN_ELEMENT);
     visit(node.name);
@@ -152,13 +152,13 @@ class XmlPrettyWriter extends XmlWriter {
   }
 
   @override
-  visitProcessing(XmlProcessing node) {
+  void visitProcessing(XmlProcessing node) {
     newLine();
     super.visitProcessing(node);
   }
 
   @override
-  visitText(XmlText node) {
+  void visitText(XmlText node) {
     // If text is purely whitespace, don't output to the buffer
     // the indentation and newlines will be handled elsewhere.
     if (node.text.trim().isNotEmpty) {

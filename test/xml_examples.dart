@@ -1,6 +1,6 @@
 library xml.test.xml_examples;
 
-const booksXml = '<?xml version="1.0"?>'
+const String booksXml = '<?xml version="1.0"?>'
     '<catalog>'
     '   <book id="bk101">'
     '      <author>Gambardella, Matthew</author>'
@@ -121,7 +121,7 @@ const booksXml = '<?xml version="1.0"?>'
     '   </book>'
     '</catalog>';
 
-const bookstoreXml = '<?xml version="1.0" encoding="ISO-8859-1"?>\n'
+const String bookstoreXml = '<?xml version="1.0" encoding="ISO-8859-1"?>\n'
     '<bookstore>\n'
     '  <book>\n'
     '    <title lang="eng">Harry Potter</title>\n'
@@ -133,7 +133,7 @@ const bookstoreXml = '<?xml version="1.0" encoding="ISO-8859-1"?>\n'
     '  </book>\n'
     '</bookstore>';
 
-const atomXml = '<?xml version="1.0" encoding="UTF-8"?>'
+const String atomXml = '<?xml version="1.0" encoding="UTF-8"?>'
     '<app:service>'
     '  <app:workspace>'
     '    <cmisra:repositoryInfo xmlns:ns3="http://docs.oasis-open.org/ns/cmis/messaging/200908/">'
@@ -141,7 +141,7 @@ const atomXml = '<?xml version="1.0" encoding="UTF-8"?>'
     '  </app:workspace>'
     '</app:service>';
 
-const shiporderXsd = '<?xml version="1.0"?>'
+const String shiporderXsd = '<?xml version="1.0"?>'
     '<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">'
     '  <xsd:annotation>'
     '    <xsd:documentation xml:lang="en">'
