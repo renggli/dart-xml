@@ -196,6 +196,8 @@ class XmlBuilder {
       value();
     } else if (value is Iterable) {
       value.forEach(_insert);
+    } else if (value is XmlNode){
+      _stack.last.children.add(value);
     } else {
       text(value.toString());
     }
