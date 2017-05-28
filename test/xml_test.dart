@@ -519,6 +519,7 @@ void main() {
     });
     test('document fragment empty', () {
       XmlDocumentFragment node = new XmlDocumentFragment([]);
+      assertCopyInvariants(node);
       expect(node.parent, isNull);
       expect(node.root, node);
       expect(node.document, isNull);
