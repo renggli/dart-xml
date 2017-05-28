@@ -899,6 +899,102 @@ void main() {
       var expected = '<element>string</element>';
       expect(actual, expected);
     });
+    test('nested node (element)', () {
+      var builder = new XmlBuilder();
+      var nested = new XmlElement(new XmlName('nested'), [], []);
+      builder.element('element', nest: nested);
+      var xml = builder.build();
+      assertTreeInvariants(xml);
+      expect(xml.children[0].children[0].toXmlString(), nested.toXmlString());
+      expect(xml.children[0].children[0], isNot(same(nested)));
+      var actual = xml.toString();
+      var expected = '<element><nested /></element>';
+      expect(actual, expected);
+    });
+    test('nested node (element, repeated)', () {
+      var builder = new XmlBuilder();
+      var nested = new XmlElement(new XmlName('nested'), [], []);
+      builder.element('element', nest: [nested, nested]);
+      var xml = builder.build();
+      assertTreeInvariants(xml);
+      expect(xml.children[0].children[0].toXmlString(), nested.toXmlString());
+      expect(xml.children[0].children[0], isNot(same(nested)));
+      expect(xml.children[0].children[1].toXmlString(), nested.toXmlString());
+      expect(xml.children[0].children[1], isNot(same(nested)));
+      var actual = xml.toString();
+      var expected = '<element><nested /><nested /></element>';
+      expect(actual, expected);
+    });
+    test('nested node (text)', () {
+      var builder = new XmlBuilder();
+      var nested = new XmlText('text');
+      builder.element('element', nest: nested);
+      var xml = builder.build();
+      assertTreeInvariants(xml);
+      expect(xml.children[0].children[0].toXmlString(), nested.toXmlString());
+      expect(xml.children[0].children[0], isNot(same(nested)));
+      var actual = xml.toString();
+      var expected = '<element>text</element>';
+      expect(actual, expected);
+    });
+    test('nested node (text, repeated)', () {
+      var builder = new XmlBuilder();
+      var nested = new XmlText('text');
+      builder.element('element', nest: [nested, nested]);
+      var xml = builder.build();
+      assertTreeInvariants(xml);
+      expect(xml.children[0].children[0].text, 'texttext');
+      expect(xml.children[0].children[0], isNot(same(nested)));
+      var actual = xml.toString();
+      var expected = '<element>texttext</element>';
+      expect(actual, expected);
+    });
+    test('nested node (data)', () {
+      var builder = new XmlBuilder();
+      var nested = new XmlComment('abc');
+      builder.element('element', nest: nested);
+      var xml = builder.build();
+      assertTreeInvariants(xml);
+      expect(xml.children[0].children[0].toXmlString(), nested.toXmlString());
+      expect(xml.children[0].children[0], isNot(same(nested)));
+      var actual = xml.toString();
+      var expected = '<element><!--abc--></element>';
+      expect(actual, expected);
+    });
+    test('nested node (attribute)', () {
+      var builder = new XmlBuilder();
+      var nested = new XmlAttribute(new XmlName('foo'), 'bar');
+      builder.element('element', nest: nested);
+      var xml = builder.build();
+      assertTreeInvariants(xml);
+      expect(xml.children[0].attributes[0].toXmlString(), nested.toXmlString());
+      expect(xml.children[0].attributes[0], isNot(same(nested)));
+      var actual = xml.toString();
+      var expected = '<element foo="bar" />';
+      expect(actual, expected);
+    });
+    test('nested node (document)', () {
+      var builder = new XmlBuilder();
+      var nested = new XmlDocument([]);
+      expect(() => builder.element('element', nest: nested), throwsArgumentError);
+    });
+    test('nested node (document fragment)', () {
+      var builder = new XmlBuilder();
+      var nested = new XmlDocumentFragment([
+        new XmlText('foo'),
+        new XmlComment('bar')
+      ]);
+      builder.element('element', nest: nested);
+      var xml = builder.build();
+      assertTreeInvariants(xml);
+      expect(xml.children[0].children[0].toXmlString(), nested.children[0].toXmlString());
+      expect(xml.children[0].children[0], isNot(same(nested.children[0])));
+      expect(xml.children[0].children[1].toXmlString(), nested.children[1].toXmlString());
+      expect(xml.children[0].children[1], isNot(same(nested.children[1])));
+      var actual = xml.toString();
+      var expected = '<element>foo<!--bar--></element>';
+      expect(actual, expected);
+    });
     test('invalid attributes', () {
       var builder = new XmlBuilder();
       expect(() => builder.attribute('key', 'value'), throwsArgumentError);

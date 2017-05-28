@@ -85,8 +85,9 @@ class XmlBuilder {
   ///
   /// Finally, [nest] is used to further customize the element and to add its
   /// children. Typically this is a [Function] that defines elements using the
-  /// same builder object. For convenience `nest` can also be a string or another
-  /// common object that will be converted to a string and added as a text node.
+  /// same builder object. For convenience `nest` can also be a valid [XmlNode],
+  /// a string or another common object that will be converted to a string and
+  /// added as a text node.
   ///
   /// For example, to generate an element with the tag _message_ and the contained
   /// text _Hello World_ one would write:
@@ -196,8 +197,22 @@ class XmlBuilder {
       value();
     } else if (value is Iterable) {
       value.forEach(_insert);
-    } else if (value is XmlNode){
-      _stack.last.children.add(value);
+    } else if (value is XmlNode) {
+      if (value is XmlText) {
+        // Text nodes need to be unwrapped for merging.
+        text(value.text);
+      } else if (value is XmlAttribute) {
+        // Attributes must be copied and added to the attributes list.
+        _stack.last.attributes.add(new XmlTransformer().visit(value));
+      } else if (value is XmlDocumentFragment) {
+        // Document fragments need to be unwrapped.
+        value.children.forEach(_insert);
+      } else if (value is XmlElement || value is XmlData) {
+        // All other valid nodes must be copied and added to the children list.
+        _stack.last.children.add(new XmlTransformer().visit(value));
+      } else {
+        throw new ArgumentError('Unable to add element of type ${value.nodeType}');
+      }
     } else {
       text(value.toString());
     }
