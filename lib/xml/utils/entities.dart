@@ -339,9 +339,21 @@ String _encodeXmlText(String input) {
   return input.replaceAllMapped(_textPattern, _textReplace);
 }
 
-final Pattern _textPattern = new RegExp(r'[&<]');
+final Pattern _textPattern = new RegExp('[&"\'<>]');
 final _ReplaceFunction _textReplace = (Match match) {
-  return match.group(0) == '<' ? '&lt;' : '&amp;';
+  switch (match.group(0)) {
+    case '"':
+      return '&quot;';
+    case '\'':
+      return '&apos;';
+    case '<':
+      return '&lt;';
+    case '>':
+      return '&gt;';
+    case '&':
+      return '&amp;';
+  }
+  return '';
 };
 
 /// Encode a string to be serialized as an XML attribute value.
