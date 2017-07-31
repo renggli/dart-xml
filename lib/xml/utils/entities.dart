@@ -339,7 +339,7 @@ String _encodeXmlText(String input) {
   return input.replaceAllMapped(_textPattern, _textReplace);
 }
 
-final Pattern _textPattern = new RegExp('([&<]|\]\]>)');
+final Pattern _textPattern = new RegExp('[&<]|\]\]>');
 final _ReplaceFunction _textReplace = (Match match) {
   switch (match.group(0)) {
     case '<':

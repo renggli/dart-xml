@@ -1145,6 +1145,17 @@ void main() {
           '</element>';
       expect(actual, expected);
     });
+
+    test('entities escape', () {
+      var builder = new XmlBuilder();
+      builder.element('element', nest: '<test><![CDATA[string]]></test>');
+      var xml = builder.build();
+      assertTreeInvariants(xml);
+      var actual = xml.toString();
+      var expected = '<element>&lt;test>&lt;![CDATA[string]]&gt;&lt;/test></element>';
+      expect(actual, expected);
+    });
+
   });
   group('examples', () {
     test('books', () {
