@@ -26,9 +26,7 @@ linter:
     - avoid_catches_without_on_clauses
     - avoid_catching_errors
     - avoid_classes_with_only_static_members
-    - avoid_function_literals_in_foreach_calls
     - avoid_null_checks_in_equality_operators
-    - avoid_positional_boolean_parameters
     - avoid_return_types_on_setters
     - avoid_returning_null
     - avoid_returning_this
@@ -62,7 +60,6 @@ linter:
     - prefer_interpolation_to_compose_strings
     - prefer_is_empty
     - prefer_is_not_empty
-    - recursive_getters
     - slash_for_doc_comments
     - super_goes_last
     - type_init_formals
