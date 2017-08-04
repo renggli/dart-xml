@@ -1,8 +1,21 @@
-part of xml;
+library xml.builder;
+
+import 'package:xml/xml/nodes/attribute.dart' show XmlAttribute;
+import 'package:xml/xml/nodes/cdata.dart' show XmlCDATA;
+import 'package:xml/xml/nodes/comment.dart' show XmlComment;
+import 'package:xml/xml/nodes/data.dart' show XmlData;
+import 'package:xml/xml/nodes/document.dart' show XmlDocument;
+import 'package:xml/xml/nodes/document_fragment.dart' show XmlDocumentFragment;
+import 'package:xml/xml/nodes/element.dart' show XmlElement;
+import 'package:xml/xml/nodes/node.dart' show XmlNode;
+import 'package:xml/xml/nodes/processing.dart' show XmlProcessing;
+import 'package:xml/xml/nodes/text.dart' show XmlText;
+import 'package:xml/xml/utils/attribute_type.dart' show XmlAttributeType;
+import 'package:xml/xml/utils/name.dart' show XmlName, xml, xmlns, xmlData, xmlUri;
+import 'package:xml/xml/visitors/transformer.dart' show XmlTransformer;
 
 /// A builder to create XML trees with code.
 class XmlBuilder {
-
   /// If [optimizeNamespaces] is true, the builder will perform some
   /// namespace optimization.
   ///
@@ -14,7 +27,7 @@ class XmlBuilder {
   final bool optimizeNamespaces;
 
   /// The current node stack of this builder.
-  final List<_XmlNodeBuilder> _stack = new List.from([new _XmlDocumentBuilder()]);
+  final List<XmlNodeBuilder> _stack = new List.from([new XmlDocumentBuilder()]);
 
   /// Construct a new [XmlBuilder].
   ///
@@ -33,7 +46,7 @@ class XmlBuilder {
     if (children.isNotEmpty && children.last is XmlText) {
       // merge consecutive text nodes into one
       var previous = children.removeLast();
-      children.add(new XmlText(previous.text + text.toString()));
+      children.add(new XmlText('${previous.text}${text.toString()}'));
     } else {
       children.add(new XmlText(text.toString()));
     }
@@ -101,13 +114,15 @@ class XmlBuilder {
   ///              ..element('break');
   ///     });
   ///
-  void element(String name, {String namespace: null,
+  void element(String name,
+      {String namespace: null,
       Map<String, String> namespaces: const {},
-      Map<String, String> attributes: const {}, Object nest: null}) {
-    var element = new _XmlElementBuilder();
+      Map<String, String> attributes: const {},
+      Object nest: null}) {
+    var element = new XmlElementBuilder();
     _stack.add(element);
-    namespaces.forEach((uri, prefix) => this.namespace(uri, prefix));
-    attributes.forEach((name, value) => this.attribute(name, value));
+    namespaces.forEach(this.namespace);
+    attributes.forEach(this.attribute);
     if (nest != null) {
       _insert(nest);
     }
@@ -118,8 +133,7 @@ class XmlBuilder {
       element.namespaces.forEach((uri, meta) {
         if (!meta.used) {
           var name = meta.name;
-          var attribute = element.attributes
-              .firstWhere((attribute) => attribute.name == name);
+          var attribute = element.attributes.firstWhere((attribute) => attribute.name == name);
           element.attributes.remove(attribute);
         }
       });
@@ -141,8 +155,7 @@ class XmlBuilder {
   ///     });
   ///
   void attribute(String name, Object value, {String namespace, XmlAttributeType attributeType}) {
-    final attribute = new XmlAttribute(
-        _buildName(name, namespace), value.toString(),
+    final attribute = new XmlAttribute(_buildName(name, namespace), value.toString(),
         attributeType ?? XmlAttributeType.DOUBLE_QUOTE);
     _stack.last.attributes.add(attribute);
   }
@@ -151,20 +164,19 @@ class XmlBuilder {
   /// omitted to declare a default namespace. Throws an [ArgumentError] if
   /// the [prefix] is invalid or conflicts with an existing declaration.
   void namespace(String uri, [String prefix]) {
-    if (prefix == _xmlns || prefix == _xml) {
+    if (prefix == xmlns || prefix == xml) {
       throw new ArgumentError('The "$prefix" prefix cannot be bound.');
     }
-    if (optimizeNamespaces && _stack.any(
-        (builder) => builder.namespaces.containsKey(uri) &&
-                     builder.namespaces[uri].prefix == prefix)) {
+    if (optimizeNamespaces &&
+        _stack.any((builder) =>
+            builder.namespaces.containsKey(uri) && builder.namespaces[uri].prefix == prefix)) {
       // namespace prefix already correctly specified in an ancestor
       return;
     }
     if (_stack.last.namespaces.values.any((meta) => meta.prefix == prefix)) {
-      throw new ArgumentError(
-          'The "$prefix" prefix conflicts with existing binding.');
+      throw new ArgumentError('The "$prefix" prefix conflicts with existing binding.');
     }
-    _NamespaceData meta = new _NamespaceData(prefix, false);
+    var meta = new NamespaceData(prefix, false);
     _stack.last.attributes.add(new XmlAttribute(meta.name, uri, XmlAttributeType.DOUBLE_QUOTE));
     _stack.last.namespaces[uri] = meta;
   }
@@ -184,9 +196,8 @@ class XmlBuilder {
   }
 
   // Internal method to lookup an namespace prefix.
-  _NamespaceData _lookup(String uri) {
-    var builder = _stack.lastWhere(
-        (builder) => builder.namespaces.containsKey(uri),
+  NamespaceData _lookup(String uri) {
+    var builder = _stack.lastWhere((builder) => builder.namespaces.containsKey(uri),
         orElse: () => throw new ArgumentError('Undefined namespace: $uri'));
     return builder.namespaces[uri];
   }
@@ -219,50 +230,48 @@ class XmlBuilder {
   }
 }
 
-class _NamespaceData {
+class NamespaceData {
   final String prefix;
   bool used;
 
-  _NamespaceData(this.prefix, [this.used = false]);
+  NamespaceData(this.prefix, [this.used = false]);
 
-  XmlName get name => prefix == null || prefix.isEmpty
-      ? new XmlName(_xmlns)
-      : new XmlName(prefix, _xmlns);
+  XmlName get name =>
+      prefix == null || prefix.isEmpty ? new XmlName(xmlns) : new XmlName(prefix, xmlns);
 }
 
-abstract class _XmlNodeBuilder {
-  Map<String, _NamespaceData> get namespaces;
+abstract class XmlNodeBuilder {
+  Map<String, NamespaceData> get namespaces;
   List<XmlAttribute> get attributes;
   List<XmlNode> get children;
   XmlNode build();
 }
 
-class _XmlDocumentBuilder extends _XmlNodeBuilder {
+class XmlDocumentBuilder extends XmlNodeBuilder {
   @override
-  final Map<String, _NamespaceData> namespaces = {_xmlUri: _xmlData};
+  final Map<String, NamespaceData> namespaces = {xmlUri: xmlData};
 
   @override
   List<XmlAttribute> get attributes {
-    throw new ArgumentError(
-        'Unable to define attributes at the document level.');
+    throw new ArgumentError('Unable to define attributes at the document level.');
   }
 
   @override
-  final List<XmlNode> children = new List();
+  final List<XmlNode> children = [];
 
   @override
   XmlNode build() => new XmlDocument(children);
 }
 
-class _XmlElementBuilder extends _XmlNodeBuilder {
+class XmlElementBuilder extends XmlNodeBuilder {
   @override
-  final Map<String, _NamespaceData> namespaces = new Map();
+  final Map<String, NamespaceData> namespaces = {};
 
   @override
-  final List<XmlAttribute> attributes = new List();
+  final List<XmlAttribute> attributes = [];
 
   @override
-  final List<XmlNode> children = new List();
+  final List<XmlNode> children = [];
 
   XmlName name;
 

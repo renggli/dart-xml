@@ -1,36 +1,33 @@
-part of xml;
+library xml.nodes.parent;
+
+import 'package:xml/xml/nodes/element.dart' show XmlElement;
+import 'package:xml/xml/nodes/node.dart' show XmlNode;
+import 'package:xml/xml/utils/name_matcher.dart' show createNameMatcher;
 
 /// Abstract XML node with actual children.
 abstract class XmlParent extends XmlNode {
-
   @override
   final List<XmlNode> children;
 
   /// Create a node with a list of `children`.
-  XmlParent(Iterable<XmlNode> children)
-      : children = children.toList(growable: false) {
+  XmlParent(Iterable<XmlNode> children) : children = children.toList(growable: false) {
     for (var child in this.children) {
-      assert(child._parent == null);
-      child._parent = this;
+      child.adoptParent(this);
     }
   }
 
   /// Return the _direct_ child elements with the given tag `name`.
-  Iterable<XmlElement> findElements(String name, {String namespace}) {
-    return _filterElements(children, name, namespace);
-  }
+  Iterable<XmlElement> findElements(String name, {String namespace}) =>
+      _filterElements(children, name, namespace);
 
   /// Return the _recursive_ child elements with the specified tag `name`.
-  Iterable<XmlElement> findAllElements(String name, {String namespace}) {
-    return _filterElements(descendants, name, namespace);
-  }
+  Iterable<XmlElement> findAllElements(String name, {String namespace}) =>
+      _filterElements(descendants, name, namespace);
 
-  Iterable<XmlElement> _filterElements(
-      Iterable<XmlNode> iterable, String name, String namespace) {
-    var matcher = _createMatcher(name, namespace);
+  Iterable<XmlElement> _filterElements(Iterable<XmlNode> iterable, String name, String namespace) {
+    var matcher = createNameMatcher(name, namespace);
     return iterable
         .where((node) => node is XmlElement && matcher(node))
         .map((node) => node as XmlElement);
   }
-
 }

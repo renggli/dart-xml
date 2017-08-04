@@ -1,23 +1,24 @@
-part of xml;
+library xml.iterators.descendants;
+
+import 'dart:collection' show IterableBase;
+
+import 'package:xml/xml/nodes/node.dart' show XmlNode;
 
 /// Iterable to walk over the descendants of a node.
-class _XmlDescendantsIterable extends IterableBase<XmlNode> {
-
+class XmlDescendantsIterable extends IterableBase<XmlNode> {
   final XmlNode start;
 
-  _XmlDescendantsIterable(this.start);
+  XmlDescendantsIterable(this.start);
 
   @override
-  Iterator<XmlNode> get iterator => new _XmlDescendantsIterator(start);
-
+  Iterator<XmlNode> get iterator => new XmlDescendantsIterator(start);
 }
 
 /// Iterator to walk over the descendants of a node.
-class _XmlDescendantsIterator extends Iterator<XmlNode> {
+class XmlDescendantsIterator extends Iterator<XmlNode> {
+  final List<XmlNode> todo = [];
 
-  final List<XmlNode> todo = new List();
-
-  _XmlDescendantsIterator(XmlNode start) {
+  XmlDescendantsIterator(XmlNode start) {
     push(start);
   }
 
@@ -40,5 +41,4 @@ class _XmlDescendantsIterator extends Iterator<XmlNode> {
       return true;
     }
   }
-
 }

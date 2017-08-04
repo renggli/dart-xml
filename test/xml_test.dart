@@ -1,7 +1,7 @@
 library xml.test.xml_test;
 
-import 'package:xml/xml.dart';
 import 'package:test/test.dart';
+import 'package:xml/xml.dart';
 
 import 'xml_examples.dart';
 
@@ -130,7 +130,7 @@ void assertTextInvariants(XmlNode xml) {
     if (node is XmlParent) {
       var previousType = null;
       var nodeTypes = node.children
-          .map((XmlNode node) => node.nodeType);
+          .map((node) => node.nodeType);
       for (var currentType in nodeTypes) {
         expect(previousType == XmlNodeType.TEXT && currentType == XmlNodeType.TEXT,
             isFalse, reason: 'Consecutive text nodes detected: $nodeTypes');
@@ -141,7 +141,7 @@ void assertTextInvariants(XmlNode xml) {
 }
 
 void assertIteratorInvariants(XmlNode xml) {
-  var ancestors = new List();
+  var ancestors = [];
   void check(XmlNode node) {
     var allAxis = [
       node.preceding,
@@ -155,8 +155,8 @@ void assertIteratorInvariants(XmlNode xml) {
         'nodes, and all following nodes should be equal to all nodes in the tree.');
     expect(node.ancestors, ancestors.reversed);
     ancestors.add(node);
-    node.attributes.forEach((each) => check(each));
-    node.children.forEach((each) => check(each));
+    node.attributes.forEach(check);
+    node.children.forEach(check);
     ancestors.removeLast();
   }
   check(xml);
@@ -565,7 +565,7 @@ void main() {
     String encodeAttributeValue(XmlAttributeType type, String input) {
       var attribute = new XmlAttribute(new XmlName('a'), input, type).toString();
       var quote = type == XmlAttributeType.SINGLE_QUOTE ? "'" : '"';
-      expect(attribute.substring(0, 3), 'a=' + quote);
+      expect(attribute.substring(0, 3), 'a=$quote');
       expect(attribute[attribute.length - 1], quote);
       return attribute.substring(3, attribute.length - 1);
     }
@@ -1145,8 +1145,7 @@ void main() {
           '</element>';
       expect(actual, expected);
     });
-
-    test('entities escape', () {
+    test('entities cdata escape', () {
       var builder = new XmlBuilder();
       builder.element('element', nest: '<test><![CDATA[string]]></test>');
       var xml = builder.build();
@@ -1155,7 +1154,6 @@ void main() {
       var expected = '<element>&lt;test>&lt;![CDATA[string]]&gt;&lt;/test></element>';
       expect(actual, expected);
     });
-
   });
   group('examples', () {
     test('books', () {

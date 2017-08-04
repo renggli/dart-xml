@@ -1,17 +1,24 @@
-part of xml;
+library xml.utils.name;
+
+import 'package:xml/xml/builder.dart' show NamespaceData;
+import 'package:xml/xml/utils/child.dart' show XmlOwned;
+import 'package:xml/xml/utils/prefix_name.dart' show XmlPrefixName;
+import 'package:xml/xml/utils/simple_name.dart' show XmlSimpleName;
+import 'package:xml/xml/utils/writable.dart' show XmlWritable;
+import 'package:xml/xml/visitors/visitable.dart' show XmlVisitable;
+import 'package:xml/xml/visitors/visitor.dart' show XmlVisitor;
 
 // separator between prefix and local name
-final _separator = ':';
+final separator = ':';
 
 // xml namespace declarations
-final _xml = 'xml';
-final _xmlData = new _NamespaceData(_xml, true);
-final _xmlUri = 'http://www.w3.org/XML/1998/namespace';
-final _xmlns = 'xmlns';
+final xml = 'xml';
+final xmlData = new NamespaceData(xml, true);
+final xmlUri = 'http://www.w3.org/XML/1998/namespace';
+final xmlns = 'xmlns';
 
 /// XML entity name.
 abstract class XmlName extends Object with XmlVisitable, XmlWritable, XmlOwned {
-
   /// Return the namespace prefix, or `null`.
   String get prefix;
 
@@ -25,91 +32,31 @@ abstract class XmlName extends Object with XmlVisitable, XmlWritable, XmlOwned {
   String get namespaceUri;
 
   /// Creates a qualified [XmlName] from a `local` name and an optional `prefix`.
-  factory XmlName(String local, [String prefix]) {
-    return prefix == null || prefix.isEmpty
-        ? new _XmlSimpleName(local)
-        : new _XmlPrefixName(prefix, local, '$prefix$_separator$local');
-  }
+  factory XmlName(String local, [String prefix]) => prefix == null || prefix.isEmpty
+      ? new XmlSimpleName(local)
+      : new XmlPrefixName(prefix, local, '$prefix$separator$local');
 
   /// Create a [XmlName] by parsing the provided `qualified` name.
   factory XmlName.fromString(String qualified) {
-    var index = qualified.indexOf(_separator);
+    var index = qualified.indexOf(separator);
     if (index > 0) {
       var prefix = qualified.substring(0, index);
       var local = qualified.substring(index + 1, qualified.length);
-      return new _XmlPrefixName(prefix, local, qualified);
+      return new XmlPrefixName(prefix, local, qualified);
     } else {
-      return new _XmlSimpleName(qualified);
+      return new XmlSimpleName(qualified);
     }
   }
 
-  XmlName._();
+  XmlName.internal();
 
   @override
   E accept<E>(XmlVisitor<E> visitor) => visitor.visitName(this);
 
   @override
-  bool operator ==(Object other) => other is XmlName &&
-      other.local == local &&
-      other.namespaceUri == namespaceUri;
+  bool operator ==(Object other) =>
+      other is XmlName && other.local == local && other.namespaceUri == namespaceUri;
 
   @override
   int get hashCode => qualified.hashCode;
-
-}
-
-/// An XML entity name without a prefix.
-class _XmlSimpleName extends XmlName {
-
-  @override
-  String get prefix => null;
-
-  @override
-  final String local;
-
-  @override
-  String get qualified => local;
-
-  @override
-  String get namespaceUri {
-    for (var node = parent; node != null; node = node.parent) {
-      for (var attribute in node.attributes) {
-        if (attribute.name.prefix == null && attribute.name.local == _xmlns) {
-          return attribute.value;
-        }
-      }
-    }
-    return null;
-  }
-
-  _XmlSimpleName(this.local) : super._();
-
-}
-
-/// An XML entity name with a prefix.
-class _XmlPrefixName extends XmlName {
-
-  @override
-  final String prefix;
-
-  @override
-  final String local;
-
-  @override
-  final String qualified;
-
-  @override
-  String get namespaceUri {
-    for (var node = parent; node != null; node = node.parent) {
-      for (var attribute in node.attributes) {
-        if (attribute.name.prefix == _xmlns && attribute.name.local == prefix) {
-          return attribute.value;
-        }
-      }
-    }
-    return null;
-  }
-
-  _XmlPrefixName(this.prefix, this.local, this.qualified) : super._();
-
 }

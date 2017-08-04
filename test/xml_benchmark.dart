@@ -1,6 +1,7 @@
 library xml.test.xml_benchmark;
 
 import 'package:xml/xml.dart';
+
 import 'xml_examples.dart';
 
 double benchmark(Function function, [int warmup = 5, int milliseconds = 2500]) {
@@ -25,9 +26,9 @@ String characterData() {
   builder.processing('xml', 'version="1.0"');
   builder.element('character', nest: () {
     for (var i = 0; i < 20; i++) {
-      builder.text(string + string + string + string + string + string);
+      builder.text('$string$string$string$string$string$string');
       builder.element('foo', nest: () {
-        builder.attribute('key', string + string + string + string);
+        builder.attribute('key', '$string$string$string$string');
       });
     }
   });

@@ -1,24 +1,25 @@
-part of xml;
+library xml.iterators.preceding;
+
+import 'dart:collection' show IterableBase;
+
+import 'package:xml/xml/nodes/node.dart' show XmlNode;
 
 /// Iterable to walk over the precedents of a node.
-class _XmlPrecedingIterable extends IterableBase<XmlNode> {
-
+class XmlPrecedingIterable extends IterableBase<XmlNode> {
   final XmlNode start;
 
-  _XmlPrecedingIterable(this.start);
+  XmlPrecedingIterable(this.start);
 
   @override
-  Iterator<XmlNode> get iterator => new _XmlPrecedingIterator(start);
-
+  Iterator<XmlNode> get iterator => new XmlPrecedingIterator(start);
 }
 
 /// Iterator to walk over the precedents of a node.
-class _XmlPrecedingIterator extends Iterator<XmlNode> {
-
+class XmlPrecedingIterator extends Iterator<XmlNode> {
   final XmlNode start;
-  final List<XmlNode> todo = new List();
+  final List<XmlNode> todo = [];
 
-  _XmlPrecedingIterator(this.start) {
+  XmlPrecedingIterator(this.start) {
     todo.add(start.root);
   }
 
@@ -42,5 +43,4 @@ class _XmlPrecedingIterator extends Iterator<XmlNode> {
       return true;
     }
   }
-
 }

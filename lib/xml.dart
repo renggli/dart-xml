@@ -2,43 +2,35 @@
 /// building XML documents.
 library xml;
 
-import 'dart:collection';
+import 'package:petitparser/petitparser.dart' show Parser, ParserError;
 
-import 'package:petitparser/petitparser.dart';
+import 'xml/nodes/document.dart' show XmlDocument;
+import 'xml/parser.dart' show XmlParserDefinition;
 
-part 'xml/iterators/ancestors.dart';
-part 'xml/iterators/descendants.dart';
-part 'xml/iterators/following.dart';
-part 'xml/iterators/preceding.dart';
-
-part 'xml/nodes/attribute.dart';
-part 'xml/nodes/cdata.dart';
-part 'xml/nodes/comment.dart';
-part 'xml/nodes/data.dart';
-part 'xml/nodes/doctype.dart';
-part 'xml/nodes/document.dart';
-part 'xml/nodes/document_fragment.dart';
-part 'xml/nodes/element.dart';
-part 'xml/nodes/node.dart';
-part 'xml/nodes/parent.dart';
-part 'xml/nodes/processing.dart';
-part 'xml/nodes/text.dart';
-
-part 'xml/utils/child.dart';
-part 'xml/utils/entities.dart';
-part 'xml/utils/name.dart';
-part 'xml/utils/named.dart';
-part 'xml/utils/type.dart';
-part 'xml/utils/writable.dart';
-
-part 'xml/visitors/transformer.dart';
-part 'xml/visitors/visitable.dart';
-part 'xml/visitors/visitor.dart';
-part 'xml/visitors/writer.dart';
-
-part 'xml/builder.dart';
-part 'xml/grammar.dart';
-part 'xml/parser.dart';
+export 'xml/builder.dart' show XmlBuilder;
+export 'xml/grammar.dart' show XmlGrammarDefinition;
+export 'xml/nodes/attribute.dart' show XmlAttribute;
+export 'xml/nodes/cdata.dart' show XmlCDATA;
+export 'xml/nodes/comment.dart' show XmlComment;
+export 'xml/nodes/data.dart' show XmlData;
+export 'xml/nodes/doctype.dart' show XmlDoctype;
+export 'xml/nodes/document.dart' show XmlDocument;
+export 'xml/nodes/document_fragment.dart' show XmlDocumentFragment;
+export 'xml/nodes/element.dart' show XmlElement;
+export 'xml/nodes/node.dart' show XmlNode;
+export 'xml/nodes/parent.dart' show XmlParent;
+export 'xml/nodes/processing.dart' show XmlProcessing;
+export 'xml/nodes/text.dart' show XmlText;
+export 'xml/parser.dart' show XmlParserDefinition;
+export 'xml/utils/attribute_type.dart' show XmlAttributeType;
+export 'xml/utils/child.dart' show XmlOwned;
+export 'xml/utils/name.dart' show XmlName;
+export 'xml/utils/named.dart' show XmlNamed;
+export 'xml/utils/node_type.dart' show XmlNodeType;
+export 'xml/utils/writable.dart' show XmlWritable;
+export 'xml/visitors/transformer.dart' show XmlTransformer;
+export 'xml/visitors/visitable.dart' show XmlVisitable;
+export 'xml/visitors/visitor.dart' show XmlVisitor;
 
 final Parser _parser = new XmlParserDefinition().build();
 

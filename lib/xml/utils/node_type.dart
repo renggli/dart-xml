@@ -1,4 +1,4 @@
-part of xml;
+library xml.utils.node_type;
 
 /// Enum of the different XML Node types.
 enum XmlNodeType {

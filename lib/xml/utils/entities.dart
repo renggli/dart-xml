@@ -1,30 +1,38 @@
-part of xml;
+library xml.utils.entities;
 
-// hexadecimal character reference
+import 'package:petitparser/petitparser.dart'
+    show Parser, Result, Context, pattern, char, word, digit;
+import 'package:xml/xml/utils/attribute_type.dart' show XmlAttributeType;
+
+// Hexadecimal character reference.
 final _entityHex = pattern('xX')
     .seq(pattern('A-Fa-f0-9').plus().flatten().map((value) {
-  return new String.fromCharCode(int.parse(value, radix: 16));
-})).pick(1);
+      return new String.fromCharCode(int.parse(value, radix: 16));
+    }))
+    .pick(1);
 
-// decimal character reference
+// Decimal character reference.
 final _entityDigit = char('#')
     .seq(_entityHex.or(digit().plus().flatten().map((value) {
-  return new String.fromCharCode(int.parse(value));
-}))).pick(1);
+      return new String.fromCharCode(int.parse(value));
+    })))
+    .pick(1);
 
-// named character reference
+// Named character reference.
 final _entity = char('&')
     .seq(_entityDigit.or(word().plus().flatten().map((value) {
-  return _entityToChar[value];
-}))).seq(char(';')).pick(1);
+      return entityToChar[value];
+    })))
+    .seq(char(';'))
+    .pick(1);
 
 /// Optimized parser to read character data.
-class _XmlCharacterDataParser extends Parser {
+class XmlCharacterDataParser extends Parser {
   final String _stopper;
   final int _stopperCode;
   final int _minLength;
 
-  _XmlCharacterDataParser(String stopper, int minLength)
+  XmlCharacterDataParser(String stopper, int minLength)
       : _stopper = stopper,
         _stopperCode = stopper.codeUnitAt(0),
         _minLength = minLength;
@@ -68,11 +76,11 @@ class _XmlCharacterDataParser extends Parser {
   List<Parser> get children => [_entity];
 
   @override
-  Parser copy() => new _XmlCharacterDataParser(_stopper, _minLength);
+  Parser copy() => new XmlCharacterDataParser(_stopper, _minLength);
 }
 
-final Map<String, String> _entityToChar = const {
-
+/// Mapping from entity name to character.
+final Map<String, String> entityToChar = const {
   // xml entities
   'lt': '<',
   'gt': '>',
@@ -332,34 +340,29 @@ final Map<String, String> _entityToChar = const {
 };
 
 /// Internal type definition for string replacement functions.
-typedef String _ReplaceFunction(Match match);
+typedef String ReplaceFunction(Match match);
 
 /// Encode a string to be serialized as an XML text node.
-String _encodeXmlText(String input) {
-  return input.replaceAllMapped(_textPattern, _textReplace);
-}
+String encodeXmlText(String input) => input.replaceAllMapped(_textPattern, _textReplace);
 
-final Pattern _textPattern = new RegExp('[&<]|\]\]>');
-final _ReplaceFunction _textReplace = (Match match) {
+final Pattern _textPattern = new RegExp(r'[&<]|]]>');
+
+String _textReplace(Match match) {
   switch (match.group(0)) {
     case '<':
       return '&lt;';
-    case ']]>':
-      return ']]&gt;';
     case '&':
       return '&amp;';
+    case ']]>':
+      return ']]&gt;';
   }
-  return '';
-};
-
-/// Encode a string to be serialized as an XML attribute value.
-String _encodeXmlAttributeValue(String input, XmlAttributeType attributeType) {
-  return input.replaceAllMapped(
-      _attributePattern[attributeType],
-      _attributeReplace[attributeType]);
+  throw new AssertionError();
 }
 
-final Map<XmlAttributeType, String> _attributeQuote = {
+/// Encode a string to be serialized as an XML attribute value.
+String encodeXmlAttributeValue(String input, XmlAttributeType attributeType) => input.replaceAllMapped(_attributePattern[attributeType], _attributeReplace[attributeType]);
+
+final Map<XmlAttributeType, String> attributeQuote = {
   XmlAttributeType.SINGLE_QUOTE: "'",
   XmlAttributeType.DOUBLE_QUOTE: '"'
 };
@@ -369,8 +372,8 @@ final Map<XmlAttributeType, Pattern> _attributePattern = {
   XmlAttributeType.DOUBLE_QUOTE: new RegExp(r'["&<\n\r\t]')
 };
 
-final Map<XmlAttributeType, _ReplaceFunction> _attributeReplace = {
-  XmlAttributeType.SINGLE_QUOTE: (Match match) {
+final Map<XmlAttributeType, ReplaceFunction> _attributeReplace = {
+  XmlAttributeType.SINGLE_QUOTE: (match) {
     switch (match.group(0)) {
       case "'":
         return '&apos;';
@@ -385,8 +388,9 @@ final Map<XmlAttributeType, _ReplaceFunction> _attributeReplace = {
       case '\t':
         return '&#x9;';
     }
+    throw new AssertionError();
   },
-  XmlAttributeType.DOUBLE_QUOTE: (Match match) {
+  XmlAttributeType.DOUBLE_QUOTE: (match) {
     switch (match.group(0)) {
       case '"':
         return '&quot;';
@@ -401,5 +405,6 @@ final Map<XmlAttributeType, _ReplaceFunction> _attributeReplace = {
       case '\t':
         return '&#x9;';
     }
+    throw new AssertionError();
   },
 };

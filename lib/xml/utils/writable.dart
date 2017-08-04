@@ -1,8 +1,11 @@
-part of xml;
+library xml.utils.writable;
+
+import 'package:xml/xml/visitors/pretty_writer.dart' show XmlPrettyWriter;
+import 'package:xml/xml/visitors/visitable.dart' show XmlVisitable;
+import 'package:xml/xml/visitors/writer.dart' show XmlWriter;
 
 /// Mixin to serialize XML to a [StringBuffer].
 abstract class XmlWritable implements XmlVisitable {
-
   /// Write this object to a `buffer`.
   void writeTo(StringBuffer buffer) {
     new XmlWriter(buffer).visit(this);
@@ -33,5 +36,4 @@ abstract class XmlWritable implements XmlVisitable {
     }
     return buffer.toString();
   }
-
 }

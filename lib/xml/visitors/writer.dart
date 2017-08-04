@@ -1,8 +1,23 @@
-part of xml;
+library xml.visitors.writer;
+
+import 'package:xml/xml/grammar.dart' show XmlGrammarDefinition;
+import 'package:xml/xml/nodes/attribute.dart' show XmlAttribute;
+import 'package:xml/xml/nodes/cdata.dart' show XmlCDATA;
+import 'package:xml/xml/nodes/comment.dart' show XmlComment;
+import 'package:xml/xml/nodes/doctype.dart' show XmlDoctype;
+import 'package:xml/xml/nodes/document.dart' show XmlDocument;
+import 'package:xml/xml/nodes/document_fragment.dart' show XmlDocumentFragment;
+import 'package:xml/xml/nodes/element.dart' show XmlElement;
+import 'package:xml/xml/nodes/node.dart' show XmlNode;
+import 'package:xml/xml/nodes/processing.dart' show XmlProcessing;
+import 'package:xml/xml/nodes/text.dart' show XmlText;
+import 'package:xml/xml/utils/entities.dart'
+    show attributeQuote, encodeXmlAttributeValue, encodeXmlText;
+import 'package:xml/xml/utils/name.dart' show XmlName;
+import 'package:xml/xml/visitors/visitor.dart' show XmlVisitor;
 
 /// A visitor that writes XML nodes exactly as they were parsed.
 class XmlWriter extends XmlVisitor {
-
   final StringBuffer buffer;
 
   XmlWriter(this.buffer);
@@ -11,10 +26,10 @@ class XmlWriter extends XmlVisitor {
   void visitAttribute(XmlAttribute node) {
     visit(node.name);
     buffer.write(XmlGrammarDefinition.EQUALS);
-    final attributeQuote = _attributeQuote[node.attributeType];
-    buffer.write(attributeQuote);
-    buffer.write(_encodeXmlAttributeValue(node.value, node.attributeType));
-    buffer.write(attributeQuote);
+    final quote = attributeQuote[node.attributeType];
+    buffer.write(quote);
+    buffer.write(encodeXmlAttributeValue(node.value, node.attributeType));
+    buffer.write(quote);
   }
 
   @override
@@ -84,7 +99,7 @@ class XmlWriter extends XmlVisitor {
 
   @override
   void visitText(XmlText node) {
-    buffer.write(_encodeXmlText(node.text));
+    buffer.write(encodeXmlText(node.text));
   }
 
   void writeAttributes(XmlNode node) {
@@ -95,83 +110,6 @@ class XmlWriter extends XmlVisitor {
   }
 
   void writeChildren(XmlNode node) {
-    for (var child in node.children) {
-      visit(child);
-    }
-  }
-}
-
-
-/// A visitor that writes XML nodes correctly indented and with whitespaces adapted.
-class XmlPrettyWriter extends XmlWriter {
-
-  int level = 0;
-  final String indent;
-
-  XmlPrettyWriter(buffer, this.level, this.indent) : super(buffer);
-
-  @override
-  void visitCDATA(XmlCDATA node) {
-    newLine();
-    super.visitCDATA(node);
-  }
-
-  @override
-  void visitComment(XmlComment node) {
-    newLine();
-    super.visitComment(node);
-  }
-
-  @override
-  void visitDoctype(XmlDoctype node) {
-    newLine();
-    super.visitDoctype(node);
-  }
-
-  @override
-  void visitElement(XmlElement node) {
-    newLine();
-    buffer.write(XmlGrammarDefinition.OPEN_ELEMENT);
-    visit(node.name);
-    writeAttributes(node);
-    if (node.children.isEmpty) {
-      buffer.write(XmlGrammarDefinition.WHITESPACE);
-      buffer.write(XmlGrammarDefinition.CLOSE_END_ELEMENT);
-    } else {
-      buffer.write(XmlGrammarDefinition.CLOSE_ELEMENT);
-      level++;
-      writeChildren(node);
-      level--;
-      if (!node.children.every((each) => each is XmlText)) {
-        newLine();
-      }
-      buffer.write(XmlGrammarDefinition.OPEN_END_ELEMENT);
-      visit(node.name);
-      buffer.write(XmlGrammarDefinition.CLOSE_ELEMENT);
-    }
-  }
-
-  @override
-  void visitProcessing(XmlProcessing node) {
-    newLine();
-    super.visitProcessing(node);
-  }
-
-  @override
-  void visitText(XmlText node) {
-    // If text is purely whitespace, don't output to the buffer
-    // the indentation and newlines will be handled elsewhere.
-    if (node.text.trim().isNotEmpty) {
-      super.visitText(node);
-    }
-  }
-
-  void newLine() {
-    if (buffer.isNotEmpty) {
-      buffer.writeln();
-    }
-    for (int i = 0; i < level; i++) {
-      buffer.write(indent);
-    }
+    node.children.forEach(visit);
   }
 }
