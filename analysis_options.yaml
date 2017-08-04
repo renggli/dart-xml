@@ -24,7 +24,6 @@ linter:
     - always_require_non_null_named_parameters
     - avoid_annotating_with_dynamic
     - avoid_catches_without_on_clauses
-    - avoid_catching_errors
     - avoid_classes_with_only_static_members
     - avoid_null_checks_in_equality_operators
     - avoid_return_types_on_setters
@@ -42,7 +41,6 @@ linter:
     - library_names
     - library_prefixes
     - non_constant_identifier_names
-    - omit_local_variable_types
     - only_throw_errors
     - overridden_fields
     - package_api_docs
@@ -53,7 +51,6 @@ linter:
     - prefer_const_constructors
     - prefer_constructors_over_static_methods
     - prefer_contains
-    - prefer_expression_function_bodies
     - prefer_foreach
     - prefer_function_declarations_over_variables
     - prefer_initializing_formals
@@ -70,7 +67,6 @@ linter:
     - unnecessary_null_aware_assignments
     - unnecessary_null_in_if_null_operators
     - unnecessary_overrides
-    - unnecessary_this
     - use_rethrow_when_possible
     - use_setters_to_change_properties
     - use_string_buffers

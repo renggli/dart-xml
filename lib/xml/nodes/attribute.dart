@@ -20,7 +20,7 @@ class XmlAttribute extends XmlNode implements XmlNamed {
 
   /// Create an attribute with `name` and `value`.
   XmlAttribute(this.name, this.value, [this.attributeType = XmlAttributeType.DOUBLE_QUOTE]) {
-    this.name.adoptParent(this);
+    name.adoptParent(this);
   }
 
   @override

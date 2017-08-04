@@ -10,20 +10,20 @@
 
 - Generic Method syntax with Dart 1.21
 
-### 2.4.4
+## 2.4.4
 
 - Fixed attribute escaping
 - Preserve single and double quotes
 
-### 2.4.3
+## 2.4.3
 
 - Improved documentation
 
-### 2.4.2
+## 2.4.2
 
 - Use enum as the node type
 
-### 2.4.1
+## 2.4.1
 
 - Fixed attribute escaping
 
@@ -32,11 +32,11 @@
 - Fixed linter issues
 - Cleanup node hierarchy
 
-### 2.3.2
+## 2.3.2
 
 - Improved documentation
 
-### 2.3.1
+## 2.3.1
 
 - Improved test coverage
 
@@ -45,11 +45,11 @@
 - Improved comments
 - Optimize namespaces
 
-### 2.2.2
+## 2.2.2
 
 - Formatted source
 
-### 2.2.1
+## 2.2.1
 
 - Cleanup pretty printing
 
