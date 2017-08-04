@@ -336,6 +336,13 @@ void main() {
       expect(node.nodeType.toString(), 'XmlNodeType.ELEMENT');
       expect(node.toString(), '<ns:data>Am I or are the other crazy?</ns:data>');
     });
+    test('element (readopt name)', () {
+      XmlDocument document = parse('<element attr="value1">text</element>');
+      XmlElement node = document.rootElement;
+      expect(() => new XmlElement(node.name, [], []), throwsStateError);
+      expect(() => new XmlElement(new XmlName("data"), node.attributes, []), throwsStateError);
+      expect(() => new XmlElement(new XmlName("data"), [], node.children), throwsStateError);
+    });
     test('attribute', () {
       XmlDocument document = parse('<data ns:attr="Am I or are the other crazy?" />');
       XmlAttribute node = document.rootElement.attributes.single;
@@ -393,6 +400,11 @@ void main() {
       XmlAttribute node = document.rootElement.attributes.single;
       expect(node.value, '<>&\'"\n\r\t');
       expect(node.toString(), "ns:attr='&lt;>&amp;&apos;\"&#xA;&#xD;&#x9;'");
+    });
+    test('attribute (readopt name)', () {
+      XmlDocument document = parse('<data ns:attr=\'&lt;&gt;&amp;&apos;&quot;&#xA;&#xD;&#x9;\' />');
+      XmlAttribute node = document.rootElement.attributes.single;
+      expect(() => new XmlAttribute(node.name, ""), throwsStateError);
     });
     test('text', () {
       XmlDocument document = parse('<data>Am I or are the other crazy?</data>');
