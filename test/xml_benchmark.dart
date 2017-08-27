@@ -4,11 +4,11 @@ import 'package:xml/xml.dart';
 
 import 'xml_examples.dart';
 
-double benchmark(Function function, [int warmup = 5, int milliseconds = 2500]) {
+double benchmark(Function function, [int warmUp = 5, int milliseconds = 2500]) {
   var count = 0;
   var elapsed = 0;
   var watch = new Stopwatch();
-  while (warmup-- > 0) {
+  while (warmUp-- > 0) {
     function();
   }
   watch.start();
