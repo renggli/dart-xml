@@ -128,7 +128,7 @@ void assertTextInvariants(XmlNode xml) {
           reason: 'All nodes are supposed to return text strings.');
     }
     if (node is XmlParent) {
-      var previousType = null;
+      var previousType;
       var nodeTypes = node.children
           .map((node) => node.nodeType);
       for (var currentType in nodeTypes) {
@@ -340,8 +340,8 @@ void main() {
       XmlDocument document = parse('<element attr="value1">text</element>');
       XmlElement node = document.rootElement;
       expect(() => new XmlElement(node.name, [], []), throwsStateError);
-      expect(() => new XmlElement(new XmlName("data"), node.attributes, []), throwsStateError);
-      expect(() => new XmlElement(new XmlName("data"), [], node.children), throwsStateError);
+      expect(() => new XmlElement(new XmlName('data'), node.attributes, []), throwsStateError);
+      expect(() => new XmlElement(new XmlName('data'), [], node.children), throwsStateError);
     });
     test('attribute', () {
       XmlDocument document = parse('<data ns:attr="Am I or are the other crazy?" />');
@@ -404,7 +404,7 @@ void main() {
     test('attribute (readopt name)', () {
       XmlDocument document = parse('<data ns:attr=\'&lt;&gt;&amp;&apos;&quot;&#xA;&#xD;&#x9;\' />');
       XmlAttribute node = document.rootElement.attributes.single;
-      expect(() => new XmlAttribute(node.name, ""), throwsStateError);
+      expect(() => new XmlAttribute(node.name, ''), throwsStateError);
     });
     test('text', () {
       XmlDocument document = parse('<data>Am I or are the other crazy?</data>');
@@ -551,11 +551,11 @@ void main() {
           '  <body lang="en"/>'
           '</html>');
       List<XmlNode> nodes = new List.from(document.descendants)..add(document);
-      nodes.forEach((node) {
+      for (var node in nodes) {
         if (node is XmlAttribute || node is XmlElement) {
           expect((node as XmlNamed).name.namespaceUri, 'http://www.w3.org/1999/xhtml');
         }
-      });
+      }
     });
     test('prefix namespace', () {
       XmlDocument document = parse(
@@ -563,12 +563,12 @@ void main() {
           '  <xhtml:body xhtml:lang="en"/>'
           '</xhtml:html>');
       List<XmlNode> nodes = new List.from(document.descendants)..add(document);
-      nodes.forEach((node) {
+      for (var node in nodes) {
         if ((node is XmlAttribute && node.name.prefix != 'xmlns') ||
             (node is XmlElement)) {
           expect((node as XmlNamed).name.namespaceUri, 'http://www.w3.org/1999/xhtml');
         }
-      });
+      }
     });
   });
   group('entities', () {

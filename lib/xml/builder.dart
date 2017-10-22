@@ -115,10 +115,10 @@ class XmlBuilder {
   ///     });
   ///
   void element(String name,
-      {String namespace: null,
+      {String namespace,
       Map<String, String> namespaces: const {},
       Map<String, String> attributes: const {},
-      Object nest: null}) {
+      Object nest}) {
     var element = new XmlElementBuilder();
     _stack.add(element);
     namespaces.forEach(this.namespace);
