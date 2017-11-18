@@ -322,19 +322,23 @@ void main() {
   });
   group('nodes', () {
     test('element', () {
-      XmlDocument document = parse('<ns:data>Am I or are the other crazy?</ns:data>');
+      XmlDocument document = parse('<ns:data key="value">Am I or are the other crazy?</ns:data>');
       XmlElement node = document.rootElement;
       expect(node.name, new XmlName.fromString('ns:data'));
       expect(node.parent, same(document));
       expect(node.root, same(document));
       expect(node.document, same(document));
-      expect(node.attributes, isEmpty);
+      expect(node.attributes, hasLength(1));
+      expect(() => node.attributes.add(new XmlAttribute(new XmlName('other'), 'value')), throwsUnsupportedError);
+      expect(() => node.attributes[0] = new XmlAttribute(new XmlName('other'), 'value'), throwsUnsupportedError);
       expect(node.children, hasLength(1));
-      expect(node.descendants, hasLength(1));
+      expect(() => node.children.add(new XmlText('')), throwsUnsupportedError);
+      expect(() => node.children[0] = new XmlText(''), throwsUnsupportedError);
+      expect(node.descendants, hasLength(2));
       expect(node.text, 'Am I or are the other crazy?');
       expect(node.nodeType, XmlNodeType.ELEMENT);
       expect(node.nodeType.toString(), 'XmlNodeType.ELEMENT');
-      expect(node.toString(), '<ns:data>Am I or are the other crazy?</ns:data>');
+      expect(node.toString(), '<ns:data key="value">Am I or are the other crazy?</ns:data>');
     });
     test('element (readopt name)', () {
       XmlDocument document = parse('<element attr="value1">text</element>');

@@ -13,7 +13,7 @@ import 'package:xml/xml/utils/node_type.dart' show XmlNodeType;
 import 'package:xml/xml/utils/writable.dart' show XmlWritable;
 import 'package:xml/xml/visitors/visitable.dart' show XmlVisitable;
 
-/// Abstract XML node.
+/// Immutable abstract XML node.
 abstract class XmlNode extends Object with XmlVisitable, XmlWritable, XmlOwned {
   /// Return the attribute nodes of this node.
   List<XmlAttribute> get attributes => const [];

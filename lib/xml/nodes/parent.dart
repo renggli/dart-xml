@@ -1,5 +1,7 @@
 library xml.nodes.parent;
 
+import 'dart:collection';
+
 import 'package:xml/xml/nodes/element.dart' show XmlElement;
 import 'package:xml/xml/nodes/node.dart' show XmlNode;
 import 'package:xml/xml/utils/name_matcher.dart' show createNameMatcher;
@@ -10,7 +12,8 @@ abstract class XmlParent extends XmlNode {
   final List<XmlNode> children;
 
   /// Create a node with a list of `children`.
-  XmlParent(Iterable<XmlNode> children) : children = children.toList(growable: false) {
+  XmlParent(Iterable<XmlNode> children)
+      : children = new UnmodifiableListView(children.toList(growable: false)) {
     for (var child in this.children) {
       child.adoptParent(this);
     }
