@@ -19,7 +19,7 @@ class XmlElement extends XmlParent implements XmlNamed {
 
   /// Create an [XmlElement] with the given `name`, `attributes`, and `children`.
   XmlElement(this.name, Iterable<XmlAttribute> attributes, Iterable<XmlNode> children)
-      : attributes = attributes.toList(growable: false),
+      : attributes = attributes.toList(),
         super(children) {
     name.adoptParent(this);
     for (var attribute in this.attributes) {
