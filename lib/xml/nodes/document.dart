@@ -12,6 +12,9 @@ class XmlDocument extends XmlParent {
   /// Create a document node with `children`.
   XmlDocument(Iterable<XmlNode> children) : super(children);
 
+  /// Create a mutable document node with 'children'.
+  XmlDocument.mutable(Iterable<XmlNode> children) : super.mutable(children);
+
   /// Return the [XmlDoctype] element, or `null` if not defined.
   ///
   /// For example, the following code prints `<!DOCTYPE html>`:
