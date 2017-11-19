@@ -45,3 +45,14 @@ class XmlParserDefinition extends XmlGrammarDefinition<XmlNode, XmlName> {
   @override
   XmlText createText(String text) => new XmlText(text);
 }
+
+/// XML parser that defines standard actions to the the XML tree.
+class MutableXmlParserDefinition extends XmlParserDefinition {
+  @override
+  XmlDocument createDocument(Iterable<XmlNode> children) => new XmlDocument.mutable(children);
+
+  @override
+  XmlElement createElement(
+      XmlName name, Iterable<XmlNode> attributes, Iterable<XmlNode> children) =>
+      new XmlElement.mutable(name, attributes, children);
+}

@@ -29,6 +29,16 @@ class XmlElement extends XmlParent implements XmlNamed {
     }
   }
 
+  /// Create a mutable [XmlElement] with the given `name`, `attributes`, and `children`.
+  XmlElement.mutable(this.name, Iterable<XmlAttribute> attributes, Iterable<XmlNode> children)
+      : attributes = attributes.toList(growable: true),
+        super.mutable(children) {
+    name.adoptParent(this);
+    for (var attribute in this.attributes) {
+      attribute.adoptParent(this);
+    }
+  }
+
   /// Return the attribute value with the given `name`.
   String getAttribute(String name, {String namespace}) {
     var attribute = getAttributeNode(name, namespace: namespace);

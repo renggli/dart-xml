@@ -19,6 +19,14 @@ abstract class XmlParent extends XmlNode {
     }
   }
 
+  /// Create a mutable node with a list of `children`.
+  XmlParent.mutable(Iterable<XmlNode> children)
+      : children = children.toList(growable: true) {
+    for (var child in this.children) {
+      child.adoptParent(this);
+    }
+  }
+
   /// Return the _direct_ child elements with the given tag `name`.
   Iterable<XmlElement> findElements(String name, {String namespace}) =>
       _filterElements(children, name, namespace);

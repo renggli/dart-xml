@@ -5,7 +5,7 @@ library xml;
 import 'package:petitparser/petitparser.dart' show Parser, ParserError;
 
 import 'xml/nodes/document.dart' show XmlDocument;
-import 'xml/parser.dart' show XmlParserDefinition;
+import 'xml/parser.dart' show XmlParserDefinition, MutableXmlParserDefinition;
 
 export 'xml/builder.dart' show XmlBuilder;
 export 'xml/grammar.dart' show XmlGrammarDefinition;
@@ -33,11 +33,22 @@ export 'xml/visitors/visitable.dart' show XmlVisitable;
 export 'xml/visitors/visitor.dart' show XmlVisitor;
 
 final Parser _parser = new XmlParserDefinition().build();
+final Parser _mutableParser = new MutableXmlParserDefinition().build();
 
 /// Return an [XmlDocument] for the given `input` string, or throws an
 /// [ArgumentError] if the input is invalid.
 XmlDocument parse(String input) {
   var result = _parser.parse(input);
+  if (result.isFailure) {
+    throw new ArgumentError(new ParserError(result).toString());
+  }
+  return result.value;
+}
+
+/// Return a mutable [XmlDocument] for the given `input` string, or throws an
+/// [ArgumentError] if the input is invalid.
+XmlDocument mutableParse(String input) {
+  var result = _mutableParser.parse(input);
   if (result.isFailure) {
     throw new ArgumentError(new ParserError(result).toString());
   }
