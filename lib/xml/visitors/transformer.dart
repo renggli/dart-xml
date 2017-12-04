@@ -17,6 +17,8 @@ import 'package:xml/xml/visitors/visitor.dart' show XmlVisitor;
 ///
 /// Subclass can override one or more of the methods to modify the generated copy.
 class XmlTransformer extends XmlVisitor<XmlVisitable> {
+  const XmlTransformer();
+
   @override
   XmlAttribute visitAttribute(XmlAttribute node) =>
       new XmlAttribute(visit(node.name), node.value, node.attributeType);

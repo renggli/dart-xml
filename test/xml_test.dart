@@ -187,7 +187,7 @@ void assertCopyInvariants(XmlNode xml) {
       compare(original.children[i], copy.children[i]);
     }
   }
-  var copy = new XmlTransformer().visit(xml);
+  var copy = const XmlTransformer().visit(xml);
   assertParentInvariants(xml);
   assertParentInvariants(copy);
   assertNameInvariants(xml);

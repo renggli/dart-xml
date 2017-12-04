@@ -11,13 +11,14 @@ abstract class XmlOwned {
 
   /// Return the root of the tree in which this node is found, whether that's
   /// a document or another element.
-  XmlNode get root => parent == null ? this : parent.root;
+  XmlNode get root => hasParent ? parent.root : this;
 
-  /// Internal method to adopt a parent node, do not call directly.
-  void adoptParent(XmlNode node) {
-    if (_parent != null) {
-      throw new StateError('Node is already part of node tree.');
-    }
-    _parent = node;
-  }
+  /// Test whether the node has a parent or not.
+  bool get hasParent => parent != null;
+
+  /// Internal method to attach a child to this parent, do not call directly.
+  void attachParent(XmlNode parent) => _parent = parent;
+
+  /// Internal method to attach a child to this parent, do not call directly.
+  void detachParent(XmlNode parent) => _parent = null;
 }

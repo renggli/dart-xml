@@ -1,7 +1,7 @@
 library xml.utils.name;
 
 import 'package:xml/xml/builder.dart' show NamespaceData;
-import 'package:xml/xml/utils/child.dart' show XmlOwned;
+import 'package:xml/xml/utils/owned.dart' show XmlOwned;
 import 'package:xml/xml/utils/prefix_name.dart' show XmlPrefixName;
 import 'package:xml/xml/utils/simple_name.dart' show XmlSimpleName;
 import 'package:xml/xml/utils/writable.dart' show XmlWritable;

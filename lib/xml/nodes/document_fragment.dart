@@ -8,8 +8,9 @@ import 'package:xml/xml/visitors/visitor.dart' show XmlVisitor;
 
 /// XML document fragment node.
 class XmlDocumentFragment extends XmlParent {
-  /// Create a document node with `children`.
-  XmlDocumentFragment(Iterable<XmlNode> children) : super(children);
+
+  /// Create a document fragment node with `children`.
+  XmlDocumentFragment(Iterable<XmlNode> children) : super(childrenNodeTypes, children);
 
   @override
   XmlDocument get document => null;
@@ -23,3 +24,13 @@ class XmlDocumentFragment extends XmlParent {
   @override
   E accept<E>(XmlVisitor<E> visitor) => visitor.visitDocumentFragment(this);
 }
+
+/// Supported child node types.
+final childrenNodeTypes = new Set.from([
+  XmlNodeType.CDATA,
+  XmlNodeType.COMMENT,
+  XmlNodeType.DOCUMENT_TYPE,
+  XmlNodeType.ELEMENT,
+  XmlNodeType.PROCESSING,
+  XmlNodeType.TEXT,
+]);
