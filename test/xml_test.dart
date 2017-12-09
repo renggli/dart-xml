@@ -572,36 +572,18 @@ void main() {
     });
   });
   group('mutating', () {
-    XmlElement elementA, elementB;
-    setUp(() {
-      elementA = parse('<a><a0 /><a1 /><a2 /></a>').rootElement;
-      elementB = parse('<b><b0 /><b1 /><b2 /></b>').rootElement;
+    test('element (attributes)', () {
+      XmlDocument document = parse('<element />');
+      XmlElement node = document.rootElement;
+      node.attributes.add(new XmlAttribute(new XmlName('attr'), 'value'));
+      expect(node.toXmlString(), '<element attr="value" />');
     });
-    tearDown(() {
-      assertTreeInvariants(elementA);
-      assertTreeInvariants(elementB);
+    test('element (children)', () {
+      XmlDocument document = parse('<element></element>');
+      XmlElement node = document.rootElement;
+      node.children.add(new XmlText('Hello World'));
+      expect(node.toXmlString(), '<element>Hello World</element>');
     });
-//    test('element types', () {
-//      expect(() => elementA.children[0] = new XmlAttribute(new XmlName('foo'), 'bar'), throwsArgumentError);
-//    });
-//
-//    test('replace from different tree', () {
-//      elementA.children[1] = elementB.children[1];
-//      expect(elementA.toString(), '<a><a0 /><b1 /><a2 /></a>');
-//      expect(elementB.toString(), '<b><b0 /><b2 /></b>');
-//    });
-//    test('replace before', () {
-//      elementA.children[1] = elementA.children[1];
-//      expect(elementA.toString(), '<a><a0 /><b1 /><a2 /></a>');
-//    });
-//    test('replace identical', () {
-//      elementA.children[1] = elementA.children[1];
-//      expect(elementA.toString(), '<a><a0 /><b1 /><a2 /></a>');
-//    });
-//    test('replace after', () {
-//      elementA.children[1] = elementA.children[1];
-//      expect(elementA.toString(), '<a><a0 /><b1 /><a2 /></a>');
-//    });
   });
   group('entities', () {
     String decode(String input) => parse('<data>$input</data>').rootElement.text;
