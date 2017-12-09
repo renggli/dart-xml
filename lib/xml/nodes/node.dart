@@ -83,6 +83,6 @@ abstract class XmlNode extends Object with XmlVisitable, XmlWritable, XmlOwned {
     return null;
   }
 
-  /// Return a copy of this node.
-  XmlNode clone() => const XmlTransformer().visit(this);
+  /// Return a copy of this node and its subtree.
+  XmlNode copy() => const XmlTransformer().visit(this);
 }

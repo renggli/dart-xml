@@ -1,185 +1,190 @@
 library xml.utils.node_list;
 
-import 'dart:collection';
+import 'package:collection/collection.dart' show DelegatingList;
 
 import 'package:xml/xml/nodes/node.dart' show XmlNode;
 import 'package:xml/xml/utils/owned.dart' show XmlOwned;
 import 'package:xml/xml/utils/node_type.dart' show XmlNodeType;
-import 'package:xml/xml/utils/errors.dart' show XmlNodeTypeError;
+import 'package:xml/xml/utils/errors.dart' show XmlNodeTypeError, XmlParentError;
 
 /// Mutable list of XmlNodes, manages the parenting of the nodes.
-class XmlNodeList<E extends XmlNode> extends ListBase<E> with XmlOwned {
-  /// The list of nodes.
-  final List<XmlNode> _nodes = [];
-
+class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
   /// The shared list of supported node types.
   final Set<XmlNodeType> _validNodeTypes;
 
-  XmlNodeList(this._validNodeTypes);
+  XmlNodeList(this._validNodeTypes) : super(<E>[]);
 
   @override
-  int get length => _nodes.length;
-
-  @override
-  set length(int length) => _nodes.length = length;
-
-  @override
-  E operator [](int index) => _nodes[index];
-
-  @override
-  void operator []=(int index, E childNode) {
-    RangeError.checkValidIndex(index, _nodes);
-    XmlNodeTypeError.checkValidType(childNode, _validNodeTypes);
-    if (childNode.hasParent) {
-      if (childNode.parent == parent) {
-        var oldIndex = _nodes.indexOf(childNode);
-        if (oldIndex != index) {
-          _nodes[index] = childNode;
-          _nodes.removeAt(oldIndex);
-        }
-        return;
-      }
-      _removeNode(childNode);
-    }
-    _nodes[index].detachParent(parent);
-    _nodes[index] = childNode;
-    childNode.attachParent(parent);
+  void operator []=(int index, E node) {
+    RangeError.checkValidIndex(index, this);
+    XmlNodeTypeError.checkValidType(node, _validNodeTypes);
+    XmlParentError.checkNoParent(node);
+    this[index].detachParent(parent);
+    super[index] = node;
+    node.attachParent(parent);
   }
 
   @override
-  void add(E childNode) {
-    if (childNode.nodeType == XmlNodeType.DOCUMENT_FRAGMENT) {
-      addAll(childNode.children as Iterable<E>);
-      return;
-    }
-    XmlNodeTypeError.checkValidType(childNode, _validNodeTypes);
-    _removeNode(childNode);
-    _nodes.add(childNode);
-    childNode.attachParent(parent);
-  }
+  set length(int length) => throw new UnsupportedError('Unsupported length change of node list.');
 
   @override
-  void addAll(Iterable<E> childNodes) {
-    var copiedNodes = new List<E>.from(childNodes);
-    for (var childNode in copiedNodes) {
-      XmlNodeTypeError.checkValidType(childNode, _validNodeTypes);
-    }
-    for (var childNode in copiedNodes) {
-      _removeNode(childNode);
-      _nodes.add(childNode);
-      childNode.attachParent(parent);
+  void add(E node) {
+    XmlNodeTypeError.checkNotNull(node);
+    if (node.nodeType == XmlNodeType.DOCUMENT_FRAGMENT) {
+      addAll(_expandFragment(node));
+    } else {
+      XmlNodeTypeError.checkValidType(node, _validNodeTypes);
+      XmlParentError.checkNoParent(node);
+      super.add(node);
+      node.attachParent(parent);
     }
   }
 
   @override
-  bool remove(Object childNode) {
-    bool removed = _nodes.remove(childNode);
+  void addAll(Iterable<E> nodes) {
+    var expanded = _expandNodes(nodes);
+    super.addAll(expanded);
+    for (var node in expanded) {
+      node.attachParent(parent);
+    }
+  }
+
+  @override
+  bool remove(Object node) {
+    bool removed = super.remove(node);
     if (removed) {
-      (childNode as E).detachParent(parent);
+      (node as E).detachParent(parent);
     }
     return removed;
   }
 
   @override
-  void removeWhere(bool test(E node)) => throw new UnimplementedError();
+  void removeWhere(bool test(E element)) {
+    super.removeWhere((node) {
+      var remove = test(node);
+      if (remove) {
+        node.detachParent(parent);
+      }
+      return remove;
+    });
+  }
 
   @override
-  void retainWhere(bool test(E node)) => throw new UnimplementedError();
+  void retainWhere(bool test(E node)) {
+    super.retainWhere((node) {
+      var retain = test(node);
+      if (!retain) {
+        node.detachParent(parent);
+      }
+      return retain;
+    });
+  }
 
   @override
   void clear() {
-    for (var node in _nodes) {
+    for (var node in this) {
       node.detachParent(parent);
     }
-    _nodes.clear();
+    super.clear();
   }
 
   @override
   E removeLast() {
-    _nodes.last.detachParent(parent);
-    return _nodes.removeLast();
+    var node = super.removeLast();
+    node.detachParent(parent);
+    return node;
   }
 
   @override
   void removeRange(int start, int end) {
-    RangeError.checkValidRange(start, end, this.length);
+    RangeError.checkValidRange(start, end, length);
     for (var i = start; i < end; i++) {
-      _nodes[i].detachParent(parent);
+      this[i].detachParent(parent);
     }
-    _nodes.removeRange(start, end);
+    super.removeRange(start, end);
   }
 
   @override
-  void fillRange(int start, int end, [E fill]) => throw new UnimplementedError();
+  void fillRange(int start, int end, [E fill]) =>
+      throw new UnsupportedError('Unsupported range filling of node list.');
 
   @override
-  void setRange(int start, int end, Iterable<E> iterable, [int skipCount = 0]) =>
-      throw new UnimplementedError();
+  void setRange(int start, int end, Iterable<E> nodes, [int skipCount = 0]) {
+    RangeError.checkValidRange(start, end, length);
+    var expanded = _expandNodes(nodes);
+    for (var i = start; i < end; i++) {
+      this[i].detachParent(parent);
+    }
+    super.setRange(start, end, expanded, skipCount);
+    for (var i = start; i < end; i++) {
+      this[i].attachParent(parent);
+    }
+  }
 
   @override
-  void replaceRange(int start, int end, Iterable<E> newContents) => throw new UnimplementedError();
+  void replaceRange(int start, int end, Iterable<E> nodes) {
+    RangeError.checkValidRange(start, end, length);
+    var expanded = _expandNodes(nodes);
+    for (var i = start; i < end; i++) {
+      this[i].detachParent(parent);
+    }
+    super.replaceRange(start, end, expanded);
+    for (var node in expanded) {
+      node.attachParent(parent);
+    }
+  }
 
   @override
   void setAll(int index, Iterable<E> iterable) => throw new UnimplementedError();
 
   @override
-  void insert(int index, E childNode) {
-    if (childNode.nodeType == XmlNodeType.DOCUMENT_FRAGMENT) {
-      insertAll(index, childNode.children as Iterable<E>);
-      return;
+  void insert(int index, E node) {
+    XmlNodeTypeError.checkNotNull(node);
+    if (node.nodeType == XmlNodeType.DOCUMENT_FRAGMENT) {
+      insertAll(index, _expandFragment(node));
+    } else {
+      XmlNodeTypeError.checkValidType(node, _validNodeTypes);
+      XmlParentError.checkNoParent(node);
+      super.insert(index, node);
+      node.attachParent(parent);
     }
-    XmlNodeTypeError.checkValidType(childNode, _validNodeTypes);
-    if (childNode.hasParent) {
-      if (childNode.parent == parent) {
-        var oldIndex = _nodes.indexOf(childNode);
-        if (oldIndex != index) {
-          _nodes[index] = childNode;
-          _nodes.removeAt(oldIndex < index ? oldIndex : oldIndex + 1);
-        }
-        return;
-      }
-      _removeNode(childNode);
-    }
-    _nodes.insert(index, childNode);
-    childNode.attachParent(parent);
   }
 
   @override
-  void insertAll(int index, Iterable<E> childNodes) {
-    RangeError.checkValueInInterval(index, 0, length, 'index');
-    var copiedNodes = new List<E>.from(childNodes);
-    for (var childNode in copiedNodes) {
-      XmlNodeTypeError.checkValidType(childNode, _validNodeTypes);
+  void insertAll(int index, Iterable<E> nodes) {
+    var expanded = _expandNodes(nodes);
+    super.insertAll(index, expanded);
+    for (var node in expanded) {
+      node.attachParent(parent);
     }
-    for (var childNode in copiedNodes) {
-      if (childNode.hasParent) {
-        if (childNode.parent == parent) {
-          var oldIndex = _nodes.indexOf(childNode);
-          if (oldIndex < index) {
-            index--;
-          }
-        }
-        _removeNode(childNode);
-      }
-      childNode.attachParent(parent);
-    }
-    _nodes.insertAll(index, childNodes);
   }
 
   @override
   E removeAt(int index) {
-    RangeError.checkValueInInterval(index, 0, length, 'index');
-    _nodes[index].detachParent(parent);
-    return removeAt(index);
+    RangeError.checkValidIndex(index, this);
+    this[index].detachParent(parent);
+    return super.removeAt(index);
   }
 
-  static void _removeNode(XmlNode node) {
-    if (node.hasParent) {
-      if (node.nodeType == XmlNodeType.ATTRIBUTE) {
-        node.parent.attributes.remove(node);
+  Iterable<E> _expandFragment(E fragment) {
+    return fragment.children.map((node) {
+      XmlNodeTypeError.checkValidType(node, _validNodeTypes);
+      return node.copy();
+    });
+  }
+
+  Iterable<E> _expandNodes(Iterable<E> nodes) {
+    var expanded = <E>[];
+    for (var node in nodes) {
+      XmlNodeTypeError.checkNotNull(node);
+      if (node.nodeType == XmlNodeType.DOCUMENT_FRAGMENT) {
+        expanded.addAll(_expandFragment(node));
       } else {
-        node.parent.children.remove(node);
+        XmlNodeTypeError.checkValidType(node, _validNodeTypes);
+        XmlParentError.checkNoParent(node);
+        expanded.add(node);
       }
     }
+    return expanded;
   }
 }

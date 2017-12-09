@@ -187,7 +187,7 @@ void assertCopyInvariants(XmlNode xml) {
       compare(original.children[i], copy.children[i]);
     }
   }
-  var copy = const XmlTransformer().visit(xml);
+  var copy = xml.copy();
   assertParentInvariants(xml);
   assertParentInvariants(copy);
   assertNameInvariants(xml);
@@ -329,11 +329,7 @@ void main() {
       expect(node.root, same(document));
       expect(node.document, same(document));
       expect(node.attributes, hasLength(1));
-      expect(() => node.attributes.add(new XmlAttribute(new XmlName('other'), 'value')), throwsUnsupportedError);
-      expect(() => node.attributes[0] = new XmlAttribute(new XmlName('other'), 'value'), throwsUnsupportedError);
       expect(node.children, hasLength(1));
-      expect(() => node.children.add(new XmlText('')), throwsUnsupportedError);
-      expect(() => node.children[0] = new XmlText(''), throwsUnsupportedError);
       expect(node.descendants, hasLength(2));
       expect(node.text, 'Am I or are the other crazy?');
       expect(node.nodeType, XmlNodeType.ELEMENT);
@@ -343,9 +339,9 @@ void main() {
     test('element (readopt name)', () {
       XmlDocument document = parse('<element attr="value1">text</element>');
       XmlElement node = document.rootElement;
-      expect(() => new XmlElement(node.name, [], []), throwsStateError);
-      expect(() => new XmlElement(new XmlName('data'), node.attributes, []), throwsStateError);
-      expect(() => new XmlElement(new XmlName('data'), [], node.children), throwsStateError);
+      expect(() => new XmlElement(node.name, [], []), throwsArgumentError);
+      expect(() => new XmlElement(new XmlName('data'), node.attributes, []), throwsArgumentError);
+      expect(() => new XmlElement(new XmlName('data'), [], node.children), throwsArgumentError);
     });
     test('attribute', () {
       XmlDocument document = parse('<data ns:attr="Am I or are the other crazy?" />');
@@ -408,7 +404,7 @@ void main() {
     test('attribute (readopt name)', () {
       XmlDocument document = parse('<data ns:attr=\'&lt;&gt;&amp;&apos;&quot;&#xA;&#xD;&#x9;\' />');
       XmlAttribute node = document.rootElement.attributes.single;
-      expect(() => new XmlAttribute(node.name, ''), throwsStateError);
+      expect(() => new XmlAttribute(node.name, ''), throwsArgumentError);
     });
     test('text', () {
       XmlDocument document = parse('<data>Am I or are the other crazy?</data>');
@@ -574,6 +570,38 @@ void main() {
         }
       }
     });
+  });
+  group('mutating', () {
+    XmlElement elementA, elementB;
+    setUp(() {
+      elementA = parse('<a><a0 /><a1 /><a2 /></a>').rootElement;
+      elementB = parse('<b><b0 /><b1 /><b2 /></b>').rootElement;
+    });
+    tearDown(() {
+      assertTreeInvariants(elementA);
+      assertTreeInvariants(elementB);
+    });
+//    test('element types', () {
+//      expect(() => elementA.children[0] = new XmlAttribute(new XmlName('foo'), 'bar'), throwsArgumentError);
+//    });
+//
+//    test('replace from different tree', () {
+//      elementA.children[1] = elementB.children[1];
+//      expect(elementA.toString(), '<a><a0 /><b1 /><a2 /></a>');
+//      expect(elementB.toString(), '<b><b0 /><b2 /></b>');
+//    });
+//    test('replace before', () {
+//      elementA.children[1] = elementA.children[1];
+//      expect(elementA.toString(), '<a><a0 /><b1 /><a2 /></a>');
+//    });
+//    test('replace identical', () {
+//      elementA.children[1] = elementA.children[1];
+//      expect(elementA.toString(), '<a><a0 /><b1 /><a2 /></a>');
+//    });
+//    test('replace after', () {
+//      elementA.children[1] = elementA.children[1];
+//      expect(elementA.toString(), '<a><a0 /><b1 /><a2 /></a>');
+//    });
   });
   group('entities', () {
     String decode(String input) => parse('<data>$input</data>').rootElement.text;
