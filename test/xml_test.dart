@@ -1073,7 +1073,13 @@ void main() {
       test('element (children)', () {
         XmlDocument document = parse('<element>Hello World</element>');
         XmlElement node = document.rootElement;
-        expect(() => node.attributes.removeAt(2), throwsRangeError);
+        node.children.removeAt(0);
+        expect(node.toXmlString(), '<element />');
+      });
+      test('element (children range error', () {
+        XmlDocument document = parse('<element>Hello World</element>');
+        XmlElement node = document.rootElement;
+        expect(() => node.children.removeAt(2), throwsRangeError);
       });
     });
     group('removeWhere', () {
@@ -1116,6 +1122,30 @@ void main() {
         XmlElement node = document.rootElement;
         node.children.clear();
         expect(node.toXmlString(), '<element1 />');
+      });
+    });
+    group('removeLast', () {
+      test('element (attributes)', () {
+        XmlDocument document = parse('<element attr1="value1" attr2="value2" />');
+        XmlElement node = document.rootElement;
+        node.attributes.removeLast();
+        expect(node.toXmlString(), '<element attr1="value1" />');
+      });
+      test('element (attributes range error)', () {
+        XmlDocument document = parse('<element />');
+        XmlElement node = document.rootElement;
+        expect(() => node.attributes.removeLast(), throwsRangeError);
+      });
+      test('element (children)', () {
+        XmlDocument document = parse('<element>Hello World</element>');
+        XmlElement node = document.rootElement;
+        node.children.removeLast();
+        expect(node.toXmlString(), '<element />');
+      });
+      test('element (children range error', () {
+        XmlDocument document = parse('<element />');
+        XmlElement node = document.rootElement;
+        expect(() => node.children.removeLast(), throwsRangeError);
       });
     });
   });
