@@ -915,6 +915,81 @@ void main() {
         expect(() => node.children.insertAll(0, [node.firstChild]), throwsA(isXmlParentError));
       });
     });
+    group('[]=', () {
+      test('element (attributes)', () {
+        XmlDocument document = parse('<element attr1="value1" />');
+        XmlElement node = document.rootElement;
+        node.attributes[0] = new XmlAttribute(new XmlName('attr2'), 'value2');
+        expect(node.toXmlString(), '<element attr2="value2" />');
+      });
+      test('element (children)', () {
+        XmlDocument document = parse('<element>Hello World</element>');
+        XmlElement node = document.rootElement;
+        node.children[0] = new XmlText('Dart rocks');
+        expect(node.toXmlString(), '<element>Dart rocks</element>');
+      });
+      test('element (attribute range error)', () {
+        XmlDocument document = parse('<element attr1="value1" />');
+        XmlElement node = document.rootElement;
+        expect(() => node.attributes[2] = new XmlAttribute(new XmlName('attr2'), 'value2'), throwsRangeError);
+      });
+      test('element (null attributes)', () {
+        XmlDocument document = parse('<element attr="value" />');
+        XmlElement node = document.rootElement;
+        expect(() => node.attributes[0] = null, throwsA(isXmlNodeTypeError));
+      });
+      test('element (cdata attributes)', () {
+        XmlDocument document = parse('<element attr="value" />');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlCDATA('invalid');
+        expect(() => node.attributes[0] = wrong, throwsA(isXmlNodeTypeError));
+      });
+      test('element (comment attributes)', () {
+        XmlDocument document = parse('<element attr="value" />');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlComment('invalid');
+        expect(() => node.attributes[0] = wrong, throwsA(isXmlNodeTypeError));
+      });
+      test('element (element attributes)', () {
+        XmlDocument document = parse('<element attr="value" />');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlElement(new XmlName('invalid'), [], []);
+        expect(() => node.attributes[0] = wrong, throwsA(isXmlNodeTypeError));
+      });
+      test('element (processing attributes)', () {
+        XmlDocument document = parse('<element attr="value" />');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlProcessing('invalid', 'invalid');
+        expect(() => node.attributes[0] = wrong, throwsA(isXmlNodeTypeError));
+      });
+      test('element (text attributes)', () {
+        XmlDocument document = parse('<element attr="value" />');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlText('invalid');
+        expect(() => node.attributes[0] = wrong, throwsA(isXmlNodeTypeError));
+      });
+      test('element (children range error)', () {
+        XmlDocument document = parse('<element>Hello</element>');
+        XmlElement node = document.rootElement;
+        expect(() => node.children[2] = new XmlText(' World'), throwsRangeError);
+      });
+      test('element (null children)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        expect(() => node.children[0] = null, throwsA(isXmlNodeTypeError));
+      });
+      test('element (attribute children)', () {
+        XmlDocument document = parse('<element1><element2 /></element1>');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlAttribute(new XmlName('invalid'), 'invalid');
+        expect(() => node.children[0] = wrong, throwsA(isXmlNodeTypeError));
+      });
+      test('element (parent error)', () {
+        XmlDocument document = parse('<element1><element2 /></element1>');
+        XmlElement node = document.rootElement;
+        expect(() => node.children[0] = node.firstChild, throwsA(isXmlParentError));
+      });
+    });
     group('remove', () {
       test('element (attributes)', () {
         XmlDocument document = parse('<element attr="value" />');
@@ -998,7 +1073,168 @@ void main() {
       test('element (children)', () {
         XmlDocument document = parse('<element>Hello World</element>');
         XmlElement node = document.rootElement;
-        expect(() => node.attributes.removeAt(2), throwsRangeError);
+        node.children.removeAt(0);
+        expect(node.toXmlString(), '<element />');
+      });
+      test('element (children range error', () {
+        XmlDocument document = parse('<element>Hello World</element>');
+        XmlElement node = document.rootElement;
+        expect(() => node.children.removeAt(2), throwsRangeError);
+      });
+    });
+    group('removeWhere', () {
+      test('element (attributes)', () {
+        XmlDocument document = parse('<element attr1="value1" attr2="value2" />');
+        XmlElement node = document.rootElement;
+        node.attributes.removeWhere((node) => node is XmlAttribute && node.name.local == 'attr2');
+        expect(node.toXmlString(), '<element attr1="value1" />');
+      });
+      test('element (children)', () {
+        XmlDocument document = parse('<element1><element2 /><element3 /></element1>');
+        XmlElement node = document.rootElement;
+        node.children.removeWhere((node) => node is XmlElement && node.name.local == 'element3');
+        expect(node.toXmlString(), '<element1><element2 /></element1>');
+      });
+    });
+    group('retainWhere', () {
+      test('element (attributes)', () {
+        XmlDocument document = parse('<element attr1="value1" attr2="value2" />');
+        XmlElement node = document.rootElement;
+        node.attributes.retainWhere((node) => node is XmlAttribute && node.name.local == 'attr1');
+        expect(node.toXmlString(), '<element attr1="value1" />');
+      });
+      test('element (children)', () {
+        XmlDocument document = parse('<element1><element2 /><element3 /></element1>');
+        XmlElement node = document.rootElement;
+        node.children.retainWhere((node) => node is XmlElement && node.name.local == 'element2');
+        expect(node.toXmlString(), '<element1><element2 /></element1>');
+      });
+    });
+    group('clear', () {
+      test('element (attributes)', () {
+        XmlDocument document = parse('<element attr1="value1" attr2="value2" />');
+        XmlElement node = document.rootElement;
+        node.attributes.clear();
+        expect(node.toXmlString(), '<element />');
+      });
+      test('element (children)', () {
+        XmlDocument document = parse('<element1><element2 /><element3 /></element1>');
+        XmlElement node = document.rootElement;
+        node.children.clear();
+        expect(node.toXmlString(), '<element1 />');
+      });
+    });
+    group('removeLast', () {
+      test('element (attributes)', () {
+        XmlDocument document = parse('<element attr1="value1" attr2="value2" />');
+        XmlElement node = document.rootElement;
+        node.attributes.removeLast();
+        expect(node.toXmlString(), '<element attr1="value1" />');
+      });
+      test('element (attributes range error)', () {
+        XmlDocument document = parse('<element />');
+        XmlElement node = document.rootElement;
+        expect(() => node.attributes.removeLast(), throwsRangeError);
+      });
+      test('element (children)', () {
+        XmlDocument document = parse('<element>Hello World</element>');
+        XmlElement node = document.rootElement;
+        node.children.removeLast();
+        expect(node.toXmlString(), '<element />');
+      });
+      test('element (children range error', () {
+        XmlDocument document = parse('<element />');
+        XmlElement node = document.rootElement;
+        expect(() => node.children.removeLast(), throwsRangeError);
+      });
+    });
+    group('removeRange', () {
+      test('element (attributes)', () {
+        XmlDocument document = parse('<element attr1="value1" attr2="value2" />');
+        XmlElement node = document.rootElement;
+        node.attributes.removeRange(0, 1);
+        expect(node.toXmlString(), '<element attr2="value2" />');
+      });
+      test('element (attributes range error)', () {
+        XmlDocument document = parse('<element attr1="value1" attr2="value2" />');
+        XmlElement node = document.rootElement;
+        expect(() => node.attributes.removeRange(0, 3), throwsRangeError);
+      });
+      test('element (children)', () {
+        XmlDocument document = parse('<element1><element2 /><element3 /></element1>');
+        XmlElement node = document.rootElement;
+        node.children.removeRange(1, 2);
+        expect(node.toXmlString(), '<element1><element2 /></element1>');
+      });
+      test('element (children range error', () {
+        XmlDocument document = parse('<element1><element2 /><element3 /></element1>');
+        XmlElement node = document.rootElement;
+        expect(() => node.children.removeRange(0, 3), throwsRangeError);
+      });
+    });
+    group('setRange', () {
+      test('element (attributes)', () {
+        XmlDocument document = parse('<element attr1="value1" attr2="value2" />');
+        XmlElement node = document.rootElement;
+        node.attributes.setRange(0, 1, [new XmlAttribute(new XmlName('attr3'), 'value3')]);
+        expect(node.toXmlString(), '<element attr3="value3" attr2="value2" />');
+      });
+      test('element (attributes range error)', () {
+        XmlDocument document = parse('<element attr1="value1" attr2="value2" />');
+        XmlElement node = document.rootElement;
+        expect(() => node.attributes.setRange(0, 3, [null, null, null]), throwsRangeError);
+      });
+      test('element (children)', () {
+        XmlDocument document = parse('<element1><element2 /><element3 /></element1>');
+        XmlElement node = document.rootElement;
+        node.children.setRange(1, 2, [new XmlElement(new XmlName('element4'), [], [])]);
+        expect(node.toXmlString(), '<element1><element2 /><element4 /></element1>');
+      });
+      test('element (children range error', () {
+        XmlDocument document = parse('<element1><element2 /><element3 /></element1>');
+        XmlElement node = document.rootElement;
+        expect(() => node.children.setRange(0, 3, [null, null, null]), throwsRangeError);
+      });
+    });
+    group('replaceRange', () {
+      test('element (attributes)', () {
+        XmlDocument document = parse('<element attr1="value1" attr2="value2" />');
+        XmlElement node = document.rootElement;
+        node.attributes.replaceRange(0, 1, [new XmlAttribute(new XmlName('attr3'), 'value3')]);
+        expect(node.toXmlString(), '<element attr3="value3" attr2="value2" />');
+      });
+      test('element (attributes range error)', () {
+        XmlDocument document = parse('<element attr1="value1" attr2="value2" />');
+        XmlElement node = document.rootElement;
+        expect(() => node.attributes.replaceRange(0, 3, [null, null, null]), throwsRangeError);
+      });
+      test('element (children)', () {
+        XmlDocument document = parse('<element1><element2 /><element3 /></element1>');
+        XmlElement node = document.rootElement;
+        node.children.replaceRange(1, 2, [new XmlElement(new XmlName('element4'), [], [])]);
+        expect(node.toXmlString(), '<element1><element2 /><element4 /></element1>');
+      });
+      test('element (children range error', () {
+        XmlDocument document = parse('<element1><element2 /><element3 /></element1>');
+        XmlElement node = document.rootElement;
+        expect(() => node.children.replaceRange(0, 3, [null, null, null]), throwsRangeError);
+      });
+    });
+    group('unsupported method', () {
+      test('fillRange', () {
+        XmlDocument document = parse('<element />');
+        XmlElement node = document.rootElement;
+        expect(() => node.children.fillRange(0, 1), throwsUnsupportedError);
+      });
+      test('setAll', () {
+        XmlDocument document = parse('<element />');
+        XmlElement node = document.rootElement;
+        expect(() => node.children.setAll(0, []), throwsUnsupportedError);
+      });
+      test('length', () {
+        XmlDocument document = parse('<element />');
+        XmlElement node = document.rootElement;
+        expect(() => node.children.length = 2, throwsUnsupportedError);
       });
     });
   });
