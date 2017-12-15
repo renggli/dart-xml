@@ -2,8 +2,23 @@ library xml.test.xml_test;
 
 import 'package:test/test.dart';
 import 'package:xml/xml.dart';
+import 'package:xml/xml/utils/errors.dart';
 
 import 'xml_examples.dart';
+
+const Matcher isXmlNodeTypeError = const _XmlNodeTypeError();
+class _XmlNodeTypeError extends TypeMatcher {
+  const _XmlNodeTypeError() : super("XmlNodeTypeError");
+  @override
+  bool matches(item, Map matchState) => item is XmlNodeTypeError;
+}
+
+const Matcher isXmlParentError = const _XmlParentError();
+class _XmlParentError extends TypeMatcher {
+  const _XmlParentError() : super("XmlParentError");
+  @override
+  bool matches(item, Map matchState) => item is XmlParentError;
+}
 
 void assetParseInvariants(String input) {
   var tree = parse(input);
@@ -572,17 +587,419 @@ void main() {
     });
   });
   group('mutating', () {
-    test('element (attributes)', () {
-      XmlDocument document = parse('<element />');
-      XmlElement node = document.rootElement;
-      node.attributes.add(new XmlAttribute(new XmlName('attr'), 'value'));
-      expect(node.toXmlString(), '<element attr="value" />');
+    group('add', () {
+      test('element (attributes)', () {
+        XmlDocument document = parse('<element />');
+        XmlElement node = document.rootElement;
+        node.attributes.add(new XmlAttribute(new XmlName('attr'), 'value'));
+        expect(node.toXmlString(), '<element attr="value" />');
+      });
+      test('element (children)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        node.children.add(new XmlText('Hello World'));
+        expect(node.toXmlString(), '<element>Hello World</element>');
+      });
+      test('element (copy attribute)', () {
+        XmlDocument document = parse('<element1 attr="value"><element2 /></element1>');
+        XmlElement node = document.rootElement;
+        node.children.first.attributes.add(node.attributes.first.copy());
+        expect(node.toXmlString(), '<element1 attr="value"><element2 attr="value" /></element1>');
+      });
+      test('element (copy children)', () {
+        XmlDocument document = parse('<element1><element2 /></element1>');
+        XmlElement node = document.rootElement;
+        node.children.add(node.children.first.copy());
+        expect(node.toXmlString(), '<element1><element2 /><element2 /></element1>');
+      });
+      test('element (null attributes)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        expect(() => node.attributes.add(null), throwsA(isXmlNodeTypeError));
+      });
+      test('element (cdata attributes)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlCDATA('invalid');
+        expect(() => node.attributes.add(wrong), throwsA(isXmlNodeTypeError));
+      });
+      test('element (comment attributes)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlComment('invalid');
+        expect(() => node.attributes.add(wrong), throwsA(isXmlNodeTypeError));
+      });
+      test('element (element attributes)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlElement(new XmlName('invalid'), [], []);
+        expect(() => node.attributes.add(wrong), throwsA(isXmlNodeTypeError));
+      });
+      test('element (processing attributes)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlProcessing('invalid', 'invalid');
+        expect(() => node.attributes.add(wrong), throwsA(isXmlNodeTypeError));
+      });
+      test('element (text attributes)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlText('invalid');
+        expect(() => node.attributes.add(wrong), throwsA(isXmlNodeTypeError));
+      });
+      test('element (null children)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        expect(() => node.children.add(null), throwsA(isXmlNodeTypeError));
+      });
+      test('element (attribute children)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlAttribute(new XmlName('invalid'), 'invalid');
+        expect(() => node.children.add(wrong), throwsA(isXmlNodeTypeError));
+      });
+      test('element (parent error)', () {
+        XmlDocument document = parse('<element1><element2 /></element1>');
+        XmlElement node = document.rootElement;
+        expect(() => node.children.add(node.firstChild), throwsA(isXmlParentError));
+      });
     });
-    test('element (children)', () {
-      XmlDocument document = parse('<element></element>');
-      XmlElement node = document.rootElement;
-      node.children.add(new XmlText('Hello World'));
-      expect(node.toXmlString(), '<element>Hello World</element>');
+    group('addAll', () {
+      test('element (attributes)', () {
+        XmlDocument document = parse('<element />');
+        XmlElement node = document.rootElement;
+        node.attributes.addAll([new XmlAttribute(new XmlName('attr'), 'value')]);
+        expect(node.toXmlString(), '<element attr="value" />');
+      });
+      test('element (children)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        node.children.addAll([new XmlText('Hello World')]);
+        expect(node.toXmlString(), '<element>Hello World</element>');
+      });
+      test('element (copy attribute)', () {
+        XmlDocument document = parse('<element1 attr="value"><element2 /></element1>');
+        XmlElement node = document.rootElement;
+        node.children.first.attributes.addAll([node.attributes.first.copy()]);
+        expect(node.toXmlString(), '<element1 attr="value"><element2 attr="value" /></element1>');
+      });
+      test('element (copy children)', () {
+        XmlDocument document = parse('<element1><element2 /></element1>');
+        XmlElement node = document.rootElement;
+        node.children.addAll([node.children.first.copy()]);
+        expect(node.toXmlString(), '<element1><element2 /><element2 /></element1>');
+      });
+      test('element (null attributes)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        expect(() => node.attributes.addAll([null]), throwsA(isXmlNodeTypeError));
+      });
+      test('element (cdata attributes)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlCDATA('invalid');
+        expect(() => node.attributes.addAll([wrong]), throwsA(isXmlNodeTypeError));
+      });
+      test('element (comment attributes)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlComment('invalid');
+        expect(() => node.attributes.addAll([wrong]), throwsA(isXmlNodeTypeError));
+      });
+      test('element (element attributes)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlElement(new XmlName('invalid'), [], []);
+        expect(() => node.attributes.addAll([wrong]), throwsA(isXmlNodeTypeError));
+      });
+      test('element (processing attributes)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlProcessing('invalid', 'invalid');
+        expect(() => node.attributes.addAll([wrong]), throwsA(isXmlNodeTypeError));
+      });
+      test('element (text attributes)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlText('invalid');
+        expect(() => node.attributes.addAll([wrong]), throwsA(isXmlNodeTypeError));
+      });
+      test('element (null children)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        expect(() => node.children.addAll([null]), throwsA(isXmlNodeTypeError));
+      });
+      test('element (attribute children)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlAttribute(new XmlName('invalid'), 'invalid');
+        expect(() => node.children.addAll([wrong]), throwsA(isXmlNodeTypeError));
+      });
+      test('element (parent error)', () {
+        XmlDocument document = parse('<element1><element2 /></element1>');
+        XmlElement node = document.rootElement;
+        expect(() => node.children.addAll([node.firstChild]), throwsA(isXmlParentError));
+      });
+    });
+    group('insert', () {
+      test('element (attributes)', () {
+        XmlDocument document = parse('<element attr1="value1" />');
+        XmlElement node = document.rootElement;
+        node.attributes.insert(1, new XmlAttribute(new XmlName('attr2'), 'value2'));
+        expect(node.toXmlString(), '<element attr1="value1" attr2="value2" />');
+      });
+      test('element (children)', () {
+        XmlDocument document = parse('<element>Hello</element>');
+        XmlElement node = document.rootElement;
+        node.children.insert(1, new XmlText(' World'));
+        expect(node.toXmlString(), '<element>Hello World</element>');
+      });
+      test('element (copy attribute)', () {
+        XmlDocument document = parse('<element1 attr1="value1"><element2 attr2="value2"/></element1>');
+        XmlElement node = document.rootElement;
+        node.children.first.attributes.insert(1, node.attributes.first.copy());
+        expect(node.toXmlString(), '<element1 attr1="value1"><element2 attr2="value2" attr1="value1" /></element1>');
+      });
+      test('element (copy children)', () {
+        XmlDocument document = parse('<element1><element2 /></element1>');
+        XmlElement node = document.rootElement;
+        node.children.insert(1, node.children.first.copy());
+        expect(node.toXmlString(), '<element1><element2 /><element2 /></element1>');
+      });
+      test('element (attribute range error)', () {
+        XmlDocument document = parse('<element attr1="value1" />');
+        XmlElement node = document.rootElement;
+        expect(() => node.attributes.insert(2, new XmlAttribute(new XmlName('attr2'), 'value2')), throwsRangeError);
+      });
+      test('element (null attributes)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        expect(() => node.attributes.insert(0, null), throwsA(isXmlNodeTypeError));
+      });
+      test('element (cdata attributes)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlCDATA('invalid');
+        expect(() => node.attributes.insert(0, wrong), throwsA(isXmlNodeTypeError));
+      });
+      test('element (comment attributes)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlComment('invalid');
+        expect(() => node.attributes.insert(0, wrong), throwsA(isXmlNodeTypeError));
+      });
+      test('element (element attributes)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlElement(new XmlName('invalid'), [], []);
+        expect(() => node.attributes.insert(0, wrong), throwsA(isXmlNodeTypeError));
+      });
+      test('element (processing attributes)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlProcessing('invalid', 'invalid');
+        expect(() => node.attributes.insert(0, wrong), throwsA(isXmlNodeTypeError));
+      });
+      test('element (text attributes)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlText('invalid');
+        expect(() => node.attributes.insert(0, wrong), throwsA(isXmlNodeTypeError));
+      });
+      test('element (children range error)', () {
+        XmlDocument document = parse('<element>Hello</element>');
+        XmlElement node = document.rootElement;
+        expect(() => node.children.insert(2, new XmlText(' World')), throwsRangeError);
+      });
+      test('element (null children)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        expect(() => node.children.insert(0, null), throwsA(isXmlNodeTypeError));
+      });
+      test('element (attribute children)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlAttribute(new XmlName('invalid'), 'invalid');
+        expect(() => node.children.insert(0, wrong), throwsA(isXmlNodeTypeError));
+      });
+      test('element (parent error)', () {
+        XmlDocument document = parse('<element1><element2 /></element1>');
+        XmlElement node = document.rootElement;
+        expect(() => node.children.insert(0, node.firstChild), throwsA(isXmlParentError));
+      });
+    });
+    group('insertAll', () {
+      test('element (attributes)', () {
+        XmlDocument document = parse('<element attr1="value1" />');
+        XmlElement node = document.rootElement;
+        node.attributes.insertAll(1, [new XmlAttribute(new XmlName('attr2'), 'value2')]);
+        expect(node.toXmlString(), '<element attr1="value1" attr2="value2" />');
+      });
+      test('element (children)', () {
+        XmlDocument document = parse('<element>Hello</element>');
+        XmlElement node = document.rootElement;
+        node.children.insertAll(1, [new XmlText(' World')]);
+        expect(node.toXmlString(), '<element>Hello World</element>');
+      });
+      test('element (copy attribute)', () {
+        XmlDocument document = parse('<element1 attr1="value1"><element2 attr2="value2"/></element1>');
+        XmlElement node = document.rootElement;
+        node.children.first.attributes.insertAll(1, [node.attributes.first.copy()]);
+        expect(node.toXmlString(), '<element1 attr1="value1"><element2 attr2="value2" attr1="value1" /></element1>');
+      });
+      test('element (copy children)', () {
+        XmlDocument document = parse('<element1><element2 /></element1>');
+        XmlElement node = document.rootElement;
+        node.children.insertAll(1, [node.children.first.copy()]);
+        expect(node.toXmlString(), '<element1><element2 /><element2 /></element1>');
+      });
+      test('element (attribute range error)', () {
+        XmlDocument document = parse('<element attr1="value1" />');
+        XmlElement node = document.rootElement;
+        expect(() => node.attributes.insertAll(2, [new XmlAttribute(new XmlName('attr2'), 'value2')]), throwsRangeError);
+      });
+      test('element (null attributes)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        expect(() => node.attributes.insertAll(0, [null]), throwsA(isXmlNodeTypeError));
+      });
+      test('element (cdata attributes)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlCDATA('invalid');
+        expect(() => node.attributes.insertAll(0, [wrong]), throwsA(isXmlNodeTypeError));
+      });
+      test('element (comment attributes)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlComment('invalid');
+        expect(() => node.attributes.insertAll(0, [wrong]), throwsA(isXmlNodeTypeError));
+      });
+      test('element (element attributes)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlElement(new XmlName('invalid'), [], []);
+        expect(() => node.attributes.insertAll(0, [wrong]), throwsA(isXmlNodeTypeError));
+      });
+      test('element (processing attributes)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlProcessing('invalid', 'invalid');
+        expect(() => node.attributes.insertAll(0, [wrong]), throwsA(isXmlNodeTypeError));
+      });
+      test('element (text attributes)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlText('invalid');
+        expect(() => node.attributes.insertAll(0, [wrong]), throwsA(isXmlNodeTypeError));
+      });
+      test('element (children range error)', () {
+        XmlDocument document = parse('<element>Hello</element>');
+        XmlElement node = document.rootElement;
+        expect(() => node.children.insertAll(2, [new XmlText(' World')]), throwsRangeError);
+      });
+      test('element (null children)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        expect(() => node.children.insertAll(0, [null]), throwsA(isXmlNodeTypeError));
+      });
+      test('element (attribute children)', () {
+        XmlDocument document = parse('<element></element>');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlAttribute(new XmlName('invalid'), 'invalid');
+        expect(() => node.children.insertAll(0, [wrong]), throwsA(isXmlNodeTypeError));
+      });
+      test('element (parent error)', () {
+        XmlDocument document = parse('<element1><element2 /></element1>');
+        XmlElement node = document.rootElement;
+        expect(() => node.children.insertAll(0, [node.firstChild]), throwsA(isXmlParentError));
+      });
+    });
+    group('remove', () {
+      test('element (attributes)', () {
+        XmlDocument document = parse('<element attr="value" />');
+        XmlElement node = document.rootElement;
+        node.attributes.remove(node.attributes.first);
+        expect(node.toXmlString(), '<element />');
+      });
+      test('element (children)', () {
+        XmlDocument document = parse('<element>Hello World</element>');
+        XmlElement node = document.rootElement;
+        node.children.remove(node.children.first);
+        expect(node.toXmlString(), '<element />');
+      });
+      test('element (null attributes)', () {
+        XmlDocument document = parse('<element attr="value" />');
+        XmlElement node = document.rootElement;
+        node.attributes.remove(null);
+        expect(node.toXmlString(), '<element attr="value" />');
+      });
+      test('element (cdata attributes)', () {
+        XmlDocument document = parse('<element attr="value" />');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlCDATA('invalid');
+        node.attributes.remove(wrong);
+        expect(node.toXmlString(), '<element attr="value" />');
+      });
+      test('element (comment attributes)', () {
+        XmlDocument document = parse('<element attr="value" />');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlComment('invalid');
+        node.attributes.remove(wrong);
+        expect(node.toXmlString(), '<element attr="value" />');
+      });
+      test('element (element attributes)', () {
+        XmlDocument document = parse('<element attr="value" />');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlElement(new XmlName('invalid'), [], []);
+        node.attributes.remove(wrong);
+        expect(node.toXmlString(), '<element attr="value" />');
+      });
+      test('element (processing attributes)', () {
+        XmlDocument document = parse('<element attr="value" />');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlProcessing('invalid', 'invalid');
+        node.attributes.remove(wrong);
+        expect(node.toXmlString(), '<element attr="value" />');
+      });
+      test('element (text attributes)', () {
+        XmlDocument document = parse('<element attr="value" />');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlText('invalid');
+        node.attributes.remove(wrong);
+        expect(node.toXmlString(), '<element attr="value" />');
+      });
+      test('element (null children)', () {
+        XmlDocument document = parse('<element>Hello World</element>');
+        XmlElement node = document.rootElement;
+        node.children.remove(null);
+        expect(node.toXmlString(), '<element>Hello World</element>');
+      });
+      test('element (attribute children)', () {
+        XmlDocument document = parse('<element>Hello World</element>');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlAttribute(new XmlName('invalid'), 'invalid');
+        node.children.remove(wrong);
+        expect(node.toXmlString(), '<element>Hello World</element>');
+      });
+    });
+    group('removeAt', () {
+      test('element (attributes)', () {
+        XmlDocument document = parse('<element attr1="value1" attr2="value2" />');
+        XmlElement node = document.rootElement;
+        node.attributes.removeAt(1);
+        expect(node.toXmlString(), '<element attr1="value1" />');
+      });
+      test('element (attributes range error)', () {
+        XmlDocument document = parse('<element attr1="value1" attr2="value2" />');
+        XmlElement node = document.rootElement;
+        expect(() => node.attributes.removeAt(2), throwsRangeError);
+      });
+      test('element (children)', () {
+        XmlDocument document = parse('<element>Hello World</element>');
+        XmlElement node = document.rootElement;
+        expect(() => node.attributes.removeAt(2), throwsRangeError);
+      });
     });
   });
   group('entities', () {
