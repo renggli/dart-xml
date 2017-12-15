@@ -144,6 +144,9 @@ void assertTextInvariants(XmlNode xml) {
       expect(node.text, (text) => text is String,
           reason: 'All nodes are supposed to return text strings.');
     }
+    if (node is XmlText) {
+      expect(node.text, isNotEmpty, reason:  'Text nodes are not suppoed to be empty.');
+    }
     if (node is XmlParent) {
       var previousType;
       var nodeTypes = node.children
@@ -594,6 +597,7 @@ void main() {
       test(description, () {
         var document = parse(before);
         action(document.rootElement);
+        document.normalize();
         expect(after, document.toXmlString(), reason: 'should have been modified');
         assertTreeInvariants(document);
       });
