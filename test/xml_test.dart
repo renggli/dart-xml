@@ -1148,6 +1148,30 @@ void main() {
         expect(() => node.children.removeLast(), throwsRangeError);
       });
     });
+    group('removeRange', () {
+      test('element (attributes)', () {
+        XmlDocument document = parse('<element attr1="value1" attr2="value2" />');
+        XmlElement node = document.rootElement;
+        node.attributes.removeRange(0, 1);
+        expect(node.toXmlString(), '<element attr2="value2" />');
+      });
+      test('element (attributes range error)', () {
+        XmlDocument document = parse('<element attr1="value1" attr2="value2" />');
+        XmlElement node = document.rootElement;
+        expect(() => node.attributes.removeRange(0, 3), throwsRangeError);
+      });
+      test('element (children)', () {
+        XmlDocument document = parse('<element1><element2 /><element3 /></element1>');
+        XmlElement node = document.rootElement;
+        node.children.removeRange(1, 2);
+        expect(node.toXmlString(), '<element1><element2 /></element1>');
+      });
+      test('element (children range error', () {
+        XmlDocument document = parse('<element1><element2 /><element3 /></element1>');
+        XmlElement node = document.rootElement;
+        expect(() => node.children.removeRange(0, 3), throwsRangeError);
+      });
+    });
   });
   group('entities', () {
     String decode(String input) => parse('<data>$input</data>').rootElement.text;
