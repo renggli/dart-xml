@@ -655,8 +655,8 @@ void main() {
       test('element (attribute children)', () {
         XmlDocument document = parse('<element></element>');
         XmlElement node = document.rootElement;
-        expect(() => node.children.add(new XmlAttribute(new XmlName('invalid'), 'invalid')),
-            throwsA(isXmlNodeTypeError));
+        XmlNode wrong = new XmlAttribute(new XmlName('invalid'), 'invalid');
+        expect(() => node.children.add(wrong), throwsA(isXmlNodeTypeError));
       });
       test('element (parent error)', () {
         XmlDocument document = parse('<element1><element2 /></element1>');
@@ -732,13 +732,81 @@ void main() {
       test('element (attribute children)', () {
         XmlDocument document = parse('<element></element>');
         XmlElement node = document.rootElement;
-        expect(() => node.children.addAll([new XmlAttribute(new XmlName('invalid'), 'invalid')]),
-            throwsA(isXmlNodeTypeError));
+        XmlNode wrong = new XmlAttribute(new XmlName('invalid'), 'invalid');
+        expect(() => node.children.addAll([wrong]), throwsA(isXmlNodeTypeError));
       });
       test('element (parent error)', () {
         XmlDocument document = parse('<element1><element2 /></element1>');
         XmlElement node = document.rootElement;
         expect(() => node.children.addAll([node.firstChild]), throwsA(isXmlParentError));
+      });
+    });
+    group('remove', () {
+      test('element (attributes)', () {
+        XmlDocument document = parse('<element attr="value" />');
+        XmlElement node = document.rootElement;
+        node.attributes.remove(node.attributes.first);
+        expect(node.toXmlString(), '<element />');
+      });
+      test('element (children)', () {
+        XmlDocument document = parse('<element>Hello World</element>');
+        XmlElement node = document.rootElement;
+        node.children.remove(node.children.first);
+        expect(node.toXmlString(), '<element />');
+      });
+      test('element (null attributes)', () {
+        XmlDocument document = parse('<element attr="value" />');
+        XmlElement node = document.rootElement;
+        node.attributes.remove(null);
+        expect(node.toXmlString(), '<element attr="value" />');
+      });
+      test('element (cdata attributes)', () {
+        XmlDocument document = parse('<element attr="value" />');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlCDATA('invalid');
+        node.attributes.remove(wrong);
+        expect(node.toXmlString(), '<element attr="value" />');
+      });
+      test('element (comment attributes)', () {
+        XmlDocument document = parse('<element attr="value" />');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlComment('invalid');
+        node.attributes.remove(wrong);
+        expect(node.toXmlString(), '<element attr="value" />');
+      });
+      test('element (element attributes)', () {
+        XmlDocument document = parse('<element attr="value" />');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlElement(new XmlName('invalid'), [], []);
+        node.attributes.remove(wrong);
+        expect(node.toXmlString(), '<element attr="value" />');
+      });
+      test('element (processing attributes)', () {
+        XmlDocument document = parse('<element attr="value" />');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlProcessing('invalid', 'invalid');
+        node.attributes.remove(wrong);
+        expect(node.toXmlString(), '<element attr="value" />');
+      });
+      test('element (text attributes)', () {
+        XmlDocument document = parse('<element attr="value" />');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlText('invalid');
+        node.attributes.remove(wrong);
+        expect(node.toXmlString(), '<element attr="value" />');
+      });
+      test('element (null children)', () {
+        XmlDocument document = parse('<element>Hello World</element>');
+        XmlElement node = document.rootElement;
+        node.children.remove(null);
+        expect(node.toXmlString(), '<element>Hello World</element>');
+      });
+      test('element (attribute children)', () {
+        XmlDocument document = parse('<element>Hello World</element>');
+        XmlElement node = document.rootElement;
+        XmlNode wrong = new XmlAttribute(new XmlName('invalid'), 'invalid');
+        node.children.remove(wrong);
+        expect(node.toXmlString(), '<element>Hello World</element>');
       });
     });
   });
