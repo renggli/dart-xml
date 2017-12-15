@@ -983,6 +983,24 @@ void main() {
         expect(node.toXmlString(), '<element>Hello World</element>');
       });
     });
+    group('removeAt', () {
+      test('element (attributes)', () {
+        XmlDocument document = parse('<element attr1="value1" attr2="value2" />');
+        XmlElement node = document.rootElement;
+        node.attributes.removeAt(1);
+        expect(node.toXmlString(), '<element attr1="value1" />');
+      });
+      test('element (attributes range error)', () {
+        XmlDocument document = parse('<element attr1="value1" attr2="value2" />');
+        XmlElement node = document.rootElement;
+        expect(() => node.attributes.removeAt(2), throwsRangeError);
+      });
+      test('element (children)', () {
+        XmlDocument document = parse('<element>Hello World</element>');
+        XmlElement node = document.rootElement;
+        expect(() => node.attributes.removeAt(2), throwsRangeError);
+      });
+    });
   });
   group('entities', () {
     String decode(String input) => parse('<data>$input</data>').rootElement.text;
