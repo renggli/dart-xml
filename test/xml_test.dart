@@ -2,8 +2,23 @@ library xml.test.xml_test;
 
 import 'package:test/test.dart';
 import 'package:xml/xml.dart';
+import 'package:xml/xml/utils/errors.dart';
 
 import 'xml_examples.dart';
+
+const Matcher isXmlNodeTypeError = const _XmlNodeTypeError();
+class _XmlNodeTypeError extends TypeMatcher {
+  const _XmlNodeTypeError() : super("XmlNodeTypeError");
+  @override
+  bool matches(item, Map matchState) => item is XmlNodeTypeError;
+}
+
+const Matcher isXmlParentError = const _XmlParentError();
+class _XmlParentError extends TypeMatcher {
+  const _XmlParentError() : super("XmlParentError");
+  @override
+  bool matches(item, Map matchState) => item is XmlParentError;
+}
 
 void assetParseInvariants(String input) {
   var tree = parse(input);
@@ -583,6 +598,68 @@ void main() {
       XmlElement node = document.rootElement;
       node.children.add(new XmlText('Hello World'));
       expect(node.toXmlString(), '<element>Hello World</element>');
+    });
+    test('element (copy attribute)', () {
+      XmlDocument document = parse('<element1 attr="value"><element2 /></element1>');
+      XmlElement node = document.rootElement;
+      node.children.first.attributes.add(node.attributes.first.copy());
+      expect(node.toXmlString(), '<element1 attr="value"><element2 attr="value" /></element1>');
+    });
+    test('element (copy children)', () {
+      XmlDocument document = parse('<element1><element2 /></element1>');
+      XmlElement node = document.rootElement;
+      node.children.add(node.children.first.copy());
+      expect(node.toXmlString(), '<element1><element2 /><element2 /></element1>');
+    });
+    test('element (null attributes)', () {
+      XmlDocument document = parse('<element></element>');
+      XmlElement node = document.rootElement;
+      expect(() => node.attributes.add(null), throwsA(isXmlNodeTypeError));
+    });
+    test('element (cdata attributes)', () {
+      XmlDocument document = parse('<element></element>');
+      XmlElement node = document.rootElement;
+      XmlNode wrong = new XmlCDATA('invalid');
+      expect(() => node.attributes.add(wrong), throwsA(isXmlNodeTypeError));
+    });
+    test('element (comment attributes)', () {
+      XmlDocument document = parse('<element></element>');
+      XmlElement node = document.rootElement;
+      XmlNode wrong = new XmlComment('invalid');
+      expect(() => node.attributes.add(wrong), throwsA(isXmlNodeTypeError));
+    });
+    test('element (element attributes)', () {
+      XmlDocument document = parse('<element></element>');
+      XmlElement node = document.rootElement;
+      XmlNode wrong = new XmlElement(new XmlName('invalid'), [], []);
+      expect(() => node.attributes.add(wrong), throwsA(isXmlNodeTypeError));
+    });
+    test('element (processing attributes)', () {
+      XmlDocument document = parse('<element></element>');
+      XmlElement node = document.rootElement;
+      XmlNode wrong = new XmlProcessing('invalid', 'invalid');
+      expect(() => node.attributes.add(wrong), throwsA(isXmlNodeTypeError));
+    });
+    test('element (text attributes)', () {
+      XmlDocument document = parse('<element></element>');
+      XmlElement node = document.rootElement;
+      XmlNode wrong = new XmlText('invalid');
+      expect(() => node.attributes.add(wrong), throwsA(isXmlNodeTypeError));
+    });
+    test('element (null children)', () {
+      XmlDocument document = parse('<element></element>');
+      XmlElement node = document.rootElement;
+      expect(() => node.children.add(null), throwsA(isXmlNodeTypeError));
+    });
+    test('element (attribute children)', () {
+      XmlDocument document = parse('<element></element>');
+      XmlElement node = document.rootElement;
+      expect(() => node.children.add(new XmlAttribute(new XmlName('invalid'), 'invalid')), throwsA(isXmlNodeTypeError));
+    });
+    test('element (parent error)', () {
+      XmlDocument document = parse('<element1><element2 /></element1>');
+      XmlElement node = document.rootElement;
+      expect(() => node.children.add(node.firstChild), throwsA(isXmlParentError));
     });
   });
   group('entities', () {
