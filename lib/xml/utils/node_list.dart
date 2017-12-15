@@ -16,6 +16,7 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
 
   @override
   void operator []=(int index, E node) {
+    XmlNodeTypeError.checkNotNull(node);
     RangeError.checkValidIndex(index, this);
     XmlNodeTypeError.checkValidType(node, _validNodeTypes);
     XmlParentError.checkNoParent(node);
