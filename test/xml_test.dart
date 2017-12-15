@@ -1104,6 +1104,20 @@ void main() {
         expect(node.toXmlString(), '<element1><element2 /></element1>');
       });
     });
+    group('clear', () {
+      test('element (attributes)', () {
+        XmlDocument document = parse('<element attr1="value1" attr2="value2" />');
+        XmlElement node = document.rootElement;
+        node.attributes.clear();
+        expect(node.toXmlString(), '<element />');
+      });
+      test('element (children)', () {
+        XmlDocument document = parse('<element1><element2 /><element3 /></element1>');
+        XmlElement node = document.rootElement;
+        node.children.clear();
+        expect(node.toXmlString(), '<element1 />');
+      });
+    });
   });
   group('entities', () {
     String decode(String input) => parse('<data>$input</data>').rootElement.text;
