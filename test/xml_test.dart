@@ -1076,6 +1076,34 @@ void main() {
         expect(() => node.attributes.removeAt(2), throwsRangeError);
       });
     });
+    group('removeWhere', () {
+      test('element (attributes)', () {
+        XmlDocument document = parse('<element attr1="value1" attr2="value2" />');
+        XmlElement node = document.rootElement;
+        node.attributes.removeWhere((node) => node is XmlAttribute && node.name.local == 'attr2');
+        expect(node.toXmlString(), '<element attr1="value1" />');
+      });
+      test('element (children)', () {
+        XmlDocument document = parse('<element1><element2 /><element3 /></element1>');
+        XmlElement node = document.rootElement;
+        node.children.removeWhere((node) => node is XmlElement && node.name.local == 'element3');
+        expect(node.toXmlString(), '<element1><element2 /></element1>');
+      });
+    });
+    group('retainWhere', () {
+      test('element (attributes)', () {
+        XmlDocument document = parse('<element attr1="value1" attr2="value2" />');
+        XmlElement node = document.rootElement;
+        node.attributes.retainWhere((node) => node is XmlAttribute && node.name.local == 'attr1');
+        expect(node.toXmlString(), '<element attr1="value1" />');
+      });
+      test('element (children)', () {
+        XmlDocument document = parse('<element1><element2 /><element3 /></element1>');
+        XmlElement node = document.rootElement;
+        node.children.retainWhere((node) => node is XmlElement && node.name.local == 'element2');
+        expect(node.toXmlString(), '<element1><element2 /></element1>');
+      });
+    });
   });
   group('entities', () {
     String decode(String input) => parse('<data>$input</data>').rootElement.text;
