@@ -55,7 +55,7 @@ To write back the parsed XML document simply call `toString()`, if you need more
 
 ```dart
 print(document.toString());
-print(document.toXmlString(petty: true, indent: '\t'));
+print(document.toXmlString(pretty: true, indent: '\t'));
 ```
 
 ### Traversing and Querying
@@ -65,7 +65,7 @@ Accessors allow to access nodes in the XML tree:
 - `attributes` returns a list over the attributes of the current node.
 - `children` returns a list over the children of the current node.
 
-Both lists are mutable and support all common `List` methods, such as `add(XmlNode)`, `addAll(Iterable<XmlNode>)`, `insert(int, XmlNode)`, and `insertAll(int, Iterable<XmlNode>)`. Trying to add a `null` value or an unsupported node type throws an `XmlNodeTypeError` error. Nodes that are already part of a tree _are not_ automatically moved, you need to first create a cope as otherwise an `XmlParentError` is thrown. `XmlDocumentFragment` nodes are automatically expanded and copies of their children are added.
+Both lists are mutable and support all common `List` methods, such as `add(XmlNode)`, `addAll(Iterable<XmlNode>)`, `insert(int, XmlNode)`, and `insertAll(int, Iterable<XmlNode>)`. Trying to add a `null` value or an unsupported node type throws an `XmlNodeTypeError` error. Nodes that are already part of a tree _are not_ automatically moved, you need to first create a copy as otherwise an `XmlParentError` is thrown. `XmlDocumentFragment` nodes are automatically expanded and copies of their children are added.
 
 There are various methods to traverse the XML tree along its axes:
 
