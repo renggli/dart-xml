@@ -25,32 +25,32 @@ abstract class XmlVisitor<E> {
   Iterable<E> visitAll(Iterable<XmlVisitable> visitables) => visitables.map(visit);
 
   /// Visit an [XmlName].
-  E visitName(XmlName name) {}
+  E visitName(XmlName name) => null;
 
   /// Visit an [XmlAttribute] node.
-  E visitAttribute(XmlAttribute node) {}
+  E visitAttribute(XmlAttribute node) => null;
 
   /// Visit an [XmlDocument] node.
-  E visitDocument(XmlDocument node) {}
+  E visitDocument(XmlDocument node) => null;
 
   /// Visit an [XmlDocumentFragment] node.
-  E visitDocumentFragment(XmlDocumentFragment node) {}
+  E visitDocumentFragment(XmlDocumentFragment node) => null;
 
   /// Visit an [XmlElement] node.
-  E visitElement(XmlElement node) {}
+  E visitElement(XmlElement node) => null;
 
   /// Visit an [XmlCDATA] node.
-  E visitCDATA(XmlCDATA node) {}
+  E visitCDATA(XmlCDATA node) => null;
 
   /// Visit an [XmlComment] node.
-  E visitComment(XmlComment node) {}
+  E visitComment(XmlComment node) => null;
 
   /// Visit an [XmlDoctype] node.
-  E visitDoctype(XmlDoctype node) {}
+  E visitDoctype(XmlDoctype node) => null;
 
   /// Visit an [XmlProcessing] node.
-  E visitProcessing(XmlProcessing node) {}
+  E visitProcessing(XmlProcessing node) => null;
 
   /// Visit an [XmlText] node.
-  E visitText(XmlText node) {}
+  E visitText(XmlText node) => null;
 }

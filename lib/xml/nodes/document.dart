@@ -11,7 +11,7 @@ import 'package:xml/xml/visitors/visitor.dart' show XmlVisitor;
 class XmlDocument extends XmlParent {
 
   /// Create a document node with `children`.
-  XmlDocument(Iterable<XmlNode> children) : super(childrenNodeTypes, children);
+  XmlDocument([Iterable<XmlNode> children = const []]) : super(childrenNodeTypes, children);
 
   /// Return the [XmlDoctype] element, or `null` if not defined.
   ///
@@ -50,7 +50,7 @@ class XmlDocument extends XmlParent {
 }
 
 /// Supported child node types.
-final childrenNodeTypes = new Set.from([
+final childrenNodeTypes = new Set.from(const [
   XmlNodeType.CDATA,
   XmlNodeType.COMMENT,
   XmlNodeType.DOCUMENT_TYPE,

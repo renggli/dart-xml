@@ -12,13 +12,13 @@ import 'package:xml/xml/visitors/visitor.dart' show XmlVisitor;
 
 /// XML element node.
 class XmlElement extends XmlParent implements XmlNamed {
-
   final XmlName _name;
 
   final XmlNodeList<XmlAttribute> _attributes = new XmlNodeList(attributeNodeTypes);
 
   /// Create an element node with the provided `name`, `attributes`, and `children`.
-  XmlElement(this._name, Iterable<XmlAttribute> attributes, Iterable<XmlNode> children)
+  XmlElement(this._name,
+      [Iterable<XmlAttribute> attributes = const [], Iterable<XmlNode> children = const []])
       : super(childrenNodeTypes, children) {
     _name.attachParent(this);
     _attributes.attachParent(this);
@@ -52,7 +52,7 @@ class XmlElement extends XmlParent implements XmlNamed {
 }
 
 /// Supported child node types.
-final childrenNodeTypes = new Set.from([
+final childrenNodeTypes = new Set.from(const [
   XmlNodeType.CDATA,
   XmlNodeType.COMMENT,
   XmlNodeType.ELEMENT,
@@ -61,4 +61,6 @@ final childrenNodeTypes = new Set.from([
 ]);
 
 /// Supported attribute node types.
-final attributeNodeTypes = new Set.from([XmlNodeType.ATTRIBUTE]);
+final attributeNodeTypes = new Set.from(const [
+  XmlNodeType.ATTRIBUTE,
+]);
