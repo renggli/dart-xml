@@ -610,6 +610,65 @@ void main() {
         assertTreeInvariants(document);
       });
     }
+    group('update', () {
+      mutatingTest(
+        'element (attribute value)',
+        '<element attr="value" />',
+            (node) => node.attributes.first.value = 'update',
+        '<element attr="update" />',
+      );
+      throwingTest(
+        'element (null attribute value)',
+        '<element attr="value" />',
+            (node) => node.attributes.first.value = null,
+        throwsArgumentError,
+      );
+      mutatingTest(
+        'cdata (text)',
+        '<element><![CDATA[text]]></element>',
+            (node) => (node.children.first as XmlCDATA).text = 'update',
+        '<element><![CDATA[update]]></element>',
+      );
+      throwingTest(
+        'cdata (null text)',
+        '<element><![CDATA[text]]></element>',
+            (node) => (node.children.first as XmlCDATA).text = null,
+        throwsArgumentError,
+      );
+      mutatingTest(
+        'comment (text)',
+        '<element><!--comment--></element>',
+            (node) => (node.children.first as XmlComment).text = 'update',
+        '<element><!--update--></element>',
+      );
+      throwingTest(
+        'comment (null text)',
+        '<element><!--comment--></element>',
+            (node) => (node.children.first as XmlComment).text = null,
+        throwsArgumentError,
+      );
+      test('processing (text)', () {
+        var document = parse('<?xml processing?><element />');
+        (document.firstChild as XmlProcessing).text = 'update';
+        expect(document.toXmlString(), '<?xml update?><element />');
+      });
+      test('processing (null text)', () {
+        var document = parse('<?xml processing ?><element />');
+        expect(() => (document.firstChild as XmlProcessing).text = null, throwsArgumentError);
+      });
+      mutatingTest(
+        'text (text)',
+        '<element>Hello World</element>',
+            (node) => (node.children.first as XmlText).text = 'Dart rocks',
+        '<element>Dart rocks</element>',
+      );
+      throwingTest(
+        'text (null text)',
+        '<element>Hello World</element>',
+            (node) => (node.children.first as XmlText).text = null,
+        throwsArgumentError,
+      );
+    });
     group('add', () {
       mutatingTest(
         'element (attributes)',
