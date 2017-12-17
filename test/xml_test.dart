@@ -117,6 +117,7 @@ void assertNamedInvariant(XmlNamed named) {
   expect(named.name.namespaceUri, anyOf(isNull, (node) => node is String && node.isNotEmpty));
   expect(named.name.qualified.hashCode, named.name.hashCode);
   expect(named.name.qualified, named.name.toString());
+  expect(const XmlVisitor().visit(named.name), isNull);
 }
 
 void assertAttributeInvariants(XmlNode xml) {
@@ -174,12 +175,12 @@ void assertIteratorInvariants(XmlNode xml) {
         reason: 'All preceding nodes, the node, all decendant '
         'nodes, and all following nodes should be equal to all nodes in the tree.');
     expect(node.ancestors, ancestors.reversed);
+    expect(const XmlVisitor().visit(node), isNull);
     ancestors.add(node);
     node.attributes.forEach(check);
     node.children.forEach(check);
     ancestors.removeLast();
   }
-
   check(xml);
 }
 
@@ -551,7 +552,7 @@ void main() {
       expect(node.toString(), '<!DOCTYPE html [<!-- internal subset -->]>');
     });
     test('document fragment empty', () {
-      XmlDocumentFragment node = new XmlDocumentFragment([]);
+      XmlDocumentFragment node = new XmlDocumentFragment();
       assertCopyInvariants(node);
       expect(node.parent, isNull);
       expect(node.root, node);
@@ -563,6 +564,7 @@ void main() {
       expect(node.nodeType, XmlNodeType.DOCUMENT_FRAGMENT);
       expect(node.nodeType.toString(), 'XmlNodeType.DOCUMENT_FRAGMENT');
       expect(node.toString(), '#document-fragment');
+      expect(const XmlVisitor().visit(node), isNull);
     });
   });
   group('namespaces', () {
@@ -1554,6 +1556,52 @@ void main() {
         (node) => node.children.length = 2,
         throwsUnsupportedError,
       );
+    });
+    group('normalizer', () {
+      test('remove empty text', () {
+        var element = new XmlElement(new XmlName('element'), [], [
+          new XmlText(''),
+          new XmlElement(new XmlName('element1')),
+          new XmlText(''),
+          new XmlElement(new XmlName('element2')),
+          new XmlText(''),
+        ]);
+        element.normalize();
+        expect(element.children.length, 2);
+        expect(element.toXmlString(), '<element><element1 /><element2 /></element>');
+      });
+      test('join adjacent text', () {
+        var element = new XmlElement(new XmlName('element'), [], [
+          new XmlText('aaa'),
+          new XmlText('bbb'),
+          new XmlText('ccc'),
+        ]);
+        element.normalize();
+        expect(element.children.length, 1);
+        expect(element.toXmlString(), '<element>aaabbbccc</element>');
+      });
+      test('document fragment', () {
+        var fragment = new XmlDocumentFragment([
+          new XmlText(''),
+          new XmlText('aaa'),
+          new XmlText(''),
+          new XmlElement(new XmlName('element1')),
+          new XmlText(''),
+          new XmlText('bbb'),
+          new XmlText(''),
+          new XmlText('ccc'),
+          new XmlText(''),
+          new XmlElement(new XmlName('element2')),
+          new XmlText(''),
+          new XmlText('ddd'),
+          new XmlText(''),
+        ]);
+        fragment.normalize();
+        var element = new XmlElement(new XmlName('element'));
+        element.children.add(fragment);
+        expect(element.children.length, 5);
+        expect(element.toXmlString(), '<element>aaa<element1 />bbbccc<element2 />ddd</element>');
+      });
     });
   });
   group('entities', () {

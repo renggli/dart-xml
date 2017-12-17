@@ -12,8 +12,8 @@ import 'package:xml/xml/nodes/text.dart' show XmlText;
 import 'package:xml/xml/utils/name.dart' show XmlName;
 import 'package:xml/xml/visitors/visitable.dart' show XmlVisitable;
 
-/// Abstract visitor over [XmlVisitable] nodes.
-abstract class XmlVisitor<E> {
+/// Basic visitor over [XmlVisitable] nodes.
+class XmlVisitor<E> {
   const XmlVisitor();
 
   /// Helper to visit an [XmlVisitable] using this visitor by dispatching
