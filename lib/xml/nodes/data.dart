@@ -1,7 +1,6 @@
 library xml.nodes.data;
 
 import 'package:xml/xml/nodes/node.dart' show XmlNode;
-import 'package:xml/xml/utils/errors.dart' show XmlNodeTypeError;
 
 /// Abstract XML data node.
 abstract class XmlData extends XmlNode {
