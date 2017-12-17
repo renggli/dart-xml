@@ -33,15 +33,15 @@ class XmlTransformer extends XmlVisitor<XmlVisitable> {
   XmlDoctype visitDoctype(XmlDoctype node) => new XmlDoctype(node.text);
 
   @override
-  XmlDocument visitDocument(XmlDocument node) => new XmlDocument(visitAll(node.children));
+  XmlDocument visitDocument(XmlDocument node) => new XmlDocument(node.children.map(visit));
 
   @override
   XmlDocumentFragment visitDocumentFragment(XmlDocumentFragment node) =>
-      new XmlDocumentFragment(visitAll(node.children));
+      new XmlDocumentFragment(node.children.map(visit));
 
   @override
   XmlElement visitElement(XmlElement node) =>
-      new XmlElement(visit(node.name), visitAll(node.attributes), visitAll(node.children));
+      new XmlElement(visit(node.name), node.attributes.map(visit), node.children.map(visit));
 
   @override
   XmlName visitName(XmlName name) => new XmlName.fromString(name.qualified);

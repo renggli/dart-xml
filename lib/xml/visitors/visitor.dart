@@ -18,11 +18,7 @@ abstract class XmlVisitor<E> {
 
   /// Helper to visit an [XmlVisitable] using this visitor by dispatching
   /// through the provided [visitable].
-  E visit(XmlVisitable visitable) => visitable.accept(this);
-
-  /// Helper to visit an [Iterable] of [XmlVisitable]s using this visitor
-  /// by dispatching through the provided [visitables].
-  Iterable<E> visitAll(Iterable<XmlVisitable> visitables) => visitables.map(visit);
+  T visit<T extends E>(XmlVisitable visitable) => visitable.accept(this);
 
   /// Visit an [XmlName].
   E visitName(XmlName name) => null;
