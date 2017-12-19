@@ -52,7 +52,7 @@ class XmlElement extends XmlParent implements XmlNamed {
 }
 
 /// Supported child node types.
-final childrenNodeTypes = new Set.from(const [
+final childrenNodeTypes = new Set<XmlNodeType>.from(const [
   XmlNodeType.CDATA,
   XmlNodeType.COMMENT,
   XmlNodeType.ELEMENT,
@@ -61,6 +61,6 @@ final childrenNodeTypes = new Set.from(const [
 ]);
 
 /// Supported attribute node types.
-final attributeNodeTypes = new Set.from(const [
+final attributeNodeTypes = new Set<XmlNodeType>.from(const [
   XmlNodeType.ATTRIBUTE,
 ]);

@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.0-alpha
+
+* Mutable DOM.
+* Updated documentation.
+
 ## 2.6.0
 
 * Fix CDATA encoding.
