@@ -171,6 +171,7 @@ There are various open source projects using this package:
 
 - [csv2xml](https://github.com/taewony/csv2xml) is a library to convert between CSV and XML.
 - [dart-xrd](https://github.com/stevenroose/dart-xrd) is a library to read Extensible Resource Descriptors.
+- [xml2json](https://github.com/shamblett/xml2json) is an XML to JSON conversion package.
 
 ### Supports
 
