@@ -1,9 +1,11 @@
 # Changelog
 
-## 3.0.0-alpha
+## 3.0.0
 
 * Mutable DOM.
-* Updated documentation.
+* Cleaned up documentation.
+* Dart 2.0 strong mode compatibility.
+* Reformatted using dartfmt.
 
 ## 2.6.0
 
