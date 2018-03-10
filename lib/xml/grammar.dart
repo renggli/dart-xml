@@ -99,13 +99,13 @@ abstract class XmlGrammarDefinition<TNode, TName> extends GrammarDefinition {
           .seq(ref(misc))
           .map((each) {
         var nodes = <TNode>[];
-        nodes.addAll(each[0].cast<TNode>());
+        nodes.addAll(new List<TNode>.from(each[0]));
         if (each[1] != null) {
           nodes.add(each[1] as TNode);
         }
-        nodes.addAll(each[2].cast<TNode>());
+        nodes.addAll(new List<TNode>.from(each[2]));
         nodes.add(each[3] as TNode);
-        nodes.addAll(each[4].cast<TNode>());
+        nodes.addAll(new List<TNode>.from(each[4]));
         return createDocument(nodes);
       });
   Parser element() => char(OPEN_ELEMENT)
@@ -120,11 +120,14 @@ abstract class XmlGrammarDefinition<TNode, TName> extends GrammarDefinition {
               .seq(char(CLOSE_ELEMENT))))
           .map((list) {
         if (list[4] == CLOSE_END_ELEMENT) {
-          return createElement(list[1] as TName, list[2].cast<TNode>(), <TNode>[]);
+          return createElement(
+	      list[1] as TName, new List<TNode>.from(list[2]), <TNode>[]);
         } else {
           if (list[1] == list[4][3]) {
             return createElement(
-                list[1] as TName, list[2].cast<TNode>(), list[4][1].cast<TNode>());
+                list[1] as TName,
+		new List<TNode>.from(list[2]),
+		new List<TNode>.from(list[4][1]));
           } else {
             throw new ArgumentError('Expected </${list[1]}>, but found </${list[4][3]}>');
           }

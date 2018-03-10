@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.0.1-alpha
+## 3.0.1
 
 * Fixed strong mode error.
 
