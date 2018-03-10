@@ -29,7 +29,8 @@ abstract class XmlParent extends XmlNode {
   Iterable<XmlElement> findAllElements(String name, {String namespace}) =>
       _filterElements(descendants, name, namespace);
 
-  Iterable<XmlElement> _filterElements(Iterable<XmlNode> iterable, String name, String namespace) {
+  Iterable<XmlElement> _filterElements(
+      Iterable<XmlNode> iterable, String name, String namespace) {
     var matcher = createNameMatcher(name, namespace);
     return iterable
         .where((node) => node is XmlElement && matcher(node))

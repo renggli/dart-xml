@@ -29,7 +29,8 @@ class XmlAttribute extends XmlNode implements XmlNamed {
   final XmlAttributeType attributeType;
 
   /// Create an attribute with `name` and `value`.
-  XmlAttribute(this.name, String value, [this.attributeType = XmlAttributeType.DOUBLE_QUOTE]) {
+  XmlAttribute(this.name, String value,
+      [this.attributeType = XmlAttributeType.DOUBLE_QUOTE]) {
     name.attachParent(this);
     this.value = value;
   }

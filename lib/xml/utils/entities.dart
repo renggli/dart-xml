@@ -343,7 +343,8 @@ final Map<String, String> entityToChar = const {
 typedef String ReplaceFunction(Match match);
 
 /// Encode a string to be serialized as an XML text node.
-String encodeXmlText(String input) => input.replaceAllMapped(_textPattern, _textReplace);
+String encodeXmlText(String input) =>
+    input.replaceAllMapped(_textPattern, _textReplace);
 
 final Pattern _textPattern = new RegExp(r'[&<]|]]>');
 
@@ -360,7 +361,9 @@ String _textReplace(Match match) {
 }
 
 /// Encode a string to be serialized as an XML attribute value.
-String encodeXmlAttributeValue(String input, XmlAttributeType attributeType) => input.replaceAllMapped(_attributePattern[attributeType], _attributeReplace[attributeType]);
+String encodeXmlAttributeValue(String input, XmlAttributeType attributeType) =>
+    input.replaceAllMapped(
+        _attributePattern[attributeType], _attributeReplace[attributeType]);
 
 final Map<XmlAttributeType, String> attributeQuote = {
   XmlAttributeType.SINGLE_QUOTE: "'",

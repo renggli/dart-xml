@@ -11,7 +11,8 @@ import 'package:xml/xml/nodes/node.dart' show XmlNode;
 import 'package:xml/xml/nodes/processing.dart' show XmlProcessing;
 import 'package:xml/xml/nodes/text.dart' show XmlText;
 import 'package:xml/xml/utils/attribute_type.dart' show XmlAttributeType;
-import 'package:xml/xml/utils/name.dart' show XmlName, xml, xmlns, xmlData, xmlUri;
+import 'package:xml/xml/utils/name.dart'
+    show XmlName, xml, xmlns, xmlData, xmlUri;
 import 'package:xml/xml/visitors/transformer.dart' show XmlTransformer;
 
 /// A builder to create XML trees with code.
@@ -133,7 +134,8 @@ class XmlBuilder {
       element.namespaces.forEach((uri, meta) {
         if (!meta.used) {
           var name = meta.name;
-          var attribute = element.attributes.firstWhere((attribute) => attribute.name == name);
+          var attribute = element.attributes
+              .firstWhere((attribute) => attribute.name == name);
           element.attributes.remove(attribute);
         }
       });
@@ -154,9 +156,10 @@ class XmlBuilder {
   ///        builder.attribute('lang', 'en');
   ///     });
   ///
-  void attribute(String name, Object value, {String namespace, XmlAttributeType attributeType}) {
-    final attribute = new XmlAttribute(_buildName(name, namespace), value.toString(),
-        attributeType ?? XmlAttributeType.DOUBLE_QUOTE);
+  void attribute(String name, Object value,
+      {String namespace, XmlAttributeType attributeType}) {
+    final attribute = new XmlAttribute(_buildName(name, namespace),
+        value.toString(), attributeType ?? XmlAttributeType.DOUBLE_QUOTE);
     _stack.last.attributes.add(attribute);
   }
 
@@ -169,15 +172,18 @@ class XmlBuilder {
     }
     if (optimizeNamespaces &&
         _stack.any((builder) =>
-            builder.namespaces.containsKey(uri) && builder.namespaces[uri].prefix == prefix)) {
+            builder.namespaces.containsKey(uri) &&
+            builder.namespaces[uri].prefix == prefix)) {
       // namespace prefix already correctly specified in an ancestor
       return;
     }
     if (_stack.last.namespaces.values.any((meta) => meta.prefix == prefix)) {
-      throw new ArgumentError('The "$prefix" prefix conflicts with existing binding.');
+      throw new ArgumentError(
+          'The "$prefix" prefix conflicts with existing binding.');
     }
     var meta = new NamespaceData(prefix, false);
-    _stack.last.attributes.add(new XmlAttribute(meta.name, uri, XmlAttributeType.DOUBLE_QUOTE));
+    _stack.last.attributes
+        .add(new XmlAttribute(meta.name, uri, XmlAttributeType.DOUBLE_QUOTE));
     _stack.last.namespaces[uri] = meta;
   }
 
@@ -197,7 +203,8 @@ class XmlBuilder {
 
   // Internal method to lookup an namespace prefix.
   NamespaceData _lookup(String uri) {
-    var builder = _stack.lastWhere((builder) => builder.namespaces.containsKey(uri),
+    var builder = _stack.lastWhere(
+        (builder) => builder.namespaces.containsKey(uri),
         orElse: () => throw new ArgumentError('Undefined namespace: $uri'));
     return builder.namespaces[uri];
   }
@@ -222,7 +229,8 @@ class XmlBuilder {
         // All other valid nodes must be copied and added to the children list.
         _stack.last.children.add(const XmlTransformer().visit(value));
       } else {
-        throw new ArgumentError('Unable to add element of type ${value.nodeType}');
+        throw new ArgumentError(
+            'Unable to add element of type ${value.nodeType}');
       }
     } else {
       text(value.toString());
@@ -236,8 +244,9 @@ class NamespaceData {
 
   NamespaceData(this.prefix, [this.used = false]);
 
-  XmlName get name =>
-      prefix == null || prefix.isEmpty ? new XmlName(xmlns) : new XmlName(prefix, xmlns);
+  XmlName get name => prefix == null || prefix.isEmpty
+      ? new XmlName(xmlns)
+      : new XmlName(prefix, xmlns);
 }
 
 abstract class XmlNodeBuilder {
@@ -253,7 +262,8 @@ class XmlDocumentBuilder extends XmlNodeBuilder {
 
   @override
   List<XmlAttribute> get attributes {
-    throw new ArgumentError('Unable to define attributes at the document level.');
+    throw new ArgumentError(
+        'Unable to define attributes at the document level.');
   }
 
   @override

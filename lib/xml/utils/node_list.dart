@@ -5,7 +5,8 @@ import 'package:collection/collection.dart' show DelegatingList;
 import 'package:xml/xml/nodes/node.dart' show XmlNode;
 import 'package:xml/xml/utils/owned.dart' show XmlOwned;
 import 'package:xml/xml/utils/node_type.dart' show XmlNodeType;
-import 'package:xml/xml/utils/errors.dart' show XmlNodeTypeError, XmlParentError;
+import 'package:xml/xml/utils/errors.dart'
+    show XmlNodeTypeError, XmlParentError;
 
 /// Mutable list of XmlNodes, manages the parenting of the nodes.
 class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
@@ -26,7 +27,8 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
   }
 
   @override
-  set length(int length) => throw new UnsupportedError('Unsupported length change of node list.');
+  set length(int length) =>
+      throw new UnsupportedError('Unsupported length change of node list.');
 
   @override
   void add(E node) {
@@ -136,7 +138,8 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
   }
 
   @override
-  void setAll(int index, Iterable<E> iterable) => throw new UnimplementedError();
+  void setAll(int index, Iterable<E> iterable) =>
+      throw new UnimplementedError();
 
   @override
   void insert(int index, E node) {

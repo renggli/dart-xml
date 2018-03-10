@@ -21,7 +21,8 @@ XmlNameMatcher createNameMatcher(String name, String namespace) {
     } else if (namespace == '*') {
       return (named) => named.name.local == name;
     } else {
-      return (named) => named.name.local == name && named.name.namespaceUri == namespace;
+      return (named) =>
+          named.name.local == name && named.name.namespaceUri == namespace;
     }
   }
 }

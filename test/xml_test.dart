@@ -114,7 +114,8 @@ void assertNamedInvariant(XmlNamed named) {
   if (named.name.prefix != null) {
     expect(named.name.qualified, startsWith(named.name.prefix));
   }
-  expect(named.name.namespaceUri, anyOf(isNull, (node) => node is String && node.isNotEmpty));
+  expect(named.name.namespaceUri,
+      anyOf(isNull, (node) => node is String && node.isNotEmpty));
   expect(named.name.qualified.hashCode, named.name.hashCode);
   expect(named.name.qualified, named.name.toString());
   expect(const XmlVisitor().visit(named.name), isNull);
@@ -125,8 +126,10 @@ void assertAttributeInvariants(XmlNode xml) {
     if (node is XmlElement) {
       var element = node;
       for (var attribute in element.attributes) {
-        expect(attribute, same(element.getAttributeNode(attribute.name.qualified)));
-        expect(attribute.value, same(element.getAttribute(attribute.name.qualified)));
+        expect(attribute,
+            same(element.getAttributeNode(attribute.name.qualified)));
+        expect(attribute.value,
+            same(element.getAttribute(attribute.name.qualified)));
       }
       if (element.attributes.isEmpty) {
         expect(element.getAttribute('foo'), isNull);
@@ -146,15 +149,17 @@ void assertTextInvariants(XmlNode xml) {
           reason: 'All nodes are supposed to return text strings.');
     }
     if (node is XmlText) {
-      expect(node.text, isNotEmpty, reason:  'Text nodes are not suppoed to be empty.');
+      expect(node.text, isNotEmpty,
+          reason: 'Text nodes are not suppoed to be empty.');
     }
     if (node is XmlParent) {
       var previousType;
-      var nodeTypes = node.children
-          .map((node) => node.nodeType);
+      var nodeTypes = node.children.map((node) => node.nodeType);
       for (var currentType in nodeTypes) {
-        expect(previousType == XmlNodeType.TEXT && currentType == XmlNodeType.TEXT,
-            isFalse, reason: 'Consecutive text nodes detected: $nodeTypes');
+        expect(
+            previousType == XmlNodeType.TEXT && currentType == XmlNodeType.TEXT,
+            isFalse,
+            reason: 'Consecutive text nodes detected: $nodeTypes');
         previousType = currentType;
       }
     }
@@ -170,10 +175,13 @@ void assertIteratorInvariants(XmlNode xml) {
       node.descendants,
       node.following
     ].expand((each) => each);
-    var allRoot = [[node.root], node.root.descendants].expand((each) => each);
+    var allRoot = [
+      [node.root],
+      node.root.descendants
+    ].expand((each) => each);
     expect(allAxis, allRoot,
         reason: 'All preceding nodes, the node, all decendant '
-        'nodes, and all following nodes should be equal to all nodes in the tree.');
+            'nodes, and all following nodes should be equal to all nodes in the tree.');
     expect(node.ancestors, ancestors.reversed);
     expect(const XmlVisitor().visit(node), isNull);
     ancestors.add(node);
@@ -181,6 +189,7 @@ void assertIteratorInvariants(XmlNode xml) {
     node.children.forEach(check);
     ancestors.removeLast();
   }
+
   check(xml);
 }
 
@@ -209,6 +218,7 @@ void assertCopyInvariants(XmlNode xml) {
       compare(original.children[i], copy.children[i]);
     }
   }
+
   var copy = xml.copy();
   assertParentInvariants(xml);
   assertParentInvariants(copy);
@@ -245,24 +255,22 @@ void assertPrintingInvariants(XmlNode xml) {
       expect(source.toXmlString(), pretty.toXmlString());
     }
   }
+
   compare(xml, parse(xml.toXmlString(pretty: true)));
 }
 
 void main() {
   group('parsing', () {
     test('comment', () {
-      assetParseInvariants(
-          '<?xml version="1.0" encoding="UTF-8"?>'
+      assetParseInvariants('<?xml version="1.0" encoding="UTF-8"?>'
           '<schema><!-- comment --></schema>');
     });
     test('comment with xml', () {
-      assetParseInvariants(
-          '<?xml version="1.0" encoding="UTF-8"?>'
+      assetParseInvariants('<?xml version="1.0" encoding="UTF-8"?>'
           '<schema><!-- <foo></foo> --></schema>');
     });
     test('complicated', () {
-      assetParseInvariants(
-          '<?xml foo?>\n'
+      assetParseInvariants('<?xml foo?>\n'
           '<!DOCTYPE name [ something ]>\n'
           '<ns:foo attr="not namespaced" n1:ans="namespaced 1" n2:ans="namespace 2" >\n'
           '  <element/>\n'
@@ -273,8 +281,7 @@ void main() {
           '</ns:foo>');
     });
     test('doctype (system)', () {
-      assetParseInvariants(
-          '<!DOCTYPE root-name SYSTEM "uri-reference">'
+      assetParseInvariants('<!DOCTYPE root-name SYSTEM "uri-reference">'
           '<root />');
     });
     test('doctype (public)', () {
@@ -283,8 +290,7 @@ void main() {
           '<root />');
     });
     test('doctype (subset)', () {
-      assetParseInvariants(
-          '<!DOCTYPE root ['
+      assetParseInvariants('<!DOCTYPE root ['
           '  <!ELEMENT root (child)>'
           '  <!ATTLIST root attribute #IMPLIED>'
           '  <!ENTITY copy "©">'
@@ -330,8 +336,7 @@ void main() {
       assetParseInvariants('<?xml version="1.0"?><data />');
     });
     test('whitespace after prolog', () {
-      assetParseInvariants(
-          '<?xml version="1.0" encoding="UTF-8"?>\n\t'
+      assetParseInvariants('<?xml version="1.0" encoding="UTF-8"?>\n\t'
           '<schema></schema>\t\n');
     });
     test('parse errors', () {
@@ -344,7 +349,8 @@ void main() {
   });
   group('nodes', () {
     test('element', () {
-      XmlDocument document = parse('<ns:data key="value">Am I or are the other crazy?</ns:data>');
+      XmlDocument document =
+          parse('<ns:data key="value">Am I or are the other crazy?</ns:data>');
       XmlElement node = document.rootElement;
       expect(node.name, new XmlName.fromString('ns:data'));
       expect(node.parent, same(document));
@@ -356,17 +362,21 @@ void main() {
       expect(node.text, 'Am I or are the other crazy?');
       expect(node.nodeType, XmlNodeType.ELEMENT);
       expect(node.nodeType.toString(), 'XmlNodeType.ELEMENT');
-      expect(node.toString(), '<ns:data key="value">Am I or are the other crazy?</ns:data>');
+      expect(node.toString(),
+          '<ns:data key="value">Am I or are the other crazy?</ns:data>');
     });
     test('element (readopt name)', () {
       XmlDocument document = parse('<element attr="value1">text</element>');
       XmlElement node = document.rootElement;
       expect(() => new XmlElement(node.name), throwsArgumentError);
-      expect(() => new XmlElement(new XmlName('data'), node.attributes), throwsArgumentError);
-      expect(() => new XmlElement(new XmlName('data'), [], node.children), throwsArgumentError);
+      expect(() => new XmlElement(new XmlName('data'), node.attributes),
+          throwsArgumentError);
+      expect(() => new XmlElement(new XmlName('data'), [], node.children),
+          throwsArgumentError);
     });
     test('attribute', () {
-      XmlDocument document = parse('<data ns:attr="Am I or are the other crazy?" />');
+      XmlDocument document =
+          parse('<data ns:attr="Am I or are the other crazy?" />');
       XmlAttribute node = document.rootElement.attributes.single;
       expect(node.name, new XmlName.fromString('ns:attr'));
       expect(node.value, 'Am I or are the other crazy?');
@@ -389,13 +399,15 @@ void main() {
       expect(node.toString(), 'attr=""');
     });
     test('attribute (character references)', () {
-      XmlDocument document = parse('<data ns:attr="&lt;&gt;&amp;&apos;&quot;&#xA;&#xD;&#x9;" />');
+      XmlDocument document =
+          parse('<data ns:attr="&lt;&gt;&amp;&apos;&quot;&#xA;&#xD;&#x9;" />');
       XmlAttribute node = document.rootElement.attributes.single;
       expect(node.value, '<>&\'"\n\r\t');
       expect(node.toString(), 'ns:attr="&lt;>&amp;\'&quot;&#xA;&#xD;&#x9;"');
     });
     test('attribute (single)', () {
-      XmlDocument document = parse('<data ns:attr=\'Am I or are the other crazy?\' />');
+      XmlDocument document =
+          parse('<data ns:attr=\'Am I or are the other crazy?\' />');
       XmlAttribute node = document.rootElement.attributes.single;
       expect(node.name, new XmlName.fromString('ns:attr'));
       expect(node.value, 'Am I or are the other crazy?');
@@ -418,13 +430,15 @@ void main() {
       expect(node.toString(), "attr=''");
     });
     test('attribute (single, character references)', () {
-      XmlDocument document = parse('<data ns:attr=\'&lt;&gt;&amp;&apos;&quot;&#xA;&#xD;&#x9;\' />');
+      XmlDocument document = parse(
+          '<data ns:attr=\'&lt;&gt;&amp;&apos;&quot;&#xA;&#xD;&#x9;\' />');
       XmlAttribute node = document.rootElement.attributes.single;
       expect(node.value, '<>&\'"\n\r\t');
       expect(node.toString(), "ns:attr='&lt;>&amp;&apos;\"&#xA;&#xD;&#x9;'");
     });
     test('attribute (readopt name)', () {
-      XmlDocument document = parse('<data ns:attr=\'&lt;&gt;&amp;&apos;&quot;&#xA;&#xD;&#x9;\' />');
+      XmlDocument document = parse(
+          '<data ns:attr=\'&lt;&gt;&amp;&apos;&quot;&#xA;&#xD;&#x9;\' />');
       XmlAttribute node = document.rootElement.attributes.single;
       expect(() => new XmlAttribute(node.name, ''), throwsArgumentError);
     });
@@ -449,15 +463,16 @@ void main() {
       expect(node.toString(), '&lt;>&amp;\'"');
     });
     test('text (nested)', () {
-      XmlDocument root = parse('<p>Am <i>I</i> or are the <b>other</b><!-- very --> crazy?</p>');
+      XmlDocument root = parse(
+          '<p>Am <i>I</i> or are the <b>other</b><!-- very --> crazy?</p>');
       expect(root.rootElement.text, 'Am I or are the other crazy?');
     });
     test('cdata', () {
-      XmlDocument document = parse(
-          '<data>'
+      XmlDocument document = parse('<data>'
           '<![CDATA[Methinks <word> it <word> is like a weasel!]]>'
           '</data>');
-      expect(document.rootElement.text, 'Methinks <word> it <word> is like a weasel!');
+      expect(document.rootElement.text,
+          'Methinks <word> it <word> is like a weasel!');
       XmlCDATA node = document.rootElement.children.single;
       expect(node.text, 'Methinks <word> it <word> is like a weasel!');
       expect(node.parent, same(document.rootElement));
@@ -467,7 +482,8 @@ void main() {
       expect(node.children, isEmpty);
       expect(node.nodeType, XmlNodeType.CDATA);
       expect(node.nodeType.toString(), 'XmlNodeType.CDATA');
-      expect(node.toString(), '<![CDATA[Methinks <word> it <word> is like a weasel!]]>');
+      expect(node.toString(),
+          '<![CDATA[Methinks <word> it <word> is like a weasel!]]>');
       expect(node.descendants, isEmpty);
     });
     test('processing', () {
@@ -486,7 +502,8 @@ void main() {
       expect(node.descendants, isEmpty);
     });
     test('comment', () {
-      XmlDocument document = parse('<data><!--Am I or are the other crazy?--></data>');
+      XmlDocument document =
+          parse('<data><!--Am I or are the other crazy?--></data>');
       XmlComment node = document.rootElement.children.single;
       expect(node.parent, same(document.rootElement));
       expect(node.root, same(document));
@@ -519,7 +536,9 @@ void main() {
       XmlDocument node = document.document;
       expect(node.children, hasLength(2));
       expect(node.descendants, hasLength(2));
-      expect(node.toString(), '<?xml version="1.0" encoding="UTF-8" ?>'
+      expect(
+          node.toString(),
+          '<?xml version="1.0" encoding="UTF-8" ?>'
           '<element />');
     });
     test('document comments and whitespace', () {
@@ -528,9 +547,13 @@ void main() {
       XmlDocument node = document.document;
       expect(node.children, hasLength(7));
       expect(node.descendants, hasLength(7));
-      expect(node.toString(), '<?xml version="1.0" encoding="UTF-8"?> '
+      expect(
+          node.toString(),
+          '<?xml version="1.0" encoding="UTF-8"?> '
           '<!-- before -->\n<element />\t<!-- after -->');
-      expect(node.toXmlString(pretty: true), '<?xml version="1.0" encoding="UTF-8"?>\n'
+      expect(
+          node.toXmlString(pretty: true),
+          '<?xml version="1.0" encoding="UTF-8"?>\n'
           '<!-- before -->\n<element />\n<!-- after -->');
     });
     test('document empty', () {
@@ -539,7 +562,8 @@ void main() {
       expect(() => document.rootElement, throwsStateError);
     });
     test('document type', () {
-      XmlDocument document = parse('<!DOCTYPE html [<!-- internal subset -->]><data />');
+      XmlDocument document =
+          parse('<!DOCTYPE html [<!-- internal subset -->]><data />');
       XmlDoctype node = document.doctypeElement;
       expect(node.parent, same(document));
       expect(node.document, same(document));
@@ -569,84 +593,91 @@ void main() {
   });
   group('namespaces', () {
     test('default namespace', () {
-      XmlDocument document = parse(
-          '<html xmlns="http://www.w3.org/1999/xhtml">'
+      XmlDocument document = parse('<html xmlns="http://www.w3.org/1999/xhtml">'
           '  <body lang="en"/>'
           '</html>');
       List<XmlNode> nodes = new List.from(document.descendants)..add(document);
       for (var node in nodes) {
         if (node is XmlAttribute || node is XmlElement) {
-          expect((node as XmlNamed).name.namespaceUri, 'http://www.w3.org/1999/xhtml');
+          expect((node as XmlNamed).name.namespaceUri,
+              'http://www.w3.org/1999/xhtml');
         }
       }
     });
     test('prefix namespace', () {
-      XmlDocument document = parse(
-          '<xhtml:html xmlns:xhtml="http://www.w3.org/1999/xhtml">'
-          '  <xhtml:body xhtml:lang="en"/>'
-          '</xhtml:html>');
+      XmlDocument document =
+          parse('<xhtml:html xmlns:xhtml="http://www.w3.org/1999/xhtml">'
+              '  <xhtml:body xhtml:lang="en"/>'
+              '</xhtml:html>');
       List<XmlNode> nodes = new List.from(document.descendants)..add(document);
       for (var node in nodes) {
         if ((node is XmlAttribute && node.name.prefix != 'xmlns') ||
             (node is XmlElement)) {
-          expect((node as XmlNamed).name.namespaceUri, 'http://www.w3.org/1999/xhtml');
+          expect((node as XmlNamed).name.namespaceUri,
+              'http://www.w3.org/1999/xhtml');
         }
       }
     });
   });
   group('mutating', () {
-    void mutatingTest(String description, String before, void action(XmlElement node), String after) {
+    void mutatingTest(String description, String before,
+        void action(XmlElement node), String after) {
       test(description, () {
         var document = parse(before);
         action(document.rootElement);
         document.normalize();
-        expect(after, document.toXmlString(), reason: 'should have been modified');
+        expect(after, document.toXmlString(),
+            reason: 'should have been modified');
         assertTreeInvariants(document);
       });
     }
-    void throwingTest(String description, String before, void action(XmlElement node), Matcher matcher) {
+
+    void throwingTest(String description, String before,
+        void action(XmlElement node), Matcher matcher) {
       test(description, () {
         var document = parse(before);
         expect(() => action(document.rootElement), matcher);
-        expect(document.toXmlString(), before, reason: 'should not have been modified');
+        expect(document.toXmlString(), before,
+            reason: 'should not have been modified');
         assertTreeInvariants(document);
       });
     }
+
     group('update', () {
       mutatingTest(
         'element (attribute value)',
         '<element attr="value" />',
-            (node) => node.attributes.first.value = 'update',
+        (node) => node.attributes.first.value = 'update',
         '<element attr="update" />',
       );
       throwingTest(
         'element (null attribute value)',
         '<element attr="value" />',
-            (node) => node.attributes.first.value = null,
+        (node) => node.attributes.first.value = null,
         throwsArgumentError,
       );
       mutatingTest(
         'cdata (text)',
         '<element><![CDATA[text]]></element>',
-            (node) => (node.children.first as XmlCDATA).text = 'update',
+        (node) => (node.children.first as XmlCDATA).text = 'update',
         '<element><![CDATA[update]]></element>',
       );
       throwingTest(
         'cdata (null text)',
         '<element><![CDATA[text]]></element>',
-            (node) => (node.children.first as XmlCDATA).text = null,
+        (node) => (node.children.first as XmlCDATA).text = null,
         throwsArgumentError,
       );
       mutatingTest(
         'comment (text)',
         '<element><!--comment--></element>',
-            (node) => (node.children.first as XmlComment).text = 'update',
+        (node) => (node.children.first as XmlComment).text = 'update',
         '<element><!--update--></element>',
       );
       throwingTest(
         'comment (null text)',
         '<element><!--comment--></element>',
-            (node) => (node.children.first as XmlComment).text = null,
+        (node) => (node.children.first as XmlComment).text = null,
         throwsArgumentError,
       );
       test('processing (text)', () {
@@ -656,18 +687,19 @@ void main() {
       });
       test('processing (null text)', () {
         var document = parse('<?xml processing ?><element />');
-        expect(() => (document.firstChild as XmlProcessing).text = null, throwsArgumentError);
+        expect(() => (document.firstChild as XmlProcessing).text = null,
+            throwsArgumentError);
       });
       mutatingTest(
         'text (text)',
         '<element>Hello World</element>',
-            (node) => (node.children.first as XmlText).text = 'Dart rocks',
+        (node) => (node.children.first as XmlText).text = 'Dart rocks',
         '<element>Dart rocks</element>',
       );
       throwingTest(
         'text (null text)',
         '<element>Hello World</element>',
-            (node) => (node.children.first as XmlText).text = null,
+        (node) => (node.children.first as XmlText).text = null,
         throwsArgumentError,
       );
     });
@@ -675,7 +707,8 @@ void main() {
       mutatingTest(
         'element (attributes)',
         '<element />',
-        (node) => node.attributes.add(new XmlAttribute(new XmlName('attr'), 'value')),
+        (node) =>
+            node.attributes.add(new XmlAttribute(new XmlName('attr'), 'value')),
         '<element attr="value" />',
       );
       mutatingTest(
@@ -687,7 +720,8 @@ void main() {
       mutatingTest(
         'element (copy attribute)',
         '<element1 attr="value"><element2 /></element1>',
-        (node) => node.children.first.attributes.add(node.attributes.first.copy()),
+        (node) =>
+            node.children.first.attributes.add(node.attributes.first.copy()),
         '<element1 attr="value"><element2 attr="value" /></element1>',
       );
       mutatingTest(
@@ -713,9 +747,8 @@ void main() {
         'element (repeated fragment children)',
         '<element1 />',
         (node) {
-          var fragment = new XmlDocumentFragment([
-            new XmlElement(new XmlName('element2'))
-          ]);
+          var fragment = new XmlDocumentFragment(
+              [new XmlElement(new XmlName('element2'))]);
           node.children..add(fragment)..add(fragment);
         },
         '<element1><element2 /><element2 /></element1>',
@@ -752,7 +785,8 @@ void main() {
       mutatingTest(
         'element (attributes)',
         '<element />',
-        (node) => node.attributes.addAll([new XmlAttribute(new XmlName('attr'), 'value')]),
+        (node) => node.attributes
+            .addAll([new XmlAttribute(new XmlName('attr'), 'value')]),
         '<element attr="value" />',
       );
       mutatingTest(
@@ -764,7 +798,8 @@ void main() {
       mutatingTest(
         'element (copy attribute)',
         '<element1 attr="value"><element2 /></element1>',
-        (node) => node.children.first.attributes.addAll([node.attributes.first.copy()]),
+        (node) => node.children.first.attributes
+            .addAll([node.attributes.first.copy()]),
         '<element1 attr="value"><element2 attr="value" /></element1>',
       );
       mutatingTest(
@@ -790,9 +825,8 @@ void main() {
         'element (repeated fragment children)',
         '<element1 />',
         (node) {
-          var fragment = new XmlDocumentFragment([
-            new XmlElement(new XmlName('element2'))
-          ]);
+          var fragment = new XmlDocumentFragment(
+              [new XmlElement(new XmlName('element2'))]);
           node.children.addAll([fragment, fragment]);
         },
         '<element1><element2 /><element2 /></element1>',
@@ -829,7 +863,8 @@ void main() {
       mutatingTest(
         'element (attributes)',
         '<element attr1="value1" />',
-        (node) => node.attributes.insert(1, new XmlAttribute(new XmlName('attr2'), 'value2')),
+        (node) => node.attributes
+            .insert(1, new XmlAttribute(new XmlName('attr2'), 'value2')),
         '<element attr1="value1" attr2="value2" />',
       );
       mutatingTest(
@@ -841,7 +876,8 @@ void main() {
       mutatingTest(
         'element (copy attribute)',
         '<element1 attr1="value1"><element2 attr2="value2"/></element1>',
-        (node) => node.children.first.attributes.insert(1, node.attributes.first.copy()),
+        (node) => node.children.first.attributes
+            .insert(1, node.attributes.first.copy()),
         '<element1 attr1="value1"><element2 attr2="value2" attr1="value1" /></element1>',
       );
       mutatingTest(
@@ -867,9 +903,8 @@ void main() {
         'element (repeated fragment children)',
         '<element1><element2 /></element1>',
         (node) {
-          var fragment = new XmlDocumentFragment([
-            new XmlElement(new XmlName('element3'))
-          ]);
+          var fragment = new XmlDocumentFragment(
+              [new XmlElement(new XmlName('element3'))]);
           node.children..insert(0, fragment)..insert(2, fragment);
         },
         '<element1><element3 /><element2 /><element3 /></element1>',
@@ -877,7 +912,8 @@ void main() {
       throwingTest(
         'element (attribute range error)',
         '<element attr1="value1" />',
-        (node) => node.attributes.insert(2, new XmlAttribute(new XmlName('attr2'), 'value2')),
+        (node) => node.attributes
+            .insert(2, new XmlAttribute(new XmlName('attr2'), 'value2')),
         throwsRangeError,
       );
       throwingTest(
@@ -918,7 +954,8 @@ void main() {
       mutatingTest(
         'element (attributes)',
         '<element attr1="value1" />',
-        (node) => node.attributes.insertAll(1, [new XmlAttribute(new XmlName('attr2'), 'value2')]),
+        (node) => node.attributes
+            .insertAll(1, [new XmlAttribute(new XmlName('attr2'), 'value2')]),
         '<element attr1="value1" attr2="value2" />',
       );
       mutatingTest(
@@ -930,7 +967,8 @@ void main() {
       mutatingTest(
         'element (copy attribute)',
         '<element1 attr1="value1"><element2 attr2="value2"/></element1>',
-        (node) => node.children.first.attributes.insertAll(1, [node.attributes.first.copy()]),
+        (node) => node.children.first.attributes
+            .insertAll(1, [node.attributes.first.copy()]),
         '<element1 attr1="value1"><element2 attr2="value2" attr1="value1" /></element1>',
       );
       mutatingTest(
@@ -956,9 +994,8 @@ void main() {
         'element (repeated fragment children)',
         '<element1><element2 /></element1>',
         (node) {
-          var fragment = new XmlDocumentFragment([
-            new XmlElement(new XmlName('element3'))
-          ]);
+          var fragment = new XmlDocumentFragment(
+              [new XmlElement(new XmlName('element3'))]);
           node.children.insertAll(0, [fragment, fragment]);
         },
         '<element1><element3 /><element3 /><element2 /></element1>',
@@ -966,7 +1003,8 @@ void main() {
       throwingTest(
         'element (attribute range error)',
         '<element attr1="value1" />',
-        (node) => node.attributes.insertAll(2, [new XmlAttribute(new XmlName('attr2'), 'value2')]),
+        (node) => node.attributes
+            .insertAll(2, [new XmlAttribute(new XmlName('attr2'), 'value2')]),
         throwsRangeError,
       );
       throwingTest(
@@ -1007,7 +1045,8 @@ void main() {
       mutatingTest(
         'element (attributes)',
         '<element attr1="value1" />',
-        (node) => node.attributes[0] = new XmlAttribute(new XmlName('attr2'), 'value2'),
+        (node) => node.attributes[0] =
+            new XmlAttribute(new XmlName('attr2'), 'value2'),
         '<element attr2="value2" />',
       );
       mutatingTest(
@@ -1019,7 +1058,8 @@ void main() {
       throwingTest(
         'element (attribute range error)',
         '<element attr1="value1" />',
-        (node) => node.attributes[2] = new XmlAttribute(new XmlName('attr2'), 'value2'),
+        (node) => node.attributes[2] =
+            new XmlAttribute(new XmlName('attr2'), 'value2'),
         throwsRangeError,
       );
       throwingTest(
@@ -1166,15 +1206,15 @@ void main() {
       mutatingTest(
         'element (attributes)',
         '<element attr1="value1" attr2="value2" />',
-        (node) => node.attributes
-            .removeWhere((node) => node is XmlAttribute && node.name.local == 'attr2'),
+        (node) => node.attributes.removeWhere(
+            (node) => node is XmlAttribute && node.name.local == 'attr2'),
         '<element attr1="value1" />',
       );
       mutatingTest(
         'element (children)',
         '<element1><element2 /><element3 /></element1>',
-        (node) => node.children
-            .removeWhere((node) => node is XmlElement && node.name.local == 'element3'),
+        (node) => node.children.removeWhere(
+            (node) => node is XmlElement && node.name.local == 'element3'),
         '<element1><element2 /></element1>',
       );
     });
@@ -1182,15 +1222,15 @@ void main() {
       mutatingTest(
         'element (attributes)',
         '<element attr1="value1" attr2="value2" />',
-        (node) => node.attributes
-            .retainWhere((node) => node is XmlAttribute && node.name.local == 'attr1'),
+        (node) => node.attributes.retainWhere(
+            (node) => node is XmlAttribute && node.name.local == 'attr1'),
         '<element attr1="value1" />',
       );
       mutatingTest(
         'element (children)',
         '<element1><element2 /><element3 /></element1>',
-        (node) => node.children
-            .retainWhere((node) => node is XmlElement && node.name.local == 'element2'),
+        (node) => node.children.retainWhere(
+            (node) => node is XmlElement && node.name.local == 'element2'),
         '<element1><element2 /></element1>',
       );
     });
@@ -1264,7 +1304,8 @@ void main() {
       mutatingTest(
         'element (attributes)',
         '<element attr1="value1" attr2="value2" />',
-        (node) => node.attributes.setRange(0, 1, [new XmlAttribute(new XmlName('attr3'), 'value3')]),
+        (node) => node.attributes
+            .setRange(0, 1, [new XmlAttribute(new XmlName('attr3'), 'value3')]),
         '<element attr3="value3" attr2="value2" />',
       );
       throwingTest(
@@ -1276,7 +1317,8 @@ void main() {
       mutatingTest(
         'element (children)',
         '<element1><element2 /><element3 /></element1>',
-        (node) => node.children.setRange(1, 2, [new XmlElement(new XmlName('element4'))]),
+        (node) => node.children
+            .setRange(1, 2, [new XmlElement(new XmlName('element4'))]),
         '<element1><element2 /><element4 /></element1>',
       );
       throwingTest(
@@ -1290,7 +1332,8 @@ void main() {
       mutatingTest(
         'element (attributes)',
         '<element attr1="value1" attr2="value2" />',
-        (node) => node.attributes.replaceRange(0, 1, [new XmlAttribute(new XmlName('attr3'), 'value3')]),
+        (node) => node.attributes.replaceRange(
+            0, 1, [new XmlAttribute(new XmlName('attr3'), 'value3')]),
         '<element attr3="value3" attr2="value2" />',
       );
       throwingTest(
@@ -1302,7 +1345,8 @@ void main() {
       mutatingTest(
         'element (children)',
         '<element1><element2 /><element3 /></element1>',
-        (node) => node.children.replaceRange(1, 2, [new XmlElement(new XmlName('element4'))]),
+        (node) => node.children
+            .replaceRange(1, 2, [new XmlElement(new XmlName('element4'))]),
         '<element1><element2 /><element4 /></element1>',
       );
       throwingTest(
@@ -1343,7 +1387,8 @@ void main() {
         ]);
         element.normalize();
         expect(element.children.length, 2);
-        expect(element.toXmlString(), '<element><element1 /><element2 /></element>');
+        expect(element.toXmlString(),
+            '<element><element1 /><element2 /></element>');
       });
       test('join adjacent text', () {
         var element = new XmlElement(new XmlName('element'), [], [
@@ -1375,20 +1420,24 @@ void main() {
         var element = new XmlElement(new XmlName('element'));
         element.children.add(fragment);
         expect(element.children.length, 5);
-        expect(element.toXmlString(), '<element>aaa<element1 />bbbccc<element2 />ddd</element>');
+        expect(element.toXmlString(),
+            '<element>aaa<element1 />bbbccc<element2 />ddd</element>');
       });
     });
   });
   group('entities', () {
-    String decode(String input) => parse('<data>$input</data>').rootElement.text;
+    String decode(String input) =>
+        parse('<data>$input</data>').rootElement.text;
     String encodeText(String input) => new XmlText(input).toString();
     String encodeAttributeValue(XmlAttributeType type, String input) {
-      var attribute = new XmlAttribute(new XmlName('a'), input, type).toString();
+      var attribute =
+          new XmlAttribute(new XmlName('a'), input, type).toString();
       var quote = type == XmlAttributeType.SINGLE_QUOTE ? "'" : '"';
       expect(attribute.substring(0, 3), 'a=$quote');
       expect(attribute[attribute.length - 1], quote);
       return attribute.substring(3, attribute.length - 1);
     }
+
     test('decode &#xHHHH;', () {
       expect(decode('&#X41;'), 'A');
       expect(decode('&#x61;'), 'a');
@@ -1429,28 +1478,43 @@ void main() {
       expect(encodeText('<foo &amp;>'), '&lt;foo &amp;amp;>');
     });
     test('encode attribute (single quote)', () {
-      expect(encodeAttributeValue(XmlAttributeType.SINGLE_QUOTE, "'"), '&apos;');
+      expect(
+          encodeAttributeValue(XmlAttributeType.SINGLE_QUOTE, "'"), '&apos;');
       expect(encodeAttributeValue(XmlAttributeType.SINGLE_QUOTE, '"'), '"');
-      expect(encodeAttributeValue(XmlAttributeType.SINGLE_QUOTE, '\t'), '&#x9;');
-      expect(encodeAttributeValue(XmlAttributeType.SINGLE_QUOTE, '\n'), '&#xA;');
-      expect(encodeAttributeValue(XmlAttributeType.SINGLE_QUOTE, '\r'), '&#xD;');
-      expect(encodeAttributeValue(XmlAttributeType.SINGLE_QUOTE, 'hello'), 'hello');
-      expect(encodeAttributeValue(XmlAttributeType.SINGLE_QUOTE, "'hello'"), '&apos;hello&apos;');
-      expect(encodeAttributeValue(XmlAttributeType.SINGLE_QUOTE, '"hello"'), '"hello"');
+      expect(
+          encodeAttributeValue(XmlAttributeType.SINGLE_QUOTE, '\t'), '&#x9;');
+      expect(
+          encodeAttributeValue(XmlAttributeType.SINGLE_QUOTE, '\n'), '&#xA;');
+      expect(
+          encodeAttributeValue(XmlAttributeType.SINGLE_QUOTE, '\r'), '&#xD;');
+      expect(encodeAttributeValue(XmlAttributeType.SINGLE_QUOTE, 'hello'),
+          'hello');
+      expect(encodeAttributeValue(XmlAttributeType.SINGLE_QUOTE, "'hello'"),
+          '&apos;hello&apos;');
+      expect(encodeAttributeValue(XmlAttributeType.SINGLE_QUOTE, '"hello"'),
+          '"hello"');
     });
     test('encode attribute (double quote)', () {
       expect(encodeAttributeValue(XmlAttributeType.DOUBLE_QUOTE, "'"), "'");
-      expect(encodeAttributeValue(XmlAttributeType.DOUBLE_QUOTE, '"'), '&quot;');
-      expect(encodeAttributeValue(XmlAttributeType.DOUBLE_QUOTE, '\t'), '&#x9;');
-      expect(encodeAttributeValue(XmlAttributeType.DOUBLE_QUOTE, '\n'), '&#xA;');
-      expect(encodeAttributeValue(XmlAttributeType.DOUBLE_QUOTE, '\r'), '&#xD;');
-      expect(encodeAttributeValue(XmlAttributeType.DOUBLE_QUOTE, 'hello'), 'hello');
-      expect(encodeAttributeValue(XmlAttributeType.DOUBLE_QUOTE, "'hello'"), "'hello'");
-      expect(encodeAttributeValue(XmlAttributeType.DOUBLE_QUOTE, '"hello"'), '&quot;hello&quot;');
+      expect(
+          encodeAttributeValue(XmlAttributeType.DOUBLE_QUOTE, '"'), '&quot;');
+      expect(
+          encodeAttributeValue(XmlAttributeType.DOUBLE_QUOTE, '\t'), '&#x9;');
+      expect(
+          encodeAttributeValue(XmlAttributeType.DOUBLE_QUOTE, '\n'), '&#xA;');
+      expect(
+          encodeAttributeValue(XmlAttributeType.DOUBLE_QUOTE, '\r'), '&#xD;');
+      expect(encodeAttributeValue(XmlAttributeType.DOUBLE_QUOTE, 'hello'),
+          'hello');
+      expect(encodeAttributeValue(XmlAttributeType.DOUBLE_QUOTE, "'hello'"),
+          "'hello'");
+      expect(encodeAttributeValue(XmlAttributeType.DOUBLE_QUOTE, '"hello"'),
+          '&quot;hello&quot;');
     });
   });
   group('axis', () {
-    var bookXml = '<book><title lang="en" price="12.00">XML</title><description/></book>';
+    var bookXml =
+        '<book><title lang="en" price="12.00">XML</title><description/></book>';
     var book = parse(bookXml);
     void verifyIterator(Iterable iterable) {
       var iterator = iterable.iterator;
@@ -1461,22 +1525,17 @@ void main() {
       expect(iterator.moveNext(), isFalse);
       expect(iterator.current, isNull);
     }
+
     test('ancestors', () {
       expect(book.ancestors, []);
       expect(book.children[0].ancestors, [book]);
       expect(book.children[0].children[0].ancestors, [book.children[0], book]);
       expect(book.children[0].children[0].attributes[0].ancestors,
           [book.children[0].children[0], book.children[0], book]);
-      expect(book.children[0].children[0].attributes[1].ancestors, [
-        book.children[0].children[0],
-        book.children[0],
-        book
-      ]);
-      expect(book.children[0].children[0].children[0].ancestors, [
-        book.children[0].children[0],
-        book.children[0],
-        book
-      ]);
+      expect(book.children[0].children[0].attributes[1].ancestors,
+          [book.children[0].children[0], book.children[0], book]);
+      expect(book.children[0].children[0].children[0].ancestors,
+          [book.children[0].children[0], book.children[0], book]);
       expect(book.children[0].children[1].ancestors, [book.children[0], book]);
       verifyIterator(book.children[0].children[1].ancestors);
     });
@@ -1550,9 +1609,8 @@ void main() {
         book.children[0].children[0].children[0],
         book.children[0].children[1]
       ]);
-      expect(book.children[0].children[0].children[0].following, [
-        book.children[0].children[1]
-      ]);
+      expect(book.children[0].children[0].children[0].following,
+          [book.children[0].children[1]]);
       expect(book.children[0].children[1].following, []);
       verifyIterator(book.following);
     });
@@ -1649,7 +1707,8 @@ void main() {
     test('basic', () {
       var builder = new XmlBuilder();
       builder.processing('xml', 'version="1.0" encoding="UTF-8"');
-      builder.processing('xml-stylesheet', 'href="/style.css" type="text/css" title="default stylesheet"');
+      builder.processing('xml-stylesheet',
+          'href="/style.css" type="text/css" title="default stylesheet"');
       builder.element('bookstore', nest: () {
         builder.comment('Only one book?');
         builder.element('book', nest: () {
@@ -1680,10 +1739,12 @@ void main() {
     test('all', () {
       var builder = new XmlBuilder();
       builder.processing('processing', 'instruction');
-      builder.element('element1',
-          attributes: {'attribute1': 'value1'}, nest: () {
-        builder.attribute('attribute2', 'value2', attributeType: XmlAttributeType.DOUBLE_QUOTE);
-        builder.attribute('attribute3', 'value3', attributeType: XmlAttributeType.SINGLE_QUOTE);
+      builder.element('element1', attributes: {'attribute1': 'value1'},
+          nest: () {
+        builder.attribute('attribute2', 'value2',
+            attributeType: XmlAttributeType.DOUBLE_QUOTE);
+        builder.attribute('attribute3', 'value3',
+            attributeType: XmlAttributeType.SINGLE_QUOTE);
         builder.element('element2');
         builder.comment('comment');
         builder.cdata('cdata');
@@ -1712,8 +1773,11 @@ void main() {
     });
     test('nested iterable', () {
       var builder = new XmlBuilder();
-      builder.element('element',
-          nest: [() => builder.text('st'), 'ri', ['n', 'g']]);
+      builder.element('element', nest: [
+        () => builder.text('st'),
+        'ri',
+        ['n', 'g']
+      ]);
       var xml = builder.build();
       assertTreeInvariants(xml);
       var actual = xml.toString();
@@ -1797,20 +1861,21 @@ void main() {
     test('nested node (document)', () {
       var builder = new XmlBuilder();
       var nested = new XmlDocument([]);
-      expect(() => builder.element('element', nest: nested), throwsArgumentError);
+      expect(
+          () => builder.element('element', nest: nested), throwsArgumentError);
     });
     test('nested node (document fragment)', () {
       var builder = new XmlBuilder();
-      var nested = new XmlDocumentFragment([
-        new XmlText('foo'),
-        new XmlComment('bar')
-      ]);
+      var nested =
+          new XmlDocumentFragment([new XmlText('foo'), new XmlComment('bar')]);
       builder.element('element', nest: nested);
       var xml = builder.build();
       assertTreeInvariants(xml);
-      expect(xml.children[0].children[0].toXmlString(), nested.children[0].toXmlString());
+      expect(xml.children[0].children[0].toXmlString(),
+          nested.children[0].toXmlString());
       expect(xml.children[0].children[0], isNot(same(nested.children[0])));
-      expect(xml.children[0].children[1].toXmlString(), nested.children[1].toXmlString());
+      expect(xml.children[0].children[1].toXmlString(),
+          nested.children[1].toXmlString());
       expect(xml.children[0].children[1], isNot(same(nested.children[1])));
       var actual = xml.toString();
       var expected = '<element>foo<!--bar--></element>';
@@ -1861,20 +1926,24 @@ void main() {
       var xml = builder.build();
       assertTreeInvariants(xml);
       var actual = xml.toString();
-      var expected = '<schema xmlns="http://www.w3.org/2001/XMLSchema" lang="en">'
+      var expected =
+          '<schema xmlns="http://www.w3.org/2001/XMLSchema" lang="en">'
           '<element />'
           '</schema>';
       expect(actual, expected);
     });
     test('undefined namespace', () {
       var builder = new XmlBuilder();
-      expect(() => builder.element('element', namespace: 'http://1.foo.com/'), throwsArgumentError);
+      expect(() => builder.element('element', namespace: 'http://1.foo.com/'),
+          throwsArgumentError);
     });
     test('invalid namespace', () {
       var builder = new XmlBuilder();
       builder.element('element', nest: () {
-        expect(() => builder.namespace('http://1.foo.com/', 'xml'), throwsArgumentError);
-        expect(() => builder.namespace('http://2.foo.com/', 'xmlns'), throwsArgumentError);
+        expect(() => builder.namespace('http://1.foo.com/', 'xml'),
+            throwsArgumentError);
+        expect(() => builder.namespace('http://2.foo.com/', 'xmlns'),
+            throwsArgumentError);
       });
       var actual = builder.build().toString();
       var expected = '<element />';
@@ -1884,7 +1953,8 @@ void main() {
       var builder = new XmlBuilder();
       builder.element('element', nest: () {
         builder.namespace('http://1.foo.com/', 'foo');
-        expect(() => builder.namespace('http://2.foo.com/', 'foo'), throwsArgumentError);
+        expect(() => builder.namespace('http://2.foo.com/', 'foo'),
+            throwsArgumentError);
       }, namespace: 'http://1.foo.com/');
       var actual = builder.build().toString();
       var expected = '<foo:element xmlns:foo="http://1.foo.com/" />';
@@ -1971,7 +2041,8 @@ void main() {
       var xml = builder.build();
       assertTreeInvariants(xml);
       var actual = xml.toString();
-      var expected = '<element>&lt;test>&lt;![CDATA[string]]&gt;&lt;/test></element>';
+      var expected =
+          '<element>&lt;test>&lt;![CDATA[string]]&gt;&lt;/test></element>';
       expect(actual, expected);
     });
   });

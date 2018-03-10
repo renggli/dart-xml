@@ -9,9 +9,9 @@ import 'package:xml/xml/visitors/visitor.dart' show XmlVisitor;
 
 /// XML document node.
 class XmlDocument extends XmlParent {
-
   /// Create a document node with `children`.
-  XmlDocument([Iterable<XmlNode> children = const []]) : super(childrenNodeTypes, children);
+  XmlDocument([Iterable<XmlNode> children = const []])
+      : super(childrenNodeTypes, children);
 
   /// Return the [XmlDoctype] element, or `null` if not defined.
   ///
@@ -33,8 +33,9 @@ class XmlDocument extends XmlParent {
   ///               '<books />';
   ///     print(parse(xml).rootElement);
   ///
-  XmlElement get rootElement => children.firstWhere((node) => node is XmlElement,
-      orElse: () => throw new StateError('Empty XML document'));
+  XmlElement get rootElement =>
+      children.firstWhere((node) => node is XmlElement,
+          orElse: () => throw new StateError('Empty XML document'));
 
   @override
   XmlDocument get document => this;

@@ -8,9 +8,9 @@ import 'package:xml/xml/visitors/visitor.dart' show XmlVisitor;
 
 /// XML document fragment node.
 class XmlDocumentFragment extends XmlParent {
-
   /// Create a document fragment node with `children`.
-  XmlDocumentFragment([Iterable<XmlNode> children = const []]) : super(childrenNodeTypes, children);
+  XmlDocumentFragment([Iterable<XmlNode> children = const []])
+      : super(childrenNodeTypes, children);
 
   @override
   XmlDocument get document => null;

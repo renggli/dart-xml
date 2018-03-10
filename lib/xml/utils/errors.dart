@@ -26,7 +26,8 @@ class XmlParentError extends ArgumentError {
   /// Ensure that [owned] has no parent.
   static void checkNoParent(XmlOwned owned) {
     if (owned.hasParent) {
-      throw new XmlParentError('Node already has a parent, copy or remove it first: $owned');
+      throw new XmlParentError(
+          'Node already has a parent, copy or remove it first: $owned');
     }
   }
 

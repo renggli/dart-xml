@@ -16,7 +16,8 @@ class XmlNormalizer extends XmlVisitor {
   void visitDocument(XmlDocument node) => _normalize(node.children);
 
   @override
-  void visitDocumentFragment(XmlDocumentFragment node) => _normalize(node.children);
+  void visitDocumentFragment(XmlDocumentFragment node) =>
+      _normalize(node.children);
 
   @override
   void visitElement(XmlElement node) => _normalize(node.children);

@@ -14,11 +14,12 @@ import 'package:xml/xml/visitors/visitor.dart' show XmlVisitor;
 class XmlElement extends XmlParent implements XmlNamed {
   final XmlName _name;
 
-  final XmlNodeList<XmlAttribute> _attributes = new XmlNodeList(attributeNodeTypes);
+  final _attributes = new XmlNodeList<XmlAttribute>(attributeNodeTypes);
 
   /// Create an element node with the provided `name`, `attributes`, and `children`.
   XmlElement(this._name,
-      [Iterable<XmlAttribute> attributes = const [], Iterable<XmlNode> children = const []])
+      [Iterable<XmlAttribute> attributes = const [],
+      Iterable<XmlNode> children = const []])
       : super(childrenNodeTypes, children) {
     _name.attachParent(this);
     _attributes.attachParent(this);
@@ -41,7 +42,8 @@ class XmlElement extends XmlParent implements XmlNamed {
 
   /// Return the attribute node with the given `name`.
   XmlAttribute getAttributeNode(String name, {String namespace}) {
-    return _attributes.firstWhere(createNameMatcher(name, namespace), orElse: () => null);
+    return _attributes.firstWhere(createNameMatcher(name, namespace),
+        orElse: () => null);
   }
 
   @override

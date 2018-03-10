@@ -16,7 +16,8 @@ import 'package:xml/xml/utils/name.dart';
 /// XML parser that defines standard actions to the the XML tree.
 class XmlParserDefinition extends XmlGrammarDefinition<XmlNode, XmlName> {
   @override
-  XmlAttribute createAttribute(XmlName name, String text, XmlAttributeType attributeType) =>
+  XmlAttribute createAttribute(
+          XmlName name, String text, XmlAttributeType attributeType) =>
       new XmlAttribute(name, text, attributeType);
 
   @override
@@ -29,15 +30,17 @@ class XmlParserDefinition extends XmlGrammarDefinition<XmlNode, XmlName> {
   XmlDoctype createDoctype(String text) => new XmlDoctype(text);
 
   @override
-  XmlDocument createDocument(Iterable<XmlNode> children) => new XmlDocument(children);
+  XmlDocument createDocument(Iterable<XmlNode> children) =>
+      new XmlDocument(children);
 
   @override
-  XmlElement createElement(
-          XmlName name, Iterable<XmlNode> attributes, Iterable<XmlNode> children) =>
+  XmlElement createElement(XmlName name, Iterable<XmlNode> attributes,
+          Iterable<XmlNode> children) =>
       new XmlElement(name, new List<XmlAttribute>.from(attributes), children);
 
   @override
-  XmlProcessing createProcessing(String target, String text) => new XmlProcessing(target, text);
+  XmlProcessing createProcessing(String target, String text) =>
+      new XmlProcessing(target, text);
 
   @override
   XmlName createQualified(String name) => new XmlName.fromString(name);
