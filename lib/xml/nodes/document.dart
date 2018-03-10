@@ -46,7 +46,7 @@ class XmlDocument extends XmlParent {
   XmlNodeType get nodeType => XmlNodeType.DOCUMENT;
 
   @override
-  E accept<E>(XmlVisitor<E> visitor) => visitor.visitDocument(this);
+  dynamic accept(XmlVisitor visitor) => visitor.visitDocument(this);
 }
 
 /// Supported child node types.

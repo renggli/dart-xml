@@ -13,5 +13,5 @@ class XmlComment extends XmlData {
   XmlNodeType get nodeType => XmlNodeType.COMMENT;
 
   @override
-  E accept<E>(XmlVisitor<E> visitor) => visitor.visitComment(this);
+  dynamic accept(XmlVisitor visitor) => visitor.visitComment(this);
 }

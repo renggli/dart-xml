@@ -13,5 +13,5 @@ class XmlText extends XmlData {
   XmlNodeType get nodeType => XmlNodeType.TEXT;
 
   @override
-  E accept<E>(XmlVisitor<E> visitor) => visitor.visitText(this);
+  dynamic accept(XmlVisitor visitor) => visitor.visitText(this);
 }

@@ -10,13 +10,12 @@ import 'package:xml/xml/nodes/element.dart' show XmlElement;
 import 'package:xml/xml/nodes/processing.dart' show XmlProcessing;
 import 'package:xml/xml/nodes/text.dart' show XmlText;
 import 'package:xml/xml/utils/name.dart' show XmlName;
-import 'package:xml/xml/visitors/visitable.dart' show XmlVisitable;
 import 'package:xml/xml/visitors/visitor.dart' show XmlVisitor;
 
 /// Transformer that creates an identical copy of the visited nodes.
 ///
 /// Subclass can override one or more of the methods to modify the generated copy.
-class XmlTransformer extends XmlVisitor<XmlVisitable> {
+class XmlTransformer extends XmlVisitor {
   const XmlTransformer();
 
   @override

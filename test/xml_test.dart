@@ -727,51 +727,6 @@ void main() {
         throwsA(isXmlNodeTypeError),
       );
       throwingTest(
-        'element (cdata attributes)',
-        '<element />',
-        (node) {
-          XmlNode wrong = new XmlCDATA('invalid');
-          node.attributes.add(wrong);
-        },
-        throwsA(isXmlNodeTypeError),
-      );
-      throwingTest(
-        'element (comment attributes)',
-        '<element />',
-        (node) {
-          XmlNode wrong = new XmlComment('invalid');
-          node.attributes.add(wrong);
-        },
-        throwsA(isXmlNodeTypeError),
-      );
-      throwingTest(
-        'element (element attributes)',
-        '<element />',
-        (node) {
-          XmlNode wrong = new XmlElement(new XmlName('invalid'));
-          node.attributes.add(wrong);
-        },
-        throwsA(isXmlNodeTypeError),
-      );
-      throwingTest(
-        'element (processing attributes)',
-        '<element />',
-        (node) {
-          XmlNode wrong = new XmlProcessing('invalid', 'invalid');
-          node.attributes.add(wrong);
-        },
-        throwsA(isXmlNodeTypeError),
-      );
-      throwingTest(
-        'element (text attributes)',
-        '<element />',
-        (node) {
-          XmlNode wrong = new XmlText('invalid');
-          node.attributes.add(wrong);
-        },
-        throwsA(isXmlNodeTypeError),
-      );
-      throwingTest(
         'element (null children)',
         '<element />',
         (node) => node.children.add(null),
@@ -846,51 +801,6 @@ void main() {
         'element (null attributes)',
         '<element />',
         (node) => node.attributes.addAll([null]),
-        throwsA(isXmlNodeTypeError),
-      );
-      throwingTest(
-        'element (cdata attributes)',
-        '<element />',
-        (node) {
-          XmlNode wrong = new XmlCDATA('invalid');
-          node.attributes.addAll([wrong]);
-        },
-        throwsA(isXmlNodeTypeError),
-      );
-      throwingTest(
-        'element (comment attributes)',
-        '<element />',
-        (node) {
-          XmlNode wrong = new XmlComment('invalid');
-          node.attributes.addAll([wrong]);
-        },
-        throwsA(isXmlNodeTypeError),
-      );
-      throwingTest(
-        'element (element attributes)',
-        '<element />',
-        (node) {
-          XmlNode wrong = new XmlElement(new XmlName('invalid'));
-          node.attributes.addAll([wrong]);
-        },
-        throwsA(isXmlNodeTypeError),
-      );
-      throwingTest(
-        'element (processing attributes)',
-        '<element />',
-        (node) {
-          XmlNode wrong = new XmlProcessing('invalid', 'invalid');
-          node.attributes.addAll([wrong]);
-        },
-        throwsA(isXmlNodeTypeError),
-      );
-      throwingTest(
-        'element (text attributes)',
-        '<element />',
-        (node) {
-          XmlNode wrong = new XmlText('invalid');
-          node.attributes.addAll([wrong]);
-        },
         throwsA(isXmlNodeTypeError),
       );
       throwingTest(
@@ -974,51 +884,6 @@ void main() {
         'element (null attributes)',
         '<element />',
         (node) => node.attributes.insert(0, null),
-        throwsA(isXmlNodeTypeError),
-      );
-      throwingTest(
-        'element (cdata attributes)',
-        '<element />',
-        (node) {
-          XmlNode wrong = new XmlCDATA('invalid');
-          node.attributes.insert(0, wrong);
-        },
-        throwsA(isXmlNodeTypeError),
-      );
-      throwingTest(
-        'element (comment attributes)',
-        '<element />',
-        (node) {
-          XmlNode wrong = new XmlComment('invalid');
-          node.attributes.insert(0, wrong);
-        },
-        throwsA(isXmlNodeTypeError),
-      );
-      throwingTest(
-        'element (element attributes)',
-        '<element />',
-        (node) {
-          XmlNode wrong = new XmlElement(new XmlName('invalid'));
-          node.attributes.insert(0, wrong);
-        },
-        throwsA(isXmlNodeTypeError),
-      );
-      throwingTest(
-        'element (processing attributes)',
-        '<element />',
-        (node) {
-          XmlNode wrong = new XmlProcessing('invalid', 'invalid');
-          node.attributes.insert(0, wrong);
-        },
-        throwsA(isXmlNodeTypeError),
-      );
-      throwingTest(
-        'element (text attributes)',
-        '<element />',
-        (node) {
-          XmlNode wrong = new XmlText('invalid');
-          node.attributes.insert(0, wrong);
-        },
         throwsA(isXmlNodeTypeError),
       );
       throwingTest(
@@ -1111,51 +976,6 @@ void main() {
         throwsA(isXmlNodeTypeError),
       );
       throwingTest(
-        'element (cdata attributes)',
-        '<element />',
-        (node) {
-          XmlNode wrong = new XmlCDATA('invalid');
-          node.attributes.insertAll(0, [wrong]);
-        },
-        throwsA(isXmlNodeTypeError),
-      );
-      throwingTest(
-        'element (comment attributes)',
-        '<element />',
-        (node) {
-          XmlNode wrong = new XmlComment('invalid');
-          node.attributes.insertAll(0, [wrong]);
-        },
-        throwsA(isXmlNodeTypeError),
-      );
-      throwingTest(
-        'element (element attributes)',
-        '<element />',
-        (node) {
-          XmlNode wrong = new XmlElement(new XmlName('invalid'));
-          node.attributes.insertAll(0, [wrong]);
-        },
-        throwsA(isXmlNodeTypeError),
-      );
-      throwingTest(
-        'element (processing attributes)',
-        '<element />',
-        (node) {
-          XmlNode wrong = new XmlProcessing('invalid', 'invalid');
-          node.attributes.insertAll(0, [wrong]);
-        },
-        throwsA(isXmlNodeTypeError),
-      );
-      throwingTest(
-        'element (text attributes)',
-        '<element />',
-        (node) {
-          XmlNode wrong = new XmlText('invalid');
-          node.attributes.insertAll(0, [wrong]);
-        },
-        throwsA(isXmlNodeTypeError),
-      );
-      throwingTest(
         'element (children range error)',
         '<element>Hello</element>',
         (node) => node.children.insertAll(2, [new XmlText(' World')]),
@@ -1206,51 +1026,6 @@ void main() {
         'element (null attributes)',
         '<element attr="value" />',
         (node) => node.attributes[0] = null,
-        throwsA(isXmlNodeTypeError),
-      );
-      throwingTest(
-        'element (cdata attributes)',
-        '<element attr="value" />',
-        (node) {
-          XmlNode wrong = new XmlCDATA('invalid');
-          node.attributes[0] = wrong;
-        },
-        throwsA(isXmlNodeTypeError),
-      );
-      throwingTest(
-        'element (comment attributes)',
-        '<element attr="value" />',
-        (node) {
-          XmlNode wrong = new XmlComment('invalid');
-          node.attributes[0] = wrong;
-        },
-        throwsA(isXmlNodeTypeError),
-      );
-      throwingTest(
-        'element (element attributes)',
-        '<element attr="value" />',
-        (node) {
-          XmlNode wrong = new XmlElement(new XmlName('invalid'));
-          node.attributes[0] = wrong;
-        },
-        throwsA(isXmlNodeTypeError),
-      );
-      throwingTest(
-        'element (processing attributes)',
-        '<element attr="value" />',
-        (node) {
-          XmlNode wrong = new XmlProcessing('invalid', 'invalid');
-          node.attributes[0] = wrong;
-        },
-        throwsA(isXmlNodeTypeError),
-      );
-      throwingTest(
-        'element (text attributes)',
-        '<element attr="value" />',
-        (node) {
-          XmlNode wrong = new XmlText('invalid');
-          node.attributes[0] = wrong;
-        },
         throwsA(isXmlNodeTypeError),
       );
       throwingTest(

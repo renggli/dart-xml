@@ -13,5 +13,5 @@ class XmlDoctype extends XmlData {
   XmlNodeType get nodeType => XmlNodeType.DOCUMENT_TYPE;
 
   @override
-  E accept<E>(XmlVisitor<E> visitor) => visitor.visitDoctype(this);
+  dynamic accept(XmlVisitor visitor) => visitor.visitDoctype(this);
 }
