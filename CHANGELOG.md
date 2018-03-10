@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.1
+
+* Fixed strong mode error.
+
 ## 3.0.0-alpha
 
 * Mutable DOM.
