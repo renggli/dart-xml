@@ -1,19 +1,18 @@
 language: dart
 sudo: required
 dart:
-  - dev
   - stable
+  - dev
 dart_task:
   - test: --platform vm
   - test: --platform chrome
   - dartanalyzer
+  - dartfmt
 matrix:
-  include:
-    - dart: stable
-      after_success: ./tool/coverage.sh
-  include:
-    - dart: stable
-      dart_task: dartfmt
+  allow_failures:
+  - dart: dev
 cache:
   directories:
     - $HOME/.pub-cache
+script:
+  - ./tool/travis.sh
