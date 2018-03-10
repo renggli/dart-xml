@@ -34,7 +34,7 @@ class XmlParserDefinition extends XmlGrammarDefinition<XmlNode, XmlName> {
   @override
   XmlElement createElement(
           XmlName name, Iterable<XmlNode> attributes, Iterable<XmlNode> children) =>
-      new XmlElement(name, attributes, children);
+      new XmlElement(name, new List<XmlAttribute>.from(attributes), children);
 
   @override
   XmlProcessing createProcessing(String target, String text) => new XmlProcessing(target, text);

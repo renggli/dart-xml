@@ -3,6 +3,7 @@ library xml.iterators.following;
 import 'dart:collection' show IterableBase;
 
 import 'package:xml/xml/nodes/node.dart' show XmlNode;
+import 'package:xml/xml/nodes/attribute.dart' show XmlAttribute;
 
 /// Iterable to walk over the followers of a node.
 class XmlFollowingIterable extends IterableBase<XmlNode> {
@@ -19,12 +20,12 @@ class XmlFollowingIterator extends Iterator<XmlNode> {
   final List<XmlNode> todo = [];
 
   XmlFollowingIterator(XmlNode start) {
-    var following = [];
+    var following = <XmlNode>[];
     for (var parent = start.parent, child = start;
         parent != null;
         parent = parent.parent, child = child.parent) {
-      var attributesIndex = parent.attributes.indexOf(child);
-      if (attributesIndex != -1) {
+      if (child is XmlAttribute) {
+        var attributesIndex = parent.attributes.indexOf(child);
         following.addAll(parent.attributes.sublist(attributesIndex + 1));
         following.addAll(parent.children);
       } else {
