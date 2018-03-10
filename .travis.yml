@@ -1,8 +1,12 @@
 language: dart
-sudo: false
 dart:
   - stable
   - dev
+dart_task:
+  - test: --platform vm
+  - test: --platform chrome
+  - dartanalyzer
+  - dartfmt
 matrix:
   allow_failures:
   - dart: dev
