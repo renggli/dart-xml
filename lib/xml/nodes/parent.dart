@@ -8,22 +8,20 @@ import 'package:xml/xml/utils/node_type.dart' show XmlNodeType;
 
 /// Abstract XML node with actual children.
 abstract class XmlParent extends XmlNode {
-  final XmlNodeList<XmlNode> _children;
-
-  /// Create a node with a list of `children`.
+  /// Create a node with a list of [children].
   XmlParent(Set<XmlNodeType> supportedChildrenTypes, Iterable<XmlNode> children)
-      : _children = new XmlNodeList(supportedChildrenTypes) {
-    _children.attachParent(this);
-    _children.addAll(children);
+      : children = new XmlNodeList(supportedChildrenTypes) {
+    this.children.attachParent(this);
+    this.children.addAll(children);
   }
 
   /// Return the direct children of this node.
   @override
-  List<XmlNode> get children => _children;
+  final XmlNodeList<XmlNode> children;
 
-  /// Return the _direct_ child elements with the given tag `name`.
+  /// Return the _direct_ child elements with the given tag [name].
   Iterable<XmlElement> findElements(String name, {String namespace}) =>
-      _filterElements(_children, name, namespace);
+      _filterElements(children, name, namespace);
 
   /// Return the _recursive_ child elements with the specified tag `name`.
   Iterable<XmlElement> findAllElements(String name, {String namespace}) =>

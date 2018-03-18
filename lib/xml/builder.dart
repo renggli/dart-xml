@@ -187,7 +187,7 @@ class XmlBuilder {
     _stack.last.namespaces[uri] = meta;
   }
 
-  /// Returns the resulting [XmlNode].
+  /// Return the resulting [XmlNode].
   XmlNode build() => _stack.last.build();
 
   // Internal method to build a name.

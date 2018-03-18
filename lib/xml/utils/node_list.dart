@@ -10,16 +10,16 @@ import 'package:xml/xml/utils/errors.dart'
 
 /// Mutable list of XmlNodes, manages the parenting of the nodes.
 class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
-  /// The shared list of supported node types.
-  final Set<XmlNodeType> _validNodeTypes;
+  XmlNodeList(this.validNodeTypes) : super(<E>[]);
 
-  XmlNodeList(this._validNodeTypes) : super(<E>[]);
+  /// Return the shared list of supported node types.
+  final Set<XmlNodeType> validNodeTypes;
 
   @override
   void operator []=(int index, E node) {
     XmlNodeTypeError.checkNotNull(node);
     RangeError.checkValidIndex(index, this);
-    XmlNodeTypeError.checkValidType(node, _validNodeTypes);
+    XmlNodeTypeError.checkValidType(node, validNodeTypes);
     XmlParentError.checkNoParent(node);
     this[index].detachParent(parent);
     super[index] = node;
@@ -36,7 +36,7 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
     if (node.nodeType == XmlNodeType.DOCUMENT_FRAGMENT) {
       addAll(_expandFragment(node));
     } else {
-      XmlNodeTypeError.checkValidType(node, _validNodeTypes);
+      XmlNodeTypeError.checkValidType(node, validNodeTypes);
       XmlParentError.checkNoParent(node);
       super.add(node);
       node.attachParent(parent);
@@ -147,7 +147,7 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
     if (node.nodeType == XmlNodeType.DOCUMENT_FRAGMENT) {
       insertAll(index, _expandFragment(node));
     } else {
-      XmlNodeTypeError.checkValidType(node, _validNodeTypes);
+      XmlNodeTypeError.checkValidType(node, validNodeTypes);
       XmlParentError.checkNoParent(node);
       super.insert(index, node);
       node.attachParent(parent);
@@ -172,7 +172,7 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
 
   Iterable<E> _expandFragment(E fragment) {
     return fragment.children.map((node) {
-      XmlNodeTypeError.checkValidType(node, _validNodeTypes);
+      XmlNodeTypeError.checkValidType(node, validNodeTypes);
       return node.copy();
     });
   }
@@ -184,7 +184,7 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
       if (node.nodeType == XmlNodeType.DOCUMENT_FRAGMENT) {
         expanded.addAll(_expandFragment(node));
       } else {
-        XmlNodeTypeError.checkValidType(node, _validNodeTypes);
+        XmlNodeTypeError.checkValidType(node, validNodeTypes);
         XmlParentError.checkNoParent(node);
         expanded.add(node);
       }

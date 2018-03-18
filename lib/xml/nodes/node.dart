@@ -17,18 +17,18 @@ import 'package:xml/xml/visitors/transformer.dart' show XmlTransformer;
 
 /// Immutable abstract XML node.
 abstract class XmlNode extends Object with XmlVisitable, XmlWritable, XmlOwned {
-  /// Return the attribute nodes of this node.
-  List<XmlAttribute> get attributes => const [];
-
   /// Return the direct children of this node.
   List<XmlNode> get children => const [];
+
+  /// Return the attribute nodes of this node.
+  List<XmlAttribute> get attributes => const [];
 
   /// Return an iterable of the nodes preceding the opening tag of this node
   /// in document order.
   Iterable<XmlNode> get preceding => new XmlPrecedingIterable(this);
 
-  /// Return an iterable over the descendants of this node (children, grandchildren,
-  /// ...) in document order.
+  /// Return an iterable over the descendants of this node (children,
+  /// grandchildren, ...) in document order.
   Iterable<XmlNode> get descendants => new XmlDescendantsIterable(this);
 
   /// Return an iterable of the nodes following the closing tag of this node

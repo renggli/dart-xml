@@ -12,27 +12,25 @@ import 'package:xml/xml/visitors/visitor.dart' show XmlVisitor;
 
 /// XML element node.
 class XmlElement extends XmlParent implements XmlNamed {
-  final XmlName _name;
-
-  final _attributes = new XmlNodeList<XmlAttribute>(attributeNodeTypes);
-
-  /// Create an element node with the provided `name`, `attributes`, and `children`.
-  XmlElement(this._name,
+  /// Create an element node with the provided [name], [attributes], and
+  /// [children].
+  XmlElement(this.name,
       [Iterable<XmlAttribute> attributes = const [],
       Iterable<XmlNode> children = const []])
-      : super(childrenNodeTypes, children) {
-    _name.attachParent(this);
-    _attributes.attachParent(this);
-    _attributes.addAll(attributes);
+      : attributes = new XmlNodeList(attributeNodeTypes),
+        super(childrenNodeTypes, children) {
+    this.name.attachParent(this);
+    this.attributes.attachParent(this);
+    this.attributes.addAll(attributes);
   }
 
   /// Return the name of the node.
   @override
-  XmlName get name => _name;
+  final XmlName name;
 
   /// Return the attribute nodes of this node.
   @override
-  List<XmlAttribute> get attributes => _attributes;
+  final XmlNodeList<XmlAttribute> attributes;
 
   /// Return the attribute value with the given `name`.
   String getAttribute(String name, {String namespace}) {
@@ -42,7 +40,7 @@ class XmlElement extends XmlParent implements XmlNamed {
 
   /// Return the attribute node with the given `name`.
   XmlAttribute getAttributeNode(String name, {String namespace}) {
-    return _attributes.firstWhere(createNameMatcher(name, namespace),
+    return attributes.firstWhere(createNameMatcher(name, namespace),
         orElse: () => null);
   }
 
