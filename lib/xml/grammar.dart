@@ -125,13 +125,13 @@ abstract class XmlGrammarDefinition<TNode, TName> extends GrammarDefinition {
           .map((list) {
         if (list[4] == CLOSE_END_ELEMENT) {
           return createElement(
-              list[1] as TName, new List<TNode>.from(list[2]), []);
+              list[1] as TName, new List<TNode>.from(list[2]).map((f) => f), [].map((f) => f));
         } else {
           if (list[1] == list[4][3]) {
             return createElement(
                 list[1] as TName,
-                new List<TNode>.from(list[2]),
-                new List<TNode>.from(list[4][1]));
+                new List<TNode>.from(list[2]).map((f) => f),
+                new List<TNode>.from(list[4][1]).map((f) => f));
           } else {
             throw new ArgumentError(
                 'Expected </${list[1]}>, but found </${list[4][3]}>');
