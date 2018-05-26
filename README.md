@@ -167,11 +167,14 @@ Misc
 
 ### Examples
 
-There are various open source projects using this package:
+There are numerous packages depending on this package:
 
-- [dart-xrd](https://github.com/stevenroose/dart-xrd) is a library to read Extensible Resource Descriptors.
+- [image](https://github.com/brendan-duncan/image) decodes, encodes and processes image formats.
+- [StageXL](http://www.stagexl.org/) is a 2D rendering engine.
+- [Extensible Resource Descriptors](https://github.com/stevenroose/dart-xrd) is a library to read Extensible Resource Descriptors.
 - [xml2json](https://github.com/shamblett/xml2json) is an XML to JSON conversion package.
 - [spreadsheet_decoder](https://github.com/sestegra/spreadsheet_decoder) is a library for decoding and updating spreadsheets for ODS and XLSX files.
+- [and many more](https://pub.dartlang.org/packages?q=dependency%3Axml) ...
 
 ### Supports
 
