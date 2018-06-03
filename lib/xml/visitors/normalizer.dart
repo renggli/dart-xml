@@ -3,10 +3,10 @@ library xml.visitors.normalizer;
 import 'package:xml/xml/nodes/document.dart' show XmlDocument;
 import 'package:xml/xml/nodes/document_fragment.dart' show XmlDocumentFragment;
 import 'package:xml/xml/nodes/element.dart' show XmlElement;
-import 'package:xml/xml/nodes/text.dart' show XmlText;
 import 'package:xml/xml/nodes/node.dart' show XmlNode;
-import 'package:xml/xml/visitors/visitor.dart' show XmlVisitor;
+import 'package:xml/xml/nodes/text.dart' show XmlText;
 import 'package:xml/xml/utils/node_type.dart';
+import 'package:xml/xml/visitors/visitor.dart' show XmlVisitor;
 
 /// Normalizes a node tree in-place.
 class XmlNormalizer extends XmlVisitor {

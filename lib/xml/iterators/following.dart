@@ -2,8 +2,8 @@ library xml.iterators.following;
 
 import 'dart:collection' show IterableBase;
 
-import 'package:xml/xml/nodes/node.dart' show XmlNode;
 import 'package:xml/xml/nodes/attribute.dart' show XmlAttribute;
+import 'package:xml/xml/nodes/node.dart' show XmlNode;
 
 /// Iterable to walk over the followers of a node.
 class XmlFollowingIterable extends IterableBase<XmlNode> {

@@ -12,8 +12,8 @@ import 'package:xml/xml/utils/node_type.dart' show XmlNodeType;
 import 'package:xml/xml/utils/owned.dart' show XmlOwned;
 import 'package:xml/xml/utils/writable.dart' show XmlWritable;
 import 'package:xml/xml/visitors/normalizer.dart' show XmlNormalizer;
-import 'package:xml/xml/visitors/visitable.dart' show XmlVisitable;
 import 'package:xml/xml/visitors/transformer.dart' show XmlTransformer;
+import 'package:xml/xml/visitors/visitable.dart' show XmlVisitable;
 
 /// Immutable abstract XML node.
 abstract class XmlNode extends Object with XmlVisitable, XmlWritable, XmlOwned {
