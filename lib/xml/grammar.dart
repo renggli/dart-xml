@@ -33,28 +33,28 @@ abstract class XmlGrammarDefinition<TNode, TName> extends GrammarDefinition {
 
   Parser attribute() => ref(qualified)
       .seq(ref(spaceOptional))
-      .seq(char(XmlToken.EQUALS))
+      .seq(char(XmlToken.equals))
       .seq(ref(spaceOptional))
       .seq(ref(attributeValue))
       .map((each) => createAttribute(each[0] as TName, each[4][0], each[4][1]));
   Parser attributeValue() =>
       ref(attributeValueDouble).or(ref(attributeValueSingle));
-  Parser attributeValueDouble() => char(XmlToken.DOUBLE_QUOTE)
-      .seq(new XmlCharacterDataParser(XmlToken.DOUBLE_QUOTE, 0))
-      .seq(char(XmlToken.DOUBLE_QUOTE))
+  Parser attributeValueDouble() => char(XmlToken.doubleQuote)
+      .seq(new XmlCharacterDataParser(XmlToken.doubleQuote, 0))
+      .seq(char(XmlToken.doubleQuote))
       .map((each) => [each[1], XmlAttributeType.DOUBLE_QUOTE]);
-  Parser attributeValueSingle() => char(XmlToken.SINGLE_QUOTE)
-      .seq(new XmlCharacterDataParser(XmlToken.SINGLE_QUOTE, 0))
-      .seq(char(XmlToken.SINGLE_QUOTE))
+  Parser attributeValueSingle() => char(XmlToken.singleQuote)
+      .seq(new XmlCharacterDataParser(XmlToken.singleQuote, 0))
+      .seq(char(XmlToken.singleQuote))
       .map((each) => [each[1], XmlAttributeType.SINGLE_QUOTE]);
   Parser attributes() => ref(space).seq(ref(attribute)).pick(1).star();
-  Parser comment() => string(XmlToken.OPEN_COMMENT)
-      .seq(any().starLazy(string(XmlToken.CLOSE_COMMENT)).flatten())
-      .seq(string(XmlToken.CLOSE_COMMENT))
+  Parser comment() => string(XmlToken.openComment)
+      .seq(any().starLazy(string(XmlToken.closeComment)).flatten())
+      .seq(string(XmlToken.closeComment))
       .map((each) => createComment(each[1]));
-  Parser cdata() => string(XmlToken.OPEN_CDATA)
-      .seq(any().starLazy(string(XmlToken.CLOSE_CDATA)).flatten())
-      .seq(string(XmlToken.CLOSE_CDATA))
+  Parser cdata() => string(XmlToken.openCDATA)
+      .seq(any().starLazy(string(XmlToken.closeCDATA)).flatten())
+      .seq(string(XmlToken.closeCDATA))
       .map((each) => createCDATA(each[1]));
   Parser content() => ref(characterData)
       .or(ref(element))
@@ -62,19 +62,19 @@ abstract class XmlGrammarDefinition<TNode, TName> extends GrammarDefinition {
       .or(ref(comment))
       .or(ref(cdata))
       .star();
-  Parser doctype() => string(XmlToken.OPEN_DOCTYPE)
+  Parser doctype() => string(XmlToken.openDoctype)
       .seq(ref(space))
       .seq(ref(nameToken)
           .or(ref(attributeValue))
           .or(any()
-              .starLazy(char(XmlToken.OPEN_DOCTYPE_BLOCK))
-              .seq(char(XmlToken.OPEN_DOCTYPE_BLOCK))
-              .seq(any().starLazy(char(XmlToken.CLOSE_DOCTYPE_BLOCK)))
-              .seq(char(XmlToken.CLOSE_DOCTYPE_BLOCK)))
+              .starLazy(char(XmlToken.openDoctypeBlock))
+              .seq(char(XmlToken.openDoctypeBlock))
+              .seq(any().starLazy(char(XmlToken.closeDoctypeBlock)))
+              .seq(char(XmlToken.closeDoctypeBlock)))
           .separatedBy(ref(space))
           .flatten())
       .seq(ref(spaceOptional))
-      .seq(char(XmlToken.CLOSE_DOCTYPE))
+      .seq(char(XmlToken.closeDoctype))
       .map((each) => createDoctype(each[2]));
   Parser document() => ref(misc)
           .seq(ref(doctype).optional())
@@ -92,18 +92,18 @@ abstract class XmlGrammarDefinition<TNode, TName> extends GrammarDefinition {
         nodes.addAll(each[4]);
         return createDocument(new List<TNode>.from(nodes));
       });
-  Parser element() => char(XmlToken.OPEN_ELEMENT)
+  Parser element() => char(XmlToken.openElement)
           .seq(ref(qualified))
           .seq(ref(attributes))
           .seq(ref(spaceOptional))
-          .seq(string(XmlToken.CLOSE_END_ELEMENT).or(char(XmlToken.CLOSE_ELEMENT)
+          .seq(string(XmlToken.closeEndElement).or(char(XmlToken.closeElement)
               .seq(ref(content))
-              .seq(string(XmlToken.OPEN_END_ELEMENT))
+              .seq(string(XmlToken.openEndElement))
               .seq(ref(qualified))
               .seq(ref(spaceOptional))
-              .seq(char(XmlToken.CLOSE_ELEMENT))))
+              .seq(char(XmlToken.closeElement))))
           .map((list) {
-        if (list[4] == XmlToken.CLOSE_END_ELEMENT) {
+        if (list[4] == XmlToken.closeEndElement) {
           return createElement(
               list[1] as TName, new List<TNode>.from(list[2]), []);
         } else {
@@ -118,18 +118,18 @@ abstract class XmlGrammarDefinition<TNode, TName> extends GrammarDefinition {
           }
         }
       });
-  Parser processing() => string(XmlToken.OPEN_PROCESSING)
+  Parser processing() => string(XmlToken.openProcessing)
       .seq(ref(nameToken))
       .seq(ref(space)
-          .seq(any().starLazy(string(XmlToken.CLOSE_PROCESSING)).flatten())
+          .seq(any().starLazy(string(XmlToken.closeProcessing)).flatten())
           .pick(1)
           .optional(''))
-      .seq(string(XmlToken.CLOSE_PROCESSING))
+      .seq(string(XmlToken.closeProcessing))
       .map((each) => createProcessing(each[1], each[2]));
   Parser qualified() => ref(nameToken).map(createQualified);
 
   Parser characterData() =>
-      new XmlCharacterDataParser(XmlToken.OPEN_ELEMENT, 1).map(createText);
+      new XmlCharacterDataParser(XmlToken.openElement, 1).map(createText);
   Parser misc() => ref(spaceText).or(ref(comment)).or(ref(processing)).star();
   Parser space() => whitespace().plus();
   Parser spaceText() => ref(space).flatten().map(createText);

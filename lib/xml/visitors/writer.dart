@@ -25,7 +25,7 @@ class XmlWriter extends XmlVisitor {
   @override
   void visitAttribute(XmlAttribute node) {
     visit(node.name);
-    buffer.write(XmlToken.EQUALS);
+    buffer.write(XmlToken.equals);
     final quote = attributeQuote[node.attributeType];
     buffer.write(quote);
     buffer.write(encodeXmlAttributeValue(node.value, node.attributeType));
@@ -34,24 +34,24 @@ class XmlWriter extends XmlVisitor {
 
   @override
   void visitCDATA(XmlCDATA node) {
-    buffer.write(XmlToken.OPEN_CDATA);
+    buffer.write(XmlToken.openCDATA);
     buffer.write(node.text);
-    buffer.write(XmlToken.CLOSE_CDATA);
+    buffer.write(XmlToken.closeCDATA);
   }
 
   @override
   void visitComment(XmlComment node) {
-    buffer.write(XmlToken.OPEN_COMMENT);
+    buffer.write(XmlToken.openComment);
     buffer.write(node.text);
-    buffer.write(XmlToken.CLOSE_COMMENT);
+    buffer.write(XmlToken.closeComment);
   }
 
   @override
   void visitDoctype(XmlDoctype node) {
-    buffer.write(XmlToken.OPEN_DOCTYPE);
-    buffer.write(XmlToken.WHITESPACE);
+    buffer.write(XmlToken.openDoctype);
+    buffer.write(XmlToken.whitespace);
     buffer.write(node.text);
-    buffer.write(XmlToken.CLOSE_DOCTYPE);
+    buffer.write(XmlToken.closeDoctype);
   }
 
   @override
@@ -66,18 +66,18 @@ class XmlWriter extends XmlVisitor {
 
   @override
   void visitElement(XmlElement node) {
-    buffer.write(XmlToken.OPEN_ELEMENT);
+    buffer.write(XmlToken.openElement);
     visit(node.name);
     writeAttributes(node);
     if (node.children.isEmpty) {
-      buffer.write(XmlToken.WHITESPACE);
-      buffer.write(XmlToken.CLOSE_END_ELEMENT);
+      buffer.write(XmlToken.whitespace);
+      buffer.write(XmlToken.closeEndElement);
     } else {
-      buffer.write(XmlToken.CLOSE_ELEMENT);
+      buffer.write(XmlToken.closeElement);
       writeChildren(node);
-      buffer.write(XmlToken.OPEN_END_ELEMENT);
+      buffer.write(XmlToken.openEndElement);
       visit(node.name);
-      buffer.write(XmlToken.CLOSE_ELEMENT);
+      buffer.write(XmlToken.closeElement);
     }
   }
 
@@ -88,13 +88,13 @@ class XmlWriter extends XmlVisitor {
 
   @override
   void visitProcessing(XmlProcessing node) {
-    buffer.write(XmlToken.OPEN_PROCESSING);
+    buffer.write(XmlToken.openProcessing);
     buffer.write(node.target);
     if (node.text.isNotEmpty) {
-      buffer.write(XmlToken.WHITESPACE);
+      buffer.write(XmlToken.whitespace);
       buffer.write(node.text);
     }
-    buffer.write(XmlToken.CLOSE_PROCESSING);
+    buffer.write(XmlToken.closeProcessing);
   }
 
   @override
@@ -104,7 +104,7 @@ class XmlWriter extends XmlVisitor {
 
   void writeAttributes(XmlNode node) {
     for (var attribute in node.attributes) {
-      buffer.write(XmlToken.WHITESPACE);
+      buffer.write(XmlToken.whitespace);
       visit(attribute);
     }
   }

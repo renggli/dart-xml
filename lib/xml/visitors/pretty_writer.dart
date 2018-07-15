@@ -37,23 +37,23 @@ class XmlPrettyWriter extends XmlWriter {
   @override
   void visitElement(XmlElement node) {
     newLine();
-    buffer.write(XmlToken.OPEN_ELEMENT);
+    buffer.write(XmlToken.openElement);
     visit(node.name);
     writeAttributes(node);
     if (node.children.isEmpty) {
-      buffer.write(XmlToken.WHITESPACE);
-      buffer.write(XmlToken.CLOSE_END_ELEMENT);
+      buffer.write(XmlToken.whitespace);
+      buffer.write(XmlToken.closeEndElement);
     } else {
-      buffer.write(XmlToken.CLOSE_ELEMENT);
+      buffer.write(XmlToken.closeElement);
       level++;
       writeChildren(node);
       level--;
       if (!node.children.every((each) => each is XmlText)) {
         newLine();
       }
-      buffer.write(XmlToken.OPEN_END_ELEMENT);
+      buffer.write(XmlToken.openEndElement);
       visit(node.name);
-      buffer.write(XmlToken.CLOSE_ELEMENT);
+      buffer.write(XmlToken.closeElement);
     }
   }
 
