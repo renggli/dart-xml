@@ -1,6 +1,6 @@
 library xml.visitors.pretty_writer;
 
-import 'package:xml/xml/grammar.dart' show XmlGrammarDefinition;
+import 'package:xml/xml/utils/token.dart' show XmlToken;
 import 'package:xml/xml/nodes/cdata.dart' show XmlCDATA;
 import 'package:xml/xml/nodes/comment.dart' show XmlComment;
 import 'package:xml/xml/nodes/doctype.dart' show XmlDoctype;
@@ -37,23 +37,23 @@ class XmlPrettyWriter extends XmlWriter {
   @override
   void visitElement(XmlElement node) {
     newLine();
-    buffer.write(XmlGrammarDefinition.OPEN_ELEMENT);
+    buffer.write(XmlToken.OPEN_ELEMENT);
     visit(node.name);
     writeAttributes(node);
     if (node.children.isEmpty) {
-      buffer.write(XmlGrammarDefinition.WHITESPACE);
-      buffer.write(XmlGrammarDefinition.CLOSE_END_ELEMENT);
+      buffer.write(XmlToken.WHITESPACE);
+      buffer.write(XmlToken.CLOSE_END_ELEMENT);
     } else {
-      buffer.write(XmlGrammarDefinition.CLOSE_ELEMENT);
+      buffer.write(XmlToken.CLOSE_ELEMENT);
       level++;
       writeChildren(node);
       level--;
       if (!node.children.every((each) => each is XmlText)) {
         newLine();
       }
-      buffer.write(XmlGrammarDefinition.OPEN_END_ELEMENT);
+      buffer.write(XmlToken.OPEN_END_ELEMENT);
       visit(node.name);
-      buffer.write(XmlGrammarDefinition.CLOSE_ELEMENT);
+      buffer.write(XmlToken.CLOSE_ELEMENT);
     }
   }
 

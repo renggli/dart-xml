@@ -3,6 +3,7 @@ library xml.grammar;
 import 'package:petitparser/petitparser.dart';
 import 'package:xml/xml/utils/attribute_type.dart';
 import 'package:xml/xml/utils/entities.dart';
+import 'package:xml/xml/utils/token.dart';
 
 /// XML grammar definition with [TNode] and [TName].
 abstract class XmlGrammarDefinition<TNode, TName> extends GrammarDefinition {
@@ -15,34 +16,13 @@ abstract class XmlGrammarDefinition<TNode, TName> extends GrammarDefinition {
       '-.0-9\u00B7\u0300-\u036F\u203F-\u2040$NAME_START_CHARS';
   static const String CHAR_DATA = '^<';
 
-  // basic tokens
-  static const String DOUBLE_QUOTE = '"';
-  static const String SINGLE_QUOTE = "'";
-  static const String EQUALS = '=';
-  static const String WHITESPACE = ' ';
-  static const String OPEN_COMMENT = '<!--';
-  static const String CLOSE_COMMENT = '-->';
-  static const String OPEN_CDATA = '<![CDATA[';
-  static const String CLOSE_CDATA = ']]>';
-  static const String OPEN_ELEMENT = '<';
-  static const String CLOSE_ELEMENT = '>';
-  static const String OPEN_END_ELEMENT = '</';
-  static const String CLOSE_END_ELEMENT = '/>';
-  static const String OPEN_DOCTYPE = '<!DOCTYPE';
-  static const String CLOSE_DOCTYPE = '>';
-  static const String OPEN_DOCTYPE_BLOCK = '[';
-  static const String CLOSE_DOCTYPE_BLOCK = ']';
-  static const String OPEN_PROCESSING = '<?';
-  static const String CLOSE_PROCESSING = '?>';
-
   // parser callbacks
   TNode createAttribute(TName name, String text, XmlAttributeType type);
   TNode createComment(String text);
   TNode createCDATA(String text);
   TNode createDoctype(String text);
   TNode createDocument(Iterable<TNode> children);
-  TNode createElement(
-      TName name, Iterable<TNode> attributes, Iterable<TNode> children);
+  TNode createElement(TName name, Iterable<TNode> attributes, Iterable<TNode> children);
   TNode createProcessing(String target, String text);
   TName createQualified(String name);
   TNode createText(String text);
@@ -53,28 +33,28 @@ abstract class XmlGrammarDefinition<TNode, TName> extends GrammarDefinition {
 
   Parser attribute() => ref(qualified)
       .seq(ref(spaceOptional))
-      .seq(char(EQUALS))
+      .seq(char(XmlToken.EQUALS))
       .seq(ref(spaceOptional))
       .seq(ref(attributeValue))
       .map((each) => createAttribute(each[0] as TName, each[4][0], each[4][1]));
   Parser attributeValue() =>
       ref(attributeValueDouble).or(ref(attributeValueSingle));
-  Parser attributeValueDouble() => char(DOUBLE_QUOTE)
-      .seq(new XmlCharacterDataParser(DOUBLE_QUOTE, 0))
-      .seq(char(DOUBLE_QUOTE))
+  Parser attributeValueDouble() => char(XmlToken.DOUBLE_QUOTE)
+      .seq(new XmlCharacterDataParser(XmlToken.DOUBLE_QUOTE, 0))
+      .seq(char(XmlToken.DOUBLE_QUOTE))
       .map((each) => [each[1], XmlAttributeType.DOUBLE_QUOTE]);
-  Parser attributeValueSingle() => char(SINGLE_QUOTE)
-      .seq(new XmlCharacterDataParser(SINGLE_QUOTE, 0))
-      .seq(char(SINGLE_QUOTE))
+  Parser attributeValueSingle() => char(XmlToken.SINGLE_QUOTE)
+      .seq(new XmlCharacterDataParser(XmlToken.SINGLE_QUOTE, 0))
+      .seq(char(XmlToken.SINGLE_QUOTE))
       .map((each) => [each[1], XmlAttributeType.SINGLE_QUOTE]);
   Parser attributes() => ref(space).seq(ref(attribute)).pick(1).star();
-  Parser comment() => string(OPEN_COMMENT)
-      .seq(any().starLazy(string(CLOSE_COMMENT)).flatten())
-      .seq(string(CLOSE_COMMENT))
+  Parser comment() => string(XmlToken.OPEN_COMMENT)
+      .seq(any().starLazy(string(XmlToken.CLOSE_COMMENT)).flatten())
+      .seq(string(XmlToken.CLOSE_COMMENT))
       .map((each) => createComment(each[1]));
-  Parser cdata() => string(OPEN_CDATA)
-      .seq(any().starLazy(string(CLOSE_CDATA)).flatten())
-      .seq(string(CLOSE_CDATA))
+  Parser cdata() => string(XmlToken.OPEN_CDATA)
+      .seq(any().starLazy(string(XmlToken.CLOSE_CDATA)).flatten())
+      .seq(string(XmlToken.CLOSE_CDATA))
       .map((each) => createCDATA(each[1]));
   Parser content() => ref(characterData)
       .or(ref(element))
@@ -82,19 +62,19 @@ abstract class XmlGrammarDefinition<TNode, TName> extends GrammarDefinition {
       .or(ref(comment))
       .or(ref(cdata))
       .star();
-  Parser doctype() => string(OPEN_DOCTYPE)
+  Parser doctype() => string(XmlToken.OPEN_DOCTYPE)
       .seq(ref(space))
       .seq(ref(nameToken)
           .or(ref(attributeValue))
           .or(any()
-              .starLazy(char(OPEN_DOCTYPE_BLOCK))
-              .seq(char(OPEN_DOCTYPE_BLOCK))
-              .seq(any().starLazy(char(CLOSE_DOCTYPE_BLOCK)))
-              .seq(char(CLOSE_DOCTYPE_BLOCK)))
+              .starLazy(char(XmlToken.OPEN_DOCTYPE_BLOCK))
+              .seq(char(XmlToken.OPEN_DOCTYPE_BLOCK))
+              .seq(any().starLazy(char(XmlToken.CLOSE_DOCTYPE_BLOCK)))
+              .seq(char(XmlToken.CLOSE_DOCTYPE_BLOCK)))
           .separatedBy(ref(space))
           .flatten())
       .seq(ref(spaceOptional))
-      .seq(char(CLOSE_DOCTYPE))
+      .seq(char(XmlToken.CLOSE_DOCTYPE))
       .map((each) => createDoctype(each[2]));
   Parser document() => ref(misc)
           .seq(ref(doctype).optional())
@@ -112,18 +92,18 @@ abstract class XmlGrammarDefinition<TNode, TName> extends GrammarDefinition {
         nodes.addAll(each[4]);
         return createDocument(new List<TNode>.from(nodes));
       });
-  Parser element() => char(OPEN_ELEMENT)
+  Parser element() => char(XmlToken.OPEN_ELEMENT)
           .seq(ref(qualified))
           .seq(ref(attributes))
           .seq(ref(spaceOptional))
-          .seq(string(CLOSE_END_ELEMENT).or(char(CLOSE_ELEMENT)
+          .seq(string(XmlToken.CLOSE_END_ELEMENT).or(char(XmlToken.CLOSE_ELEMENT)
               .seq(ref(content))
-              .seq(string(OPEN_END_ELEMENT))
+              .seq(string(XmlToken.OPEN_END_ELEMENT))
               .seq(ref(qualified))
               .seq(ref(spaceOptional))
-              .seq(char(CLOSE_ELEMENT))))
+              .seq(char(XmlToken.CLOSE_ELEMENT))))
           .map((list) {
-        if (list[4] == CLOSE_END_ELEMENT) {
+        if (list[4] == XmlToken.CLOSE_END_ELEMENT) {
           return createElement(
               list[1] as TName, new List<TNode>.from(list[2]), []);
         } else {
@@ -138,18 +118,18 @@ abstract class XmlGrammarDefinition<TNode, TName> extends GrammarDefinition {
           }
         }
       });
-  Parser processing() => string(OPEN_PROCESSING)
+  Parser processing() => string(XmlToken.OPEN_PROCESSING)
       .seq(ref(nameToken))
       .seq(ref(space)
-          .seq(any().starLazy(string(CLOSE_PROCESSING)).flatten())
+          .seq(any().starLazy(string(XmlToken.CLOSE_PROCESSING)).flatten())
           .pick(1)
           .optional(''))
-      .seq(string(CLOSE_PROCESSING))
+      .seq(string(XmlToken.CLOSE_PROCESSING))
       .map((each) => createProcessing(each[1], each[2]));
   Parser qualified() => ref(nameToken).map(createQualified);
 
   Parser characterData() =>
-      new XmlCharacterDataParser(OPEN_ELEMENT, 1).map(createText);
+      new XmlCharacterDataParser(XmlToken.OPEN_ELEMENT, 1).map(createText);
   Parser misc() => ref(spaceText).or(ref(comment)).or(ref(processing)).star();
   Parser space() => whitespace().plus();
   Parser spaceText() => ref(space).flatten().map(createText);

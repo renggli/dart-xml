@@ -1,6 +1,6 @@
 library xml.visitors.writer;
 
-import 'package:xml/xml/grammar.dart' show XmlGrammarDefinition;
+import 'package:xml/xml/utils/token.dart' show XmlToken;
 import 'package:xml/xml/nodes/attribute.dart' show XmlAttribute;
 import 'package:xml/xml/nodes/cdata.dart' show XmlCDATA;
 import 'package:xml/xml/nodes/comment.dart' show XmlComment;
@@ -25,7 +25,7 @@ class XmlWriter extends XmlVisitor {
   @override
   void visitAttribute(XmlAttribute node) {
     visit(node.name);
-    buffer.write(XmlGrammarDefinition.EQUALS);
+    buffer.write(XmlToken.EQUALS);
     final quote = attributeQuote[node.attributeType];
     buffer.write(quote);
     buffer.write(encodeXmlAttributeValue(node.value, node.attributeType));
@@ -34,24 +34,24 @@ class XmlWriter extends XmlVisitor {
 
   @override
   void visitCDATA(XmlCDATA node) {
-    buffer.write(XmlGrammarDefinition.OPEN_CDATA);
+    buffer.write(XmlToken.OPEN_CDATA);
     buffer.write(node.text);
-    buffer.write(XmlGrammarDefinition.CLOSE_CDATA);
+    buffer.write(XmlToken.CLOSE_CDATA);
   }
 
   @override
   void visitComment(XmlComment node) {
-    buffer.write(XmlGrammarDefinition.OPEN_COMMENT);
+    buffer.write(XmlToken.OPEN_COMMENT);
     buffer.write(node.text);
-    buffer.write(XmlGrammarDefinition.CLOSE_COMMENT);
+    buffer.write(XmlToken.CLOSE_COMMENT);
   }
 
   @override
   void visitDoctype(XmlDoctype node) {
-    buffer.write(XmlGrammarDefinition.OPEN_DOCTYPE);
-    buffer.write(XmlGrammarDefinition.WHITESPACE);
+    buffer.write(XmlToken.OPEN_DOCTYPE);
+    buffer.write(XmlToken.WHITESPACE);
     buffer.write(node.text);
-    buffer.write(XmlGrammarDefinition.CLOSE_DOCTYPE);
+    buffer.write(XmlToken.CLOSE_DOCTYPE);
   }
 
   @override
@@ -66,18 +66,18 @@ class XmlWriter extends XmlVisitor {
 
   @override
   void visitElement(XmlElement node) {
-    buffer.write(XmlGrammarDefinition.OPEN_ELEMENT);
+    buffer.write(XmlToken.OPEN_ELEMENT);
     visit(node.name);
     writeAttributes(node);
     if (node.children.isEmpty) {
-      buffer.write(XmlGrammarDefinition.WHITESPACE);
-      buffer.write(XmlGrammarDefinition.CLOSE_END_ELEMENT);
+      buffer.write(XmlToken.WHITESPACE);
+      buffer.write(XmlToken.CLOSE_END_ELEMENT);
     } else {
-      buffer.write(XmlGrammarDefinition.CLOSE_ELEMENT);
+      buffer.write(XmlToken.CLOSE_ELEMENT);
       writeChildren(node);
-      buffer.write(XmlGrammarDefinition.OPEN_END_ELEMENT);
+      buffer.write(XmlToken.OPEN_END_ELEMENT);
       visit(node.name);
-      buffer.write(XmlGrammarDefinition.CLOSE_ELEMENT);
+      buffer.write(XmlToken.CLOSE_ELEMENT);
     }
   }
 
@@ -88,13 +88,13 @@ class XmlWriter extends XmlVisitor {
 
   @override
   void visitProcessing(XmlProcessing node) {
-    buffer.write(XmlGrammarDefinition.OPEN_PROCESSING);
+    buffer.write(XmlToken.OPEN_PROCESSING);
     buffer.write(node.target);
     if (node.text.isNotEmpty) {
-      buffer.write(XmlGrammarDefinition.WHITESPACE);
+      buffer.write(XmlToken.WHITESPACE);
       buffer.write(node.text);
     }
-    buffer.write(XmlGrammarDefinition.CLOSE_PROCESSING);
+    buffer.write(XmlToken.CLOSE_PROCESSING);
   }
 
   @override
@@ -104,7 +104,7 @@ class XmlWriter extends XmlVisitor {
 
   void writeAttributes(XmlNode node) {
     for (var attribute in node.attributes) {
-      buffer.write(XmlGrammarDefinition.WHITESPACE);
+      buffer.write(XmlToken.WHITESPACE);
       visit(attribute);
     }
   }
