@@ -1,8 +1,8 @@
 library xml.iterators.descendants;
 
-import 'dart:collection' show IterableBase;
+import 'dart:collection';
 
-import 'package:xml/xml/nodes/node.dart' show XmlNode;
+import 'package:xml/xml/nodes/node.dart';
 
 /// Iterable to walk over the descendants of a node.
 class XmlDescendantsIterable extends IterableBase<XmlNode> {

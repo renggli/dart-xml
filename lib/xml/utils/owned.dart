@@ -1,7 +1,7 @@
 library xml.utils.owned;
 
-import 'package:xml/xml/nodes/node.dart' show XmlNode;
-import 'package:xml/xml/utils/errors.dart' show XmlParentError;
+import 'package:xml/xml/nodes/node.dart';
+import 'package:xml/xml/utils/errors.dart';
 
 /// Mixin for objects that are a child of a different [XmlNode].
 abstract class XmlOwned {

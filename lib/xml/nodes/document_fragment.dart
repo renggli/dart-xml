@@ -1,10 +1,10 @@
 library xml.nodes.document_fragment;
 
-import 'package:xml/xml/nodes/document.dart' show XmlDocument;
-import 'package:xml/xml/nodes/node.dart' show XmlNode;
-import 'package:xml/xml/nodes/parent.dart' show XmlParent;
-import 'package:xml/xml/utils/node_type.dart' show XmlNodeType;
-import 'package:xml/xml/visitors/visitor.dart' show XmlVisitor;
+import 'package:xml/xml/nodes/document.dart';
+import 'package:xml/xml/nodes/node.dart';
+import 'package:xml/xml/nodes/parent.dart';
+import 'package:xml/xml/utils/node_type.dart';
+import 'package:xml/xml/visitors/visitor.dart';
 
 /// XML document fragment node.
 class XmlDocumentFragment extends XmlParent {

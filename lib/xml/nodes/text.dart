@@ -1,8 +1,8 @@
 library xml.nodes.text;
 
-import 'package:xml/xml/nodes/data.dart' show XmlData;
-import 'package:xml/xml/utils/node_type.dart' show XmlNodeType;
-import 'package:xml/xml/visitors/visitor.dart' show XmlVisitor;
+import 'package:xml/xml/nodes/data.dart';
+import 'package:xml/xml/utils/node_type.dart';
+import 'package:xml/xml/visitors/visitor.dart';
 
 /// XML text node.
 class XmlText extends XmlData {

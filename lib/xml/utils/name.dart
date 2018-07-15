@@ -1,12 +1,12 @@
 library xml.utils.name;
 
-import 'package:xml/xml/builder.dart' show NamespaceData;
-import 'package:xml/xml/utils/owned.dart' show XmlOwned;
-import 'package:xml/xml/utils/prefix_name.dart' show XmlPrefixName;
-import 'package:xml/xml/utils/simple_name.dart' show XmlSimpleName;
-import 'package:xml/xml/utils/writable.dart' show XmlWritable;
-import 'package:xml/xml/visitors/visitable.dart' show XmlVisitable;
-import 'package:xml/xml/visitors/visitor.dart' show XmlVisitor;
+import 'package:xml/xml/builder.dart';
+import 'package:xml/xml/utils/owned.dart';
+import 'package:xml/xml/utils/prefix_name.dart';
+import 'package:xml/xml/utils/simple_name.dart';
+import 'package:xml/xml/utils/writable.dart';
+import 'package:xml/xml/visitors/visitable.dart';
+import 'package:xml/xml/visitors/visitor.dart';
 
 // separator between prefix and local name
 final separator = ':';

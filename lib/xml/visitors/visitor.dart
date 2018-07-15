@@ -1,16 +1,16 @@
 library xml.visitors.visitor;
 
-import 'package:xml/xml/nodes/attribute.dart' show XmlAttribute;
-import 'package:xml/xml/nodes/cdata.dart' show XmlCDATA;
-import 'package:xml/xml/nodes/comment.dart' show XmlComment;
-import 'package:xml/xml/nodes/doctype.dart' show XmlDoctype;
-import 'package:xml/xml/nodes/document.dart' show XmlDocument;
-import 'package:xml/xml/nodes/document_fragment.dart' show XmlDocumentFragment;
-import 'package:xml/xml/nodes/element.dart' show XmlElement;
-import 'package:xml/xml/nodes/processing.dart' show XmlProcessing;
-import 'package:xml/xml/nodes/text.dart' show XmlText;
-import 'package:xml/xml/utils/name.dart' show XmlName;
-import 'package:xml/xml/visitors/visitable.dart' show XmlVisitable;
+import 'package:xml/xml/nodes/attribute.dart';
+import 'package:xml/xml/nodes/cdata.dart';
+import 'package:xml/xml/nodes/comment.dart';
+import 'package:xml/xml/nodes/doctype.dart';
+import 'package:xml/xml/nodes/document.dart';
+import 'package:xml/xml/nodes/document_fragment.dart';
+import 'package:xml/xml/nodes/element.dart';
+import 'package:xml/xml/nodes/processing.dart';
+import 'package:xml/xml/nodes/text.dart';
+import 'package:xml/xml/utils/name.dart';
+import 'package:xml/xml/visitors/visitable.dart';
 
 /// Basic visitor over [XmlVisitable] nodes.
 class XmlVisitor {

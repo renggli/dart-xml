@@ -1,8 +1,8 @@
 library xml.utils.errors;
 
-import 'package:xml/xml/nodes/node.dart' show XmlNode;
-import 'package:xml/xml/utils/node_type.dart' show XmlNodeType;
-import 'package:xml/xml/utils/owned.dart' show XmlOwned;
+import 'package:xml/xml/nodes/node.dart';
+import 'package:xml/xml/utils/node_type.dart';
+import 'package:xml/xml/utils/owned.dart';
 
 class XmlNodeTypeError extends ArgumentError {
   /// Ensure that [node] is not null.

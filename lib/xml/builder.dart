@@ -1,19 +1,18 @@
 library xml.builder;
 
-import 'package:xml/xml/nodes/attribute.dart' show XmlAttribute;
-import 'package:xml/xml/nodes/cdata.dart' show XmlCDATA;
-import 'package:xml/xml/nodes/comment.dart' show XmlComment;
-import 'package:xml/xml/nodes/data.dart' show XmlData;
-import 'package:xml/xml/nodes/document.dart' show XmlDocument;
-import 'package:xml/xml/nodes/document_fragment.dart' show XmlDocumentFragment;
-import 'package:xml/xml/nodes/element.dart' show XmlElement;
-import 'package:xml/xml/nodes/node.dart' show XmlNode;
-import 'package:xml/xml/nodes/processing.dart' show XmlProcessing;
-import 'package:xml/xml/nodes/text.dart' show XmlText;
-import 'package:xml/xml/utils/attribute_type.dart' show XmlAttributeType;
-import 'package:xml/xml/utils/name.dart'
-    show XmlName, xml, xmlns, xmlData, xmlUri;
-import 'package:xml/xml/visitors/transformer.dart' show XmlTransformer;
+import 'package:xml/xml/nodes/attribute.dart';
+import 'package:xml/xml/nodes/cdata.dart';
+import 'package:xml/xml/nodes/comment.dart';
+import 'package:xml/xml/nodes/data.dart';
+import 'package:xml/xml/nodes/document.dart';
+import 'package:xml/xml/nodes/document_fragment.dart';
+import 'package:xml/xml/nodes/element.dart';
+import 'package:xml/xml/nodes/node.dart';
+import 'package:xml/xml/nodes/processing.dart';
+import 'package:xml/xml/nodes/text.dart';
+import 'package:xml/xml/utils/attribute_type.dart';
+import 'package:xml/xml/utils/name.dart';
+import 'package:xml/xml/visitors/transformer.dart';
 
 /// A builder to create XML trees with code.
 class XmlBuilder {

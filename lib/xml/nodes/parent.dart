@@ -1,10 +1,10 @@
 library xml.nodes.parent;
 
-import 'package:xml/xml/nodes/element.dart' show XmlElement;
-import 'package:xml/xml/nodes/node.dart' show XmlNode;
-import 'package:xml/xml/utils/name_matcher.dart' show createNameMatcher;
-import 'package:xml/xml/utils/node_list.dart' show XmlNodeList;
-import 'package:xml/xml/utils/node_type.dart' show XmlNodeType;
+import 'package:xml/xml/nodes/element.dart';
+import 'package:xml/xml/nodes/node.dart';
+import 'package:xml/xml/utils/name_matcher.dart';
+import 'package:xml/xml/utils/node_list.dart';
+import 'package:xml/xml/utils/node_type.dart';
 
 /// Abstract XML node with actual children.
 abstract class XmlParent extends XmlNode {

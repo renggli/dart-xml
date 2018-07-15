@@ -1,19 +1,19 @@
 library xml.nodes.node;
 
-import 'package:xml/xml/iterators/ancestors.dart' show XmlAncestorsIterable;
-import 'package:xml/xml/iterators/descendants.dart' show XmlDescendantsIterable;
-import 'package:xml/xml/iterators/following.dart' show XmlFollowingIterable;
-import 'package:xml/xml/iterators/preceding.dart' show XmlPrecedingIterable;
-import 'package:xml/xml/nodes/attribute.dart' show XmlAttribute;
-import 'package:xml/xml/nodes/cdata.dart' show XmlCDATA;
-import 'package:xml/xml/nodes/document.dart' show XmlDocument;
-import 'package:xml/xml/nodes/text.dart' show XmlText;
-import 'package:xml/xml/utils/node_type.dart' show XmlNodeType;
-import 'package:xml/xml/utils/owned.dart' show XmlOwned;
-import 'package:xml/xml/utils/writable.dart' show XmlWritable;
-import 'package:xml/xml/visitors/normalizer.dart' show XmlNormalizer;
-import 'package:xml/xml/visitors/transformer.dart' show XmlTransformer;
-import 'package:xml/xml/visitors/visitable.dart' show XmlVisitable;
+import 'package:xml/xml/iterators/ancestors.dart';
+import 'package:xml/xml/iterators/descendants.dart';
+import 'package:xml/xml/iterators/following.dart';
+import 'package:xml/xml/iterators/preceding.dart';
+import 'package:xml/xml/nodes/attribute.dart';
+import 'package:xml/xml/nodes/cdata.dart';
+import 'package:xml/xml/nodes/document.dart';
+import 'package:xml/xml/nodes/text.dart';
+import 'package:xml/xml/utils/node_type.dart';
+import 'package:xml/xml/utils/owned.dart';
+import 'package:xml/xml/utils/writable.dart';
+import 'package:xml/xml/visitors/normalizer.dart';
+import 'package:xml/xml/visitors/transformer.dart';
+import 'package:xml/xml/visitors/visitable.dart';
 
 /// Immutable abstract XML node.
 abstract class XmlNode extends Object with XmlVisitable, XmlWritable, XmlOwned {

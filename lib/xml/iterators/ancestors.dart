@@ -1,8 +1,8 @@
 library xml.iterators.ancestors;
 
-import 'dart:collection' show IterableBase;
+import 'dart:collection';
 
-import 'package:xml/xml/nodes/node.dart' show XmlNode;
+import 'package:xml/xml/nodes/node.dart';
 
 /// Iterable to walk over the ancestors of a node.
 class XmlAncestorsIterable extends IterableBase<XmlNode> {

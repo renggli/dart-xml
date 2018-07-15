@@ -4,8 +4,8 @@ library xml;
 
 import 'package:petitparser/petitparser.dart' show Parser, ParserError;
 
-import 'xml/nodes/document.dart' show XmlDocument;
-import 'xml/parser.dart' show XmlParserDefinition;
+import 'xml/nodes/document.dart';
+import 'xml/parser.dart';
 
 export 'xml/builder.dart' show XmlBuilder;
 export 'xml/grammar.dart' show XmlGrammarDefinition;

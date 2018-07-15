@@ -1,6 +1,6 @@
 library xml.visitors.visitable;
 
-import 'package:xml/xml/visitors/visitor.dart' show XmlVisitor;
+import 'package:xml/xml/visitors/visitor.dart';
 
 /// Interface for classes that can be visited using an [XmlVisitor].
 abstract class XmlVisitable {
