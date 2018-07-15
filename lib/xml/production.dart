@@ -49,14 +49,14 @@ class XmlProductionDefinition extends GrammarDefinition {
   Parser doctype() => string(XmlToken.openDoctype)
       .seq(ref(space))
       .seq(ref(nameToken)
-      .or(ref(attributeValue))
-      .or(any()
-      .starLazy(char(XmlToken.openDoctypeBlock))
-      .seq(char(XmlToken.openDoctypeBlock))
-      .seq(any().starLazy(char(XmlToken.closeDoctypeBlock)))
-      .seq(char(XmlToken.closeDoctypeBlock)))
-      .separatedBy(ref(space))
-      .flatten())
+          .or(ref(attributeValue))
+          .or(any()
+              .starLazy(char(XmlToken.openDoctypeBlock))
+              .seq(char(XmlToken.openDoctypeBlock))
+              .seq(any().starLazy(char(XmlToken.closeDoctypeBlock)))
+              .seq(char(XmlToken.closeDoctypeBlock)))
+          .separatedBy(ref(space))
+          .flatten())
       .seq(ref(spaceOptional))
       .seq(char(XmlToken.closeDoctype));
   Parser document() => ref(misc)
@@ -69,17 +69,17 @@ class XmlProductionDefinition extends GrammarDefinition {
       .seq(ref(attributes))
       .seq(ref(spaceOptional))
       .seq(string(XmlToken.closeEndElement).or(char(XmlToken.closeElement)
-      .seq(ref(content))
-      .seq(string(XmlToken.openEndElement))
-      .seq(ref(qualified))
-      .seq(ref(spaceOptional))
-      .seq(char(XmlToken.closeElement))));
+          .seq(ref(content))
+          .seq(string(XmlToken.openEndElement))
+          .seq(ref(qualified))
+          .seq(ref(spaceOptional))
+          .seq(char(XmlToken.closeElement))));
   Parser processing() => string(XmlToken.openProcessing)
       .seq(ref(nameToken))
       .seq(ref(space)
-      .seq(any().starLazy(string(XmlToken.closeProcessing)).flatten())
-      .pick(1)
-      .optional(''))
+          .seq(any().starLazy(string(XmlToken.closeProcessing)).flatten())
+          .pick(1)
+          .optional(''))
       .seq(string(XmlToken.closeProcessing));
   Parser qualified() => ref(nameToken);
 
@@ -88,12 +88,9 @@ class XmlProductionDefinition extends GrammarDefinition {
       .or(ref(comment))
       .or(ref(processing))
       .star();
-  Parser space() => whitespace()
-      .plus();
-  Parser spaceText() => ref(space)
-      .flatten();
-  Parser spaceOptional() => whitespace()
-      .star();
+  Parser space() => whitespace().plus();
+  Parser spaceText() => ref(space).flatten();
+  Parser spaceOptional() => whitespace().star();
 
   Parser nameToken() => ref(nameStartChar)
       .seq(ref(nameChar).star())

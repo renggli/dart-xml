@@ -6,25 +6,14 @@ import 'package:xml/xml/utils/errors.dart';
 
 import 'xml_examples.dart';
 
-const Matcher isXmlNodeTypeError = const _XmlNodeTypeError();
+const Matcher isXmlNodeTypeError = const TypeMatcher<XmlNodeTypeError>();
 
-class _XmlNodeTypeError extends TypeMatcher {
-  const _XmlNodeTypeError() : super('XmlNodeTypeError');
-  @override
-  bool matches(item, Map matchState) => item is XmlNodeTypeError;
-}
-
-const Matcher isXmlParentError = const _XmlParentError();
-
-class _XmlParentError extends TypeMatcher {
-  const _XmlParentError() : super('XmlParentError');
-  @override
-  bool matches(item, Map matchState) => item is XmlParentError;
-}
+const Matcher isXmlParentError = const TypeMatcher<XmlParentError>();
 
 void assetParseInvariants(String input) {
   var tree = parse(input);
   assertTreeInvariants(tree);
+  assertReaderInvariants(input, tree);
   var copy = parse(tree.toXmlString());
   expect(tree.toXmlString(), copy.toXmlString());
 }
@@ -258,6 +247,36 @@ void assertPrintingInvariants(XmlNode xml) {
 
   compare(xml, parse(xml.toXmlString(pretty: true)));
 }
+
+void assertReaderInvariants(String input, XmlNode node) {
+  var startDocumentCount = 0;
+  var endDocumentCount = 0;
+  var startElementCount = 0;
+  var endElementCount = 0;
+  var characterDataCount = 0;
+  var processingInstructionCount = 0;
+
+  var reader = new XmlReader(
+    onStartDocument: () => startDocumentCount++,
+    onEndDocument: () => endDocumentCount++,
+    onStartElement: (name, attributes) => startElementCount++,
+    onEndElement: (name) => endElementCount++,
+    onCharacterData: (text) => characterDataCount++,
+    onProcessingInstruction: (target, text) => processingInstructionCount++,
+    onParseError: (position) =>
+        fail('Failed with recoverable parse error at $position.'),
+    onFatalError: (position, error) => fail('Failed with fatal error $error at $position: ${error.stackTrace}'),
+  );
+  reader.parse(input);
+
+  expect(startDocumentCount, 1);
+  expect(endDocumentCount, 1);
+  expect(startElementCount, node.descendants.where((each) => each is XmlElement).length);
+  expect(endElementCount, node.descendants.where((each) => each is XmlElement).length);
+  //expect(characterDataCount, node.descendants.where((each) => each is XmlText).length);
+  expect(processingInstructionCount, node.descendants.where((each) => each is XmlProcessing).length);
+}
+
 
 void main() {
   group('parsing', () {
