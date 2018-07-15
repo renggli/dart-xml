@@ -8,13 +8,12 @@ import 'package:xml/xml/utils/token.dart';
 /// XML grammar definition with [TNode] and [TName].
 abstract class XmlGrammarDefinition<TNode, TName> extends GrammarDefinition {
   // name patterns
-  static const String NAME_START_CHARS =
+  static const String _nameStartChars =
       ':A-Z_a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF'
       '\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001\uD7FF'
       '\uF900-\uFDCF\uFDF0-\uFFFD';
-  static const String NAME_CHARS =
-      '-.0-9\u00B7\u0300-\u036F\u203F-\u2040$NAME_START_CHARS';
-  static const String CHAR_DATA = '^<';
+  static const String _nameChars =
+      '-.0-9\u00B7\u0300-\u036F\u203F-\u2040$_nameStartChars';
 
   // parser callbacks
   TNode createAttribute(TName name, String text, XmlAttributeType type);
@@ -136,6 +135,6 @@ abstract class XmlGrammarDefinition<TNode, TName> extends GrammarDefinition {
   Parser spaceOptional() => whitespace().star();
 
   Parser nameToken() => ref(nameStartChar).seq(ref(nameChar).star()).flatten();
-  Parser nameStartChar() => pattern(NAME_START_CHARS, 'Expected name');
-  Parser nameChar() => pattern(NAME_CHARS);
+  Parser nameStartChar() => pattern(_nameStartChars, 'Expected name');
+  Parser nameChar() => pattern(_nameChars);
 }
