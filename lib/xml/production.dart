@@ -6,7 +6,6 @@ import 'package:xml/xml/utils/token.dart';
 
 /// XML parser that defines standard actions to the the XML tree.
 class XmlProductionDefinition extends GrammarDefinition {
-
   static const String _nameStartChars =
       ':A-Z_a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF'
       '\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001\uD7FF'
@@ -22,18 +21,15 @@ class XmlProductionDefinition extends GrammarDefinition {
       .seq(char(XmlToken.equals))
       .seq(ref(spaceOptional))
       .seq(ref(attributeValue));
-  Parser attributeValue() => ref(attributeValueDouble)
-      .or(ref(attributeValueSingle));
+  Parser attributeValue() =>
+      ref(attributeValueDouble).or(ref(attributeValueSingle));
   Parser attributeValueDouble() => char(XmlToken.doubleQuote)
       .seq(new XmlCharacterDataParser(XmlToken.doubleQuote, 0))
       .seq(char(XmlToken.doubleQuote));
   Parser attributeValueSingle() => char(XmlToken.singleQuote)
       .seq(new XmlCharacterDataParser(XmlToken.singleQuote, 0))
       .seq(char(XmlToken.singleQuote));
-  Parser attributes() => ref(space)
-      .seq(ref(attribute))
-      .pick(1)
-      .star();
+  Parser attributes() => ref(space).seq(ref(attribute)).pick(1).star();
   Parser comment() => string(XmlToken.openComment)
       .seq(any().starLazy(string(XmlToken.closeComment)).flatten())
       .seq(string(XmlToken.closeComment));
@@ -84,17 +80,12 @@ class XmlProductionDefinition extends GrammarDefinition {
   Parser qualified() => ref(nameToken);
 
   Parser characterData() => new XmlCharacterDataParser(XmlToken.openElement, 1);
-  Parser misc() => ref(spaceText)
-      .or(ref(comment))
-      .or(ref(processing))
-      .star();
+  Parser misc() => ref(spaceText).or(ref(comment)).or(ref(processing)).star();
   Parser space() => whitespace().plus();
   Parser spaceText() => ref(space).flatten();
   Parser spaceOptional() => whitespace().star();
 
-  Parser nameToken() => ref(nameStartChar)
-      .seq(ref(nameChar).star())
-      .flatten();
+  Parser nameToken() => ref(nameStartChar).seq(ref(nameChar).star()).flatten();
   Parser nameStartChar() => pattern(_nameStartChars, 'Expected name');
   Parser nameChar() => pattern(_nameChars, 'Invalid name');
 }

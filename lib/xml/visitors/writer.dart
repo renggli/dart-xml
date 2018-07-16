@@ -10,8 +10,7 @@ import 'package:xml/xml/nodes/element.dart';
 import 'package:xml/xml/nodes/node.dart';
 import 'package:xml/xml/nodes/processing.dart';
 import 'package:xml/xml/nodes/text.dart';
-import 'package:xml/xml/utils/entities.dart'
-   ;
+import 'package:xml/xml/utils/entities.dart';
 import 'package:xml/xml/utils/name.dart';
 import 'package:xml/xml/utils/token.dart';
 import 'package:xml/xml/visitors/visitor.dart';

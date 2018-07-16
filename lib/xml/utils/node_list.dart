@@ -2,8 +2,7 @@ library xml.utils.node_list;
 
 import 'package:collection/collection.dart';
 import 'package:xml/xml/nodes/node.dart';
-import 'package:xml/xml/utils/errors.dart'
-   ;
+import 'package:xml/xml/utils/errors.dart';
 import 'package:xml/xml/utils/node_type.dart';
 import 'package:xml/xml/utils/owned.dart';
 

@@ -29,6 +29,7 @@ final _cdata = _production.build(start: _production.cdata);
 final _processing = _production.build(start: _production.processing);
 final _doctype = _production.build(start: _production.doctype);
 
+// Callbacks used for SAX parsing.
 typedef void StartDocumentHandler();
 typedef void EndDocumentHandler();
 typedef void StartElementHandler(
@@ -53,6 +54,7 @@ class XmlReader {
   final ParseErrorHandler onParseError;
   final FatalErrorHandler onFatalError;
 
+  /// Constructor of a SAX reader with its event handlers.
   XmlReader(
       {this.onStartDocument,
       this.onEndDocument,
@@ -63,6 +65,7 @@ class XmlReader {
       this.onParseError,
       this.onFatalError});
 
+  /// Parse an input string and trigger all related events.
   void parse(String input) {
     Result result = new Success(input, 0, null);
     try {
@@ -126,14 +129,13 @@ class XmlReader {
       return result;
     }
 
-    // Parse doctype:
+    // Skip over doctypes:
     result = _doctype.parseOn(context);
     if (result.isSuccess) {
-      // skip over it (for now)
       return result;
     }
 
-    // Skip to the next character in case of a problem
+    // Skip to the next character when there is a problem:
     onParseError?.call(context.position);
     return context.success(null, context.position + 1);
   }
