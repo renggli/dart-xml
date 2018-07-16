@@ -247,19 +247,29 @@ void assertPrintingInvariants(XmlNode xml) {
 }
 
 void assertReaderInvariants(String input, XmlNode node) {
-  final includedTypes = new Set.from([
+  var includedTypes = new Set.from([
     XmlNodeType.ELEMENT,
     XmlNodeType.TEXT,
     XmlNodeType.CDATA,
     XmlNodeType.PROCESSING,
   ]);
-  final nodes = node.descendants
+  var nodes = node.descendants
       .where((node) => includedTypes.contains(node.nodeType))
       .toList(growable: true);
-  final stack = <XmlName>[];
-  final reader = new XmlReader(
+  var stack = <XmlName>[];
+  var state = 0;
+  var reader = new XmlReader(
+    onStartDocument: () {
+      expect(state, 0, reason: 'Reader already started.');
+      state = 1;
+    },
+    onEndDocument: () {
+      expect(state, 1, reason: 'Reader not started');
+      state = 2;
+    },
     onStartElement: (name, attributes) {
-      expect(nodes, isNotEmpty);
+      expect(state, 1, reason: 'Reader not started');
+      expect(nodes, isNotEmpty, reason: 'Missing element in node list.');
       XmlNode node = nodes.removeAt(0);
       expect(node.nodeType, XmlNodeType.ELEMENT,
           reason: 'Node type should be an ELEMENT.');
@@ -275,6 +285,7 @@ void assertReaderInvariants(String input, XmlNode node) {
       expect(stack.removeLast(), name, reason: 'Non-matching start element.');
     },
     onCharacterData: (text) {
+      expect(state, 1, reason: 'Reader not started');
       expect(nodes, isNotEmpty, reason: 'Missing element in node list.');
       XmlNode node = nodes.removeAt(0);
       expect(node.nodeType, anyOf(XmlNodeType.TEXT, XmlNodeType.CDATA),
@@ -282,6 +293,7 @@ void assertReaderInvariants(String input, XmlNode node) {
       expect(text, node.text, reason: 'Text data should match.');
     },
     onProcessingInstruction: (target, text) {
+      expect(state, 1, reason: 'Reader not started');
       expect(nodes, isNotEmpty, reason: 'Missing element in node list.');
       XmlNode node = nodes.removeAt(0);
       expect(node.nodeType, XmlNodeType.PROCESSING,
@@ -294,7 +306,7 @@ void assertReaderInvariants(String input, XmlNode node) {
     onFatalError: (index, _) => fail('Fatal error at $index.'),
   );
   reader.parse(input);
-
   expect(nodes, isEmpty, reason: 'All nodes should be processed.');
   expect(stack, isEmpty, reason: 'All elements should be closed.');
+  expect(state, 2, reason: 'Reader not completed.');
 }
