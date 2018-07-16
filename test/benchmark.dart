@@ -1,8 +1,8 @@
-library xml.test.xml_benchmark;
+library xml.test.benchmark;
 
 import 'package:xml/xml.dart';
 
-import 'xml_examples.dart';
+import 'examples.dart';
 
 double benchmark(Function function, [int warmUp = 5, int milliseconds = 2500]) {
   var count = 0;
