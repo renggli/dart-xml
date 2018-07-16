@@ -1,4 +1,4 @@
-library xml.parser;
+library xml.production;
 
 import 'package:petitparser/petitparser.dart';
 import 'package:xml/xml/utils/entities.dart';
