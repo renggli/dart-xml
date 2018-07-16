@@ -2,9 +2,11 @@ library xml.reader;
 
 import 'package:petitparser/petitparser.dart';
 import 'package:xml/xml/nodes/attribute.dart';
+import 'package:xml/xml/nodes/element.dart';
 import 'package:xml/xml/parser.dart';
 import 'package:xml/xml/production.dart';
 import 'package:xml/xml/utils/name.dart';
+import 'package:xml/xml/utils/node_list.dart';
 import 'package:xml/xml/utils/token.dart';
 
 // Definition of the XML productions.
@@ -29,16 +31,16 @@ final _doctype = _production.build(start: _production.doctype);
 
 typedef void StartDocumentHandler();
 typedef void EndDocumentHandler();
-typedef void StartElementHandler(XmlName name, List<XmlAttribute> attributes);
+typedef void StartElementHandler(
+    XmlName name, XmlNodeList<XmlAttribute> attributes);
 typedef void EndElementHandler(XmlName name);
 typedef void CharacterDataHandler(String text);
-typedef void ProcessingInstructionHandler(String target, String data);
+typedef void ProcessingInstructionHandler(String target, String text);
 typedef void ParseErrorHandler(int position);
-typedef void FatalErrorHandler(int position, Error error);
+typedef void FatalErrorHandler(int position, Exception exception);
 
 /// Dart SAX is a "Simple API for XML" parsing.
 class XmlReader {
-
   // Event handlers
   final StartDocumentHandler onStartDocument;
   final EndDocumentHandler onEndDocument;
@@ -65,11 +67,11 @@ class XmlReader {
     Result result = new Success(input, 0, null);
     try {
       onStartDocument?.call();
-      while (result.isSuccess && result.position < input.length) {
+      while (result.position < input.length) {
         result = _parseEvent(result);
       }
-    } on Error catch (error) {
-      onFatalError?.call(result.position, error);
+    } on Exception catch (exception) {
+      onFatalError?.call(result.position, exception);
     } finally {
       onEndDocument?.call();
     }
@@ -88,7 +90,8 @@ class XmlReader {
     if (result.isSuccess) {
       onStartElement?.call(
         result.value[1],
-        new List<XmlAttribute>.from(result.value[2]),
+        new XmlNodeList(attributeNodeTypes)
+          ..addAll(new List<XmlAttribute>.from(result.value[2])),
       );
       if (result.value[4] == XmlToken.closeEndElement) {
         onEndElement?.call(result.value[1]);
@@ -119,7 +122,7 @@ class XmlReader {
     // Parse processing instruction:
     result = _processing.parseOn(context);
     if (result.isSuccess) {
-      onProcessingInstruction?.call(result.value[0], result.value[1]);
+      onProcessingInstruction?.call(result.value[1], result.value[2]);
       return result;
     }
 
