@@ -8,7 +8,7 @@ const Matcher isXmlNodeTypeError = const TypeMatcher<XmlNodeTypeError>();
 
 const Matcher isXmlParentError = const TypeMatcher<XmlParentError>();
 
-void assetParseInvariants(String input) {
+void assertParseInvariants(String input) {
   var tree = parse(input);
   assertTreeInvariants(tree);
   assertReaderInvariants(input, tree);
@@ -303,7 +303,6 @@ void assertReaderInvariants(String input, XmlNode node) {
       expect(text, processing.text, reason: 'Text data should match.');
     },
     onParseError: (index) => fail('Parser error at $index.'),
-    onFatalError: (index, _) => fail('Fatal error at $index.'),
   );
   reader.parse(input);
   expect(nodes, isEmpty, reason: 'All nodes should be processed.');

@@ -6,8 +6,9 @@ import 'assertions.dart';
 import 'examples.dart';
 
 void main() {
-  test('books', () => assetParseInvariants(booksXml));
-  test('bookstore', () => assetParseInvariants(bookstoreXml));
-  test('atom', () => assetParseInvariants(atomXml));
-  test('shiporder', () => assetParseInvariants(shiporderXsd));
+  test('books', () => assertParseInvariants(booksXml));
+  test('bookstore', () => assertParseInvariants(bookstoreXml));
+  test('atom', () => assertParseInvariants(atomXml));
+  test('shiporder', () => assertParseInvariants(shiporderXsd));
+  test('complicated', () => assertParseInvariants(complicatedXml));
 }
