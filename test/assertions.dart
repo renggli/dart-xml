@@ -248,10 +248,12 @@ void assertPrintingInvariants(XmlNode xml) {
 
 void assertReaderInvariants(String input, XmlNode node) {
   var includedTypes = new Set.from([
-    XmlNodeType.ELEMENT,
-    XmlNodeType.TEXT,
     XmlNodeType.CDATA,
+    XmlNodeType.COMMENT,
+    XmlNodeType.DOCUMENT_TYPE,
+    XmlNodeType.ELEMENT,
     XmlNodeType.PROCESSING,
+    XmlNodeType.TEXT,
   ]);
   var nodes = node.descendants
       .where((node) => includedTypes.contains(node.nodeType))
@@ -301,6 +303,24 @@ void assertReaderInvariants(String input, XmlNode node) {
       XmlProcessing processing = node as XmlProcessing;
       expect(target, processing.target, reason: 'Target data should match.');
       expect(text, processing.text, reason: 'Text data should match.');
+    },
+    onDoctype: (text) {
+      expect(state, 1, reason: 'Reader not started');
+      expect(nodes, isNotEmpty, reason: 'Missing element in node list.');
+      XmlNode node = nodes.removeAt(0);
+      expect(node.nodeType, XmlNodeType.DOCUMENT_TYPE,
+          reason: 'Node type should be DOCUMENT_TYPE.');
+      XmlDoctype doctype = node as XmlDoctype;
+      expect(text, doctype.text, reason: 'Text data should match.');
+    },
+    onComment: (text) {
+      expect(state, 1, reason: 'Reader not started');
+      expect(nodes, isNotEmpty, reason: 'Missing element in node list.');
+      XmlNode node = nodes.removeAt(0);
+      expect(node.nodeType, XmlNodeType.COMMENT,
+          reason: 'Node type should be COMMENT.');
+      XmlComment comment = node as XmlComment;
+      expect(text, comment.text, reason: 'Text data should match.');
     },
     onParseError: (index) => fail('Parser error at $index.'),
   );

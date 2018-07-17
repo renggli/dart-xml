@@ -6,7 +6,7 @@ import 'package:xml/xml.dart';
 import 'examples.dart';
 
 void main() {
-  test('no handler', () {
+  test('no handlers', () {
     var reader = new XmlReader();
     reader.parse(complicatedXml);
   });
@@ -20,12 +20,15 @@ void main() {
       onCharacterData: (text) => events.add(text),
       onProcessingInstruction: (target, text) =>
           events.add('<?$target $text?>'),
+      onDoctype: (text) => events.add('<!DOCTYPE $text>'),
+      onComment: (text) => events.add('<!--$text-->')
     );
     reader.parse(complicatedXml);
     expect(events, [
       '+',
       '<?xml foo?>',
       '\n',
+      '<!DOCTYPE name [ something ]>',
       '\n',
       '<ns:foo>',
       '\n  ',
@@ -35,6 +38,7 @@ void main() {
       '<ns:element>',
       '</ns:element>',
       '\n  ',
+      '<!-- comment -->',
       '\n  ',
       'cdata',
       '\n  ',

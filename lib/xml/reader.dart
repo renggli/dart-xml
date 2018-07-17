@@ -37,6 +37,8 @@ typedef void StartElementHandler(
 typedef void EndElementHandler(XmlName name);
 typedef void CharacterDataHandler(String text);
 typedef void ProcessingInstructionHandler(String target, String text);
+typedef void DoctypeHandler(String text);
+typedef void CommentHandler(String comment);
 typedef void ParseErrorHandler(int position);
 typedef void FatalExceptionHandler(int position, Exception exception);
 
@@ -49,6 +51,8 @@ class XmlReader {
   final EndElementHandler onEndElement;
   final CharacterDataHandler onCharacterData;
   final ProcessingInstructionHandler onProcessingInstruction;
+  final DoctypeHandler onDoctype;
+  final CommentHandler onComment;
 
   // Error handlers
   final ParseErrorHandler onParseError;
@@ -61,6 +65,8 @@ class XmlReader {
       this.onEndElement,
       this.onCharacterData,
       this.onProcessingInstruction,
+      this.onDoctype,
+      this.onComment,
       this.onParseError});
 
   /// Parse an input string and trigger all related events.
@@ -102,9 +108,10 @@ class XmlReader {
       return result;
     }
 
-    // Skip over comments:
+    // Parse comments:
     result = _comment.parseOn(context);
     if (result.isSuccess) {
+      onComment?.call(result.value[1]);
       return result;
     }
 
@@ -122,9 +129,10 @@ class XmlReader {
       return result;
     }
 
-    // Skip over doctypes:
+    // Parse docytpes:
     result = _doctype.parseOn(context);
     if (result.isSuccess) {
+      onDoctype?.call(result.value[2]);
       return result;
     }
 
