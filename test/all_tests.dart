@@ -11,6 +11,7 @@ import 'namespace_test.dart' as namespace_test;
 import 'node_test.dart' as node_test;
 import 'parse_test.dart' as parse_test;
 import 'query_test.dart' as query_test;
+import 'reader_test.dart' as reader_test;
 import 'regression_test.dart' as regression_test;
 
 void main() {
@@ -23,5 +24,6 @@ void main() {
   group('node', node_test.main);
   group('parse', parse_test.main);
   group('query', query_test.main);
+  group('reader', reader_test.main);
   group('regression', regression_test.main);
 }

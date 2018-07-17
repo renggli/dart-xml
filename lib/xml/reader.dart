@@ -38,7 +38,7 @@ typedef void EndElementHandler(XmlName name);
 typedef void CharacterDataHandler(String text);
 typedef void ProcessingInstructionHandler(String target, String text);
 typedef void ParseErrorHandler(int position);
-typedef void FatalErrorHandler(int position, Exception exception);
+typedef void FatalExceptionHandler(int position, Exception exception);
 
 /// Dart SAX is a "Simple API for XML" parsing.
 class XmlReader {
@@ -52,7 +52,6 @@ class XmlReader {
 
   // Error handlers
   final ParseErrorHandler onParseError;
-  final FatalErrorHandler onFatalError;
 
   /// Constructor of a SAX reader with its event handlers.
   XmlReader(
@@ -62,22 +61,16 @@ class XmlReader {
       this.onEndElement,
       this.onCharacterData,
       this.onProcessingInstruction,
-      this.onParseError,
-      this.onFatalError});
+      this.onParseError});
 
   /// Parse an input string and trigger all related events.
   void parse(String input) {
     Result result = new Success(input, 0, null);
-    try {
-      onStartDocument?.call();
-      while (result.position < input.length) {
-        result = _parseEvent(result);
-      }
-    } on Exception catch (exception) {
-      onFatalError?.call(result.position, exception);
-    } finally {
-      onEndDocument?.call();
+    onStartDocument?.call();
+    while (result.position < input.length) {
+      result = _parseEvent(result);
     }
+    onEndDocument?.call();
   }
 
   Result _parseEvent(Result context) {
