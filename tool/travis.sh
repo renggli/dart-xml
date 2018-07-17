@@ -10,7 +10,7 @@ if [ "${TRAVIS_DART_VERSION}" = "dev" ]; then
 fi
 
 # Verify the coverage of the tests.
-if [ "${COVERALLS_TOKEN}" ] && [ "${TRAVIS_DART_VERSION}" = "stable" ]; then
+if [ "${COVERALLS_TOKEN}" ] && [ "${TRAVIS_DART_VERSION}" = "dev" ]; then
   echo "Verifying test coverage ..."
   pub global activate dart_coveralls
   pub global run dart_coveralls report \
