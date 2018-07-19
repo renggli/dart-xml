@@ -19,11 +19,13 @@ abstract class XmlParent extends XmlNode {
   @override
   final XmlNodeList<XmlNode> children;
 
-  /// Return the _direct_ child elements with the given tag [name].
+  /// Return a lazy [Iterable] of the _direct_ child elements in document
+  /// order with the specified tag `name`.
   Iterable<XmlElement> findElements(String name, {String namespace}) =>
       _filterElements(children, name, namespace);
 
-  /// Return the _recursive_ child elements with the specified tag `name`.
+  /// Return a lazy [Iterable] of the _recursive_ child elements in document
+  /// order with the specified tag `name`.
   Iterable<XmlElement> findAllElements(String name, {String namespace}) =>
       _filterElements(descendants, name, namespace);
 
