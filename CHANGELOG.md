@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.1.0
+
+* Drop Dart 1.0 compatibility.
 * Cleanup, optimization and improved documentation
 * Add experimental support for SAX parsing
 
