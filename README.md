@@ -13,7 +13,7 @@ Dart XML is a lightweight library for parsing, traversing, querying, transformin
 
 This library is open source, stable and well tested. Development happens on [GitHub](http://github.com/renggli/dart-xml). Feel free to report issues or create a pull-request there. General questions are best asked on [StackOverflow](http://stackoverflow.com/questions/tagged/xml+dart).
 
-Up-to-date [class documentation](http://www.dartdocs.org/documentation/xml/latest/index.html) is created with every release.
+The package is hosted on [dart packages](https://pub.dartlang.org/packages/xml). Up-to-date [class documentation](https://pub.dartlang.org/documentation/xml/latest/) is created with every release.
 
 
 Tutorial
@@ -21,7 +21,7 @@ Tutorial
 
 ### Installation
 
-Follow the _Installing_ instructions on https://pub.dartlang.org/packages/xml.
+Follow the installation instructions on [dart packages](https://pub.dartlang.org/packages/xml#-installing-tab-).
 
 Import the package into your Dart code using:
 
