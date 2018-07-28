@@ -4,21 +4,8 @@ import 'package:test/test.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xml/utils/errors.dart';
 
-const Matcher isXmlNodeTypeError = _XmlNodeTypeError();
-
-class _XmlNodeTypeError extends TypeMatcher {
-  const _XmlNodeTypeError() : super('XmlNodeTypeError');
-  @override
-  bool matches(item, Map matchState) => item is XmlNodeTypeError;
-}
-
-const Matcher isXmlParentError = _XmlParentError();
-
-class _XmlParentError extends TypeMatcher {
-  const _XmlParentError() : super('XmlParentError');
-  @override
-  bool matches(item, Map matchState) => item is XmlParentError;
-}
+const Matcher isXmlNodeTypeError = TypeMatcher<XmlNodeTypeError>();
+const Matcher isXmlParentError = TypeMatcher<XmlParentError>();
 
 void assertParseInvariants(String input) {
   var tree = parse(input);
