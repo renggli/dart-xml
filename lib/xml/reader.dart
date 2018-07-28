@@ -10,8 +10,8 @@ import 'package:xml/xml/utils/node_list.dart';
 import 'package:xml/xml/utils/token.dart';
 
 // Definition of the XML productions.
-final _production = new XmlProductionDefinition();
-final _parser = new XmlParserDefinition();
+final _production = XmlProductionDefinition();
+final _parser = XmlParserDefinition();
 
 // Build the basic elements of the XML grammar.
 final _characterData = _production.build(start: _production.characterData);
@@ -71,7 +71,7 @@ class XmlReader {
 
   /// Parse an input string and trigger all related events.
   void parse(String input) {
-    Result result = new Success(input, 0, null);
+    Result result = Success(input, 0, null);
     onStartDocument?.call();
     while (result.position < input.length) {
       result = _parseEvent(result);
@@ -92,8 +92,8 @@ class XmlReader {
     if (result.isSuccess) {
       onStartElement?.call(
         result.value[1],
-        new XmlNodeList(attributeNodeTypes)
-          ..addAll(new List<XmlAttribute>.from(result.value[2])),
+        XmlNodeList(attributeNodeTypes)
+          ..addAll(List<XmlAttribute>.from(result.value[2])),
       );
       if (result.value[4] == XmlToken.closeEndElement) {
         onEndElement?.call(result.value[1]);

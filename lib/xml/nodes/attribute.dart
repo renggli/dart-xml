@@ -20,7 +20,7 @@ class XmlAttribute extends XmlNode implements XmlNamed {
   /// Update the value of the attribute.
   set value(String value) {
     if (value == null) {
-      throw new ArgumentError.notNull('value');
+      throw ArgumentError.notNull('value');
     }
     _value = value;
   }

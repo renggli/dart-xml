@@ -7,7 +7,7 @@ import 'assertions.dart';
 
 void main() {
   test('basic', () {
-    var builder = new XmlBuilder();
+    var builder = XmlBuilder();
     builder.processing('xml', 'version="1.0" encoding="UTF-8"');
     builder.processing('xml-stylesheet',
         'href="/style.css" type="text/css" title="default stylesheet"');
@@ -39,7 +39,7 @@ void main() {
     expect(actual, expected);
   });
   test('all', () {
-    var builder = new XmlBuilder();
+    var builder = XmlBuilder();
     builder.processing('processing', 'instruction');
     builder.element('element1', attributes: {'attribute1': 'value1'}, nest: () {
       builder.attribute('attribute2', 'value2',
@@ -64,7 +64,7 @@ void main() {
     expect(actual, expected);
   });
   test('nested string', () {
-    var builder = new XmlBuilder();
+    var builder = XmlBuilder();
     builder.element('element', nest: 'string');
     var xml = builder.build();
     assertTreeInvariants(xml);
@@ -73,7 +73,7 @@ void main() {
     expect(actual, expected);
   });
   test('nested iterable', () {
-    var builder = new XmlBuilder();
+    var builder = XmlBuilder();
     builder.element('element', nest: [
       () => builder.text('st'),
       'ri',
@@ -86,8 +86,8 @@ void main() {
     expect(actual, expected);
   });
   test('nested node (element)', () {
-    var builder = new XmlBuilder();
-    var nested = new XmlElement(new XmlName('nested'));
+    var builder = XmlBuilder();
+    var nested = XmlElement(XmlName('nested'));
     builder.element('element', nest: nested);
     var xml = builder.build();
     assertTreeInvariants(xml);
@@ -98,8 +98,8 @@ void main() {
     expect(actual, expected);
   });
   test('nested node (element, repeated)', () {
-    var builder = new XmlBuilder();
-    var nested = new XmlElement(new XmlName('nested'));
+    var builder = XmlBuilder();
+    var nested = XmlElement(XmlName('nested'));
     builder.element('element', nest: [nested, nested]);
     var xml = builder.build();
     assertTreeInvariants(xml);
@@ -112,8 +112,8 @@ void main() {
     expect(actual, expected);
   });
   test('nested node (text)', () {
-    var builder = new XmlBuilder();
-    var nested = new XmlText('text');
+    var builder = XmlBuilder();
+    var nested = XmlText('text');
     builder.element('element', nest: nested);
     var xml = builder.build();
     assertTreeInvariants(xml);
@@ -124,8 +124,8 @@ void main() {
     expect(actual, expected);
   });
   test('nested node (text, repeated)', () {
-    var builder = new XmlBuilder();
-    var nested = new XmlText('text');
+    var builder = XmlBuilder();
+    var nested = XmlText('text');
     builder.element('element', nest: [nested, nested]);
     var xml = builder.build();
     assertTreeInvariants(xml);
@@ -136,8 +136,8 @@ void main() {
     expect(actual, expected);
   });
   test('nested node (data)', () {
-    var builder = new XmlBuilder();
-    var nested = new XmlComment('abc');
+    var builder = XmlBuilder();
+    var nested = XmlComment('abc');
     builder.element('element', nest: nested);
     var xml = builder.build();
     assertTreeInvariants(xml);
@@ -148,8 +148,8 @@ void main() {
     expect(actual, expected);
   });
   test('nested node (attribute)', () {
-    var builder = new XmlBuilder();
-    var nested = new XmlAttribute(new XmlName('foo'), 'bar');
+    var builder = XmlBuilder();
+    var nested = XmlAttribute(XmlName('foo'), 'bar');
     builder.element('element', nest: nested);
     var xml = builder.build();
     assertTreeInvariants(xml);
@@ -160,14 +160,13 @@ void main() {
     expect(actual, expected);
   });
   test('nested node (document)', () {
-    var builder = new XmlBuilder();
-    var nested = new XmlDocument([]);
+    var builder = XmlBuilder();
+    var nested = XmlDocument([]);
     expect(() => builder.element('element', nest: nested), throwsArgumentError);
   });
   test('nested node (document fragment)', () {
-    var builder = new XmlBuilder();
-    var nested =
-        new XmlDocumentFragment([new XmlText('foo'), new XmlComment('bar')]);
+    var builder = XmlBuilder();
+    var nested = XmlDocumentFragment([XmlText('foo'), XmlComment('bar')]);
     builder.element('element', nest: nested);
     var xml = builder.build();
     assertTreeInvariants(xml);
@@ -182,11 +181,11 @@ void main() {
     expect(actual, expected);
   });
   test('invalid attributes', () {
-    var builder = new XmlBuilder();
+    var builder = XmlBuilder();
     expect(() => builder.attribute('key', 'value'), throwsArgumentError);
   });
   test('text', () {
-    var builder = new XmlBuilder();
+    var builder = XmlBuilder();
     builder.element('text', nest: () {
       builder.text('abc');
       builder.text('');
@@ -200,7 +199,7 @@ void main() {
   });
   test('namespace binding', () {
     var uri = 'http://www.w3.org/2001/XMLSchema';
-    var builder = new XmlBuilder();
+    var builder = XmlBuilder();
     builder.element('schema', nest: () {
       builder.namespace(uri, 'xsd');
       builder.attribute('lang', 'en', namespace: uri);
@@ -217,7 +216,7 @@ void main() {
   });
   test('default namespace binding', () {
     var uri = 'http://www.w3.org/2001/XMLSchema';
-    var builder = new XmlBuilder();
+    var builder = XmlBuilder();
     builder.element('schema', nest: () {
       builder.namespace(uri);
       builder.attribute('lang', 'en', namespace: uri);
@@ -232,12 +231,12 @@ void main() {
     expect(actual, expected);
   });
   test('undefined namespace', () {
-    var builder = new XmlBuilder();
+    var builder = XmlBuilder();
     expect(() => builder.element('element', namespace: 'http://1.foo.com/'),
         throwsArgumentError);
   });
   test('invalid namespace', () {
-    var builder = new XmlBuilder();
+    var builder = XmlBuilder();
     builder.element('element', nest: () {
       expect(() => builder.namespace('http://1.foo.com/', 'xml'),
           throwsArgumentError);
@@ -249,7 +248,7 @@ void main() {
     expect(actual, expected);
   });
   test('conflicting namespace', () {
-    var builder = new XmlBuilder();
+    var builder = XmlBuilder();
     builder.element('element', nest: () {
       builder.namespace('http://1.foo.com/', 'foo');
       expect(() => builder.namespace('http://2.foo.com/', 'foo'),
@@ -260,7 +259,7 @@ void main() {
     expect(actual, expected);
   });
   test('unused namespace', () {
-    var builder = new XmlBuilder();
+    var builder = XmlBuilder();
     builder.element('element', nest: () {
       builder.namespace('http://1.foo.com/', 'foo');
     });
@@ -269,7 +268,7 @@ void main() {
     expect(actual, expected);
   });
   test('unused namespace (optimized)', () {
-    var builder = new XmlBuilder(optimizeNamespaces: true);
+    var builder = XmlBuilder(optimizeNamespaces: true);
     builder.element('element', nest: () {
       builder.namespace('http://1.foo.com/', 'foo');
     });
@@ -278,7 +277,7 @@ void main() {
     expect(actual, expected);
   });
   test('duplicate namespace', () {
-    var builder = new XmlBuilder();
+    var builder = XmlBuilder();
     builder.element('element', nest: () {
       builder.namespace('http://1.foo.com/', 'foo');
       builder.element('outer', nest: () {
@@ -298,7 +297,7 @@ void main() {
     expect(actual, expected);
   });
   test('duplicate namespace on attribute (optimized)', () {
-    var builder = new XmlBuilder(optimizeNamespaces: true);
+    var builder = XmlBuilder(optimizeNamespaces: true);
     builder.element('element', nest: () {
       builder.namespace('http://1.foo.com/', 'foo');
       builder.element('outer', nest: () {
@@ -318,7 +317,7 @@ void main() {
     expect(actual, expected);
   });
   test('duplicate namespace on element (optimized)', () {
-    var builder = new XmlBuilder(optimizeNamespaces: true);
+    var builder = XmlBuilder(optimizeNamespaces: true);
     builder.element('element', nest: () {
       builder.namespace('http://1.foo.com/', 'foo');
       builder.element('outer', nest: () {
@@ -335,7 +334,7 @@ void main() {
     expect(actual, expected);
   });
   test('entities cdata escape', () {
-    var builder = new XmlBuilder();
+    var builder = XmlBuilder();
     builder.element('element', nest: '<test><![CDATA[string]]></test>');
     var xml = builder.build();
     assertTreeInvariants(xml);

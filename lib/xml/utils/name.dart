@@ -13,7 +13,7 @@ final separator = ':';
 
 // xml namespace declarations
 final xml = 'xml';
-final xmlData = new NamespaceData(xml, true);
+final xmlData = NamespaceData(xml, true);
 final xmlUri = 'http://www.w3.org/XML/1998/namespace';
 final xmlns = 'xmlns';
 
@@ -34,8 +34,8 @@ abstract class XmlName extends Object with XmlVisitable, XmlWritable, XmlOwned {
   /// Creates a qualified [XmlName] from a `local` name and an optional `prefix`.
   factory XmlName(String local, [String prefix]) =>
       prefix == null || prefix.isEmpty
-          ? new XmlSimpleName(local)
-          : new XmlPrefixName(prefix, local, '$prefix$separator$local');
+          ? XmlSimpleName(local)
+          : XmlPrefixName(prefix, local, '$prefix$separator$local');
 
   /// Create a [XmlName] by parsing the provided `qualified` name.
   factory XmlName.fromString(String qualified) {
@@ -43,9 +43,9 @@ abstract class XmlName extends Object with XmlVisitable, XmlWritable, XmlOwned {
     if (index > 0) {
       var prefix = qualified.substring(0, index);
       var local = qualified.substring(index + 1, qualified.length);
-      return new XmlPrefixName(prefix, local, qualified);
+      return XmlPrefixName(prefix, local, qualified);
     } else {
-      return new XmlSimpleName(qualified);
+      return XmlSimpleName(qualified);
     }
   }
 

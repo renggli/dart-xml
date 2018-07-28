@@ -10,7 +10,7 @@ import 'package:xml/xml/utils/node_type.dart';
 abstract class XmlParent extends XmlNode {
   /// Create a node with a list of [children].
   XmlParent(Set<XmlNodeType> supportedChildrenTypes, Iterable<XmlNode> children)
-      : children = new XmlNodeList(supportedChildrenTypes) {
+      : children = XmlNodeList(supportedChildrenTypes) {
     this.children.attachParent(this);
     this.children.addAll(children);
   }

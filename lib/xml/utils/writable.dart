@@ -8,12 +8,12 @@ import 'package:xml/xml/visitors/writer.dart';
 abstract class XmlWritable implements XmlVisitable {
   /// Write this object to a `buffer`.
   void writeTo(StringBuffer buffer) {
-    new XmlWriter(buffer).visit(this);
+    XmlWriter(buffer).visit(this);
   }
 
   /// Write this object in a 'pretty' format to a `buffer`.
   void writePrettyTo(StringBuffer buffer, int level, String indent) {
-    new XmlPrettyWriter(buffer, level, indent).visit(this);
+    XmlPrettyWriter(buffer, level, indent).visit(this);
   }
 
   /// Return a default XML string of this object.
@@ -27,8 +27,8 @@ abstract class XmlWritable implements XmlVisitable {
   ///
   /// The option `indent` is only used when pretty formatting to customize the
   /// indention of nodes, by default nodes are indented with 2 spaces.
-  String toXmlString({bool pretty: false, String indent: '  '}) {
-    var buffer = new StringBuffer();
+  String toXmlString({bool pretty = false, String indent = '  '}) {
+    var buffer = StringBuffer();
     if (pretty) {
       writePrettyTo(buffer, 0, indent);
     } else {

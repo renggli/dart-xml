@@ -11,7 +11,7 @@ class XmlPrecedingIterable extends IterableBase<XmlNode> {
   XmlPrecedingIterable(this.start);
 
   @override
-  Iterator<XmlNode> get iterator => new XmlPrecedingIterator(start);
+  Iterator<XmlNode> get iterator => XmlPrecedingIterator(start);
 }
 
 /// Iterator to walk over the precedents of a node.

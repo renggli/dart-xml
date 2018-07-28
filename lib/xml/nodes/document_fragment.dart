@@ -26,7 +26,7 @@ class XmlDocumentFragment extends XmlParent {
 }
 
 /// Supported child node types.
-final childrenNodeTypes = new Set<XmlNodeType>.from(const [
+final childrenNodeTypes = Set<XmlNodeType>.from(const [
   XmlNodeType.CDATA,
   XmlNodeType.COMMENT,
   XmlNodeType.DOCUMENT_TYPE,

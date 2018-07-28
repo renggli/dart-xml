@@ -8,7 +8,7 @@ typedef bool XmlNameMatcher(XmlNamed named);
 /// Internal factory to create element matchers.
 XmlNameMatcher createNameMatcher(String name, String namespace) {
   if (name == null) {
-    throw new ArgumentError('Illegal name matcher.');
+    throw ArgumentError('Illegal name matcher.');
   } else if (name == '*') {
     if (namespace == null || namespace == '*') {
       return (named) => true;

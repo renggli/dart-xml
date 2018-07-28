@@ -25,19 +25,19 @@ abstract class XmlNode extends Object with XmlVisitable, XmlWritable, XmlOwned {
 
   /// Return a lazy [Iterable] of the nodes preceding the opening tag of this
   /// node in document order.
-  Iterable<XmlNode> get preceding => new XmlPrecedingIterable(this);
+  Iterable<XmlNode> get preceding => XmlPrecedingIterable(this);
 
   /// Return a lazy [Iterable] of the descendants of this node (children,
   /// grandchildren, ...) in document order.
-  Iterable<XmlNode> get descendants => new XmlDescendantsIterable(this);
+  Iterable<XmlNode> get descendants => XmlDescendantsIterable(this);
 
   /// Return a lazy [Iterable] of the nodes following the closing tag of this
   /// node in document order.
-  Iterable<XmlNode> get following => new XmlFollowingIterable(this);
+  Iterable<XmlNode> get following => XmlFollowingIterable(this);
 
   /// Return a lazy [Iterable] of the ancestors of this node (parent,
   /// grandparent, ...) in reverse document order.
-  Iterable<XmlNode> get ancestors => new XmlAncestorsIterable(this);
+  Iterable<XmlNode> get ancestors => XmlAncestorsIterable(this);
 
   /// Return the node type of this node.
   XmlNodeType get nodeType;

@@ -33,14 +33,14 @@ export 'xml/visitors/transformer.dart' show XmlTransformer;
 export 'xml/visitors/visitable.dart' show XmlVisitable;
 export 'xml/visitors/visitor.dart' show XmlVisitor;
 
-final Parser _parser = new XmlParserDefinition().build();
+final Parser _parser = XmlParserDefinition().build();
 
 /// Return an [XmlDocument] for the given `input` string, or throws an
 /// [ArgumentError] if the input is invalid.
 XmlDocument parse(String input) {
   var result = _parser.parse(input);
   if (result.isFailure) {
-    throw new ArgumentError(new ParserError(result).toString());
+    throw ArgumentError(ParserError(result).toString());
   }
   return result.value;
 }

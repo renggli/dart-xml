@@ -4,7 +4,7 @@ import 'package:test/test.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xml/utils/errors.dart';
 
-const Matcher isXmlNodeTypeError = const _XmlNodeTypeError();
+const Matcher isXmlNodeTypeError = _XmlNodeTypeError();
 
 class _XmlNodeTypeError extends TypeMatcher {
   const _XmlNodeTypeError() : super('XmlNodeTypeError');
@@ -12,7 +12,7 @@ class _XmlNodeTypeError extends TypeMatcher {
   bool matches(item, Map matchState) => item is XmlNodeTypeError;
 }
 
-const Matcher isXmlParentError = const _XmlParentError();
+const Matcher isXmlParentError = _XmlParentError();
 
 class _XmlParentError extends TypeMatcher {
   const _XmlParentError() : super('XmlParentError');
@@ -259,7 +259,7 @@ void assertPrintingInvariants(XmlNode xml) {
 }
 
 void assertReaderInvariants(String input, XmlNode node) {
-  var includedTypes = new Set.from([
+  var includedTypes = Set.from([
     XmlNodeType.CDATA,
     XmlNodeType.COMMENT,
     XmlNodeType.DOCUMENT_TYPE,
@@ -272,7 +272,7 @@ void assertReaderInvariants(String input, XmlNode node) {
       .toList(growable: true);
   var stack = <XmlName>[];
   var state = 0;
-  var reader = new XmlReader(
+  var reader = XmlReader(
     onStartDocument: () {
       expect(state, 0, reason: 'Reader already started.');
       state = 1;

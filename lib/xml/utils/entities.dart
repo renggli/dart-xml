@@ -6,14 +6,14 @@ import 'package:xml/xml/utils/attribute_type.dart';
 // Hexadecimal character reference.
 final _entityHex = pattern('xX')
     .seq(pattern('A-Fa-f0-9').plus().flatten().map((value) {
-      return new String.fromCharCode(int.parse(value, radix: 16));
+      return String.fromCharCode(int.parse(value, radix: 16));
     }))
     .pick(1);
 
 // Decimal character reference.
 final _entityDigit = char('#')
     .seq(_entityHex.or(digit().plus().flatten().map((value) {
-      return new String.fromCharCode(int.parse(value));
+      return String.fromCharCode(int.parse(value));
     })))
     .pick(1);
 
@@ -40,7 +40,7 @@ class XmlCharacterDataParser extends Parser {
   Result parseOn(Context context) {
     var input = context.buffer as String;
     var length = input.length;
-    var output = new StringBuffer();
+    var output = StringBuffer();
     var position = context.position;
     var start = position;
 
@@ -75,7 +75,7 @@ class XmlCharacterDataParser extends Parser {
   List<Parser> get children => [_entity];
 
   @override
-  Parser copy() => new XmlCharacterDataParser(_stopper, _minLength);
+  Parser copy() => XmlCharacterDataParser(_stopper, _minLength);
 }
 
 /// Mapping from entity name to character.
@@ -345,7 +345,7 @@ typedef String ReplaceFunction(Match match);
 String encodeXmlText(String input) =>
     input.replaceAllMapped(_textPattern, _textReplace);
 
-final Pattern _textPattern = new RegExp(r'[&<]|]]>');
+final Pattern _textPattern = RegExp(r'[&<]|]]>');
 
 String _textReplace(Match match) {
   switch (match.group(0)) {
@@ -356,7 +356,7 @@ String _textReplace(Match match) {
     case ']]>':
       return ']]&gt;';
   }
-  throw new AssertionError();
+  throw AssertionError();
 }
 
 /// Encode a string to be serialized as an XML attribute value.
@@ -370,8 +370,8 @@ final Map<XmlAttributeType, String> attributeQuote = {
 };
 
 final Map<XmlAttributeType, Pattern> _attributePattern = {
-  XmlAttributeType.SINGLE_QUOTE: new RegExp(r"['&<\n\r\t]"),
-  XmlAttributeType.DOUBLE_QUOTE: new RegExp(r'["&<\n\r\t]')
+  XmlAttributeType.SINGLE_QUOTE: RegExp(r"['&<\n\r\t]"),
+  XmlAttributeType.DOUBLE_QUOTE: RegExp(r'["&<\n\r\t]')
 };
 
 final Map<XmlAttributeType, ReplaceFunction> _attributeReplace = {
@@ -390,7 +390,7 @@ final Map<XmlAttributeType, ReplaceFunction> _attributeReplace = {
       case '\t':
         return '&#x9;';
     }
-    throw new AssertionError();
+    throw AssertionError();
   },
   XmlAttributeType.DOUBLE_QUOTE: (match) {
     switch (match.group(0)) {
@@ -407,6 +407,6 @@ final Map<XmlAttributeType, ReplaceFunction> _attributeReplace = {
       case '\t':
         return '&#x9;';
     }
-    throw new AssertionError();
+    throw AssertionError();
   },
 };

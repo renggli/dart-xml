@@ -12,7 +12,7 @@ class XmlFollowingIterable extends IterableBase<XmlNode> {
   XmlFollowingIterable(this.start);
 
   @override
-  Iterator<XmlNode> get iterator => new XmlFollowingIterator(start);
+  Iterator<XmlNode> get iterator => XmlFollowingIterator(start);
 }
 
 /// Iterator to walk over the followers of a node.

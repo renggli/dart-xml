@@ -27,13 +27,13 @@ class XmlBuilder {
   final bool optimizeNamespaces;
 
   /// The current node stack of this builder.
-  final List<XmlNodeBuilder> _stack = new List.from([new XmlDocumentBuilder()]);
+  final List<XmlNodeBuilder> _stack = List.from([XmlDocumentBuilder()]);
 
   /// Construct a new [XmlBuilder].
   ///
   /// For the meaning of the [optimizeNamespaces] parameter, read the
   /// documentation of the [optimizeNamespaces] property.
-  XmlBuilder({this.optimizeNamespaces: false});
+  XmlBuilder({this.optimizeNamespaces = false});
 
   /// Adds a [XmlText] node with the provided [text].
   ///
@@ -46,9 +46,9 @@ class XmlBuilder {
     if (children.isNotEmpty && children.last is XmlText) {
       // merge consecutive text nodes into one
       var previous = children.removeLast();
-      children.add(new XmlText('${previous.text}${text.toString()}'));
+      children.add(XmlText('${previous.text}${text.toString()}'));
     } else {
-      children.add(new XmlText(text.toString()));
+      children.add(XmlText(text.toString()));
     }
   }
 
@@ -60,7 +60,7 @@ class XmlBuilder {
   ///     builder.cdata('Hello World');
   ///
   void cdata(Object text) {
-    _stack.last.children.add(new XmlCDATA(text.toString()));
+    _stack.last.children.add(XmlCDATA(text.toString()));
   }
 
   /// Adds a [XmlProcessing] node with the provided [target] and [text].
@@ -71,7 +71,7 @@ class XmlBuilder {
   ///     builder.processing('xml', 'version="1.0"');
   ///
   void processing(String target, Object text) {
-    _stack.last.children.add(new XmlProcessing(target, text.toString()));
+    _stack.last.children.add(XmlProcessing(target, text.toString()));
   }
 
   /// Adds a [XmlComment] node with the provided [text].
@@ -82,7 +82,7 @@ class XmlBuilder {
   ///     builder.comment('Hello World');
   ///
   void comment(Object text) {
-    _stack.last.children.add(new XmlComment(text.toString()));
+    _stack.last.children.add(XmlComment(text.toString()));
   }
 
   /// Adds a [XmlElement] node with the provided tag [name].
@@ -116,10 +116,10 @@ class XmlBuilder {
   ///
   void element(String name,
       {String namespace,
-      Map<String, String> namespaces: const {},
-      Map<String, String> attributes: const {},
+      Map<String, String> namespaces = const {},
+      Map<String, String> attributes = const {},
       Object nest}) {
-    var element = new XmlElementBuilder();
+    var element = XmlElementBuilder();
     _stack.add(element);
     namespaces.forEach(this.namespace);
     attributes.forEach(this.attribute);
@@ -157,7 +157,7 @@ class XmlBuilder {
   ///
   void attribute(String name, Object value,
       {String namespace, XmlAttributeType attributeType}) {
-    final attribute = new XmlAttribute(_buildName(name, namespace),
+    final attribute = XmlAttribute(_buildName(name, namespace),
         value.toString(), attributeType ?? XmlAttributeType.DOUBLE_QUOTE);
     _stack.last.attributes.add(attribute);
   }
@@ -167,7 +167,7 @@ class XmlBuilder {
   /// the [prefix] is invalid or conflicts with an existing declaration.
   void namespace(String uri, [String prefix]) {
     if (prefix == xmlns || prefix == xml) {
-      throw new ArgumentError('The "$prefix" prefix cannot be bound.');
+      throw ArgumentError('The "$prefix" prefix cannot be bound.');
     }
     if (optimizeNamespaces &&
         _stack.any((builder) =>
@@ -177,12 +177,12 @@ class XmlBuilder {
       return;
     }
     if (_stack.last.namespaces.values.any((meta) => meta.prefix == prefix)) {
-      throw new ArgumentError(
+      throw ArgumentError(
           'The "$prefix" prefix conflicts with existing binding.');
     }
-    var meta = new NamespaceData(prefix, false);
+    var meta = NamespaceData(prefix, false);
     _stack.last.attributes
-        .add(new XmlAttribute(meta.name, uri, XmlAttributeType.DOUBLE_QUOTE));
+        .add(XmlAttribute(meta.name, uri, XmlAttributeType.DOUBLE_QUOTE));
     _stack.last.namespaces[uri] = meta;
   }
 
@@ -194,9 +194,9 @@ class XmlBuilder {
     if (uri != null && uri.isNotEmpty) {
       var meta = _lookup(uri);
       meta.used = true;
-      return new XmlName(name, meta.prefix);
+      return XmlName(name, meta.prefix);
     } else {
-      return new XmlName.fromString(name);
+      return XmlName.fromString(name);
     }
   }
 
@@ -204,7 +204,7 @@ class XmlBuilder {
   NamespaceData _lookup(String uri) {
     var builder = _stack.lastWhere(
         (builder) => builder.namespaces.containsKey(uri),
-        orElse: () => throw new ArgumentError('Undefined namespace: $uri'));
+        orElse: () => throw ArgumentError('Undefined namespace: $uri'));
     return builder.namespaces[uri];
   }
 
@@ -228,8 +228,7 @@ class XmlBuilder {
         // All other valid nodes must be copied and added to the children list.
         _stack.last.children.add(const XmlTransformer().visit(value));
       } else {
-        throw new ArgumentError(
-            'Unable to add element of type ${value.nodeType}');
+        throw ArgumentError('Unable to add element of type ${value.nodeType}');
       }
     } else {
       text(value.toString());
@@ -244,8 +243,8 @@ class NamespaceData {
   NamespaceData(this.prefix, [this.used = false]);
 
   XmlName get name => prefix == null || prefix.isEmpty
-      ? new XmlName(xmlns)
-      : new XmlName(prefix, xmlns);
+      ? XmlName(xmlns)
+      : XmlName(prefix, xmlns);
 }
 
 abstract class XmlNodeBuilder {
@@ -261,15 +260,14 @@ class XmlDocumentBuilder extends XmlNodeBuilder {
 
   @override
   List<XmlAttribute> get attributes {
-    throw new ArgumentError(
-        'Unable to define attributes at the document level.');
+    throw ArgumentError('Unable to define attributes at the document level.');
   }
 
   @override
   final List<XmlNode> children = [];
 
   @override
-  XmlNode build() => new XmlDocument(children);
+  XmlNode build() => XmlDocument(children);
 }
 
 class XmlElementBuilder extends XmlNodeBuilder {
@@ -285,5 +283,5 @@ class XmlElementBuilder extends XmlNodeBuilder {
   XmlName name;
 
   @override
-  XmlNode build() => new XmlElement(name, attributes, children);
+  XmlNode build() => XmlElement(name, attributes, children);
 }

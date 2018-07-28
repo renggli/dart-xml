@@ -56,22 +56,19 @@ abstract class XmlGrammarDefinition<TNode, TName>
         nodes.addAll(each[2]);
         nodes.add(each[3]);
         nodes.addAll(each[4]);
-        return createDocument(new List<TNode>.from(nodes));
+        return createDocument(List<TNode>.from(nodes));
       });
 
   @override
   Parser element() => super.element().map((list) {
         if (list[4] == XmlToken.closeEndElement) {
-          return createElement(
-              list[1] as TName, new List<TNode>.from(list[2]), []);
+          return createElement(list[1] as TName, List<TNode>.from(list[2]), []);
         } else {
           if (list[1] == list[4][3]) {
-            return createElement(
-                list[1] as TName,
-                new List<TNode>.from(list[2]),
-                new List<TNode>.from(list[4][1]));
+            return createElement(list[1] as TName, List<TNode>.from(list[2]),
+                List<TNode>.from(list[4][1]));
           } else {
-            throw new ArgumentError(
+            throw ArgumentError(
                 'Expected </${list[1]}>, but found </${list[4][3]}>');
           }
         }

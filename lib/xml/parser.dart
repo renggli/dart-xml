@@ -18,33 +18,33 @@ class XmlParserDefinition extends XmlGrammarDefinition<XmlNode, XmlName> {
   @override
   XmlAttribute createAttribute(
           XmlName name, String text, XmlAttributeType attributeType) =>
-      new XmlAttribute(name, text, attributeType);
+      XmlAttribute(name, text, attributeType);
 
   @override
-  XmlComment createComment(String text) => new XmlComment(text);
+  XmlComment createComment(String text) => XmlComment(text);
 
   @override
-  XmlCDATA createCDATA(String text) => new XmlCDATA(text);
+  XmlCDATA createCDATA(String text) => XmlCDATA(text);
 
   @override
-  XmlDoctype createDoctype(String text) => new XmlDoctype(text);
+  XmlDoctype createDoctype(String text) => XmlDoctype(text);
 
   @override
   XmlDocument createDocument(Iterable<XmlNode> children) =>
-      new XmlDocument(children);
+      XmlDocument(children);
 
   @override
   XmlElement createElement(XmlName name, Iterable<XmlNode> attributes,
           Iterable<XmlNode> children) =>
-      new XmlElement(name, new List<XmlAttribute>.from(attributes), children);
+      XmlElement(name, List<XmlAttribute>.from(attributes), children);
 
   @override
   XmlProcessing createProcessing(String target, String text) =>
-      new XmlProcessing(target, text);
+      XmlProcessing(target, text);
 
   @override
-  XmlName createQualified(String name) => new XmlName.fromString(name);
+  XmlName createQualified(String name) => XmlName.fromString(name);
 
   @override
-  XmlText createText(String text) => new XmlText(text);
+  XmlText createText(String text) => XmlText(text);
 }

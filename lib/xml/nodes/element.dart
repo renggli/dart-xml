@@ -17,7 +17,7 @@ class XmlElement extends XmlParent implements XmlNamed {
   XmlElement(this.name,
       [Iterable<XmlAttribute> attributes = const [],
       Iterable<XmlNode> children = const []])
-      : attributes = new XmlNodeList(attributeNodeTypes),
+      : attributes = XmlNodeList(attributeNodeTypes),
         super(childrenNodeTypes, children) {
     this.name.attachParent(this);
     this.attributes.attachParent(this);
@@ -52,7 +52,7 @@ class XmlElement extends XmlParent implements XmlNamed {
 }
 
 /// Supported child node types.
-final childrenNodeTypes = new Set<XmlNodeType>.from(const [
+final childrenNodeTypes = Set<XmlNodeType>.from(const [
   XmlNodeType.CDATA,
   XmlNodeType.COMMENT,
   XmlNodeType.ELEMENT,
@@ -61,6 +61,6 @@ final childrenNodeTypes = new Set<XmlNodeType>.from(const [
 ]);
 
 /// Supported attribute node types.
-final attributeNodeTypes = new Set<XmlNodeType>.from(const [
+final attributeNodeTypes = Set<XmlNodeType>.from(const [
   XmlNodeType.ATTRIBUTE,
 ]);

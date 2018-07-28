@@ -35,7 +35,7 @@ class XmlDocument extends XmlParent {
   ///
   XmlElement get rootElement =>
       children.firstWhere((node) => node is XmlElement,
-          orElse: () => throw new StateError('Empty XML document'));
+          orElse: () => throw StateError('Empty XML document'));
 
   @override
   XmlDocument get document => this;
@@ -51,7 +51,7 @@ class XmlDocument extends XmlParent {
 }
 
 /// Supported child node types.
-final childrenNodeTypes = new Set<XmlNodeType>.from(const [
+final childrenNodeTypes = Set<XmlNodeType>.from(const [
   XmlNodeType.CDATA,
   XmlNodeType.COMMENT,
   XmlNodeType.DOCUMENT_TYPE,

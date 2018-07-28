@@ -5,10 +5,10 @@ import 'package:xml/xml.dart';
 
 String decode(String input) => parse('<data>$input</data>').rootElement.text;
 
-String encodeText(String input) => new XmlText(input).toString();
+String encodeText(String input) => XmlText(input).toString();
 
 String encodeAttributeValue(XmlAttributeType type, String input) {
-  var attribute = new XmlAttribute(new XmlName('a'), input, type).toString();
+  var attribute = XmlAttribute(XmlName('a'), input, type).toString();
   var quote = type == XmlAttributeType.SINGLE_QUOTE ? "'" : '"';
   expect(attribute.substring(0, 3), 'a=$quote');
   expect(attribute[attribute.length - 1], quote);

@@ -13,7 +13,7 @@ abstract class XmlData extends XmlNode {
   /// Update the textual value of this node.
   set text(String text) {
     if (text == null) {
-      throw new ArgumentError.notNull('text');
+      throw ArgumentError.notNull('text');
     }
     _text = text;
   }

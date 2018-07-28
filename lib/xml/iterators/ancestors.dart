@@ -11,7 +11,7 @@ class XmlAncestorsIterable extends IterableBase<XmlNode> {
   XmlAncestorsIterable(this.start);
 
   @override
-  Iterator<XmlNode> get iterator => new XmlAncestorsIterator(start);
+  Iterator<XmlNode> get iterator => XmlAncestorsIterator(start);
 }
 
 /// Iterator to walk over the ancestors of a node.

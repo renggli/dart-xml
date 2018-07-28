@@ -10,7 +10,7 @@ void main() {
     XmlDocument document =
         parse('<ns:data key="value">Am I or are the other crazy?</ns:data>');
     XmlElement node = document.rootElement;
-    expect(node.name, new XmlName.fromString('ns:data'));
+    expect(node.name, XmlName.fromString('ns:data'));
     expect(node.parent, same(document));
     expect(node.root, same(document));
     expect(node.document, same(document));
@@ -26,17 +26,17 @@ void main() {
   test('element (readopt name)', () {
     XmlDocument document = parse('<element attr="value1">text</element>');
     XmlElement node = document.rootElement;
-    expect(() => new XmlElement(node.name), throwsArgumentError);
-    expect(() => new XmlElement(new XmlName('data'), node.attributes),
+    expect(() => XmlElement(node.name), throwsArgumentError);
+    expect(() => XmlElement(XmlName('data'), node.attributes),
         throwsArgumentError);
-    expect(() => new XmlElement(new XmlName('data'), [], node.children),
+    expect(() => XmlElement(XmlName('data'), [], node.children),
         throwsArgumentError);
   });
   test('attribute', () {
     XmlDocument document =
         parse('<data ns:attr="Am I or are the other crazy?" />');
     XmlAttribute node = document.rootElement.attributes.single;
-    expect(node.name, new XmlName.fromString('ns:attr'));
+    expect(node.name, XmlName.fromString('ns:attr'));
     expect(node.value, 'Am I or are the other crazy?');
     expect(node.attributeType, XmlAttributeType.DOUBLE_QUOTE);
     expect(node.parent, same(document.rootElement));
@@ -67,7 +67,7 @@ void main() {
     XmlDocument document =
         parse('<data ns:attr=\'Am I or are the other crazy?\' />');
     XmlAttribute node = document.rootElement.attributes.single;
-    expect(node.name, new XmlName.fromString('ns:attr'));
+    expect(node.name, XmlName.fromString('ns:attr'));
     expect(node.value, 'Am I or are the other crazy?');
     expect(node.attributeType, XmlAttributeType.SINGLE_QUOTE);
     expect(node.parent, same(document.rootElement));
@@ -98,7 +98,7 @@ void main() {
     XmlDocument document =
         parse('<data ns:attr=\'&lt;&gt;&amp;&apos;&quot;&#xA;&#xD;&#x9;\' />');
     XmlAttribute node = document.rootElement.attributes.single;
-    expect(() => new XmlAttribute(node.name, ''), throwsArgumentError);
+    expect(() => XmlAttribute(node.name, ''), throwsArgumentError);
   });
   test('text', () {
     XmlDocument document = parse('<data>Am I or are the other crazy?</data>');
@@ -215,7 +215,7 @@ void main() {
         '<!-- before -->\n<element />\n<!-- after -->');
   });
   test('document empty', () {
-    XmlDocument document = new XmlDocument();
+    XmlDocument document = XmlDocument();
     expect(document.doctypeElement, isNull);
     expect(() => document.rootElement, throwsStateError);
   });
@@ -234,7 +234,7 @@ void main() {
     expect(node.toString(), '<!DOCTYPE html [<!-- internal subset -->]>');
   });
   test('document fragment empty', () {
-    XmlDocumentFragment node = new XmlDocumentFragment();
+    XmlDocumentFragment node = XmlDocumentFragment();
     assertCopyInvariants(node);
     expect(node.parent, isNull);
     expect(node.root, node);

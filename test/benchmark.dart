@@ -7,7 +7,7 @@ import 'examples.dart';
 double benchmark(Function function, [int warmUp = 5, int milliseconds = 2500]) {
   var count = 0;
   var elapsed = 0;
-  var watch = new Stopwatch();
+  var watch = Stopwatch();
   while (warmUp-- > 0) {
     function();
   }
@@ -22,7 +22,7 @@ double benchmark(Function function, [int warmUp = 5, int milliseconds = 2500]) {
 
 String characterData() {
   var string = '''a&bc<def"gehi'jklm>nopqr''';
-  var builder = new XmlBuilder();
+  var builder = XmlBuilder();
   builder.processing('xml', 'version="1.0"');
   builder.element('character', nest: () {
     for (var i = 0; i < 20; i++) {
@@ -44,7 +44,7 @@ final Map<String, String> benchmarks = {
 };
 
 void main() {
-  var builder = new XmlBuilder();
+  var builder = XmlBuilder();
   builder.processing('xml', 'version="1.0"');
   builder.element('benchmarks', nest: () {
     for (var name in benchmarks.keys) {

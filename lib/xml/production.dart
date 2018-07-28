@@ -24,10 +24,10 @@ class XmlProductionDefinition extends GrammarDefinition {
   Parser attributeValue() =>
       ref(attributeValueDouble).or(ref(attributeValueSingle));
   Parser attributeValueDouble() => char(XmlToken.doubleQuote)
-      .seq(new XmlCharacterDataParser(XmlToken.doubleQuote, 0))
+      .seq(XmlCharacterDataParser(XmlToken.doubleQuote, 0))
       .seq(char(XmlToken.doubleQuote));
   Parser attributeValueSingle() => char(XmlToken.singleQuote)
-      .seq(new XmlCharacterDataParser(XmlToken.singleQuote, 0))
+      .seq(XmlCharacterDataParser(XmlToken.singleQuote, 0))
       .seq(char(XmlToken.singleQuote));
   Parser attributes() => ref(space).seq(ref(attribute)).pick(1).star();
   Parser comment() => string(XmlToken.openComment)
@@ -79,7 +79,7 @@ class XmlProductionDefinition extends GrammarDefinition {
       .seq(string(XmlToken.closeProcessing));
   Parser qualified() => ref(nameToken);
 
-  Parser characterData() => new XmlCharacterDataParser(XmlToken.openElement, 1);
+  Parser characterData() => XmlCharacterDataParser(XmlToken.openElement, 1);
   Parser misc() => ref(spaceText).or(ref(comment)).or(ref(processing)).star();
   Parser space() => whitespace().plus();
   Parser spaceText() => ref(space).flatten();
