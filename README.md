@@ -58,6 +58,13 @@ print(document.toString());
 print(document.toXmlString(pretty: true, indent: '\t'));
 ```
 
+Another way to efficiently read an XML document is to use the SAX API (Simple API for XML). Create a reader and provide the event handlers you are interested in. The following snippet prints all the element names in the above XML document: bookshelf, book, title, price, book, title, price and price.
+
+```dart
+var reader = XmlReader(onStartElement: (name, attributes) => print(name));
+reader.parse(bookshelfXml);
+```
+
 ### Traversing and Querying
 
 Accessors allow to access nodes in the XML tree:
@@ -179,6 +186,7 @@ There are numerous packages depending on this package:
 ### Supports
 
 - Standard well-formed XML (and HTML).
+- Reading documents using an event based API (SAX).
 - Decodes and encodes commonly used character entities.
 - Querying, traversing, and mutating API using Dart principles.
 - Building XML trees using a builder API.
