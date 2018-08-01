@@ -1,8 +1,12 @@
 # Changelog
 
+## 3.2.0
+
+* Migrated to PetitParser 2.0
+
 ## 3.1.0
 
-* Drop Dart 1.0 compatibility.
+* Drop Dart 1.0 compatibility
 * Cleanup, optimization and improved documentation
 * Add experimental support for SAX parsing
 

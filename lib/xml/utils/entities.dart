@@ -4,21 +4,21 @@ import 'package:petitparser/petitparser.dart';
 import 'package:xml/xml/utils/attribute_type.dart';
 
 // Hexadecimal character reference.
-final _entityHex = pattern('xX')
+final Parser<String> _entityHex = pattern('xX')
     .seq(pattern('A-Fa-f0-9').plus().flatten().map((value) {
       return String.fromCharCode(int.parse(value, radix: 16));
     }))
     .pick(1);
 
 // Decimal character reference.
-final _entityDigit = char('#')
+final Parser<String> _entityDigit = char('#')
     .seq(_entityHex.or(digit().plus().flatten().map((value) {
       return String.fromCharCode(int.parse(value));
     })))
     .pick(1);
 
 // Named character reference.
-final _entity = char('&')
+final Parser<String> _entity = char('&')
     .seq(_entityDigit.or(word().plus().flatten().map((value) {
       return entityToChar[value];
     })))
@@ -26,7 +26,7 @@ final _entity = char('&')
     .pick(1);
 
 /// Optimized parser to read character data.
-class XmlCharacterDataParser extends Parser {
+class XmlCharacterDataParser extends Parser<String> {
   final String _stopper;
   final int _stopperCode;
   final int _minLength;
@@ -37,8 +37,8 @@ class XmlCharacterDataParser extends Parser {
         _minLength = minLength;
 
   @override
-  Result parseOn(Context context) {
-    var input = context.buffer as String;
+  Result<String> parseOn(Context context) {
+    var input = context.buffer;
     var length = input.length;
     var output = StringBuffer();
     var position = context.position;
@@ -75,7 +75,13 @@ class XmlCharacterDataParser extends Parser {
   List<Parser> get children => [_entity];
 
   @override
-  Parser copy() => XmlCharacterDataParser(_stopper, _minLength);
+  XmlCharacterDataParser copy() => XmlCharacterDataParser(_stopper, _minLength);
+
+  @override
+  bool hasEqualProperties(XmlCharacterDataParser other) =>
+      super.hasEqualProperties(other) &&
+      _stopper == other._stopper &&
+      _minLength == other._minLength;
 }
 
 /// Mapping from entity name to character.

@@ -8,7 +8,7 @@ jobs:
   - stage: analyze
     script: dartfmt --dry-run --set-exit-if-changed .
   - stage: build
-    script: pub run build_runner build test
+    script: pub run build_runner build
   - stage: test
     script: pub run build_runner test -- --platform vm
   - stage: test

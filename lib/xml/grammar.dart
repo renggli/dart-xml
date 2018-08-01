@@ -79,11 +79,12 @@ abstract class XmlGrammarDefinition<TNode, TName>
       super.processing().map((each) => createProcessing(each[1], each[2]));
 
   @override
-  Parser qualified() => super.qualified().map(createQualified);
+  Parser qualified() => super.qualified().cast<String>().map(createQualified);
 
   @override
-  Parser characterData() => super.characterData().map(createText);
+  Parser characterData() =>
+      super.characterData().cast<String>().map(createText);
 
   @override
-  Parser spaceText() => super.spaceText().map(createText);
+  Parser spaceText() => super.spaceText().cast<String>().map(createText);
 }
