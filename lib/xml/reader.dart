@@ -148,8 +148,8 @@ class XmlReader {
 /// A push based XmlReader interface, intended to be similar to .NET's XmlReader.
 class XmlTextReader {
   /// Creates a new reader for `input`.
-  /// 
-  /// Setting `ignoreWhitespace` to false will cause text nodes 
+  ///
+  /// Setting `ignoreWhitespace` to false will cause text nodes
   XmlTextReader(String input, {this.ignoreWhitespace = true}) {
     _result = Success(input, 0, null);
     _depth = 0;
@@ -207,6 +207,11 @@ class XmlTextReader {
 
   Result _parseEvent(Result context) {
     _attributes = <XmlAttribute>[];
+
+    if (_isEmptyElement == true) {
+      _depth--;
+    }
+
     _isEmptyElement = null;
     _value = null;
     _nodeType = null;
@@ -228,7 +233,7 @@ class XmlTextReader {
       _depth++;
       _attributes = List<XmlAttribute>.from(result.value[2]);
       if (result.value[4] == XmlToken.closeEndElement) {
-        _depth--;
+        // _depth--;
         _isEmptyElement = true;
       } else {
         _isEmptyElement = false;
@@ -238,7 +243,7 @@ class XmlTextReader {
 
     result = _elementEnd.parseOn(context);
     if (result.isSuccess) {
-      _nodeType = XmlNodeType.ELEMENT;
+      _nodeType = XmlNodeType.END_ELEMENT;
       _name = result.value[1];
       _depth--;
       return result;
