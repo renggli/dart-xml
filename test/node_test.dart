@@ -33,8 +33,7 @@ void main() {
         throwsArgumentError);
   });
   test('attribute', () {
-    final document =
-        parse('<data ns:attr="Am I or are the other crazy?" />');
+    final document = parse('<data ns:attr="Am I or are the other crazy?" />');
     final node = document.rootElement.attributes.single;
     expect(node.name, XmlName.fromString('ns:attr'));
     expect(node.value, 'Am I or are the other crazy?');
@@ -64,8 +63,7 @@ void main() {
     expect(node.toString(), 'ns:attr="&lt;>&amp;\'&quot;&#xA;&#xD;&#x9;"');
   });
   test('attribute (single)', () {
-    final document =
-        parse('<data ns:attr=\'Am I or are the other crazy?\' />');
+    final document = parse('<data ns:attr=\'Am I or are the other crazy?\' />');
     final node = document.rootElement.attributes.single;
     expect(node.name, XmlName.fromString('ns:attr'));
     expect(node.value, 'Am I or are the other crazy?');
@@ -160,8 +158,7 @@ void main() {
     expect(node.descendants, isEmpty);
   });
   test('comment', () {
-    final document =
-        parse('<data><!--Am I or are the other crazy?--></data>');
+    final document = parse('<data><!--Am I or are the other crazy?--></data>');
     final node = document.rootElement.children.single;
     expect(node.parent, same(document.rootElement));
     expect(node.root, same(document));

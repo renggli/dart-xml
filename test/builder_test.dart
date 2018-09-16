@@ -225,7 +225,8 @@ void main() {
     final xml = builder.build();
     assertTreeInvariants(xml);
     final actual = xml.toString();
-    final expected = '<schema xmlns="http://www.w3.org/2001/XMLSchema" lang="en">'
+    final expected =
+        '<schema xmlns="http://www.w3.org/2001/XMLSchema" lang="en">'
         '<element />'
         '</schema>';
     expect(actual, expected);
