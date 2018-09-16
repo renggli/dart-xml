@@ -35,7 +35,7 @@ String characterData() {
   return builder.build().toString();
 }
 
-final Map<String, String> benchmarks = {
+final benchmarks = <String, String>{
   'books': booksXml,
   'bookstore': bookstoreXml,
   'atom': atomXml,
