@@ -38,7 +38,7 @@ final Parser _parser = XmlParserDefinition().build();
 /// Return an [XmlDocument] for the given `input` string, or throws an
 /// [ArgumentError] if the input is invalid.
 XmlDocument parse(String input) {
-  var result = _parser.parse(input);
+  final result = _parser.parse(input);
   if (result.isFailure) {
     throw ArgumentError(ParserError(result).toString());
   }

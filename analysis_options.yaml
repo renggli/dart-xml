@@ -1,7 +1,3 @@
-analyzer:
-  strong-mode:
-    implicit-casts: true
-    implicit-dynamic: true
 linter:
   rules:
     - always_declare_return_types
@@ -69,11 +65,11 @@ linter:
     - prefer_contains
 #    - prefer_expression_function_bodies
     - prefer_final_fields
-#    - prefer_final_locals
+    - prefer_final_locals
     - prefer_foreach
     - prefer_function_declarations_over_variables
     - prefer_initializing_formals
-#    - prefer_interpolation_to_compose_strings
+    - prefer_interpolation_to_compose_strings
     - prefer_is_empty
     - prefer_is_not_empty
     - prefer_single_quotes
@@ -97,7 +93,7 @@ linter:
     - unnecessary_null_aware_assignments
     - unnecessary_null_in_if_null_operators
     - unnecessary_overrides
-#    - unnecessary_statements
+    - unnecessary_statements
 #    - unnecessary_this
     - unrelated_type_equality_checks
     - use_rethrow_when_possible

@@ -8,16 +8,16 @@ const Matcher isXmlNodeTypeError = TypeMatcher<XmlNodeTypeError>();
 const Matcher isXmlParentError = TypeMatcher<XmlParentError>();
 
 void assertParseInvariants(String input) {
-  var tree = parse(input);
+  final tree = parse(input);
   assertTreeInvariants(tree);
   assertReaderInvariants(input, tree);
-  var copy = parse(tree.toXmlString());
+  final copy = parse(tree.toXmlString());
   expect(tree.toXmlString(), copy.toXmlString());
 }
 
 void assertParseError(String input, String message) {
   try {
-    var result = parse(input);
+    final result = parse(input);
     fail('Expected parse error $message, but got $result');
   } on ArgumentError catch (error) {
     expect(error.message, message);
@@ -38,12 +38,12 @@ void assertTreeInvariants(XmlNode xml) {
 }
 
 void assertDocumentInvariants(XmlNode xml) {
-  var root = xml.root;
+  final root = xml.root;
   for (var child in xml.descendants) {
     expect(root, same(child.root));
     expect(root, same(child.document));
   }
-  var document = xml.document;
+  final document = xml.document;
   expect(document.children, contains(document.rootElement));
   if (document.doctypeElement != null) {
     expect(document.children, contains(document.doctypeElement));
@@ -52,7 +52,7 @@ void assertDocumentInvariants(XmlNode xml) {
 
 void assertParentInvariants(XmlNode xml) {
   for (var node in xml.descendants) {
-    var isRootNode = node is XmlDocument || node is XmlDocumentFragment;
+    final isRootNode = node is XmlDocument || node is XmlDocumentFragment;
     expect(node.parent, isRootNode ? isNull : isNotNull);
     for (var child in node.children) {
       expect(child.parent, same(node));
@@ -110,7 +110,7 @@ void assertNamedInvariant(XmlNamed named) {
 void assertAttributeInvariants(XmlNode xml) {
   for (var node in xml.descendants) {
     if (node is XmlElement) {
-      var element = node;
+      final element = node;
       for (var attribute in element.attributes) {
         expect(attribute,
             same(element.getAttributeNode(attribute.name.qualified)));
@@ -140,7 +140,7 @@ void assertTextInvariants(XmlNode xml) {
     }
     if (node is XmlParent) {
       var previousType;
-      var nodeTypes = node.children.map((node) => node.nodeType);
+      final nodeTypes = node.children.map((node) => node.nodeType);
       for (var currentType in nodeTypes) {
         expect(
             previousType == XmlNodeType.TEXT && currentType == XmlNodeType.TEXT,
@@ -153,15 +153,15 @@ void assertTextInvariants(XmlNode xml) {
 }
 
 void assertIteratorInvariants(XmlNode xml) {
-  var ancestors = [];
+  final ancestors = <XmlNode>[];
   void check(XmlNode node) {
-    var allAxis = [
+    final allAxis = [
       node.preceding,
       [node],
       node.descendants,
       node.following
     ].expand((each) => each);
-    var allRoot = [
+    final allRoot = [
       [node.root],
       node.root.descendants
     ].expand((each) => each);
@@ -180,7 +180,7 @@ void assertIteratorInvariants(XmlNode xml) {
 }
 
 void assertCopyInvariants(XmlNode xml) {
-  var copy = xml.copy();
+  final copy = xml.copy();
   assertParentInvariants(xml);
   assertParentInvariants(copy);
   assertNameInvariants(xml);
@@ -194,8 +194,8 @@ void assertCompareInvariants(XmlNode original, XmlNode copy) {
   expect(original.nodeType, copy.nodeType,
       reason: 'The copied node type should be the same.');
   if (original is XmlNamed && copy is XmlNamed) {
-    var originalNamed = original as XmlNamed;
-    var copyNamed = copy as XmlNamed;
+    final originalNamed = original as XmlNamed;
+    final copyNamed = copy as XmlNamed;
     expect(originalNamed.name, copyNamed.name,
         reason: 'The copied name should be equal.');
     expect(originalNamed.name, isNot(same(copyNamed.name)),
@@ -220,19 +220,19 @@ void assertPrintingInvariants(XmlNode xml) {
     for (var i = 0; i < source.attributes.length; i++) {
       compare(source.attributes[i], pretty.attributes[i]);
     }
-    var sourceChildren =
+    final sourceChildren =
         source.children.where((node) => node is! XmlText).toList();
-    var prettyChildren =
+    final prettyChildren =
         pretty.children.where((node) => node is! XmlText).toList();
     expect(sourceChildren.length, prettyChildren.length);
     for (var i = 0; i < sourceChildren.length; i++) {
       compare(sourceChildren[i], prettyChildren[i]);
     }
-    var sourceText = source.children
+    final sourceText = source.children
         .where((node) => node is XmlText)
         .map((node) => node.text.trim())
         .join();
-    var prettyText = pretty.children
+    final prettyText = pretty.children
         .where((node) => node is XmlText)
         .map((node) => node.text.trim())
         .join();
@@ -246,7 +246,7 @@ void assertPrintingInvariants(XmlNode xml) {
 }
 
 void assertReaderInvariants(String input, XmlNode node) {
-  var includedTypes = Set.from([
+  final includedTypes = Set.from([
     XmlNodeType.CDATA,
     XmlNodeType.COMMENT,
     XmlNodeType.DOCUMENT_TYPE,
@@ -254,12 +254,12 @@ void assertReaderInvariants(String input, XmlNode node) {
     XmlNodeType.PROCESSING,
     XmlNodeType.TEXT,
   ]);
-  var nodes = node.descendants
+  final nodes = node.descendants
       .where((node) => includedTypes.contains(node.nodeType))
       .toList(growable: true);
-  var stack = <XmlName>[];
+  final stack = <XmlName>[];
   var state = 0;
-  var reader = XmlReader(
+  final reader = XmlReader(
     onStartDocument: () {
       expect(state, 0, reason: 'Reader already started.');
       state = 1;
@@ -271,7 +271,7 @@ void assertReaderInvariants(String input, XmlNode node) {
     onStartElement: (name, attributes) {
       expect(state, 1, reason: 'Reader not started');
       expect(nodes, isNotEmpty, reason: 'Missing element in node list.');
-      XmlNode node = nodes.removeAt(0);
+      final node = nodes.removeAt(0);
       expect(node.nodeType, XmlNodeType.ELEMENT,
           reason: 'Node type should be an ELEMENT.');
       expect(node.attributes.length, attributes.length,
@@ -288,7 +288,7 @@ void assertReaderInvariants(String input, XmlNode node) {
     onCharacterData: (text) {
       expect(state, 1, reason: 'Reader not started');
       expect(nodes, isNotEmpty, reason: 'Missing element in node list.');
-      XmlNode node = nodes.removeAt(0);
+      final node = nodes.removeAt(0);
       expect(node.nodeType, anyOf(XmlNodeType.TEXT, XmlNodeType.CDATA),
           reason: 'Node type should be TEXT or CDATA.');
       expect(text, node.text, reason: 'Text data should match.');
@@ -296,29 +296,29 @@ void assertReaderInvariants(String input, XmlNode node) {
     onProcessingInstruction: (target, text) {
       expect(state, 1, reason: 'Reader not started');
       expect(nodes, isNotEmpty, reason: 'Missing element in node list.');
-      XmlNode node = nodes.removeAt(0);
+      final node = nodes.removeAt(0);
       expect(node.nodeType, XmlNodeType.PROCESSING,
           reason: 'Node type should be PROCESSING.');
-      XmlProcessing processing = node as XmlProcessing;
+      final processing = node as XmlProcessing;
       expect(target, processing.target, reason: 'Target data should match.');
       expect(text, processing.text, reason: 'Text data should match.');
     },
     onDoctype: (text) {
       expect(state, 1, reason: 'Reader not started');
       expect(nodes, isNotEmpty, reason: 'Missing element in node list.');
-      XmlNode node = nodes.removeAt(0);
+      final node = nodes.removeAt(0);
       expect(node.nodeType, XmlNodeType.DOCUMENT_TYPE,
           reason: 'Node type should be DOCUMENT_TYPE.');
-      XmlDoctype doctype = node as XmlDoctype;
+      final doctype = node as XmlDoctype;
       expect(text, doctype.text, reason: 'Text data should match.');
     },
     onComment: (text) {
       expect(state, 1, reason: 'Reader not started');
       expect(nodes, isNotEmpty, reason: 'Missing element in node list.');
-      XmlNode node = nodes.removeAt(0);
+      final node = nodes.removeAt(0);
       expect(node.nodeType, XmlNodeType.COMMENT,
           reason: 'Node type should be COMMENT.');
-      XmlComment comment = node as XmlComment;
+      final comment = node as XmlComment;
       expect(text, comment.text, reason: 'Text data should match.');
     },
     onParseError: (index) => fail('Parser error at $index.'),

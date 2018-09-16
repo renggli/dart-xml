@@ -30,7 +30,7 @@ class XmlNormalizer extends XmlVisitor {
 
   void _removeEmpty(List<XmlNode> children) {
     for (var i = 0; i < children.length;) {
-      XmlNode node = children[i];
+      final node = children[i];
       if (node.nodeType == XmlNodeType.TEXT && node.text.isEmpty) {
         children.removeAt(i);
       } else {
@@ -42,7 +42,7 @@ class XmlNormalizer extends XmlVisitor {
   void _mergeAdjacent(List<XmlNode> children) {
     XmlText previousText;
     for (var i = 0; i < children.length;) {
-      XmlNode node = children[i];
+      final node = children[i];
       if (node.nodeType == XmlNodeType.TEXT) {
         if (previousText == null) {
           previousText = node;

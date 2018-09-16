@@ -8,7 +8,7 @@ import 'assertions.dart';
 void mutatingTest(String description, String before,
     void action(XmlElement node), String after) {
   test(description, () {
-    var document = parse(before);
+    final document = parse(before);
     action(document.rootElement);
     document.normalize();
     expect(after, document.toXmlString(), reason: 'should have been modified');
@@ -19,7 +19,7 @@ void mutatingTest(String description, String before,
 void throwingTest(String description, String before,
     void action(XmlElement node), Matcher matcher) {
   test(description, () {
-    var document = parse(before);
+    final document = parse(before);
     expect(() => action(document.rootElement), matcher);
     expect(document.toXmlString(), before,
         reason: 'should not have been modified');
@@ -66,12 +66,12 @@ void main() {
       throwsArgumentError,
     );
     test('processing (text)', () {
-      var document = parse('<?xml processing?><element />');
+      final document = parse('<?xml processing?><element />');
       (document.firstChild as XmlProcessing).text = 'update';
       expect(document.toXmlString(), '<?xml update?><element />');
     });
     test('processing (null text)', () {
-      var document = parse('<?xml processing ?><element />');
+      final document = parse('<?xml processing ?><element />');
       expect(() => (document.firstChild as XmlProcessing).text = null,
           throwsArgumentError);
     });
@@ -118,7 +118,7 @@ void main() {
       'element (fragment children)',
       '<element1 />',
       (node) {
-        var fragment = XmlDocumentFragment([
+        final fragment = XmlDocumentFragment([
           XmlText('Hello'),
           XmlElement(XmlName('element2')),
           XmlComment('comment'),
@@ -131,7 +131,7 @@ void main() {
       'element (repeated fragment children)',
       '<element1 />',
       (node) {
-        var fragment = XmlDocumentFragment([XmlElement(XmlName('element2'))]);
+        final fragment = XmlDocumentFragment([XmlElement(XmlName('element2'))]);
         node.children..add(fragment)..add(fragment);
       },
       '<element1><element2 /><element2 /></element1>',
@@ -152,7 +152,7 @@ void main() {
       'element (attribute children)',
       '<element />',
       (node) {
-        XmlNode wrong = XmlAttribute(XmlName('invalid'), 'invalid');
+        final wrong = XmlAttribute(XmlName('invalid'), 'invalid');
         node.children.add(wrong);
       },
       throwsA(isXmlNodeTypeError),
@@ -195,7 +195,7 @@ void main() {
       'element (fragment children)',
       '<element1 />',
       (node) {
-        var fragment = XmlDocumentFragment([
+        final fragment = XmlDocumentFragment([
           XmlText('Hello'),
           XmlElement(XmlName('element2')),
           XmlComment('comment'),
@@ -208,7 +208,7 @@ void main() {
       'element (repeated fragment children)',
       '<element1 />',
       (node) {
-        var fragment = XmlDocumentFragment([XmlElement(XmlName('element2'))]);
+        final fragment = XmlDocumentFragment([XmlElement(XmlName('element2'))]);
         node.children.addAll([fragment, fragment]);
       },
       '<element1><element2 /><element2 /></element1>',
@@ -229,7 +229,7 @@ void main() {
       'element (attribute children)',
       '<element />',
       (node) {
-        XmlNode wrong = XmlAttribute(XmlName('invalid'), 'invalid');
+        final wrong = XmlAttribute(XmlName('invalid'), 'invalid');
         node.children.addAll([wrong]);
       },
       throwsA(isXmlNodeTypeError),
@@ -272,7 +272,7 @@ void main() {
       'element (fragment children)',
       '<element1><element2 /></element1>',
       (node) {
-        var fragment = XmlDocumentFragment([
+        final fragment = XmlDocumentFragment([
           XmlText('Hello'),
           XmlElement(XmlName('element3')),
           XmlComment('comment'),
@@ -285,7 +285,7 @@ void main() {
       'element (repeated fragment children)',
       '<element1><element2 /></element1>',
       (node) {
-        var fragment = XmlDocumentFragment([XmlElement(XmlName('element3'))]);
+        final fragment = XmlDocumentFragment([XmlElement(XmlName('element3'))]);
         node.children..insert(0, fragment)..insert(2, fragment);
       },
       '<element1><element3 /><element2 /><element3 /></element1>',
@@ -319,7 +319,7 @@ void main() {
       'element (attribute children)',
       '<element />',
       (node) {
-        XmlNode wrong = XmlAttribute(XmlName('invalid'), 'invalid');
+        final wrong = XmlAttribute(XmlName('invalid'), 'invalid');
         node.children.insert(0, wrong);
       },
       throwsA(isXmlNodeTypeError),
@@ -362,7 +362,7 @@ void main() {
       'element (fragment children)',
       '<element1><element2 /></element1>',
       (node) {
-        var fragment = XmlDocumentFragment([
+        final fragment = XmlDocumentFragment([
           XmlText('Hello'),
           XmlElement(XmlName('element3')),
           XmlComment('comment'),
@@ -375,7 +375,7 @@ void main() {
       'element (repeated fragment children)',
       '<element1><element2 /></element1>',
       (node) {
-        var fragment = XmlDocumentFragment([XmlElement(XmlName('element3'))]);
+        final fragment = XmlDocumentFragment([XmlElement(XmlName('element3'))]);
         node.children.insertAll(0, [fragment, fragment]);
       },
       '<element1><element3 /><element3 /><element2 /></element1>',
@@ -409,7 +409,7 @@ void main() {
       'element (attribute children)',
       '<element />',
       (node) {
-        XmlNode wrong = XmlAttribute(XmlName('invalid'), 'invalid');
+        final wrong = XmlAttribute(XmlName('invalid'), 'invalid');
         node.children.insertAll(0, [wrong]);
       },
       throwsA(isXmlNodeTypeError),
@@ -462,7 +462,7 @@ void main() {
       'element (attribute children)',
       '<element1><element2 /></element1>',
       (node) {
-        XmlNode wrong = XmlAttribute(XmlName('invalid'), 'invalid');
+        final wrong = XmlAttribute(XmlName('invalid'), 'invalid');
         node.children[0] = wrong;
       },
       throwsA(isXmlNodeTypeError),
@@ -494,51 +494,6 @@ void main() {
       '<element attr="value" />',
     );
     mutatingTest(
-      'element (cdata attributes)',
-      '<element attr="value" />',
-      (node) {
-        XmlNode wrong = XmlCDATA('invalid');
-        node.attributes.remove(wrong);
-      },
-      '<element attr="value" />',
-    );
-    mutatingTest(
-      'element (comment attributes)',
-      '<element attr="value" />',
-      (node) {
-        XmlNode wrong = XmlComment('invalid');
-        node.attributes.remove(wrong);
-      },
-      '<element attr="value" />',
-    );
-    mutatingTest(
-      'element (element attributes)',
-      '<element attr="value" />',
-      (node) {
-        XmlNode wrong = XmlElement(XmlName('invalid'));
-        node.attributes.remove(wrong);
-      },
-      '<element attr="value" />',
-    );
-    mutatingTest(
-      'element (processing attributes)',
-      '<element attr="value" />',
-      (node) {
-        XmlNode wrong = XmlProcessing('invalid', 'invalid');
-        node.attributes.remove(wrong);
-      },
-      '<element attr="value" />',
-    );
-    mutatingTest(
-      'element (text attributes)',
-      '<element attr="value" />',
-      (node) {
-        XmlNode wrong = XmlText('invalid');
-        node.attributes.remove(wrong);
-      },
-      '<element attr="value" />',
-    );
-    mutatingTest(
       'element (null children)',
       '<element>Hello World</element>',
       (node) => node.children.remove(null),
@@ -548,7 +503,7 @@ void main() {
       'element (attribute children)',
       '<element>Hello World</element>',
       (node) {
-        XmlNode wrong = XmlAttribute(XmlName('invalid'), 'invalid');
+        final wrong = XmlAttribute(XmlName('invalid'), 'invalid');
         node.children.remove(wrong);
       },
       '<element>Hello World</element>',
@@ -755,7 +710,7 @@ void main() {
   });
   group('normalizer', () {
     test('remove empty text', () {
-      var element = XmlElement(XmlName('element'), [], [
+      final element = XmlElement(XmlName('element'), [], [
         XmlText(''),
         XmlElement(XmlName('element1')),
         XmlText(''),
@@ -768,7 +723,7 @@ void main() {
           element.toXmlString(), '<element><element1 /><element2 /></element>');
     });
     test('join adjacent text', () {
-      var element = XmlElement(XmlName('element'), [], [
+      final element = XmlElement(XmlName('element'), [], [
         XmlText('aaa'),
         XmlText('bbb'),
         XmlText('ccc'),
@@ -778,7 +733,7 @@ void main() {
       expect(element.toXmlString(), '<element>aaabbbccc</element>');
     });
     test('document fragment', () {
-      var fragment = XmlDocumentFragment([
+      final fragment = XmlDocumentFragment([
         XmlText(''),
         XmlText('aaa'),
         XmlText(''),
@@ -794,7 +749,7 @@ void main() {
         XmlText(''),
       ]);
       fragment.normalize();
-      var element = XmlElement(XmlName('element'));
+      final element = XmlElement(XmlName('element'));
       element.children.add(fragment);
       expect(element.children.length, 5);
       expect(element.toXmlString(),

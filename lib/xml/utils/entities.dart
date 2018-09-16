@@ -38,19 +38,19 @@ class XmlCharacterDataParser extends Parser<String> {
 
   @override
   Result<String> parseOn(Context context) {
-    var input = context.buffer;
-    var length = input.length;
-    var output = StringBuffer();
+    final input = context.buffer;
+    final length = input.length;
+    final output = StringBuffer();
     var position = context.position;
     var start = position;
 
     // scan over the characters as fast as possible
     while (position < length) {
-      var value = input.codeUnitAt(position);
+      final value = input.codeUnitAt(position);
       if (value == _stopperCode) {
         break;
       } else if (value == 38) {
-        var result = _entity.parseOn(context.success(null, position));
+        final result = _entity.parseOn(context.success(null, position));
         if (result.isSuccess && result.value != null) {
           output.write(input.substring(start, position));
           output.write(result.value);

@@ -48,7 +48,7 @@ abstract class XmlGrammarDefinition<TNode, TName>
 
   @override
   Parser document() => super.document().map((each) {
-        var nodes = [];
+    final nodes = [];
         nodes.addAll(each[0]);
         if (each[1] != null) {
           nodes.add(each[1]);

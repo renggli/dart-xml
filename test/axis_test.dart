@@ -4,7 +4,7 @@ import 'package:test/test.dart';
 import 'package:xml/xml.dart';
 
 void verifyIterator(Iterable iterable) {
-  var iterator = iterable.iterator;
+  final iterator = iterable.iterator;
   while (iterator.moveNext()) {
     expect(iterator.current, isNotNull);
   }
@@ -14,11 +14,11 @@ void verifyIterator(Iterable iterable) {
 }
 
 void main() {
-  var bookXml = '<book>'
+  final bookXml = '<book>'
       '<title lang="en" price="12.00">XML</title>'
       '<description/>'
       '</book>';
-  var book = parse(bookXml);
+  final book = parse(bookXml);
   test('ancestors', () {
     expect(book.ancestors, []);
     expect(book.children[0].ancestors, [book]);
