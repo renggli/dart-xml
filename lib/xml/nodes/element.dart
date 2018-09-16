@@ -39,10 +39,8 @@ class XmlElement extends XmlParent implements XmlNamed {
   }
 
   /// Return the attribute node with the given `name`.
-  XmlAttribute getAttributeNode(String name, {String namespace}) {
-    return attributes.firstWhere(createNameMatcher(name, namespace),
+  XmlAttribute getAttributeNode(String name, {String namespace}) => attributes.firstWhere(createNameMatcher(name, namespace),
         orElse: () => null);
-  }
 
   @override
   XmlNodeType get nodeType => XmlNodeType.ELEMENT;

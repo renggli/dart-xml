@@ -167,12 +167,10 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
     return super.removeAt(index);
   }
 
-  Iterable<E> _expandFragment(E fragment) {
-    return fragment.children.map((node) {
+  Iterable<E> _expandFragment(E fragment) => fragment.children.map((node) {
       XmlNodeTypeError.checkValidType(node, validNodeTypes);
       return node.copy();
     });
-  }
 
   Iterable<E> _expandNodes(Iterable<E> nodes) {
     final expanded = <E>[];
