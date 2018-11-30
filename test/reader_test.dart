@@ -67,44 +67,46 @@ void main() {
     while (reader.read()) {
       switch (reader.nodeType) {
         case XmlPushReaderNodeType.ELEMENT:
-          events.add('<${reader.name.qualified}>');
+          events.add('${reader.depth}: <${reader.name.qualified}>');
           if (reader.isEmptyElement) {
-            events.add('</${reader.name.qualified}>');
+            events.add('${reader.depth}: </${reader.name.qualified}>');
           }
           break;
         case XmlPushReaderNodeType.END_ELEMENT:
-          events.add('</${reader.name.qualified}>');
+          events.add('${reader.depth}: </${reader.name.qualified}>');
           break;
         case XmlPushReaderNodeType.CDATA:
         case XmlPushReaderNodeType.TEXT:
-          events.add(reader.value);
+          events.add('${reader.depth}: ${reader.value}');
           break;
         case XmlPushReaderNodeType.PROCESSING:
           events
-              .add('<?${reader.processingInstructionTarget} ${reader.value}?>');
+              .add('${reader.depth}: <?${reader.processingInstructionTarget} ${reader.value}?>');
           break;
         case XmlPushReaderNodeType.DOCUMENT_TYPE:
-          events.add('<!DOCTYPE ${reader.value}>');
+          events.add('${reader.depth}: <!DOCTYPE ${reader.value}>');
           break;
         case XmlPushReaderNodeType.COMMENT:
-          events.add('<!--${reader.value}-->');
+          events.add('${reader.depth}: <!--${reader.value}-->');
           break;
         default:
           throw StateError('unreachable');
       }
     }
+    expect(reader.depth, 0);
+    expect(reader.eof, isTrue);
     expect(events, [
-      '<?xml foo?>',
-      '<!DOCTYPE name [ something ]>',
-      '<ns:foo>',
-      '<element>',
-      '</element>',
-      '<ns:element>',
-      '</ns:element>',
-      '<!-- comment -->',
-      'cdata',
-      '<?processing instruction?>',
-      '</ns:foo>',
+      '0: <?xml foo?>',
+      '0: <!DOCTYPE name [ something ]>',
+      '1: <ns:foo>',
+      '2: <element>',
+      '2: </element>',
+      '2: <ns:element>',
+      '2: </ns:element>',
+      '1: <!-- comment -->',
+      '1: cdata',
+      '1: <?processing instruction?>',
+      '0: </ns:foo>',
     ]);
   });
 }

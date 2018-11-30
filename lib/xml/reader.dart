@@ -154,6 +154,11 @@ class XmlPushReader {
   bool _isEmptyElement;
 
   /// The zero based depth of the reader.
+  ///
+  /// Depth is calculated as follows:
+  /// * Every [XmlPushReaderNodeType.ELEMENT] will increment the reader's depth by 1.
+  /// * Every [XmlPushReaderNodeType.END_ELEMENT] will decrement the reader's depth by 1.
+  /// * An empty element (e.g. `<element />`) will increment the reader's depth by 1 while in focus, and then decrement it by 1 on the next call to [read].
   int get depth => _depth;
   int _depth;
 
