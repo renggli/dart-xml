@@ -113,7 +113,9 @@ class XmlReader {
 class XmlPushReader {
   /// Creates a new reader for `input`.
   ///
-  /// Setting `ignoreWhitespace` to false will cause text nodes
+  /// Setting `ignoreWhitespace` to false will cause all ignorable whitespace to be trimmed.
+  /// Setting the `onParseError` callback will enable error processing; otherwise, the parser
+  /// will attempt to silentl ignore errors and continue parsing if possible.
   XmlPushReader(String input,
       {this.ignoreWhitespace = true, this.onParseError}) {
     _result = Success(input, 0, null);
