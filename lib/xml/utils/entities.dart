@@ -5,23 +5,24 @@ import 'package:xml/xml/utils/attribute_type.dart';
 
 // Hexadecimal character reference.
 final Parser<String> _entityHex = pattern('xX')
-    .seq(pattern('A-Fa-f0-9').plus().flatten().map((value) {
-      return String.fromCharCode(int.parse(value, radix: 16));
-    }))
+    .seq(pattern('A-Fa-f0-9')
+        .plus()
+        .flatten()
+        .map((value) => String.fromCharCode(int.parse(value, radix: 16))))
     .pick(1);
 
 // Decimal character reference.
 final Parser<String> _entityDigit = char('#')
-    .seq(_entityHex.or(digit().plus().flatten().map((value) {
-      return String.fromCharCode(int.parse(value));
-    })))
+    .seq(_entityHex.or(digit()
+        .plus()
+        .flatten()
+        .map((value) => String.fromCharCode(int.parse(value)))))
     .pick(1);
 
 // Named character reference.
 final Parser<String> _entity = char('&')
-    .seq(_entityDigit.or(word().plus().flatten().map((value) {
-      return entityToChar[value];
-    })))
+    .seq(_entityDigit
+        .or(word().plus().flatten().map((value) => entityToChar[value])))
     .seq(char(';'))
     .pick(1);
 
@@ -38,19 +39,19 @@ class XmlCharacterDataParser extends Parser<String> {
 
   @override
   Result<String> parseOn(Context context) {
-    var input = context.buffer;
-    var length = input.length;
-    var output = StringBuffer();
+    final input = context.buffer;
+    final length = input.length;
+    final output = StringBuffer();
     var position = context.position;
     var start = position;
 
     // scan over the characters as fast as possible
     while (position < length) {
-      var value = input.codeUnitAt(position);
+      final value = input.codeUnitAt(position);
       if (value == _stopperCode) {
         break;
       } else if (value == 38) {
-        var result = _entity.parseOn(context.success(null, position));
+        final result = _entity.parseOn(context.success(null, position));
         if (result.isSuccess && result.value != null) {
           output.write(input.substring(start, position));
           output.write(result.value);

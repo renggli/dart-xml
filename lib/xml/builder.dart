@@ -42,10 +42,10 @@ class XmlBuilder {
   ///     builder.text('Hello World');
   ///
   void text(Object text) {
-    var children = _stack.last.children;
+    final children = _stack.last.children;
     if (children.isNotEmpty && children.last is XmlText) {
-      // merge consecutive text nodes into one
-      var previous = children.removeLast();
+      // Merge consecutive text nodes into one
+      final previous = children.removeLast();
       children.add(XmlText('${previous.text}${text.toString()}'));
     } else {
       children.add(XmlText(text.toString()));
@@ -119,7 +119,7 @@ class XmlBuilder {
       Map<String, String> namespaces = const {},
       Map<String, String> attributes = const {},
       Object nest}) {
-    var element = XmlElementBuilder();
+    final element = XmlElementBuilder();
     _stack.add(element);
     namespaces.forEach(this.namespace);
     attributes.forEach(this.attribute);
@@ -132,8 +132,8 @@ class XmlBuilder {
       // them again is to keep the order in which they have been added.
       element.namespaces.forEach((uri, meta) {
         if (!meta.used) {
-          var name = meta.name;
-          var attribute = element.attributes
+          final name = meta.name;
+          final attribute = element.attributes
               .firstWhere((attribute) => attribute.name == name);
           element.attributes.remove(attribute);
         }
@@ -180,7 +180,7 @@ class XmlBuilder {
       throw ArgumentError(
           'The "$prefix" prefix conflicts with existing binding.');
     }
-    var meta = NamespaceData(prefix, false);
+    final meta = NamespaceData(prefix, false);
     _stack.last.attributes
         .add(XmlAttribute(meta.name, uri, XmlAttributeType.DOUBLE_QUOTE));
     _stack.last.namespaces[uri] = meta;
@@ -192,7 +192,7 @@ class XmlBuilder {
   // Internal method to build a name.
   XmlName _buildName(String name, String uri) {
     if (uri != null && uri.isNotEmpty) {
-      var meta = _lookup(uri);
+      final meta = _lookup(uri);
       meta.used = true;
       return XmlName(name, meta.prefix);
     } else {
@@ -202,7 +202,7 @@ class XmlBuilder {
 
   // Internal method to lookup an namespace prefix.
   NamespaceData _lookup(String uri) {
-    var builder = _stack.lastWhere(
+    final builder = _stack.lastWhere(
         (builder) => builder.namespaces.containsKey(uri),
         orElse: () => throw ArgumentError('Undefined namespace: $uri'));
     return builder.namespaces[uri];

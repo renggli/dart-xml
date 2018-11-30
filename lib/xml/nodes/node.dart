@@ -61,7 +61,7 @@ abstract class XmlNode extends Object with XmlVisitable, XmlWritable, XmlOwned {
   /// Return the next sibling of this node or `null`.
   XmlNode get nextSibling {
     if (parent != null) {
-      var siblings = parent.children;
+      final siblings = parent.children;
       for (var i = 0; i < siblings.length - 1; i++) {
         if (siblings[i] == this) {
           return siblings[i + 1];
@@ -74,7 +74,7 @@ abstract class XmlNode extends Object with XmlVisitable, XmlWritable, XmlOwned {
   /// Return the previous sibling of this node or `null`.
   XmlNode get previousSibling {
     if (parent != null) {
-      var siblings = parent.children;
+      final siblings = parent.children;
       for (var i = siblings.length - 1; i > 0; i--) {
         if (siblings[i] == this) {
           return siblings[i - 1];

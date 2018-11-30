@@ -7,17 +7,17 @@ import 'examples.dart';
 
 void main() {
   test('no handlers', () {
-    var reader = XmlReader();
+    final reader = XmlReader();
     reader.parse(complicatedXml);
   });
   test('event order', () {
-    var events = <String>[];
-    var reader = XmlReader(
+    final events = <String>[];
+    final reader = XmlReader(
         onStartDocument: () => events.add('+'),
         onEndDocument: () => events.add('-'),
         onStartElement: (name, attributes) => events.add('<${name.qualified}>'),
         onEndElement: (name) => events.add('</${name.qualified}>'),
-        onCharacterData: (text) => events.add(text),
+        onCharacterData: events.add,
         onProcessingInstruction: (target, text) =>
             events.add('<?$target $text?>'),
         onDoctype: (text) => events.add('<!DOCTYPE $text>'),
@@ -48,8 +48,8 @@ void main() {
     ]);
   });
   test('parse error', () {
-    var events = <String>[];
-    var reader = XmlReader(
+    final events = <String>[];
+    final reader = XmlReader(
       onStartDocument: () => events.add('+'),
       onEndDocument: () => events.add('-'),
       onStartElement: (name, attributes) => events.add('<${name.qualified}>'),

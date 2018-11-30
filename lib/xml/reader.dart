@@ -84,7 +84,7 @@ class XmlReader {
 
   Result _parseEvent(Result context) {
     // Parse textual character data:
-    Result result = _characterData.parseOn(context);
+    var result = _characterData.parseOn(context);
     if (result.isSuccess) {
       onCharacterData?.call(result.value);
       return result;

@@ -43,7 +43,7 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
 
   @override
   void addAll(Iterable<E> nodes) {
-    var expanded = _expandNodes(nodes);
+    final expanded = _expandNodes(nodes);
     super.addAll(expanded);
     for (var node in expanded) {
       node.attachParent(parent);
@@ -52,7 +52,7 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
 
   @override
   bool remove(Object node) {
-    bool removed = super.remove(node);
+    final removed = super.remove(node);
     if (removed) {
       (node as E).detachParent(parent);
     }
@@ -62,7 +62,7 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
   @override
   void removeWhere(bool test(E element)) {
     super.removeWhere((node) {
-      var remove = test(node);
+      final remove = test(node);
       if (remove) {
         node.detachParent(parent);
       }
@@ -73,7 +73,7 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
   @override
   void retainWhere(bool test(E node)) {
     super.retainWhere((node) {
-      var retain = test(node);
+      final retain = test(node);
       if (!retain) {
         node.detachParent(parent);
       }
@@ -91,7 +91,7 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
 
   @override
   E removeLast() {
-    var node = super.removeLast();
+    final node = super.removeLast();
     node.detachParent(parent);
     return node;
   }
@@ -112,7 +112,7 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
   @override
   void setRange(int start, int end, Iterable<E> nodes, [int skipCount = 0]) {
     RangeError.checkValidRange(start, end, length);
-    var expanded = _expandNodes(nodes);
+    final expanded = _expandNodes(nodes);
     for (var i = start; i < end; i++) {
       this[i].detachParent(parent);
     }
@@ -125,7 +125,7 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
   @override
   void replaceRange(int start, int end, Iterable<E> nodes) {
     RangeError.checkValidRange(start, end, length);
-    var expanded = _expandNodes(nodes);
+    final expanded = _expandNodes(nodes);
     for (var i = start; i < end; i++) {
       this[i].detachParent(parent);
     }
@@ -153,7 +153,7 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
 
   @override
   void insertAll(int index, Iterable<E> nodes) {
-    var expanded = _expandNodes(nodes);
+    final expanded = _expandNodes(nodes);
     super.insertAll(index, expanded);
     for (var node in expanded) {
       node.attachParent(parent);
@@ -167,15 +167,13 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
     return super.removeAt(index);
   }
 
-  Iterable<E> _expandFragment(E fragment) {
-    return fragment.children.map((node) {
-      XmlNodeTypeError.checkValidType(node, validNodeTypes);
-      return node.copy();
-    });
-  }
+  Iterable<E> _expandFragment(E fragment) => fragment.children.map((node) {
+        XmlNodeTypeError.checkValidType(node, validNodeTypes);
+        return node.copy();
+      });
 
   Iterable<E> _expandNodes(Iterable<E> nodes) {
-    var expanded = <E>[];
+    final expanded = <E>[];
     for (var node in nodes) {
       XmlNodeTypeError.checkNotNull(node);
       if (node.nodeType == XmlNodeType.DOCUMENT_FRAGMENT) {

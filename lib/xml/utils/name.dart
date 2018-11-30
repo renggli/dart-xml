@@ -39,10 +39,10 @@ abstract class XmlName extends Object with XmlVisitable, XmlWritable, XmlOwned {
 
   /// Create a [XmlName] by parsing the provided `qualified` name.
   factory XmlName.fromString(String qualified) {
-    var index = qualified.indexOf(separator);
+    final index = qualified.indexOf(separator);
     if (index > 0) {
-      var prefix = qualified.substring(0, index);
-      var local = qualified.substring(index + 1, qualified.length);
+      final prefix = qualified.substring(0, index);
+      final local = qualified.substring(index + 1, qualified.length);
       return XmlPrefixName(prefix, local, qualified);
     } else {
       return XmlSimpleName(qualified);

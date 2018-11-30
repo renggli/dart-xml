@@ -28,7 +28,7 @@ abstract class XmlWritable implements XmlVisitable {
   /// The option `indent` is only used when pretty formatting to customize the
   /// indention of nodes, by default nodes are indented with 2 spaces.
   String toXmlString({bool pretty = false, String indent = '  '}) {
-    var buffer = StringBuffer();
+    final buffer = StringBuffer();
     if (pretty) {
       writePrettyTo(buffer, 0, indent);
     } else {
