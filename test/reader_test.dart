@@ -2,6 +2,7 @@ library xml.test.reader_test;
 
 import 'package:test/test.dart';
 import 'package:xml/xml.dart';
+import 'package:xml/xml/utils/node_type.dart';
 
 import 'examples.dart';
 
@@ -57,5 +58,53 @@ void main() {
     );
     reader.parse('<<xml/>');
     expect(events, ['+', '!0', '<xml>', '-']);
+  });
+
+  test('push reader test - ignore whitespace', () {
+    final events = <String>[];
+    final reader = XmlPushReader(complicatedXml);
+
+    while (reader.read()) {
+      switch (reader.nodeType) {
+        case XmlPushReaderNodeType.ELEMENT:
+          events.add('<${reader.name.qualified}>');
+          if (reader.isEmptyElement) {
+            events.add('</${reader.name.qualified}>');
+          }
+          break;
+        case XmlPushReaderNodeType.END_ELEMENT:
+          events.add('</${reader.name.qualified}>');
+          break;
+        case XmlPushReaderNodeType.CDATA:
+        case XmlPushReaderNodeType.TEXT:
+          events.add(reader.value);
+          break;
+        case XmlPushReaderNodeType.PROCESSING:
+          events
+              .add('<?${reader.processingInstructionTarget} ${reader.value}?>');
+          break;
+        case XmlPushReaderNodeType.DOCUMENT_TYPE:
+          events.add('<!DOCTYPE ${reader.value}>');
+          break;
+        case XmlPushReaderNodeType.COMMENT:
+          events.add('<!--${reader.value}-->');
+          break;
+        default:
+          throw StateError('unreachable');
+      }
+    }
+    expect(events, [
+      '<?xml foo?>',
+      '<!DOCTYPE name [ something ]>',
+      '<ns:foo>',
+      '<element>',
+      '</element>',
+      '<ns:element>',
+      '</ns:element>',
+      '<!-- comment -->',
+      'cdata',
+      '<?processing instruction?>',
+      '</ns:foo>',
+    ]);
   });
 }

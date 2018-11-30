@@ -22,7 +22,7 @@ export 'xml/nodes/parent.dart' show XmlParent;
 export 'xml/nodes/processing.dart' show XmlProcessing;
 export 'xml/nodes/text.dart' show XmlText;
 export 'xml/parser.dart' show XmlParserDefinition;
-export 'xml/reader.dart' show XmlReader, XmlTextReader;
+export 'xml/reader.dart' show XmlReader, XmlPushReader;
 export 'xml/utils/attribute_type.dart' show XmlAttributeType;
 export 'xml/utils/name.dart' show XmlName;
 export 'xml/utils/named.dart' show XmlNamed;

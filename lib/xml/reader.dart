@@ -74,101 +74,73 @@ class XmlReader {
 
   /// Parse an input string and trigger all related events.
   void parse(String input) {
-    Result result = Success(input, 0, null);
+    final reader = XmlPushReader(input,
+        ignoreWhitespace: false, onParseError: onParseError);
     onStartDocument?.call();
-    while (result.position < input.length) {
-      result = _parseEvent(result);
+    while (reader.read()) {
+      switch (reader.nodeType) {
+        case XmlPushReaderNodeType.TEXT:
+        case XmlPushReaderNodeType.CDATA:
+          onCharacterData?.call(reader.value);
+          break;
+        case XmlPushReaderNodeType.ELEMENT:
+          onStartElement?.call(reader.name,
+              XmlNodeList(attributeNodeTypes)..addAll(reader.attributes));
+          if (reader.isEmptyElement) {
+            onEndElement?.call(reader.name);
+          }
+          break;
+        case XmlPushReaderNodeType.END_ELEMENT:
+          onEndElement?.call(reader.name);
+          break;
+        case XmlPushReaderNodeType.COMMENT:
+          onComment?.call(reader.value);
+          break;
+        case XmlPushReaderNodeType.PROCESSING:
+          onProcessingInstruction?.call(
+              reader.processingInstructionTarget, reader.value);
+          break;
+        case XmlPushReaderNodeType.DOCUMENT_TYPE:
+          onDoctype?.call(reader.value);
+          break;
+      }
     }
     onEndDocument?.call();
-  }
-
-  Result _parseEvent(Result context) {
-    // Parse textual character data:
-    var result = _characterData.parseOn(context);
-    if (result.isSuccess) {
-      onCharacterData?.call(result.value);
-      return result;
-    }
-
-    // Parse the start of an element:
-    result = _elementStart.parseOn(context);
-    if (result.isSuccess) {
-      onStartElement?.call(
-        result.value[1],
-        XmlNodeList(attributeNodeTypes)
-          ..addAll(List<XmlAttribute>.from(result.value[2])),
-      );
-      if (result.value[4] == XmlToken.closeEndElement) {
-        onEndElement?.call(result.value[1]);
-      }
-      return result;
-    }
-
-    // Parse the end of an element:
-    result = _elementEnd.parseOn(context);
-    if (result.isSuccess) {
-      onEndElement?.call(result.value[1]);
-      return result;
-    }
-
-    // Parse comments:
-    result = _comment.parseOn(context);
-    if (result.isSuccess) {
-      onComment?.call(result.value[1]);
-      return result;
-    }
-
-    // Parse CDATA as character data:
-    result = _cdata.parseOn(context);
-    if (result.isSuccess) {
-      onCharacterData?.call(result.value[1]);
-      return result;
-    }
-
-    // Parse processing instruction:
-    result = _processing.parseOn(context);
-    if (result.isSuccess) {
-      onProcessingInstruction?.call(result.value[1], result.value[2]);
-      return result;
-    }
-
-    // Parse docytpes:
-    result = _doctype.parseOn(context);
-    if (result.isSuccess) {
-      onDoctype?.call(result.value[2]);
-      return result;
-    }
-
-    // Skip to the next character when there is a problem:
-    onParseError?.call(context.position);
-    return context.success(null, context.position + 1);
   }
 }
 
 /// A push based XmlReader interface, intended to be similar to .NET's XmlReader.
-class XmlTextReader {
+class XmlPushReader {
   /// Creates a new reader for `input`.
   ///
   /// Setting `ignoreWhitespace` to false will cause text nodes
-  XmlTextReader(String input, {this.ignoreWhitespace = true}) {
+  XmlPushReader(String input,
+      {this.ignoreWhitespace = true, this.onParseError}) {
     _result = Success(input, 0, null);
     _depth = 0;
     _eof = false;
   }
 
-  /// If true, will ignore `XmlNodeType.TEXT` and when it is composed of whitespace.
-  bool ignoreWhitespace;
+  /// An optional callback to invoke on parsing errors.
+  final ParseErrorHandler onParseError;
+
+  /// If true, will ignore `XmlPushReaderNodeType.TEXT` when it is composed of whitespace.
+  final bool ignoreWhitespace;
 
   /// Parsing context.
   Result _result;
 
-  /// The [XmlNodeType] of the current position of the reader.
-  XmlNodeType get nodeType => _nodeType;
-  XmlNodeType _nodeType;
+  /// The [XmlPushReaderNodeType] of the current position of the reader.
+  XmlPushReaderNodeType get nodeType => _nodeType;
+  XmlPushReaderNodeType _nodeType;
 
   /// The [XmlName] of the current node of the reader.
   XmlName get name => _name;
   XmlName _name;
+
+  /// The processing instruction target, if the current node is an [XmlPushReaderNodeType.PROCESSING].
+  String get processingInstructionTarget => _processingInstructionTarget;
+  String _processingInstructionTarget;
 
   /// The value of the current node of the reader.
   ///
@@ -176,7 +148,7 @@ class XmlTextReader {
   String get value => _value;
   String _value;
 
-  /// Will return true if `nodeType == XmlNodeType.ELEMENT` and the element is self closing,
+  /// Will return true if `nodeType == XmlPushReaderNodeType.ELEMENT` and the element is self closing,
   /// e.g. `<element />`.
   bool get isEmptyElement => _isEmptyElement;
   bool _isEmptyElement;
@@ -189,13 +161,14 @@ class XmlTextReader {
   bool get eof => _eof;
   bool _eof;
 
-  /// The `List<XmlAttribute>` of the current element (if `nodeType == XmlNodeType.ELEMENT`).
+  /// The `List<XmlAttribute>` of the current element (if `nodeType == XmlPushReaderNodeType.ELEMENT`).
   UnmodifiableListView<XmlAttribute> get attributes =>
       UnmodifiableListView<XmlAttribute>(_attributes);
   List<XmlAttribute> _attributes;
 
   /// Advances the reader to the next readable position.  Returns true if more data remains, false if not.
   bool read() {
+    _processingInstructionTarget = null;
     if (_result.position > _result.buffer.length) {
       _eof = true;
       return false;
@@ -216,10 +189,10 @@ class XmlTextReader {
     _value = null;
     _nodeType = null;
 
-    Result result = _characterData.parseOn(context);
+    var result = _characterData.parseOn(context);
     if (result.isSuccess) {
-      _nodeType = XmlNodeType.TEXT;
-      _value = result.value.trim();
+      _nodeType = XmlPushReaderNodeType.TEXT;
+      _value = ignoreWhitespace ? result.value.trim() : result.value;
       if (_value == '') {
         return _parseEvent(result);
       }
@@ -228,12 +201,11 @@ class XmlTextReader {
 
     result = _elementStart.parseOn(context);
     if (result.isSuccess) {
-      _nodeType = XmlNodeType.ELEMENT;
+      _nodeType = XmlPushReaderNodeType.ELEMENT;
       _name = result.value[1];
       _depth++;
       _attributes = List<XmlAttribute>.from(result.value[2]);
       if (result.value[4] == XmlToken.closeEndElement) {
-        // _depth--;
         _isEmptyElement = true;
       } else {
         _isEmptyElement = false;
@@ -243,7 +215,7 @@ class XmlTextReader {
 
     result = _elementEnd.parseOn(context);
     if (result.isSuccess) {
-      _nodeType = XmlNodeType.END_ELEMENT;
+      _nodeType = XmlPushReaderNodeType.END_ELEMENT;
       _name = result.value[1];
       _depth--;
       return result;
@@ -251,7 +223,7 @@ class XmlTextReader {
 
     result = _comment.parseOn(context);
     if (result.isSuccess) {
-      _nodeType = XmlNodeType.COMMENT;
+      _nodeType = XmlPushReaderNodeType.COMMENT;
       _value = result.value[1];
       return result;
     }
@@ -259,7 +231,7 @@ class XmlTextReader {
     // Parse CDATA as character data:
     result = _cdata.parseOn(context);
     if (result.isSuccess) {
-      _nodeType = XmlNodeType.CDATA;
+      _nodeType = XmlPushReaderNodeType.CDATA;
       _value = result.value[1];
       return result;
     }
@@ -267,7 +239,8 @@ class XmlTextReader {
     // Parse processing instruction:
     result = _processing.parseOn(context);
     if (result.isSuccess) {
-      _nodeType = XmlNodeType.PROCESSING;
+      _nodeType = XmlPushReaderNodeType.PROCESSING;
+      _processingInstructionTarget = result.value[1];
       _value = result.value[2];
       return result;
     }
@@ -275,7 +248,7 @@ class XmlTextReader {
     // Parse docytpes:
     result = _doctype.parseOn(context);
     if (result.isSuccess) {
-      _nodeType = XmlNodeType.DOCUMENT_TYPE;
+      _nodeType = XmlPushReaderNodeType.DOCUMENT_TYPE;
       _value = result.value[2];
       return result;
     }
@@ -285,11 +258,12 @@ class XmlTextReader {
       return context.failure('EOF');
     }
     // Skip to the next character when there is a problem:
+    onParseError?.call(context.position);
     return context.success(null, context.position + 1);
   }
 
   @override
   String toString() => eof
-      ? 'XmlTextReader{EOF}'
-      : 'XmlTextReader{$depth $nodeType $name $value $attributes}';
+      ? 'XmlPushReader{EOF}'
+      : 'XmlPushReader{$depth $nodeType $name $value $attributes}';
 }
