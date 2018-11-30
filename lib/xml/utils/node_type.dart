@@ -5,9 +5,6 @@ enum XmlNodeType {
   /// An element start or self-closed tag, e.g. `<item>` or `<item />`.
   ELEMENT,
 
-  /// An element closing tag, e.g. `</item>`.
-  END_ELEMENT,
-
   /// An attribute, e.g. `id="123"`.
   ATTRIBUTE,
 
