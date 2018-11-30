@@ -26,7 +26,7 @@ export 'xml/reader.dart' show XmlReader, XmlPushReader;
 export 'xml/utils/attribute_type.dart' show XmlAttributeType;
 export 'xml/utils/name.dart' show XmlName;
 export 'xml/utils/named.dart' show XmlNamed;
-export 'xml/utils/node_type.dart' show XmlNodeType;
+export 'xml/utils/node_type.dart' show XmlNodeType, XmlPushReaderNodeType;
 export 'xml/utils/owned.dart' show XmlOwned;
 export 'xml/utils/writable.dart' show XmlWritable;
 export 'xml/visitors/transformer.dart' show XmlTransformer;
