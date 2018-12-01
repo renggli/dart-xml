@@ -2,10 +2,10 @@ library xml.utils.node_type;
 
 /// Enum of the different XML Node types.
 enum XmlNodeType {
-  /// An element start or self-closed tag, e.g. `<item>` or `<item />`.
+  /// An element node, e.g. `<item>` or `<item />`.
   ELEMENT,
 
-  /// An attribute, e.g. `id="123"`.
+  /// An attribute node, e.g. `id="123"`.
   ATTRIBUTE,
 
   /// Text content within a node.
@@ -27,7 +27,7 @@ enum XmlNodeType {
   DOCUMENT_FRAGMENT,
 
   /// A document type declaration, e.g. `<!DOCTYPE...>`.
-  DOCUMENT_TYPE
+  DOCUMENT_TYPE,
 }
 
 /// Enum of the different XML Node types that [xml.reader.XmlPushReader] emits.
@@ -56,5 +56,5 @@ enum XmlPushReaderNodeType {
   COMMENT,
 
   /// A document type declaration, e.g. `<!DOCTYPE...>`.
-  DOCUMENT_TYPE
+  DOCUMENT_TYPE,
 }
