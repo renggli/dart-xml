@@ -14,6 +14,7 @@ void main() {
     expect(node.parent, same(document));
     expect(node.root, same(document));
     expect(node.document, same(document));
+    expect(node.depth, 1);
     expect(node.attributes, hasLength(1));
     expect(node.children, hasLength(1));
     expect(node.descendants, hasLength(2));
@@ -31,6 +32,7 @@ void main() {
     expect(node.parent, same(document));
     expect(node.root, same(document));
     expect(node.document, same(document));
+    expect(node.depth, 1);
     expect(node.attributes, isEmpty);
     expect(node.children, isEmpty);
     expect(node.descendants, isEmpty);
@@ -47,6 +49,7 @@ void main() {
     expect(node.parent, same(document));
     expect(node.root, same(document));
     expect(node.document, same(document));
+    expect(node.depth, 1);
     expect(node.attributes, isEmpty);
     expect(node.children, isEmpty);
     expect(node.descendants, isEmpty);
@@ -74,6 +77,7 @@ void main() {
     expect(node.parent, same(document.rootElement));
     expect(node.root, same(document));
     expect(node.document, same(document));
+    expect(node.depth, 2);
     expect(node.attributes, isEmpty);
     expect(node.children, isEmpty);
     expect(node.descendants, isEmpty);
@@ -104,6 +108,7 @@ void main() {
     expect(node.parent, same(document.rootElement));
     expect(node.root, same(document));
     expect(node.document, same(document));
+    expect(node.depth, 2);
     expect(node.attributes, isEmpty);
     expect(node.children, isEmpty);
     expect(node.descendants, isEmpty);
@@ -138,6 +143,7 @@ void main() {
     expect(node.parent, same(document.rootElement));
     expect(node.root, same(document));
     expect(node.document, same(document));
+    expect(node.depth, 2);
     expect(node.attributes, isEmpty);
     expect(node.children, isEmpty);
     expect(node.descendants, isEmpty);
@@ -167,6 +173,7 @@ void main() {
     expect(node.parent, same(document.rootElement));
     expect(node.root, same(document));
     expect(node.document, same(document));
+    expect(node.depth, 2);
     expect(node.attributes, isEmpty);
     expect(node.children, isEmpty);
     expect(node.nodeType, XmlNodeType.CDATA);
@@ -183,6 +190,7 @@ void main() {
     expect(node.parent, same(document));
     expect(node.root, same(document));
     expect(node.document, same(document));
+    expect(node.depth, 1);
     expect(node.attributes, isEmpty);
     expect(node.children, isEmpty);
     expect(node.nodeType, XmlNodeType.PROCESSING);
@@ -196,6 +204,7 @@ void main() {
     expect(node.parent, same(document.rootElement));
     expect(node.root, same(document));
     expect(node.document, same(document));
+    expect(node.depth, 2);
     expect(node.attributes, isEmpty);
     expect(node.children, isEmpty);
     expect(node.descendants, isEmpty);
@@ -210,6 +219,7 @@ void main() {
     expect(node.parent, isNull);
     expect(node.root, same(document));
     expect(node.document, same(document));
+    expect(node.depth, 0);
     expect(node.attributes, isEmpty);
     expect(node.children, hasLength(1));
     expect(node.descendants, hasLength(1));
@@ -255,6 +265,7 @@ void main() {
     final node = document.doctypeElement;
     expect(node.parent, same(document));
     expect(node.document, same(document));
+    expect(node.depth, 1);
     expect(node.attributes, isEmpty);
     expect(node.children, isEmpty);
     expect(node.descendants, isEmpty);
@@ -269,6 +280,7 @@ void main() {
     expect(node.parent, isNull);
     expect(node.root, node);
     expect(node.document, isNull);
+    expect(node.depth, 0);
     expect(node.attributes, isEmpty);
     expect(node.children, isEmpty);
     expect(node.descendants, isEmpty);

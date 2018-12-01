@@ -47,6 +47,7 @@ void assertDocumentInvariants(XmlNode xml) {
   if (xml.document.doctypeElement != null) {
     expect(xml.document.children, contains(xml.document.doctypeElement));
   }
+  expect(root.depth, 0);
 }
 
 void assertParentInvariants(XmlNode xml) {
@@ -55,9 +56,11 @@ void assertParentInvariants(XmlNode xml) {
     expect(node.parent, isRootNode ? isNull : isNotNull);
     for (var child in node.children) {
       expect(child.parent, same(node));
+      expect(child.depth, node.depth + 1);
     }
     for (var attribute in node.attributes) {
       expect(attribute.parent, same(node));
+      expect(attribute.depth, node.depth + 1);
     }
   }
 }

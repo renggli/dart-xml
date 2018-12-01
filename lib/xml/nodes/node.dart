@@ -46,6 +46,9 @@ abstract class XmlNode extends Object with XmlVisitable, XmlWritable, XmlOwned {
   /// not library a document.
   XmlDocument get document => parent == null ? null : parent.document;
 
+  /// Return the depth of this node in its tree, a root node has depth 0.
+  int get depth => parent == null ? 0 : parent.depth + 1;
+
   /// Return the first child of this node, or `null` if there are no children.
   XmlNode get firstChild => children.isEmpty ? null : children.first;
 
