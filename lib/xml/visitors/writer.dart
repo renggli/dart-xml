@@ -68,8 +68,7 @@ class XmlWriter extends XmlVisitor {
     buffer.write(XmlToken.openElement);
     visit(node.name);
     writeAttributes(node);
-    if (node.children.isEmpty) {
-      buffer.write(XmlToken.whitespace);
+    if (node.children.isEmpty && node.isSelfClosing) {
       buffer.write(XmlToken.closeEndElement);
     } else {
       buffer.write(XmlToken.closeElement);

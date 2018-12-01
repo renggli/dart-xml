@@ -14,8 +14,8 @@ abstract class XmlGrammarDefinition<TNode, TName>
   TNode createCDATA(String text);
   TNode createDoctype(String text);
   TNode createDocument(Iterable<TNode> children);
-  TNode createElement(
-      TName name, Iterable<TNode> attributes, Iterable<TNode> children);
+  TNode createElement(TName name, Iterable<TNode> attributes,
+      Iterable<TNode> children, bool isSelfClosing);
   TNode createProcessing(String target, String text);
   TName createQualified(String name);
   TNode createText(String text);
@@ -61,12 +61,15 @@ abstract class XmlGrammarDefinition<TNode, TName>
 
   @override
   Parser element() => super.element().map((list) {
+        final name = list[1] as TName;
+        final attributes = List<TNode>.from(list[2]);
         if (list[4] == XmlToken.closeEndElement) {
-          return createElement(list[1] as TName, List<TNode>.from(list[2]), []);
+          return createElement(name, attributes, [], true);
         } else {
           if (list[1] == list[4][3]) {
-            return createElement(list[1] as TName, List<TNode>.from(list[2]),
-                List<TNode>.from(list[4][1]));
+            final children = List<TNode>.from(list[4][1]);
+            return createElement(
+                name, attributes, children, children.isNotEmpty);
           } else {
             throw ArgumentError(
                 'Expected </${list[1]}>, but found </${list[4][3]}>');

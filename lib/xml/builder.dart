@@ -118,6 +118,7 @@ class XmlBuilder {
       {String namespace,
       Map<String, String> namespaces = const {},
       Map<String, String> attributes = const {},
+      bool isSelfClosing = true,
       Object nest}) {
     final element = XmlElementBuilder();
     _stack.add(element);
@@ -127,6 +128,7 @@ class XmlBuilder {
       _insert(nest);
     }
     element.name = _buildName(name, namespace);
+    element.isSelfClosing = isSelfClosing;
     if (optimizeNamespaces) {
       // Remove unused namespaces: The reason we first add them and then remove
       // them again is to keep the order in which they have been added.
@@ -280,8 +282,11 @@ class XmlElementBuilder extends XmlNodeBuilder {
   @override
   final List<XmlNode> children = [];
 
+  bool isSelfClosing = true;
+
   XmlName name;
 
   @override
-  XmlNode build() => XmlElement(name, attributes, children);
+  XmlNode build() => XmlElement(name,
+      attributes: attributes, children: children, isSelfClosing: isSelfClosing);
 }

@@ -20,16 +20,49 @@ void main() {
     expect(node.text, 'Am I or are the other crazy?');
     expect(node.nodeType, XmlNodeType.ELEMENT);
     expect(node.nodeType.toString(), 'XmlNodeType.ELEMENT');
+    expect(node.isSelfClosing, isTrue);
     expect(node.toString(),
         '<ns:data key="value">Am I or are the other crazy?</ns:data>');
+  });
+  test('element (self-closing)', () {
+    final document = parse('<data/>');
+    final node = document.rootElement;
+    expect(node.name, XmlName.fromString('data'));
+    expect(node.parent, same(document));
+    expect(node.root, same(document));
+    expect(node.document, same(document));
+    expect(node.attributes, isEmpty);
+    expect(node.children, isEmpty);
+    expect(node.descendants, isEmpty);
+    expect(node.text, '');
+    expect(node.nodeType, XmlNodeType.ELEMENT);
+    expect(node.nodeType.toString(), 'XmlNodeType.ELEMENT');
+    expect(node.isSelfClosing, isTrue);
+    expect(node.toString(), '<data/>');
+  });
+  test('element (empty, but not self-closing)', () {
+    final document = parse('<data></data>');
+    final node = document.rootElement;
+    expect(node.name, XmlName.fromString('data'));
+    expect(node.parent, same(document));
+    expect(node.root, same(document));
+    expect(node.document, same(document));
+    expect(node.attributes, isEmpty);
+    expect(node.children, isEmpty);
+    expect(node.descendants, isEmpty);
+    expect(node.text, '');
+    expect(node.nodeType, XmlNodeType.ELEMENT);
+    expect(node.nodeType.toString(), 'XmlNodeType.ELEMENT');
+    expect(node.isSelfClosing, isFalse);
+    expect(node.toString(), '<data></data>');
   });
   test('element (readopt name)', () {
     final document = parse('<element attr="value1">text</element>');
     final node = document.rootElement;
     expect(() => XmlElement(node.name), throwsArgumentError);
-    expect(() => XmlElement(XmlName('data'), node.attributes),
+    expect(() => XmlElement(XmlName('data'), attributes: node.attributes),
         throwsArgumentError);
-    expect(() => XmlElement(XmlName('data'), [], node.children),
+    expect(() => XmlElement(XmlName('data'), children: node.children),
         throwsArgumentError);
   });
   test('attribute', () {
@@ -172,7 +205,7 @@ void main() {
     expect(node.toString(), '<!--Am I or are the other crazy?-->');
   });
   test('document', () {
-    final document = parse('<data />');
+    final document = parse('<data/>');
     final node = document.document;
     expect(node.parent, isNull);
     expect(node.root, same(document));
@@ -183,33 +216,33 @@ void main() {
     expect(node.text, isNull);
     expect(node.nodeType, XmlNodeType.DOCUMENT);
     expect(node.nodeType.toString(), 'XmlNodeType.DOCUMENT');
-    expect(node.toString(), '<data />');
+    expect(node.toString(), '<data/>');
   });
   test('document definition', () {
     final document = parse('<?xml version="1.0" encoding="UTF-8" ?>'
-        '<element />');
+        '<element/>');
     final node = document.document;
     expect(node.children, hasLength(2));
     expect(node.descendants, hasLength(2));
     expect(
         node.toString(),
         '<?xml version="1.0" encoding="UTF-8" ?>'
-        '<element />');
+        '<element/>');
   });
   test('document comments and whitespace', () {
     final document = parse('<?xml version="1.0" encoding="UTF-8"?> '
-        '<!-- before -->\n<element />\t<!-- after -->');
+        '<!-- before -->\n<element/>\t<!-- after -->');
     final node = document.document;
     expect(node.children, hasLength(7));
     expect(node.descendants, hasLength(7));
     expect(
         node.toString(),
         '<?xml version="1.0" encoding="UTF-8"?> '
-        '<!-- before -->\n<element />\t<!-- after -->');
+        '<!-- before -->\n<element/>\t<!-- after -->');
     expect(
         node.toXmlString(pretty: true),
         '<?xml version="1.0" encoding="UTF-8"?>\n'
-        '<!-- before -->\n<element />\n<!-- after -->');
+        '<!-- before -->\n<element/>\n<!-- after -->');
   });
   test('document empty', () {
     final document = XmlDocument();

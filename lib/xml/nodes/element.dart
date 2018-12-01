@@ -15,8 +15,9 @@ class XmlElement extends XmlParent implements XmlNamed {
   /// Create an element node with the provided [name], [attributes], and
   /// [children].
   XmlElement(this.name,
-      [Iterable<XmlAttribute> attributes = const [],
-      Iterable<XmlNode> children = const []])
+      {Iterable<XmlAttribute> attributes = const [],
+      Iterable<XmlNode> children = const [],
+      this.isSelfClosing = true})
       : attributes = XmlNodeList(attributeNodeTypes),
         super(childrenNodeTypes, children) {
     this.name.attachParent(this);
@@ -31,6 +32,9 @@ class XmlElement extends XmlParent implements XmlNamed {
   /// Return the attribute nodes of this node.
   @override
   final XmlNodeList<XmlAttribute> attributes;
+
+  /// Defines whether the element should be self-closing when empty.
+  bool isSelfClosing;
 
   /// Return the attribute value with the given `name`.
   String getAttribute(String name, {String namespace}) {

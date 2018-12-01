@@ -43,10 +43,9 @@ void assertDocumentInvariants(XmlNode xml) {
     expect(root, same(child.root));
     expect(root, same(child.document));
   }
-  final document = xml.document;
-  expect(document.children, contains(document.rootElement));
-  if (document.doctypeElement != null) {
-    expect(document.children, contains(document.doctypeElement));
+  expect(xml.document.children, contains(xml.document.rootElement));
+  if (xml.document.doctypeElement != null) {
+    expect(xml.document.children, contains(xml.document.doctypeElement));
   }
 }
 
@@ -110,16 +109,15 @@ void assertNamedInvariant(XmlNamed named) {
 void assertAttributeInvariants(XmlNode xml) {
   for (var node in xml.descendants) {
     if (node is XmlElement) {
-      final element = node;
-      for (var attribute in element.attributes) {
-        expect(attribute,
-            same(element.getAttributeNode(attribute.name.qualified)));
-        expect(attribute.value,
-            same(element.getAttribute(attribute.name.qualified)));
+      for (var attribute in node.attributes) {
+        expect(
+            attribute, same(node.getAttributeNode(attribute.name.qualified)));
+        expect(
+            attribute.value, same(node.getAttribute(attribute.name.qualified)));
       }
-      if (element.attributes.isEmpty) {
-        expect(element.getAttribute('foo'), isNull);
-        expect(element.getAttributeNode('foo'), isNull);
+      if (node.attributes.isEmpty) {
+        expect(node.getAttribute('foo'), isNull);
+        expect(node.getAttributeNode('foo'), isNull);
       }
     }
   }
@@ -211,15 +209,15 @@ void assertCompareInvariants(XmlNode original, XmlNode copy) {
   for (var i = 0; i < original.children.length; i++) {
     assertCompareInvariants(original.children[i], copy.children[i]);
   }
+  if (original is XmlElement && copy is XmlElement) {
+    expect(original.isSelfClosing, copy.isSelfClosing,
+        reason: 'The copied self-closing attribute should be equal.');
+  }
 }
 
 void assertPrintingInvariants(XmlNode xml) {
   void compare(XmlNode source, XmlNode pretty) {
     expect(source.nodeType, pretty.nodeType);
-    expect(source.attributes.length, pretty.attributes.length);
-    for (var i = 0; i < source.attributes.length; i++) {
-      compare(source.attributes[i], pretty.attributes[i]);
-    }
     final sourceChildren =
         source.children.where((node) => node is! XmlText).toList();
     final prettyChildren =
@@ -237,6 +235,10 @@ void assertPrintingInvariants(XmlNode xml) {
         .map((node) => node.text.trim())
         .join();
     expect(sourceText, prettyText);
+    expect(source.attributes.length, pretty.attributes.length);
+    for (var i = 0; i < source.attributes.length; i++) {
+      compare(source.attributes[i], pretty.attributes[i]);
+    }
     if (source is! XmlParent) {
       expect(source.toXmlString(), pretty.toXmlString());
     }

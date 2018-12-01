@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.3.0
+
+* Remove unnecessary whitespace when printing self-closing tags.
+* Remember if an element is self-closing for stable printing.
+
 ## 3.2.0
 
 * Migrated to PetitParser 2.0
