@@ -106,7 +106,6 @@ void assertNamedInvariant(XmlNamed named) {
       anyOf(isNull, (node) => node is String && node.isNotEmpty));
   expect(named.name.qualified.hashCode, named.name.hashCode);
   expect(named.name.qualified, named.name.toString());
-  expect(const XmlVisitor().visit(named.name), isNull);
 }
 
 void assertAttributeInvariants(XmlNode xml) {
@@ -170,7 +169,6 @@ void assertIteratorInvariants(XmlNode xml) {
         reason: 'All preceding nodes, the node, all decendant '
             'nodes, and all following nodes should be equal to all nodes in the tree.');
     expect(node.ancestors, ancestors.reversed);
-    expect(const XmlVisitor().visit(node), isNull);
     ancestors.add(node);
     node.attributes.forEach(check);
     node.children.forEach(check);

@@ -10,7 +10,7 @@ import 'package:xml/xml/visitors/visitor.dart';
 
 /// Normalizes a node tree in-place.
 class XmlNormalizer extends XmlVisitor {
-  const XmlNormalizer();
+  static final defaultInstance = XmlNormalizer();
 
   @override
   void visitDocument(XmlDocument node) => _normalize(node.children);

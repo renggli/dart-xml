@@ -88,9 +88,9 @@ abstract class XmlNode extends Object with XmlVisitable, XmlWritable, XmlOwned {
   }
 
   /// Return a copy of this node and its subtree.
-  XmlNode copy() => const XmlTransformer().visit(this);
+  XmlNode copy() => XmlTransformer.defaultInstance.visit(this);
 
   /// Puts all child nodes into a "normalized" form, that is no text nodes in
   /// the sub-tree are empty and there are no adjacent text nodes.
-  XmlNode normalize() => const XmlNormalizer().visit(this);
+  XmlNode normalize() => XmlNormalizer.defaultInstance.visit(this);
 }

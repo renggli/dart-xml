@@ -288,6 +288,5 @@ void main() {
     expect(node.nodeType, XmlNodeType.DOCUMENT_FRAGMENT);
     expect(node.nodeType.toString(), 'XmlNodeType.DOCUMENT_FRAGMENT');
     expect(node.toString(), '#document-fragment');
-    expect(const XmlVisitor().visit(node), isNull);
   });
 }

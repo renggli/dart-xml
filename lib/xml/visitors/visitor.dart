@@ -14,8 +14,6 @@ import 'package:xml/xml/visitors/visitable.dart';
 
 /// Basic visitor over [XmlVisitable] nodes.
 class XmlVisitor {
-  const XmlVisitor();
-
   /// Helper to visit an [XmlVisitable] using this visitor by dispatching
   /// through the provided [visitable].
   T visit<T>(XmlVisitable visitable) => visitable.accept(this);
