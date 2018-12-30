@@ -92,5 +92,5 @@ abstract class XmlNode extends Object with XmlVisitable, XmlWritable, XmlOwned {
 
   /// Puts all child nodes into a "normalized" form, that is no text nodes in
   /// the sub-tree are empty and there are no adjacent text nodes.
-  XmlNode normalize() => XmlNormalizer.defaultInstance.visit(this);
+  void normalize() => XmlNormalizer.defaultInstance.visit(this);
 }
