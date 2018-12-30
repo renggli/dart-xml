@@ -34,7 +34,7 @@
 
 ## 2.4.5
 
-* Do no longer use ArgumentErrors, but instead proper exceptions.
+* Do no longer use ArgumentErrors, but instead use proper exceptions.
 
 ## 2.4.4
 
