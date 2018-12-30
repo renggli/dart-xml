@@ -9,7 +9,7 @@ void main() {
   group('elements', () {
     final bookstore = parse(bookstoreXml).rootElement;
     final shiporder = parse(shiporderXsd).rootElement;
-    final xsd = 'http://www.w3.org/2001/XMLSchema';
+    const xsd = 'http://www.w3.org/2001/XMLSchema';
     test('invalid', () {
       expect(() => bookstore.findElements(null), throwsArgumentError);
     });
@@ -53,7 +53,7 @@ void main() {
   group('all elements', () {
     final bookstore = parse(bookstoreXml);
     final shiporder = parse(shiporderXsd);
-    final xsd = 'http://www.w3.org/2001/XMLSchema';
+    const xsd = 'http://www.w3.org/2001/XMLSchema';
     test('invalid', () {
       expect(() => bookstore.findAllElements(null), throwsArgumentError);
     });

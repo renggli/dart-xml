@@ -33,17 +33,19 @@ final _processing = _production.build(start: _production.processing);
 final _doctype = _production.build(start: _production.doctype);
 
 // Callbacks used for SAX parsing.
-typedef void StartDocumentHandler();
-typedef void EndDocumentHandler();
-typedef void StartElementHandler(
+typedef StartDocumentHandler = void Function();
+typedef EndDocumentHandler = void Function();
+typedef StartElementHandler = void Function(
     XmlName name, XmlNodeList<XmlAttribute> attributes);
-typedef void EndElementHandler(XmlName name);
-typedef void CharacterDataHandler(String text);
-typedef void ProcessingInstructionHandler(String target, String text);
-typedef void DoctypeHandler(String text);
-typedef void CommentHandler(String comment);
-typedef void ParseErrorHandler(int position);
-typedef void FatalExceptionHandler(int position, Exception exception);
+typedef EndElementHandler = void Function(XmlName name);
+typedef CharacterDataHandler = void Function(String text);
+typedef ProcessingInstructionHandler = void Function(
+    String target, String text);
+typedef DoctypeHandler = void Function(String text);
+typedef CommentHandler = void Function(String comment);
+typedef ParseErrorHandler = void Function(int position);
+typedef FatalExceptionHandler = void Function(
+    int position, Exception exception);
 
 /// Dart SAX is a "Simple API for XML" parsing.
 class XmlReader {
@@ -109,13 +111,15 @@ class XmlReader {
   }
 }
 
-/// A push based XmlReader interface, intended to be similar to .NET's XmlReader.
+/// A push based XmlReader interface, intended to be similar to .NET's
+/// XmlReader.
 class XmlPushReader {
   /// Creates a new reader for `input`.
   ///
-  /// Setting `ignoreWhitespace` to false will cause all ignorable whitespace to be trimmed.
-  /// Setting the `onParseError` callback will enable error processing; otherwise, the parser
-  /// will attempt to silentl ignore errors and continue parsing if possible.
+  /// Setting `ignoreWhitespace` to false will cause all ignorable whitespace to
+  /// be trimmed. Setting the `onParseError` callback will enable error
+  /// processing; otherwise, the parser will attempt to silentl ignore errors
+  /// and continue parsing if possible.
   XmlPushReader(String input,
       {this.ignoreWhitespace = true, this.onParseError}) {
     _result = Success(input, 0, null);
@@ -126,7 +130,8 @@ class XmlPushReader {
   /// An optional callback to invoke on parsing errors.
   final ParseErrorHandler onParseError;
 
-  /// If true, will ignore `XmlPushReaderNodeType.TEXT` when it is composed of whitespace.
+  /// If true, will ignore `XmlPushReaderNodeType.TEXT` when it is composed of
+  /// whitespace.
   final bool ignoreWhitespace;
 
   /// Parsing context.
@@ -140,7 +145,8 @@ class XmlPushReader {
   XmlName get name => _name;
   XmlName _name;
 
-  /// The processing instruction target, if the current node is an [XmlPushReaderNodeType.PROCESSING].
+  /// The processing instruction target, if the current node is an
+  /// [XmlPushReaderNodeType.PROCESSING].
   String get processingInstructionTarget => _processingInstructionTarget;
   String _processingInstructionTarget;
 
@@ -150,7 +156,8 @@ class XmlPushReader {
   String get value => _value;
   String _value;
 
-  /// Will return true if `nodeType == XmlPushReaderNodeType.ELEMENT` and the element is self closing,
+  /// Will return true if `nodeType == XmlPushReaderNodeType.ELEMENT` and the
+  /// element is self closing,
   /// e.g. `<element />`.
   bool get isEmptyElement => _isEmptyElement;
   bool _isEmptyElement;
@@ -158,9 +165,13 @@ class XmlPushReader {
   /// The zero based depth of the reader.
   ///
   /// Depth is calculated as follows:
-  /// * Every [XmlPushReaderNodeType.ELEMENT] will increment the reader's depth by 1.
-  /// * Every [XmlPushReaderNodeType.END_ELEMENT] will decrement the reader's depth by 1.
-  /// * An empty element (e.g. `<element />`) will increment the reader's depth by 1 while in focus, and then decrement it by 1 on the next call to [read].
+  /// * Every [XmlPushReaderNodeType.ELEMENT] will increment the reader's depth
+  ///   by 1.
+  /// * Every [XmlPushReaderNodeType.END_ELEMENT] will decrement the reader's
+  ///   depth by 1.
+  /// * An empty element (e.g. `<element />`) will increment the reader's depth
+  ///   by 1 while in focus, and then decrement it by 1 on the next call to
+  ///   [read].
   int get depth => _depth;
   int _depth;
 
@@ -168,12 +179,14 @@ class XmlPushReader {
   bool get eof => _eof;
   bool _eof;
 
-  /// The `List<XmlAttribute>` of the current element (if `nodeType == XmlPushReaderNodeType.ELEMENT`).
+  /// The `List<XmlAttribute>` of the current element (if
+  /// `nodeType == XmlPushReaderNodeType.ELEMENT`).
   UnmodifiableListView<XmlAttribute> get attributes =>
       UnmodifiableListView<XmlAttribute>(_attributes);
   List<XmlAttribute> _attributes;
 
-  /// Advances the reader to the next readable position.  Returns true if more data remains, false if not.
+  /// Advances the reader to the next readable position.  Returns true if more
+  /// data remains, false if not.
   bool read() {
     _processingInstructionTarget = null;
     if (_result.position > _result.buffer.length) {
@@ -182,7 +195,7 @@ class XmlPushReader {
     }
 
     _result = _parseEvent(_result);
-    return (_result.isSuccess);
+    return _result.isSuccess;
   }
 
   Result _parseEvent(Result context) {

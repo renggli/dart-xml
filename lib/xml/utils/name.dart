@@ -9,13 +9,13 @@ import 'package:xml/xml/visitors/visitable.dart';
 import 'package:xml/xml/visitors/visitor.dart';
 
 // separator between prefix and local name
-final separator = ':';
+const String separator = ':';
 
 // xml namespace declarations
-final xml = 'xml';
-final xmlData = NamespaceData(xml, true);
-final xmlUri = 'http://www.w3.org/XML/1998/namespace';
-final xmlns = 'xmlns';
+const String xml = 'xml';
+const String xmlUri = 'http://www.w3.org/XML/1998/namespace';
+const String xmlns = 'xmlns';
+final NamespaceData xmlData = NamespaceData(xml, true);
 
 /// XML entity name.
 abstract class XmlName extends Object with XmlVisitable, XmlWritable, XmlOwned {
@@ -31,7 +31,8 @@ abstract class XmlName extends Object with XmlVisitable, XmlWritable, XmlOwned {
   /// Return the namespace URI, or `null`.
   String get namespaceUri;
 
-  /// Creates a qualified [XmlName] from a `local` name and an optional `prefix`.
+  /// Creates a qualified [XmlName] from a `local` name and an optional
+  /// `prefix`.
   factory XmlName(String local, [String prefix]) =>
       prefix == null || prefix.isEmpty
           ? XmlSimpleName(local)

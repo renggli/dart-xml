@@ -6,7 +6,7 @@ import 'dart:io';
 import 'package:args/args.dart' as args;
 import 'package:xml/xml.dart' as xml;
 
-final argumentParser = args.ArgParser()
+final args.ArgParser argumentParser = args.ArgParser()
   ..addOption('indent',
       abbr: 'i',
       help: 'Customizes the indention when pretty printing.',

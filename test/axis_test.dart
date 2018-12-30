@@ -14,7 +14,7 @@ void verifyIterator(Iterable iterable) {
 }
 
 void main() {
-  final bookXml = '<book>'
+  const bookXml = '<book>'
       '<title lang="en" price="12.00">XML</title>'
       '<description/>'
       '</book>';

@@ -2,7 +2,7 @@ library xml.utils.node_list;
 
 import 'package:collection/collection.dart';
 import 'package:xml/xml/nodes/node.dart';
-import 'package:xml/xml/utils/errors.dart';
+import 'package:xml/xml/utils/exceptions.dart';
 import 'package:xml/xml/utils/node_type.dart';
 import 'package:xml/xml/utils/owned.dart';
 
@@ -14,14 +14,14 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
   final Set<XmlNodeType> validNodeTypes;
 
   @override
-  void operator []=(int index, E node) {
-    XmlNodeTypeError.checkNotNull(node);
+  void operator []=(int index, E value) {
+    XmlNodeTypeException.checkNotNull(value);
     RangeError.checkValidIndex(index, this);
-    XmlNodeTypeError.checkValidType(node, validNodeTypes);
-    XmlParentError.checkNoParent(node);
+    XmlNodeTypeException.checkValidType(value, validNodeTypes);
+    XmlParentException.checkNoParent(value);
     this[index].detachParent(parent);
-    super[index] = node;
-    node.attachParent(parent);
+    super[index] = value;
+    value.attachParent(parent);
   }
 
   @override
@@ -29,21 +29,21 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
       throw UnsupportedError('Unsupported length change of node list.');
 
   @override
-  void add(E node) {
-    XmlNodeTypeError.checkNotNull(node);
-    if (node.nodeType == XmlNodeType.DOCUMENT_FRAGMENT) {
-      addAll(_expandFragment(node));
+  void add(E value) {
+    XmlNodeTypeException.checkNotNull(value);
+    if (value.nodeType == XmlNodeType.DOCUMENT_FRAGMENT) {
+      addAll(_expandFragment(value));
     } else {
-      XmlNodeTypeError.checkValidType(node, validNodeTypes);
-      XmlParentError.checkNoParent(node);
-      super.add(node);
-      node.attachParent(parent);
+      XmlNodeTypeException.checkValidType(value, validNodeTypes);
+      XmlParentException.checkNoParent(value);
+      super.add(value);
+      value.attachParent(parent);
     }
   }
 
   @override
-  void addAll(Iterable<E> nodes) {
-    final expanded = _expandNodes(nodes);
+  void addAll(Iterable<E> iterable) {
+    final expanded = _expandNodes(iterable);
     super.addAll(expanded);
     for (var node in expanded) {
       node.attachParent(parent);
@@ -51,16 +51,17 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
   }
 
   @override
-  bool remove(Object node) {
-    final removed = super.remove(node);
+  bool remove(Object value) {
+    final removed = super.remove(value);
     if (removed) {
-      (node as E).detachParent(parent);
+      final E node = value;
+      node.detachParent(parent);
     }
     return removed;
   }
 
   @override
-  void removeWhere(bool test(E element)) {
+  void removeWhere(bool Function(E element) test) {
     super.removeWhere((node) {
       final remove = test(node);
       if (remove) {
@@ -71,7 +72,7 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
   }
 
   @override
-  void retainWhere(bool test(E node)) {
+  void retainWhere(bool Function(E node) test) {
     super.retainWhere((node) {
       final retain = test(node);
       if (!retain) {
@@ -106,13 +107,13 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
   }
 
   @override
-  void fillRange(int start, int end, [E fill]) =>
+  void fillRange(int start, int end, [E fillValue]) =>
       throw UnsupportedError('Unsupported range filling of node list.');
 
   @override
-  void setRange(int start, int end, Iterable<E> nodes, [int skipCount = 0]) {
+  void setRange(int start, int end, Iterable<E> iterable, [int skipCount = 0]) {
     RangeError.checkValidRange(start, end, length);
-    final expanded = _expandNodes(nodes);
+    final expanded = _expandNodes(iterable);
     for (var i = start; i < end; i++) {
       this[i].detachParent(parent);
     }
@@ -123,9 +124,9 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
   }
 
   @override
-  void replaceRange(int start, int end, Iterable<E> nodes) {
+  void replaceRange(int start, int end, Iterable<E> iterable) {
     RangeError.checkValidRange(start, end, length);
-    final expanded = _expandNodes(nodes);
+    final expanded = _expandNodes(iterable);
     for (var i = start; i < end; i++) {
       this[i].detachParent(parent);
     }
@@ -139,21 +140,21 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
   void setAll(int index, Iterable<E> iterable) => throw UnimplementedError();
 
   @override
-  void insert(int index, E node) {
-    XmlNodeTypeError.checkNotNull(node);
-    if (node.nodeType == XmlNodeType.DOCUMENT_FRAGMENT) {
-      insertAll(index, _expandFragment(node));
+  void insert(int index, E element) {
+    XmlNodeTypeException.checkNotNull(element);
+    if (element.nodeType == XmlNodeType.DOCUMENT_FRAGMENT) {
+      insertAll(index, _expandFragment(element));
     } else {
-      XmlNodeTypeError.checkValidType(node, validNodeTypes);
-      XmlParentError.checkNoParent(node);
-      super.insert(index, node);
-      node.attachParent(parent);
+      XmlNodeTypeException.checkValidType(element, validNodeTypes);
+      XmlParentException.checkNoParent(element);
+      super.insert(index, element);
+      element.attachParent(parent);
     }
   }
 
   @override
-  void insertAll(int index, Iterable<E> nodes) {
-    final expanded = _expandNodes(nodes);
+  void insertAll(int index, Iterable<E> iterable) {
+    final expanded = _expandNodes(iterable);
     super.insertAll(index, expanded);
     for (var node in expanded) {
       node.attachParent(parent);
@@ -168,19 +169,19 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
   }
 
   Iterable<E> _expandFragment(E fragment) => fragment.children.map((node) {
-        XmlNodeTypeError.checkValidType(node, validNodeTypes);
+        XmlNodeTypeException.checkValidType(node, validNodeTypes);
         return node.copy();
       });
 
-  Iterable<E> _expandNodes(Iterable<E> nodes) {
+  Iterable<E> _expandNodes(Iterable<E> iterable) {
     final expanded = <E>[];
-    for (var node in nodes) {
-      XmlNodeTypeError.checkNotNull(node);
+    for (var node in iterable) {
+      XmlNodeTypeException.checkNotNull(node);
       if (node.nodeType == XmlNodeType.DOCUMENT_FRAGMENT) {
         expanded.addAll(_expandFragment(node));
       } else {
-        XmlNodeTypeError.checkValidType(node, validNodeTypes);
-        XmlParentError.checkNoParent(node);
+        XmlNodeTypeException.checkValidType(node, validNodeTypes);
+        XmlParentException.checkNoParent(node);
         expanded.add(node);
       }
     }

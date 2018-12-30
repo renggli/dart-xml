@@ -32,8 +32,6 @@ abstract class XmlParent extends XmlNode {
   Iterable<XmlElement> _filterElements(
       Iterable<XmlNode> iterable, String name, String namespace) {
     final matcher = createNameMatcher(name, namespace);
-    return iterable
-        .where((node) => node is XmlElement && matcher(node))
-        .map((node) => node as XmlElement);
+    return iterable.whereType<XmlElement>().where(matcher);
   }
 }

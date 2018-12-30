@@ -62,11 +62,11 @@ void main() {
   test('element (readopt name)', () {
     final document = parse('<element attr="value1">text</element>');
     final node = document.rootElement;
-    expect(() => XmlElement(node.name), throwsArgumentError);
+    expect(() => XmlElement(node.name), throwsA(isXmlParentException));
     expect(() => XmlElement(XmlName('data'), attributes: node.attributes),
-        throwsArgumentError);
+        throwsA(isXmlParentException));
     expect(() => XmlElement(XmlName('data'), children: node.children),
-        throwsArgumentError);
+        throwsA(isXmlParentException));
   });
   test('attribute', () {
     final document = parse('<data ns:attr="Am I or are the other crazy?" />');
@@ -134,7 +134,7 @@ void main() {
     final document =
         parse('<data ns:attr=\'&lt;&gt;&amp;&apos;&quot;&#xA;&#xD;&#x9;\' />');
     final node = document.rootElement.attributes.single;
-    expect(() => XmlAttribute(node.name, ''), throwsArgumentError);
+    expect(() => XmlAttribute(node.name, ''), throwsA(isXmlParentException));
   });
   test('text', () {
     final document = parse('<data>Am I or are the other crazy?</data>');
@@ -184,7 +184,7 @@ void main() {
   });
   test('processing', () {
     final document = parse('<?xml version="1.0"?><data/>');
-    final node = document.firstChild as XmlProcessing;
+    final XmlProcessing node = document.firstChild;
     expect(node.target, 'xml');
     expect(node.text, 'version="1.0"');
     expect(node.parent, same(document));

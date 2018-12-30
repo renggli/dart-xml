@@ -6,7 +6,7 @@ import 'package:xml/xml.dart';
 import 'assertions.dart';
 
 void mutatingTest(String description, String before,
-    void action(XmlElement node), String after) {
+    void Function(XmlElement node) action, String after) {
   test(description, () {
     final document = parse(before);
     action(document.rootElement);
@@ -17,7 +17,7 @@ void mutatingTest(String description, String before,
 }
 
 void throwingTest(String description, String before,
-    void action(XmlElement node), Matcher matcher) {
+    void Function(XmlElement node) action, Matcher matcher) {
   test(description, () {
     final document = parse(before);
     expect(() => action(document.rootElement), matcher);
@@ -44,25 +44,37 @@ void main() {
     mutatingTest(
       'cdata (text)',
       '<element><![CDATA[text]]></element>',
-      (node) => (node.children.first as XmlCDATA).text = 'update',
+      (node) {
+        final XmlCDATA cdata = node.children.first;
+        cdata.text = 'update';
+      },
       '<element><![CDATA[update]]></element>',
     );
     throwingTest(
       'cdata (null text)',
       '<element><![CDATA[text]]></element>',
-      (node) => (node.children.first as XmlCDATA).text = null,
+      (node) {
+        final XmlCDATA cdata = node.children.first;
+        cdata.text = null;
+      },
       throwsArgumentError,
     );
     mutatingTest(
       'comment (text)',
       '<element><!--comment--></element>',
-      (node) => (node.children.first as XmlComment).text = 'update',
+      (node) {
+        final XmlComment comment = node.children.first;
+        comment.text = 'update';
+      },
       '<element><!--update--></element>',
     );
     throwingTest(
       'comment (null text)',
       '<element><!--comment--></element>',
-      (node) => (node.children.first as XmlComment).text = null,
+      (node) {
+        final XmlComment comment = node.children.first;
+        comment.text = null;
+      },
       throwsArgumentError,
     );
     mutatingTest(
@@ -79,24 +91,31 @@ void main() {
     );
     test('processing (text)', () {
       final document = parse('<?xml processing?><element/>');
-      (document.firstChild as XmlProcessing).text = 'update';
+      final XmlProcessing processing = document.firstChild;
+      processing.text = 'update';
       expect(document.toXmlString(), '<?xml update?><element/>');
     });
     test('processing (null text)', () {
       final document = parse('<?xml processing ?><element/>');
-      expect(() => (document.firstChild as XmlProcessing).text = null,
-          throwsArgumentError);
+      final XmlProcessing processing = document.firstChild;
+      expect(() => processing.text = null, throwsArgumentError);
     });
     mutatingTest(
       'text (text)',
       '<element>Hello World</element>',
-      (node) => (node.children.first as XmlText).text = 'Dart rocks',
+      (node) {
+        final XmlText text = node.children.first;
+        text.text = 'Dart rocks';
+      },
       '<element>Dart rocks</element>',
     );
     throwingTest(
       'text (null text)',
       '<element>Hello World</element>',
-      (node) => (node.children.first as XmlText).text = null,
+      (node) {
+        final XmlText text = node.children.first;
+        text.text = null;
+      },
       throwsArgumentError,
     );
   });
@@ -152,13 +171,13 @@ void main() {
       'element (null attributes)',
       '<element/>',
       (node) => node.attributes.add(null),
-      throwsA(isXmlNodeTypeError),
+      throwsA(isXmlNodeTypeException),
     );
     throwingTest(
       'element (null children)',
       '<element/>',
       (node) => node.children.add(null),
-      throwsA(isXmlNodeTypeError),
+      throwsA(isXmlNodeTypeException),
     );
     throwingTest(
       'element (attribute children)',
@@ -167,13 +186,13 @@ void main() {
         final wrong = XmlAttribute(XmlName('invalid'), 'invalid');
         node.children.add(wrong);
       },
-      throwsA(isXmlNodeTypeError),
+      throwsA(isXmlNodeTypeException),
     );
     throwingTest(
       'element (parent error)',
       '<element1><element2/></element1>',
       (node) => node.children.add(node.firstChild),
-      throwsA(isXmlParentError),
+      throwsA(isXmlParentException),
     );
   });
   group('addAll', () {
@@ -229,13 +248,13 @@ void main() {
       'element (null attributes)',
       '<element/>',
       (node) => node.attributes.addAll([null]),
-      throwsA(isXmlNodeTypeError),
+      throwsA(isXmlNodeTypeException),
     );
     throwingTest(
       'element (null children)',
       '<element/>',
       (node) => node.children.addAll([null]),
-      throwsA(isXmlNodeTypeError),
+      throwsA(isXmlNodeTypeException),
     );
     throwingTest(
       'element (attribute children)',
@@ -244,13 +263,13 @@ void main() {
         final wrong = XmlAttribute(XmlName('invalid'), 'invalid');
         node.children.addAll([wrong]);
       },
-      throwsA(isXmlNodeTypeError),
+      throwsA(isXmlNodeTypeException),
     );
     throwingTest(
       'element (parent error)',
       '<element1><element2/></element1>',
       (node) => node.children.addAll([node.firstChild]),
-      throwsA(isXmlParentError),
+      throwsA(isXmlParentException),
     );
   });
   group('insert', () {
@@ -313,7 +332,7 @@ void main() {
       'element (null attributes)',
       '<element/>',
       (node) => node.attributes.insert(0, null),
-      throwsA(isXmlNodeTypeError),
+      throwsA(isXmlNodeTypeException),
     );
     throwingTest(
       'element (children range error)',
@@ -325,7 +344,7 @@ void main() {
       'element (null children)',
       '<element/>',
       (node) => node.children.insert(0, null),
-      throwsA(isXmlNodeTypeError),
+      throwsA(isXmlNodeTypeException),
     );
     throwingTest(
       'element (attribute children)',
@@ -334,13 +353,13 @@ void main() {
         final wrong = XmlAttribute(XmlName('invalid'), 'invalid');
         node.children.insert(0, wrong);
       },
-      throwsA(isXmlNodeTypeError),
+      throwsA(isXmlNodeTypeException),
     );
     throwingTest(
       'element (parent error)',
       '<element1><element2/></element1>',
       (node) => node.children.insert(0, node.firstChild),
-      throwsA(isXmlParentError),
+      throwsA(isXmlParentException),
     );
   });
   group('insertAll', () {
@@ -403,7 +422,7 @@ void main() {
       'element (null attributes)',
       '<element/>',
       (node) => node.attributes.insertAll(0, [null]),
-      throwsA(isXmlNodeTypeError),
+      throwsA(isXmlNodeTypeException),
     );
     throwingTest(
       'element (children range error)',
@@ -415,7 +434,7 @@ void main() {
       'element (null children)',
       '<element/>',
       (node) => node.children.insertAll(0, [null]),
-      throwsA(isXmlNodeTypeError),
+      throwsA(isXmlNodeTypeException),
     );
     throwingTest(
       'element (attribute children)',
@@ -424,13 +443,13 @@ void main() {
         final wrong = XmlAttribute(XmlName('invalid'), 'invalid');
         node.children.insertAll(0, [wrong]);
       },
-      throwsA(isXmlNodeTypeError),
+      throwsA(isXmlNodeTypeException),
     );
     throwingTest(
       'element (parent error)',
       '<element1><element2/></element1>',
       (node) => node.children.insertAll(0, [node.firstChild]),
-      throwsA(isXmlParentError),
+      throwsA(isXmlParentException),
     );
   });
   group('[]=', () {
@@ -456,7 +475,7 @@ void main() {
       'element (null attributes)',
       '<element attr="value"/>',
       (node) => node.attributes[0] = null,
-      throwsA(isXmlNodeTypeError),
+      throwsA(isXmlNodeTypeException),
     );
     throwingTest(
       'element (children range error)',
@@ -468,7 +487,7 @@ void main() {
       'element (null children)',
       '<element/>',
       (node) => node.children[0] = null,
-      throwsA(isXmlNodeTypeError),
+      throwsA(isXmlNodeTypeException),
     );
     throwingTest(
       'element (attribute children)',
@@ -477,13 +496,13 @@ void main() {
         final wrong = XmlAttribute(XmlName('invalid'), 'invalid');
         node.children[0] = wrong;
       },
-      throwsA(isXmlNodeTypeError),
+      throwsA(isXmlNodeTypeException),
     );
     throwingTest(
       'element (parent error)',
       '<element1><element2/></element1>',
       (node) => node.children[0] = node.firstChild,
-      throwsA(isXmlParentError),
+      throwsA(isXmlParentException),
     );
   });
   group('remove', () {

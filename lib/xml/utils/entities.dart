@@ -86,7 +86,7 @@ class XmlCharacterDataParser extends Parser<String> {
 }
 
 /// Mapping from entity name to character.
-final Map<String, String> entityToChar = const {
+const Map<String, String> entityToChar = {
   // xml entities
   'lt': '<',
   'gt': '>',
@@ -346,7 +346,7 @@ final Map<String, String> entityToChar = const {
 };
 
 /// Internal type definition for string replacement functions.
-typedef String ReplaceFunction(Match match);
+typedef ReplaceFunction = String Function(Match match);
 
 /// Encode a string to be serialized as an XML text node.
 String encodeXmlText(String input) =>

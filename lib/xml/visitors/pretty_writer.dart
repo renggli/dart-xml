@@ -9,7 +9,8 @@ import 'package:xml/xml/nodes/text.dart';
 import 'package:xml/xml/utils/token.dart';
 import 'package:xml/xml/visitors/writer.dart';
 
-/// A visitor that writes XML nodes correctly indented and with whitespaces adapted.
+/// A visitor that writes XML nodes correctly indented and with whitespaces
+/// adapted.
 class XmlPrettyWriter extends XmlWriter {
   int level = 0;
   final String indent;

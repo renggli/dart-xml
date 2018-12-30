@@ -32,6 +32,10 @@
 
 * Generic Method syntax with Dart 1.21
 
+## 2.4.5
+
+* Do no longer use ArgumentErrors, but instead proper exceptions.
+
 ## 2.4.4
 
 * Fixed attribute escaping

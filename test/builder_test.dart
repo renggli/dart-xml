@@ -25,7 +25,7 @@ void main() {
     final xml = builder.build();
     assertTreeInvariants(xml);
     final actual = xml.toString();
-    final expected = '<?xml version="1.0" encoding="UTF-8"?>'
+    const expected = '<?xml version="1.0" encoding="UTF-8"?>'
         '<?xml-stylesheet href="/style.css" type="text/css" title="default stylesheet"?>'
         '<bookstore>'
         '<!--Only one book?-->'
@@ -52,8 +52,9 @@ void main() {
     final xml = builder.build();
     assertTreeInvariants(xml);
     final actual = xml.toString();
-    final expected = '<?processing instruction?>'
-        '<element1 attribute1="value1" attribute2="value2" attribute3=\'value3\'>'
+    const expected = '<?processing instruction?>'
+        '<element1 attribute1="value1" attribute2="value2" '
+        'attribute3=\'value3\'>'
         '<element2/>'
         '<!--comment-->'
         '<![CDATA[cdata]]>'
@@ -73,7 +74,7 @@ void main() {
     final xml = builder.build();
     assertTreeInvariants(xml);
     final actual = xml.toString();
-    final expected = '<element>'
+    const expected = '<element>'
         '<self-closing-default/>'
         '<self-closing-true/>'
         '<self-closing-true-with-children>!</self-closing-true-with-children>'
@@ -87,7 +88,7 @@ void main() {
     final xml = builder.build();
     assertTreeInvariants(xml);
     final actual = xml.toString();
-    final expected = '<element>string</element>';
+    const expected = '<element>string</element>';
     expect(actual, expected);
   });
   test('nested iterable', () {
@@ -100,7 +101,7 @@ void main() {
     final xml = builder.build();
     assertTreeInvariants(xml);
     final actual = xml.toString();
-    final expected = '<element>string</element>';
+    const expected = '<element>string</element>';
     expect(actual, expected);
   });
   test('nested node (element)', () {
@@ -112,7 +113,7 @@ void main() {
     expect(xml.children[0].children[0].toXmlString(), nested.toXmlString());
     expect(xml.children[0].children[0], isNot(same(nested)));
     final actual = xml.toString();
-    final expected = '<element><nested/></element>';
+    const expected = '<element><nested/></element>';
     expect(actual, expected);
   });
   test('nested node (element, repeated)', () {
@@ -126,7 +127,7 @@ void main() {
     expect(xml.children[0].children[1].toXmlString(), nested.toXmlString());
     expect(xml.children[0].children[1], isNot(same(nested)));
     final actual = xml.toString();
-    final expected = '<element><nested/><nested/></element>';
+    const expected = '<element><nested/><nested/></element>';
     expect(actual, expected);
   });
   test('nested node (text)', () {
@@ -138,7 +139,7 @@ void main() {
     expect(xml.children[0].children[0].toXmlString(), nested.toXmlString());
     expect(xml.children[0].children[0], isNot(same(nested)));
     final actual = xml.toString();
-    final expected = '<element>text</element>';
+    const expected = '<element>text</element>';
     expect(actual, expected);
   });
   test('nested node (text, repeated)', () {
@@ -150,7 +151,7 @@ void main() {
     expect(xml.children[0].children[0].text, 'texttext');
     expect(xml.children[0].children[0], isNot(same(nested)));
     final actual = xml.toString();
-    final expected = '<element>texttext</element>';
+    const expected = '<element>texttext</element>';
     expect(actual, expected);
   });
   test('nested node (data)', () {
@@ -162,7 +163,7 @@ void main() {
     expect(xml.children[0].children[0].toXmlString(), nested.toXmlString());
     expect(xml.children[0].children[0], isNot(same(nested)));
     final actual = xml.toString();
-    final expected = '<element><!--abc--></element>';
+    const expected = '<element><!--abc--></element>';
     expect(actual, expected);
   });
   test('nested node (attribute)', () {
@@ -174,7 +175,7 @@ void main() {
     expect(xml.children[0].attributes[0].toXmlString(), nested.toXmlString());
     expect(xml.children[0].attributes[0], isNot(same(nested)));
     final actual = xml.toString();
-    final expected = '<element foo="bar"/>';
+    const expected = '<element foo="bar"/>';
     expect(actual, expected);
   });
   test('nested node (document)', () {
@@ -195,7 +196,7 @@ void main() {
         nested.children[1].toXmlString());
     expect(xml.children[0].children[1], isNot(same(nested.children[1])));
     final actual = xml.toString();
-    final expected = '<element>foo<!--bar--></element>';
+    const expected = '<element>foo<!--bar--></element>';
     expect(actual, expected);
   });
   test('invalid attributes', () {
@@ -212,11 +213,11 @@ void main() {
     final xml = builder.build();
     assertTreeInvariants(xml);
     final actual = xml.toString();
-    final expected = '<text>abcdef</text>';
+    const expected = '<text>abcdef</text>';
     expect(actual, expected);
   });
   test('namespace binding', () {
-    final uri = 'http://www.w3.org/2001/XMLSchema';
+    const uri = 'http://www.w3.org/2001/XMLSchema';
     final builder = XmlBuilder();
     builder.element('schema', nest: () {
       builder.namespace(uri, 'xsd');
@@ -226,14 +227,14 @@ void main() {
     final xml = builder.build();
     assertTreeInvariants(xml);
     final actual = xml.toString();
-    final expected =
+    const expected =
         '<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsd:lang="en">'
         '<xsd:element/>'
         '</xsd:schema>';
     expect(actual, expected);
   });
   test('default namespace binding', () {
-    final uri = 'http://www.w3.org/2001/XMLSchema';
+    const uri = 'http://www.w3.org/2001/XMLSchema';
     final builder = XmlBuilder();
     builder.element('schema', nest: () {
       builder.namespace(uri);
@@ -243,7 +244,7 @@ void main() {
     final xml = builder.build();
     assertTreeInvariants(xml);
     final actual = xml.toString();
-    final expected =
+    const expected =
         '<schema xmlns="http://www.w3.org/2001/XMLSchema" lang="en">'
         '<element/>'
         '</schema>';
@@ -263,7 +264,7 @@ void main() {
           throwsArgumentError);
     });
     final actual = builder.build().toString();
-    final expected = '<element/>';
+    const expected = '<element/>';
     expect(actual, expected);
   });
   test('conflicting namespace', () {
@@ -274,7 +275,7 @@ void main() {
           throwsArgumentError);
     }, namespace: 'http://1.foo.com/');
     final actual = builder.build().toString();
-    final expected = '<foo:element xmlns:foo="http://1.foo.com/"/>';
+    const expected = '<foo:element xmlns:foo="http://1.foo.com/"/>';
     expect(actual, expected);
   });
   test('unused namespace', () {
@@ -283,7 +284,7 @@ void main() {
       builder.namespace('http://1.foo.com/', 'foo');
     });
     final actual = builder.build().toString();
-    final expected = '<element xmlns:foo="http://1.foo.com/"/>';
+    const expected = '<element xmlns:foo="http://1.foo.com/"/>';
     expect(actual, expected);
   });
   test('unused namespace (optimized)', () {
@@ -292,7 +293,7 @@ void main() {
       builder.namespace('http://1.foo.com/', 'foo');
     });
     final actual = builder.build().toString();
-    final expected = '<element/>';
+    const expected = '<element/>';
     expect(actual, expected);
   });
   test('duplicate namespace', () {
@@ -308,7 +309,7 @@ void main() {
       });
     });
     final actual = builder.build().toString();
-    final expected = '<element xmlns:foo="http://1.foo.com/">'
+    const expected = '<element xmlns:foo="http://1.foo.com/">'
         '<outer xmlns:foo="http://1.foo.com/">'
         '<inner xmlns:foo="http://1.foo.com/" foo:lang="en"/>'
         '</outer>'
@@ -328,7 +329,7 @@ void main() {
       });
     });
     final actual = builder.build().toString();
-    final expected = '<element xmlns:foo="http://1.foo.com/">'
+    const expected = '<element xmlns:foo="http://1.foo.com/">'
         '<outer>'
         '<inner foo:lang="en"/>'
         '</outer>'
@@ -345,7 +346,7 @@ void main() {
       });
     });
     final actual = builder.build().toString();
-    final expected = '<element xmlns:foo="http://1.foo.com/">'
+    const expected = '<element xmlns:foo="http://1.foo.com/">'
         '<outer>'
         '<foo:inner/>'
         '</outer>'
@@ -358,7 +359,7 @@ void main() {
     final xml = builder.build();
     assertTreeInvariants(xml);
     final actual = xml.toString();
-    final expected =
+    const expected =
         '<element>&lt;test>&lt;![CDATA[string]]&gt;&lt;/test></element>';
     expect(actual, expected);
   });

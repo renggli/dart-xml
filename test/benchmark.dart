@@ -21,7 +21,7 @@ double benchmark(Function function, [int warmUp = 5, int milliseconds = 2500]) {
 }
 
 String characterData() {
-  final string = '''a&bc<def"gehi'jklm>nopqr''';
+  const string = '''a&bc<def"gehi'jklm>nopqr''';
   final builder = XmlBuilder();
   builder.processing('xml', 'version="1.0"');
   builder.element('character', nest: () {
@@ -35,7 +35,7 @@ String characterData() {
   return builder.build().toString();
 }
 
-final benchmarks = <String, String>{
+final Map<String, String> benchmarks = {
   'books': booksXml,
   'bookstore': bookstoreXml,
   'atom': atomXml,

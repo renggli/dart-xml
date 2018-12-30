@@ -3,6 +3,7 @@ library xml.grammar;
 import 'package:petitparser/petitparser.dart';
 import 'package:xml/xml/production.dart';
 import 'package:xml/xml/utils/attribute_type.dart';
+import 'package:xml/xml/utils/exceptions.dart';
 import 'package:xml/xml/utils/token.dart';
 
 /// XML grammar definition with [TNode] and [TName].
@@ -25,7 +26,7 @@ abstract class XmlGrammarDefinition<TNode, TName>
   @override
   Parser attribute() => super
       .attribute()
-      .map((each) => createAttribute(each[0] as TName, each[4][0], each[4][1]));
+      .map((each) => createAttribute(each[0], each[4][0], each[4][1]));
 
   @override
   Parser attributeValueDouble() => super
@@ -56,23 +57,26 @@ abstract class XmlGrammarDefinition<TNode, TName>
         nodes.addAll(each[2]);
         nodes.add(each[3]);
         nodes.addAll(each[4]);
-        return createDocument(List<TNode>.from(nodes));
+        return createDocument(List.castFrom<dynamic, TNode>(nodes));
       });
 
   @override
   Parser element() => super.element().map((list) {
-        final name = list[1] as TName;
-        final attributes = List<TNode>.from(list[2]);
+        final TName name = list[1];
+        final attributes = List.castFrom<dynamic, TNode>(list[2]);
         if (list[4] == XmlToken.closeEndElement) {
           return createElement(name, attributes, [], true);
         } else {
           if (list[1] == list[4][3]) {
-            final children = List<TNode>.from(list[4][1]);
+            final children = List.castFrom<dynamic, TNode>(list[4][1]);
             return createElement(
                 name, attributes, children, children.isNotEmpty);
           } else {
-            throw ArgumentError(
-                'Expected </${list[1]}>, but found </${list[4][3]}>');
+            final Token token = list[4][2];
+            throw XmlParserException(
+                'Expected </${list[1]}>, but found </${list[4][3]}>',
+                token.line,
+                token.column);
           }
         }
       });

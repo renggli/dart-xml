@@ -102,8 +102,8 @@ class XmlBuilder {
   /// a string or another common object that will be converted to a string and
   /// added as a text node.
   ///
-  /// For example, to generate an element with the tag _message_ and the contained
-  /// text _Hello World_ one would write:
+  /// For example, to generate an element with the tag _message_ and the
+  /// contained text _Hello World_ one would write:
   ///
   ///     builder.element('message', nest: 'Hello World');
   ///
@@ -150,8 +150,8 @@ class XmlBuilder {
   /// If a [namespace] URI is provided, the prefix is looked up, verified
   /// and combined with the given attribute [name].
   ///
-  /// To generate an element with the tag _message_ and the attribute _lang="en"_
-  /// one would write:
+  /// To generate an element with the tag _message_ and the
+  /// attribute _lang="en"_ one would write:
   ///
   ///     builder.element('message', nest: () {
   ///        builder.attribute('lang', 'en');

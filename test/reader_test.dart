@@ -80,8 +80,8 @@ void main() {
           events.add('${reader.depth}: ${reader.value}');
           break;
         case XmlPushReaderNodeType.PROCESSING:
-          events.add(
-              '${reader.depth}: <?${reader.processingInstructionTarget} ${reader.value}?>');
+          events.add('${reader.depth}: '
+              '<?${reader.processingInstructionTarget} ${reader.value}?>');
           break;
         case XmlPushReaderNodeType.DOCUMENT_TYPE:
           events.add('${reader.depth}: <!DOCTYPE ${reader.value}>');

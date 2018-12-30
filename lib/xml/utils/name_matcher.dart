@@ -3,7 +3,7 @@ library xml.utils.name_matcher;
 import 'package:xml/xml/utils/named.dart';
 
 /// Internal function type to match named elements.
-typedef bool XmlNameMatcher(XmlNamed named);
+typedef XmlNameMatcher = bool Function(XmlNamed named);
 
 /// Internal factory to create element matchers.
 XmlNameMatcher createNameMatcher(String name, String namespace) {

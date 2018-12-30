@@ -14,9 +14,10 @@ import 'package:xml/xml/visitors/visitor.dart';
 
 /// Transformer that creates an identical copy of the visited nodes.
 ///
-/// Subclass can override one or more of the methods to modify the generated copy.
+/// Subclass can override one or more of the methods to modify the generated
+/// copy.
 class XmlTransformer extends XmlVisitor {
-  static final defaultInstance = XmlTransformer();
+  static final XmlTransformer defaultInstance = XmlTransformer();
 
   @override
   XmlAttribute visitAttribute(XmlAttribute node) =>

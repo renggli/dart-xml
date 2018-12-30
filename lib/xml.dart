@@ -2,10 +2,11 @@
 /// building XML documents.
 library xml;
 
-import 'package:petitparser/petitparser.dart' show Parser, ParserError;
+import 'package:petitparser/petitparser.dart' show Parser, Token;
 
 import 'xml/nodes/document.dart';
 import 'xml/parser.dart';
+import 'xml/utils/exceptions.dart';
 
 export 'xml/builder.dart' show XmlBuilder;
 export 'xml/grammar.dart' show XmlGrammarDefinition;
@@ -24,6 +25,12 @@ export 'xml/nodes/text.dart' show XmlText;
 export 'xml/parser.dart' show XmlParserDefinition;
 export 'xml/reader.dart' show XmlReader, XmlPushReader;
 export 'xml/utils/attribute_type.dart' show XmlAttributeType;
+export 'xml/utils/exceptions.dart'
+    show
+        XmlException,
+        XmlParserException,
+        XmlNodeTypeException,
+        XmlParentException;
 export 'xml/utils/name.dart' show XmlName;
 export 'xml/utils/named.dart' show XmlNamed;
 export 'xml/utils/node_type.dart' show XmlNodeType, XmlPushReaderNodeType;
@@ -36,11 +43,12 @@ export 'xml/visitors/visitor.dart' show XmlVisitor;
 final Parser _parser = XmlParserDefinition().build();
 
 /// Return an [XmlDocument] for the given `input` string, or throws an
-/// [ArgumentError] if the input is invalid.
+/// [XmlParserException] if the input is invalid.
 XmlDocument parse(String input) {
   final result = _parser.parse(input);
   if (result.isFailure) {
-    throw ArgumentError(ParserError(result).toString());
+    final position = Token.lineAndColumnOf(input, result.position);
+    throw XmlParserException(result.message, position[0], position[1]);
   }
   return result.value;
 }

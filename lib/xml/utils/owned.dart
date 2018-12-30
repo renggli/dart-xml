@@ -1,7 +1,7 @@
 library xml.utils.owned;
 
 import 'package:xml/xml/nodes/node.dart';
-import 'package:xml/xml/utils/errors.dart';
+import 'package:xml/xml/utils/exceptions.dart';
 
 /// Mixin for objects that are a child of a different [XmlNode].
 abstract class XmlOwned {
@@ -19,10 +19,12 @@ abstract class XmlOwned {
 
   /// Internal method to attach a child to this parent, do not call directly.
   void attachParent(XmlNode parent) {
-    XmlParentError.checkNoParent(this);
+    XmlParentException.checkNoParent(this);
     _parent = parent;
   }
 
   /// Internal method to attach a child to this parent, do not call directly.
-  void detachParent(XmlNode parent) => _parent = null;
+  void detachParent(XmlNode parent) {
+    _parent = null;
+  }
 }

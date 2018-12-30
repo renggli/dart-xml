@@ -17,8 +17,8 @@ import 'package:xml/xml/utils/name.dart';
 class XmlParserDefinition extends XmlGrammarDefinition<XmlNode, XmlName> {
   @override
   XmlAttribute createAttribute(
-          XmlName name, String text, XmlAttributeType attributeType) =>
-      XmlAttribute(name, text, attributeType);
+          XmlName name, String text, XmlAttributeType type) =>
+      XmlAttribute(name, text, type);
 
   @override
   XmlComment createComment(String text) => XmlComment(text);
