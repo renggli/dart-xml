@@ -6,3 +6,11 @@ This package contains examples to illustrate the use of [Dart XML](https://githu
 ### xml_pp
 
 This example contains a command-line application that reads XML documents from the file-system and pretty prints the formatted document to the console.
+
+    dart example/xml_pp.dart example/books.xml
+
+### xml_grep
+
+This example contains a command-line application that reads XML documents from the file-system and prints matching tags to the console. For example: 
+
+    dart example/xml_grep.dart -t title example/books.xml
