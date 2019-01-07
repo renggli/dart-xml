@@ -2,7 +2,6 @@ library xml.test.assertions;
 
 import 'package:test/test.dart';
 import 'package:xml/xml.dart';
-import 'package:xml/xml/utils/exceptions.dart';
 
 const Matcher isXmlParserException = TypeMatcher<XmlParserException>();
 const Matcher isXmlNodeTypeException = TypeMatcher<XmlNodeTypeException>();
