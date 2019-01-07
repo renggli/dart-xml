@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.3.0
+## 3.2.4
 
 * Remove unnecessary whitespace when printing self-closing tags.
 * Remember if an element is self-closing for stable printing.
