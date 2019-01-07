@@ -9,9 +9,9 @@ import 'package:xml/xml/utils/named.dart';
 import 'package:xml/xml/utils/token.dart';
 
 class XmlEvent {
-
   @override
-  String toString() => '$runtimeType';}
+  String toString() => '$runtimeType';
+}
 
 class XmlStartElementEvent extends XmlEvent implements XmlNamed {
   @override
