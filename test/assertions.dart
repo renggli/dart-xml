@@ -265,7 +265,8 @@ void assertParseIteratorInvariants(String input, XmlNode node) {
       expect(current.nodeType, expected.nodeType);
       expect(current.name.qualified, expected.name.qualified);
       expect(current.attributes.length, expected.attributes.length);
-      expect(current.isSelfClosing, expected.isSelfClosing);
+      expect(current.isSelfClosing,
+          expected.children.isEmpty && expected.isSelfClosing);
       for (var i = 0; i < expected.attributes.length; i++) {
         assertCompareInvariants(expected.attributes[i], current.attributes[i]);
       }

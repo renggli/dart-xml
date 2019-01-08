@@ -8,42 +8,7 @@ import 'package:xml/xml/parser.dart';
 import 'package:xml/xml/utils/exceptions.dart';
 import 'package:xml/xml/utils/token.dart';
 
-class XmlParseIterator extends Iterator<XmlNode> {
-  XmlParseIterator(String input) : context = Success(input, 0, null);
-
-  Result context;
-
-  XmlStartElement parent;
-
-  @override
-  XmlNode current;
-
-  @override
-  bool moveNext() {
-    context = _eventParser.parseOn(context);
-    if (context.isSuccess) {
-      current = context.value;
-      if (current is XmlEndElement) {
-        final XmlEndElement endElement = current;
-        XmlTagMismatchError.checkTags(parent?.name, endElement.name);
-        parent = parent.parent;
-      }
-      current.attachParent(parent);
-      if (current is XmlStartElement) {
-        final XmlStartElement startElement = current;
-        if (!startElement.isSelfClosing) {
-          parent = current;
-        }
-      }
-      return true;
-    } else {
-      context = null;
-      parent = null;
-      return false;
-    }
-  }
-}
-
+/// Grammar definition to read XML data event based.
 class XmlEventDefinition extends XmlParserDefinition {
   @override
   Parser start() => ref(characterData)
@@ -71,4 +36,50 @@ class XmlEventDefinition extends XmlParserDefinition {
       .map((each) => XmlEndElement(each[1]));
 }
 
+/// Parser to read XML data event based.
 final _eventParser = XmlEventDefinition().build();
+
+/// Lazily iterates over and input [String] and produces [XmlNode] events.
+class XmlParseIterator extends Iterator<XmlNode> {
+  XmlParseIterator(String input) : context = Success(input, 0, null);
+
+  Result context;
+
+  XmlStartElement outer;
+
+  @override
+  XmlNode current;
+
+  @override
+  bool moveNext() {
+    context = _eventParser.parseOn(context);
+    if (context.isSuccess) {
+      current = context.value;
+      if (current is XmlEndElement) {
+        final XmlEndElement endElement = current;
+        XmlTagMismatchError.checkTags(outer?.name, endElement.name);
+        outer = outer.parent;
+      }
+      current.attachParent(outer);
+      if (current is XmlStartElement) {
+        final XmlStartElement startElement = current;
+        if (!startElement.isSelfClosing) {
+          outer = current;
+        }
+      }
+      return true;
+    } else {
+      if (context.position < context.buffer.length) {
+        final message = context.message;
+        final position =
+            Token.lineAndColumnOf(context.buffer, context.position);
+        context = context.failure(context.message, context.position + 1);
+        throw XmlParserException(message, position[0], position[1]);
+      } else {
+        context = null;
+        outer = null;
+        return false;
+      }
+    }
+  }
+}
