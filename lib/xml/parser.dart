@@ -35,11 +35,9 @@ class XmlParserDefinition extends XmlGrammarDefinition<XmlNode, XmlName> {
 
   @override
   XmlElement createElement(XmlName name, Iterable<XmlNode> attributes,
-          Iterable<XmlNode> children, bool isSelfClosing) =>
-      XmlElement(name,
-          attributes: List<XmlAttribute>.from(attributes),
-          children: children,
-          isSelfClosing: isSelfClosing);
+          Iterable<XmlNode> children, [bool isSelfClosing = true]) =>
+      XmlElement(
+          name, List<XmlAttribute>.from(attributes), children, isSelfClosing);
 
   @override
   XmlProcessing createProcessing(String target, String text) =>

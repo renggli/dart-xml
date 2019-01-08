@@ -63,9 +63,9 @@ void main() {
     final document = parse('<element attr="value1">text</element>');
     final node = document.rootElement;
     expect(() => XmlElement(node.name), throwsA(isXmlParentException));
-    expect(() => XmlElement(XmlName('data'), attributes: node.attributes),
+    expect(() => XmlElement(XmlName('data'), node.attributes),
         throwsA(isXmlParentException));
-    expect(() => XmlElement(XmlName('data'), children: node.children),
+    expect(() => XmlElement(XmlName('data'), [], node.children),
         throwsA(isXmlParentException));
   });
   test('attribute', () {

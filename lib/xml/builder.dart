@@ -287,6 +287,5 @@ class XmlElementBuilder extends XmlNodeBuilder {
   XmlName name;
 
   @override
-  XmlNode build() => XmlElement(name,
-      attributes: attributes, children: children, isSelfClosing: isSelfClosing);
+  XmlNode build() => XmlElement(name, attributes, children, isSelfClosing);
 }

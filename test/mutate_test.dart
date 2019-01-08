@@ -741,7 +741,7 @@ void main() {
   });
   group('normalizer', () {
     test('remove empty text', () {
-      final element = XmlElement(XmlName('element'), children: [
+      final element = XmlElement(XmlName('element'), [], [
         XmlText(''),
         XmlElement(XmlName('element1')),
         XmlText(''),
@@ -754,7 +754,7 @@ void main() {
           element.toXmlString(), '<element><element1/><element2/></element>');
     });
     test('join adjacent text', () {
-      final element = XmlElement(XmlName('element'), children: [
+      final element = XmlElement(XmlName('element'), [], [
         XmlText('aaa'),
         XmlText('bbb'),
         XmlText('ccc'),
