@@ -49,7 +49,7 @@ var bookshelfXml = '''<?xml version="1.0"?>
 var document = xml.parse(bookshelfXml);
 ```
 
-The resulting object is an instance of `XmlDocument`. In case the document cannot be parsed, a `ParserError` is thrown.
+The resulting object is an instance of `XmlDocument`. In case the document cannot be parsed, a `XmlParserException` is thrown.
 
 To write back the parsed XML document simply call `toString()`, if you need more control `toXmlString(petty: true, indent: '\t')`:
 
