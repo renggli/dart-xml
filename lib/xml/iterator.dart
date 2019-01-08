@@ -50,34 +50,52 @@ class XmlParseIterator extends Iterator<XmlNode> {
   @override
   XmlNode current;
 
+  List<int> get position =>
+      Token.lineAndColumnOf(context.buffer, context.position);
+
   @override
   bool moveNext() {
     context = _eventParser.parseOn(context);
     if (context.isSuccess) {
       current = context.value;
-      if (current is XmlEndElement) {
-        final XmlEndElement endElement = current;
-        XmlTagMismatchError.checkTags(outer?.name, endElement.name);
-        outer = outer.parent;
-      }
       current.attachParent(outer);
       if (current is XmlStartElement) {
+        // Handle the opening tag.
         final XmlStartElement startElement = current;
         if (!startElement.isSelfClosing) {
           outer = current;
         }
+      } else if (current is XmlEndElement) {
+        // Handle and validate the closing tag.
+        final XmlEndElement endElement = current;
+        if (outer == null) {
+          throw XmlParserException(
+              'Unexpected </${endElement.name}>.', position[0], position[1]);
+        } else if (outer.name.qualified != endElement.name.qualified) {
+          throw XmlParserException(
+              'Expected </${outer.name}>, but found </${endElement.name}>.',
+              position[0],
+              position[1]);
+        }
+        outer = outer.parent;
       }
       return true;
     } else {
       if (context.position < context.buffer.length) {
-        final message = context.message;
-        final position =
-            Token.lineAndColumnOf(context.buffer, context.position);
+        // Skip to the next character and throw an error.
+        current = null;
         context = context.failure(context.message, context.position + 1);
-        throw XmlParserException(message, position[0], position[1]);
+        throw XmlParserException(context.message, position[0], position[1]);
       } else {
-        context = null;
-        outer = null;
+        // End of document, validate that all nodes were closed.
+        current = null;
+        if (outer != null) {
+          outer = outer.parent;
+          throw XmlParserException(
+              'Expected </${outer.name}>, but reached end of document.',
+              position[0],
+              position[1]);
+        }
         return false;
       }
     }

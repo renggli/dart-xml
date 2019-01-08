@@ -263,27 +263,30 @@ void assertParseIteratorInvariants(String input, XmlNode node) {
     if (current is XmlStartElement) {
       final XmlElement expected = nodes.removeAt(0);
       expect(current.nodeType, expected.nodeType);
+      expect(current.parent, stack.isEmpty ? isNull : stack.last);
+      expect(current.depth, stack.length);
       expect(current.name.qualified, expected.name.qualified);
       expect(current.attributes.length, expected.attributes.length);
-      expect(current.isSelfClosing,
-          expected.children.isEmpty && expected.isSelfClosing);
       for (var i = 0; i < expected.attributes.length; i++) {
         assertCompareInvariants(expected.attributes[i], current.attributes[i]);
       }
-      expect(current.depth, stack.length);
+      expect(current.isSelfClosing,
+          expected.children.isEmpty && expected.isSelfClosing);
       if (!current.isSelfClosing) {
         stack.add(current);
       }
     } else if (current is XmlEndElement) {
       final expected = stack.removeLast();
       expect(current.nodeType, expected.nodeType);
+      expect(current.parent, expected);
+      expect(current.depth, stack.length + 1);
       expect(current.name.qualified, expected.name.qualified);
-      expect(current.depth, stack.length);
     } else if (current is XmlData) {
       final expected = nodes.removeAt(0);
       expect(current.nodeType, expected.nodeType);
-      expect(current.text, expected.text);
+      expect(current.parent, stack.isEmpty ? isNull : stack.last);
       expect(current.depth, stack.length);
+      expect(current.text, expected.text);
       if (current is XmlProcessing) {
         final XmlProcessing expectedProcessing = expected;
         expect(current.target, expectedProcessing.target);
