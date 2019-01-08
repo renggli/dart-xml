@@ -33,6 +33,12 @@ class XmlVisitor {
   /// Visit an [XmlElement] node.
   dynamic visitElement(XmlElement node) => null;
 
+  /// Visit an [XmlStartElement] node.
+  dynamic visitStartElement(XmlStartElement node) => null;
+
+  /// Visit an [XmlEndElement] node.
+  dynamic visitEndElement(XmlEndElement node) => null;
+
   /// Visit an [XmlCDATA] node.
   dynamic visitCDATA(XmlCDATA node) => null;
 

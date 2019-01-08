@@ -66,3 +66,36 @@ final Set<XmlNodeType> childrenNodeTypes = Set.from(const [
 final Set<XmlNodeType> attributeNodeTypes = Set.from(const [
   XmlNodeType.ATTRIBUTE,
 ]);
+
+/// Used during event based parsing to refer to the start of an [XmlElement].
+class XmlStartElement extends XmlNode implements XmlNamed {
+  XmlStartElement(this.name, this.attributes, this.isSelfClosing);
+
+  @override
+  final XmlName name;
+
+  @override
+  final List<XmlAttribute> attributes;
+
+  final bool isSelfClosing;
+
+  @override
+  dynamic accept(XmlVisitor visitor) => visitor.visitStartElement(this);
+
+  @override
+  XmlNodeType get nodeType => XmlNodeType.ELEMENT;
+}
+
+/// Used during event based parsing to refer to the end of an [XmlElement].
+class XmlEndElement extends XmlNode implements XmlNamed {
+  XmlEndElement(this.name);
+
+  @override
+  final XmlName name;
+
+  @override
+  dynamic accept(XmlVisitor visitor) => visitor.visitEndElement(this);
+
+  @override
+  XmlNodeType get nodeType => XmlNodeType.ELEMENT;
+}
