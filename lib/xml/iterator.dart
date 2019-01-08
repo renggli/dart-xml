@@ -8,8 +8,8 @@ import 'package:xml/xml/parser.dart';
 import 'package:xml/xml/utils/exceptions.dart';
 import 'package:xml/xml/utils/token.dart';
 
-class XmlIterator extends Iterator<XmlNode> {
-  XmlIterator(String input) : context = Success(input, 0, null);
+class XmlParseIterator extends Iterator<XmlNode> {
+  XmlParseIterator(String input) : context = Success(input, 0, null);
 
   Result context;
 
@@ -23,16 +23,17 @@ class XmlIterator extends Iterator<XmlNode> {
     context = _eventParser.parseOn(context);
     if (context.isSuccess) {
       current = context.value;
+      if (current is XmlEndElement) {
+        final XmlEndElement endElement = current;
+        XmlTagMismatchError.checkTags(parent?.name, endElement.name);
+        parent = parent.parent;
+      }
       current.attachParent(parent);
       if (current is XmlStartElement) {
         final XmlStartElement startElement = current;
         if (!startElement.isSelfClosing) {
           parent = current;
         }
-      } else if (current is XmlEndElement) {
-        final XmlEndElement endElement = current;
-        XmlTagMismatchError.checkTags(parent?.name, endElement.name);
-        parent = parent.parent;
       }
       return true;
     } else {
@@ -57,7 +58,7 @@ class XmlEventDefinition extends XmlParserDefinition {
       .seq(ref(qualified))
       .seq(ref(attributes))
       .seq(ref(spaceOptional))
-      .seq(string(XmlToken.closeEndElement).or(char(XmlToken.closeElement)))
+      .seq(char(XmlToken.closeElement).or(string(XmlToken.closeEndElement)))
       .map((each) => XmlStartElement(
           each[1],
           List.castFrom<dynamic, XmlAttribute>(each[2]),

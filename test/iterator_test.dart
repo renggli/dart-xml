@@ -7,9 +7,9 @@ import 'examples.dart';
 
 void main() {
   test('example', () {
-    final iterator = XmlIterator(bookstoreXml);
+    final iterator = parseIterator(bookstoreXml);
     while (iterator.moveNext()) {
-      print(iterator.current);
+      print('${iterator.current.depth}: ${iterator.current}');
     }
   });
 }

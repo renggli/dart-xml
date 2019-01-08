@@ -10,7 +10,7 @@ const Matcher isXmlParentException = TypeMatcher<XmlParentException>();
 void assertParseInvariants(String input) {
   final tree = parse(input);
   assertTreeInvariants(tree);
-  assertReaderInvariants(input, tree);
+  assertParseIteratorInvariants(input, tree);
   final copy = parse(tree.toXmlString());
   expect(tree.toXmlString(), copy.toXmlString());
 }
@@ -244,7 +244,7 @@ void assertPrintingInvariants(XmlNode xml) {
   compare(xml, parse(xml.toXmlString(pretty: true)));
 }
 
-void assertReaderInvariants(String input, XmlNode node) {
+void assertParseIteratorInvariants(String input, XmlNode node) {
   final includedTypes = Set.from([
     XmlNodeType.CDATA,
     XmlNodeType.COMMENT,
@@ -253,77 +253,43 @@ void assertReaderInvariants(String input, XmlNode node) {
     XmlNodeType.PROCESSING,
     XmlNodeType.TEXT,
   ]);
+  final iterator = parseIterator(input);
   final nodes = node.descendants
       .where((node) => includedTypes.contains(node.nodeType))
       .toList(growable: true);
-  final stack = <XmlName>[];
-  var state = 0;
-  final reader = XmlReader(
-    onStartDocument: () {
-      expect(state, 0, reason: 'Reader already started.');
-      state = 1;
-    },
-    onEndDocument: () {
-      expect(state, 1, reason: 'Reader not started');
-      state = 2;
-    },
-    onStartElement: (name, attributes) {
-      expect(state, 1, reason: 'Reader not started');
-      expect(nodes, isNotEmpty, reason: 'Missing element in node list.');
-      final node = nodes.removeAt(0);
-      expect(node.nodeType, XmlNodeType.ELEMENT,
-          reason: 'Node type should be an ELEMENT.');
-      expect(node.attributes.length, attributes.length,
-          reason: 'The amount of attributes should match.');
-      for (var i = 0; i < node.attributes.length; i++) {
-        assertCompareInvariants(node.attributes[i], attributes[i]);
+  final stack = <XmlStartElement>[];
+  while (iterator.moveNext()) {
+    final current = iterator.current;
+    if (current is XmlStartElement) {
+      final XmlElement expected = nodes.removeAt(0);
+      expect(current.nodeType, expected.nodeType);
+      expect(current.name.qualified, expected.name.qualified);
+      expect(current.attributes.length, expected.attributes.length);
+      expect(current.isSelfClosing, expected.isSelfClosing);
+      for (var i = 0; i < expected.attributes.length; i++) {
+        assertCompareInvariants(expected.attributes[i], current.attributes[i]);
       }
-      stack.add(name);
-    },
-    onEndElement: (name) {
-      expect(stack, isNotEmpty, reason: 'Missing matching start element.');
-      expect(stack.removeLast(), name, reason: 'Non-matching start element.');
-    },
-    onCharacterData: (text) {
-      expect(state, 1, reason: 'Reader not started');
-      expect(nodes, isNotEmpty, reason: 'Missing element in node list.');
-      final node = nodes.removeAt(0);
-      expect(node.nodeType, anyOf(XmlNodeType.TEXT, XmlNodeType.CDATA),
-          reason: 'Node type should be TEXT or CDATA.');
-      expect(text, node.text, reason: 'Text data should match.');
-    },
-    onProcessingInstruction: (target, text) {
-      expect(state, 1, reason: 'Reader not started');
-      expect(nodes, isNotEmpty, reason: 'Missing element in node list.');
-      final node = nodes.removeAt(0);
-      expect(node.nodeType, XmlNodeType.PROCESSING,
-          reason: 'Node type should be PROCESSING.');
-      final XmlProcessing processing = node;
-      expect(target, processing.target, reason: 'Target data should match.');
-      expect(text, processing.text, reason: 'Text data should match.');
-    },
-    onDoctype: (text) {
-      expect(state, 1, reason: 'Reader not started');
-      expect(nodes, isNotEmpty, reason: 'Missing element in node list.');
-      final node = nodes.removeAt(0);
-      expect(node.nodeType, XmlNodeType.DOCUMENT_TYPE,
-          reason: 'Node type should be DOCUMENT_TYPE.');
-      final XmlDoctype doctype = node;
-      expect(text, doctype.text, reason: 'Text data should match.');
-    },
-    onComment: (text) {
-      expect(state, 1, reason: 'Reader not started');
-      expect(nodes, isNotEmpty, reason: 'Missing element in node list.');
-      final node = nodes.removeAt(0);
-      expect(node.nodeType, XmlNodeType.COMMENT,
-          reason: 'Node type should be COMMENT.');
-      final XmlComment comment = node;
-      expect(text, comment.text, reason: 'Text data should match.');
-    },
-    onParseError: (index) => fail('Parser error at $index.'),
-  );
-  reader.parse(input);
-  expect(nodes, isEmpty, reason: 'All nodes should be processed.');
-  expect(stack, isEmpty, reason: 'All elements should be closed.');
-  expect(state, 2, reason: 'Reader not completed.');
+      expect(current.depth, stack.length);
+      if (!current.isSelfClosing) {
+        stack.add(current);
+      }
+    } else if (current is XmlEndElement) {
+      final expected = stack.removeLast();
+      expect(current.nodeType, expected.nodeType);
+      expect(current.name.qualified, expected.name.qualified);
+      expect(current.depth, stack.length);
+    } else if (current is XmlData) {
+      final expected = nodes.removeAt(0);
+      expect(current.nodeType, expected.nodeType);
+      expect(current.text, expected.text);
+      expect(current.depth, stack.length);
+      if (current is XmlProcessing) {
+        final XmlProcessing expectedProcessing = expected;
+        expect(current.target, expectedProcessing.target);
+      }
+    } else {
+      fail('Unexpected node type: $current');
+    }
+  }
+  expect(nodes, isEmpty, reason: '$nodes were not closed.');
 }
