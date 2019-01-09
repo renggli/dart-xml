@@ -23,7 +23,7 @@ export 'src/xml/nodes/parent.dart' show XmlParent;
 export 'src/xml/nodes/processing.dart' show XmlProcessing;
 export 'src/xml/nodes/text.dart' show XmlText;
 export 'src/xml/parser.dart' show XmlParserDefinition;
-export 'src/xml/reader.dart' show XmlReader, XmlPushReader;
+export 'src/xml/production.dart' show XmlProductionDefinition;
 export 'src/xml/utils/attribute_type.dart' show XmlAttributeType;
 export 'src/xml/utils/exceptions.dart'
     show
@@ -33,8 +33,9 @@ export 'src/xml/utils/exceptions.dart'
         XmlParentException;
 export 'src/xml/utils/name.dart' show XmlName;
 export 'src/xml/utils/named.dart' show XmlNamed;
-export 'src/xml/utils/node_type.dart' show XmlNodeType, XmlPushReaderNodeType;
+export 'src/xml/utils/node_type.dart' show XmlNodeType;
 export 'src/xml/utils/owned.dart' show XmlOwned;
+export 'src/xml/utils/token.dart' show XmlToken;
 export 'src/xml/utils/writable.dart' show XmlWritable;
 export 'src/xml/visitors/transformer.dart' show XmlTransformer;
 export 'src/xml/visitors/visitable.dart' show XmlVisitable;

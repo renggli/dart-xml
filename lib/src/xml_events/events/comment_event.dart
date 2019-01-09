@@ -1,6 +1,6 @@
 library xml_events.events.comment_event;
 
-import 'package:xml/xml/utils/node_type.dart';
+import 'package:xml/xml.dart';
 
 import '../event.dart';
 

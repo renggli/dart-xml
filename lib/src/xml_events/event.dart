@@ -1,6 +1,6 @@
 library xml_events.events.event;
 
-import 'package:xml/xml/utils/node_type.dart';
+import 'package:xml/xml.dart';
 
 abstract class XmlEvent {
   /// Return the node type of this node.

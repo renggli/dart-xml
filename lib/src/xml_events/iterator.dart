@@ -1,10 +1,7 @@
 library xml_events.iterator;
 
 import 'package:petitparser/petitparser.dart';
-import 'package:xml/xml/production.dart';
-import 'package:xml/xml/utils/attribute_type.dart';
-import 'package:xml/xml/utils/exceptions.dart';
-import 'package:xml/xml/utils/token.dart';
+import 'package:xml/xml.dart';
 
 import 'event.dart';
 import 'events/cdata_event.dart';
@@ -37,11 +34,11 @@ class XmlEventDefinition extends XmlProductionDefinition {
       .seq(char(XmlToken.closeElement).or(string(XmlToken.closeEndElement)))
       .map((each) => XmlStartElementEvent(
           each[1],
-          List.castFrom<dynamic, XmlAttribute>(each[2]),
+          List.castFrom<dynamic, XmlElementAttribute>(each[2]),
           each[4] == XmlToken.closeEndElement));
 
   @override
-  Parser attribute() => super.attribute().map((each) => XmlAttribute(
+  Parser attribute() => super.attribute().map((each) => XmlElementAttribute(
       each[0],
       each[4][1],
       each[4][0] == '"'
