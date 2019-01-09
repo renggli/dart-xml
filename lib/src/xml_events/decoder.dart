@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'event.dart';
 import 'iterable.dart';
 
-/// Decodes a [String] to an [Iterable] of [XmlEvent] objects.
+/// A converter that decodes [XmlEvent] objects from strings.
 class XmlDecoder extends Converter<String, Iterable<XmlEvent>> {
   const XmlDecoder();
 
@@ -23,6 +23,7 @@ class XmlDecoder extends Converter<String, Iterable<XmlEvent>> {
       XmlDecoderSink(this, sink);
 }
 
+/// A conversion sink for chunked [XmlEvent] decoding.
 class XmlDecoderSink extends StringConversionSinkBase {
   XmlDecoderSink(this.decoder, this.sink);
 
