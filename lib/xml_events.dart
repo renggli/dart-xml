@@ -3,6 +3,8 @@ library xml_events;
 import 'src/xml_events/event.dart';
 import 'src/xml_events/iterator.dart';
 
+export 'src/xml/utils/attribute_type.dart' show XmlAttributeType;
+export 'src/xml/utils/node_type.dart' show XmlNodeType;
 export 'src/xml_events/event.dart' show XmlEvent;
 export 'src/xml_events/events/cdata_event.dart' show XmlCDATAEvent;
 export 'src/xml_events/events/comment_event.dart' show XmlCommentEvent;

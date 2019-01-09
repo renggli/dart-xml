@@ -79,6 +79,9 @@ class XmlEventIterator extends Iterator<XmlEvent> {
 
   @override
   bool moveNext() {
+    if (context == null) {
+      return false;
+    }
     final result = _eventParser.parseOn(context);
     if (result.isSuccess) {
       context = result;
