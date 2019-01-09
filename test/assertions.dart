@@ -11,7 +11,7 @@ const Matcher isXmlParentException = TypeMatcher<XmlParentException>();
 void assertParseInvariants(String input) {
   final tree = parse(input);
   assertTreeInvariants(tree);
-  assertParseIteratorInvariants(input, tree);
+  assertEventInvariants(input, tree);
   final copy = parse(tree.toXmlString());
   expect(tree.toXmlString(), copy.toXmlString());
 }
@@ -245,7 +245,7 @@ void assertPrintingInvariants(XmlNode xml) {
   compare(xml, parse(xml.toXmlString(pretty: true)));
 }
 
-void assertParseIteratorInvariants(String input, XmlNode node) {
+void assertEventInvariants(String input, XmlNode node) {
   final includedTypes = Set.from([
     XmlNodeType.CDATA,
     XmlNodeType.COMMENT,
@@ -254,7 +254,7 @@ void assertParseIteratorInvariants(String input, XmlNode node) {
     XmlNodeType.PROCESSING,
     XmlNodeType.TEXT,
   ]);
-  final iterator = parseIterator(input);
+  final iterator = parseEvents(input).iterator;
   final nodes = node.descendants
       .where((node) => includedTypes.contains(node.nodeType))
       .toList(growable: true);

@@ -53,10 +53,8 @@ void main() {
       builder.element(name, nest: () {
         final source = benchmarks[name];
         builder.element('parser', nest: benchmark(() => parse(source)));
-        builder.element('iterator', nest: benchmark(() {
-          final iterator = parseIterator(source);
-          while (iterator.moveNext()) {}
-        }));
+        builder.element('iterator',
+            nest: benchmark(() => parseEvents(source).length));
       });
     }
   });

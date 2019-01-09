@@ -4,6 +4,7 @@ import 'package:test/test.dart';
 import 'package:xml/xml_events.dart';
 
 import 'assertions.dart';
+import 'examples.dart';
 
 void assertComplete(Iterator<XmlEvent> iterator) {
   for (var i = 0; i < 2; i++) {
@@ -15,7 +16,7 @@ void assertComplete(Iterator<XmlEvent> iterator) {
 void main() {
   group('events', () {
     test('cdata', () {
-      final iterator = parseIterator('<![CDATA[<nasty>]]>');
+      final iterator = parseEvents('<![CDATA[<nasty>]]>').iterator;
       expect(iterator.moveNext(), isTrue);
       final XmlCDATAEvent event = iterator.current;
       expect(event.nodeType, XmlNodeType.CDATA);
@@ -23,7 +24,7 @@ void main() {
       assertComplete(iterator);
     });
     test('comment', () {
-      final iterator = parseIterator('<!--for amusement only-->');
+      final iterator = parseEvents('<!--for amusement only-->').iterator;
       expect(iterator.moveNext(), isTrue);
       final XmlCommentEvent event = iterator.current;
       expect(event.nodeType, XmlNodeType.COMMENT);
@@ -31,7 +32,7 @@ void main() {
       assertComplete(iterator);
     });
     test('doctype', () {
-      final iterator = parseIterator('<!DOCTYPE html>');
+      final iterator = parseEvents('<!DOCTYPE html>').iterator;
       expect(iterator.moveNext(), isTrue);
       final XmlDoctypeEvent event = iterator.current;
       expect(event.nodeType, XmlNodeType.DOCUMENT_TYPE);
@@ -39,7 +40,7 @@ void main() {
       assertComplete(iterator);
     });
     test('end element', () {
-      final iterator = parseIterator('</bar>');
+      final iterator = parseEvents('</bar>').iterator;
       expect(iterator.moveNext(), isTrue);
       final XmlEndElementEvent event = iterator.current;
       expect(event.nodeType, XmlNodeType.ELEMENT);
@@ -47,7 +48,7 @@ void main() {
       assertComplete(iterator);
     });
     test('processing', () {
-      final iterator = parseIterator('<?pi test?>');
+      final iterator = parseEvents('<?pi test?>').iterator;
       expect(iterator.moveNext(), isTrue);
       final XmlProcessingEvent event = iterator.current;
       expect(event.nodeType, XmlNodeType.PROCESSING);
@@ -56,7 +57,7 @@ void main() {
       assertComplete(iterator);
     });
     test('start element', () {
-      final iterator = parseIterator('<foo>');
+      final iterator = parseEvents('<foo>').iterator;
       expect(iterator.moveNext(), isTrue);
       final XmlStartElementEvent event = iterator.current;
       expect(event.nodeType, XmlNodeType.ELEMENT);
@@ -66,7 +67,7 @@ void main() {
       assertComplete(iterator);
     });
     test('start element (attributes, self-closing)', () {
-      final iterator = parseIterator('<foo a="1" b=\'2\'/>');
+      final iterator = parseEvents('<foo a="1" b=\'2\'/>').iterator;
       expect(iterator.moveNext(), isTrue);
       final XmlStartElementEvent event = iterator.current;
       expect(event.nodeType, XmlNodeType.ELEMENT);
@@ -82,7 +83,7 @@ void main() {
       assertComplete(iterator);
     });
     test('text', () {
-      final iterator = parseIterator('Hello World!');
+      final iterator = parseEvents('Hello World!').iterator;
       expect(iterator.moveNext(), isTrue);
       final XmlTextEvent event = iterator.current;
       expect(event.nodeType, XmlNodeType.TEXT);
@@ -92,17 +93,58 @@ void main() {
   });
   group('errors', () {
     test('empty', () {
-      final iterator = parseIterator('');
+      final iterator = parseEvents('').iterator;
       assertComplete(iterator);
     });
     test('invalid', () {
-      final iterator = parseIterator('<hello');
+      final iterator = parseEvents('<hello').iterator;
       expect(iterator.moveNext, throwsA(isXmlParserException));
       expect(iterator.current, isNull);
       expect(iterator.moveNext(), isTrue);
       final XmlTextEvent event = iterator.current;
       expect(event.text, 'hello');
       assertComplete(iterator);
+    });
+  });
+  group('examples', () {
+    test('extract non-empty text', () {
+      final texts = parseEvents(bookstoreXml)
+          .whereType<XmlTextEvent>()
+          .map((event) => event.text.trim())
+          .where((text) => text.isNotEmpty);
+      expect(texts, ['Harry Potter', '29.99', 'Learning XML', '39.95']);
+    });
+    test('find specific attribute', () {
+      final maxExclusive = parseEvents(shiporderXsd)
+          .whereType<XmlStartElementEvent>()
+          .singleWhere((event) => event.name == 'xsd:maxExclusive')
+          .attributes
+          .singleWhere((attribute) => attribute.name == 'value')
+          .value;
+      expect(maxExclusive, '100');
+    });
+    test('find all the genres', () {
+      // Some libraries provide a sliding window iterator
+      // https://github.com/renggli/dart-more/blob/master/lib/src/iterable/window.dart
+      // which would make this code trivial to write and read:
+      final genres = Set<String>();
+      parseEvents(booksXml).fold(null, (previous, current) {
+        if (previous is XmlStartElementEvent &&
+            previous.name == 'genre' &&
+            current is XmlTextEvent) {
+          genres.add(current.text);
+        }
+        return current;
+      });
+      expect(
+          genres,
+          containsAll([
+            'Computer',
+            'Fantasy',
+            'Romance',
+            'Horror',
+            'Science Fiction',
+          ]));
     });
   });
 }
