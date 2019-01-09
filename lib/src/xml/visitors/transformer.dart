@@ -45,14 +45,6 @@ class XmlTransformer extends XmlVisitor {
       node.attributes.map(visit), node.children.map(visit), node.isSelfClosing);
 
   @override
-  XmlStartElement visitStartElement(XmlStartElement node) => XmlStartElement(
-      visit(node.name), node.attributes.map(visit), node.isSelfClosing);
-
-  @override
-  XmlEndElement visitEndElement(XmlEndElement node) =>
-      XmlEndElement(visit(node.name));
-
-  @override
   XmlName visitName(XmlName name) => XmlName.fromString(name.qualified);
 
   @override

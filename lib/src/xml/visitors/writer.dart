@@ -80,25 +80,6 @@ class XmlWriter extends XmlVisitor {
   }
 
   @override
-  void visitStartElement(XmlStartElement node) {
-    buffer.write(XmlToken.openElement);
-    visit(node.name);
-    writeAttributes(node);
-    if (node.isSelfClosing) {
-      buffer.write(XmlToken.closeEndElement);
-    } else {
-      buffer.write(XmlToken.closeElement);
-    }
-  }
-
-  @override
-  void visitEndElement(XmlEndElement node) {
-    buffer.write(XmlToken.openEndElement);
-    visit(node.name);
-    buffer.write(XmlToken.closeElement);
-  }
-
-  @override
   void visitName(XmlName name) {
     buffer.write(name.qualified);
   }

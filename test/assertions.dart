@@ -2,6 +2,7 @@ library xml.test.assertions;
 
 import 'package:test/test.dart';
 import 'package:xml/xml.dart';
+import 'package:xml/xml_events.dart';
 
 const Matcher isXmlParserException = TypeMatcher<XmlParserException>();
 const Matcher isXmlNodeTypeException = TypeMatcher<XmlNodeTypeException>();
@@ -257,42 +258,53 @@ void assertParseIteratorInvariants(String input, XmlNode node) {
   final nodes = node.descendants
       .where((node) => includedTypes.contains(node.nodeType))
       .toList(growable: true);
-  final stack = <XmlStartElement>[];
+  final stack = <XmlStartElementEvent>[];
   while (iterator.moveNext()) {
     final current = iterator.current;
-    if (current is XmlStartElement) {
+    if (current is XmlStartElementEvent) {
       final XmlElement expected = nodes.removeAt(0);
       expect(current.nodeType, expected.nodeType);
-      expect(current.parent, stack.isEmpty ? isNull : stack.last);
-      expect(current.depth, stack.length);
-      expect(current.name.qualified, expected.name.qualified);
+      expect(current.name, expected.name.qualified);
       expect(current.attributes.length, expected.attributes.length);
-      for (var i = 0; i < expected.attributes.length; i++) {
-        assertCompareInvariants(expected.attributes[i], current.attributes[i]);
+      for (var i = 0; i < current.attributes.length; i++) {
+        expect(
+            current.attributes[i].name, expected.attributes[i].name.qualified);
+        expect(current.attributes[i].value, expected.attributes[i].value);
+        expect(current.attributes[i].attributeType,
+            expected.attributes[i].attributeType);
       }
       expect(current.isSelfClosing,
           expected.children.isEmpty && expected.isSelfClosing);
       if (!current.isSelfClosing) {
         stack.add(current);
       }
-    } else if (current is XmlEndElement) {
+    } else if (current is XmlEndElementEvent) {
       final expected = stack.removeLast();
       expect(current.nodeType, expected.nodeType);
-      expect(current.parent, expected);
-      expect(current.depth, stack.length + 1);
-      expect(current.name.qualified, expected.name.qualified);
-    } else if (current is XmlData) {
-      final expected = nodes.removeAt(0);
+      expect(current.name, expected.name);
+    } else if (current is XmlCDATAEvent) {
+      final XmlCDATA expected = nodes.removeAt(0);
       expect(current.nodeType, expected.nodeType);
-      expect(current.parent, stack.isEmpty ? isNull : stack.last);
-      expect(current.depth, stack.length);
       expect(current.text, expected.text);
-      if (current is XmlProcessing) {
-        final XmlProcessing expectedProcessing = expected;
-        expect(current.target, expectedProcessing.target);
-      }
+    } else if (current is XmlCommentEvent) {
+      final XmlComment expected = nodes.removeAt(0);
+      expect(current.nodeType, expected.nodeType);
+      expect(current.text, expected.text);
+    } else if (current is XmlDoctypeEvent) {
+      final XmlDoctype expected = nodes.removeAt(0);
+      expect(current.nodeType, expected.nodeType);
+      expect(current.text, expected.text);
+    } else if (current is XmlProcessingEvent) {
+      final XmlProcessing expected = nodes.removeAt(0);
+      expect(current.nodeType, expected.nodeType);
+      expect(current.target, expected.target);
+      expect(current.text, expected.text);
+    } else if (current is XmlTextEvent) {
+      final XmlText expected = nodes.removeAt(0);
+      expect(current.nodeType, expected.nodeType);
+      expect(current.text, expected.text);
     } else {
-      fail('Unexpected node type: $current');
+      fail('Unexpected event type: $current');
     }
   }
   expect(nodes, isEmpty, reason: '$nodes were not closed.');
