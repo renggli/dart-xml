@@ -3,6 +3,7 @@ library xml_events.parser;
 import 'package:petitparser/petitparser.dart';
 import 'package:xml/xml.dart';
 
+import 'events/attribute_event.dart';
 import 'events/cdata_event.dart';
 import 'events/comment_event.dart';
 import 'events/doctype_event.dart';

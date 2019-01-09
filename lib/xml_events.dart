@@ -5,7 +5,11 @@ import 'src/xml_events/iterable.dart';
 
 export 'src/xml/utils/attribute_type.dart' show XmlAttributeType;
 export 'src/xml/utils/node_type.dart' show XmlNodeType;
+export 'src/xml_events/codec.dart' show XmlCodec;
+export 'src/xml_events/decoder.dart' show XmlDecoder;
+export 'src/xml_events/encoder.dart' show XmlEncoder;
 export 'src/xml_events/event.dart' show XmlEvent;
+export 'src/xml_events/events/attribute_event.dart' show XmlElementAttribute;
 export 'src/xml_events/events/cdata_event.dart' show XmlCDATAEvent;
 export 'src/xml_events/events/comment_event.dart' show XmlCommentEvent;
 export 'src/xml_events/events/doctype_event.dart' show XmlDoctypeEvent;
@@ -28,9 +32,9 @@ export 'src/xml_events/events/text_event.dart' show XmlTextEvent;
 /// would write:
 ///
 ///    parseEvents(bookstoreXml)
-///       .whereType<XmlTextEvent>()
-///       .map((event) => event.text.trim())
-///       .where((text) => text.isNotEmpty)
-///       .forEach(print);
+///        .whereType<XmlTextEvent>()
+///        .map((event) => event.text.trim())
+///        .where((text) => text.isNotEmpty)
+///        .forEach(print);
 ///
 Iterable<XmlEvent> parseEvents(String input) => XmlEventIterable(input);

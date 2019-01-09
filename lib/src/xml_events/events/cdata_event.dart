@@ -13,5 +13,9 @@ class XmlCDATAEvent extends XmlEvent {
   XmlNodeType get nodeType => XmlNodeType.CDATA;
 
   @override
-  String toString() => '$runtimeType($text)';
+  void encode(StringBuffer buffer) {
+    buffer.write(XmlToken.openCDATA);
+    buffer.write(text);
+    buffer.write(XmlToken.closeCDATA);
+  }
 }

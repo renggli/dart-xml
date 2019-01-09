@@ -13,5 +13,9 @@ class XmlDoctypeEvent extends XmlEvent {
   XmlNodeType get nodeType => XmlNodeType.DOCUMENT_TYPE;
 
   @override
-  String toString() => '$runtimeType($text)';
+  void encode(StringBuffer buffer) {
+    buffer.write(XmlToken.openDoctype);
+    buffer.write(text);
+    buffer.write(XmlToken.closeDoctype);
+  }
 }

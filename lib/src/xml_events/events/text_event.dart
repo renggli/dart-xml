@@ -13,5 +13,7 @@ class XmlTextEvent extends XmlEvent {
   XmlNodeType get nodeType => XmlNodeType.TEXT;
 
   @override
-  String toString() => '$runtimeType($text)';
+  void encode(StringBuffer buffer) {
+    buffer.write(encodeXmlText(text));
+  }
 }

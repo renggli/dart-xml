@@ -13,5 +13,9 @@ class XmlCommentEvent extends XmlEvent {
   XmlNodeType get nodeType => XmlNodeType.COMMENT;
 
   @override
-  String toString() => '$runtimeType($text)';
+  void encode(StringBuffer buffer) {
+    buffer.write(XmlToken.openComment);
+    buffer.write(text);
+    buffer.write(XmlToken.closeComment);
+  }
 }

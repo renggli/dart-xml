@@ -3,6 +3,7 @@ library xml_events.events.start_element_event;
 import 'package:xml/xml.dart';
 
 import '../event.dart';
+import 'attribute_event.dart';
 
 class XmlStartElementEvent extends XmlEvent {
   XmlStartElementEvent(this.name, this.attributes, this.isSelfClosing);
@@ -17,18 +18,13 @@ class XmlStartElementEvent extends XmlEvent {
   XmlNodeType get nodeType => XmlNodeType.ELEMENT;
 
   @override
-  String toString() => '$runtimeType($name, $attributes, $isSelfClosing)';
-}
-
-class XmlElementAttribute {
-  XmlElementAttribute(this.name, this.value, this.attributeType);
-
-  final String name;
-
-  final String value;
-
-  final XmlAttributeType attributeType;
-
-  @override
-  String toString() => '$runtimeType($name, $value, $attributeType)';
+  void encode(StringBuffer buffer) {
+    buffer.write(XmlToken.openElement);
+    buffer.write(name);
+    for (var attribute in attributes) {
+      attribute.encode(buffer);
+    }
+    buffer.write(
+        isSelfClosing ? XmlToken.closeEndElement : XmlToken.closeElement);
+  }
 }

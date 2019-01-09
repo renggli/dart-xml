@@ -15,5 +15,11 @@ class XmlProcessingEvent extends XmlEvent {
   XmlNodeType get nodeType => XmlNodeType.PROCESSING;
 
   @override
-  String toString() => '$runtimeType($target, $text)';
+  void encode(StringBuffer buffer) {
+    buffer.write(XmlToken.openProcessing);
+    buffer.write(target);
+    buffer.write(XmlToken.whitespace);
+    buffer.write(text);
+    buffer.write(XmlToken.closeProcessing);
+  }
 }

@@ -13,5 +13,9 @@ class XmlEndElementEvent extends XmlEvent {
   XmlNodeType get nodeType => XmlNodeType.ELEMENT;
 
   @override
-  String toString() => '$runtimeType($name)';
+  void encode(StringBuffer buffer) {
+    buffer.write(XmlToken.openEndElement);
+    buffer.write(name);
+    buffer.write(XmlToken.closeElement);
+  }
 }
