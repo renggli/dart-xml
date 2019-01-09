@@ -1,6 +1,7 @@
 library xml.test.benchmark;
 
 import 'package:xml/xml.dart';
+import 'package:xml/xml_events.dart';
 
 import 'examples.dart';
 
@@ -36,9 +37,10 @@ String characterData() {
 }
 
 final Map<String, String> benchmarks = {
+  'atom': atomXml,
   'books': booksXml,
   'bookstore': bookstoreXml,
-  'atom': atomXml,
+  'complicated': complicatedXml,
   'shiporder': shiporderXsd,
   'decoding': characterData(),
 };
@@ -50,7 +52,11 @@ void main() {
     for (var name in benchmarks.keys) {
       builder.element(name, nest: () {
         final source = benchmarks[name];
-        builder.text(benchmark(() => parse(source)));
+        builder.element('parser', nest: benchmark(() => parse(source)));
+        builder.element('iterator', nest: benchmark(() {
+          final iterator = parseIterator(source);
+          while (iterator.moveNext()) {}
+        }));
       });
     }
   });
