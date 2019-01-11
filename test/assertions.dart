@@ -310,4 +310,9 @@ void assertEventInvariants(String input, XmlNode node) {
   expect(nodes, isEmpty, reason: '$nodes were not closed.');
   expect(iterator.current, isNull);
   expect(iterator.moveNext(), isFalse);
+
+  final prettyInput = node.toXmlString(pretty: false);
+  final decodedEvents = const XmlCodec().decode(prettyInput);
+  final encodeString = const XmlCodec().encode(decodedEvents);
+  expect(encodeString, prettyInput);
 }

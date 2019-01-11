@@ -15,6 +15,7 @@ class XmlDoctypeEvent extends XmlEvent {
   @override
   void encode(StringBuffer buffer) {
     buffer.write(XmlToken.openDoctype);
+    buffer.write(XmlToken.whitespace);
     buffer.write(text);
     buffer.write(XmlToken.closeDoctype);
   }

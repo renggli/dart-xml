@@ -6,16 +6,17 @@ import 'event.dart';
 import 'iterable.dart';
 
 /// A converter that decodes [XmlEvent] objects from strings.
-class XmlDecoder extends Converter<String, Iterable<XmlEvent>> {
+class XmlDecoder extends Converter<String, List<XmlEvent>> {
   const XmlDecoder();
 
   @override
-  Iterable<XmlEvent> convert(String input, [int start = 0, int end]) {
+  List<XmlEvent> convert(String input, [int start = 0, int end]) {
     end = RangeError.checkValidRange(start, end, input.length);
     if (start == end) {
       return <XmlEvent>[];
     }
-    return XmlEventIterable(input.substring(start, end));
+    return XmlEventIterable(input.substring(start, end))
+        .toList(growable: false);
   }
 
   @override

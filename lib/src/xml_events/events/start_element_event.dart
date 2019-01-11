@@ -22,9 +22,13 @@ class XmlStartElementEvent extends XmlEvent {
     buffer.write(XmlToken.openElement);
     buffer.write(name);
     for (var attribute in attributes) {
+      buffer.write(XmlToken.whitespace);
       attribute.encode(buffer);
     }
-    buffer.write(
-        isSelfClosing ? XmlToken.closeEndElement : XmlToken.closeElement);
+    if (isSelfClosing) {
+      buffer.write(XmlToken.closeEndElement);
+    } else {
+      buffer.write(XmlToken.closeElement);
+    }
   }
 }

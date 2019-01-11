@@ -18,8 +18,10 @@ class XmlProcessingEvent extends XmlEvent {
   void encode(StringBuffer buffer) {
     buffer.write(XmlToken.openProcessing);
     buffer.write(target);
-    buffer.write(XmlToken.whitespace);
-    buffer.write(text);
+    if (text.isNotEmpty) {
+      buffer.write(XmlToken.whitespace);
+      buffer.write(text);
+    }
     buffer.write(XmlToken.closeProcessing);
   }
 }
