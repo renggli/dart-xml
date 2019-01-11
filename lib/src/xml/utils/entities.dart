@@ -372,6 +372,17 @@ String encodeXmlAttributeValue(String input, XmlAttributeType attributeType) =>
     input.replaceAllMapped(
         _attributePattern[attributeType], _attributeReplace[attributeType]);
 
+/// Encode a string to be serialized as an XML attribute value with quotes.
+String encodeXmlAttributeValueWithQuotes(
+    String input, XmlAttributeType attributeType) {
+  final quote = attributeQuote[attributeType];
+  final buffer = StringBuffer();
+  buffer.write(quote);
+  buffer.write(encodeXmlAttributeValue(input, attributeType));
+  buffer.write(quote);
+  return buffer.toString();
+}
+
 final Map<XmlAttributeType, String> attributeQuote = {
   XmlAttributeType.SINGLE_QUOTE: "'",
   XmlAttributeType.DOUBLE_QUOTE: '"'

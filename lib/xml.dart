@@ -26,7 +26,10 @@ export 'src/xml/parser.dart' show XmlParserDefinition;
 export 'src/xml/production.dart' show XmlProductionDefinition;
 export 'src/xml/utils/attribute_type.dart' show XmlAttributeType;
 export 'src/xml/utils/entities.dart'
-    show encodeXmlText, encodeXmlAttributeValue;
+    show
+        encodeXmlText,
+        encodeXmlAttributeValue,
+        encodeXmlAttributeValueWithQuotes;
 export 'src/xml/utils/exceptions.dart'
     show
         XmlException,

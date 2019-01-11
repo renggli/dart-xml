@@ -18,13 +18,8 @@ class XmlElementAttribute extends XmlEvent {
 
   @override
   void encode(StringBuffer buffer) {
-    final quote = attributeType == XmlAttributeType.DOUBLE_QUOTE
-        ? XmlToken.doubleQuote
-        : XmlToken.singleQuote;
     buffer.write(name);
     buffer.write(XmlToken.equals);
-    buffer.write(quote);
-    buffer.write(encodeXmlAttributeValue(value, attributeType));
-    buffer.write(quote);
+    buffer.write(encodeXmlAttributeValueWithQuotes(value, attributeType));
   }
 }

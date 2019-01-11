@@ -25,10 +25,8 @@ class XmlWriter extends XmlVisitor {
   void visitAttribute(XmlAttribute node) {
     visit(node.name);
     buffer.write(XmlToken.equals);
-    final quote = attributeQuote[node.attributeType];
-    buffer.write(quote);
-    buffer.write(encodeXmlAttributeValue(node.value, node.attributeType));
-    buffer.write(quote);
+    buffer.write(
+        encodeXmlAttributeValueWithQuotes(node.value, node.attributeType));
   }
 
   @override
