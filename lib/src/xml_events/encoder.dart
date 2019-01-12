@@ -20,19 +20,19 @@ class XmlEncoder extends Converter<List<XmlEvent>, String> {
   @override
   ChunkedConversionSink<List<XmlEvent>> startChunkedConversion(
           Sink<String> sink) =>
-      XmlEncoderSink(this, sink);
+      _XmlEncoderSink(this, sink);
 }
 
 /// A conversion sink for chunked [XmlEvent] encoding.
-class XmlEncoderSink extends ChunkedConversionSink<List<XmlEvent>> {
-  XmlEncoderSink(this.encoder, this.sink);
+class _XmlEncoderSink extends ChunkedConversionSink<List<XmlEvent>> {
+  _XmlEncoderSink(this._encoder, this._sink);
 
-  final XmlEncoder encoder;
-  final Sink<String> sink;
-
-  @override
-  void add(List<XmlEvent> chunk) => sink.add(encoder.convert(chunk));
+  final XmlEncoder _encoder;
+  final Sink<String> _sink;
 
   @override
-  void close() => sink.close();
+  void add(List<XmlEvent> chunk) => _sink.add(_encoder.convert(chunk));
+
+  @override
+  void close() => _sink.close();
 }
