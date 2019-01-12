@@ -364,7 +364,6 @@ String _textReplace(Match match) {
     case ']]>':
       return ']]&gt;';
   }
-  throw AssertionError();
 }
 
 /// Encode a string to be serialized as an XML attribute value.
@@ -409,7 +408,6 @@ final Map<XmlAttributeType, ReplaceFunction> _attributeReplace = {
       case '\t':
         return '&#x9;';
     }
-    throw AssertionError();
   },
   XmlAttributeType.DOUBLE_QUOTE: (match) {
     switch (match.group(0)) {
@@ -426,6 +424,5 @@ final Map<XmlAttributeType, ReplaceFunction> _attributeReplace = {
       case '\t':
         return '&#x9;';
     }
-    throw AssertionError();
   },
 };
