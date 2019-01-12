@@ -363,6 +363,8 @@ String _textReplace(Match match) {
       return '&amp;';
     case ']]>':
       return ']]&gt;';
+    default:
+      throw AssertionError();
   }
 }
 
@@ -407,7 +409,10 @@ final Map<XmlAttributeType, ReplaceFunction> _attributeReplace = {
         return '&#xD;';
       case '\t':
         return '&#x9;';
+      default:
+        throw AssertionError();
     }
+
   },
   XmlAttributeType.DOUBLE_QUOTE: (match) {
     switch (match.group(0)) {
@@ -423,6 +428,8 @@ final Map<XmlAttributeType, ReplaceFunction> _attributeReplace = {
         return '&#xD;';
       case '\t':
         return '&#x9;';
+      default:
+        throw AssertionError();
     }
   },
 };
