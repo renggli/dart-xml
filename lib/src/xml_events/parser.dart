@@ -63,3 +63,5 @@ class XmlEventDefinition extends XmlProductionDefinition {
   @override
   Parser doctype() => super.doctype().map((each) => XmlDoctypeEvent(each[2]));
 }
+
+final Parser eventDefinitionParser = XmlEventDefinition().build();

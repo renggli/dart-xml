@@ -1,10 +1,38 @@
 library xml.test.axis_test;
 
+import 'dart:async';
+import 'dart:math' show min, Random;
+
 import 'package:test/test.dart';
 import 'package:xml/xml_events.dart';
 
 import 'assertions.dart';
 import 'examples.dart';
+
+// A stream of strings split into chunks of the given size.
+Stream<String> split(String input, int Function() provider) async* {
+  while (input.isNotEmpty) {
+    final size = min(provider(), input.length);
+    yield input.substring(0, size);
+    input = input.substring(size);
+  }
+}
+
+// Normalizes an iterable of events, by joining adjacent text events.
+List<XmlEvent> normalize(List<XmlEvent> input) {
+  final result = <XmlEvent>[];
+  for (var event in input) {
+    if (result.isNotEmpty &&
+        result.last is XmlTextEvent &&
+        event is XmlTextEvent) {
+      final XmlTextEvent last = result.last;
+      result.last = XmlTextEvent(last.text + event.text);
+    } else {
+      result.add(event);
+    }
+  }
+  return result;
+}
 
 void assertComplete(Iterator<XmlEvent> iterator) {
   for (var i = 0; i < 2; i++) {
@@ -106,6 +134,29 @@ void main() {
       assertComplete(iterator);
     });
   });
+  group('chunked', () {
+    final expected = parseEvents(complicatedXml)
+        .map((event) => event.toString())
+        .toList(growable: false);
+    void chunkedTest(String title, int Function() callback) {
+      test(title, () async {
+        final stream = split(complicatedXml, callback);
+        final actual = await stream
+            .transform(const XmlDecoder())
+            .expand((event) => event)
+            .toList();
+        expect(normalize(actual).map((event) => event.toString()), expected);
+      });
+    }
+
+    for (var i = 1; i < complicatedXml.length; i++) {
+      chunkedTest('fixed size $i', () => i);
+    }
+    for (var i = 1; i < complicatedXml.length; i++) {
+      final random = Random(i);
+      chunkedTest('random size $i', () => random.nextInt(i + 1));
+    }
+  });
   group('examples', () {
     test('extract non-empty text', () {
       final texts = parseEvents(bookstoreXml)
@@ -128,7 +179,7 @@ void main() {
       // https://github.com/renggli/dart-more/blob/master/lib/src/iterable/window.dart
       // which would make this code trivial to write and read:
       final genres = Set<String>();
-      parseEvents(booksXml).fold(null, (previous, current) {
+      parseEvents(booksXml).reduce((previous, current) {
         if (previous is XmlStartElementEvent &&
             previous.name == 'genre' &&
             current is XmlTextEvent) {

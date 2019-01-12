@@ -6,8 +6,6 @@ import 'package:xml/xml.dart';
 import 'event.dart';
 import 'parser.dart';
 
-final _eventParser = XmlEventDefinition().build();
-
 class XmlEventIterator extends Iterator<XmlEvent> {
   XmlEventIterator(String input) : context = Success(input, 0, null);
 
@@ -21,7 +19,7 @@ class XmlEventIterator extends Iterator<XmlEvent> {
     if (context == null) {
       return false;
     }
-    final result = _eventParser.parseOn(context);
+    final result = eventDefinitionParser.parseOn(context);
     if (result.isSuccess) {
       context = result;
       current = result.value;
