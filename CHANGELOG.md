@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.3.0
+
+* New Event based parsing in `xml_events`:
+  * Lazy event parser on `Iterable<XmlEvent>`.
+  * Codec for encoding and decoding of `List<XmlEvent>`.
+
 ## 3.2.4
 
 * Remove unnecessary whitespace when printing self-closing tags.

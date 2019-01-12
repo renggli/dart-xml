@@ -1,5 +1,5 @@
 name: xml
-version: 3.2.5
+version: 3.3.0
 
 author: Lukas Renggli <renggli@gmail.com>
 description: A lightweight library for parsing, traversing, querying, transforming and building XML documents.
