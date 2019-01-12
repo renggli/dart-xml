@@ -412,7 +412,6 @@ final Map<XmlAttributeType, ReplaceFunction> _attributeReplace = {
       default:
         throw AssertionError();
     }
-
   },
   XmlAttributeType.DOUBLE_QUOTE: (match) {
     switch (match.group(0)) {
