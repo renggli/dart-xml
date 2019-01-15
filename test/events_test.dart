@@ -4,19 +4,11 @@ import 'dart:async';
 import 'dart:math' show min, Random;
 
 import 'package:test/test.dart';
+import 'package:xml/xml.dart';
 import 'package:xml/xml_events.dart';
 
 import 'assertions.dart';
 import 'examples.dart';
-
-// A stream of strings split into chunks of the given size.
-Stream<String> split(String input, int Function() provider) async* {
-  while (input.isNotEmpty) {
-    final size = min(provider(), input.length);
-    yield input.substring(0, size);
-    input = input.substring(size);
-  }
-}
 
 // Normalizes an iterable of events, by joining adjacent text events.
 List<XmlEvent> normalize(List<XmlEvent> input) {
@@ -137,24 +129,50 @@ void main() {
     });
   });
   group('chunked', () {
-    final expected = parseEvents(complicatedXml)
-        .map((event) => event.toString())
-        .toList(growable: false);
+    final baseString = parse(complicatedXml).toXmlString(pretty: true);
+    final baseEvents = parseEvents(baseString).toList(growable: false);
+
     void chunkedTest(String title, int Function() callback) {
-      test(title, () async {
-        final stream = split(complicatedXml, callback);
-        final actual = await stream
+      test('$title (decode + encode)', () async {
+        Stream<String> split(String input, int Function() provider) async* {
+          while (input.isNotEmpty) {
+            final size = min(provider(), input.length);
+            yield input.substring(0, size);
+            input = input.substring(size);
+          }
+        }
+
+        final actual = await split(baseString, callback)
             .transform(const XmlCodec().decoder)
-            .expand((event) => event)
+            .transform(const XmlCodec().encoder)
+            .join();
+        expect(actual, baseString);
+      });
+      test('$title (encode + decode + normalize)', () async {
+        Stream<List<XmlEvent>> split(
+            List<XmlEvent> input, int Function() provider) async* {
+          while (input.isNotEmpty) {
+            final size = min(provider(), input.length);
+            yield input.sublist(0, size);
+            input = input.sublist(size);
+          }
+        }
+
+        final actual = await split(baseEvents, callback)
+            .transform(const XmlCodec().encoder)
+            .transform(const XmlCodec().decoder)
+            .transform(const XmlNormalizer())
+            .expand((list) => list)
             .toList();
-        expect(normalize(actual).map((event) => event.toString()), expected);
+        expect(actual.map((event) => event.toString()),
+            baseEvents.map((event) => event.toString()));
       });
     }
 
-    for (var i = 1; i < complicatedXml.length; i++) {
+    for (var i = 1; i < complicatedXml.length / 2; i++) {
       chunkedTest('fixed size $i', () => i);
     }
-    for (var i = 1; i < complicatedXml.length; i++) {
+    for (var i = 1; i < complicatedXml.length / 2; i++) {
       final random = Random(i);
       chunkedTest('random size $i', () => random.nextInt(i + 1));
     }
