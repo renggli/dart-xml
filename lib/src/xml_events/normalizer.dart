@@ -1,6 +1,7 @@
 library xml_events.normalizer;
 
 import 'dart:convert';
+import 'package:convert/convert.dart';
 
 import 'event.dart';
 import 'events/text_event.dart';
@@ -11,12 +12,11 @@ class XmlNormalizer extends Converter<List<XmlEvent>, List<XmlEvent>> {
 
   @override
   List<XmlEvent> convert(List<XmlEvent> input) {
-    final output = <XmlEvent>[];
-    final converter = startChunkedConversion(ChunkedConversionSink.withCallback(
-        (list) => list.forEach(output.addAll)));
+    final accumulator = AccumulatorSink<List<XmlEvent>>();
+    final converter = startChunkedConversion(accumulator);
     converter.add(input);
     converter.close();
-    return output;
+    return accumulator.events.expand((list) => list).toList(growable: false);
   }
 
   @override
@@ -56,7 +56,7 @@ class _XmlNormalizerSink extends ChunkedConversionSink<List<XmlEvent>> {
         _sink.add(_buffer.sublist(0, _buffer.length - 1));
         _buffer.removeRange(0, _buffer.length - 1);
       } else {
-        _sink.add(_buffer);
+        _sink.add(_buffer.toList(growable: false));
         _buffer.clear();
       }
     }
@@ -65,7 +65,7 @@ class _XmlNormalizerSink extends ChunkedConversionSink<List<XmlEvent>> {
   @override
   void close() {
     if (_buffer.isNotEmpty) {
-      _sink.add(_buffer);
+      _sink.add(_buffer.toList(growable: false));
       _buffer.clear();
     }
     _sink.close();

@@ -176,6 +176,19 @@ void main() {
       final random = Random(i);
       chunkedTest('random size $i', () => random.nextInt(i + 1));
     }
+    test('normalization', () {
+      final actual = const XmlNormalizer().convert([
+        XmlStartElementEvent('div', [], true),
+        XmlTextEvent('a'),
+        XmlTextEvent(''),
+        XmlTextEvent('b'),
+      ]);
+      final expected = [
+        XmlStartElementEvent('div', [], true),
+        XmlTextEvent('ab'),
+      ];
+      expect(actual.toString(), expected.toString());
+    });
   });
   group('examples', () {
     test('extract non-empty text', () {

@@ -15,9 +15,6 @@ class XmlDecoder extends Converter<String, List<XmlEvent>> {
   @override
   List<XmlEvent> convert(String input, [int start = 0, int end]) {
     end = RangeError.checkValidRange(start, end, input.length);
-    if (start == end) {
-      return <XmlEvent>[];
-    }
     return XmlEventIterable(input.substring(start, end))
         .toList(growable: false);
   }
