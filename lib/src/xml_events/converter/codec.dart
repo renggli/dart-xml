@@ -1,10 +1,10 @@
-library xml_events.codec;
+library xml_events.converter.codec;
 
 import 'dart:convert';
 
+import '../event.dart';
 import 'decoder.dart';
 import 'encoder.dart';
-import 'event.dart';
 
 /// An [XmlCodec] decodes a [String] to a list of [XmlEvent] objects, and
 /// encodes a list of [XmlEvent] objects to a serialized [String].

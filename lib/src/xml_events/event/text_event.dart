@@ -1,4 +1,4 @@
-library xml_events.events.text_event;
+library xml_events.event.text_event;
 
 import 'package:xml/xml.dart';
 

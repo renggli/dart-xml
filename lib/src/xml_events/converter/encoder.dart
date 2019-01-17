@@ -1,8 +1,8 @@
-library xml_events.encoder;
+library xml_events.converter.encoder;
 
 import 'dart:convert';
 
-import 'event.dart';
+import '../event.dart';
 
 /// A converter that encodes [XmlEvent] iterables into strings.
 class XmlEncoder extends Converter<List<XmlEvent>, String> {

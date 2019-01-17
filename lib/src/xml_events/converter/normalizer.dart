@@ -1,10 +1,11 @@
-library xml_events.normalizer;
+library xml_events.converter.normalizer;
 
 import 'dart:convert';
+
 import 'package:convert/convert.dart';
 
-import 'event.dart';
-import 'events/text_event.dart';
+import '../event.dart';
+import '../event/text_event.dart';
 
 /// A converter that encodes [XmlEvent] iterables into strings.
 class XmlNormalizer extends Converter<List<XmlEvent>, List<XmlEvent>> {

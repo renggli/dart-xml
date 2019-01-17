@@ -1,12 +1,12 @@
-library xml_events.decoder;
+library xml_events.converter.decoder;
 
 import 'dart:convert';
 
 import 'package:petitparser/petitparser.dart';
 
-import 'event.dart';
-import 'iterable.dart';
-import 'parser.dart';
+import '../event.dart';
+import '../iterable.dart';
+import '../parser.dart';
 
 /// A converter that decodes [XmlEvent] objects from strings.
 class XmlDecoder extends Converter<String, List<XmlEvent>> {

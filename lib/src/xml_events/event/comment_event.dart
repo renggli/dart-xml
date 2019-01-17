@@ -1,4 +1,4 @@
-library xml_events.events.comment_event;
+library xml_events.event.comment_event;
 
 import 'package:xml/xml.dart';
 

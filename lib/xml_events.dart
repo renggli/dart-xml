@@ -5,20 +5,20 @@ import 'src/xml_events/iterable.dart';
 
 export 'src/xml/utils/attribute_type.dart' show XmlAttributeType;
 export 'src/xml/utils/node_type.dart' show XmlNodeType;
-export 'src/xml_events/codec.dart' show XmlCodec;
-export 'src/xml_events/decoder.dart' show XmlDecoder;
-export 'src/xml_events/encoder.dart' show XmlEncoder;
+export 'src/xml_events/converter/codec.dart' show XmlCodec;
+export 'src/xml_events/converter/decoder.dart' show XmlDecoder;
+export 'src/xml_events/converter/encoder.dart' show XmlEncoder;
+export 'src/xml_events/converter/normalizer.dart' show XmlNormalizer;
 export 'src/xml_events/event.dart' show XmlEvent;
-export 'src/xml_events/events/attribute_event.dart' show XmlElementAttribute;
-export 'src/xml_events/events/cdata_event.dart' show XmlCDATAEvent;
-export 'src/xml_events/events/comment_event.dart' show XmlCommentEvent;
-export 'src/xml_events/events/doctype_event.dart' show XmlDoctypeEvent;
-export 'src/xml_events/events/end_element_event.dart' show XmlEndElementEvent;
-export 'src/xml_events/events/processing_event.dart' show XmlProcessingEvent;
-export 'src/xml_events/events/start_element_event.dart'
+export 'src/xml_events/event/attribute_event.dart' show XmlElementAttribute;
+export 'src/xml_events/event/cdata_event.dart' show XmlCDATAEvent;
+export 'src/xml_events/event/comment_event.dart' show XmlCommentEvent;
+export 'src/xml_events/event/doctype_event.dart' show XmlDoctypeEvent;
+export 'src/xml_events/event/end_element_event.dart' show XmlEndElementEvent;
+export 'src/xml_events/event/processing_event.dart' show XmlProcessingEvent;
+export 'src/xml_events/event/start_element_event.dart'
     show XmlStartElementEvent;
-export 'src/xml_events/events/text_event.dart' show XmlTextEvent;
-export 'src/xml_events/normalizer.dart' show XmlNormalizer;
+export 'src/xml_events/event/text_event.dart' show XmlTextEvent;
 
 /// Returns an [Iterable] of [XmlEvent] instances of the provided [String].
 ///

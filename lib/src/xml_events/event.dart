@@ -1,4 +1,4 @@
-library xml_events.events.event;
+library xml_events.event;
 
 import 'package:xml/xml.dart';
 
@@ -12,9 +12,7 @@ abstract class XmlEvent {
 
   @override
   String toString() {
-    final buffer = StringBuffer();
-    buffer.write(runtimeType);
-    buffer.write(': ');
+    final buffer = StringBuffer('$runtimeType: ');
     encode(buffer);
     return buffer.toString();
   }
