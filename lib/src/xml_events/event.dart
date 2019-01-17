@@ -5,7 +5,7 @@ import 'package:xml/xml.dart' show XmlNodeType;
 import 'codec.dart';
 import 'visitor.dart';
 
-/// Base class for all XML events.
+/// Base class for all events.
 abstract class XmlEvent {
   /// Return the node type of this node.
   XmlNodeType get nodeType;

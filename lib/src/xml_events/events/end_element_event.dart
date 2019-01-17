@@ -1,4 +1,4 @@
-library xml_events.event.end_element_event;
+library xml_events.events.end_element_event;
 
 import 'package:xml/xml.dart';
 

@@ -1,4 +1,4 @@
-library xml_events.converters.codec;
+library xml_events.codec;
 
 import 'dart:convert';
 

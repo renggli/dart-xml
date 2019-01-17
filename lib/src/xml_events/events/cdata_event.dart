@@ -1,4 +1,4 @@
-library xml_events.event.cdata_event;
+library xml_events.events.cdata_event;
 
 import 'package:xml/xml.dart';
 

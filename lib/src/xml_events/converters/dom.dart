@@ -15,7 +15,7 @@ import '../events/start_element_event.dart';
 import '../events/text_event.dart';
 import '../visitor.dart';
 
-/// A converter that incrementally builds a DOM from events.
+/// A converter that builds [XmlNode]s from [XmlEvent]s.
 class XmlDom extends Converter<List<XmlEvent>, List<XmlNode>> {
   const XmlDom();
 

@@ -1,7 +1,8 @@
 library xml_events.parser;
 
-import 'package:petitparser/petitparser.dart';
-import 'package:xml/xml.dart';
+import 'package:petitparser/petitparser.dart' show Parser, char, string;
+import 'package:xml/xml.dart'
+    show XmlProductionDefinition, XmlToken, XmlAttributeType;
 
 import 'events/cdata_event.dart';
 import 'events/comment_event.dart';

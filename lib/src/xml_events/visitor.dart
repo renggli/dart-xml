@@ -1,4 +1,4 @@
-library xml.events.visitor;
+library xml_events.visitor;
 
 import 'event.dart';
 import 'events/cdata_event.dart';

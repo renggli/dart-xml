@@ -1,7 +1,7 @@
 library xml_events.iterator;
 
-import 'package:petitparser/petitparser.dart';
-import 'package:xml/xml.dart';
+import 'package:petitparser/petitparser.dart' show Result, Success, Token;
+import 'package:xml/xml.dart' show XmlParserException;
 
 import 'event.dart';
 import 'parser.dart';
