@@ -3,14 +3,13 @@ library xml_events.parser;
 import 'package:petitparser/petitparser.dart';
 import 'package:xml/xml.dart';
 
-import 'event/attribute_event.dart';
-import 'event/cdata_event.dart';
-import 'event/comment_event.dart';
-import 'event/doctype_event.dart';
-import 'event/end_element_event.dart';
-import 'event/processing_event.dart';
-import 'event/start_element_event.dart';
-import 'event/text_event.dart';
+import 'events/cdata_event.dart';
+import 'events/comment_event.dart';
+import 'events/doctype_event.dart';
+import 'events/end_element_event.dart';
+import 'events/processing_event.dart';
+import 'events/start_element_event.dart';
+import 'events/text_event.dart';
 
 class XmlEventDefinition extends XmlProductionDefinition {
   @override

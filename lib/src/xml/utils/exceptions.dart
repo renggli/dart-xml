@@ -5,7 +5,7 @@ import 'node_type.dart';
 import 'owned.dart';
 
 /// Abstract exception class.
-abstract class XmlException implements Exception {
+class XmlException implements Exception {
   final String message;
 
   XmlException([this.message]);

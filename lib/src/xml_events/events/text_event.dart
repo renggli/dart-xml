@@ -3,6 +3,7 @@ library xml_events.event.text_event;
 import 'package:xml/xml.dart';
 
 import '../event.dart';
+import '../visitor.dart';
 
 class XmlTextEvent extends XmlEvent {
   XmlTextEvent(this.text);
@@ -13,7 +14,5 @@ class XmlTextEvent extends XmlEvent {
   XmlNodeType get nodeType => XmlNodeType.TEXT;
 
   @override
-  void encode(StringBuffer buffer) {
-    buffer.write(encodeXmlText(text));
-  }
+  dynamic accept(XmlEventVisitor visitor) => visitor.visitTextEvent(this);
 }

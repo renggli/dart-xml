@@ -3,6 +3,7 @@ library xml_events.event.comment_event;
 import 'package:xml/xml.dart';
 
 import '../event.dart';
+import '../visitor.dart';
 
 class XmlCommentEvent extends XmlEvent {
   XmlCommentEvent(this.text);
@@ -13,9 +14,5 @@ class XmlCommentEvent extends XmlEvent {
   XmlNodeType get nodeType => XmlNodeType.COMMENT;
 
   @override
-  void encode(StringBuffer buffer) {
-    buffer.write(XmlToken.openComment);
-    buffer.write(text);
-    buffer.write(XmlToken.closeComment);
-  }
+  dynamic accept(XmlEventVisitor visitor) => visitor.visitCommentEvent(this);
 }

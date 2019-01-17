@@ -10,6 +10,7 @@ environment:
 dependencies:
   petitparser: ^2.0.0
   collection: ^1.14.0
+  convert: ^2.1.0
 dev_dependencies:
   test: ^1.3.0
   args: ^1.5.0

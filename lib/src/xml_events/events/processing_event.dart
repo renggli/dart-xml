@@ -3,6 +3,7 @@ library xml_events.event.processing_event;
 import 'package:xml/xml.dart';
 
 import '../event.dart';
+import '../visitor.dart';
 
 class XmlProcessingEvent extends XmlEvent {
   XmlProcessingEvent(this.target, this.text);
@@ -15,13 +16,5 @@ class XmlProcessingEvent extends XmlEvent {
   XmlNodeType get nodeType => XmlNodeType.PROCESSING;
 
   @override
-  void encode(StringBuffer buffer) {
-    buffer.write(XmlToken.openProcessing);
-    buffer.write(target);
-    if (text.isNotEmpty) {
-      buffer.write(XmlToken.whitespace);
-      buffer.write(text);
-    }
-    buffer.write(XmlToken.closeProcessing);
-  }
+  dynamic accept(XmlEventVisitor visitor) => visitor.visitProcessingEvent(this);
 }

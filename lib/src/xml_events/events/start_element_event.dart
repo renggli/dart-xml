@@ -3,7 +3,7 @@ library xml_events.event.start_element_event;
 import 'package:xml/xml.dart';
 
 import '../event.dart';
-import 'attribute_event.dart';
+import '../visitor.dart';
 
 class XmlStartElementEvent extends XmlEvent {
   XmlStartElementEvent(this.name, this.attributes, this.isSelfClosing);
@@ -18,17 +18,16 @@ class XmlStartElementEvent extends XmlEvent {
   XmlNodeType get nodeType => XmlNodeType.ELEMENT;
 
   @override
-  void encode(StringBuffer buffer) {
-    buffer.write(XmlToken.openElement);
-    buffer.write(name);
-    for (var attribute in attributes) {
-      buffer.write(XmlToken.whitespace);
-      attribute.encode(buffer);
-    }
-    if (isSelfClosing) {
-      buffer.write(XmlToken.closeEndElement);
-    } else {
-      buffer.write(XmlToken.closeElement);
-    }
-  }
+  dynamic accept(XmlEventVisitor visitor) =>
+      visitor.visitStartElementEvent(this);
+}
+
+class XmlElementAttribute {
+  XmlElementAttribute(this.name, this.value, this.attributeType);
+
+  final String name;
+
+  final String value;
+
+  final XmlAttributeType attributeType;
 }

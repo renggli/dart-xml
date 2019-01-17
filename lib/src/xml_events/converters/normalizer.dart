@@ -1,11 +1,11 @@
-library xml_events.converter.normalizer;
+library xml_events.converters.normalizer;
 
 import 'dart:convert';
 
 import 'package:convert/convert.dart';
 
 import '../event.dart';
-import '../event/text_event.dart';
+import '../events/text_event.dart';
 
 /// A converter that encodes [XmlEvent] iterables into strings.
 class XmlNormalizer extends Converter<List<XmlEvent>, List<XmlEvent>> {
@@ -28,15 +28,15 @@ class XmlNormalizer extends Converter<List<XmlEvent>, List<XmlEvent>> {
 
 /// A conversion sink for chunked [XmlEvent] encoding.
 class _XmlNormalizerSink extends ChunkedConversionSink<List<XmlEvent>> {
-  _XmlNormalizerSink(this._sink);
+  _XmlNormalizerSink(this.sink);
 
-  final Sink<List<XmlEvent>> _sink;
-  final List<XmlEvent> _buffer = <XmlEvent>[];
+  final Sink<List<XmlEvent>> sink;
+  final List<XmlEvent> buffer = <XmlEvent>[];
 
   @override
   void add(List<XmlEvent> chunk) {
     // Filter out empty text nodes.
-    _buffer.addAll(chunk.where((event) {
+    buffer.addAll(chunk.where((event) {
       if (event is XmlTextEvent) {
         return event.text.isNotEmpty;
       } else {
@@ -44,31 +44,31 @@ class _XmlNormalizerSink extends ChunkedConversionSink<List<XmlEvent>> {
       }
     }));
     // Merge adjacent text nodes.
-    for (var i = 0; i < _buffer.length - 1; i++) {
-      final event1 = _buffer[i + 0], event2 = _buffer[i + 1];
+    for (var i = 0; i < buffer.length - 1; i++) {
+      final event1 = buffer[i + 0], event2 = buffer[i + 1];
       if (event1 is XmlTextEvent && event2 is XmlTextEvent) {
-        _buffer[i] = XmlTextEvent(event1.text + event2.text);
-        _buffer.removeAt(++i);
+        buffer[i] = XmlTextEvent(event1.text + event2.text);
+        buffer.removeAt(++i);
       }
     }
     // Move to sink whatever is possible.
-    if (_buffer.isNotEmpty) {
-      if (_buffer.last is XmlTextEvent) {
-        _sink.add(_buffer.sublist(0, _buffer.length - 1));
-        _buffer.removeRange(0, _buffer.length - 1);
+    if (buffer.isNotEmpty) {
+      if (buffer.last is XmlTextEvent) {
+        sink.add(buffer.sublist(0, buffer.length - 1));
+        buffer.removeRange(0, buffer.length - 1);
       } else {
-        _sink.add(_buffer.toList(growable: false));
-        _buffer.clear();
+        sink.add(buffer.toList(growable: false));
+        buffer.clear();
       }
     }
   }
 
   @override
   void close() {
-    if (_buffer.isNotEmpty) {
-      _sink.add(_buffer.toList(growable: false));
-      _buffer.clear();
+    if (buffer.isNotEmpty) {
+      sink.add(buffer.toList(growable: false));
+      buffer.clear();
     }
-    _sink.close();
+    sink.close();
   }
 }

@@ -95,11 +95,9 @@ void main() {
       expect(event.attributes, hasLength(2));
       expect(event.attributes[0].name, 'a');
       expect(event.attributes[0].value, '1');
-      expect(event.attributes[0].nodeType, XmlNodeType.ATTRIBUTE);
       expect(event.attributes[0].attributeType, XmlAttributeType.DOUBLE_QUOTE);
       expect(event.attributes[1].name, 'b');
       expect(event.attributes[1].value, '2');
-      expect(event.attributes[1].nodeType, XmlNodeType.ATTRIBUTE);
       expect(event.attributes[1].attributeType, XmlAttributeType.SINGLE_QUOTE);
       expect(event.isSelfClosing, isTrue);
       assertComplete(iterator);

@@ -1,4 +1,4 @@
-library xml_events.converter.decoder;
+library xml_events.converters.decoder;
 
 import 'dart:convert';
 
@@ -26,11 +26,11 @@ class XmlDecoder extends Converter<String, List<XmlEvent>> {
 
 /// A conversion sink for chunked [XmlEvent] decoding.
 class _XmlDecoderSink extends StringConversionSinkBase {
-  _XmlDecoderSink(this._sink);
+  _XmlDecoderSink(this.sink);
 
-  final Sink<List<XmlEvent>> _sink;
+  final Sink<List<XmlEvent>> sink;
 
-  String _carry = '';
+  String carry = '';
 
   @override
   void addSlice(String str, int start, int end, bool isLast) {
@@ -39,25 +39,25 @@ class _XmlDecoderSink extends StringConversionSinkBase {
       return;
     }
     final result = <XmlEvent>[];
-    Result previous = Success(_carry + str.substring(start, end), 0, null);
+    Result previous = Success(carry + str.substring(start, end), 0, null);
     for (;;) {
       final current = eventDefinitionParser.parseOn(previous);
       if (current.isSuccess) {
         result.add(current.value);
         previous = current;
       } else {
-        _carry = previous.buffer.substring(previous.position);
+        carry = previous.buffer.substring(previous.position);
         break;
       }
     }
     if (result.isNotEmpty) {
-      _sink.add(result);
+      sink.add(result);
     }
     if (isLast) {
-      _sink.close();
+      sink.close();
     }
   }
 
   @override
-  void close() => _sink.close();
+  void close() => sink.close();
 }

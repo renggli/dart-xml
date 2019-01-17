@@ -3,6 +3,7 @@ library xml_events.event.doctype_event;
 import 'package:xml/xml.dart';
 
 import '../event.dart';
+import '../visitor.dart';
 
 class XmlDoctypeEvent extends XmlEvent {
   XmlDoctypeEvent(this.text);
@@ -13,10 +14,5 @@ class XmlDoctypeEvent extends XmlEvent {
   XmlNodeType get nodeType => XmlNodeType.DOCUMENT_TYPE;
 
   @override
-  void encode(StringBuffer buffer) {
-    buffer.write(XmlToken.openDoctype);
-    buffer.write(XmlToken.whitespace);
-    buffer.write(text);
-    buffer.write(XmlToken.closeDoctype);
-  }
+  dynamic accept(XmlEventVisitor visitor) => visitor.visitDoctypeEvent(this);
 }
