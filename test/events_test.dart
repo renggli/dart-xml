@@ -17,6 +17,22 @@ void assertComplete(Iterator<XmlEvent> iterator) {
   }
 }
 
+Stream<String> splitString(String input, int Function() splitter) async* {
+  while (input.isNotEmpty) {
+    final size = min(splitter(), input.length);
+    yield input.substring(0, size);
+    input = input.substring(size);
+  }
+}
+
+Stream<List<T>> splitList<T>(List<T> input, int Function() splitter) async* {
+  while (input.isNotEmpty) {
+    final size = min(splitter(), input.length);
+    yield input.sublist(0, size);
+    input = input.sublist(size);
+  }
+}
+
 void main() {
   group('iterable', () {
     group('events', () {
@@ -116,66 +132,112 @@ void main() {
   });
 
   group('chunked', () {
-    final baseString = parse(complicatedXml).toXmlString(pretty: true);
-    final baseEvents = parseEvents(baseString).toList(growable: false);
-
-    void chunkedTest(String title, int Function() callback) {
-      test('$title (decode + encode)', () async {
-        Stream<String> split(String input, int Function() provider) async* {
-          while (input.isNotEmpty) {
-            final size = min(provider(), input.length);
-            yield input.substring(0, size);
-            input = input.substring(size);
-          }
+    void chunkedTest(
+        String title,
+        String input,
+        void Function(String string, List<XmlEvent> events, List<XmlNode> nodes,
+                int Function() splitter)
+            callback) {
+      test(title, () {
+        final string = parse(input).toXmlString(pretty: true);
+        final events = parseEvents(string).toList(growable: false);
+        final nodes = parse(string).children.toList(growable: false);
+        for (var i = 1; i < string.length / 2; i++) {
+          callback(string, events, nodes, () => i);
         }
-
-        final actual = await split(baseString, callback)
-            .transform(const XmlEventCodec().decoder)
-            .transform(const XmlEventCodec().encoder)
-            .join();
-        expect(actual, baseString);
-      });
-      test('$title (encode + decode + normalize)', () async {
-        Stream<List<XmlEvent>> split(
-            List<XmlEvent> input, int Function() provider) async* {
-          while (input.isNotEmpty) {
-            final size = min(provider(), input.length);
-            yield input.sublist(0, size);
-            input = input.sublist(size);
-          }
+        final random = Random(title.hashCode);
+        for (var i = 1; i < string.length / 2; i++) {
+          callback(string, events, nodes, () => random.nextInt(i + 1));
         }
-
-        final actual = await split(baseEvents, callback)
-            .transform(const XmlEventCodec().encoder)
-            .transform(const XmlEventCodec().decoder)
-            .transform(const XmlNormalizer())
-            .expand((list) => list)
-            .toList();
-        expect(actual.map((event) => event.toString()),
-            baseEvents.map((event) => event.toString()));
       });
     }
 
-    for (var i = 1; i < complicatedXml.length / 2; i++) {
-      chunkedTest('fixed size $i', () => i);
-    }
-    for (var i = 1; i < complicatedXml.length / 2; i++) {
-      final random = Random(i);
-      chunkedTest('random size $i', () => random.nextInt(i + 1));
-    }
-    test('normalization', () {
-      final actual = const XmlNormalizer().convert([
-        XmlStartElementEvent('div', [], true),
-        XmlTextEvent('a'),
-        XmlTextEvent(''),
-        XmlTextEvent('b'),
-      ]);
-      final expected = [
-        XmlStartElementEvent('div', [], true),
-        XmlTextEvent('ab'),
-      ];
-      expect(actual.toString(), expected.toString());
+    chunkedTest('string -> events', complicatedXml,
+        (string, events, nodes, splitter) async {
+      final actual = await splitString(string, splitter)
+          .transform(const XmlEventDecoder())
+          .transform(const XmlNormalizer())
+          .expand((list) => list)
+          .toList();
+      expect(actual, events);
     });
+    chunkedTest('events -> nodes', complicatedXml,
+        (string, events, nodes, splitter) async {
+      final actual = await splitList(events, splitter)
+          .transform(const XmlNodeDecoder())
+          .expand((list) => list)
+          .toList();
+      expect(
+          actual,
+          pairwiseCompare(nodes, (actual, expected) {
+            compareNode(actual, expected);
+            return true;
+          }, 'not matching'));
+    });
+    chunkedTest('nodes -> events', complicatedXml,
+        (string, events, nodes, splitter) async {
+      final actual = await splitList(nodes, splitter)
+          .transform(const XmlNodeEncoder())
+          .expand((list) => list)
+          .toList();
+      expect(actual, events);
+    });
+    chunkedTest('events -> string', complicatedXml,
+        (string, events, nodes, splitter) async {
+      final actual = await splitList(events, splitter)
+          .transform(const XmlEventEncoder())
+          .join();
+      expect(actual, string);
+    });
+
+//    void chunkedTest(String title, int Function() callback) {
+//      test('$title: string -> events -> string', () async {
+//        final actual = await splitString(baseString, callback)
+//            .transform(const XmlEventCodec().decoder)
+//            .transform(const XmlEventCodec().encoder)
+//            .join();
+//        expect(actual, baseString);
+//      });
+//      test('$title: events -> string -> events -> normalized events', () async {
+//        final actual = await splitList(baseEvents, callback)
+//            .transform(const XmlEventCodec().encoder)
+//            .transform(const XmlEventCodec().decoder)
+//            .transform(const XmlNormalizer())
+//            .expand((list) => list)
+//            .toList();
+//        expect(actual.map((event) => event.toString()),
+//            baseEvents.map((event) => event.toString()));
+//      });
+//      test('$title: nodes -> events -> nodes', () async {
+//        final actual = await splitList(baseNodes, callback)
+//            .transform(const XmlNodeCodec().encoder)
+//            .transform(const XmlNodeCodec().decoder)
+//            .toList();
+//        expect(actual.map((event) => event.toString()),
+//            baseNodes.map((event) => event.toString()));
+//      });
+//
+//      test('$title: nodes -> events -> nodes', () async {
+//        final actual = await splitList(baseNodes, callback)
+//            .transform(const XmlNodeCodec().encoder)
+//            .transform(const XmlNodeCodec().decoder)
+//            .toList();
+//        expect(actual.map((event) => event.toString()),
+//            baseNodes.map((event) => event.toString()));
+  });
+
+  test('normalization', () {
+    final actual = const XmlNormalizer().convert([
+      XmlStartElementEvent('div', [], true),
+      XmlTextEvent('a'),
+      XmlTextEvent(''),
+      XmlTextEvent('b'),
+    ]);
+    final expected = [
+      XmlStartElementEvent('div', [], true),
+      XmlTextEvent('ab'),
+    ];
+    expect(actual.toString(), expected.toString());
   });
 
   group('examples', () {
@@ -196,9 +258,9 @@ void main() {
       expect(maxExclusive, '100');
     });
     test('extract all genres', () {
-      // Some libraries provide a sliding window iterator
-      // https://github.com/renggli/dart-more/blob/master/lib/src/iterable/window.dart
-      // which would make this code trivial to write and read:
+// Some libraries provide a sliding window iterator
+// https://github.com/renggli/dart-more/blob/master/lib/src/iterable/window.dart
+// which would make this code trivial to write and read:
       final genres = Set<String>();
       parseEvents(booksXml).reduce((previous, current) {
         if (previous is XmlStartElementEvent &&

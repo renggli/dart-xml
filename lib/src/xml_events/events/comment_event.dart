@@ -1,6 +1,6 @@
 library xml_events.events.comment_event;
 
-import 'package:xml/xml.dart';
+import 'package:xml/xml.dart' show XmlNodeType;
 
 import '../event.dart';
 import '../visitor.dart';
@@ -15,4 +15,11 @@ class XmlCommentEvent extends XmlEvent {
 
   @override
   void accept(XmlEventVisitor visitor) => visitor.visitCommentEvent(this);
+
+  @override
+  int get hashCode => text.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      other is XmlCommentEvent && other.text == text;
 }

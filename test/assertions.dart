@@ -213,36 +213,36 @@ void assertCompareInvariants(XmlNode original, XmlNode copy) {
   }
 }
 
-void assertPrintingInvariants(XmlNode xml) {
-  void compare(XmlNode source, XmlNode pretty) {
-    expect(source.nodeType, pretty.nodeType);
-    final sourceChildren =
-        source.children.where((node) => node is! XmlText).toList();
-    final prettyChildren =
-        pretty.children.where((node) => node is! XmlText).toList();
-    expect(sourceChildren.length, prettyChildren.length);
-    for (var i = 0; i < sourceChildren.length; i++) {
-      compare(sourceChildren[i], prettyChildren[i]);
-    }
-    final sourceText = source.children
-        .whereType<XmlText>()
-        .map((node) => node.text.trim())
-        .join();
-    final prettyText = pretty.children
-        .whereType<XmlText>()
-        .map((node) => node.text.trim())
-        .join();
-    expect(sourceText, prettyText);
-    expect(source.attributes.length, pretty.attributes.length);
-    for (var i = 0; i < source.attributes.length; i++) {
-      compare(source.attributes[i], pretty.attributes[i]);
-    }
-    if (source is! XmlParent) {
-      expect(source.toXmlString(), pretty.toXmlString());
-    }
+void compareNode(XmlNode first, XmlNode second) {
+  expect(first.nodeType, second.nodeType);
+  final firstChildren =
+      first.children.where((node) => node is! XmlText).toList();
+  final secondChildren =
+      second.children.where((node) => node is! XmlText).toList();
+  expect(firstChildren.length, secondChildren.length);
+  for (var i = 0; i < firstChildren.length; i++) {
+    compareNode(firstChildren[i], secondChildren[i]);
   }
+  final firstText = first.children
+      .whereType<XmlText>()
+      .map((node) => node.text.trim())
+      .join();
+  final secondText = second.children
+      .whereType<XmlText>()
+      .map((node) => node.text.trim())
+      .join();
+  expect(firstText, secondText);
+  expect(first.attributes.length, second.attributes.length);
+  for (var i = 0; i < first.attributes.length; i++) {
+    compareNode(first.attributes[i], second.attributes[i]);
+  }
+  if (first is! XmlParent) {
+    expect(first.toXmlString(), second.toXmlString());
+  }
+}
 
-  compare(xml, parse(xml.toXmlString(pretty: true)));
+void assertPrintingInvariants(XmlNode xml) {
+  compareNode(xml, parse(xml.toXmlString(pretty: true)));
 }
 
 void assertEventInvariants(String input, XmlNode node) {

@@ -1,6 +1,6 @@
 library xml_events.events.end_element_event;
 
-import 'package:xml/xml.dart';
+import 'package:xml/xml.dart' show XmlNodeType;
 
 import '../event.dart';
 import '../visitor.dart';
@@ -15,4 +15,11 @@ class XmlEndElementEvent extends XmlEvent {
 
   @override
   void accept(XmlEventVisitor visitor) => visitor.visitEndElementEvent(this);
+
+  @override
+  int get hashCode => name.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      other is XmlEndElementEvent && other.name == name;
 }

@@ -1,6 +1,7 @@
 library xml_events.events.start_element_event;
 
-import 'package:xml/xml.dart';
+import 'package:collection/collection.dart' show ListEquality;
+import 'package:xml/xml.dart' show XmlNodeType, XmlAttributeType;
 
 import '../event.dart';
 import '../visitor.dart';
@@ -19,6 +20,19 @@ class XmlStartElementEvent extends XmlEvent {
 
   @override
   void accept(XmlEventVisitor visitor) => visitor.visitStartElementEvent(this);
+
+  @override
+  int get hashCode =>
+      name.hashCode ^
+      isSelfClosing.hashCode ^
+      const ListEquality().hash(attributes);
+
+  @override
+  bool operator ==(Object other) =>
+      other is XmlStartElementEvent &&
+      other.name == name &&
+      other.isSelfClosing == isSelfClosing &&
+      const ListEquality().equals(other.attributes, attributes);
 }
 
 class XmlElementAttribute {
@@ -29,4 +43,14 @@ class XmlElementAttribute {
   final String value;
 
   final XmlAttributeType attributeType;
+
+  @override
+  int get hashCode => name.hashCode ^ value.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      other is XmlElementAttribute &&
+      other.name == name &&
+      other.value == value &&
+      other.attributeType == attributeType;
 }

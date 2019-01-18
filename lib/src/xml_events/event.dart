@@ -14,8 +14,5 @@ abstract class XmlEvent {
   void accept(XmlEventVisitor visitor);
 
   @override
-  String toString() {
-    final encoded = const XmlEventEncoder().convert([this]);
-    return '$runtimeType: $encoded';
-  }
+  String toString() => const XmlEventEncoder().convert([this]);
 }
