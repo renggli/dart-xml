@@ -1,9 +1,20 @@
-library xml_events.converters.dom;
+library xml_events.converters.node_decoder;
 
 import 'dart:convert';
 
 import 'package:convert/convert.dart' show AccumulatorSink;
-import 'package:xml/xml.dart';
+import 'package:xml/xml.dart'
+    show
+        XmlAttribute,
+        XmlCDATA,
+        XmlComment,
+        XmlDoctype,
+        XmlElement,
+        XmlException,
+        XmlName,
+        XmlNode,
+        XmlProcessing,
+        XmlText;
 
 import '../event.dart';
 import '../events/cdata_event.dart';
@@ -15,12 +26,13 @@ import '../events/start_element_event.dart';
 import '../events/text_event.dart';
 import '../visitor.dart';
 
-/// A converter that builds [XmlNode]s from [XmlEvent]s.
-class XmlDom extends Converter<List<XmlEvent>, List<XmlNode>> {
-  const XmlDom();
+/// A converter that decodes a sequence of [XmlEvent] objects to a forest of
+/// [XmlNode] objects.
+class XmlNodeDecoder extends Converter<List<XmlEvent>, List<XmlNode>> {
+  const XmlNodeDecoder();
 
   @override
-  List<XmlElement> convert(List<XmlEvent> input) {
+  List<XmlNode> convert(List<XmlEvent> input) {
     final accumulator = AccumulatorSink<List<XmlNode>>();
     final converter = startChunkedConversion(accumulator);
     converter.add(input);
@@ -31,13 +43,12 @@ class XmlDom extends Converter<List<XmlEvent>, List<XmlNode>> {
   @override
   ChunkedConversionSink<List<XmlEvent>> startChunkedConversion(
           Sink<List<XmlNode>> sink) =>
-      _XmlDomSink(sink);
+      _XmlNodeDecoderSink(sink);
 }
 
-/// A conversion sink for chunked [XmlEvent] encoding.
-class _XmlDomSink extends ChunkedConversionSink<List<XmlEvent>>
+class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
     with XmlEventVisitor {
-  _XmlDomSink(this.sink);
+  _XmlNodeDecoderSink(this.sink);
 
   final Sink<List<XmlNode>> sink;
   XmlElement parent;
@@ -79,8 +90,11 @@ class _XmlDomSink extends ChunkedConversionSink<List<XmlEvent>>
   void visitStartElementEvent(XmlStartElementEvent event) {
     final element = XmlElement(
       XmlName.fromString(event.name),
-      event.attributes.map(
-          (attr) => XmlAttribute(XmlName.fromString(attr.name), attr.value)),
+      event.attributes.map((attribute) => XmlAttribute(
+            XmlName.fromString(attribute.name),
+            attribute.value,
+            attribute.attributeType,
+          )),
       [],
       event.isSelfClosing,
     );

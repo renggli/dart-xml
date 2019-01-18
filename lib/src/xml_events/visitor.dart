@@ -13,26 +13,26 @@ import 'events/text_event.dart';
 abstract class XmlEventVisitor {
   /// Helper to visit an [XmlEvent] using this visitor by dispatching
   /// through the provided [event].
-  T visit<T>(XmlEvent event) => event.accept(this);
+  void visit(XmlEvent event) => event.accept(this);
 
   /// Visit an [XmlCDATAEvent] event.
-  dynamic visitCDATAEvent(XmlCDATAEvent event) => null;
+  void visitCDATAEvent(XmlCDATAEvent event);
 
   /// Visit an [XmlCommentEvent] event.
-  dynamic visitCommentEvent(XmlCommentEvent event) => null;
+  void visitCommentEvent(XmlCommentEvent event);
 
   /// Visit an [XmlDoctypeEvent] event.
-  dynamic visitDoctypeEvent(XmlDoctypeEvent event) => null;
+  void visitDoctypeEvent(XmlDoctypeEvent event);
 
   /// Visit an [XmlEndElementEvent] event.
-  dynamic visitEndElementEvent(XmlEndElementEvent event) => null;
+  void visitEndElementEvent(XmlEndElementEvent event);
 
   /// Visit an [XmlCommentEvent] event.
-  dynamic visitProcessingEvent(XmlProcessingEvent event) => null;
+  void visitProcessingEvent(XmlProcessingEvent event);
 
   /// Visit an [XmlCommentEvent] event.
-  dynamic visitStartElementEvent(XmlStartElementEvent event) => null;
+  void visitStartElementEvent(XmlStartElementEvent event);
 
   /// Visit an [XmlCommentEvent] event.
-  dynamic visitTextEvent(XmlTextEvent event) => null;
+  void visitTextEvent(XmlTextEvent event);
 }

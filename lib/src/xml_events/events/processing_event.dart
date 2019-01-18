@@ -16,5 +16,5 @@ class XmlProcessingEvent extends XmlEvent {
   XmlNodeType get nodeType => XmlNodeType.PROCESSING;
 
   @override
-  dynamic accept(XmlEventVisitor visitor) => visitor.visitProcessingEvent(this);
+  void accept(XmlEventVisitor visitor) => visitor.visitProcessingEvent(this);
 }

@@ -14,5 +14,5 @@ class XmlEndElementEvent extends XmlEvent {
   XmlNodeType get nodeType => XmlNodeType.ELEMENT;
 
   @override
-  dynamic accept(XmlEventVisitor visitor) => visitor.visitEndElementEvent(this);
+  void accept(XmlEventVisitor visitor) => visitor.visitEndElementEvent(this);
 }

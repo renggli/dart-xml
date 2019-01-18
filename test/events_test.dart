@@ -141,8 +141,8 @@ void main() {
         }
 
         final actual = await split(baseString, callback)
-            .transform(const XmlCodec().decoder)
-            .transform(const XmlCodec().encoder)
+            .transform(const XmlEventCodec().decoder)
+            .transform(const XmlEventCodec().encoder)
             .join();
         expect(actual, baseString);
       });
@@ -157,8 +157,8 @@ void main() {
         }
 
         final actual = await split(baseEvents, callback)
-            .transform(const XmlCodec().encoder)
-            .transform(const XmlCodec().decoder)
+            .transform(const XmlEventCodec().encoder)
+            .transform(const XmlEventCodec().decoder)
             .transform(const XmlNormalizer())
             .expand((list) => list)
             .toList();

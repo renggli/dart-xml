@@ -14,5 +14,5 @@ class XmlTextEvent extends XmlEvent {
   XmlNodeType get nodeType => XmlNodeType.TEXT;
 
   @override
-  dynamic accept(XmlEventVisitor visitor) => visitor.visitTextEvent(this);
+  void accept(XmlEventVisitor visitor) => visitor.visitTextEvent(this);
 }

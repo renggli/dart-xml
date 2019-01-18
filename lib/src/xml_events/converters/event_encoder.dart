@@ -1,8 +1,8 @@
-library xml_events.converters.encoder;
+library xml_events.converters.event_encoder;
 
 import 'dart:convert';
 
-import 'package:convert/convert.dart';
+import 'package:convert/convert.dart' show StringAccumulatorSink;
 import 'package:xml/xml.dart'
     show XmlToken, encodeXmlText, encodeXmlAttributeValueWithQuotes;
 
@@ -16,9 +16,9 @@ import '../events/start_element_event.dart';
 import '../events/text_event.dart';
 import '../visitor.dart';
 
-/// A converter that encodes a list of [XmlEvent] into a string.
-class XmlEncoder extends Converter<List<XmlEvent>, String> {
-  const XmlEncoder();
+/// A converter that encodes a sequence of [XmlEvent] objects to a [String].
+class XmlEventEncoder extends Converter<List<XmlEvent>, String> {
+  const XmlEventEncoder();
 
   @override
   String convert(List<XmlEvent> input) {
@@ -32,13 +32,12 @@ class XmlEncoder extends Converter<List<XmlEvent>, String> {
   @override
   ChunkedConversionSink<List<XmlEvent>> startChunkedConversion(
           Sink<String> sink) =>
-      _XmlEncoderSink(sink);
+      _XmlEventEncoderSink(sink);
 }
 
-/// A conversion sink for chunked [XmlEvent] encoding.
-class _XmlEncoderSink extends ChunkedConversionSink<List<XmlEvent>>
+class _XmlEventEncoderSink extends ChunkedConversionSink<List<XmlEvent>>
     with XmlEventVisitor {
-  _XmlEncoderSink(this.sink);
+  _XmlEventEncoderSink(this.sink);
 
   final Sink<String> sink;
 

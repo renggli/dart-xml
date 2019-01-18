@@ -1,16 +1,16 @@
-library xml_events.converters.decoder;
+library xml_events.converters.event_decoder;
 
 import 'dart:convert';
 
-import 'package:petitparser/petitparser.dart';
+import 'package:petitparser/petitparser.dart' show Success, Result;
 
 import '../event.dart';
 import '../iterable.dart';
 import '../parser.dart';
 
-/// A converter that decodes [XmlEvent] objects from strings.
-class XmlDecoder extends Converter<String, List<XmlEvent>> {
-  const XmlDecoder();
+/// A converter that decodes a [String] to a sequence of [XmlEvent] objects.
+class XmlEventDecoder extends Converter<String, List<XmlEvent>> {
+  const XmlEventDecoder();
 
   @override
   List<XmlEvent> convert(String input, [int start = 0, int end]) {
@@ -21,12 +21,11 @@ class XmlDecoder extends Converter<String, List<XmlEvent>> {
 
   @override
   StringConversionSink startChunkedConversion(Sink<List<XmlEvent>> sink) =>
-      _XmlDecoderSink(sink);
+      _XmlEventDecoderSink(sink);
 }
 
-/// A conversion sink for chunked [XmlEvent] decoding.
-class _XmlDecoderSink extends StringConversionSinkBase {
-  _XmlDecoderSink(this.sink);
+class _XmlEventDecoderSink extends StringConversionSinkBase {
+  _XmlEventDecoderSink(this.sink);
 
   final Sink<List<XmlEvent>> sink;
 

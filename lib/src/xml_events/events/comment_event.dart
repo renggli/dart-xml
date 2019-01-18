@@ -14,5 +14,5 @@ class XmlCommentEvent extends XmlEvent {
   XmlNodeType get nodeType => XmlNodeType.COMMENT;
 
   @override
-  dynamic accept(XmlEventVisitor visitor) => visitor.visitCommentEvent(this);
+  void accept(XmlEventVisitor visitor) => visitor.visitCommentEvent(this);
 }

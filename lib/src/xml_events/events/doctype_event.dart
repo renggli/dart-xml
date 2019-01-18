@@ -14,5 +14,5 @@ class XmlDoctypeEvent extends XmlEvent {
   XmlNodeType get nodeType => XmlNodeType.DOCUMENT_TYPE;
 
   @override
-  dynamic accept(XmlEventVisitor visitor) => visitor.visitDoctypeEvent(this);
+  void accept(XmlEventVisitor visitor) => visitor.visitDoctypeEvent(this);
 }

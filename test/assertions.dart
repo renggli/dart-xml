@@ -312,7 +312,9 @@ void assertEventInvariants(String input, XmlNode node) {
   expect(iterator.moveNext(), isFalse);
 
   final prettyInput = node.toXmlString(pretty: false);
-  final decodedEvents = const XmlCodec().decode(prettyInput);
-  final encodeString = const XmlCodec().encode(decodedEvents);
+  final decodedEvents = const XmlEventCodec().decode(prettyInput);
+  final decodedNodes = const XmlNodeCodec().decode(decodedEvents);
+  final encodedNodes = const XmlNodeCodec().encode(decodedNodes);
+  final encodeString = const XmlEventCodec().encode(encodedNodes);
   expect(encodeString, prettyInput);
 }

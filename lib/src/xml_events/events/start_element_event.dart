@@ -18,8 +18,7 @@ class XmlStartElementEvent extends XmlEvent {
   XmlNodeType get nodeType => XmlNodeType.ELEMENT;
 
   @override
-  dynamic accept(XmlEventVisitor visitor) =>
-      visitor.visitStartElementEvent(this);
+  void accept(XmlEventVisitor visitor) => visitor.visitStartElementEvent(this);
 }
 
 class XmlElementAttribute {

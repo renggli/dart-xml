@@ -14,5 +14,5 @@ class XmlCDATAEvent extends XmlEvent {
   XmlNodeType get nodeType => XmlNodeType.CDATA;
 
   @override
-  dynamic accept(XmlEventVisitor visitor) => visitor.visitCDATAEvent(this);
+  void accept(XmlEventVisitor visitor) => visitor.visitCDATAEvent(this);
 }

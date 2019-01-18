@@ -2,7 +2,7 @@ library xml_events.event;
 
 import 'package:xml/xml.dart' show XmlNodeType;
 
-import 'codec.dart';
+import 'converters/event_encoder.dart';
 import 'visitor.dart';
 
 /// Base class for all events.
@@ -11,8 +11,11 @@ abstract class XmlEvent {
   XmlNodeType get nodeType;
 
   /// Dispatch to the [visitor] based on event type.
-  dynamic accept(XmlEventVisitor visitor);
+  void accept(XmlEventVisitor visitor);
 
   @override
-  String toString() => '$runtimeType: ${const XmlCodec().encode([this])}';
+  String toString() {
+    final encoded = const XmlEventEncoder().convert([this]);
+    return '$runtimeType: $encoded';
+  }
 }
