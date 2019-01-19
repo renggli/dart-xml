@@ -7,6 +7,7 @@ import 'package:xml/xml_events.dart';
 const Matcher isXmlParserException = TypeMatcher<XmlParserException>();
 const Matcher isXmlNodeTypeException = TypeMatcher<XmlNodeTypeException>();
 const Matcher isXmlParentException = TypeMatcher<XmlParentException>();
+const Matcher isXmlTagException = TypeMatcher<XmlTagException>();
 
 void assertParseInvariants(String input) {
   final tree = parse(input);

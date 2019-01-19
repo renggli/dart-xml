@@ -1,6 +1,6 @@
 library xml_events.codec.node_codec;
 
-import 'dart:convert';
+import 'dart:convert' show Codec, Converter;
 
 import 'package:xml/xml.dart' show XmlNode;
 

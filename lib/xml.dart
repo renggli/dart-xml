@@ -35,7 +35,8 @@ export 'src/xml/utils/exceptions.dart'
         XmlException,
         XmlParserException,
         XmlNodeTypeException,
-        XmlParentException;
+        XmlParentException,
+        XmlTagException;
 export 'src/xml/utils/name.dart' show XmlName;
 export 'src/xml/utils/named.dart' show XmlNamed;
 export 'src/xml/utils/node_type.dart' show XmlNodeType;

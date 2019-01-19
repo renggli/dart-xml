@@ -1,6 +1,6 @@
 library xml_events.converters.node_decoder;
 
-import 'dart:convert';
+import 'dart:convert' show Converter, ChunkedConversionSink;
 
 import 'package:convert/convert.dart' show AccumulatorSink;
 import 'package:xml/xml.dart'
@@ -10,7 +10,7 @@ import 'package:xml/xml.dart'
         XmlComment,
         XmlDoctype,
         XmlElement,
-        XmlException,
+        XmlTagException,
         XmlName,
         XmlNode,
         XmlProcessing,
@@ -70,10 +70,10 @@ class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
   @override
   void visitEndElementEvent(XmlEndElementEvent event) {
     if (parent == null) {
-      throw XmlException('Unexpected </${event.name}>.');
+      throw XmlTagException('Unexpected </${event.name}>.');
     }
     if (parent.name.qualified != event.name) {
-      throw XmlException(
+      throw XmlTagException(
           'Expected </${parent.name.qualified}>, but found </${event.name}>.');
     }
     if (!parent.hasParent) {
@@ -114,7 +114,7 @@ class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
   @override
   void close() {
     if (parent != null) {
-      throw XmlException('Missing closing </${parent.name.qualified}>');
+      throw XmlTagException('Missing closing </${parent.name.qualified}>');
     }
     sink.close();
   }

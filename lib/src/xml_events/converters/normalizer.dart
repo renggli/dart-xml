@@ -1,8 +1,8 @@
 library xml_events.converters.normalizer;
 
-import 'dart:convert';
+import 'dart:convert' show Converter, ChunkedConversionSink;
 
-import 'package:convert/convert.dart';
+import 'package:convert/convert.dart' show AccumulatorSink;
 
 import '../event.dart';
 import '../events/text_event.dart';

@@ -5,7 +5,7 @@ import 'node_type.dart';
 import 'owned.dart';
 
 /// Abstract exception class.
-class XmlException implements Exception {
+abstract class XmlException implements Exception {
   final String message;
 
   XmlException([this.message]);
@@ -55,4 +55,9 @@ class XmlParentException extends XmlException {
   }
 
   XmlParentException(String message) : super(message);
+}
+
+/// Exception thrown when the end tag does not match the open tag.
+class XmlTagException extends XmlException {
+  XmlTagException(String message) : super(message);
 }

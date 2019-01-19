@@ -1,6 +1,6 @@
 library xml.iterators.ancestors;
 
-import 'dart:collection';
+import 'dart:collection' show IterableBase;
 
 import '../nodes/node.dart';
 

@@ -128,6 +128,28 @@ void main() {
         expect(event.text, 'hello');
         assertComplete(iterator);
       });
+      test('unexpected end tag', () {
+        expect(
+            () => const XmlNodeDecoder().convert([
+                  XmlEndElementEvent('foo'),
+                ]),
+            throwsA(isXmlTagException));
+      });
+      test('not matching end tag', () {
+        expect(
+            () => const XmlNodeDecoder().convert([
+                  XmlStartElementEvent('foo', [], false),
+                  XmlEndElementEvent('bar')
+                ]),
+            throwsA(isXmlTagException));
+      });
+      test('missing end tag', () {
+        expect(
+            () => const XmlNodeDecoder().convert([
+                  XmlStartElementEvent('foo', [], false),
+                ]),
+            throwsA(isXmlTagException));
+      });
     });
   });
 
@@ -189,41 +211,6 @@ void main() {
           .join();
       expect(actual, string);
     });
-
-//    void chunkedTest(String title, int Function() callback) {
-//      test('$title: string -> events -> string', () async {
-//        final actual = await splitString(baseString, callback)
-//            .transform(const XmlEventCodec().decoder)
-//            .transform(const XmlEventCodec().encoder)
-//            .join();
-//        expect(actual, baseString);
-//      });
-//      test('$title: events -> string -> events -> normalized events', () async {
-//        final actual = await splitList(baseEvents, callback)
-//            .transform(const XmlEventCodec().encoder)
-//            .transform(const XmlEventCodec().decoder)
-//            .transform(const XmlNormalizer())
-//            .expand((list) => list)
-//            .toList();
-//        expect(actual.map((event) => event.toString()),
-//            baseEvents.map((event) => event.toString()));
-//      });
-//      test('$title: nodes -> events -> nodes', () async {
-//        final actual = await splitList(baseNodes, callback)
-//            .transform(const XmlNodeCodec().encoder)
-//            .transform(const XmlNodeCodec().decoder)
-//            .toList();
-//        expect(actual.map((event) => event.toString()),
-//            baseNodes.map((event) => event.toString()));
-//      });
-//
-//      test('$title: nodes -> events -> nodes', () async {
-//        final actual = await splitList(baseNodes, callback)
-//            .transform(const XmlNodeCodec().encoder)
-//            .transform(const XmlNodeCodec().decoder)
-//            .toList();
-//        expect(actual.map((event) => event.toString()),
-//            baseNodes.map((event) => event.toString()));
   });
 
   test('normalization', () {

@@ -1,6 +1,8 @@
 library xml.production;
 
-import 'package:petitparser/petitparser.dart';
+import 'package:petitparser/petitparser.dart'
+    show any, char, pattern, whitespace, string;
+import 'package:petitparser/petitparser.dart' show Parser, GrammarDefinition;
 
 import 'utils/entities.dart';
 import 'utils/token.dart';

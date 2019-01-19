@@ -1,6 +1,6 @@
 library xml_events.converters.node_encoder;
 
-import 'dart:convert';
+import 'dart:convert' show Converter, ChunkedConversionSink;
 
 import 'package:convert/convert.dart' show AccumulatorSink;
 import 'package:xml/xml.dart'

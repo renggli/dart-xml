@@ -1,6 +1,7 @@
 library xml_events.converters.event_decoder;
 
-import 'dart:convert';
+import 'dart:convert'
+    show Converter, StringConversionSink, StringConversionSinkBase;
 
 import 'package:petitparser/petitparser.dart' show Success, Result;
 
