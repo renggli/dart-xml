@@ -41,7 +41,7 @@ linter:
     - camel_case_types
     - cancel_subscriptions
     # - cascade_invocations
-    - close_sinks
+    # - close_sinks
     - comment_references
     # - constant_identifier_names
     - control_flow_in_finally
@@ -76,7 +76,6 @@ linter:
     # - parameter_assignments
     - prefer_adjacent_string_concatenation
     - prefer_asserts_in_initializer_lists
-    - prefer_bool_in_asserts
     - prefer_collection_literals
     - prefer_conditional_assignment
     - prefer_const_constructors

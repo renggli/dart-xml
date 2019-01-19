@@ -4,6 +4,7 @@ import 'dart:convert'
     show Converter, StringConversionSink, StringConversionSinkBase;
 
 import 'package:petitparser/petitparser.dart' show Success, Result;
+import 'package:xml/xml.dart' show XmlParserException;
 
 import '../event.dart';
 import '../iterable.dart';
@@ -54,10 +55,15 @@ class _XmlEventDecoderSink extends StringConversionSinkBase {
       sink.add(result);
     }
     if (isLast) {
-      sink.close();
+      close();
     }
   }
 
   @override
-  void close() => sink.close();
+  void close() {
+    if (carry.isNotEmpty) {
+      throw XmlParserException('Unable to parse remaining input: $carry', 0, 0);
+    }
+    sink.close();
+  }
 }

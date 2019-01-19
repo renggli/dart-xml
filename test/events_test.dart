@@ -3,6 +3,7 @@ library xml.test.events_test;
 import 'dart:async';
 import 'dart:math' show min, Random;
 
+import 'package:convert/convert.dart' show AccumulatorSink;
 import 'package:test/test.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xml_events.dart';
@@ -40,57 +41,77 @@ void main() {
         final iterator = parseEvents('<![CDATA[<nasty>]]>').iterator;
         expect(iterator.moveNext(), isTrue);
         final XmlCDATAEvent event = iterator.current;
+        assertComplete(iterator);
         expect(event.nodeType, XmlNodeType.CDATA);
         expect(event.text, '<nasty>');
-        assertComplete(iterator);
+        final other = XmlCDATAEvent(event.text);
+        expect(event, other);
+        expect(event.hashCode, other.hashCode);
       });
       test('comment', () {
         final iterator = parseEvents('<!--for amusement only-->').iterator;
         expect(iterator.moveNext(), isTrue);
         final XmlCommentEvent event = iterator.current;
+        assertComplete(iterator);
         expect(event.nodeType, XmlNodeType.COMMENT);
         expect(event.text, 'for amusement only');
-        assertComplete(iterator);
+        final other = XmlCommentEvent(event.text);
+        expect(event, other);
+        expect(event.hashCode, other.hashCode);
       });
       test('doctype', () {
         final iterator = parseEvents('<!DOCTYPE html>').iterator;
         expect(iterator.moveNext(), isTrue);
         final XmlDoctypeEvent event = iterator.current;
+        assertComplete(iterator);
         expect(event.nodeType, XmlNodeType.DOCUMENT_TYPE);
         expect(event.text, 'html');
-        assertComplete(iterator);
+        final other = XmlDoctypeEvent(event.text);
+        expect(event, other);
+        expect(event.hashCode, other.hashCode);
       });
       test('end element', () {
         final iterator = parseEvents('</bar>').iterator;
         expect(iterator.moveNext(), isTrue);
         final XmlEndElementEvent event = iterator.current;
+        assertComplete(iterator);
         expect(event.nodeType, XmlNodeType.ELEMENT);
         expect(event.name, 'bar');
-        assertComplete(iterator);
+        final other = XmlEndElementEvent(event.name);
+        expect(event, other);
+        expect(event.hashCode, other.hashCode);
       });
       test('processing', () {
         final iterator = parseEvents('<?pi test?>').iterator;
         expect(iterator.moveNext(), isTrue);
         final XmlProcessingEvent event = iterator.current;
+        assertComplete(iterator);
         expect(event.nodeType, XmlNodeType.PROCESSING);
         expect(event.target, 'pi');
         expect(event.text, 'test');
-        assertComplete(iterator);
+        final other = XmlProcessingEvent(event.target, event.text);
+        expect(event, other);
+        expect(event.hashCode, other.hashCode);
       });
       test('start element', () {
         final iterator = parseEvents('<foo>').iterator;
         expect(iterator.moveNext(), isTrue);
         final XmlStartElementEvent event = iterator.current;
+        assertComplete(iterator);
         expect(event.nodeType, XmlNodeType.ELEMENT);
         expect(event.name, 'foo');
         expect(event.attributes, isEmpty);
         expect(event.isSelfClosing, isFalse);
-        assertComplete(iterator);
+        final other = XmlStartElementEvent(
+            event.name, event.attributes, event.isSelfClosing);
+        expect(event, other);
+        expect(event.hashCode, other.hashCode);
       });
       test('start element (attributes, self-closing)', () {
         final iterator = parseEvents('<foo a="1" b=\'2\'/>').iterator;
         expect(iterator.moveNext(), isTrue);
         final XmlStartElementEvent event = iterator.current;
+        assertComplete(iterator);
         expect(event.nodeType, XmlNodeType.ELEMENT);
         expect(event.name, 'foo');
         expect(event.attributes, hasLength(2));
@@ -103,15 +124,26 @@ void main() {
         expect(
             event.attributes[1].attributeType, XmlAttributeType.SINGLE_QUOTE);
         expect(event.isSelfClosing, isTrue);
-        assertComplete(iterator);
+        final other = XmlStartElementEvent(
+            event.name,
+            event.attributes
+                .map((attr) => XmlElementAttribute(
+                    attr.name, attr.value, attr.attributeType))
+                .toList(),
+            event.isSelfClosing);
+        expect(event, other);
+        expect(event.hashCode, other.hashCode);
       });
       test('text', () {
         final iterator = parseEvents('Hello World!').iterator;
         expect(iterator.moveNext(), isTrue);
         final XmlTextEvent event = iterator.current;
+        assertComplete(iterator);
         expect(event.nodeType, XmlNodeType.TEXT);
         expect(event.text, 'Hello World!');
-        assertComplete(iterator);
+        final other = XmlTextEvent(event.text);
+        expect(event, other);
+        expect(event.hashCode, other.hashCode);
       });
     });
     group('errors', () {
@@ -150,9 +182,15 @@ void main() {
                 ]),
             throwsA(isXmlTagException));
       });
+      test('not consumed input', () {
+        final accumulator = AccumulatorSink<List<XmlEvent>>();
+        final converter =
+            const XmlEventDecoder().startChunkedConversion(accumulator);
+        expect(() => converter.addSlice('a<', 0, 2, true),
+            throwsA(isXmlParserException));
+      });
     });
   });
-
   group('chunked', () {
     void chunkedTest(
         String title,
