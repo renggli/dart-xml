@@ -19,7 +19,7 @@ class XmlProcessingEvent extends XmlEvent {
   void accept(XmlEventVisitor visitor) => visitor.visitProcessingEvent(this);
 
   @override
-  int get hashCode => text.hashCode ^ target.hashCode;
+  int get hashCode => nodeType.hashCode ^ text.hashCode ^ target.hashCode;
 
   @override
   bool operator ==(Object other) =>

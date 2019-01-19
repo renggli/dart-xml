@@ -23,6 +23,7 @@ class XmlStartElementEvent extends XmlEvent {
 
   @override
   int get hashCode =>
+      nodeType.hashCode ^
       name.hashCode ^
       isSelfClosing.hashCode ^
       const ListEquality().hash(attributes);

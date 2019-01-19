@@ -17,7 +17,7 @@ class XmlCommentEvent extends XmlEvent {
   void accept(XmlEventVisitor visitor) => visitor.visitCommentEvent(this);
 
   @override
-  int get hashCode => text.hashCode;
+  int get hashCode => nodeType.hashCode ^ text.hashCode;
 
   @override
   bool operator ==(Object other) =>

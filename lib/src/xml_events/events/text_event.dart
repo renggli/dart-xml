@@ -17,7 +17,7 @@ class XmlTextEvent extends XmlEvent {
   void accept(XmlEventVisitor visitor) => visitor.visitTextEvent(this);
 
   @override
-  int get hashCode => text.hashCode;
+  int get hashCode => nodeType.hashCode ^ text.hashCode;
 
   @override
   bool operator ==(Object other) => other is XmlTextEvent && other.text == text;
