@@ -5,7 +5,7 @@ import 'package:xml/xml.dart' show XmlNodeType;
 import 'converters/event_encoder.dart';
 import 'visitor.dart';
 
-/// Base class for all events.
+/// Immutable base class for all events.
 abstract class XmlEvent {
   /// Return the node type of this node.
   XmlNodeType get nodeType;

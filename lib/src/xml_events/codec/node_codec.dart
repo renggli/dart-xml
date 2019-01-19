@@ -8,7 +8,7 @@ import '../converters/node_decoder.dart';
 import '../converters/node_encoder.dart';
 import '../event.dart';
 
-/// Converts between [XmlEvent] objects and [XmlNode] trees.
+/// Converts between [XmlEvent] sequences and [XmlNode] trees.
 class XmlNodeCodec extends Codec<List<XmlNode>, List<XmlEvent>> {
   const XmlNodeCodec();
 

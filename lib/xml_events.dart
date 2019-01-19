@@ -22,17 +22,19 @@ export 'src/xml_events/events/start_element_event.dart'
     show XmlStartElementEvent, XmlElementAttribute;
 export 'src/xml_events/events/text_event.dart' show XmlTextEvent;
 
-/// Returns an [Iterable] of [XmlEvent] instances of the provided [String].
+/// Returns an [Iterable] of [XmlEvent] instances over the provided [String].
 ///
 /// Iteration can throw an `XmlParserException`, if the input is malformed and
 /// cannot be properly parsed. However, otherwise no validation is performed and
 /// iteration can be resumed even after an error. The parsing is simply retried
 /// at the next possible input position.
 ///
+/// Iteration is lazy, meaning that none of the `input` is parsed and none of
+/// the events are created unless requested.
+///
 /// The iterator terminates when the complete `input` is consumed.
 ///
-/// For example, to print printing all trimmed non-empty text elements one
-/// would write:
+/// For example, to print all trimmed non-empty text elements one would write:
 ///
 ///    parseEvents(bookstoreXml)
 ///        .whereType<XmlTextEvent>()
