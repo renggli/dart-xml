@@ -249,8 +249,48 @@ void main() {
           .join();
       expect(actual, string);
     });
+    chunkedTest('string -> events -> string', complicatedXml,
+        (string, events, nodes, splitter) async {
+      final actual = await splitString(string, splitter)
+          .transform(const XmlEventDecoder())
+          .transform(const XmlEventEncoder())
+          .join();
+      expect(actual, string);
+    });
+    chunkedTest('events -> string -> events', complicatedXml,
+        (string, events, nodes, splitter) async {
+      final actual = await splitList(events, splitter)
+          .transform(const XmlEventEncoder())
+          .transform(const XmlEventDecoder())
+          .transform(const XmlNormalizer())
+          .expand((list) => list)
+          .toList();
+      expect(actual, events);
+    });
+    chunkedTest('events -> nodes -> events', complicatedXml,
+        (string, events, nodes, splitter) async {
+      final actual = await splitList(events, splitter)
+          .transform(const XmlNodeDecoder())
+          .transform(const XmlNodeEncoder())
+          .expand((list) => list)
+          .toList();
+      expect(actual, events);
+    });
+    chunkedTest('nodes -> events -> nodes', complicatedXml,
+        (string, events, nodes, splitter) async {
+      final actual = await splitList(nodes, splitter)
+          .transform(const XmlNodeEncoder())
+          .transform(const XmlNodeDecoder())
+          .expand((list) => list)
+          .toList();
+      expect(
+          actual,
+          pairwiseCompare(nodes, (actual, expected) {
+            compareNode(actual, expected);
+            return true;
+          }, 'not matching'));
+    });
   });
-
   test('normalization', () {
     final actual = const XmlNormalizer().convert([
       XmlStartElementEvent('div', [], true),
@@ -264,7 +304,6 @@ void main() {
     ];
     expect(actual.toString(), expected.toString());
   });
-
   group('examples', () {
     test('extract non-empty text', () {
       final texts = parseEvents(bookstoreXml)
