@@ -2,9 +2,14 @@
 
 ## 3.3.0
 
-* New Event based parsing in `xml_events`:
-  * Lazy event parser into `Iterable<XmlEvent>`.
-  * Converters between `String`, `List<XmlEvent>` and `List<XmlNode>`.
+* New event based parsing in `xml_events`:
+  * Lazy event parsing from a XML string into an `Iterable` of `XmlEvent`.
+  * Async converters between streams of XML, `XmlEvent` and `XmlNode`.
+* Remove the experimental 
+
+* Clean up package structure by moving internal packages into the `src/`
+  subtree.
+
 
 ## 3.2.4
 
