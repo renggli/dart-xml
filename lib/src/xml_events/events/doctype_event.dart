@@ -5,6 +5,7 @@ import 'package:xml/xml.dart' show XmlNodeType;
 import '../event.dart';
 import '../visitor.dart';
 
+/// Event of an XML doctype node.
 class XmlDoctypeEvent extends XmlEvent {
   XmlDoctypeEvent(this.text);
 

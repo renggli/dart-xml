@@ -5,6 +5,7 @@ class XmlToken {
   static const String doubleQuote = '"';
   static const String singleQuote = "'";
   static const String equals = '=';
+  static const String namespace = ':';
   static const String whitespace = ' ';
   static const String openComment = '<!--';
   static const String closeComment = '-->';

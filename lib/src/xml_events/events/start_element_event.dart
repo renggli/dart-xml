@@ -5,10 +5,13 @@ import 'package:xml/xml.dart' show XmlNodeType, XmlAttributeType;
 
 import '../event.dart';
 import '../visitor.dart';
+import 'named.dart';
 
-class XmlStartElementEvent extends XmlEvent {
+/// Event of an XML start element node.
+class XmlStartElementEvent extends XmlEvent with XmlNamed {
   XmlStartElementEvent(this.name, this.attributes, this.isSelfClosing);
 
+  @override
   final String name;
 
   final List<XmlElementAttribute> attributes;
@@ -36,9 +39,11 @@ class XmlStartElementEvent extends XmlEvent {
       const ListEquality().equals(other.attributes, attributes);
 }
 
-class XmlElementAttribute {
+/// Attributes of an [XmlStartElementEvent].
+class XmlElementAttribute with XmlNamed {
   XmlElementAttribute(this.name, this.value, this.attributeType);
 
+  @override
   final String name;
 
   final String value;

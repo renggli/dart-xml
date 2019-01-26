@@ -266,13 +266,17 @@ void assertEventInvariants(String input, XmlNode node) {
       final XmlElement expected = nodes.removeAt(0);
       expect(current.nodeType, expected.nodeType);
       expect(current.name, expected.name.qualified);
+      expect(current.localName, expected.name.local);
+      expect(current.namespacePrefix, expected.name.prefix);
       expect(current.attributes.length, expected.attributes.length);
       for (var i = 0; i < current.attributes.length; i++) {
-        expect(
-            current.attributes[i].name, expected.attributes[i].name.qualified);
-        expect(current.attributes[i].value, expected.attributes[i].value);
-        expect(current.attributes[i].attributeType,
-            expected.attributes[i].attributeType);
+        final currentAttr = current.attributes[i];
+        final expectedAttr = expected.attributes[i];
+        expect(currentAttr.name, expectedAttr.name.qualified);
+        expect(currentAttr.localName, expectedAttr.name.local);
+        expect(currentAttr.namespacePrefix, expectedAttr.name.prefix);
+        expect(currentAttr.value, expectedAttr.value);
+        expect(currentAttr.attributeType, expectedAttr.attributeType);
       }
       expect(current.isSelfClosing,
           expected.children.isEmpty && expected.isSelfClosing);
@@ -283,6 +287,8 @@ void assertEventInvariants(String input, XmlNode node) {
       final expected = stack.removeLast();
       expect(current.nodeType, expected.nodeType);
       expect(current.name, expected.name);
+      expect(current.localName, expected.localName);
+      expect(current.namespacePrefix, expected.namespacePrefix);
     } else if (current is XmlCDATAEvent) {
       final XmlCDATA expected = nodes.removeAt(0);
       expect(current.nodeType, expected.nodeType);

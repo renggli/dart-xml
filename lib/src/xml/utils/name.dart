@@ -6,10 +6,8 @@ import '../visitors/visitor.dart';
 import 'owned.dart';
 import 'prefix_name.dart';
 import 'simple_name.dart';
+import 'token.dart';
 import 'writable.dart';
-
-// separator between prefix and local name
-const String separator = ':';
 
 // xml namespace declarations
 const String xml = 'xml';
@@ -36,14 +34,14 @@ abstract class XmlName extends Object with XmlVisitable, XmlWritable, XmlOwned {
   factory XmlName(String local, [String prefix]) =>
       prefix == null || prefix.isEmpty
           ? XmlSimpleName(local)
-          : XmlPrefixName(prefix, local, '$prefix$separator$local');
+          : XmlPrefixName(prefix, local, '$prefix${XmlToken.namespace}$local');
 
   /// Create a [XmlName] by parsing the provided `qualified` name.
   factory XmlName.fromString(String qualified) {
-    final index = qualified.indexOf(separator);
+    final index = qualified.indexOf(XmlToken.namespace);
     if (index > 0) {
       final prefix = qualified.substring(0, index);
-      final local = qualified.substring(index + 1, qualified.length);
+      final local = qualified.substring(index + 1);
       return XmlPrefixName(prefix, local, qualified);
     } else {
       return XmlSimpleName(qualified);

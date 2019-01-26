@@ -4,10 +4,13 @@ import 'package:xml/xml.dart' show XmlNodeType;
 
 import '../event.dart';
 import '../visitor.dart';
+import 'named.dart';
 
-class XmlEndElementEvent extends XmlEvent {
+/// Event of an closing XML element node.
+class XmlEndElementEvent extends XmlEvent with XmlNamed {
   XmlEndElementEvent(this.name);
 
+  @override
   final String name;
 
   @override
