@@ -1,9 +1,8 @@
 library xml_events.events.cdata_event;
 
+import 'package:xml/src/xml_events/event.dart';
+import 'package:xml/src/xml_events/visitor.dart';
 import 'package:xml/xml.dart' show XmlNodeType;
-
-import '../event.dart';
-import '../visitor.dart';
 
 /// Event of an XML CDATA node.
 class XmlCDATAEvent extends XmlEvent {

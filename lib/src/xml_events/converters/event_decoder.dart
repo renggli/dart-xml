@@ -4,11 +4,10 @@ import 'dart:convert'
     show Converter, StringConversionSink, StringConversionSinkBase;
 
 import 'package:petitparser/petitparser.dart' show Success, Result;
+import 'package:xml/src/xml_events/event.dart';
+import 'package:xml/src/xml_events/iterable.dart';
+import 'package:xml/src/xml_events/parser.dart';
 import 'package:xml/xml.dart' show XmlParserException;
-
-import '../event.dart';
-import '../iterable.dart';
-import '../parser.dart';
 
 /// A converter that decodes a [String] to a sequence of [XmlEvent] objects.
 class XmlEventDecoder extends Converter<String, List<XmlEvent>> {

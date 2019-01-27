@@ -3,6 +3,14 @@ library xml_events.converters.node_encoder;
 import 'dart:convert' show Converter, ChunkedConversionSink;
 
 import 'package:convert/convert.dart' show AccumulatorSink;
+import 'package:xml/src/xml_events/event.dart';
+import 'package:xml/src/xml_events/events/cdata_event.dart';
+import 'package:xml/src/xml_events/events/comment_event.dart';
+import 'package:xml/src/xml_events/events/doctype_event.dart';
+import 'package:xml/src/xml_events/events/end_element_event.dart';
+import 'package:xml/src/xml_events/events/processing_event.dart';
+import 'package:xml/src/xml_events/events/start_element_event.dart';
+import 'package:xml/src/xml_events/events/text_event.dart';
 import 'package:xml/xml.dart'
     show
         XmlCDATA,
@@ -13,15 +21,6 @@ import 'package:xml/xml.dart'
         XmlProcessing,
         XmlText,
         XmlVisitor;
-
-import '../event.dart';
-import '../events/cdata_event.dart';
-import '../events/comment_event.dart';
-import '../events/doctype_event.dart';
-import '../events/end_element_event.dart';
-import '../events/processing_event.dart';
-import '../events/start_element_event.dart';
-import '../events/text_event.dart';
 
 /// A converter that decodes a forest of [XmlNode] objects to a sequence of
 /// [XmlEvent] objects.

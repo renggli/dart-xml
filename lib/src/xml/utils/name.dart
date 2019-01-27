@@ -1,13 +1,13 @@
 library xml.utils.name;
 
-import '../builder.dart';
-import '../visitors/visitable.dart';
-import '../visitors/visitor.dart';
-import 'owned.dart';
-import 'prefix_name.dart';
-import 'simple_name.dart';
-import 'token.dart';
-import 'writable.dart';
+import 'package:xml/src/xml/builder.dart';
+import 'package:xml/src/xml/utils/owned.dart';
+import 'package:xml/src/xml/utils/prefix_name.dart';
+import 'package:xml/src/xml/utils/simple_name.dart';
+import 'package:xml/src/xml/utils/token.dart';
+import 'package:xml/src/xml/utils/writable.dart';
+import 'package:xml/src/xml/visitors/visitable.dart';
+import 'package:xml/src/xml/visitors/visitor.dart';
 
 // xml namespace declarations
 const String xml = 'xml';

@@ -1,13 +1,13 @@
 library xml.visitors.pretty_writer;
 
-import '../nodes/cdata.dart';
-import '../nodes/comment.dart';
-import '../nodes/doctype.dart';
-import '../nodes/element.dart';
-import '../nodes/processing.dart';
-import '../nodes/text.dart';
-import '../utils/token.dart';
-import 'writer.dart';
+import 'package:xml/src/xml/nodes/cdata.dart';
+import 'package:xml/src/xml/nodes/comment.dart';
+import 'package:xml/src/xml/nodes/doctype.dart';
+import 'package:xml/src/xml/nodes/element.dart';
+import 'package:xml/src/xml/nodes/processing.dart';
+import 'package:xml/src/xml/nodes/text.dart';
+import 'package:xml/src/xml/utils/token.dart';
+import 'package:xml/src/xml/visitors/writer.dart';
 
 /// A visitor that writes XML nodes correctly indented and with whitespaces
 /// adapted.

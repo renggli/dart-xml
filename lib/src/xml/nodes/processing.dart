@@ -1,8 +1,8 @@
 library xml.nodes.processing;
 
-import '../utils/node_type.dart';
-import '../visitors/visitor.dart';
-import 'data.dart';
+import 'package:xml/src/xml/nodes/data.dart';
+import 'package:xml/src/xml/utils/node_type.dart';
+import 'package:xml/src/xml/visitors/visitor.dart';
 
 /// XML processing instruction.
 class XmlProcessing extends XmlData {

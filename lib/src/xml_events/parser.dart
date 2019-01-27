@@ -1,16 +1,15 @@
 library xml_events.parser;
 
 import 'package:petitparser/petitparser.dart' show Parser, char, string;
+import 'package:xml/src/xml_events/events/cdata_event.dart';
+import 'package:xml/src/xml_events/events/comment_event.dart';
+import 'package:xml/src/xml_events/events/doctype_event.dart';
+import 'package:xml/src/xml_events/events/end_element_event.dart';
+import 'package:xml/src/xml_events/events/processing_event.dart';
+import 'package:xml/src/xml_events/events/start_element_event.dart';
+import 'package:xml/src/xml_events/events/text_event.dart';
 import 'package:xml/xml.dart'
     show XmlProductionDefinition, XmlToken, XmlAttributeType;
-
-import 'events/cdata_event.dart';
-import 'events/comment_event.dart';
-import 'events/doctype_event.dart';
-import 'events/end_element_event.dart';
-import 'events/processing_event.dart';
-import 'events/start_element_event.dart';
-import 'events/text_event.dart';
 
 class XmlEventDefinition extends XmlProductionDefinition {
   @override

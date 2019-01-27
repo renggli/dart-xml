@@ -1,6 +1,6 @@
 library xml.utils.prefix_name;
 
-import 'name.dart';
+import 'package:xml/src/xml/utils/name.dart';
 
 /// An XML entity name with a prefix.
 class XmlPrefixName extends XmlName {

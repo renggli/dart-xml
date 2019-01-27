@@ -2,7 +2,7 @@ library xml.iterators.preceding;
 
 import 'dart:collection' show IterableBase;
 
-import '../nodes/node.dart';
+import 'package:xml/src/xml/nodes/node.dart';
 
 /// Iterable to walk over the precedents of a node.
 class XmlPrecedingIterable extends IterableBase<XmlNode> {

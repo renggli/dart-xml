@@ -2,8 +2,7 @@ library xml.utils.entities;
 
 import 'package:petitparser/petitparser.dart' show char, digit, pattern, word;
 import 'package:petitparser/petitparser.dart' show Context, Result, Parser;
-
-import 'attribute_type.dart';
+import 'package:xml/src/xml/utils/attribute_type.dart';
 
 // Hexadecimal character reference.
 final Parser<String> _entityHex = pattern('xX')

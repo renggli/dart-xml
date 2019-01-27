@@ -1,6 +1,6 @@
 library xml.nodes.data;
 
-import 'node.dart';
+import 'package:xml/src/xml/nodes/node.dart';
 
 /// Abstract XML data node.
 abstract class XmlData extends XmlNode {

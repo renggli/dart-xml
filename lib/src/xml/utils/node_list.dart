@@ -1,11 +1,10 @@
 library xml.utils.node_list;
 
 import 'package:collection/collection.dart' show DelegatingList;
-
-import '../nodes/node.dart';
-import 'exceptions.dart';
-import 'node_type.dart';
-import 'owned.dart';
+import 'package:xml/src/xml/nodes/node.dart';
+import 'package:xml/src/xml/utils/exceptions.dart';
+import 'package:xml/src/xml/utils/node_type.dart';
+import 'package:xml/src/xml/utils/owned.dart';
 
 /// Mutable list of XmlNodes, manages the parenting of the nodes.
 class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {

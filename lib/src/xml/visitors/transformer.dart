@@ -1,16 +1,16 @@
 library xml.visitors.transformer;
 
-import '../nodes/attribute.dart';
-import '../nodes/cdata.dart';
-import '../nodes/comment.dart';
-import '../nodes/doctype.dart';
-import '../nodes/document.dart';
-import '../nodes/document_fragment.dart';
-import '../nodes/element.dart';
-import '../nodes/processing.dart';
-import '../nodes/text.dart';
-import '../utils/name.dart';
-import 'visitor.dart';
+import 'package:xml/src/xml/nodes/attribute.dart';
+import 'package:xml/src/xml/nodes/cdata.dart';
+import 'package:xml/src/xml/nodes/comment.dart';
+import 'package:xml/src/xml/nodes/doctype.dart';
+import 'package:xml/src/xml/nodes/document.dart';
+import 'package:xml/src/xml/nodes/document_fragment.dart';
+import 'package:xml/src/xml/nodes/element.dart';
+import 'package:xml/src/xml/nodes/processing.dart';
+import 'package:xml/src/xml/nodes/text.dart';
+import 'package:xml/src/xml/utils/name.dart';
+import 'package:xml/src/xml/visitors/visitor.dart';
 
 /// Transformer that creates an identical copy of the visited nodes.
 ///

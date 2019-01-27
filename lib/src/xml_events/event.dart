@@ -1,9 +1,8 @@
 library xml_events.event;
 
+import 'package:xml/src/xml_events/converters/event_encoder.dart';
+import 'package:xml/src/xml_events/visitor.dart';
 import 'package:xml/xml.dart' show XmlNodeType;
-
-import 'converters/event_encoder.dart';
-import 'visitor.dart';
 
 /// Immutable base class for all events.
 abstract class XmlEvent {

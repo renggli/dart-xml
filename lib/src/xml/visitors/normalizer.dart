@@ -1,12 +1,12 @@
 library xml.visitors.normalizer;
 
-import '../nodes/document.dart';
-import '../nodes/document_fragment.dart';
-import '../nodes/element.dart';
-import '../nodes/node.dart';
-import '../nodes/text.dart';
-import '../utils/node_type.dart';
-import 'visitor.dart';
+import 'package:xml/src/xml/nodes/document.dart';
+import 'package:xml/src/xml/nodes/document_fragment.dart';
+import 'package:xml/src/xml/nodes/element.dart';
+import 'package:xml/src/xml/nodes/node.dart';
+import 'package:xml/src/xml/nodes/text.dart';
+import 'package:xml/src/xml/utils/node_type.dart';
+import 'package:xml/src/xml/visitors/visitor.dart';
 
 /// Normalizes a node tree in-place.
 class XmlNormalizer extends XmlVisitor {
