@@ -43,9 +43,11 @@ export 'package:xml/src/xml/utils/node_type.dart' show XmlNodeType;
 export 'package:xml/src/xml/utils/owned.dart' show XmlOwned;
 export 'package:xml/src/xml/utils/token.dart' show XmlToken;
 export 'package:xml/src/xml/utils/writable.dart' show XmlWritable;
+export 'package:xml/src/xml/visitors/pretty_writer.dart' show XmlPrettyWriter;
 export 'package:xml/src/xml/visitors/transformer.dart' show XmlTransformer;
 export 'package:xml/src/xml/visitors/visitable.dart' show XmlVisitable;
 export 'package:xml/src/xml/visitors/visitor.dart' show XmlVisitor;
+export 'package:xml/src/xml/visitors/writer.dart' show XmlWriter;
 
 final Parser _parser = XmlParserDefinition().build();
 
