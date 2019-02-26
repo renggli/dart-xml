@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.4.0
+
+* Dart 2.2 compatibility and requirement.
+
 ## 3.3.0
 
 * New event based parsing in `xml_events`:

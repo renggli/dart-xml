@@ -325,7 +325,7 @@ void main() {
 // Some libraries provide a sliding window iterator
 // https://github.com/renggli/dart-more/blob/master/lib/src/iterable/window.dart
 // which would make this code trivial to write and read:
-      final genres = Set<String>();
+      final genres = <String>{};
       parseEvents(booksXml).reduce((previous, current) {
         if (previous is XmlStartElementEvent &&
             previous.name == 'genre' &&

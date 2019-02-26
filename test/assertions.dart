@@ -247,14 +247,14 @@ void assertPrintingInvariants(XmlNode xml) {
 }
 
 void assertEventInvariants(String input, XmlNode node) {
-  final includedTypes = Set.from([
+  const includedTypes = {
     XmlNodeType.CDATA,
     XmlNodeType.COMMENT,
     XmlNodeType.DOCUMENT_TYPE,
     XmlNodeType.ELEMENT,
     XmlNodeType.PROCESSING,
     XmlNodeType.TEXT,
-  ]);
+  };
   final iterator = parseEvents(input).iterator;
   final nodes = node.descendants
       .where((node) => includedTypes.contains(node.nodeType))

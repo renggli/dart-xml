@@ -51,11 +51,11 @@ class XmlDocument extends XmlParent {
 }
 
 /// Supported child node types.
-final Set<XmlNodeType> childrenNodeTypes = Set.from(const [
+const Set<XmlNodeType> childrenNodeTypes = {
   XmlNodeType.CDATA,
   XmlNodeType.COMMENT,
   XmlNodeType.DOCUMENT_TYPE,
   XmlNodeType.ELEMENT,
   XmlNodeType.PROCESSING,
   XmlNodeType.TEXT,
-]);
+};
