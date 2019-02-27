@@ -1,6 +1,7 @@
 library xml.test.entity_test;
 
 import 'package:test/test.dart';
+import 'package:xml/src/xml/utils/entities.dart';
 import 'package:xml/xml.dart';
 
 String decode(String input) => parse('<data>$input</data>').rootElement.text;
@@ -80,5 +81,64 @@ void main() {
         "'hello'");
     expect(encodeAttributeValue(XmlAttributeType.DOUBLE_QUOTE, '"hello"'),
         '&quot;hello&quot;');
+  });
+  group('character parser', () {
+    final parser = XmlCharacterDataParser('*', 1);
+    test('parse without stopper', () {
+      final result1 = parser.parse('');
+      expect(result1.isFailure, isTrue);
+      expect(result1.position, 0);
+
+      final result2 = parser.parse('a');
+      expect(result2.isSuccess, isTrue);
+      expect(result2.position, 1);
+      expect(result2.value, 'a');
+
+      final result3 = parser.parse('ab');
+      expect(result3.isSuccess, isTrue);
+      expect(result3.position, 2);
+      expect(result3.value, 'ab');
+    });
+    test('parse with stopper', () {
+      final result1 = parser.parse('*');
+      expect(result1.isFailure, isTrue);
+      expect(result1.position, 0);
+
+      final result2 = parser.parse('a*');
+      expect(result2.isSuccess, isTrue);
+      expect(result2.position, 1);
+      expect(result2.value, 'a');
+
+      final result3 = parser.parse('ab*');
+      expect(result3.isSuccess, isTrue);
+      expect(result3.position, 2);
+      expect(result3.value, 'ab');
+    });
+    test('fast parse without stopper', () {
+      final result1 = parser.fastParseOn('', 0);
+      expect(result1, -1);
+
+      final result2 = parser.fastParseOn('a', 0);
+      expect(result2, 1);
+
+      final result3 = parser.fastParseOn('ab', 0);
+      expect(result3, 2);
+    });
+    test('fast parse with stopper', () {
+      final result1 = parser.fastParseOn('*', 0);
+      expect(result1, -1);
+
+      final result2 = parser.fastParseOn('a*', 0);
+      expect(result2, 1);
+
+      final result3 = parser.fastParseOn('ab*', 0);
+      expect(result3, 2);
+    });
+    test('copy and equality', () {
+      expect(parser.isEqualTo(parser), isTrue);
+      expect(parser.isEqualTo(parser.copy()), isTrue);
+      expect(parser.isEqualTo(XmlCharacterDataParser('%', 1)), isFalse);
+      expect(parser.isEqualTo(XmlCharacterDataParser('*', 2)), isFalse);
+    });
   });
 }

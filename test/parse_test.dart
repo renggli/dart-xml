@@ -78,5 +78,9 @@ void main() {
     assertParseError('<data key', '">" expected at 1:7');
     assertParseError('<data', '">" expected at 1:6');
     assertParseError('<>', 'Expected name at 1:2');
+    assertParseError('<!-- comment', 'Expected name at 1:2');
+    assertParseError('<![CDATA[ comment', 'Expected name at 1:2');
+    assertParseError('<!DOCTYPE data', 'Expected name at 1:2');
+    assertParseError('<?processing', 'Expected name at 1:2');
   });
 }

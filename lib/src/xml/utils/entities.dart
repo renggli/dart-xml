@@ -8,7 +8,7 @@ import 'package:xml/src/xml/utils/attribute_type.dart';
 final Parser<String> _entityHex = pattern('xX')
     .seq(pattern('A-Fa-f0-9')
         .plus()
-        .flatten()
+        .flatten('Expected hexadecimal character reference')
         .map((value) => String.fromCharCode(int.parse(value, radix: 16))))
     .pick(1);
 
@@ -16,14 +16,16 @@ final Parser<String> _entityHex = pattern('xX')
 final Parser<String> _entityDigit = char('#')
     .seq(_entityHex.or(digit()
         .plus()
-        .flatten()
+        .flatten('Expected decimal character reference')
         .map((value) => String.fromCharCode(int.parse(value)))))
     .pick(1);
 
 // Named character reference.
 final Parser<String> _entity = char('&')
-    .seq(_entityDigit
-        .or(word().plus().flatten().map((value) => entityToChar[value])))
+    .seq(_entityDigit.or(word()
+        .plus()
+        .flatten('Expected named character reference')
+        .map((value) => entityToChar[value])))
     .seq(char(';'))
     .pick(1);
 
@@ -71,6 +73,21 @@ class XmlCharacterDataParser extends Parser<String> {
     return output.length < _minLength
         ? context.failure('Unable to parse chracter data.')
         : context.success(output.toString(), position);
+  }
+
+  @override
+  int fastParseOn(String buffer, int position) {
+    final start = position;
+    final length = buffer.length;
+    while (position < length) {
+      final value = buffer.codeUnitAt(position);
+      if (value == _stopperCode) {
+        break;
+      } else {
+        position++;
+      }
+    }
+    return position - start < _minLength ? -1 : position;
   }
 
   @override

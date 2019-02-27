@@ -33,10 +33,14 @@ class XmlProductionDefinition extends GrammarDefinition {
       .seq(char(XmlToken.singleQuote));
   Parser attributes() => ref(space).seq(ref(attribute)).pick(1).star();
   Parser comment() => string(XmlToken.openComment)
-      .seq(any().starLazy(string(XmlToken.closeComment)).flatten())
+      .seq(any()
+          .starLazy(string(XmlToken.closeComment))
+          .flatten('Expected comment content'))
       .seq(string(XmlToken.closeComment));
   Parser cdata() => string(XmlToken.openCDATA)
-      .seq(any().starLazy(string(XmlToken.closeCDATA)).flatten())
+      .seq(any()
+          .starLazy(string(XmlToken.closeCDATA))
+          .flatten('Expected CDATA content'))
       .seq(string(XmlToken.closeCDATA));
   Parser content() => ref(characterData)
       .or(ref(element))
@@ -54,7 +58,7 @@ class XmlProductionDefinition extends GrammarDefinition {
               .seq(any().starLazy(char(XmlToken.closeDoctypeBlock)))
               .seq(char(XmlToken.closeDoctypeBlock)))
           .separatedBy(ref(space))
-          .flatten())
+          .flatten('Expected doctype content'))
       .seq(ref(spaceOptional))
       .seq(char(XmlToken.closeDoctype));
   Parser document() => ref(misc)
@@ -75,7 +79,9 @@ class XmlProductionDefinition extends GrammarDefinition {
   Parser processing() => string(XmlToken.openProcessing)
       .seq(ref(nameToken))
       .seq(ref(space)
-          .seq(any().starLazy(string(XmlToken.closeProcessing)).flatten())
+          .seq(any()
+              .starLazy(string(XmlToken.closeProcessing))
+              .flatten('Expected processing instruction content'))
           .pick(1)
           .optional(''))
       .seq(string(XmlToken.closeProcessing));
@@ -84,10 +90,11 @@ class XmlProductionDefinition extends GrammarDefinition {
   Parser characterData() => XmlCharacterDataParser(XmlToken.openElement, 1);
   Parser misc() => ref(spaceText).or(ref(comment)).or(ref(processing)).star();
   Parser space() => whitespace().plus();
-  Parser spaceText() => ref(space).flatten();
+  Parser spaceText() => ref(space).flatten('Expected whitespace');
   Parser spaceOptional() => whitespace().star();
 
-  Parser nameToken() => ref(nameStartChar).seq(ref(nameChar).star()).flatten();
-  Parser nameStartChar() => pattern(_nameStartChars, 'Expected name');
-  Parser nameChar() => pattern(_nameChars, 'Invalid name');
+  Parser nameToken() =>
+      ref(nameStartChar).seq(ref(nameChar).star()).flatten('Expected name');
+  Parser nameStartChar() => pattern(_nameStartChars);
+  Parser nameChar() => pattern(_nameChars);
 }
