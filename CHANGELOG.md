@@ -3,6 +3,10 @@
 ## 3.4.0
 
 * Dart 2.2 compatibility and requirement.
+* Take advantage of PetitParser fast-parse mode:
+  * 15-30% faster DOM parsing, and
+  * 15-50% faster event parsing.
+* Improve error messages and reporting.
 
 ## 3.3.0
 

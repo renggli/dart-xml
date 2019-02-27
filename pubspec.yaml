@@ -1,5 +1,5 @@
 name: xml
-version: 3.3.1
+version: 3.4.0
 
 author: Lukas Renggli <renggli@gmail.com>
 description: A lightweight library for parsing, traversing, querying, transforming and building XML documents.
@@ -8,7 +8,7 @@ homepage: https://github.com/renggli/dart-xml
 environment:
   sdk: '>=2.2.0 <3.0.0'
 dependencies:
-  petitparser: ^2.1.0
+  petitparser: ^2.2.0
   collection: ^1.14.0
   convert: ^2.1.0
 dev_dependencies:
