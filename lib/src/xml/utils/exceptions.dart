@@ -22,7 +22,7 @@ class XmlParserException extends XmlException {
   XmlParserException(String message, this.line, this.column) : super(message);
 
   @override
-  String toString() => '$message at $line:$column';
+  String toString() => '${super.toString()} at $line:$column';
 }
 
 /// Exception thrown when an unsupported node type is used.
