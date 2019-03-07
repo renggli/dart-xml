@@ -6,7 +6,8 @@ import 'package:convert/convert.dart' show AccumulatorSink;
 import 'package:xml/src/xml_events/event.dart';
 import 'package:xml/src/xml_events/events/text_event.dart';
 
-/// A converter that encodes [XmlEvent] iterables into strings.
+/// A converter that normalizes sequences of [XmlEvent]s, namely combines
+/// adjacent and removes empty text events.
 class XmlNormalizer extends Converter<List<XmlEvent>, List<XmlEvent>> {
   const XmlNormalizer();
 
@@ -25,7 +26,6 @@ class XmlNormalizer extends Converter<List<XmlEvent>, List<XmlEvent>> {
       _XmlNormalizerSink(sink);
 }
 
-/// A conversion sink for chunked [XmlEvent] encoding.
 class _XmlNormalizerSink extends ChunkedConversionSink<List<XmlEvent>> {
   _XmlNormalizerSink(this.sink);
 
