@@ -26,7 +26,7 @@ void printUsage() {
   exit(1);
 }
 
-void main(List<String> arguments) async {
+Future<void> main(List<String> arguments) async {
   final files = <File>[];
   final results = argumentParser.parse(arguments);
   final normalize = results['normalize'];
