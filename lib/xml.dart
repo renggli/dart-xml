@@ -51,8 +51,16 @@ export 'package:xml/src/xml/visitors/writer.dart' show XmlWriter;
 
 final Parser _parser = XmlParserDefinition().build();
 
-/// Return an [XmlDocument] for the given `input` string, or throws an
+/// Return an [XmlDocument] for the given [input] string, or throws an
 /// [XmlParserException] if the input is invalid.
+///
+/// For example, the following code prints `Hello World`:
+///
+///    final document = parse('<?xml?><root message="Hello World" />');
+///    print(document.rootElement.getAttribute('message'));
+///
+/// Note: It is the responsibility of the caller to provide a standard Dart
+/// [String] using the default UTF-16 encoding.
 XmlDocument parse(String input) {
   final result = _parser.parse(input);
   if (result.isFailure) {
