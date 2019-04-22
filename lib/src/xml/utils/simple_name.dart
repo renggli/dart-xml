@@ -16,7 +16,7 @@ class XmlSimpleName extends XmlName {
   @override
   String get namespaceUri {
     for (var node = parent; node != null; node = node.parent) {
-      for (var attribute in node.attributes) {
+      for (final attribute in node.attributes) {
         if (attribute.name.prefix == null && attribute.name.local == xmlns) {
           return attribute.value;
         }

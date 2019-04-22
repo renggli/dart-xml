@@ -99,7 +99,7 @@ class XmlWriter with XmlVisitor {
   }
 
   void writeAttributes(XmlNode node) {
-    for (var attribute in node.attributes) {
+    for (final attribute in node.attributes) {
       buffer.write(XmlToken.whitespace);
       visit(attribute);
     }

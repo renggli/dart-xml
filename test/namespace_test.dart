@@ -9,7 +9,7 @@ void main() {
         '  <body lang="en"/>'
         '</html>');
     final nodes = List.from(document.descendants)..add(document);
-    for (var node in nodes) {
+    for (final node in nodes) {
       if (node is XmlAttribute && node.name.prefix == 'xmlns') {
         break;
       }
@@ -24,7 +24,7 @@ void main() {
             '  <xhtml:body xhtml:lang="en"/>'
             '</xhtml:html>');
     final nodes = List.from(document.descendants)..add(document);
-    for (var node in nodes) {
+    for (final node in nodes) {
       if (node is XmlAttribute && node.name.prefix == 'xmlns') {
         break;
       }

@@ -49,7 +49,7 @@ void main() {
   final builder = XmlBuilder();
   builder.processing('xml', 'version="1.0"');
   builder.element('benchmarks', nest: () {
-    for (var name in benchmarks.keys) {
+    for (final name in benchmarks.keys) {
       builder.element(name, nest: () {
         final source = benchmarks[name];
         builder.element('parser', nest: benchmark(() => parse(source)));

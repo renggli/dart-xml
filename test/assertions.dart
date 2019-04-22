@@ -41,7 +41,7 @@ void assertTreeInvariants(XmlNode xml) {
 
 void assertDocumentInvariants(XmlNode xml) {
   final root = xml.root;
-  for (var child in xml.descendants) {
+  for (final child in xml.descendants) {
     expect(root, same(child.root));
     expect(root, same(child.document));
   }
@@ -53,14 +53,14 @@ void assertDocumentInvariants(XmlNode xml) {
 }
 
 void assertParentInvariants(XmlNode xml) {
-  for (var node in xml.descendants) {
+  for (final node in xml.descendants) {
     final isRootNode = node is XmlDocument || node is XmlDocumentFragment;
     expect(node.parent, isRootNode ? isNull : isNotNull);
-    for (var child in node.children) {
+    for (final child in node.children) {
       expect(child.parent, same(node));
       expect(child.depth, node.depth + 1);
     }
-    for (var attribute in node.attributes) {
+    for (final attribute in node.attributes) {
       expect(attribute.parent, same(node));
       expect(attribute.depth, node.depth + 1);
     }
@@ -68,7 +68,7 @@ void assertParentInvariants(XmlNode xml) {
 }
 
 void assertForwardInvariants(XmlNode xml) {
-  for (var node in xml.descendants) {
+  for (final node in xml.descendants) {
     var current = node.firstChild;
     for (var i = 0; i < node.children.length; i++) {
       expect(node.children[i], same(current));
@@ -79,7 +79,7 @@ void assertForwardInvariants(XmlNode xml) {
 }
 
 void assertBackwardInvariants(XmlNode xml) {
-  for (var node in xml.descendants) {
+  for (final node in xml.descendants) {
     var current = node.lastChild;
     for (var i = node.children.length - 1; i >= 0; i--) {
       expect(node.children[i], same(current));
@@ -107,9 +107,9 @@ void assertNamedInvariant(XmlNamed named) {
 }
 
 void assertAttributeInvariants(XmlNode xml) {
-  for (var node in xml.descendants) {
+  for (final node in xml.descendants) {
     if (node is XmlElement) {
-      for (var attribute in node.attributes) {
+      for (final attribute in node.attributes) {
         expect(
             attribute, same(node.getAttributeNode(attribute.name.qualified)));
         expect(
@@ -124,7 +124,7 @@ void assertAttributeInvariants(XmlNode xml) {
 }
 
 void assertTextInvariants(XmlNode xml) {
-  for (var node in xml.descendants) {
+  for (final node in xml.descendants) {
     if (node is XmlDocument || node is XmlDocumentFragment) {
       expect(node.text, isNull,
           reason: 'Document nodes are supposed to return null text.');
@@ -139,7 +139,7 @@ void assertTextInvariants(XmlNode xml) {
     if (node is XmlParent) {
       XmlNodeType previousType;
       final nodeTypes = node.children.map((node) => node.nodeType);
-      for (var currentType in nodeTypes) {
+      for (final currentType in nodeTypes) {
         expect(
             previousType == XmlNodeType.TEXT && currentType == XmlNodeType.TEXT,
             isFalse,

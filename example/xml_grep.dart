@@ -36,7 +36,7 @@ void main(List<String> arguments) {
   final files = <File>[];
   final results = argumentParser.parse(arguments);
 
-  for (var argument in results.rest) {
+  for (final argument in results.rest) {
     final file = File(argument);
     if (file.existsSync()) {
       files.add(file);
@@ -49,13 +49,13 @@ void main(List<String> arguments) {
     printUsage();
   }
 
-  for (var file in files) {
+  for (final file in files) {
     final document = xml.parse(file.readAsStringSync());
     final elements = document.findAllElements(
       results['tag'],
       namespace: results['namespace'],
     );
-    for (var element in elements) {
+    for (final element in elements) {
       stdout.writeln(element.toXmlString(pretty: results['pretty']));
     }
   }

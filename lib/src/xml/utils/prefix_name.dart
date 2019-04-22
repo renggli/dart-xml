@@ -16,7 +16,7 @@ class XmlPrefixName extends XmlName {
   @override
   String get namespaceUri {
     for (var node = parent; node != null; node = node.parent) {
-      for (var attribute in node.attributes) {
+      for (final attribute in node.attributes) {
         if (attribute.name.prefix == xmlns && attribute.name.local == prefix) {
           return attribute.value;
         }

@@ -24,7 +24,7 @@ void main(List<String> arguments) {
   final results = argumentParser.parse(arguments);
   final indent = results['indent'];
 
-  for (var argument in results.rest) {
+  for (final argument in results.rest) {
     final file = File(argument);
     if (file.existsSync()) {
       files.add(file);
@@ -37,7 +37,7 @@ void main(List<String> arguments) {
     printUsage();
   }
 
-  for (var file in files) {
+  for (final file in files) {
     final document = xml.parse(file.readAsStringSync());
     stdout.writeln(document.toXmlString(pretty: true, indent: indent));
   }

@@ -32,7 +32,7 @@ Future<void> main(List<String> arguments) async {
   final normalize = results['normalize'];
   final text = results['text'];
 
-  for (var argument in results.rest) {
+  for (final argument in results.rest) {
     final file = File(argument);
     if (file.existsSync()) {
       files.add(file);
@@ -45,7 +45,7 @@ Future<void> main(List<String> arguments) async {
     printUsage();
   }
 
-  for (var file in files) {
+  for (final file in files) {
     var stream = file
         .openRead()
         .transform(utf8.decoder)

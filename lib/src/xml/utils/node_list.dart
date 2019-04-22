@@ -45,7 +45,7 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
   void addAll(Iterable<E> iterable) {
     final expanded = _expandNodes(iterable);
     super.addAll(expanded);
-    for (var node in expanded) {
+    for (final node in expanded) {
       node.attachParent(parent);
     }
   }
@@ -84,7 +84,7 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
 
   @override
   void clear() {
-    for (var node in this) {
+    for (final node in this) {
       node.detachParent(parent);
     }
     super.clear();
@@ -131,7 +131,7 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
       this[i].detachParent(parent);
     }
     super.replaceRange(start, end, expanded);
-    for (var node in expanded) {
+    for (final node in expanded) {
       node.attachParent(parent);
     }
   }
@@ -156,7 +156,7 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
   void insertAll(int index, Iterable<E> iterable) {
     final expanded = _expandNodes(iterable);
     super.insertAll(index, expanded);
-    for (var node in expanded) {
+    for (final node in expanded) {
       node.attachParent(parent);
     }
   }
@@ -175,7 +175,7 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
 
   Iterable<E> _expandNodes(Iterable<E> iterable) {
     final expanded = <E>[];
-    for (var node in iterable) {
+    for (final node in iterable) {
       XmlNodeTypeException.checkNotNull(node);
       if (node.nodeType == XmlNodeType.DOCUMENT_FRAGMENT) {
         expanded.addAll(_expandFragment(node));

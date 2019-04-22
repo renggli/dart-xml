@@ -90,7 +90,7 @@ class _XmlEventEncoderSink extends ChunkedConversionSink<List<XmlEvent>>
   void visitStartElementEvent(XmlStartElementEvent event) {
     sink.add(XmlToken.openElement);
     sink.add(event.name);
-    for (var attribute in event.attributes) {
+    for (final attribute in event.attributes) {
       sink.add(XmlToken.whitespace);
       sink.add(attribute.name);
       sink.add(XmlToken.equals);
