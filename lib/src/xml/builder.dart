@@ -123,7 +123,7 @@ class XmlBuilder {
     final element = XmlElementBuilder();
     _stack.add(element);
     namespaces.forEach(this.namespace);
-    attributes.forEach(this.attribute);
+    attributes.forEach(attribute);
     if (nest != null) {
       _insert(nest);
     }

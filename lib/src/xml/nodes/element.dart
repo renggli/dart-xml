@@ -15,14 +15,14 @@ class XmlElement extends XmlParent implements XmlNamed {
   /// Create an element node with the provided [name], [attributes], and
   /// [children].
   XmlElement(this.name,
-      [Iterable<XmlAttribute> attributes = const [],
+      [Iterable<XmlAttribute> attributesIterable = const [],
       Iterable<XmlNode> children = const [],
       this.isSelfClosing = true])
       : attributes = XmlNodeList(attributeNodeTypes),
         super(childrenNodeTypes, children) {
-    this.name.attachParent(this);
-    this.attributes.attachParent(this);
-    this.attributes.addAll(attributes);
+    name.attachParent(this);
+    attributes.attachParent(this);
+    attributes.addAll(attributesIterable);
   }
 
   /// Return the name of the node.
