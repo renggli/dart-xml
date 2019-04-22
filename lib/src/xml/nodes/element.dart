@@ -37,10 +37,8 @@ class XmlElement extends XmlParent implements XmlNamed {
   bool isSelfClosing;
 
   /// Return the attribute value with the given `name`.
-  String getAttribute(String name, {String namespace}) {
-    final attribute = getAttributeNode(name, namespace: namespace);
-    return attribute != null ? attribute.value : null;
-  }
+  String getAttribute(String name, {String namespace}) =>
+      getAttributeNode(name, namespace: namespace)?.value;
 
   /// Return the attribute node with the given `name`.
   XmlAttribute getAttributeNode(String name, {String namespace}) => attributes
