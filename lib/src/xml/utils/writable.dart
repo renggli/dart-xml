@@ -5,7 +5,7 @@ import 'package:xml/src/xml/visitors/visitable.dart';
 import 'package:xml/src/xml/visitors/writer.dart';
 
 /// Mixin to serialize XML to a [StringBuffer].
-abstract class XmlWritable implements XmlVisitable {
+mixin XmlWritable implements XmlVisitable {
   /// Write this object to a `buffer`.
   void writeTo(StringBuffer buffer) {
     XmlWriter(buffer).visit(this);

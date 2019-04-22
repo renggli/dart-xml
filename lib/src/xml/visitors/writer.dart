@@ -16,7 +16,7 @@ import 'package:xml/src/xml/utils/token.dart';
 import 'package:xml/src/xml/visitors/visitor.dart';
 
 /// A visitor that writes XML nodes exactly as they were parsed.
-class XmlWriter extends XmlVisitor {
+class XmlWriter with XmlVisitor {
   final StringBuffer buffer;
 
   XmlWriter(this.buffer);

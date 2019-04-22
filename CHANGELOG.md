@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.5.0
+
+* Turn various abstract classes into proper mixins.
+
 ## 3.4.0
 
 * Dart 2.2 compatibility and requirement.

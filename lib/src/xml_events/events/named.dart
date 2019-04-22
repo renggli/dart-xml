@@ -3,7 +3,7 @@ library xml_events.events.named;
 import 'package:xml/xml.dart' show XmlToken;
 
 /// Mixin with additional accessors for named objects.
-abstract class XmlNamed {
+mixin XmlNamed {
   /// The fully qualified name.
   String get name;
 

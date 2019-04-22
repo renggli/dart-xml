@@ -9,7 +9,7 @@ import 'package:xml/src/xml/utils/node_type.dart';
 import 'package:xml/src/xml/visitors/visitor.dart';
 
 /// Normalizes a node tree in-place.
-class XmlNormalizer extends XmlVisitor {
+class XmlNormalizer with XmlVisitor {
   static final XmlNormalizer defaultInstance = XmlNormalizer();
 
   @override

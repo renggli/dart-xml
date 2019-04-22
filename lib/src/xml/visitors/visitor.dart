@@ -13,7 +13,7 @@ import 'package:xml/src/xml/utils/name.dart';
 import 'package:xml/src/xml/visitors/visitable.dart';
 
 /// Basic visitor over [XmlVisitable] nodes.
-class XmlVisitor {
+mixin XmlVisitor {
   /// Helper to visit an [XmlVisitable] using this visitor by dispatching
   /// through the provided [visitable].
   T visit<T>(XmlVisitable visitable) => visitable.accept(this);

@@ -10,7 +10,7 @@ import 'package:xml/src/xml_events/events/start_element_event.dart';
 import 'package:xml/src/xml_events/events/text_event.dart';
 
 /// Basic visitor over [XmlEvent] nodes.
-abstract class XmlEventVisitor {
+mixin XmlEventVisitor {
   /// Helper to visit an [XmlEvent] using this visitor by dispatching
   /// through the provided [event].
   void visit(XmlEvent event) => event.accept(this);

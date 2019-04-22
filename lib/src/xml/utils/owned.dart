@@ -4,7 +4,7 @@ import 'package:xml/src/xml/nodes/node.dart';
 import 'package:xml/src/xml/utils/exceptions.dart';
 
 /// Mixin for objects that are a child of a different [XmlNode].
-abstract class XmlOwned {
+mixin XmlOwned {
   XmlNode _parent;
 
   /// Return the parent node of this node, or `null` if there is none.
