@@ -188,6 +188,7 @@ void main() {
             const XmlEventDecoder().startChunkedConversion(accumulator);
         expect(() => converter.addSlice('a<', 0, 2, true),
             throwsA(isXmlParserException));
+        converter.close();
       });
     });
   });
