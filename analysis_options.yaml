@@ -1,3 +1,5 @@
+# http://dart-lang.github.io/linter/lints/
+# https://github.com/dart-lang/linter/blob/master/example/all.yaml
 linter:
   rules:
     - always_declare_return_types
@@ -10,7 +12,7 @@ linter:
     - avoid_as
     - avoid_bool_literals_in_conditional_expressions
     - avoid_catches_without_on_clauses
-    # - avoid_catching_errors
+    - avoid_catching_errors
     - avoid_classes_with_only_static_members
     - avoid_double_and_int_checks
     - avoid_empty_else
@@ -41,11 +43,12 @@ linter:
     - camel_case_types
     - cancel_subscriptions
     # - cascade_invocations
-    # - close_sinks
+    - close_sinks
     - comment_references
     # - constant_identifier_names
     - control_flow_in_finally
     - curly_braces_in_flow_control_structures
+    - diagnostic_describe_all_properties
     - directives_ordering
     - empty_catches
     - empty_constructor_bodies
@@ -67,7 +70,7 @@ linter:
     - non_constant_identifier_names
     - null_closures
     - omit_local_variable_types
-    # - one_member_abstracts
+    - one_member_abstracts
     - only_throw_errors
     - overridden_fields
     - package_api_docs
@@ -76,6 +79,7 @@ linter:
     # - parameter_assignments
     - prefer_adjacent_string_concatenation
     - prefer_asserts_in_initializer_lists
+    - prefer_asserts_with_message
     - prefer_collection_literals
     - prefer_conditional_assignment
     - prefer_const_constructors
@@ -87,20 +91,27 @@ linter:
     - prefer_equal_for_default_values
     - prefer_expression_function_bodies
     - prefer_final_fields
+    - prefer_final_in_for_each
     - prefer_final_locals
+    - prefer_for_elements_to_map_fromIterable
     - prefer_foreach
     - prefer_function_declarations_over_variables
     - prefer_generic_function_type_aliases
+    - prefer_if_elements_to_conditional_expressions
     - prefer_initializing_formals
+    - prefer_inlined_adds
     # - prefer_int_literals
-    - prefer_interpolation_to_compose_strings
+    # - prefer_interpolation_to_compose_strings
     - prefer_is_empty
     - prefer_is_not_empty
     # - prefer_iterable_whereType
-    # - prefer_mixin (enable for Dart 2.1)
+    - prefer_mixin
+    - prefer_null_aware_operators
     - prefer_single_quotes
+    - prefer_spread_collections
     - prefer_typing_uninitialized_variables
     - prefer_void_to_null
+    - provide_deprecation_message
     # - public_member_api_docs
     - recursive_getters
     - slash_for_doc_comments
@@ -116,19 +127,20 @@ linter:
     - unnecessary_brace_in_string_interps
     - unnecessary_const
     - unnecessary_getters_setters
-    - unnecessary_lambdas
+    # - unnecessary_lambdas
     - unnecessary_new
     - unnecessary_null_aware_assignments
     - unnecessary_null_in_if_null_operators
     - unnecessary_overrides
     - unnecessary_parenthesis
     - unnecessary_statements
-    # - unnecessary_this
+    - unnecessary_this
     - unrelated_type_equality_checks
+    - use_full_hex_values_for_flutter_colors
     - use_function_type_syntax_for_parameters
     - use_rethrow_when_possible
     - use_setters_to_change_properties
     - use_string_buffers
-    - use_to_and_as_if_applicable
+    # - use_to_and_as_if_applicable
     - valid_regexps
     - void_checks
