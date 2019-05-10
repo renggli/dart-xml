@@ -2,7 +2,10 @@
 
 ## 3.5.0
 
+* Dart 2.3 compatibility and requirement.
 * Turn various abstract classes into proper mixins.
+* Numerous documentation improvements and code optimizations.
+* Add an event parser example.
 
 ## 3.4.0
 
