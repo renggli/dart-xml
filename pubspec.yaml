@@ -8,7 +8,7 @@ homepage: https://github.com/renggli/dart-xml
 environment:
   sdk: '>=2.4.0 <3.0.0'
 dependencies:
-  petitparser: ^2.3.0
+  petitparser: ^2.4.0
   collection: ^1.14.0
   convert: ^2.1.0
 dev_dependencies:
