@@ -48,6 +48,7 @@ Future<void> main(List<String> arguments) async {
   for (final file in files) {
     var stream = file
         .openRead()
+        .cast<List<int>>()
         .transform(utf8.decoder)
         .transform(const xml_events.XmlEventDecoder());
     if (normalize) {
