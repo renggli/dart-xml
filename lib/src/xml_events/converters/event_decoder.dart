@@ -61,7 +61,7 @@ class _XmlEventDecoderSink extends StringConversionSinkBase {
   @override
   void close() {
     if (carry.isNotEmpty) {
-      throw XmlParserException('Unable to parse remaining input: $carry', 0, 0);
+      throw XmlParserException('Unable to parse remaining input: $carry');
     }
     sink.close();
   }

@@ -6,8 +6,10 @@ import 'package:xml/src/xml/utils/owned.dart';
 
 /// Abstract exception class.
 abstract class XmlException implements Exception {
+  /// A message describing the XML error.
   final String message;
 
+  /// Creates a new XmlException with an optional error [message].
   XmlException([this.message]);
 
   @override
@@ -15,11 +17,29 @@ abstract class XmlException implements Exception {
 }
 
 /// Exception thrown when parsing of an XML document fails.
-class XmlParserException extends XmlException {
+class XmlParserException extends XmlException implements FormatException {
+  /// The source input which caused the error.
+  final String buffer;
+
+  /// The offset in [buffer] where the error was detected.
+  final int position;
+
+  /// The line number where the parser error was detected.
   final int line;
+
+  /// The column number where the parser error was detected.
   final int column;
 
-  XmlParserException(String message, this.line, this.column) : super(message);
+  /// Creates a new XmlParserException.
+  XmlParserException(String message,
+      {this.buffer, this.position = 0, this.line = 0, this.column = 0})
+      : super(message);
+
+  @override
+  String get source => buffer;
+
+  @override
+  int get offset => position;
 
   @override
   String toString() => '${super.toString()} at $line:$column';
@@ -41,6 +61,7 @@ class XmlNodeTypeException extends XmlException {
     }
   }
 
+  /// Creates a new XmlNodeTypeException.
   XmlNodeTypeException(String message) : super(message);
 }
 
@@ -54,10 +75,12 @@ class XmlParentException extends XmlException {
     }
   }
 
+  /// Creates a new XmlParentException.
   XmlParentException(String message) : super(message);
 }
 
 /// Exception thrown when the end tag does not match the open tag.
 class XmlTagException extends XmlException {
+  /// Creates a new XmlTagException.
   XmlTagException(String message) : super(message);
 }

@@ -28,8 +28,13 @@ class XmlEventIterator extends Iterator<XmlEvent> {
         // In case of an error, skip one character and throw an exception.
         context = context.failure(context.message, context.position + 1);
         current = null;
-        final position = Token.lineAndColumnOf(result.buffer, result.position);
-        throw XmlParserException(result.message, position[0], position[1]);
+        final lineAndColumn =
+            Token.lineAndColumnOf(result.buffer, result.position);
+        throw XmlParserException(result.message,
+            buffer: result.buffer,
+            position: result.position,
+            line: lineAndColumn[0],
+            column: lineAndColumn[1]);
       } else {
         // In case of reaching the end, terminate the iterator.
         context = null;

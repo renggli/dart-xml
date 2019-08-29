@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.6.0
+
+* Made `XmlParserError` a `FormatException` to follow typical Dart exception style. 
+
 ## 3.5.0
 
 * Dart 2.3 compatibility and requirement.

@@ -11,14 +11,22 @@ abstract class XmlGrammarDefinition<TNode, TName>
     extends XmlProductionDefinition {
   // Callbacks used to build the XML AST.
   TNode createAttribute(TName name, String text, XmlAttributeType type);
+
   TNode createComment(String text);
+
   TNode createCDATA(String text);
+
   TNode createDoctype(String text);
+
   TNode createDocument(Iterable<TNode> children);
+
   TNode createElement(TName name, Iterable<TNode> attributes,
       Iterable<TNode> children, bool isSelfClosing);
+
   TNode createProcessing(String target, String text);
+
   TName createQualified(String name);
+
   TNode createText(String text);
 
   // Connects the productions and the XML AST callbacks.
@@ -73,10 +81,14 @@ abstract class XmlGrammarDefinition<TNode, TName>
                 name, attributes, children, children.isNotEmpty);
           } else {
             final Token token = list[4][2];
+            final lineAndColumn =
+                Token.lineAndColumnOf(token.buffer, token.start);
             throw XmlParserException(
                 'Expected </${list[1]}>, but found </${list[4][3]}>',
-                token.line,
-                token.column);
+                buffer: token.buffer,
+                position: token.start,
+                line: lineAndColumn[0],
+                column: lineAndColumn[1]);
           }
         }
       });

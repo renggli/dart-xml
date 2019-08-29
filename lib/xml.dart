@@ -64,8 +64,12 @@ final Parser _parser = XmlParserDefinition().build();
 XmlDocument parse(String input) {
   final result = _parser.parse(input);
   if (result.isFailure) {
-    final position = Token.lineAndColumnOf(input, result.position);
-    throw XmlParserException(result.message, position[0], position[1]);
+    final lineAndColumn = Token.lineAndColumnOf(result.buffer, result.position);
+    throw XmlParserException(result.message,
+        buffer: result.buffer,
+        position: result.position,
+        line: lineAndColumn[0],
+        column: lineAndColumn[1]);
   }
   return result.value;
 }
