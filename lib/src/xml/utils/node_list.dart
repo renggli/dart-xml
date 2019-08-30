@@ -7,7 +7,8 @@ import 'package:xml/src/xml/utils/node_type.dart';
 import 'package:xml/src/xml/utils/owned.dart';
 
 /// Mutable list of XmlNodes, manages the parenting of the nodes.
-class XmlNodeList<E extends XmlNode> extends DelegatingList<E> with XmlOwned {
+class XmlNodeList<E extends XmlNode> extends DelegatingList<E>
+    with XmlOwnedMixin<XmlNode> {
   XmlNodeList(this.validNodeTypes) : super(<E>[]);
 
   /// Return the shared list of supported node types.

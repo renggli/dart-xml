@@ -1,14 +1,18 @@
 library xml.nodes.attribute;
 
+import 'package:xml/src/xml/nodes/element.dart';
 import 'package:xml/src/xml/nodes/node.dart';
 import 'package:xml/src/xml/utils/attribute_type.dart';
 import 'package:xml/src/xml/utils/name.dart';
 import 'package:xml/src/xml/utils/named.dart';
 import 'package:xml/src/xml/utils/node_type.dart';
+import 'package:xml/src/xml/utils/owned.dart';
 import 'package:xml/src/xml/visitors/visitor.dart';
 
 /// XML attribute node.
-class XmlAttribute extends XmlNode implements XmlNamed {
+class XmlAttribute extends XmlNode
+    with XmlOwnedMixin<XmlElement>
+    implements XmlNamed {
   @override
   final XmlName name;
 

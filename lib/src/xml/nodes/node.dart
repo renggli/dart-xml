@@ -6,7 +6,6 @@ import 'package:xml/src/xml/iterators/following.dart';
 import 'package:xml/src/xml/iterators/preceding.dart';
 import 'package:xml/src/xml/nodes/attribute.dart';
 import 'package:xml/src/xml/nodes/cdata.dart';
-import 'package:xml/src/xml/nodes/document.dart';
 import 'package:xml/src/xml/nodes/text.dart';
 import 'package:xml/src/xml/utils/node_type.dart';
 import 'package:xml/src/xml/utils/owned.dart';
@@ -16,7 +15,9 @@ import 'package:xml/src/xml/visitors/transformer.dart';
 import 'package:xml/src/xml/visitors/visitable.dart';
 
 /// Immutable abstract XML node.
-abstract class XmlNode extends Object with XmlVisitable, XmlWritable, XmlOwned {
+abstract class XmlNode extends Object
+    with XmlVisitable, XmlWritable
+    implements XmlOwned {
   /// Return the direct children of this node in document order.
   List<XmlNode> get children => const [];
 
@@ -41,13 +42,6 @@ abstract class XmlNode extends Object with XmlVisitable, XmlWritable, XmlOwned {
 
   /// Return the node type of this node.
   XmlNodeType get nodeType;
-
-  /// Return the document that contains this node, or `null` if the node is
-  /// not library a document.
-  XmlDocument get document => parent?.document;
-
-  /// Return the depth of this node in its tree, a root node has depth 0.
-  int get depth => parent == null ? 0 : parent.depth + 1;
 
   /// Return the first child of this node, or `null` if there are no children.
   XmlNode get firstChild => children.isEmpty ? null : children.first;

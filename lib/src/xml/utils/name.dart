@@ -1,6 +1,7 @@
 library xml.utils.name;
 
 import 'package:xml/src/xml/builder.dart';
+import 'package:xml/src/xml/nodes/node.dart';
 import 'package:xml/src/xml/utils/owned.dart';
 import 'package:xml/src/xml/utils/prefix_name.dart';
 import 'package:xml/src/xml/utils/simple_name.dart';
@@ -16,7 +17,8 @@ const String xmlns = 'xmlns';
 final NamespaceData xmlData = NamespaceData(xml, true);
 
 /// XML entity name.
-abstract class XmlName extends Object with XmlVisitable, XmlWritable, XmlOwned {
+abstract class XmlName extends Object
+    with XmlVisitable, XmlWritable, XmlOwnedMixin<XmlNode> {
   /// Return the namespace prefix, or `null`.
   String get prefix;
 
