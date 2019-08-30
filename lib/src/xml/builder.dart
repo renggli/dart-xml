@@ -251,8 +251,11 @@ class NamespaceData {
 
 abstract class XmlNodeBuilder {
   Map<String, NamespaceData> get namespaces;
+
   List<XmlAttribute> get attributes;
+
   List<XmlNode> get children;
+
   XmlNode build();
 }
 
