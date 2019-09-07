@@ -80,10 +80,13 @@ Future<void> lookupIp(args.ArgResults results, [String query = '']) async {
   final stream = response.transform(utf8.decoder);
 
   // Typically you would only implement one of the following two approaches,
-  // but for demonstration sake we demonstrate both in this example:
+  // but for demonstration sake we show both in this example:
   if (incremental) {
-    /// Decode the input stream, normalize it and serialize events, then extract
-    /// the information to be printed.
+
+    // Decode the input stream, normalize it and serialize events, then extract
+    // the information to be printed. This approach uses less memory and is
+    // emitting results immediately; thought the implementation is more
+    // involved.
     var name = '';
     await stream
         .transform(const xml_events.XmlEventDecoder())
@@ -97,8 +100,12 @@ Future<void> lookupIp(args.ArgResults results, [String query = '']) async {
       }
     });
   } else {
+
     // Wait until we have the full response body, then parse the input to a
-    // XML DOM tree and extract the information to be printed.
+    // XML DOM tree and extract the information to be printed. This approach
+    // uses more memory and waits for the complete data to be downloaded
+    // and parsed before printing any results; thought the implementation is
+    // simpler.
     final input = await stream.join();
     final document = xml.parse(input);
     for (final element in document.rootElement.children) {
