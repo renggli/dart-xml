@@ -82,7 +82,6 @@ Future<void> lookupIp(args.ArgResults results, [String query = '']) async {
   // Typically you would only implement one of the following two approaches,
   // but for demonstration sake we show both in this example:
   if (incremental) {
-
     // Decode the input stream, normalize it and serialize events, then extract
     // the information to be printed. This approach uses less memory and is
     // emitting results immediately; thought the implementation is more
@@ -100,7 +99,6 @@ Future<void> lookupIp(args.ArgResults results, [String query = '']) async {
       }
     });
   } else {
-
     // Wait until we have the full response body, then parse the input to a
     // XML DOM tree and extract the information to be printed. This approach
     // uses more memory and waits for the complete data to be downloaded

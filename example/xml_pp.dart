@@ -12,9 +12,7 @@ final args.ArgParser argumentParser = args.ArgParser()
       help: 'Customizes the indention when pretty printing.',
       defaultsTo: '  ')
   ..addFlag('pretty',
-      abbr: 'p',
-      help: 'Reformats the output to be pretty.',
-      defaultsTo: true);
+      abbr: 'p', help: 'Reformats the output to be pretty.', defaultsTo: true);
 
 void printUsage() {
   stdout.writeln('Usage: xml_pp [options] {files}');
