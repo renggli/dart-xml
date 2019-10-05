@@ -10,7 +10,11 @@ final args.ArgParser argumentParser = args.ArgParser()
   ..addOption('indent',
       abbr: 'i',
       help: 'Customizes the indention when pretty printing.',
-      defaultsTo: '  ');
+      defaultsTo: '  ')
+  ..addFlag('pretty',
+      abbr: 'p',
+      help: 'Reformats the output to be pretty.',
+      defaultsTo: true);
 
 void printUsage() {
   stdout.writeln('Usage: xml_pp [options] {files}');
@@ -23,6 +27,7 @@ void main(List<String> arguments) {
   final files = <File>[];
   final results = argumentParser.parse(arguments);
   final indent = results['indent'];
+  final pretty = results['pretty'];
 
   for (final argument in results.rest) {
     final file = File(argument);
@@ -39,6 +44,6 @@ void main(List<String> arguments) {
 
   for (final file in files) {
     final document = xml.parse(file.readAsStringSync());
-    stdout.writeln(document.toXmlString(pretty: true, indent: indent));
+    stdout.writeln(document.toXmlString(pretty: pretty, indent: indent));
   }
 }
