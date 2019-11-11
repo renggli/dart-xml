@@ -170,7 +170,7 @@ void main() {
       test('not matching end tag', () {
         expect(
             () => const XmlNodeDecoder().convert([
-                  XmlStartElementEvent('foo', [], false),
+                  XmlStartElementEvent('foo', const [], false),
                   XmlEndElementEvent('bar')
                 ]),
             throwsA(isXmlTagException));
@@ -178,7 +178,7 @@ void main() {
       test('missing end tag', () {
         expect(
             () => const XmlNodeDecoder().convert([
-                  XmlStartElementEvent('foo', [], false),
+                  XmlStartElementEvent('foo', const [], false),
                 ]),
             throwsA(isXmlTagException));
       });
@@ -294,13 +294,13 @@ void main() {
   });
   test('normalization', () {
     final actual = const XmlNormalizer().convert([
-      XmlStartElementEvent('div', [], true),
+      XmlStartElementEvent('div', const [], true),
       XmlTextEvent('a'),
       XmlTextEvent(''),
       XmlTextEvent('b'),
     ]);
     final expected = [
-      XmlStartElementEvent('div', [], true),
+      XmlStartElementEvent('div', const [], true),
       XmlTextEvent('ab'),
     ];
     expect(actual.toString(), expected.toString());

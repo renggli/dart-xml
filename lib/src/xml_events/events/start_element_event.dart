@@ -1,6 +1,7 @@
 library xml_events.events.start_element_event;
 
 import 'package:collection/collection.dart' show ListEquality;
+import 'package:meta/meta.dart';
 import 'package:xml/src/xml_events/event.dart';
 import 'package:xml/src/xml_events/events/named.dart';
 import 'package:xml/src/xml_events/visitor.dart';
@@ -39,6 +40,7 @@ class XmlStartElementEvent extends XmlEvent with XmlNamed {
 }
 
 /// Attributes of an [XmlStartElementEvent].
+@immutable
 class XmlElementAttribute with XmlNamed {
   XmlElementAttribute(this.name, this.value, this.attributeType);
 
