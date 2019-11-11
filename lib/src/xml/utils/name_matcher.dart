@@ -1,6 +1,6 @@
 library xml.utils.name_matcher;
 
-import 'package:xml/src/xml/utils/named.dart';
+import 'named.dart';
 
 /// Internal function type to match named elements.
 typedef XmlNameMatcher = bool Function(XmlNamed named);

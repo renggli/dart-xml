@@ -1,8 +1,8 @@
 library xml.utils.owned;
 
-import 'package:xml/src/xml/nodes/document.dart';
-import 'package:xml/src/xml/nodes/node.dart';
-import 'package:xml/src/xml/utils/exceptions.dart';
+import '../nodes/document.dart';
+import '../nodes/node.dart';
+import 'exceptions.dart';
 
 /// Interface for objects that are a child of a different [XmlNode].
 abstract class XmlOwned {

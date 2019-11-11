@@ -1,9 +1,10 @@
 library xml_events.iterator;
 
 import 'package:petitparser/petitparser.dart' show Result, Success, Token;
-import 'package:xml/src/xml_events/event.dart';
-import 'package:xml/src/xml_events/parser.dart';
-import 'package:xml/xml.dart' show XmlParserException;
+
+import '../../xml.dart' show XmlParserException;
+import 'event.dart';
+import 'parser.dart';
 
 class XmlEventIterator extends Iterator<XmlEvent> {
   XmlEventIterator(String input) : context = Success(input, 0, null);

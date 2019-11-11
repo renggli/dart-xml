@@ -3,8 +3,9 @@ library xml_events.converters.normalizer;
 import 'dart:convert' show Converter, ChunkedConversionSink;
 
 import 'package:convert/convert.dart' show AccumulatorSink;
-import 'package:xml/src/xml_events/event.dart';
-import 'package:xml/src/xml_events/events/text_event.dart';
+
+import '../event.dart';
+import '../events/text_event.dart';
 
 /// A converter that normalizes sequences of [XmlEvent]s, namely combines
 /// adjacent and removes empty text events.

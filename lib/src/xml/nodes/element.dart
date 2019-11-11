@@ -1,14 +1,14 @@
 library xml.nodes.element;
 
-import 'package:xml/src/xml/nodes/attribute.dart';
-import 'package:xml/src/xml/nodes/node.dart';
-import 'package:xml/src/xml/nodes/parent.dart';
-import 'package:xml/src/xml/utils/name.dart';
-import 'package:xml/src/xml/utils/name_matcher.dart';
-import 'package:xml/src/xml/utils/named.dart';
-import 'package:xml/src/xml/utils/node_list.dart';
-import 'package:xml/src/xml/utils/node_type.dart';
-import 'package:xml/src/xml/visitors/visitor.dart';
+import '../utils/name.dart';
+import '../utils/name_matcher.dart';
+import '../utils/named.dart';
+import '../utils/node_list.dart';
+import '../utils/node_type.dart';
+import '../visitors/visitor.dart';
+import 'attribute.dart';
+import 'node.dart';
+import 'parent.dart';
 
 /// XML element node.
 class XmlElement extends XmlParent implements XmlNamed {

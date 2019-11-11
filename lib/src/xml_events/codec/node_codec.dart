@@ -2,10 +2,10 @@ library xml_events.codec.node_codec;
 
 import 'dart:convert' show Codec, Converter;
 
-import 'package:xml/src/xml_events/converters/node_decoder.dart';
-import 'package:xml/src/xml_events/converters/node_encoder.dart';
-import 'package:xml/src/xml_events/event.dart';
-import 'package:xml/xml.dart' show XmlNode;
+import '../../../xml.dart' show XmlNode;
+import '../converters/node_decoder.dart';
+import '../converters/node_encoder.dart';
+import '../event.dart';
 
 /// Converts between [XmlEvent] sequences and [XmlNode] trees.
 class XmlNodeCodec extends Codec<List<XmlNode>, List<XmlEvent>> {

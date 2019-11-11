@@ -1,10 +1,11 @@
 library xml.grammar;
 
 import 'package:petitparser/petitparser.dart' show Parser, Token;
-import 'package:xml/src/xml/production.dart';
-import 'package:xml/src/xml/utils/attribute_type.dart';
-import 'package:xml/src/xml/utils/exceptions.dart';
-import 'package:xml/src/xml/utils/token.dart';
+
+import 'production.dart';
+import 'utils/attribute_type.dart';
+import 'utils/exceptions.dart';
+import 'utils/token.dart';
 
 /// XML grammar definition with [TNode] and [TName].
 abstract class XmlGrammarDefinition<TNode, TName>

@@ -3,51 +3,51 @@
 library xml;
 
 import 'package:petitparser/petitparser.dart' show Parser, Token;
-import 'package:xml/src/xml/nodes/document.dart';
-import 'package:xml/src/xml/parser.dart';
-import 'package:xml/src/xml/utils/exceptions.dart';
 
-export 'package:xml/src/xml/builder.dart' show XmlBuilder;
-export 'package:xml/src/xml/grammar.dart' show XmlGrammarDefinition;
-export 'package:xml/src/xml/nodes/attribute.dart' show XmlAttribute;
-export 'package:xml/src/xml/nodes/cdata.dart' show XmlCDATA;
-export 'package:xml/src/xml/nodes/comment.dart' show XmlComment;
-export 'package:xml/src/xml/nodes/data.dart' show XmlData;
-export 'package:xml/src/xml/nodes/doctype.dart' show XmlDoctype;
-export 'package:xml/src/xml/nodes/document.dart' show XmlDocument;
-export 'package:xml/src/xml/nodes/document_fragment.dart'
-    show XmlDocumentFragment;
-export 'package:xml/src/xml/nodes/element.dart' show XmlElement;
-export 'package:xml/src/xml/nodes/node.dart' show XmlNode;
-export 'package:xml/src/xml/nodes/parent.dart' show XmlParent;
-export 'package:xml/src/xml/nodes/processing.dart' show XmlProcessing;
-export 'package:xml/src/xml/nodes/text.dart' show XmlText;
-export 'package:xml/src/xml/parser.dart' show XmlParserDefinition;
-export 'package:xml/src/xml/production.dart' show XmlProductionDefinition;
-export 'package:xml/src/xml/utils/attribute_type.dart' show XmlAttributeType;
-export 'package:xml/src/xml/utils/entities.dart'
+import 'src/xml/nodes/document.dart';
+import 'src/xml/parser.dart';
+import 'src/xml/utils/exceptions.dart';
+
+export 'src/xml/builder.dart' show XmlBuilder;
+export 'src/xml/grammar.dart' show XmlGrammarDefinition;
+export 'src/xml/nodes/attribute.dart' show XmlAttribute;
+export 'src/xml/nodes/cdata.dart' show XmlCDATA;
+export 'src/xml/nodes/comment.dart' show XmlComment;
+export 'src/xml/nodes/data.dart' show XmlData;
+export 'src/xml/nodes/doctype.dart' show XmlDoctype;
+export 'src/xml/nodes/document.dart' show XmlDocument;
+export 'src/xml/nodes/document_fragment.dart' show XmlDocumentFragment;
+export 'src/xml/nodes/element.dart' show XmlElement;
+export 'src/xml/nodes/node.dart' show XmlNode;
+export 'src/xml/nodes/parent.dart' show XmlParent;
+export 'src/xml/nodes/processing.dart' show XmlProcessing;
+export 'src/xml/nodes/text.dart' show XmlText;
+export 'src/xml/parser.dart' show XmlParserDefinition;
+export 'src/xml/production.dart' show XmlProductionDefinition;
+export 'src/xml/utils/attribute_type.dart' show XmlAttributeType;
+export 'src/xml/utils/entities.dart'
     show
         encodeXmlText,
         encodeXmlAttributeValue,
         encodeXmlAttributeValueWithQuotes;
-export 'package:xml/src/xml/utils/exceptions.dart'
+export 'src/xml/utils/exceptions.dart'
     show
         XmlException,
         XmlParserException,
         XmlNodeTypeException,
         XmlParentException,
         XmlTagException;
-export 'package:xml/src/xml/utils/name.dart' show XmlName;
-export 'package:xml/src/xml/utils/named.dart' show XmlNamed;
-export 'package:xml/src/xml/utils/node_type.dart' show XmlNodeType;
-export 'package:xml/src/xml/utils/owned.dart' show XmlOwned;
-export 'package:xml/src/xml/utils/token.dart' show XmlToken;
-export 'package:xml/src/xml/utils/writable.dart' show XmlWritable;
-export 'package:xml/src/xml/visitors/pretty_writer.dart' show XmlPrettyWriter;
-export 'package:xml/src/xml/visitors/transformer.dart' show XmlTransformer;
-export 'package:xml/src/xml/visitors/visitable.dart' show XmlVisitable;
-export 'package:xml/src/xml/visitors/visitor.dart' show XmlVisitor;
-export 'package:xml/src/xml/visitors/writer.dart' show XmlWriter;
+export 'src/xml/utils/name.dart' show XmlName;
+export 'src/xml/utils/named.dart' show XmlNamed;
+export 'src/xml/utils/node_type.dart' show XmlNodeType;
+export 'src/xml/utils/owned.dart' show XmlOwned;
+export 'src/xml/utils/token.dart' show XmlToken;
+export 'src/xml/utils/writable.dart' show XmlWritable;
+export 'src/xml/visitors/pretty_writer.dart' show XmlPrettyWriter;
+export 'src/xml/visitors/transformer.dart' show XmlTransformer;
+export 'src/xml/visitors/visitable.dart' show XmlVisitable;
+export 'src/xml/visitors/visitor.dart' show XmlVisitor;
+export 'src/xml/visitors/writer.dart' show XmlWriter;
 
 final Parser _parser = XmlParserDefinition().build();
 

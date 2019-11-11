@@ -1,13 +1,13 @@
 library xml.nodes.attribute;
 
-import 'package:xml/src/xml/nodes/element.dart';
-import 'package:xml/src/xml/nodes/node.dart';
-import 'package:xml/src/xml/utils/attribute_type.dart';
-import 'package:xml/src/xml/utils/name.dart';
-import 'package:xml/src/xml/utils/named.dart';
-import 'package:xml/src/xml/utils/node_type.dart';
-import 'package:xml/src/xml/utils/owned.dart';
-import 'package:xml/src/xml/visitors/visitor.dart';
+import '../utils/attribute_type.dart';
+import '../utils/name.dart';
+import '../utils/named.dart';
+import '../utils/node_type.dart';
+import '../utils/owned.dart';
+import '../visitors/visitor.dart';
+import 'element.dart';
+import 'node.dart';
 
 /// XML attribute node.
 class XmlAttribute extends XmlNode

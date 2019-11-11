@@ -1,7 +1,7 @@
 library xml_events.iterable;
 
-import 'package:xml/src/xml_events/event.dart';
-import 'package:xml/src/xml_events/iterator.dart';
+import 'event.dart';
+import 'iterator.dart';
 
 class XmlEventIterable extends Iterable<XmlEvent> {
   XmlEventIterable(this.input);

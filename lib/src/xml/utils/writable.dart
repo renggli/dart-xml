@@ -1,8 +1,8 @@
 library xml.utils.writable;
 
-import 'package:xml/src/xml/visitors/pretty_writer.dart';
-import 'package:xml/src/xml/visitors/visitable.dart';
-import 'package:xml/src/xml/visitors/writer.dart';
+import '../visitors/pretty_writer.dart';
+import '../visitors/visitable.dart';
+import '../visitors/writer.dart';
 
 /// Mixin to serialize XML to a [StringBuffer].
 mixin XmlWritable implements XmlVisitable {

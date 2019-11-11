@@ -1,8 +1,8 @@
 library xml.utils.named;
 
-import 'package:xml/src/xml/nodes/attribute.dart';
-import 'package:xml/src/xml/nodes/element.dart';
-import 'package:xml/src/xml/utils/name.dart';
+import '../nodes/attribute.dart';
+import '../nodes/element.dart';
+import 'name.dart';
 
 /// A named XML node, such as an [XmlElement] or [XmlAttribute].
 abstract class XmlNamed {

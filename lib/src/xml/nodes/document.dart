@@ -1,11 +1,11 @@
 library xml.nodes.document;
 
-import 'package:xml/src/xml/nodes/doctype.dart';
-import 'package:xml/src/xml/nodes/element.dart';
-import 'package:xml/src/xml/nodes/node.dart';
-import 'package:xml/src/xml/nodes/parent.dart';
-import 'package:xml/src/xml/utils/node_type.dart';
-import 'package:xml/src/xml/visitors/visitor.dart';
+import '../utils/node_type.dart';
+import '../visitors/visitor.dart';
+import 'doctype.dart';
+import 'element.dart';
+import 'node.dart';
+import 'parent.dart';
 
 /// XML document node.
 class XmlDocument extends XmlParent {

@@ -1,13 +1,13 @@
 library xml_events.visitor;
 
-import 'package:xml/src/xml_events/event.dart';
-import 'package:xml/src/xml_events/events/cdata_event.dart';
-import 'package:xml/src/xml_events/events/comment_event.dart';
-import 'package:xml/src/xml_events/events/doctype_event.dart';
-import 'package:xml/src/xml_events/events/end_element_event.dart';
-import 'package:xml/src/xml_events/events/processing_event.dart';
-import 'package:xml/src/xml_events/events/start_element_event.dart';
-import 'package:xml/src/xml_events/events/text_event.dart';
+import 'event.dart';
+import 'events/cdata_event.dart';
+import 'events/comment_event.dart';
+import 'events/doctype_event.dart';
+import 'events/end_element_event.dart';
+import 'events/processing_event.dart';
+import 'events/start_element_event.dart';
+import 'events/text_event.dart';
 
 /// Basic visitor over [XmlEvent] nodes.
 mixin XmlEventVisitor {

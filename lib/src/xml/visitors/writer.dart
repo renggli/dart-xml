@@ -1,19 +1,19 @@
 library xml.visitors.writer;
 
-import 'package:xml/src/xml/nodes/attribute.dart';
-import 'package:xml/src/xml/nodes/cdata.dart';
-import 'package:xml/src/xml/nodes/comment.dart';
-import 'package:xml/src/xml/nodes/doctype.dart';
-import 'package:xml/src/xml/nodes/document.dart';
-import 'package:xml/src/xml/nodes/document_fragment.dart';
-import 'package:xml/src/xml/nodes/element.dart';
-import 'package:xml/src/xml/nodes/node.dart';
-import 'package:xml/src/xml/nodes/processing.dart';
-import 'package:xml/src/xml/nodes/text.dart';
-import 'package:xml/src/xml/utils/entities.dart';
-import 'package:xml/src/xml/utils/name.dart';
-import 'package:xml/src/xml/utils/token.dart';
-import 'package:xml/src/xml/visitors/visitor.dart';
+import '../nodes/attribute.dart';
+import '../nodes/cdata.dart';
+import '../nodes/comment.dart';
+import '../nodes/doctype.dart';
+import '../nodes/document.dart';
+import '../nodes/document_fragment.dart';
+import '../nodes/element.dart';
+import '../nodes/node.dart';
+import '../nodes/processing.dart';
+import '../nodes/text.dart';
+import '../utils/entities.dart';
+import '../utils/name.dart';
+import '../utils/token.dart';
+import 'visitor.dart';
 
 /// A visitor that writes XML nodes exactly as they were parsed.
 class XmlWriter with XmlVisitor {

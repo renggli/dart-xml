@@ -1,6 +1,6 @@
 library xml_events.events.named;
 
-import 'package:xml/xml.dart' show XmlToken;
+import '../../../xml.dart' show XmlToken;
 
 /// Mixin with additional accessors for named objects.
 mixin XmlNamed {

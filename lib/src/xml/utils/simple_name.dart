@@ -1,6 +1,6 @@
 library xml.utils.simple_name;
 
-import 'package:xml/src/xml/utils/name.dart';
+import 'name.dart';
 
 /// An XML entity name without a prefix.
 class XmlSimpleName extends XmlName {

@@ -1,6 +1,6 @@
 library xml.visitors.visitable;
 
-import 'package:xml/src/xml/visitors/visitor.dart';
+import 'visitor.dart';
 
 /// Interface for classes that can be visited using an [XmlVisitor].
 mixin XmlVisitable {

@@ -1,8 +1,8 @@
 library xml.utils.exceptions;
 
-import 'package:xml/src/xml/nodes/node.dart';
-import 'package:xml/src/xml/utils/node_type.dart';
-import 'package:xml/src/xml/utils/owned.dart';
+import '../nodes/node.dart';
+import 'node_type.dart';
+import 'owned.dart';
 
 /// Abstract exception class.
 abstract class XmlException implements Exception {

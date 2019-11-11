@@ -1,8 +1,8 @@
 library xml.nodes.data;
 
-import 'package:xml/src/xml/nodes/node.dart';
-import 'package:xml/src/xml/nodes/parent.dart';
-import 'package:xml/src/xml/utils/owned.dart';
+import '../utils/owned.dart';
+import 'node.dart';
+import 'parent.dart';
 
 /// Abstract XML data node.
 abstract class XmlData extends XmlNode with XmlOwnedMixin<XmlParent> {

@@ -3,8 +3,9 @@ library xml.production;
 import 'package:petitparser/petitparser.dart'
     show any, char, pattern, whitespace, string;
 import 'package:petitparser/petitparser.dart' show Parser, GrammarDefinition;
-import 'package:xml/src/xml/utils/entities.dart';
-import 'package:xml/src/xml/utils/token.dart';
+
+import 'utils/entities.dart';
+import 'utils/token.dart';
 
 /// XML parser that defines standard actions to the the XML tree.
 class XmlProductionDefinition extends GrammarDefinition {
