@@ -6,7 +6,7 @@ description: A lightweight library for parsing, traversing, querying, transformi
 homepage: https://github.com/renggli/dart-xml
 
 environment:
-  sdk: '>=2.4.0 <3.0.0'
+  sdk: '>=2.6.0 <3.0.0'
 dependencies:
   collection: ^1.14.0
   convert: ^2.1.0
