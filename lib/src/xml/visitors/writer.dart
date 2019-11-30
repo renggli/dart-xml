@@ -1,5 +1,6 @@
 library xml.visitors.writer;
 
+import '../entities/entity_mapping.dart';
 import '../nodes/attribute.dart';
 import '../nodes/cdata.dart';
 import '../nodes/comment.dart';
@@ -10,7 +11,6 @@ import '../nodes/element.dart';
 import '../nodes/node.dart';
 import '../nodes/processing.dart';
 import '../nodes/text.dart';
-import '../utils/entities.dart';
 import '../utils/name.dart';
 import '../utils/token.dart';
 import 'visitor.dart';
@@ -18,15 +18,16 @@ import 'visitor.dart';
 /// A visitor that writes XML nodes exactly as they were parsed.
 class XmlWriter with XmlVisitor {
   final StringBuffer buffer;
+  final XmlEntityMapping entityMapping;
 
-  XmlWriter(this.buffer);
+  XmlWriter(this.buffer, this.entityMapping);
 
   @override
   void visitAttribute(XmlAttribute node) {
     visit(node.name);
     buffer.write(XmlToken.equals);
-    buffer.write(
-        encodeXmlAttributeValueWithQuotes(node.value, node.attributeType));
+    buffer.write(entityMapping.encodeXmlAttributeValueWithQuotes(
+        node.value, node.attributeType));
   }
 
   @override
@@ -95,7 +96,7 @@ class XmlWriter with XmlVisitor {
 
   @override
   void visitText(XmlText node) {
-    buffer.write(encodeXmlText(node.text));
+    buffer.write(entityMapping.encodeXmlText(node.text));
   }
 
   void writeAttributes(XmlNode node) {

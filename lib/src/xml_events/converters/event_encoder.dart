@@ -4,8 +4,9 @@ import 'dart:convert' show Converter, ChunkedConversionSink;
 
 import 'package:convert/convert.dart' show StringAccumulatorSink;
 
-import '../../../xml.dart'
-    show XmlToken, encodeXmlText, encodeXmlAttributeValueWithQuotes;
+import '../../xml/entities/default_mapping.dart';
+import '../../xml/entities/entity_mapping.dart';
+import '../../xml/utils/token.dart';
 import '../event.dart';
 import '../events/cdata_event.dart';
 import '../events/comment_event.dart';
@@ -18,7 +19,9 @@ import '../visitor.dart';
 
 /// A converter that encodes a sequence of [XmlEvent] objects to a [String].
 class XmlEventEncoder extends Converter<List<XmlEvent>, String> {
-  const XmlEventEncoder();
+  final XmlEntityMapping entityMapping;
+
+  const XmlEventEncoder({this.entityMapping = const XmlDefaultEntityMapping()});
 
   @override
   String convert(List<XmlEvent> input) {
@@ -32,14 +35,15 @@ class XmlEventEncoder extends Converter<List<XmlEvent>, String> {
   @override
   ChunkedConversionSink<List<XmlEvent>> startChunkedConversion(
           Sink<String> sink) =>
-      _XmlEventEncoderSink(sink);
+      _XmlEventEncoderSink(sink, entityMapping);
 }
 
 class _XmlEventEncoderSink extends ChunkedConversionSink<List<XmlEvent>>
     with XmlEventVisitor {
-  _XmlEventEncoderSink(this.sink);
+  _XmlEventEncoderSink(this.sink, this.entityMapping);
 
   final Sink<String> sink;
+  final XmlEntityMapping entityMapping;
 
   @override
   void add(List<XmlEvent> chunk) => chunk.forEach(visit);
@@ -95,7 +99,7 @@ class _XmlEventEncoderSink extends ChunkedConversionSink<List<XmlEvent>>
       sink.add(XmlToken.whitespace);
       sink.add(attribute.name);
       sink.add(XmlToken.equals);
-      sink.add(encodeXmlAttributeValueWithQuotes(
+      sink.add(entityMapping.encodeXmlAttributeValueWithQuotes(
         attribute.value,
         attribute.attributeType,
       ));
@@ -109,6 +113,6 @@ class _XmlEventEncoderSink extends ChunkedConversionSink<List<XmlEvent>>
 
   @override
   void visitTextEvent(XmlTextEvent event) {
-    sink.add(encodeXmlText(event.text));
+    sink.add(entityMapping.encodeXmlText(event.text));
   }
 }

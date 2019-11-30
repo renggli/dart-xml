@@ -2,6 +2,8 @@
 /// documents and to convert them to other representations.
 library xml_events;
 
+import 'src/xml/entities/default_mapping.dart';
+import 'src/xml/entities/entity_mapping.dart';
 import 'src/xml_events/event.dart';
 import 'src/xml_events/iterable.dart';
 
@@ -45,4 +47,6 @@ export 'src/xml_events/visitor.dart' show XmlEventVisitor;
 ///        .where((text) => text.isNotEmpty)
 ///        .forEach(print);
 ///
-Iterable<XmlEvent> parseEvents(String input) => XmlEventIterable(input);
+Iterable<XmlEvent> parseEvents(String input,
+        {XmlEntityMapping entityMapping = const XmlDefaultEntityMapping()}) =>
+    XmlEventIterable(input, entityMapping);

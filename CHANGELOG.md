@@ -2,7 +2,11 @@
 
 ## 3.6.0
 
+* Entity decoding and encoding is now configurable with an `EntityMapper` all operations that read 
+  or write XML. Most commonly used existing interfaces continue to use a `DefaultEntityMapper` by 
+  default.
 * Made `XmlParserError` a `FormatException` to follow typical Dart exception style. 
+* Add an example demonstrating the interaction with HTTP APIs.
 
 ## 3.5.0
 

@@ -2,6 +2,7 @@ library xml.grammar;
 
 import 'package:petitparser/petitparser.dart' show Parser, Token;
 
+import 'entities/entity_mapping.dart';
 import 'production.dart';
 import 'utils/attribute_type.dart';
 import 'utils/exceptions.dart';
@@ -10,6 +11,8 @@ import 'utils/token.dart';
 /// XML grammar definition with [TNode] and [TName].
 abstract class XmlGrammarDefinition<TNode, TName>
     extends XmlProductionDefinition {
+  XmlGrammarDefinition(XmlEntityMapping entityMapping) : super(entityMapping);
+
   // Callbacks used to build the XML AST.
   TNode createAttribute(TName name, String text, XmlAttributeType type);
 

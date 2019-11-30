@@ -1,14 +1,19 @@
 library xml_events.iterator;
 
-import 'package:petitparser/petitparser.dart' show Result, Success, Token;
+import 'package:petitparser/petitparser.dart'
+    show Parser, Result, Success, Token;
 
 import '../../xml.dart' show XmlParserException;
+import '../xml/entities/entity_mapping.dart';
 import 'event.dart';
 import 'parser.dart';
 
 class XmlEventIterator extends Iterator<XmlEvent> {
-  XmlEventIterator(String input) : context = Success(input, 0, null);
+  XmlEventIterator(String input, XmlEntityMapping entityMapping)
+      : eventParser = getEventParser(entityMapping),
+        context = Success(input, 0, null);
 
+  final Parser eventParser;
   Result context;
 
   @override
@@ -19,7 +24,7 @@ class XmlEventIterator extends Iterator<XmlEvent> {
     if (context == null) {
       return false;
     }
-    final result = eventDefinitionParser.parseOn(context);
+    final result = eventParser.parseOn(context);
     if (result.isSuccess) {
       context = result;
       current = result.value;

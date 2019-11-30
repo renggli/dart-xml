@@ -4,6 +4,7 @@ import 'package:petitparser/petitparser.dart' show Parser, char, string;
 
 import '../../xml.dart'
     show XmlProductionDefinition, XmlToken, XmlAttributeType;
+import '../xml/entities/entity_mapping.dart';
 import 'events/cdata_event.dart';
 import 'events/comment_event.dart';
 import 'events/doctype_event.dart';
@@ -13,6 +14,8 @@ import 'events/start_element_event.dart';
 import 'events/text_event.dart';
 
 class XmlEventDefinition extends XmlProductionDefinition {
+  XmlEventDefinition(XmlEntityMapping entityMapping) : super(entityMapping);
+
   @override
   Parser start() => ref(characterData)
       .or(ref(startElement))
@@ -64,4 +67,10 @@ class XmlEventDefinition extends XmlProductionDefinition {
   Parser doctype() => super.doctype().map((each) => XmlDoctypeEvent(each[2]));
 }
 
-final Parser eventDefinitionParser = XmlEventDefinition().build();
+/// Cache of parsers for a specific entity mapping.
+Map<XmlEntityMapping, Parser> _eventParsers = Map.identity();
+
+/// Returns a parser for XML events.
+Parser getEventParser(XmlEntityMapping entityMapping) =>
+    _eventParsers.putIfAbsent(
+        entityMapping, () => XmlEventDefinition(entityMapping).build());

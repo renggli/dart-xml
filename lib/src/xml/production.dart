@@ -4,7 +4,8 @@ import 'package:petitparser/petitparser.dart'
     show any, char, pattern, whitespace, string;
 import 'package:petitparser/petitparser.dart' show Parser, GrammarDefinition;
 
-import 'utils/entities.dart';
+import 'entities/entity_mapping.dart';
+import 'utils/character_data_parser.dart';
 import 'utils/token.dart';
 
 /// XML parser that defines standard actions to the the XML tree.
@@ -16,6 +17,10 @@ class XmlProductionDefinition extends GrammarDefinition {
   static const String _nameChars =
       '-.0-9\u00B7\u0300-\u036F\u203F-\u2040$_nameStartChars';
 
+  final XmlEntityMapping entityMapping;
+
+  XmlProductionDefinition(this.entityMapping);
+
   @override
   Parser start() => ref(document).end();
 
@@ -24,31 +29,39 @@ class XmlProductionDefinition extends GrammarDefinition {
       .seq(char(XmlToken.equals))
       .seq(ref(spaceOptional))
       .seq(ref(attributeValue));
+
   Parser attributeValue() =>
       ref(attributeValueDouble).or(ref(attributeValueSingle));
+
   Parser attributeValueDouble() => char(XmlToken.doubleQuote)
-      .seq(XmlCharacterDataParser(XmlToken.doubleQuote, 0))
+      .seq(XmlCharacterDataParser(entityMapping, XmlToken.doubleQuote, 0))
       .seq(char(XmlToken.doubleQuote));
+
   Parser attributeValueSingle() => char(XmlToken.singleQuote)
-      .seq(XmlCharacterDataParser(XmlToken.singleQuote, 0))
+      .seq(XmlCharacterDataParser(entityMapping, XmlToken.singleQuote, 0))
       .seq(char(XmlToken.singleQuote));
+
   Parser attributes() => ref(space).seq(ref(attribute)).pick(1).star();
+
   Parser comment() => string(XmlToken.openComment)
       .seq(any()
           .starLazy(string(XmlToken.closeComment))
           .flatten('Expected comment content'))
       .seq(string(XmlToken.closeComment));
+
   Parser cdata() => string(XmlToken.openCDATA)
       .seq(any()
           .starLazy(string(XmlToken.closeCDATA))
           .flatten('Expected CDATA content'))
       .seq(string(XmlToken.closeCDATA));
+
   Parser content() => ref(characterData)
       .or(ref(element))
       .or(ref(processing))
       .or(ref(comment))
       .or(ref(cdata))
       .star();
+
   Parser doctype() => string(XmlToken.openDoctype)
       .seq(ref(space))
       .seq(ref(nameToken)
@@ -62,11 +75,13 @@ class XmlProductionDefinition extends GrammarDefinition {
           .flatten('Expected doctype content'))
       .seq(ref(spaceOptional))
       .seq(char(XmlToken.closeDoctype));
+
   Parser document() => ref(misc)
       .seq(ref(doctype).optional())
       .seq(ref(misc))
       .seq(ref(element))
       .seq(ref(misc));
+
   Parser element() => char(XmlToken.openElement)
       .seq(ref(qualified))
       .seq(ref(attributes))
@@ -77,6 +92,7 @@ class XmlProductionDefinition extends GrammarDefinition {
           .seq(ref(qualified))
           .seq(ref(spaceOptional))
           .seq(char(XmlToken.closeElement))));
+
   Parser processing() => string(XmlToken.openProcessing)
       .seq(ref(nameToken))
       .seq(ref(space)
@@ -86,16 +102,24 @@ class XmlProductionDefinition extends GrammarDefinition {
           .pick(1)
           .optional(''))
       .seq(string(XmlToken.closeProcessing));
+
   Parser qualified() => ref(nameToken);
 
-  Parser characterData() => XmlCharacterDataParser(XmlToken.openElement, 1);
+  Parser characterData() =>
+      XmlCharacterDataParser(entityMapping, XmlToken.openElement, 1);
+
   Parser misc() => ref(spaceText).or(ref(comment)).or(ref(processing)).star();
+
   Parser space() => whitespace().plus();
+
   Parser spaceText() => ref(space).flatten('Expected whitespace');
+
   Parser spaceOptional() => whitespace().star();
 
   Parser nameToken() =>
       ref(nameStartChar).seq(ref(nameChar).star()).flatten('Expected name');
+
   Parser nameStartChar() => pattern(_nameStartChars);
+
   Parser nameChar() => pattern(_nameChars);
 }

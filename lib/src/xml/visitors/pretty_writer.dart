@@ -1,5 +1,6 @@
 library xml.visitors.pretty_writer;
 
+import '../entities/entity_mapping.dart';
 import '../nodes/cdata.dart';
 import '../nodes/comment.dart';
 import '../nodes/doctype.dart';
@@ -15,7 +16,9 @@ class XmlPrettyWriter extends XmlWriter {
   int level = 0;
   final String indent;
 
-  XmlPrettyWriter(buffer, this.level, this.indent) : super(buffer);
+  XmlPrettyWriter(
+      buffer, XmlEntityMapping entityMapping, this.level, this.indent)
+      : super(buffer, entityMapping);
 
   @override
   void visitCDATA(XmlCDATA node) {

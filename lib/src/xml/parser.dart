@@ -1,5 +1,6 @@
 library xml.parser;
 
+import 'entities/entity_mapping.dart';
 import 'grammar.dart';
 import 'nodes/attribute.dart';
 import 'nodes/cdata.dart';
@@ -15,6 +16,8 @@ import 'utils/name.dart';
 
 /// XML parser that defines standard actions to the the XML tree.
 class XmlParserDefinition extends XmlGrammarDefinition<XmlNode, XmlName> {
+  XmlParserDefinition(XmlEntityMapping entityMapping) : super(entityMapping);
+
   @override
   XmlAttribute createAttribute(
           XmlName name, String text, XmlAttributeType type) =>

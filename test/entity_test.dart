@@ -1,7 +1,8 @@
 library xml.test.entity_test;
 
 import 'package:test/test.dart';
-import 'package:xml/src/xml/utils/entities.dart';
+import 'package:xml/src/xml/entities/default_mapping.dart';
+import 'package:xml/src/xml/utils/character_data_parser.dart';
 import 'package:xml/xml.dart';
 
 String decode(String input) => parse('<data>$input</data>').rootElement.text;
@@ -83,7 +84,8 @@ void main() {
         '&quot;hello&quot;');
   });
   group('character parser', () {
-    final parser = XmlCharacterDataParser('*', 1);
+    const entityMapping = XmlDefaultEntityMapping();
+    final parser = XmlCharacterDataParser(entityMapping, '*', 1);
     test('parse without stopper', () {
       final result1 = parser.parse('');
       expect(result1.isFailure, isTrue);
@@ -137,8 +139,10 @@ void main() {
     test('copy and equality', () {
       expect(parser.isEqualTo(parser), isTrue);
       expect(parser.isEqualTo(parser.copy()), isTrue);
-      expect(parser.isEqualTo(XmlCharacterDataParser('%', 1)), isFalse);
-      expect(parser.isEqualTo(XmlCharacterDataParser('*', 2)), isFalse);
+      expect(parser.isEqualTo(XmlCharacterDataParser(entityMapping, '%', 1)),
+          isFalse);
+      expect(parser.isEqualTo(XmlCharacterDataParser(entityMapping, '*', 2)),
+          isFalse);
     });
   });
 }

@@ -4,11 +4,15 @@ library xml;
 
 import 'package:petitparser/petitparser.dart' show Parser, Token;
 
+import 'src/xml/entities/default_mapping.dart';
+import 'src/xml/entities/entity_mapping.dart';
 import 'src/xml/nodes/document.dart';
 import 'src/xml/parser.dart';
 import 'src/xml/utils/exceptions.dart';
 
 export 'src/xml/builder.dart' show XmlBuilder;
+export 'src/xml/entities/default_mapping.dart' show XmlDefaultEntityMapping;
+export 'src/xml/entities/entity_mapping.dart' show XmlEntityMapping;
 export 'src/xml/grammar.dart' show XmlGrammarDefinition;
 export 'src/xml/nodes/attribute.dart' show XmlAttribute;
 export 'src/xml/nodes/cdata.dart' show XmlCDATA;
@@ -27,8 +31,11 @@ export 'src/xml/production.dart' show XmlProductionDefinition;
 export 'src/xml/utils/attribute_type.dart' show XmlAttributeType;
 export 'src/xml/utils/entities.dart'
     show
+        // ignore: deprecated_member_use_from_same_package
         encodeXmlText,
+        // ignore: deprecated_member_use_from_same_package
         encodeXmlAttributeValue,
+        // ignore: deprecated_member_use_from_same_package
         encodeXmlAttributeValueWithQuotes;
 export 'src/xml/utils/exceptions.dart'
     show
@@ -49,7 +56,8 @@ export 'src/xml/visitors/visitable.dart' show XmlVisitable;
 export 'src/xml/visitors/visitor.dart' show XmlVisitor;
 export 'src/xml/visitors/writer.dart' show XmlWriter;
 
-final Parser _parser = XmlParserDefinition().build();
+/// Cache of parsers for a specific entity mapping.
+Map<XmlEntityMapping, Parser> _documentParsers = Map.identity();
 
 /// Return an [XmlDocument] for the given [input] string, or throws an
 /// [XmlParserException] if the input is invalid.
@@ -61,8 +69,11 @@ final Parser _parser = XmlParserDefinition().build();
 ///
 /// Note: It is the responsibility of the caller to provide a standard Dart
 /// [String] using the default UTF-16 encoding.
-XmlDocument parse(String input) {
-  final result = _parser.parse(input);
+XmlDocument parse(String input,
+    {XmlEntityMapping entityMapping = const XmlDefaultEntityMapping()}) {
+  final parser = _documentParsers.putIfAbsent(
+      entityMapping, () => XmlParserDefinition(entityMapping).build());
+  final result = parser.parse(input);
   if (result.isFailure) {
     final lineAndColumn = Token.lineAndColumnOf(result.buffer, result.position);
     throw XmlParserException(result.message,
