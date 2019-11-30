@@ -8,6 +8,7 @@ import 'src/xml/entities/default_mapping.dart';
 import 'src/xml/entities/entity_mapping.dart';
 import 'src/xml/nodes/document.dart';
 import 'src/xml/parser.dart';
+import 'src/xml/utils/cache.dart';
 import 'src/xml/utils/exceptions.dart';
 
 export 'src/xml/builder.dart' show XmlBuilder;
@@ -57,7 +58,8 @@ export 'src/xml/visitors/visitor.dart' show XmlVisitor;
 export 'src/xml/visitors/writer.dart' show XmlWriter;
 
 /// Cache of parsers for a specific entity mapping.
-Map<XmlEntityMapping, Parser> _documentParsers = Map.identity();
+final XmlCache<XmlEntityMapping, Parser> _parserCache =
+    XmlCache((entityMapping) => XmlParserDefinition(entityMapping).build(), 5);
 
 /// Return an [XmlDocument] for the given [input] string, or throws an
 /// [XmlParserException] if the input is invalid.
@@ -71,9 +73,7 @@ Map<XmlEntityMapping, Parser> _documentParsers = Map.identity();
 /// [String] using the default UTF-16 encoding.
 XmlDocument parse(String input,
     {XmlEntityMapping entityMapping = const XmlDefaultEntityMapping.xml()}) {
-  final parser = _documentParsers.putIfAbsent(
-      entityMapping, () => XmlParserDefinition(entityMapping).build());
-  final result = parser.parse(input);
+  final result = _parserCache[entityMapping].parse(input);
   if (result.isFailure) {
     final lineAndColumn = Token.lineAndColumnOf(result.buffer, result.position);
     throw XmlParserException(result.message,

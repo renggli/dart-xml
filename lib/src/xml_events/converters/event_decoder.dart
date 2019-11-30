@@ -33,7 +33,7 @@ class XmlEventDecoder extends Converter<String, List<XmlEvent>> {
 
 class _XmlEventDecoderSink extends StringConversionSinkBase {
   _XmlEventDecoderSink(this.sink, XmlEntityMapping entityMapping)
-      : eventParser = getEventParser(entityMapping);
+      : eventParser = eventParserCache[entityMapping];
 
   final Sink<List<XmlEvent>> sink;
   final Parser eventParser;
