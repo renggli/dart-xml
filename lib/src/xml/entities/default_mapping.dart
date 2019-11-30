@@ -7,7 +7,7 @@ import 'entity_mapping.dart';
 class XmlDefaultEntityMapping extends XmlEntityMapping {
   final Map<String, String> entities;
 
-  const XmlDefaultEntityMapping([this.entities = entityToChar]);
+  const XmlDefaultEntityMapping([this.entities = allEntities]);
 
   @override
   String decodeEntity(String entity) {
