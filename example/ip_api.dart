@@ -86,16 +86,29 @@ Future<void> lookupIp(args.ArgResults results, [String query = '']) async {
     // the information to be printed. This approach uses less memory and is
     // emitting results immediately; thought the implementation is more
     // involved.
-    var name = '';
+    var level = 0;
+    String currentField;
     await stream
         .transform(const xml_events.XmlEventDecoder())
         .transform(const xml_events.XmlNormalizer())
         .expand((events) => events)
         .forEach((event) {
       if (event is xml_events.XmlStartElementEvent) {
-        name = event.name;
-      } else if (event is xml_events.XmlCDATAEvent) {
-        stdout.writeln('$name: ${event.text}');
+        level++;
+        if (level == 2) {
+          currentField = event.name;
+          stdout.write('$currentField: ');
+        }
+      } else if (event is xml_events.XmlTextEvent && currentField != null) {
+        stdout.write(event.text);
+      } else if (event is xml_events.XmlCDATAEvent && currentField != null) {
+        stdout.write(event.text);
+      } else if (event is xml_events.XmlEndElementEvent) {
+        if (event.name == currentField) {
+          currentField = null;
+          stdout.writeln();
+        }
+        level--;
       }
     });
   } else {
