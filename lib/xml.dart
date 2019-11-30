@@ -70,7 +70,7 @@ Map<XmlEntityMapping, Parser> _documentParsers = Map.identity();
 /// Note: It is the responsibility of the caller to provide a standard Dart
 /// [String] using the default UTF-16 encoding.
 XmlDocument parse(String input,
-    {XmlEntityMapping entityMapping = const XmlDefaultEntityMapping()}) {
+    {XmlEntityMapping entityMapping = const XmlDefaultEntityMapping.xml()}) {
   final parser = _documentParsers.putIfAbsent(
       entityMapping, () => XmlParserDefinition(entityMapping).build());
   final result = parser.parse(input);

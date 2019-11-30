@@ -84,7 +84,7 @@ void main() {
         '&quot;hello&quot;');
   });
   group('character parser', () {
-    const entityMapping = XmlDefaultEntityMapping();
+    const entityMapping = XmlDefaultEntityMapping.xml();
     final parser = XmlCharacterDataParser(entityMapping, '*', 1);
     test('parse without stopper', () {
       final result1 = parser.parse('');

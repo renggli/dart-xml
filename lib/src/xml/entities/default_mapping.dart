@@ -1,27 +1,39 @@
 library xml.entities.default_mapping;
 
 import '../utils/attribute_type.dart';
-import 'default_entities.dart';
 import 'entity_mapping.dart';
+import 'named_entities.dart';
 
+/// Default entity mapping for XML, HTML, and HTML5 entities.
 class XmlDefaultEntityMapping extends XmlEntityMapping {
+  /// Named character references.
   final Map<String, String> entities;
 
-  const XmlDefaultEntityMapping([this.entities = allEntities]);
+  /// Minimal entity mapping of XML character references.
+  const XmlDefaultEntityMapping.xml() : this(xmlEntities);
+
+  /// Minimal entity mapping of HTML character references.
+  const XmlDefaultEntityMapping.html() : this(htmlEntities);
+
+  /// Extensive entity mapping of HTML5 character references.
+  const XmlDefaultEntityMapping.html5() : this(html5Entities);
+
+  /// Custom entity mapping.
+  const XmlDefaultEntityMapping(this.entities);
 
   @override
-  String decodeEntity(String entity) {
-    if (entity.length > 1 && entity[0] == '#') {
-      if (entity.length > 2 && (entity[1] == 'x' || entity[1] == 'X')) {
+  String decodeEntity(String input) {
+    if (input.length > 1 && input[0] == '#') {
+      if (input.length > 2 && (input[1] == 'x' || input[1] == 'X')) {
         // Hexadecimal character reference.
-        return String.fromCharCode(int.parse(entity.substring(2), radix: 16));
+        return String.fromCharCode(int.parse(input.substring(2), radix: 16));
       } else {
         // Decimal character reference.
-        return String.fromCharCode(int.parse(entity.substring(1)));
+        return String.fromCharCode(int.parse(input.substring(1)));
       }
     } else {
       // Named character reference.
-      return entities[entity];
+      return entities[input];
     }
   }
 
@@ -38,9 +50,8 @@ class XmlDefaultEntityMapping extends XmlEntityMapping {
       case XmlAttributeType.DOUBLE_QUOTE:
         return input.replaceAllMapped(
             _doubleQuoteAttributePattern, _doubleQuoteAttributeReplace);
-      default:
-        throw AssertionError();
     }
+    throw ArgumentError.value(type, 'type');
   }
 }
 
@@ -56,9 +67,8 @@ String _textReplace(Match match) {
       return '&amp;';
     case ']]>':
       return ']]&gt;';
-    default:
-      throw AssertionError();
   }
+  throw ArgumentError.value(match, 'match');
 }
 
 // Encode XML attribute values (single quotes).
@@ -79,9 +89,8 @@ String _singeQuoteAttributeReplace(Match match) {
       return '&#xD;';
     case '\t':
       return '&#x9;';
-    default:
-      throw AssertionError();
   }
+  throw ArgumentError.value(match, 'match');
 }
 
 // Encode XML attribute values (double quotes).
@@ -102,7 +111,6 @@ String _doubleQuoteAttributeReplace(Match match) {
       return '&#xD;';
     case '\t':
       return '&#x9;';
-    default:
-      throw AssertionError();
   }
+  throw ArgumentError.value(match, 'match');
 }

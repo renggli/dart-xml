@@ -6,16 +6,17 @@ import '../utils/attribute_type.dart';
 abstract class XmlEntityMapping {
   const XmlEntityMapping();
 
-  /// Decodes a single entity, or `null` if the entity is invalid.
-  String decodeEntity(String entity);
+  /// Decodes a character entity, returns the decoded entity or `null` if the
+  /// input is invalid.
+  String decodeEntity(String input);
 
-  /// Encode a string to be serialized as an XML text.
+  /// Encodes a string to be serialized as XML text.
   String encodeXmlText(String input);
 
-  /// Encode a string to be serialized as an XML attribute value.
+  /// Encodes a string to be serialized as XML attribute value.
   String encodeXmlAttributeValue(String input, XmlAttributeType type);
 
-  /// Encode a string to be serialized as an XML attribute value together with
+  /// Encodes a string to be serialized as XML attribute value together with
   /// its corresponding quotes.
   String encodeXmlAttributeValueWithQuotes(
       String input, XmlAttributeType type) {

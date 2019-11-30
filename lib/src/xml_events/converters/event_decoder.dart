@@ -16,7 +16,8 @@ import '../parser.dart';
 class XmlEventDecoder extends Converter<String, List<XmlEvent>> {
   final XmlEntityMapping entityMapping;
 
-  const XmlEventDecoder({this.entityMapping = const XmlDefaultEntityMapping()});
+  const XmlEventDecoder(
+      {this.entityMapping = const XmlDefaultEntityMapping.xml()});
 
   @override
   List<XmlEvent> convert(String input, [int start = 0, int end]) {

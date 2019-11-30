@@ -48,5 +48,6 @@ export 'src/xml_events/visitor.dart' show XmlEventVisitor;
 ///        .forEach(print);
 ///
 Iterable<XmlEvent> parseEvents(String input,
-        {XmlEntityMapping entityMapping = const XmlDefaultEntityMapping()}) =>
+        {XmlEntityMapping entityMapping =
+            const XmlDefaultEntityMapping.xml()}) =>
     XmlEventIterable(input, entityMapping);

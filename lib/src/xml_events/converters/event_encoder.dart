@@ -21,7 +21,8 @@ import '../visitor.dart';
 class XmlEventEncoder extends Converter<List<XmlEvent>, String> {
   final XmlEntityMapping entityMapping;
 
-  const XmlEventEncoder({this.entityMapping = const XmlDefaultEntityMapping()});
+  const XmlEventEncoder(
+      {this.entityMapping = const XmlDefaultEntityMapping.xml()});
 
   @override
   String convert(List<XmlEvent> input) {

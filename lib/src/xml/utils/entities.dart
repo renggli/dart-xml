@@ -3,7 +3,7 @@ library xml.utils.entities;
 import '../entities/default_mapping.dart';
 import 'attribute_type.dart';
 
-const defaultEntityMapping = XmlDefaultEntityMapping();
+const defaultEntityMapping = XmlDefaultEntityMapping.xml();
 
 /// Encode a string to be serialized as an XML text node.
 @deprecated

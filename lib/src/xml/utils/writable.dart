@@ -22,7 +22,7 @@ mixin XmlWritable implements XmlVisitable {
   String toXmlString(
       {bool pretty = false,
       String indent = '  ',
-      XmlEntityMapping entityMapping = const XmlDefaultEntityMapping()}) {
+      XmlEntityMapping entityMapping = const XmlDefaultEntityMapping.xml()}) {
     final buffer = StringBuffer();
     if (pretty) {
       XmlPrettyWriter(buffer, entityMapping, 0, indent).visit(this);
