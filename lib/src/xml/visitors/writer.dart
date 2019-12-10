@@ -26,7 +26,7 @@ class XmlWriter with XmlVisitor {
   void visitAttribute(XmlAttribute node) {
     visit(node.name);
     buffer.write(XmlToken.equals);
-    buffer.write(entityMapping.encodeXmlAttributeValueWithQuotes(
+    buffer.write(entityMapping.encodeAttributeValueWithQuotes(
         node.value, node.attributeType));
   }
 
@@ -96,7 +96,7 @@ class XmlWriter with XmlVisitor {
 
   @override
   void visitText(XmlText node) {
-    buffer.write(entityMapping.encodeXmlText(node.text));
+    buffer.write(entityMapping.encodeText(node.text));
   }
 
   void writeAttributes(XmlNode node) {

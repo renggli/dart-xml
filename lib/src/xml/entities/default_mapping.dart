@@ -38,11 +38,11 @@ class XmlDefaultEntityMapping extends XmlEntityMapping {
   }
 
   @override
-  String encodeXmlText(String input) =>
+  String encodeText(String input) =>
       input.replaceAllMapped(_textPattern, _textReplace);
 
   @override
-  String encodeXmlAttributeValue(String input, XmlAttributeType type) {
+  String encodeAttributeValue(String input, XmlAttributeType type) {
     switch (type) {
       case XmlAttributeType.SINGLE_QUOTE:
         return input.replaceAllMapped(

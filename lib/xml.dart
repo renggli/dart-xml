@@ -14,6 +14,7 @@ import 'src/xml/utils/exceptions.dart';
 export 'src/xml/builder.dart' show XmlBuilder;
 export 'src/xml/entities/default_mapping.dart' show XmlDefaultEntityMapping;
 export 'src/xml/entities/entity_mapping.dart' show XmlEntityMapping;
+export 'src/xml/entities/null_mapping.dart' show XmlNullEntityMapping;
 export 'src/xml/grammar.dart' show XmlGrammarDefinition;
 export 'src/xml/nodes/attribute.dart' show XmlAttribute;
 export 'src/xml/nodes/cdata.dart' show XmlCDATA;

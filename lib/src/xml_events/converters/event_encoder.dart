@@ -100,7 +100,7 @@ class _XmlEventEncoderSink extends ChunkedConversionSink<List<XmlEvent>>
       sink.add(XmlToken.whitespace);
       sink.add(attribute.name);
       sink.add(XmlToken.equals);
-      sink.add(entityMapping.encodeXmlAttributeValueWithQuotes(
+      sink.add(entityMapping.encodeAttributeValueWithQuotes(
         attribute.value,
         attribute.attributeType,
       ));
@@ -114,6 +114,6 @@ class _XmlEventEncoderSink extends ChunkedConversionSink<List<XmlEvent>>
 
   @override
   void visitTextEvent(XmlTextEvent event) {
-    sink.add(entityMapping.encodeXmlText(event.text));
+    sink.add(entityMapping.encodeText(event.text));
   }
 }
