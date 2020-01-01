@@ -34,7 +34,7 @@ import 'package:xml/xml.dart' as xml;
 To read XML input use the top-level function `parse(String input)`:
 
 ```dart
-var bookshelfXml = '''<?xml version="1.0"?>
+final bookshelfXml = '''<?xml version="1.0"?>
     <bookshelf>
       <book>
         <title lang="english">Growing a Language</title>
@@ -46,7 +46,7 @@ var bookshelfXml = '''<?xml version="1.0"?>
       </book>
       <price>132.00</price>
     </bookshelf>''';
-var document = xml.parse(bookshelfXml);
+final document = xml.parse(bookshelfXml);
 ```
 
 The resulting object is an instance of `XmlDocument`. In case the document cannot be parsed, a `XmlParserException` is thrown.
@@ -77,7 +77,7 @@ There are various methods to traverse the XML tree along its axes:
 For example, the `descendants` iterator could be used to extract all textual contents from an XML tree:
 
 ```dart
-var textual = document.descendants
+final textual = document.descendants
     .where((node) => node is xml.XmlText && !node.text.trim().isEmpty)
     .join('\n');
 print(textual);
@@ -91,7 +91,7 @@ Additionally, there are helpers to find elements with a specific tag:
 For example, to find all the nodes with the _&lt;title&gt;_ tag you could write:
 
 ```dart
-var titles = document.findAllElements('title');
+final titles = document.findAllElements('title');
 ```
 
 The above code returns a lazy iterator that recursively walks the XML document and yields all the element nodes with the requested tag name. To extract the textual contents call `text`:
@@ -107,7 +107,7 @@ This prints _Growing a Language_ and _Learning XML_.
 Similarly, to compute the total price of all the books one could write the following expression:
 
 ```dart
-var total = document.findAllElements('book')
+final total = document.findAllElements('book')
     .map((node) => double.parse(node.findElements('price').single.text))
     .reduce((a, b) => a + b);
 print(total);
@@ -120,7 +120,7 @@ Note that this first finds all the books, and then extracts the price to avoid c
 To build a new XML document use an `XmlBuilder`. The builder implements a small set of methods to build complete XML trees. To create the above bookshelf example one would write:
 
 ```dart
-var builder = new xml.XmlBuilder();
+final builder = xml.XmlBuilder();
 builder.processing('xml', 'version="1.0"');
 builder.element('bookshelf', nest: () {
   builder.element('book', nest: () {
@@ -139,7 +139,7 @@ builder.element('bookshelf', nest: () {
   });
   builder.element('price', nest: 132.00);
 });
-var bookshelfXml = builder.build();
+final bookshelfXml = builder.build();
 ```
 
 Note the `element` method. It is quite sophisticated and supports many different optional named arguments:
