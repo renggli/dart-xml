@@ -3,6 +3,7 @@
 ## 3.7.0
 
 * Update to PetitParser 3.0.0.
+* Dart 2.7 compatibility and requirement.
 
 ## 3.6.0
 
