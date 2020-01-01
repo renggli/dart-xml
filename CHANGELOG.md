@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.7.0
+
+* Update to PetitParser 3.0.0.
+
 ## 3.6.0
 
 * Entity decoding and encoding is now configurable with an `XmlEntityMapping`. All operations that 

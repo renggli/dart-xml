@@ -3,7 +3,7 @@ library xml_events.converters.event_decoder;
 import 'dart:convert'
     show Converter, StringConversionSink, StringConversionSinkBase;
 
-import 'package:petitparser/petitparser.dart' show Parser, Result, Success;
+import 'package:petitparser/petitparser.dart';
 
 import '../../../xml.dart' show XmlParserException;
 import '../../xml/entities/default_mapping.dart';

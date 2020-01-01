@@ -1,6 +1,6 @@
 library xml_events.parser;
 
-import 'package:petitparser/petitparser.dart' show Parser, char, string;
+import 'package:petitparser/petitparser.dart';
 
 import '../../xml.dart'
     show XmlProductionDefinition, XmlToken, XmlAttributeType;
@@ -30,11 +30,14 @@ class XmlEventDefinition extends XmlProductionDefinition {
   Parser characterData() =>
       super.characterData().map((each) => XmlTextEvent(each));
 
-  Parser startElement() => char(XmlToken.openElement)
+  Parser startElement() => XmlToken.openElement
+      .toParser()
       .seq(ref(qualified))
       .seq(ref(attributes))
       .seq(ref(spaceOptional))
-      .seq(char(XmlToken.closeElement).or(string(XmlToken.closeEndElement)))
+      .seq(XmlToken.closeElement
+          .toParser()
+          .or(XmlToken.closeEndElement.toParser()))
       .map((each) => XmlStartElementEvent(
           each[1],
           List.castFrom<dynamic, XmlElementAttribute>(each[2]),
@@ -48,10 +51,11 @@ class XmlEventDefinition extends XmlProductionDefinition {
           ? XmlAttributeType.DOUBLE_QUOTE
           : XmlAttributeType.SINGLE_QUOTE));
 
-  Parser endElement() => string(XmlToken.openEndElement)
+  Parser endElement() => XmlToken.openEndElement
+      .toParser()
       .seq(ref(qualified))
       .seq(ref(spaceOptional))
-      .seq(char(XmlToken.closeElement))
+      .seq(XmlToken.closeElement.toParser())
       .map((each) => XmlEndElementEvent(each[1]));
 
   @override

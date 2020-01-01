@@ -2,7 +2,7 @@
 /// building XML documents.
 library xml;
 
-import 'package:petitparser/petitparser.dart' show Parser, Token;
+import 'package:petitparser/petitparser.dart';
 
 import 'src/xml/entities/default_mapping.dart';
 import 'src/xml/entities/entity_mapping.dart';

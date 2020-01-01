@@ -1,6 +1,6 @@
 library xml.grammar;
 
-import 'package:petitparser/petitparser.dart' show Parser, Token;
+import 'package:petitparser/petitparser.dart';
 
 import 'entities/entity_mapping.dart';
 import 'production.dart';

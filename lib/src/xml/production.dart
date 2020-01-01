@@ -1,8 +1,6 @@
 library xml.production;
 
-import 'package:petitparser/petitparser.dart'
-    show any, char, pattern, whitespace, string;
-import 'package:petitparser/petitparser.dart' show Parser, GrammarDefinition;
+import 'package:petitparser/petitparser.dart';
 
 import 'entities/entity_mapping.dart';
 import 'utils/character_data_parser.dart';
@@ -26,34 +24,38 @@ class XmlProductionDefinition extends GrammarDefinition {
 
   Parser attribute() => ref(qualified)
       .seq(ref(spaceOptional))
-      .seq(char(XmlToken.equals))
+      .seq(XmlToken.equals.toParser())
       .seq(ref(spaceOptional))
       .seq(ref(attributeValue));
 
   Parser attributeValue() =>
       ref(attributeValueDouble).or(ref(attributeValueSingle));
 
-  Parser attributeValueDouble() => char(XmlToken.doubleQuote)
+  Parser attributeValueDouble() => XmlToken.doubleQuote
+      .toParser()
       .seq(XmlCharacterDataParser(entityMapping, XmlToken.doubleQuote, 0))
-      .seq(char(XmlToken.doubleQuote));
+      .seq(XmlToken.doubleQuote.toParser());
 
-  Parser attributeValueSingle() => char(XmlToken.singleQuote)
+  Parser attributeValueSingle() => XmlToken.singleQuote
+      .toParser()
       .seq(XmlCharacterDataParser(entityMapping, XmlToken.singleQuote, 0))
-      .seq(char(XmlToken.singleQuote));
+      .seq(XmlToken.singleQuote.toParser());
 
   Parser attributes() => ref(space).seq(ref(attribute)).pick(1).star();
 
-  Parser comment() => string(XmlToken.openComment)
+  Parser comment() => XmlToken.openComment
+      .toParser()
       .seq(any()
-          .starLazy(string(XmlToken.closeComment))
+          .starLazy(XmlToken.closeComment.toParser())
           .flatten('Expected comment content'))
-      .seq(string(XmlToken.closeComment));
+      .seq(XmlToken.closeComment.toParser());
 
-  Parser cdata() => string(XmlToken.openCDATA)
+  Parser cdata() => XmlToken.openCDATA
+      .toParser()
       .seq(any()
-          .starLazy(string(XmlToken.closeCDATA))
+          .starLazy(XmlToken.closeCDATA.toParser())
           .flatten('Expected CDATA content'))
-      .seq(string(XmlToken.closeCDATA));
+      .seq(XmlToken.closeCDATA.toParser());
 
   Parser content() => ref(characterData)
       .or(ref(element))
@@ -62,19 +64,20 @@ class XmlProductionDefinition extends GrammarDefinition {
       .or(ref(cdata))
       .star();
 
-  Parser doctype() => string(XmlToken.openDoctype)
+  Parser doctype() => XmlToken.openDoctype
+      .toParser()
       .seq(ref(space))
       .seq(ref(nameToken)
           .or(ref(attributeValue))
           .or(any()
-              .starLazy(char(XmlToken.openDoctypeBlock))
-              .seq(char(XmlToken.openDoctypeBlock))
-              .seq(any().starLazy(char(XmlToken.closeDoctypeBlock)))
-              .seq(char(XmlToken.closeDoctypeBlock)))
+              .starLazy(XmlToken.openDoctypeBlock.toParser())
+              .seq(XmlToken.openDoctypeBlock.toParser())
+              .seq(any().starLazy(XmlToken.closeDoctypeBlock.toParser()))
+              .seq(XmlToken.closeDoctypeBlock.toParser()))
           .separatedBy(ref(space))
           .flatten('Expected doctype content'))
       .seq(ref(spaceOptional))
-      .seq(char(XmlToken.closeDoctype));
+      .seq(XmlToken.closeDoctype.toParser());
 
   Parser document() => ref(misc)
       .seq(ref(doctype).optional())
@@ -82,26 +85,29 @@ class XmlProductionDefinition extends GrammarDefinition {
       .seq(ref(element))
       .seq(ref(misc));
 
-  Parser element() => char(XmlToken.openElement)
+  Parser element() => XmlToken.openElement
+      .toParser()
       .seq(ref(qualified))
       .seq(ref(attributes))
       .seq(ref(spaceOptional))
-      .seq(string(XmlToken.closeEndElement).or(char(XmlToken.closeElement)
+      .seq(XmlToken.closeEndElement.toParser().or(XmlToken.closeElement
+          .toParser()
           .seq(ref(content))
-          .seq(string(XmlToken.openEndElement).token())
+          .seq(XmlToken.openEndElement.toParser().token())
           .seq(ref(qualified))
           .seq(ref(spaceOptional))
-          .seq(char(XmlToken.closeElement))));
+          .seq(XmlToken.closeElement.toParser())));
 
-  Parser processing() => string(XmlToken.openProcessing)
+  Parser processing() => XmlToken.openProcessing
+      .toParser()
       .seq(ref(nameToken))
       .seq(ref(space)
           .seq(any()
-              .starLazy(string(XmlToken.closeProcessing))
+              .starLazy(XmlToken.closeProcessing.toParser())
               .flatten('Expected processing instruction content'))
           .pick(1)
           .optional(''))
-      .seq(string(XmlToken.closeProcessing));
+      .seq(XmlToken.closeProcessing.toParser());
 
   Parser qualified() => ref(nameToken);
 
