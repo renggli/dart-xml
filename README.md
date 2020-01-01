@@ -1,7 +1,7 @@
 Dart XML
 ========
 
-[![Pub Package](https://img.shields.io/pub/v/xml.svg)](https://pub.dartlang.org/packages/xml)
+[![Pub Package](https://img.shields.io/pub/v/xml.svg)](https://pub.dev/packages/xml)
 [![Build Status](https://travis-ci.org/renggli/dart-xml.svg)](https://travis-ci.org/renggli/dart-xml)
 [![Coverage Status](https://coveralls.io/repos/renggli/dart-xml/badge.svg)](https://coveralls.io/r/renggli/dart-xml)
 [![GitHub Issues](https://img.shields.io/github/issues/renggli/dart-xml.svg)](https://github.com/renggli/dart-xml/issues)
@@ -13,7 +13,7 @@ Dart XML is a lightweight library for parsing, traversing, querying, transformin
 
 This library is open source, stable and well tested. Development happens on [GitHub](http://github.com/renggli/dart-xml). Feel free to report issues or create a pull-request there. General questions are best asked on [StackOverflow](http://stackoverflow.com/questions/tagged/xml+dart).
 
-The package is hosted on [dart packages](https://pub.dartlang.org/packages/xml). Up-to-date [class documentation](https://pub.dartlang.org/documentation/xml/latest/) is created with every release.
+The package is hosted on [dart packages](https://pub.dev/packages/xml). Up-to-date [class documentation](https://pub.dev/documentation/xml/latest/) is created with every release.
 
 
 Tutorial
@@ -21,7 +21,7 @@ Tutorial
 
 ### Installation
 
-Follow the installation instructions on [dart packages](https://pub.dartlang.org/packages/xml#-installing-tab-).
+Follow the installation instructions on [dart packages](https://pub.dev/packages/xml#-installing-tab-).
 
 Import the package into your Dart code using:
 
@@ -174,7 +174,7 @@ There are numerous packages depending on this package:
 - [Extensible Resource Descriptors](https://github.com/stevenroose/dart-xrd) is a library to read Extensible Resource Descriptors.
 - [xml2json](https://github.com/shamblett/xml2json) is an XML to JSON conversion package.
 - [spreadsheet_decoder](https://github.com/sestegra/spreadsheet_decoder) is a library for decoding and updating spreadsheets for ODS and XLSX files.
-- [and many more](https://pub.dartlang.org/packages?q=dependency%3Axml) ...
+- [and many more](https://pub.dev/packages?q=dependency%3Axml) ...
 
 ### Supports
 

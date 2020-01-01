@@ -1,7 +1,7 @@
 Dart XML Examples
 =================
 
-This package contains examples to illustrate the use of [Dart XML](https://github.com/renggli/dart-xml). A tutorial and full documentation is contained in the [package description](https://pub.dartlang.org/packages/xml) and [API documentation](https://pub.dartlang.org/documentation/xml/latest/).
+This package contains examples to illustrate the use of [Dart XML](https://github.com/renggli/dart-xml). A tutorial and full documentation is contained in the [package description](https://pub.dev/packages/xml) and [API documentation](https://pub.dev/documentation/xml/latest/).
 
 ### ip_lookup
 
