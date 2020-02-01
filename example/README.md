@@ -20,18 +20,26 @@ This example contains a command-line application that flattens an XML documents 
 dart example/xml_flatten.dart example/books.xml
 ```
 
-### xml_pp
-
-This example contains a command-line application that reads XML documents from the file-system and pretty prints the formatted document to the console.
-
-```bash
-dart example/xml_pp.dart example/books.xml
-```
-
 ### xml_grep
 
 This example contains a command-line application that reads XML documents from the file-system and prints matching tags to the console. For example: 
 
 ```bash
 dart example/xml_grep.dart -t title example/books.xml
+```
+
+### xml_pos
+
+This example contains a command-line application that uses a custom XML parser that collects the tokens of each XML node while parsing. This allows to print line and column information in the original document.
+
+```bash
+dart example/xml_pos.dart example/books.xml
+```
+
+### xml_pp
+
+This example contains a command-line application that reads XML documents from the file-system and pretty prints the formatted document to the console.
+
+```bash
+dart example/xml_pp.dart example/books.xml
 ```
