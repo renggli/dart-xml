@@ -16,7 +16,7 @@ final args.ArgParser argumentParser = args.ArgParser()
   ..addFlag(
     'text',
     abbr: 't',
-    help: 'Only display text events',
+    help: 'Only display text events.',
   );
 
 void printUsage() {
