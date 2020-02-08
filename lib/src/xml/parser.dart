@@ -1,12 +1,11 @@
 library xml.parser;
 
-import 'package:xml/src/xml/nodes/declaration.dart';
-
 import 'entities/entity_mapping.dart';
 import 'grammar.dart';
 import 'nodes/attribute.dart';
 import 'nodes/cdata.dart';
 import 'nodes/comment.dart';
+import 'nodes/declaration.dart';
 import 'nodes/doctype.dart';
 import 'nodes/document.dart';
 import 'nodes/element.dart';

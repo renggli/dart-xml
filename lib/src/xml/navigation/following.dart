@@ -2,8 +2,7 @@ library xml.navigation.following;
 
 import 'dart:collection';
 
-import 'package:xml/src/xml/nodes/attribute.dart';
-
+import '../nodes/attribute.dart';
 import '../nodes/node.dart';
 
 extension XmlFollowingExtension on XmlNode {

@@ -1,11 +1,10 @@
 library xml.builder;
 
-import 'package:xml/src/xml/nodes/declaration.dart';
-
 import 'nodes/attribute.dart';
 import 'nodes/cdata.dart';
 import 'nodes/comment.dart';
 import 'nodes/data.dart';
+import 'nodes/declaration.dart';
 import 'nodes/document.dart';
 import 'nodes/document_fragment.dart';
 import 'nodes/element.dart';

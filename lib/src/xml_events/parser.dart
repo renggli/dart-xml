@@ -1,7 +1,6 @@
 library xml_events.parser;
 
 import 'package:petitparser/petitparser.dart';
-import 'package:xml/src/xml_events/events/declaration_event.dart';
 
 import '../../xml.dart'
     show XmlProductionDefinition, XmlToken, XmlAttributeType;
@@ -9,6 +8,7 @@ import '../xml/entities/entity_mapping.dart';
 import '../xml/utils/cache.dart';
 import 'events/cdata_event.dart';
 import 'events/comment_event.dart';
+import 'events/declaration_event.dart';
 import 'events/doctype_event.dart';
 import 'events/end_element_event.dart';
 import 'events/event_attribute.dart';
