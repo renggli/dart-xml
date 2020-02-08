@@ -46,6 +46,9 @@ void assertDocumentInvariants(XmlNode xml) {
     expect(root, same(child.document));
   }
   expect(xml.document.children, contains(xml.document.rootElement));
+  if (xml.document.declaration != null) {
+    expect(xml.document.children, contains(xml.document.declaration));
+  }
   if (xml.document.doctypeElement != null) {
     expect(xml.document.children, contains(xml.document.doctypeElement));
   }
@@ -90,10 +93,10 @@ void assertBackwardInvariants(XmlNode xml) {
 }
 
 void assertNameInvariants(XmlNode xml) {
-  xml.descendants.whereType<XmlNamed>().forEach(assertNamedInvariant);
+  xml.descendants.whereType<XmlHasName>().forEach(assertNamedInvariant);
 }
 
-void assertNamedInvariant(XmlNamed named) {
+void assertNamedInvariant(XmlHasName named) {
   expect(named, same(named.name.parent));
   expect(named.name.local, isNot(isEmpty));
   expect(named.name.qualified, endsWith(named.name.local));
@@ -136,16 +139,14 @@ void assertTextInvariants(XmlNode xml) {
       expect(node.text, isNotEmpty,
           reason: 'Text nodes are not suppoed to be empty.');
     }
-    if (node is XmlParent) {
-      XmlNodeType previousType;
-      final nodeTypes = node.children.map((node) => node.nodeType);
-      for (final currentType in nodeTypes) {
-        expect(
-            previousType == XmlNodeType.TEXT && currentType == XmlNodeType.TEXT,
-            isFalse,
-            reason: 'Consecutive text nodes detected: $nodeTypes');
-        previousType = currentType;
-      }
+    XmlNodeType previousType;
+    final nodeTypes = node.children.map((node) => node.nodeType);
+    for (final currentType in nodeTypes) {
+      expect(
+          previousType == XmlNodeType.TEXT && currentType == XmlNodeType.TEXT,
+          isFalse,
+          reason: 'Consecutive text nodes detected: $nodeTypes');
+      previousType = currentType;
     }
   }
 }
@@ -190,9 +191,9 @@ void assertCompareInvariants(XmlNode original, XmlNode copy) {
       reason: 'The copied node should not be identical.');
   expect(original.nodeType, copy.nodeType,
       reason: 'The copied node type should be the same.');
-  if (original is XmlNamed && copy is XmlNamed) {
-    final originalNamed = original as XmlNamed; // ignore: avoid_as
-    final copyNamed = copy as XmlNamed; // ignore: avoid_as
+  if (original is XmlHasName && copy is XmlHasName) {
+    final originalNamed = original as XmlHasName; // ignore: avoid_as
+    final copyNamed = copy as XmlHasName; // ignore: avoid_as
     expect(originalNamed.name, copyNamed.name,
         reason: 'The copied name should be equal.');
     expect(originalNamed.name, isNot(same(copyNamed.name)),
@@ -237,7 +238,7 @@ void compareNode(XmlNode first, XmlNode second) {
   for (var i = 0; i < first.attributes.length; i++) {
     compareNode(first.attributes[i], second.attributes[i]);
   }
-  if (first is! XmlParent) {
+  if (first is! XmlHasChildren) {
     expect(first.toXmlString(), second.toXmlString());
   }
 }
@@ -250,6 +251,7 @@ void assertEventInvariants(String input, XmlNode node) {
   const includedTypes = {
     XmlNodeType.CDATA,
     XmlNodeType.COMMENT,
+    XmlNodeType.DECLARATION,
     XmlNodeType.DOCUMENT_TYPE,
     XmlNodeType.ELEMENT,
     XmlNodeType.PROCESSING,
@@ -301,6 +303,19 @@ void assertEventInvariants(String input, XmlNode node) {
       final XmlDoctype expected = nodes.removeAt(0);
       expect(current.nodeType, expected.nodeType);
       expect(current.text, expected.text);
+    } else if (current is XmlDeclarationEvent) {
+      final XmlDeclaration expected = nodes.removeAt(0);
+      expect(current.nodeType, expected.nodeType);
+      expect(current.attributes.length, expected.attributes.length);
+      for (var i = 0; i < current.attributes.length; i++) {
+        final currentAttr = current.attributes[i];
+        final expectedAttr = expected.attributes[i];
+        expect(currentAttr.name, expectedAttr.name.qualified);
+        expect(currentAttr.localName, expectedAttr.name.local);
+        expect(currentAttr.namespacePrefix, expectedAttr.name.prefix);
+        expect(currentAttr.value, expectedAttr.value);
+        expect(currentAttr.attributeType, expectedAttr.attributeType);
+      }
     } else if (current is XmlProcessingEvent) {
       final XmlProcessing expected = nodes.removeAt(0);
       expect(current.nodeType, expected.nodeType);

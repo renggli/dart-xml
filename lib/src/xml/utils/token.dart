@@ -15,6 +15,8 @@ class XmlToken {
   static const String closeElement = '>';
   static const String openEndElement = '</';
   static const String closeEndElement = '/>';
+  static const String openDeclaration = '<?xml';
+  static const String closeDeclaration = '?>';
   static const String openDoctype = '<!DOCTYPE';
   static const String closeDoctype = '>';
   static const String openDoctypeBlock = '[';

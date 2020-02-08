@@ -1,5 +1,7 @@
 library xml.builder;
 
+import 'package:xml/src/xml/nodes/declaration.dart';
+
 import 'nodes/attribute.dart';
 import 'nodes/cdata.dart';
 import 'nodes/comment.dart';
@@ -63,12 +65,33 @@ class XmlBuilder {
     _stack.last.children.add(XmlCDATA(text.toString()));
   }
 
+  /// Adds a [XmlDeclaration] node.
+  ///
+  /// For example, to generate a XML declaration with the default version _1.0_
+  /// and _UTF-8_ encoding one would write:
+  ///
+  ///      builder.declaration(encoding: 'UTF-8');
+  ///
+  void declaration(
+      {String version = '1.0',
+      String encoding,
+      Map<String, String> attributes = const {}}) {
+    final declaration = XmlDeclaration()
+      ..version = version
+      ..encoding = encoding;
+    attributes.forEach(declaration.setAttribute);
+    _stack.last.children.add(declaration);
+  }
+
   /// Adds a [XmlProcessing] node with the provided [target] and [text].
   ///
-  /// For example, to generate a processing element with the _xml_ and the
-  /// attribute _version="1.0"_ one would write:
+  /// For example, to generate a processing element with the _xml-stylesheet_
+  /// and the attributes _href="/style.css" type="text/css" title="default
+  /// stylesheet"_ one would write:
   ///
-  ///     builder.processing('xml', 'version="1.0"');
+  ///     builder.processing(
+  ///         'xml-stylesheet',
+  ///         'href="/style.css" type="text/css" title="default stylesheet"');
   ///
   void processing(String target, Object text) {
     _stack.last.children.add(XmlProcessing(target, text.toString()));

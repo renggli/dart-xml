@@ -8,7 +8,7 @@ import 'assertions.dart';
 void main() {
   test('basic', () {
     final builder = XmlBuilder();
-    builder.processing('xml', 'version="1.0" encoding="UTF-8"');
+    builder.declaration(encoding: 'UTF-8');
     builder.processing('xml-stylesheet',
         'href="/style.css" type="text/css" title="default stylesheet"');
     builder.element('bookstore', nest: () {
@@ -38,6 +38,7 @@ void main() {
   });
   test('all', () {
     final builder = XmlBuilder();
+    builder.declaration();
     builder.processing('processing', 'instruction');
     builder.element('element1', attributes: {'attribute1': 'value1'}, nest: () {
       builder.attribute('attribute2', 'value2',
@@ -52,7 +53,8 @@ void main() {
     final xml = builder.build();
     assertTreeInvariants(xml);
     final actual = xml.toString();
-    const expected = '<?processing instruction?>'
+    const expected = '<?xml version="1.0"?>'
+        '<?processing instruction?>'
         '<element1 attribute1="value1" attribute2="value2" '
         'attribute3=\'value3\'>'
         '<element2/>'
@@ -362,5 +364,21 @@ void main() {
     const expected =
         '<element>&lt;test>&lt;![CDATA[string]]&gt;&lt;/test></element>';
     expect(actual, expected);
+  });
+  test('declaration', () {
+    final builder = XmlBuilder();
+    builder.declaration(
+        version: '0.5', encoding: 'ASCII', attributes: {'foo': 'bar'});
+    builder.element('data');
+    final xml = builder.build();
+    assertTreeInvariants(xml);
+    final actual = xml.toString();
+    const expected = '<?xml version="0.5" encoding="ASCII" foo="bar"?><data/>';
+    expect(actual, expected);
+  });
+  test('declaration outside of document', () {
+    final builder = XmlBuilder();
+    expect(() => builder.element('data', nest: builder.declaration),
+        throwsA(isXmlNodeTypeException));
   });
 }

@@ -1,14 +1,13 @@
 library xml.utils.name;
 
 import '../builder.dart';
-import '../nodes/node.dart';
-import '../visitors/visitable.dart';
+import '../mixins/has_parent.dart';
+import '../mixins/has_visitor.dart';
+import '../mixins/has_writer.dart';
 import '../visitors/visitor.dart';
-import 'owned.dart';
 import 'prefix_name.dart';
 import 'simple_name.dart';
 import 'token.dart';
-import 'writable.dart';
 
 // xml namespace declarations
 const String xml = 'xml';
@@ -18,7 +17,7 @@ final NamespaceData xmlData = NamespaceData(xml, true);
 
 /// XML entity name.
 abstract class XmlName extends Object
-    with XmlVisitable, XmlWritable, XmlOwnedMixin<XmlNode> {
+    with XmlHasVisitor, XmlHasWriter, XmlHasParent {
   /// Return the namespace prefix, or `null`.
   String get prefix;
 

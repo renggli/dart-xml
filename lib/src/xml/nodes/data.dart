@@ -1,11 +1,10 @@
 library xml.nodes.data;
 
-import '../utils/owned.dart';
+import '../mixins/has_parent.dart';
 import 'node.dart';
-import 'parent.dart';
 
 /// Abstract XML data node.
-abstract class XmlData extends XmlNode with XmlOwnedMixin<XmlParent> {
+abstract class XmlData extends XmlNode with XmlHasParent<XmlNode> {
   String _text;
 
   /// Return the textual value of this node.

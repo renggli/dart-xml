@@ -1,5 +1,7 @@
 library xml.parser;
 
+import 'package:xml/src/xml/nodes/declaration.dart';
+
 import 'entities/entity_mapping.dart';
 import 'grammar.dart';
 import 'nodes/attribute.dart';
@@ -30,6 +32,10 @@ class XmlParserDefinition extends XmlGrammarDefinition<XmlNode, XmlName> {
   XmlCDATA createCDATA(String text) => XmlCDATA(text);
 
   @override
+  XmlDeclaration createDeclaration(Iterable<XmlNode> attributes) =>
+      XmlDeclaration(attributes.cast<XmlAttribute>());
+
+  @override
   XmlDoctype createDoctype(String text) => XmlDoctype(text);
 
   @override
@@ -40,7 +46,7 @@ class XmlParserDefinition extends XmlGrammarDefinition<XmlNode, XmlName> {
   XmlElement createElement(XmlName name, Iterable<XmlNode> attributes,
           Iterable<XmlNode> children, [bool isSelfClosing = true]) =>
       XmlElement(
-          name, List<XmlAttribute>.from(attributes), children, isSelfClosing);
+          name, attributes.cast<XmlAttribute>(), children, isSelfClosing);
 
   @override
   XmlProcessing createProcessing(String target, String text) =>

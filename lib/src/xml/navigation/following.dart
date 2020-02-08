@@ -1,9 +1,16 @@
-library xml.iterators.following;
+library xml.navigation.following;
 
-import 'dart:collection' show IterableBase;
+import 'dart:collection';
 
-import '../nodes/attribute.dart';
+import 'package:xml/src/xml/nodes/attribute.dart';
+
 import '../nodes/node.dart';
+
+extension XmlFollowingExtension on XmlNode {
+  /// Return a lazy [Iterable] of the nodes following this [XmlNode] in
+  /// document order.
+  Iterable<XmlNode> get following => XmlFollowingIterable(this);
+}
 
 /// Iterable to walk over the followers of a node.
 class XmlFollowingIterable extends IterableBase<XmlNode> {

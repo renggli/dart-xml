@@ -9,18 +9,21 @@ import '../../../xml.dart'
         XmlAttribute,
         XmlCDATA,
         XmlComment,
+        XmlDeclaration,
         XmlDoctype,
         XmlElement,
-        XmlTagException,
         XmlName,
         XmlNode,
         XmlProcessing,
+        XmlTagException,
         XmlText;
 import '../event.dart';
 import '../events/cdata_event.dart';
 import '../events/comment_event.dart';
+import '../events/declaration_event.dart';
 import '../events/doctype_event.dart';
 import '../events/end_element_event.dart';
+import '../events/event_attribute.dart';
 import '../events/processing_event.dart';
 import '../events/start_element_event.dart';
 import '../events/text_event.dart';
@@ -64,6 +67,10 @@ class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
       commit(XmlComment(event.text));
 
   @override
+  void visitDeclarationEvent(XmlDeclarationEvent event) =>
+      commit(XmlDeclaration(convertAttributes(event.attributes)));
+
+  @override
   void visitDoctypeEvent(XmlDoctypeEvent event) =>
       commit(XmlDoctype(event.text));
 
@@ -90,11 +97,7 @@ class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
   void visitStartElementEvent(XmlStartElementEvent event) {
     final element = XmlElement(
       XmlName.fromString(event.name),
-      event.attributes.map((attribute) => XmlAttribute(
-            XmlName.fromString(attribute.name),
-            attribute.value,
-            attribute.attributeType,
-          )),
+      convertAttributes(event.attributes),
       [],
       event.isSelfClosing,
     );
@@ -126,4 +129,11 @@ class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
       parent.children.add(node);
     }
   }
+
+  Iterable<XmlAttribute> convertAttributes(
+          Iterable<XmlEventAttribute> attributes) =>
+      attributes.map((attribute) => XmlAttribute(
+          XmlName.fromString(attribute.name),
+          attribute.value,
+          attribute.attributeType));
 }

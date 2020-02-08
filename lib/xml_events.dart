@@ -19,11 +19,13 @@ export 'src/xml_events/converters/normalizer.dart' show XmlNormalizer;
 export 'src/xml_events/event.dart' show XmlEvent;
 export 'src/xml_events/events/cdata_event.dart' show XmlCDATAEvent;
 export 'src/xml_events/events/comment_event.dart' show XmlCommentEvent;
+export 'src/xml_events/events/declaration_event.dart' show XmlDeclarationEvent;
 export 'src/xml_events/events/doctype_event.dart' show XmlDoctypeEvent;
 export 'src/xml_events/events/end_element_event.dart' show XmlEndElementEvent;
+export 'src/xml_events/events/event_attribute.dart' show XmlEventAttribute;
 export 'src/xml_events/events/processing_event.dart' show XmlProcessingEvent;
 export 'src/xml_events/events/start_element_event.dart'
-    show XmlStartElementEvent, XmlElementAttribute;
+    show XmlStartElementEvent;
 export 'src/xml_events/events/text_event.dart' show XmlTextEvent;
 export 'src/xml_events/visitor.dart' show XmlEventVisitor;
 

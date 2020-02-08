@@ -1,6 +1,7 @@
 library xml_events.parser;
 
 import 'package:petitparser/petitparser.dart';
+import 'package:xml/src/xml_events/events/declaration_event.dart';
 
 import '../../xml.dart'
     show XmlProductionDefinition, XmlToken, XmlAttributeType;
@@ -10,6 +11,7 @@ import 'events/cdata_event.dart';
 import 'events/comment_event.dart';
 import 'events/doctype_event.dart';
 import 'events/end_element_event.dart';
+import 'events/event_attribute.dart';
 import 'events/processing_event.dart';
 import 'events/start_element_event.dart';
 import 'events/text_event.dart';
@@ -23,6 +25,7 @@ class XmlEventDefinition extends XmlProductionDefinition {
       .or(ref(endElement))
       .or(ref(comment))
       .or(ref(cdata))
+      .or(ref(declaration))
       .or(ref(processing))
       .or(ref(doctype));
 
@@ -40,11 +43,11 @@ class XmlEventDefinition extends XmlProductionDefinition {
           .or(XmlToken.closeEndElement.toParser()))
       .map((each) => XmlStartElementEvent(
           each[1],
-          List.castFrom<dynamic, XmlElementAttribute>(each[2]),
+          each[2].cast<XmlEventAttribute>(),
           each[4] == XmlToken.closeEndElement));
 
   @override
-  Parser attribute() => super.attribute().map((each) => XmlElementAttribute(
+  Parser attribute() => super.attribute().map((each) => XmlEventAttribute(
       each[0],
       each[4][1],
       each[4][0] == '"'
@@ -63,6 +66,11 @@ class XmlEventDefinition extends XmlProductionDefinition {
 
   @override
   Parser cdata() => super.cdata().map((each) => XmlCDATAEvent(each[1]));
+
+  @override
+  Parser declaration() => super
+      .declaration()
+      .map((each) => XmlDeclarationEvent(each[1].cast<XmlEventAttribute>()));
 
   @override
   Parser processing() =>

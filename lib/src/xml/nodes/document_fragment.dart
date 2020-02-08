@@ -1,19 +1,17 @@
 library xml.nodes.document_fragment;
 
+import '../mixins/has_children.dart';
 import '../utils/node_type.dart';
 import '../visitors/visitor.dart';
-import 'document.dart';
 import 'node.dart';
-import 'parent.dart';
 
 /// XML document fragment node.
-class XmlDocumentFragment extends XmlParent {
+class XmlDocumentFragment extends XmlNode with XmlHasChildren {
   /// Create a document fragment node with `children`.
-  XmlDocumentFragment([Iterable<XmlNode> children = const []])
-      : super(childrenNodeTypes, children);
-
-  @override
-  XmlDocument get document => null;
+  XmlDocumentFragment([Iterable<XmlNode> childrenIterable = const []]) {
+    children.initialize(this, childrenNodeTypes);
+    children.addAll(childrenIterable);
+  }
 
   @override
   String get text => null;

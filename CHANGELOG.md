@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.0.0
+
+* Cleanup the node hierarchy. Specifically removed `XmlOwned` and `XmlParent` that added a lot of complexity and confusion. Instead introduced dedicated mixins for nodes with attributes (`XmlHasAttributes`), children (`XmlHasChildren`), names (`XmlHasName`) or parents (`XmlHasParent`).
+* Introduce `XmlDeclaration` nodes, events and builder to make accessing XML version and encoding simpler.
+
 ## 3.7.0
 
 * Update to PetitParser 3.0.0.

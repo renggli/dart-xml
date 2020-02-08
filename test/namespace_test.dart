@@ -13,7 +13,7 @@ void main() {
       if (node is XmlAttribute && node.name.prefix == 'xmlns') {
         break;
       }
-      if (node is XmlNamed) {
+      if (node is XmlHasName) {
         expect(node.name.namespaceUri, 'http://www.w3.org/1999/xhtml');
       }
     }
@@ -28,7 +28,7 @@ void main() {
       if (node is XmlAttribute && node.name.prefix == 'xmlns') {
         break;
       }
-      if (node is XmlNamed) {
+      if (node is XmlHasName) {
         expect(node.name.namespaceUri, 'http://www.w3.org/1999/xhtml');
       }
     }

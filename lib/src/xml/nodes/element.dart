@@ -1,48 +1,36 @@
 library xml.nodes.element;
 
+import '../mixins/has_attributes.dart';
+import '../mixins/has_children.dart';
+import '../mixins/has_name.dart';
+import '../mixins/has_parent.dart';
 import '../utils/name.dart';
-import '../utils/name_matcher.dart';
-import '../utils/named.dart';
-import '../utils/node_list.dart';
 import '../utils/node_type.dart';
 import '../visitors/visitor.dart';
 import 'attribute.dart';
 import 'node.dart';
-import 'parent.dart';
 
 /// XML element node.
-class XmlElement extends XmlParent implements XmlNamed {
+class XmlElement extends XmlNode
+    with XmlHasParent<XmlNode>, XmlHasName, XmlHasAttributes, XmlHasChildren {
   /// Create an element node with the provided [name], [attributes], and
   /// [children].
   XmlElement(this.name,
       [Iterable<XmlAttribute> attributesIterable = const [],
-      Iterable<XmlNode> children = const [],
-      this.isSelfClosing = true])
-      : attributes = XmlNodeList(attributeNodeTypes),
-        super(childrenNodeTypes, children) {
+      Iterable<XmlNode> childrenIterable = const [],
+      this.isSelfClosing = true]) {
     name.attachParent(this);
-    attributes.attachParent(this);
+    attributes.initialize(this, attributeNodeTypes);
     attributes.addAll(attributesIterable);
+    children.initialize(this, childrenNodeTypes);
+    children.addAll(childrenIterable);
   }
-
-  /// Return the name of the node.
-  @override
-  final XmlName name;
-
-  /// Return the attribute nodes of this node.
-  @override
-  final XmlNodeList<XmlAttribute> attributes;
 
   /// Defines whether the element should be self-closing when empty.
   bool isSelfClosing;
 
-  /// Return the attribute value with the given `name`.
-  String getAttribute(String name, {String namespace}) =>
-      getAttributeNode(name, namespace: namespace)?.value;
-
-  /// Return the attribute node with the given `name`.
-  XmlAttribute getAttributeNode(String name, {String namespace}) => attributes
-      .firstWhere(createNameMatcher(name, namespace), orElse: () => null);
+  @override
+  final XmlName name;
 
   @override
   XmlNodeType get nodeType => XmlNodeType.ELEMENT;

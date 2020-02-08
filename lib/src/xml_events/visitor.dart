@@ -3,6 +3,7 @@ library xml_events.visitor;
 import 'event.dart';
 import 'events/cdata_event.dart';
 import 'events/comment_event.dart';
+import 'events/declaration_event.dart';
 import 'events/doctype_event.dart';
 import 'events/end_element_event.dart';
 import 'events/processing_event.dart';
@@ -20,6 +21,9 @@ mixin XmlEventVisitor {
 
   /// Visit an [XmlCommentEvent] event.
   void visitCommentEvent(XmlCommentEvent event);
+
+  /// Visit an [XmlDeclarationEvent] event.
+  void visitDeclarationEvent(XmlDeclarationEvent event);
 
   /// Visit an [XmlDoctypeEvent] event.
   void visitDoctypeEvent(XmlDoctypeEvent event);

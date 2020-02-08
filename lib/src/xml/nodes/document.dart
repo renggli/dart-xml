@@ -1,17 +1,31 @@
 library xml.nodes.document;
 
+import '../mixins/has_children.dart';
 import '../utils/node_type.dart';
 import '../visitors/visitor.dart';
+import 'declaration.dart';
 import 'doctype.dart';
 import 'element.dart';
 import 'node.dart';
-import 'parent.dart';
 
 /// XML document node.
-class XmlDocument extends XmlParent {
+class XmlDocument extends XmlNode with XmlHasChildren {
   /// Create a document node with `children`.
-  XmlDocument([Iterable<XmlNode> children = const []])
-      : super(childrenNodeTypes, children);
+  XmlDocument([Iterable<XmlNode> childrenIterable = const []]) {
+    children.initialize(this, childrenNodeTypes);
+    children.addAll(childrenIterable);
+  }
+
+  /// Return the [XmlDeclaration] element, or `null` if not defined.
+  ///
+  /// For example the following code prints `<?xml version="1.0">`:
+  ///
+  ///    var xml = '<?xml version="1.0">'
+  ///              '<shelf></shelf>';
+  ///    print(parse(xml).doctypeElement);
+  ///
+  XmlDeclaration get declaration =>
+      children.firstWhere((node) => node is XmlDeclaration, orElse: () => null);
 
   /// Return the [XmlDoctype] element, or `null` if not defined.
   ///
@@ -38,9 +52,6 @@ class XmlDocument extends XmlParent {
           orElse: () => throw StateError('Empty XML document'));
 
   @override
-  XmlDocument get document => this;
-
-  @override
   String get text => null;
 
   @override
@@ -54,6 +65,7 @@ class XmlDocument extends XmlParent {
 const Set<XmlNodeType> childrenNodeTypes = {
   XmlNodeType.CDATA,
   XmlNodeType.COMMENT,
+  XmlNodeType.DECLARATION,
   XmlNodeType.DOCUMENT_TYPE,
   XmlNodeType.ELEMENT,
   XmlNodeType.PROCESSING,

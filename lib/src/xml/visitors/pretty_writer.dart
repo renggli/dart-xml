@@ -3,6 +3,7 @@ library xml.visitors.pretty_writer;
 import '../entities/entity_mapping.dart';
 import '../nodes/cdata.dart';
 import '../nodes/comment.dart';
+import '../nodes/declaration.dart';
 import '../nodes/doctype.dart';
 import '../nodes/element.dart';
 import '../nodes/processing.dart';
@@ -30,6 +31,12 @@ class XmlPrettyWriter extends XmlWriter {
   void visitComment(XmlComment node) {
     newLine();
     super.visitComment(node);
+  }
+
+  @override
+  void visitDeclaration(XmlDeclaration node) {
+    newLine();
+    super.visitDeclaration(node);
   }
 
   @override

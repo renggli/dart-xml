@@ -1,8 +1,15 @@
-library xml.iterators.preceding;
+library xml.navigation.preceding;
 
-import 'dart:collection' show IterableBase;
+import 'dart:collection';
 
 import '../nodes/node.dart';
+import 'parent.dart';
+
+extension XmlPrecedingExtension on XmlNode {
+  /// Return a lazy [Iterable] of the nodes preceding this [XmlNode] in
+  /// document order.
+  Iterable<XmlNode> get preceding => XmlPrecedingIterable(this);
+}
 
 /// Iterable to walk over the precedents of a node.
 class XmlPrecedingIterable extends IterableBase<XmlNode> {

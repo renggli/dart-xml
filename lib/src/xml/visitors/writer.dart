@@ -4,6 +4,7 @@ import '../entities/entity_mapping.dart';
 import '../nodes/attribute.dart';
 import '../nodes/cdata.dart';
 import '../nodes/comment.dart';
+import '../nodes/declaration.dart';
 import '../nodes/doctype.dart';
 import '../nodes/document.dart';
 import '../nodes/document_fragment.dart';
@@ -42,6 +43,13 @@ class XmlWriter with XmlVisitor {
     buffer.write(XmlToken.openComment);
     buffer.write(node.text);
     buffer.write(XmlToken.closeComment);
+  }
+
+  @override
+  void visitDeclaration(XmlDeclaration node) {
+    buffer.write(XmlToken.openDeclaration);
+    writeAttributes(node);
+    buffer.write(XmlToken.closeDeclaration);
   }
 
   @override

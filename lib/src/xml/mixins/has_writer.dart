@@ -1,13 +1,13 @@
-library xml.utils.writable;
+library xml.mixins.has_writer;
 
 import '../entities/default_mapping.dart';
 import '../entities/entity_mapping.dart';
 import '../visitors/pretty_writer.dart';
-import '../visitors/visitable.dart';
 import '../visitors/writer.dart';
+import 'has_visitor.dart';
 
 /// Mixin to serialize XML to a [StringBuffer].
-mixin XmlWritable implements XmlVisitable {
+mixin XmlHasWriter implements XmlHasVisitor {
   /// Return a default XML string of this object.
   @override
   String toString() => toXmlString();

@@ -8,17 +8,22 @@ import '../../../xml.dart'
     show
         XmlCDATA,
         XmlComment,
+        XmlDeclaration,
         XmlDoctype,
         XmlElement,
         XmlNode,
         XmlProcessing,
         XmlText,
         XmlVisitor;
+import '../../xml/nodes/attribute.dart';
+import '../../xml/utils/node_list.dart';
 import '../event.dart';
 import '../events/cdata_event.dart';
 import '../events/comment_event.dart';
+import '../events/declaration_event.dart';
 import '../events/doctype_event.dart';
 import '../events/end_element_event.dart';
+import '../events/event_attribute.dart';
 import '../events/processing_event.dart';
 import '../events/start_element_event.dart';
 import '../events/text_event.dart';
@@ -59,16 +64,8 @@ class _XmlNodeEncoderSink extends ChunkedConversionSink<List<XmlNode>>
   void visitElement(XmlElement node) {
     final isSelfClosing = node.isSelfClosing && node.children.isEmpty;
     sink.add([
-      XmlStartElementEvent(
-          node.name.qualified,
-          node.attributes
-              .map((attribute) => XmlElementAttribute(
-                    attribute.name.qualified,
-                    attribute.value,
-                    attribute.attributeType,
-                  ))
-              .toList(growable: false),
-          isSelfClosing)
+      XmlStartElementEvent(node.name.qualified,
+          convertAttributes(node.attributes), isSelfClosing)
     ]);
     if (!isSelfClosing) {
       node.children.forEach(visit);
@@ -83,6 +80,10 @@ class _XmlNodeEncoderSink extends ChunkedConversionSink<List<XmlNode>>
   void visitComment(XmlComment node) => sink.add([XmlCommentEvent(node.text)]);
 
   @override
+  void visitDeclaration(XmlDeclaration node) =>
+      sink.add([XmlDeclarationEvent(convertAttributes(node.attributes))]);
+
+  @override
   void visitDoctype(XmlDoctype node) => sink.add([XmlDoctypeEvent(node.text)]);
 
   @override
@@ -91,4 +92,14 @@ class _XmlNodeEncoderSink extends ChunkedConversionSink<List<XmlNode>>
 
   @override
   void visitText(XmlText node) => sink.add([XmlTextEvent(node.text)]);
+
+  List<XmlEventAttribute> convertAttributes(
+          XmlNodeList<XmlAttribute> attributes) =>
+      attributes
+          .map((attribute) => XmlEventAttribute(
+                attribute.name.qualified,
+                attribute.value,
+                attribute.attributeType,
+              ))
+          .toList(growable: false);
 }

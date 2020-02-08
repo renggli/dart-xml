@@ -1,8 +1,8 @@
 library xml.utils.exceptions;
 
+import '../mixins/has_parent.dart';
 import '../nodes/node.dart';
 import 'node_type.dart';
-import 'owned.dart';
 
 /// Abstract exception class.
 abstract class XmlException implements Exception {
@@ -67,11 +67,11 @@ class XmlNodeTypeException extends XmlException {
 
 /// Exception thrown when the parent relationship between nodes is invalid.
 class XmlParentException extends XmlException {
-  /// Ensure that [owned] has no parent.
-  static void checkNoParent(XmlOwned owned) {
-    if (owned.hasParent) {
+  /// Ensure that [node] has no parent.
+  static void checkNoParent(XmlParentBase node) {
+    if (node.parent != null) {
       throw XmlParentException(
-          'Node already has a parent, copy or remove it first: $owned');
+          'Node already has a parent, copy or remove it first: $node');
     }
   }
 

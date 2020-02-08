@@ -20,6 +20,8 @@ abstract class XmlGrammarDefinition<TNode, TName>
 
   TNode createCDATA(String text);
 
+  TNode createDeclaration(Iterable<TNode> attributes);
+
   TNode createDoctype(String text);
 
   TNode createDocument(Iterable<TNode> children);
@@ -54,6 +56,11 @@ abstract class XmlGrammarDefinition<TNode, TName>
   Parser comment() => super.comment().map((each) => createComment(each[1]));
 
   @override
+  Parser declaration() => super
+      .declaration()
+      .map((each) => createDeclaration(each[1].cast<TNode>()));
+
+  @override
   Parser cdata() => super.cdata().map((each) => createCDATA(each[1]));
 
   @override
@@ -62,25 +69,28 @@ abstract class XmlGrammarDefinition<TNode, TName>
   @override
   Parser document() => super.document().map((each) {
         final nodes = [];
-        nodes.addAll(each[0]);
-        if (each[1] != null) {
-          nodes.add(each[1]);
+        if (each[0] != null) {
+          nodes.add(each[0]); // declaration
         }
-        nodes.addAll(each[2]);
-        nodes.add(each[3]);
-        nodes.addAll(each[4]);
-        return createDocument(List.castFrom<dynamic, TNode>(nodes));
+        nodes.addAll(each[1]);
+        if (each[2] != null) {
+          nodes.add(each[2]); // doctype
+        }
+        nodes.addAll(each[3]);
+        nodes.add(each[4]); // document
+        nodes.addAll(each[5]);
+        return createDocument(nodes.cast<TNode>());
       });
 
   @override
   Parser element() => super.element().map((list) {
         final TName name = list[1];
-        final attributes = List.castFrom<dynamic, TNode>(list[2]);
+        final attributes = list[2].cast<TNode>();
         if (list[4] == XmlToken.closeEndElement) {
           return createElement(name, attributes, [], true);
         } else {
           if (list[1] == list[4][3]) {
-            final children = List.castFrom<dynamic, TNode>(list[4][1]);
+            final children = list[4][1].cast<TNode>();
             return createElement(
                 name, attributes, children, children.isNotEmpty);
           } else {

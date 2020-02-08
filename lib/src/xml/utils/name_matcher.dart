@@ -1,9 +1,9 @@
 library xml.utils.name_matcher;
 
-import 'named.dart';
+import '../mixins/has_name.dart';
 
 /// Internal function type to match named elements.
-typedef XmlNameMatcher = bool Function(XmlNamed named);
+typedef XmlNameMatcher = bool Function(XmlHasName named);
 
 /// Internal factory to create element matchers.
 XmlNameMatcher createNameMatcher(String name, String namespace) {

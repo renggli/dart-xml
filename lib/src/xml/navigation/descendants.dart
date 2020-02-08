@@ -1,8 +1,14 @@
-library xml.iterators.descendants;
+library xml.navigation.descendants;
 
-import 'dart:collection' show IterableBase;
+import 'dart:collection';
 
 import '../nodes/node.dart';
+
+extension XmlDescendantsExtension on XmlNode {
+  /// Return a lazy [Iterable] of the descendants of this [XmlNode] (attributes,
+  /// children, grandchildren, ...) in document order.
+  Iterable<XmlNode> get descendants => XmlDescendantsIterable(this);
+}
 
 /// Iterable to walk over the descendants of a node.
 class XmlDescendantsIterable extends IterableBase<XmlNode> {

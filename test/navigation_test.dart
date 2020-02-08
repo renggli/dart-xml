@@ -1,4 +1,4 @@
-library xml.test.axis_test;
+library xml.test.navigation_test;
 
 import 'package:test/test.dart';
 import 'package:xml/xml.dart';

@@ -1,11 +1,11 @@
 library xml_events.events.start_element_event;
 
 import 'package:collection/collection.dart' show ListEquality;
-import 'package:meta/meta.dart';
 
-import '../../../xml.dart' show XmlNodeType, XmlAttributeType;
+import '../../../xml.dart' show XmlNodeType;
 import '../event.dart';
 import '../visitor.dart';
+import 'event_attribute.dart';
 import 'named.dart';
 
 /// Event of an XML start element node.
@@ -15,7 +15,7 @@ class XmlStartElementEvent extends XmlEvent with XmlNamed {
   @override
   final String name;
 
-  final List<XmlElementAttribute> attributes;
+  final List<XmlEventAttribute> attributes;
 
   final bool isSelfClosing;
 
@@ -38,27 +38,4 @@ class XmlStartElementEvent extends XmlEvent with XmlNamed {
       other.name == name &&
       other.isSelfClosing == isSelfClosing &&
       const ListEquality().equals(other.attributes, attributes);
-}
-
-/// Attributes of an [XmlStartElementEvent].
-@immutable
-class XmlElementAttribute with XmlNamed {
-  XmlElementAttribute(this.name, this.value, this.attributeType);
-
-  @override
-  final String name;
-
-  final String value;
-
-  final XmlAttributeType attributeType;
-
-  @override
-  int get hashCode => name.hashCode ^ value.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      other is XmlElementAttribute &&
-      other.name == name &&
-      other.value == value &&
-      other.attributeType == attributeType;
 }

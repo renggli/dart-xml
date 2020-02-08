@@ -64,6 +64,12 @@ class XmlProductionDefinition extends GrammarDefinition {
       .or(ref(cdata))
       .star();
 
+  Parser declaration() => XmlToken.openDeclaration
+      .toParser()
+      .seq(ref(attributes))
+      .seq(ref(spaceOptional))
+      .seq(XmlToken.closeDeclaration.toParser());
+
   Parser doctype() => XmlToken.openDoctype
       .toParser()
       .seq(ref(space))
@@ -79,7 +85,9 @@ class XmlProductionDefinition extends GrammarDefinition {
       .seq(ref(spaceOptional))
       .seq(XmlToken.closeDoctype.toParser());
 
-  Parser document() => ref(misc)
+  Parser document() => ref(declaration)
+      .optional()
+      .seq(ref(misc))
       .seq(ref(doctype).optional())
       .seq(ref(misc))
       .seq(ref(element))

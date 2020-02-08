@@ -3,6 +3,7 @@ library xml.visitors.transformer;
 import '../nodes/attribute.dart';
 import '../nodes/cdata.dart';
 import '../nodes/comment.dart';
+import '../nodes/declaration.dart';
 import '../nodes/doctype.dart';
 import '../nodes/document.dart';
 import '../nodes/document_fragment.dart';
@@ -28,6 +29,10 @@ class XmlTransformer with XmlVisitor {
 
   @override
   XmlComment visitComment(XmlComment node) => XmlComment(node.text);
+
+  @override
+  XmlDeclaration visitDeclaration(XmlDeclaration node) =>
+      XmlDeclaration(node.attributes.map(visit));
 
   @override
   XmlDoctype visitDoctype(XmlDoctype node) => XmlDoctype(node.text);

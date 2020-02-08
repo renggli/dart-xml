@@ -59,6 +59,37 @@ void main() {
         expect(event, other);
         expect(event.hashCode, other.hashCode);
       });
+      test('declaration', () {
+        final iterator = parseEvents('<?xml?>').iterator;
+        expect(iterator.moveNext(), isTrue);
+        final XmlDeclarationEvent event = iterator.current;
+        assertComplete(iterator);
+        expect(event.nodeType, XmlNodeType.DECLARATION);
+        expect(event.attributes, isEmpty);
+        final other = XmlDeclarationEvent(event.attributes);
+        expect(event, other);
+        expect(event.hashCode, other.hashCode);
+      });
+      test('declaration (attributes)', () {
+        final iterator =
+            parseEvents('<?xml version="1.0" author=\'lfr\'?>').iterator;
+        expect(iterator.moveNext(), isTrue);
+        final XmlDeclarationEvent event = iterator.current;
+        assertComplete(iterator);
+        expect(event.nodeType, XmlNodeType.DECLARATION);
+        expect(event.attributes, hasLength(2));
+        expect(event.attributes[0].name, 'version');
+        expect(event.attributes[0].value, '1.0');
+        expect(
+            event.attributes[0].attributeType, XmlAttributeType.DOUBLE_QUOTE);
+        expect(event.attributes[1].name, 'author');
+        expect(event.attributes[1].value, 'lfr');
+        expect(
+            event.attributes[1].attributeType, XmlAttributeType.SINGLE_QUOTE);
+        final other = XmlDeclarationEvent(event.attributes);
+        expect(event, other);
+        expect(event.hashCode, other.hashCode);
+      });
       test('doctype', () {
         final iterator = parseEvents('<!DOCTYPE html>').iterator;
         expect(iterator.moveNext(), isTrue);
@@ -127,7 +158,7 @@ void main() {
         final other = XmlStartElementEvent(
             event.name,
             event.attributes
-                .map((attr) => XmlElementAttribute(
+                .map((attr) => XmlEventAttribute(
                     attr.name, attr.value, attr.attributeType))
                 .toList(),
             event.isSelfClosing);

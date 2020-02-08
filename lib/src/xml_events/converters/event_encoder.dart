@@ -3,6 +3,8 @@ library xml_events.converters.event_encoder;
 import 'dart:convert' show Converter, ChunkedConversionSink;
 
 import 'package:convert/convert.dart' show StringAccumulatorSink;
+import 'package:xml/src/xml_events/events/declaration_event.dart';
+import 'package:xml/src/xml_events/events/event_attribute.dart';
 
 import '../../xml/entities/default_mapping.dart';
 import '../../xml/entities/entity_mapping.dart';
@@ -67,6 +69,13 @@ class _XmlEventEncoderSink extends ChunkedConversionSink<List<XmlEvent>>
   }
 
   @override
+  void visitDeclarationEvent(XmlDeclarationEvent event) {
+    sink.add(XmlToken.openDeclaration);
+    addAttributes(event.attributes);
+    sink.add(XmlToken.closeDeclaration);
+  }
+
+  @override
   void visitDoctypeEvent(XmlDoctypeEvent event) {
     sink.add(XmlToken.openDoctype);
     sink.add(XmlToken.whitespace);
@@ -96,15 +105,7 @@ class _XmlEventEncoderSink extends ChunkedConversionSink<List<XmlEvent>>
   void visitStartElementEvent(XmlStartElementEvent event) {
     sink.add(XmlToken.openElement);
     sink.add(event.name);
-    for (final attribute in event.attributes) {
-      sink.add(XmlToken.whitespace);
-      sink.add(attribute.name);
-      sink.add(XmlToken.equals);
-      sink.add(entityMapping.encodeAttributeValueWithQuotes(
-        attribute.value,
-        attribute.attributeType,
-      ));
-    }
+    addAttributes(event.attributes);
     if (event.isSelfClosing) {
       sink.add(XmlToken.closeEndElement);
     } else {
@@ -115,5 +116,17 @@ class _XmlEventEncoderSink extends ChunkedConversionSink<List<XmlEvent>>
   @override
   void visitTextEvent(XmlTextEvent event) {
     sink.add(entityMapping.encodeText(event.text));
+  }
+
+  void addAttributes(List<XmlEventAttribute> attributes) {
+    for (final attribute in attributes) {
+      sink.add(XmlToken.whitespace);
+      sink.add(attribute.name);
+      sink.add(XmlToken.equals);
+      sink.add(entityMapping.encodeAttributeValueWithQuotes(
+        attribute.value,
+        attribute.attributeType,
+      ));
+    }
   }
 }

@@ -111,7 +111,6 @@ void main() {
     expect(node.depth, 2);
     expect(node.attributes, isEmpty);
     expect(node.children, isEmpty);
-    expect(node.descendants, isEmpty);
     expect(node.text, isEmpty);
     expect(node.nodeType, XmlNodeType.ATTRIBUTE);
     expect(node.nodeType.toString(), 'XmlNodeType.ATTRIBUTE');
@@ -146,7 +145,6 @@ void main() {
     expect(node.depth, 2);
     expect(node.attributes, isEmpty);
     expect(node.children, isEmpty);
-    expect(node.descendants, isEmpty);
     expect(node.nodeType, XmlNodeType.TEXT);
     expect(node.nodeType.toString(), 'XmlNodeType.TEXT');
     expect(node.toString(), 'Am I or are the other crazy?');
@@ -180,13 +178,27 @@ void main() {
     expect(node.nodeType.toString(), 'XmlNodeType.CDATA');
     expect(node.toString(),
         '<![CDATA[Methinks <word> it <word> is like a weasel!]]>');
-    expect(node.descendants, isEmpty);
+  });
+  test('declaration', () {
+    final document = parse('<?xml version="1.0" encoding="UTF-8"?><data/>');
+    final node = document.declaration;
+    expect(node.version, '1.0');
+    expect(node.encoding, 'UTF-8');
+    expect(node.parent, same(document));
+    expect(node.root, same(document));
+    expect(node.document, same(document));
+    expect(node.depth, 1);
+    expect(node.attributes, hasLength(2));
+    expect(node.children, isEmpty);
+    expect(node.nodeType, XmlNodeType.DECLARATION);
+    expect(node.nodeType.toString(), 'XmlNodeType.DECLARATION');
+    expect(node.toString(), '<?xml version="1.0" encoding="UTF-8"?>');
   });
   test('processing', () {
-    final document = parse('<?xml version="1.0"?><data/>');
+    final document = parse('<?xml-stylesheet href="style.css"?><data/>');
     final XmlProcessing node = document.firstChild;
-    expect(node.target, 'xml');
-    expect(node.text, 'version="1.0"');
+    expect(node.target, 'xml-stylesheet');
+    expect(node.text, 'href="style.css"');
     expect(node.parent, same(document));
     expect(node.root, same(document));
     expect(node.document, same(document));
@@ -195,8 +207,7 @@ void main() {
     expect(node.children, isEmpty);
     expect(node.nodeType, XmlNodeType.PROCESSING);
     expect(node.nodeType.toString(), 'XmlNodeType.PROCESSING');
-    expect(node.toString(), '<?xml version="1.0"?>');
-    expect(node.descendants, isEmpty);
+    expect(node.toString(), '<?xml-stylesheet href="style.css"?>');
   });
   test('comment', () {
     final document = parse('<data><!--Am I or are the other crazy?--></data>');
@@ -207,7 +218,6 @@ void main() {
     expect(node.depth, 2);
     expect(node.attributes, isEmpty);
     expect(node.children, isEmpty);
-    expect(node.descendants, isEmpty);
     expect(node.text, 'Am I or are the other crazy?');
     expect(node.nodeType, XmlNodeType.COMMENT);
     expect(node.nodeType.toString(), 'XmlNodeType.COMMENT');
@@ -222,29 +232,27 @@ void main() {
     expect(node.depth, 0);
     expect(node.attributes, isEmpty);
     expect(node.children, hasLength(1));
-    expect(node.descendants, hasLength(1));
     expect(node.text, isNull);
     expect(node.nodeType, XmlNodeType.DOCUMENT);
     expect(node.nodeType.toString(), 'XmlNodeType.DOCUMENT');
     expect(node.toString(), '<data/>');
   });
   test('document definition', () {
-    final document = parse('<?xml version="1.0" encoding="UTF-8" ?>'
+    final document = parse('<?xml version="1.0" encoding="UTF-8"?>'
         '<element/>');
     final node = document.document;
     expect(node.children, hasLength(2));
-    expect(node.descendants, hasLength(2));
     expect(
         node.toString(),
-        '<?xml version="1.0" encoding="UTF-8" ?>'
+        '<?xml version="1.0" encoding="UTF-8"?>'
         '<element/>');
   });
   test('document comments and whitespace', () {
     final document = parse('<?xml version="1.0" encoding="UTF-8"?> '
         '<!-- before -->\n<element/>\t<!-- after -->');
     final node = document.document;
+    expect(node.attributes, isEmpty);
     expect(node.children, hasLength(7));
-    expect(node.descendants, hasLength(7));
     expect(
         node.toString(),
         '<?xml version="1.0" encoding="UTF-8"?> '
@@ -256,6 +264,7 @@ void main() {
   });
   test('document empty', () {
     final document = XmlDocument();
+    expect(document.declaration, isNull);
     expect(document.doctypeElement, isNull);
     expect(() => document.rootElement, throwsStateError);
   });
@@ -268,7 +277,6 @@ void main() {
     expect(node.depth, 1);
     expect(node.attributes, isEmpty);
     expect(node.children, isEmpty);
-    expect(node.descendants, isEmpty);
     expect(node.text, 'html [<!-- internal subset -->]');
     expect(node.nodeType, XmlNodeType.DOCUMENT_TYPE);
     expect(node.nodeType.toString(), 'XmlNodeType.DOCUMENT_TYPE');
@@ -283,7 +291,6 @@ void main() {
     expect(node.depth, 0);
     expect(node.attributes, isEmpty);
     expect(node.children, isEmpty);
-    expect(node.descendants, isEmpty);
     expect(node.text, isNull);
     expect(node.nodeType, XmlNodeType.DOCUMENT_FRAGMENT);
     expect(node.nodeType.toString(), 'XmlNodeType.DOCUMENT_FRAGMENT');
