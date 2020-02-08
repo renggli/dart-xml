@@ -44,14 +44,6 @@ export 'src/xml/nodes/text.dart' show XmlText;
 export 'src/xml/parser.dart' show XmlParserDefinition;
 export 'src/xml/production.dart' show XmlProductionDefinition;
 export 'src/xml/utils/attribute_type.dart' show XmlAttributeType;
-export 'src/xml/utils/entities.dart'
-    show
-        // ignore: deprecated_member_use_from_same_package
-        encodeXmlText,
-        // ignore: deprecated_member_use_from_same_package
-        encodeXmlAttributeValue,
-        // ignore: deprecated_member_use_from_same_package
-        encodeXmlAttributeValueWithQuotes;
 export 'src/xml/utils/exceptions.dart'
     show
         XmlException,
