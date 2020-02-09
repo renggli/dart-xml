@@ -41,7 +41,7 @@ void assertTreeInvariants(XmlNode xml) {
 
 void assertDocumentInvariants(XmlNode xml) {
   final root = xml.root;
-  for (final child in xml.descendants) {
+  for (final child in [xml, ...xml.descendants]) {
     expect(root, same(child.root));
     expect(root, same(child.document));
   }
@@ -56,9 +56,16 @@ void assertDocumentInvariants(XmlNode xml) {
 }
 
 void assertParentInvariants(XmlNode xml) {
-  for (final node in xml.descendants) {
-    final isRootNode = node is XmlDocument || node is XmlDocumentFragment;
-    expect(node.parent, isRootNode ? isNull : isNotNull);
+  for (final node in [xml, ...xml.descendants]) {
+    if (node is XmlDocument || node is XmlDocumentFragment) {
+      expect(node.parent, isNull);
+      expect(node.hasParent, isFalse);
+      expect(() => node.attachParent(XmlDocument()), throwsUnsupportedError);
+      expect(() => node.detachParent(XmlDocument()), throwsUnsupportedError);
+    } else {
+      expect(node.parent, isNotNull);
+      expect(node.hasParent, isTrue);
+    }
     for (final child in node.children) {
       expect(child.parent, same(node));
       expect(child.depth, node.depth + 1);
@@ -71,7 +78,7 @@ void assertParentInvariants(XmlNode xml) {
 }
 
 void assertForwardInvariants(XmlNode xml) {
-  for (final node in xml.descendants) {
+  for (final node in [xml, ...xml.descendants]) {
     var current = node.firstChild;
     for (var i = 0; i < node.children.length; i++) {
       expect(node.children[i], same(current));
@@ -82,7 +89,7 @@ void assertForwardInvariants(XmlNode xml) {
 }
 
 void assertBackwardInvariants(XmlNode xml) {
-  for (final node in xml.descendants) {
+  for (final node in [xml, ...xml.descendants]) {
     var current = node.lastChild;
     for (var i = node.children.length - 1; i >= 0; i--) {
       expect(node.children[i], same(current));

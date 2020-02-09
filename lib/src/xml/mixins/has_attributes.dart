@@ -5,7 +5,7 @@ import '../utils/name.dart';
 import '../utils/name_matcher.dart';
 import '../utils/node_list.dart';
 
-/// Interface for nodes with attributes.
+/// Attribute interface for nodes.
 mixin XmlAttributesBase {
   /// Return the attribute nodes of this node in document order.
   List<XmlAttribute> get attributes => const [];
@@ -21,6 +21,9 @@ mixin XmlAttributesBase {
   /// If the value is `null`, the attribute is removed.
   void setAttribute(String name, String value) =>
       throw UnsupportedError('$this has no attributes.');
+
+  /// Removes the attribute value with the given fully qualified `name`.
+  void removeAttribute(String name) => setAttribute(name, null);
 }
 
 /// Mixin for nodes with attributes.

@@ -75,6 +75,15 @@ class XmlParentException extends XmlException {
     }
   }
 
+  /// Ensure that [node] has a matching parent.
+  static void checkMatchingParent(XmlParentBase node, XmlNode parent) {
+    if (node.parent != parent) {
+      // If this exception is ever thrown, this is likely a bug in the internal
+      // code of the library.
+      throw XmlParentException('Node already has a non-matching parent: $node');
+    }
+  }
+
   /// Creates a new XmlParentException.
   XmlParentException(String message) : super(message);
 }

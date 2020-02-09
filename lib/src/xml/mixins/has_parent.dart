@@ -3,7 +3,7 @@ library xml.mixins.has_parent;
 import '../nodes/node.dart';
 import '../utils/exceptions.dart';
 
-/// Interface for elements with a parent.
+/// Parent interface for nodes.
 mixin XmlParentBase {
   /// Return the parent node of this node, or `null` if there is none.
   XmlNode get parent => null;
@@ -38,6 +38,7 @@ mixin XmlHasParent<T extends XmlNode> implements XmlParentBase {
 
   @override
   void detachParent(T parent) {
+    XmlParentException.checkMatchingParent(this, parent);
     _parent = null;
   }
 }

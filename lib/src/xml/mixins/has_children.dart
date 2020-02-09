@@ -3,7 +3,7 @@ library xml.mixins.has_children;
 import '../nodes/node.dart';
 import '../utils/node_list.dart';
 
-/// Interface for nodes with children.
+/// Children interface for nodes.
 mixin XmlChildrenBase {
   /// Return the direct children of this node in document order.
   List<XmlNode> get children => const [];
