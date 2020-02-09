@@ -10,6 +10,8 @@ import 'node.dart';
 
 /// XML attribute node.
 class XmlAttribute extends XmlNode with XmlHasParent<XmlNode>, XmlHasName {
+  String _value;
+
   /// Create an attribute with `name` and `value`.
   XmlAttribute(this.name, String value,
       [this.attributeType = XmlAttributeType.DOUBLE_QUOTE]) {
@@ -19,8 +21,6 @@ class XmlAttribute extends XmlNode with XmlHasParent<XmlNode>, XmlHasName {
 
   @override
   final XmlName name;
-
-  String _value;
 
   /// Return the value of the attribute.
   String get value => _value;
