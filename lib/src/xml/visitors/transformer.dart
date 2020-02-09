@@ -8,10 +8,16 @@ import '../nodes/doctype.dart';
 import '../nodes/document.dart';
 import '../nodes/document_fragment.dart';
 import '../nodes/element.dart';
+import '../nodes/node.dart';
 import '../nodes/processing.dart';
 import '../nodes/text.dart';
 import '../utils/name.dart';
 import 'visitor.dart';
+
+extension XmlTransformerExtension on XmlNode {
+  /// Return a copy of this node and its subtree.
+  XmlNode copy() => XmlTransformer.defaultInstance.visit(this);
+}
 
 /// Transformer that creates an identical copy of the visited nodes.
 ///

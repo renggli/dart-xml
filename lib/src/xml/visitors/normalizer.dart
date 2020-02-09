@@ -8,6 +8,12 @@ import '../nodes/text.dart';
 import '../utils/node_type.dart';
 import 'visitor.dart';
 
+extension XmlNormalizerExtension on XmlNode {
+  /// Puts all child nodes into a "normalized" form, that is no text nodes in
+  /// the sub-tree are empty and there are no adjacent text nodes.
+  void normalize() => XmlNormalizer.defaultInstance.visit(this);
+}
+
 /// Normalizes a node tree in-place.
 class XmlNormalizer with XmlVisitor {
   static final XmlNormalizer defaultInstance = XmlNormalizer();

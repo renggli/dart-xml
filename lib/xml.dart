@@ -54,8 +54,10 @@ export 'src/xml/utils/exceptions.dart'
 export 'src/xml/utils/name.dart' show XmlName;
 export 'src/xml/utils/node_type.dart' show XmlNodeType;
 export 'src/xml/utils/token.dart' show XmlToken;
+export 'src/xml/visitors/normalizer.dart' show XmlNormalizerExtension;
 export 'src/xml/visitors/pretty_writer.dart' show XmlPrettyWriter;
-export 'src/xml/visitors/transformer.dart' show XmlTransformer;
+export 'src/xml/visitors/transformer.dart'
+    show XmlTransformer, XmlTransformerExtension;
 export 'src/xml/visitors/visitor.dart' show XmlVisitor;
 export 'src/xml/visitors/writer.dart' show XmlWriter;
 

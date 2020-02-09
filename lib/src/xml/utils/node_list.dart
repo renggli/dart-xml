@@ -3,6 +3,7 @@ library xml.utils.node_list;
 import 'package:collection/collection.dart' show DelegatingList;
 
 import '../nodes/node.dart';
+import '../visitors/transformer.dart';
 import 'exceptions.dart';
 import 'node_type.dart';
 
