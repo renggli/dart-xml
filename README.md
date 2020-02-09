@@ -190,6 +190,12 @@ There are numerous packages depending on this package:
 - Doesn't validate schema declarations.
 - Doesn't parse and enforce DTD.
 
+### Standards
+
+- [Extensible Markup Language (XML) 1.0](https://www.w3.org/TR/xml/)
+- [Namespaces in XML 1.0](https://www.w3.org/TR/xml-names/)
+- [W3C DOM4](https://www.w3.org/TR/domcore/)
+
 ### History
 
 This library started as an example of the [PetitParser](https://github.com/renggli/PetitParserDart) library. To my own surprise various people started to use it to read XML files. In April 2014 I was asked to replace the original [dart-xml](https://github.com/prujohn/dart-xml) library from John Evans.
