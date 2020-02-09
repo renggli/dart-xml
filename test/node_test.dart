@@ -13,6 +13,7 @@ void main() {
       final node = document.rootElement;
       expect(node.name, XmlName.fromString('ns:data'));
       expect(node.parent, same(document));
+      expect(node.parentElement, isNull);
       expect(node.root, same(document));
       expect(node.document, same(document));
       expect(node.depth, 1);
@@ -31,6 +32,7 @@ void main() {
       final node = document.rootElement;
       expect(node.name, XmlName.fromString('data'));
       expect(node.parent, same(document));
+      expect(node.parentElement, isNull);
       expect(node.root, same(document));
       expect(node.document, same(document));
       expect(node.depth, 1);
@@ -48,6 +50,7 @@ void main() {
       final node = document.rootElement;
       expect(node.name, XmlName.fromString('data'));
       expect(node.parent, same(document));
+      expect(node.parentElement, isNull);
       expect(node.root, same(document));
       expect(node.document, same(document));
       expect(node.depth, 1);
@@ -59,6 +62,14 @@ void main() {
       expect(node.nodeType.toString(), 'XmlNodeType.ELEMENT');
       expect(node.isSelfClosing, isFalse);
       expect(node.toString(), '<data></data>');
+    });
+    test('nested', () {
+      final document = parse('<outer><inner/></outer>');
+      final outer = document.rootElement;
+      expect(outer.toString(), '<outer><inner/></outer>');
+      final inner = outer.firstChild;
+      expect(inner.parentElement, same(outer));
+      expect(inner.toString(), '<inner/>');
     });
     test('constructor error', () {
       final document = parse('<element attr="value1">text</element>');
@@ -106,6 +117,7 @@ void main() {
         expect(node.value, 'Am I or are the other crazy?');
         expect(node.attributeType, XmlAttributeType.DOUBLE_QUOTE);
         expect(node.parent, same(document.rootElement));
+        expect(node.parentElement, same(document.rootElement));
         expect(node.root, same(document));
         expect(node.document, same(document));
         expect(node.depth, 2);
@@ -140,6 +152,7 @@ void main() {
         expect(node.value, 'Am I or are the other crazy?');
         expect(node.attributeType, XmlAttributeType.SINGLE_QUOTE);
         expect(node.parent, same(document.rootElement));
+        expect(node.parentElement, same(document.rootElement));
         expect(node.root, same(document));
         expect(node.document, same(document));
         expect(node.depth, 2);
@@ -174,9 +187,10 @@ void main() {
   group('text', () {
     test('basic', () {
       final document = parse('<data>Am I or are the other crazy?</data>');
-      final node = document.rootElement.children.single;
+      final XmlText node = document.rootElement.children.single;
       expect(node.text, 'Am I or are the other crazy?');
       expect(node.parent, same(document.rootElement));
+      expect(node.parentElement, same(document.rootElement));
       expect(node.root, same(document));
       expect(node.document, same(document));
       expect(node.depth, 2);
@@ -207,6 +221,7 @@ void main() {
     final node = document.rootElement.children.single;
     expect(node.text, 'Methinks <word> it <word> is like a weasel!');
     expect(node.parent, same(document.rootElement));
+    expect(node.parentElement, same(document.rootElement));
     expect(node.root, same(document));
     expect(node.document, same(document));
     expect(node.depth, 2);
@@ -224,6 +239,7 @@ void main() {
       expect(node.version, '1.0');
       expect(node.encoding, 'UTF-8');
       expect(node.parent, same(document));
+      expect(node.parentElement, isNull);
       expect(node.root, same(document));
       expect(node.document, same(document));
       expect(node.depth, 1);
@@ -258,6 +274,7 @@ void main() {
     expect(node.target, 'xml-stylesheet');
     expect(node.text, 'href="style.css"');
     expect(node.parent, same(document));
+    expect(node.parentElement, isNull);
     expect(node.root, same(document));
     expect(node.document, same(document));
     expect(node.depth, 1);
@@ -271,6 +288,7 @@ void main() {
     final document = parse('<data><!--Am I or are the other crazy?--></data>');
     final node = document.rootElement.children.single;
     expect(node.parent, same(document.rootElement));
+    expect(node.parentElement, same(document.rootElement));
     expect(node.root, same(document));
     expect(node.document, same(document));
     expect(node.depth, 2);
@@ -286,6 +304,7 @@ void main() {
       final document = parse('<data/>');
       final node = document.document;
       expect(node.parent, isNull);
+      expect(node.parentElement, isNull);
       expect(node.root, same(document));
       expect(node.document, same(document));
       expect(node.depth, 0);
@@ -346,6 +365,7 @@ void main() {
         parse('<!DOCTYPE html [<!-- internal subset -->]><data />');
     final node = document.doctypeElement;
     expect(node.parent, same(document));
+    expect(node.parentElement, isNull);
     expect(node.document, same(document));
     expect(node.depth, 1);
     expect(node.attributes, isEmpty);
@@ -355,18 +375,39 @@ void main() {
     expect(node.nodeType.toString(), 'XmlNodeType.DOCUMENT_TYPE');
     expect(node.toString(), '<!DOCTYPE html [<!-- internal subset -->]>');
   });
-  test('document fragment empty', () {
-    final node = XmlDocumentFragment();
-    assertCopyInvariants(node);
-    expect(node.parent, isNull);
-    expect(node.root, node);
-    expect(node.document, isNull);
-    expect(node.depth, 0);
-    expect(node.attributes, isEmpty);
-    expect(node.children, isEmpty);
-    expect(node.text, isNull);
-    expect(node.nodeType, XmlNodeType.DOCUMENT_FRAGMENT);
-    expect(node.nodeType.toString(), 'XmlNodeType.DOCUMENT_FRAGMENT');
-    expect(node.toString(), '#document-fragment');
+  group('document fragment', () {
+    test('basic', () {
+      final node = XmlDocumentFragment([
+        XmlComment('Am I a joke to you?'),
+        XmlText('No'),
+      ]);
+      assertCopyInvariants(node);
+      expect(node.parent, isNull);
+      expect(node.parentElement, isNull);
+      expect(node.root, node);
+      expect(node.document, isNull);
+      expect(node.depth, 0);
+      expect(node.attributes, isEmpty);
+      expect(node.children, hasLength(2));
+      expect(node.text, 'No');
+      expect(node.nodeType, XmlNodeType.DOCUMENT_FRAGMENT);
+      expect(node.nodeType.toString(), 'XmlNodeType.DOCUMENT_FRAGMENT');
+      expect(node.toString(), '#document-fragment');
+    });
+    test('empty', () {
+      final node = XmlDocumentFragment();
+      assertCopyInvariants(node);
+      expect(node.parent, isNull);
+      expect(node.parentElement, isNull);
+      expect(node.root, node);
+      expect(node.document, isNull);
+      expect(node.depth, 0);
+      expect(node.attributes, isEmpty);
+      expect(node.children, isEmpty);
+      expect(node.text, '');
+      expect(node.nodeType, XmlNodeType.DOCUMENT_FRAGMENT);
+      expect(node.nodeType.toString(), 'XmlNodeType.DOCUMENT_FRAGMENT');
+      expect(node.toString(), '#document-fragment');
+    });
   });
 }

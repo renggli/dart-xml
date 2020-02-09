@@ -1,6 +1,7 @@
 library xml.navigation.parent;
 
 import '../nodes/document.dart';
+import '../nodes/element.dart';
 import '../nodes/node.dart';
 
 extension XmlParentExtension on XmlNode {
@@ -19,6 +20,16 @@ extension XmlParentExtension on XmlNode {
   XmlDocument get document {
     final node = root;
     return node is XmlDocument ? node : null;
+  }
+
+  /// Return the first parent of this node that is of type [XmlElement], or
+  /// `null` if there is none.
+  XmlElement get parentElement {
+    var current = parent;
+    while (current != null && current is! XmlElement) {
+      current = current.parent;
+    }
+    return current;
   }
 
   /// Return the depth of this node in its tree, a root node has depth 0.
