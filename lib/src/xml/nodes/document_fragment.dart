@@ -14,9 +14,6 @@ class XmlDocumentFragment extends XmlNode with XmlHasChildren {
   }
 
   @override
-  String get text => null;
-
-  @override
   XmlNodeType get nodeType => XmlNodeType.DOCUMENT_FRAGMENT;
 
   @override
