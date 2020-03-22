@@ -13,6 +13,7 @@ import 'nodes/processing.dart';
 import 'nodes/text.dart';
 import 'utils/attribute_type.dart';
 import 'utils/name.dart';
+import 'utils/namespace.dart';
 import 'visitors/transformer.dart';
 
 /// A builder to create XML trees with code.
@@ -264,6 +265,8 @@ class NamespaceData {
   final String prefix;
   bool used;
 
+  static final NamespaceData xmlData = NamespaceData(xml, true);
+
   NamespaceData(this.prefix, [this.used = false]);
 
   XmlName get name => prefix == null || prefix.isEmpty
@@ -283,7 +286,7 @@ abstract class XmlNodeBuilder {
 
 class XmlDocumentBuilder extends XmlNodeBuilder {
   @override
-  final Map<String, NamespaceData> namespaces = {xmlUri: xmlData};
+  final Map<String, NamespaceData> namespaces = {xmlUri: NamespaceData.xmlData};
 
   @override
   List<XmlAttribute> get attributes {

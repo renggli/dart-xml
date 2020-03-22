@@ -1,6 +1,7 @@
 library xml.utils.simple_name;
 
 import 'name.dart';
+import 'namespace.dart';
 
 /// An XML entity name without a prefix.
 class XmlSimpleName extends XmlName {
@@ -14,16 +15,7 @@ class XmlSimpleName extends XmlName {
   String get qualified => local;
 
   @override
-  String get namespaceUri {
-    for (var node = parent; node != null; node = node.parent) {
-      for (final attribute in node.attributes) {
-        if (attribute.name.prefix == null && attribute.name.local == xmlns) {
-          return attribute.value;
-        }
-      }
-    }
-    return null;
-  }
+  String get namespaceUri => lookupAttribute(parent, null, xmlns)?.value;
 
   XmlSimpleName(this.local) : super.internal();
 }

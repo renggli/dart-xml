@@ -4,6 +4,7 @@
 
 * Cleanup the node hierarchy. Specifically removed `XmlOwned` and `XmlParent` that added a lot of complexity and confusion. Instead introduced dedicated mixins for nodes with attributes (`XmlHasAttributes`), children (`XmlHasChildren`), names (`XmlHasName`) or parents (`XmlHasParent`).
 * Introduce `XmlDeclaration` nodes, events and builder to make accessing XML version and encoding simpler.
+* Add full namespace support to attribute accessors `setAttribute` and `removeAttribute`.
 
 ## 3.7.0
 

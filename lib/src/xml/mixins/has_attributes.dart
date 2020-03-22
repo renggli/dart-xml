@@ -3,6 +3,7 @@ library xml.mixins.has_attributes;
 import '../nodes/attribute.dart';
 import '../utils/name.dart';
 import '../utils/name_matcher.dart';
+import '../utils/namespace.dart';
 import '../utils/node_list.dart';
 
 /// Attribute interface for nodes.
@@ -19,11 +20,12 @@ mixin XmlAttributesBase {
   /// Set the attribute value with the given fully qualified `name` to `value`.
   /// If an attribute with the name already exist, its value is updated.
   /// If the value is `null`, the attribute is removed.
-  void setAttribute(String name, String value) =>
+  void setAttribute(String name, String value, {String namespace}) =>
       throw UnsupportedError('$this has no attributes.');
 
   /// Removes the attribute value with the given fully qualified `name`.
-  void removeAttribute(String name) => setAttribute(name, null);
+  void removeAttribute(String name, {String namespace}) =>
+      setAttribute(name, null, namespace: namespace);
 }
 
 /// Mixin for nodes with attributes.
@@ -40,12 +42,14 @@ mixin XmlHasAttributes implements XmlAttributesBase {
       .firstWhere(createNameMatcher(name, namespace), orElse: () => null);
 
   @override
-  void setAttribute(String name, String value) {
-    final index =
-        attributes.indexWhere((element) => element.name.qualified == name);
+  void setAttribute(String name, String value, {String namespace}) {
+    final index = attributes.indexWhere(createNameMatcher(name, namespace));
     if (index < 0) {
       if (value != null) {
-        attributes.add(XmlAttribute(XmlName.fromString(name), value));
+        final prefix = namespace == null
+            ? null
+            : lookupNamespacePrefix(this as dynamic, namespace);
+        attributes.add(XmlAttribute(XmlName(name, prefix), value));
       }
     } else {
       if (value != null) {

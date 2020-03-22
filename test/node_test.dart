@@ -90,6 +90,26 @@ void main() {
       expect(node.getAttributeNode('attr').value, 'value');
       expect(node.toString(), '<data attr="value"/>');
     });
+    test('add attribute with namespace', () {
+      final document = parse('<data xmlns:ns="uri" />');
+      final node = document.rootElement;
+      expect(node.getAttribute('attr', namespace: 'uri'), isNull);
+      expect(node.getAttributeNode('attr', namespace: 'uri'), isNull);
+      node.setAttribute('attr', 'value', namespace: 'uri');
+      expect(node.getAttribute('attr', namespace: 'uri'), 'value');
+      expect(node.getAttributeNode('attr', namespace: 'uri').value, 'value');
+      expect(node.toString(), '<data xmlns:ns="uri" ns:attr="value"/>');
+    });
+    test('add attribute with default namespace', () {
+      final document = parse('<data xmlns="uri" />');
+      final node = document.rootElement;
+      expect(node.getAttribute('attr', namespace: 'uri'), isNull);
+      expect(node.getAttributeNode('attr', namespace: 'uri'), isNull);
+      node.setAttribute('attr', 'value', namespace: 'uri');
+      expect(node.getAttribute('attr', namespace: 'uri'), 'value');
+      expect(node.getAttributeNode('attr', namespace: 'uri').value, 'value');
+      expect(node.toString(), '<data xmlns="uri" attr="value"/>');
+    });
     test('update attribute', () {
       final document = parse('<data attr="old"/>');
       final node = document.rootElement;
@@ -98,6 +118,22 @@ void main() {
       expect(node.getAttributeNode('attr').value, 'new');
       expect(node.toString(), '<data attr="new"/>');
     });
+    test('update attribute with namespace', () {
+      final document = parse('<data xmlns:ns="uri" ns:attr="old"/>');
+      final node = document.rootElement;
+      node.setAttribute('attr', 'new', namespace: 'uri');
+      expect(node.getAttribute('attr', namespace: 'uri'), 'new');
+      expect(node.getAttributeNode('attr', namespace: 'uri').value, 'new');
+      expect(node.toString(), '<data xmlns:ns="uri" ns:attr="new"/>');
+    });
+    test('update attribute with default namespace', () {
+      final document = parse('<data xmlns="uri" attr="old"/>');
+      final node = document.rootElement;
+      node.setAttribute('attr', 'new', namespace: 'uri');
+      expect(node.getAttribute('attr', namespace: 'uri'), 'new');
+      expect(node.getAttributeNode('attr', namespace: 'uri').value, 'new');
+      expect(node.toString(), '<data xmlns="uri" attr="new"/>');
+    });
     test('remove attribute', () {
       final document = parse('<data attr="old"/>');
       final node = document.rootElement;
@@ -105,6 +141,22 @@ void main() {
       expect(node.getAttribute('attr'), isNull);
       expect(node.getAttributeNode('attr'), isNull);
       expect(node.toString(), '<data/>');
+    });
+    test('remove attribute with namespace', () {
+      final document = parse('<data xmlns:ns="uri" ns:attr="old"/>');
+      final node = document.rootElement;
+      node.removeAttribute('attr', namespace: 'uri');
+      expect(node.getAttribute('attr', namespace: 'uri'), isNull);
+      expect(node.getAttributeNode('attr', namespace: 'uri'), isNull);
+      expect(node.toString(), '<data xmlns:ns="uri"/>');
+    });
+    test('remove attribute with default namespace', () {
+      final document = parse('<data xmlns="uri" attr="old"/>');
+      final node = document.rootElement;
+      node.removeAttribute('attr', namespace: 'uri');
+      expect(node.getAttribute('attr', namespace: 'uri'), isNull);
+      expect(node.getAttributeNode('attr', namespace: 'uri'), isNull);
+      expect(node.toString(), '<data xmlns="uri"/>');
     });
   });
   group('attribute', () {

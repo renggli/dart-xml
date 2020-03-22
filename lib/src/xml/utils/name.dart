@@ -1,6 +1,5 @@
 library xml.utils.name;
 
-import '../builder.dart';
 import '../mixins/has_parent.dart';
 import '../mixins/has_visitor.dart';
 import '../mixins/has_writer.dart';
@@ -8,12 +7,6 @@ import '../visitors/visitor.dart';
 import 'prefix_name.dart';
 import 'simple_name.dart';
 import 'token.dart';
-
-// xml namespace declarations
-const String xml = 'xml';
-const String xmlUri = 'http://www.w3.org/XML/1998/namespace';
-const String xmlns = 'xmlns';
-final NamespaceData xmlData = NamespaceData(xml, true);
 
 /// XML entity name.
 abstract class XmlName extends Object
