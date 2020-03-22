@@ -1,12 +1,10 @@
 library xml.visitors.pretty_writer;
 
+import '../entities/default_mapping.dart';
 import '../entities/entity_mapping.dart';
-import '../nodes/cdata.dart';
-import '../nodes/comment.dart';
-import '../nodes/declaration.dart';
-import '../nodes/doctype.dart';
+import '../nodes/document.dart';
 import '../nodes/element.dart';
-import '../nodes/processing.dart';
+import '../nodes/node.dart';
 import '../nodes/text.dart';
 import '../utils/token.dart';
 import 'writer.dart';
@@ -14,40 +12,25 @@ import 'writer.dart';
 /// A visitor that writes XML nodes correctly indented and with whitespaces
 /// adapted.
 class XmlPrettyWriter extends XmlWriter {
-  int level = 0;
+  int level;
   final String indent;
+  final String newLine;
 
-  XmlPrettyWriter(
-      buffer, XmlEntityMapping entityMapping, this.level, this.indent)
-      : super(buffer, entityMapping);
-
-  @override
-  void visitCDATA(XmlCDATA node) {
-    newLine();
-    super.visitCDATA(node);
-  }
+  XmlPrettyWriter(StringSink buffer,
+      {XmlEntityMapping entityMapping = const XmlDefaultEntityMapping.xml(),
+      this.level = 0,
+      this.indent = '  ',
+      this.newLine = '\n'})
+      : super(buffer, entityMapping: entityMapping);
 
   @override
-  void visitComment(XmlComment node) {
-    newLine();
-    super.visitComment(node);
-  }
-
-  @override
-  void visitDeclaration(XmlDeclaration node) {
-    newLine();
-    super.visitDeclaration(node);
-  }
-
-  @override
-  void visitDoctype(XmlDoctype node) {
-    newLine();
-    super.visitDoctype(node);
+  void visitDocument(XmlDocument node) {
+    buffer.write(indent * level);
+    writeIterable(normalizeText(node.children), newLine + indent * level);
   }
 
   @override
   void visitElement(XmlElement node) {
-    newLine();
     buffer.write(XmlToken.openElement);
     visit(node.name);
     writeAttributes(node);
@@ -55,39 +38,49 @@ class XmlPrettyWriter extends XmlWriter {
       buffer.write(XmlToken.closeEndElement);
     } else {
       buffer.write(XmlToken.closeElement);
-      level++;
-      writeChildren(node);
-      level--;
-      if (!node.children.every((each) => each is XmlText)) {
-        newLine();
+      if (node.children.isNotEmpty) {
+        if (node.children.every((each) => each is XmlText)) {
+          writeIterable(normalizeText(node.children));
+        } else {
+          level++;
+          buffer.write(newLine);
+          buffer.write(indent * level);
+          writeIterable(normalizeText(node.children), newLine + indent * level);
+          level--;
+          buffer.write(newLine);
+          buffer.write(indent * level);
+        }
       }
       buffer.write(XmlToken.openEndElement);
       visit(node.name);
       buffer.write(XmlToken.closeElement);
     }
   }
-
-  @override
-  void visitProcessing(XmlProcessing node) {
-    newLine();
-    super.visitProcessing(node);
-  }
-
-  @override
-  void visitText(XmlText node) {
-    // If text is purely whitespace, don't output to the buffer
-    // the indentation and newlines will be handled elsewhere.
-    if (node.text.trim().isNotEmpty) {
-      super.visitText(node);
-    }
-  }
-
-  void newLine() {
-    if (buffer.isNotEmpty) {
-      buffer.writeln();
-    }
-    for (var i = 0; i < level; i++) {
-      buffer.write(indent);
-    }
-  }
 }
+
+// Normalizes the text nodes within a sequence of nodes. Trims leading and
+// trailing whitespaces, replaces all whitespaces with a clean space, removes
+// duplicated whitespaces, drops empty nodes, and combines consecutive nodes.
+List<XmlNode> normalizeText(List<XmlNode> nodes) {
+  final result = <XmlNode>[];
+  for (final node in nodes) {
+    if (node is XmlText) {
+      final text = node.text.trim()
+          .replaceAll(_whitespaceOrLineTerminators, ' ');
+      if (text.isNotEmpty) {
+        if (result.isNotEmpty && result.last is XmlText) {
+          result.last = XmlText(result.last.text + XmlToken.whitespace + text);
+        } else if (node.text != text) {
+          result.add(XmlText(text));
+        } else {
+          result.add(node);
+        }
+      }
+    } else {
+      result.add(node);
+    }
+  }
+  return result;
+}
+
+final _whitespaceOrLineTerminators = RegExp(r'\s+');

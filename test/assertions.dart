@@ -222,6 +222,8 @@ void assertCompareInvariants(XmlNode original, XmlNode copy) {
   }
 }
 
+final _whitespaceOrLineTerminators = RegExp(r'\s+');
+
 void compareNode(XmlNode first, XmlNode second) {
   expect(first.nodeType, second.nodeType);
   final firstChildren =
@@ -234,11 +236,13 @@ void compareNode(XmlNode first, XmlNode second) {
   }
   final firstText = first.children
       .whereType<XmlText>()
-      .map((node) => node.text.trim())
+      .map((node) =>
+          node.text.trim().replaceAll(_whitespaceOrLineTerminators, ' '))
       .join();
   final secondText = second.children
       .whereType<XmlText>()
-      .map((node) => node.text.trim())
+      .map((node) =>
+          node.text.trim().replaceAll(_whitespaceOrLineTerminators, ' '))
       .join();
   expect(firstText, secondText);
   expect(first.attributes.length, second.attributes.length);

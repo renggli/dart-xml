@@ -1,10 +1,17 @@
 # Changelog
 
+## 4.1.0
+
+* Improve the pretty printing and the customization of the pretty printing:
+  * `XmlWriter` and `XmlPrettyWriter` are now initialized with optional arguments.
+  * Pretty printing now also supports to customize the newline support.
+  * Example is updated to also syntax highlight / colorize the output.
+* Add full namespace support to attribute accessors `setAttribute` and `removeAttribute`.
+
 ## 4.0.0
 
 * Cleanup the node hierarchy. Specifically removed `XmlOwned` and `XmlParent` that added a lot of complexity and confusion. Instead introduced dedicated mixins for nodes with attributes (`XmlHasAttributes`), children (`XmlHasChildren`), names (`XmlHasName`) or parents (`XmlHasParent`).
 * Introduce `XmlDeclaration` nodes, events and builder to make accessing XML version and encoding simpler.
-* Add full namespace support to attribute accessors `setAttribute` and `removeAttribute`.
 
 ## 3.7.0
 

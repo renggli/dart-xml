@@ -1,6 +1,9 @@
 library xml.visitors.writer;
 
+import '../entities/default_mapping.dart';
 import '../entities/entity_mapping.dart';
+import '../mixins/has_attributes.dart';
+import '../mixins/has_visitor.dart';
 import '../nodes/attribute.dart';
 import '../nodes/cdata.dart';
 import '../nodes/comment.dart';
@@ -9,7 +12,6 @@ import '../nodes/doctype.dart';
 import '../nodes/document.dart';
 import '../nodes/document_fragment.dart';
 import '../nodes/element.dart';
-import '../nodes/node.dart';
 import '../nodes/processing.dart';
 import '../nodes/text.dart';
 import '../utils/name.dart';
@@ -18,10 +20,11 @@ import 'visitor.dart';
 
 /// A visitor that writes XML nodes exactly as they were parsed.
 class XmlWriter with XmlVisitor {
-  final StringBuffer buffer;
+  final StringSink buffer;
   final XmlEntityMapping entityMapping;
 
-  XmlWriter(this.buffer, this.entityMapping);
+  XmlWriter(this.buffer,
+      {this.entityMapping = const XmlDefaultEntityMapping.xml()});
 
   @override
   void visitAttribute(XmlAttribute node) {
@@ -62,7 +65,7 @@ class XmlWriter with XmlVisitor {
 
   @override
   void visitDocument(XmlDocument node) {
-    writeChildren(node);
+    writeIterable(node.children);
   }
 
   @override
@@ -79,7 +82,7 @@ class XmlWriter with XmlVisitor {
       buffer.write(XmlToken.closeEndElement);
     } else {
       buffer.write(XmlToken.closeElement);
-      writeChildren(node);
+      writeIterable(node.children);
       buffer.write(XmlToken.openEndElement);
       visit(node.name);
       buffer.write(XmlToken.closeElement);
@@ -107,14 +110,27 @@ class XmlWriter with XmlVisitor {
     buffer.write(entityMapping.encodeText(node.text));
   }
 
-  void writeAttributes(XmlNode node) {
-    for (final attribute in node.attributes) {
+  void writeAttributes(XmlHasAttributes node) {
+    if (node.attributes.isNotEmpty) {
       buffer.write(XmlToken.whitespace);
-      visit(attribute);
+      writeIterable(node.attributes, XmlToken.whitespace);
     }
   }
 
-  void writeChildren(XmlNode node) {
-    node.children.forEach(visit);
+  void writeIterable(Iterable<XmlHasVisitor> nodes, [String separator]) {
+    final iterator = nodes.iterator;
+    if (iterator.moveNext()) {
+      if (separator == null || separator.isEmpty) {
+        do {
+          visit(iterator.current);
+        } while (iterator.moveNext());
+      } else {
+        visit(iterator.current);
+        while (iterator.moveNext()) {
+          buffer.write(separator);
+          visit(iterator.current);
+        }
+      }
+    }
   }
 }
