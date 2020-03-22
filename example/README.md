@@ -38,7 +38,7 @@ dart example/xml_pos.dart example/books.xml
 
 ### xml_pp
 
-This example contains a command-line application that reads XML documents from the file-system and pretty prints the formatted document to the console.
+This example contains a command-line application that reads XML documents from the file-system and pretty prints and syntax highlights the formatted document to the console.
 
 ```bash
 dart example/xml_pp.dart example/books.xml
