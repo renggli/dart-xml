@@ -52,11 +52,7 @@ abstract class XmlEntityMapping {
   /// its corresponding quotes.
   String encodeAttributeValueWithQuotes(String input, XmlAttributeType type) {
     final quote = _attributeQuote[type];
-    final buffer = StringBuffer();
-    buffer.write(quote);
-    buffer.write(encodeAttributeValue(input, type));
-    buffer.write(quote);
-    return buffer.toString();
+    return '$quote${encodeAttributeValue(input, type)}$quote';
   }
 }
 
