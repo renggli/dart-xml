@@ -7,6 +7,7 @@
   * Pretty printing now also supports to customize the newline support.
   * Example is updated to also syntax highlight / colorize the output.
 * Add full namespace support to attribute accessors `setAttribute` and `removeAttribute`.
+* Improved documentation, particularly started a section on `xml_events` package.
 
 ## 4.0.0
 

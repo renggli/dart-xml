@@ -65,8 +65,8 @@ List<XmlNode> normalizeText(List<XmlNode> nodes) {
   final result = <XmlNode>[];
   for (final node in nodes) {
     if (node is XmlText) {
-      final text = node.text.trim()
-          .replaceAll(_whitespaceOrLineTerminators, ' ');
+      final text =
+          node.text.trim().replaceAll(_whitespaceOrLineTerminators, ' ');
       if (text.isNotEmpty) {
         if (result.isNotEmpty && result.last is XmlText) {
           result.last = XmlText(result.last.text + XmlToken.whitespace + text);

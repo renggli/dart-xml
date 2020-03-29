@@ -27,6 +27,7 @@ Import the package into your Dart code using:
 
 ```dart
 import 'package:xml/xml.dart' as xml;
+import 'package:xml/xml_events.dart' as xml_events;
 ```
 
 ### Reading and Writing
@@ -117,7 +118,7 @@ Note that this first finds all the books, and then extracts the price to avoid c
 
 ### Building
 
-To build a new XML document use an `XmlBuilder`. The builder implements a small set of methods to build complete XML trees. To create the above bookshelf example one would write:
+While it is possible to instantiate and compose `XmlDocument`, `XmlElement` and `XmlText` nodes manually, the `XmlBuilder` provides a simple fluent API to build complete XML trees. To create the above bookshelf example one would write:
 
 ```dart
 final builder = xml.XmlBuilder();
@@ -160,6 +161,44 @@ buildBook(xml.XmlBuilder builder, String title, String language, num price) {
     builder.element('price', nest: price);
   });
 }
+```
+
+### Streaming
+
+Reading large XML files and instantiating their DOM into the memory can be expensive. As an alternative this library provides the possibility to read and transform XML documents as a sequence of events using [Dart Streams](https://dart.dev/tutorials/language/streams). This approach is comparable to event-driven SAX parsing known from other libraries.
+
+In the most simple case you can get a `Iterable<XmlEvent>` over the input string using the following code. This parses the input lazily, and only parses input when requested:
+
+```dart
+xml_events.parseEvents(bookshelfXml)
+    .whereType<XmlTextEvent>()
+    .map((event) => event.text.trim())
+    .where((text) => text.isNotEmpty)
+    .forEach(print);
+```
+
+To asynchronously parse and process events directly from a file or HTTP stream use the provided codecs, encoders and decoders:
+
+1. `XmlEventCodec` converts between `String` and `XmlEvent` sequences:
+    - `XmlEventDecoder` decodes a `String` to a sequence of `XmlEvent` objects.
+    - `XmlEventEncoder` encodes a sequence of `XmlEvent` objects to a `String`.
+2. `XmlNodeCodec` converts between `XmlEvent` sequences and `XmlNode` trees.
+    - `XmlNodeDecoder` decodes a sequence of `XmlEvent` objects to a forest of `XmlNode` objects.
+    - `XmlNodeEncoder` decodes a forest of `XmlNode` objects to a sequence of `XmlEvent` objects.
+3. `XmlNormalizer` normalizes a sequence of `XmlEvent`, namely combines adjacent and removes empty text events.
+
+For example the following snippet downloads data from the Internet, converts the UTF-8 input to a Dart `String`, decodes the stream of characters to `XmlEvent`s, and finally normalizes and prints the events:
+
+```dart
+final url = Uri.parse('http://ip-api.com/xml/');
+final request = await httpClient.getUrl(url);
+final response = await request.close();
+final stream = response
+    .transform(utf8.decoder)
+    .transform(const xml_events.XmlEventDecoder())
+    .transform(const xml_events.XmlNormalizer())
+    .expand((events) => events)
+    .forEach((event) => print(event));
 ```
 
 Misc

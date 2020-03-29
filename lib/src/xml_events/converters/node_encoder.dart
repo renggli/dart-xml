@@ -28,7 +28,7 @@ import '../events/processing_event.dart';
 import '../events/start_element_event.dart';
 import '../events/text_event.dart';
 
-/// A converter that decodes a forest of [XmlNode] objects to a sequence of
+/// A converter that encodes a forest of [XmlNode] objects to a sequence of
 /// [XmlEvent] objects.
 class XmlNodeEncoder extends Converter<List<XmlNode>, List<XmlEvent>> {
   const XmlNodeEncoder();
