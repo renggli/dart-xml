@@ -290,6 +290,7 @@ void main() {
       final node = document.declaration;
       expect(node.version, '1.0');
       expect(node.encoding, 'UTF-8');
+      expect(node.standalone, isFalse);
       expect(node.parent, same(document));
       expect(node.parentElement, isNull);
       expect(node.root, same(document));
@@ -302,22 +303,57 @@ void main() {
       expect(node.toString(), '<?xml version="1.0" encoding="UTF-8"?>');
     });
     test('add attribute', () {
-      final document = parse('<?xml version="1.0"?><data/>');
+      final document = parse('<?xml?><data/>');
       final node = document.declaration;
       node.setAttribute('other', 'value');
-      expect(node.toString(), '<?xml version="1.0" other="value"?>');
+      expect(node.toString(), '<?xml other="value"?>');
     });
     test('update attribute', () {
-      final document = parse('<?xml version="1.0"?><data/>');
+      final document = parse('<?xml other="value"?><data/>');
       final node = document.declaration;
-      node.version = '2.0';
-      expect(node.toString(), '<?xml version="2.0"?>');
+      node.setAttribute('other', 'some');
+      expect(node.toString(), '<?xml other="some"?>');
     });
     test('remove attribute', () {
       final document = parse('<?xml version="1.0" other="value"?><data/>');
       final node = document.declaration;
       node.removeAttribute('other');
       expect(node.toString(), '<?xml version="1.0"?>');
+    });
+    test('version', () {
+      final document = parse('<?xml?><data/>');
+      final node = document.declaration;
+      expect(node.version, isNull);
+      node.version = '1.1';
+      expect(node.version, '1.1');
+      expect(node.toString(), '<?xml version="1.1"?>');
+      node.version = null;
+      expect(node.version, isNull);
+      expect(node.toString(), '<?xml?>');
+    });
+    test('encoding', () {
+      final document = parse('<?xml?><data/>');
+      final node = document.declaration;
+      expect(node.encoding, isNull);
+      node.encoding = 'utf-16';
+      expect(node.encoding, 'utf-16');
+      expect(node.toString(), '<?xml encoding="utf-16"?>');
+      node.encoding = null;
+      expect(node.encoding, isNull);
+      expect(node.toString(), '<?xml?>');
+    });
+    test('standalone', () {
+      final document = parse('<?xml?><data/>');
+      final node = document.declaration;
+      node.standalone = true;
+      expect(node.standalone, isTrue);
+      expect(node.toString(), '<?xml standalone="yes"?>');
+      node.standalone = false;
+      expect(node.standalone, isFalse);
+      expect(node.toString(), '<?xml standalone="no"?>');
+      node.standalone = null;
+      expect(node.standalone, isFalse);
+      expect(node.toString(), '<?xml?>');
     });
   });
   test('processing', () {
