@@ -86,6 +86,7 @@ print(textual);
 
 Additionally, there are helpers to find elements with a specific tag:
 
+- `getElement(String name)` finds the first direct child with the provided tag `name`, or `null`.
 - `findElements(String name)` finds direct children of the current node with the provided tag `name`.
 - `findAllElements(String name)` finds direct and indirect children of the current node with the provided tag `name`.
 

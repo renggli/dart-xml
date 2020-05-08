@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.2.0
+
+* Add `getElement(name)` as a shortcut to find the first child element with the given `name`.
+
 ## 4.1.0
 
 * Improve the pretty printing and the customization of the pretty printing:

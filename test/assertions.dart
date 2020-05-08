@@ -33,6 +33,7 @@ void assertTreeInvariants(XmlNode xml) {
   assertBackwardInvariants(xml);
   assertNameInvariants(xml);
   assertAttributeInvariants(xml);
+  assertChildrenInvariants(xml);
   assertTextInvariants(xml);
   assertIteratorInvariants(xml);
   assertCopyInvariants(xml);
@@ -128,6 +129,25 @@ void assertAttributeInvariants(XmlNode xml) {
       if (node.attributes.isEmpty) {
         expect(node.getAttribute('foo'), isNull);
         expect(node.getAttributeNode('foo'), isNull);
+      }
+    }
+  }
+}
+
+void assertChildrenInvariants(XmlNode xml) {
+  for (final node in xml.descendants) {
+    if (node.children.isEmpty) {
+      expect(node.firstChild, isNull);
+      expect(node.lastChild, isNull);
+      expect(node.getElement('foo'), isNull);
+    } else {
+      expect(node.firstChild, same(node.children.first));
+      expect(node.lastChild, same(node.children.last));
+      final seenNames = <String>{};
+      for (final element in node.children
+          .whereType<XmlElement>()
+          .where((element) => seenNames.add(element.name.qualified))) {
+        expect(node.getElement(element.name.qualified), same(element));
       }
     }
   }

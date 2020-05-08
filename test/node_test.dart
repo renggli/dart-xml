@@ -68,6 +68,7 @@ void main() {
       final outer = document.rootElement;
       expect(outer.toString(), '<outer><inner/></outer>');
       final inner = outer.firstChild;
+      expect(outer.getElement('inner'), same(inner));
       expect(inner.parentElement, same(outer));
       expect(inner.toString(), '<inner/>');
     });
