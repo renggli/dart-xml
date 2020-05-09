@@ -1,6 +1,10 @@
 library xml.nodes.document;
 
+import '../parse.dart';
+import '../entities/default_mapping.dart';
+import '../entities/entity_mapping.dart';
 import '../mixins/has_children.dart';
+import '../utils/exceptions.dart';
 import '../utils/node_type.dart';
 import '../visitors/visitor.dart';
 import 'declaration.dart';
@@ -10,6 +14,21 @@ import 'node.dart';
 
 /// XML document node.
 class XmlDocument extends XmlNode with XmlHasChildren {
+  /// Return an [XmlDocument] for the given [input] string, or throws an
+  /// [XmlParserException] if the input is invalid.
+  ///
+  /// For example, the following code prints `Hello World`:
+  ///
+  ///    final document = new XmlDocument.parse('<?xml?><root message="Hello World" />');
+  ///    print(document.rootElement.getAttribute('message'));
+  ///
+  /// Note: It is the responsibility of the caller to provide a standard Dart
+  /// [String] using the default UTF-16 encoding.
+  factory XmlDocument.parse(String input,
+          {XmlEntityMapping entityMapping =
+              const XmlDefaultEntityMapping.xml()}) =>
+      parse(input, entityMapping: entityMapping);
+
   /// Create a document node with `children`.
   XmlDocument([Iterable<XmlNode> childrenIterable = const []]) {
     children.initialize(this, childrenNodeTypes);
