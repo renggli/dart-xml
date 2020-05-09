@@ -23,16 +23,15 @@ Tutorial
 
 Follow the installation instructions on [dart packages](https://pub.dev/packages/xml#-installing-tab-).
 
-Import the package into your Dart code using:
+Import the library into your Dart code using:
 
 ```dart
-import 'package:xml/xml.dart' as xml;
-import 'package:xml/xml_events.dart' as xml_events;
+import 'package:xml/xml.dart';
 ```
 
 ### Reading and Writing
 
-To read XML input use the top-level function `parse(String input)`:
+To read XML input use the factory method `XmlDocument.parse(String input)`:
 
 ```dart
 final bookshelfXml = '''<?xml version="1.0"?>
@@ -47,7 +46,7 @@ final bookshelfXml = '''<?xml version="1.0"?>
       </book>
       <price>132.00</price>
     </bookshelf>''';
-final document = xml.parse(bookshelfXml);
+final document = XmlDocument.parse(bookshelfXml);
 ```
 
 The resulting object is an instance of `XmlDocument`. In case the document cannot be parsed, a `XmlParserException` is thrown.
@@ -79,7 +78,7 @@ For example, the `descendants` iterator could be used to extract all textual con
 
 ```dart
 final textual = document.descendants
-    .where((node) => node is xml.XmlText && !node.text.trim().isEmpty)
+    .where((node) => node is XmlText && !node.text.trim().isEmpty)
     .join('\n');
 print(textual);
 ```
@@ -122,7 +121,7 @@ Note that this first finds all the books, and then extracts the price to avoid c
 While it is possible to instantiate and compose `XmlDocument`, `XmlElement` and `XmlText` nodes manually, the `XmlBuilder` provides a simple fluent API to build complete XML trees. To create the above bookshelf example one would write:
 
 ```dart
-final builder = xml.XmlBuilder();
+final builder = XmlBuilder();
 builder.processing('xml', 'version="1.0"');
 builder.element('bookshelf', nest: () {
   builder.element('book', nest: () {
@@ -153,7 +152,7 @@ Note the `element` method. It is quite sophisticated and supports many different
 The builder pattern allows you to easily extract repeated parts into specific methods. In the example above, one could put the part that writes a book into a separate method as follows:
 
 ```dart
-buildBook(xml.XmlBuilder builder, String title, String language, num price) {
+buildBook(XmlBuilder builder, String title, String language, num price) {
   builder.element('book', nest: () {
     builder.element('title', nest: () {
       builder.attribute('lang', 'english');
@@ -168,10 +167,14 @@ buildBook(xml.XmlBuilder builder, String title, String language, num price) {
 
 Reading large XML files and instantiating their DOM into the memory can be expensive. As an alternative this library provides the possibility to read and transform XML documents as a sequence of events using [Dart Streams](https://dart.dev/tutorials/language/streams). This approach is comparable to event-driven SAX parsing known from other libraries.
 
+```dart
+import 'package:xml/xml_events.dart';
+```
+
 In the most simple case you can get a `Iterable<XmlEvent>` over the input string using the following code. This parses the input lazily, and only parses input when requested:
 
 ```dart
-xml_events.parseEvents(bookshelfXml)
+parseEvents(bookshelfXml)
     .whereType<XmlTextEvent>()
     .map((event) => event.text.trim())
     .where((text) => text.isNotEmpty)
@@ -196,8 +199,8 @@ final request = await httpClient.getUrl(url);
 final response = await request.close();
 final stream = response
     .transform(utf8.decoder)
-    .transform(const xml_events.XmlEventDecoder())
-    .transform(const xml_events.XmlNormalizer())
+    .transform(const XmlEventDecoder())
+    .transform(const XmlNormalizer())
     .expand((events) => events)
     .forEach((event) => print(event));
 ```
