@@ -12,16 +12,15 @@ mixin XmlParentBase {
   bool get hasParent => false;
 
   /// Replace this node with `other` in the current parent.
-  void replace(XmlNode other) =>
-      throw UnsupportedError('$this does not have a parent.');
+  void replace(XmlNode other) => _noParent();
 
   /// Internal method to attach a child to this parent, do not call directly.
-  void attachParent(covariant XmlNode parent) =>
-      throw UnsupportedError('$this does not have a parent.');
+  void attachParent(covariant XmlNode parent) => _noParent();
 
   /// Internal method to detach a child from its parent, do not call directly.
-  void detachParent(covariant XmlNode parent) =>
-      throw UnsupportedError('$this does not have a parent.');
+  void detachParent(covariant XmlNode parent) => _noParent();
+
+  void _noParent() => throw UnsupportedError('$this does not have a parent.');
 }
 
 /// Mixin for nodes with a parent.
@@ -36,16 +35,13 @@ mixin XmlHasParent<T extends XmlNode> implements XmlParentBase {
 
   @override
   void replace(XmlNode other) {
-    if (hasParent) {
-      final siblings = parent.children;
-      for (var i = 0; i < siblings.length; i++) {
-        if (identical(siblings[i], this)) {
-          siblings[i] = other;
-          return;
-        }
+    final siblings = parent.children;
+    for (var i = 0; i < siblings.length; i++) {
+      if (identical(siblings[i], this)) {
+        siblings[i] = other;
+        break;
       }
     }
-    throw UnsupportedError('$this does not have a parent.');
   }
 
   @override
