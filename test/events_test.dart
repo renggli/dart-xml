@@ -231,9 +231,10 @@ void main() {
                 int Function() splitter)
             callback) {
       test(title, () {
-        final string = parse(input).toXmlString(pretty: true);
+        final string = XmlDocument.parse(input).toXmlString(pretty: true);
         final events = parseEvents(string).toList(growable: false);
-        final nodes = parse(string).children.toList(growable: false);
+        final nodes =
+            XmlDocument.parse(string).children.toList(growable: false);
         for (var i = 1; i < string.length / 2; i++) {
           callback(string, events, nodes, () => i);
         }

@@ -52,7 +52,8 @@ void main() {
     for (final name in benchmarks.keys) {
       builder.element(name, nest: () {
         final source = benchmarks[name];
-        builder.element('parser', nest: benchmark(() => parse(source)));
+        builder.element('parser',
+            nest: benchmark(() => XmlDocument.parse(source)));
         builder.element('iterator',
             nest: benchmark(() => parseEvents(source).length));
       });

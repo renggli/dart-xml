@@ -18,7 +18,7 @@ void main() {
       '<title lang="en" price="12.00">XML</title>'
       '<description/>'
       '</book>';
-  final book = parse(bookXml);
+  final book = XmlDocument.parse(bookXml);
   test('ancestors', () {
     expect(book.ancestors, []);
     expect(book.children[0].ancestors, [book]);

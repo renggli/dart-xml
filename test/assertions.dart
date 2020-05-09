@@ -10,16 +10,16 @@ const Matcher isXmlParentException = TypeMatcher<XmlParentException>();
 const Matcher isXmlTagException = TypeMatcher<XmlTagException>();
 
 void assertParseInvariants(String input) {
-  final tree = parse(input);
+  final tree = XmlDocument.parse(input);
   assertTreeInvariants(tree);
   assertEventInvariants(input, tree);
-  final copy = parse(tree.toXmlString());
+  final copy = XmlDocument.parse(tree.toXmlString());
   expect(tree.toXmlString(), copy.toXmlString());
 }
 
 void assertParseError(String input, String message) {
   try {
-    final result = parse(input);
+    final result = XmlDocument.parse(input);
     fail('Expected parse error $message, but got $result.');
   } on XmlParserException catch (error) {
     expect(error.toString(), message);
@@ -276,7 +276,7 @@ void compareNode(XmlNode first, XmlNode second) {
 }
 
 void assertPrintingInvariants(XmlNode xml) {
-  compareNode(xml, parse(xml.toXmlString(pretty: true)));
+  compareNode(xml, XmlDocument.parse(xml.toXmlString(pretty: true)));
 }
 
 void assertEventInvariants(String input, XmlNode node) {

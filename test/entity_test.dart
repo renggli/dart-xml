@@ -7,7 +7,9 @@ import 'package:xml/xml.dart';
 
 void expectDecode(XmlEntityMapping mapping, String input, String output) {
   final nodeText =
-      parse('<data>$input</data>', entityMapping: mapping).rootElement.text;
+      XmlDocument.parse('<data>$input</data>', entityMapping: mapping)
+          .rootElement
+          .text;
   expect(nodeText, output, reason: 'parser decoding');
 
   final entityText = mapping.decode(input);

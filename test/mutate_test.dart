@@ -8,7 +8,7 @@ import 'assertions.dart';
 void mutatingTest(String description, String before,
     void Function(XmlElement node) action, String after) {
   test(description, () {
-    final document = parse(before);
+    final document = XmlDocument.parse(before);
     action(document.rootElement);
     document.normalize();
     expect(document.toXmlString(), after, reason: 'should have been modified');
@@ -19,7 +19,7 @@ void mutatingTest(String description, String before,
 void throwingTest(String description, String before,
     void Function(XmlElement node) action, Matcher matcher) {
   test(description, () {
-    final document = parse(before);
+    final document = XmlDocument.parse(before);
     expect(() => action(document.rootElement), matcher);
     expect(document.toXmlString(), before,
         reason: 'should not have been modified');
@@ -90,13 +90,13 @@ void main() {
       '<element/>',
     );
     test('processing (text)', () {
-      final document = parse('<?xml processing?><element/>');
+      final document = XmlDocument.parse('<?xml processing?><element/>');
       final XmlProcessing processing = document.firstChild;
       processing.text = 'update';
       expect(document.toXmlString(), '<?xml update?><element/>');
     });
     test('processing (null text)', () {
-      final document = parse('<?xml processing ?><element/>');
+      final document = XmlDocument.parse('<?xml processing ?><element/>');
       final XmlProcessing processing = document.firstChild;
       expect(() => processing.text = null, throwsArgumentError);
     });

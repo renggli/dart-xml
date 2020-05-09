@@ -1,7 +1,5 @@
 library xml.parser;
 
-import 'package:xml/src/xml/nodes/document_fragment.dart';
-
 import 'entities/entity_mapping.dart';
 import 'grammar.dart';
 import 'nodes/attribute.dart';
@@ -10,6 +8,7 @@ import 'nodes/comment.dart';
 import 'nodes/declaration.dart';
 import 'nodes/doctype.dart';
 import 'nodes/document.dart';
+import 'nodes/document_fragment.dart';
 import 'nodes/element.dart';
 import 'nodes/node.dart';
 import 'nodes/processing.dart';
