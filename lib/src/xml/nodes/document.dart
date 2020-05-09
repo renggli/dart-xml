@@ -1,9 +1,9 @@
 library xml.nodes.document;
 
-import '../parse.dart';
 import '../entities/default_mapping.dart';
 import '../entities/entity_mapping.dart';
 import '../mixins/has_children.dart';
+import '../parse.dart';
 import '../utils/exceptions.dart';
 import '../utils/node_type.dart';
 import '../visitors/visitor.dart';
