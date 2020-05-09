@@ -52,7 +52,7 @@ void main(List<String> arguments) {
   }
 
   for (final file in files) {
-    final document = xml.parse(file.readAsStringSync());
+    final document = xml.XmlDocument.parse(file.readAsStringSync());
     final elements = document.findAllElements(tag, namespace: namespace);
     for (final element in elements) {
       stdout.writeln(element.toXmlString(pretty: results['pretty']));

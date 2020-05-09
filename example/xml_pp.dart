@@ -94,7 +94,7 @@ void main(List<String> arguments) {
           ? XmlColoredWriter(stdout, entityMapping: entityMapping)
           : xml.XmlWriter(stdout, entityMapping: entityMapping));
   for (final file in files) {
-    visitor.visit(xml.parse(file.readAsStringSync()));
+    visitor.visit(xml.XmlDocument.parse(file.readAsStringSync()));
   }
 }
 
