@@ -2,7 +2,10 @@
 
 ## 4.2.0
 
-* Add `getElement(name)` as a shortcut to find the first child element with the given `name`.
+* Deprecate standalone `XmlDocument parse(String input)` method, and introduce factory methods in the respective nodes `XmlDocument.parse(String input)` and `XmlDocumentFragment.parse(String input)`.
+* Deprecate `text` accessor on `XmlNode`; and introduce both getters and setters for `innerText`, `innerXml` and `outerXml`.
+* Add `replace(XmlNode other)` helper to make it easy to replace nodes in an existing tree.
+* Add `getElement(String name)` as a shortcut to find the first child element with a given name.
 
 ## 4.1.0
 
