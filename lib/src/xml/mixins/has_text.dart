@@ -20,7 +20,10 @@ mixin XmlHasText implements XmlChildrenBase {
       .join();
 
   /// Replaces the children of this node with text contents.
-  set innerText(String value) => children
-    ..clear()
-    ..add(XmlText(value));
+  set innerText(String value) {
+    children.clear();
+    if (value != null && value.isNotEmpty) {
+      children.add(XmlText(value));
+    }
+  }
 }

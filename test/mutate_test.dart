@@ -11,7 +11,7 @@ void mutatingTest(String description, String before,
     final document = parse(before);
     action(document.rootElement);
     document.normalize();
-    expect(after, document.toXmlString(), reason: 'should have been modified');
+    expect(document.toXmlString(), after, reason: 'should have been modified');
     assertTreeInvariants(document);
   });
 }
@@ -270,6 +270,103 @@ void main() {
       '<element1><element2/></element1>',
       (node) => node.children.addAll([node.firstChild]),
       throwsA(isXmlParentException),
+    );
+  });
+  group('innerText', () {
+    mutatingTest(
+      'empty with text',
+      '<element/>',
+      (node) {
+        expect(node.innerText, '');
+        node.innerText = 'inner text';
+        expect(node.innerText, 'inner text');
+      },
+      '<element>inner text</element>',
+    );
+    mutatingTest(
+      'empty with text (encoded)',
+      '<element/>',
+      (node) {
+        expect(node.innerText, '');
+        node.innerText = '<child>';
+        expect(node.innerText, '<child>');
+      },
+      '<element>&lt;child></element>',
+    );
+    mutatingTest(
+      'multiple with text',
+      '<element>multiple <child/>nodes</element>',
+      (node) {
+        expect(node.innerText, 'multiple nodes');
+        node.innerText = 'replaced';
+        expect(node.innerText, 'replaced');
+      },
+      '<element>replaced</element>',
+    );
+    mutatingTest(
+      'text with empty',
+      '<element>contents</element>',
+      (node) {
+        expect(node.innerText, 'contents');
+        node.innerText = '';
+        expect(node.children, isEmpty);
+        expect(node.innerText, '');
+      },
+      '<element/>',
+    );
+  });
+  group('innerXml', () {
+    mutatingTest(
+      'empty with multiple',
+      '<element/>',
+      (node) {
+        expect(node.innerXml, '');
+        node.innerXml = '<child1/> and <child2/>';
+        expect(node.innerXml, '<child1/> and <child2/>');
+      },
+      '<element><child1/> and <child2/></element>',
+    );
+    mutatingTest(
+      'multiple with empty',
+      '<element><child1/> and <child2/></element>',
+      (node) {
+        expect(node.innerXml, '<child1/> and <child2/>');
+        node.innerXml = '';
+        expect(node.children, isEmpty);
+        expect(node.innerXml, '');
+      },
+      '<element/>',
+    );
+  });
+  group('outerXml', () {
+    mutatingTest(
+      'single with other',
+      '<element><child/></element>',
+      (node) {
+        expect(node.firstChild.outerXml, '<child/>');
+        node.firstChild.outerXml = '<other/>';
+        expect(node.firstChild.outerXml, '<other/>');
+      },
+      '<element><other/></element>',
+    );
+    mutatingTest(
+      'single with multiple',
+      '<element><child/></element>',
+      (node) {
+        expect(node.firstChild.outerXml, '<child/>');
+        node.firstChild.outerXml = '<child1/> and <child2/>';
+      },
+      '<element><child1/> and <child2/></element>',
+    );
+    mutatingTest(
+      'multiple with empty',
+      '<element><child1/> and <child2/></element>',
+      (node) {
+        expect(node.children[1].outerXml, ' and ');
+        node.children[1].outerXml = '';
+        expect(node.children.length, 2);
+      },
+      '<element><child1/><child2/></element>',
     );
   });
   group('insert', () {
@@ -689,6 +786,52 @@ void main() {
       '<element1><element2/><element3/></element1>',
       (node) => node.children.setRange(0, 3, [null, null, null]),
       throwsRangeError,
+    );
+  });
+  group('replace', () {
+    mutatingTest(
+      'element node with text',
+      '<element><child/></element>',
+      (node) => node.firstChild.replace(XmlText('child')),
+      '<element>child</element>',
+    );
+    mutatingTest(
+      'element text with node',
+      '<element>child</element>',
+      (node) => node.firstChild.replace(XmlElement(XmlName('child'))),
+      '<element><child/></element>',
+    );
+    mutatingTest(
+      'element text with empty fragment',
+      '<element><child/></element>',
+      (node) => node.firstChild.replace(XmlDocumentFragment()),
+      '<element/>',
+    );
+    mutatingTest(
+      'element text with one element fragment',
+      '<element><child/></element>',
+      (node) => node.firstChild.replace(XmlDocumentFragment([
+        XmlText('child'),
+      ])),
+      '<element>child</element>',
+    );
+    mutatingTest(
+      'element text with multiple element fragment',
+      '<element><child/></element>',
+      (node) => node.firstChild.replace(XmlDocumentFragment([
+        XmlElement(XmlName('child1')),
+        XmlElement(XmlName('child2')),
+      ])),
+      '<element><child1/><child2/></element>',
+    );
+    mutatingTest(
+      'element node with multiple element fragment',
+      '<element>before<child/>after</element>',
+      (node) => node.children[1].replace(XmlDocumentFragment([
+        XmlElement(XmlName('child1')),
+        XmlElement(XmlName('child2')),
+      ])),
+      '<element>before<child1/><child2/>after</element>',
     );
   });
   group('replaceRange', () {

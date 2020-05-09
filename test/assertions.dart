@@ -61,6 +61,7 @@ void assertParentInvariants(XmlNode xml) {
     if (node is XmlDocument || node is XmlDocumentFragment) {
       expect(node.parent, isNull);
       expect(node.hasParent, isFalse);
+      expect(() => node.replace(XmlDocument()), throwsUnsupportedError);
       expect(() => node.attachParent(XmlDocument()), throwsUnsupportedError);
       expect(() => node.detachParent(XmlDocument()), throwsUnsupportedError);
     } else {
