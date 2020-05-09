@@ -26,6 +26,8 @@ abstract class XmlGrammarDefinition<TNode, TName>
 
   TNode createDocument(Iterable<TNode> children);
 
+  TNode createDocumentFragment(Iterable<TNode> children);
+
   TNode createElement(TName name, Iterable<TNode> attributes,
       Iterable<TNode> children, bool isSelfClosing);
 
@@ -81,6 +83,11 @@ abstract class XmlGrammarDefinition<TNode, TName>
         nodes.addAll(each[5]);
         return createDocument(nodes.cast<TNode>());
       });
+
+  @override
+  Parser documentFragment() => super
+      .documentFragment()
+      .map((nodes) => createDocumentFragment(nodes.cast<TNode>()));
 
   @override
   Parser element() => super.element().map((list) {

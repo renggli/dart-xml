@@ -1,12 +1,15 @@
 library xml.nodes.document_fragment;
 
+import 'package:petitparser/petitparser.dart';
+
 import '../entities/default_mapping.dart';
 import '../entities/entity_mapping.dart';
 import '../mixins/has_children.dart';
+import '../parser.dart';
+import '../utils/cache.dart';
 import '../utils/exceptions.dart';
 import '../utils/node_type.dart';
 import '../visitors/visitor.dart';
-import 'document.dart';
 import 'node.dart';
 
 /// XML document fragment node.
@@ -17,10 +20,19 @@ class XmlDocumentFragment extends XmlNode with XmlHasChildren {
   /// Note: It is the responsibility of the caller to provide a standard Dart
   /// [String] using the default UTF-16 encoding.
   factory XmlDocumentFragment.parse(String input,
-          {XmlEntityMapping entityMapping =
-              const XmlDefaultEntityMapping.xml()}) =>
-      XmlDocumentFragment(
-          XmlDocument.parse(input, entityMapping: entityMapping).children);
+      {XmlEntityMapping entityMapping = const XmlDefaultEntityMapping.xml()}) {
+    final result = documentFragmentParserCache[entityMapping].parse(input);
+    if (result.isFailure) {
+      final lineAndColumn =
+          Token.lineAndColumnOf(result.buffer, result.position);
+      throw XmlParserException(result.message,
+          buffer: result.buffer,
+          position: result.position,
+          line: lineAndColumn[0],
+          column: lineAndColumn[1]);
+    }
+    return result.value;
+  }
 
   /// Create a document fragment node with `children`.
   XmlDocumentFragment([Iterable<XmlNode> childrenIterable = const []]) {
@@ -44,3 +56,10 @@ const Set<XmlNodeType> childrenNodeTypes = {
   XmlNodeType.PROCESSING,
   XmlNodeType.TEXT,
 };
+
+/// Internal cache of parsers for a specific entity mapping.
+final XmlCache<XmlEntityMapping, Parser> documentFragmentParserCache =
+    XmlCache((entityMapping) {
+  final definition = XmlParserDefinition(entityMapping);
+  return definition.build(start: definition.documentFragment).end();
+}, 5);

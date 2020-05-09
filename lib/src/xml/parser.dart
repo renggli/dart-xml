@@ -1,5 +1,7 @@
 library xml.parser;
 
+import 'package:xml/src/xml/nodes/document_fragment.dart';
+
 import 'entities/entity_mapping.dart';
 import 'grammar.dart';
 import 'nodes/attribute.dart';
@@ -40,6 +42,10 @@ class XmlParserDefinition extends XmlGrammarDefinition<XmlNode, XmlName> {
   @override
   XmlDocument createDocument(Iterable<XmlNode> children) =>
       XmlDocument(children);
+
+  @override
+  XmlNode createDocumentFragment(Iterable<XmlNode> children) =>
+      XmlDocumentFragment(children);
 
   @override
   XmlElement createElement(XmlName name, Iterable<XmlNode> attributes,

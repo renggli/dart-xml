@@ -93,6 +93,8 @@ class XmlProductionDefinition extends GrammarDefinition {
       .seq(ref(element))
       .seq(ref(misc));
 
+  Parser documentFragment() => ref(content);
+
   Parser element() => XmlToken.openElement
       .toParser()
       .seq(ref(qualified))

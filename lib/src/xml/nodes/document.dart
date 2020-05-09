@@ -1,9 +1,12 @@
 library xml.nodes.document;
 
+import 'package:petitparser/petitparser.dart';
+
 import '../entities/default_mapping.dart';
 import '../entities/entity_mapping.dart';
 import '../mixins/has_children.dart';
-import '../parse.dart';
+import '../parser.dart';
+import '../utils/cache.dart';
 import '../utils/exceptions.dart';
 import '../utils/node_type.dart';
 import '../visitors/visitor.dart';
@@ -25,9 +28,19 @@ class XmlDocument extends XmlNode with XmlHasChildren {
   /// Note: It is the responsibility of the caller to provide a standard Dart
   /// [String] using the default UTF-16 encoding.
   factory XmlDocument.parse(String input,
-          {XmlEntityMapping entityMapping =
-              const XmlDefaultEntityMapping.xml()}) =>
-      parse(input, entityMapping: entityMapping);
+      {XmlEntityMapping entityMapping = const XmlDefaultEntityMapping.xml()}) {
+    final result = documentParserCache[entityMapping].parse(input);
+    if (result.isFailure) {
+      final lineAndColumn =
+          Token.lineAndColumnOf(result.buffer, result.position);
+      throw XmlParserException(result.message,
+          buffer: result.buffer,
+          position: result.position,
+          line: lineAndColumn[0],
+          column: lineAndColumn[1]);
+    }
+    return result.value;
+  }
 
   /// Create a document node with `children`.
   XmlDocument([Iterable<XmlNode> childrenIterable = const []]) {
@@ -90,3 +103,7 @@ const Set<XmlNodeType> childrenNodeTypes = {
   XmlNodeType.PROCESSING,
   XmlNodeType.TEXT,
 };
+
+/// Internal cache of parsers for a specific entity mapping.
+final XmlCache<XmlEntityMapping, Parser> documentParserCache =
+    XmlCache((entityMapping) => XmlParserDefinition(entityMapping).build(), 5);
