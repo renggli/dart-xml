@@ -24,11 +24,15 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> {
   void operator []=(int index, E value) {
     XmlNodeTypeException.checkNotNull(value);
     RangeError.checkValidIndex(index, this);
-    XmlNodeTypeException.checkValidType(value, _nodeTypes);
-    XmlParentException.checkNoParent(value);
-    this[index].detachParent(_parent);
-    super[index] = value;
-    value.attachParent(_parent);
+    if (value.nodeType == XmlNodeType.DOCUMENT_FRAGMENT) {
+      replaceRange(index, index + 1, _expandFragment(value));
+    } else {
+      XmlNodeTypeException.checkValidType(value, _nodeTypes);
+      XmlParentException.checkNoParent(value);
+      this[index].detachParent(_parent);
+      super[index] = value;
+      value.attachParent(_parent);
+    }
   }
 
   @override
