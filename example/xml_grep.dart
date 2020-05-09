@@ -4,7 +4,7 @@ library xml.example.xml_pp;
 import 'dart:io';
 
 import 'package:args/args.dart' as args;
-import 'package:xml/xml.dart' as xml;
+import 'package:xml/xml.dart';
 
 final args.ArgParser argumentParser = args.ArgParser()
   ..addOption(
@@ -52,7 +52,7 @@ void main(List<String> arguments) {
   }
 
   for (final file in files) {
-    final document = xml.XmlDocument.parse(file.readAsStringSync());
+    final document = XmlDocument.parse(file.readAsStringSync());
     final elements = document.findAllElements(tag, namespace: namespace);
     for (final element in elements) {
       stdout.writeln(element.toXmlString(pretty: results['pretty']));

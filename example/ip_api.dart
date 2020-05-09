@@ -5,8 +5,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/args.dart' as args;
-import 'package:xml/xml.dart' as xml;
-import 'package:xml/xml_events.dart' as xml_events;
+import 'package:xml/xml.dart';
+import 'package:xml/xml_events.dart';
 
 final HttpClient httpClient = HttpClient();
 
@@ -89,21 +89,21 @@ Future<void> lookupIp(args.ArgResults results, [String query = '']) async {
     var level = 0;
     String currentField;
     await stream
-        .transform(const xml_events.XmlEventDecoder())
-        .transform(const xml_events.XmlNormalizer())
+        .transform(const XmlEventDecoder())
+        .transform(const XmlNormalizer())
         .expand((events) => events)
         .forEach((event) {
-      if (event is xml_events.XmlStartElementEvent) {
+      if (event is XmlStartElementEvent) {
         level++;
         if (level == 2) {
           currentField = event.name;
           stdout.write('$currentField: ');
         }
-      } else if (event is xml_events.XmlTextEvent && currentField != null) {
+      } else if (event is XmlTextEvent && currentField != null) {
         stdout.write(event.text);
-      } else if (event is xml_events.XmlCDATAEvent && currentField != null) {
+      } else if (event is XmlCDATAEvent && currentField != null) {
         stdout.write(event.text);
-      } else if (event is xml_events.XmlEndElementEvent) {
+      } else if (event is XmlEndElementEvent) {
         if (event.name == currentField) {
           currentField = null;
           stdout.writeln();
@@ -118,9 +118,9 @@ Future<void> lookupIp(args.ArgResults results, [String query = '']) async {
     // and parsed before printing any results; thought the implementation is
     // simpler.
     final input = await stream.join();
-    final document = xml.XmlDocument.parse(input);
+    final document = XmlDocument.parse(input);
     for (final element in document.rootElement.children) {
-      if (element is xml.XmlElement) {
+      if (element is XmlElement) {
         stdout.writeln('${element.name}: ${element.innerText}');
       }
     }

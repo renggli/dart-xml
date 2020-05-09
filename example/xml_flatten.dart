@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/args.dart' as args;
-import 'package:xml/xml_events.dart' as xml_events;
+import 'package:xml/xml_events.dart';
 
 final args.ArgParser argumentParser = args.ArgParser()
   ..addFlag(
@@ -50,14 +50,13 @@ Future<void> main(List<String> arguments) async {
         .openRead()
         .cast<List<int>>()
         .transform(utf8.decoder)
-        .transform(const xml_events.XmlEventDecoder());
+        .transform(const XmlEventDecoder());
     if (normalize) {
-      stream = stream.transform(const xml_events.XmlNormalizer());
+      stream = stream.transform(const XmlNormalizer());
     }
     var flatStream = stream.expand((events) => events);
     if (text) {
-      flatStream =
-          flatStream.where((event) => event is xml_events.XmlTextEvent);
+      flatStream = flatStream.where((event) => event is XmlTextEvent);
     }
     await flatStream.forEach(print);
   }
