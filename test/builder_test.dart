@@ -23,7 +23,7 @@ void main() {
       });
     });
     final xml = builder.build();
-    assertTreeInvariants(xml);
+    assertDocumentTreeInvariants(xml);
     final actual = xml.toString();
     const expected = '<?xml version="1.0" encoding="UTF-8"?>'
         '<?xml-stylesheet href="/style.css" type="text/css" title="default stylesheet"?>'
@@ -51,7 +51,7 @@ void main() {
       builder.text('textual');
     });
     final xml = builder.build();
-    assertTreeInvariants(xml);
+    assertDocumentTreeInvariants(xml);
     final actual = xml.toString();
     const expected = '<?xml version="1.0"?>'
         '<?processing instruction?>'
@@ -74,7 +74,7 @@ void main() {
       builder.element('self-closing-false', isSelfClosing: false);
     });
     final xml = builder.build();
-    assertTreeInvariants(xml);
+    assertDocumentTreeInvariants(xml);
     final actual = xml.toString();
     const expected = '<element>'
         '<self-closing-default/>'
@@ -88,7 +88,7 @@ void main() {
     final builder = XmlBuilder();
     builder.element('element', nest: 'string');
     final xml = builder.build();
-    assertTreeInvariants(xml);
+    assertDocumentTreeInvariants(xml);
     final actual = xml.toString();
     const expected = '<element>string</element>';
     expect(actual, expected);
@@ -101,7 +101,7 @@ void main() {
       ['n', 'g']
     ]);
     final xml = builder.build();
-    assertTreeInvariants(xml);
+    assertDocumentTreeInvariants(xml);
     final actual = xml.toString();
     const expected = '<element>string</element>';
     expect(actual, expected);
@@ -111,7 +111,7 @@ void main() {
     final nested = XmlElement(XmlName('nested'));
     builder.element('element', nest: nested);
     final xml = builder.build();
-    assertTreeInvariants(xml);
+    assertDocumentTreeInvariants(xml);
     expect(xml.children[0].children[0].toXmlString(), nested.toXmlString());
     expect(xml.children[0].children[0], isNot(same(nested)));
     final actual = xml.toString();
@@ -123,7 +123,7 @@ void main() {
     final nested = XmlElement(XmlName('nested'));
     builder.element('element', nest: [nested, nested]);
     final xml = builder.build();
-    assertTreeInvariants(xml);
+    assertDocumentTreeInvariants(xml);
     expect(xml.children[0].children[0].toXmlString(), nested.toXmlString());
     expect(xml.children[0].children[0], isNot(same(nested)));
     expect(xml.children[0].children[1].toXmlString(), nested.toXmlString());
@@ -137,7 +137,7 @@ void main() {
     final nested = XmlText('text');
     builder.element('element', nest: nested);
     final xml = builder.build();
-    assertTreeInvariants(xml);
+    assertDocumentTreeInvariants(xml);
     expect(xml.children[0].children[0].toXmlString(), nested.toXmlString());
     expect(xml.children[0].children[0], isNot(same(nested)));
     final actual = xml.toString();
@@ -149,7 +149,7 @@ void main() {
     final nested = XmlText('text');
     builder.element('element', nest: [nested, nested]);
     final xml = builder.build();
-    assertTreeInvariants(xml);
+    assertDocumentTreeInvariants(xml);
     expect(xml.children[0].children[0].text, 'texttext');
     expect(xml.children[0].children[0], isNot(same(nested)));
     final actual = xml.toString();
@@ -161,7 +161,7 @@ void main() {
     final nested = XmlComment('abc');
     builder.element('element', nest: nested);
     final xml = builder.build();
-    assertTreeInvariants(xml);
+    assertDocumentTreeInvariants(xml);
     expect(xml.children[0].children[0].toXmlString(), nested.toXmlString());
     expect(xml.children[0].children[0], isNot(same(nested)));
     final actual = xml.toString();
@@ -173,7 +173,7 @@ void main() {
     final nested = XmlAttribute(XmlName('foo'), 'bar');
     builder.element('element', nest: nested);
     final xml = builder.build();
-    assertTreeInvariants(xml);
+    assertDocumentTreeInvariants(xml);
     expect(xml.children[0].attributes[0].toXmlString(), nested.toXmlString());
     expect(xml.children[0].attributes[0], isNot(same(nested)));
     final actual = xml.toString();
@@ -190,7 +190,7 @@ void main() {
     final nested = XmlDocumentFragment([XmlText('foo'), XmlComment('bar')]);
     builder.element('element', nest: nested);
     final xml = builder.build();
-    assertTreeInvariants(xml);
+    assertDocumentTreeInvariants(xml);
     expect(xml.children[0].children[0].toXmlString(),
         nested.children[0].toXmlString());
     expect(xml.children[0].children[0], isNot(same(nested.children[0])));
@@ -213,7 +213,7 @@ void main() {
       builder.text('def');
     });
     final xml = builder.build();
-    assertTreeInvariants(xml);
+    assertDocumentTreeInvariants(xml);
     final actual = xml.toString();
     const expected = '<text>abcdef</text>';
     expect(actual, expected);
@@ -227,7 +227,7 @@ void main() {
       builder.element('element', namespace: uri);
     }, namespace: uri);
     final xml = builder.build();
-    assertTreeInvariants(xml);
+    assertDocumentTreeInvariants(xml);
     final actual = xml.toString();
     const expected =
         '<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsd:lang="en">'
@@ -244,7 +244,7 @@ void main() {
       builder.element('element', namespace: uri);
     }, namespace: uri);
     final xml = builder.build();
-    assertTreeInvariants(xml);
+    assertDocumentTreeInvariants(xml);
     final actual = xml.toString();
     const expected =
         '<schema xmlns="http://www.w3.org/2001/XMLSchema" lang="en">'
@@ -359,7 +359,7 @@ void main() {
     final builder = XmlBuilder();
     builder.element('element', nest: '<test><![CDATA[string]]></test>');
     final xml = builder.build();
-    assertTreeInvariants(xml);
+    assertDocumentTreeInvariants(xml);
     final actual = xml.toString();
     const expected =
         '<element>&lt;test>&lt;![CDATA[string]]&gt;&lt;/test></element>';
@@ -371,7 +371,7 @@ void main() {
         version: '0.5', encoding: 'ASCII', attributes: {'foo': 'bar'});
     builder.element('data');
     final xml = builder.build();
-    assertTreeInvariants(xml);
+    assertDocumentTreeInvariants(xml);
     final actual = xml.toString();
     const expected = '<?xml version="0.5" encoding="ASCII" foo="bar"?><data/>';
     expect(actual, expected);

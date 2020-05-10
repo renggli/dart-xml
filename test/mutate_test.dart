@@ -12,7 +12,7 @@ void mutatingTest(String description, String before,
     action(document.rootElement);
     document.normalize();
     expect(document.toXmlString(), after, reason: 'should have been modified');
-    assertTreeInvariants(document);
+    assertDocumentTreeInvariants(document);
   });
 }
 
@@ -23,7 +23,7 @@ void throwingTest(String description, String before,
     expect(() => action(document.rootElement), matcher);
     expect(document.toXmlString(), before,
         reason: 'should not have been modified');
-    assertTreeInvariants(document);
+    assertDocumentTreeInvariants(document);
   });
 }
 

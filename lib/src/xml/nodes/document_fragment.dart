@@ -51,6 +51,7 @@ class XmlDocumentFragment extends XmlNode with XmlHasChildren {
 const Set<XmlNodeType> childrenNodeTypes = {
   XmlNodeType.CDATA,
   XmlNodeType.COMMENT,
+  XmlNodeType.DECLARATION,
   XmlNodeType.DOCUMENT_TYPE,
   XmlNodeType.ELEMENT,
   XmlNodeType.PROCESSING,

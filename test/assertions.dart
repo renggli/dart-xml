@@ -9,15 +9,15 @@ const Matcher isXmlNodeTypeException = TypeMatcher<XmlNodeTypeException>();
 const Matcher isXmlParentException = TypeMatcher<XmlParentException>();
 const Matcher isXmlTagException = TypeMatcher<XmlTagException>();
 
-void assertParseInvariants(String input) {
-  final tree = XmlDocument.parse(input);
-  assertTreeInvariants(tree);
-  assertEventInvariants(input, tree);
-  final copy = XmlDocument.parse(tree.toXmlString());
-  expect(tree.toXmlString(), copy.toXmlString());
+void assertDocumentParseInvariants(String input) {
+  final document = XmlDocument.parse(input);
+  assertDocumentTreeInvariants(document);
+  assertEventInvariants(input, document);
+  final copy = XmlDocument.parse(document.toXmlString());
+  expect(document.toXmlString(), copy.toXmlString());
 }
 
-void assertParseError(String input, String message) {
+void assertDocumentParseError(String input, String message) {
   try {
     final result = XmlDocument.parse(input);
     fail('Expected parse error $message, but got $result.');
@@ -26,7 +26,7 @@ void assertParseError(String input, String message) {
   }
 }
 
-void assertTreeInvariants(XmlNode xml) {
+void assertDocumentTreeInvariants(XmlNode xml) {
   assertDocumentInvariants(xml);
   assertParentInvariants(xml);
   assertForwardInvariants(xml);
@@ -40,11 +40,41 @@ void assertTreeInvariants(XmlNode xml) {
   assertPrintingInvariants(xml);
 }
 
+void assertFragmentParseInvariants(String input) {
+  final fragment = XmlDocumentFragment.parse(input);
+  assertFragmentTreeInvariants(fragment);
+  assertEventInvariants(input, fragment);
+  final copy = XmlDocumentFragment.parse(fragment.toXmlString());
+  expect(fragment.toXmlString(), copy.toXmlString());
+}
+
+void assertFragmentParseError(String input, String message) {
+  try {
+    final result = XmlDocumentFragment.parse(input);
+    fail('Expected parse error $message, but got $result.');
+  } on XmlParserException catch (error) {
+    expect(error.toString(), message);
+  }
+}
+
+void assertFragmentTreeInvariants(XmlNode xml) {
+  assertFragmentInvariants(xml);
+  assertParentInvariants(xml);
+  assertForwardInvariants(xml);
+  assertBackwardInvariants(xml);
+  assertNameInvariants(xml);
+  assertAttributeInvariants(xml);
+  assertChildrenInvariants(xml);
+  assertTextInvariants(xml);
+  assertIteratorInvariants(xml);
+  assertCopyInvariants(xml);
+}
+
 void assertDocumentInvariants(XmlNode xml) {
   final root = xml.root;
   for (final child in [xml, ...xml.descendants]) {
-    expect(root, same(child.root));
-    expect(root, same(child.document));
+    expect(child.root, same(root));
+    expect(child.document, same(root));
   }
   expect(xml.document.children, contains(xml.document.rootElement));
   if (xml.document.declaration != null) {
@@ -52,6 +82,15 @@ void assertDocumentInvariants(XmlNode xml) {
   }
   if (xml.document.doctypeElement != null) {
     expect(xml.document.children, contains(xml.document.doctypeElement));
+  }
+  expect(root.depth, 0);
+}
+
+void assertFragmentInvariants(XmlNode xml) {
+  final root = xml.root;
+  for (final child in [xml, ...xml.descendants]) {
+    expect(child.root, same(root));
+    expect(child.document, isNull);
   }
   expect(root.depth, 0);
 }
