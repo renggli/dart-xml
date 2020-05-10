@@ -408,7 +408,7 @@ void main() {
       expect(node.depth, 0);
       expect(node.attributes, isEmpty);
       expect(node.children, hasLength(1));
-      expect(node.text, isNull);
+      expect(node.text, '');
       expect(node.nodeType, XmlNodeType.DOCUMENT);
       expect(node.nodeType.toString(), 'XmlNodeType.DOCUMENT');
       expect(node.toString(), '<data/>');

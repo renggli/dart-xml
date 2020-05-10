@@ -8,13 +8,12 @@ import 'has_children.dart';
 
 /// Mixin for nodes with text.
 mixin XmlHasText implements XmlChildrenBase {
-  /// Return the text contents of this node and all its descendants.
-  @Deprecated('Use `innerText` instead')
+  /// Return the concatenated text of this node and all its descendants, for
+  /// [XmlData] nodes return the textual value of the node.
   String get text => innerText;
 
-  /// Return the text contents of this node and all its descendants.
+  /// Return the concatenated text of this node and all its descendants.
   String get innerText => XmlDescendantsIterable(this)
-      .whereType<XmlData>()
       .where((node) => node is XmlText || node is XmlCDATA)
       .map((node) => node.text)
       .join();

@@ -84,9 +84,6 @@ class XmlDocument extends XmlNode with XmlHasChildren {
           orElse: () => throw StateError('Empty XML document'));
 
   @override
-  String get text => null;
-
-  @override
   XmlNodeType get nodeType => XmlNodeType.DOCUMENT;
 
   @override
