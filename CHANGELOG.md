@@ -4,6 +4,7 @@
 
 * Deprecate standalone `XmlDocument parse(String input)` method, and introduce factory methods in the respective nodes `XmlDocument.parse(String input)` and `XmlDocumentFragment.parse(String input)`.
 * Introduce getters and setters for `XmlNode.innerText` (in most cases an alias to `XmlNode.text`), `XmlNode.innerXml` and `XmlNode.outerXml`.
+* Improved support for `XmlDocumentFragment` accross the library.
 * Remove the `XmlDocument.text` override, which returned `null`.
 * Add `XmlNode.replace(XmlNode other)` to make it easier to replace nodes in an existing tree.
 * Add `XmlNode.getElement(String name)` as a shortcut to find the first child element with a given name.
