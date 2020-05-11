@@ -8,6 +8,7 @@
 * Remove the `XmlDocument.text` override, which returned `null`.
 * Add `XmlNode.replace(XmlNode other)` to make it easier to replace nodes in an existing tree.
 * Add `XmlNode.getElement(String name)` as a shortcut to find the first child element with a given name.
+* Add `XmlNode.firstElementChild` and `XmlNode.lastElementChild` to easy access the first/last child element.
 
 ## 4.1.0
 

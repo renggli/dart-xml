@@ -178,11 +178,21 @@ void assertChildrenInvariants(XmlNode xml) {
   for (final node in xml.descendants) {
     if (node.children.isEmpty) {
       expect(node.firstChild, isNull);
+      expect(node.firstElementChild, isNull);
       expect(node.lastChild, isNull);
+      expect(node.lastElementChild, isNull);
       expect(node.getElement('foo'), isNull);
     } else {
       expect(node.firstChild, same(node.children.first));
+      expect(
+          node.firstElementChild,
+          same(node.children.firstWhere((element) => element is XmlElement,
+              orElse: () => null)));
       expect(node.lastChild, same(node.children.last));
+      expect(
+          node.lastElementChild,
+          same(node.children.lastWhere((element) => element is XmlElement,
+              orElse: () => null)));
       final seenNames = <String>{};
       for (final element in node.children
           .whereType<XmlElement>()
