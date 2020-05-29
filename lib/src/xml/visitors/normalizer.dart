@@ -16,7 +16,9 @@ extension XmlNormalizerExtension on XmlNode {
 
 /// Normalizes a node tree in-place.
 class XmlNormalizer with XmlVisitor {
-  static final XmlNormalizer defaultInstance = XmlNormalizer();
+  static const XmlNormalizer defaultInstance = XmlNormalizer();
+
+  const XmlNormalizer();
 
   @override
   void visitDocument(XmlDocument node) => _normalize(node.children);

@@ -23,8 +23,8 @@ class XmlWriter with XmlVisitor {
   final StringSink buffer;
   final XmlEntityMapping entityMapping;
 
-  XmlWriter(this.buffer,
-      {this.entityMapping = const XmlDefaultEntityMapping.xml()});
+  XmlWriter(this.buffer, {XmlEntityMapping entityMapping})
+      : entityMapping = entityMapping ?? const XmlDefaultEntityMapping.xml();
 
   @override
   void visitAttribute(XmlAttribute node) {

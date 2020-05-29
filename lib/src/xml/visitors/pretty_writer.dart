@@ -1,11 +1,11 @@
 library xml.visitors.pretty_writer;
 
-import '../entities/default_mapping.dart';
 import '../entities/entity_mapping.dart';
 import '../nodes/document.dart';
 import '../nodes/element.dart';
 import '../nodes/node.dart';
 import '../nodes/text.dart';
+import '../utils/predicate.dart';
 import '../utils/token.dart';
 import 'writer.dart';
 
@@ -15,13 +15,20 @@ class XmlPrettyWriter extends XmlWriter {
   int level;
   final String indent;
   final String newLine;
+  final Predicate<XmlNode> preserveWhitespace;
 
-  XmlPrettyWriter(StringSink buffer,
-      {XmlEntityMapping entityMapping = const XmlDefaultEntityMapping.xml(),
-      this.level = 0,
-      this.indent = '  ',
-      this.newLine = '\n'})
-      : super(buffer, entityMapping: entityMapping);
+  XmlPrettyWriter(
+    StringSink buffer, {
+    XmlEntityMapping entityMapping,
+    int level,
+    String indent,
+    String newLine,
+    Predicate<XmlNode> preserveWhitespace,
+  })  : level = level ?? 0,
+        indent = indent ?? '  ',
+        newLine = newLine ?? '\n',
+        preserveWhitespace = preserveWhitespace ?? _defaultPreserveWhitespace,
+        super(buffer, entityMapping: entityMapping);
 
   @override
   void visitDocument(XmlDocument node) {
@@ -39,7 +46,10 @@ class XmlPrettyWriter extends XmlWriter {
     } else {
       buffer.write(XmlToken.closeElement);
       if (node.children.isNotEmpty) {
-        if (node.children.every((each) => each is XmlText)) {
+        if (preserveWhitespace(node)) {
+          final writer = XmlWriter(buffer, entityMapping: entityMapping);
+          node.children.forEach(writer.visit);
+        } else if (node.children.every((each) => each is XmlText)) {
           writeIterable(normalizeText(node.children));
         } else {
           level++;
@@ -84,3 +94,5 @@ List<XmlNode> normalizeText(List<XmlNode> nodes) {
 }
 
 final _whitespaceOrLineTerminators = RegExp(r'\s+');
+
+bool _defaultPreserveWhitespace(XmlNode node) => false;
