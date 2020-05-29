@@ -9,7 +9,7 @@
 * Add `XmlNode.replace(XmlNode other)` to make it easier to replace nodes in an existing tree.
 * Add `XmlNode.getElement(String name)` as a shortcut to find the first child element with a given name.
 * Add `XmlNode.firstElementChild` and `XmlNode.lastElementChild` to easy access the first/last child element.
-* Add support to selectively disable  whitespace normalization while pretty-printing, for example `document.toXmlString(pretty: true, preserveWhitespace: (node) => node is XmlElement && node.name.local == 'pre')` would keep everything within `<pre>` tags as-is.
+* Add support to selectively disable whitespace normalization while pretty-printing, for example `document.toXmlString(pretty: true, preserveWhitespace: (node) => node is XmlElement && node.name.local == 'pre')` would keep everything within `<pre>` tags as-is.
 
 ## 4.1.0
 

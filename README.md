@@ -51,7 +51,7 @@ final document = XmlDocument.parse(bookshelfXml);
 
 The resulting object is an instance of `XmlDocument`. In case the document cannot be parsed, a `XmlParserException` is thrown.
 
-To write back the parsed XML document, simply call `toString()` or `toXmlString({bool pretty, String indent, XmlEntityMapping entityMapping})` if you need more control:
+To write back the parsed XML document, simply call `toString()` or `toXmlString(...)` if you need more control:
 
 ```dart
 print(document.toString());
