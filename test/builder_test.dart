@@ -201,10 +201,6 @@ void main() {
     const expected = '<element>foo<!--bar--></element>';
     expect(actual, expected);
   });
-  test('invalid attributes', () {
-    final builder = XmlBuilder();
-    expect(() => builder.attribute('key', 'value'), throwsArgumentError);
-  });
   test('text', () {
     final builder = XmlBuilder();
     builder.element('text', nest: () {
@@ -397,5 +393,12 @@ void main() {
     builder.element('element-two');
     final secondDocument = builder.buildDocument();
     expect(secondDocument.toString(), '<element-two/>');
+  });
+  test('fragment builder', () {
+    final builder = XmlBuilder();
+    builder.element('element-one');
+    builder.element('element-two');
+    final xml = builder.buildFragment();
+    assertFragmentInvariants(xml);
   });
 }

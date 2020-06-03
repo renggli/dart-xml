@@ -1,5 +1,7 @@
 library xml.builder;
 
+import 'dart:collection';
+
 import 'nodes/attribute.dart';
 import 'nodes/cdata.dart';
 import 'nodes/comment.dart';
@@ -29,13 +31,15 @@ class XmlBuilder {
   final bool optimizeNamespaces;
 
   /// The current node stack of this builder.
-  final List<XmlNodeBuilder> _stack = [XmlRootBuilder()];
+  final Queue<NodeBuilder> _stack = ListQueue();
 
   /// Construct a new [XmlBuilder].
   ///
   /// For the meaning of the [optimizeNamespaces] parameter, read the
   /// documentation of the [optimizeNamespaces] property.
-  XmlBuilder({this.optimizeNamespaces = false});
+  XmlBuilder({this.optimizeNamespaces = false}) {
+    _reset();
+  }
 
   /// Adds a [XmlText] node with the provided [text].
   ///
@@ -143,8 +147,8 @@ class XmlBuilder {
       Map<String, String> attributes = const {},
       bool isSelfClosing = true,
       Object nest}) {
-    final element = XmlElementBuilder();
-    _stack.add(element);
+    final element = NodeBuilder();
+    _stack.addLast(element);
     namespaces.forEach(this.namespace);
     attributes.forEach(attribute);
     if (nest != null) {
@@ -198,7 +202,7 @@ class XmlBuilder {
         _stack.any((builder) =>
             builder.namespaces.containsKey(uri) &&
             builder.namespaces[uri].prefix == prefix)) {
-      // namespace prefix already correctly specified in an ancestor
+      // Namespace prefix already correctly specified in an ancestor.
       return;
     }
     if (_stack.last.namespaces.values.any((meta) => meta.prefix == prefix)) {
@@ -223,15 +227,23 @@ class XmlBuilder {
       _build((builder) => builder.buildFragment());
 
   // Internal method to finalize the result and reset the builder.
-  T _build<T extends XmlNode>(T Function(XmlNodeBuilder builder) builder) {
+  T _build<T extends XmlNode>(T Function(NodeBuilder builder) builder) {
     if (_stack.length != 1) {
       throw StateError('Unable to build an incomplete DOM element.');
     }
-    final result = builder(_stack.last);
-    _stack
-      ..clear()
-      ..add(XmlRootBuilder());
-    return result;
+    try {
+      return builder(_stack.last);
+    } finally {
+      _reset();
+    }
+  }
+
+  // Internal method to reset the node stack.
+  void _reset() {
+    _stack.clear();
+    final node = NodeBuilder();
+    node.namespaces[xmlUri] = NamespaceData.xmlData;
+    _stack.addLast(node);
   }
 
   // Internal method to build a name.
@@ -294,65 +306,21 @@ class NamespaceData {
       : XmlName(prefix, xmlns);
 }
 
-abstract class XmlNodeBuilder {
-  Map<String, NamespaceData> get namespaces;
-
-  List<XmlAttribute> get attributes;
-
-  List<XmlNode> get children;
-
-  XmlElement buildElement();
-
-  XmlDocument buildDocument();
-
-  XmlDocumentFragment buildFragment();
-}
-
-class XmlRootBuilder extends XmlNodeBuilder {
-  @override
-  final Map<String, NamespaceData> namespaces = {xmlUri: NamespaceData.xmlData};
-
-  @override
-  List<XmlAttribute> get attributes {
-    throw ArgumentError('Unable to define attributes at the document level.');
-  }
-
-  @override
-  final List<XmlNode> children = [];
-
-  @override
-  XmlElement buildElement() {
-    throw ArgumentError('Unable to build element at the document level.');
-  }
-
-  @override
-  XmlDocument buildDocument() => XmlDocument(children);
-
-  @override
-  XmlDocumentFragment buildFragment() => XmlDocumentFragment(children);
-}
-
-class XmlElementBuilder extends XmlNodeBuilder {
-  @override
+class NodeBuilder {
   final Map<String, NamespaceData> namespaces = {};
 
-  @override
   final List<XmlAttribute> attributes = [];
 
-  @override
   final List<XmlNode> children = [];
 
   bool isSelfClosing = true;
 
   XmlName name;
 
-  @override
   XmlElement buildElement() =>
       XmlElement(name, attributes, children, isSelfClosing);
 
-  @override
-  XmlDocument buildDocument() => XmlDocument([buildElement()]);
+  XmlDocument buildDocument() => XmlDocument(children);
 
-  @override
-  XmlDocumentFragment buildFragment() => XmlDocumentFragment([buildElement()]);
+  XmlDocumentFragment buildFragment() => XmlDocumentFragment(children);
 }
