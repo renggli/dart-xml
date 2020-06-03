@@ -53,7 +53,7 @@ String characterData() {
       });
     }
   });
-  return builder.build().toString();
+  return builder.buildDocument().toString();
 }
 
 final Map<String, String> benchmarks = {
@@ -81,5 +81,5 @@ void main() {
       });
     }
   });
-  print(builder.build().toXmlString(pretty: true));
+  print(builder.buildDocument().toXmlString(pretty: true));
 }

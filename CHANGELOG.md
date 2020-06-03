@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.3.0
+
+* Improve error reporting of `XmlBuilder` and add possibility to build `XmlDocumentFragments`.
+
 ## 4.2.0
 
 * Deprecate standalone `XmlDocument parse(String input)` method, and introduce factory methods in the respective nodes `XmlDocument.parse(String input)` and `XmlDocumentFragment.parse(String input)`.

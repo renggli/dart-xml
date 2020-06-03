@@ -126,21 +126,21 @@ builder.processing('xml', 'version="1.0"');
 builder.element('bookshelf', nest: () {
   builder.element('book', nest: () {
     builder.element('title', nest: () {
-      builder.attribute('lang', 'english');
+      builder.attribute('lang', 'en');
       builder.text('Growing a Language');
     });
     builder.element('price', nest: 29.99);
   });
   builder.element('book', nest: () {
     builder.element('title', nest: () {
-      builder.attribute('lang', 'english');
+      builder.attribute('lang', 'en');
       builder.text('Learning XML');
     });
     builder.element('price', nest: 39.95);
   });
   builder.element('price', nest: 132.00);
 });
-final bookshelfXml = builder.build();
+final bookshelfXml = builder.buildDocument();
 ```
 
 Note the `element` method. It is quite sophisticated and supports many different optional named arguments:
@@ -152,16 +152,27 @@ Note the `element` method. It is quite sophisticated and supports many different
 The builder pattern allows you to easily extract repeated parts into specific methods. In the example above, one could put the part that writes a book into a separate method as follows:
 
 ```dart
-buildBook(XmlBuilder builder, String title, String language, num price) {
+void buildBook(XmlBuilder builder, String title, String language, num price) {
   builder.element('book', nest: () {
     builder.element('title', nest: () {
-      builder.attribute('lang', 'english');
+      builder.attribute('lang', language);
       builder.text(title);
     });
     builder.element('price', nest: price);
   });
 }
 ```
+
+The above `buildDocument()` method returns the built document. To attach built nodes into an existing XML document, use `buildFragment()`. Once the builder returns the built node, its internal state is reset. 
+
+```dart
+final builder = XmlBuilder();
+buildBook(builder, 'The War of the Worlds', 'en', 12.50);
+buildBook(builder, 'Voyages extraordinares', 'fr', 18.20);
+bookshelfXml.firstElementChild.children.add(builder.buildFragment());
+```
+
+Note: Once
 
 ### Streaming
 

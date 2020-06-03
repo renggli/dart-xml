@@ -29,7 +29,7 @@ class XmlBuilder {
   final bool optimizeNamespaces;
 
   /// The current node stack of this builder.
-  final List<XmlNodeBuilder> _stack = List.from([XmlDocumentBuilder()]);
+  final List<XmlNodeBuilder> _stack = [XmlRootBuilder()];
 
   /// Construct a new [XmlBuilder].
   ///
@@ -165,7 +165,7 @@ class XmlBuilder {
       });
     }
     _stack.removeLast();
-    _stack.last.children.add(element.build());
+    _stack.last.children.add(element.buildElement());
   }
 
   /// Adds a [XmlAttribute] node with the provided [name] and [value].
@@ -212,7 +212,27 @@ class XmlBuilder {
   }
 
   /// Return the resulting [XmlNode].
-  XmlNode build() => _stack.last.build();
+  @Deprecated('Use buildDocument() or buildFragment() instead')
+  XmlNode build() => buildDocument();
+
+  /// Builds the resulting [XmlDocument].
+  XmlDocument buildDocument() => _build((builder) => builder.buildDocument());
+
+  /// Builds the resulting [XmlDocumentFragment].
+  XmlDocumentFragment buildFragment() =>
+      _build((builder) => builder.buildFragment());
+
+  // Internal method to finalize the result and reset the builder.
+  T _build<T extends XmlNode>(T Function(XmlNodeBuilder builder) builder) {
+    if (_stack.length != 1) {
+      throw StateError('Unable to build an incomplete DOM element.');
+    }
+    final result = builder(_stack.last);
+    _stack
+      ..clear()
+      ..add(XmlRootBuilder());
+    return result;
+  }
 
   // Internal method to build a name.
   XmlName _buildName(String name, String uri) {
@@ -281,10 +301,14 @@ abstract class XmlNodeBuilder {
 
   List<XmlNode> get children;
 
-  XmlNode build();
+  XmlElement buildElement();
+
+  XmlDocument buildDocument();
+
+  XmlDocumentFragment buildFragment();
 }
 
-class XmlDocumentBuilder extends XmlNodeBuilder {
+class XmlRootBuilder extends XmlNodeBuilder {
   @override
   final Map<String, NamespaceData> namespaces = {xmlUri: NamespaceData.xmlData};
 
@@ -297,7 +321,15 @@ class XmlDocumentBuilder extends XmlNodeBuilder {
   final List<XmlNode> children = [];
 
   @override
-  XmlNode build() => XmlDocument(children);
+  XmlElement buildElement() {
+    throw ArgumentError('Unable to build element at the document level.');
+  }
+
+  @override
+  XmlDocument buildDocument() => XmlDocument(children);
+
+  @override
+  XmlDocumentFragment buildFragment() => XmlDocumentFragment(children);
 }
 
 class XmlElementBuilder extends XmlNodeBuilder {
@@ -315,5 +347,12 @@ class XmlElementBuilder extends XmlNodeBuilder {
   XmlName name;
 
   @override
-  XmlNode build() => XmlElement(name, attributes, children, isSelfClosing);
+  XmlElement buildElement() =>
+      XmlElement(name, attributes, children, isSelfClosing);
+
+  @override
+  XmlDocument buildDocument() => XmlDocument([buildElement()]);
+
+  @override
+  XmlDocumentFragment buildFragment() => XmlDocumentFragment([buildElement()]);
 }
