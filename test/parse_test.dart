@@ -1,6 +1,7 @@
 library xml.test.parse_test;
 
 import 'package:test/test.dart';
+import 'package:xml/xml.dart';
 
 import 'assertions.dart';
 
@@ -175,5 +176,10 @@ void main() {
       assertFragmentParseError('<?xml', 'end of input expected at 1:1');
       assertFragmentParseError('<?processing', 'end of input expected at 1:1');
     });
+  });
+  test('parse deprecated', () {
+    // ignore: deprecated_member_use_from_same_package
+    final document = parse('<?xml version="1.0"?><schema/>');
+    expect(document, isA<XmlDocument>());
   });
 }

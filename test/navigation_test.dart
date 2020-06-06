@@ -107,4 +107,19 @@ void main() {
     expect(book.children[0].children[1].following, []);
     verifyIterator(book.following);
   });
+  test('nodes', () {
+    expect(book.nodes, [book.children[0]]);
+    expect(book.children[0].nodes,
+        [book.children[0].children[0], book.children[0].children[1]]);
+    expect(book.children[0].children[0].nodes, [
+      book.children[0].children[0].attributes[0],
+      book.children[0].children[0].attributes[1],
+      book.children[0].children[0].children[0]
+    ]);
+    expect(book.children[0].children[0].attributes[0].nodes, []);
+    expect(book.children[0].children[0].attributes[1].nodes, []);
+    expect(book.children[0].children[0].children[0].nodes, []);
+    expect(book.children[0].children[1].nodes, []);
+    verifyIterator(book.nodes);
+  });
 }

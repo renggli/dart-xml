@@ -11,6 +11,7 @@ const Matcher isXmlTagException = TypeMatcher<XmlTagException>();
 
 void assertDocumentParseInvariants(String input) {
   final document = XmlDocument.parse(input);
+  expect(document, isA<XmlDocument>());
   assertDocumentTreeInvariants(document);
   assertEventInvariants(input, document);
   final copy = XmlDocument.parse(document.toXmlString());
@@ -42,6 +43,7 @@ void assertDocumentTreeInvariants(XmlNode xml) {
 
 void assertFragmentParseInvariants(String input) {
   final fragment = XmlDocumentFragment.parse(input);
+  expect(fragment, isA<XmlDocumentFragment>());
   assertFragmentTreeInvariants(fragment);
   assertEventInvariants(input, fragment);
   final copy = XmlDocumentFragment.parse(fragment.toXmlString());
