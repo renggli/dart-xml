@@ -277,13 +277,13 @@ class XmlBuilder {
         text(value.text);
       } else if (value is XmlAttribute) {
         // Attributes must be copied and added to the attributes list.
-        _stack.last.attributes.add(XmlTransformer.defaultInstance.visit(value));
-      } else if (value is XmlDocumentFragment) {
-        // Document fragments need to be unwrapped.
-        value.children.forEach(_insert);
+        _stack.last.attributes.add(value.copy());
       } else if (value is XmlElement || value is XmlData) {
-        // All other valid nodes must be copied and added to the children list.
-        _stack.last.children.add(XmlTransformer.defaultInstance.visit(value));
+        // Children nodes must be copied and added to the children list.
+        _stack.last.children.add(value.copy());
+      } else if (value is XmlDocumentFragment) {
+        // Document fragments must be copied and unwrapped.
+        value.children.map((element) => element.copy()).forEach(_insert);
       } else {
         throw ArgumentError('Unable to add element of type ${value.nodeType}');
       }
