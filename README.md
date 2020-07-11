@@ -58,9 +58,18 @@ print(document.toString());
 print(document.toXmlString(pretty: true, indent: '\t'));
 ```
 
+To read XML from a file use the [dart:io](https://api.dart.dev/dart-io/dart-io-library.html) library: 
+
+```dart
+final file = new File('bookshelf.xml');
+final document = XmlDocument.parse(file.readAsStringSync());
+```
+
+If your file is not _UTF-8_ encoded pass the correct encoding to `readAsStringSync`. To read and write large files you might want to use the [streaming API](#streaming) instead.
+
 ### Traversing and Querying
 
-Accessors allow to access nodes in the XML tree:
+Accessors allow accessing nodes in the XML tree:
 
 - `attributes` returns a list over the attributes of the current node.
 - `children` returns a list over the children of the current node.
@@ -143,11 +152,11 @@ builder.element('bookshelf', nest: () {
 final bookshelfXml = builder.buildDocument();
 ```
 
-Note the `element` method. It is quite sophisticated and supports many different optional named arguments:
+The `element` method supports optional named arguments:
 
 - The most common is the `nest:` argument which is used to insert contents into the element. In most cases this will be a function that calls more methods on the builder to define attributes, declare namespaces and add child elements. However, the argument can also be a string or an arbitrary Dart object that is converted to a string and added as a text node.
 - While attributes can be defined from within the element, for simplicity there is also an argument `attributes:` that takes a map to define simple name-value pairs.
-- Furthermore we can provide an URI as the namespace of the element using `namespace:` and declare new namespace prefixes using `namespaces:`. For details see the documentation of the method.
+- Furthermore, we can provide a URI as the namespace of the element using `namespace:` and declare new namespace prefixes using `namespaces:`. For details see the documentation of the method.
 
 The builder pattern allows you to easily extract repeated parts into specific methods. In the example above, one could put the part that writes a book into a separate method as follows:
 
@@ -172,8 +181,6 @@ buildBook(builder, 'Voyages extraordinares', 'fr', 18.20);
 bookshelfXml.firstElementChild.children.add(builder.buildFragment());
 ```
 
-Note: Once
-
 ### Streaming
 
 Reading large XML files and instantiating their DOM into the memory can be expensive. As an alternative this library provides the possibility to read and transform XML documents as a sequence of events using [Dart Streams](https://dart.dev/tutorials/language/streams). This approach is comparable to event-driven SAX parsing known from other libraries.
@@ -182,7 +189,7 @@ Reading large XML files and instantiating their DOM into the memory can be expen
 import 'package:xml/xml_events.dart';
 ```
 
-In the most simple case you can get a `Iterable<XmlEvent>` over the input string using the following code. This parses the input lazily, and only parses input when requested:
+In the simplest case you can get a `Iterable<XmlEvent>` over the input string using the following code. This parses the input lazily, and only parses input when requested:
 
 ```dart
 parseEvents(bookshelfXml)
@@ -221,7 +228,9 @@ Misc
 
 ### Examples
 
-There are numerous packages depending on this package:
+This package comes with several [example applications](https://github.com/renggli/dart-xml).
+
+Furthermore, there are numerous packages depending on this package:
 
 - [image](https://github.com/brendan-duncan/image) decodes, encodes and processes image formats.
 - [StageXL](http://www.stagexl.org/) is a 2D rendering engine.
