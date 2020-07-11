@@ -228,7 +228,7 @@ Misc
 
 ### Examples
 
-This package comes with several [example applications](https://github.com/renggli/dart-xml).
+This package comes with several [examples](https://github.com/renggli/dart-xml/tree/master/example).
 
 Furthermore, there are numerous packages depending on this package:
 
