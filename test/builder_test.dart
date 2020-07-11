@@ -385,7 +385,7 @@ void main() {
     final document = builder.buildDocument();
     expect(document.toString(), '<element/>');
   });
-  test('resused builder', () {
+  test('reused builder', () {
     final builder = XmlBuilder();
     builder.element('element-one');
     final firstDocument = builder.buildDocument();

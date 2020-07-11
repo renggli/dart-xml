@@ -51,7 +51,7 @@ class XmlCharacterDataParser extends Parser<String> {
 
     // Check for the minimum length.
     return output.length < _minLength
-        ? context.failure('Unable to parse chracter data.')
+        ? context.failure('Unable to parse character data.')
         : context.success(output.toString(), position);
   }
 

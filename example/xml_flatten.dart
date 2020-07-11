@@ -11,7 +11,7 @@ final args.ArgParser argumentParser = args.ArgParser()
   ..addFlag(
     'normalize',
     abbr: 'n',
-    help: 'Normalizes the output stream.',
+    help: 'Normalize the output stream.',
   )
   ..addFlag(
     'text',

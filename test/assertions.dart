@@ -215,8 +215,7 @@ void assertTextInvariants(XmlNode xml) {
           reason: 'All nodes are supposed to return text strings.');
     }
     if (node is XmlText) {
-      expect(node.text, isNotEmpty,
-          reason: 'Text nodes are not suppoed to be empty.');
+      expect(node.text, isNotEmpty, reason: 'Text nodes cannot be empty.');
     }
     XmlNodeType previousType;
     final nodeTypes = node.children.map((node) => node.nodeType);
@@ -244,7 +243,7 @@ void assertIteratorInvariants(XmlNode xml) {
       node.root.descendants
     ].expand((each) => each);
     expect(allAxis, allRoot,
-        reason: 'All preceding nodes, the node, all decendant nodes, and all '
+        reason: 'All preceding nodes, the node, all descendant nodes, and all '
             'following nodes should be equal to all nodes in the tree.');
     expect(node.ancestors, ancestors.reversed);
     ancestors.add(node);

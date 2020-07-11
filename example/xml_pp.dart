@@ -32,25 +32,25 @@ final args.ArgParser argumentParser = args.ArgParser()
   ..addFlag(
     'color',
     abbr: 'c',
-    help: 'Colorizes the output.',
+    help: 'Colorize the output.',
     defaultsTo: stdout.supportsAnsiEscapes,
   )
   ..addOption(
     'indent',
     abbr: 'i',
-    help: 'Customizes the indention when pretty printing.',
+    help: 'Customize the indention when pretty printing.',
     defaultsTo: '  ',
   )
   ..addOption(
     'newline',
     abbr: 'n',
-    help: 'Changes the newline character when pretty printing.',
+    help: 'Change the newline character when pretty printing.',
     defaultsTo: '\n',
   )
   ..addFlag(
     'pretty',
     abbr: 'p',
-    help: 'Reformats the output to be pretty.',
+    help: 'Reformat the output to be pretty.',
     defaultsTo: true,
   );
 

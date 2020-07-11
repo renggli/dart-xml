@@ -177,7 +177,7 @@ The above `buildDocument()` method returns the built document. To attach built n
 ```dart
 final builder = XmlBuilder();
 buildBook(builder, 'The War of the Worlds', 'en', 12.50);
-buildBook(builder, 'Voyages extraordinares', 'fr', 18.20);
+buildBook(builder, 'Voyages extraordinaries', 'fr', 18.20);
 bookshelfXml.firstElementChild.children.add(builder.buildFragment());
 ```
 
