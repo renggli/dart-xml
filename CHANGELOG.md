@@ -3,6 +3,7 @@
 ## 4.3.0
 
 * Improve error reporting of `XmlBuilder` and add possibility to build `XmlDocumentFragments`.
+* Improve examples and documentation.
 
 ## 4.2.0
 
