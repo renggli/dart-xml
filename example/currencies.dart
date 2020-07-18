@@ -25,7 +25,7 @@ Future<void> main(List<String> arguments) async {
   currencies.forEach(writeCell);
   stdout.writeln();
   for (final sourceCurrency in currencies) {
-    final url = 'http://www.floatrates.com/daily/$sourceCurrency.xml';
+    final url = 'https://www.floatrates.com/daily/$sourceCurrency.xml';
     final request = await httpClient.getUrl(Uri.parse(url));
     final response = await request.close();
     final stream = response.transform(utf8.decoder);
