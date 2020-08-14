@@ -1,6 +1,8 @@
 library xml.visitors.pretty_writer;
 
 import '../entities/entity_mapping.dart';
+import '../mixins/has_attributes.dart';
+import '../nodes/attribute.dart';
 import '../nodes/document.dart';
 import '../nodes/element.dart';
 import '../nodes/node.dart';
@@ -16,6 +18,7 @@ class XmlPrettyWriter extends XmlWriter {
   final String indent;
   final String newLine;
   final Predicate<XmlNode> preserveWhitespace;
+  final Predicate<XmlAttribute> indentAttribute;
 
   XmlPrettyWriter(
     StringSink buffer, {
@@ -23,11 +26,11 @@ class XmlPrettyWriter extends XmlWriter {
     int level,
     String indent,
     String newLine,
-    Predicate<XmlNode> preserveWhitespace,
+    this.preserveWhitespace,
+    this.indentAttribute,
   })  : level = level ?? 0,
         indent = indent ?? '  ',
         newLine = newLine ?? '\n',
-        preserveWhitespace = preserveWhitespace ?? _defaultPreserveWhitespace,
         super(buffer, entityMapping: entityMapping);
 
   @override
@@ -46,7 +49,7 @@ class XmlPrettyWriter extends XmlWriter {
     } else {
       buffer.write(XmlToken.closeElement);
       if (node.children.isNotEmpty) {
-        if (preserveWhitespace(node)) {
+        if (preserveWhitespace != null && preserveWhitespace(node)) {
           final writer = XmlWriter(buffer, entityMapping: entityMapping);
           node.children.forEach(writer.visit);
         } else if (node.children.every((each) => each is XmlText)) {
@@ -64,6 +67,19 @@ class XmlPrettyWriter extends XmlWriter {
       buffer.write(XmlToken.openEndElement);
       visit(node.name);
       buffer.write(XmlToken.closeElement);
+    }
+  }
+
+  @override
+  void writeAttributes(XmlHasAttributes node) {
+    for (final attribute in node.attributes) {
+      if (indentAttribute != null && indentAttribute(attribute)) {
+        buffer.write(newLine);
+        buffer.write(indent * (level + 1));
+      } else {
+        buffer.write(XmlToken.whitespace);
+      }
+      visit(attribute);
     }
   }
 }
@@ -94,5 +110,3 @@ List<XmlNode> normalizeText(List<XmlNode> nodes) {
 }
 
 final _whitespaceOrLineTerminators = RegExp(r'\s+');
-
-bool _defaultPreserveWhitespace(XmlNode node) => false;

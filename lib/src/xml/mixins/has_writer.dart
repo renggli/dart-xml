@@ -1,6 +1,7 @@
 library xml.mixins.has_writer;
 
 import '../entities/entity_mapping.dart';
+import '../nodes/attribute.dart';
 import '../nodes/node.dart';
 import '../utils/predicate.dart';
 import '../visitors/pretty_writer.dart';
@@ -28,6 +29,8 @@ mixin XmlHasWriter implements XmlHasVisitor {
   /// - If the predicate [preserveWhitespace] returns `true`, the whitespace
   ///   characters within the node are preserved. By default all whitespace
   ///   is normalized.
+  /// - If the predicate [indentAttribute] returns `true`, the attribute
+  ///   will be begin on a new line.
   String toXmlString({
     bool pretty = false,
     XmlEntityMapping entityMapping,
@@ -35,6 +38,7 @@ mixin XmlHasWriter implements XmlHasVisitor {
     String indent,
     String newLine,
     Predicate<XmlNode> preserveWhitespace,
+    Predicate<XmlAttribute> indentAttribute,
   }) {
     final buffer = StringBuffer();
     final writer = pretty
@@ -43,7 +47,8 @@ mixin XmlHasWriter implements XmlHasVisitor {
             level: level,
             indent: indent,
             newLine: newLine,
-            preserveWhitespace: preserveWhitespace)
+            preserveWhitespace: preserveWhitespace,
+            indentAttribute: indentAttribute)
         : XmlWriter(buffer, entityMapping: entityMapping);
     writer.visit(this);
     return buffer.toString();

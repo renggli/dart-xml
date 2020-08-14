@@ -93,43 +93,135 @@ void main() {
           '  <b>What the heck?</b>\r\n'
           '</body>');
     });
-    test('preserve all whitespace', () {
-      final output = document.toXmlString(
-          pretty: true, preserveWhitespace: (node) => true);
-      expect(
-          output,
-          '<body>\n'
-          '  <a>\tWhat\r the  heck?\n</a>\n'
-          '  <b>\tWhat\r the  heck?\n</b>\n'
-          '</body>');
+    group('whitespace', () {
+      test('preserve all', () {
+        final output = document.toXmlString(
+            pretty: true, preserveWhitespace: (node) => true);
+        expect(
+            output,
+            '<body>\n'
+            '  <a>\tWhat\r the  heck?\n</a>\n'
+            '  <b>\tWhat\r the  heck?\n</b>\n'
+            '</body>');
+      });
+      test('preserve some', () {
+        final output = document.toXmlString(
+            pretty: true,
+            preserveWhitespace: (node) =>
+                node is XmlElement && node.name.local == 'b');
+        expect(
+            output,
+            '<body>\n'
+            '  <a>What the heck?</a>\n'
+            '  <b>\tWhat\r the  heck?\n</b>\n'
+            '</body>');
+      });
+      test('preserve nested', () {
+        final input = XmlDocument.parse('<html><body>'
+            '<p><b>bold</b>, <i>italic</i> and <b><i>both</i></b>.</p>'
+            '</body></html>');
+        final output = input.toXmlString(
+            pretty: true,
+            preserveWhitespace: (node) =>
+                node is XmlElement && node.name.local == 'p');
+        expect(
+            output,
+            '<html>\n'
+            '  <body>\n'
+            '    <p><b>bold</b>, <i>italic</i> and <b><i>both</i></b>.</p>\n'
+            '  </body>\n'
+            '</html>');
+      });
     });
-    test('preserve some whitespace', () {
-      final output = document.toXmlString(
-          pretty: true,
-          preserveWhitespace: (node) =>
-              node is XmlElement && node.name.local == 'b');
-      expect(
-          output,
-          '<body>\n'
-          '  <a>What the heck?</a>\n'
-          '  <b>\tWhat\r the  heck?\n</b>\n'
+    group('attributes', () {
+      final document = XmlDocument.parse('<body>'
+          '<a a="1">AAA</a>'
+          '<b a="1" b="2">BBB</b>'
+          '<c a="1" b="2" c="3">CCC</c>'
           '</body>');
-    });
-    test('preserve nested whitespace', () {
-      final input = XmlDocument.parse('<html><body>'
-          '<p><b>bold</b>, <i>italic</i> and <b><i>both</i></b>.</p>'
-          '</body></html>');
-      final output = input.toXmlString(
+      test('indent none', () {
+        final output = document.toXmlString(
           pretty: true,
-          preserveWhitespace: (node) =>
-              node is XmlElement && node.name.local == 'p');
-      expect(
-          output,
-          '<html>\n'
-          '  <body>\n'
-          '    <p><b>bold</b>, <i>italic</i> and <b><i>both</i></b>.</p>\n'
-          '  </body>\n'
-          '</html>');
+          indentAttribute: (node) => false,
+        );
+        expect(
+            output,
+            '<body>\n'
+            '  <a a="1">AAA</a>\n'
+            '  <b a="1" b="2">BBB</b>\n'
+            '  <c a="1" b="2" c="3">CCC</c>\n'
+            '</body>');
+      });
+      test('indent all', () {
+        final output = document.toXmlString(
+          pretty: true,
+          indentAttribute: (node) => true,
+        );
+        expect(
+            output,
+            '<body>\n'
+            '  <a\n'
+            '    a="1">AAA</a>\n'
+            '  <b\n'
+            '    a="1"\n'
+            '    b="2">BBB</b>\n'
+            '  <c\n'
+            '    a="1"\n'
+            '    b="2"\n'
+            '    c="3">CCC</c>\n'
+            '</body>');
+      });
+      test('intend after first', () {
+        final output = document.toXmlString(
+          pretty: true,
+          indentAttribute: (node) => node.parent.attributes.first != node,
+        );
+        expect(
+            output,
+            '<body>\n'
+            '  <a a="1">AAA</a>\n'
+            '  <b a="1"\n'
+            '    b="2">BBB</b>\n'
+            '  <c a="1"\n'
+            '    b="2"\n'
+            '    c="3">CCC</c>\n'
+            '</body>');
+      });
+      test('indent when multiple', () {
+        final output = document.toXmlString(
+          pretty: true,
+          indentAttribute: (node) => node.parent.attributes.length > 1,
+        );
+        expect(
+            output,
+            '<body>\n'
+            '  <a a="1">AAA</a>\n'
+            '  <b\n'
+            '    a="1"\n'
+            '    b="2">BBB</b>\n'
+            '  <c\n'
+            '    a="1"\n'
+            '    b="2"\n'
+            '    c="3">CCC</c>\n'
+            '</body>');
+      });
+      test('indent every second', () {
+        final output = document.toXmlString(
+          pretty: true,
+          indentAttribute: (node) {
+            final index = node.parent.attributes.indexOf(node);
+            return index > 0 && index.isEven;
+          },
+        );
+        expect(
+            output,
+            '<body>\n'
+            '  <a a="1">AAA</a>\n'
+            '  <b a="1" b="2">BBB</b>\n'
+            '  <c a="1" b="2"\n'
+            '    c="3">CCC</c>\n'
+            '</body>');
+      });
     });
   });
 }
