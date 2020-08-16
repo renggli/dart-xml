@@ -5,11 +5,12 @@
 * Add a `XmlSubtreeSelector` that allows efficient filtering of events in specific sub-trees.
 * Add more options to XML pretty printer, namely the possibility to sort and indent attributes.
 * Add typed extension methods for all stream converters, for simpler and more fluent API.
+* Improvements to documentation and examples.
 
 ## 4.3.0
 
 * Improve error reporting of `XmlBuilder` and add possibility to build `XmlDocumentFragments`.
-* Improve examples and documentation.
+* Improvements to documentation and examples.
 
 ## 4.2.0
 

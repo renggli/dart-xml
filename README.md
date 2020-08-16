@@ -201,16 +201,16 @@ parseEvents(bookshelfXml)
 
 To asynchronously parse and process events directly from a file or HTTP stream use the provided codecs, encoders and decoders:
 
-1. `XmlEventCodec` converts between `String` and `XmlEvent` sequences:
-    - `XmlEventDecoder` decodes a `String` to a sequence of `XmlEvent` objects.
-    - `XmlEventEncoder` encodes a sequence of `XmlEvent` objects to a `String`.
-2. `XmlNormalizer` normalizes a sequence of `XmlEvent`, namely combines adjacent and removes empty text events.
-3. `XmlSubtreeSelector` selects sequences of `XmlEvent` objects that form sub-trees and that satisfy a provided predicate.
-4. `XmlNodeCodec` converts between `XmlEvent` sequences and `XmlNode` trees.
-    - `XmlNodeDecoder` decodes a sequence of `XmlEvent` objects to a forest of `XmlNode` objects.
-    - `XmlNodeEncoder` decodes a forest of `XmlNode` objects to a sequence of `XmlEvent` objects.
+| Codec | Converter | Extension Method | Description |
+| :---- | :-------- | :----------------| :---------- |
+| `XmlEventCodec` | `XmlEventDecoder` | `Stream<List<XmlEvent>> toXmlEvents()` on `Stream<String>` | Converts a `String ` to a sequence of `XmlEvent ` objects. |
+| `XmlEventCodec` | `XmlEventEncoder` | `Stream<String> toXmlString()` on `Stream<List<XmlEvent>>` | Converts a sequence of `XmlEvent ` objects to a `String `. |
+| | `XmlNormalizer` | `Stream<List<XmlEvent>> normalizeEvents()` on `Stream<List<XmlEvent>>` | Normalizes a sequence of `XmlEvent ` objects by removing empty and combining adjacent text events. |
+| | `XmlSubtreeSelector` | `Stream<List<XmlEvent>> selectSubtreeEvents(Predicate<XmlStartElementEvent>)` on `Stream<List<XmlEvent>>` | From a sequence of `XmlEvent ` objects filter the event sequences that form sub-trees for which `predicate ` returns `true`. |
+| `XmlNodeCodec` | `XmlNodeDecoder` | `Stream<List<XmlNode>> toXmlNodes()` on `Stream<List<XmlEvent>>` | Converts a sequence of `XmlEvent ` objects to `XmlNode ` objects. |
+| `XmlNodeCodec` | `XmlNodeEncoder` | `Stream<List<XmlEvent>> toXmlEvents()` on `Stream<List<XmlNode>>` | Converts a sequence of `XmlNode ` objects to `XmlEvent ` objects. |
 
-For example: The following snippet downloads data from the Internet, converts the UTF-8 input to a Dart `String`, decodes the stream of characters to `XmlEvent`s, and finally normalizes and prints the events:
+For example, the following snippet downloads data from the Internet, converts the UTF-8 input to a Dart `String`, decodes the stream of characters to `XmlEvent`s, and finally normalizes and prints the events:
 
 ```dart
 final url = Uri.parse('http://ip-api.com/xml/');
