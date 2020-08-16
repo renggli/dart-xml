@@ -1,5 +1,3 @@
-library xml.test.entity_test;
-
 import 'package:test/test.dart';
 import 'package:xml/src/xml/entities/default_mapping.dart';
 import 'package:xml/src/xml/utils/character_data_parser.dart';

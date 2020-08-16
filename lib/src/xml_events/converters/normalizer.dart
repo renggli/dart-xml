@@ -1,5 +1,3 @@
-library xml_events.converters.normalizer;
-
 import 'dart:convert' show ChunkedConversionSink;
 
 import '../event.dart';

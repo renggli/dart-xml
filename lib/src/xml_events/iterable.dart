@@ -1,5 +1,3 @@
-library xml_events.iterable;
-
 import '../xml/entities/entity_mapping.dart';
 import 'event.dart';
 import 'iterator.dart';

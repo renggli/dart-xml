@@ -1,5 +1,3 @@
-library xml.entities.entity_mapping;
-
 import '../utils/attribute_type.dart';
 
 /// Describes the decoding and encoding of character entities.

@@ -1,5 +1,3 @@
-library xml_events.codec.event_codec;
-
 import 'dart:convert' show Codec, Converter;
 
 import '../../xml/entities/default_mapping.dart';

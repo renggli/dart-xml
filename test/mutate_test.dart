@@ -1,5 +1,3 @@
-library xml.test.mutate_test;
-
 import 'package:test/test.dart';
 import 'package:xml/xml.dart';
 

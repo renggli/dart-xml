@@ -1,5 +1,3 @@
-library xml.mixins.has_children;
-
 import '../nodes/element.dart';
 import '../nodes/node.dart';
 import '../utils/name_matcher.dart';

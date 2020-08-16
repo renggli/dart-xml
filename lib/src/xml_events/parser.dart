@@ -1,5 +1,3 @@
-library xml_events.parser;
-
 import 'package:petitparser/petitparser.dart';
 
 import '../../xml.dart'

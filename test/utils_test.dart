@@ -1,5 +1,3 @@
-library xml.test.utils_test;
-
 import 'package:test/test.dart';
 import 'package:xml/src/xml/utils/cache.dart';
 

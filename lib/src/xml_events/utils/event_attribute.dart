@@ -1,5 +1,3 @@
-library xml_events.events.event_attribute;
-
 import 'package:meta/meta.dart';
 
 import '../../xml/utils/attribute_type.dart';

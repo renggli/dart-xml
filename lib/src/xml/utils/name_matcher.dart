@@ -1,5 +1,3 @@
-library xml.utils.name_matcher;
-
 import '../mixins/has_name.dart';
 
 /// Internal function type to match named elements.

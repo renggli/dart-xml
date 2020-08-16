@@ -1,5 +1,3 @@
-library xml_events.converters.subtree_selector;
-
 import 'dart:convert' show ChunkedConversionSink;
 
 import '../../xml/utils/exceptions.dart';

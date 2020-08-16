@@ -1,5 +1,3 @@
-library xml.utils.token;
-
 /// Shared tokens for XML reading and writing.
 class XmlToken {
   static const String doubleQuote = '"';

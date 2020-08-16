@@ -1,5 +1,3 @@
-library xml.test.assertions;
-
 import 'package:test/test.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xml_events.dart';

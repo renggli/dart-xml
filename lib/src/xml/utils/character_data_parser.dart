@@ -1,5 +1,3 @@
-library xml.utils.character_data_parser;
-
 import 'package:petitparser/petitparser.dart';
 
 import '../entities/entity_mapping.dart';

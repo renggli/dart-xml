@@ -1,5 +1,3 @@
-library xml.utils.node_type;
-
 /// Enum of the different XML Node types.
 enum XmlNodeType {
   /// An attribute node, e.g. `id="123"`.

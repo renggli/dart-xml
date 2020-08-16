@@ -1,5 +1,3 @@
-library xml.mixins.has_visitor;
-
 import '../visitors/visitor.dart';
 
 /// Mixin for classes that can be visited using an [XmlVisitor].

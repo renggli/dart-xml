@@ -1,5 +1,3 @@
-library xml.utils.cache;
-
 /// Function to populate the cache.
 typedef XmlLoader<K, V> = V Function(K key);
 

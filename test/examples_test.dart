@@ -1,5 +1,3 @@
-library xml.test.examples_test;
-
 import 'package:test/test.dart';
 
 import 'assertions.dart';

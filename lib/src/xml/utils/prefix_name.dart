@@ -1,5 +1,3 @@
-library xml.utils.prefix_name;
-
 import 'name.dart';
 import 'namespace.dart';
 

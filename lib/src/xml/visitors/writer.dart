@@ -1,5 +1,3 @@
-library xml.visitors.writer;
-
 import '../entities/default_mapping.dart';
 import '../entities/entity_mapping.dart';
 import '../mixins/has_attributes.dart';

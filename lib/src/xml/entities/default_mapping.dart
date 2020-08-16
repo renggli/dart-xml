@@ -1,5 +1,3 @@
-library xml.entities.default_mapping;
-
 import '../utils/attribute_type.dart';
 import 'entity_mapping.dart';
 import 'named_entities.dart';

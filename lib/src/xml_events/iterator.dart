@@ -1,5 +1,3 @@
-library xml_events.iterator;
-
 import 'package:petitparser/petitparser.dart'
     show Parser, Result, Success, Token;
 

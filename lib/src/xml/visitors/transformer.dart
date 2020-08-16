@@ -1,5 +1,3 @@
-library xml.visitors.transformer;
-
 import '../nodes/attribute.dart';
 import '../nodes/cdata.dart';
 import '../nodes/comment.dart';

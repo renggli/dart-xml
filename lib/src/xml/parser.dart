@@ -1,5 +1,3 @@
-library xml.parser;
-
 import 'entities/entity_mapping.dart';
 import 'grammar.dart';
 import 'nodes/attribute.dart';

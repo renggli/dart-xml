@@ -1,5 +1,3 @@
-library xml.navigation.nodes;
-
 import '../nodes/node.dart';
 import '../utils/flatten.dart';
 

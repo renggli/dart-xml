@@ -1,5 +1,3 @@
-library xml_events.events.named;
-
 import '../../../xml.dart' show XmlToken;
 
 /// Mixin with additional accessors for named objects.

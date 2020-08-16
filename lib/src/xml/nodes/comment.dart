@@ -1,5 +1,3 @@
-library xml.nodes.comment;
-
 import '../utils/node_type.dart';
 import '../visitors/visitor.dart';
 import 'data.dart';

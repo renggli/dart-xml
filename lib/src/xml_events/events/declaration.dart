@@ -1,5 +1,3 @@
-library xml_events.events.declaration_event;
-
 import 'package:collection/collection.dart';
 
 import '../../../xml.dart' show XmlNodeType;

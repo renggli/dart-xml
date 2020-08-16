@@ -1,5 +1,3 @@
-library xml_events.converters.event_decoder;
-
 import 'dart:convert'
     show Converter, StringConversionSink, StringConversionSinkBase;
 

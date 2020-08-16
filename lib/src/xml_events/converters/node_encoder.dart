@@ -1,5 +1,3 @@
-library xml_events.converters.node_encoder;
-
 import 'dart:convert' show ChunkedConversionSink;
 
 import '../../xml/nodes/attribute.dart';

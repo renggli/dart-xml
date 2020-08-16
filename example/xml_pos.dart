@@ -1,6 +1,4 @@
 /// XML position printer.
-library xml.example.xml_pos;
-
 import 'dart:io';
 import 'dart:math';
 

@@ -1,5 +1,3 @@
-library xml.mixins.has_text;
-
 import '../navigation/descendants.dart';
 import '../nodes/cdata.dart';
 import '../nodes/data.dart';

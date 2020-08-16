@@ -1,5 +1,3 @@
-library xml.navigation.preceding;
-
 import 'dart:collection';
 
 import '../nodes/node.dart';

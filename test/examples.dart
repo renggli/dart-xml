@@ -1,5 +1,3 @@
-library xml.test.examples;
-
 const String booksXml = '<?xml version="1.0"?>'
     '<catalog>'
     '   <book id="bk101">'

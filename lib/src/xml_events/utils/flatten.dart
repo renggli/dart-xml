@@ -1,5 +1,3 @@
-library xml_events.utils.flatten;
-
 extension XmlFlattenStreamExtension<T> on Stream<Iterable<T>> {
   /// Flattens a [Stream] of [Iterable] values of type [T] to a [Stream] of
   /// values of type [T].

@@ -1,5 +1,3 @@
-library xml.visitors.pretty_writer;
-
 import 'package:meta/meta.dart';
 
 import '../entities/entity_mapping.dart';

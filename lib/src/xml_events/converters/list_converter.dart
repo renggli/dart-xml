@@ -1,5 +1,3 @@
-library xml_events.converters.list_converter;
-
 import 'dart:convert' show Converter;
 
 import 'package:convert/convert.dart' show AccumulatorSink;

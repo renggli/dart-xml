@@ -1,5 +1,3 @@
-library xml.nodes.document;
-
 import 'package:petitparser/petitparser.dart';
 
 import '../entities/default_mapping.dart';

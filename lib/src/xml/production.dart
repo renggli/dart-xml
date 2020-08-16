@@ -1,5 +1,3 @@
-library xml.production;
-
 import 'package:petitparser/petitparser.dart';
 
 import 'entities/entity_mapping.dart';

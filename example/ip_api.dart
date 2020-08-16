@@ -1,6 +1,4 @@
 /// IP Geolocation API using ip-api.com.
-library xml.example.ip_api;
-
 import 'dart:convert';
 import 'dart:io';
 

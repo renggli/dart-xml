@@ -1,5 +1,3 @@
-library xml_events.event;
-
 import 'package:meta/meta.dart';
 
 import '../../xml.dart' show XmlNodeType;

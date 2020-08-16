@@ -1,5 +1,3 @@
-library xml.utils.name;
-
 import '../mixins/has_parent.dart';
 import '../mixins/has_visitor.dart';
 import '../mixins/has_writer.dart';

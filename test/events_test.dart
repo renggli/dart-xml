@@ -1,5 +1,3 @@
-library xml.test.events_test;
-
 import 'dart:async';
 import 'dart:math' show min, Random;
 

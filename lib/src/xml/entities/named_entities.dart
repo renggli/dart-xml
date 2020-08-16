@@ -1,5 +1,3 @@
-library xml.entities.named_entities;
-
 /// XML named character references.
 const Map<String, String> xmlEntities = {
   'amp': '&', // ampersand

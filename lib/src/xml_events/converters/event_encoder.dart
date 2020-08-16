@@ -1,5 +1,3 @@
-library xml_events.converters.event_encoder;
-
 import 'dart:convert' show Converter, ChunkedConversionSink;
 
 import 'package:convert/convert.dart' show StringAccumulatorSink;

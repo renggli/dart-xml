@@ -1,5 +1,3 @@
-library xml.mixins.has_xml;
-
 import '../nodes/document_fragment.dart';
 import 'has_children.dart';
 import 'has_parent.dart';

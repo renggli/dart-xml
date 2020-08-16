@@ -1,5 +1,3 @@
-library xml.navigation.parent;
-
 import '../nodes/document.dart';
 import '../nodes/element.dart';
 import '../nodes/node.dart';

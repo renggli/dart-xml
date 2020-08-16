@@ -1,5 +1,3 @@
-library xml_events.visitor;
-
 import 'event.dart';
 import 'events/cdata.dart';
 import 'events/comment.dart';

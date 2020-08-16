@@ -1,5 +1,3 @@
-library xml.utils.namespace;
-
 import '../nodes/attribute.dart';
 import '../nodes/node.dart';
 

@@ -1,5 +1,3 @@
-library xml.visitors.visitor;
-
 import '../mixins/has_visitor.dart';
 import '../nodes/attribute.dart';
 import '../nodes/cdata.dart';

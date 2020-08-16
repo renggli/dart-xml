@@ -1,5 +1,3 @@
-library xml.visitors.normalizer;
-
 import '../nodes/document.dart';
 import '../nodes/document_fragment.dart';
 import '../nodes/element.dart';

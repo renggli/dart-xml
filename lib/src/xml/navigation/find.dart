@@ -1,5 +1,3 @@
-library xml.navigation.find;
-
 import '../nodes/element.dart';
 import '../nodes/node.dart';
 import '../utils/name_matcher.dart';

@@ -1,5 +1,3 @@
-library xml.mixins.has_attributes;
-
 import '../nodes/attribute.dart';
 import '../utils/name.dart';
 import '../utils/name_matcher.dart';

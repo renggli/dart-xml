@@ -1,5 +1,3 @@
-library xml.nodes.data;
-
 import '../mixins/has_parent.dart';
 import 'node.dart';
 

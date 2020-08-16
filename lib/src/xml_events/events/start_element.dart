@@ -1,5 +1,3 @@
-library xml_events.events.start_element_event;
-
 import 'package:collection/collection.dart' show ListEquality;
 
 import '../../../xml.dart' show XmlNodeType;

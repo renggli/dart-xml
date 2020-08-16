@@ -1,5 +1,3 @@
-library xml.test.regression_test;
-
 import 'package:test/test.dart';
 
 import 'assertions.dart';

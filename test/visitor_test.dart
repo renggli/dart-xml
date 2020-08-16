@@ -1,5 +1,3 @@
-library xml.test.visitor_test;
-
 import 'package:test/test.dart';
 import 'package:xml/xml.dart';
 

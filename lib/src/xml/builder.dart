@@ -1,5 +1,3 @@
-library xml.builder;
-
 import 'dart:collection';
 
 import 'nodes/attribute.dart';

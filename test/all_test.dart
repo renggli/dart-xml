@@ -1,5 +1,3 @@
-library xml.test.all_test;
-
 import 'package:test/test.dart';
 
 import 'builder_test.dart' as builder_test;

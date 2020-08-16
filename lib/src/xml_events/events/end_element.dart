@@ -1,5 +1,3 @@
-library xml_events.events.end_element_event;
-
 import '../../../xml.dart' show XmlNodeType;
 import '../event.dart';
 import '../utils/named.dart';

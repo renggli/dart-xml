@@ -1,5 +1,3 @@
-library xml.utils.exceptions;
-
 import '../mixins/has_parent.dart';
 import '../nodes/node.dart';
 import 'node_type.dart';

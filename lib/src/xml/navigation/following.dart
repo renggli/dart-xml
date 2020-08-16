@@ -1,5 +1,3 @@
-library xml.navigation.following;
-
 import 'dart:collection';
 
 import '../nodes/attribute.dart';

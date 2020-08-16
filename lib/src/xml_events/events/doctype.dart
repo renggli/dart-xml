@@ -1,5 +1,3 @@
-library xml_events.events.doctype_event;
-
 import '../../../xml.dart' show XmlNodeType;
 import '../event.dart';
 import '../visitor.dart';

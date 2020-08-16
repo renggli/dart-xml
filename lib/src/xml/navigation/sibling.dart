@@ -1,5 +1,3 @@
-library xml.navigation.sibling;
-
 import '../nodes/node.dart';
 
 extension XmlSiblingExtension on XmlNode {

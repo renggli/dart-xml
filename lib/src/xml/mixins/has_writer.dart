@@ -1,5 +1,3 @@
-library xml.mixins.has_writer;
-
 import '../entities/entity_mapping.dart';
 import '../nodes/attribute.dart';
 import '../nodes/node.dart';

@@ -1,5 +1,3 @@
-library xml.nodes.doctype;
-
 import '../utils/node_type.dart';
 import '../visitors/visitor.dart';
 import 'data.dart';
