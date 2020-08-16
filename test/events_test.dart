@@ -248,7 +248,7 @@ void main() {
         (string, events, document, splitter) async {
       final actual = await splitString(string, splitter)
           .toXmlEvents()
-          .normalized()
+          .normalizeEvents()
           .expand((list) => list)
           .toList();
       expect(actual, events);
@@ -292,7 +292,7 @@ void main() {
       final actual = await splitList(events, splitter)
           .toXmlString()
           .toXmlEvents()
-          .normalized()
+          .normalizeEvents()
           .expand((list) => list)
           .toList();
       expect(actual, events);
@@ -323,7 +323,7 @@ void main() {
     chunkedTest('events -> subtree -> nodes', shiporderXsd,
         (string, events, document, splitter) async {
       final actual = await splitList(events, splitter)
-          .selectSubtree((event) => event.name == 'xsd:element')
+          .selectSubtreeEvents((event) => event.name == 'xsd:element')
           .toXmlNodes()
           .expand((nodes) => nodes)
           .toList();

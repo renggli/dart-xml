@@ -89,8 +89,8 @@ Future<void> lookupIp(args.ArgResults results, [String query = '']) async {
     var level = 0;
     String currentField;
     await stream
-        .transform(const XmlEventDecoder())
-        .transform(const XmlNormalizer())
+        .toXmlEvents()
+        .normalizeEvents()
         .expand((events) => events)
         .forEach((event) {
       if (event is XmlStartElementEvent) {

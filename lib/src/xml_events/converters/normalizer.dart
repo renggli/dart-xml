@@ -9,7 +9,7 @@ import 'list_converter.dart';
 extension XmlNormalizerExtension on Stream<List<XmlEvent>> {
   /// Normalizes a sequence of [XmlEvent] objects by removing empty and
   /// combining adjacent text events.
-  Stream<List<XmlEvent>> normalized() => transform(const XmlNormalizer());
+  Stream<List<XmlEvent>> normalizeEvents() => transform(const XmlNormalizer());
 }
 
 /// A converter that normalizes sequences of [XmlEvent] objects, namely combines

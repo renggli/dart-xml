@@ -46,13 +46,10 @@ Future<void> main(List<String> arguments) async {
   }
 
   for (final file in files) {
-    var stream = file
-        .openRead()
-        .cast<List<int>>()
-        .transform(utf8.decoder)
-        .transform(const XmlEventDecoder());
+    var stream =
+        file.openRead().cast<List<int>>().transform(utf8.decoder).toXmlEvents();
     if (normalize) {
-      stream = stream.transform(const XmlNormalizer());
+      stream = stream.normalizeEvents();
     }
     var flatStream = stream.expand((events) => events);
     if (text) {

@@ -204,23 +204,39 @@ To asynchronously parse and process events directly from a file or HTTP stream u
 1. `XmlEventCodec` converts between `String` and `XmlEvent` sequences:
     - `XmlEventDecoder` decodes a `String` to a sequence of `XmlEvent` objects.
     - `XmlEventEncoder` encodes a sequence of `XmlEvent` objects to a `String`.
-2. `XmlNodeCodec` converts between `XmlEvent` sequences and `XmlNode` trees.
+2. `XmlNormalizer` normalizes a sequence of `XmlEvent`, namely combines adjacent and removes empty text events.
+3. `XmlSubtreeSelector` selects sequences of `XmlEvent` objects that form sub-trees and that satisfy a provided predicate.
+4. `XmlNodeCodec` converts between `XmlEvent` sequences and `XmlNode` trees.
     - `XmlNodeDecoder` decodes a sequence of `XmlEvent` objects to a forest of `XmlNode` objects.
     - `XmlNodeEncoder` decodes a forest of `XmlNode` objects to a sequence of `XmlEvent` objects.
-3. `XmlNormalizer` normalizes a sequence of `XmlEvent`, namely combines adjacent and removes empty text events.
 
-For example the following snippet downloads data from the Internet, converts the UTF-8 input to a Dart `String`, decodes the stream of characters to `XmlEvent`s, and finally normalizes and prints the events:
+For example: The following snippet downloads data from the Internet, converts the UTF-8 input to a Dart `String`, decodes the stream of characters to `XmlEvent`s, and finally normalizes and prints the events:
 
 ```dart
 final url = Uri.parse('http://ip-api.com/xml/');
 final request = await httpClient.getUrl(url);
 final response = await request.close();
-final stream = response
+await response
     .transform(utf8.decoder)
-    .transform(const XmlEventDecoder())
-    .transform(const XmlNormalizer())
+    .toXmlEvents()
+    .normalizeEvents()
     .expand((events) => events)
     .forEach((event) => print(event));
+```
+
+Similarly, the following snippet extracts sub-trees with location information from a `sitemap.xml` file, converts the XML events to XML nodes, and finally prints out the containing text: 
+
+```dart
+final url = Uri.parse('https://dart.dev/sitemap.xml');
+final request = await httpClient.getUrl(url);
+final response = await request.close();
+await response
+    .transform(utf8.decoder)
+    .toXmlEvents()
+    .selectSubtreeEvents((event) => event.name == 'loc')
+    .toXmlNodes()
+    .expand((events) => events)
+    .forEach((node) => print(node.innerText));
 ```
 
 Misc
