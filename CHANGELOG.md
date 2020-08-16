@@ -3,6 +3,7 @@
 ## 4.4.0
 
 * Add a `XmlSubtreeSelector` that allows efficient filtering of events in specific sub-trees.
+* Add more options to XML pretty printer, namely the possibility to sort and indent attributes.
 
 ## 4.3.0
 
