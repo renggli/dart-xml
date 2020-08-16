@@ -9,6 +9,8 @@ import '../events/end_element_event.dart';
 import '../events/start_element_event.dart';
 import 'list_converter.dart';
 
+/// A converter that selects [XmlEvent] objects that are part of a subtree
+/// started by an [XmlStartElementEvent] satisfying the provided predicate.
 class XmlSubtreeSelector extends XmlListConverter<XmlEvent, XmlEvent> {
   final Predicate<XmlStartElementEvent> predicate;
 
