@@ -12,6 +12,14 @@ import '../event.dart';
 import '../iterable.dart';
 import '../parser.dart';
 
+extension XmlEventDecoderExtension on Stream<String> {
+  /// Converts a [String] to a sequence of [XmlEvent] objects.
+  Stream<List<XmlEvent>> toXmlEvents(
+          {XmlEntityMapping entityMapping =
+              const XmlDefaultEntityMapping.xml()}) =>
+      transform(XmlEventDecoder(entityMapping: entityMapping));
+}
+
 /// A converter that decodes a [String] to a sequence of [XmlEvent] objects.
 class XmlEventDecoder extends Converter<String, List<XmlEvent>> {
   final XmlEntityMapping entityMapping;

@@ -26,6 +26,11 @@ import '../events/text_event.dart';
 import '../visitor.dart';
 import 'list_converter.dart';
 
+extension XmlNodeDecoderExtension on Stream<List<XmlEvent>> {
+  /// Converts a sequence of [XmlEvent] objects to [XmlNode] objects.
+  Stream<List<XmlNode>> toXmlNodes() => transform(const XmlNodeDecoder());
+}
+
 /// A converter that decodes a sequence of [XmlEvent] objects to a forest of
 /// [XmlNode] objects.
 class XmlNodeDecoder extends XmlListConverter<XmlEvent, XmlNode> {

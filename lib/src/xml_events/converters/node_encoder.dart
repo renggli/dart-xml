@@ -25,6 +25,11 @@ import '../events/start_element_event.dart';
 import '../events/text_event.dart';
 import 'list_converter.dart';
 
+extension XmlNodeEncoderExtension on Stream<List<XmlNode>> {
+  /// Converts a sequence of [XmlNode] objects to [XmlEvent] objects.
+  Stream<List<XmlEvent>> toXmlEvents() => transform(const XmlNodeEncoder());
+}
+
 /// A converter that encodes a forest of [XmlNode] objects to a sequence of
 /// [XmlEvent] objects.
 class XmlNodeEncoder extends XmlListConverter<XmlNode, XmlEvent> {

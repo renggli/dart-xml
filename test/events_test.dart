@@ -247,8 +247,8 @@ void main() {
     chunkedTest('string -> events', complicatedXml,
         (string, events, document, splitter) async {
       final actual = await splitString(string, splitter)
-          .transform(const XmlEventDecoder())
-          .transform(const XmlNormalizer())
+          .toXmlEvents()
+          .normalized()
           .expand((list) => list)
           .toList();
       expect(actual, events);
@@ -256,7 +256,7 @@ void main() {
     chunkedTest('events -> nodes', complicatedXml,
         (string, events, document, splitter) async {
       final actual = await splitList(events, splitter)
-          .transform(const XmlNodeDecoder())
+          .toXmlNodes()
           .expand((list) => list)
           .toList();
       expect(
@@ -269,32 +269,30 @@ void main() {
     chunkedTest('nodes -> events', complicatedXml,
         (string, events, document, splitter) async {
       final actual = await splitList(document.children, splitter)
-          .transform(const XmlNodeEncoder())
+          .toXmlEvents()
           .expand((list) => list)
           .toList();
       expect(actual, events);
     });
     chunkedTest('events -> string', complicatedXml,
         (string, events, document, splitter) async {
-      final actual = await splitList(events, splitter)
-          .transform(const XmlEventEncoder())
-          .join();
+      final actual = await splitList(events, splitter).toXmlString().join();
       expect(actual, string);
     });
     chunkedTest('string -> events -> string', complicatedXml,
         (string, events, document, splitter) async {
       final actual = await splitString(string, splitter)
-          .transform(const XmlEventDecoder())
-          .transform(const XmlEventEncoder())
+          .toXmlEvents()
+          .toXmlString()
           .join();
       expect(actual, string);
     });
     chunkedTest('events -> string -> events', complicatedXml,
         (string, events, document, splitter) async {
       final actual = await splitList(events, splitter)
-          .transform(const XmlEventEncoder())
-          .transform(const XmlEventDecoder())
-          .transform(const XmlNormalizer())
+          .toXmlString()
+          .toXmlEvents()
+          .normalized()
           .expand((list) => list)
           .toList();
       expect(actual, events);
@@ -302,8 +300,8 @@ void main() {
     chunkedTest('events -> nodes -> events', complicatedXml,
         (string, events, document, splitter) async {
       final actual = await splitList(events, splitter)
-          .transform(const XmlNodeDecoder())
-          .transform(const XmlNodeEncoder())
+          .toXmlNodes()
+          .toXmlEvents()
           .expand((list) => list)
           .toList();
       expect(actual, events);
@@ -311,8 +309,8 @@ void main() {
     chunkedTest('nodes -> events -> nodes', complicatedXml,
         (string, events, document, splitter) async {
       final actual = await splitList(document.children, splitter)
-          .transform(const XmlNodeEncoder())
-          .transform(const XmlNodeDecoder())
+          .toXmlEvents()
+          .toXmlNodes()
           .expand((list) => list)
           .toList();
       expect(
@@ -325,8 +323,8 @@ void main() {
     chunkedTest('events -> subtree -> nodes', shiporderXsd,
         (string, events, document, splitter) async {
       final actual = await splitList(events, splitter)
-          .transform(XmlSubtreeSelector((event) => event.name == 'xsd:element'))
-          .transform(const XmlNodeDecoder())
+          .selectSubtree((event) => event.name == 'xsd:element')
+          .toXmlNodes()
           .expand((nodes) => nodes)
           .toList();
       final expected = document

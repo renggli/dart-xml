@@ -19,6 +19,14 @@ import '../events/start_element_event.dart';
 import '../events/text_event.dart';
 import '../visitor.dart';
 
+extension XmlEventEncoderExtension on Stream<List<XmlEvent>> {
+  /// Converts a sequence of [XmlEvent] objects to a [String].
+  Stream<String> toXmlString(
+          {XmlEntityMapping entityMapping =
+              const XmlDefaultEntityMapping.xml()}) =>
+      transform(XmlEventEncoder(entityMapping: entityMapping));
+}
+
 /// A converter that encodes a sequence of [XmlEvent] objects to a [String].
 class XmlEventEncoder extends Converter<List<XmlEvent>, String> {
   final XmlEntityMapping entityMapping;

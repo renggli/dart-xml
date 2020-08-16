@@ -11,13 +11,18 @@ export 'src/xml/utils/attribute_type.dart' show XmlAttributeType;
 export 'src/xml/utils/node_type.dart' show XmlNodeType;
 export 'src/xml_events/codec/event_codec.dart' show XmlEventCodec;
 export 'src/xml_events/codec/node_codec.dart' show XmlNodeCodec;
-export 'src/xml_events/converters/event_decoder.dart' show XmlEventDecoder;
-export 'src/xml_events/converters/event_encoder.dart' show XmlEventEncoder;
-export 'src/xml_events/converters/node_decoder.dart' show XmlNodeDecoder;
-export 'src/xml_events/converters/node_encoder.dart' show XmlNodeEncoder;
-export 'src/xml_events/converters/normalizer.dart' show XmlNormalizer;
+export 'src/xml_events/converters/event_decoder.dart'
+    show XmlEventDecoderExtension, XmlEventDecoder;
+export 'src/xml_events/converters/event_encoder.dart'
+    show XmlEventEncoderExtension, XmlEventEncoder;
+export 'src/xml_events/converters/node_decoder.dart'
+    show XmlNodeDecoderExtension, XmlNodeDecoder;
+export 'src/xml_events/converters/node_encoder.dart'
+    show XmlNodeEncoderExtension, XmlNodeEncoder;
+export 'src/xml_events/converters/normalizer.dart'
+    show XmlNormalizerExtension, XmlNormalizer;
 export 'src/xml_events/converters/subtree_selector.dart'
-    show XmlSubtreeSelector;
+    show XmlSubtreeSelectorExtension, XmlSubtreeSelector;
 export 'src/xml_events/event.dart' show XmlEvent;
 export 'src/xml_events/events/cdata_event.dart' show XmlCDATAEvent;
 export 'src/xml_events/events/comment_event.dart' show XmlCommentEvent;
