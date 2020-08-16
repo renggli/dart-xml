@@ -249,16 +249,14 @@ void main() {
       final actual = await splitString(string, splitter)
           .toXmlEvents()
           .normalizeEvents()
-          .expand((list) => list)
+          .flatten()
           .toList();
       expect(actual, events);
     });
     chunkedTest('events -> nodes', complicatedXml,
         (string, events, document, splitter) async {
-      final actual = await splitList(events, splitter)
-          .toXmlNodes()
-          .expand((list) => list)
-          .toList();
+      final actual =
+          await splitList(events, splitter).toXmlNodes().flatten().toList();
       expect(
           actual,
           pairwiseCompare(document.children, (actual, expected) {
@@ -270,7 +268,7 @@ void main() {
         (string, events, document, splitter) async {
       final actual = await splitList(document.children, splitter)
           .toXmlEvents()
-          .expand((list) => list)
+          .flatten()
           .toList();
       expect(actual, events);
     });
@@ -293,7 +291,7 @@ void main() {
           .toXmlString()
           .toXmlEvents()
           .normalizeEvents()
-          .expand((list) => list)
+          .flatten()
           .toList();
       expect(actual, events);
     });
@@ -302,7 +300,7 @@ void main() {
       final actual = await splitList(events, splitter)
           .toXmlNodes()
           .toXmlEvents()
-          .expand((list) => list)
+          .flatten()
           .toList();
       expect(actual, events);
     });
@@ -311,7 +309,7 @@ void main() {
       final actual = await splitList(document.children, splitter)
           .toXmlEvents()
           .toXmlNodes()
-          .expand((list) => list)
+          .flatten()
           .toList();
       expect(
           actual,
@@ -325,7 +323,7 @@ void main() {
       final actual = await splitList(events, splitter)
           .selectSubtreeEvents((event) => event.name == 'xsd:element')
           .toXmlNodes()
-          .expand((nodes) => nodes)
+          .flatten()
           .toList();
       final expected = document
           .findAllElements('element',

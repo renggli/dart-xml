@@ -158,7 +158,7 @@ The `element` method supports optional named arguments:
 - While attributes can be defined from within the element, for simplicity there is also an argument `attributes:` that takes a map to define simple name-value pairs.
 - Furthermore, we can provide a URI as the namespace of the element using `namespace:` and declare new namespace prefixes using `namespaces:`. For details see the documentation of the method.
 
-The builder pattern allows you to easily extract repeated parts into specific methods. In the example above, one could put the part that writes a book into a separate method as follows:
+The builder pattern allows you to easily extract repeated parts into specific methods. In the example above, one could put the part writing a book into a separate method as follows:
 
 ```dart
 void buildBook(XmlBuilder builder, String title, String language, num price) {
@@ -220,7 +220,7 @@ await response
     .transform(utf8.decoder)
     .toXmlEvents()
     .normalizeEvents()
-    .expand((events) => events)
+    .flatten()
     .forEach((event) => print(event));
 ```
 
@@ -235,7 +235,7 @@ await response
     .toXmlEvents()
     .selectSubtreeEvents((event) => event.name == 'loc')
     .toXmlNodes()
-    .expand((events) => events)
+    .flatten()
     .forEach((node) => print(node.innerText));
 ```
 
@@ -266,7 +266,7 @@ Furthermore, there are numerous packages depending on this package:
 
 - Doesn't validate namespace declarations.
 - Doesn't validate schema declarations.
-- Doesn't parse and enforce DTD.
+- Doesn't parse and enforce the DTD.
 
 ### Standards
 

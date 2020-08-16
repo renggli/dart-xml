@@ -47,6 +47,7 @@ export 'src/xml/utils/exceptions.dart'
         XmlNodeTypeException,
         XmlParentException,
         XmlTagException;
+export 'src/xml/utils/flatten.dart' show XmlFlattenIterableExtension;
 export 'src/xml/utils/name.dart' show XmlName;
 export 'src/xml/utils/node_type.dart' show XmlNodeType;
 export 'src/xml/utils/token.dart' show XmlToken;

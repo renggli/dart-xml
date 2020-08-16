@@ -51,7 +51,7 @@ Future<void> main(List<String> arguments) async {
     if (normalize) {
       stream = stream.normalizeEvents();
     }
-    var flatStream = stream.expand((events) => events);
+    var flatStream = stream.flatten();
     if (text) {
       flatStream = flatStream.where((event) => event is XmlTextEvent);
     }

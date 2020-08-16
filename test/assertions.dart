@@ -237,11 +237,11 @@ void assertIteratorInvariants(XmlNode xml) {
       [node],
       node.descendants,
       node.following
-    ].expand((each) => each);
+    ].flatten();
     final allRoot = [
       [node.root],
       node.root.descendants
-    ].expand((each) => each);
+    ].flatten();
     expect(allAxis, allRoot,
         reason: 'All preceding nodes, the node, all descendant nodes, and all '
             'following nodes should be equal to all nodes in the tree.');

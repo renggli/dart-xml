@@ -34,6 +34,7 @@ export 'src/xml_events/events/processing_event.dart' show XmlProcessingEvent;
 export 'src/xml_events/events/start_element_event.dart'
     show XmlStartElementEvent;
 export 'src/xml_events/events/text_event.dart' show XmlTextEvent;
+export 'src/xml_events/utils/flatten.dart' show XmlFlattenStreamExtension;
 export 'src/xml_events/visitor.dart' show XmlEventVisitor;
 
 /// Returns an [Iterable] of [XmlEvent] instances over the provided [String].
