@@ -93,7 +93,7 @@ class XmlPrettyWriter extends XmlWriter {
     if (sortAttributes != null) {
       result.sort(sortAttributes);
     }
-    return attributes;
+    return result;
   }
 
   // Normalizes the text nodes within a sequence of nodes. Trims leading and

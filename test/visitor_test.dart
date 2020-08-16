@@ -134,11 +134,14 @@ void main() {
       });
     });
     group('attributes', () {
-      final document = XmlDocument.parse('<body>'
+      const input = '<body>'
           '<a a="1">AAA</a>'
           '<b a="1" b="2">BBB</b>'
           '<c a="1" b="2" c="3">CCC</c>'
-          '</body>');
+          '</body>';
+      final document = XmlDocument.parse(input);
+      tearDown(() => expect(document.toXmlString(), input,
+          reason: 'Modified the original DOM.'));
       test('indent none', () {
         final output = document.toXmlString(
           pretty: true,
@@ -220,6 +223,20 @@ void main() {
             '  <b a="1" b="2">BBB</b>\n'
             '  <c a="1" b="2"\n'
             '    c="3">CCC</c>\n'
+            '</body>');
+      });
+      test('sort reverse', () {
+        final output = document.toXmlString(
+          pretty: true,
+          sortAttributes: (a, b) =>
+              b.name.qualified.compareTo(a.name.qualified),
+        );
+        expect(
+            output,
+            '<body>\n'
+            '  <a a="1">AAA</a>\n'
+            '  <b b="2" a="1">BBB</b>\n'
+            '  <c c="3" b="2" a="1">CCC</c>\n'
             '</body>');
       });
     });

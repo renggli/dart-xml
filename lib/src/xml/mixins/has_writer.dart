@@ -31,6 +31,8 @@ mixin XmlHasWriter implements XmlHasVisitor {
   ///   is normalized.
   /// - If the predicate [indentAttribute] returns `true`, the attribute
   ///   will be begin on a new line.
+  /// - If the [sortAttributes] is provided, attributes are on-the-fly sorted
+  ///   using the provided [Comparator].
   String toXmlString({
     bool pretty = false,
     XmlEntityMapping entityMapping,
@@ -39,6 +41,7 @@ mixin XmlHasWriter implements XmlHasVisitor {
     String newLine,
     Predicate<XmlNode> preserveWhitespace,
     Predicate<XmlAttribute> indentAttribute,
+    Comparator<XmlAttribute> sortAttributes,
   }) {
     final buffer = StringBuffer();
     final writer = pretty
@@ -48,7 +51,8 @@ mixin XmlHasWriter implements XmlHasVisitor {
             indent: indent,
             newLine: newLine,
             preserveWhitespace: preserveWhitespace,
-            indentAttribute: indentAttribute)
+            indentAttribute: indentAttribute,
+            sortAttributes: sortAttributes)
         : XmlWriter(buffer, entityMapping: entityMapping);
     writer.visit(this);
     return buffer.toString();
