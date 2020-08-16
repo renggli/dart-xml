@@ -1,22 +1,18 @@
 library xml_events.converters.node_decoder;
 
-import 'dart:convert' show Converter, ChunkedConversionSink;
+import 'dart:convert' show ChunkedConversionSink;
 
-import 'package:convert/convert.dart' show AccumulatorSink;
-
-import '../../../xml.dart'
-    show
-        XmlAttribute,
-        XmlCDATA,
-        XmlComment,
-        XmlDeclaration,
-        XmlDoctype,
-        XmlElement,
-        XmlName,
-        XmlNode,
-        XmlProcessing,
-        XmlTagException,
-        XmlText;
+import '../../xml/nodes/attribute.dart';
+import '../../xml/nodes/cdata.dart';
+import '../../xml/nodes/comment.dart';
+import '../../xml/nodes/declaration.dart';
+import '../../xml/nodes/doctype.dart';
+import '../../xml/nodes/element.dart';
+import '../../xml/nodes/node.dart';
+import '../../xml/nodes/processing.dart';
+import '../../xml/nodes/text.dart';
+import '../../xml/utils/exceptions.dart';
+import '../../xml/utils/name.dart';
 import '../event.dart';
 import '../events/cdata_event.dart';
 import '../events/comment_event.dart';
@@ -28,20 +24,12 @@ import '../events/processing_event.dart';
 import '../events/start_element_event.dart';
 import '../events/text_event.dart';
 import '../visitor.dart';
+import 'list_converter.dart';
 
 /// A converter that decodes a sequence of [XmlEvent] objects to a forest of
 /// [XmlNode] objects.
-class XmlNodeDecoder extends Converter<List<XmlEvent>, List<XmlNode>> {
+class XmlNodeDecoder extends XmlListConverter<XmlEvent, XmlNode> {
   const XmlNodeDecoder();
-
-  @override
-  List<XmlNode> convert(List<XmlEvent> input) {
-    final accumulator = AccumulatorSink<List<XmlNode>>();
-    final converter = startChunkedConversion(accumulator);
-    converter.add(input);
-    converter.close();
-    return accumulator.events.expand((list) => list).toList(growable: false);
-  }
 
   @override
   ChunkedConversionSink<List<XmlEvent>> startChunkedConversion(
@@ -79,10 +67,7 @@ class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
     if (parent == null) {
       throw XmlTagException('Unexpected </${event.name}>.');
     }
-    if (parent.name.qualified != event.name) {
-      throw XmlTagException(
-          'Expected </${parent.name.qualified}>, but found </${event.name}>.');
-    }
+    XmlTagException.checkClosingTag(parent.name.qualified, event.name);
     if (!parent.hasParent) {
       sink.add([parent]);
     }

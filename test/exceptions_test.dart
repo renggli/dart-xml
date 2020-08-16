@@ -60,7 +60,11 @@ void main() {
           throwsA(isXmlParentException));
     });
   });
-  test('XmlTagException', () {
-    expect(XmlTagException('Expected </foo>').toString(), 'Expected </foo>');
+  group('XmlTagException', () {
+    test('checkClosingTag', () {
+      XmlTagException.checkClosingTag('foo', 'foo');
+      expect(() => XmlTagException.checkClosingTag('foo', 'bar'),
+          throwsA(isXmlTagException));
+    });
   });
 }

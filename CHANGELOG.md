@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.4.0
+
+* Add a `XmlSubtreeSelector` that allows efficient filtering of events in specific sub-trees.
+
 ## 4.3.0
 
 * Improve error reporting of `XmlBuilder` and add possibility to build `XmlDocumentFragments`.

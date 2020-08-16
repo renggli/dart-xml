@@ -90,6 +90,13 @@ class XmlParentException extends XmlException {
 
 /// Exception thrown when the end tag does not match the open tag.
 class XmlTagException extends XmlException {
+  /// Ensure that the [expected] tag matches the [actual] one.
+  static void checkClosingTag(String expected, String actual) {
+    if (expected != actual) {
+      throw XmlTagException('Expected </$expected>, but found </$actual>.');
+    }
+  }
+
   /// Creates a new XmlTagException.
   XmlTagException(String message) : super(message);
 }

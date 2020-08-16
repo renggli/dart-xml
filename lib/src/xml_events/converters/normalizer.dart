@@ -1,25 +1,15 @@
 library xml_events.converters.normalizer;
 
-import 'dart:convert' show Converter, ChunkedConversionSink;
-
-import 'package:convert/convert.dart' show AccumulatorSink;
+import 'dart:convert' show ChunkedConversionSink;
 
 import '../event.dart';
 import '../events/text_event.dart';
+import 'list_converter.dart';
 
 /// A converter that normalizes sequences of [XmlEvent]s, namely combines
 /// adjacent and removes empty text events.
-class XmlNormalizer extends Converter<List<XmlEvent>, List<XmlEvent>> {
+class XmlNormalizer extends XmlListConverter<XmlEvent, XmlEvent> {
   const XmlNormalizer();
-
-  @override
-  List<XmlEvent> convert(List<XmlEvent> input) {
-    final accumulator = AccumulatorSink<List<XmlEvent>>();
-    final converter = startChunkedConversion(accumulator);
-    converter.add(input);
-    converter.close();
-    return accumulator.events.expand((list) => list).toList(growable: false);
-  }
 
   @override
   ChunkedConversionSink<List<XmlEvent>> startChunkedConversion(

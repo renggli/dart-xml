@@ -16,6 +16,8 @@ export 'src/xml_events/converters/event_encoder.dart' show XmlEventEncoder;
 export 'src/xml_events/converters/node_decoder.dart' show XmlNodeDecoder;
 export 'src/xml_events/converters/node_encoder.dart' show XmlNodeEncoder;
 export 'src/xml_events/converters/normalizer.dart' show XmlNormalizer;
+export 'src/xml_events/converters/subtree_selector.dart'
+    show XmlSubtreeSelector;
 export 'src/xml_events/event.dart' show XmlEvent;
 export 'src/xml_events/events/cdata_event.dart' show XmlCDATAEvent;
 export 'src/xml_events/events/comment_event.dart' show XmlCommentEvent;

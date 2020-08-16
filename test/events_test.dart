@@ -227,26 +227,25 @@ void main() {
     void chunkedTest(
         String title,
         String input,
-        void Function(String string, List<XmlEvent> events, List<XmlNode> nodes,
-                int Function() splitter)
+        void Function(String string, List<XmlEvent> events,
+                XmlDocument document, int Function() splitter)
             callback) {
       test(title, () {
         final string = XmlDocument.parse(input).toXmlString(pretty: true);
         final events = parseEvents(string).toList(growable: false);
-        final nodes =
-            XmlDocument.parse(string).children.toList(growable: false);
+        final document = XmlDocument.parse(string);
         for (var i = 1; i < string.length / 2; i++) {
-          callback(string, events, nodes, () => i);
+          callback(string, events, document, () => i);
         }
         final random = Random(title.hashCode);
         for (var i = 1; i < string.length / 2; i++) {
-          callback(string, events, nodes, () => random.nextInt(i + 1));
+          callback(string, events, document, () => random.nextInt(i + 1));
         }
       });
     }
 
     chunkedTest('string -> events', complicatedXml,
-        (string, events, nodes, splitter) async {
+        (string, events, document, splitter) async {
       final actual = await splitString(string, splitter)
           .transform(const XmlEventDecoder())
           .transform(const XmlNormalizer())
@@ -255,35 +254,35 @@ void main() {
       expect(actual, events);
     });
     chunkedTest('events -> nodes', complicatedXml,
-        (string, events, nodes, splitter) async {
+        (string, events, document, splitter) async {
       final actual = await splitList(events, splitter)
           .transform(const XmlNodeDecoder())
           .expand((list) => list)
           .toList();
       expect(
           actual,
-          pairwiseCompare(nodes, (actual, expected) {
+          pairwiseCompare(document.children, (actual, expected) {
             compareNode(actual, expected);
             return true;
           }, 'not matching'));
     });
     chunkedTest('nodes -> events', complicatedXml,
-        (string, events, nodes, splitter) async {
-      final actual = await splitList(nodes, splitter)
+        (string, events, document, splitter) async {
+      final actual = await splitList(document.children, splitter)
           .transform(const XmlNodeEncoder())
           .expand((list) => list)
           .toList();
       expect(actual, events);
     });
     chunkedTest('events -> string', complicatedXml,
-        (string, events, nodes, splitter) async {
+        (string, events, document, splitter) async {
       final actual = await splitList(events, splitter)
           .transform(const XmlEventEncoder())
           .join();
       expect(actual, string);
     });
     chunkedTest('string -> events -> string', complicatedXml,
-        (string, events, nodes, splitter) async {
+        (string, events, document, splitter) async {
       final actual = await splitString(string, splitter)
           .transform(const XmlEventDecoder())
           .transform(const XmlEventEncoder())
@@ -291,7 +290,7 @@ void main() {
       expect(actual, string);
     });
     chunkedTest('events -> string -> events', complicatedXml,
-        (string, events, nodes, splitter) async {
+        (string, events, document, splitter) async {
       final actual = await splitList(events, splitter)
           .transform(const XmlEventEncoder())
           .transform(const XmlEventDecoder())
@@ -301,7 +300,7 @@ void main() {
       expect(actual, events);
     });
     chunkedTest('events -> nodes -> events', complicatedXml,
-        (string, events, nodes, splitter) async {
+        (string, events, document, splitter) async {
       final actual = await splitList(events, splitter)
           .transform(const XmlNodeDecoder())
           .transform(const XmlNodeEncoder())
@@ -310,15 +309,36 @@ void main() {
       expect(actual, events);
     });
     chunkedTest('nodes -> events -> nodes', complicatedXml,
-        (string, events, nodes, splitter) async {
-      final actual = await splitList(nodes, splitter)
+        (string, events, document, splitter) async {
+      final actual = await splitList(document.children, splitter)
           .transform(const XmlNodeEncoder())
           .transform(const XmlNodeDecoder())
           .expand((list) => list)
           .toList();
       expect(
           actual,
-          pairwiseCompare(nodes, (actual, expected) {
+          pairwiseCompare(document.children, (actual, expected) {
+            compareNode(actual, expected);
+            return true;
+          }, 'not matching'));
+    });
+    chunkedTest('events -> subtree -> nodes', shiporderXsd,
+        (string, events, document, splitter) async {
+      final actual = await splitList(events, splitter)
+          .transform(XmlSubtreeSelector((event) => event.name == 'xsd:element'))
+          .transform(const XmlNodeDecoder())
+          .expand((nodes) => nodes)
+          .toList();
+      final expected = document
+          .findAllElements('element',
+              namespace: 'http://www.w3.org/2001/XMLSchema')
+          .where((element) => !element.ancestors
+              .whereType<XmlElement>()
+              .any((parent) => parent.name.local == 'element'))
+          .toList();
+      expect(
+          actual,
+          pairwiseCompare(expected, (actual, expected) {
             compareNode(actual, expected);
             return true;
           }, 'not matching'));

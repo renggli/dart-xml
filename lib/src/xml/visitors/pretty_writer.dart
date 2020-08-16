@@ -1,5 +1,7 @@
 library xml.visitors.pretty_writer;
 
+import 'package:meta/meta.dart';
+
 import '../entities/entity_mapping.dart';
 import '../mixins/has_attributes.dart';
 import '../nodes/attribute.dart';
@@ -19,6 +21,7 @@ class XmlPrettyWriter extends XmlWriter {
   final String newLine;
   final Predicate<XmlNode> preserveWhitespace;
   final Predicate<XmlAttribute> indentAttribute;
+  final Comparator<XmlAttribute> sortAttributes;
 
   XmlPrettyWriter(
     StringSink buffer, {
@@ -28,6 +31,7 @@ class XmlPrettyWriter extends XmlWriter {
     String newLine,
     this.preserveWhitespace,
     this.indentAttribute,
+    this.sortAttributes,
   })  : level = level ?? 0,
         indent = indent ?? '  ',
         newLine = newLine ?? '\n',
@@ -72,7 +76,7 @@ class XmlPrettyWriter extends XmlWriter {
 
   @override
   void writeAttributes(XmlHasAttributes node) {
-    for (final attribute in node.attributes) {
+    for (final attribute in normalizeAttributes(node.attributes)) {
       if (indentAttribute != null && indentAttribute(attribute)) {
         buffer.write(newLine);
         buffer.write(indent * (level + 1));
@@ -82,31 +86,42 @@ class XmlPrettyWriter extends XmlWriter {
       visit(attribute);
     }
   }
-}
 
-// Normalizes the text nodes within a sequence of nodes. Trims leading and
-// trailing whitespaces, replaces all whitespaces with a clean space, removes
-// duplicated whitespaces, drops empty nodes, and combines consecutive nodes.
-List<XmlNode> normalizeText(List<XmlNode> nodes) {
-  final result = <XmlNode>[];
-  for (final node in nodes) {
-    if (node is XmlText) {
-      final text =
-          node.text.trim().replaceAll(_whitespaceOrLineTerminators, ' ');
-      if (text.isNotEmpty) {
-        if (result.isNotEmpty && result.last is XmlText) {
-          result.last = XmlText(result.last.text + XmlToken.whitespace + text);
-        } else if (node.text != text) {
-          result.add(XmlText(text));
-        } else {
-          result.add(node);
-        }
-      }
-    } else {
-      result.add(node);
+  @protected
+  List<XmlAttribute> normalizeAttributes(List<XmlAttribute> attributes) {
+    final result = attributes.toList();
+    if (sortAttributes != null) {
+      result.sort(sortAttributes);
     }
+    return attributes;
   }
-  return result;
+
+  // Normalizes the text nodes within a sequence of nodes. Trims leading and
+  // trailing whitespaces, replaces all whitespaces with a clean space, removes
+  // duplicated whitespaces, drops empty nodes, and combines consecutive nodes.
+  @protected
+  List<XmlNode> normalizeText(List<XmlNode> nodes) {
+    final result = <XmlNode>[];
+    for (final node in nodes) {
+      if (node is XmlText) {
+        final text =
+            node.text.trim().replaceAll(_whitespaceOrLineTerminators, ' ');
+        if (text.isNotEmpty) {
+          if (result.isNotEmpty && result.last is XmlText) {
+            result.last =
+                XmlText(result.last.text + XmlToken.whitespace + text);
+          } else if (node.text != text) {
+            result.add(XmlText(text));
+          } else {
+            result.add(node);
+          }
+        }
+      } else {
+        result.add(node);
+      }
+    }
+    return result;
+  }
 }
 
 final _whitespaceOrLineTerminators = RegExp(r'\s+');
