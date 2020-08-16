@@ -3,7 +3,7 @@ library xml_events.converters.normalizer;
 import 'dart:convert' show ChunkedConversionSink;
 
 import '../event.dart';
-import '../events/text_event.dart';
+import '../events/text.dart';
 import 'list_converter.dart';
 
 extension XmlNormalizerExtension on Stream<List<XmlEvent>> {

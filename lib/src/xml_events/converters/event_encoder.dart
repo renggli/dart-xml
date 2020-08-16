@@ -8,15 +8,15 @@ import '../../xml/entities/default_mapping.dart';
 import '../../xml/entities/entity_mapping.dart';
 import '../../xml/utils/token.dart';
 import '../event.dart';
-import '../events/cdata_event.dart';
-import '../events/comment_event.dart';
-import '../events/declaration_event.dart';
-import '../events/doctype_event.dart';
-import '../events/end_element_event.dart';
-import '../events/event_attribute.dart';
-import '../events/processing_event.dart';
-import '../events/start_element_event.dart';
-import '../events/text_event.dart';
+import '../events/cdata.dart';
+import '../events/comment.dart';
+import '../events/declaration.dart';
+import '../events/doctype.dart';
+import '../events/end_element.dart';
+import '../events/processing.dart';
+import '../events/start_element.dart';
+import '../events/text.dart';
+import '../utils/event_attribute.dart';
 import '../visitor.dart';
 
 extension XmlEventEncoderExtension on Stream<List<XmlEvent>> {

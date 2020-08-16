@@ -4,8 +4,8 @@ import 'package:collection/collection.dart';
 
 import '../../../xml.dart' show XmlNodeType;
 import '../event.dart';
+import '../utils/event_attribute.dart';
 import '../visitor.dart';
-import 'event_attribute.dart';
 
 /// Event of an XML declaration.
 class XmlDeclarationEvent extends XmlEvent {

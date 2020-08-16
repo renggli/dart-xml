@@ -24,16 +24,16 @@ export 'src/xml_events/converters/normalizer.dart'
 export 'src/xml_events/converters/subtree_selector.dart'
     show XmlSubtreeSelectorExtension, XmlSubtreeSelector;
 export 'src/xml_events/event.dart' show XmlEvent;
-export 'src/xml_events/events/cdata_event.dart' show XmlCDATAEvent;
-export 'src/xml_events/events/comment_event.dart' show XmlCommentEvent;
-export 'src/xml_events/events/declaration_event.dart' show XmlDeclarationEvent;
-export 'src/xml_events/events/doctype_event.dart' show XmlDoctypeEvent;
-export 'src/xml_events/events/end_element_event.dart' show XmlEndElementEvent;
-export 'src/xml_events/events/event_attribute.dart' show XmlEventAttribute;
-export 'src/xml_events/events/processing_event.dart' show XmlProcessingEvent;
-export 'src/xml_events/events/start_element_event.dart'
+export 'src/xml_events/events/cdata.dart' show XmlCDATAEvent;
+export 'src/xml_events/events/comment.dart' show XmlCommentEvent;
+export 'src/xml_events/events/declaration.dart' show XmlDeclarationEvent;
+export 'src/xml_events/events/doctype.dart' show XmlDoctypeEvent;
+export 'src/xml_events/events/end_element.dart' show XmlEndElementEvent;
+export 'src/xml_events/events/processing.dart' show XmlProcessingEvent;
+export 'src/xml_events/events/start_element.dart'
     show XmlStartElementEvent;
-export 'src/xml_events/events/text_event.dart' show XmlTextEvent;
+export 'src/xml_events/events/text.dart' show XmlTextEvent;
+export 'src/xml_events/utils/event_attribute.dart' show XmlEventAttribute;
 export 'src/xml_events/utils/flatten.dart' show XmlFlattenStreamExtension;
 export 'src/xml_events/visitor.dart' show XmlEventVisitor;
 
