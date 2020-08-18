@@ -25,10 +25,11 @@ mixin XmlHasWriter implements XmlHasVisitor {
   /// - The option [level] customizes the initial indention level, by default
   ///   this is `0`.
   /// - If the predicate [preserveWhitespace] returns `true`, the whitespace
-  ///   characters within the node are preserved. By default all whitespace
-  ///   is normalized.
+  ///   characters within the node and its children are preserved by switching
+  ///   to non-pretty mode. By default all whitespace is normalized.
   /// - If the predicate [indentAttribute] returns `true`, the attribute
-  ///   will be begin on a new line.
+  ///   will be begin on a new line. Has no effect within elements where
+  ///   whitespace are preserved.
   /// - If the [sortAttributes] is provided, attributes are on-the-fly sorted
   ///   using the provided [Comparator].
   String toXmlString({
