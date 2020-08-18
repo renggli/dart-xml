@@ -15,6 +15,7 @@ import 'writer.dart';
 /// adapted.
 class XmlPrettyWriter extends XmlWriter {
   int level;
+  bool pretty = true;
   final String indent;
   final String newLine;
   final Predicate<XmlNode> preserveWhitespace;
@@ -51,19 +52,25 @@ class XmlPrettyWriter extends XmlWriter {
     } else {
       buffer.write(XmlToken.closeElement);
       if (node.children.isNotEmpty) {
-        if (preserveWhitespace != null && preserveWhitespace(node)) {
-          final writer = XmlWriter(buffer, entityMapping: entityMapping);
-          node.children.forEach(writer.visit);
-        } else if (node.children.every((each) => each is XmlText)) {
-          writeIterable(normalizeText(node.children));
+        if (pretty) {
+          if (preserveWhitespace != null && preserveWhitespace(node)) {
+            pretty = false;
+            writeIterable(node.children);
+            pretty = true;
+          } else if (node.children.every((each) => each is XmlText)) {
+            writeIterable(normalizeText(node.children));
+          } else {
+            level++;
+            buffer.write(newLine);
+            buffer.write(indent * level);
+            writeIterable(
+                normalizeText(node.children), newLine + indent * level);
+            level--;
+            buffer.write(newLine);
+            buffer.write(indent * level);
+          }
         } else {
-          level++;
-          buffer.write(newLine);
-          buffer.write(indent * level);
-          writeIterable(normalizeText(node.children), newLine + indent * level);
-          level--;
-          buffer.write(newLine);
-          buffer.write(indent * level);
+          writeIterable(node.children);
         }
       }
       buffer.write(XmlToken.openEndElement);
@@ -75,7 +82,7 @@ class XmlPrettyWriter extends XmlWriter {
   @override
   void writeAttributes(XmlHasAttributes node) {
     for (final attribute in normalizeAttributes(node.attributes)) {
-      if (indentAttribute != null && indentAttribute(attribute)) {
+      if (pretty && indentAttribute != null && indentAttribute(attribute)) {
         buffer.write(newLine);
         buffer.write(indent * (level + 1));
       } else {

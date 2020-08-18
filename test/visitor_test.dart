@@ -223,6 +223,20 @@ void main() {
             '    c="3">CCC</c>\n'
             '</body>');
       });
+      test('no indent in preserve mode', () {
+        final output = document.toXmlString(
+          pretty: true,
+          preserveWhitespace: (node) => true,
+          indentAttribute: (node) => true,
+        );
+        expect(
+            output,
+            '<body>'
+            '<a a="1">AAA</a>'
+            '<b a="1" b="2">BBB</b>'
+            '<c a="1" b="2" c="3">CCC</c>'
+            '</body>');
+      });
       test('sort reverse', () {
         final output = document.toXmlString(
           pretty: true,
@@ -235,6 +249,21 @@ void main() {
             '  <a a="1">AAA</a>\n'
             '  <b b="2" a="1">BBB</b>\n'
             '  <c c="3" b="2" a="1">CCC</c>\n'
+            '</body>');
+      });
+      test('sort reverse in preserve mode', () {
+        final output = document.toXmlString(
+          pretty: true,
+          preserveWhitespace: (n) => true,
+          sortAttributes: (a, b) =>
+              b.name.qualified.compareTo(a.name.qualified),
+        );
+        expect(
+            output,
+            '<body>'
+            '<a a="1">AAA</a>'
+            '<b b="2" a="1">BBB</b>'
+            '<c c="3" b="2" a="1">CCC</c>'
             '</body>');
       });
     });
