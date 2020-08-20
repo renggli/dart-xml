@@ -52,7 +52,7 @@ class XmlDocument extends XmlNode with XmlHasChildren {
   ///
   ///    var xml = '<?xml version="1.0">'
   ///              '<shelf></shelf>';
-  ///    print(parse(xml).doctypeElement);
+  ///    print(XmlDocument.parse(xml).doctypeElement);
   ///
   XmlDeclaration get declaration =>
       children.firstWhere((node) => node is XmlDeclaration, orElse: () => null);
@@ -63,7 +63,7 @@ class XmlDocument extends XmlNode with XmlHasChildren {
   ///
   ///    var xml = '<!DOCTYPE html>'
   ///              '<html><body></body></html>';
-  ///    print(parse(xml).doctypeElement);
+  ///    print(XmlDocument.parse(xml).doctypeElement);
   ///
   XmlDoctype get doctypeElement =>
       children.firstWhere((node) => node is XmlDoctype, orElse: () => null);
@@ -75,7 +75,7 @@ class XmlDocument extends XmlNode with XmlHasChildren {
   ///
   ///     var xml = '<?xml version="1.0"?>'
   ///               '<books />';
-  ///     print(parse(xml).rootElement);
+  ///     print(XmlDocument.parse(xml).rootElement);
   ///
   XmlElement get rootElement =>
       children.firstWhere((node) => node is XmlElement,
