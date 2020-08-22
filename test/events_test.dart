@@ -337,6 +337,35 @@ void main() {
             return true;
           }, 'not matching'));
     });
+    chunkedTest('events -> handler', complicatedXml,
+        (string, events, document, splitter) async {
+      final cdata = <XmlCDATAEvent>[];
+      final comment = <XmlCommentEvent>[];
+      final declaration = <XmlDeclarationEvent>[];
+      final doctype = <XmlDoctypeEvent>[];
+      final endElement = <XmlEndElementEvent>[];
+      final processing = <XmlProcessingEvent>[];
+      final startElement = <XmlStartElementEvent>[];
+      final text = <XmlTextEvent>[];
+      await splitList(events, splitter).flatten().forEachEvent(
+            onCDATA: cdata.add,
+            onComment: comment.add,
+            onDeclaration: declaration.add,
+            onDoctype: doctype.add,
+            onEndElement: endElement.add,
+            onProcessing: processing.add,
+            onStartElement: startElement.add,
+            onText: text.add,
+          );
+      expect(cdata, events.whereType<XmlCDATAEvent>());
+      expect(comment, events.whereType<XmlCommentEvent>());
+      expect(declaration, events.whereType<XmlDeclarationEvent>());
+      expect(doctype, events.whereType<XmlDoctypeEvent>());
+      expect(endElement, events.whereType<XmlEndElementEvent>());
+      expect(processing, events.whereType<XmlProcessingEvent>());
+      expect(startElement, events.whereType<XmlStartElementEvent>());
+      expect(text, events.whereType<XmlTextEvent>());
+    });
   });
   test('normalization', () {
     final actual = const XmlNormalizer().convert([
