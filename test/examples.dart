@@ -198,10 +198,11 @@ const String shiporderXsd = '<?xml version="1.0"?>'
     '  </xsd:simpleType>'
     '</xsd:schema>';
 
-const String complicatedXml = '<?xml foo?>\n'
+const String complicatedXml = '<?xml version="1.0"?>\n'
     '<!DOCTYPE name [ something ]>\n'
     '<ns:foo attr="not namespaced" n1:ans="namespaced 1" '
     'n2:ans="namespace 2" >\n'
+    '  Plain text contents!'
     '  <element/>\n'
     '  <ns:element/>\n'
     '  <!-- comment -->\n'
