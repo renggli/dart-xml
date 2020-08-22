@@ -68,7 +68,7 @@ class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
   @override
   void visitEndElementEvent(XmlEndElementEvent event) {
     if (parent == null) {
-      throw XmlTagException('Unexpected </${event.name}>.');
+      throw XmlTagException.closingTag(null, event.name);
     }
     XmlTagException.checkClosingTag(parent.name.qualified, event.name);
     if (!parent.hasParent) {
@@ -105,7 +105,7 @@ class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
   @override
   void close() {
     if (parent != null) {
-      throw XmlTagException('Missing closing </${parent.name.qualified}>');
+      throw XmlTagException.closingTag(parent.name.qualified, null);
     }
     sink.close();
   }
