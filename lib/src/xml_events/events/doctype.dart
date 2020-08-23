@@ -4,7 +4,7 @@ import '../visitor.dart';
 
 /// Event of an XML doctype node.
 class XmlDoctypeEvent extends XmlEvent {
-  XmlDoctypeEvent(this.text);
+  const XmlDoctypeEvent(this.text);
 
   final String text;
 

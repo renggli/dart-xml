@@ -7,6 +7,8 @@ import 'visitor.dart';
 /// Immutable base class for all events.
 @immutable
 abstract class XmlEvent {
+  const XmlEvent();
+
   /// Return the node type of this node.
   XmlNodeType get nodeType;
 

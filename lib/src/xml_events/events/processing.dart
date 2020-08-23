@@ -4,7 +4,7 @@ import '../visitor.dart';
 
 /// Event of an XML processing node.
 class XmlProcessingEvent extends XmlEvent {
-  XmlProcessingEvent(this.target, this.text);
+  const XmlProcessingEvent(this.target, this.text);
 
   final String target;
 

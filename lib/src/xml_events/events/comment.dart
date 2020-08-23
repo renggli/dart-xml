@@ -4,7 +4,7 @@ import '../visitor.dart';
 
 /// Event of an XML comment node.
 class XmlCommentEvent extends XmlEvent {
-  XmlCommentEvent(this.text);
+  const  XmlCommentEvent(this.text);
 
   final String text;
 

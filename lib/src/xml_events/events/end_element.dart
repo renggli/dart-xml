@@ -5,7 +5,7 @@ import '../visitor.dart';
 
 /// Event of an closing XML element node.
 class XmlEndElementEvent extends XmlEvent with XmlNamed {
-  XmlEndElementEvent(this.name);
+  const XmlEndElementEvent(this.name);
 
   @override
   final String name;

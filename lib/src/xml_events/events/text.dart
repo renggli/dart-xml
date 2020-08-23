@@ -4,7 +4,7 @@ import '../visitor.dart';
 
 /// Event of an XML text node.
 class XmlTextEvent extends XmlEvent {
-  XmlTextEvent(this.text);
+  const XmlTextEvent(this.text);
 
   final String text;
 

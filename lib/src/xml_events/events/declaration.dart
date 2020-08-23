@@ -1,4 +1,4 @@
-import 'package:collection/collection.dart';
+import 'package:collection/collection.dart' show ListEquality;
 
 import '../../../xml.dart' show XmlNodeType;
 import '../event.dart';
@@ -7,7 +7,7 @@ import '../visitor.dart';
 
 /// Event of an XML declaration.
 class XmlDeclarationEvent extends XmlEvent {
-  XmlDeclarationEvent(this.attributes);
+  const XmlDeclarationEvent(this.attributes);
 
   final List<XmlEventAttribute> attributes;
 

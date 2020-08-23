@@ -8,7 +8,7 @@ import '../visitor.dart';
 
 /// Event of an XML start element node.
 class XmlStartElementEvent extends XmlEvent with XmlNamed {
-  XmlStartElementEvent(this.name, this.attributes, this.isSelfClosing);
+  const XmlStartElementEvent(this.name, this.attributes, this.isSelfClosing);
 
   @override
   final String name;
