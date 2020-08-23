@@ -12,9 +12,9 @@ abstract class XmlListConverter<S, T> extends Converter<List<S>, List<T>> {
   @nonVirtual
   List<T> convert(List<S> input) {
     final accumulator = AccumulatorSink<List<T>>();
-    final converter = startChunkedConversion(accumulator);
-    converter.add(input);
-    converter.close();
+    startChunkedConversion(accumulator)
+      ..add(input)
+      ..close();
     return accumulator.events.flatten().toList(growable: false);
   }
 }
