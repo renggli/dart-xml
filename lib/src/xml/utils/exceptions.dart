@@ -91,18 +91,25 @@ class XmlTagException extends XmlException {
   /// Ensure that the [expected] tag matches the [actual] one.
   static void checkClosingTag(String expected, String actual) {
     if (expected != actual) {
-      throw XmlTagException.closingTag(expected, actual);
+      throw XmlTagException.mismatchClosingTag(expected, actual);
     }
   }
 
   /// Creates a new XmlTagException.
   XmlTagException(String message) : super(message);
 
-  /// Creates a new XmlTagException for an [expected] closing tag.
-  factory XmlTagException.closingTag(String expected, String actual) =>
-      XmlTagException(expected != null && actual != null
-          ? 'Expected </$expected>, but found </$actual>.'
-          : expected != null
-              ? 'Missing closing tag </$expected>.'
-              : 'Unexpected closing tag </$actual>.');
+  /// Creates a new XmlTagException where [expectedName] was expected, but
+  /// instead we found [actualName].
+  factory XmlTagException.mismatchClosingTag(
+          String expectedName, String actualName) =>
+      XmlTagException('Expected closing tag </$expectedName>, '
+          'but found </$actualName>.');
+
+  /// Creates a new XmlTagException for an unexpected closing tag.
+  factory XmlTagException.unexpectedClosingTag(String name) =>
+      XmlTagException('Unexpected closing tag </$name>.');
+
+  /// Creates a new XmlTagException for a missing closing tag.
+  factory XmlTagException.missingClosingTag(String name) =>
+      XmlTagException('Missing closing tag </$name>.');
 }

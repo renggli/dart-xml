@@ -2,10 +2,10 @@ import 'package:test/test.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xml_events.dart';
 
-const Matcher isXmlParserException = TypeMatcher<XmlParserException>();
-const Matcher isXmlNodeTypeException = TypeMatcher<XmlNodeTypeException>();
-const Matcher isXmlParentException = TypeMatcher<XmlParentException>();
-const Matcher isXmlTagException = TypeMatcher<XmlTagException>();
+const isXmlParserException = TypeMatcher<XmlParserException>();
+const isXmlNodeTypeException = TypeMatcher<XmlNodeTypeException>();
+const isXmlParentException = TypeMatcher<XmlParentException>();
+const isXmlTagException = TypeMatcher<XmlTagException>();
 
 void assertDocumentParseInvariants(String input) {
   final document = XmlDocument.parse(input);
