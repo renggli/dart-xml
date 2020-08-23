@@ -15,6 +15,8 @@ export 'src/xml_events/converters/event_encoder.dart'
     show XmlEventEncoderExtension, XmlEventEncoder;
 export 'src/xml_events/converters/for_each_event.dart'
     show XmlForEachEventExtension;
+export 'src/xml_events/converters/map_with_context.dart'
+    show XmlWithContextExtension;
 export 'src/xml_events/converters/node_decoder.dart'
     show XmlNodeDecoderExtension, XmlNodeDecoder;
 export 'src/xml_events/converters/node_encoder.dart'
