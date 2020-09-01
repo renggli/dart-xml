@@ -13,18 +13,10 @@ export 'src/xml_events/converters/event_decoder.dart'
     show XmlEventDecoderExtension, XmlEventDecoder;
 export 'src/xml_events/converters/event_encoder.dart'
     show XmlEventEncoderExtension, XmlEventEncoder;
-export 'src/xml_events/converters/for_each_event.dart'
-    show XmlForEachEventExtension;
-export 'src/xml_events/converters/map_with_context.dart'
-    show XmlWithContextExtension;
 export 'src/xml_events/converters/node_decoder.dart'
     show XmlNodeDecoderExtension, XmlNodeDecoder;
 export 'src/xml_events/converters/node_encoder.dart'
     show XmlNodeEncoderExtension, XmlNodeEncoder;
-export 'src/xml_events/converters/normalizer.dart'
-    show XmlNormalizerExtension, XmlNormalizer;
-export 'src/xml_events/converters/subtree_selector.dart'
-    show XmlSubtreeSelectorExtension, XmlSubtreeSelector;
 export 'src/xml_events/event.dart' show XmlEvent;
 export 'src/xml_events/events/cdata.dart' show XmlCDATAEvent;
 export 'src/xml_events/events/comment.dart' show XmlCommentEvent;
@@ -34,6 +26,14 @@ export 'src/xml_events/events/end_element.dart' show XmlEndElementEvent;
 export 'src/xml_events/events/processing.dart' show XmlProcessingEvent;
 export 'src/xml_events/events/start_element.dart' show XmlStartElementEvent;
 export 'src/xml_events/events/text.dart' show XmlTextEvent;
+export 'src/xml_events/streams/for_each_event.dart'
+    show XmlForEachEventExtension;
+export 'src/xml_events/streams/map_with_context.dart'
+    show XmlWithContextExtension;
+export 'src/xml_events/streams/normalizer.dart'
+    show XmlNormalizerExtension, XmlNormalizer;
+export 'src/xml_events/streams/subtree_selector.dart'
+    show XmlSubtreeSelectorExtension, XmlSubtreeSelector;
 export 'src/xml_events/utils/event_attribute.dart' show XmlEventAttribute;
 export 'src/xml_events/utils/flatten.dart' show XmlFlattenStreamExtension;
 export 'src/xml_events/visitor.dart' show XmlEventVisitor;

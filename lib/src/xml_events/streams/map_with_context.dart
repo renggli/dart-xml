@@ -3,11 +3,11 @@ import 'dart:convert' show ChunkedConversionSink;
 import 'package:collection/collection.dart' show QueueList;
 
 import '../../xml/utils/exceptions.dart';
+import '../converters/list_converter.dart';
 import '../event.dart';
 import '../events/end_element.dart';
 import '../events/start_element.dart';
 import '../utils/flatten.dart';
-import 'list_converter.dart';
 
 extension XmlWithContextExtension on Stream<List<XmlEvent>> {
   /// Transforms each [XmlEvent] of this stream into a new stream element.
