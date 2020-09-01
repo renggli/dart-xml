@@ -6,10 +6,14 @@ import 'named.dart';
 /// Attributes of XML event.
 @immutable
 class XmlEventAttribute with XmlNamed {
-  XmlEventAttribute(this.name, this.value, this.attributeType);
+  XmlEventAttribute(this.name, this.value, this.attributeType,
+      [this.namespaceUri]);
 
   @override
   final String name;
+
+  @override
+  final String namespaceUri;
 
   final String value;
 

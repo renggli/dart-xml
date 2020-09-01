@@ -34,6 +34,8 @@ export 'src/xml_events/streams/normalizer.dart'
     show XmlNormalizerExtension, XmlNormalizer;
 export 'src/xml_events/streams/subtree_selector.dart'
     show XmlSubtreeSelectorExtension, XmlSubtreeSelector;
+export 'src/xml_events/streams/with_namespace.dart'
+    show XmlWithNamespaceExtension, XmlWithNamespace;
 export 'src/xml_events/utils/event_attribute.dart' show XmlEventAttribute;
 export 'src/xml_events/utils/flatten.dart' show XmlFlattenStreamExtension;
 export 'src/xml_events/visitor.dart' show XmlEventVisitor;

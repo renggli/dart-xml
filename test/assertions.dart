@@ -11,7 +11,8 @@ void assertDocumentParseInvariants(String input) {
   final document = XmlDocument.parse(input);
   expect(document, isA<XmlDocument>());
   assertDocumentTreeInvariants(document);
-  assertEventInvariants(input, document);
+  assertIteratorEventInvariants(input, document);
+  assertStreamEventInvariants(input, document);
   final copy = XmlDocument.parse(document.toXmlString());
   expect(document.toXmlString(), copy.toXmlString());
 }
@@ -43,7 +44,8 @@ void assertFragmentParseInvariants(String input) {
   final fragment = XmlDocumentFragment.parse(input);
   expect(fragment, isA<XmlDocumentFragment>());
   assertFragmentTreeInvariants(fragment);
-  assertEventInvariants(input, fragment);
+  assertIteratorEventInvariants(input, fragment);
+  assertStreamEventInvariants(input, fragment);
   final copy = XmlDocumentFragment.parse(fragment.toXmlString());
   expect(fragment.toXmlString(), copy.toXmlString());
 }
@@ -327,7 +329,7 @@ void assertPrintingInvariants(XmlNode xml) {
   compareNode(xml, XmlDocument.parse(xml.toXmlString(pretty: true)));
 }
 
-void assertEventInvariants(String input, XmlNode node) {
+void assertIteratorEventInvariants(String input, XmlNode node) {
   const includedTypes = {
     XmlNodeType.CDATA,
     XmlNodeType.COMMENT,
@@ -343,16 +345,16 @@ void assertEventInvariants(String input, XmlNode node) {
       .toList(growable: true);
   final stack = <XmlStartElementEvent>[];
   while (iterator.moveNext()) {
-    final current = iterator.current;
-    if (current is XmlStartElementEvent) {
+    final event = iterator.current;
+    if (event is XmlStartElementEvent) {
       final XmlElement expected = nodes.removeAt(0);
-      expect(current.nodeType, expected.nodeType);
-      expect(current.name, expected.name.qualified);
-      expect(current.localName, expected.name.local);
-      expect(current.namespacePrefix, expected.name.prefix);
-      expect(current.attributes.length, expected.attributes.length);
-      for (var i = 0; i < current.attributes.length; i++) {
-        final currentAttr = current.attributes[i];
+      expect(event.nodeType, expected.nodeType);
+      expect(event.name, expected.name.qualified);
+      expect(event.localName, expected.name.local);
+      expect(event.namespacePrefix, expected.name.prefix);
+      expect(event.attributes.length, expected.attributes.length);
+      for (var i = 0; i < event.attributes.length; i++) {
+        final currentAttr = event.attributes[i];
         final expectedAttr = expected.attributes[i];
         expect(currentAttr.name, expectedAttr.name.qualified);
         expect(currentAttr.localName, expectedAttr.name.local);
@@ -360,35 +362,35 @@ void assertEventInvariants(String input, XmlNode node) {
         expect(currentAttr.value, expectedAttr.value);
         expect(currentAttr.attributeType, expectedAttr.attributeType);
       }
-      expect(current.isSelfClosing,
+      expect(event.isSelfClosing,
           expected.children.isEmpty && expected.isSelfClosing);
-      if (!current.isSelfClosing) {
-        stack.add(current);
+      if (!event.isSelfClosing) {
+        stack.add(event);
       }
-    } else if (current is XmlEndElementEvent) {
+    } else if (event is XmlEndElementEvent) {
       final expected = stack.removeLast();
-      expect(current.nodeType, expected.nodeType);
-      expect(current.name, expected.name);
-      expect(current.localName, expected.localName);
-      expect(current.namespacePrefix, expected.namespacePrefix);
-    } else if (current is XmlCDATAEvent) {
+      expect(event.nodeType, expected.nodeType);
+      expect(event.name, expected.name);
+      expect(event.localName, expected.localName);
+      expect(event.namespacePrefix, expected.namespacePrefix);
+    } else if (event is XmlCDATAEvent) {
       final XmlCDATA expected = nodes.removeAt(0);
-      expect(current.nodeType, expected.nodeType);
-      expect(current.text, expected.text);
-    } else if (current is XmlCommentEvent) {
+      expect(event.nodeType, expected.nodeType);
+      expect(event.text, expected.text);
+    } else if (event is XmlCommentEvent) {
       final XmlComment expected = nodes.removeAt(0);
-      expect(current.nodeType, expected.nodeType);
-      expect(current.text, expected.text);
-    } else if (current is XmlDoctypeEvent) {
+      expect(event.nodeType, expected.nodeType);
+      expect(event.text, expected.text);
+    } else if (event is XmlDoctypeEvent) {
       final XmlDoctype expected = nodes.removeAt(0);
-      expect(current.nodeType, expected.nodeType);
-      expect(current.text, expected.text);
-    } else if (current is XmlDeclarationEvent) {
+      expect(event.nodeType, expected.nodeType);
+      expect(event.text, expected.text);
+    } else if (event is XmlDeclarationEvent) {
       final XmlDeclaration expected = nodes.removeAt(0);
-      expect(current.nodeType, expected.nodeType);
-      expect(current.attributes.length, expected.attributes.length);
-      for (var i = 0; i < current.attributes.length; i++) {
-        final currentAttr = current.attributes[i];
+      expect(event.nodeType, expected.nodeType);
+      expect(event.attributes.length, expected.attributes.length);
+      for (var i = 0; i < event.attributes.length; i++) {
+        final currentAttr = event.attributes[i];
         final expectedAttr = expected.attributes[i];
         expect(currentAttr.name, expectedAttr.name.qualified);
         expect(currentAttr.localName, expectedAttr.name.local);
@@ -396,22 +398,110 @@ void assertEventInvariants(String input, XmlNode node) {
         expect(currentAttr.value, expectedAttr.value);
         expect(currentAttr.attributeType, expectedAttr.attributeType);
       }
-    } else if (current is XmlProcessingEvent) {
+    } else if (event is XmlProcessingEvent) {
       final XmlProcessing expected = nodes.removeAt(0);
-      expect(current.nodeType, expected.nodeType);
-      expect(current.target, expected.target);
-      expect(current.text, expected.text);
-    } else if (current is XmlTextEvent) {
+      expect(event.nodeType, expected.nodeType);
+      expect(event.target, expected.target);
+      expect(event.text, expected.text);
+    } else if (event is XmlTextEvent) {
       final XmlText expected = nodes.removeAt(0);
-      expect(current.nodeType, expected.nodeType);
-      expect(current.text, expected.text);
+      expect(event.nodeType, expected.nodeType);
+      expect(event.text, expected.text);
     } else {
-      fail('Unexpected event type: $current');
+      fail('Unexpected event type: $event');
     }
   }
   expect(nodes, isEmpty, reason: '$nodes were not closed.');
   expect(iterator.current, isNull);
   expect(iterator.moveNext(), isFalse);
+}
+
+void assertStreamEventInvariants(String input, XmlNode node) {
+  const includedTypes = {
+    XmlNodeType.CDATA,
+    XmlNodeType.COMMENT,
+    XmlNodeType.DECLARATION,
+    XmlNodeType.DOCUMENT_TYPE,
+    XmlNodeType.ELEMENT,
+    XmlNodeType.PROCESSING,
+    XmlNodeType.TEXT,
+  };
+  final parsedEvents = const XmlEventDecoder().convert(input);
+  final namespacedEvents = const XmlWithNamespace().convert(parsedEvents);
+  final nodes = node.descendants
+      .where((node) => includedTypes.contains(node.nodeType))
+      .toList(growable: true);
+  final stack = <XmlStartElementEvent>[];
+  for (final event in namespacedEvents) {
+    if (event is XmlStartElementEvent) {
+      final XmlElement expected = nodes.removeAt(0);
+      expect(event.nodeType, expected.nodeType);
+      expect(event.name, expected.name.qualified);
+      expect(event.localName, expected.name.local);
+      expect(event.namespacePrefix, expected.name.prefix);
+      expect(event.namespaceUri, expected.name.namespaceUri);
+      expect(event.attributes.length, expected.attributes.length);
+      for (var i = 0; i < event.attributes.length; i++) {
+        final currentAttr = event.attributes[i];
+        final expectedAttr = expected.attributes[i];
+        expect(currentAttr.name, expectedAttr.name.qualified);
+        expect(currentAttr.localName, expectedAttr.name.local);
+        expect(currentAttr.namespacePrefix, expectedAttr.name.prefix);
+        expect(currentAttr.namespaceUri, expectedAttr.name.namespaceUri);
+        expect(currentAttr.value, expectedAttr.value);
+        expect(currentAttr.attributeType, expectedAttr.attributeType);
+      }
+      expect(event.isSelfClosing,
+          expected.children.isEmpty && expected.isSelfClosing);
+      if (!event.isSelfClosing) {
+        stack.add(event);
+      }
+    } else if (event is XmlEndElementEvent) {
+      final expected = stack.removeLast();
+      expect(event.nodeType, expected.nodeType);
+      expect(event.name, expected.name);
+      expect(event.localName, expected.localName);
+      expect(event.namespacePrefix, expected.namespacePrefix);
+      expect(event.namespaceUri, expected.namespaceUri);
+    } else if (event is XmlCDATAEvent) {
+      final XmlCDATA expected = nodes.removeAt(0);
+      expect(event.nodeType, expected.nodeType);
+      expect(event.text, expected.text);
+    } else if (event is XmlCommentEvent) {
+      final XmlComment expected = nodes.removeAt(0);
+      expect(event.nodeType, expected.nodeType);
+      expect(event.text, expected.text);
+    } else if (event is XmlDoctypeEvent) {
+      final XmlDoctype expected = nodes.removeAt(0);
+      expect(event.nodeType, expected.nodeType);
+      expect(event.text, expected.text);
+    } else if (event is XmlDeclarationEvent) {
+      final XmlDeclaration expected = nodes.removeAt(0);
+      expect(event.nodeType, expected.nodeType);
+      expect(event.attributes.length, expected.attributes.length);
+      for (var i = 0; i < event.attributes.length; i++) {
+        final currentAttr = event.attributes[i];
+        final expectedAttr = expected.attributes[i];
+        expect(currentAttr.name, expectedAttr.name.qualified);
+        expect(currentAttr.localName, expectedAttr.name.local);
+        expect(currentAttr.namespacePrefix, expectedAttr.name.prefix);
+        expect(currentAttr.namespaceUri, expectedAttr.name.namespaceUri);
+        expect(currentAttr.value, expectedAttr.value);
+        expect(currentAttr.attributeType, expectedAttr.attributeType);
+      }
+    } else if (event is XmlProcessingEvent) {
+      final XmlProcessing expected = nodes.removeAt(0);
+      expect(event.nodeType, expected.nodeType);
+      expect(event.target, expected.target);
+      expect(event.text, expected.text);
+    } else if (event is XmlTextEvent) {
+      final XmlText expected = nodes.removeAt(0);
+      expect(event.nodeType, expected.nodeType);
+      expect(event.text, expected.text);
+    } else {
+      fail('Unexpected event type: $event');
+    }
+  }
 
   final prettyInput = node.toXmlString(pretty: false);
   final decodedEvents = XmlEventCodec().decode(prettyInput);

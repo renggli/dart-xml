@@ -11,6 +11,10 @@ mixin XmlNamed {
     return index > 0 ? name.substring(0, index) : null;
   }
 
+  /// The namespace URI, or `null`. Only resolved when the stream is transformed
+  /// with [XmlWithNamespaceExtension.withNamespace()].
+  String get namespaceUri;
+
   /// The local name, excluding the namespace prefix.
   String get localName {
     final index = name.indexOf(XmlToken.namespace);
