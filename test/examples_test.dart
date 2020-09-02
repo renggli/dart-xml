@@ -9,4 +9,5 @@ void main() {
   test('atom', () => assertDocumentParseInvariants(atomXml));
   test('shiporder', () => assertDocumentParseInvariants(shiporderXsd));
   test('complicated', () => assertDocumentParseInvariants(complicatedXml));
+  test('unicode', () => assertDocumentParseInvariants(unicodeXml));
 }

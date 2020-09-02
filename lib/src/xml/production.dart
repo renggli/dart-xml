@@ -6,12 +6,24 @@ import 'utils/token.dart';
 
 /// XML parser that defines standard actions to the the XML tree.
 class XmlProductionDefinition extends GrammarDefinition {
-  static const String _nameStartChars =
-      ':A-Z_a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF'
-      '\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001'
-      '\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD';
-  static const String _nameChars =
-      '-.0-9\u00B7\u0300-\u036F\u203F-\u2040$_nameStartChars';
+  // https://en.wikipedia.org/wiki/QName
+  static const String _nameStartChars = ':A-Z_a-z'
+      '\u00c0-\u00d6'
+      '\u00d8-\u00f6'
+      '\u00f8-\u02ff'
+      '\u0370-\u037d'
+      '\u037f-\u1fff'
+      '\u200c-\u200d'
+      '\u2070-\u218f'
+      '\u2c00-\u2fef'
+      '\u3001-\ud7ff'
+      '\uf900-\ufdcf'
+      '\ufdf0-\ufffd';
+  static const String _nameChars = '$_nameStartChars'
+      '-.0-9'
+      '\u00b7'
+      '\u0300-\u036f'
+      '\u203f-\u2040';
 
   final XmlEntityMapping entityMapping;
 

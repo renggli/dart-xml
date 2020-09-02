@@ -209,3 +209,9 @@ const String complicatedXml = '<?xml version="1.0"?>\n'
     '  <![CDATA[cdata]]>\n'
     '  <?processing instruction?>\n'
     '</ns:foo>';
+
+const String unicodeXml = '<?xml version="1.1" encoding="UTF-8"?>\n'
+    '<電文情報 version="5.0">\n'
+    '<生年月日>昭和２８年２月１日</生年月日>\n'
+    '<性別>男</性別>\n'
+    '</電文情報>\n';
