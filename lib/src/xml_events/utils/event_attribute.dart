@@ -1,19 +1,13 @@
-import 'package:meta/meta.dart';
-
 import '../../xml/utils/attribute_type.dart';
 import 'named.dart';
+import 'parented.dart';
 
-/// Attributes of XML event.
-@immutable
-class XmlEventAttribute with XmlNamed {
-  XmlEventAttribute(this.name, this.value, this.attributeType,
-      [this.namespaceUri]);
+/// Immutable attributes of XML events.
+class XmlEventAttribute with XmlNamed, XmlParented {
+  XmlEventAttribute(this.name, this.value, this.attributeType);
 
   @override
   final String name;
-
-  @override
-  final String namespaceUri;
 
   final String value;
 

@@ -1,9 +1,10 @@
 import 'package:petitparser/petitparser.dart';
 
-import '../../xml.dart'
-    show XmlProductionDefinition, XmlToken, XmlAttributeType;
 import '../xml/entities/entity_mapping.dart';
+import '../xml/production.dart';
+import '../xml/utils/attribute_type.dart';
 import '../xml/utils/cache.dart';
+import '../xml/utils/token.dart';
 import 'events/cdata.dart';
 import 'events/comment.dart';
 import 'events/declaration.dart';

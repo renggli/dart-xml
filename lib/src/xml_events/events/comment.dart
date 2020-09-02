@@ -1,10 +1,10 @@
-import '../../../xml.dart' show XmlNodeType;
+import '../../xml/utils/node_type.dart';
 import '../event.dart';
 import '../visitor.dart';
 
 /// Event of an XML comment node.
 class XmlCommentEvent extends XmlEvent {
-  const XmlCommentEvent(this.text);
+  XmlCommentEvent(this.text);
 
   final String text;
 

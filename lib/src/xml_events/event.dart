@@ -1,13 +1,11 @@
-import 'package:meta/meta.dart';
-
-import '../../xml.dart' show XmlNodeType;
+import '../xml/utils/node_type.dart';
 import 'converters/event_encoder.dart';
+import 'utils/parented.dart';
 import 'visitor.dart';
 
 /// Immutable base class for all events.
-@immutable
-abstract class XmlEvent {
-  const XmlEvent();
+abstract class XmlEvent with XmlParented {
+  XmlEvent();
 
   /// Return the node type of this node.
   XmlNodeType get nodeType;

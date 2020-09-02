@@ -3,9 +3,9 @@ import 'dart:convert'
 
 import 'package:petitparser/petitparser.dart';
 
-import '../../../xml.dart' show XmlParserException;
 import '../../xml/entities/default_mapping.dart';
 import '../../xml/entities/entity_mapping.dart';
+import '../../xml/utils/exceptions.dart';
 import '../event.dart';
 import '../iterable.dart';
 import '../parser.dart';

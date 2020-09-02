@@ -1,10 +1,10 @@
-import '../../../xml.dart' show XmlNodeType;
+import '../../xml/utils/node_type.dart';
 import '../event.dart';
 import '../visitor.dart';
 
 /// Event of an XML processing node.
 class XmlProcessingEvent extends XmlEvent {
-  const XmlProcessingEvent(this.target, this.text);
+  XmlProcessingEvent(this.target, this.text);
 
   final String target;
 

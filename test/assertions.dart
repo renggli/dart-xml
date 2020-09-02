@@ -427,12 +427,12 @@ void assertStreamEventInvariants(String input, XmlNode node) {
     XmlNodeType.TEXT,
   };
   final parsedEvents = const XmlEventDecoder().convert(input);
-  final namespacedEvents = const XmlWithNamespace().convert(parsedEvents);
+  final parentEvents = const XmlWithParentEvents().convert(parsedEvents);
   final nodes = node.descendants
       .where((node) => includedTypes.contains(node.nodeType))
       .toList(growable: true);
   final stack = <XmlStartElementEvent>[];
-  for (final event in namespacedEvents) {
+  for (final event in parentEvents) {
     if (event is XmlStartElementEvent) {
       final XmlElement expected = nodes.removeAt(0);
       expect(event.nodeType, expected.nodeType);

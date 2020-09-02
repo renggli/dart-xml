@@ -1,6 +1,6 @@
 import 'package:collection/collection.dart' show ListEquality;
 
-import '../../../xml.dart' show XmlNodeType;
+import '../../xml/utils/node_type.dart';
 import '../event.dart';
 import '../utils/event_attribute.dart';
 import '../utils/named.dart';
@@ -8,14 +8,10 @@ import '../visitor.dart';
 
 /// Event of an XML start element node.
 class XmlStartElementEvent extends XmlEvent with XmlNamed {
-  const XmlStartElementEvent(this.name, this.attributes, this.isSelfClosing,
-      [this.namespaceUri]);
+  XmlStartElementEvent(this.name, this.attributes, this.isSelfClosing);
 
   @override
   final String name;
-
-  @override
-  final String namespaceUri;
 
   final List<XmlEventAttribute> attributes;
 

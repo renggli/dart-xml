@@ -1,8 +1,8 @@
 import 'package:petitparser/petitparser.dart'
     show Parser, Result, Success, Token;
 
-import '../../xml.dart' show XmlParserException;
 import '../xml/entities/entity_mapping.dart';
+import '../xml/utils/exceptions.dart';
 import 'event.dart';
 import 'parser.dart';
 

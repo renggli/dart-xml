@@ -1,17 +1,14 @@
-import '../../../xml.dart' show XmlNodeType;
+import '../../xml/utils/node_type.dart';
 import '../event.dart';
 import '../utils/named.dart';
 import '../visitor.dart';
 
 /// Event of an closing XML element node.
 class XmlEndElementEvent extends XmlEvent with XmlNamed {
-  const XmlEndElementEvent(this.name, [this.namespaceUri]);
+  XmlEndElementEvent(this.name);
 
   @override
   final String name;
-
-  @override
-  final String namespaceUri;
 
   @override
   XmlNodeType get nodeType => XmlNodeType.ELEMENT;

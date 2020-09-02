@@ -192,22 +192,22 @@ void main() {
       test('unexpected end tag', () {
         expect(
             () => const XmlNodeDecoder().convert([
-                  const XmlEndElementEvent('foo'),
+                  XmlEndElementEvent('foo'),
                 ]),
             throwsA(isXmlTagException));
       });
       test('not matching end tag', () {
         expect(
             () => const XmlNodeDecoder().convert([
-                  const XmlStartElementEvent('foo', [], false),
-                  const XmlEndElementEvent('bar')
+                  XmlStartElementEvent('foo', [], false),
+                  XmlEndElementEvent('bar')
                 ]),
             throwsA(isXmlTagException));
       });
       test('missing end tag', () {
         expect(
             () => const XmlNodeDecoder().convert([
-                  const XmlStartElementEvent('foo', [], false),
+                  XmlStartElementEvent('foo', [], false),
                 ]),
             throwsA(isXmlTagException));
       });
@@ -366,154 +366,211 @@ void main() {
       expect(startElement, events.whereType<XmlStartElementEvent>());
       expect(text, events.whereType<XmlTextEvent>());
     });
-    chunkedTest('events -> map with context', complicatedXml,
+    chunkedTest('events -> withParent -> map', complicatedXml,
         (string, events, document, splitter) async {
       final stacks = await splitList(events, splitter)
-          .mapWithContext((context, event) => [...context, event])
+          .withParentEvents()
           .flatten()
-          .toList();
+          .map((event) {
+        final stack = <XmlEvent>[];
+        for (var current = event;
+            current != null;
+            current = current.parentEvent) {
+          stack.insert(0, current);
+        }
+        return stack;
+      }).toList();
       expect(stacks.map((events) => events.last), events);
     });
-    chunkedTest('events -> where with context (all)', complicatedXml,
+    chunkedTest('events -> withParent -> where', complicatedXml,
         (string, events, document, splitter) async {
       final actual = await splitList(events, splitter)
-          .whereWithContext((context, event) => true)
+          .withParentEvents()
           .flatten()
-          .toList();
-      expect(actual, events);
-    });
-    chunkedTest('events -> where with context (some)', complicatedXml,
-        (string, events, document, splitter) async {
-      final actual = await splitList(events, splitter)
-          .whereWithContext((context, event) =>
-              context.isNotEmpty && event is! XmlEndElementEvent)
-          .flatten()
+          .where((event) =>
+              event.parentEvent != null && event is! XmlEndElementEvent)
           .toList();
       final expected =
           const XmlNodeCodec().encode(document.rootElement.children);
       expect(actual, expected);
     });
-    chunkedTest('events -> where with context (none)', complicatedXml,
-        (string, events, document, splitter) async {
-      final actual = await splitList(events, splitter)
-          .whereWithContext((context, event) => false)
+  });
+  group('normalizeEvents', () {
+    test('empty', () async {
+      final input = <XmlEvent>[XmlTextEvent('')];
+      final output = await Stream.fromIterable([input])
+          .normalizeEvents()
           .flatten()
           .toList();
-      expect(actual, []);
+      const expected = <XmlEvent>[];
+      expect(output, expected);
+    });
+    test('whitespace', () async {
+      final input = <XmlEvent>[XmlTextEvent(' \n\t')];
+      final actual = await Stream.fromIterable([input])
+          .normalizeEvents()
+          .flatten()
+          .toList();
+      final expected = <XmlEvent>[XmlTextEvent(' \n\t')];
+      expect(actual, expected);
+    });
+    test('combine two', () async {
+      final input = <XmlEvent>[XmlTextEvent('a'), XmlTextEvent('b')];
+      final actual = await Stream.fromIterable([input])
+          .normalizeEvents()
+          .flatten()
+          .toList();
+      final expected = <XmlEvent>[XmlTextEvent('ab')];
+      expect(actual, expected);
+    });
+    test('combine many', () async {
+      final input = <XmlEvent>[
+        XmlTextEvent('a'),
+        XmlTextEvent('b'),
+        XmlTextEvent('c'),
+        XmlTextEvent('d'),
+        XmlTextEvent('e'),
+      ];
+      final actual = await Stream.fromIterable([input])
+          .normalizeEvents()
+          .flatten()
+          .toList();
+      final expected = <XmlEvent>[XmlTextEvent('abcde')];
+      expect(actual, expected);
+    });
+    test('chunked up', () async {
+      final input = <XmlEvent>[
+        XmlTextEvent('a'),
+        XmlTextEvent('b'),
+        XmlTextEvent('c'),
+        XmlStartElementEvent('br', [], true),
+        XmlTextEvent('d'),
+        XmlTextEvent('e'),
+      ];
+      final actual = await Stream.fromIterable([input])
+          .normalizeEvents()
+          .flatten()
+          .toList();
+      final expected = <XmlEvent>[
+        XmlTextEvent('abc'),
+        XmlStartElementEvent('br', [], true),
+        XmlTextEvent('de'),
+      ];
+      expect(actual, expected);
     });
   });
-  test('normalization', () {
-    final actual = const XmlNormalizer().convert([
-      const XmlStartElementEvent('div', [], true),
-      const XmlTextEvent('a'),
-      const XmlTextEvent(''),
-      const XmlTextEvent('b'),
-    ]);
-    final expected = [
-      const XmlStartElementEvent('div', [], true),
-      const XmlTextEvent('ab'),
-    ];
-    expect(actual.toString(), expected.toString());
-  });
-  group('map with context', () {
-    group('onMismatchClosingTag', () {
-      const events = <List<XmlEvent>>[
+  group('withParentEvents', () {
+    test('not parented', () async {
+      final input = <XmlEvent>[
+        XmlCDATAEvent('cdata'),
+        XmlCommentEvent('comment'),
+        XmlDeclarationEvent([]),
+        XmlDoctypeEvent('doctype'),
+        XmlProcessingEvent('target', 'text'),
+        XmlStartElementEvent('element', [], true),
+        XmlTextEvent('text'),
+      ];
+      final output = await Stream.fromIterable([input])
+          .withParentEvents()
+          .flatten()
+          .toList();
+      expect(output, input, reason: 'equality is unaffected');
+      for (var i = 0; i < input.length; i++) {
+        expect(input[i], same(output[i]), reason: 'root element is identical');
+      }
+    });
+    test('basic parented', () async {
+      final input = <XmlEvent>[
+        XmlStartElementEvent('element', [], false),
+        XmlCDATAEvent('cdata'),
+        XmlCommentEvent('comment'),
+        XmlDeclarationEvent([]),
+        XmlDoctypeEvent('doctype'),
+        XmlProcessingEvent('target', 'text'),
+        XmlStartElementEvent('element', [], true),
+        XmlTextEvent('text'),
+        XmlEndElementEvent('element'),
+      ];
+      final output = await Stream.fromIterable([input])
+          .withParentEvents()
+          .flatten()
+          .toList();
+      expect(output, input, reason: 'equality is unaffected');
+      for (var i = 1; i < input.length; i++) {
+        expect(output[i].parentEvent, same(output[0]));
+        expect(output[i].parentEvent, same(input[0]));
+      }
+    });
+    test('deeply parented', () async {
+      final input = <XmlEvent>[
+        XmlStartElementEvent('first', [], false),
+        XmlStartElementEvent('second', [], false),
+        XmlStartElementEvent('third', [], false),
+        XmlEndElementEvent('third'),
+        XmlEndElementEvent('second'),
+        XmlEndElementEvent('first'),
+      ];
+      final output = await Stream.fromIterable([input])
+          .withParentEvents()
+          .flatten()
+          .toList();
+      expect(output, input, reason: 'equality is unaffected');
+      expect(output[0], same(input[0]), reason: 'root element is identical');
+      expect(output[0].parentEvent, isNull);
+      expect(output[1].parentEvent, same(output[0]));
+      expect(output[2].parentEvent, same(output[1]));
+      expect(output[3].parentEvent, same(output[2]));
+      expect(output[4].parentEvent, same(output[1]));
+      expect(output[5].parentEvent, same(output[0]));
+    });
+    test('closing tag mismatch', () {
+      final input = <List<XmlEvent>>[
         [XmlStartElementEvent('open', [], false)],
         [XmlEndElementEvent('close')],
-        [XmlEndElementEvent('open')],
+        [XmlTextEvent('after')],
       ];
-      test('default', () {
-        final stream = Stream.fromIterable(events)
-            .mapWithContext((context, event) => '$context: $event')
-            .flatten();
-        expect(
-            stream,
-            emitsInOrder([
-              '{}: <open>',
-              emitsError(isXmlTagException.having(
-                (error) => error.message,
-                'message',
-                'Expected closing tag </open>, but found </close>.',
-              )),
-            ]));
-      });
-      test('custom', () {
-        final stream = Stream.fromIterable(events)
-            .mapWithContext((context, event) => '$context: $event',
-                onMismatchClosingTag: (context, expected, actual) =>
-                    '$context: $expected, $actual')
-            .flatten();
-        expect(
-            stream,
-            emitsInOrder([
-              '{}: <open>',
-              '{<open>}: <open>, </close>',
-              '{<open>}: </open>'
-            ]));
-      });
-    });
-    group('onMissingClosingTag', () {
-      const events = <List<XmlEvent>>[
-        [XmlStartElementEvent('open', [], false)],
-      ];
-      test('default', () {
-        final stream = Stream.fromIterable(events)
-            .mapWithContext((context, event) => '$context: $event')
-            .flatten();
-        expect(
-            stream,
-            emitsInOrder([
-              '{}: <open>',
-              emitsError(isXmlTagException.having(
-                (error) => error.message,
-                'message',
-                'Missing closing tag </open>.',
-              )),
-            ]));
-      });
-      test('custom', () {
-        final stream = Stream.fromIterable(events)
-            .mapWithContext((context, event) => '$context: $event',
-                onMissingClosingTag: (context, event) => '$context: $event!')
-            .flatten();
-        expect(
-            stream,
-            emitsInOrder([
-              '{}: <open>',
-              '{}: <open>!',
-            ]));
-      });
-    });
-    group('onUnexpectedClosingTag', () {
-      const events = <List<XmlEvent>>[
-        [XmlEndElementEvent('close')],
-        [XmlTextEvent('After')],
-      ];
-      test('default', () {
-        final stream = Stream.fromIterable(events)
-            .mapWithContext((context, event) => '$context: $event')
-            .flatten();
-        expect(
+      final stream = Stream.fromIterable(input).withParentEvents().flatten();
+      expect(
           stream,
-          emitsError(isXmlTagException.having(
-            (error) => error.message,
-            'message',
-            'Unexpected closing tag </close>.',
-          )),
-        );
-      });
-      test('custom', () {
-        final stream = Stream.fromIterable(events)
-            .mapWithContext((context, event) => '$context: $event',
-                onUnexpectedClosingTag: (context, event) => '$context: $event!')
-            .flatten();
-        expect(
-            stream,
-            emitsInOrder([
-              '{}: </close>!',
-              '{}: After',
-            ]));
-      });
+          emitsInOrder([
+            input[0][0],
+            emitsError(isXmlTagException.having(
+              (error) => error.message,
+              'message',
+              'Expected closing tag </open>, but found </close>.',
+            )),
+          ]));
+    });
+    test('closing tag missing', () {
+      final input = <List<XmlEvent>>[
+        [XmlStartElementEvent('open', [], false)],
+      ];
+      final stream = Stream.fromIterable(input).withParentEvents().flatten();
+      expect(
+          stream,
+          emitsInOrder([
+            input[0][0],
+            emitsError(isXmlTagException.having(
+              (error) => error.message,
+              'message',
+              'Missing closing tag </open>.',
+            )),
+          ]));
+    });
+    test('closing tag unexpected', () {
+      final input = <List<XmlEvent>>[
+        [XmlEndElementEvent('close')],
+        [XmlTextEvent('after')],
+      ];
+      final stream = Stream.fromIterable(input).withParentEvents().flatten();
+      expect(
+        stream,
+        emitsError(isXmlTagException.having(
+          (error) => error.message,
+          'message',
+          'Unexpected closing tag </close>.',
+        )),
+      );
     });
   });
   group('examples', () {
