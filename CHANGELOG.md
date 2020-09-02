@@ -2,9 +2,10 @@
 
 ## 4.5.0
 
-* Fixed a bug in the XML name parsing where certain unicode planes were not recognized.
+* Fixed a bug in the XML name parsing where certain unicode planes were not correctly recognized.
 * Add `XmlWithParentEvents` that provides validation of event nesting and efficient access to the parent events. Use `stream.withParentEvents()` to annotate the stream accordingly.
-* Add namespace resolution to events through `event.namespaceUri`. The data is only available when the parent information is annotated.
+* Add namespace resolution to events through `event.namespaceUri`. Note that the data is only available when the parent information is present (see above).
+* Fix namespace resolutions for events in selected sub-tree nodes, even if the namespace declaration is not part of the visible DOM.
 
 ## 4.4.0
 
