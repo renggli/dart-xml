@@ -51,19 +51,20 @@ class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
   void add(List<XmlEvent> chunk) => chunk.forEach(visit);
 
   @override
-  void visitCDATAEvent(XmlCDATAEvent event) => commit(XmlCDATA(event.text));
+  void visitCDATAEvent(XmlCDATAEvent event) =>
+      commit(XmlCDATA(event.text), event);
 
   @override
   void visitCommentEvent(XmlCommentEvent event) =>
-      commit(XmlComment(event.text));
+      commit(XmlComment(event.text), event);
 
   @override
   void visitDeclarationEvent(XmlDeclarationEvent event) =>
-      commit(XmlDeclaration(convertAttributes(event.attributes)));
+      commit(XmlDeclaration(convertAttributes(event.attributes)), event);
 
   @override
   void visitDoctypeEvent(XmlDoctypeEvent event) =>
-      commit(XmlDoctype(event.text));
+      commit(XmlDoctype(event.text), event);
 
   @override
   void visitEndElementEvent(XmlEndElementEvent event) {
@@ -71,15 +72,16 @@ class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
       throw XmlTagException.unexpectedClosingTag(event.name);
     }
     XmlTagException.checkClosingTag(parent.name.qualified, event.name);
-    if (!parent.hasParent) {
-      sink.add([parent]);
-    }
+    final element = parent;
     parent = parent.parent;
+    if (parent == null) {
+      commit(element, event.parentEvent);
+    }
   }
 
   @override
   void visitProcessingEvent(XmlProcessingEvent event) =>
-      commit(XmlProcessing(event.target, event.text));
+      commit(XmlProcessing(event.target, event.text), event);
 
   @override
   void visitStartElementEvent(XmlStartElementEvent event) {
@@ -90,7 +92,7 @@ class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
       event.isSelfClosing,
     );
     if (event.isSelfClosing) {
-      commit(element);
+      commit(element, event);
     } else {
       if (parent != null) {
         parent.children.add(element);
@@ -100,7 +102,7 @@ class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
   }
 
   @override
-  void visitTextEvent(XmlTextEvent event) => commit(XmlText(event.text));
+  void visitTextEvent(XmlTextEvent event) => commit(XmlText(event.text), event);
 
   @override
   void close() {
@@ -110,8 +112,21 @@ class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
     sink.close();
   }
 
-  void commit(XmlNode node) {
+  void commit(XmlNode node, XmlEvent /*?*/ event) {
     if (parent == null) {
+      // If we have information about a parent event, create hidden
+      // [XmlElement] nodes to make sure namespace resolution works
+      // as expected.
+      for (var outerElement = node, outerEvent = event?.parentEvent;
+          outerEvent != null;
+          outerEvent = outerEvent.parentEvent) {
+        outerElement = XmlElement(
+          XmlName.fromString(outerEvent.name),
+          convertAttributes(outerEvent.attributes),
+          [outerElement],
+          outerEvent.isSelfClosing,
+        );
+      }
       sink.add(<XmlNode>[node]);
     } else {
       parent.children.add(node);

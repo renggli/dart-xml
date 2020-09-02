@@ -48,9 +48,7 @@ abstract class XmlName extends Object
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) =>
-      other is XmlName &&
-      other.local == local &&
-      other.namespaceUri == namespaceUri;
+      other is XmlName && other.qualified == qualified;
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes

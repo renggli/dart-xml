@@ -324,8 +324,7 @@ void main() {
           .flatten()
           .toList();
       final expected = document
-          .findAllElements('element',
-              namespace: 'http://www.w3.org/2001/XMLSchema')
+          .findAllElements('element', namespace: '*')
           .where((element) => !element.ancestors
               .whereType<XmlElement>()
               .any((parent) => parent.name.local == 'element'))
@@ -336,6 +335,37 @@ void main() {
             compareNode(actual, expected);
             return true;
           }, 'not matching'));
+      actual
+          .expand((node) => [node, ...node.descendants])
+          .whereType<XmlHasName>()
+          .forEach((node) => expect(node.name.namespaceUri, isNull));
+    });
+    chunkedTest('events -> parents -> subtree -> nodes', shiporderXsd,
+        (string, events, document, splitter) async {
+      final actual = await splitList(events, splitter)
+          .withParentEvents()
+          .selectSubtreeEvents((event) => event.name == 'xsd:element')
+          .toXmlNodes()
+          .flatten()
+          .toList();
+      final expected = document
+          .findAllElements('element', namespace: '*')
+          .where((element) => !element.ancestors
+              .whereType<XmlElement>()
+              .any((parent) => parent.name.local == 'element'))
+          .toList();
+      expect(
+          actual,
+          pairwiseCompare(expected, (actual, expected) {
+            compareNode(actual, expected);
+            return true;
+          }, 'not matching'));
+      actual
+          .expand((node) => [node, ...node.descendants])
+          .whereType<XmlHasName>()
+          .where((node) => node.name.prefix == 'xsd')
+          .forEach((node) => expect(
+              node.name.namespaceUri, 'http://www.w3.org/2001/XMLSchema'));
     });
     chunkedTest('events -> handler', complicatedXml,
         (string, events, document, splitter) async {
