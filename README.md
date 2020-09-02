@@ -87,8 +87,8 @@ For example, the `descendants` iterator could be used to extract all textual con
 
 ```dart
 final textual = document.descendants
-    .where((node) => node is XmlText && !node.text.trim().isEmpty)
-    .join('\n');
+  .where((node) => node is XmlText && !node.text.trim().isEmpty)
+  .join('\n');
 print(textual);
 ```
 
@@ -217,11 +217,11 @@ final url = Uri.parse('http://ip-api.com/xml/');
 final request = await httpClient.getUrl(url);
 final response = await request.close();
 await response
-    .transform(utf8.decoder)
-    .toXmlEvents()
-    .normalizeEvents()
-    .flatten()
-    .forEach((event) => print(event));
+  .transform(utf8.decoder)
+  .toXmlEvents()
+  .normalizeEvents()
+  .flatten()
+  .forEach((event) => print(event));
 ```
 
 Similarly, the following snippet extracts sub-trees with location information from a `sitemap.xml` file, converts the XML events to XML nodes, and finally prints out the containing text: 
@@ -231,12 +231,26 @@ final url = Uri.parse('https://dart.dev/sitemap.xml');
 final request = await httpClient.getUrl(url);
 final response = await request.close();
 await response
-    .transform(utf8.decoder)
-    .toXmlEvents()
-    .selectSubtreeEvents((event) => event.name == 'loc')
-    .toXmlNodes()
-    .flatten()
-    .forEach((node) => print(node.innerText));
+  .transform(utf8.decoder)
+  .toXmlEvents()
+  .selectSubtreeEvents((event) => event.name == 'loc')
+  .toXmlNodes()
+  .flatten()
+  .forEach((node) => print(node.innerText));
+```
+
+A common challenge when processing XML event streams is the lack of hierarchical information, thus it is very hard to figure out parent dependencies such as looking up a namespace URI. The `.withParentEvents()` transformation validates the hierarchy and annotates the events with their parent event. This enables features (such as the `namespaceUri` accessor) and makes mapping and selecting events considerably simpler. For example:
+
+```dart
+await Stream.fromIterable([shiporderXsd])
+  .toXmlEvents()
+  .withParentEvents()
+  .selectSubtreeEvents((event) =>
+      event.localName == 'element' &&
+      event.namespaceUri == 'http://www.w3.org/2001/XMLSchema')
+  .toXmlNodes()
+  .flatten()
+  .forEach((node) => print(node.toXmlString(pretty: true)));
 ```
 
 Misc
