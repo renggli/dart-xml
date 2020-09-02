@@ -23,20 +23,23 @@ abstract class XmlName extends Object
 
   /// Creates a qualified [XmlName] from a `local` name and an optional
   /// `prefix`.
-  factory XmlName(String local, [String prefix]) =>
+  factory XmlName(String local, [String prefix, String namespaceUri]) =>
       prefix == null || prefix.isEmpty
-          ? XmlSimpleName(local)
-          : XmlPrefixName(prefix, local, '$prefix${XmlToken.namespace}$local');
+          ? XmlSimpleName(local, namespaceUri: namespaceUri)
+          : XmlPrefixName(
+            prefix, local, '$prefix${XmlToken.namespace}$local',
+            namespaceUri: namespaceUri);
 
   /// Create a [XmlName] by parsing the provided `qualified` name.
-  factory XmlName.fromString(String qualified) {
+  factory XmlName.fromString(String qualified, {String namespaceUri}) {
     final index = qualified.indexOf(XmlToken.namespace);
     if (index > 0) {
       final prefix = qualified.substring(0, index);
       final local = qualified.substring(index + 1);
-      return XmlPrefixName(prefix, local, qualified);
+      return XmlPrefixName(prefix, local, qualified,
+                           namespaceUri: namespaceUri);
     } else {
-      return XmlSimpleName(qualified);
+      return XmlSimpleName(qualified, namespaceUri: namespaceUri);
     }
   }
 

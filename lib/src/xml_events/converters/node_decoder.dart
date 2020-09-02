@@ -84,7 +84,7 @@ class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
   @override
   void visitStartElementEvent(XmlStartElementEvent event) {
     final element = XmlElement(
-      XmlName.fromString(event.name),
+      XmlName.fromString(event.name, namespaceUri: event.namespaceUri),
       convertAttributes(event.attributes),
       [],
       event.isSelfClosing,
