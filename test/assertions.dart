@@ -143,7 +143,9 @@ void assertBackwardInvariants(XmlNode xml) {
 }
 
 void assertNameInvariants(XmlNode xml) {
-  xml.descendants.whereType<XmlHasName>().forEach(assertNamedInvariant);
+  [xml, ...xml.descendants]
+      .whereType<XmlHasName>()
+      .forEach(assertNamedInvariant);
 }
 
 void assertNamedInvariant(XmlHasName named) {
@@ -160,7 +162,7 @@ void assertNamedInvariant(XmlHasName named) {
 }
 
 void assertAttributeInvariants(XmlNode xml) {
-  for (final node in xml.descendants) {
+  for (final node in [xml, ...xml.descendants]) {
     if (node is XmlElement) {
       for (final attribute in node.attributes) {
         expect(
@@ -177,7 +179,7 @@ void assertAttributeInvariants(XmlNode xml) {
 }
 
 void assertChildrenInvariants(XmlNode xml) {
-  for (final node in xml.descendants) {
+  for (final node in [xml, ...xml.descendants]) {
     if (node.children.isEmpty) {
       expect(node.firstChild, isNull);
       expect(node.firstElementChild, isNull);
@@ -206,14 +208,9 @@ void assertChildrenInvariants(XmlNode xml) {
 }
 
 void assertTextInvariants(XmlNode xml) {
-  for (final node in xml.descendants) {
-    if (node is XmlDocument || node is XmlDocumentFragment) {
-      expect(node.text, isNull,
-          reason: 'Document nodes are supposed to return null text.');
-    } else {
-      expect(node.text, (text) => text is String,
-          reason: 'All nodes are supposed to return text strings.');
-    }
+  for (final node in [xml, ...xml.descendants]) {
+    expect(node.text, (text) => text is String,
+        reason: 'All nodes are supposed to return text strings.');
     if (node is XmlText) {
       expect(node.text, isNotEmpty, reason: 'Text nodes cannot be empty.');
     }
@@ -233,15 +230,12 @@ void assertIteratorInvariants(XmlNode xml) {
   final ancestors = <XmlNode>[];
   void check(XmlNode node) {
     final allAxis = [
-      node.preceding,
-      [node],
-      node.descendants,
-      node.following
-    ].flatten();
-    final allRoot = [
-      [node.root],
-      node.root.descendants
-    ].flatten();
+      ...node.preceding,
+      node,
+      ...node.descendants,
+      ...node.following,
+    ];
+    final allRoot = [node.root, ...node.root.descendants];
     expect(allAxis, allRoot,
         reason: 'All preceding nodes, the node, all descendant nodes, and all '
             'following nodes should be equal to all nodes in the tree.');

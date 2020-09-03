@@ -606,6 +606,46 @@ void main() {
         )),
       );
     });
+    test('default namespace', () async {
+      const url = 'http://www.w3.org/1999/xhtml';
+      const input = '<html xmlns="$url"><body lang="en"/></html>';
+      final events = await Stream.fromIterable([input])
+          .toXmlEvents()
+          .withParentEvents()
+          .flatten()
+          .toList();
+      for (final event in events) {
+        if (event is XmlStartElementEvent) {
+          expect(event.namespaceUri, url);
+          event.attributes
+              .where((attribute) => attribute.localName != 'xmlns')
+              .forEach((attribute) => expect(attribute.namespaceUri, url));
+        } else if (event is XmlEndElementEvent) {
+          expect(event.namespaceUri, url);
+        }
+      }
+    });
+    test('prefix namespace', () async {
+      const url = 'http://www.w3.org/1999/xhtml';
+      const input = '<xhtml:html xmlns:xhtml="$url">'
+          '<xhtml:body xhtml:lang="en"/>'
+          '</xhtml:html>';
+      final events = await Stream.fromIterable([input])
+          .toXmlEvents()
+          .withParentEvents()
+          .flatten()
+          .toList();
+      for (final event in events) {
+        if (event is XmlStartElementEvent) {
+          expect(event.namespaceUri, url);
+          event.attributes
+              .where((attribute) => attribute.namespacePrefix != 'xmlns')
+              .forEach((attribute) => expect(attribute.namespaceUri, url));
+        } else if (event is XmlEndElementEvent) {
+          expect(event.namespaceUri, url);
+        }
+      }
+    });
   });
   group('examples', () {
     test('extract non-empty text', () {
