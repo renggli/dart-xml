@@ -199,16 +199,31 @@ parseEvents(bookshelfXml)
     .forEach(print);
 ```
 
-To asynchronously parse and process events directly from a file or HTTP stream use the provided codecs, encoders and decoders:
+To asynchronously parse and process events directly from a file or HTTP stream use the provided codecs to convert between strings, events and DOM tree nodes:
+ 
+- Codec: `XmlEventCodec`
+  - Decodes a `String ` to a sequence of `XmlEvent ` objects. \
+    `Stream<List<XmlEvent>> toXmlEvents()` on `Stream<String>`
+  - Encodes a sequence of `XmlEvent ` objects to a `String `. \
+    `Stream<String> toXmlString()` on `Stream<List<XmlEvent>>`
+- Codec: `XmlNodeCodec`
+  - Decodes a sequence of `XmlEvent ` objects to `XmlNode ` objects. \
+    `Stream<List<XmlNode>> toXmlNodes()` on `Stream<List<XmlEvent>>`
+  - Encodes a sequence of `XmlNode ` objects to `XmlEvent ` objects. \
+    `Stream<List<XmlEvent>> toXmlEvents()` on `Stream<List<XmlNode>>`
 
-| Codec | Converter | Extension Method | Description |
-| :---- | :-------- | :----------------| :---------- |
-| `XmlEventCodec` | `XmlEventDecoder` | `Stream<List<XmlEvent>> toXmlEvents()` on `Stream<String>` | Converts a `String ` to a sequence of `XmlEvent ` objects. |
-| `XmlEventCodec` | `XmlEventEncoder` | `Stream<String> toXmlString()` on `Stream<List<XmlEvent>>` | Converts a sequence of `XmlEvent ` objects to a `String `. |
-| | `XmlNormalizer` | `Stream<List<XmlEvent>> normalizeEvents()` on `Stream<List<XmlEvent>>` | Normalizes a sequence of `XmlEvent ` objects by removing empty and combining adjacent text events. |
-| | `XmlSubtreeSelector` | `Stream<List<XmlEvent>> selectSubtreeEvents(Predicate<XmlStartElementEvent>)` on `Stream<List<XmlEvent>>` | From a sequence of `XmlEvent ` objects filter the event sequences that form sub-trees for which `predicate ` returns `true`. |
-| `XmlNodeCodec` | `XmlNodeDecoder` | `Stream<List<XmlNode>> toXmlNodes()` on `Stream<List<XmlEvent>>` | Converts a sequence of `XmlEvent ` objects to `XmlNode ` objects. |
-| `XmlNodeCodec` | `XmlNodeEncoder` | `Stream<List<XmlEvent>> toXmlEvents()` on `Stream<List<XmlNode>>` | Converts a sequence of `XmlNode ` objects to `XmlEvent ` objects. |
+Various transformations are provided to simplify processing complex streams:
+
+- Normalizes a sequence of `XmlEvent` objects by removing empty and combining adjacent text events. \
+  `Stream<List<XmlEvent>> normalizeEvents()` on `Stream<List<XmlEvent>>`
+- Annotates `XmlEvent` objects with their parent events that is thereafter accessible through `XmlParented.parentEvent`. Validates the nesting and throws an exception if it is invalid. \
+  `Stream<List<XmlEvent>> withParentEvents()` on `Stream<List<XmlEvent>>`
+- From a sequence of `XmlEvent` objects filter the event sequences that form sub-trees for which a predicate returns `true`. \
+  `Stream<List<XmlEvent>> selectSubtreeEvents(Predicate<XmlStartElementEvent>)` on `Stream<List<XmlEvent>>`
+- Flattens a chunked stream of objects to a stream of objects. \
+  `Stream<T> flatten()` on `Stream<Iterable<T>>`
+- Executes the provided callbacks on each event of this stream. \
+  `Future forEachEvent({onText: ...})` on `Stream<XmlEvent>`.
 
 For example, the following snippet downloads data from the Internet, converts the UTF-8 input to a Dart `String`, decodes the stream of characters to `XmlEvent`s, and finally normalizes and prints the events:
 
@@ -221,7 +236,7 @@ await response
   .toXmlEvents()
   .normalizeEvents()
   .flatten()
-  .forEach((event) => print(event));
+  .forEachEvent(onText: (event) => print(event.text));
 ```
 
 Similarly, the following snippet extracts sub-trees with location information from a `sitemap.xml` file, converts the XML events to XML nodes, and finally prints out the containing text: 

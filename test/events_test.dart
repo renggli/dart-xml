@@ -228,16 +228,20 @@ void main() {
         void Function(String string, List<XmlEvent> events,
                 XmlDocument document, int Function() splitter)
             callback) {
-      test(title, () {
+      group(title, () {
         final string = XmlDocument.parse(input).toXmlString(pretty: true);
         final events = parseEvents(string).toList(growable: false);
         final document = XmlDocument.parse(string);
-        for (var i = 1; i < string.length / 2; i++) {
-          callback(string, events, document, () => i);
+        for (var i = string.length; i > 0; i ~/= 2) {
+          test('chunks sized $i',
+              () => callback(string, events, document, () => i));
         }
         final random = Random(title.hashCode);
-        for (var i = 1; i < string.length / 2; i++) {
-          callback(string, events, document, () => random.nextInt(i + 1));
+        for (var i = 1; i <= 64; i *= 2) {
+          test(
+              'chunks randomly sized up to $i',
+              () => callback(
+                  string, events, document, () => random.nextInt(i + 1)));
         }
       });
     }

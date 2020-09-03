@@ -86,25 +86,32 @@ Future<void> lookupIp(args.ArgResults results, [String query = '']) async {
     // involved.
     var level = 0;
     String currentField;
-    await stream.toXmlEvents().normalizeEvents().flatten().forEach((event) {
-      if (event is XmlStartElementEvent) {
+    await stream.toXmlEvents().normalizeEvents().flatten().forEachEvent(
+      onStartElement: (event) {
         level++;
         if (level == 2) {
           currentField = event.name;
           stdout.write('$currentField: ');
         }
-      } else if (event is XmlTextEvent && currentField != null) {
-        stdout.write(event.text);
-      } else if (event is XmlCDATAEvent && currentField != null) {
-        stdout.write(event.text);
-      } else if (event is XmlEndElementEvent) {
+      },
+      onText: (event) {
+        if (currentField != null) {
+          stdout.write(event.text);
+        }
+      },
+      onCDATA: (event) {
+        if (currentField != null) {
+          stdout.write(event.text);
+        }
+      },
+      onEndElement: (event) {
         if (event.name == currentField) {
           currentField = null;
           stdout.writeln();
         }
         level--;
-      }
-    });
+      },
+    );
   } else {
     // Wait until we have the full response body, then parse the input to a
     // XML DOM tree and extract the information to be printed. This approach

@@ -26,6 +26,7 @@ export 'src/xml_events/events/end_element.dart' show XmlEndElementEvent;
 export 'src/xml_events/events/processing.dart' show XmlProcessingEvent;
 export 'src/xml_events/events/start_element.dart' show XmlStartElementEvent;
 export 'src/xml_events/events/text.dart' show XmlTextEvent;
+export 'src/xml_events/streams/flatten.dart' show XmlFlattenStreamExtension;
 export 'src/xml_events/streams/for_each_event.dart'
     show XmlForEachEventExtension;
 export 'src/xml_events/streams/normalizer.dart'
@@ -35,7 +36,6 @@ export 'src/xml_events/streams/subtree_selector.dart'
 export 'src/xml_events/streams/with_parent.dart'
     show XmlWithParentEventsExtension, XmlWithParentEvents;
 export 'src/xml_events/utils/event_attribute.dart' show XmlEventAttribute;
-export 'src/xml_events/utils/flatten.dart' show XmlFlattenStreamExtension;
 export 'src/xml_events/visitor.dart' show XmlEventVisitor;
 
 /// Returns an [Iterable] of [XmlEvent] instances over the provided [String].
