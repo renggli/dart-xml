@@ -80,38 +80,23 @@ Future<void> lookupIp(args.ArgResults results, [String query = '']) async {
   // Typically you would only implement one of the following two approaches,
   // but for demonstration sake we show both in this example:
   if (incremental) {
-    // Decode the input stream, normalize it and serialize events, then extract
-    // the information to be printed. This approach uses less memory and is
-    // emitting results immediately; thought the implementation is more
-    // involved.
-    var level = 0;
-    String currentField;
-    await stream.toXmlEvents().normalizeEvents().flatten().forEachEvent(
-      onStartElement: (event) {
-        level++;
-        if (level == 2) {
-          currentField = event.name;
-          stdout.write('$currentField: ');
-        }
-      },
-      onText: (event) {
-        if (currentField != null) {
-          stdout.write(event.text);
-        }
-      },
-      onCDATA: (event) {
-        if (currentField != null) {
-          stdout.write(event.text);
-        }
-      },
-      onEndElement: (event) {
-        if (event.name == currentField) {
-          currentField = null;
-          stdout.writeln();
-        }
-        level--;
-      },
-    );
+    void textHandler(XmlEvent event, String text) =>
+        stdout.writeln('${event.parentEvent.name}: $text');
+
+    // Decode the input stream, normalize it, attach parent information,
+    // select the events we are interested in, then print the information.
+    // This approach uses less memory and is emitting results incrementally;
+    // thought the implementation is more involved.
+    await stream
+        .toXmlEvents()
+        .normalizeEvents()
+        .withParentEvents()
+        .selectSubtreeEvents((event) => event.parentEvent?.name == 'query')
+        .flatten()
+        .forEachEvent(
+          onText: (event) => textHandler(event, event.text),
+          onCDATA: (event) => textHandler(event, event.text),
+        );
   } else {
     // Wait until we have the full response body, then parse the input to a
     // XML DOM tree and extract the information to be printed. This approach
