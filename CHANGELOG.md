@@ -3,10 +3,11 @@
 ## 4.5.0
 
 * Fixed a bug in the XML name parsing where certain unicode planes were not correctly recognized.
-* Add `stream.forEachEvent(onText: ...)` for easier callback based stream processing.
+* Removed const constructor from `XmlEvent` to be able to add a lazy initialized `parentEvent` field.
 * Add `XmlWithParentEvents` that provides validation of event nesting and efficient access to the parent events. Use `stream.withParentEvents()` to annotate the stream accordingly.
 * Add namespace resolution to events through `event.namespaceUri`. Note that the data is only available when the parent information is present (see above).
 * Fix namespace resolutions for events in selected sub-tree nodes, even if the namespace declaration is not part of the visible DOM.
+* Add `stream.forEachEvent(onText: ...)` for easier callback based stream processing.
 
 ## 4.4.0
 
@@ -38,7 +39,7 @@
   * Pretty printing now also supports to customize the newline support.
   * Example is updated to also syntax highlight / colorize the output.
 * Add full namespace support to attribute accessors `setAttribute` and `removeAttribute`.
-* Improved documentation, particularly started a section on `xml_events` package.
+* Improved the documentation, particularly started a section on `xml_events` package.
 
 ## 4.0.0
 
@@ -76,7 +77,7 @@
 
 ## 3.3.0
 
-* New event based parsing in `xml_events`:
+* New events based parsing in `xml_events`:
   * Lazy event parsing from a XML string into an `Iterable` of `XmlEvent`.
   * Async converters between streams of XML, `XmlEvent` and `XmlNode`.
 * Clean up package structure by moving internal packages into the `src/` subtree.
@@ -116,7 +117,7 @@
 
 ## 2.4.5
 
-* Do no longer use ArgumentErrors, but instead use proper exceptions.
+* Do no longer use `ArgumentError`, but instead use proper exceptions.
 
 ## 2.4.4
 
