@@ -608,6 +608,34 @@ void main() {
         )),
       );
     });
+    test('after normalization', () {
+      final input = [
+        XmlStartElementEvent('outer', [], false),
+        XmlTextEvent('first'),
+        XmlTextEvent(' '),
+        XmlTextEvent('second'),
+        XmlEndElementEvent('outer'),
+      ];
+      final actual = const XmlWithParentEvents()
+          .convert(const XmlNormalizeEvents().convert(input));
+      expect(actual, hasLength(3));
+      expect(actual[1].parentEvent, same(actual[0]));
+      expect(actual[2].parentEvent, same(actual[0]));
+    });
+    test('before normalization', () {
+      final input = [
+        XmlStartElementEvent('outer', [], false),
+        XmlTextEvent('first'),
+        XmlTextEvent(' '),
+        XmlTextEvent('second'),
+        XmlEndElementEvent('outer'),
+      ];
+      final actual = const XmlNormalizeEvents()
+          .convert(const XmlWithParentEvents().convert(input));
+      expect(actual, hasLength(3));
+      expect(actual[1].parentEvent, same(actual[0]));
+      expect(actual[2].parentEvent, same(actual[0]));
+    });
     test('default namespace', () async {
       const url = 'http://www.w3.org/1999/xhtml';
       const input = '<html xmlns="$url"><body lang="en"/></html>';
@@ -647,6 +675,14 @@ void main() {
           expect(event.namespaceUri, url);
         }
       }
+    });
+    test('disallow re-parenting', () {
+      const input = '<outer><inner/></outer>';
+      final stream = Stream.fromIterable([input])
+          .toXmlEvents()
+          .withParentEvents()
+          .withParentEvents();
+      expect(stream, emitsError(isStateError));
     });
   });
   group('examples', () {

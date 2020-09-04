@@ -19,6 +19,10 @@ mixin XmlParented {
       // already assigned, simulate this behavior until Dart supports it.
       throw StateError('Parent event already resolved.');
     }
-    _parentEvent = parentEvent;
+    if (parentEvent != null) {
+      // '_parentEvent' will become 'final late' which only allows a single
+      // assignment, so do not perform an unnecessary assignment.
+      _parentEvent = parentEvent;
+    }
   }
 }
