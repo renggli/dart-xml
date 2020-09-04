@@ -3,13 +3,14 @@
 ## 4.5.0
 
 * Fixed a bug in the XML name parsing where certain unicode planes were not correctly recognized.
+* Add `stream.forEachEvent(onText: ...)` for easier callback based stream processing.
 * Add `XmlWithParentEvents` that provides validation of event nesting and efficient access to the parent events. Use `stream.withParentEvents()` to annotate the stream accordingly.
 * Add namespace resolution to events through `event.namespaceUri`. Note that the data is only available when the parent information is present (see above).
 * Fix namespace resolutions for events in selected sub-tree nodes, even if the namespace declaration is not part of the visible DOM.
 
 ## 4.4.0
 
-* Add a `XmlSubtreeSelector` that allows efficient filtering of events in specific sub-trees.
+* Add a `XmlSubtreeSelector` that allows efficient filtering of events in specific sub-trees. Use `stream.selectSubtreeEvents(...)` to filter the stream accordingly.
 * Add more options to XML pretty printer, namely the possibility to sort and indent attributes.
 * Add typed extension methods for all stream converters, for simpler and more fluent API.
 * Improvements to documentation and examples.
