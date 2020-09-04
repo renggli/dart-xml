@@ -43,7 +43,7 @@
 
 ## 4.0.0
 
-* Cleanup the node hierarchy. Specifically removed `XmlOwned` and `XmlParent` that added a lot of complexity and confusion. Instead introduced dedicated mixins for nodes with attributes (`XmlHasAttributes`), children (`XmlHasChildren`), names (`XmlHasName`) or parents (`XmlHasParent`).
+* Cleanup the node hierarchy. Specifically removed `XmlOwned` and `XmlParent` that added a lot of complexity and confusion. Instead, introduced dedicated mixins for nodes with attributes (`XmlHasAttributes`), children (`XmlHasChildren`), names (`XmlHasName`) or parents (`XmlHasParent`).
 * Introduce `XmlDeclaration` nodes, events and builder to make accessing XML version and encoding simpler.
 
 ## 3.7.0
@@ -78,7 +78,7 @@
 ## 3.3.0
 
 * New events based parsing in `xml_events`:
-  * Lazy event parsing from a XML string into an `Iterable` of `XmlEvent`.
+  * Lazy event parsing from an XML string into an `Iterable` of `XmlEvent`.
   * Async converters between streams of XML, `XmlEvent` and `XmlNode`.
 * Clean up package structure by moving internal packages into the `src/` subtree.
 * Remove the experimental SAX parser, the event parser allows more flexible streaming XML consumption.
