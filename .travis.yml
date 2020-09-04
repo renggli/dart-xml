@@ -1,27 +1,12 @@
 language: dart
-dart: dev
+dart: stable
 
-jobs:
-  include:
-    - stage: analyze
-      script: dartanalyzer --fatal-warnings .
-    - stage: analyze
-      script: dartfmt --dry-run --set-exit-if-changed .
-    - stage: unit_test
-      script: pub run test test/all_test.dart --platform vm
-    - stage: unit_test
-      script: pub run test test/all_test.dart --platform chrome
-    - stage: coverage
-      script:
-        - pub global activate dart_coveralls
-        - dart_coveralls report test/all_test.dart
-stages:
-  - analyze
-  - unit_test
-  - coverage
+dart_task:
+  - test: --platform vm
+  - test: --platform chrome
+  - dartanalyzer: --fatal-warnings --fatal-infos .
+  - dart_style
 
-sudo: required
-cache:
-  directories:
-    - $HOME/.pub-cache
-    - .dart_tool/build
+after_success:
+  - pub global activate dart_coveralls
+  - pub global run dart_coveralls report test/all_test.dart
