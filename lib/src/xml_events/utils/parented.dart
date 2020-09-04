@@ -3,12 +3,22 @@ import '../streams/with_parent.dart';
 
 /// Mixin with information about the parent event.
 mixin XmlParented {
+  /// Hold a lazy reference to the parent event.
+  /* final late */ XmlStartElementEvent _parentEvent;
+
   /// Return the parent event of type [XmlStartElementEvent], or `null`.
   ///
   /// The parent event is not set by default. It is only available if the
   /// event stream is annotated with [XmlWithParentEvents].
-  ///
-  /// Do not write this field! It will become a `late final` field once
-  /// dart.dev/null-safety is fully launched.
-  XmlStartElementEvent parentEvent;
+  XmlStartElementEvent get parentEvent => _parentEvent;
+
+  /// Internal helper to attach a parent to this child, do not call directly.
+  void attachParentEvent(XmlStartElementEvent parentEvent) {
+    if (_parentEvent != null) {
+      // '_parentEvent' will become 'final late' which throws if the field is
+      // already assigned, simulate this behavior until Dart supports it.
+      throw StateError('Parent event already resolved.');
+    }
+    _parentEvent = parentEvent;
+  }
 }

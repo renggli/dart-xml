@@ -59,19 +59,19 @@ class _XmlWithParentEventsSink extends ChunkedConversionSink<List<XmlEvent>>
 
   @override
   void visitCDATAEvent(XmlCDATAEvent event) =>
-      event.parentEvent = currentParent;
+      event.attachParentEvent(currentParent);
 
   @override
   void visitCommentEvent(XmlCommentEvent event) =>
-      event.parentEvent = currentParent;
+      event.attachParentEvent(currentParent);
 
   @override
   void visitDeclarationEvent(XmlDeclarationEvent event) =>
-      event.parentEvent = currentParent;
+      event.attachParentEvent(currentParent);
 
   @override
   void visitDoctypeEvent(XmlDoctypeEvent event) =>
-      event.parentEvent = currentParent;
+      event.attachParentEvent(currentParent);
 
   @override
   void visitEndElementEvent(XmlEndElementEvent event) {
@@ -80,19 +80,19 @@ class _XmlWithParentEventsSink extends ChunkedConversionSink<List<XmlEvent>>
     } else if (currentParent.name != event.name) {
       throw XmlTagException.mismatchClosingTag(currentParent.name, event.name);
     }
-    event.parentEvent = currentParent;
+    event.attachParentEvent(currentParent);
     currentParent = currentParent.parentEvent;
   }
 
   @override
   void visitProcessingEvent(XmlProcessingEvent event) =>
-      event.parentEvent = currentParent;
+      event.attachParentEvent(currentParent);
 
   @override
   void visitStartElementEvent(XmlStartElementEvent event) {
-    event.parentEvent = currentParent;
+    event.attachParentEvent(currentParent);
     for (final attribute in event.attributes) {
-      attribute.parentEvent = event;
+      attribute.attachParentEvent(event);
     }
     if (!event.isSelfClosing) {
       currentParent = event;
@@ -100,5 +100,6 @@ class _XmlWithParentEventsSink extends ChunkedConversionSink<List<XmlEvent>>
   }
 
   @override
-  void visitTextEvent(XmlTextEvent event) => event.parentEvent = currentParent;
+  void visitTextEvent(XmlTextEvent event) =>
+      event.attachParentEvent(currentParent);
 }
