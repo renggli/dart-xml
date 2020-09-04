@@ -383,16 +383,16 @@ void main() {
       final processing = <XmlProcessingEvent>[];
       final startElement = <XmlStartElementEvent>[];
       final text = <XmlTextEvent>[];
-      await splitList(events, splitter).flatten().forEachEvent(
-            onCDATA: cdata.add,
-            onComment: comment.add,
-            onDeclaration: declaration.add,
-            onDoctype: doctype.add,
-            onEndElement: endElement.add,
-            onProcessing: processing.add,
-            onStartElement: startElement.add,
-            onText: text.add,
-          );
+      await splitList(events, splitter).forEachEvent(
+        onCDATA: cdata.add,
+        onComment: comment.add,
+        onDeclaration: declaration.add,
+        onDoctype: doctype.add,
+        onEndElement: endElement.add,
+        onProcessing: processing.add,
+        onStartElement: startElement.add,
+        onText: text.add,
+      );
       expect(cdata, events.whereType<XmlCDATAEvent>());
       expect(comment, events.whereType<XmlCommentEvent>());
       expect(declaration, events.whereType<XmlDeclarationEvent>());

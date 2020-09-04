@@ -8,6 +8,7 @@ import '../events/processing.dart';
 import '../events/start_element.dart';
 import '../events/text.dart';
 import '../visitor.dart';
+import 'flatten.dart';
 
 typedef EventHandler<T> = void Function(T event);
 
@@ -26,7 +27,7 @@ extension XmlForEachEventExtension on Stream<XmlEvent> {
     EventHandler<XmlStartElementEvent> onStartElement,
     EventHandler<XmlTextEvent> onText,
   }) =>
-      forEach(_XmlEventHandler(
+      forEach(_XmlForEachEventHandler(
         onCDATA: onCDATA,
         onComment: onComment,
         onDeclaration: onDeclaration,
@@ -38,7 +39,34 @@ extension XmlForEachEventExtension on Stream<XmlEvent> {
       ));
 }
 
-class _XmlEventHandler with XmlEventVisitor {
+extension XmlForEachEventListExtension on Stream<List<XmlEvent>> {
+  /// Executes the provided callbacks on each event of this stream.
+  ///
+  /// Completes the returned [Future] when all events of this stream have been
+  /// processed.
+  Future forEachEvent({
+    EventHandler<XmlCDATAEvent> onCDATA,
+    EventHandler<XmlCommentEvent> onComment,
+    EventHandler<XmlDeclarationEvent> onDeclaration,
+    EventHandler<XmlDoctypeEvent> onDoctype,
+    EventHandler<XmlEndElementEvent> onEndElement,
+    EventHandler<XmlProcessingEvent> onProcessing,
+    EventHandler<XmlStartElementEvent> onStartElement,
+    EventHandler<XmlTextEvent> onText,
+  }) =>
+      flatten().forEachEvent(
+        onCDATA: onCDATA,
+        onComment: onComment,
+        onDeclaration: onDeclaration,
+        onDoctype: onDoctype,
+        onEndElement: onEndElement,
+        onProcessing: onProcessing,
+        onStartElement: onStartElement,
+        onText: onText,
+      );
+}
+
+class _XmlForEachEventHandler with XmlEventVisitor {
   final EventHandler<XmlCDATAEvent> onCDATA;
   final EventHandler<XmlCommentEvent> onComment;
   final EventHandler<XmlDeclarationEvent> onDeclaration;
@@ -48,7 +76,7 @@ class _XmlEventHandler with XmlEventVisitor {
   final EventHandler<XmlStartElementEvent> onStartElement;
   final EventHandler<XmlTextEvent> onText;
 
-  const _XmlEventHandler({
+  const _XmlForEachEventHandler({
     this.onCDATA,
     this.onComment,
     this.onDeclaration,

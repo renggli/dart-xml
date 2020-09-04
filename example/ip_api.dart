@@ -92,7 +92,6 @@ Future<void> lookupIp(args.ArgResults results, [String query = '']) async {
         .normalizeEvents()
         .withParentEvents()
         .selectSubtreeEvents((event) => event.parentEvent?.name == 'query')
-        .flatten()
         .forEachEvent(
           onText: (event) => textHandler(event, event.text),
           onCDATA: (event) => textHandler(event, event.text),

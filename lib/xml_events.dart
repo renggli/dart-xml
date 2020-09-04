@@ -28,7 +28,7 @@ export 'src/xml_events/events/start_element.dart' show XmlStartElementEvent;
 export 'src/xml_events/events/text.dart' show XmlTextEvent;
 export 'src/xml_events/streams/flatten.dart' show XmlFlattenStreamExtension;
 export 'src/xml_events/streams/for_each_event.dart'
-    show XmlForEachEventExtension;
+    show XmlForEachEventExtension, XmlForEachEventListExtension;
 export 'src/xml_events/streams/normalizer.dart'
     show XmlNormalizeEventsExtension, XmlNormalizeEvents;
 export 'src/xml_events/streams/subtree_selector.dart'

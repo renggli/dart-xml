@@ -235,7 +235,6 @@ await response
   .transform(utf8.decoder)
   .toXmlEvents()
   .normalizeEvents()
-  .flatten()
   .forEachEvent(onText: (event) => print(event.text));
 ```
 
@@ -250,7 +249,6 @@ await response
   .toXmlEvents()
   .selectSubtreeEvents((event) => event.name == 'loc')
   .toXmlNodes()
-  .flatten()
   .forEach((node) => print(node.innerText));
 ```
 
@@ -264,7 +262,6 @@ await Stream.fromIterable([shiporderXsd])
       event.localName == 'element' &&
       event.namespaceUri == 'http://www.w3.org/2001/XMLSchema')
   .toXmlNodes()
-  .flatten()
   .forEach((node) => print(node.toXmlString(pretty: true)));
 ```
 
