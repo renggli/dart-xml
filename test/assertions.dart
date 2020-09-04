@@ -431,6 +431,7 @@ void assertStreamEventInvariants(String input, XmlNode node) {
       final XmlElement expected = nodes.removeAt(0);
       expect(event.nodeType, expected.nodeType);
       expect(event.name, expected.name.qualified);
+      expect(event.qualifiedName, expected.name.qualified);
       expect(event.localName, expected.name.local);
       expect(event.namespacePrefix, expected.name.prefix);
       expect(event.namespaceUri, expected.name.namespaceUri);
@@ -439,6 +440,7 @@ void assertStreamEventInvariants(String input, XmlNode node) {
         final currentAttr = event.attributes[i];
         final expectedAttr = expected.attributes[i];
         expect(currentAttr.name, expectedAttr.name.qualified);
+        expect(currentAttr.qualifiedName, expectedAttr.name.qualified);
         expect(currentAttr.localName, expectedAttr.name.local);
         expect(currentAttr.namespacePrefix, expectedAttr.name.prefix);
         expect(currentAttr.namespaceUri, expectedAttr.name.namespaceUri);
@@ -454,6 +456,7 @@ void assertStreamEventInvariants(String input, XmlNode node) {
       final expected = stack.removeLast();
       expect(event.nodeType, expected.nodeType);
       expect(event.name, expected.name);
+      expect(event.qualifiedName, expected.qualifiedName);
       expect(event.localName, expected.localName);
       expect(event.namespacePrefix, expected.namespacePrefix);
       expect(event.namespaceUri, expected.namespaceUri);
@@ -477,6 +480,7 @@ void assertStreamEventInvariants(String input, XmlNode node) {
         final currentAttr = event.attributes[i];
         final expectedAttr = expected.attributes[i];
         expect(currentAttr.name, expectedAttr.name.qualified);
+        expect(currentAttr.qualifiedName, expectedAttr.name.qualified);
         expect(currentAttr.localName, expectedAttr.name.local);
         expect(currentAttr.namespacePrefix, expectedAttr.name.prefix);
         expect(currentAttr.namespaceUri, expectedAttr.name.namespaceUri);
