@@ -229,7 +229,7 @@ For example, the following snippet downloads data from the Internet, converts th
 
 ```dart
 final url = Uri.parse('http://ip-api.com/xml/');
-final request = await httpClient.getUrl(url);
+final request = await HttpClient().getUrl(url);
 final response = await request.close();
 await response
   .transform(utf8.decoder)
@@ -242,7 +242,7 @@ Similarly, the following snippet extracts sub-trees with location information fr
 
 ```dart
 final url = Uri.parse('https://dart.dev/sitemap.xml');
-final request = await httpClient.getUrl(url);
+final request = await HttpClient().getUrl(url);
 final response = await request.close();
 await response
   .transform(utf8.decoder)
