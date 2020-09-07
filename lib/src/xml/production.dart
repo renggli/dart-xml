@@ -133,7 +133,7 @@ class XmlProductionDefinition extends GrammarDefinition {
               .starLazy(XmlToken.closeProcessing.toParser())
               .flatten('Expected processing instruction content'))
           .pick(1)
-          .optional(''))
+          .optionalWith(''))
       .seq(XmlToken.closeProcessing.toParser());
 
   Parser qualified() => ref(nameToken);

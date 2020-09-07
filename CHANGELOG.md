@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.6.0
+
+* Dart 2.10 requirement and null-safety.
+
 ## 4.5.0
 
 * Fixed a bug in the XML name parsing where certain unicode planes were not correctly recognized.
