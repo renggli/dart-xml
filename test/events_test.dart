@@ -12,7 +12,6 @@ import 'examples.dart';
 void assertComplete(Iterator<XmlEvent> iterator) {
   for (var i = 0; i < 2; i++) {
     expect(iterator.moveNext(), isFalse);
-    expect(iterator.current, isNull);
   }
 }
 
@@ -183,7 +182,6 @@ void main() {
       test('invalid', () {
         final iterator = parseEvents('<hello').iterator;
         expect(iterator.moveNext, throwsA(isXmlParserException));
-        expect(iterator.current, isNull);
         expect(iterator.moveNext(), isTrue);
         final event = iterator.current as XmlTextEvent;
         expect(event.text, 'hello');

@@ -6,9 +6,7 @@ void verifyIterator(Iterable iterable) {
   while (iterator.moveNext()) {
     expect(iterator.current, isNotNull);
   }
-  expect(iterator.current, isNull);
   expect(iterator.moveNext(), isFalse);
-  expect(iterator.current, isNull);
 }
 
 void main() {

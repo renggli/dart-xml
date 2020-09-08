@@ -4,7 +4,7 @@ import '../streams/with_parent.dart';
 /// Mixin with information about the parent event.
 mixin XmlParented {
   /// Hold a lazy reference to the parent event.
-  late final XmlStartElementEvent? _parentEvent;
+  XmlStartElementEvent? _parentEvent;
 
   /// Return the parent event of type [XmlStartElementEvent], or `null`.
   ///
@@ -13,6 +13,10 @@ mixin XmlParented {
   XmlStartElementEvent? get parentEvent => _parentEvent;
 
   /// Internal helper to attach a parent to this child, do not call directly.
-  void attachParentEvent(XmlStartElementEvent? parentEvent) =>
-      _parentEvent = parentEvent;
+  void attachParentEvent(XmlStartElementEvent? parentEvent) {
+    if (_parentEvent != null) {
+      throw StateError('Parent event already resolved.');
+    }
+    _parentEvent = parentEvent;
+  }
 }

@@ -279,10 +279,9 @@ void main() {
       'single with other',
       '<element><child/></element>',
       (node) {
-        final child = node.firstChild!;
-        expect(child.outerXml, '<child/>');
-        child.outerXml = '<other/>';
-        expect(child.outerXml, '<other/>');
+        expect(node.firstChild!.outerXml, '<child/>');
+        node.firstChild!.outerXml = '<other/>';
+        expect(node.firstChild!.outerXml, '<other/>');
       },
       '<element><other/></element>',
     );

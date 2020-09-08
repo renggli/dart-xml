@@ -1,6 +1,7 @@
 import 'dart:convert' show Converter;
 
 import 'package:meta/meta.dart';
+
 import '../utils/conversion_sink.dart';
 
 abstract class XmlListConverter<S, T> extends Converter<List<S>, List<T>> {

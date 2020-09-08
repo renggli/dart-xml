@@ -15,7 +15,7 @@ void main() {
       expect(exception.column, 3);
       expect(exception.source, 'hello');
       expect(exception.offset, 1);
-      expect(exception.toString(), 'Expected foo at 2:3');
+      expect(exception.toString(), endsWith('Expected foo at 2:3'));
     });
     test('without anything', () {
       final exception = XmlParserException('Expected foo');

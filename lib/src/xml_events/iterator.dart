@@ -12,21 +12,24 @@ class XmlEventIterator extends Iterator<XmlEvent> {
         _context = Success(input, 0, null);
 
   final Parser _eventParser;
-  Result _context;
+  Result? _context;
+  XmlEvent? _current;
 
   @override
-  XmlEvent get current => _context.value;
+  XmlEvent get current => _current as XmlEvent;
 
   @override
   bool moveNext() {
-    final result = _eventParser.parseOn(_context);
-    if (result.isSuccess) {
-      _context = result;
-      return true;
-    } else {
-      if (_context.position < _context.buffer.length) {
+    final context = _context;
+    if (context != null) {
+      final result = _eventParser.parseOn(context);
+      if (result.isSuccess) {
+        _context = result;
+        _current = result.value;
+        return true;
+      } else if (context.position < context.buffer.length) {
         // In case of an error, skip one character and throw an exception.
-        _context = _context.failure(_context.message, _context.position + 1);
+        _context = context.failure(result.message, context.position + 1);
         final lineAndColumn =
             Token.lineAndColumnOf(result.buffer, result.position);
         throw XmlParserException(result.message,
@@ -36,9 +39,11 @@ class XmlEventIterator extends Iterator<XmlEvent> {
             column: lineAndColumn[1]);
       } else {
         // In case of reaching the end, terminate the iterator.
-        _context = result;
+        _context = null;
+        _current = null;
         return false;
       }
     }
+    return false;
   }
 }

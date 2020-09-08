@@ -183,22 +183,25 @@ void assertChildrenInvariants(XmlNode xml) {
   for (final node in [xml, ...xml.descendants]) {
     if (node.children.isEmpty) {
       expect(node.firstChild, isNull);
-      expect(node.firstElementChild, isNull);
       expect(node.lastChild, isNull);
+      expect(node.firstElementChild, isNull);
       expect(node.lastElementChild, isNull);
       expect(node.getElement('foo'), isNull);
     } else {
       expect(node.firstChild, same(node.children.first));
-      expect(node.firstElementChild,
-          same(node.children.firstWhere((element) => element is XmlElement)));
       expect(node.lastChild, same(node.children.last));
-      expect(node.lastElementChild,
-          same(node.children.lastWhere((element) => element is XmlElement)));
-      final seenNames = <String>{};
-      for (final element in node.children
-          .whereType<XmlElement>()
-          .where((element) => seenNames.add(element.name.qualified))) {
-        expect(node.getElement(element.name.qualified), same(element));
+      final elements = node.children.whereType<XmlElement>();
+      if (elements.isEmpty) {
+        expect(node.firstElementChild, isNull);
+        expect(node.lastElementChild, isNull);
+      } else {
+        expect(node.firstElementChild, elements.first);
+        expect(node.lastElementChild, elements.last);
+        final seenNames = <String>{};
+        for (final element in elements
+            .where((element) => seenNames.add(element.name.qualified))) {
+          expect(node.getElement(element.name.qualified), same(element));
+        }
       }
     }
   }
@@ -403,7 +406,6 @@ void assertIteratorEventInvariants(String input, XmlNode node) {
     }
   }
   expect(nodes, isEmpty, reason: '$nodes were not closed.');
-  expect(iterator.current, isNull);
   expect(iterator.moveNext(), isFalse);
 }
 
