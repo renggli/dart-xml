@@ -1,7 +1,5 @@
 import 'dart:convert' show Converter, ChunkedConversionSink;
 
-import 'package:convert/convert.dart' show StringAccumulatorSink;
-
 import '../../xml/entities/default_mapping.dart';
 import '../../xml/entities/entity_mapping.dart';
 import '../../xml/utils/token.dart';
@@ -14,6 +12,7 @@ import '../events/end_element.dart';
 import '../events/processing.dart';
 import '../events/start_element.dart';
 import '../events/text.dart';
+import '../utils/conversion_sink.dart';
 import '../utils/event_attribute.dart';
 import '../visitor.dart';
 
@@ -34,11 +33,12 @@ class XmlEventEncoder extends Converter<List<XmlEvent>, String> {
 
   @override
   String convert(List<XmlEvent> input) {
-    final accumulator = StringAccumulatorSink();
-    final conversion = startChunkedConversion(accumulator);
-    conversion.add(input);
-    conversion.close();
-    return accumulator.string;
+    final buffer = StringBuffer();
+    final sink = ConversionSink<String>(buffer.write);
+    startChunkedConversion(sink)
+      ..add(input)
+      ..close();
+    return buffer.toString();
   }
 
   @override

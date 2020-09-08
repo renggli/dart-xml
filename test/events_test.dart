@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math' show min, Random;
 
-import 'package:convert/convert.dart' show AccumulatorSink;
 import 'package:test/test.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xml_events.dart';
@@ -212,7 +212,8 @@ void main() {
             throwsA(isXmlTagException));
       });
       test('not consumed input', () {
-        final accumulator = AccumulatorSink<List<XmlEvent>>();
+        final accumulator = ChunkedConversionSink<List<XmlEvent>>.withCallback(
+            (accumulated) => fail('Not supposed to be reached.'));
         final converter =
             const XmlEventDecoder().startChunkedConversion(accumulator);
         expect(() => converter.addSlice('a<', 0, 2, true),

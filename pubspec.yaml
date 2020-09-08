@@ -8,7 +8,6 @@ environment:
   sdk: '>=2.10.0 <3.0.0'
 dependencies:
   collection: ^1.15.0-nullsafety
-  convert: ^2.1.0
   meta: ^1.3.0-nullsafety
   petitparser: ^4.0.0-nullsafety
 dev_dependencies:

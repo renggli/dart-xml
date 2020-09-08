@@ -22,7 +22,7 @@ void assertDocumentParseError(String input, String message) {
     final result = XmlDocument.parse(input);
     fail('Expected parse error $message, but got $result.');
   } on XmlParserException catch (error) {
-    expect(error.toString(), message);
+    expect(error.toString(), endsWith(message));
   }
 }
 
@@ -55,7 +55,7 @@ void assertFragmentParseError(String input, String message) {
     final result = XmlDocumentFragment.parse(input);
     fail('Expected parse error $message, but got $result.');
   } on XmlParserException catch (error) {
-    expect(error.toString(), message);
+    expect(error.toString(), endsWith(message));
   }
 }
 
