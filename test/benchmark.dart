@@ -91,7 +91,7 @@ void addBenchmark(XmlBuilder builder, MapEntry<String, String> entry) {
 }
 
 void addMeasure(XmlBuilder builder, String name, double measure,
-    [double reference]) {
+    [double? reference]) {
   builder.element('measure', attributes: {'name': name}, nest: () {
     builder.element('time', nest: measure.toStringAsFixed(6));
     if (reference != null) {
