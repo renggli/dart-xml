@@ -33,47 +33,23 @@ void main() {
       (node) => node.attributes.first.value = 'update',
       '<element attr="update"/>',
     );
-    throwingTest(
-      'element (null attribute value)',
-      '<element attr="value"/>',
-      (node) => node.attributes.first.value = null,
-      throwsArgumentError,
-    );
     mutatingTest(
       'cdata (text)',
       '<element><![CDATA[text]]></element>',
       (node) {
-        final XmlCDATA cdata = node.children.first;
+        final cdata = node.children.first as XmlCDATA;
         cdata.text = 'update';
       },
       '<element><![CDATA[update]]></element>',
-    );
-    throwingTest(
-      'cdata (null text)',
-      '<element><![CDATA[text]]></element>',
-      (node) {
-        final XmlCDATA cdata = node.children.first;
-        cdata.text = null;
-      },
-      throwsArgumentError,
     );
     mutatingTest(
       'comment (text)',
       '<element><!--comment--></element>',
       (node) {
-        final XmlComment comment = node.children.first;
+        final comment = node.children.first as XmlComment;
         comment.text = 'update';
       },
       '<element><!--update--></element>',
-    );
-    throwingTest(
-      'comment (null text)',
-      '<element><!--comment--></element>',
-      (node) {
-        final XmlComment comment = node.children.first;
-        comment.text = null;
-      },
-      throwsArgumentError,
     );
     mutatingTest(
       'element (self-closing: false)',
@@ -89,32 +65,18 @@ void main() {
     );
     test('processing (text)', () {
       final document = XmlDocument.parse('<?xml processing?><element/>');
-      final XmlProcessing processing = document.firstChild;
+      final processing = document.firstChild as XmlProcessing;
       processing.text = 'update';
       expect(document.toXmlString(), '<?xml update?><element/>');
-    });
-    test('processing (null text)', () {
-      final document = XmlDocument.parse('<?xml processing ?><element/>');
-      final XmlProcessing processing = document.firstChild;
-      expect(() => processing.text = null, throwsArgumentError);
     });
     mutatingTest(
       'text (text)',
       '<element>Hello World</element>',
       (node) {
-        final XmlText text = node.children.first;
+        final text = node.children.first as XmlText;
         text.text = 'Dart rocks';
       },
       '<element>Dart rocks</element>',
-    );
-    throwingTest(
-      'text (null text)',
-      '<element>Hello World</element>',
-      (node) {
-        final XmlText text = node.children.first;
-        text.text = null;
-      },
-      throwsArgumentError,
     );
   });
   group('add', () {
@@ -166,18 +128,6 @@ void main() {
       '<element1><element2/><element2/></element1>',
     );
     throwingTest(
-      'element (null attributes)',
-      '<element/>',
-      (node) => node.attributes.add(null),
-      throwsA(isXmlNodeTypeException),
-    );
-    throwingTest(
-      'element (null children)',
-      '<element/>',
-      (node) => node.children.add(null),
-      throwsA(isXmlNodeTypeException),
-    );
-    throwingTest(
       'element (attribute children)',
       '<element/>',
       (node) {
@@ -189,7 +139,7 @@ void main() {
     throwingTest(
       'element (parent error)',
       '<element1><element2/></element1>',
-      (node) => node.children.add(node.firstChild),
+      (node) => node.children.add(node.firstChild!),
       throwsA(isXmlParentException),
     );
   });
@@ -243,18 +193,6 @@ void main() {
       '<element1><element2/><element2/></element1>',
     );
     throwingTest(
-      'element (null attributes)',
-      '<element/>',
-      (node) => node.attributes.addAll([null]),
-      throwsA(isXmlNodeTypeException),
-    );
-    throwingTest(
-      'element (null children)',
-      '<element/>',
-      (node) => node.children.addAll([null]),
-      throwsA(isXmlNodeTypeException),
-    );
-    throwingTest(
       'element (attribute children)',
       '<element/>',
       (node) {
@@ -266,7 +204,7 @@ void main() {
     throwingTest(
       'element (parent error)',
       '<element1><element2/></element1>',
-      (node) => node.children.addAll([node.firstChild]),
+      (node) => node.children.addAll([node.firstChild!]),
       throwsA(isXmlParentException),
     );
   });
@@ -341,9 +279,10 @@ void main() {
       'single with other',
       '<element><child/></element>',
       (node) {
-        expect(node.firstChild.outerXml, '<child/>');
-        node.firstChild.outerXml = '<other/>';
-        expect(node.firstChild.outerXml, '<other/>');
+        final child = node.firstChild!;
+        expect(child.outerXml, '<child/>');
+        child.outerXml = '<other/>';
+        expect(child.outerXml, '<other/>');
       },
       '<element><other/></element>',
     );
@@ -351,8 +290,9 @@ void main() {
       'single with multiple',
       '<element><child/></element>',
       (node) {
-        expect(node.firstChild.outerXml, '<child/>');
-        node.firstChild.outerXml = '<child1/> and <child2/>';
+        final child = node.firstChild!;
+        expect(child.outerXml, '<child/>');
+        child.outerXml = '<child1/> and <child2/>';
       },
       '<element><child1/> and <child2/></element>',
     );
@@ -424,22 +364,10 @@ void main() {
       throwsRangeError,
     );
     throwingTest(
-      'element (null attributes)',
-      '<element/>',
-      (node) => node.attributes.insert(0, null),
-      throwsA(isXmlNodeTypeException),
-    );
-    throwingTest(
       'element (children range error)',
       '<element>Hello</element>',
       (node) => node.children.insert(2, XmlText(' World')),
       throwsRangeError,
-    );
-    throwingTest(
-      'element (null children)',
-      '<element/>',
-      (node) => node.children.insert(0, null),
-      throwsA(isXmlNodeTypeException),
     );
     throwingTest(
       'element (attribute children)',
@@ -453,7 +381,7 @@ void main() {
     throwingTest(
       'element (parent error)',
       '<element1><element2/></element1>',
-      (node) => node.children.insert(0, node.firstChild),
+      (node) => node.children.insert(0, node.firstChild!),
       throwsA(isXmlParentException),
     );
   });
@@ -514,22 +442,10 @@ void main() {
       throwsRangeError,
     );
     throwingTest(
-      'element (null attributes)',
-      '<element/>',
-      (node) => node.attributes.insertAll(0, [null]),
-      throwsA(isXmlNodeTypeException),
-    );
-    throwingTest(
       'element (children range error)',
       '<element>Hello</element>',
       (node) => node.children.insertAll(2, [XmlText(' World')]),
       throwsRangeError,
-    );
-    throwingTest(
-      'element (null children)',
-      '<element/>',
-      (node) => node.children.insertAll(0, [null]),
-      throwsA(isXmlNodeTypeException),
     );
     throwingTest(
       'element (attribute children)',
@@ -543,7 +459,7 @@ void main() {
     throwingTest(
       'element (parent error)',
       '<element1><element2/></element1>',
-      (node) => node.children.insertAll(0, [node.firstChild]),
+      (node) => node.children.insertAll(0, [node.firstChild!]),
       throwsA(isXmlParentException),
     );
   });
@@ -567,22 +483,10 @@ void main() {
       throwsRangeError,
     );
     throwingTest(
-      'element (null attributes)',
-      '<element attr="value"/>',
-      (node) => node.attributes[0] = null,
-      throwsA(isXmlNodeTypeException),
-    );
-    throwingTest(
       'element (children range error)',
       '<element>Hello</element>',
       (node) => node.children[2] = XmlText(' World'),
       throwsRangeError,
-    );
-    throwingTest(
-      'element (null children)',
-      '<element/>',
-      (node) => node.children[0] = null,
-      throwsA(isXmlNodeTypeException),
     );
     throwingTest(
       'element (attribute children)',
@@ -596,7 +500,7 @@ void main() {
     throwingTest(
       'element (parent error)',
       '<element1><element2/></element1>',
-      (node) => node.children[0] = node.firstChild,
+      (node) => node.children[0] = node.firstChild!,
       throwsA(isXmlParentException),
     );
   });
@@ -612,18 +516,6 @@ void main() {
       '<element>Hello World</element>',
       (node) => node.children.remove(node.children.first),
       '<element/>',
-    );
-    mutatingTest(
-      'element (null attributes)',
-      '<element attr="value"/>',
-      (node) => node.attributes.remove(null),
-      '<element attr="value"/>',
-    );
-    mutatingTest(
-      'element (null children)',
-      '<element>Hello World</element>',
-      (node) => node.children.remove(null),
-      '<element>Hello World</element>',
     );
     mutatingTest(
       'element (attribute children)',
@@ -763,26 +655,37 @@ void main() {
     mutatingTest(
       'element (attributes)',
       '<element attr1="value1" attr2="value2"/>',
-      (node) => node.attributes
-          .setRange(0, 1, [XmlAttribute(XmlName('attr3'), 'value3')]),
+      (node) => node.attributes.setRange(0, 1, [
+        XmlAttribute(XmlName('attr3'), 'value3'),
+      ]),
       '<element attr3="value3" attr2="value2"/>',
     );
     throwingTest(
       'element (attributes range error)',
       '<element attr1="value1" attr2="value2"/>',
-      (node) => node.attributes.setRange(0, 3, [null, null, null]),
+      (node) => node.attributes.setRange(0, 3, [
+        XmlAttribute(XmlName('attr3'), 'value3'),
+        XmlAttribute(XmlName('attr4'), 'value4'),
+        XmlAttribute(XmlName('attr5'), 'value5'),
+      ]),
       throwsRangeError,
     );
     mutatingTest(
       'element (children)',
       '<element1><element2/><element3/></element1>',
-      (node) => node.children.setRange(1, 2, [XmlElement(XmlName('element4'))]),
+      (node) => node.children.setRange(1, 2, [
+        XmlElement(XmlName('element4')),
+      ]),
       '<element1><element2/><element4/></element1>',
     );
     throwingTest(
       'element (children range error',
       '<element1><element2/><element3/></element1>',
-      (node) => node.children.setRange(0, 3, [null, null, null]),
+      (node) => node.children.setRange(0, 3, [
+        XmlElement(XmlName('element4')),
+        XmlElement(XmlName('element5')),
+        XmlElement(XmlName('element6')),
+      ]),
       throwsRangeError,
     );
   });
@@ -790,25 +693,25 @@ void main() {
     mutatingTest(
       'element node with text',
       '<element><child/></element>',
-      (node) => node.firstChild.replace(XmlText('child')),
+      (node) => node.firstChild!.replace(XmlText('child')),
       '<element>child</element>',
     );
     mutatingTest(
       'element text with node',
       '<element>child</element>',
-      (node) => node.firstChild.replace(XmlElement(XmlName('child'))),
+      (node) => node.firstChild!.replace(XmlElement(XmlName('child'))),
       '<element><child/></element>',
     );
     mutatingTest(
       'element text with empty fragment',
       '<element><child/></element>',
-      (node) => node.firstChild.replace(XmlDocumentFragment()),
+      (node) => node.firstChild!.replace(XmlDocumentFragment()),
       '<element/>',
     );
     mutatingTest(
       'element text with one element fragment',
       '<element><child/></element>',
-      (node) => node.firstChild.replace(XmlDocumentFragment([
+      (node) => node.firstChild!.replace(XmlDocumentFragment([
         XmlText('child'),
       ])),
       '<element>child</element>',
@@ -816,7 +719,7 @@ void main() {
     mutatingTest(
       'element text with multiple element fragment',
       '<element><child/></element>',
-      (node) => node.firstChild.replace(XmlDocumentFragment([
+      (node) => node.firstChild!.replace(XmlDocumentFragment([
         XmlElement(XmlName('child1')),
         XmlElement(XmlName('child2')),
       ])),
@@ -843,7 +746,11 @@ void main() {
     throwingTest(
       'element (attributes range error)',
       '<element attr1="value1" attr2="value2"/>',
-      (node) => node.attributes.replaceRange(0, 3, [null, null, null]),
+      (node) => node.attributes.replaceRange(0, 3, [
+        XmlAttribute(XmlName('attr3'), 'value3'),
+        XmlAttribute(XmlName('attr4'), 'value4'),
+        XmlAttribute(XmlName('attr5'), 'value5')
+      ]),
       throwsRangeError,
     );
     mutatingTest(
@@ -856,7 +763,11 @@ void main() {
     throwingTest(
       'element (children range error',
       '<element1><element2/><element3/></element1>',
-      (node) => node.children.replaceRange(0, 3, [null, null, null]),
+      (node) => node.children.replaceRange(0, 3, [
+        XmlElement(XmlName('element4')),
+        XmlElement(XmlName('element5')),
+        XmlElement(XmlName('element6')),
+      ]),
       throwsRangeError,
     );
   });

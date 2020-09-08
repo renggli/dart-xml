@@ -65,7 +65,7 @@ void main() {
       final document = XmlDocument.parse('<outer><inner/></outer>');
       final outer = document.rootElement;
       expect(outer.toString(), '<outer><inner/></outer>');
-      final inner = outer.firstChild;
+      final inner = outer.firstChild!;
       expect(outer.getElement('inner'), same(inner));
       expect(inner.parentElement, same(outer));
       expect(inner.toString(), '<inner/>');
@@ -87,7 +87,7 @@ void main() {
       expect(node.getAttributeNode('attr'), isNull);
       node.setAttribute('attr', 'value');
       expect(node.getAttribute('attr'), 'value');
-      expect(node.getAttributeNode('attr').value, 'value');
+      expect(node.getAttributeNode('attr')?.value, 'value');
       expect(node.toString(), '<data attr="value"/>');
     });
     test('add attribute with namespace', () {
@@ -97,7 +97,7 @@ void main() {
       expect(node.getAttributeNode('attr', namespace: 'uri'), isNull);
       node.setAttribute('attr', 'value', namespace: 'uri');
       expect(node.getAttribute('attr', namespace: 'uri'), 'value');
-      expect(node.getAttributeNode('attr', namespace: 'uri').value, 'value');
+      expect(node.getAttributeNode('attr', namespace: 'uri')?.value, 'value');
       expect(node.toString(), '<data xmlns:ns="uri" ns:attr="value"/>');
     });
     test('add attribute with default namespace', () {
@@ -107,7 +107,7 @@ void main() {
       expect(node.getAttributeNode('attr', namespace: 'uri'), isNull);
       node.setAttribute('attr', 'value', namespace: 'uri');
       expect(node.getAttribute('attr', namespace: 'uri'), 'value');
-      expect(node.getAttributeNode('attr', namespace: 'uri').value, 'value');
+      expect(node.getAttributeNode('attr', namespace: 'uri')?.value, 'value');
       expect(node.toString(), '<data xmlns="uri" attr="value"/>');
     });
     test('update attribute', () {
@@ -115,7 +115,7 @@ void main() {
       final node = document.rootElement;
       node.setAttribute('attr', 'new');
       expect(node.getAttribute('attr'), 'new');
-      expect(node.getAttributeNode('attr').value, 'new');
+      expect(node.getAttributeNode('attr')?.value, 'new');
       expect(node.toString(), '<data attr="new"/>');
     });
     test('update attribute with namespace', () {
@@ -124,7 +124,7 @@ void main() {
       final node = document.rootElement;
       node.setAttribute('attr', 'new', namespace: 'uri');
       expect(node.getAttribute('attr', namespace: 'uri'), 'new');
-      expect(node.getAttributeNode('attr', namespace: 'uri').value, 'new');
+      expect(node.getAttributeNode('attr', namespace: 'uri')?.value, 'new');
       expect(node.toString(), '<data xmlns:ns="uri" ns:attr="new"/>');
     });
     test('update attribute with default namespace', () {
@@ -132,7 +132,7 @@ void main() {
       final node = document.rootElement;
       node.setAttribute('attr', 'new', namespace: 'uri');
       expect(node.getAttribute('attr', namespace: 'uri'), 'new');
-      expect(node.getAttributeNode('attr', namespace: 'uri').value, 'new');
+      expect(node.getAttributeNode('attr', namespace: 'uri')?.value, 'new');
       expect(node.toString(), '<data xmlns="uri" attr="new"/>');
     });
     test('remove attribute', () {
@@ -242,7 +242,7 @@ void main() {
     test('basic', () {
       final document =
           XmlDocument.parse('<data>Am I or are the other crazy?</data>');
-      final XmlText node = document.rootElement.children.single;
+      final node = document.rootElement.children.single as XmlText;
       expect(node.text, 'Am I or are the other crazy?');
       expect(node.parent, same(document.rootElement));
       expect(node.parentElement, same(document.rootElement));
@@ -292,7 +292,7 @@ void main() {
     test('declaration', () {
       final document =
           XmlDocument.parse('<?xml version="1.0" encoding="UTF-8"?><data/>');
-      final node = document.declaration;
+      final node = document.declaration!;
       expect(node.version, '1.0');
       expect(node.encoding, 'UTF-8');
       expect(node.standalone, isFalse);
@@ -309,26 +309,26 @@ void main() {
     });
     test('add attribute', () {
       final document = XmlDocument.parse('<?xml?><data/>');
-      final node = document.declaration;
+      final node = document.declaration!;
       node.setAttribute('other', 'value');
       expect(node.toString(), '<?xml other="value"?>');
     });
     test('update attribute', () {
       final document = XmlDocument.parse('<?xml other="value"?><data/>');
-      final node = document.declaration;
+      final node = document.declaration!;
       node.setAttribute('other', 'some');
       expect(node.toString(), '<?xml other="some"?>');
     });
     test('remove attribute', () {
       final document =
           XmlDocument.parse('<?xml version="1.0" other="value"?><data/>');
-      final node = document.declaration;
+      final node = document.declaration!;
       node.removeAttribute('other');
       expect(node.toString(), '<?xml version="1.0"?>');
     });
     test('version', () {
       final document = XmlDocument.parse('<?xml?><data/>');
-      final node = document.declaration;
+      final node = document.declaration!;
       expect(node.version, isNull);
       node.version = '1.1';
       expect(node.version, '1.1');
@@ -339,7 +339,7 @@ void main() {
     });
     test('encoding', () {
       final document = XmlDocument.parse('<?xml?><data/>');
-      final node = document.declaration;
+      final node = document.declaration!;
       expect(node.encoding, isNull);
       node.encoding = 'utf-16';
       expect(node.encoding, 'utf-16');
@@ -350,7 +350,7 @@ void main() {
     });
     test('standalone', () {
       final document = XmlDocument.parse('<?xml?><data/>');
-      final node = document.declaration;
+      final node = document.declaration!;
       node.standalone = true;
       expect(node.standalone, isTrue);
       expect(node.toString(), '<?xml standalone="yes"?>');
@@ -365,7 +365,7 @@ void main() {
   test('processing', () {
     final document =
         XmlDocument.parse('<?xml-stylesheet href="style.css"?><data/>');
-    final XmlProcessing node = document.firstChild;
+    final node = document.firstChild as XmlProcessing;
     expect(node.target, 'xml-stylesheet');
     expect(node.text, 'href="style.css"');
     expect(node.parent, same(document));
@@ -397,12 +397,11 @@ void main() {
   });
   group('document', () {
     test('basic', () {
-      final document = XmlDocument.parse('<data/>');
-      final node = document.document;
+      final node = XmlDocument.parse('<data/>');
       expect(node.parent, isNull);
       expect(node.parentElement, isNull);
-      expect(node.root, same(document));
-      expect(node.document, same(document));
+      expect(node.root, same(node));
+      expect(node.document, same(node));
       expect(node.depth, 0);
       expect(node.attributes, isEmpty);
       expect(node.children, hasLength(1));
@@ -412,10 +411,8 @@ void main() {
       expect(node.toString(), '<data/>');
     });
     test('definition', () {
-      final document =
-          XmlDocument.parse('<?xml version="1.0" encoding="UTF-8"?>'
-              '<element/>');
-      final node = document.document;
+      final node = XmlDocument.parse('<?xml version="1.0" encoding="UTF-8"?>'
+          '<element/>');
       expect(node.children, hasLength(2));
       expect(
           node.toString(),
@@ -423,10 +420,8 @@ void main() {
           '<element/>');
     });
     test('comments and whitespace', () {
-      final document =
-          XmlDocument.parse('<?xml version="1.0" encoding="UTF-8"?> '
-              '<!-- before -->\n<element/>\t<!-- after -->');
-      final node = document.document;
+      final node = XmlDocument.parse('<?xml version="1.0" encoding="UTF-8"?> '
+          '<!-- before -->\n<element/>\t<!-- after -->');
       expect(node.attributes, isEmpty);
       expect(node.children, hasLength(7));
       expect(
@@ -461,7 +456,7 @@ void main() {
   test('document type', () {
     final document =
         XmlDocument.parse('<!DOCTYPE html [<!-- internal subset -->]><data />');
-    final node = document.doctypeElement;
+    final node = document.doctypeElement as XmlDoctype;
     expect(node.parent, same(document));
     expect(node.parentElement, isNull);
     expect(node.document, same(document));

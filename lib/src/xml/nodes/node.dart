@@ -19,4 +19,7 @@ abstract class XmlNode extends Object
         XmlHasXml {
   /// Return the node type of this node.
   XmlNodeType get nodeType;
+
+  /// Return a copy of this node and all its children.
+  XmlNode copy();
 }

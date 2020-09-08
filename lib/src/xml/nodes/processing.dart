@@ -14,5 +14,8 @@ class XmlProcessing extends XmlData {
   XmlNodeType get nodeType => XmlNodeType.PROCESSING;
 
   @override
+  XmlProcessing copy() => XmlProcessing(target, text);
+
+  @override
   dynamic accept(XmlVisitor visitor) => visitor.visitProcessing(this);
 }

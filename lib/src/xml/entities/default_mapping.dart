@@ -49,7 +49,6 @@ class XmlDefaultEntityMapping extends XmlEntityMapping {
         return input.replaceAllMapped(
             _doubleQuoteAttributePattern, _doubleQuoteAttributeReplace);
     }
-    throw ArgumentError.value(type, 'type');
   }
 }
 

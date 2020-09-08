@@ -11,5 +11,8 @@ class XmlComment extends XmlData {
   XmlNodeType get nodeType => XmlNodeType.COMMENT;
 
   @override
+  XmlComment copy() => XmlComment(text);
+
+  @override
   dynamic accept(XmlVisitor visitor) => visitor.visitComment(this);
 }

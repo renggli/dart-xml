@@ -16,4 +16,7 @@ class XmlSimpleName extends XmlName {
   String? get namespaceUri => lookupAttribute(parent, null, xmlns)?.value;
 
   XmlSimpleName(this.local) : super.internal();
+
+  @override
+  XmlSimpleName copy() => XmlSimpleName(local);
 }

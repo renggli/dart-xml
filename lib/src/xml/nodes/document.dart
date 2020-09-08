@@ -102,6 +102,9 @@ class XmlDocument extends XmlNode with XmlHasChildren {
   XmlNodeType get nodeType => XmlNodeType.DOCUMENT;
 
   @override
+  XmlDocument copy() => XmlDocument(children.map((each) => each.copy()));
+
+  @override
   dynamic accept(XmlVisitor visitor) => visitor.visitDocument(this);
 }
 

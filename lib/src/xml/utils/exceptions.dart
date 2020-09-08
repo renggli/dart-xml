@@ -45,13 +45,6 @@ class XmlParserException extends XmlException implements FormatException {
 
 /// Exception thrown when an unsupported node type is used.
 class XmlNodeTypeException extends XmlException {
-  /// Ensure that [node] is not null.
-  static void checkNotNull(XmlNode node) {
-    if (node == null) {
-      throw XmlNodeTypeException('Node must not be null.');
-    }
-  }
-
   /// Ensure that [node] is of one of the provided [types].
   static void checkValidType(XmlNode node, Iterable<XmlNodeType> types) {
     if (!types.contains(node.nodeType)) {

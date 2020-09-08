@@ -27,5 +27,8 @@ class XmlAttribute extends XmlNode with XmlHasParent<XmlNode>, XmlHasName {
   XmlNodeType get nodeType => XmlNodeType.ATTRIBUTE;
 
   @override
+  XmlAttribute copy() => XmlAttribute(name.copy(), value, attributeType);
+
+  @override
   dynamic accept(XmlVisitor visitor) => visitor.visitAttribute(this);
 }

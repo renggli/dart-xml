@@ -34,6 +34,13 @@ class XmlElement extends XmlNode
   XmlNodeType get nodeType => XmlNodeType.ELEMENT;
 
   @override
+  XmlElement copy() => XmlElement(
+      name.copy(),
+      attributes.map((each) => each.copy()),
+      children.map((each) => each.copy()),
+      isSelfClosing);
+
+  @override
   dynamic accept(XmlVisitor visitor) => visitor.visitElement(this);
 }
 

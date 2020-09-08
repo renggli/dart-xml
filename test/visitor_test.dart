@@ -175,7 +175,7 @@ void main() {
       test('intend after first', () {
         final output = document.toXmlString(
           pretty: true,
-          indentAttribute: (node) => node.parent.attributes.first != node,
+          indentAttribute: (node) => node.parent!.attributes.first != node,
         );
         expect(
             output,
@@ -191,7 +191,7 @@ void main() {
       test('indent when multiple', () {
         final output = document.toXmlString(
           pretty: true,
-          indentAttribute: (node) => node.parent.attributes.length > 1,
+          indentAttribute: (node) => node.parent!.attributes.length > 1,
         );
         expect(
             output,
@@ -210,7 +210,7 @@ void main() {
         final output = document.toXmlString(
           pretty: true,
           indentAttribute: (node) {
-            final index = node.parent.attributes.indexOf(node);
+            final index = node.parent!.attributes.indexOf(node);
             return index > 0 && index.isEven;
           },
         );

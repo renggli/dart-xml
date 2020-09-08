@@ -1,7 +1,6 @@
 import 'package:collection/collection.dart' show DelegatingList;
 
 import '../nodes/node.dart';
-import '../visitors/transformer.dart';
 import 'exceptions.dart';
 import 'node_type.dart';
 
@@ -20,7 +19,6 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> {
 
   @override
   void operator []=(int index, E value) {
-    XmlNodeTypeException.checkNotNull(value);
     RangeError.checkValidIndex(index, this);
     if (value.nodeType == XmlNodeType.DOCUMENT_FRAGMENT) {
       replaceRange(index, index + 1, _expandFragment(value));
@@ -39,7 +37,6 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> {
 
   @override
   void add(E value) {
-    XmlNodeTypeException.checkNotNull(value);
     if (value.nodeType == XmlNodeType.DOCUMENT_FRAGMENT) {
       addAll(_expandFragment(value));
     } else {
@@ -149,7 +146,6 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> {
 
   @override
   void insert(int index, E element) {
-    XmlNodeTypeException.checkNotNull(element);
     if (element.nodeType == XmlNodeType.DOCUMENT_FRAGMENT) {
       insertAll(index, _expandFragment(element));
     } else {
@@ -184,7 +180,6 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> {
   Iterable<E> _expandNodes(Iterable<E> iterable) {
     final expanded = <E>[];
     for (final node in iterable) {
-      XmlNodeTypeException.checkNotNull(node);
       if (node.nodeType == XmlNodeType.DOCUMENT_FRAGMENT) {
         expanded.addAll(_expandFragment(node));
       } else {

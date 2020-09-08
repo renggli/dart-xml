@@ -81,7 +81,7 @@ Future<void> lookupIp(args.ArgResults results, [String query = '']) async {
   // but for demonstration sake we show both in this example:
   if (incremental) {
     void textHandler(XmlEvent event, String text) =>
-        stdout.writeln('${event.parentEvent.name}: $text');
+        stdout.writeln('${event.parentEvent?.name}: $text');
 
     // Decode the input stream, normalize it, attach parent information,
     // select the events we are interested in, then print the information.

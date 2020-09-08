@@ -16,4 +16,7 @@ class XmlPrefixName extends XmlName {
   String? get namespaceUri => lookupAttribute(parent, xmlns, prefix)?.value;
 
   XmlPrefixName(this.prefix, this.local, this.qualified) : super.internal();
+
+  @override
+  XmlPrefixName copy() => XmlPrefixName(prefix, local, qualified);
 }

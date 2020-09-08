@@ -8,9 +8,6 @@ void main() {
     final bookstore = XmlDocument.parse(bookstoreXml).rootElement;
     final shiporder = XmlDocument.parse(shiporderXsd).rootElement;
     const xsd = 'http://www.w3.org/2001/XMLSchema';
-    test('invalid', () {
-      expect(() => bookstore.findElements(null), throwsArgumentError);
-    });
     test('name defined, namespace undefined', () {
       final books = bookstore.findElements('book');
       expect(books.length, 2);
@@ -52,9 +49,6 @@ void main() {
     final bookstore = XmlDocument.parse(bookstoreXml);
     final shiporder = XmlDocument.parse(shiporderXsd);
     const xsd = 'http://www.w3.org/2001/XMLSchema';
-    test('invalid', () {
-      expect(() => bookstore.findAllElements(null), throwsArgumentError);
-    });
     test('name defined, namespace undefined', () {
       final books = bookstore.findAllElements('book');
       expect(books.length, 2);

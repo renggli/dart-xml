@@ -38,7 +38,7 @@ void main() {
       test('cdata', () {
         final iterator = parseEvents('<![CDATA[<nasty>]]>').iterator;
         expect(iterator.moveNext(), isTrue);
-        final XmlCDATAEvent event = iterator.current;
+        final event = iterator.current as XmlCDATAEvent;
         assertComplete(iterator);
         expect(event.nodeType, XmlNodeType.CDATA);
         expect(event.text, '<nasty>');
@@ -49,7 +49,7 @@ void main() {
       test('comment', () {
         final iterator = parseEvents('<!--for amusement only-->').iterator;
         expect(iterator.moveNext(), isTrue);
-        final XmlCommentEvent event = iterator.current;
+        final event = iterator.current as XmlCommentEvent;
         assertComplete(iterator);
         expect(event.nodeType, XmlNodeType.COMMENT);
         expect(event.text, 'for amusement only');
@@ -60,7 +60,7 @@ void main() {
       test('declaration', () {
         final iterator = parseEvents('<?xml?>').iterator;
         expect(iterator.moveNext(), isTrue);
-        final XmlDeclarationEvent event = iterator.current;
+        final event = iterator.current as XmlDeclarationEvent;
         assertComplete(iterator);
         expect(event.nodeType, XmlNodeType.DECLARATION);
         expect(event.attributes, isEmpty);
@@ -72,7 +72,7 @@ void main() {
         final iterator =
             parseEvents('<?xml version="1.0" author=\'lfr\'?>').iterator;
         expect(iterator.moveNext(), isTrue);
-        final XmlDeclarationEvent event = iterator.current;
+        final event = iterator.current as XmlDeclarationEvent;
         assertComplete(iterator);
         expect(event.nodeType, XmlNodeType.DECLARATION);
         expect(event.attributes, hasLength(2));
@@ -91,7 +91,7 @@ void main() {
       test('doctype', () {
         final iterator = parseEvents('<!DOCTYPE html>').iterator;
         expect(iterator.moveNext(), isTrue);
-        final XmlDoctypeEvent event = iterator.current;
+        final event = iterator.current as XmlDoctypeEvent;
         assertComplete(iterator);
         expect(event.nodeType, XmlNodeType.DOCUMENT_TYPE);
         expect(event.text, 'html');
@@ -102,7 +102,7 @@ void main() {
       test('end element', () {
         final iterator = parseEvents('</bar>').iterator;
         expect(iterator.moveNext(), isTrue);
-        final XmlEndElementEvent event = iterator.current;
+        final event = iterator.current as XmlEndElementEvent;
         assertComplete(iterator);
         expect(event.nodeType, XmlNodeType.ELEMENT);
         expect(event.name, 'bar');
@@ -113,7 +113,7 @@ void main() {
       test('processing', () {
         final iterator = parseEvents('<?pi test?>').iterator;
         expect(iterator.moveNext(), isTrue);
-        final XmlProcessingEvent event = iterator.current;
+        final event = iterator.current as XmlProcessingEvent;
         assertComplete(iterator);
         expect(event.nodeType, XmlNodeType.PROCESSING);
         expect(event.target, 'pi');
@@ -125,7 +125,7 @@ void main() {
       test('start element', () {
         final iterator = parseEvents('<foo>').iterator;
         expect(iterator.moveNext(), isTrue);
-        final XmlStartElementEvent event = iterator.current;
+        final event = iterator.current as XmlStartElementEvent;
         assertComplete(iterator);
         expect(event.nodeType, XmlNodeType.ELEMENT);
         expect(event.name, 'foo');
@@ -139,7 +139,7 @@ void main() {
       test('start element (attributes, self-closing)', () {
         final iterator = parseEvents('<foo a="1" b=\'2\'/>').iterator;
         expect(iterator.moveNext(), isTrue);
-        final XmlStartElementEvent event = iterator.current;
+        final event = iterator.current as XmlStartElementEvent;
         assertComplete(iterator);
         expect(event.nodeType, XmlNodeType.ELEMENT);
         expect(event.name, 'foo');
@@ -166,7 +166,7 @@ void main() {
       test('text', () {
         final iterator = parseEvents('Hello World!').iterator;
         expect(iterator.moveNext(), isTrue);
-        final XmlTextEvent event = iterator.current;
+        final event = iterator.current as XmlTextEvent;
         assertComplete(iterator);
         expect(event.nodeType, XmlNodeType.TEXT);
         expect(event.text, 'Hello World!');
@@ -185,7 +185,7 @@ void main() {
         expect(iterator.moveNext, throwsA(isXmlParserException));
         expect(iterator.current, isNull);
         expect(iterator.moveNext(), isTrue);
-        final XmlTextEvent event = iterator.current;
+        final event = iterator.current as XmlTextEvent;
         expect(event.text, 'hello');
         assertComplete(iterator);
       });
@@ -263,7 +263,8 @@ void main() {
           await splitList(events, splitter).toXmlNodes().flatten().toList();
       expect(
           actual,
-          pairwiseCompare(document.children, (actual, expected) {
+          pairwiseCompare<XmlNode, XmlNode>(document.children,
+              (actual, expected) {
             compareNode(actual, expected);
             return true;
           }, 'not matching'));
@@ -317,7 +318,8 @@ void main() {
           .toList();
       expect(
           actual,
-          pairwiseCompare(document.children, (actual, expected) {
+          pairwiseCompare<XmlNode, XmlNode>(document.children,
+              (actual, expected) {
             compareNode(actual, expected);
             return true;
           }, 'not matching'));
@@ -337,7 +339,7 @@ void main() {
           .toList();
       expect(
           actual,
-          pairwiseCompare(expected, (actual, expected) {
+          pairwiseCompare<XmlNode, XmlNode>(expected, (actual, expected) {
             compareNode(actual, expected);
             return true;
           }, 'not matching'));
@@ -362,7 +364,7 @@ void main() {
           .toList();
       expect(
           actual,
-          pairwiseCompare(expected, (actual, expected) {
+          pairwiseCompare<XmlNode, XmlNode>(expected, (actual, expected) {
             compareNode(actual, expected);
             return true;
           }, 'not matching'));
@@ -409,7 +411,7 @@ void main() {
           .flatten()
           .map((event) {
         final stack = <XmlEvent>[];
-        for (var current = event;
+        for (XmlEvent? current = event;
             current != null;
             current = current.parentEvent) {
           stack.insert(0, current);

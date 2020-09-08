@@ -11,5 +11,8 @@ class XmlCDATA extends XmlData {
   XmlNodeType get nodeType => XmlNodeType.CDATA;
 
   @override
+  XmlCDATA copy() => XmlCDATA(text);
+
+  @override
   dynamic accept(XmlVisitor visitor) => visitor.visitCDATA(this);
 }

@@ -42,6 +42,8 @@ abstract class XmlName extends Object
 
   XmlName.internal();
 
+  XmlName copy();
+
   @override
   dynamic accept(XmlVisitor visitor) => visitor.visitName(this);
 

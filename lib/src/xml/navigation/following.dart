@@ -28,7 +28,7 @@ class XmlFollowingIterator extends Iterator<XmlNode> {
     final following = <XmlNode>[];
     for (var parent = start.parent, child = start;
         parent != null;
-        parent = parent.parent, child = child!.parent!) {
+        parent = parent.parent, child = child.parent!) {
       if (child is XmlAttribute) {
         final attributesIndex = parent.attributes.indexOf(child);
         following.addAll(parent.attributes.sublist(attributesIndex + 1));

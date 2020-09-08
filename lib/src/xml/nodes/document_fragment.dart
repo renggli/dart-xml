@@ -42,6 +42,10 @@ class XmlDocumentFragment extends XmlNode with XmlHasChildren {
   XmlNodeType get nodeType => XmlNodeType.DOCUMENT_FRAGMENT;
 
   @override
+  XmlDocumentFragment copy() =>
+      XmlDocumentFragment(children.map((each) => each.copy()));
+
+  @override
   dynamic accept(XmlVisitor visitor) => visitor.visitDocumentFragment(this);
 }
 

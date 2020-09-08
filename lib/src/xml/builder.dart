@@ -14,7 +14,6 @@ import 'nodes/text.dart';
 import 'utils/attribute_type.dart';
 import 'utils/name.dart';
 import 'utils/namespace.dart';
-import 'visitors/transformer.dart';
 
 /// A builder to create XML trees with code.
 class XmlBuilder {
@@ -275,7 +274,7 @@ class XmlBuilder {
         text(value.text);
       } else if (value is XmlAttribute) {
         // Attributes must be copied and added to the attributes list.
-        _stack.last.attributes.add(value.copy() as XmlAttribute);
+        _stack.last.attributes.add(value.copy());
       } else if (value is XmlElement || value is XmlData) {
         // Children nodes must be copied and added to the children list.
         _stack.last.children.add(value.copy());
