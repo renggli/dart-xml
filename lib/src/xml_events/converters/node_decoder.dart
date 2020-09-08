@@ -1,5 +1,6 @@
 import 'dart:convert' show ChunkedConversionSink;
 
+import '../../xml/navigation/parent.dart';
 import '../../xml/nodes/attribute.dart';
 import '../../xml/nodes/cdata.dart';
 import '../../xml/nodes/comment.dart';
@@ -45,7 +46,7 @@ class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
   _XmlNodeDecoderSink(this.sink);
 
   final Sink<List<XmlNode>> sink;
-  XmlElement parent;
+  XmlElement? parent;
 
   @override
   void add(List<XmlEvent> chunk) => chunk.forEach(visit);
@@ -71,9 +72,9 @@ class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
     if (parent == null) {
       throw XmlTagException.unexpectedClosingTag(event.name);
     }
-    XmlTagException.checkClosingTag(parent.name.qualified, event.name);
-    final element = parent;
-    parent = parent.parent;
+    final element = parent!;
+    XmlTagException.checkClosingTag(element.name.qualified, event.name);
+    parent = element.parentElement;
     if (parent == null) {
       commit(element, event.parentEvent);
     }
@@ -95,7 +96,7 @@ class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
       commit(element, event);
     } else {
       if (parent != null) {
-        parent.children.add(element);
+        parent!.children.add(element);
       }
       parent = element;
     }
@@ -107,12 +108,12 @@ class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
   @override
   void close() {
     if (parent != null) {
-      throw XmlTagException.missingClosingTag(parent.name.qualified);
+      throw XmlTagException.missingClosingTag(parent!.name.qualified);
     }
     sink.close();
   }
 
-  void commit(XmlNode node, XmlEvent /*?*/ event) {
+  void commit(XmlNode node, XmlEvent? event) {
     if (parent == null) {
       // If we have information about a parent event, create hidden
       // [XmlElement] nodes to make sure namespace resolution works
@@ -129,7 +130,7 @@ class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
       }
       sink.add(<XmlNode>[node]);
     } else {
-      parent.children.add(node);
+      parent!.children.add(node);
     }
   }
 

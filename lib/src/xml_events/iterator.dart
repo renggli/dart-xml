@@ -8,30 +8,25 @@ import 'parser.dart';
 
 class XmlEventIterator extends Iterator<XmlEvent> {
   XmlEventIterator(String input, XmlEntityMapping entityMapping)
-      : eventParser = eventParserCache[entityMapping],
-        context = Success(input, 0, null);
+      : _eventParser = eventParserCache[entityMapping],
+        _context = Success(input, 0, null);
 
-  final Parser eventParser;
-  Result context;
+  final Parser _eventParser;
+  Result _context;
 
   @override
-  XmlEvent current;
+  XmlEvent get current => _context.value;
 
   @override
   bool moveNext() {
-    if (context == null) {
-      return false;
-    }
-    final result = eventParser.parseOn(context);
+    final result = _eventParser.parseOn(_context);
     if (result.isSuccess) {
-      context = result;
-      current = result.value;
+      _context = result;
       return true;
     } else {
-      if (context.position < context.buffer.length) {
+      if (_context.position < _context.buffer.length) {
         // In case of an error, skip one character and throw an exception.
-        context = context.failure(context.message, context.position + 1);
-        current = null;
+        _context = _context.failure(_context.message, _context.position + 1);
         final lineAndColumn =
             Token.lineAndColumnOf(result.buffer, result.position);
         throw XmlParserException(result.message,
@@ -41,8 +36,7 @@ class XmlEventIterator extends Iterator<XmlEvent> {
             column: lineAndColumn[1]);
       } else {
         // In case of reaching the end, terminate the iterator.
-        context = null;
-        current = null;
+        _context = result;
         return false;
       }
     }

@@ -18,14 +18,14 @@ extension XmlForEachEventExtension on Stream<XmlEvent> {
   /// Completes the returned [Future] when all events of this stream have been
   /// processed.
   Future forEachEvent({
-    EventHandler<XmlCDATAEvent> onCDATA,
-    EventHandler<XmlCommentEvent> onComment,
-    EventHandler<XmlDeclarationEvent> onDeclaration,
-    EventHandler<XmlDoctypeEvent> onDoctype,
-    EventHandler<XmlEndElementEvent> onEndElement,
-    EventHandler<XmlProcessingEvent> onProcessing,
-    EventHandler<XmlStartElementEvent> onStartElement,
-    EventHandler<XmlTextEvent> onText,
+    EventHandler<XmlCDATAEvent>? onCDATA,
+    EventHandler<XmlCommentEvent>? onComment,
+    EventHandler<XmlDeclarationEvent>? onDeclaration,
+    EventHandler<XmlDoctypeEvent>? onDoctype,
+    EventHandler<XmlEndElementEvent>? onEndElement,
+    EventHandler<XmlProcessingEvent>? onProcessing,
+    EventHandler<XmlStartElementEvent>? onStartElement,
+    EventHandler<XmlTextEvent>? onText,
   }) =>
       forEach(_XmlForEachEventHandler(
         onCDATA: onCDATA,
@@ -45,14 +45,14 @@ extension XmlForEachEventListExtension on Stream<List<XmlEvent>> {
   /// Completes the returned [Future] when all events of this stream have been
   /// processed.
   Future forEachEvent({
-    EventHandler<XmlCDATAEvent> onCDATA,
-    EventHandler<XmlCommentEvent> onComment,
-    EventHandler<XmlDeclarationEvent> onDeclaration,
-    EventHandler<XmlDoctypeEvent> onDoctype,
-    EventHandler<XmlEndElementEvent> onEndElement,
-    EventHandler<XmlProcessingEvent> onProcessing,
-    EventHandler<XmlStartElementEvent> onStartElement,
-    EventHandler<XmlTextEvent> onText,
+    EventHandler<XmlCDATAEvent>? onCDATA,
+    EventHandler<XmlCommentEvent>? onComment,
+    EventHandler<XmlDeclarationEvent>? onDeclaration,
+    EventHandler<XmlDoctypeEvent>? onDoctype,
+    EventHandler<XmlEndElementEvent>? onEndElement,
+    EventHandler<XmlProcessingEvent>? onProcessing,
+    EventHandler<XmlStartElementEvent>? onStartElement,
+    EventHandler<XmlTextEvent>? onText,
   }) =>
       flatten().forEachEvent(
         onCDATA: onCDATA,
@@ -67,14 +67,14 @@ extension XmlForEachEventListExtension on Stream<List<XmlEvent>> {
 }
 
 class _XmlForEachEventHandler with XmlEventVisitor {
-  final EventHandler<XmlCDATAEvent> onCDATA;
-  final EventHandler<XmlCommentEvent> onComment;
-  final EventHandler<XmlDeclarationEvent> onDeclaration;
-  final EventHandler<XmlDoctypeEvent> onDoctype;
-  final EventHandler<XmlEndElementEvent> onEndElement;
-  final EventHandler<XmlProcessingEvent> onProcessing;
-  final EventHandler<XmlStartElementEvent> onStartElement;
-  final EventHandler<XmlTextEvent> onText;
+  final EventHandler<XmlCDATAEvent>? onCDATA;
+  final EventHandler<XmlCommentEvent>? onComment;
+  final EventHandler<XmlDeclarationEvent>? onDeclaration;
+  final EventHandler<XmlDoctypeEvent>? onDoctype;
+  final EventHandler<XmlEndElementEvent>? onEndElement;
+  final EventHandler<XmlProcessingEvent>? onProcessing;
+  final EventHandler<XmlStartElementEvent>? onStartElement;
+  final EventHandler<XmlTextEvent>? onText;
 
   const _XmlForEachEventHandler({
     this.onCDATA,

@@ -26,7 +26,7 @@ class XmlEventDecoder extends Converter<String, List<XmlEvent>> {
       {this.entityMapping = const XmlDefaultEntityMapping.xml()});
 
   @override
-  List<XmlEvent> convert(String input, [int start = 0, int end]) {
+  List<XmlEvent> convert(String input, [int start = 0, int? end]) {
     end = RangeError.checkValidRange(start, end, input.length);
     return XmlEventIterable(input.substring(start, end), entityMapping)
         .toList(growable: false);
