@@ -13,7 +13,7 @@ import 'examples.dart';
 /// The resulting duration is the average time measured to run [function] once.
 double benchmark(Function function,
     {Duration warmup = const Duration(milliseconds: 200),
-    Duration measure = const Duration(seconds: 2)}) {
+      Duration measure = const Duration(seconds: 2)}) {
   _benchmark(function, warmup);
   return _benchmark(function, measure);
 }
@@ -65,19 +65,38 @@ final Map<String, String> benchmarks = {
 
 void main() {
   final builder = XmlBuilder();
+  addBenchmarks(builder);
+  print(builder.buildDocument().toXmlString(pretty: true));
+}
+
+void addBenchmarks(XmlBuilder builder) {
   builder.processing('xml', 'version="1.0"');
   builder.element('benchmarks', nest: () {
-    for (final name in benchmarks.keys) {
-      builder.element('measure', attributes: {'name': name}, nest: () {
-        final source = benchmarks[name];
-        final parser = benchmark(() => XmlDocument.parse(source));
-        final events = benchmark(() => parseEvents(source).length);
-        final speedup = percentChange(parser, events);
-        builder.element('parser', nest: parser.toStringAsFixed(6));
-        builder.element('events', nest: events.toStringAsFixed(6));
-        builder.element('speedup', nest: speedup.toStringAsFixed(2));
-      });
+    for (final entry in benchmarks.entries) {
+      addBenchmark(builder, entry);
     }
   });
-  print(builder.buildDocument().toXmlString(pretty: true));
+}
+
+void addBenchmark(XmlBuilder builder, MapEntry<String, String> entry) {
+  builder.element('benchmark', attributes: {'name': entry.key}, nest: () {
+    final source = entry.value;
+    final parser = benchmark(() => XmlDocument.parse(source));
+    final stream = benchmark(() => const XmlEventDecoder().convert(source));
+    final iterator = benchmark(() => parseEvents(source).toList());
+    addMeasure(builder, 'parser', parser);
+    addMeasure(builder, 'stream', stream, parser);
+    addMeasure(builder, 'iterator', iterator, parser);
+  });
+}
+
+void addMeasure(XmlBuilder builder, String name, double measure,
+    [double reference]) {
+  builder.element('measure', attributes: {'name': name}, nest: () {
+    builder.element('time', nest: measure.toStringAsFixed(6));
+    if (reference != null) {
+      final speedup = percentChange(reference, measure);
+      builder.element('speedup', nest: speedup.toStringAsFixed(2));
+    }
+  });
 }
