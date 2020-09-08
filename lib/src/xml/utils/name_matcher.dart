@@ -4,10 +4,8 @@ import '../mixins/has_name.dart';
 typedef XmlNameMatcher = bool Function(XmlHasName named);
 
 /// Internal factory to create element matchers.
-XmlNameMatcher createNameMatcher(String name, String namespace) {
-  if (name == null) {
-    throw ArgumentError('Illegal name matcher.');
-  } else if (name == '*') {
+XmlNameMatcher createNameMatcher(String name, String? namespace) {
+  if (name == '*') {
     if (namespace == null || namespace == '*') {
       return (named) => true;
     } else {

@@ -9,7 +9,7 @@ const String xmlns = 'xmlns';
 /// Lookup [XmlAttribute] with the given `prefix` and `local` name by walking up
 /// the XML DOM from the provided `start`. Return `null`, if the attribute
 /// cannot be found.
-XmlAttribute lookupAttribute(XmlNode start, String prefix, String local) {
+XmlAttribute? lookupAttribute(XmlNode? start, String? prefix, String local) {
   for (var node = start; node != null; node = node.parent) {
     for (final attribute in node.attributes) {
       if (attribute.name.prefix == prefix && attribute.name.local == local) {
@@ -23,7 +23,7 @@ XmlAttribute lookupAttribute(XmlNode start, String prefix, String local) {
 /// Lookup the namespace prefix (possibly an empty string), for the given
 /// namespace `uri` by walking up the XML DOM from the provided `start`.
 /// Return `null`, if the prefix cannot be found.
-String lookupNamespacePrefix(XmlNode start, String uri) {
+String? lookupNamespacePrefix(XmlNode? start, String uri) {
   for (var node = start; node != null; node = node.parent) {
     for (final attribute in node.attributes) {
       if (attribute.value == uri) {

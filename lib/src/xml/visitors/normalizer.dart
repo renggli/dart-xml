@@ -46,10 +46,10 @@ class XmlNormalizer with XmlVisitor {
   }
 
   void _mergeAdjacent(List<XmlNode> children) {
-    XmlText previousText;
+    XmlText? previousText;
     for (var i = 0; i < children.length;) {
       final node = children[i];
-      if (node.nodeType == XmlNodeType.TEXT) {
+      if (node is XmlText) {
         if (previousText == null) {
           previousText = node;
           i++;

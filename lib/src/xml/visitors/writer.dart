@@ -21,7 +21,7 @@ class XmlWriter with XmlVisitor {
   final StringSink buffer;
   final XmlEntityMapping entityMapping;
 
-  XmlWriter(this.buffer, {XmlEntityMapping entityMapping})
+  XmlWriter(this.buffer, {XmlEntityMapping? entityMapping})
       : entityMapping = entityMapping ?? const XmlDefaultEntityMapping.xml();
 
   @override
@@ -115,7 +115,7 @@ class XmlWriter with XmlVisitor {
     }
   }
 
-  void writeIterable(Iterable<XmlHasVisitor> nodes, [String separator]) {
+  void writeIterable(Iterable<XmlHasVisitor> nodes, [String? separator]) {
     final iterator = nodes.iterator;
     if (iterator.moveNext()) {
       if (separator == null || separator.isEmpty) {

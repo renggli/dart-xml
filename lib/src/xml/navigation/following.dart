@@ -11,23 +11,24 @@ extension XmlFollowingExtension on XmlNode {
 
 /// Iterable to walk over the followers of a node.
 class XmlFollowingIterable extends IterableBase<XmlNode> {
-  final XmlNode start;
+  final XmlNode _start;
 
-  XmlFollowingIterable(this.start);
+  XmlFollowingIterable(this._start);
 
   @override
-  Iterator<XmlNode> get iterator => XmlFollowingIterator(start);
+  Iterator<XmlNode> get iterator => XmlFollowingIterator(_start);
 }
 
 /// Iterator to walk over the followers of a node.
 class XmlFollowingIterator extends Iterator<XmlNode> {
-  final List<XmlNode> todo = [];
+  final List<XmlNode> _todo = [];
+  XmlNode? _current;
 
   XmlFollowingIterator(XmlNode start) {
     final following = <XmlNode>[];
     for (var parent = start.parent, child = start;
         parent != null;
-        parent = parent.parent, child = child.parent) {
+        parent = parent.parent, child = child!.parent!) {
       if (child is XmlAttribute) {
         final attributesIndex = parent.attributes.indexOf(child);
         following.addAll(parent.attributes.sublist(attributesIndex + 1));
@@ -37,21 +38,21 @@ class XmlFollowingIterator extends Iterator<XmlNode> {
         following.addAll(parent.children.sublist(childrenIndex + 1));
       }
     }
-    todo.addAll(following.reversed);
+    _todo.addAll(following.reversed);
   }
 
   @override
-  XmlNode current;
+  XmlNode get current => _current!;
 
   @override
   bool moveNext() {
-    if (todo.isEmpty) {
-      current = null;
+    if (_todo.isEmpty) {
+      _current = null;
       return false;
     } else {
-      current = todo.removeLast();
-      todo.addAll(current.children.reversed);
-      todo.addAll(current.attributes.reversed);
+      _current = _todo.removeLast();
+      _todo.addAll(_current!.children.reversed);
+      _todo.addAll(_current!.attributes.reversed);
       return true;
     }
   }

@@ -14,7 +14,7 @@ class XmlNullEntityMapping extends XmlEntityMapping {
   String decode(String input) => input;
 
   @override
-  String decodeEntity(String input) => null;
+  String? decodeEntity(String input) => null;
 
   @override
   String encodeText(String input) => input;

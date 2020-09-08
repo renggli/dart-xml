@@ -10,26 +10,28 @@ extension XmlAncestorsExtension on XmlNode {
 
 /// Iterable to walk over the ancestors of a node.
 class XmlAncestorsIterable extends IterableBase<XmlNode> {
-  final XmlNode start;
+  final XmlNode _start;
 
-  XmlAncestorsIterable(this.start);
+  XmlAncestorsIterable(this._start);
 
   @override
-  Iterator<XmlNode> get iterator => XmlAncestorsIterator(start);
+  Iterator<XmlNode> get iterator => XmlAncestorsIterator(_start);
 }
 
 /// Iterator to walk over the ancestors of a node.
 class XmlAncestorsIterator extends Iterator<XmlNode> {
-  XmlAncestorsIterator(this.current);
+  XmlNode? _current;
+
+  XmlAncestorsIterator(this._current);
 
   @override
-  XmlNode current;
+  XmlNode get current => _current!;
 
   @override
   bool moveNext() {
-    if (current != null) {
-      current = current.parent;
+    if (_current != null) {
+      _current = _current!.parent;
     }
-    return current != null;
+    return _current != null;
   }
 }

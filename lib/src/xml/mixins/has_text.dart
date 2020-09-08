@@ -1,6 +1,7 @@
 import '../navigation/descendants.dart';
 import '../nodes/cdata.dart';
 import '../nodes/data.dart';
+import '../nodes/node.dart';
 import '../nodes/text.dart';
 import 'has_children.dart';
 
@@ -11,7 +12,7 @@ mixin XmlHasText implements XmlChildrenBase {
   String get text => innerText;
 
   /// Return the concatenated text of this node and all its descendants.
-  String get innerText => XmlDescendantsIterable(this)
+  String get innerText => XmlDescendantsIterable(this as XmlNode)
       .where((node) => node is XmlText || node is XmlCDATA)
       .map((node) => node.text)
       .join();
@@ -19,7 +20,7 @@ mixin XmlHasText implements XmlChildrenBase {
   /// Replaces the children of this node with text contents.
   set innerText(String value) {
     children.clear();
-    if (value != null && value.isNotEmpty) {
+    if (value.isNotEmpty) {
       children.add(XmlText(value));
     }
   }

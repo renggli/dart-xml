@@ -38,7 +38,7 @@ abstract class XmlEntityMapping {
 
   /// Decodes a single character entity, returns the decoded entity or `null` if
   /// the input is invalid.
-  String decodeEntity(String input);
+  String? decodeEntity(String input);
 
   /// Encodes a string to be serialized as XML text.
   String encodeText(String input);

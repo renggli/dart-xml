@@ -76,7 +76,7 @@ class XmlBuilder {
   ///
   void declaration(
       {String version = '1.0',
-      String encoding,
+      String? encoding,
       Map<String, String> attributes = const {}}) {
     final declaration = XmlDeclaration()
       ..version = version
@@ -140,11 +140,11 @@ class XmlBuilder {
   ///     });
   ///
   void element(String name,
-      {String namespace,
+      {String? namespace,
       Map<String, String> namespaces = const {},
       Map<String, String> attributes = const {},
       bool isSelfClosing = true,
-      Object nest}) {
+      Object? nest}) {
     final element = NodeBuilder();
     _stack.addLast(element);
     namespaces.forEach(this.namespace);
@@ -183,7 +183,7 @@ class XmlBuilder {
   ///     });
   ///
   void attribute(String name, Object value,
-      {String namespace, XmlAttributeType attributeType}) {
+      {String? namespace, XmlAttributeType? attributeType}) {
     final attribute = XmlAttribute(_buildName(name, namespace),
         value.toString(), attributeType ?? XmlAttributeType.DOUBLE_QUOTE);
     _stack.last.attributes.add(attribute);
@@ -192,14 +192,14 @@ class XmlBuilder {
   /// Binds a namespace [prefix] to the provided [uri]. The [prefix] can be
   /// omitted to declare a default namespace. Throws an [ArgumentError] if
   /// the [prefix] is invalid or conflicts with an existing declaration.
-  void namespace(String uri, [String prefix]) {
+  void namespace(String uri, [String? prefix]) {
     if (prefix == xmlns || prefix == xml) {
       throw ArgumentError('The "$prefix" prefix cannot be bound.');
     }
     if (optimizeNamespaces &&
         _stack.any((builder) =>
             builder.namespaces.containsKey(uri) &&
-            builder.namespaces[uri].prefix == prefix)) {
+            builder.namespaces[uri]!.prefix == prefix)) {
       // Namespace prefix already correctly specified in an ancestor.
       return;
     }
@@ -245,7 +245,7 @@ class XmlBuilder {
   }
 
   // Internal method to build a name.
-  XmlName _buildName(String name, String uri) {
+  XmlName _buildName(String name, String? uri) {
     if (uri != null && uri.isNotEmpty) {
       final meta = _lookup(uri);
       meta.used = true;
@@ -260,11 +260,11 @@ class XmlBuilder {
     final builder = _stack.lastWhere(
         (builder) => builder.namespaces.containsKey(uri),
         orElse: () => throw ArgumentError('Undefined namespace: $uri'));
-    return builder.namespaces[uri];
+    return builder.namespaces[uri]!;
   }
 
   // Internal method to add children to the current element.
-  void _insert(Object value) {
+  void _insert(Object? value) {
     if (value is Function) {
       value();
     } else if (value is Iterable) {
@@ -275,7 +275,7 @@ class XmlBuilder {
         text(value.text);
       } else if (value is XmlAttribute) {
         // Attributes must be copied and added to the attributes list.
-        _stack.last.attributes.add(value.copy());
+        _stack.last.attributes.add(value.copy() as XmlAttribute);
       } else if (value is XmlElement || value is XmlData) {
         // Children nodes must be copied and added to the children list.
         _stack.last.children.add(value.copy());
@@ -292,16 +292,16 @@ class XmlBuilder {
 }
 
 class NamespaceData {
-  final String prefix;
+  final String? prefix;
   bool used;
 
   static final NamespaceData xmlData = NamespaceData(xml, true);
 
   NamespaceData(this.prefix, [this.used = false]);
 
-  XmlName get name => prefix == null || prefix.isEmpty
+  XmlName get name => prefix == null || prefix!.isEmpty
       ? XmlName(xmlns)
-      : XmlName(prefix, xmlns);
+      : XmlName(prefix!, xmlns);
 }
 
 class NodeBuilder {
@@ -313,7 +313,7 @@ class NodeBuilder {
 
   bool isSelfClosing = true;
 
-  XmlName name;
+  late final XmlName name;
 
   XmlElement buildElement() =>
       XmlElement(name, attributes, children, isSelfClosing);

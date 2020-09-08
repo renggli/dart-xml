@@ -10,7 +10,7 @@ import 'token.dart';
 abstract class XmlName extends Object
     with XmlHasVisitor, XmlHasWriter, XmlHasParent {
   /// Return the namespace prefix, or `null`.
-  String get prefix;
+  String? get prefix;
 
   /// Return the local name, excluding the namespace prefix.
   String get local;
@@ -19,11 +19,11 @@ abstract class XmlName extends Object
   String get qualified;
 
   /// Return the namespace URI, or `null`.
-  String get namespaceUri;
+  String? get namespaceUri;
 
   /// Creates a qualified [XmlName] from a `local` name and an optional
   /// `prefix`.
-  factory XmlName(String local, [String prefix]) =>
+  factory XmlName(String local, [String? prefix]) =>
       prefix == null || prefix.isEmpty
           ? XmlSimpleName(local)
           : XmlPrefixName(prefix, local, '$prefix${XmlToken.namespace}$local');

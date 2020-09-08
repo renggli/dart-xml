@@ -13,7 +13,7 @@ class XmlPrefixName extends XmlName {
   final String qualified;
 
   @override
-  String get namespaceUri => lookupAttribute(parent, xmlns, prefix)?.value;
+  String? get namespaceUri => lookupAttribute(parent, xmlns, prefix)?.value;
 
   XmlPrefixName(this.prefix, this.local, this.qualified) : super.internal();
 }

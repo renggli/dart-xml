@@ -13,7 +13,7 @@ class XmlCache<K, V> {
     var value = _values[key];
     if (value == null) {
       value = _loader(key);
-      _values[key] = value;
+      _values[key] = value!;
     }
     while (_values.length > _maxSize) {
       _values.remove(_values.keys.first);

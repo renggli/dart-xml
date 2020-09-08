@@ -6,8 +6,8 @@ import 'package:xml/xml.dart';
 
 final HttpClient httpClient = HttpClient();
 
-void writeCell([Object output]) {
-  final contents = output == null ? '' : output.toString();
+void writeCell([Object? output]) {
+  final contents = output?.toString() ?? '';
   stdout.write(contents.padLeft(14, ' '));
   stdout.write('  ');
 }

@@ -34,13 +34,13 @@ mixin XmlHasWriter implements XmlHasVisitor {
   ///   using the provided [Comparator].
   String toXmlString({
     bool pretty = false,
-    XmlEntityMapping entityMapping,
-    int level,
-    String indent,
-    String newLine,
-    Predicate<XmlNode> preserveWhitespace,
-    Predicate<XmlAttribute> indentAttribute,
-    Comparator<XmlAttribute> sortAttributes,
+    XmlEntityMapping? entityMapping,
+    int? level,
+    String? indent,
+    String? newLine,
+    Predicate<XmlNode>? preserveWhitespace,
+    Predicate<XmlAttribute>? indentAttribute,
+    Comparator<XmlAttribute>? sortAttributes,
   }) {
     final buffer = StringBuffer();
     final writer = pretty

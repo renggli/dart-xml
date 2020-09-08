@@ -54,8 +54,14 @@ class XmlDocument extends XmlNode with XmlHasChildren {
   ///              '<shelf></shelf>';
   ///    print(XmlDocument.parse(xml).doctypeElement);
   ///
-  XmlDeclaration get declaration =>
-      children.firstWhere((node) => node is XmlDeclaration, orElse: () => null);
+  XmlDeclaration? get declaration {
+    for (final node in children) {
+      if (node is XmlDeclaration) {
+        return node;
+      }
+    }
+    return null;
+  }
 
   /// Return the [XmlDoctype] element, or `null` if not defined.
   ///
@@ -65,8 +71,14 @@ class XmlDocument extends XmlNode with XmlHasChildren {
   ///              '<html><body></body></html>';
   ///    print(XmlDocument.parse(xml).doctypeElement);
   ///
-  XmlDoctype get doctypeElement =>
-      children.firstWhere((node) => node is XmlDoctype, orElse: () => null);
+  XmlDoctype? get doctypeElement {
+    for (final node in children) {
+      if (node is XmlDoctype) {
+        return node;
+      }
+    }
+    return null;
+  }
 
   /// Return the root [XmlElement] of the document, or throw a [StateError] if
   /// the document has no such element.
@@ -77,9 +89,14 @@ class XmlDocument extends XmlNode with XmlHasChildren {
   ///               '<books />';
   ///     print(XmlDocument.parse(xml).rootElement);
   ///
-  XmlElement get rootElement =>
-      children.firstWhere((node) => node is XmlElement,
-          orElse: () => throw StateError('Empty XML document'));
+  XmlElement get rootElement {
+    for (final node in children) {
+      if (node is XmlElement) {
+        return node;
+      }
+    }
+    throw StateError('Empty XML document');
+  }
 
   @override
   XmlNodeType get nodeType => XmlNodeType.DOCUMENT;

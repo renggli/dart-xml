@@ -7,8 +7,8 @@ import 'node_type.dart';
 
 /// Mutable list of XmlNodes, manages the parenting of the nodes.
 class XmlNodeList<E extends XmlNode> extends DelegatingList<E> {
-  XmlNode _parent;
-  Set<XmlNodeType> _nodeTypes;
+  late final XmlNode _parent;
+  late final Set<XmlNodeType> _nodeTypes;
 
   XmlNodeList() : super(<E>[]);
 
@@ -60,11 +60,10 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> {
   }
 
   @override
-  bool remove(Object value) {
+  bool remove(Object? value) {
     final removed = super.remove(value);
-    if (removed) {
-      final E node = value;
-      node.detachParent(_parent);
+    if (removed && value is E) {
+      value.detachParent(_parent);
     }
     return removed;
   }
@@ -116,7 +115,7 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> {
   }
 
   @override
-  void fillRange(int start, int end, [E fillValue]) =>
+  void fillRange(int start, int end, [E? fillValue]) =>
       throw UnsupportedError('Unsupported range filling of node list.');
 
   @override
@@ -179,7 +178,7 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> {
 
   Iterable<E> _expandFragment(E fragment) => fragment.children.map((node) {
         XmlNodeTypeException.checkValidType(node, _nodeTypes);
-        return node.copy();
+        return node.copy() as E;
       });
 
   Iterable<E> _expandNodes(Iterable<E> iterable) {

@@ -20,7 +20,7 @@ class XmlDefaultEntityMapping extends XmlEntityMapping {
   const XmlDefaultEntityMapping(this.entities);
 
   @override
-  String decodeEntity(String input) {
+  String? decodeEntity(String input) {
     if (input.length > 1 && input[0] == '#') {
       if (input.length > 2 && (input[1] == 'x' || input[1] == 'X')) {
         // Hexadecimal character reference.

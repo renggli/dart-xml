@@ -10,19 +10,19 @@ mixin XmlAttributesBase {
   List<XmlAttribute> get attributes => const [];
 
   /// Return the attribute value with the given `name`, or `null`.
-  String getAttribute(String name, {String namespace}) => null;
+  String? getAttribute(String name, {String? namespace}) => null;
 
   /// Return the attribute node with the given `name`, or `null`.
-  XmlAttribute getAttributeNode(String name, {String namespace}) => null;
+  XmlAttribute? getAttributeNode(String name, {String? namespace}) => null;
 
   /// Set the attribute value with the given fully qualified `name` to `value`.
   /// If an attribute with the name already exist, its value is updated.
   /// If the value is `null`, the attribute is removed.
-  void setAttribute(String name, String value, {String namespace}) =>
+  void setAttribute(String name, String? value, {String? namespace}) =>
       throw UnsupportedError('$this has no attributes.');
 
   /// Removes the attribute value with the given fully qualified `name`.
-  void removeAttribute(String name, {String namespace}) =>
+  void removeAttribute(String name, {String? namespace}) =>
       setAttribute(name, null, namespace: namespace);
 }
 
@@ -32,15 +32,22 @@ mixin XmlHasAttributes implements XmlAttributesBase {
   final XmlNodeList<XmlAttribute> attributes = XmlNodeList<XmlAttribute>();
 
   @override
-  String getAttribute(String name, {String namespace}) =>
+  String? getAttribute(String name, {String? namespace}) =>
       getAttributeNode(name, namespace: namespace)?.value;
 
   @override
-  XmlAttribute getAttributeNode(String name, {String namespace}) => attributes
-      .firstWhere(createNameMatcher(name, namespace), orElse: () => null);
+  XmlAttribute? getAttributeNode(String name, {String? namespace}) {
+    final tester = createNameMatcher(name, namespace);
+    for (final attribute in attributes) {
+      if (tester(attribute)) {
+        return attribute;
+      }
+    }
+    return null;
+  }
 
   @override
-  void setAttribute(String name, String value, {String namespace}) {
+  void setAttribute(String name, String? value, {String? namespace}) {
     final index = attributes.indexWhere(createNameMatcher(name, namespace));
     if (index < 0) {
       if (value != null) {

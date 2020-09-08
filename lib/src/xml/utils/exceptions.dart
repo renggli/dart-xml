@@ -8,16 +8,16 @@ abstract class XmlException implements Exception {
   final String message;
 
   /// Creates a new XmlException with an optional error [message].
-  XmlException([this.message]);
+  XmlException(this.message);
 
   @override
-  String toString() => message ?? super.toString();
+  String toString() => '${super.toString}: $message';
 }
 
 /// Exception thrown when parsing of an XML document fails.
 class XmlParserException extends XmlException implements FormatException {
   /// The source input which caused the error.
-  final String buffer;
+  final String? buffer;
 
   /// The offset in [buffer] where the error was detected.
   final int position;
@@ -34,10 +34,10 @@ class XmlParserException extends XmlException implements FormatException {
       : super(message);
 
   @override
-  String get source => buffer;
+  String? get source => buffer;
 
   @override
-  int get offset => position;
+  int? get offset => position;
 
   @override
   String toString() => '${super.toString()} at $line:$column';

@@ -18,16 +18,16 @@ class XmlPrettyWriter extends XmlWriter {
   bool pretty = true;
   final String indent;
   final String newLine;
-  final Predicate<XmlNode> preserveWhitespace;
-  final Predicate<XmlAttribute> indentAttribute;
-  final Comparator<XmlAttribute> sortAttributes;
+  final Predicate<XmlNode>? preserveWhitespace;
+  final Predicate<XmlAttribute>? indentAttribute;
+  final Comparator<XmlAttribute>? sortAttributes;
 
   XmlPrettyWriter(
     StringSink buffer, {
-    XmlEntityMapping entityMapping,
-    int level,
-    String indent,
-    String newLine,
+    XmlEntityMapping? entityMapping,
+    int? level,
+    String? indent,
+    String? newLine,
     this.preserveWhitespace,
     this.indentAttribute,
     this.sortAttributes,
@@ -53,7 +53,7 @@ class XmlPrettyWriter extends XmlWriter {
       buffer.write(XmlToken.closeElement);
       if (node.children.isNotEmpty) {
         if (pretty) {
-          if (preserveWhitespace != null && preserveWhitespace(node)) {
+          if (preserveWhitespace != null && preserveWhitespace!(node)) {
             pretty = false;
             writeIterable(node.children);
             pretty = true;
@@ -82,7 +82,7 @@ class XmlPrettyWriter extends XmlWriter {
   @override
   void writeAttributes(XmlHasAttributes node) {
     for (final attribute in normalizeAttributes(node.attributes)) {
-      if (pretty && indentAttribute != null && indentAttribute(attribute)) {
+      if (pretty && indentAttribute != null && indentAttribute!(attribute)) {
         buffer.write(newLine);
         buffer.write(indent * (level + 1));
       } else {

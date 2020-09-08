@@ -14,22 +14,22 @@ class XmlDeclaration extends XmlNode
   }
 
   /// Return the XML version of the document, or `null`.
-  String get version => getAttribute(versionAttribute);
+  String? get version => getAttribute(versionAttribute);
 
   /// Set the XML version of the document.
-  set version(String value) => setAttribute(versionAttribute, value);
+  set version(String? value) => setAttribute(versionAttribute, value);
 
   /// Return the encoding of the document, or `null`.
-  String get encoding => getAttribute(encodingAttribute);
+  String? get encoding => getAttribute(encodingAttribute);
 
   /// Set the encoding of the document.
-  set encoding(String value) => setAttribute(encodingAttribute, value);
+  set encoding(String? value) => setAttribute(encodingAttribute, value);
 
   /// Return the value of the standalone directive.
   bool get standalone => getAttribute(standaloneAttribute) == 'yes';
 
   /// Set the value of the standalone directive.
-  set standalone(bool value) => setAttribute(
+  set standalone(bool? value) => setAttribute(
       standaloneAttribute,
       value == null
           ? null

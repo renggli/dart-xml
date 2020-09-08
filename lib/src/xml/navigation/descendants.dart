@@ -10,38 +10,38 @@ extension XmlDescendantsExtension on XmlNode {
 
 /// Iterable to walk over the descendants of a node.
 class XmlDescendantsIterable extends IterableBase<XmlNode> {
-  final XmlNode start;
+  final XmlNode _start;
 
-  XmlDescendantsIterable(this.start);
+  XmlDescendantsIterable(this._start);
 
   @override
-  Iterator<XmlNode> get iterator => XmlDescendantsIterator(start);
+  Iterator<XmlNode> get iterator => XmlDescendantsIterator(_start);
 }
 
 /// Iterator to walk over the descendants of a node.
 class XmlDescendantsIterator extends Iterator<XmlNode> {
-  final List<XmlNode> todo = [];
+  final List<XmlNode> _todo = [];
+  XmlNode? _current;
 
   XmlDescendantsIterator(XmlNode start) {
     push(start);
   }
 
   void push(XmlNode node) {
-    todo.addAll(node.children.reversed);
-    todo.addAll(node.attributes.reversed);
+    _todo.addAll(node.children.reversed);
+    _todo.addAll(node.attributes.reversed);
   }
 
   @override
-  XmlNode current;
+  XmlNode get current => _current!;
 
   @override
   bool moveNext() {
-    if (todo.isEmpty) {
-      current = null;
+    if (_todo.isEmpty) {
       return false;
     } else {
-      current = todo.removeLast();
-      push(current);
+      _current = _todo.removeLast();
+      push(_current!);
       return true;
     }
   }

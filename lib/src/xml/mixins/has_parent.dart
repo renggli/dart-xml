@@ -4,7 +4,7 @@ import '../utils/exceptions.dart';
 /// Parent interface for nodes.
 mixin XmlParentBase {
   /// Return the parent node of this node, or `null` if there is none.
-  XmlNode get parent => null;
+  XmlNode? get parent => null;
 
   /// Test whether the node has a parent or not.
   bool get hasParent => false;
@@ -24,18 +24,18 @@ mixin XmlParentBase {
 
 /// Mixin for nodes with a parent.
 mixin XmlHasParent<T extends XmlNode> implements XmlParentBase {
-  T _parent;
+  T? _parent;
 
   @override
-  T get parent => _parent;
+  T? get parent => _parent;
 
   @override
   bool get hasParent => parent != null;
 
   @override
   void replace(XmlNode other) {
-    if (hasParent) {
-      final siblings = parent.children;
+    if (_parent != null) {
+      final siblings = _parent!.children;
       for (var i = 0; i < siblings.length; i++) {
         if (identical(siblings[i], this)) {
           siblings[i] = other;
