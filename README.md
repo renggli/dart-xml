@@ -278,6 +278,7 @@ Furthermore, there are numerous packages depending on this package:
 - [Extensible Resource Descriptors](https://github.com/stevenroose/dart-xrd) is a library to read Extensible Resource Descriptors.
 - [xml2json](https://github.com/shamblett/xml2json) is an XML to JSON conversion package.
 - [spreadsheet_decoder](https://github.com/sestegra/spreadsheet_decoder) is a library for decoding and updating spreadsheets for ODS and XLSX files.
+- [excel](https://github.com/justkawal/excel) is a library for reading, updating and creating excel files with advanced features.
 - [and many more](https://pub.dev/packages?q=dependency%3Axml) ...
 
 ### Supports
