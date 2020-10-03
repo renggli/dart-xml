@@ -30,7 +30,12 @@ class XmlDeclaration extends XmlNode
 
   /// Set the value of the standalone directive.
   set standalone(bool value) => setAttribute(
-      standaloneAttribute, value == null ? null : value ? 'yes' : 'no');
+      standaloneAttribute,
+      value == null
+          ? null
+          : value
+              ? 'yes'
+              : 'no');
 
   @override
   XmlNodeType get nodeType => XmlNodeType.DECLARATION;

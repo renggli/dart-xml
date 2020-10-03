@@ -13,7 +13,7 @@ import 'examples.dart';
 /// The resulting duration is the average time measured to run [function] once.
 double benchmark(Function function,
     {Duration warmup = const Duration(milliseconds: 200),
-      Duration measure = const Duration(seconds: 2)}) {
+    Duration measure = const Duration(seconds: 2)}) {
   _benchmark(function, warmup);
   return _benchmark(function, measure);
 }
