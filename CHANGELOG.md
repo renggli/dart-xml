@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.6.0
+## 5.0.0
 
 * Dart 2.10 requirement and null-safety.
 
