@@ -212,6 +212,49 @@ void main() {
     const expected = '<text>abcdef</text>';
     expect(actual, expected);
   });
+  test('xml', () {
+    final builder = XmlBuilder();
+    builder.xml('<element attr="value"/>');
+    final xml = builder.buildDocument();
+    assertDocumentTreeInvariants(xml);
+    final actual = xml.toString();
+    const expected = '<element attr="value"/>';
+    expect(actual, expected);
+  });
+  test('xml (nested)', () {
+    final builder = XmlBuilder();
+    builder.element('outer', nest: () {
+      builder.xml('<inner attr="value"/>');
+    });
+    final xml = builder.buildDocument();
+    assertDocumentTreeInvariants(xml);
+    final actual = xml.toString();
+    const expected = '<outer><inner attr="value"/></outer>';
+    expect(actual, expected);
+  });
+  test('xml (multiple)', () {
+    final builder = XmlBuilder();
+    builder.element('outer', nest: () {
+      builder.xml('<inner1/>');
+      builder.xml('<inner2>hello</inner2>');
+    });
+    final xml = builder.buildDocument();
+    assertDocumentTreeInvariants(xml);
+    final actual = xml.toString();
+    const expected = '<outer><inner1/><inner2>hello</inner2></outer>';
+    expect(actual, expected);
+  });
+  test('xml (invalid)', () {
+    final builder = XmlBuilder();
+    builder.element('outer', nest: () {
+      expect(() => builder.xml('<broken>'), throwsA(isXmlParserException));
+    });
+    final xml = builder.buildDocument();
+    assertDocumentTreeInvariants(xml);
+    final actual = xml.toString();
+    const expected = '<outer/>';
+    expect(actual, expected);
+  });
   test('namespace binding', () {
     const uri = 'http://www.w3.org/2001/XMLSchema';
     final builder = XmlBuilder();

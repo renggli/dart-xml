@@ -3,6 +3,7 @@
 ## 5.0.0
 
 * Dart 2.10 requirement and null-safety.
+* Add the possibility to `XmlBuilder` to add raw strings.
 
 ## 4.5.0
 

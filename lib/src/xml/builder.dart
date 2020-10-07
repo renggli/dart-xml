@@ -1,5 +1,7 @@
 import 'dart:collection';
 
+import 'entities/default_mapping.dart';
+import 'entities/entity_mapping.dart';
 import 'nodes/attribute.dart';
 import 'nodes/cdata.dart';
 import 'nodes/comment.dart';
@@ -12,8 +14,9 @@ import 'nodes/node.dart';
 import 'nodes/processing.dart';
 import 'nodes/text.dart';
 import 'utils/attribute_type.dart';
+import 'utils/exceptions.dart';
 import 'utils/name.dart';
-import 'utils/namespace.dart';
+import 'utils/namespace.dart' as ns;
 
 /// A builder to create XML trees with code.
 class XmlBuilder {
@@ -188,11 +191,29 @@ class XmlBuilder {
     _stack.last.attributes.add(attribute);
   }
 
+  /// Adds a raw XML string. The string will be parsed as [XmlDocumentFragment]
+  /// and throws an [XmlParserException] if the input is invalid.
+  ///
+  /// To generate a bookshelf element with two predefined book elements, one
+  /// would write:
+  ///
+  ///     builder.element('bookshelf', nest: () {
+  ///       builder.xml('<book><title>Growing a Language</title></book>');
+  ///       builder.xml('<book><title>Learning XML</title></book>');
+  ///     });
+  ///
+  void xml(String input,
+      {XmlEntityMapping entityMapping = const XmlDefaultEntityMapping.xml()}) {
+    final fragment =
+        XmlDocumentFragment.parse(input, entityMapping: entityMapping);
+    _stack.last.children.add(fragment);
+  }
+
   /// Binds a namespace [prefix] to the provided [uri]. The [prefix] can be
   /// omitted to declare a default namespace. Throws an [ArgumentError] if
   /// the [prefix] is invalid or conflicts with an existing declaration.
   void namespace(String uri, [String? prefix]) {
-    if (prefix == xmlns || prefix == xml) {
+    if (prefix == ns.xmlns || prefix == ns.xml) {
       throw ArgumentError('The "$prefix" prefix cannot be bound.');
     }
     if (optimizeNamespaces &&
@@ -239,7 +260,7 @@ class XmlBuilder {
   void _reset() {
     _stack.clear();
     final node = NodeBuilder();
-    node.namespaces[xmlUri] = NamespaceData.xmlData;
+    node.namespaces[ns.xmlUri] = NamespaceData.xmlData;
     _stack.addLast(node);
   }
 
@@ -294,13 +315,13 @@ class NamespaceData {
   final String? prefix;
   bool used;
 
-  static final NamespaceData xmlData = NamespaceData(xml, true);
+  static final NamespaceData xmlData = NamespaceData(ns.xml, true);
 
   NamespaceData(this.prefix, [this.used = false]);
 
   XmlName get name => prefix == null || prefix!.isEmpty
-      ? XmlName(xmlns)
-      : XmlName(prefix!, xmlns);
+      ? XmlName(ns.xmlns)
+      : XmlName(prefix!, ns.xmlns);
 }
 
 class NodeBuilder {

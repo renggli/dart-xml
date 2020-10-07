@@ -241,10 +241,8 @@ await response
 Similarly, the following snippet extracts sub-trees with location information from a `sitemap.xml` file, converts the XML events to XML nodes, and finally prints out the containing text: 
 
 ```dart
-final url = Uri.parse('https://dart.dev/sitemap.xml');
-final request = await HttpClient().getUrl(url);
-final response = await request.close();
-await response
+final file = File('sitemap.xml');
+await file.openRead()
   .transform(utf8.decoder)
   .toXmlEvents()
   .selectSubtreeEvents((event) => event.name == 'loc')
