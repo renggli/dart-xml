@@ -1,4 +1,5 @@
 import 'package:test/test.dart';
+import 'package:xml/xml.dart';
 
 import 'assertions.dart';
 
@@ -12,5 +13,23 @@ void main() {
         '</DigitsLeft><SuppressLeadingZero>Y</SuppressLeadingZero>'
         '</InstantaneousDemand>';
     assertDocumentParseInvariants(input);
+  });
+  test('https://github.com/renggli/dart-xml/issues/95', () {
+    const input =
+        '''<link type="text/html" title="View on Feedbooks" rel="alternate" href="https://www.feedbooks.com/book/2936"/>
+        <link type="application/epub+zip" rel="http://opds-spec.org/acquisition" href="https://www.feedbooks.com/book/2936.epub"/>
+        <link type="image/jpeg" rel="http://opds-spec.org/image" href="https://covers.feedbooks.net/book/2936.jpg?size=large&amp;t=1549045871"/>
+        <link type="image/jpeg" rel="http://opds-spec.org/image/thumbnail" href="https://covers.feedbooks.net/book/2936.jpg?size=large&amp;t=1549045871"/>''';
+    assertFragmentParseInvariants(input);
+    final fragment = XmlDocumentFragment.parse(input);
+    final href = fragment
+        .findElements('link')
+        .where((element) =>
+            element.getAttribute('rel') ==
+            'http://opds-spec.org/image/thumbnail')
+        .map((element) => element.getAttribute('href'))
+        .single;
+    expect(href,
+        'https://covers.feedbooks.net/book/2936.jpg?size=large&t=1549045871');
   });
 }
