@@ -1,8 +1,8 @@
 import 'dart:convert' show ChunkedConversionSink;
 
-import '../converters/list_converter.dart';
 import '../event.dart';
 import '../events/text.dart';
+import '../utils/list_converter.dart';
 
 extension XmlNormalizeEventsExtension on Stream<List<XmlEvent>> {
   /// Normalizes a sequence of [XmlEvent] objects by removing empty and

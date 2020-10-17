@@ -21,7 +21,7 @@ import '../events/processing.dart';
 import '../events/start_element.dart';
 import '../events/text.dart';
 import '../utils/event_attribute.dart';
-import 'list_converter.dart';
+import '../utils/list_converter.dart';
 
 extension XmlNodeEncoderExtension on Stream<List<XmlNode>> {
   /// Converts a sequence of [XmlNode] objects to [XmlEvent] objects.

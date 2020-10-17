@@ -1,7 +1,6 @@
 import 'dart:convert' show ChunkedConversionSink;
 
 import '../../xml/utils/exceptions.dart';
-import '../converters/list_converter.dart';
 import '../event.dart';
 import '../events/cdata.dart';
 import '../events/comment.dart';
@@ -11,6 +10,7 @@ import '../events/end_element.dart';
 import '../events/processing.dart';
 import '../events/start_element.dart';
 import '../events/text.dart';
+import '../utils/list_converter.dart';
 import '../utils/parented.dart';
 import '../visitor.dart';
 

@@ -2,10 +2,10 @@ import 'dart:convert' show ChunkedConversionSink;
 
 import '../../xml/utils/exceptions.dart';
 import '../../xml/utils/predicate.dart';
-import '../converters/list_converter.dart';
 import '../event.dart';
 import '../events/end_element.dart';
 import '../events/start_element.dart';
+import '../utils/list_converter.dart';
 
 extension XmlSubtreeSelectorExtension on Stream<List<XmlEvent>> {
   /// From a sequence of [XmlEvent] objects filter the event sequences that
