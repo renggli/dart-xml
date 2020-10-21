@@ -181,13 +181,15 @@ buildBook(builder, 'Voyages extraordinaries', 'fr', 18.20);
 bookshelfXml.firstElementChild.children.add(builder.buildFragment());
 ```
 
-### Streaming
+### Event-driven
 
-Reading large XML files and instantiating their DOM into the memory can be expensive. As an alternative this library provides the possibility to read and transform XML documents as a sequence of events using [Dart Streams](https://dart.dev/tutorials/language/streams). This approach is comparable to event-driven SAX parsing known from other libraries.
+Reading large XML files and instantiating their DOM into the memory can be expensive. As an alternative this library provides the possibility to read and transform XML documents as a sequence of events using Dart Iterables or [Streams](https://dart.dev/tutorials/language/streams). These approaches are comparable to event-driven SAX parsing known from other libraries.
 
 ```dart
 import 'package:xml/xml_events.dart';
 ```
+
+#### Iterables
 
 In the simplest case you can get a `Iterable<XmlEvent>` over the input string using the following code. This parses the input lazily, and only parses input when requested:
 
@@ -198,6 +200,10 @@ parseEvents(bookshelfXml)
     .where((text) => text.isNotEmpty)
     .forEach(print);
 ```
+
+This approach requires the whole input to be available at the beginning and does not work if the data itself is only available asynchronous, such as coming from a slow network connection. A more sophisticated API is provided with [Dart Streams](https://dart.dev/tutorials/language/streams).
+
+#### Streams
 
 To asynchronously parse and process events directly from a file or HTTP stream use the provided codecs to convert between strings, events and DOM tree nodes:
  
