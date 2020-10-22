@@ -256,7 +256,7 @@ await file.openRead()
   .forEach((node) => print(node.innerText));
 ```
 
-A common challenge when processing XML event streams is the lack of hierarchical information, thus it is very hard to figure out parent dependencies such as looking up a namespace URI. The `.withParentEvents()` transformation validates the hierarchy and annotates the events with their parent event. This enables features (such as the `namespaceUri` accessor) and makes mapping and selecting events considerably simpler. For example:
+A common challenge when processing XML event streams is the lack of hierarchical information, thus it is very hard to figure out parent dependencies such as looking up a namespace URI. The `.withParentEvents()` transformation validates the hierarchy and annotates the events with their parent event. This enables features (such as `parentEvent` and the `namespaceUri` accessor) and makes mapping and selecting events considerably simpler. For example:
 
 ```dart
 await Stream.fromIterable([shiporderXsd])
