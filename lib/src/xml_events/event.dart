@@ -14,5 +14,5 @@ abstract class XmlEvent with XmlParented {
   void accept(XmlEventVisitor visitor);
 
   @override
-  String toString() => const XmlEventEncoder().convert([this]);
+  String toString() => XmlEventEncoder().convert([this]);
 }

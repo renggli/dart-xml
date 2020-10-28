@@ -18,9 +18,7 @@ import '../visitor.dart';
 
 extension XmlEventEncoderExtension on Stream<List<XmlEvent>> {
   /// Converts a sequence of [XmlEvent] objects to a [String].
-  Stream<String> toXmlString(
-          {XmlEntityMapping entityMapping =
-              const XmlDefaultEntityMapping.xml()}) =>
+  Stream<String> toXmlString({XmlEntityMapping? entityMapping}) =>
       transform(XmlEventEncoder(entityMapping: entityMapping));
 }
 
@@ -28,8 +26,8 @@ extension XmlEventEncoderExtension on Stream<List<XmlEvent>> {
 class XmlEventEncoder extends Converter<List<XmlEvent>, String> {
   final XmlEntityMapping entityMapping;
 
-  const XmlEventEncoder(
-      {this.entityMapping = const XmlDefaultEntityMapping.xml()});
+  XmlEventEncoder({XmlEntityMapping? entityMapping})
+      : entityMapping = entityMapping ?? defaultEntityMapping;
 
   @override
   String convert(List<XmlEvent> input) {

@@ -1,12 +1,12 @@
 /// Dart XML is a lightweight library for parsing, traversing, querying and
 /// building XML documents.
-import 'src/xml/entities/default_mapping.dart';
 import 'src/xml/entities/entity_mapping.dart';
 import 'src/xml/nodes/document.dart';
 import 'src/xml/utils/exceptions.dart';
 
 export 'src/xml/builder.dart' show XmlBuilder;
-export 'src/xml/entities/default_mapping.dart' show XmlDefaultEntityMapping;
+export 'src/xml/entities/default_mapping.dart'
+    show defaultEntityMapping, XmlDefaultEntityMapping;
 export 'src/xml/entities/entity_mapping.dart' show XmlEntityMapping;
 export 'src/xml/entities/null_mapping.dart' show XmlNullEntityMapping;
 export 'src/xml/grammar.dart' show XmlGrammarDefinition;
@@ -66,7 +66,5 @@ export 'src/xml/visitors/writer.dart' show XmlWriter;
 /// Note: It is the responsibility of the caller to provide a standard Dart
 /// [String] using the default UTF-16 encoding.
 @Deprecated('Use `XmlDocument.parse` instead')
-XmlDocument parse(String input,
-        {XmlEntityMapping entityMapping =
-            const XmlDefaultEntityMapping.xml()}) =>
+XmlDocument parse(String input, {XmlEntityMapping? entityMapping}) =>
     XmlDocument.parse(input, entityMapping: entityMapping);

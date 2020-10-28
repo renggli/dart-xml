@@ -2,6 +2,9 @@ import '../utils/attribute_type.dart';
 import 'entity_mapping.dart';
 import 'named_entities.dart';
 
+/// The entity mapping used when nothing else is specified.
+XmlEntityMapping defaultEntityMapping = const XmlDefaultEntityMapping.xml();
+
 /// Default entity mapping for XML, HTML, and HTML5 entities.
 class XmlDefaultEntityMapping extends XmlEntityMapping {
   /// Named character references.

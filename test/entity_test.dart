@@ -190,7 +190,9 @@ void testDefaultMapping(XmlEntityMapping entityMapping) {
 }
 
 void main() {
-  group('xml', () => testDefaultMapping(const XmlDefaultEntityMapping.xml()));
+  group('xml', () {
+    testDefaultMapping(defaultEntityMapping);
+  });
   group('html', () {
     const entityMapping = XmlDefaultEntityMapping.html();
     testDefaultMapping(entityMapping);

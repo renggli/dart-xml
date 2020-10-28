@@ -25,9 +25,10 @@ class XmlDocument extends XmlNode with XmlHasChildren {
   ///
   /// Note: It is the responsibility of the caller to provide a standard Dart
   /// [String] using the default UTF-16 encoding.
-  factory XmlDocument.parse(String input,
-      {XmlEntityMapping entityMapping = const XmlDefaultEntityMapping.xml()}) {
-    final result = documentParserCache[entityMapping].parse(input);
+  factory XmlDocument.parse(String input, {XmlEntityMapping? entityMapping}) {
+    final mapping = entityMapping ?? defaultEntityMapping;
+    final parser = documentParserCache[mapping];
+    final result = parser.parse(input);
     if (result.isFailure) {
       final lineAndColumn =
           Token.lineAndColumnOf(result.buffer, result.position);

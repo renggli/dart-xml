@@ -1,6 +1,5 @@
 import 'dart:collection';
 
-import 'entities/default_mapping.dart';
 import 'entities/entity_mapping.dart';
 import 'nodes/attribute.dart';
 import 'nodes/cdata.dart';
@@ -202,8 +201,7 @@ class XmlBuilder {
   ///       builder.xml('<book><title>Learning XML</title></book>');
   ///     });
   ///
-  void xml(String input,
-      {XmlEntityMapping entityMapping = const XmlDefaultEntityMapping.xml()}) {
+  void xml(String input, {XmlEntityMapping? entityMapping}) {
     final fragment =
         XmlDocumentFragment.parse(input, entityMapping: entityMapping);
     _stack.last.children.add(fragment);

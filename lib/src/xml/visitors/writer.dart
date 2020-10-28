@@ -22,7 +22,7 @@ class XmlWriter with XmlVisitor {
   final XmlEntityMapping entityMapping;
 
   XmlWriter(this.buffer, {XmlEntityMapping? entityMapping})
-      : entityMapping = entityMapping ?? const XmlDefaultEntityMapping.xml();
+      : entityMapping = entityMapping ?? defaultEntityMapping;
 
   @override
   void visitAttribute(XmlAttribute node) {

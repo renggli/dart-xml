@@ -212,8 +212,7 @@ void main() {
       test('not consumed input', () {
         final accumulator = ChunkedConversionSink<List<XmlEvent>>.withCallback(
             (accumulated) => fail('Not supposed to be reached.'));
-        final converter =
-            const XmlEventDecoder().startChunkedConversion(accumulator);
+        final converter = XmlEventDecoder().startChunkedConversion(accumulator);
         expect(() => converter.addSlice('a<', 0, 2, true),
             throwsA(isXmlParserException));
         expect(converter.close, throwsA(isXmlParserException));

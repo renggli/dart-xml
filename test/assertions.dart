@@ -419,7 +419,7 @@ void assertStreamEventInvariants(String input, XmlNode node) {
     XmlNodeType.PROCESSING,
     XmlNodeType.TEXT,
   };
-  final parsedEvents = const XmlEventDecoder().convert(input);
+  final parsedEvents = XmlEventDecoder().convert(input);
   final parentEvents = const XmlWithParentEvents().convert(parsedEvents);
   final nodes = node.descendants
       .where((node) => includedTypes.contains(node.nodeType))

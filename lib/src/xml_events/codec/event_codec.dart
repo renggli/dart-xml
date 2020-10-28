@@ -1,6 +1,5 @@
 import 'dart:convert' show Codec, Converter;
 
-import '../../xml/entities/default_mapping.dart';
 import '../../xml/entities/entity_mapping.dart';
 import '../converters/event_decoder.dart';
 import '../converters/event_encoder.dart';
@@ -8,8 +7,7 @@ import '../event.dart';
 
 /// Converts between [String] and [XmlEvent] sequences.
 class XmlEventCodec extends Codec<List<XmlEvent>, String> {
-  XmlEventCodec(
-      {XmlEntityMapping entityMapping = const XmlDefaultEntityMapping.xml()})
+  XmlEventCodec({XmlEntityMapping? entityMapping})
       : decoder = XmlEventDecoder(entityMapping: entityMapping),
         encoder = XmlEventEncoder(entityMapping: entityMapping);
 

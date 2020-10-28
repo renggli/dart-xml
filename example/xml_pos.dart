@@ -95,8 +95,7 @@ String outputString(int limit, Token token) {
 
 final Map<XmlNode, Token> tokens = {};
 
-final Parser parser =
-    PositionParserDefinition(const XmlDefaultEntityMapping.xml()).build();
+final Parser parser = PositionParserDefinition(defaultEntityMapping).build();
 
 class PositionParserDefinition extends XmlParserDefinition {
   PositionParserDefinition(XmlEntityMapping entityMapping)
