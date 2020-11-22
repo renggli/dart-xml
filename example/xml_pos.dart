@@ -2,6 +2,7 @@
 import 'dart:io';
 import 'dart:math';
 
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:args/args.dart' as args;
 import 'package:petitparser/petitparser.dart';
 import 'package:xml/xml.dart';
