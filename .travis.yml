@@ -7,7 +7,7 @@ jobs:
     - stage: valid
       name: "Dart Analyzer"
       os: linux
-      script: dartanalyzer --enable-experiment=non-nullable --fatal-warnings --fatal-infos .
+      script: dartanalyzer --fatal-infos .
     - stage: valid
       name: "Dart Formatter"
       os: linux
@@ -15,12 +15,17 @@ jobs:
     - stage: test
       name: "VM Tests"
       os: linux
-      script: pub run --enable-experiment=non-nullable test --platform vm
+      script: pub run test test/all_test.dart --platform vm
     - stage: test
       name: "Chrome Tests"
       os: linux
-      script: pub run --enable-experiment=non-nullable test --platform chrome
+      script: pub run test test/all_test.dart --platform chrome
+    - stage: coverage
+      name: "Coverage"
+      os: linux
+      script: pub global activate dart_coveralls && dart_coveralls report test/all_test.dart
 
 stages:
   - valid
   - test
+  - coverage
