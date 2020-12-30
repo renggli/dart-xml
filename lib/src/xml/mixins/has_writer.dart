@@ -8,7 +8,6 @@ import 'has_visitor.dart';
 
 /// Mixin to serialize XML to a [StringBuffer].
 mixin XmlHasWriter implements XmlHasVisitor {
-  /// Return a default XML string of this object.
   /// Return an XML string of this object.
   ///
   /// If [pretty] is set to `true` the output is nicely reformatted, otherwise
@@ -17,7 +16,8 @@ mixin XmlHasWriter implements XmlHasVisitor {
   /// The [entityMapping] defines how character entities are encoded into the
   /// resulting output.
   ///
-  /// All other options are used for pretty printing only:
+  /// The remaining options are used for pretty printing only:
+  ///
   /// - The option [indent] defines the indention of nodes, by default nodes
   ///   are indented with 2 spaces.
   /// - The option [newLine] defines the printing of new lines, by default
@@ -32,6 +32,7 @@ mixin XmlHasWriter implements XmlHasVisitor {
   ///   whitespace are preserved.
   /// - If the [sortAttributes] is provided, attributes are on-the-fly sorted
   ///   using the provided [Comparator].
+  ///
   String toXmlString({
     bool pretty = false,
     XmlEntityMapping? entityMapping,

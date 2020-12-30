@@ -12,16 +12,19 @@ mixin XmlParentBase {
   bool get hasParent => false;
 
   /// Replace this node with `other`.
-  void replace(XmlNode other) => _noParent();
+  void replace(XmlNode other) => _throwNoParent();
 
   /// Internal helper to attach a child to this parent, do not call directly.
-  void attachParent(covariant XmlNode parent) => _noParent();
+  @internal
+  void attachParent(covariant XmlNode parent) => _throwNoParent();
 
   /// Internal helper to detach a child from its parent, do not call directly.
-  void detachParent(covariant XmlNode parent) => _noParent();
+  @internal
+  void detachParent(covariant XmlNode parent) => _throwNoParent();
 
   /// Internal helper to throw an exception.
-  void _noParent() => throw UnsupportedError('$this does not have a parent.');
+  void _throwNoParent() =>
+      throw UnsupportedError('$this does not have a parent.');
 }
 
 /// Mixin for nodes with a parent.

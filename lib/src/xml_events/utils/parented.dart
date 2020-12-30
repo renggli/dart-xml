@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+
 import '../events/start_element.dart';
 import '../streams/with_parent.dart';
 
@@ -13,6 +15,7 @@ mixin XmlParented {
   XmlStartElementEvent? get parentEvent => _parentEvent;
 
   /// Internal helper to attach a parent to this child, do not call directly.
+  @internal
   void attachParentEvent(XmlStartElementEvent? parentEvent) {
     if (_parentEvent != null) {
       throw StateError('Parent event already resolved.');
