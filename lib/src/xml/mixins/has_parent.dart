@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+
 import '../nodes/node.dart';
 import '../utils/exceptions.dart';
 
@@ -30,7 +32,7 @@ mixin XmlHasParent<T extends XmlNode> implements XmlParentBase {
   T? get parent => _parent;
 
   @override
-  bool get hasParent => parent != null;
+  bool get hasParent => _parent != null;
 
   @override
   void replace(XmlNode other) {
