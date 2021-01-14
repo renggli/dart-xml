@@ -89,7 +89,7 @@ void main() {
             '<foo></bar>', 'Expected </foo>, but found </bar>', 5);
         assertDocumentParseError(
             '<foo><bar></foo>', 'Expected </bar>, but found </foo>', 10);
-        assertDocumentParseError('<foo/><bar>', 'end of input expected', 6);
+        assertDocumentParseError('<foo/><bar>', 'Expected end of input', 6);
       });
       test('closing', () {
         assertDocumentParseError('<data key="ab', '">" expected', 6);
@@ -184,24 +184,25 @@ void main() {
     });
     group('parse errors', () {
       test('nesting', () {
+        assertFragmentParseError('<foo>', '</ expected', 5);
         assertFragmentParseError(
             '<foo></bar>', 'Expected </foo>, but found </bar>', 5);
         assertFragmentParseError(
             '<foo><bar></foo>', 'Expected </bar>, but found </foo>', 10);
-        assertFragmentParseError('<foo/><bar>', 'end of input expected', 6);
+        assertFragmentParseError('<foo/><bar>', '</ expected', 11);
       });
       test('closing', () {
-        assertFragmentParseError('<data key="ab', 'end of input expected', 0);
-        assertFragmentParseError('<data key', 'end of input expected', 0);
-        assertFragmentParseError('<data', 'end of input expected', 0);
+        assertFragmentParseError('<data key="ab', '">" expected', 6);
+        assertFragmentParseError('<data key', '">" expected', 6);
+        assertFragmentParseError('<data', '">" expected', 5);
       });
       test('name', () {
-        assertFragmentParseError('<>', 'end of input expected', 0);
-        assertFragmentParseError('<!--', 'end of input expected', 0);
-        assertFragmentParseError('<![CDATA[', 'end of input expected', 0);
-        assertFragmentParseError('<!DOCTYPE', 'end of input expected', 0);
-        assertFragmentParseError('<?xml', 'end of input expected', 0);
-        assertFragmentParseError('<?processing', 'end of input expected', 0);
+        assertFragmentParseError('<>', 'Expected name', 1);
+        assertFragmentParseError('<!--', 'Expected name', 1);
+        assertFragmentParseError('<![CDATA[', 'Expected name', 1);
+        assertFragmentParseError('<!DOCTYPE', 'Expected name', 1);
+        assertFragmentParseError('<?xml', 'Expected name', 1);
+        assertFragmentParseError('<?processing', 'Expected name', 1);
       });
     });
   });

@@ -30,7 +30,7 @@ class XmlProductionDefinition extends GrammarDefinition {
   XmlProductionDefinition(this.entityMapping);
 
   @override
-  Parser start() => ref(document).end();
+  Parser start() => ref(document).end('Expected end of input');
 
   Parser attribute() => ref(qualified)
       .seq(ref(spaceOptional))
@@ -103,14 +103,18 @@ class XmlProductionDefinition extends GrammarDefinition {
       .seq(ref(element))
       .seq(ref(misc));
 
-  Parser documentFragment() => ref(characterData)
+  Parser documentFragment() => ref(documentFragmentContent)
+      .star()
+      .seq(endOfInput('Expected end of input') | ref(element))
+      .pick(0);
+
+  Parser documentFragmentContent() => ref(characterData)
       .or(ref(element))
       .or(ref(comment))
       .or(ref(cdata))
       .or(ref(declaration))
       .or(ref(processing))
-      .or(ref(doctype))
-      .star();
+      .or(ref(doctype));
 
   Parser element() => XmlToken.openElement
       .toParser()
