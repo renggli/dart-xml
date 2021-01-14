@@ -17,12 +17,13 @@ void assertDocumentParseInvariants(String input) {
   expect(document.toXmlString(), copy.toXmlString());
 }
 
-void assertDocumentParseError(String input, String message) {
+void assertDocumentParseError(String input, String message, int position) {
   try {
     final result = XmlDocument.parse(input);
     fail('Expected parse error $message, but got $result.');
   } on XmlParserException catch (error) {
-    expect(error.toString(), endsWith(message));
+    expect(error.message, message);
+    expect(error.position, position);
   }
 }
 
@@ -50,12 +51,13 @@ void assertFragmentParseInvariants(String input) {
   expect(fragment.toXmlString(), copy.toXmlString());
 }
 
-void assertFragmentParseError(String input, String message) {
+void assertFragmentParseError(String input, String message, int position) {
   try {
     final result = XmlDocumentFragment.parse(input);
     fail('Expected parse error $message, but got $result.');
   } on XmlParserException catch (error) {
-    expect(error.toString(), endsWith(message));
+    expect(error.message, message);
+    expect(error.position, position);
   }
 }
 

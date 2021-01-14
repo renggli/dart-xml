@@ -75,18 +75,35 @@ void main() {
     test('processing instruction with attribute', () {
       assertDocumentParseInvariants('<?pi foo="bar"?><data />');
     });
-    test('parse errors', () {
-      assertDocumentParseError(
-          '<foo></bar>', 'Expected </foo>, but found </bar> at 1:6');
-      assertDocumentParseError('<data key="ab', '">" expected at 1:7');
-      assertDocumentParseError('<data key', '">" expected at 1:7');
-      assertDocumentParseError('<data', '">" expected at 1:6');
-      assertDocumentParseError('<>', 'Expected name at 1:2');
-      assertDocumentParseError('<!-- comment', 'Expected name at 1:2');
-      assertDocumentParseError('<![CDATA[ comment', 'Expected name at 1:2');
-      assertDocumentParseError('<!DOCTYPE data', 'Expected name at 1:2');
-      assertDocumentParseError('<?xml', 'Expected name at 1:2');
-      assertDocumentParseError('<?processing', 'Expected name at 1:2');
+    group('parse errors', () {
+      test('empty', () {
+        assertDocumentParseError('', '"<" expected', 0);
+        assertDocumentParseError(' ', '"<" expected', 1);
+        assertDocumentParseError('\t', '"<" expected', 1);
+        assertDocumentParseError('\n', '"<" expected', 1);
+        assertDocumentParseError('  ', '"<" expected', 2);
+        assertDocumentParseError('<!-- comment -->', '"<" expected', 16);
+      });
+      test('nesting', () {
+        assertDocumentParseError(
+            '<foo></bar>', 'Expected </foo>, but found </bar>', 5);
+        assertDocumentParseError(
+            '<foo><bar></foo>', 'Expected </bar>, but found </foo>', 10);
+        assertDocumentParseError('<foo/><bar>', 'end of input expected', 6);
+      });
+      test('closing', () {
+        assertDocumentParseError('<data key="ab', '">" expected', 6);
+        assertDocumentParseError('<data key', '">" expected', 6);
+        assertDocumentParseError('<data', '">" expected', 5);
+      });
+      test('name', () {
+        assertDocumentParseError('<>', 'Expected name', 1);
+        assertDocumentParseError('<!-- comment', 'Expected name', 1);
+        assertDocumentParseError('<![CDATA[ comment', 'Expected name', 1);
+        assertDocumentParseError('<!DOCTYPE data', 'Expected name', 1);
+        assertDocumentParseError('<?xml', 'Expected name', 1);
+        assertDocumentParseError('<?processing', 'Expected name', 1);
+      });
     });
   });
   group('fragment', () {
@@ -160,19 +177,32 @@ void main() {
     });
     test('empty', () {
       assertFragmentParseInvariants('');
+      assertFragmentParseInvariants(' ');
+      assertFragmentParseInvariants('\t');
+      assertFragmentParseInvariants('\n');
+      assertFragmentParseInvariants('  ');
     });
-    test('parse errors', () {
-      assertFragmentParseError(
-          '<foo></bar>', 'Expected </foo>, but found </bar> at 1:6');
-      assertFragmentParseError('<data key="ab', 'end of input expected at 1:1');
-      assertFragmentParseError('<data key', 'end of input expected at 1:1');
-      assertFragmentParseError('<data', 'end of input expected at 1:1');
-      assertFragmentParseError('<>', 'end of input expected at 1:1');
-      assertFragmentParseError('<!--', 'end of input expected at 1:1');
-      assertFragmentParseError('<![CDATA[', 'end of input expected at 1:1');
-      assertFragmentParseError('<!DOCTYPE', 'end of input expected at 1:1');
-      assertFragmentParseError('<?xml', 'end of input expected at 1:1');
-      assertFragmentParseError('<?processing', 'end of input expected at 1:1');
+    group('parse errors', () {
+      test('nesting', () {
+        assertFragmentParseError(
+            '<foo></bar>', 'Expected </foo>, but found </bar>', 5);
+        assertFragmentParseError(
+            '<foo><bar></foo>', 'Expected </bar>, but found </foo>', 10);
+        assertFragmentParseError('<foo/><bar>', 'end of input expected', 6);
+      });
+      test('closing', () {
+        assertFragmentParseError('<data key="ab', 'end of input expected', 0);
+        assertFragmentParseError('<data key', 'end of input expected', 0);
+        assertFragmentParseError('<data', 'end of input expected', 0);
+      });
+      test('name', () {
+        assertFragmentParseError('<>', 'end of input expected', 0);
+        assertFragmentParseError('<!--', 'end of input expected', 0);
+        assertFragmentParseError('<![CDATA[', 'end of input expected', 0);
+        assertFragmentParseError('<!DOCTYPE', 'end of input expected', 0);
+        assertFragmentParseError('<?xml', 'end of input expected', 0);
+        assertFragmentParseError('<?processing', 'end of input expected', 0);
+      });
     });
   });
   test('parse deprecated', () {
