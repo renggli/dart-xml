@@ -37,16 +37,26 @@ void main() {
     expect(href,
         'https://covers.feedbooks.net/book/2936.jpg?size=large&t=1549045871');
   });
-  test('https://github.com/renggli/dart-xml/issues/99', () {
+  group('https://github.com/renggli/dart-xml/issues/99', () {
     const input = '''<root>
   <left> left</left>
   <both> both </both>
   <right>right </right>
 </root>''';
-    final document = XmlDocument.parse(input);
-    final fixed = TrimText().visit<XmlDocument>(document);
-    expect(fixed.rootElement.children[1].text, 'left');
-    expect(fixed.rootElement.children[3].text, 'both');
-    expect(fixed.rootElement.children[5].text, 'right');
+    test('transformation class', () {
+      final document = TrimText().visit<XmlDocument>(XmlDocument.parse(input));
+      expect(document.rootElement.children[1].text, 'left');
+      expect(document.rootElement.children[3].text, 'both');
+      expect(document.rootElement.children[5].text, 'right');
+    });
+    test('transformation function', () {
+      final document = XmlDocument.parse(input);
+      for (final node in document.descendants.whereType<XmlText>()) {
+        node.replace(XmlText(node.text.trim()));
+      }
+      expect(document.rootElement.children[1].text, 'left');
+      expect(document.rootElement.children[3].text, 'both');
+      expect(document.rootElement.children[5].text, 'right');
+    });
   });
 }
