@@ -59,4 +59,15 @@ void main() {
       expect(document.rootElement.children[5].text, 'right');
     });
   });
+  test('https://github.com/renggli/dart-xml/issues/100', () {
+    final document = XmlDocument.parse('''<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns:os="http://a9.com/-/spec/opensearch/1.1/" xmlns="http://www.w3.org/2005/Atom">
+  <os:totalResults>0</os:totalResults>
+  <os:itemsPerPage>50</os:itemsPerPage>
+  <os:startIndex>1</os:startIndex>
+</feed>''');
+    expect(document.rootElement.getElement('os:totalResults')?.text, '0');
+    expect(document.rootElement.getElement('os:itemsPerPage')?.text, '50');
+    expect(document.rootElement.getElement('os:startIndex')?.text, '1');
+  });
 }
