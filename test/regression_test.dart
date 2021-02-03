@@ -3,6 +3,11 @@ import 'package:xml/xml.dart';
 
 import 'assertions.dart';
 
+class TrimText extends XmlTransformer {
+  @override
+  XmlText visitText(XmlText node) => XmlText(node.text.trim());
+}
+
 void main() {
   test('https://github.com/renggli/dart-xml/issues/38', () {
     const input = '<?xml?><InstantaneousDemand><DeviceMacId>'
@@ -31,5 +36,17 @@ void main() {
         .single;
     expect(href,
         'https://covers.feedbooks.net/book/2936.jpg?size=large&t=1549045871');
+  });
+  test('https://github.com/renggli/dart-xml/issues/99', () {
+    const input = '''<root>
+  <left> left</left>
+  <both> both </both>
+  <right>right </right>
+</root>''';
+    final document = XmlDocument.parse(input);
+    final fixed = TrimText().visit<XmlDocument>(document);
+    expect(fixed.rootElement.children[1].text, 'left');
+    expect(fixed.rootElement.children[3].text, 'both');
+    expect(fixed.rootElement.children[5].text, 'right');
   });
 }
