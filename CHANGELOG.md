@@ -2,7 +2,7 @@
 
 ## 5.0.0
 
-* Dart 2.10 requirement and null-safety.
+* Dart 2.12 requirement and null-safety.
 * Add the possibility to `XmlBuilder` to add raw strings.
 * Improve error reporting (particularly for fragment parsing).
 * Default entity mapping is now a global setting.

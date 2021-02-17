@@ -1,15 +1,15 @@
 name: xml
-version: 5.0.0-nullsafety.1
+version: 5.0.0
 
 description: A lightweight library for parsing, traversing, querying, transforming and building XML documents.
 homepage: https://github.com/renggli/dart-xml
 
 environment:
-  sdk: '>=2.12.0-0 <3.0.0'
+  sdk: '>=2.12.0-259.14.beta <3.0.0'
 dependencies:
-  collection: ^1.15.0-nullsafety
-  meta: ^1.3.0-nullsafety
-  petitparser: ^4.0.0-nullsafety
+  collection: ^1.15.0
+  meta: ^1.3.0
+  petitparser: ^4.0.0
 dev_dependencies:
-  args: ^1.6.0
-  test: ^1.16.0-nullsafety
+  args: ^2.0.0
+  test: ^1.16.2
