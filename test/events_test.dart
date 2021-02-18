@@ -703,7 +703,7 @@ void main() {
     });
     test('extract all genres', () {
 // Some libraries provide a sliding window iterator
-// https://github.com/renggli/dart-more/blob/master/lib/src/iterable/window.dart
+// https://github.com/renggli/dart-more/blob/main/lib/src/iterable/window.dart
 // which would make this code trivial to write and read:
       final genres = <String>{};
       parseEvents(booksXml).reduce((previous, current) {

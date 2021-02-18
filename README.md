@@ -7,7 +7,7 @@ Dart XML
 [![GitHub Issues](https://img.shields.io/github/issues/renggli/dart-xml.svg)](https://github.com/renggli/dart-xml/issues)
 [![GitHub Forks](https://img.shields.io/github/forks/renggli/dart-xml.svg)](https://github.com/renggli/dart-xml/network)
 [![GitHub Stars](https://img.shields.io/github/stars/renggli/dart-xml.svg)](https://github.com/renggli/dart-xml/stargazers)
-[![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/renggli/dart-xml/master/LICENSE)
+[![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/renggli/dart-xml/main/LICENSE)
 
 Dart XML is a lightweight library for parsing, traversing, querying, transforming and building XML documents.
 
@@ -274,7 +274,7 @@ Misc
 
 ### Examples
 
-This package comes with several [examples](https://github.com/renggli/dart-xml/tree/master/example).
+This package comes with several [examples](https://github.com/renggli/dart-xml/tree/main/example).
 
 Furthermore, there are numerous packages depending on this package:
 
@@ -311,4 +311,4 @@ This library started as an example of the [PetitParser](https://github.com/rengg
 
 ### License
 
-The MIT License, see [LICENSE](https://github.com/renggli/dart-xml/raw/master/LICENSE).
+The MIT License, see [LICENSE](https://github.com/renggli/dart-xml/raw/main/LICENSE).
