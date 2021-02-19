@@ -1,6 +1,10 @@
 # Changelog
 
-## 5.0.0
+## 5.0.1
+
+ Lower Dart SDK version constraint for Flutter beta compatibility.
+
+ ## 5.0.0
 
 * Dart 2.12 requirement and null-safety.
 * Add the possibility to `XmlBuilder` to add raw strings.
