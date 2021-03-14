@@ -365,7 +365,7 @@ void main() {
   test('processing', () {
     final document =
         XmlDocument.parse('<?xml-stylesheet href="style.css"?><data/>');
-    final node = document.firstChild as XmlProcessing;
+    final node = document.firstChild! as XmlProcessing;
     expect(node.target, 'xml-stylesheet');
     expect(node.text, 'href="style.css"');
     expect(node.parent, same(document));
@@ -456,7 +456,7 @@ void main() {
   test('document type', () {
     final document =
         XmlDocument.parse('<!DOCTYPE html [<!-- internal subset -->]><data />');
-    final node = document.doctypeElement as XmlDoctype;
+    final node = document.doctypeElement!;
     expect(node.parent, same(document));
     expect(node.parentElement, isNull);
     expect(node.document, same(document));

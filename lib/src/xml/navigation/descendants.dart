@@ -21,7 +21,7 @@ class XmlDescendantsIterable extends IterableBase<XmlNode> {
 /// Iterator to walk over the descendants of a node.
 class XmlDescendantsIterator extends Iterator<XmlNode> {
   final List<XmlNode> _todo = [];
-  XmlNode? _current;
+  late XmlNode _current;
 
   XmlDescendantsIterator(XmlNode start) {
     push(start);
@@ -33,7 +33,7 @@ class XmlDescendantsIterator extends Iterator<XmlNode> {
   }
 
   @override
-  XmlNode get current => _current!;
+  XmlNode get current => _current;
 
   @override
   bool moveNext() {
@@ -41,7 +41,7 @@ class XmlDescendantsIterator extends Iterator<XmlNode> {
       return false;
     } else {
       _current = _todo.removeLast();
-      push(_current!);
+      push(_current);
       return true;
     }
   }

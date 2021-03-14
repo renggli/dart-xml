@@ -65,7 +65,7 @@ void main() {
     );
     test('processing (text)', () {
       final document = XmlDocument.parse('<?xml processing?><element/>');
-      final processing = document.firstChild as XmlProcessing;
+      final processing = document.firstChild! as XmlProcessing;
       processing.text = 'update';
       expect(document.toXmlString(), '<?xml update?><element/>');
     });

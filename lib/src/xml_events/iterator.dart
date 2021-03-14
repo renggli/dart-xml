@@ -13,10 +13,10 @@ class XmlEventIterator extends Iterator<XmlEvent> {
 
   final Parser _eventParser;
   Result? _context;
-  XmlEvent? _current;
+  late XmlEvent _current;
 
   @override
-  XmlEvent get current => _current as XmlEvent;
+  XmlEvent get current => _current;
 
   @override
   bool moveNext() {
@@ -40,7 +40,6 @@ class XmlEventIterator extends Iterator<XmlEvent> {
       } else {
         // In case of reaching the end, terminate the iterator.
         _context = null;
-        _current = null;
         return false;
       }
     }
