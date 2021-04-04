@@ -1,10 +1,14 @@
-name: Dart
-
+name: Dart CI
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+defaults:
+  run:
+    shell: bash
 
 jobs:
   build:
@@ -18,14 +22,17 @@ jobs:
           restore-keys: |
             os:ubuntu-latest;pub-cache-hosted
             os:ubuntu-latest
+      - name: Install Dart
+        uses: dart-lang/setup-dart@v1.0
+        with:
+          sdk: stable
       - uses: actions/checkout@v2
-      - uses: dart-lang/setup-dart@v1
       - name: Install dependencies
-        run: dart pub get
+        run: pub upgrade --no-precompile
       - name: Verify formatting
         run: dart format --output=none --set-exit-if-changed .
       - name: Analyze source
-        run: dart analyze --fatal-infos
+        run: dart analyze --fatal-infos .
       - name: Run VM tests
         run: dart test --platform vm test/all_test.dart 
       - name: Run Chrome tests
