@@ -30,16 +30,16 @@ class XmlProductionDefinition extends GrammarDefinition {
   XmlProductionDefinition(this.entityMapping);
 
   @override
-  Parser start() => ref(document).end('Expected end of input');
+  Parser start() => ref0(document).end('Expected end of input');
 
-  Parser attribute() => ref(qualified)
-      .seq(ref(spaceOptional))
+  Parser attribute() => ref0(qualified)
+      .seq(ref0(spaceOptional))
       .seq(XmlToken.equals.toParser())
-      .seq(ref(spaceOptional))
-      .seq(ref(attributeValue));
+      .seq(ref0(spaceOptional))
+      .seq(ref0(attributeValue));
 
   Parser attributeValue() =>
-      ref(attributeValueDouble).or(ref(attributeValueSingle));
+      ref0(attributeValueDouble).or(ref0(attributeValueSingle));
 
   Parser attributeValueDouble() => XmlToken.doubleQuote
       .toParser()
@@ -51,7 +51,7 @@ class XmlProductionDefinition extends GrammarDefinition {
       .seq(XmlCharacterDataParser(entityMapping, XmlToken.singleQuote, 0))
       .seq(XmlToken.singleQuote.toParser());
 
-  Parser attributes() => ref(space).seq(ref(attribute)).pick(1).star();
+  Parser attributes() => ref0(space).seq(ref0(attribute)).pick(1).star();
 
   Parser comment() => XmlToken.openComment
       .toParser()
@@ -67,72 +67,72 @@ class XmlProductionDefinition extends GrammarDefinition {
           .flatten('Expected CDATA content'))
       .seq(XmlToken.closeCDATA.toParser());
 
-  Parser content() => ref(characterData)
-      .or(ref(element))
-      .or(ref(processing))
-      .or(ref(comment))
-      .or(ref(cdata))
+  Parser content() => ref0(characterData)
+      .or(ref0(element))
+      .or(ref0(processing))
+      .or(ref0(comment))
+      .or(ref0(cdata))
       .star();
 
   Parser declaration() => XmlToken.openDeclaration
       .toParser()
-      .seq(ref(attributes))
-      .seq(ref(spaceOptional))
+      .seq(ref0(attributes))
+      .seq(ref0(spaceOptional))
       .seq(XmlToken.closeDeclaration.toParser());
 
   Parser doctype() => XmlToken.openDoctype
       .toParser()
-      .seq(ref(space))
-      .seq(ref(nameToken)
-          .or(ref(attributeValue))
+      .seq(ref0(space))
+      .seq(ref0(nameToken)
+          .or(ref0(attributeValue))
           .or(any()
               .starLazy(XmlToken.openDoctypeBlock.toParser())
               .seq(XmlToken.openDoctypeBlock.toParser())
               .seq(any().starLazy(XmlToken.closeDoctypeBlock.toParser()))
               .seq(XmlToken.closeDoctypeBlock.toParser()))
-          .separatedBy(ref(space))
+          .separatedBy(ref0(space))
           .flatten('Expected doctype content'))
-      .seq(ref(spaceOptional))
+      .seq(ref0(spaceOptional))
       .seq(XmlToken.closeDoctype.toParser());
 
-  Parser document() => ref(declaration)
+  Parser document() => ref0(declaration)
       .optional()
-      .seq(ref(misc))
-      .seq(ref(doctype).optional())
-      .seq(ref(misc))
-      .seq(ref(element))
-      .seq(ref(misc));
+      .seq(ref0(misc))
+      .seq(ref0(doctype).optional())
+      .seq(ref0(misc))
+      .seq(ref0(element))
+      .seq(ref0(misc));
 
-  Parser documentFragment() => ref(documentFragmentContent)
+  Parser documentFragment() => ref0(documentFragmentContent)
       .star()
-      .seq(endOfInput('Expected end of input') | ref(element))
+      .seq(endOfInput('Expected end of input') | ref0(element))
       .pick(0);
 
-  Parser documentFragmentContent() => ref(characterData)
-      .or(ref(element))
-      .or(ref(comment))
-      .or(ref(cdata))
-      .or(ref(declaration))
-      .or(ref(processing))
-      .or(ref(doctype));
+  Parser documentFragmentContent() => ref0(characterData)
+      .or(ref0(element))
+      .or(ref0(comment))
+      .or(ref0(cdata))
+      .or(ref0(declaration))
+      .or(ref0(processing))
+      .or(ref0(doctype));
 
   Parser element() => XmlToken.openElement
       .toParser()
-      .seq(ref(qualified))
-      .seq(ref(attributes))
-      .seq(ref(spaceOptional))
+      .seq(ref0(qualified))
+      .seq(ref0(attributes))
+      .seq(ref0(spaceOptional))
       .seq(XmlToken.closeEndElement.toParser().or(XmlToken.closeElement
           .toParser()
-          .seq(ref(content))
+          .seq(ref0(content))
           .seq(XmlToken.openEndElement.toParser().token())
-          .seq(ref(qualified))
-          .seq(ref(spaceOptional))
+          .seq(ref0(qualified))
+          .seq(ref0(spaceOptional))
           .seq(XmlToken.closeElement.toParser())));
 
   Parser processing() => XmlToken.openProcessing
       .toParser()
-      .seq(ref(nameToken))
-      .seq(ref(space)
+      .seq(ref0(nameToken))
+      .seq(ref0(space)
           .seq(any()
               .starLazy(XmlToken.closeProcessing.toParser())
               .flatten('Expected processing instruction content'))
@@ -140,21 +140,22 @@ class XmlProductionDefinition extends GrammarDefinition {
           .optionalWith(''))
       .seq(XmlToken.closeProcessing.toParser());
 
-  Parser qualified() => ref(nameToken);
+  Parser qualified() => ref0(nameToken);
 
   Parser characterData() =>
       XmlCharacterDataParser(entityMapping, XmlToken.openElement, 1);
 
-  Parser misc() => ref(spaceText).or(ref(comment)).or(ref(processing)).star();
+  Parser misc() =>
+      ref0(spaceText).or(ref0(comment)).or(ref0(processing)).star();
 
   Parser space() => whitespace().plus();
 
-  Parser spaceText() => ref(space).flatten('Expected whitespace');
+  Parser spaceText() => ref0(space).flatten('Expected whitespace');
 
   Parser spaceOptional() => whitespace().star();
 
   Parser nameToken() =>
-      ref(nameStartChar).seq(ref(nameChar).star()).flatten('Expected name');
+      ref0(nameStartChar).seq(ref0(nameChar).star()).flatten('Expected name');
 
   Parser nameStartChar() => pattern(_nameStartChars);
 

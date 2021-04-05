@@ -19,14 +19,14 @@ class XmlEventDefinition extends XmlProductionDefinition {
   XmlEventDefinition(XmlEntityMapping entityMapping) : super(entityMapping);
 
   @override
-  Parser start() => ref(characterData)
-      .or(ref(startElement))
-      .or(ref(endElement))
-      .or(ref(comment))
-      .or(ref(cdata))
-      .or(ref(declaration))
-      .or(ref(processing))
-      .or(ref(doctype));
+  Parser start() => ref0(characterData)
+      .or(ref0(startElement))
+      .or(ref0(endElement))
+      .or(ref0(comment))
+      .or(ref0(cdata))
+      .or(ref0(declaration))
+      .or(ref0(processing))
+      .or(ref0(doctype));
 
   @override
   Parser characterData() =>
@@ -34,9 +34,9 @@ class XmlEventDefinition extends XmlProductionDefinition {
 
   Parser startElement() => XmlToken.openElement
       .toParser()
-      .seq(ref(qualified))
-      .seq(ref(attributes))
-      .seq(ref(spaceOptional))
+      .seq(ref0(qualified))
+      .seq(ref0(attributes))
+      .seq(ref0(spaceOptional))
       .seq(XmlToken.closeElement
           .toParser()
           .or(XmlToken.closeEndElement.toParser()))
@@ -55,8 +55,8 @@ class XmlEventDefinition extends XmlProductionDefinition {
 
   Parser endElement() => XmlToken.openEndElement
       .toParser()
-      .seq(ref(qualified))
-      .seq(ref(spaceOptional))
+      .seq(ref0(qualified))
+      .seq(ref0(spaceOptional))
       .seq(XmlToken.closeElement.toParser())
       .map((each) => XmlEndElementEvent(each[1]));
 

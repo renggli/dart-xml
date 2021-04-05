@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.1.0
+
+* Upgrade to PetitParser 4.1.0.
+
 ## 5.0.0
 
 * Dart 2.12 requirement and null-safety.
