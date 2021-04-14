@@ -73,4 +73,17 @@ void main() {
     expect(document.rootElement.getElement('os:itemsPerPage')?.text, '50');
     expect(document.rootElement.getElement('os:startIndex')?.text, '1');
   });
+  test('https://github.com/renggli/dart-xml/issues/104', () {
+    final document = XmlDocument.parse('''
+        <?xml version="1.0"?>
+        <!DOCTYPE TEI.2 PUBLIC "-//TEI P4//DTD Main DTD Driver File//EN" "http://www.tei-c.org/Guidelines/DTD/tei2.dtd"[
+        <!ENTITY % TEI.XML "INCLUDE">
+        <!ENTITY % PersProse PUBLIC "-//Perseus P4//DTD Perseus Prose//EN" "http://www.perseus.tufts.edu/DTD/1.0/PersProse.dtd">
+        %PersProse;
+        ]>
+        <TEI.2></TEI.2>
+    ''');
+    expect(document.doctypeElement, isNotNull);
+    expect(document.doctypeElement!.text, startsWith('TEI.2 PUBLIC'));
+  });
 }
