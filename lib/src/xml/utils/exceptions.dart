@@ -11,7 +11,7 @@ abstract class XmlException implements Exception {
   XmlException(this.message);
 
   @override
-  String toString() => '${super.toString}: $message';
+  String toString() => 'XmlException: $message';
 }
 
 /// Exception thrown when parsing of an XML document fails.
@@ -40,7 +40,7 @@ class XmlParserException extends XmlException implements FormatException {
   int? get offset => position;
 
   @override
-  String toString() => '${super.toString()} at $line:$column';
+  String toString() => 'XmlParserException: $message at $line:$column';
 }
 
 /// Exception thrown when an unsupported node type is used.
@@ -54,6 +54,9 @@ class XmlNodeTypeException extends XmlException {
 
   /// Creates a new XmlNodeTypeException.
   XmlNodeTypeException(String message) : super(message);
+
+  @override
+  String toString() => 'XmlNodeTypeException: $message';
 }
 
 /// Exception thrown when the parent relationship between nodes is invalid.
@@ -77,6 +80,9 @@ class XmlParentException extends XmlException {
 
   /// Creates a new XmlParentException.
   XmlParentException(String message) : super(message);
+
+  @override
+  String toString() => 'XmlParentException: $message';
 }
 
 /// Exception thrown when the end tag does not match the open tag.
@@ -105,4 +111,7 @@ class XmlTagException extends XmlException {
   /// Creates a new XmlTagException for a missing closing tag.
   factory XmlTagException.missingClosingTag(String name) =>
       XmlTagException('Missing closing tag </$name>.');
+
+  @override
+  String toString() => 'XmlTagException: $message';
 }
