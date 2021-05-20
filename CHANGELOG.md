@@ -1,5 +1,10 @@
 # Changelog
 
+## 5.1.1
+
+* Fix printing of Exceptions.
+* Fix parsing of DOCTYPE tags.
+
 ## 5.1.0
 
 * Upgrade to PetitParser 4.1.0.
