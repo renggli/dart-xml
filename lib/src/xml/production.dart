@@ -85,7 +85,8 @@ class XmlProductionDefinition extends GrammarDefinition {
       .seq(ref0(space))
       .seq(ref0(nameToken)
           .or(ref0(attributeValue))
-          .or(XmlToken.openDoctypeBlock.toParser()
+          .or(XmlToken.openDoctypeBlock
+              .toParser()
               .seq(any().starLazy(XmlToken.closeDoctypeBlock.toParser()))
               .seq(XmlToken.closeDoctypeBlock.toParser()))
           .separatedBy(ref0(spaceOptional))
