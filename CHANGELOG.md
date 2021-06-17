@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.2.0
+
+* Add `nextElementSibling` and `previousElementSibling`.
+
 ## 5.1.1
 
 * Fix printing of Exceptions.

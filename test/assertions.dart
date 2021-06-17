@@ -125,23 +125,41 @@ void assertParentInvariants(XmlNode xml) {
 
 void assertForwardInvariants(XmlNode xml) {
   for (final node in [xml, ...xml.descendants]) {
-    var current = node.firstChild;
-    for (var i = 0; i < node.children.length; i++) {
-      expect(node.children[i], same(current));
-      current = current!.nextSibling;
+    final children = <XmlNode>[];
+    var currentChild = node.firstChild;
+    while (currentChild != null) {
+      children.add(currentChild);
+      currentChild = currentChild.nextSibling;
     }
-    expect(current, isNull);
+    expect(children, orderedEquals(node.children));
+
+    final childElements = <XmlElement>[];
+    var currentElement = node.firstElementChild;
+    while (currentElement != null) {
+      childElements.add(currentElement);
+      currentElement = currentElement.nextElementSibling;
+    }
+    expect(childElements, orderedEquals(node.children.whereType<XmlElement>()));
   }
 }
 
 void assertBackwardInvariants(XmlNode xml) {
   for (final node in [xml, ...xml.descendants]) {
-    var current = node.lastChild;
-    for (var i = node.children.length - 1; i >= 0; i--) {
-      expect(node.children[i], same(current));
-      current = current!.previousSibling;
+    final children = <XmlNode>[];
+    var currentChild = node.lastChild;
+    while (currentChild != null) {
+      children.insert(0, currentChild);
+      currentChild = currentChild.previousSibling;
     }
-    expect(current, isNull);
+    expect(children, orderedEquals(node.children));
+
+    final childElements = <XmlElement>[];
+    var currentElementChild = node.lastElementChild;
+    while (currentElementChild != null) {
+      childElements.insert(0, currentElementChild);
+      currentElementChild = currentElementChild.previousElementSibling;
+    }
+    expect(childElements, orderedEquals(node.children.whereType<XmlElement>()));
   }
 }
 
