@@ -2,7 +2,8 @@
 
 ## 5.2.0
 
-* Add `nextElementSibling` and `previousElementSibling`.
+* Add `XmlNode.nextElementSibling` and `XmlNode.previousElementSibling`. 
+* Add `XmlNode.siblings` and `XmlNode.siblingElements`.
 
 ## 5.1.1
 

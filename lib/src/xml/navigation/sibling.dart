@@ -2,6 +2,14 @@ import '../nodes/element.dart';
 import '../nodes/node.dart';
 
 extension XmlSiblingExtension on XmlNode {
+  /// Returns an [Iterable] over the siblings of this node. If the node has
+  /// no parent or no siblings, return a collection with just this node.
+  Iterable<XmlNode> get siblings => parent == null ? [this] : parent!.children;
+
+  /// Returns an [Iterable] over the [XmlElement] siblings of this node. If the
+  /// node has no parent or no siblings, return an empty collection.
+  Iterable<XmlNode> get siblingElements => siblings.whereType<XmlElement>();
+
   /// Return the previous sibling of this node, or `null`.
   XmlNode? get previousSibling {
     if (parent != null) {

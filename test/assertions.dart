@@ -30,6 +30,7 @@ void assertDocumentParseError(String input, String message, int position) {
 void assertDocumentTreeInvariants(XmlNode xml) {
   assertDocumentInvariants(xml);
   assertParentInvariants(xml);
+  assertSiblingInvariants(xml);
   assertForwardInvariants(xml);
   assertBackwardInvariants(xml);
   assertNameInvariants(xml);
@@ -64,6 +65,7 @@ void assertFragmentParseError(String input, String message, int position) {
 void assertFragmentTreeInvariants(XmlNode xml) {
   assertFragmentInvariants(xml);
   assertParentInvariants(xml);
+  assertSiblingInvariants(xml);
   assertForwardInvariants(xml);
   assertBackwardInvariants(xml);
   assertNameInvariants(xml);
@@ -120,6 +122,15 @@ void assertParentInvariants(XmlNode xml) {
       expect(attribute.parent, same(node));
       expect(attribute.depth, node.depth + 1);
     }
+  }
+}
+
+void assertSiblingInvariants(XmlNode xml) {
+  for (final node in [xml, ...xml.descendants]) {
+    final childrenOfParent = node.parent?.children ?? <XmlNode>[node];
+    expect(node.siblings, unorderedEquals(childrenOfParent));
+    expect(node.siblingElements,
+        unorderedEquals(childrenOfParent.whereType<XmlElement>()));
   }
 }
 
