@@ -4,6 +4,7 @@
 
 * Add `XmlNode.nextElementSibling` and `XmlNode.previousElementSibling`. 
 * Add `XmlNode.siblings` and `XmlNode.siblingElements`.
+* Add `XmlNode.childElements`.
 
 ## 5.1.1
 

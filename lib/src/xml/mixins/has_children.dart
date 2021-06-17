@@ -8,6 +8,9 @@ mixin XmlChildrenBase {
   /// Return the direct children of this node in document order.
   List<XmlNode> get children => const [];
 
+  /// Return an [Iterable] over the [XmlElement] children of this node.
+  Iterable<XmlElement> get childElements => const [];
+
   /// Return the first child element with the given `name`, or `null`.
   XmlElement? getElement(String name, {String? namespace}) => null;
 
@@ -28,6 +31,9 @@ mixin XmlChildrenBase {
 mixin XmlHasChildren implements XmlChildrenBase {
   @override
   final XmlNodeList<XmlNode> children = XmlNodeList<XmlNode>();
+
+  @override
+  Iterable<XmlElement> get childElements => children.whereType<XmlElement>();
 
   @override
   XmlElement? getElement(String name, {String? namespace}) {

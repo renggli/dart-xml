@@ -150,7 +150,7 @@ void assertForwardInvariants(XmlNode xml) {
       childElements.add(currentElement);
       currentElement = currentElement.nextElementSibling;
     }
-    expect(childElements, orderedEquals(node.children.whereType<XmlElement>()));
+    expect(childElements, orderedEquals(node.childElements));
   }
 }
 
@@ -170,7 +170,7 @@ void assertBackwardInvariants(XmlNode xml) {
       childElements.insert(0, currentElementChild);
       currentElementChild = currentElementChild.previousElementSibling;
     }
-    expect(childElements, orderedEquals(node.children.whereType<XmlElement>()));
+    expect(childElements, orderedEquals(node.childElements));
   }
 }
 
