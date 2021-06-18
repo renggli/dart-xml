@@ -1,12 +1,18 @@
 import 'dart:collection';
 
+import '../nodes/element.dart';
 import '../nodes/node.dart';
 import 'parent.dart';
 
 extension XmlPrecedingExtension on XmlNode {
-  /// Return a lazy [Iterable] of the nodes preceding this [XmlNode] in
-  /// document order.
+  /// Return a lazy [Iterable] of the nodes preceding this node in document
+  /// order.
   Iterable<XmlNode> get preceding => XmlPrecedingIterable(this);
+
+  /// Return a lazy [Iterable] of the [XmlElement] nodes preceding this node in
+  /// document order.
+  Iterable<XmlElement> get precedingElements =>
+      preceding.whereType<XmlElement>();
 }
 
 /// Iterable to walk over the precedents of a node.
