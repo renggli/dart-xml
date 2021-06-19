@@ -2,7 +2,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:args/args.dart' as args;
 import 'package:xml/xml_events.dart';
 
