@@ -104,10 +104,8 @@ Future<void> lookupIp(args.ArgResults results, [String query = '']) async {
     // simpler.
     final input = await stream.join();
     final document = XmlDocument.parse(input);
-    for (final element in document.rootElement.children) {
-      if (element is XmlElement) {
-        stdout.writeln('${element.name}: ${element.innerText}');
-      }
+    for (final element in document.rootElement.childElements) {
+      stdout.writeln('${element.name}: ${element.innerText}');
     }
   }
 }
