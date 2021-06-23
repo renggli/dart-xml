@@ -86,4 +86,22 @@ void main() {
     expect(document.doctypeElement, isNotNull);
     expect(document.doctypeElement!.text, startsWith('TEI.2 PUBLIC'));
   });
+  test('https://stackoverflow.com/questions/68100391', () {
+    const number = 20;
+    final document = XmlDocument.parse('''
+        <Alarm>
+          <Settings>
+              <AlarmVolume type="int" min="0" max="100" unit="%">80</AlarmVolume>
+          </Settings>
+        </Alarm>
+    ''');
+    document.findAllElements('AlarmVolume').first.innerText = number.toString();
+    expect(document.toXmlString(), '''
+        <Alarm>
+          <Settings>
+              <AlarmVolume type="int" min="0" max="100" unit="%">20</AlarmVolume>
+          </Settings>
+        </Alarm>
+    ''');
+  });
 }
