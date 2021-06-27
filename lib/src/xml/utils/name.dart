@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+
 import '../mixins/has_parent.dart';
 import '../mixins/has_visitor.dart';
 import '../mixins/has_writer.dart';
@@ -40,6 +42,7 @@ abstract class XmlName extends Object
     }
   }
 
+  @internal
   XmlName.internal();
 
   XmlName copy();

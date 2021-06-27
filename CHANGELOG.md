@@ -2,10 +2,10 @@
 
 ## 5.2.0
 
-* A series of accessors that simplify navigating the XML DOM with `XmlElements`:
+* A series of read-only accessors that simplify navigating the XML DOM with `XmlElements`:
   * Add `XmlNode.childElements`.
   * Add `XmlNode.siblings` and `XmlNode.siblingElements`.
-  * Add `XmlNode.nextElementSibling` and `XmlNode.previousElementSibling`. 
+  * Add `XmlNode.previousElementSibling` and `XmlNode.nextElementSibling`. 
   * Add `XmlNode.ancestorElements`, `XmlNode.precedingElements`, `XmlNode.descendantElements`, and `XmlNode.followingElements`.
 
 ## 5.1.1

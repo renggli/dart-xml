@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart' show DelegatingList;
+import 'package:meta/meta.dart';
 
 import '../nodes/node.dart';
 import 'exceptions.dart';
@@ -11,7 +12,9 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> {
 
   XmlNodeList() : super(<E>[]);
 
-  // INTERNAL: Initialize the node list with parent and supported node types.
+  /// Internal initializer of the node list with parent and supported
+  /// node types.
+  @internal
   void initialize(XmlNode parent, Set<XmlNodeType> nodeTypes) {
     _parent = parent;
     _nodeTypes = nodeTypes;
