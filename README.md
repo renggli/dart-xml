@@ -20,7 +20,7 @@ Tutorial
 
 ### Installation
 
-Follow the installation instructions on [dart packages](https://pub.dev/packages/xml#-installing-tab-).
+Follow the installation instructions on [dart packages](https://pub.dev/packages/xml/install).
 
 Import the library into your Dart code using:
 
