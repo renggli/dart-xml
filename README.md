@@ -57,26 +57,27 @@ print(document.toString());
 print(document.toXmlString(pretty: true, indent: '\t'));
 ```
 
-To read XML from a file use the [dart:io](https://api.dart.dev/dart-io/dart-io-library.html) library: 
+To read XML from a file use the [dart:io](https://api.dart.dev/dart-io/dart-io-library.html) library:
 
 ```dart
 final file = new File('bookshelf.xml');
 final document = XmlDocument.parse(file.readAsStringSync());
 ```
 
-If your file is not _UTF-8_ encoded pass the correct encoding to `readAsStringSync`. To read and write large files you might want to use the [streaming API](#streaming) instead.
+If your file is not _UTF-8_ encoded pass the correct encoding to `readAsStringSync`. To read and write large files you might want to use the [event-driven API](#event-driven) instead.
 
 ### Traversing and Querying
 
 Accessors allow accessing nodes in the XML tree:
 
-- `attributes` returns a list over the attributes of the current node.
-- `children` returns a list over the children of the current node.
+- `attributes` returns the attributes of the node.
+- `children` returns the direct children of the node.
 
 Both lists are mutable and support all common `List` methods, such as `add(XmlNode)`, `addAll(Iterable<XmlNode>)`, `insert(int, XmlNode)`, and `insertAll(int, Iterable<XmlNode>)`. Trying to add a `null` value or an unsupported node type throws an `XmlNodeTypeError` error. Nodes that are already part of a tree _are not_ automatically moved, you need to first create a copy as otherwise an `XmlParentError` is thrown. `XmlDocumentFragment` nodes are automatically expanded and copies of their children are added.
 
-There are various methods to traverse the XML tree along its axes:
+There are methods to traverse the XML tree along different axes:
 
+- `siblings` returns an iterable over the nodes at the same level that preceed and follow this node in document order.
 - `preceding` returns an iterable over nodes preceding the opening tag of the current node in document order.
 - `descendants` returns an iterable over the descendants of the current node in document order. This includes the attributes of the current node, its children, the grandchildren, and so on.
 - `following` the nodes following the closing tag of the current node in document order.
@@ -90,6 +91,8 @@ final textual = document.descendants
   .join('\n');
 print(textual);
 ```
+
+There are convenience helpers to filter by element nodes only: `childElements`, `siblingElements`, `precedingElements`, `descendantElements`, `followingElements`, and `ancestorElements`.
 
 Additionally, there are helpers to find elements with a specific tag:
 
@@ -171,7 +174,7 @@ void buildBook(XmlBuilder builder, String title, String language, num price) {
 }
 ```
 
-The above `buildDocument()` method returns the built document. To attach built nodes into an existing XML document, use `buildFragment()`. Once the builder returns the built node, its internal state is reset. 
+The above `buildDocument()` method returns the built document. To attach built nodes into an existing XML document, use `buildFragment()`. Once the builder returns the built node, its internal state is reset.
 
 ```dart
 final builder = XmlBuilder();
@@ -205,7 +208,7 @@ This approach requires the whole input to be available at the beginning and does
 #### Streams
 
 To asynchronously parse and process events directly from a file or HTTP stream use the provided codecs to convert between strings, events and DOM tree nodes:
- 
+
 - Codec: `XmlEventCodec`
   - Decodes a `String ` to a sequence of `XmlEvent ` objects. \
     `Stream<List<XmlEvent>> toXmlEvents()` on `Stream<String>`
@@ -243,7 +246,7 @@ await response
   .forEachEvent(onText: (event) => print(event.text));
 ```
 
-Similarly, the following snippet extracts sub-trees with location information from a `sitemap.xml` file, converts the XML events to XML nodes, and finally prints out the containing text: 
+Similarly, the following snippet extracts sub-trees with location information from a `sitemap.xml` file, converts the XML events to XML nodes, and finally prints out the containing text:
 
 ```dart
 final file = File('sitemap.xml');
@@ -275,14 +278,7 @@ Misc
 
 This package comes with several [examples](https://github.com/renggli/dart-xml/tree/main/example).
 
-Furthermore, there are numerous packages depending on this package:
-
-- [image](https://github.com/brendan-duncan/image) decodes, encodes and processes image formats.
-- [Extensible Resource Descriptors](https://github.com/stevenroose/dart-xrd) is a library to read Extensible Resource Descriptors.
-- [xml2json](https://github.com/shamblett/xml2json) is an XML to JSON conversion package.
-- [spreadsheet_decoder](https://github.com/sestegra/spreadsheet_decoder) is a library for decoding and updating spreadsheets for ODS and XLSX files.
-- [excel](https://github.com/justkawal/excel) is a library for reading, updating and creating excel files with advanced features.
-- [and many more](https://pub.dev/packages?q=dependency%3Axml) ...
+Furthermore, there are [numerous packages](https://pub.dev/packages?q=dependency%3Axml) depending on this package.
 
 ### Supports
 
