@@ -556,8 +556,8 @@ void main() {
     mutatingTest(
       'element (attributes)',
       '<element attr1="value1" attr2="value2"/>',
-      (node) => node.attributes.removeWhere(
-          (node) => node.name.local == 'attr2'),
+      (node) =>
+          node.attributes.removeWhere((node) => node.name.local == 'attr2'),
       '<element attr1="value1"/>',
     );
     mutatingTest(
@@ -572,8 +572,8 @@ void main() {
     mutatingTest(
       'element (attributes)',
       '<element attr1="value1" attr2="value2"/>',
-      (node) => node.attributes.retainWhere(
-          (node) => node.name.local == 'attr1'),
+      (node) =>
+          node.attributes.retainWhere((node) => node.name.local == 'attr1'),
       '<element attr1="value1"/>',
     );
     mutatingTest(
