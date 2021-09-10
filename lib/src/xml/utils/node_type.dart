@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 /// Enum of the different XML Node types.
 enum XmlNodeType {
   /// An attribute node, e.g. `id="123"`.

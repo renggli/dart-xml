@@ -123,7 +123,9 @@ void main() {
       '<element1/>',
       (node) {
         final fragment = XmlDocumentFragment([XmlElement(XmlName('element2'))]);
-        node.children..add(fragment)..add(fragment);
+        node.children
+          ..add(fragment)
+          ..add(fragment);
       },
       '<element1><element2/><element2/></element1>',
     );
@@ -351,7 +353,9 @@ void main() {
       '<element1><element2/></element1>',
       (node) {
         final fragment = XmlDocumentFragment([XmlElement(XmlName('element3'))]);
-        node.children..insert(0, fragment)..insert(2, fragment);
+        node.children
+          ..insert(0, fragment)
+          ..insert(2, fragment);
       },
       '<element1><element3/><element2/><element3/></element1>',
     );

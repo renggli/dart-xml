@@ -1,5 +1,10 @@
 # Changelog
 
+## 5.3.0
+
+* Dart 2.15 requirement.
+* Upgrade to PetitParser 4.3.
+
 ## 5.2.0
 
 * A series of read-only accessors that simplify navigating the XML DOM with `XmlElements`:
