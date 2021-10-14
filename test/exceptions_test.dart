@@ -36,15 +36,22 @@ void main() {
       expect(
           () => XmlNodeTypeException.checkValidType(
               XmlComment('Comment'), [XmlNodeType.ATTRIBUTE]),
-          throwsA(isXmlNodeTypeException));
+          throwsA(isXmlNodeTypeException.having(
+              (value) => value.toString(),
+              'toString',
+              endsWith('Expected node of type: XmlNodeType.ATTRIBUTE'))));
     });
   });
   group('XmlParentException', () {
     test('checkNoParent', () {
       final document = XmlDocument([XmlComment('Comment')]);
       XmlParentException.checkNoParent(document);
-      expect(() => XmlParentException.checkNoParent(document.firstChild!),
-          throwsA(isXmlParentException));
+      expect(
+          () => XmlParentException.checkNoParent(document.firstChild!),
+          throwsA(isXmlParentException.having(
+              (value) => value.toString(),
+              'toString',
+              contains('Node already has a parent, copy or remove it first'))));
     });
     test('checkMatchingParent', () {
       final document = XmlDocument([XmlComment('Comment')]);
@@ -52,14 +59,19 @@ void main() {
       expect(
           () => XmlParentException.checkMatchingParent(
               document, document.firstChild!),
-          throwsA(isXmlParentException));
+          throwsA(isXmlParentException.having((value) => value.toString(),
+              'toString', contains('Node already has a non-matching parent'))));
     });
   });
   group('XmlTagException', () {
     test('checkClosingTag', () {
       XmlTagException.checkClosingTag('foo', 'foo');
-      expect(() => XmlTagException.checkClosingTag('foo', 'bar'),
-          throwsA(isXmlTagException));
+      expect(
+          () => XmlTagException.checkClosingTag('foo', 'bar'),
+          throwsA(isXmlTagException.having(
+              (value) => value.toString(),
+              'toString',
+              endsWith('Expected closing tag </foo>, but found </bar>.'))));
     });
   });
 }

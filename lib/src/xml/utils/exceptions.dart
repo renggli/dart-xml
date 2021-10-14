@@ -9,9 +9,6 @@ abstract class XmlException implements Exception {
 
   /// Creates a new XmlException with an optional error [message].
   XmlException(this.message);
-
-  @override
-  String toString() => 'XmlException: $message';
 }
 
 /// Exception thrown when parsing of an XML document fails.
@@ -48,7 +45,7 @@ class XmlNodeTypeException extends XmlException {
   /// Ensure that [node] is of one of the provided [types].
   static void checkValidType(XmlNode node, Iterable<XmlNodeType> types) {
     if (!types.contains(node.nodeType)) {
-      throw XmlNodeTypeException('Expected node of type: $types');
+      throw XmlNodeTypeException('Expected node of type: ${types.join(', ')}');
     }
   }
 
