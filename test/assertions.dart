@@ -40,6 +40,7 @@ void assertDocumentTreeInvariants(XmlNode xml) {
   assertIteratorInvariants(xml);
   assertCopyInvariants(xml);
   assertTransformerInvariants(xml);
+  assertVisitorInvariants(xml);
   assertPrintingInvariants(xml);
 }
 
@@ -76,6 +77,7 @@ void assertFragmentTreeInvariants(XmlNode xml) {
   assertIteratorInvariants(xml);
   assertCopyInvariants(xml);
   assertTransformerInvariants(xml);
+  assertVisitorInvariants(xml);
 }
 
 void assertDocumentInvariants(XmlNode xml) {
@@ -294,6 +296,17 @@ void assertTransformerInvariants(XmlNode xml) {
   assertParentInvariants(copy);
   assertNameInvariants(copy);
   assertCompareInvariants(xml, copy);
+}
+
+class DefaultVisitor with XmlVisitor {
+  const DefaultVisitor();
+}
+
+void assertVisitorInvariants(XmlNode xml) {
+  final visitor = DefaultVisitor();
+  for (final node in [xml, ...xml.descendants]) {
+    expect(visitor.visit(node), isNull);
+  }
 }
 
 void assertCompareInvariants(XmlNode original, XmlNode copy) {
