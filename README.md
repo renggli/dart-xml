@@ -29,7 +29,7 @@ Import the library into your Dart code using:
 import 'package:xml/xml.dart';
 ```
 
-:warning: This library makes extensive use of [static extension methods](https://dart.dev/guides/language/extension-methods). If you [import the library](https://dart.dev/guides/language/language-tour#using-libraries) using a _library prefix_ or only _partially show classes_ you might miss some of its functionality. Due to historical reasons public classes have an `Xml` prefix, so in practice conflicts should be rare.
+:warning: This library makes extensive use of [static extension methods](https://dart.dev/guides/language/extension-methods). If you [import the library](https://dart.dev/guides/language/language-tour#using-libraries) using a _library prefix_ or only _selectively show classes_ you might miss some of its functionality. Due to historical reasons public classes have an `Xml` prefix, so conflicts with other code should be rare.
 
 ### Reading and Writing
 
