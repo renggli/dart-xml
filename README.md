@@ -29,6 +29,8 @@ Import the library into your Dart code using:
 import 'package:xml/xml.dart';
 ```
 
+:warning: This library makes extensive use of [static extension methods](https://dart.dev/guides/language/extension-methods). If you [import the library](https://dart.dev/guides/language/language-tour#using-libraries) using a _library prefix_ or only _partially show classes_ you might miss some of its functionality. Due to historical reasons public classes have an `Xml` prefix, so in practice conflicts should be rare.
+
 ### Reading and Writing
 
 To read XML input use the factory method `XmlDocument.parse(String input)`:
@@ -283,17 +285,17 @@ Furthermore, there are [numerous packages](https://pub.dev/packages?q=dependency
 
 ### Supports
 
-- Standard well-formed XML (and HTML).
-- Reading documents using an event based API (SAX).
-- Decodes and encodes commonly used character entities.
-- Querying, traversing, and mutating API using Dart principles.
-- Building XML trees using a builder API.
+- [x] Standard well-formed XML (and HTML).
+- [x] Reading documents using an event based API (SAX).
+- [x] Decodes and encodes commonly used character entities.
+- [x] Querying, traversing, and mutating API using Dart principles.
+- [x] Building XML trees using a builder API.
 
 ### Limitations
 
-- Doesn't validate namespace declarations.
-- Doesn't validate schema declarations.
-- Doesn't parse and enforce the DTD.
+- [ ] Doesn't validate namespace declarations.
+- [ ] Doesn't validate schema declarations.
+- [ ] Doesn't parse and enforce the DTD.
 
 ### Standards
 
