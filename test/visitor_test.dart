@@ -130,6 +130,18 @@ void main() {
             '  </body>\n'
             '</html>');
       });
+      test('normalize text', () {
+        final input = XmlDocument([
+          XmlElement(XmlName.fromString('contents'), [], [
+            XmlText(' Hello '),
+            XmlText('   '),
+            XmlText(' World '),
+            XmlText(' '),
+          ])
+        ]);
+        final output = input.toXmlString(pretty: true);
+        expect(output, '<contents>Hello World</contents>');
+      });
     });
     group('attributes', () {
       const input = '<body>'

@@ -292,7 +292,7 @@ void assertCopyInvariants(XmlNode xml) {
 }
 
 void assertTransformerInvariants(XmlNode xml) {
-  final copy = XmlTransformer().visit(xml);
+  final copy = const XmlTransformer().visit(xml);
   assertParentInvariants(copy);
   assertNameInvariants(copy);
   assertCompareInvariants(xml, copy);
@@ -306,6 +306,9 @@ void assertVisitorInvariants(XmlNode xml) {
   final visitor = DefaultVisitor();
   for (final node in [xml, ...xml.descendants]) {
     expect(visitor.visit(node), isNull);
+    if (node is XmlHasName) {
+      expect(visitor.visit((node as XmlHasName).name), isNull);
+    }
   }
 }
 
