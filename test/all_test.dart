@@ -12,6 +12,7 @@ import 'node_test.dart' as node_test;
 import 'parse_test.dart' as parse_test;
 import 'query_test.dart' as query_test;
 import 'regression_test.dart' as regression_test;
+import 'tutorial_test.dart' as tutorial_test;
 import 'utils_test.dart' as utils_test;
 import 'visitor_test.dart' as visitor_test;
 
@@ -28,6 +29,7 @@ void main() {
   group('parse', parse_test.main);
   group('query', query_test.main);
   group('regression', regression_test.main);
+  group('tutorial', tutorial_test.main);
   group('utils', utils_test.main);
   group('visitor', visitor_test.main);
 }

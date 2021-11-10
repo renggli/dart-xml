@@ -39,11 +39,11 @@ To read XML input use the factory method `XmlDocument.parse(String input)`:
 final bookshelfXml = '''<?xml version="1.0"?>
     <bookshelf>
       <book>
-        <title lang="english">Growing a Language</title>
+        <title lang="en">Growing a Language</title>
         <price>29.99</price>
       </book>
       <book>
-        <title lang="english">Learning XML</title>
+        <title lang="en">Learning XML</title>
         <price>39.95</price>
       </book>
       <price>132.00</price>
@@ -90,7 +90,7 @@ For example, the `descendants` iterator could be used to extract all textual con
 
 ```dart
 final textual = document.descendants
-  .where((node) => node is XmlText && !node.text.trim().isEmpty)
+  .where((node) => node is XmlText && node.text.trim().isNotEmpty)
   .join('\n');
 print(textual);
 ```
@@ -152,9 +152,9 @@ builder.element('bookshelf', nest: () {
     });
     builder.element('price', nest: 39.95);
   });
-  builder.element('price', nest: 132.00);
+  builder.element('price', nest: '132.00');
 });
-final bookshelfXml = builder.buildDocument();
+final document = builder.buildDocument();
 ```
 
 The `element` method supports optional named arguments:
@@ -183,7 +183,7 @@ The above `buildDocument()` method returns the built document. To attach built n
 final builder = XmlBuilder();
 buildBook(builder, 'The War of the Worlds', 'en', 12.50);
 buildBook(builder, 'Voyages extraordinaries', 'fr', 18.20);
-bookshelfXml.firstElementChild.children.add(builder.buildFragment());
+document.rootElement.children.add(builder.buildFragment());
 ```
 
 ### Event-driven
@@ -258,6 +258,7 @@ await file.openRead()
   .toXmlEvents()
   .selectSubtreeEvents((event) => event.name == 'loc')
   .toXmlNodes()
+  .expand((nodes) => nodes)
   .forEach((node) => print(node.innerText));
 ```
 
@@ -271,6 +272,7 @@ await Stream.fromIterable([shiporderXsd])
       event.localName == 'element' &&
       event.namespaceUri == 'http://www.w3.org/2001/XMLSchema')
   .toXmlNodes()
+  .expand((nodes) => nodes)
   .forEach((node) => print(node.toXmlString(pretty: true)));
 ```
 
