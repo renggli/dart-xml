@@ -231,18 +231,21 @@ class XmlBuilder {
     _stack.last.namespaces[uri] = meta;
   }
 
-  /// Return the resulting [XmlNode].
+  /// Builds and returns the resulting [XmlNode]; resets the builder to its
+  /// initial empty state.
   @Deprecated('Use buildDocument() or buildFragment() instead')
   XmlNode build() => buildDocument();
 
-  /// Builds the resulting [XmlDocument].
+  /// Builds and returns the resulting [XmlDocument]; resets the builder to its
+  /// initial empty state.
   XmlDocument buildDocument() => _build((builder) => builder.buildDocument());
 
-  /// Builds the resulting [XmlDocumentFragment].
+  /// Builds and returns the resulting [XmlDocumentFragment]; resets the builder
+  /// to its initial empty state.
   XmlDocumentFragment buildFragment() =>
       _build((builder) => builder.buildFragment());
 
-  // Internal method to finalize the result and reset the builder.
+  // Internal method to build the final result and reset the builder.
   T _build<T extends XmlNode>(T Function(NodeBuilder builder) builder) {
     if (_stack.length != 1) {
       throw StateError('Unable to build an incomplete DOM element.');
