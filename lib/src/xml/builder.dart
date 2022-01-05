@@ -19,7 +19,6 @@ import 'utils/namespace.dart' as ns;
 
 /// A builder to create XML trees with code.
 class XmlBuilder {
-
   /// Construct a new [XmlBuilder].
   ///
   /// For the meaning of the [optimizeNamespaces] parameter, read the
