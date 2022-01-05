@@ -19,6 +19,15 @@ import 'utils/namespace.dart' as ns;
 
 /// A builder to create XML trees with code.
 class XmlBuilder {
+
+  /// Construct a new [XmlBuilder].
+  ///
+  /// For the meaning of the [optimizeNamespaces] parameter, read the
+  /// documentation of the [optimizeNamespaces] property.
+  XmlBuilder({this.optimizeNamespaces = false}) {
+    _reset();
+  }
+
   /// If [optimizeNamespaces] is true, the builder will perform some
   /// namespace optimization.
   ///
@@ -32,14 +41,6 @@ class XmlBuilder {
   /// The current node stack of this builder.
   final Queue<NodeBuilder> _stack = ListQueue();
 
-  /// Construct a new [XmlBuilder].
-  ///
-  /// For the meaning of the [optimizeNamespaces] parameter, read the
-  /// documentation of the [optimizeNamespaces] property.
-  XmlBuilder({this.optimizeNamespaces = false}) {
-    _reset();
-  }
-
   /// Adds a [XmlText] node with the provided [text].
   ///
   /// For example, to generate the text _Hello World_ one would write:
@@ -48,13 +49,15 @@ class XmlBuilder {
   ///
   void text(Object text) {
     final children = _stack.last.children;
-    if (children.isNotEmpty && children.last is XmlText) {
-      // Merge consecutive text nodes into one
-      final previous = children.removeLast();
-      children.add(XmlText('${previous.text}${text.toString()}'));
-    } else {
-      children.add(XmlText(text.toString()));
+    if (children.isNotEmpty) {
+      final lastChild = children.last;
+      if (lastChild is XmlText) {
+        // Merge consecutive text nodes into one
+        lastChild.text += text.toString();
+        return;
+      }
     }
+    children.add(XmlText(text.toString()));
   }
 
   /// Adds a [XmlCDATA] node with the provided [text].
