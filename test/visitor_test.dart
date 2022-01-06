@@ -278,6 +278,34 @@ void main() {
             '<c c="3" b="2" a="1">CCC</c>'
             '</body>');
       });
+      test('insert space before self-closing', () {
+        final element = XmlElement(
+          XmlName('base'),
+          [],
+          [
+            XmlElement(XmlName('simple')),
+            XmlElement(
+              XmlName('with-attributes'),
+              [XmlAttribute(XmlName('attr'), 'val')],
+            ),
+            XmlElement(XmlName('do-not-add')),
+          ],
+        );
+
+        final output = element.toXmlString(
+          pretty: true,
+          spaceBeforeSelfClose: (node) =>
+              node is XmlElement && node.name.local != 'do-not-add',
+        );
+        expect(
+          output,
+          '<base>\n'
+          '  <simple />\n'
+          '  <with-attributes attr="val" />\n'
+          '  <do-not-add/>\n'
+          '</base>',
+        );
+      });
     });
   });
 }

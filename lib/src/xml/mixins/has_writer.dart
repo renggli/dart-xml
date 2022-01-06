@@ -32,6 +32,8 @@ mixin XmlHasWriter implements XmlHasVisitor {
   ///   whitespace are preserved.
   /// - If the [sortAttributes] is provided, attributes are on-the-fly sorted
   ///   using the provided [Comparator].
+  /// - If the predicate [spaceBeforeSelfClose] returns `true`, self-closing
+  ///   elements will be closed with a space before the slash ('<example />')
   ///
   String toXmlString({
     bool pretty = false,
@@ -42,17 +44,21 @@ mixin XmlHasWriter implements XmlHasVisitor {
     Predicate<XmlNode>? preserveWhitespace,
     Predicate<XmlAttribute>? indentAttribute,
     Comparator<XmlAttribute>? sortAttributes,
+    Predicate<XmlNode>? spaceBeforeSelfClose,
   }) {
     final buffer = StringBuffer();
     final writer = pretty
-        ? XmlPrettyWriter(buffer,
+        ? XmlPrettyWriter(
+            buffer,
             entityMapping: entityMapping,
             level: level,
             indent: indent,
             newLine: newLine,
             preserveWhitespace: preserveWhitespace,
             indentAttribute: indentAttribute,
-            sortAttributes: sortAttributes)
+            sortAttributes: sortAttributes,
+            spaceBeforeSelfClose: spaceBeforeSelfClose,
+          )
         : XmlWriter(buffer, entityMapping: entityMapping);
     writer.visit(this);
     return buffer.toString();

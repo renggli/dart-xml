@@ -21,6 +21,7 @@ class XmlPrettyWriter extends XmlWriter {
   final Predicate<XmlNode>? preserveWhitespace;
   final Predicate<XmlAttribute>? indentAttribute;
   final Comparator<XmlAttribute>? sortAttributes;
+  final Predicate<XmlNode>? spaceBeforeSelfClose;
 
   XmlPrettyWriter(
     StringSink buffer, {
@@ -31,6 +32,7 @@ class XmlPrettyWriter extends XmlWriter {
     this.preserveWhitespace,
     this.indentAttribute,
     this.sortAttributes,
+    this.spaceBeforeSelfClose,
   })  : level = level ?? 0,
         indent = indent ?? '  ',
         newLine = newLine ?? '\n',
@@ -48,6 +50,9 @@ class XmlPrettyWriter extends XmlWriter {
     visit(node.name);
     writeAttributes(node);
     if (node.children.isEmpty && node.isSelfClosing) {
+      if (spaceBeforeSelfClose != null && spaceBeforeSelfClose!(node)) {
+        buffer.write(' ');
+      }
       buffer.write(XmlToken.closeEndElement);
     } else {
       buffer.write(XmlToken.closeElement);
