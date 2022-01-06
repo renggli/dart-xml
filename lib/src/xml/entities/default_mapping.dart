@@ -57,60 +57,63 @@ class XmlDefaultEntityMapping extends XmlEntityMapping {
 
 // Encode XML text.
 
-final _textPattern = RegExp(r'[&<]|]]>');
+final _textPattern = RegExp(r'[&<]|]]>' + _highlyDiscouraged);
 
 String _textReplace(Match match) {
-  switch (match.group(0)) {
+  final toEscape = match.group(0);
+  switch (toEscape) {
     case '<':
       return '&lt;';
     case '&':
       return '&amp;';
     case ']]>':
       return ']]&gt;';
+    default:
+      return _asNumericCharacterReferences(toEscape!);
   }
-  throw ArgumentError.value(match, 'match');
 }
 
 // Encode XML attribute values (single quotes).
 
-final _singeQuoteAttributePattern = RegExp(r"['&<\n\r\t]");
+final _singeQuoteAttributePattern = RegExp(r"['&<\n\r\t]" + _highlyDiscouraged);
 
 String _singeQuoteAttributeReplace(Match match) {
-  switch (match.group(0)) {
+  final toEscape = match.group(0);
+  switch (toEscape) {
     case "'":
       return '&apos;';
     case '&':
       return '&amp;';
     case '<':
       return '&lt;';
-    case '\n':
-      return '&#xA;';
-    case '\r':
-      return '&#xD;';
-    case '\t':
-      return '&#x9;';
+    default:
+      return _asNumericCharacterReferences(toEscape!);
   }
-  throw ArgumentError.value(match, 'match');
 }
 
 // Encode XML attribute values (double quotes).
 
-final _doubleQuoteAttributePattern = RegExp(r'["&<\n\r\t]');
+final _doubleQuoteAttributePattern =
+    RegExp(r'["&<\n\r\t]' + _highlyDiscouraged);
 
 String _doubleQuoteAttributeReplace(Match match) {
-  switch (match.group(0)) {
+  final toEscape = match.group(0);
+  switch (toEscape) {
     case '"':
       return '&quot;';
     case '&':
       return '&amp;';
     case '<':
       return '&lt;';
-    case '\n':
-      return '&#xA;';
-    case '\r':
-      return '&#xD;';
-    case '\t':
-      return '&#x9;';
+    default:
+      return _asNumericCharacterReferences(toEscape!);
   }
-  throw ArgumentError.value(match, 'match');
 }
+
+// Lists all C0 and C1 control codes except NUL, HT, LF, CR and NEL
+const _highlyDiscouraged =
+    r'|[\u0001-\u0008\u000b\u000c\u000e-\u001f\u007f-\u0084\u0086-\u009f]';
+
+String _asNumericCharacterReferences(String toEscape) => toEscape.runes
+    .map((rune) => '&#x${rune.toRadixString(16).toUpperCase()};')
+    .join();
