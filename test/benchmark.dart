@@ -81,12 +81,17 @@ void addBenchmarks(XmlBuilder builder) {
 void addBenchmark(XmlBuilder builder, MapEntry<String, String> entry) {
   builder.element('benchmark', attributes: {'name': entry.key}, nest: () {
     final source = entry.value;
+    final document = XmlDocument.parse(source);
     final parser = benchmark(() => XmlDocument.parse(source));
     final stream = benchmark(() => XmlEventDecoder().convert(source));
     final iterator = benchmark(() => parseEvents(source).toList());
+    final serialize = benchmark(() => document.toXmlString());
+    final serializePretty = benchmark(() => document.toXmlString(pretty: true));
     addMeasure(builder, 'parser', parser);
     addMeasure(builder, 'stream', stream, parser);
     addMeasure(builder, 'iterator', iterator, parser);
+    addMeasure(builder, 'serialize', serialize);
+    addMeasure(builder, 'serializePretty', serializePretty, serialize);
   });
 }
 
