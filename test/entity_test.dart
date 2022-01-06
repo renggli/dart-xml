@@ -53,8 +53,8 @@ void testDefaultMapping(XmlEntityMapping entityMapping) {
     test('text', () {
       expect(entityMapping.encodeText('<'), '&lt;');
       expect(entityMapping.encodeText('&'), '&amp;');
-      expect(entityMapping.encodeText('\0\u0008\u0009\u0084\u0085\u0086'),
-          '\0&#x8;\u0009&#x84;\u0085&#x86;');
+      expect(entityMapping.encodeText('\u0000\u0008\u0009\u0084\u0085\u0086'),
+          '\u0000&#x8;\u0009&#x84;\u0085&#x86;');
       expect(entityMapping.encodeText('hello'), 'hello');
       expect(entityMapping.encodeText('<foo &amp;>'), '&lt;foo &amp;amp;>');
     });
@@ -81,8 +81,9 @@ void testDefaultMapping(XmlEntityMapping entityMapping) {
           '&#xD;');
       expect(
           entityMapping.encodeAttributeValue(
-              '\0\u0008\u0009\u0084\u0085\u0086', XmlAttributeType.SINGLE_QUOTE),
-          '\0&#x8;&#x9;&#x84;\u0085&#x86;');
+              '\u0000\u0008\u0009\u0084\u0085\u0086',
+              XmlAttributeType.SINGLE_QUOTE),
+          '\u0000&#x8;&#x9;&#x84;\u0085&#x86;');
       expect(
           entityMapping.encodeAttributeValue(
               'hello', XmlAttributeType.SINGLE_QUOTE),
@@ -119,8 +120,9 @@ void testDefaultMapping(XmlEntityMapping entityMapping) {
           '&#xD;');
       expect(
           entityMapping.encodeAttributeValue(
-              '\0\u0008\u0009\u0084\u0085\u0086', XmlAttributeType.DOUBLE_QUOTE),
-          '\0&#x8;&#x9;&#x84;\u0085&#x86;');
+              '\u0000\u0008\u0009\u0084\u0085\u0086',
+              XmlAttributeType.DOUBLE_QUOTE),
+          '\u0000&#x8;&#x9;&#x84;\u0085&#x86;');
       expect(
           entityMapping.encodeAttributeValue(
               'hello', XmlAttributeType.DOUBLE_QUOTE),
