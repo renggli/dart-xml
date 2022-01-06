@@ -144,7 +144,7 @@ class XmlBuilder {
   ///
   void element(String name,
       {String? namespace,
-      Map<String, String> namespaces = const {},
+      Map<String, String?> namespaces = const {},
       Map<String, String> attributes = const {},
       bool isSelfClosing = true,
       Object? nest}) {

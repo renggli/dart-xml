@@ -291,13 +291,13 @@ void main() {
   });
   test('undefined namespace', () {
     final builder = XmlBuilder();
-    expect(() => builder.element('element', namespace: 'http://1.foo.com/'),
+    expect(() => builder.element('element', namespace: 'http://foo.com/'),
         throwsArgumentError);
   });
   test('invalid namespace', () {
     final builder = XmlBuilder();
     builder.element('element', nest: () {
-      expect(() => builder.namespace('http://1.foo.com/', 'xml'),
+      expect(() => builder.namespace('http://foo.com/', 'xml'),
           throwsArgumentError);
       expect(() => builder.namespace('http://2.foo.com/', 'xmlns'),
           throwsArgumentError);
@@ -309,27 +309,27 @@ void main() {
   test('conflicting namespace', () {
     final builder = XmlBuilder();
     builder.element('element', nest: () {
-      builder.namespace('http://1.foo.com/', 'foo');
+      builder.namespace('http://foo.com/', 'foo');
       expect(() => builder.namespace('http://2.foo.com/', 'foo'),
           throwsArgumentError);
-    }, namespace: 'http://1.foo.com/');
+    }, namespace: 'http://foo.com/');
     final actual = builder.buildDocument().toString();
-    const expected = '<foo:element xmlns:foo="http://1.foo.com/"/>';
+    const expected = '<foo:element xmlns:foo="http://foo.com/"/>';
     expect(actual, expected);
   });
   test('unused namespace', () {
     final builder = XmlBuilder();
     builder.element('element', nest: () {
-      builder.namespace('http://1.foo.com/', 'foo');
+      builder.namespace('http://foo.com/', 'foo');
     });
     final actual = builder.buildDocument().toString();
-    const expected = '<element xmlns:foo="http://1.foo.com/"/>';
+    const expected = '<element xmlns:foo="http://foo.com/"/>';
     expect(actual, expected);
   });
   test('unused namespace (optimized)', () {
     final builder = XmlBuilder(optimizeNamespaces: true);
     builder.element('element', nest: () {
-      builder.namespace('http://1.foo.com/', 'foo');
+      builder.namespace('http://foo.com/', 'foo');
     });
     final actual = builder.buildDocument().toString();
     const expected = '<element/>';
@@ -338,19 +338,19 @@ void main() {
   test('duplicate namespace', () {
     final builder = XmlBuilder();
     builder.element('element', nest: () {
-      builder.namespace('http://1.foo.com/', 'foo');
+      builder.namespace('http://foo.com/', 'foo');
       builder.element('outer', nest: () {
-        builder.namespace('http://1.foo.com/', 'foo');
+        builder.namespace('http://foo.com/', 'foo');
         builder.element('inner', nest: () {
-          builder.namespace('http://1.foo.com/', 'foo');
-          builder.attribute('lang', 'en', namespace: 'http://1.foo.com/');
+          builder.namespace('http://foo.com/', 'foo');
+          builder.attribute('lang', 'en', namespace: 'http://foo.com/');
         });
       });
     });
     final actual = builder.buildDocument().toString();
-    const expected = '<element xmlns:foo="http://1.foo.com/">'
-        '<outer xmlns:foo="http://1.foo.com/">'
-        '<inner xmlns:foo="http://1.foo.com/" foo:lang="en"/>'
+    const expected = '<element xmlns:foo="http://foo.com/">'
+        '<outer xmlns:foo="http://foo.com/">'
+        '<inner xmlns:foo="http://foo.com/" foo:lang="en"/>'
         '</outer>'
         '</element>';
     expect(actual, expected);
@@ -358,17 +358,17 @@ void main() {
   test('duplicate namespace on attribute (optimized)', () {
     final builder = XmlBuilder(optimizeNamespaces: true);
     builder.element('element', nest: () {
-      builder.namespace('http://1.foo.com/', 'foo');
+      builder.namespace('http://foo.com/', 'foo');
       builder.element('outer', nest: () {
-        builder.namespace('http://1.foo.com/', 'foo');
+        builder.namespace('http://foo.com/', 'foo');
         builder.element('inner', nest: () {
-          builder.namespace('http://1.foo.com/', 'foo');
-          builder.attribute('lang', 'en', namespace: 'http://1.foo.com/');
+          builder.namespace('http://foo.com/', 'foo');
+          builder.attribute('lang', 'en', namespace: 'http://foo.com/');
         });
       });
     });
     final actual = builder.buildDocument().toString();
-    const expected = '<element xmlns:foo="http://1.foo.com/">'
+    const expected = '<element xmlns:foo="http://foo.com/">'
         '<outer>'
         '<inner foo:lang="en"/>'
         '</outer>'
@@ -378,18 +378,29 @@ void main() {
   test('duplicate namespace on element (optimized)', () {
     final builder = XmlBuilder(optimizeNamespaces: true);
     builder.element('element', nest: () {
-      builder.namespace('http://1.foo.com/', 'foo');
+      builder.namespace('http://foo.com/', 'foo');
       builder.element('outer', nest: () {
-        builder.namespace('http://1.foo.com/', 'foo');
-        builder.element('inner', namespace: 'http://1.foo.com/');
+        builder.namespace('http://foo.com/', 'foo');
+        builder.element('inner', namespace: 'http://foo.com/');
       });
     });
     final actual = builder.buildDocument().toString();
-    const expected = '<element xmlns:foo="http://1.foo.com/">'
+    const expected = '<element xmlns:foo="http://foo.com/">'
         '<outer>'
         '<foo:inner/>'
         '</outer>'
         '</element>';
+    expect(actual, expected);
+  });
+  test('namespace defined with element', () {
+    final builder = XmlBuilder();
+    builder.element('element', namespaces: {
+      'http://foo.com/': 'foo',
+      'http://bar.com/': null,
+    });
+    final actual = builder.buildDocument().toString();
+    const expected = '<element xmlns:foo="http://foo.com/" '
+        'xmlns="http://bar.com/"/>';
     expect(actual, expected);
   });
   test('entities cdata escape', () {
