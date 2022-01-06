@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.4.0 (unpublished)
+
+* Add a predicate to pretty printer to insert a space character before self-closing elements (thanks to https://github.com/rspilker).
+
 ## 5.3.0
 
 * Dart 2.15 requirement.
