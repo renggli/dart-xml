@@ -4,15 +4,20 @@ import 'node_type.dart';
 
 /// Abstract exception class.
 abstract class XmlException implements Exception {
-  /// A message describing the XML error.
-  final String message;
-
   /// Creates a new XmlException with an optional error [message].
   XmlException(this.message);
+
+  /// A message describing the XML error.
+  final String message;
 }
 
 /// Exception thrown when parsing of an XML document fails.
 class XmlParserException extends XmlException implements FormatException {
+  /// Creates a new XmlParserException.
+  XmlParserException(String message,
+      {this.buffer, this.position = 0, this.line = 0, this.column = 0})
+      : super(message);
+
   /// The source input which caused the error.
   final String? buffer;
 
@@ -24,11 +29,6 @@ class XmlParserException extends XmlException implements FormatException {
 
   /// The column number where the parser error was detected.
   final int column;
-
-  /// Creates a new XmlParserException.
-  XmlParserException(String message,
-      {this.buffer, this.position = 0, this.line = 0, this.column = 0})
-      : super(message);
 
   @override
   String? get source => buffer;
@@ -42,6 +42,9 @@ class XmlParserException extends XmlException implements FormatException {
 
 /// Exception thrown when an unsupported node type is used.
 class XmlNodeTypeException extends XmlException {
+  /// Creates a new XmlNodeTypeException.
+  XmlNodeTypeException(String message) : super(message);
+
   /// Ensure that [node] is of one of the provided [types].
   static void checkValidType(XmlNode node, Iterable<XmlNodeType> types) {
     if (!types.contains(node.nodeType)) {
@@ -49,15 +52,15 @@ class XmlNodeTypeException extends XmlException {
     }
   }
 
-  /// Creates a new XmlNodeTypeException.
-  XmlNodeTypeException(String message) : super(message);
-
   @override
   String toString() => 'XmlNodeTypeException: $message';
 }
 
 /// Exception thrown when the parent relationship between nodes is invalid.
 class XmlParentException extends XmlException {
+  /// Creates a new XmlParentException.
+  XmlParentException(String message) : super(message);
+
   /// Ensure that [node] has no parent.
   static void checkNoParent(XmlParentBase node) {
     if (node.parent != null) {
@@ -75,22 +78,12 @@ class XmlParentException extends XmlException {
     }
   }
 
-  /// Creates a new XmlParentException.
-  XmlParentException(String message) : super(message);
-
   @override
   String toString() => 'XmlParentException: $message';
 }
 
 /// Exception thrown when the end tag does not match the open tag.
 class XmlTagException extends XmlException {
-  /// Ensure that the [expected] tag matches the [actual] one.
-  static void checkClosingTag(String expected, String actual) {
-    if (expected != actual) {
-      throw XmlTagException.mismatchClosingTag(expected, actual);
-    }
-  }
-
   /// Creates a new XmlTagException.
   XmlTagException(String message) : super(message);
 
@@ -108,6 +101,13 @@ class XmlTagException extends XmlException {
   /// Creates a new XmlTagException for a missing closing tag.
   factory XmlTagException.missingClosingTag(String name) =>
       XmlTagException('Missing closing tag </$name>.');
+
+  /// Ensure that the [expected] tag matches the [actual] one.
+  static void checkClosingTag(String expected, String actual) {
+    if (expected != actual) {
+      throw XmlTagException.mismatchClosingTag(expected, actual);
+    }
+  }
 
   @override
   String toString() => 'XmlTagException: $message';

@@ -6,28 +6,9 @@ import 'utils/token.dart';
 
 /// XML parser that defines standard actions to the the XML tree.
 class XmlProductionDefinition extends GrammarDefinition {
-  // https://en.wikipedia.org/wiki/QName
-  static const String _nameStartChars = ':A-Z_a-z'
-      '\u00c0-\u00d6'
-      '\u00d8-\u00f6'
-      '\u00f8-\u02ff'
-      '\u0370-\u037d'
-      '\u037f-\u1fff'
-      '\u200c-\u200d'
-      '\u2070-\u218f'
-      '\u2c00-\u2fef'
-      '\u3001-\ud7ff'
-      '\uf900-\ufdcf'
-      '\ufdf0-\ufffd';
-  static const String _nameChars = '$_nameStartChars'
-      '-.0-9'
-      '\u00b7'
-      '\u0300-\u036f'
-      '\u203f-\u2040';
+  XmlProductionDefinition(this.entityMapping);
 
   final XmlEntityMapping entityMapping;
-
-  XmlProductionDefinition(this.entityMapping);
 
   @override
   Parser start() => ref0(document).end('Expected end of input');
@@ -159,4 +140,23 @@ class XmlProductionDefinition extends GrammarDefinition {
   Parser nameStartChar() => pattern(_nameStartChars);
 
   Parser nameChar() => pattern(_nameChars);
+
+  // https://en.wikipedia.org/wiki/QName
+  static const String _nameStartChars = ':A-Z_a-z'
+      '\u00c0-\u00d6'
+      '\u00d8-\u00f6'
+      '\u00f8-\u02ff'
+      '\u0370-\u037d'
+      '\u037f-\u1fff'
+      '\u200c-\u200d'
+      '\u2070-\u218f'
+      '\u2c00-\u2fef'
+      '\u3001-\ud7ff'
+      '\uf900-\ufdcf'
+      '\ufdf0-\ufffd';
+  static const String _nameChars = '$_nameStartChars'
+      '-.0-9'
+      '\u00b7'
+      '\u0300-\u036f'
+      '\u203f-\u2040';
 }

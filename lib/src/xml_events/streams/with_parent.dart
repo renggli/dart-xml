@@ -37,11 +37,10 @@ class XmlWithParentEvents extends XmlListConverter<XmlEvent, XmlEvent> {
 
 class _XmlWithParentEventsSink extends ChunkedConversionSink<List<XmlEvent>>
     with XmlEventVisitor {
-  final Sink<List<XmlEvent>> sink;
-
-  XmlStartElementEvent? currentParent;
-
   _XmlWithParentEventsSink(this.sink);
+
+  final Sink<List<XmlEvent>> sink;
+  XmlStartElementEvent? currentParent;
 
   @override
   void add(List<XmlEvent> events) {

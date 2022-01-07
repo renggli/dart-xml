@@ -4,13 +4,13 @@ import '../entities/entity_mapping.dart';
 
 /// Optimized parser to read character data.
 class XmlCharacterDataParser extends Parser<String> {
+  XmlCharacterDataParser(this._entityMapping, this._stopper, this._minLength)
+      : _stopperCode = _stopper.codeUnitAt(0);
+
   final XmlEntityMapping _entityMapping;
   final String _stopper;
   final int _stopperCode;
   final int _minLength;
-
-  XmlCharacterDataParser(this._entityMapping, this._stopper, this._minLength)
-      : _stopperCode = _stopper.codeUnitAt(0);
 
   @override
   Result<String> parseOn(Context context) {

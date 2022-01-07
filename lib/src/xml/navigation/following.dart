@@ -17,9 +17,9 @@ extension XmlFollowingExtension on XmlNode {
 
 /// Iterable to walk over the followers of a node.
 class XmlFollowingIterable extends IterableBase<XmlNode> {
-  final XmlNode _start;
-
   XmlFollowingIterable(this._start);
+
+  final XmlNode _start;
 
   @override
   Iterator<XmlNode> get iterator => XmlFollowingIterator(_start);
@@ -27,9 +27,6 @@ class XmlFollowingIterable extends IterableBase<XmlNode> {
 
 /// Iterator to walk over the followers of a node.
 class XmlFollowingIterator extends Iterator<XmlNode> {
-  final List<XmlNode> _todo = [];
-  XmlNode? _current;
-
   XmlFollowingIterator(XmlNode start) {
     final following = <XmlNode>[];
     for (var parent = start.parent, child = start;
@@ -46,6 +43,9 @@ class XmlFollowingIterator extends Iterator<XmlNode> {
     }
     _todo.addAll(following.reversed);
   }
+
+  final List<XmlNode> _todo = [];
+  XmlNode? _current;
 
   @override
   XmlNode get current => _current!;

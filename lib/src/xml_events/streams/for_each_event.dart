@@ -67,15 +67,6 @@ extension XmlForEachEventListExtension on Stream<List<XmlEvent>> {
 }
 
 class _XmlForEachEventHandler with XmlEventVisitor {
-  final EventHandler<XmlCDATAEvent>? onCDATA;
-  final EventHandler<XmlCommentEvent>? onComment;
-  final EventHandler<XmlDeclarationEvent>? onDeclaration;
-  final EventHandler<XmlDoctypeEvent>? onDoctype;
-  final EventHandler<XmlEndElementEvent>? onEndElement;
-  final EventHandler<XmlProcessingEvent>? onProcessing;
-  final EventHandler<XmlStartElementEvent>? onStartElement;
-  final EventHandler<XmlTextEvent>? onText;
-
   const _XmlForEachEventHandler({
     this.onCDATA,
     this.onComment,
@@ -86,6 +77,15 @@ class _XmlForEachEventHandler with XmlEventVisitor {
     this.onStartElement,
     this.onText,
   });
+
+  final EventHandler<XmlCDATAEvent>? onCDATA;
+  final EventHandler<XmlCommentEvent>? onComment;
+  final EventHandler<XmlDeclarationEvent>? onDeclaration;
+  final EventHandler<XmlDoctypeEvent>? onDoctype;
+  final EventHandler<XmlEndElementEvent>? onEndElement;
+  final EventHandler<XmlProcessingEvent>? onProcessing;
+  final EventHandler<XmlStartElementEvent>? onStartElement;
+  final EventHandler<XmlTextEvent>? onText;
 
   void call(XmlEvent input) => visit(input);
 

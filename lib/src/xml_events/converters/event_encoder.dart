@@ -24,10 +24,10 @@ extension XmlEventEncoderExtension on Stream<List<XmlEvent>> {
 
 /// A converter that encodes a sequence of [XmlEvent] objects to a [String].
 class XmlEventEncoder extends Converter<List<XmlEvent>, String> {
-  final XmlEntityMapping entityMapping;
-
   XmlEventEncoder({XmlEntityMapping? entityMapping})
       : entityMapping = entityMapping ?? defaultEntityMapping;
+
+  final XmlEntityMapping entityMapping;
 
   @override
   String convert(List<XmlEvent> input) {

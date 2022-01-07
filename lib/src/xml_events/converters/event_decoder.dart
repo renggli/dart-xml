@@ -18,10 +18,10 @@ extension XmlEventDecoderExtension on Stream<String> {
 
 /// A converter that decodes a [String] to a sequence of [XmlEvent] objects.
 class XmlEventDecoder extends Converter<String, List<XmlEvent>> {
-  final XmlEntityMapping entityMapping;
-
   XmlEventDecoder({XmlEntityMapping? entityMapping})
       : entityMapping = entityMapping ?? defaultEntityMapping;
+
+  final XmlEntityMapping entityMapping;
 
   @override
   List<XmlEvent> convert(String input, [int start = 0, int? end]) {

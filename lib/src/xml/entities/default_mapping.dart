@@ -7,9 +7,6 @@ XmlEntityMapping defaultEntityMapping = const XmlDefaultEntityMapping.xml();
 
 /// Default entity mapping for XML, HTML, and HTML5 entities.
 class XmlDefaultEntityMapping extends XmlEntityMapping {
-  /// Named character references.
-  final Map<String, String> entities;
-
   /// Minimal entity mapping of XML character references.
   const XmlDefaultEntityMapping.xml() : this(xmlEntities);
 
@@ -21,6 +18,9 @@ class XmlDefaultEntityMapping extends XmlEntityMapping {
 
   /// Custom entity mapping.
   const XmlDefaultEntityMapping(this.entities);
+
+  /// Named character references.
+  final Map<String, String> entities;
 
   @override
   String? decodeEntity(String input) {

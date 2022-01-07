@@ -7,10 +7,10 @@ import 'node_type.dart';
 
 /// Mutable list of XmlNodes, manages the parenting of the nodes.
 class XmlNodeList<E extends XmlNode> extends DelegatingList<E> {
+  XmlNodeList() : super(<E>[]);
+
   late final XmlNode _parent;
   late final Set<XmlNodeType> _nodeTypes;
-
-  XmlNodeList() : super(<E>[]);
 
   /// Internal initializer of the node list with parent and supported
   /// node types.

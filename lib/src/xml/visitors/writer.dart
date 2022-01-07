@@ -18,11 +18,11 @@ import 'visitor.dart';
 
 /// A visitor that writes XML nodes exactly as they were parsed.
 class XmlWriter with XmlVisitor {
-  final StringSink buffer;
-  final XmlEntityMapping entityMapping;
-
   XmlWriter(this.buffer, {XmlEntityMapping? entityMapping})
       : entityMapping = entityMapping ?? defaultEntityMapping;
+
+  final StringSink buffer;
+  final XmlEntityMapping entityMapping;
 
   @override
   void visitAttribute(XmlAttribute node) {

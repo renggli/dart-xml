@@ -3,11 +3,11 @@ typedef XmlLoader<K, V> = V Function(K key);
 
 /// Simple FIFO cache.
 class XmlCache<K, V> {
+  XmlCache(this._loader, this._maxSize);
+
   final XmlLoader _loader;
   final int _maxSize;
   final Map<K, V> _values = {};
-
-  XmlCache(this._loader, this._maxSize);
 
   V operator [](K key) {
     if (!_values.containsKey(key)) {

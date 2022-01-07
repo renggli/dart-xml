@@ -315,16 +315,16 @@ class XmlBuilder {
 }
 
 class NamespaceData {
+  NamespaceData(this.prefix, [this.used = false]);
+
   final String? prefix;
   bool used;
-
-  static final NamespaceData xmlData = NamespaceData(ns.xml, true);
-
-  NamespaceData(this.prefix, [this.used = false]);
 
   XmlName get name => prefix == null || prefix!.isEmpty
       ? XmlName(ns.xmlns)
       : XmlName(prefix!, ns.xmlns);
+
+  static final NamespaceData xmlData = NamespaceData(ns.xml, true);
 }
 
 class NodeBuilder {

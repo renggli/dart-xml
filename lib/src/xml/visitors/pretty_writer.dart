@@ -14,15 +14,6 @@ import 'writer.dart';
 /// A visitor that writes XML nodes correctly indented and with whitespaces
 /// adapted.
 class XmlPrettyWriter extends XmlWriter {
-  int level;
-  bool pretty = true;
-  final String indent;
-  final String newLine;
-  final Predicate<XmlNode>? preserveWhitespace;
-  final Predicate<XmlAttribute>? indentAttribute;
-  final Comparator<XmlAttribute>? sortAttributes;
-  final Predicate<XmlNode>? spaceBeforeSelfClose;
-
   XmlPrettyWriter(
     StringSink buffer, {
     XmlEntityMapping? entityMapping,
@@ -37,6 +28,15 @@ class XmlPrettyWriter extends XmlWriter {
         indent = indent ?? '  ',
         newLine = newLine ?? '\n',
         super(buffer, entityMapping: entityMapping);
+
+  int level;
+  bool pretty = true;
+  final String indent;
+  final String newLine;
+  final Predicate<XmlNode>? preserveWhitespace;
+  final Predicate<XmlAttribute>? indentAttribute;
+  final Comparator<XmlAttribute>? sortAttributes;
+  final Predicate<XmlNode>? spaceBeforeSelfClose;
 
   @override
   void visitDocument(XmlDocument node) {
