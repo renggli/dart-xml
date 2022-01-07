@@ -1,6 +1,6 @@
+import 'package:test/test.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xml_events.dart';
-import 'package:test/test.dart';
 
 import 'assertions.dart';
 

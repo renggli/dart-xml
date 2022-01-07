@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:xml/xml.dart';
 import 'package:xml/xml_events.dart';
 
@@ -66,7 +68,7 @@ final Map<String, String> benchmarks = {
 void main() {
   final builder = XmlBuilder();
   addBenchmarks(builder);
-  print(builder.buildDocument().toXmlString(pretty: true));
+  stdout.writeln(builder.buildDocument().toXmlString(pretty: true));
 }
 
 void addBenchmarks(XmlBuilder builder) {

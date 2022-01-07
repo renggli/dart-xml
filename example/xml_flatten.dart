@@ -52,6 +52,6 @@ Future<void> main(List<String> arguments) async {
     if (text) {
       flatStream = flatStream.where((event) => event is XmlTextEvent);
     }
-    await flatStream.forEach(print);
+    await flatStream.forEach(stdout.writeln);
   }
 }
