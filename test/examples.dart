@@ -112,7 +112,7 @@ const String booksXml = '<?xml version="1.0"?>'
     '      <genre>Computer</genre>'
     '      <price>49.95</price>'
     '      <publish_date>2001-04-16</publish_date>'
-    '      <description>Microsoft Visual Studio \u0007 is explored in depth,'
+    '      <description>Microsoft Visual Studio 7 is explored in depth,'
     '      looking at how Visual Basic, Visual C++, C#, and ASP+ are '
     '      integrated into a comprehensive development '
     '      environment.</description>'
@@ -215,3 +215,6 @@ const String unicodeXml = '<?xml version="1.1" encoding="UTF-8"?>\n'
     '<生年月日>昭和２８年２月１日</生年月日>\n'
     '<性別>男</性別>\n'
     '</電文情報>\n';
+
+const String controlCharactersXml = '<?xml version="1.0"?>\n'
+    '<name attr="bell\u0007">del\u007fbackspace\u0008</name>';
