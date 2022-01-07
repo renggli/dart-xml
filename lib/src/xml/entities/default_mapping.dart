@@ -110,7 +110,11 @@ String _doubleQuoteAttributeReplace(Match match) {
   }
 }
 
-// Lists all C0 and C1 control codes except NUL, HT, LF, CR and NEL
+// Lists all C0 and C1 control codes except NUL, HT, LF, CR and NEL.
+//
+// Sources:
+// - https://www.w3.org/TR/xml/#charsets
+// - https://en.wikipedia.org/wiki/XML#Valid_Unicode_characters_in_XML_1.0_and_XML_1.1
 const _highlyDiscouraged =
     r'|[\u0001-\u0008\u000b\u000c\u000e-\u001f\u007f-\u0084\u0086-\u009f]';
 
