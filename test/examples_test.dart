@@ -10,4 +10,6 @@ void main() {
   test('shiporder', () => assertDocumentParseInvariants(shiporderXsd));
   test('complicated', () => assertDocumentParseInvariants(complicatedXml));
   test('unicode', () => assertDocumentParseInvariants(unicodeXml));
+  test('control characters',
+      () => assertDocumentParseInvariants(controlCharactersXml));
 }
