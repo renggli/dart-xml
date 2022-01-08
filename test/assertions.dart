@@ -366,11 +366,18 @@ void compareNode(XmlNode first, XmlNode second) {
   expect(firstText, secondText);
   expect(first.attributes.length, second.attributes.length);
   for (var i = 0; i < first.attributes.length; i++) {
-    compareNode(first.attributes[i], second.attributes[i]);
+    compareAttribute(first.attributes[i], second.attributes[i]);
   }
   if (first is! XmlHasChildren) {
     expect(first.toXmlString(), second.toXmlString());
   }
+}
+
+void compareAttribute(XmlAttribute first, XmlAttribute second) {
+  expect(first.name.qualified, second.name.qualified);
+  expect(first.name.namespaceUri, second.name.namespaceUri);
+  expect(first.attributeType, second.attributeType);
+  expect(first.value, second.value);
 }
 
 void assertPrintingInvariants(XmlNode xml) {
