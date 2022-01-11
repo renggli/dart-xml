@@ -28,9 +28,9 @@ mixin XmlChildrenBase {
 }
 
 /// Mixin for nodes with children.
-mixin XmlHasChildren implements XmlChildrenBase {
+mixin XmlHasChildren<T extends XmlNode> implements XmlChildrenBase {
   @override
-  final XmlNodeList<XmlNode> children = XmlNodeList<XmlNode>();
+  final XmlNodeList<T> children = XmlNodeList<T>();
 
   @override
   Iterable<XmlElement> get childElements => children.whereType<XmlElement>();
@@ -47,7 +47,7 @@ mixin XmlHasChildren implements XmlChildrenBase {
   }
 
   @override
-  XmlNode? get firstChild => children.isEmpty ? null : children.first;
+  T? get firstChild => children.isEmpty ? null : children.first;
 
   @override
   XmlElement? get firstElementChild {
@@ -60,7 +60,7 @@ mixin XmlHasChildren implements XmlChildrenBase {
   }
 
   @override
-  XmlNode? get lastChild => children.isEmpty ? null : children.last;
+  T? get lastChild => children.isEmpty ? null : children.last;
 
   @override
   XmlElement? get lastElementChild {

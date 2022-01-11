@@ -11,7 +11,7 @@ import '../visitors/visitor.dart';
 import 'node.dart';
 
 /// XML document fragment node.
-class XmlDocumentFragment extends XmlNode with XmlHasChildren {
+class XmlDocumentFragment extends XmlNode with XmlHasChildren<XmlNode> {
   /// Return an [XmlDocumentFragment] for the given [input] string, or throws an
   /// [XmlParserException] if the input is invalid.
   ///

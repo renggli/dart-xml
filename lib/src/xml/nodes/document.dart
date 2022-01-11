@@ -14,7 +14,7 @@ import 'element.dart';
 import 'node.dart';
 
 /// XML document node.
-class XmlDocument extends XmlNode with XmlHasChildren {
+class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
   /// Return an [XmlDocument] for the given [input] string, or throws an
   /// [XmlParserException] if the input is invalid.
   ///

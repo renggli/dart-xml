@@ -10,7 +10,11 @@ import 'node.dart';
 
 /// XML element node.
 class XmlElement extends XmlNode
-    with XmlHasParent<XmlNode>, XmlHasName, XmlHasAttributes, XmlHasChildren {
+    with
+        XmlHasName,
+        XmlHasParent<XmlNode>,
+        XmlHasAttributes,
+        XmlHasChildren<XmlNode> {
   /// Create an element node with the provided [name], [attributes], and
   /// [children].
   XmlElement(this.name,

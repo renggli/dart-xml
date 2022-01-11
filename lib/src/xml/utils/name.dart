@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 import '../mixins/has_parent.dart';
 import '../mixins/has_visitor.dart';
 import '../mixins/has_writer.dart';
+import '../nodes/node.dart';
 import '../visitors/visitor.dart';
 import 'prefix_name.dart';
 import 'simple_name.dart';
@@ -10,7 +11,7 @@ import 'token.dart';
 
 /// XML entity name.
 abstract class XmlName extends Object
-    with XmlHasVisitor, XmlHasWriter, XmlHasParent {
+    with XmlHasVisitor, XmlHasWriter, XmlHasParent<XmlNode> {
   /// Creates a qualified [XmlName] from a `local` name and an optional
   /// `prefix`.
   factory XmlName(String local, [String? prefix]) =>
