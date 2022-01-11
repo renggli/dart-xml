@@ -42,7 +42,7 @@ class XmlBuilder {
 
   /// Adds a [XmlText] node with the provided [text].
   ///
-  /// For example, to generate the text _Hello World_ one would write:
+  /// For example, to generate the text `Hello World` one would write:
   ///
   ///     builder.text('Hello World');
   ///
@@ -61,7 +61,7 @@ class XmlBuilder {
 
   /// Adds a [XmlCDATA] node with the provided [text].
   ///
-  /// For example, to generate a CDATA element with the text _Hello World_
+  /// For example, to generate an XML CDATA element `<![CDATA[Hello World]]>`
   /// one would write:
   ///
   ///     builder.cdata('Hello World');
@@ -72,8 +72,8 @@ class XmlBuilder {
 
   /// Adds a [XmlDeclaration] node.
   ///
-  /// For example, to generate a XML declaration with the default version _1.0_
-  /// and _UTF-8_ encoding one would write:
+  /// For example, to generate an XML declaration `<?xml version="1.0"
+  /// encoding="utf-8"?>` one would write:
   ///
   ///      builder.declaration(encoding: 'UTF-8');
   ///
@@ -90,13 +90,10 @@ class XmlBuilder {
 
   /// Adds a [XmlProcessing] node with the provided [target] and [text].
   ///
-  /// For example, to generate a processing element with the _xml-stylesheet_
-  /// and the attributes _href="/style.css" type="text/css" title="default
-  /// stylesheet"_ one would write:
+  /// For example, to generate an XML processing element `<?xml-stylesheet
+  /// href="/style.css"?>` one would write:
   ///
-  ///     builder.processing(
-  ///         'xml-stylesheet',
-  ///         'href="/style.css" type="text/css" title="default stylesheet"');
+  ///     builder.processing('xml-stylesheet', 'href="/style.css"');
   ///
   void processing(String target, Object text) {
     _stack.last.children.add(XmlProcessing(target, text.toString()));
@@ -104,8 +101,8 @@ class XmlBuilder {
 
   /// Adds a [XmlComment] node with the provided [text].
   ///
-  /// For example, to generate a comment with the text _Hello World_ one
-  /// would write:
+  /// For example, to generate an XML comment `<!--Hello World-->` one would
+  /// write:
   ///
   ///     builder.comment('Hello World');
   ///
@@ -130,7 +127,7 @@ class XmlBuilder {
   /// a string or another common object that will be converted to a string and
   /// added as a text node.
   ///
-  /// For example, to generate an element with the tag _message_ and the
+  /// For example, to generate an XML element with the tag _message_ and the
   /// contained text _Hello World_ one would write:
   ///
   ///     builder.element('message', nest: 'Hello World');
