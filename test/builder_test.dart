@@ -37,6 +37,7 @@ void main() {
   test('all', () {
     final builder = XmlBuilder();
     builder.declaration();
+    builder.doctype('note SYSTEM "Note.dtd"');
     builder.processing('processing', 'instruction');
     builder.element('element1', attributes: {'attribute1': 'value1'}, nest: () {
       builder.attribute('attribute2', 'value2',
@@ -52,6 +53,7 @@ void main() {
     assertDocumentTreeInvariants(xml);
     final actual = xml.toString();
     const expected = '<?xml version="1.0"?>'
+        '<!DOCTYPE note SYSTEM "Note.dtd">'
         '<?processing instruction?>'
         '<element1 attribute1="value1" attribute2="value2" '
         'attribute3=\'value3\'>'

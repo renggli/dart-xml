@@ -6,6 +6,7 @@ import 'nodes/cdata.dart';
 import 'nodes/comment.dart';
 import 'nodes/data.dart';
 import 'nodes/declaration.dart';
+import 'nodes/doctype.dart';
 import 'nodes/document.dart';
 import 'nodes/document_fragment.dart';
 import 'nodes/element.dart';
@@ -86,6 +87,17 @@ class XmlBuilder {
       ..encoding = encoding;
     attributes.forEach(declaration.setAttribute);
     _stack.last.children.add(declaration);
+  }
+
+  /// Adds a [XmlDoctype] node.
+  ///
+  /// For example, to generate an XML doctype element `<!DOCTYPE note SYSTEM
+  /// "Note.dtd">` one would write:
+  ///
+  ///     builder.doctype('note SYSTEM "Note.dtd"');
+  ///
+  void doctype(Object text) {
+    _stack.last.children.add(XmlDoctype(text.toString()));
   }
 
   /// Adds a [XmlProcessing] node with the provided [target] and [text].
