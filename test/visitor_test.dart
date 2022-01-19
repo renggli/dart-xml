@@ -26,6 +26,40 @@ void main() {
       expect(element.children.length, 1);
       expect(element.toXmlString(), '<element>aaabbbccc</element>');
     });
+    test('trim whitespace', () {
+      final element = XmlElement(XmlName('element'), [], [
+        XmlText(' a '),
+        XmlText(' b '),
+      ]);
+      element.normalize(trimWhitespace: (node) => true);
+      expect(element.children.length, 1);
+      expect(element.toXmlString(), '<element>a  b</element>');
+    });
+    test('selectively trim whitespace', () {
+      final element = XmlElement(XmlName('element'), [], [
+        XmlElement(XmlName('a'), [], [XmlText(' 1 ')]),
+        XmlElement(XmlName('b'), [], [XmlText(' 2 ')]),
+      ]);
+      element.normalize(trimWhitespace: (node) => node.text == ' 2 ');
+      expect(element.toXmlString(), '<element><a> 1 </a><b>2</b></element>');
+    });
+    test('collapse whitespace', () {
+      final element = XmlElement(XmlName('element'), [], [
+        XmlText(' a '),
+        XmlText(' b '),
+      ]);
+      element.normalize(collapseWhitespace: (node) => true);
+      expect(element.children.length, 1);
+      expect(element.toXmlString(), '<element> a b </element>');
+    });
+    test('selectively collapse whitespace', () {
+      final element = XmlElement(XmlName('element'), [], [
+        XmlElement(XmlName('a'), [], [XmlText('1  1')]),
+        XmlElement(XmlName('b'), [], [XmlText('2  2')]),
+      ]);
+      element.normalize(collapseWhitespace: (node) => node.text == '2  2');
+      expect(element.toXmlString(), '<element><a>1  1</a><b>2 2</b></element>');
+    });
     test('document fragment', () {
       final fragment = XmlDocumentFragment([
         XmlText(''),

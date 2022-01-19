@@ -4,20 +4,36 @@ import '../nodes/element.dart';
 import '../nodes/node.dart';
 import '../nodes/text.dart';
 import '../utils/node_type.dart';
+import '../utils/predicate.dart';
 import 'visitor.dart';
 
 extension XmlNormalizerExtension on XmlNode {
   /// Puts all child nodes into a "normalized" form, that is no text nodes in
   /// the sub-tree are empty and there are no adjacent text nodes.
-  void normalize() => const XmlNormalizer().visit(this);
+  ///
+  /// - If the predicate [trimWhitespace] returns `true`, leading and trailing
+  ///   whitespace in text nodes are removed.
+  /// - If the predicate [collapseWhitespace] returns `true`, consecutive
+  ///   whitespace in text nodes are replace with a single space-character.
+  void normalize({
+    Predicate<XmlText>? trimWhitespace,
+    Predicate<XmlText>? collapseWhitespace,
+  }) =>
+      XmlNormalizer(
+        trimWhitespace: trimWhitespace,
+        collapseWhitespace: collapseWhitespace,
+      ).visit(this);
 }
 
 /// Normalizes a node tree in-place.
 class XmlNormalizer with XmlVisitor {
-  const XmlNormalizer();
+  const XmlNormalizer({this.trimWhitespace, this.collapseWhitespace});
 
   @Deprecated('Use `const XmlNormalizer()`.')
   static const XmlNormalizer defaultInstance = XmlNormalizer();
+
+  final Predicate<XmlText>? trimWhitespace;
+  final Predicate<XmlText>? collapseWhitespace;
 
   @override
   void visitDocument(XmlDocument node) => _normalize(node.children);
@@ -29,10 +45,20 @@ class XmlNormalizer with XmlVisitor {
   @override
   void visitElement(XmlElement node) => _normalize(node.children);
 
+  @override
+  void visitText(XmlText node) {
+    if (trimWhitespace != null && trimWhitespace!(node)) {
+      node.text = node.text.trim();
+    }
+    if (collapseWhitespace != null && collapseWhitespace!(node)) {
+      node.text = node.text.replaceAll(_whitespace, ' ');
+    }
+  }
+
   void _normalize(List<XmlNode> children) {
-    _removeEmpty(children);
     _mergeAdjacent(children);
     children.forEach(visit);
+    _removeEmpty(children);
   }
 
   void _removeEmpty(List<XmlNode> children) {
@@ -65,3 +91,5 @@ class XmlNormalizer with XmlVisitor {
     }
   }
 }
+
+final _whitespace = RegExp(r'\s+');
