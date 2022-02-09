@@ -38,40 +38,41 @@ abstract class XmlGrammarDefinition<TNode, TName>
   // Connects the productions and the XML AST callbacks.
 
   @override
-  Parser attribute() => super.attribute().map((each) {
-        each as List<dynamic>;
-        return createAttribute(
-            each[0], (each[4] as List)[0], (each[4] as List)[1]);
-      });
+  Parser attribute() => super.attribute().castList<dynamic>().map((each) =>
+      createAttribute(each[0], (each[4] as List)[0], (each[4] as List)[1]));
 
   @override
   Parser attributeValueDouble() => super
       .attributeValueDouble()
-      .map((each) => [(each as List)[1], XmlAttributeType.DOUBLE_QUOTE]);
+      .castList<dynamic>()
+      .map((each) => [each[1], XmlAttributeType.DOUBLE_QUOTE]);
 
   @override
   Parser attributeValueSingle() => super
       .attributeValueSingle()
-      .map((each) => [(each as List)[1], XmlAttributeType.SINGLE_QUOTE]);
+      .castList<dynamic>()
+      .map((each) => [each[1], XmlAttributeType.SINGLE_QUOTE]);
 
   @override
   Parser comment() =>
-      super.comment().map((each) => createComment((each as List)[1]));
+      super.comment().castList<dynamic>().map((each) => createComment(each[1]));
 
   @override
   Parser declaration() => super
       .declaration()
-      .map((each) => createDeclaration(each[1].cast<TNode>()));
+      .castList<dynamic>()
+      .map((each) => createDeclaration((each[1] as List).cast<TNode>()));
 
   @override
-  Parser cdata() => super.cdata().map((each) => createCDATA(each[1]));
+  Parser cdata() =>
+      super.cdata().castList<dynamic>().map((each) => createCDATA(each[1]));
 
   @override
-  Parser doctype() => super.doctype().map((each) => createDoctype(each[2]));
+  Parser doctype() =>
+      super.doctype().castList<dynamic>().map((each) => createDoctype(each[2]));
 
   @override
-  Parser document() => super.document().map((each) {
-        each as List;
+  Parser document() => super.document().castList<dynamic>().map((each) {
         final nodes = [];
         if (each[0] != null) {
           nodes.add(each[0]); // declaration
@@ -89,25 +90,27 @@ abstract class XmlGrammarDefinition<TNode, TName>
   @override
   Parser documentFragment() => super
       .documentFragment()
+      .castList<dynamic>()
       .map((nodes) => createDocumentFragment(nodes.cast<TNode>()));
 
   @override
-  Parser element() => super.element().map((list) {
+  Parser element() => super.element().castList<dynamic>().map((list) {
         final TName name = list[1];
-        final attributes = list[2].cast<TNode>();
+        final attributes = (list[2] as List).cast<TNode>();
         if (list[4] == XmlToken.closeEndElement) {
           return createElement(name, attributes, [], true);
         } else {
-          if (list[1] == list[4][3]) {
-            final children = list[4][1].cast<TNode>();
+          final list4 = list[4] as List;
+          if (list[1] == list4[3]) {
+            final children = (list4[1] as List).cast<TNode>();
             return createElement(
                 name, attributes, children, children.isNotEmpty);
           } else {
-            final Token token = list[4][2];
+            final Token token = list4[2];
             final lineAndColumn =
                 Token.lineAndColumnOf(token.buffer, token.start);
             throw XmlParserException(
-                'Expected </${list[1]}>, but found </${list[4][3]}>',
+                'Expected </${list[1]}>, but found </${list4[3]}>',
                 buffer: token.buffer,
                 position: token.start,
                 line: lineAndColumn[0],
@@ -117,8 +120,10 @@ abstract class XmlGrammarDefinition<TNode, TName>
       });
 
   @override
-  Parser processing() =>
-      super.processing().map((each) => createProcessing(each[1], each[2]));
+  Parser processing() => super
+      .processing()
+      .castList<dynamic>()
+      .map((each) => createProcessing(each[1], each[2]));
 
   @override
   Parser qualified() => super.qualified().cast<String>().map(createQualified);
