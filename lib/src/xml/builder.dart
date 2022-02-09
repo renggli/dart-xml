@@ -298,6 +298,7 @@ class XmlBuilder {
   // Internal method to add children to the current element.
   void _insert(Object? value) {
     if (value is Function) {
+      // ignore: avoid_dynamic_calls
       value();
     } else if (value is Iterable) {
       value.forEach(_insert);

@@ -13,14 +13,14 @@ import 'examples.dart';
 ///  - the code is benchmarked for the duration of [measure].
 ///
 /// The resulting duration is the average time measured to run [function] once.
-double benchmark(Function function,
+double benchmark(void Function() function,
     {Duration warmup = const Duration(milliseconds: 200),
     Duration measure = const Duration(seconds: 2)}) {
   _benchmark(function, warmup);
   return _benchmark(function, measure);
 }
 
-double _benchmark(Function function, Duration duration) {
+double _benchmark(void Function() function, Duration duration) {
   final watch = Stopwatch();
   final micros = duration.inMicroseconds;
   var count = 0;

@@ -38,22 +38,25 @@ abstract class XmlGrammarDefinition<TNode, TName>
   // Connects the productions and the XML AST callbacks.
 
   @override
-  Parser attribute() => super
-      .attribute()
-      .map((each) => createAttribute(each[0], each[4][0], each[4][1]));
+  Parser attribute() => super.attribute().map((each) {
+        each as List<dynamic>;
+        return createAttribute(
+            each[0], (each[4] as List)[0], (each[4] as List)[1]);
+      });
 
   @override
   Parser attributeValueDouble() => super
       .attributeValueDouble()
-      .map((each) => [each[1], XmlAttributeType.DOUBLE_QUOTE]);
+      .map((each) => [(each as List)[1], XmlAttributeType.DOUBLE_QUOTE]);
 
   @override
   Parser attributeValueSingle() => super
       .attributeValueSingle()
-      .map((each) => [each[1], XmlAttributeType.SINGLE_QUOTE]);
+      .map((each) => [(each as List)[1], XmlAttributeType.SINGLE_QUOTE]);
 
   @override
-  Parser comment() => super.comment().map((each) => createComment(each[1]));
+  Parser comment() =>
+      super.comment().map((each) => createComment((each as List)[1]));
 
   @override
   Parser declaration() => super
