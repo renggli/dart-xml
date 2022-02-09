@@ -42,16 +42,19 @@ class XmlEventDefinition extends XmlProductionDefinition {
           .or(XmlToken.closeEndElement.toParser()))
       .map((each) => XmlStartElementEvent(
           each[1],
-          each[2].cast<XmlEventAttribute>(),
+          (each[2] as List).cast<XmlEventAttribute>(),
           each[4] == XmlToken.closeEndElement));
 
   @override
-  Parser attribute() => super.attribute().map((each) => XmlEventAttribute(
-      each[0],
-      each[4][1],
-      each[4][0] == '"'
-          ? XmlAttributeType.DOUBLE_QUOTE
-          : XmlAttributeType.SINGLE_QUOTE));
+  Parser attribute() => super.attribute().map((each) {
+        each as List<dynamic>;
+        return XmlEventAttribute(
+            each[0],
+            (each[4] as List)[1],
+            (each[4] as List)[0] == '"'
+                ? XmlAttributeType.DOUBLE_QUOTE
+                : XmlAttributeType.SINGLE_QUOTE);
+      });
 
   Parser endElement() => XmlToken.openEndElement
       .toParser()
@@ -61,22 +64,25 @@ class XmlEventDefinition extends XmlProductionDefinition {
       .map((each) => XmlEndElementEvent(each[1]));
 
   @override
-  Parser comment() => super.comment().map((each) => XmlCommentEvent(each[1]));
+  Parser comment() =>
+      super.comment().map((each) => XmlCommentEvent((each as List)[1]));
 
   @override
-  Parser cdata() => super.cdata().map((each) => XmlCDATAEvent(each[1]));
+  Parser cdata() =>
+      super.cdata().map((each) => XmlCDATAEvent((each as List)[1]));
 
   @override
-  Parser declaration() => super
-      .declaration()
-      .map((each) => XmlDeclarationEvent(each[1].cast<XmlEventAttribute>()));
+  Parser declaration() => super.declaration().map((each) => XmlDeclarationEvent(
+      ((each as List)[1] as List).cast<XmlEventAttribute>()));
 
   @override
-  Parser processing() =>
-      super.processing().map((each) => XmlProcessingEvent(each[1], each[2]));
+  Parser processing() => super
+      .processing()
+      .map((each) => XmlProcessingEvent((each as List)[1], each[2]));
 
   @override
-  Parser doctype() => super.doctype().map((each) => XmlDoctypeEvent(each[2]));
+  Parser doctype() =>
+      super.doctype().map((each) => XmlDoctypeEvent((each as List)[2]));
 }
 
 final XmlCache<XmlEntityMapping, Parser> eventParserCache =
