@@ -71,6 +71,7 @@ abstract class XmlGrammarDefinition<TNode, TName>
 
   @override
   Parser document() => super.document().map((each) {
+        each as List;
         final nodes = [];
         if (each[0] != null) {
           nodes.add(each[0]); // declaration
