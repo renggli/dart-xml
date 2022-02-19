@@ -9,11 +9,11 @@ void main() {
             '</html>');
     final nodes = List.from(document.descendants)..add(document);
     for (final node in nodes) {
-      if (node is XmlAttribute && node.name.prefix == 'xmlns') {
+      if (node is XmlAttribute && node.namespacePrefix == 'xmlns') {
         break;
       }
       if (node is XmlHasName) {
-        expect(node.name.namespaceUri, 'http://www.w3.org/1999/xhtml');
+        expect(node.namespaceUri, 'http://www.w3.org/1999/xhtml');
       }
     }
   });
@@ -24,11 +24,11 @@ void main() {
         '</xhtml:html>');
     final nodes = List.from(document.descendants)..add(document);
     for (final node in nodes) {
-      if (node is XmlAttribute && node.name.prefix == 'xmlns') {
+      if (node is XmlAttribute && node.namespacePrefix == 'xmlns') {
         break;
       }
       if (node is XmlHasName) {
-        expect(node.name.namespaceUri, 'http://www.w3.org/1999/xhtml');
+        expect(node.namespaceUri, 'http://www.w3.org/1999/xhtml');
       }
     }
   });

@@ -561,14 +561,14 @@ void main() {
       'element (attributes)',
       '<element attr1="value1" attr2="value2"/>',
       (node) =>
-          node.attributes.removeWhere((node) => node.name.local == 'attr2'),
+          node.attributes.removeWhere((node) => node.localName == 'attr2'),
       '<element attr1="value1"/>',
     );
     mutatingTest(
       'element (children)',
       '<element1><element2/><element3/></element1>',
       (node) => node.children.removeWhere(
-          (node) => node is XmlElement && node.name.local == 'element3'),
+          (node) => node is XmlElement && node.localName == 'element3'),
       '<element1><element2/></element1>',
     );
   });
@@ -577,14 +577,14 @@ void main() {
       'element (attributes)',
       '<element attr1="value1" attr2="value2"/>',
       (node) =>
-          node.attributes.retainWhere((node) => node.name.local == 'attr1'),
+          node.attributes.retainWhere((node) => node.localName == 'attr1'),
       '<element attr1="value1"/>',
     );
     mutatingTest(
       'element (children)',
       '<element1><element2/><element3/></element1>',
       (node) => node.children.retainWhere(
-          (node) => node is XmlElement && node.name.local == 'element2'),
+          (node) => node is XmlElement && node.localName == 'element2'),
       '<element1><element2/></element1>',
     );
   });

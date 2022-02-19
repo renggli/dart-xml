@@ -12,7 +12,8 @@ const String xmlns = 'xmlns';
 XmlAttribute? lookupAttribute(XmlNode? start, String? prefix, String local) {
   for (var node = start; node != null; node = node.parent) {
     for (final attribute in node.attributes) {
-      if (attribute.name.prefix == prefix && attribute.name.local == local) {
+      final name = attribute.name;
+      if (name.prefix == prefix && name.local == local) {
         return attribute;
       }
     }
@@ -27,10 +28,10 @@ String? lookupNamespacePrefix(XmlNode? start, String uri) {
   for (var node = start; node != null; node = node.parent) {
     for (final attribute in node.attributes) {
       if (attribute.value == uri) {
-        if (attribute.name.prefix == xmlns) {
-          return attribute.name.local;
-        } else if (attribute.name.prefix == null &&
-            attribute.name.local == xmlns) {
+        final name = attribute.name;
+        if (name.prefix == xmlns) {
+          return name.local;
+        } else if (name.prefix == null && name.local == xmlns) {
           return '';
         }
       }

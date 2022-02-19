@@ -186,6 +186,10 @@ void assertNameInvariants(XmlNode xml) {
 
 void assertNamedInvariant(XmlHasName named) {
   expect(named, same(named.name.parent));
+  expect(named.qualifiedName, named.name.qualified);
+  expect(named.localName, named.name.local);
+  expect(named.namespacePrefix, named.name.prefix);
+  expect(named.namespaceUri, named.name.namespaceUri);
   expect(named.name.local, isNot(isEmpty));
   expect(named.name.qualified, endsWith(named.name.local));
   if (named.name.prefix != null) {
@@ -324,6 +328,10 @@ void assertCompareInvariants(XmlNode original, XmlNode copy) {
         reason: 'The copied name should be equal.');
     expect(originalNamed.name, isNot(same(copyNamed.name)),
         reason: 'The copied name should not be identical.');
+    expect(originalNamed.qualifiedName, copyNamed.qualifiedName);
+    expect(originalNamed.localName, copyNamed.localName);
+    expect(originalNamed.namespacePrefix, copyNamed.namespacePrefix);
+    expect(originalNamed.namespaceUri, copyNamed.namespaceUri);
   }
   expect(original.attributes.length, copy.attributes.length,
       reason: 'The amount of copied attributes should be the same.');

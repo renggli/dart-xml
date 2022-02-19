@@ -140,7 +140,7 @@ void main() {
         final output = document.toXmlString(
             pretty: true,
             preserveWhitespace: (node) =>
-                node is XmlElement && node.name.local == 'b');
+                node is XmlElement && node.localName == 'b');
         expect(
             output,
             '<body>\n'
@@ -155,7 +155,7 @@ void main() {
         final output = input.toXmlString(
             pretty: true,
             preserveWhitespace: (node) =>
-                node is XmlElement && node.name.local == 'p');
+                node is XmlElement && node.localName == 'p');
         expect(
             output,
             '<html>\n'
@@ -329,7 +329,7 @@ void main() {
         final output = element.toXmlString(
           pretty: true,
           spaceBeforeSelfClose: (node) =>
-              node is XmlElement && node.name.local != 'do-not-add',
+              node is XmlElement && node.localName != 'do-not-add',
         );
         expect(
           output,

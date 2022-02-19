@@ -6,6 +6,7 @@
 * Escape control characters (thanks to https://github.com/rspilker).
 * Add a predicate to pretty printer to insert a space character before self-closing elements (thanks to https://github.com/rspilker).
 * Add predicates to normalizer to trim leading and trailing whitespaces, as well as collapse consecutive whitespaces.
+* Expose `qualifiedName`, `localName`, `namespacePrefix` and `namespaceUri` for convenience on the named nodes.
 
 ## 5.3.0
 
