@@ -1,8 +1,10 @@
+import 'package:meta/meta.dart';
 import 'package:test/test.dart';
 import 'package:xml/xml.dart';
 
 import 'assertions.dart';
 
+@isTest
 void mutatingTest(String description, String before,
     void Function(XmlElement node) action, String after) {
   test(description, () {
@@ -14,6 +16,7 @@ void mutatingTest(String description, String before,
   });
 }
 
+@isTest
 void throwingTest(String description, String before,
     void Function(XmlElement node) action, Matcher matcher) {
   test(description, () {
