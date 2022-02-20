@@ -33,6 +33,10 @@ Stream<List<T>> splitList<T>(List<T> input, int Function() splitter) async* {
 void main() {
   group('iterable', () {
     group('events', () {
+      test('empty', () {
+        final iterator = parseEvents('').iterator;
+        assertComplete(iterator);
+      });
       test('cdata', () {
         final iterator = parseEvents('<![CDATA[<nasty>]]>').iterator;
         expect(iterator.moveNext(), isTrue);
@@ -174,10 +178,6 @@ void main() {
       });
     });
     group('errors', () {
-      test('empty', () {
-        final iterator = parseEvents('').iterator;
-        assertComplete(iterator);
-      });
       test('invalid', () {
         final iterator = parseEvents('<hello').iterator;
         expect(iterator.moveNext, throwsA(isXmlParserException));
