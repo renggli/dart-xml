@@ -74,6 +74,7 @@ class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
     }
     final element = parent!;
     XmlTagException.checkClosingTag(element.name.qualified, event.name);
+    element.isSelfClosing = element.children.isNotEmpty;
     parent = element.parentElement;
     if (parent == null) {
       commit(element, event.parentEvent);
@@ -89,8 +90,6 @@ class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
     final element = XmlElement(
       XmlName.fromString(event.name),
       convertAttributes(event.attributes),
-      [],
-      event.isSelfClosing,
     );
     if (event.isSelfClosing) {
       commit(element, event);

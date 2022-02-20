@@ -13,6 +13,7 @@ void assertDocumentParseInvariants(String input) {
   assertDocumentTreeInvariants(document);
   assertIteratorEventInvariants(input, document);
   assertStreamEventInvariants(input, document);
+  assertStreamNodeInvariants(input, document);
   final copy = XmlDocument.parse(document.toXmlString());
   expect(document.toXmlString(), copy.toXmlString());
 }
@@ -50,6 +51,7 @@ void assertFragmentParseInvariants(String input) {
   assertFragmentTreeInvariants(fragment);
   assertIteratorEventInvariants(input, fragment);
   assertStreamEventInvariants(input, fragment);
+  assertStreamNodeInvariants(input, fragment);
   final copy = XmlDocumentFragment.parse(fragment.toXmlString());
   expect(fragment.toXmlString(), copy.toXmlString());
 }
@@ -568,11 +570,17 @@ void assertStreamEventInvariants(String input, XmlNode node) {
       fail('Unexpected event type: $event');
     }
   }
+}
 
-  final prettyInput = node.toXmlString(pretty: false);
-  final decodedEvents = XmlEventCodec().decode(prettyInput);
-  final decodedNodes = const XmlNodeCodec().decode(decodedEvents);
-  final encodedNodes = const XmlNodeCodec().encode(decodedNodes);
-  final encodeString = XmlEventCodec().encode(encodedNodes);
-  expect(encodeString, prettyInput);
+void assertStreamNodeInvariants(String input, XmlNode node) {
+  final events = XmlEventCodec().decode(input);
+  final nodes = XmlNodeCodec().decode(events);
+  expect(nodes.length, node.children.length);
+  expect(
+    nodes.map((each) => each.toXmlString()).join(),
+    node.children.map((each) => each.toXmlString()).join(),
+  );
+  for (var i = 0; i < nodes.length; i++) {
+    compareNode(nodes[i], node.children[i]);
+  }
 }
