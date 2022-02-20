@@ -16,13 +16,14 @@ import 'events/start_element.dart';
 import 'events/text.dart';
 import 'utils/event_attribute.dart';
 
-class XmlEventGrammar extends GrammarDefinition {
+class XmlEventGrammar {
   const XmlEventGrammar(this.entityMapping);
 
   final XmlEntityMapping entityMapping;
 
-  @override
-  Parser<XmlEvent> start() => [
+  Parser<XmlEvent> build() => resolve<XmlEvent>(ref0(event));
+
+  Parser<XmlEvent> event() => [
         ref0(characterData),
         ref0(startElement),
         ref0(endElement),
@@ -168,5 +169,5 @@ class XmlEventGrammar extends GrammarDefinition {
   Parser<String> nameChar() => pattern(XmlToken.nameChars);
 }
 
-final XmlCache<XmlEntityMapping, Parser> eventParserCache =
+final XmlCache<XmlEntityMapping, Parser<XmlEvent>> eventParserCache =
     XmlCache((entityMapping) => XmlEventGrammar(entityMapping).build(), 5);
