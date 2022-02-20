@@ -5,7 +5,9 @@ import '../entities/entity_mapping.dart';
 /// Optimized parser to read character data.
 class XmlCharacterDataParser extends Parser<String> {
   XmlCharacterDataParser(this._entityMapping, this._stopper, this._minLength)
-      : _stopperCode = _stopper.codeUnitAt(0);
+      : assert(_stopper.length == 1, 'Invalid stopper character: $_stopper'),
+        assert(_minLength >= 0, 'Invalid minimum length: $_minLength'),
+        _stopperCode = _stopper.codeUnitAt(0);
 
   final XmlEntityMapping _entityMapping;
   final String _stopper;
