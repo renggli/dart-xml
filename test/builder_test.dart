@@ -455,11 +455,4 @@ void main() {
     final xml = builder.buildFragment();
     assertFragmentInvariants(xml);
   });
-  test('deprecated builder', () {
-    final builder = XmlBuilder();
-    builder.element('element-one');
-    // ignore: deprecated_member_use_from_same_package
-    final xml = builder.build();
-    assertDocumentInvariants(xml);
-  });
 }

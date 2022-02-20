@@ -29,9 +29,6 @@ extension XmlNormalizerExtension on XmlNode {
 class XmlNormalizer with XmlVisitor {
   const XmlNormalizer({this.trimWhitespace, this.collapseWhitespace});
 
-  @Deprecated('Use `const XmlNormalizer()`.')
-  static const XmlNormalizer defaultInstance = XmlNormalizer();
-
   final Predicate<XmlText>? trimWhitespace;
   final Predicate<XmlText>? collapseWhitespace;
 

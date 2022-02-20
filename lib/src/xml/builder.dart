@@ -242,11 +242,6 @@ class XmlBuilder {
     _stack.last.namespaces[uri] = meta;
   }
 
-  /// Builds and returns the resulting [XmlNode]; resets the builder to its
-  /// initial empty state.
-  @Deprecated('Use buildDocument() or buildFragment() instead')
-  XmlNode build() => buildDocument();
-
   /// Builds and returns the resulting [XmlDocument]; resets the builder to its
   /// initial empty state.
   XmlDocument buildDocument() => _build((builder) => builder.buildDocument());
