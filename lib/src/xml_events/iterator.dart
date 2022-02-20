@@ -4,7 +4,7 @@ import 'package:petitparser/petitparser.dart'
 import '../xml/entities/entity_mapping.dart';
 import '../xml/utils/exceptions.dart';
 import 'event.dart';
-import 'parser.dart';
+import 'grammar.dart';
 
 class XmlEventIterator extends Iterator<XmlEvent> {
   XmlEventIterator(String input, XmlEntityMapping entityMapping)
