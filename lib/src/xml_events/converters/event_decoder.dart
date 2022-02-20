@@ -7,8 +7,8 @@ import '../../xml/entities/default_mapping.dart';
 import '../../xml/entities/entity_mapping.dart';
 import '../../xml/utils/exceptions.dart';
 import '../event.dart';
-import '../grammar.dart';
 import '../iterable.dart';
+import '../parser.dart';
 
 extension XmlEventDecoderExtension on Stream<String> {
   /// Converts a [String] to a sequence of [XmlEvent] objects.

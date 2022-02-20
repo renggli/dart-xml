@@ -16,8 +16,8 @@ import 'events/start_element.dart';
 import 'events/text.dart';
 import 'utils/event_attribute.dart';
 
-class XmlEventGrammar {
-  const XmlEventGrammar(this.entityMapping);
+class XmlEventParser {
+  const XmlEventParser(this.entityMapping);
 
   final XmlEntityMapping entityMapping;
 
@@ -170,4 +170,4 @@ class XmlEventGrammar {
 }
 
 final XmlCache<XmlEntityMapping, Parser<XmlEvent>> eventParserCache =
-    XmlCache((entityMapping) => XmlEventGrammar(entityMapping).build(), 5);
+    XmlCache((entityMapping) => XmlEventParser(entityMapping).build(), 5);
