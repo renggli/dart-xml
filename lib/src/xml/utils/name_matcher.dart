@@ -1,10 +1,8 @@
 import '../mixins/has_name.dart';
-
-/// Internal function type to match named elements.
-typedef XmlNameMatcher = bool Function(XmlHasName named);
+import 'functions.dart';
 
 /// Internal factory to create element matchers.
-XmlNameMatcher createNameMatcher(String name, String? namespace) {
+Predicate<XmlHasName> createNameMatcher(String name, String? namespace) {
   if (name == '*') {
     if (namespace == null || namespace == '*') {
       return (named) => true;
