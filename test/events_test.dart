@@ -34,7 +34,7 @@ Stream<List<T>> splitList<T>(List<T> input, int Function() splitter) async* {
 void main() {
   group('iterable', () {
     group('events', () {
-      group('empty', () {
+      test('empty', () {
         final iterator = parseEvents('').iterator;
         assertComplete(iterator);
       });
