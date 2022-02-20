@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math' show min, Random;
 
+import 'package:meta/meta.dart';
 import 'package:test/test.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xml_events.dart';
@@ -33,7 +34,7 @@ Stream<List<T>> splitList<T>(List<T> input, int Function() splitter) async* {
 void main() {
   group('iterable', () {
     group('events', () {
-      test('empty', () {
+      group('empty', () {
         final iterator = parseEvents('').iterator;
         assertComplete(iterator);
       });
@@ -219,6 +220,7 @@ void main() {
     });
   });
   group('chunked', () {
+    @isTestGroup
     void chunkedTest(
         String title,
         String input,
@@ -226,7 +228,10 @@ void main() {
                 XmlDocument document, int Function() splitter)
             callback) {
       group(title, () {
-        final string = XmlDocument.parse(input).toXmlString(pretty: true);
+        test('empty', () {
+          callback('', <XmlEvent>[], XmlDocument([]), () => 0);
+        });
+        final string = XmlDocument.parse(input).toXmlString();
         for (var i = string.length; i > 0; i ~/= 2) {
           test('chunks sized $i', () {
             final events = parseEvents(string).toList(growable: false);
@@ -425,9 +430,13 @@ void main() {
           .where((event) =>
               event.parentEvent != null && event is! XmlEndElementEvent)
           .toList();
-      final expected =
-          const XmlNodeCodec().encode(document.rootElement.children);
-      expect(actual, expected);
+      if (document.children.isEmpty) {
+        expect(actual, []);
+      } else {
+        final expected =
+            const XmlNodeCodec().encode(document.rootElement.children);
+        expect(actual, expected);
+      }
     });
   });
   group('normalizeEvents', () {
