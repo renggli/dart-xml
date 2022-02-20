@@ -7,6 +7,7 @@ import 'utils/exceptions.dart';
 import 'utils/token.dart';
 
 /// XML grammar definition with [TNode] and [TName].
+@Deprecated('Avoid directly depending on the XML grammar.')
 abstract class XmlGrammarDefinition<TNode, TName>
     extends XmlProductionDefinition {
   XmlGrammarDefinition(XmlEntityMapping entityMapping) : super(entityMapping);
