@@ -45,7 +45,7 @@ class XmlDeclaration extends XmlNode
       XmlDeclaration(attributes.map((each) => each.copy()));
 
   @override
-  dynamic accept(XmlVisitor visitor) => visitor.visitDeclaration(this);
+  void accept(XmlVisitor visitor) => visitor.visitDeclaration(this);
 }
 
 /// Supported attribute node types.

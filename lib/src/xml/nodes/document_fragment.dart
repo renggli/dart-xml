@@ -48,7 +48,7 @@ class XmlDocumentFragment extends XmlNode with XmlHasChildren<XmlNode> {
       XmlDocumentFragment(children.map((each) => each.copy()));
 
   @override
-  dynamic accept(XmlVisitor visitor) => visitor.visitDocumentFragment(this);
+  void accept(XmlVisitor visitor) => visitor.visitDocumentFragment(this);
 }
 
 /// Supported child node types.
@@ -65,6 +65,7 @@ const Set<XmlNodeType> childrenNodeTypes = {
 /// Internal cache of parsers for a specific entity mapping.
 final XmlCache<XmlEntityMapping, Parser> documentFragmentParserCache =
     XmlCache((entityMapping) {
+  // ignore: deprecated_member_use_from_same_package
   final definition = XmlParserDefinition(entityMapping);
   return definition.build(start: definition.documentFragment).end();
 }, 5);

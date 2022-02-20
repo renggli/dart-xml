@@ -49,7 +49,7 @@ abstract class XmlName extends Object
   XmlName copy();
 
   @override
-  dynamic accept(XmlVisitor visitor) => visitor.visitName(this);
+  void accept(XmlVisitor visitor) => visitor.visitName(this);
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes

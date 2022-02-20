@@ -7,6 +7,10 @@
 * Add a predicate to pretty printer to insert a space character before self-closing elements (thanks to https://github.com/rspilker).
 * Add predicates to normalizer to trim leading and trailing whitespaces, as well as collapse consecutive whitespaces.
 * Expose `qualifiedName`, `localName`, `namespacePrefix` and `namespaceUri` for convenience on the named nodes.
+* Cleanup dynamic calls and type declarations:
+  * Avoid all dynamic calls across the library (thanks to https://github.com/srawlins).
+  * Deprecate `XmlTransformer` as it requires dynamic calls in the `XmlVisitor`.
+  * Cleanup the dynamic typing of `XmlVisitor`.
 * Remove deprecated code:
   * `parse(String input)`: use `XmlDocument.parse(String input)` or `XmlDocumentFragment.parse(String input)` instead.
   * `XmlBuilder.build()`: use `XmlBuilder.buildDocument()` or `XmlBuilder.buildFragment()` instead.

@@ -45,7 +45,7 @@ class XmlElement extends XmlNode
       isSelfClosing);
 
   @override
-  dynamic accept(XmlVisitor visitor) => visitor.visitElement(this);
+  void accept(XmlVisitor visitor) => visitor.visitElement(this);
 }
 
 /// Supported child node types.

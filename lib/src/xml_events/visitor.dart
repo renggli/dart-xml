@@ -10,8 +10,7 @@ import 'events/text.dart';
 
 /// Basic visitor over [XmlEvent] nodes.
 mixin XmlEventVisitor {
-  /// Helper to visit an [XmlEvent] using this visitor by dispatching
-  /// through the provided [event].
+  /// Helper to dispatch the provided [event] onto this visitor.
   void visit(XmlEvent event) => event.accept(this);
 
   /// Visit an [XmlCDATAEvent] event.

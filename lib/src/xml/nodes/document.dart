@@ -106,7 +106,7 @@ class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
   XmlDocument copy() => XmlDocument(children.map((each) => each.copy()));
 
   @override
-  dynamic accept(XmlVisitor visitor) => visitor.visitDocument(this);
+  void accept(XmlVisitor visitor) => visitor.visitDocument(this);
 }
 
 /// Supported child node types.
@@ -122,4 +122,5 @@ const Set<XmlNodeType> childrenNodeTypes = {
 
 /// Internal cache of parsers for a specific entity mapping.
 final XmlCache<XmlEntityMapping, Parser> documentParserCache =
+    // ignore: deprecated_member_use_from_same_package
     XmlCache((entityMapping) => XmlParserDefinition(entityMapping).build(), 5);

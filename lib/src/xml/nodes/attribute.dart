@@ -30,5 +30,5 @@ class XmlAttribute extends XmlNode with XmlHasName, XmlHasParent<XmlNode> {
   XmlAttribute copy() => XmlAttribute(name.copy(), value, attributeType);
 
   @override
-  dynamic accept(XmlVisitor visitor) => visitor.visitAttribute(this);
+  void accept(XmlVisitor visitor) => visitor.visitAttribute(this);
 }

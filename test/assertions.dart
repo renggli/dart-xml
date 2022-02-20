@@ -41,7 +41,6 @@ void assertDocumentTreeInvariants(XmlNode xml) {
   assertIteratorInvariants(xml);
   assertCopyInvariants(xml);
   assertTransformerInvariants(xml);
-  assertVisitorInvariants(xml);
   assertPrintingInvariants(xml);
 }
 
@@ -79,7 +78,6 @@ void assertFragmentTreeInvariants(XmlNode xml) {
   assertIteratorInvariants(xml);
   assertCopyInvariants(xml);
   assertTransformerInvariants(xml);
-  assertVisitorInvariants(xml);
 }
 
 void assertDocumentInvariants(XmlNode xml) {
@@ -298,24 +296,11 @@ void assertCopyInvariants(XmlNode xml) {
 }
 
 void assertTransformerInvariants(XmlNode xml) {
+  // ignore: deprecated_member_use_from_same_package
   final copy = const XmlTransformer().visit(xml);
   assertParentInvariants(copy);
   assertNameInvariants(copy);
   assertCompareInvariants(xml, copy);
-}
-
-class DefaultVisitor with XmlVisitor {
-  const DefaultVisitor();
-}
-
-void assertVisitorInvariants(XmlNode xml) {
-  final visitor = DefaultVisitor();
-  for (final node in [xml, ...xml.descendants]) {
-    expect(visitor.visit(node), isNull);
-    if (node is XmlHasName) {
-      expect(visitor.visit((node as XmlHasName).name), isNull);
-    }
-  }
 }
 
 void assertCompareInvariants(XmlNode original, XmlNode copy) {

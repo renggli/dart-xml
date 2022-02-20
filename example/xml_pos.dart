@@ -97,6 +97,7 @@ final Map<XmlNode, Token> tokens = {};
 
 final Parser parser = PositionParserDefinition(defaultEntityMapping).build();
 
+// ignore: deprecated_member_use_from_same_package
 class PositionParserDefinition extends XmlParserDefinition {
   PositionParserDefinition(XmlEntityMapping entityMapping)
       : super(entityMapping);

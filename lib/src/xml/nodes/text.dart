@@ -14,5 +14,5 @@ class XmlText extends XmlData {
   XmlText copy() => XmlText(text);
 
   @override
-  dynamic accept(XmlVisitor visitor) => visitor.visitText(this);
+  void accept(XmlVisitor visitor) => visitor.visitText(this);
 }

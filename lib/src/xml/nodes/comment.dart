@@ -14,5 +14,5 @@ class XmlComment extends XmlData {
   XmlComment copy() => XmlComment(text);
 
   @override
-  dynamic accept(XmlVisitor visitor) => visitor.visitComment(this);
+  void accept(XmlVisitor visitor) => visitor.visitComment(this);
 }

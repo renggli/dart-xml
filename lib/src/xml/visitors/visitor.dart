@@ -13,40 +13,39 @@ import '../utils/name.dart';
 
 /// Basic visitor over [XmlHasVisitor] nodes.
 mixin XmlVisitor {
-  /// Helper to visit an [XmlHasVisitor] using this visitor by dispatching
-  /// through the provided [visitable].
-  T visit<T>(XmlHasVisitor visitable) => visitable.accept(this);
+  /// Helper to dispatch the provided [node] onto this visitor.
+  void visit(XmlHasVisitor node) => node.accept(this);
 
   /// Visit an [XmlName].
-  dynamic visitName(XmlName name) => null;
+  void visitName(XmlName name) {}
 
   /// Visit an [XmlAttribute] node.
-  dynamic visitAttribute(XmlAttribute node) => null;
+  void visitAttribute(XmlAttribute node) {}
 
   /// Visit an [XmlDeclaration] node.
-  dynamic visitDeclaration(XmlDeclaration node) => null;
+  void visitDeclaration(XmlDeclaration node) {}
 
   /// Visit an [XmlDocument] node.
-  dynamic visitDocument(XmlDocument node) => null;
+  void visitDocument(XmlDocument node) {}
 
   /// Visit an [XmlDocumentFragment] node.
-  dynamic visitDocumentFragment(XmlDocumentFragment node) => null;
+  void visitDocumentFragment(XmlDocumentFragment node) {}
 
   /// Visit an [XmlElement] node.
-  dynamic visitElement(XmlElement node) => null;
+  void visitElement(XmlElement node) {}
 
   /// Visit an [XmlCDATA] node.
-  dynamic visitCDATA(XmlCDATA node) => null;
+  void visitCDATA(XmlCDATA node) {}
 
   /// Visit an [XmlComment] node.
-  dynamic visitComment(XmlComment node) => null;
+  void visitComment(XmlComment node) {}
 
   /// Visit an [XmlDoctype] node.
-  dynamic visitDoctype(XmlDoctype node) => null;
+  void visitDoctype(XmlDoctype node) {}
 
   /// Visit an [XmlProcessing] node.
-  dynamic visitProcessing(XmlProcessing node) => null;
+  void visitProcessing(XmlProcessing node) {}
 
   /// Visit an [XmlText] node.
-  dynamic visitText(XmlText node) => null;
+  void visitText(XmlText node) {}
 }

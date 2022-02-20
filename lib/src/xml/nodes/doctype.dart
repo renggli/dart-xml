@@ -14,5 +14,5 @@ class XmlDoctype extends XmlData {
   XmlDoctype copy() => XmlDoctype(text);
 
   @override
-  dynamic accept(XmlVisitor visitor) => visitor.visitDoctype(this);
+  void accept(XmlVisitor visitor) => visitor.visitDoctype(this);
 }
