@@ -74,11 +74,11 @@ void main() {
       final document =
           XmlDocument.parse('<element attr="value1">text</element>');
       final node = document.rootElement;
-      expect(() => XmlElement(node.name), throwsA(isXmlParentException));
+      expect(() => XmlElement(node.name), throwsA(isXmlParentException()));
       expect(() => XmlElement(XmlName('data'), node.attributes),
-          throwsA(isXmlParentException));
+          throwsA(isXmlParentException()));
       expect(() => XmlElement(XmlName('data'), [], node.children),
-          throwsA(isXmlParentException));
+          throwsA(isXmlParentException()));
     });
     test('add attribute', () {
       final document = XmlDocument.parse('<data/>');
@@ -235,7 +235,8 @@ void main() {
     test('constructor error', () {
       final document = XmlDocument.parse('<data ns:attr=""/>');
       final node = document.rootElement.attributes.single;
-      expect(() => XmlAttribute(node.name, ''), throwsA(isXmlParentException));
+      expect(
+          () => XmlAttribute(node.name, ''), throwsA(isXmlParentException()));
     });
   });
   group('text', () {

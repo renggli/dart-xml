@@ -4,54 +4,17 @@ import 'package:xml/xml.dart';
 import 'assertions.dart';
 
 void main() {
-  group('XmlParserException', () {
-    test('with properties', () {
-      final exception = XmlParserException('Expected foo',
-          buffer: 'hello', position: 1, line: 2, column: 3);
-      expect(exception.message, 'Expected foo');
-      expect(exception.buffer, 'hello');
-      expect(exception.position, 1);
-      expect(exception.line, 2);
-      expect(exception.column, 3);
-      expect(exception.source, 'hello');
-      expect(exception.offset, 1);
-      expect(exception.toString(), endsWith('Expected foo at 2:3'));
-    });
-    test('without anything', () {
-      final exception = XmlParserException('Expected foo');
-      expect(exception.message, 'Expected foo');
-      expect(exception.buffer, isNull);
-      expect(exception.position, 0);
-      expect(exception.line, 0);
-      expect(exception.column, 0);
-      expect(exception.source, isNull);
-      expect(exception.offset, 0);
-      expect(exception.toString(), endsWith('Expected foo at 0:0'));
-    });
-  });
-  group('XmlNodeTypeException', () {
-    test('checkValidType', () {
-      XmlNodeTypeException.checkValidType(
-          XmlComment('Comment'), [XmlNodeType.COMMENT]);
-      expect(
-          () => XmlNodeTypeException.checkValidType(
-              XmlComment('Comment'), [XmlNodeType.ATTRIBUTE]),
-          throwsA(isXmlNodeTypeException.having(
-              (value) => value.toString(),
-              'toString',
-              endsWith('Expected node of type: XmlNodeType.ATTRIBUTE'))));
-    });
-  });
   group('XmlParentException', () {
     test('checkNoParent', () {
       final document = XmlDocument([XmlComment('Comment')]);
       XmlParentException.checkNoParent(document);
       expect(
           () => XmlParentException.checkNoParent(document.firstChild!),
-          throwsA(isXmlParentException.having(
-              (value) => value.toString(),
-              'toString',
-              contains('Node already has a parent, copy or remove it first'))));
+          throwsA(isXmlParentException(
+            message: 'Node already has a parent, copy or remove it first',
+            node: document.firstChild,
+            parent: document,
+          )));
     });
     test('checkMatchingParent', () {
       final document = XmlDocument([XmlComment('Comment')]);
@@ -59,19 +22,117 @@ void main() {
       expect(
           () => XmlParentException.checkMatchingParent(
               document, document.firstChild!),
-          throwsA(isXmlParentException.having((value) => value.toString(),
-              'toString', contains('Node already has a non-matching parent'))));
+          throwsA(isXmlParentException(
+            message: 'Node already has a non-matching parent',
+            node: document,
+            parent: document.firstChild,
+          )));
+    });
+  });
+  group('XmlParserException', () {
+    test('with properties', () {
+      final exception = XmlParserException('Expected foo',
+          buffer: 'hello\nworld', position: 6);
+      expect(
+          exception,
+          isXmlParserException(
+            message: 'Expected foo',
+            buffer: 'hello\nworld',
+            position: 6,
+            line: 2,
+            column: 1,
+          ));
+    });
+    test('without anything', () {
+      final exception = XmlParserException('Expected foo');
+      expect(
+          exception,
+          isXmlParserException(
+            message: 'Expected foo',
+            buffer: isNull,
+            position: isNull,
+            line: 0,
+            column: 0,
+          ));
+    });
+  });
+  group('XmlNodeTypeException', () {
+    test('checkValidType', () {
+      final commentNode = XmlComment('Comment');
+      final commentNodeTypes = [XmlNodeType.COMMENT];
+      final otherNodeTypes = [XmlNodeType.ELEMENT, XmlNodeType.TEXT];
+      XmlNodeTypeException.checkValidType(commentNode, commentNodeTypes);
+      expect(
+          () =>
+              XmlNodeTypeException.checkValidType(commentNode, otherNodeTypes),
+          throwsA(isXmlNodeTypeException(
+            message: 'Got XmlNodeType.COMMENT, but expected one of '
+                'XmlNodeType.ELEMENT, XmlNodeType.TEXT',
+            node: commentNode,
+            types: otherNodeTypes,
+          )));
     });
   });
   group('XmlTagException', () {
+    test('mismatchClosingTag', () {
+      final exception = XmlTagException.mismatchClosingTag('foo', 'bar',
+          buffer: '<foo>\n</bar>', position: 6);
+      expect(
+          exception,
+          isXmlTagException(
+            message: 'Expected closing tag </foo>, but found </bar>',
+            expectedName: 'foo',
+            actualName: 'bar',
+            buffer: '<foo>\n</bar>',
+            position: 6,
+            line: 2,
+            column: 1,
+          ));
+    });
+    test('unexpectedClosingTag', () {
+      final exception = XmlTagException.unexpectedClosingTag('bar',
+          buffer: '</bar>', position: 0);
+      expect(
+          exception,
+          isXmlTagException(
+            message: 'Unexpected closing tag </bar>',
+            expectedName: isNull,
+            actualName: 'bar',
+            buffer: '</bar>',
+            position: 0,
+            line: 1,
+            column: 1,
+          ));
+    });
+    test('missingClosingTag', () {
+      final exception = XmlTagException.missingClosingTag('foo',
+          buffer: '<foo>', position: 5);
+      expect(
+          exception,
+          isXmlTagException(
+            message: 'Missing closing tag </foo>',
+            expectedName: 'foo',
+            actualName: isNull,
+            buffer: '<foo>',
+            position: 5,
+            line: 1,
+            column: 6,
+          ));
+    });
     test('checkClosingTag', () {
       XmlTagException.checkClosingTag('foo', 'foo');
       expect(
-          () => XmlTagException.checkClosingTag('foo', 'bar'),
-          throwsA(isXmlTagException.having(
-              (value) => value.toString(),
-              'toString',
-              endsWith('Expected closing tag </foo>, but found </bar>.'))));
+          () => XmlTagException.checkClosingTag('foo', 'bar',
+              buffer: '<foo>\n</bar>', position: 6),
+          throwsA(isXmlTagException(
+            message: 'Expected closing tag </foo>, but found </bar>',
+            expectedName: 'foo',
+            actualName: 'bar',
+            buffer: '<foo>\n</bar>',
+            position: 6,
+            line: 2,
+            column: 1,
+          )));
     });
   });
 }

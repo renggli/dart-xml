@@ -5,6 +5,11 @@ export 'src/xml/entities/default_mapping.dart'
     show defaultEntityMapping, XmlDefaultEntityMapping;
 export 'src/xml/entities/entity_mapping.dart' show XmlEntityMapping;
 export 'src/xml/entities/null_mapping.dart' show XmlNullEntityMapping;
+export 'src/xml/exceptions/exception.dart' show XmlException;
+export 'src/xml/exceptions/parent_exception.dart' show XmlParentException;
+export 'src/xml/exceptions/parser_exception.dart' show XmlParserException;
+export 'src/xml/exceptions/tag_exception.dart' show XmlTagException;
+export 'src/xml/exceptions/type_exception.dart' show XmlNodeTypeException;
 export 'src/xml/grammar.dart'
     show
         XmlGrammarDefinition; // ignore: deprecated_member_use_from_same_package
@@ -41,13 +46,6 @@ export 'src/xml/production.dart'
     show
         XmlProductionDefinition; // ignore: deprecated_member_use_from_same_package
 export 'src/xml/utils/attribute_type.dart' show XmlAttributeType;
-export 'src/xml/utils/exceptions.dart'
-    show
-        XmlException,
-        XmlParserException,
-        XmlNodeTypeException,
-        XmlParentException,
-        XmlTagException;
 export 'src/xml/utils/flatten.dart' show XmlFlattenIterableExtension;
 export 'src/xml/utils/name.dart' show XmlName;
 export 'src/xml/utils/node_type.dart' show XmlNodeType;

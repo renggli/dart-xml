@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:math' show min, Random;
 
 import 'package:meta/meta.dart';
@@ -179,47 +178,139 @@ void main() {
       });
     });
     group('errors', () {
-      test('invalid', () {
-        final iterator = parseEvents('<hello').iterator;
-        expect(iterator.moveNext, throwsA(isXmlParserException));
-        expect(iterator.moveNext(), isTrue);
-        final event = iterator.current as XmlTextEvent;
-        expect(event.text, 'hello');
-        assertComplete(iterator);
+      group('parser error', () {
+        test('missing tag closing', () {
+          final iterator = parseEvents('<hello').iterator;
+          expect(
+              iterator.moveNext,
+              throwsA(isXmlParserException(
+                message: '/> expected',
+                buffer: '<hello',
+                position: 6,
+              )));
+          expect(iterator.moveNext(), isTrue);
+          final event = iterator.current as XmlTextEvent;
+          expect(event.text, 'hello');
+          assertComplete(iterator);
+        });
+        test('missing attribute closing', () {
+          final iterator = parseEvents('<foo bar="abc').iterator;
+          expect(
+              iterator.moveNext,
+              throwsA(isXmlParserException(
+                message: '/> expected',
+                buffer: '<foo bar="abc',
+                position: 5,
+              )));
+          expect(iterator.moveNext(), isTrue);
+          final event = iterator.current as XmlTextEvent;
+          expect(event.text, 'foo bar="abc');
+          assertComplete(iterator);
+        });
+        test('missing comment closing', () {
+          final iterator = parseEvents('<!-- comment').iterator;
+          expect(
+              iterator.moveNext,
+              throwsA(isXmlParserException(
+                message: 'Expected -->',
+                buffer: '<!-- comment',
+                position: 4,
+              )));
+          expect(iterator.moveNext(), isTrue);
+          final event = iterator.current as XmlTextEvent;
+          expect(event.text, '!-- comment');
+          assertComplete(iterator);
+        });
       });
-      test('unexpected end tag', () {
-        expect(
-            () => const XmlNodeDecoder().convert([
-                  XmlEndElementEvent('foo'),
-                ]),
-            throwsA(isXmlTagException));
+      group('not validated', () {
+        test('unexpected end tag', () {
+          final events = parseEvents('</foo>');
+          expect(events, [XmlEndElementEvent('foo')]);
+        });
+        test('missing end tag', () {
+          final events = parseEvents('<foo>');
+          expect(events, [XmlStartElementEvent('foo', [], false)]);
+        });
+        test('not matching end tag', () {
+          final events = parseEvents('<foo></bar></foo>');
+          expect(events, [
+            XmlStartElementEvent('foo', [], false),
+            XmlEndElementEvent('bar'),
+            XmlEndElementEvent('foo')
+          ]);
+        });
       });
-      test('not matching end tag', () {
-        expect(
-            () => const XmlNodeDecoder().convert([
-                  XmlStartElementEvent('foo', [], false),
-                  XmlEndElementEvent('bar')
-                ]),
-            throwsA(isXmlTagException));
+      group('validated', () {
+        test('unexpected end tag', () {
+          final iterator =
+              parseEvents('</foo>', validateNesting: true).iterator;
+          expect(() => iterator.moveNext(),
+              throwsA(isXmlTagException(actualName: 'foo')));
+          expect(iterator.current, XmlEndElementEvent('foo'));
+          assertComplete(iterator);
+        });
+        test('missing end tag', () {
+          final iterator = parseEvents('<foo>', validateNesting: true).iterator;
+          expect(iterator.moveNext(), isTrue);
+          expect(iterator.current, XmlStartElementEvent('foo', [], false));
+          expect(() => iterator.moveNext(),
+              throwsA(isXmlTagException(expectedName: 'foo')));
+          assertComplete(iterator);
+        });
+        test('not matching end tag', () {
+          final iterator =
+              parseEvents('<foo></bar></foo>', validateNesting: true).iterator;
+          expect(iterator.moveNext(), isTrue);
+          expect(iterator.current, XmlStartElementEvent('foo', [], false));
+          expect(
+              () => iterator.moveNext(),
+              throwsA(
+                  isXmlTagException(expectedName: 'foo', actualName: 'bar')));
+          expect(iterator.current, XmlEndElementEvent('bar'));
+          expect(iterator.moveNext(), isTrue);
+          expect(iterator.current, XmlEndElementEvent('foo'));
+          assertComplete(iterator);
+        });
       });
-      test('missing end tag', () {
-        expect(
-            () => const XmlNodeDecoder().convert([
-                  XmlStartElementEvent('foo', [], false),
-                ]),
-            throwsA(isXmlTagException));
+    });
+    group('annotations', () {
+      test('default', () {
+        for (var event in parseEvents(shiporderXsd)) {
+          expect(event.buffer, isNull);
+          expect(event.start, isNull);
+          expect(event.stop, isNull);
+          expect(event.parent, isNull);
+        }
       });
-      test('not consumed input', () {
-        final accumulator = ChunkedConversionSink<List<XmlEvent>>.withCallback(
-            (accumulated) => fail('Not supposed to be reached.'));
-        final converter = XmlEventDecoder().startChunkedConversion(accumulator);
-        expect(() => converter.addSlice('a<', 0, 2, true),
-            throwsA(isXmlParserException));
-        expect(converter.close, throwsA(isXmlParserException));
+      test('buffer', () {
+        for (var event in parseEvents(shiporderXsd, withBuffer: true)) {
+          expect(event.buffer, shiporderXsd);
+        }
+      });
+      test('location', () {
+        for (var event in parseEvents(shiporderXsd, withLocation: true)) {
+          expect(event.start, isNotNull);
+          expect(event.stop, isNotNull);
+          expect(event.start! <= event.stop!, isTrue);
+          final outtake = shiporderXsd.substring(event.start!, event.stop!);
+          expect(parseEvents(outtake), [event]);
+        }
+      });
+      test('parent', () {
+        final stack = <XmlStartElementEvent>[];
+        for (var event in parseEvents(shiporderXsd, withParent: true)) {
+          expect(event.parent, stack.isNotEmpty ? stack.last : isNull);
+          if (event is XmlStartElementEvent && !event.isSelfClosing) {
+            stack.add(event);
+          } else if (event is XmlEndElementEvent) {
+            stack.removeLast();
+          }
+        }
+        expect(stack, isEmpty);
       });
     });
   });
-  group('chunked', () {
+  group('stream', () {
     @isTestGroup
     void chunkedTest(
         String title,
@@ -415,7 +506,7 @@ void main() {
         final stack = <XmlEvent>[];
         for (XmlEvent? current = event;
             current != null;
-            current = current.parentEvent) {
+            current = current.parent) {
           stack.insert(0, current);
         }
         return stack;
@@ -427,8 +518,8 @@ void main() {
       final actual = await splitList(events, splitter)
           .withParentEvents()
           .flatten()
-          .where((event) =>
-              event.parentEvent != null && event is! XmlEndElementEvent)
+          .where(
+              (event) => event.parent != null && event is! XmlEndElementEvent)
           .toList();
       if (document.children.isEmpty) {
         expect(actual, []);
@@ -541,8 +632,8 @@ void main() {
           .toList();
       expect(output, input, reason: 'equality is unaffected');
       for (var i = 1; i < input.length; i++) {
-        expect(output[i].parentEvent, same(output[0]));
-        expect(output[i].parentEvent, same(input[0]));
+        expect(output[i].parent, same(output[0]));
+        expect(output[i].parent, same(input[0]));
       }
     });
     test('deeply parented', () async {
@@ -560,12 +651,12 @@ void main() {
           .toList();
       expect(output, input, reason: 'equality is unaffected');
       expect(output[0], same(input[0]), reason: 'root element is identical');
-      expect(output[0].parentEvent, isNull);
-      expect(output[1].parentEvent, same(output[0]));
-      expect(output[2].parentEvent, same(output[1]));
-      expect(output[3].parentEvent, same(output[2]));
-      expect(output[4].parentEvent, same(output[1]));
-      expect(output[5].parentEvent, same(output[0]));
+      expect(output[0].parent, isNull);
+      expect(output[1].parent, same(output[0]));
+      expect(output[2].parent, same(output[1]));
+      expect(output[3].parent, same(output[2]));
+      expect(output[4].parent, same(output[1]));
+      expect(output[5].parent, same(output[0]));
     });
     test('closing tag mismatch', () {
       final input = <List<XmlEvent>>[
@@ -578,11 +669,8 @@ void main() {
           stream,
           emitsInOrder([
             input[0][0],
-            emitsError(isXmlTagException.having(
-              (error) => error.message,
-              'message',
-              'Expected closing tag </open>, but found </close>.',
-            )),
+            emitsError(isXmlTagException(
+                message: 'Expected closing tag </open>, but found </close>.')),
           ]));
     });
     test('closing tag missing', () {
@@ -594,11 +682,8 @@ void main() {
           stream,
           emitsInOrder([
             input[0][0],
-            emitsError(isXmlTagException.having(
-              (error) => error.message,
-              'message',
-              'Missing closing tag </open>.',
-            )),
+            emitsError(
+                isXmlTagException(message: 'Missing closing tag </open>.')),
           ]));
     });
     test('closing tag unexpected', () {
@@ -609,11 +694,8 @@ void main() {
       final stream = Stream.fromIterable(input).withParentEvents().flatten();
       expect(
         stream,
-        emitsError(isXmlTagException.having(
-          (error) => error.message,
-          'message',
-          'Unexpected closing tag </close>.',
-        )),
+        emitsError(
+            isXmlTagException(message: 'Unexpected closing tag </close>.')),
       );
     });
     test('after normalization', () {
@@ -627,8 +709,8 @@ void main() {
       final actual = const XmlWithParentEvents()
           .convert(const XmlNormalizeEvents().convert(input));
       expect(actual, hasLength(3));
-      expect(actual[1].parentEvent, same(actual[0]));
-      expect(actual[2].parentEvent, same(actual[0]));
+      expect(actual[1].parent, same(actual[0]));
+      expect(actual[2].parent, same(actual[0]));
     });
     test('before normalization', () {
       final input = [
@@ -641,8 +723,8 @@ void main() {
       final actual = const XmlNormalizeEvents()
           .convert(const XmlWithParentEvents().convert(input));
       expect(actual, hasLength(3));
-      expect(actual[1].parentEvent, same(actual[0]));
-      expect(actual[2].parentEvent, same(actual[0]));
+      expect(actual[1].parent, same(actual[0]));
+      expect(actual[2].parent, same(actual[0]));
     });
     test('default namespace', () async {
       const url = 'http://www.w3.org/1999/xhtml';

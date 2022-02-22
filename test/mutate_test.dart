@@ -132,20 +132,19 @@ void main() {
       },
       '<element1><element2/><element2/></element1>',
     );
+    final wrong = XmlAttribute(XmlName('invalid'), 'invalid');
     throwingTest(
       'element (attribute children)',
       '<element/>',
-      (node) {
-        final wrong = XmlAttribute(XmlName('invalid'), 'invalid');
-        node.children.add(wrong);
-      },
-      throwsA(isXmlNodeTypeException),
+      (node) => node.children.add(wrong),
+      throwsA(isXmlNodeTypeException(
+          node: wrong, types: contains(XmlNodeType.ELEMENT))),
     );
     throwingTest(
       'element (parent error)',
       '<element1><element2/></element1>',
       (node) => node.children.add(node.firstChild!),
-      throwsA(isXmlParentException),
+      throwsA(isXmlParentException()),
     );
   });
   group('addAll', () {
@@ -197,20 +196,19 @@ void main() {
       },
       '<element1><element2/><element2/></element1>',
     );
+    final wrong = XmlAttribute(XmlName('invalid'), 'invalid');
     throwingTest(
       'element (attribute children)',
       '<element/>',
-      (node) {
-        final wrong = XmlAttribute(XmlName('invalid'), 'invalid');
-        node.children.addAll([wrong]);
-      },
-      throwsA(isXmlNodeTypeException),
+      (node) => node.children.addAll([wrong]),
+      throwsA(isXmlNodeTypeException(
+          node: wrong, types: contains(XmlNodeType.ELEMENT))),
     );
     throwingTest(
       'element (parent error)',
       '<element1><element2/></element1>',
       (node) => node.children.addAll([node.firstChild!]),
-      throwsA(isXmlParentException),
+      throwsA(isXmlParentException()),
     );
   });
   group('innerText', () {
@@ -375,20 +373,19 @@ void main() {
       (node) => node.children.insert(2, XmlText(' World')),
       throwsRangeError,
     );
+    final wrong = XmlAttribute(XmlName('invalid'), 'invalid');
     throwingTest(
       'element (attribute children)',
       '<element/>',
-      (node) {
-        final wrong = XmlAttribute(XmlName('invalid'), 'invalid');
-        node.children.insert(0, wrong);
-      },
-      throwsA(isXmlNodeTypeException),
+      (node) => node.children.insert(0, wrong),
+      throwsA(isXmlNodeTypeException(
+          node: wrong, types: contains(XmlNodeType.ELEMENT))),
     );
     throwingTest(
       'element (parent error)',
       '<element1><element2/></element1>',
       (node) => node.children.insert(0, node.firstChild!),
-      throwsA(isXmlParentException),
+      throwsA(isXmlParentException()),
     );
   });
   group('insertAll', () {
@@ -453,20 +450,19 @@ void main() {
       (node) => node.children.insertAll(2, [XmlText(' World')]),
       throwsRangeError,
     );
+    final wrong = XmlAttribute(XmlName('invalid'), 'invalid');
     throwingTest(
       'element (attribute children)',
       '<element/>',
-      (node) {
-        final wrong = XmlAttribute(XmlName('invalid'), 'invalid');
-        node.children.insertAll(0, [wrong]);
-      },
-      throwsA(isXmlNodeTypeException),
+      (node) => node.children.insertAll(0, [wrong]),
+      throwsA(isXmlNodeTypeException(
+          node: wrong, types: contains(XmlNodeType.ELEMENT))),
     );
     throwingTest(
       'element (parent error)',
       '<element1><element2/></element1>',
       (node) => node.children.insertAll(0, [node.firstChild!]),
-      throwsA(isXmlParentException),
+      throwsA(isXmlParentException()),
     );
   });
   group('[]=', () {
@@ -494,20 +490,19 @@ void main() {
       (node) => node.children[2] = XmlText(' World'),
       throwsRangeError,
     );
+    final wrong = XmlAttribute(XmlName('invalid'), 'invalid');
     throwingTest(
       'element (attribute children)',
       '<element1><element2/></element1>',
-      (node) {
-        final wrong = XmlAttribute(XmlName('invalid'), 'invalid');
-        node.children[0] = wrong;
-      },
-      throwsA(isXmlNodeTypeException),
+      (node) => node.children[0] = wrong,
+      throwsA(isXmlNodeTypeException(
+          node: wrong, types: contains(XmlNodeType.ELEMENT))),
     );
     throwingTest(
       'element (parent error)',
       '<element1><element2/></element1>',
       (node) => node.children[0] = node.firstChild!,
-      throwsA(isXmlParentException),
+      throwsA(isXmlParentException()),
     );
   });
   group('remove', () {

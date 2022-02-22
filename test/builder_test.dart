@@ -249,7 +249,7 @@ void main() {
   test('xml (invalid)', () {
     final builder = XmlBuilder();
     builder.element('outer', nest: () {
-      expect(() => builder.xml('<broken>'), throwsA(isXmlParserException));
+      expect(() => builder.xml('<broken>'), throwsA(isXmlParserException()));
     });
     final xml = builder.buildDocument();
     assertDocumentTreeInvariants(xml);
@@ -428,8 +428,12 @@ void main() {
   });
   test('declaration outside of document', () {
     final builder = XmlBuilder();
-    expect(() => builder.element('data', nest: builder.declaration),
-        throwsA(isXmlNodeTypeException));
+    expect(
+        () => builder.element('data', nest: builder.declaration),
+        throwsA(isXmlNodeTypeException(
+            message: startsWith('Expected node of type: '),
+            node: isNotNull,
+            types: contains(XmlNodeType.ELEMENT))));
   });
   test('incomplete builder', () {
     final builder = XmlBuilder();
