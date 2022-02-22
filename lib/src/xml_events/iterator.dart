@@ -29,7 +29,12 @@ class XmlEventIterator extends Iterator<XmlEvent> {
       if (result.isSuccess) {
         _context = result;
         _current = result.value;
-        _annotator.annotate(context, result, result.value);
+        _annotator.annotate(
+          result.value,
+          buffer: context.buffer,
+          start: context.position,
+          stop: result.position,
+        );
         return true;
       } else if (context.position < context.buffer.length) {
         // In case of an error, skip one character and throw an exception.
@@ -39,7 +44,10 @@ class XmlEventIterator extends Iterator<XmlEvent> {
       } else {
         // In case of reaching the end, terminate the iterator.
         _context = null;
-        _annotator.close(context);
+        _annotator.close(
+          buffer: context.buffer,
+          position: context.position,
+        );
         return false;
       }
     }

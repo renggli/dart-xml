@@ -1,5 +1,3 @@
-import 'package:petitparser/context.dart' show Result;
-
 import '../../xml/exceptions/tag_exception.dart';
 import '../event.dart';
 import '../events/end_element.dart';
@@ -23,15 +21,14 @@ class XmlAnnotator {
 
   final List<XmlStartElementEvent> _parents = [];
 
-  void annotate(
-      Result<XmlEvent> before, Result<XmlEvent> after, XmlEvent event) {
+  void annotate(XmlEvent event, {String? buffer, int? start, int? stop}) {
     // Attach the buffer.
     if (withBuffer) {
-      event.attachBuffer(after.buffer);
+      event.attachBuffer(buffer);
     }
     // Attach the buffer location.
     if (withLocation) {
-      event.attachLocation(before.position, after.position);
+      event.attachLocation(start, stop);
     }
     // Attach the parent event.
     if (withParent || validateNesting) {
@@ -52,11 +49,11 @@ class XmlAnnotator {
         if (validateNesting) {
           if (_parents.isEmpty) {
             throw XmlTagException.unexpectedClosingTag(event.name,
-                buffer: before.buffer, position: before.position);
+                buffer: buffer, position: start);
           } else if (_parents.last.name != event.name) {
             throw XmlTagException.mismatchClosingTag(
                 _parents.last.name, event.name,
-                buffer: before.buffer, position: before.position);
+                buffer: buffer, position: start);
           }
         }
         if (_parents.isNotEmpty) {
@@ -66,11 +63,11 @@ class XmlAnnotator {
     }
   }
 
-  void close(Result<XmlEvent> before) {
+  void close({String? buffer, int? position}) {
     // Validate the parent relationship.
     if (validateNesting && _parents.isNotEmpty) {
       throw XmlTagException.missingClosingTag(_parents.last.name,
-          buffer: before.buffer, position: before.position);
+          buffer: buffer, position: position);
     }
   }
 }

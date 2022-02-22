@@ -38,16 +38,11 @@ class _XmlNormalizeEventsSink extends ChunkedConversionSink<List<XmlEvent>> {
       final event1 = buffer[i], event2 = buffer[i + 1];
       if (event1 is XmlTextEvent && event2 is XmlTextEvent) {
         final event = XmlTextEvent(event1.text + event2.text);
-        // Propagate annotations
-        if (event1.buffer != null) {
-          event.attachBuffer(event1.buffer!);
-        }
-        if (event1.start != null && event2.stop != null) {
-          event.attachLocation(event1.start!, event2.stop!);
-        }
-        if (event1.parent != null) {
-          event.attachParent(event1.parent);
-        }
+        // Propagate annotations.
+        event.attachBuffer(event1.buffer);
+        event.attachLocation(event1.start, event2.stop);
+        event.attachParent(event1.parent);
+        // Update the buffer.
         buffer[i] = event;
         buffer.removeAt(i + 1);
       } else {

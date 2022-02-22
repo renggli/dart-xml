@@ -10,7 +10,7 @@ mixin XmlHasBuffer {
 
   /// Internal helper to attach the buffer to the event, do not call directly.
   @internal
-  void attachBuffer(String buffer) {
+  void attachBuffer(String? buffer) {
     assert(_buffer == null, 'Buffer is already initialized.');
     _buffer = buffer;
   }

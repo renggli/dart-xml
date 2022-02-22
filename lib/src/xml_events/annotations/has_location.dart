@@ -16,7 +16,7 @@ mixin XmlHasLocation {
 
   /// Internal helper to attach the location to the event, do not call directly.
   @internal
-  void attachLocation(int start, int stop) {
+  void attachLocation(int? start, int? stop) {
     assert(_start == null && _stop == null, 'Location is already initialized.');
     _start = start;
     _stop = stop;

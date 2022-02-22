@@ -15,14 +15,12 @@ extension XmlEventDecoderExtension on Stream<String> {
   Stream<List<XmlEvent>> toXmlEvents({
     XmlEntityMapping? entityMapping,
     bool validateNesting = false,
-    bool withBuffer = false,
     bool withLocation = false,
     bool withParent = false,
   }) =>
       transform(XmlEventDecoder(
         entityMapping: entityMapping,
         validateNesting: validateNesting,
-        withBuffer: withBuffer,
         withLocation: withLocation,
         withParent: withParent,
       ));
@@ -33,14 +31,12 @@ class XmlEventDecoder extends Converter<String, List<XmlEvent>> {
   XmlEventDecoder({
     XmlEntityMapping? entityMapping,
     this.validateNesting = false,
-    this.withBuffer = false,
     this.withLocation = false,
     this.withParent = false,
   }) : entityMapping = entityMapping ?? defaultEntityMapping;
 
   final XmlEntityMapping entityMapping;
   final bool validateNesting;
-  final bool withBuffer;
   final bool withLocation;
   final bool withParent;
 
@@ -62,7 +58,7 @@ class XmlEventDecoder extends Converter<String, List<XmlEvent>> {
           entityMapping,
           XmlAnnotator(
             validateNesting: validateNesting,
-            withBuffer: withBuffer,
+            withBuffer: false,
             withLocation: withLocation,
             withParent: withParent,
           ));
@@ -78,6 +74,7 @@ class _XmlEventDecoderSink extends StringConversionSinkBase {
   final XmlAnnotator annotator;
 
   String carry = '';
+  int offset = 0;
 
   @override
   void addSlice(String str, int start, int end, bool isLast) {
@@ -92,7 +89,11 @@ class _XmlEventDecoderSink extends StringConversionSinkBase {
       final current = eventParser.parseOn(previous);
       if (current.isSuccess) {
         final event = current.value;
-        annotator.annotate(previous, current, event);
+        annotator.annotate(
+          event,
+          start: offset + previous.position,
+          stop: offset + current.position,
+        );
         result.add(event);
         previous = current;
       } else {
@@ -103,6 +104,7 @@ class _XmlEventDecoderSink extends StringConversionSinkBase {
     if (result.isNotEmpty) {
       sink.add(result);
     }
+    offset += end - start;
     if (isLast) {
       close();
     }
@@ -110,7 +112,7 @@ class _XmlEventDecoderSink extends StringConversionSinkBase {
 
   @override
   void close() {
-    annotator.close(Failure<XmlEvent>(carry, 0, ''));
+    annotator.close(position: offset);
     sink.close();
   }
 }

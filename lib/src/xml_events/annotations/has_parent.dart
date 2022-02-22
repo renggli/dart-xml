@@ -18,8 +18,6 @@ mixin XmlHasParent {
   @internal
   void attachParent(XmlStartElementEvent? parent) {
     assert(_parent == null, 'Parent is already initialized.');
-    if (parent != null) {
-      _parent = parent;
-    }
+    _parent = parent;
   }
 }
