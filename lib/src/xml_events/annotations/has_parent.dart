@@ -16,8 +16,10 @@ mixin XmlHasParent {
 
   /// Internal helper to attach the parent to the event, do not call directly.
   @internal
-  void attachParent(XmlStartElementEvent parent) {
+  void attachParent(XmlStartElementEvent? parent) {
     assert(_parent == null, 'Parent is already initialized.');
-    _parent = parent;
+    if (parent != null) {
+      _parent = parent;
+    }
   }
 }

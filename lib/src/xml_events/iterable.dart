@@ -1,4 +1,5 @@
 import '../xml/entities/entity_mapping.dart';
+import 'annotations/annotator.dart';
 import 'event.dart';
 import 'iterator.dart';
 
@@ -22,10 +23,12 @@ class XmlEventIterable extends Iterable<XmlEvent> {
   @override
   Iterator<XmlEvent> get iterator => XmlEventIterator(
         input,
-        entityMapping: entityMapping,
-        validateNesting: validateNesting,
-        withBuffer: withBuffer,
-        withLocation: withLocation,
-        withParent: withParent,
+        entityMapping,
+        XmlAnnotator(
+          validateNesting: validateNesting,
+          withBuffer: withBuffer,
+          withLocation: withLocation,
+          withParent: withParent,
+        ),
       );
 }

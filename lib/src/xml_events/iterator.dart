@@ -8,23 +8,12 @@ import 'parser.dart';
 
 class XmlEventIterator extends Iterator<XmlEvent> {
   XmlEventIterator(
-    String input, {
-    required XmlEntityMapping entityMapping,
-    required bool withBuffer,
-    required bool withLocation,
-    required bool withParent,
-    required bool validateNesting,
-  })  : _eventParser = eventParserCache[entityMapping],
-        _annotator = Annotator(
-          validateNesting: validateNesting,
-          withBuffer: withBuffer,
-          withLocation: withLocation,
-          withParent: withParent,
-        ),
+      String input, XmlEntityMapping entityMapping, this._annotator)
+      : _eventParser = eventParserCache[entityMapping],
         _context = Failure<XmlEvent>(input, 0, '');
 
   final Parser<XmlEvent> _eventParser;
-  final Annotator _annotator;
+  final XmlAnnotator _annotator;
 
   Result<XmlEvent>? _context;
   XmlEvent? _current;

@@ -8,8 +8,8 @@ import '../events/start_element.dart';
 /// Annotates [XmlEvent] instances with metadata, such as the underlying buffer,
 /// the position in said buffer, and the parent event. This class also has the
 /// ability to validate the parent relationship.
-class Annotator {
-  Annotator({
+class XmlAnnotator {
+  XmlAnnotator({
     required this.validateNesting,
     required this.withBuffer,
     required this.withLocation,

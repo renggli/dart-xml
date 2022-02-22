@@ -5,57 +5,77 @@ import 'package:petitparser/petitparser.dart';
 
 import '../../xml/entities/default_mapping.dart';
 import '../../xml/entities/entity_mapping.dart';
-import '../../xml/exceptions/parser_exception.dart';
+import '../annotations/annotator.dart';
 import '../event.dart';
-import '../iterable.dart';
 import '../parser.dart';
+import '../utils/conversion_sink.dart';
 
 extension XmlEventDecoderExtension on Stream<String> {
   /// Converts a [String] to a sequence of [XmlEvent] objects.
-  Stream<List<XmlEvent>> toXmlEvents({XmlEntityMapping? entityMapping}) =>
-      transform(XmlEventDecoder(entityMapping: entityMapping));
+  Stream<List<XmlEvent>> toXmlEvents({
+    XmlEntityMapping? entityMapping,
+    bool validateNesting = false,
+    bool withBuffer = false,
+    bool withLocation = false,
+    bool withParent = false,
+  }) =>
+      transform(XmlEventDecoder(
+        entityMapping: entityMapping,
+        validateNesting: validateNesting,
+        withBuffer: withBuffer,
+        withLocation: withLocation,
+        withParent: withParent,
+      ));
 }
 
 /// A converter that decodes a [String] to a sequence of [XmlEvent] objects.
 class XmlEventDecoder extends Converter<String, List<XmlEvent>> {
   XmlEventDecoder({
     XmlEntityMapping? entityMapping,
-    this.attachBuffer = false,
-    this.attachLocation = false,
-    this.attachParent = false,
-    this.validateParent = false,
+    this.validateNesting = false,
+    this.withBuffer = false,
+    this.withLocation = false,
+    this.withParent = false,
   }) : entityMapping = entityMapping ?? defaultEntityMapping;
 
   final XmlEntityMapping entityMapping;
-  final bool attachBuffer;
-  final bool attachLocation;
-  final bool attachParent;
-  final bool validateParent;
+  final bool validateNesting;
+  final bool withBuffer;
+  final bool withLocation;
+  final bool withParent;
 
   @override
   List<XmlEvent> convert(String input, [int start = 0, int? end]) {
     end = RangeError.checkValidRange(start, end, input.length);
-    return XmlEventIterable(
-      input.substring(start, end),
-      entityMapping: entityMapping,
-      withBuffer: attachBuffer,
-      withLocation: attachLocation,
-      withParent: attachParent,
-      validateNesting: validateParent,
-    ).toList(growable: false);
+    final list = <XmlEvent>[];
+    final sink = ConversionSink<List<XmlEvent>>(list.addAll);
+    startChunkedConversion(sink)
+      ..add(input)
+      ..close();
+    return list;
   }
 
   @override
   StringConversionSink startChunkedConversion(Sink<List<XmlEvent>> sink) =>
-      _XmlEventDecoderSink(sink, entityMapping);
+      _XmlEventDecoderSink(
+          sink,
+          entityMapping,
+          XmlAnnotator(
+            validateNesting: validateNesting,
+            withBuffer: withBuffer,
+            withLocation: withLocation,
+            withParent: withParent,
+          ));
 }
 
 class _XmlEventDecoderSink extends StringConversionSinkBase {
-  _XmlEventDecoderSink(this.sink, XmlEntityMapping entityMapping)
+  _XmlEventDecoderSink(
+      this.sink, XmlEntityMapping entityMapping, this.annotator)
       : eventParser = eventParserCache[entityMapping];
 
   final Sink<List<XmlEvent>> sink;
-  final Parser eventParser;
+  final Parser<XmlEvent> eventParser;
+  final XmlAnnotator annotator;
 
   String carry = '';
 
@@ -66,11 +86,14 @@ class _XmlEventDecoderSink extends StringConversionSinkBase {
       return;
     }
     final result = <XmlEvent>[];
-    Result previous = Success(carry + str.substring(start, end), 0, null);
+    Result<XmlEvent> previous =
+        Failure<XmlEvent>(carry + str.substring(start, end), 0, '');
     for (;;) {
       final current = eventParser.parseOn(previous);
       if (current.isSuccess) {
-        result.add(current.value);
+        final event = current.value;
+        annotator.annotate(previous, current, event);
+        result.add(event);
         previous = current;
       } else {
         carry = previous.buffer.substring(previous.position);
@@ -87,9 +110,7 @@ class _XmlEventDecoderSink extends StringConversionSinkBase {
 
   @override
   void close() {
-    if (carry.isNotEmpty) {
-      throw XmlParserException('Unable to parse remaining input: $carry');
-    }
+    annotator.close(Failure<XmlEvent>(carry, 0, ''));
     sink.close();
   }
 }

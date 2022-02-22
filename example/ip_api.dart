@@ -81,7 +81,7 @@ Future<void> lookupIp(args.ArgResults results, [String query = '']) async {
   // but for demonstration sake we show both in this example:
   if (incremental) {
     void textHandler(XmlEvent event, String text) =>
-        stdout.writeln('${event.parentEvent?.name}: $text');
+        stdout.writeln('${event.parent?.name}: $text');
 
     // Decode the input stream, normalize it, attach parent information,
     // select the events we are interested in, then print the information.
@@ -91,7 +91,7 @@ Future<void> lookupIp(args.ArgResults results, [String query = '']) async {
         .toXmlEvents()
         .normalizeEvents()
         .withParentEvents()
-        .selectSubtreeEvents((event) => event.parentEvent?.name == 'query')
+        .selectSubtreeEvents((event) => event.parent?.name == 'query')
         .forEachEvent(
           onText: (event) => textHandler(event, event.text),
           onCDATA: (event) => textHandler(event, event.text),
