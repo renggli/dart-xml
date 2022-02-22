@@ -431,7 +431,7 @@ void main() {
     expect(
         () => builder.element('data', nest: builder.declaration),
         throwsA(isXmlNodeTypeException(
-            message: startsWith('Expected node of type: '),
+            message: startsWith('Got XmlNodeType.DECLARATION'),
             node: isNotNull,
             types: contains(XmlNodeType.ELEMENT))));
   });
