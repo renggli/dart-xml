@@ -670,7 +670,7 @@ void main() {
           emitsInOrder([
             input[0][0],
             emitsError(isXmlTagException(
-                message: 'Expected closing tag </open>, but found </close>.')),
+                message: 'Expected closing tag </open>, but found </close>')),
           ]));
     });
     test('closing tag missing', () {
@@ -683,7 +683,7 @@ void main() {
           emitsInOrder([
             input[0][0],
             emitsError(
-                isXmlTagException(message: 'Missing closing tag </open>.')),
+                isXmlTagException(message: 'Missing closing tag </open>')),
           ]));
     });
     test('closing tag unexpected', () {
@@ -695,7 +695,7 @@ void main() {
       expect(
         stream,
         emitsError(
-            isXmlTagException(message: 'Unexpected closing tag </close>.')),
+            isXmlTagException(message: 'Unexpected closing tag </close>')),
       );
     });
     test('after normalization', () {
@@ -765,14 +765,6 @@ void main() {
           expect(event.namespaceUri, url);
         }
       }
-    });
-    test('disallow re-parenting', () {
-      const input = '<outer><inner/></outer>';
-      final stream = Stream.fromIterable([input])
-          .toXmlEvents()
-          .withParentEvents()
-          .withParentEvents();
-      expect(stream, emitsError(isStateError));
     });
   });
   group('examples', () {
