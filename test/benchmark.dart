@@ -65,10 +65,29 @@ final Map<String, String> benchmarks = {
   'decoding': characterData(),
 };
 
-void main() {
+void main(List<String> args) {
   final builder = XmlBuilder();
   addBenchmarks(builder);
-  stdout.writeln(builder.buildDocument().toXmlString(pretty: true));
+  final document = builder.buildDocument();
+  if (args.contains('xml')) {
+    stdout.writeln(document.toXmlString(pretty: true));
+  } else {
+    stdout.writeln([
+      '',
+      ...document
+          .findAllElements('benchmark')
+          .first
+          .findAllElements('measure')
+          .map((measure) => measure.getAttribute('name'))
+    ].join(';'));
+    stdout.write(document
+        .findAllElements('benchmark')
+        .map((benchmark) => [
+              benchmark.getAttribute('name'),
+              ...benchmark.findAllElements('time').map((time) => time.innerText)
+            ].join(';'))
+        .join('\n'));
+  }
 }
 
 void addBenchmarks(XmlBuilder builder) {
