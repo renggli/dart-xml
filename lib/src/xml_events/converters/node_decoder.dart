@@ -1,5 +1,6 @@
 import 'dart:convert' show ChunkedConversionSink;
 
+import '../../xml/exceptions/tag_exception.dart';
 import '../../xml/navigation/parent.dart';
 import '../../xml/nodes/attribute.dart';
 import '../../xml/nodes/cdata.dart';
@@ -10,7 +11,6 @@ import '../../xml/nodes/element.dart';
 import '../../xml/nodes/node.dart';
 import '../../xml/nodes/processing.dart';
 import '../../xml/nodes/text.dart';
-import '../../xml/utils/exceptions.dart';
 import '../../xml/utils/name.dart';
 import '../event.dart';
 import '../events/cdata.dart';
@@ -77,7 +77,7 @@ class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
     element.isSelfClosing = element.children.isNotEmpty;
     parent = element.parentElement;
     if (parent == null) {
-      commit(element, event.parentEvent);
+      commit(element, event.parent);
     }
   }
 
@@ -117,9 +117,9 @@ class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
       // If we have information about a parent event, create hidden
       // [XmlElement] nodes to make sure namespace resolution works
       // as expected.
-      for (var outerElement = node, outerEvent = event?.parentEvent;
+      for (var outerElement = node, outerEvent = event?.parent;
           outerEvent != null;
-          outerEvent = outerEvent.parentEvent) {
+          outerEvent = outerEvent.parent) {
         outerElement = XmlElement(
           XmlName.fromString(outerEvent.name),
           convertAttributes(outerEvent.attributes),

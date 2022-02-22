@@ -5,7 +5,7 @@ import 'package:petitparser/petitparser.dart';
 
 import '../../xml/entities/default_mapping.dart';
 import '../../xml/entities/entity_mapping.dart';
-import '../../xml/utils/exceptions.dart';
+import '../../xml/exceptions/parser_exception.dart';
 import '../event.dart';
 import '../iterable.dart';
 import '../parser.dart';
@@ -18,16 +18,31 @@ extension XmlEventDecoderExtension on Stream<String> {
 
 /// A converter that decodes a [String] to a sequence of [XmlEvent] objects.
 class XmlEventDecoder extends Converter<String, List<XmlEvent>> {
-  XmlEventDecoder({XmlEntityMapping? entityMapping})
-      : entityMapping = entityMapping ?? defaultEntityMapping;
+  XmlEventDecoder({
+    XmlEntityMapping? entityMapping,
+    this.attachBuffer = false,
+    this.attachLocation = false,
+    this.attachParent = false,
+    this.validateParent = false,
+  }) : entityMapping = entityMapping ?? defaultEntityMapping;
 
   final XmlEntityMapping entityMapping;
+  final bool attachBuffer;
+  final bool attachLocation;
+  final bool attachParent;
+  final bool validateParent;
 
   @override
   List<XmlEvent> convert(String input, [int start = 0, int? end]) {
     end = RangeError.checkValidRange(start, end, input.length);
-    return XmlEventIterable(input.substring(start, end), entityMapping)
-        .toList(growable: false);
+    return XmlEventIterable(
+      input.substring(start, end),
+      entityMapping: entityMapping,
+      withBuffer: attachBuffer,
+      withLocation: attachLocation,
+      withParent: attachParent,
+      validateNesting: validateParent,
+    ).toList(growable: false);
   }
 
   @override

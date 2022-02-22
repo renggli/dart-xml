@@ -2,6 +2,7 @@
 /// documents and to convert them to other representations.
 import 'src/xml/entities/default_mapping.dart';
 import 'src/xml/entities/entity_mapping.dart';
+import 'src/xml/exceptions/tag_exception.dart';
 import 'src/xml_events/event.dart';
 import 'src/xml_events/iterable.dart';
 
@@ -40,10 +41,22 @@ export 'src/xml_events/visitor.dart' show XmlEventVisitor;
 
 /// Returns an [Iterable] of [XmlEvent] instances over the provided [String].
 ///
-/// Iteration can throw an `XmlParserException`, if the input is malformed and
-/// cannot be properly parsed. However, otherwise no validation is performed and
-/// iteration can be resumed even after an error. The parsing is simply retried
-/// at the next possible input position.
+/// Iteration can throw an [XmlParserException], if the input is malformed and
+/// cannot be properly parsed. In case of an error iteration can be resumed and
+/// the parsing is retried at the next possible input position.
+///
+/// If [validateNesting] is `true`, the parser validates the nesting of tags and
+/// throws an [XmlTagException] if there is a mismatch or tags are not closed.
+/// Again, in case of an error iteration can be resumed with the next event.
+///
+/// Furthermore, the following annotations can be enabled if needed:
+///
+/// - If [withBuffer] is `true`, each event is annotated with the input buffer.
+///   Note that this can come at a high memory cost, if the events are retained.
+/// - If [withLocation] is `true`, each event is annotated with the starting
+///   and stopping position (exclusive) of the event in the input buffer.
+/// - If [withParent] is `true`, each event is annotated with its logical
+///   parent event; this for example enables easy lookup of namespace URIs.
 ///
 /// Iteration is lazy, meaning that none of the `input` is parsed and none of
 /// the events are created unless requested.
@@ -58,6 +71,19 @@ export 'src/xml_events/visitor.dart' show XmlEventVisitor;
 ///        .where((text) => text.isNotEmpty)
 ///        .forEach(print);
 ///
-Iterable<XmlEvent> parseEvents(String input,
-        {XmlEntityMapping? entityMapping}) =>
-    XmlEventIterable(input, entityMapping ?? defaultEntityMapping);
+Iterable<XmlEvent> parseEvents(
+  String input, {
+  XmlEntityMapping? entityMapping,
+  bool validateNesting = false,
+  bool withBuffer = false,
+  bool withLocation = false,
+  bool withParent = false,
+}) =>
+    XmlEventIterable(
+      input,
+      entityMapping: entityMapping ?? defaultEntityMapping,
+      validateNesting: validateNesting,
+      withBuffer: withBuffer,
+      withLocation: withLocation,
+      withParent: withParent,
+    );

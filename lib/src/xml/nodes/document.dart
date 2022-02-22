@@ -2,10 +2,10 @@ import 'package:petitparser/petitparser.dart';
 
 import '../entities/default_mapping.dart';
 import '../entities/entity_mapping.dart';
+import '../exceptions/parser_exception.dart';
 import '../mixins/has_children.dart';
 import '../parser.dart';
 import '../utils/cache.dart';
-import '../utils/exceptions.dart';
 import '../utils/node_type.dart';
 import '../visitors/visitor.dart';
 import 'declaration.dart';
@@ -30,13 +30,8 @@ class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
     final parser = documentParserCache[mapping];
     final result = parser.parse(input);
     if (result.isFailure) {
-      final lineAndColumn =
-          Token.lineAndColumnOf(result.buffer, result.position);
       throw XmlParserException(result.message,
-          buffer: result.buffer,
-          position: result.position,
-          line: lineAndColumn[0],
-          column: lineAndColumn[1]);
+          buffer: result.buffer, position: result.position);
     }
     return result.value;
   }
@@ -122,5 +117,5 @@ const Set<XmlNodeType> childrenNodeTypes = {
 
 /// Internal cache of parsers for a specific entity mapping.
 final XmlCache<XmlEntityMapping, Parser> documentParserCache =
-    // ignore: deprecated_member_use_from_same_package
+// ignore: deprecated_member_use_from_same_package
     XmlCache((entityMapping) => XmlParserDefinition(entityMapping).build(), 5);

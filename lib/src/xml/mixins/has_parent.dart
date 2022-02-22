@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
 
+import '../exceptions/parent_exception.dart';
 import '../nodes/node.dart';
-import '../utils/exceptions.dart';
 
 /// Parent interface for nodes.
 mixin XmlParentBase {

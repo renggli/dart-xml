@@ -7,6 +7,8 @@
 * Add a predicate to pretty printer to insert a space character before self-closing elements (thanks to https://github.com/rspilker).
 * Add predicates to normalizer to trim leading and trailing whitespaces, as well as collapse consecutive whitespaces.
 * Expose `qualifiedName`, `localName`, `namespacePrefix` and `namespaceUri` for convenience on the named nodes.
+* Significantly improved error handling to include more information, such as tag names and location in the underlying source buffer.
+* Improved the event iterator to optionally validate the nesting as well as annotate the events with buffer, location and parent metadata.
 * Cleanup dynamic calls and type declarations:
   * Avoid all dynamic calls across the library (thanks to https://github.com/srawlins).
   * Deprecate `XmlTransformer` as it requires dynamic calls in the `XmlVisitor`.

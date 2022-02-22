@@ -1,10 +1,10 @@
 import '../../xml/utils/namespace.dart';
 import '../../xml/utils/token.dart';
+import '../annotations/has_parent.dart';
 import '../events/start_element.dart';
-import 'parented.dart';
 
 /// Mixin with additional accessors for named objects.
-mixin XmlNamed implements XmlParented {
+mixin XmlNamed implements XmlHasParent {
   /// The fully qualified name.
   String get name;
 
@@ -18,18 +18,17 @@ mixin XmlNamed implements XmlParented {
   }
 
   /// The namespace URI, or `null`. Can only be resolved when the named entity
-  /// has complete and up-to-date [XmlParented.parentEvent] information.
+  /// has complete and up-to-date [XmlHasParent.parent] information.
   String? get namespaceUri {
     // Identify the prefix and local name to match.
     final index = name.indexOf(XmlToken.namespace);
     final prefix = index < 0 ? null : xmlns;
     final local = index < 0 ? xmlns : name.substring(0, index);
     // Identify the start element to match.
-    final start = this is XmlStartElementEvent
-        ? this as XmlStartElementEvent
-        : parentEvent;
+    final start =
+        this is XmlStartElementEvent ? this as XmlStartElementEvent : parent;
     // Walk up the tree to find the matching namespace.
-    for (var event = start; event != null; event = event.parentEvent) {
+    for (var event = start; event != null; event = event.parent) {
       for (final attribute in event.attributes) {
         if (attribute.namespacePrefix == prefix &&
             attribute.localName == local) {

@@ -1,9 +1,9 @@
 import 'package:petitparser/petitparser.dart';
 
 import 'entities/entity_mapping.dart';
+import 'exceptions/parser_exception.dart';
 import 'production.dart';
 import 'utils/attribute_type.dart';
-import 'utils/exceptions.dart';
 import 'utils/token.dart';
 
 /// XML grammar definition with [TNode] and [TName].
@@ -108,14 +108,10 @@ abstract class XmlGrammarDefinition<TNode, TName>
                 name, attributes, children, children.isNotEmpty);
           } else {
             final Token token = list4[2];
-            final lineAndColumn =
-                Token.lineAndColumnOf(token.buffer, token.start);
             throw XmlParserException(
                 'Expected </${list[1]}>, but found </${list4[3]}>',
                 buffer: token.buffer,
-                position: token.start,
-                line: lineAndColumn[0],
-                column: lineAndColumn[1]);
+                position: token.start);
           }
         }
       });

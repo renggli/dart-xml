@@ -32,7 +32,7 @@ class XmlEventParser {
         ref0(declaration),
         ref0(processing),
         ref0(doctype),
-      ].toChoiceParser();
+      ].toChoiceParser(failureJoiner: selectFarthest);
 
   // Events
 
@@ -101,7 +101,7 @@ class XmlEventParser {
         XmlToken.openComment.toParser(),
         any()
             .starLazy(XmlToken.closeComment.toParser())
-            .flatten('Expected comment content'),
+            .flatten('Expected ${XmlToken.closeComment}'),
         XmlToken.closeComment.toParser(),
       ].toSequenceParser().map((each) => XmlCommentEvent(each[1]));
 
@@ -109,7 +109,7 @@ class XmlEventParser {
         XmlToken.openCDATA.toParser(),
         any()
             .starLazy(XmlToken.closeCDATA.toParser())
-            .flatten('Expected CDATA content'),
+            .flatten('Expected ${XmlToken.closeCDATA}'),
         XmlToken.closeCDATA.toParser(),
       ].toSequenceParser().map((each) => XmlCDATAEvent(each[1]));
 
@@ -128,7 +128,7 @@ class XmlEventParser {
           ref0(space),
           any()
               .starLazy(XmlToken.closeProcessing.toParser())
-              .flatten('Expected processing instruction content')
+              .flatten('Expected ${XmlToken.closeProcessing}')
         ].toSequenceParser().pick(1).optionalWith(''),
         XmlToken.closeProcessing.toParser(),
       ].toSequenceParser().map((each) => XmlProcessingEvent(each[1], each[2]));
@@ -147,7 +147,7 @@ class XmlEventParser {
         ]
             .toChoiceParser()
             .separatedBy(ref0(spaceOptional))
-            .flatten('Expected doctype content'),
+            .flatten('Expected DOCTYPE content'),
         ref0(spaceOptional),
         XmlToken.closeDoctype.toParser(),
       ].toSequenceParser().map((each) => XmlDoctypeEvent(each[2]));

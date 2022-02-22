@@ -14,7 +14,6 @@ import 'nodes/node.dart';
 import 'nodes/processing.dart';
 import 'nodes/text.dart';
 import 'utils/attribute_type.dart';
-import 'utils/exceptions.dart';
 import 'utils/name.dart';
 import 'utils/namespace.dart' as ns;
 
