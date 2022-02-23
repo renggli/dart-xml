@@ -101,7 +101,7 @@ class XmlEventParser {
         XmlToken.openComment.toParser(),
         any()
             .starLazy(XmlToken.closeComment.toParser())
-            .flatten('Expected ${XmlToken.closeComment}'),
+            .flatten('"${XmlToken.closeComment}" expected'),
         XmlToken.closeComment.toParser(),
       ].toSequenceParser().map((each) => XmlCommentEvent(each[1]));
 
@@ -109,7 +109,7 @@ class XmlEventParser {
         XmlToken.openCDATA.toParser(),
         any()
             .starLazy(XmlToken.closeCDATA.toParser())
-            .flatten('Expected ${XmlToken.closeCDATA}'),
+            .flatten('"${XmlToken.closeCDATA}" expected'),
         XmlToken.closeCDATA.toParser(),
       ].toSequenceParser().map((each) => XmlCDATAEvent(each[1]));
 
@@ -128,7 +128,7 @@ class XmlEventParser {
           ref0(space),
           any()
               .starLazy(XmlToken.closeProcessing.toParser())
-              .flatten('Expected ${XmlToken.closeProcessing}')
+              .flatten('"${XmlToken.closeProcessing}" expected'),
         ].toSequenceParser().pick(1).optionalWith(''),
         XmlToken.closeProcessing.toParser(),
       ].toSequenceParser().map((each) => XmlProcessingEvent(each[1], each[2]));
@@ -147,22 +147,22 @@ class XmlEventParser {
         ]
             .toChoiceParser()
             .separatedBy(ref0(spaceOptional))
-            .flatten('Expected DOCTYPE content'),
+            .flatten('"{XmlToken.closeDoctype}" expected'),
         ref0(spaceOptional),
         XmlToken.closeDoctype.toParser(),
       ].toSequenceParser().map((each) => XmlDoctypeEvent(each[2]));
 
   // Tokens
 
-  Parser<String> space() => whitespace().plus().flatten('Expected whitespace');
+  Parser<String> space() => whitespace().plus().flatten('whitespace expected');
 
   Parser<String> spaceOptional() =>
-      whitespace().star().flatten('Expected whitespace');
+      whitespace().star().flatten('whitespace expected');
 
   Parser<String> nameToken() => [
         ref0(nameStartChar),
         ref0(nameChar).star(),
-      ].toSequenceParser().flatten('Expected name');
+      ].toSequenceParser().flatten('name expected');
 
   Parser<String> nameStartChar() => pattern(XmlToken.nameStartChars);
 

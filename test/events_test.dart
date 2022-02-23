@@ -184,7 +184,7 @@ void main() {
           expect(
               iterator.moveNext,
               throwsA(isXmlParserException(
-                message: '/> expected',
+                message: '"/>" expected',
                 buffer: '<hello',
                 position: 6,
               )));
@@ -198,7 +198,7 @@ void main() {
           expect(
               iterator.moveNext,
               throwsA(isXmlParserException(
-                message: '/> expected',
+                message: '"/>" expected',
                 buffer: '<foo bar="abc',
                 position: 5,
               )));
@@ -212,7 +212,7 @@ void main() {
           expect(
               iterator.moveNext,
               throwsA(isXmlParserException(
-                message: 'Expected -->',
+                message: '"-->" expected',
                 buffer: '<!-- comment',
                 position: 4,
               )));

@@ -74,8 +74,8 @@ void assertDocumentParseInvariants(String input) {
 void assertDocumentParseError(String input, String message, int position) {
   try {
     final result = XmlDocument.parse(input);
-    fail('Expected parse error $message, but got $result.');
-  } on XmlParserException catch (error) {
+    fail('Expected error $message, but got $result.');
+  } on XmlFormatException catch (error) {
     expect(error.message, message);
     expect(error.position, position);
   }

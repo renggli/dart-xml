@@ -9,7 +9,8 @@ environment:
 dependencies:
   collection: ^1.15.0
   meta: ^1.7.0
-  petitparser: ^4.4.0
+  petitparser:
+    git: https://github.com/petitparser/dart-petitparser.git
 dev_dependencies:
   args: ^2.3.0
   lints: ^1.0.0

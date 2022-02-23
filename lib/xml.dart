@@ -10,6 +10,7 @@ export 'src/xml/exceptions/parent_exception.dart' show XmlParentException;
 export 'src/xml/exceptions/parser_exception.dart' show XmlParserException;
 export 'src/xml/exceptions/tag_exception.dart' show XmlTagException;
 export 'src/xml/exceptions/type_exception.dart' show XmlNodeTypeException;
+export 'src/xml/exceptions/format_exception.dart' show XmlFormatException;
 export 'src/xml/grammar.dart'
     show
         XmlGrammarDefinition; // ignore: deprecated_member_use_from_same_package

@@ -249,7 +249,15 @@ void main() {
   test('xml (invalid)', () {
     final builder = XmlBuilder();
     builder.element('outer', nest: () {
-      expect(() => builder.xml('<broken>'), throwsA(isXmlParserException()));
+      expect(
+          () => builder.xml('<broken>'),
+          throwsA(isXmlTagException(
+            message: 'Missing closing tag </broken>',
+            expectedName: 'broken',
+            actualName: isNull,
+            buffer: '<broken>',
+            position: 8,
+          )));
     });
     final xml = builder.buildDocument();
     assertDocumentTreeInvariants(xml);

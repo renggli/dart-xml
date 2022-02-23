@@ -95,12 +95,12 @@ void main() {
         assertDocumentParseError('<data key', '">" expected', 6);
         assertDocumentParseError('<data', '">" expected', 5);
       });
-      test('name', () {
-        assertDocumentParseError('<>', 'Expected name', 1);
-        assertDocumentParseError('<!-- comment', 'Expected name', 1);
-        assertDocumentParseError('<![CDATA[ comment', 'Expected name', 1);
-        assertDocumentParseError('<!DOCTYPE data', 'Expected name', 1);
-        assertDocumentParseError('<?xml', 'Expected name', 1);
+      test('incomplete', () {
+        assertDocumentParseError('<>', 'name expected', 1);
+        assertDocumentParseError('<!-- comment', '"-->" expected', 4);
+        assertDocumentParseError('<![CDATA[ comment', '"]]>" expected', 9);
+        assertDocumentParseError('<!DOCTYPE data', '">" expected', 14);
+        assertDocumentParseError('<?xml', 'name ', 1);
         assertDocumentParseError('<?processing', 'Expected name', 1);
       });
     });

@@ -1,12 +1,8 @@
-import 'package:petitparser/petitparser.dart';
-
-import '../entities/default_mapping.dart';
+import '../../../xml_events.dart';
 import '../entities/entity_mapping.dart';
 import '../exceptions/parser_exception.dart';
+import '../exceptions/tag_exception.dart';
 import '../mixins/has_children.dart';
-import '../parser.dart';
-import '../utils/cache.dart';
-import '../utils/node_type.dart';
 import '../visitors/visitor.dart';
 import 'declaration.dart';
 import 'doctype.dart';
@@ -15,8 +11,8 @@ import 'node.dart';
 
 /// XML document node.
 class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
-  /// Return an [XmlDocument] for the given [input] string, or throws an
-  /// [XmlParserException] if the input is invalid.
+  /// Returns an [XmlDocument] for the given [input] string, or throws an
+  /// [XmlParserException] or [XmlTagException] if the input is invalid.
   ///
   /// For example, the following code prints `Hello World`:
   ///
@@ -26,14 +22,10 @@ class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
   /// Note: It is the responsibility of the caller to provide a standard Dart
   /// [String] using the default UTF-16 encoding.
   factory XmlDocument.parse(String input, {XmlEntityMapping? entityMapping}) {
-    final mapping = entityMapping ?? defaultEntityMapping;
-    final parser = documentParserCache[mapping];
-    final result = parser.parse(input);
-    if (result.isFailure) {
-      throw XmlParserException(result.message,
-          buffer: result.buffer, position: result.position);
-    }
-    return result.value;
+    final events =
+        parseEvents(input, entityMapping: entityMapping, validateNesting: true);
+    final nodes = XmlNodeDecoder().convert(events.toList());
+    return XmlDocument(nodes);
   }
 
   /// Create a document node with `children`.
@@ -114,8 +106,3 @@ const Set<XmlNodeType> childrenNodeTypes = {
   XmlNodeType.PROCESSING,
   XmlNodeType.TEXT,
 };
-
-/// Internal cache of parsers for a specific entity mapping.
-final XmlCache<XmlEntityMapping, Parser> documentParserCache =
-// ignore: deprecated_member_use_from_same_package
-    XmlCache((entityMapping) => XmlParserDefinition(entityMapping).build(), 5);
