@@ -4,6 +4,7 @@ version: 5.4.0
 description: A lightweight library for parsing, traversing, querying, transforming and building XML documents.
 homepage: https://github.com/renggli/dart-xml
 
+publish_to: none
 environment:
   sdk: '>=2.16.0 <3.0.0'
 dependencies:
