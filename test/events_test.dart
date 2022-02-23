@@ -184,7 +184,7 @@ void main() {
           expect(
               iterator.moveNext,
               throwsA(isXmlParserException(
-                message: '"/>" expected',
+                message: '">" expected',
                 buffer: '<hello',
                 position: 6,
               )));
@@ -198,7 +198,7 @@ void main() {
           expect(
               iterator.moveNext,
               throwsA(isXmlParserException(
-                message: '"/>" expected',
+                message: '">" expected',
                 buffer: '<foo bar="abc',
                 position: 5,
               )));
@@ -670,7 +670,7 @@ void main() {
           emitsInOrder([
             input[0][0],
             emitsError(isXmlTagException(
-                message: 'Expected closing tag </open>, but found </close>')),
+                message: 'Expected </open>, but found </close>')),
           ]));
     });
     test('closing tag missing', () {
@@ -682,8 +682,7 @@ void main() {
           stream,
           emitsInOrder([
             input[0][0],
-            emitsError(
-                isXmlTagException(message: 'Missing closing tag </open>')),
+            emitsError(isXmlTagException(message: 'Missing </open>')),
           ]));
     });
     test('closing tag unexpected', () {
@@ -694,8 +693,7 @@ void main() {
       final stream = Stream.fromIterable(input).withParentEvents().flatten();
       expect(
         stream,
-        emitsError(
-            isXmlTagException(message: 'Unexpected closing tag </close>')),
+        emitsError(isXmlTagException(message: 'Unexpected </close>')),
       );
     });
     test('after normalization', () {

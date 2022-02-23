@@ -71,16 +71,6 @@ void assertDocumentParseInvariants(String input) {
   expect(document.toXmlString(), copy.toXmlString());
 }
 
-void assertDocumentParseError(String input, String message, int position) {
-  try {
-    final result = XmlDocument.parse(input);
-    fail('Expected error $message, but got $result.');
-  } on XmlFormatException catch (error) {
-    expect(error.message, message);
-    expect(error.position, position);
-  }
-}
-
 void assertDocumentTreeInvariants(XmlNode xml) {
   assertDocumentInvariants(xml);
   assertParentInvariants(xml);
@@ -106,16 +96,6 @@ void assertFragmentParseInvariants(String input) {
   assertStreamNodeInvariants(input, fragment);
   final copy = XmlDocumentFragment.parse(fragment.toXmlString());
   expect(fragment.toXmlString(), copy.toXmlString());
-}
-
-void assertFragmentParseError(String input, String message, int position) {
-  try {
-    final result = XmlDocumentFragment.parse(input);
-    fail('Expected parse error $message, but got $result.');
-  } on XmlParserException catch (error) {
-    expect(error.message, message);
-    expect(error.position, position);
-  }
 }
 
 void assertFragmentTreeInvariants(XmlNode xml) {

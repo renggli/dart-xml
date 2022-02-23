@@ -80,7 +80,7 @@ void main() {
       expect(
           exception,
           isXmlTagException(
-            message: 'Expected closing tag </foo>, but found </bar>',
+            message: 'Expected </foo>, but found </bar>',
             expectedName: 'foo',
             actualName: 'bar',
             buffer: '<foo>\n</bar>',
@@ -95,7 +95,7 @@ void main() {
       expect(
           exception,
           isXmlTagException(
-            message: 'Unexpected closing tag </bar>',
+            message: 'Unexpected </bar>',
             expectedName: isNull,
             actualName: 'bar',
             buffer: '</bar>',
@@ -110,7 +110,7 @@ void main() {
       expect(
           exception,
           isXmlTagException(
-            message: 'Missing closing tag </foo>',
+            message: 'Missing </foo>',
             expectedName: 'foo',
             actualName: isNull,
             buffer: '<foo>',
@@ -125,7 +125,7 @@ void main() {
           () => XmlTagException.checkClosingTag('foo', 'bar',
               buffer: '<foo>\n</bar>', position: 6),
           throwsA(isXmlTagException(
-            message: 'Expected closing tag </foo>, but found </bar>',
+            message: 'Expected </foo>, but found </bar>',
             expectedName: 'foo',
             actualName: 'bar',
             buffer: '<foo>\n</bar>',

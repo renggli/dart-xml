@@ -252,7 +252,7 @@ void main() {
       expect(
           () => builder.xml('<broken>'),
           throwsA(isXmlTagException(
-            message: 'Missing closing tag </broken>',
+            message: 'Missing </broken>',
             expectedName: 'broken',
             actualName: isNull,
             buffer: '<broken>',

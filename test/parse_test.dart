@@ -1,4 +1,5 @@
 import 'package:test/test.dart';
+import 'package:xml/xml.dart';
 
 import 'assertions.dart';
 
@@ -74,34 +75,175 @@ void main() {
     test('processing instruction with attribute', () {
       assertDocumentParseInvariants('<?pi foo="bar"?><data />');
     });
+    group('empty', () {
+      test('completely', () {
+        final document = XmlDocument.parse('');
+        expect(document.children, isEmpty);
+        expect(document.declaration, isNull);
+        expect(document.doctypeElement, isNull);
+        expect(() => document.rootElement, throwsStateError);
+      });
+      test('whitespace', () {
+        final document = XmlDocument.parse(' ');
+        expect(document.children, hasLength(1));
+        expect(document.declaration, isNull);
+        expect(document.doctypeElement, isNull);
+        expect(() => document.rootElement, throwsStateError);
+      });
+      test('doctype and comment', () {
+        final document = XmlDocument.parse('<?xml version="1.0"?><!--empty-->');
+        expect(document.children, hasLength(2));
+        expect(document.declaration, isNotNull);
+        expect(document.doctypeElement, isNull);
+        expect(() => document.rootElement, throwsStateError);
+      });
+    });
     group('parse errors', () {
-      test('empty', () {
-        assertDocumentParseError('', '"<" expected', 0);
-        assertDocumentParseError(' ', '"<" expected', 1);
-        assertDocumentParseError('\t', '"<" expected', 1);
-        assertDocumentParseError('\n', '"<" expected', 1);
-        assertDocumentParseError('  ', '"<" expected', 2);
-        assertDocumentParseError('<!-- comment -->', '"<" expected', 16);
-      });
       test('nesting', () {
-        assertDocumentParseError(
-            '<foo></bar>', 'Expected </foo>, but found </bar>', 5);
-        assertDocumentParseError(
-            '<foo><bar></foo>', 'Expected </bar>, but found </foo>', 10);
-        assertDocumentParseError('<foo/><bar>', 'Expected end of input', 6);
+        expect(
+            () => XmlDocument.parse('<foo></bar>'),
+            throwsA(isXmlTagException(
+              message: 'Expected </foo>, but found </bar>',
+              position: 5,
+            )));
+        expect(
+            () => XmlDocument.parse('<bar>'),
+            throwsA(isXmlTagException(
+              message: 'Missing </bar>',
+              position: 5,
+            )));
+        expect(
+            () => XmlDocument.parse('</bar>'),
+            throwsA(isXmlTagException(
+              message: 'Unexpected </bar>',
+              position: 0,
+            )));
       });
-      test('closing', () {
-        assertDocumentParseError('<data key="ab', '">" expected', 6);
-        assertDocumentParseError('<data key', '">" expected', 6);
-        assertDocumentParseError('<data', '">" expected', 5);
+      test('element', () {
+        expect(
+            () => XmlDocument.parse('<'),
+            throwsA(isXmlParserException(
+              message: 'name expected',
+              position: 1,
+            )));
+        expect(
+            () => XmlDocument.parse('<data'),
+            throwsA(isXmlParserException(
+              message: '">" expected',
+              position: 5,
+            )));
+        expect(
+            () => XmlDocument.parse('<data key'),
+            throwsA(isXmlParserException(
+              message: '">" expected',
+              position: 6,
+            )));
+        expect(
+            () => XmlDocument.parse('<data key="ab'),
+            throwsA(isXmlParserException(
+              message: '">" expected',
+              position: 6,
+            )));
       });
-      test('incomplete', () {
-        assertDocumentParseError('<>', 'name expected', 1);
-        assertDocumentParseError('<!-- comment', '"-->" expected', 4);
-        assertDocumentParseError('<![CDATA[ comment', '"]]>" expected', 9);
-        assertDocumentParseError('<!DOCTYPE data', '">" expected', 14);
-        assertDocumentParseError('<?xml', 'name ', 1);
-        assertDocumentParseError('<?processing', 'Expected name', 1);
+      test('comment', () {
+        expect(
+            () => XmlDocument.parse('<!--'),
+            throwsA(isXmlParserException(
+              message: '"-->" expected',
+              position: 4,
+            )));
+        expect(
+            () => XmlDocument.parse('<!-- comment'),
+            throwsA(isXmlParserException(
+              message: '"-->" expected',
+              position: 4,
+            )));
+      });
+      test('cdata', () {
+        expect(
+            () => XmlDocument.parse('<![CDATA['),
+            throwsA(isXmlParserException(
+              message: '"]]>" expected',
+              position: 9,
+            )));
+        expect(
+            () => XmlDocument.parse('<![CDATA[ cdata'),
+            throwsA(isXmlParserException(
+              message: '"]]>" expected',
+              position: 9,
+            )));
+      });
+      test('doctype', () {
+        expect(
+            () => XmlDocument.parse('<!DOCTYPE'),
+            throwsA(isXmlParserException(
+              message: 'whitespace expected',
+              position: 9,
+            )));
+        expect(
+            () => XmlDocument.parse('<!DOCTYPE data'),
+            throwsA(isXmlParserException(
+              message: '">" expected',
+              position: 14,
+            )));
+        expect(
+            () => XmlDocument.parse('<!DOCTYPE data ['),
+            throwsA(isXmlParserException(
+              message: '">" expected',
+              position: 15,
+            )));
+      });
+      test('declaration', () {
+        expect(
+            () => XmlDocument.parse('<?'),
+            throwsA(isXmlParserException(
+              message: 'name expected',
+              position: 2,
+            )));
+        expect(
+            () => XmlDocument.parse('<?xml'),
+            throwsA(isXmlParserException(
+              message: '"?>" expected',
+              position: 5,
+            )));
+        expect(
+            () => XmlDocument.parse('<?xml version'),
+            throwsA(isXmlParserException(
+              message: '"?>" expected',
+              position: 6,
+            )));
+        expect(
+            () => XmlDocument.parse('<?xml version='),
+            throwsA(isXmlParserException(
+              message: '"?>" expected',
+              position: 6,
+            )));
+        expect(
+            () => XmlDocument.parse('<?xml version="1.0'),
+            throwsA(isXmlParserException(
+              message: '"?>" expected',
+              position: 6,
+            )));
+      });
+      test('processing', () {
+        expect(
+            () => XmlDocument.parse('<?'),
+            throwsA(isXmlParserException(
+              message: 'name expected',
+              position: 2,
+            )));
+        expect(
+            () => XmlDocument.parse('<?processing'),
+            throwsA(isXmlParserException(
+              message: '"?>" expected',
+              position: 12,
+            )));
+        expect(
+            () => XmlDocument.parse('<?processing whatever'),
+            throwsA(isXmlParserException(
+              message: '"?>" expected',
+              position: 12,
+            )));
       });
     });
   });
@@ -183,25 +325,150 @@ void main() {
     });
     group('parse errors', () {
       test('nesting', () {
-        assertFragmentParseError('<foo>', '</ expected', 5);
-        assertFragmentParseError(
-            '<foo></bar>', 'Expected </foo>, but found </bar>', 5);
-        assertFragmentParseError(
-            '<foo><bar></foo>', 'Expected </bar>, but found </foo>', 10);
-        assertFragmentParseError('<foo/><bar>', '</ expected', 11);
+        expect(
+            () => XmlDocumentFragment.parse('<foo></bar>'),
+            throwsA(isXmlTagException(
+              message: 'Expected </foo>, but found </bar>',
+              position: 5,
+            )));
+        expect(
+            () => XmlDocumentFragment.parse('<bar>'),
+            throwsA(isXmlTagException(
+              message: 'Missing </bar>',
+              position: 5,
+            )));
+        expect(
+            () => XmlDocumentFragment.parse('</bar>'),
+            throwsA(isXmlTagException(
+              message: 'Unexpected </bar>',
+              position: 0,
+            )));
       });
-      test('closing', () {
-        assertFragmentParseError('<data key="ab', '">" expected', 6);
-        assertFragmentParseError('<data key', '">" expected', 6);
-        assertFragmentParseError('<data', '">" expected', 5);
+      test('element', () {
+        expect(
+            () => XmlDocumentFragment.parse('<'),
+            throwsA(isXmlParserException(
+              message: 'name expected',
+              position: 1,
+            )));
+        expect(
+            () => XmlDocumentFragment.parse('<data'),
+            throwsA(isXmlParserException(
+              message: '">" expected',
+              position: 5,
+            )));
+        expect(
+            () => XmlDocumentFragment.parse('<data key'),
+            throwsA(isXmlParserException(
+              message: '">" expected',
+              position: 6,
+            )));
+        expect(
+            () => XmlDocumentFragment.parse('<data key="ab'),
+            throwsA(isXmlParserException(
+              message: '">" expected',
+              position: 6,
+            )));
       });
-      test('name', () {
-        assertFragmentParseError('<>', 'Expected name', 1);
-        assertFragmentParseError('<!--', 'Expected name', 1);
-        assertFragmentParseError('<![CDATA[', 'Expected name', 1);
-        assertFragmentParseError('<!DOCTYPE', 'Expected name', 1);
-        assertFragmentParseError('<?xml', 'Expected name', 1);
-        assertFragmentParseError('<?processing', 'Expected name', 1);
+      test('comment', () {
+        expect(
+            () => XmlDocumentFragment.parse('<!--'),
+            throwsA(isXmlParserException(
+              message: '"-->" expected',
+              position: 4,
+            )));
+        expect(
+            () => XmlDocumentFragment.parse('<!-- comment'),
+            throwsA(isXmlParserException(
+              message: '"-->" expected',
+              position: 4,
+            )));
+      });
+      test('cdata', () {
+        expect(
+            () => XmlDocumentFragment.parse('<![CDATA['),
+            throwsA(isXmlParserException(
+              message: '"]]>" expected',
+              position: 9,
+            )));
+        expect(
+            () => XmlDocumentFragment.parse('<![CDATA[ cdata'),
+            throwsA(isXmlParserException(
+              message: '"]]>" expected',
+              position: 9,
+            )));
+      });
+      test('doctype', () {
+        expect(
+            () => XmlDocumentFragment.parse('<!DOCTYPE'),
+            throwsA(isXmlParserException(
+              message: 'whitespace expected',
+              position: 9,
+            )));
+        expect(
+            () => XmlDocumentFragment.parse('<!DOCTYPE data'),
+            throwsA(isXmlParserException(
+              message: '">" expected',
+              position: 14,
+            )));
+        expect(
+            () => XmlDocumentFragment.parse('<!DOCTYPE data ['),
+            throwsA(isXmlParserException(
+              message: '">" expected',
+              position: 15,
+            )));
+      });
+      test('declaration', () {
+        expect(
+            () => XmlDocumentFragment.parse('<?'),
+            throwsA(isXmlParserException(
+              message: 'name expected',
+              position: 2,
+            )));
+        expect(
+            () => XmlDocumentFragment.parse('<?xml'),
+            throwsA(isXmlParserException(
+              message: '"?>" expected',
+              position: 5,
+            )));
+        expect(
+            () => XmlDocumentFragment.parse('<?xml version'),
+            throwsA(isXmlParserException(
+              message: '"?>" expected',
+              position: 6,
+            )));
+        expect(
+            () => XmlDocumentFragment.parse('<?xml version='),
+            throwsA(isXmlParserException(
+              message: '"?>" expected',
+              position: 6,
+            )));
+        expect(
+            () => XmlDocumentFragment.parse('<?xml version="1.0'),
+            throwsA(isXmlParserException(
+              message: '"?>" expected',
+              position: 6,
+            )));
+      });
+      test('processing', () {
+        expect(
+            () => XmlDocumentFragment.parse('<?'),
+            throwsA(isXmlParserException(
+              message: 'name expected',
+              position: 2,
+            )));
+        expect(
+            () => XmlDocumentFragment.parse('<?processing'),
+            throwsA(isXmlParserException(
+              message: '"?>" expected',
+              position: 12,
+            )));
+        expect(
+            () => XmlDocumentFragment.parse('<?processing whatever'),
+            throwsA(isXmlParserException(
+              message: '"?>" expected',
+              position: 12,
+            )));
       });
     });
   });

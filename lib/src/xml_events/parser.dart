@@ -48,7 +48,7 @@ class XmlEventParser {
         [
           XmlToken.closeElement.toParser(),
           XmlToken.closeEndElement.toParser(),
-        ].toChoiceParser(),
+        ].toChoiceParser(failureJoiner: selectFirst),
       ].toSequenceParser().map((each) => XmlStartElementEvent(
           each[1] as String,
           each[2] as List<XmlEventAttribute>,

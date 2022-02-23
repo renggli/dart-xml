@@ -17,8 +17,7 @@ class XmlTagException extends XmlException with XmlFormatException {
   factory XmlTagException.mismatchClosingTag(
           String expectedName, String actualName,
           {String? buffer, int? position}) =>
-      XmlTagException(
-          'Expected closing tag </$expectedName>, but found </$actualName>',
+      XmlTagException('Expected </$expectedName>, but found </$actualName>',
           expectedName: expectedName,
           actualName: actualName,
           buffer: buffer,
@@ -27,13 +26,13 @@ class XmlTagException extends XmlException with XmlFormatException {
   /// Creates a new XmlTagException for an unexpected closing tag.
   factory XmlTagException.unexpectedClosingTag(String actualName,
           {String? buffer, int? position}) =>
-      XmlTagException('Unexpected closing tag </$actualName>',
+      XmlTagException('Unexpected </$actualName>',
           actualName: actualName, buffer: buffer, position: position);
 
   /// Creates a new XmlTagException for a missing closing tag.
   factory XmlTagException.missingClosingTag(String expectedName,
           {String? buffer, int? position}) =>
-      XmlTagException('Missing closing tag </$expectedName>',
+      XmlTagException('Missing </$expectedName>',
           expectedName: expectedName, buffer: buffer, position: position);
 
   /// Ensure that the [expected] tag matches the [actual] one.
