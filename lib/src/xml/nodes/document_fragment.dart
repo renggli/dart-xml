@@ -16,7 +16,7 @@ class XmlDocumentFragment extends XmlNode with XmlHasChildren<XmlNode> {
       {XmlEntityMapping? entityMapping}) {
     final events =
         parseEvents(input, entityMapping: entityMapping, validateNesting: true);
-    final nodes = XmlNodeDecoder().convert(events.toList());
+    final nodes = XmlNodeDecoder().convertIterable(events);
     return XmlDocumentFragment(nodes);
   }
 

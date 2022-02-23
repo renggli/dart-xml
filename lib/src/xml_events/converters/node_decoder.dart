@@ -1,5 +1,7 @@
 import 'dart:convert' show ChunkedConversionSink;
 
+import 'package:meta/meta.dart';
+
 import '../../xml/exceptions/tag_exception.dart';
 import '../../xml/navigation/parent.dart';
 import '../../xml/nodes/attribute.dart';
@@ -21,6 +23,7 @@ import '../events/end_element.dart';
 import '../events/processing.dart';
 import '../events/start_element.dart';
 import '../events/text.dart';
+import '../utils/conversion_sink.dart';
 import '../utils/event_attribute.dart';
 import '../utils/list_converter.dart';
 import '../visitor.dart';
@@ -39,6 +42,17 @@ class XmlNodeDecoder extends XmlListConverter<XmlEvent, XmlNode> {
   ChunkedConversionSink<List<XmlEvent>> startChunkedConversion(
           Sink<List<XmlNode>> sink) =>
       _XmlNodeDecoderSink(sink);
+
+  // Internal helper to efficiently convert an [Iterable] of [XmlEvent] to a
+  // list of [XmlNodes].
+  @internal
+  List<XmlNode> convertIterable(Iterable<XmlEvent> events) {
+    final result = <XmlNode>[];
+    final sink =
+        _XmlNodeDecoderSink(ConversionSink<List<XmlNode>>(result.addAll));
+    events.forEach(sink.visit);
+    return result;
+  }
 }
 
 class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>

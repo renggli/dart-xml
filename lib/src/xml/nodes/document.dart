@@ -24,7 +24,7 @@ class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
   factory XmlDocument.parse(String input, {XmlEntityMapping? entityMapping}) {
     final events =
         parseEvents(input, entityMapping: entityMapping, validateNesting: true);
-    final nodes = XmlNodeDecoder().convert(events.toList());
+    final nodes = XmlNodeDecoder().convertIterable(events);
     return XmlDocument(nodes);
   }
 
