@@ -38,7 +38,7 @@ dart example/xml_grep.dart -t title example/books.xml
 
 ### xml_pos
 
-This example contains a command-line application that uses a custom XML parser that collects the tokens of each XML node while parsing. This allows printing line and column information in the original document.
+This example contains a command-line application that uses XML events that collects the positions of each XML node while parsing. This allows printing line and column information in the original document.
 
 ```bash
 dart example/xml_pos.dart example/books.xml

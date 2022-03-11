@@ -17,7 +17,10 @@
   * `parse(String input)`: use `XmlDocument.parse(String input)` or `XmlDocumentFragment.parse(String input)` instead.
   * `XmlBuilder.build()`: use `XmlBuilder.buildDocument()` or `XmlBuilder.buildFragment()` instead.
   * `XmlNormalizer.defaultInstance`: use `const XmlNormalizer()` instead.
-  
+* Use the pull-based parser for all parsing operations:
+  * Operations like `XmlDocument.parse(String input)` are up to 30% faster!
+  * Reduce size of library by removing duplicated parsing and validation functionality.
+  * Deprecate `XmlProductionDefinition`, `XmlGrammarDefinition`, and `XmlParserDefinition`. 
 
 ## 5.3.0
 

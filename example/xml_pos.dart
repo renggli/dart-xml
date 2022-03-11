@@ -4,15 +4,15 @@ import 'dart:math';
 
 import 'package:args/args.dart' as args;
 import 'package:petitparser/petitparser.dart';
-import 'package:xml/xml.dart';
+import 'package:xml/xml_events.dart';
 
 final args.ArgParser argumentParser = args.ArgParser()
   ..addOption(
     'position',
     abbr: 'p',
     help: 'Print character index instead of line:column.',
-    allowed: ['start', 'stop', 'startstop', 'line', 'column', 'linecolumn'],
-    defaultsTo: 'linecolumn',
+    allowed: ['start', 'stop', 'start-stop', 'line', 'column', 'line:column'],
+    defaultsTo: 'line:column',
   )
   ..addOption(
     'limit',
@@ -48,80 +48,43 @@ void main(List<String> arguments) {
   }
 
   for (final file in files) {
-    final result = parser.parse(file.readAsStringSync());
-    if (result.isFailure) {
-      stdout.writeln('Parse error in $file: $result.message');
-      exit(3);
+    final events = parseEvents(
+      file.readAsStringSync(),
+      withBuffer: true,
+      withLocation: true,
+    ).where((event) => event is! XmlTextEvent || event.text.trim().isNotEmpty);
+    for (final event in events) {
+      final positionString = outputPosition(position, event).padLeft(10);
+      final tokenString = outputString(limit, event);
+      stdout.writeln('$positionString: $tokenString');
     }
-    final XmlDocument document = result.value;
-    for (final node in document.descendants) {
-      final token = tokens[node];
-      if (token != null) {
-        final positionString = outputPosition(position, token).padLeft(10);
-        final tokenString = outputString(limit, token);
-        stdout.writeln('$positionString: $tokenString');
-      }
-    }
-    tokens.clear();
   }
 }
 
-String outputPosition(String position, Token token) {
+String outputPosition(String position, XmlEvent event) {
   switch (position) {
     case 'start':
-      return '${token.start}';
+      return '${event.start}';
     case 'stop':
-      return '${token.stop}';
-    case 'startstop':
-      return '${token.start}-${token.stop}';
+      return '${event.stop}';
+    case 'start-stop':
+      return '${event.start}-${event.stop}';
+  }
+  final lineAndColumn = Token.lineAndColumnOf(event.buffer!, event.start!);
+  switch (position) {
     case 'line':
-      return '${token.line}';
+      return '${lineAndColumn[0]}';
     case 'column':
-      return '${token.column}';
+      return '${lineAndColumn[1]}';
     default:
-      return '${token.line}:${token.column}';
+      return '${lineAndColumn[0]}:${lineAndColumn[1]}';
   }
 }
 
-String outputString(int limit, Token token) {
-  final input = token.input.trim();
+String outputString(int limit, XmlEvent event) {
+  final input = event.buffer!.substring(event.start!, event.stop!);
   final index = input.indexOf('\n');
   final length = min(limit, index < 0 ? input.length : index);
   final output = input.substring(0, length);
   return output.length < input.length ? '$output...' : output;
-}
-
-// Custom parser that produces a mapping of nodes to tokens as a side-effect.
-
-final Map<XmlNode, Token> tokens = {};
-
-final Parser parser = PositionParserDefinition(defaultEntityMapping).build();
-
-// ignore: deprecated_member_use_from_same_package
-class PositionParserDefinition extends XmlParserDefinition {
-  PositionParserDefinition(XmlEntityMapping entityMapping)
-      : super(entityMapping);
-
-  @override
-  Parser comment() => collectPosition(super.comment());
-
-  @override
-  Parser cdata() => collectPosition(super.cdata());
-
-  @override
-  Parser doctype() => collectPosition(super.doctype());
-
-  @override
-  Parser document() => collectPosition(super.document());
-
-  @override
-  Parser element() => collectPosition(super.element());
-
-  @override
-  Parser processing() => collectPosition(super.processing());
-
-  Parser<XmlNode> collectPosition(Parser parser) => parser.token().map((token) {
-        tokens[token.value] = token;
-        return token.value;
-      });
 }
