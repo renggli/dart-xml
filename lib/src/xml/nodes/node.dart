@@ -1,3 +1,5 @@
+import '../../xml_events/annotations/has_buffer.dart';
+import '../../xml_events/annotations/has_location.dart';
 import '../mixins/has_attributes.dart';
 import '../mixins/has_children.dart';
 import '../mixins/has_parent.dart';
@@ -10,13 +12,15 @@ import '../utils/node_type.dart';
 /// Immutable abstract XML node.
 abstract class XmlNode extends Object
     with
-        XmlParentBase,
         XmlAttributesBase,
         XmlChildrenBase,
+        XmlHasBuffer,
+        XmlHasLocation,
         XmlHasText,
         XmlHasVisitor,
         XmlHasWriter,
-        XmlHasXml {
+        XmlHasXml,
+        XmlParentBase {
   /// Return the node type of this node.
   XmlNodeType get nodeType;
 

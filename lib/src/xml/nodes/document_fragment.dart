@@ -12,12 +12,24 @@ class XmlDocumentFragment extends XmlNode with XmlHasChildren<XmlNode> {
   ///
   /// Note: It is the responsibility of the caller to provide a standard Dart
   /// [String] using the default UTF-16 encoding.
-  factory XmlDocumentFragment.parse(String input,
-      {XmlEntityMapping? entityMapping}) {
-    final events =
-        parseEvents(input, entityMapping: entityMapping, validateNesting: true);
+  factory XmlDocumentFragment.parse(
+    String input, {
+    XmlEntityMapping? entityMapping,
+    bool withBuffer = false,
+    bool withLocation = false,
+  }) {
+    final events = parseEvents(
+      input,
+      entityMapping: entityMapping,
+      validateNesting: true,
+      withBuffer: withBuffer,
+      withLocation: withLocation,
+    );
     final nodes = XmlNodeDecoder().convertIterable(events);
-    return XmlDocumentFragment(nodes);
+    final result = XmlDocumentFragment(nodes);
+    if (withBuffer) result.attachBuffer(input);
+    if (withLocation) result.attachLocation(0, input.length);
+    return result;
   }
 
   /// Create a document fragment node with `children`.

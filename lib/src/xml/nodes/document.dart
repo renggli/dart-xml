@@ -21,11 +21,24 @@ class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
   ///
   /// Note: It is the responsibility of the caller to provide a standard Dart
   /// [String] using the default UTF-16 encoding.
-  factory XmlDocument.parse(String input, {XmlEntityMapping? entityMapping}) {
-    final events =
-        parseEvents(input, entityMapping: entityMapping, validateNesting: true);
+  factory XmlDocument.parse(
+    String input, {
+    XmlEntityMapping? entityMapping,
+    bool withBuffer = false,
+    bool withLocation = false,
+  }) {
+    final events = parseEvents(
+      input,
+      entityMapping: entityMapping,
+      validateNesting: true,
+      withBuffer: withBuffer,
+      withLocation: withLocation,
+    );
     final nodes = XmlNodeDecoder().convertIterable(events);
-    return XmlDocument(nodes);
+    final result = XmlDocument(nodes);
+    if (withBuffer) result.attachBuffer(input);
+    if (withLocation) result.attachLocation(0, input.length);
+    return result;
   }
 
   /// Create a document node with `children`.

@@ -127,6 +127,10 @@ class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
   }
 
   void commit(XmlNode node, XmlEvent? event) {
+    if (event != null) {
+      node.attachBuffer(event.buffer);
+      node.attachLocation(event.start, event.stop);
+    }
     if (parent == null) {
       // If we have information about a parent event, create hidden
       // [XmlElement] nodes to make sure namespace resolution works

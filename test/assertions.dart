@@ -61,14 +61,17 @@ Matcher isXmlTagException({
         .having((value) => value.toString(), 'toString', isNotEmpty);
 
 void assertDocumentParseInvariants(String input) {
-  final document = XmlDocument.parse(input);
+  final document =
+      XmlDocument.parse(input, withBuffer: true, withLocation: true);
   expect(document, isA<XmlDocument>());
   assertDocumentTreeInvariants(document);
+  assertAttachmentInvariants(document, buffer: input, hasLocation: true);
   assertIteratorEventInvariants(input, document);
   assertStreamEventInvariants(input, document);
   assertStreamNodeInvariants(input, document);
   final copy = XmlDocument.parse(document.toXmlString());
   expect(document.toXmlString(), copy.toXmlString());
+  assertAttachmentInvariants(copy);
 }
 
 void assertDocumentTreeInvariants(XmlNode xml) {
@@ -88,14 +91,17 @@ void assertDocumentTreeInvariants(XmlNode xml) {
 }
 
 void assertFragmentParseInvariants(String input) {
-  final fragment = XmlDocumentFragment.parse(input);
+  final fragment =
+      XmlDocumentFragment.parse(input, withBuffer: true, withLocation: true);
   expect(fragment, isA<XmlDocumentFragment>());
   assertFragmentTreeInvariants(fragment);
+  assertAttachmentInvariants(fragment, buffer: input, hasLocation: true);
   assertIteratorEventInvariants(input, fragment);
   assertStreamEventInvariants(input, fragment);
   assertStreamNodeInvariants(input, fragment);
   final copy = XmlDocumentFragment.parse(fragment.toXmlString());
   expect(fragment.toXmlString(), copy.toXmlString());
+  assertAttachmentInvariants(copy);
 }
 
 void assertFragmentTreeInvariants(XmlNode xml) {
@@ -410,6 +416,20 @@ void compareAttribute(XmlAttribute first, XmlAttribute second) {
 
 void assertPrintingInvariants(XmlNode xml) {
   compareNode(xml, XmlDocument.parse(xml.toXmlString(pretty: true)));
+}
+
+void assertAttachmentInvariants(XmlNode node,
+    {String? buffer, bool hasLocation = false}) {
+  // for (var node in [node, ...node.descendants]) {
+  //   expect(node.buffer, buffer ?? isNull);
+  //   expect(node.start, hasLocation ? greaterThanOrEqualTo(0) : isNull);
+  //   expect(node.stop, hasLocation ? greaterThanOrEqualTo(node.start!) : isNull);
+  //   if (buffer != null && hasLocation) {
+  //     final source = node.buffer!.substring(node.start!, node.stop!);
+  //     final parsed = XmlDocumentFragment.parse(source);
+  //     assertCompareInvariants(node, parsed);
+  //   }
+  // }
 }
 
 void assertIteratorEventInvariants(String input, XmlNode node) {
