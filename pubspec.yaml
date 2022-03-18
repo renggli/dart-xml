@@ -8,11 +8,10 @@ publish_to: none
 environment:
   sdk: '>=2.16.0 <3.0.0'
 dependencies:
-  collection: ^1.15.0
+  collection: ^1.16.0
   meta: ^1.7.0
-  petitparser:
-    git: https://github.com/petitparser/dart-petitparser.git
+  petitparser: ^5.0.0
 dev_dependencies:
   args: ^2.3.0
   lints: ^1.0.0
-  test: ^1.19.0
+  test: ^1.20.0
