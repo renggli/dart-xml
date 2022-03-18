@@ -2,11 +2,6 @@
 
 ## 6.0.0 (unpublished)
 
-* Dart 2.16 requirement.
-* Escape control characters (thanks to https://github.com/rspilker).
-* Add a predicate to pretty printer to insert a space character before self-closing elements (thanks to https://github.com/rspilker).
-* Add predicates to normalizer to trim leading and trailing whitespaces, as well as collapse consecutive whitespaces.
-* Expose `qualifiedName`, `localName`, `namespacePrefix` and `namespaceUri` for convenience on the named nodes.
 * Significantly improved error handling to include more information, such as tag names and location in the underlying source buffer.
 * Improved the event iterator to optionally validate the nesting as well as annotate the events with buffer, location and parent metadata.
 * Cleanup dynamic calls and type declarations:
@@ -21,6 +16,15 @@
   * Operations like `XmlDocument.parse(String input)` are up to 30% faster!
   * Reduce size of library by removing duplicated parsing and validation functionality.
   * Deprecate `XmlProductionDefinition`, `XmlGrammarDefinition`, and `XmlParserDefinition`. 
+
+## 5.4.0
+
+* Dart 2.16 requirement.
+* Update to PetitParser 5.0.
+* Escape control characters (thanks to https://github.com/rspilker).
+* Add a predicate to pretty printer to insert a space character before self-closing elements (thanks to https://github.com/rspilker).
+* Add predicates to normalizer to trim leading and trailing whitespaces, as well as collapse consecutive whitespaces.
+* Expose `qualifiedName`, `localName`, `namespacePrefix` and `namespaceUri` for convenience on the named nodes.
 
 ## 5.3.0
 
