@@ -1,6 +1,6 @@
 # Changelog
 
-## 5.4.0 (unpublished)
+## 5.4.0
 
 * Dart 2.16 requirement.
 * Escape control characters (thanks to https://github.com/rspilker).

@@ -184,12 +184,12 @@ void main() {
     });
     group('parse errors', () {
       test('nesting', () {
-        assertFragmentParseError('<foo>', '</ expected', 5);
+        assertFragmentParseError('<foo>', '"</" expected', 5);
         assertFragmentParseError(
             '<foo></bar>', 'Expected </foo>, but found </bar>', 5);
         assertFragmentParseError(
             '<foo><bar></foo>', 'Expected </bar>, but found </foo>', 10);
-        assertFragmentParseError('<foo/><bar>', '</ expected', 11);
+        assertFragmentParseError('<foo/><bar>', '"</" expected', 11);
       });
       test('closing', () {
         assertFragmentParseError('<data key="ab', '">" expected', 6);
