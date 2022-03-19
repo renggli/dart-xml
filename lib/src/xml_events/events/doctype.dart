@@ -15,7 +15,7 @@ class XmlDoctypeEvent extends XmlEvent {
   void accept(XmlEventVisitor visitor) => visitor.visitDoctypeEvent(this);
 
   @override
-  int get hashCode => nodeType.hashCode ^ text.hashCode;
+  int get hashCode => Object.hash(nodeType, text);
 
   @override
   bool operator ==(Object other) =>

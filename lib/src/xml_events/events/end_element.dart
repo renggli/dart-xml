@@ -17,7 +17,7 @@ class XmlEndElementEvent extends XmlEvent with XmlNamed {
   void accept(XmlEventVisitor visitor) => visitor.visitEndElementEvent(this);
 
   @override
-  int get hashCode => nodeType.hashCode ^ name.hashCode;
+  int get hashCode => Object.hash(nodeType, name);
 
   @override
   bool operator ==(Object other) =>

@@ -14,7 +14,7 @@ class XmlEventAttribute with XmlNamed, XmlHasParent {
   final XmlAttributeType attributeType;
 
   @override
-  int get hashCode => name.hashCode ^ value.hashCode;
+  int get hashCode => Object.hash(name, value, attributeType);
 
   @override
   bool operator ==(Object other) =>

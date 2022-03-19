@@ -15,7 +15,7 @@ class XmlCDATAEvent extends XmlEvent {
   void accept(XmlEventVisitor visitor) => visitor.visitCDATAEvent(this);
 
   @override
-  int get hashCode => nodeType.hashCode ^ text.hashCode;
+  int get hashCode => Object.hash(nodeType, text);
 
   @override
   bool operator ==(Object other) =>
