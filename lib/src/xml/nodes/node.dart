@@ -1,5 +1,3 @@
-import '../../xml_events/annotations/has_buffer.dart';
-import '../../xml_events/annotations/has_location.dart';
 import '../mixins/has_attributes.dart';
 import '../mixins/has_children.dart';
 import '../mixins/has_parent.dart';
@@ -14,8 +12,6 @@ abstract class XmlNode extends Object
     with
         XmlAttributesBase,
         XmlChildrenBase,
-        XmlHasBuffer,
-        XmlHasLocation,
         XmlHasText,
         XmlHasVisitor,
         XmlHasWriter,

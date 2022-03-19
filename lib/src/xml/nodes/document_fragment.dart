@@ -15,21 +15,13 @@ class XmlDocumentFragment extends XmlNode with XmlHasChildren<XmlNode> {
   factory XmlDocumentFragment.parse(
     String input, {
     XmlEntityMapping? entityMapping,
-    bool withBuffer = false,
-    bool withLocation = false,
   }) {
     final events = parseEvents(
       input,
       entityMapping: entityMapping,
       validateNesting: true,
-      withBuffer: withBuffer,
-      withLocation: withLocation,
     );
-    final nodes = XmlNodeDecoder().convertIterable(events);
-    final result = XmlDocumentFragment(nodes);
-    if (withBuffer) result.attachBuffer(input);
-    if (withLocation) result.attachLocation(0, input.length);
-    return result;
+    return XmlDocumentFragment(XmlNodeDecoder().convertIterable(events));
   }
 
   /// Create a document fragment node with `children`.
