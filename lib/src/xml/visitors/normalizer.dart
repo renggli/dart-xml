@@ -54,7 +54,7 @@ class XmlNormalizer with XmlVisitor {
 
   void _normalize(List<XmlNode> children) {
     _mergeAdjacent(children);
-    visitAll(children);
+    children.forEach(visit);
     _removeEmpty(children);
   }
 

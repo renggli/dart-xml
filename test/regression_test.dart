@@ -3,12 +3,12 @@ import 'package:xml/xml.dart';
 
 import 'utils/assertions.dart';
 
-class TrimText with XmlVisitor {
+class TrimTextVisitor with XmlVisitor {
   @override
-  void visitDocument(XmlDocument node) => visitAll(node.children);
+  void visitDocument(XmlDocument node) => node.children.forEach(visit);
 
   @override
-  void visitElement(XmlElement node) => visitAll(node.children);
+  void visitElement(XmlElement node) => node.children.forEach(visit);
 
   @override
   void visitText(XmlText node) => node.text = node.text.trim();
@@ -53,7 +53,7 @@ void main() {
         </root>''';
     test('transformation class', () {
       final document = XmlDocument.parse(input);
-      TrimText().visit(document);
+      TrimTextVisitor().visit(document);
       expect(document.rootElement.children[1].text, 'left');
       expect(document.rootElement.children[3].text, 'both');
       expect(document.rootElement.children[5].text, 'right');

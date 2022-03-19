@@ -46,7 +46,7 @@ class _XmlNodeEncoderSink extends ChunkedConversionSink<List<XmlNode>>
   final Sink<List<XmlEvent>> sink;
 
   @override
-  void add(List<XmlNode> chunk) => visitAll(chunk);
+  void add(List<XmlNode> chunk) => chunk.forEach(visit);
 
   @override
   void close() => sink.close();
