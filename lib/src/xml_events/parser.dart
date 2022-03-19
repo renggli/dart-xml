@@ -15,6 +15,7 @@ import 'events/start_element.dart';
 import 'events/text.dart';
 import 'utils/event_attribute.dart';
 
+// ignore: deprecated_member_use_from_same_package
 class XmlEventDefinition extends XmlProductionDefinition {
   XmlEventDefinition(XmlEntityMapping entityMapping) : super(entityMapping);
 

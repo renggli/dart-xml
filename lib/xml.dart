@@ -9,6 +9,7 @@ export 'src/xml/entities/default_mapping.dart'
     show defaultEntityMapping, XmlDefaultEntityMapping;
 export 'src/xml/entities/entity_mapping.dart' show XmlEntityMapping;
 export 'src/xml/entities/null_mapping.dart' show XmlNullEntityMapping;
+// ignore: deprecated_member_use_from_same_package
 export 'src/xml/grammar.dart' show XmlGrammarDefinition;
 export 'src/xml/mixins/has_attributes.dart' show XmlHasAttributes;
 export 'src/xml/mixins/has_children.dart' show XmlHasChildren;
@@ -37,7 +38,9 @@ export 'src/xml/nodes/element.dart' show XmlElement;
 export 'src/xml/nodes/node.dart' show XmlNode;
 export 'src/xml/nodes/processing.dart' show XmlProcessing;
 export 'src/xml/nodes/text.dart' show XmlText;
+// ignore: deprecated_member_use_from_same_package
 export 'src/xml/parser.dart' show XmlParserDefinition;
+// ignore: deprecated_member_use_from_same_package
 export 'src/xml/production.dart' show XmlProductionDefinition;
 export 'src/xml/utils/attribute_type.dart' show XmlAttributeType;
 export 'src/xml/utils/exceptions.dart'
@@ -53,6 +56,7 @@ export 'src/xml/utils/node_type.dart' show XmlNodeType;
 export 'src/xml/utils/token.dart' show XmlToken;
 export 'src/xml/visitors/normalizer.dart' show XmlNormalizerExtension;
 export 'src/xml/visitors/pretty_writer.dart' show XmlPrettyWriter;
+// ignore: deprecated_member_use_from_same_package
 export 'src/xml/visitors/transformer.dart' show XmlTransformer;
 export 'src/xml/visitors/visitor.dart' show XmlVisitor;
 export 'src/xml/visitors/writer.dart' show XmlWriter;

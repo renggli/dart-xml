@@ -122,4 +122,8 @@ const Set<XmlNodeType> childrenNodeTypes = {
 
 /// Internal cache of parsers for a specific entity mapping.
 final XmlCache<XmlEntityMapping, Parser> documentParserCache =
-    XmlCache((entityMapping) => XmlParserDefinition(entityMapping).build(), 5);
+    XmlCache((entityMapping) {
+  // ignore: deprecated_member_use_from_same_package
+  final definition = XmlParserDefinition(entityMapping);
+  return definition.build();
+}, 5);

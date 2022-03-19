@@ -3,6 +3,7 @@ import 'package:xml/xml.dart';
 
 import 'assertions.dart';
 
+// ignore: deprecated_member_use_from_same_package
 class TrimText extends XmlTransformer {
   @override
   XmlText visitText(XmlText node) => XmlText(node.text.trim());

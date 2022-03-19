@@ -296,6 +296,7 @@ void assertCopyInvariants(XmlNode xml) {
 }
 
 void assertTransformerInvariants(XmlNode xml) {
+  // ignore: deprecated_member_use_from_same_package
   final copy = const XmlTransformer().visit(xml);
   assertParentInvariants(copy);
   assertNameInvariants(copy);

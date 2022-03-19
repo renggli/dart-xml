@@ -5,6 +5,7 @@ import 'utils/character_data_parser.dart';
 import 'utils/token.dart';
 
 /// XML parser that defines standard actions to the the XML tree.
+@Deprecated('Avoid directly depending on the XML grammar')
 class XmlProductionDefinition extends GrammarDefinition {
   XmlProductionDefinition(this.entityMapping);
 

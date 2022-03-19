@@ -15,6 +15,7 @@ import 'utils/attribute_type.dart';
 import 'utils/name.dart';
 
 /// XML parser that defines standard actions to the the XML tree.
+@Deprecated('Avoid directly depending on the XML grammar')
 class XmlParserDefinition extends XmlGrammarDefinition<XmlNode, XmlName> {
   XmlParserDefinition(XmlEntityMapping entityMapping) : super(entityMapping);
 
