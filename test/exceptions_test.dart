@@ -1,7 +1,7 @@
 import 'package:test/test.dart';
 import 'package:xml/xml.dart';
 
-import 'assertions.dart';
+import 'utils/matchers.dart';
 
 void main() {
   group('XmlParentException', () {

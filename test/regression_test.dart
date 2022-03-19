@@ -1,7 +1,7 @@
 import 'package:test/test.dart';
 import 'package:xml/xml.dart';
 
-import 'assertions.dart';
+import 'utils/assertions.dart';
 
 // ignore: deprecated_member_use_from_same_package
 class TrimText extends XmlTransformer {

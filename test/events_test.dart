@@ -5,8 +5,9 @@ import 'package:test/test.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xml_events.dart';
 
-import 'assertions.dart';
-import 'examples.dart';
+import 'utils/assertions.dart';
+import 'utils/examples.dart';
+import 'utils/matchers.dart';
 
 void assertComplete(Iterator<XmlEvent> iterator) {
   for (var i = 0; i < 2; i++) {

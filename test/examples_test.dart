@@ -1,7 +1,7 @@
 import 'package:test/test.dart';
 
-import 'assertions.dart';
-import 'examples.dart';
+import 'utils/assertions.dart';
+import 'utils/examples.dart';
 
 void main() {
   test('books', () => assertDocumentParseInvariants(booksXml));

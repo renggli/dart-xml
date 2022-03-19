@@ -2,7 +2,8 @@ import 'package:meta/meta.dart';
 import 'package:test/test.dart';
 import 'package:xml/xml.dart';
 
-import 'assertions.dart';
+import 'utils/assertions.dart';
+import 'utils/matchers.dart';
 
 @isTest
 void mutatingTest(String description, String before,

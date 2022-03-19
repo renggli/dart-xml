@@ -1,7 +1,7 @@
 import 'package:test/test.dart';
 import 'package:xml/xml.dart';
 
-import 'examples.dart';
+import 'utils/examples.dart';
 
 void main() {
   group('elements', () {

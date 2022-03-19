@@ -2,7 +2,7 @@ import 'package:test/test.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xml_events.dart';
 
-import 'assertions.dart';
+import 'utils/assertions.dart';
 
 void main() {
   final bookshelfXml = '''<?xml version="1.0"?>
