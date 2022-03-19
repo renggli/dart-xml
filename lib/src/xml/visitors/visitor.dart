@@ -16,6 +16,9 @@ mixin XmlVisitor {
   /// Helper to dispatch the provided [node] onto this visitor.
   void visit(XmlHasVisitor node) => node.accept(this);
 
+  /// Helper to dispatch the provided [nodes] onto this visitor.
+  void visitAll(Iterable<XmlHasVisitor> nodes) => nodes.forEach(visit);
+
   /// Visit an [XmlName].
   void visitName(XmlName name) {}
 

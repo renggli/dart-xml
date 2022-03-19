@@ -25,7 +25,6 @@ void assertDocumentTreeInvariants(XmlNode xml) {
   assertTextInvariants(xml);
   assertIteratorInvariants(xml);
   assertCopyInvariants(xml);
-  assertTransformerInvariants(xml);
   assertPrintingInvariants(xml);
 }
 
@@ -52,7 +51,6 @@ void assertFragmentTreeInvariants(XmlNode xml) {
   assertTextInvariants(xml);
   assertIteratorInvariants(xml);
   assertCopyInvariants(xml);
-  assertTransformerInvariants(xml);
 }
 
 void assertDocumentInvariants(XmlNode xml) {
@@ -265,14 +263,6 @@ void assertIteratorInvariants(XmlNode xml) {
 
 void assertCopyInvariants(XmlNode xml) {
   final copy = xml.copy();
-  assertParentInvariants(copy);
-  assertNameInvariants(copy);
-  assertCompareInvariants(xml, copy);
-}
-
-void assertTransformerInvariants(XmlNode xml) {
-  // ignore: deprecated_member_use_from_same_package
-  final copy = const XmlTransformer().visit(xml);
   assertParentInvariants(copy);
   assertNameInvariants(copy);
   assertCompareInvariants(xml, copy);

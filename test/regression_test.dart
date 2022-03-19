@@ -3,10 +3,15 @@ import 'package:xml/xml.dart';
 
 import 'utils/assertions.dart';
 
-// ignore: deprecated_member_use_from_same_package
-class TrimText extends XmlTransformer {
+class TrimText with XmlVisitor {
   @override
-  XmlText visitText(XmlText node) => XmlText(node.text.trim());
+  void visitDocument(XmlDocument node) => visitAll(node.children);
+
+  @override
+  void visitElement(XmlElement node) => visitAll(node.children);
+
+  @override
+  void visitText(XmlText node) => node.text = node.text.trim();
 }
 
 void main() {
@@ -47,7 +52,8 @@ void main() {
           <right>right </right>
         </root>''';
     test('transformation class', () {
-      final document = TrimText().visit(XmlDocument.parse(input));
+      final document = XmlDocument.parse(input);
+      TrimText().visit(document);
       expect(document.rootElement.children[1].text, 'left');
       expect(document.rootElement.children[3].text, 'both');
       expect(document.rootElement.children[5].text, 'right');
