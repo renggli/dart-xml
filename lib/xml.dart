@@ -10,9 +10,6 @@ export 'src/xml/exceptions/parent_exception.dart' show XmlParentException;
 export 'src/xml/exceptions/parser_exception.dart' show XmlParserException;
 export 'src/xml/exceptions/tag_exception.dart' show XmlTagException;
 export 'src/xml/exceptions/type_exception.dart' show XmlNodeTypeException;
-export 'src/xml/grammar.dart'
-    show
-        XmlGrammarDefinition; // ignore: deprecated_member_use_from_same_package
 export 'src/xml/mixins/has_attributes.dart' show XmlHasAttributes;
 export 'src/xml/mixins/has_children.dart' show XmlHasChildren;
 export 'src/xml/mixins/has_name.dart' show XmlHasName;
@@ -40,11 +37,6 @@ export 'src/xml/nodes/element.dart' show XmlElement;
 export 'src/xml/nodes/node.dart' show XmlNode;
 export 'src/xml/nodes/processing.dart' show XmlProcessing;
 export 'src/xml/nodes/text.dart' show XmlText;
-export 'src/xml/parser.dart'
-    show XmlParserDefinition; // ignore: deprecated_member_use_from_same_package
-export 'src/xml/production.dart'
-    show
-        XmlProductionDefinition; // ignore: deprecated_member_use_from_same_package
 export 'src/xml/utils/attribute_type.dart' show XmlAttributeType;
 export 'src/xml/utils/flatten.dart' show XmlFlattenIterableExtension;
 export 'src/xml/utils/name.dart' show XmlName;
@@ -52,7 +44,5 @@ export 'src/xml/utils/node_type.dart' show XmlNodeType;
 export 'src/xml/utils/token.dart' show XmlToken;
 export 'src/xml/visitors/normalizer.dart' show XmlNormalizerExtension;
 export 'src/xml/visitors/pretty_writer.dart' show XmlPrettyWriter;
-export 'src/xml/visitors/transformer.dart'
-    show XmlTransformer; // ignore: deprecated_member_use_from_same_package
 export 'src/xml/visitors/visitor.dart' show XmlVisitor;
 export 'src/xml/visitors/writer.dart' show XmlWriter;
