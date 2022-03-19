@@ -270,7 +270,7 @@ void assertCopyInvariants(XmlNode xml) {
   assertCompareInvariants(xml, copy);
 }
 
-class EmptyVisitor with XmlVisitor { }
+class EmptyVisitor with XmlVisitor {}
 
 void assertVisitorInvariants(XmlNode xml) {
   for (final node in [xml, ...xml.descendants]) {

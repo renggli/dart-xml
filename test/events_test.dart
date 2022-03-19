@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use_from_same_package
+
 import 'dart:math' show min, Random;
 
 import 'package:meta/meta.dart';
@@ -281,6 +283,7 @@ void main() {
           expect(event.start, isNull);
           expect(event.stop, isNull);
           expect(event.parent, isNull);
+          expect(event.parentEvent, isNull);
         }
       });
       test('buffer', () {
@@ -301,6 +304,7 @@ void main() {
         final stack = <XmlStartElementEvent>[];
         for (var event in parseEvents(shiporderXsd, withParent: true)) {
           expect(event.parent, stack.isNotEmpty ? stack.last : isNull);
+          expect(event.parentEvent, stack.isNotEmpty ? stack.last : isNull);
           if (event is XmlStartElementEvent && !event.isSelfClosing) {
             stack.add(event);
           } else if (event is XmlEndElementEvent) {
