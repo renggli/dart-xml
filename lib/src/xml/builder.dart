@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'entities/entity_mapping.dart';
 import 'nodes/attribute.dart';
 import 'nodes/cdata.dart';
@@ -38,7 +36,7 @@ class XmlBuilder {
   final bool optimizeNamespaces;
 
   /// The current node stack of this builder.
-  final Queue<NodeBuilder> _stack = ListQueue();
+  final List<NodeBuilder> _stack = [];
 
   /// Adds a [XmlText] node with the provided [text].
   ///
@@ -157,7 +155,7 @@ class XmlBuilder {
       bool isSelfClosing = true,
       Object? nest}) {
     final element = NodeBuilder();
-    _stack.addLast(element);
+    _stack.add(element);
     namespaces.forEach(this.namespace);
     attributes.forEach(attribute);
     if (nest != null) {
@@ -267,7 +265,7 @@ class XmlBuilder {
     _stack.clear();
     final node = NodeBuilder();
     node.namespaces[ns.xmlUri] = NamespaceData.xmlData;
-    _stack.addLast(node);
+    _stack.add(node);
   }
 
   // Internal method to build a name.
