@@ -248,7 +248,7 @@ void main() {
           final iterator =
               parseEvents('</foo>', validateNesting: true).iterator;
           expect(() => iterator.moveNext(),
-              throwsA(isXmlTagException(actualName: 'foo')));
+              throwsA(isXmlTagException(actualName: 'foo', position: 0)));
           expect(iterator.current, XmlEndElementEvent('foo'));
           assertComplete(iterator);
         });
@@ -257,7 +257,7 @@ void main() {
           expect(iterator.moveNext(), isTrue);
           expect(iterator.current, XmlStartElementEvent('foo', [], false));
           expect(() => iterator.moveNext(),
-              throwsA(isXmlTagException(expectedName: 'foo')));
+              throwsA(isXmlTagException(expectedName: 'foo', position: 5)));
           assertComplete(iterator);
         });
         test('not matching end tag', () {
@@ -267,8 +267,8 @@ void main() {
           expect(iterator.current, XmlStartElementEvent('foo', [], false));
           expect(
               () => iterator.moveNext(),
-              throwsA(
-                  isXmlTagException(expectedName: 'foo', actualName: 'bar')));
+              throwsA(isXmlTagException(
+                  expectedName: 'foo', actualName: 'bar', position: 5)));
           expect(iterator.current, XmlEndElementEvent('bar'));
           expect(iterator.moveNext(), isTrue);
           expect(iterator.current, XmlEndElementEvent('foo'));
@@ -316,223 +316,354 @@ void main() {
     });
   });
   group('stream', () {
-    @isTestGroup
-    void chunkedTest(
-        String title,
-        String input,
-        void Function(String string, List<XmlEvent> events,
-                XmlDocument document, int Function() splitter)
-            callback) {
-      group(title, () {
-        test('empty', () {
-          callback('', <XmlEvent>[], XmlDocument([]), () => 0);
+    group('events', () {
+      @isTestGroup
+      void chunkedTest(
+          String title,
+          String input,
+          void Function(String string, List<XmlEvent> events,
+                  XmlDocument document, int Function() splitter)
+              callback) {
+        group(title, () {
+          test('empty', () {
+            callback('', <XmlEvent>[], XmlDocument([]), () => 0);
+          });
+          final string = XmlDocument.parse(input).toXmlString();
+          for (var i = string.length; i > 0; i ~/= 2) {
+            test('chunks sized $i', () {
+              final events = parseEvents(string).toList(growable: false);
+              final document = XmlDocument.parse(string);
+              callback(string, events, document, () => i);
+            });
+          }
+          final random = Random(title.hashCode);
+          for (var i = 1; i <= 64; i *= 2) {
+            test('chunks randomly sized up to $i', () {
+              final events = parseEvents(string).toList(growable: false);
+              final document = XmlDocument.parse(string);
+              callback(string, events, document, () => random.nextInt(i + 1));
+            });
+          }
         });
-        final string = XmlDocument.parse(input).toXmlString();
-        for (var i = string.length; i > 0; i ~/= 2) {
-          test('chunks sized $i', () {
-            final events = parseEvents(string).toList(growable: false);
-            final document = XmlDocument.parse(string);
-            callback(string, events, document, () => i);
-          });
-        }
-        final random = Random(title.hashCode);
-        for (var i = 1; i <= 64; i *= 2) {
-          test('chunks randomly sized up to $i', () {
-            final events = parseEvents(string).toList(growable: false);
-            final document = XmlDocument.parse(string);
-            callback(string, events, document, () => random.nextInt(i + 1));
-          });
+      }
+
+      chunkedTest('string -> events', complicatedXml,
+          (string, events, document, splitter) async {
+        final actual = await splitString(string, splitter)
+            .toXmlEvents()
+            .normalizeEvents()
+            .flatten()
+            .toList();
+        expect(actual, events);
+      });
+      chunkedTest('events -> nodes', complicatedXml,
+          (string, events, document, splitter) async {
+        final actual =
+            await splitList(events, splitter).toXmlNodes().flatten().toList();
+        expect(
+            actual,
+            pairwiseCompare<XmlNode, XmlNode>(document.children,
+                (actual, expected) {
+              compareNode(actual, expected);
+              return true;
+            }, 'not matching'));
+      });
+      chunkedTest('nodes -> events', complicatedXml,
+          (string, events, document, splitter) async {
+        final actual = await splitList(document.children, splitter)
+            .toXmlEvents()
+            .flatten()
+            .toList();
+        expect(actual, events);
+      });
+      chunkedTest('events -> string', complicatedXml,
+          (string, events, document, splitter) async {
+        final actual = await splitList(events, splitter).toXmlString().join();
+        expect(actual, string);
+      });
+      chunkedTest('string -> events -> string', complicatedXml,
+          (string, events, document, splitter) async {
+        final actual = await splitString(string, splitter)
+            .toXmlEvents()
+            .toXmlString()
+            .join();
+        expect(actual, string);
+      });
+      chunkedTest('events -> string -> events', complicatedXml,
+          (string, events, document, splitter) async {
+        final actual = await splitList(events, splitter)
+            .toXmlString()
+            .toXmlEvents()
+            .normalizeEvents()
+            .flatten()
+            .toList();
+        expect(actual, events);
+      });
+      chunkedTest('events -> nodes -> events', complicatedXml,
+          (string, events, document, splitter) async {
+        final actual = await splitList(events, splitter)
+            .toXmlNodes()
+            .toXmlEvents()
+            .flatten()
+            .toList();
+        expect(actual, events);
+      });
+      chunkedTest('nodes -> events -> nodes', complicatedXml,
+          (string, events, document, splitter) async {
+        final actual = await splitList(document.children, splitter)
+            .toXmlEvents()
+            .toXmlNodes()
+            .flatten()
+            .toList();
+        expect(
+            actual,
+            pairwiseCompare<XmlNode, XmlNode>(document.children,
+                (actual, expected) {
+              compareNode(actual, expected);
+              return true;
+            }, 'not matching'));
+      });
+      chunkedTest('events -> subtree -> nodes', shiporderXsd,
+          (string, events, document, splitter) async {
+        final actual = await splitList(events, splitter)
+            .selectSubtreeEvents((event) => event.name == 'xsd:element')
+            .toXmlNodes()
+            .flatten()
+            .toList();
+        final expected = document
+            .findAllElements('element', namespace: '*')
+            .where((element) => !element.ancestors
+                .whereType<XmlElement>()
+                .any((parent) => parent.name.local == 'element'))
+            .toList();
+        expect(
+            actual,
+            pairwiseCompare<XmlNode, XmlNode>(expected, (actual, expected) {
+              compareNode(actual, expected);
+              return true;
+            }, 'not matching'));
+        actual
+            .expand((node) => [node, ...node.descendants])
+            .whereType<XmlHasName>()
+            .forEach((node) => expect(node.name.namespaceUri, isNull));
+      });
+      chunkedTest('events -> parents -> subtree -> nodes', shiporderXsd,
+          (string, events, document, splitter) async {
+        final actual = await splitList(events, splitter)
+            .withParentEvents()
+            .selectSubtreeEvents((event) => event.name == 'xsd:element')
+            .toXmlNodes()
+            .flatten()
+            .toList();
+        final expected = document
+            .findAllElements('element', namespace: '*')
+            .where((element) => !element.ancestors
+                .whereType<XmlElement>()
+                .any((parent) => parent.name.local == 'element'))
+            .toList();
+        expect(
+            actual,
+            pairwiseCompare<XmlNode, XmlNode>(expected, (actual, expected) {
+              compareNode(actual, expected);
+              return true;
+            }, 'not matching'));
+        actual
+            .expand((node) => [node, ...node.descendants])
+            .whereType<XmlHasName>()
+            .where((node) => node.name.prefix == 'xsd')
+            .forEach((node) => expect(
+                node.name.namespaceUri, 'http://www.w3.org/2001/XMLSchema'));
+      });
+      chunkedTest('events -> handler', complicatedXml,
+          (string, events, document, splitter) async {
+        final cdata = <XmlCDATAEvent>[];
+        final comment = <XmlCommentEvent>[];
+        final declaration = <XmlDeclarationEvent>[];
+        final doctype = <XmlDoctypeEvent>[];
+        final endElement = <XmlEndElementEvent>[];
+        final processing = <XmlProcessingEvent>[];
+        final startElement = <XmlStartElementEvent>[];
+        final text = <XmlTextEvent>[];
+        await splitList(events, splitter).forEachEvent(
+          onCDATA: cdata.add,
+          onComment: comment.add,
+          onDeclaration: declaration.add,
+          onDoctype: doctype.add,
+          onEndElement: endElement.add,
+          onProcessing: processing.add,
+          onStartElement: startElement.add,
+          onText: text.add,
+        );
+        expect(cdata, events.whereType<XmlCDATAEvent>());
+        expect(comment, events.whereType<XmlCommentEvent>());
+        expect(declaration, events.whereType<XmlDeclarationEvent>());
+        expect(doctype, events.whereType<XmlDoctypeEvent>());
+        expect(endElement, events.whereType<XmlEndElementEvent>());
+        expect(processing, events.whereType<XmlProcessingEvent>());
+        expect(startElement, events.whereType<XmlStartElementEvent>());
+        expect(text, events.whereType<XmlTextEvent>());
+      });
+      chunkedTest('events -> withParent -> map', complicatedXml,
+          (string, events, document, splitter) async {
+        final stacks = await splitList(events, splitter)
+            .withParentEvents()
+            .flatten()
+            .map((event) {
+          final stack = <XmlEvent>[];
+          for (XmlEvent? current = event;
+              current != null;
+              current = current.parent) {
+            stack.insert(0, current);
+          }
+          return stack;
+        }).toList();
+        expect(stacks.map((events) => events.last), events);
+      });
+      chunkedTest('events -> withParent -> where', complicatedXml,
+          (string, events, document, splitter) async {
+        final actual = await splitList(events, splitter)
+            .withParentEvents()
+            .flatten()
+            .where(
+                (event) => event.parent != null && event is! XmlEndElementEvent)
+            .toList();
+        if (document.children.isEmpty) {
+          expect(actual, []);
+        } else {
+          final expected =
+              const XmlNodeCodec().encode(document.rootElement.children);
+          expect(actual, expected);
         }
       });
-    }
-
-    chunkedTest('string -> events', complicatedXml,
-        (string, events, document, splitter) async {
-      final actual = await splitString(string, splitter)
-          .toXmlEvents()
-          .normalizeEvents()
-          .flatten()
-          .toList();
-      expect(actual, events);
     });
-    chunkedTest('events -> nodes', complicatedXml,
-        (string, events, document, splitter) async {
-      final actual =
-          await splitList(events, splitter).toXmlNodes().flatten().toList();
-      expect(
-          actual,
-          pairwiseCompare<XmlNode, XmlNode>(document.children,
-              (actual, expected) {
-            compareNode(actual, expected);
-            return true;
-          }, 'not matching'));
-    });
-    chunkedTest('nodes -> events', complicatedXml,
-        (string, events, document, splitter) async {
-      final actual = await splitList(document.children, splitter)
-          .toXmlEvents()
-          .flatten()
-          .toList();
-      expect(actual, events);
-    });
-    chunkedTest('events -> string', complicatedXml,
-        (string, events, document, splitter) async {
-      final actual = await splitList(events, splitter).toXmlString().join();
-      expect(actual, string);
-    });
-    chunkedTest('string -> events -> string', complicatedXml,
-        (string, events, document, splitter) async {
-      final actual = await splitString(string, splitter)
-          .toXmlEvents()
-          .toXmlString()
-          .join();
-      expect(actual, string);
-    });
-    chunkedTest('events -> string -> events', complicatedXml,
-        (string, events, document, splitter) async {
-      final actual = await splitList(events, splitter)
-          .toXmlString()
-          .toXmlEvents()
-          .normalizeEvents()
-          .flatten()
-          .toList();
-      expect(actual, events);
-    });
-    chunkedTest('events -> nodes -> events', complicatedXml,
-        (string, events, document, splitter) async {
-      final actual = await splitList(events, splitter)
-          .toXmlNodes()
-          .toXmlEvents()
-          .flatten()
-          .toList();
-      expect(actual, events);
-    });
-    chunkedTest('nodes -> events -> nodes', complicatedXml,
-        (string, events, document, splitter) async {
-      final actual = await splitList(document.children, splitter)
-          .toXmlEvents()
-          .toXmlNodes()
-          .flatten()
-          .toList();
-      expect(
-          actual,
-          pairwiseCompare<XmlNode, XmlNode>(document.children,
-              (actual, expected) {
-            compareNode(actual, expected);
-            return true;
-          }, 'not matching'));
-    });
-    chunkedTest('events -> subtree -> nodes', shiporderXsd,
-        (string, events, document, splitter) async {
-      final actual = await splitList(events, splitter)
-          .selectSubtreeEvents((event) => event.name == 'xsd:element')
-          .toXmlNodes()
-          .flatten()
-          .toList();
-      final expected = document
-          .findAllElements('element', namespace: '*')
-          .where((element) => !element.ancestors
-              .whereType<XmlElement>()
-              .any((parent) => parent.name.local == 'element'))
-          .toList();
-      expect(
-          actual,
-          pairwiseCompare<XmlNode, XmlNode>(expected, (actual, expected) {
-            compareNode(actual, expected);
-            return true;
-          }, 'not matching'));
-      actual
-          .expand((node) => [node, ...node.descendants])
-          .whereType<XmlHasName>()
-          .forEach((node) => expect(node.name.namespaceUri, isNull));
-    });
-    chunkedTest('events -> parents -> subtree -> nodes', shiporderXsd,
-        (string, events, document, splitter) async {
-      final actual = await splitList(events, splitter)
-          .withParentEvents()
-          .selectSubtreeEvents((event) => event.name == 'xsd:element')
-          .toXmlNodes()
-          .flatten()
-          .toList();
-      final expected = document
-          .findAllElements('element', namespace: '*')
-          .where((element) => !element.ancestors
-              .whereType<XmlElement>()
-              .any((parent) => parent.name.local == 'element'))
-          .toList();
-      expect(
-          actual,
-          pairwiseCompare<XmlNode, XmlNode>(expected, (actual, expected) {
-            compareNode(actual, expected);
-            return true;
-          }, 'not matching'));
-      actual
-          .expand((node) => [node, ...node.descendants])
-          .whereType<XmlHasName>()
-          .where((node) => node.name.prefix == 'xsd')
-          .forEach((node) => expect(
-              node.name.namespaceUri, 'http://www.w3.org/2001/XMLSchema'));
-    });
-    chunkedTest('events -> handler', complicatedXml,
-        (string, events, document, splitter) async {
-      final cdata = <XmlCDATAEvent>[];
-      final comment = <XmlCommentEvent>[];
-      final declaration = <XmlDeclarationEvent>[];
-      final doctype = <XmlDoctypeEvent>[];
-      final endElement = <XmlEndElementEvent>[];
-      final processing = <XmlProcessingEvent>[];
-      final startElement = <XmlStartElementEvent>[];
-      final text = <XmlTextEvent>[];
-      await splitList(events, splitter).forEachEvent(
-        onCDATA: cdata.add,
-        onComment: comment.add,
-        onDeclaration: declaration.add,
-        onDoctype: doctype.add,
-        onEndElement: endElement.add,
-        onProcessing: processing.add,
-        onStartElement: startElement.add,
-        onText: text.add,
-      );
-      expect(cdata, events.whereType<XmlCDATAEvent>());
-      expect(comment, events.whereType<XmlCommentEvent>());
-      expect(declaration, events.whereType<XmlDeclarationEvent>());
-      expect(doctype, events.whereType<XmlDoctypeEvent>());
-      expect(endElement, events.whereType<XmlEndElementEvent>());
-      expect(processing, events.whereType<XmlProcessingEvent>());
-      expect(startElement, events.whereType<XmlStartElementEvent>());
-      expect(text, events.whereType<XmlTextEvent>());
-    });
-    chunkedTest('events -> withParent -> map', complicatedXml,
-        (string, events, document, splitter) async {
-      final stacks = await splitList(events, splitter)
-          .withParentEvents()
-          .flatten()
-          .map((event) {
-        final stack = <XmlEvent>[];
-        for (XmlEvent? current = event;
-            current != null;
-            current = current.parent) {
-          stack.insert(0, current);
-        }
-        return stack;
-      }).toList();
-      expect(stacks.map((events) => events.last), events);
-    });
-    chunkedTest('events -> withParent -> where', complicatedXml,
-        (string, events, document, splitter) async {
-      final actual = await splitList(events, splitter)
-          .withParentEvents()
-          .flatten()
-          .where(
-              (event) => event.parent != null && event is! XmlEndElementEvent)
-          .toList();
-      if (document.children.isEmpty) {
-        expect(actual, []);
-      } else {
-        final expected =
-            const XmlNodeCodec().encode(document.rootElement.children);
-        expect(actual, expected);
+    group('errors', () {
+      @isTestGroup
+      void chunkedTest(String title, String input,
+          void Function(Stream<String> stream) callback) {
+        group(title, () {
+          for (var i = input.length; i > 0; i ~/= 2) {
+            test(
+              'chunks sized $i',
+              () => callback(splitString(input, () => i)),
+            );
+          }
+          final random = Random(title.hashCode);
+          for (var i = 1; i <= 64; i *= 2) {
+            test(
+              'chunks randomly sized up to $i',
+              () => callback(splitString(input, () => random.nextInt(i + 1))),
+            );
+          }
+        });
       }
+
+      group('parser error', () {
+        chunkedTest('missing tag closing', '<hello', (stream) {
+          expect(
+              stream.toXmlEvents(withLocation: true),
+              emitsThrough(emitsError(isXmlParserException(
+                message: '">" expected',
+                position: 6,
+              ))));
+        });
+        chunkedTest('missing attribute closing', '<foo bar="abc', (stream) {
+          expect(
+              stream.toXmlEvents(withLocation: true),
+              emitsThrough(emitsError(isXmlParserException(
+                message: '">" expected',
+                position: 5,
+              ))));
+        });
+        chunkedTest('missing comment closing', '<!-- comment', (stream) {
+          expect(
+              stream.toXmlEvents(withLocation: true),
+              emitsThrough(emitsError(isXmlParserException(
+                message: '"-->" expected',
+                position: 4,
+              ))));
+        });
+        group('not validated', () {
+          chunkedTest('unexpected end tag', '</foo>', (stream) {
+            expect(
+                stream.toXmlEvents(withLocation: true).flatten(),
+                emitsInOrder([
+                  XmlEndElementEvent('foo'),
+                  emitsDone,
+                ]));
+          });
+          chunkedTest('missing end tag', '<foo>', (stream) {
+            expect(
+                stream.toXmlEvents(withLocation: true).flatten(),
+                emitsInOrder([
+                  XmlStartElementEvent('foo', [], false),
+                  emitsDone,
+                ]));
+          });
+          chunkedTest('not matching end tag', '<foo></bar></foo>', (stream) {
+            expect(
+                stream.toXmlEvents(withLocation: true).flatten(),
+                emitsInOrder([
+                  XmlStartElementEvent('foo', [], false),
+                  XmlEndElementEvent('bar'),
+                  XmlEndElementEvent('foo'),
+                  emitsDone,
+                ]));
+          });
+        });
+        group('not validated', () {
+          chunkedTest('unexpected end tag', '</foo>', (stream) {
+            expect(
+                stream.toXmlEvents().flatten(),
+                emitsInOrder([
+                  XmlEndElementEvent('foo'),
+                  emitsDone,
+                ]));
+          });
+          chunkedTest('missing end tag', '<foo>', (stream) {
+            expect(
+                stream.toXmlEvents().flatten(),
+                emitsInOrder([
+                  XmlStartElementEvent('foo', [], false),
+                  emitsDone,
+                ]));
+          });
+          chunkedTest('not matching end tag', '<foo></bar></foo>', (stream) {
+            expect(
+                stream.toXmlEvents().flatten(),
+                emitsInOrder([
+                  XmlStartElementEvent('foo', [], false),
+                  XmlEndElementEvent('bar'),
+                  XmlEndElementEvent('foo'),
+                ]));
+          });
+        });
+        group('validated', () {
+          chunkedTest('unexpected end tag', '</foo>', (stream) {
+            expect(
+                stream
+                    .toXmlEvents(validateNesting: true, withLocation: true)
+                    .flatten(),
+                emitsThrough(emitsError(
+                    isXmlTagException(actualName: 'foo', position: 0))));
+          });
+          chunkedTest('missing end tag', '<foo>', (stream) {
+            expect(
+                stream
+                    .toXmlEvents(validateNesting: true, withLocation: true)
+                    .flatten(),
+                emitsThrough(emitsError(
+                    isXmlTagException(expectedName: 'foo', position: 5))));
+          });
+          chunkedTest('not matching end tag', '<foo></bar></foo>', (stream) {
+            expect(
+                stream
+                    .toXmlEvents(validateNesting: true, withLocation: true)
+                    .flatten(),
+                emitsThrough(emitsError(isXmlTagException(
+                    expectedName: 'foo', actualName: 'bar', position: 5))));
+          });
+        });
+      });
     });
   });
   group('normalizeEvents', () {

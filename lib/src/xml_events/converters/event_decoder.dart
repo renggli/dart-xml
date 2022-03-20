@@ -5,6 +5,7 @@ import 'package:petitparser/petitparser.dart';
 
 import '../../xml/entities/default_mapping.dart';
 import '../../xml/entities/entity_mapping.dart';
+import '../../xml/exceptions/parser_exception.dart';
 import '../annotations/annotator.dart';
 import '../event.dart';
 import '../parser.dart';
@@ -98,13 +99,13 @@ class _XmlEventDecoderSink extends StringConversionSinkBase {
         previous = current;
       } else {
         carry = previous.buffer.substring(previous.position);
+        offset += previous.position;
         break;
       }
     }
     if (result.isNotEmpty) {
       sink.add(result);
     }
-    offset += end - start;
     if (isLast) {
       close();
     }
@@ -112,6 +113,13 @@ class _XmlEventDecoderSink extends StringConversionSinkBase {
 
   @override
   void close() {
+    if (carry.isNotEmpty) {
+      final context = eventParser.parseOn(Failure<XmlEvent>(carry, 0, ''));
+      if (context.isFailure) {
+        throw XmlParserException(context.message,
+            position: offset + context.position);
+      }
+    }
     annotator.close(position: offset);
     sink.close();
   }

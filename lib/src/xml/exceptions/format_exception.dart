@@ -1,3 +1,4 @@
+import 'package:meta/meta.dart';
 import 'package:petitparser/core.dart' show Token;
 
 /// Mixin for exceptions that follow the [FormatException] of Dart.
@@ -21,6 +22,10 @@ mixin XmlFormatException implements FormatException {
   late final List<int> _lineAndColumn = buffer != null && position != null
       ? Token.lineAndColumnOf(buffer!, position!)
       : const [0, 0];
+
+  @internal
+  String get locationString =>
+      buffer != null && position != null ? '$line:$column' : '$position';
 
   @override
   String? get source => buffer;

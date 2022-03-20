@@ -57,5 +57,5 @@ class XmlTagException extends XmlException with XmlFormatException {
   int? position;
 
   @override
-  String toString() => 'XmlTagException: $message at $line:$column';
+  String toString() => 'XmlTagException: $message at $locationString';
 }
