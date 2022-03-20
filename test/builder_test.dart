@@ -444,6 +444,17 @@ void main() {
             node: isNotNull,
             types: contains(XmlNodeType.ELEMENT))));
   });
+  test('exception during nesting', () {
+    final builder = XmlBuilder();
+    builder.element('outer', nest: () {
+      expect(
+        () => builder.element('inner', nest: () => throw UnimplementedError()),
+        throwsUnsupportedError,
+      );
+    });
+    final document = builder.buildDocument();
+    expect(document.toString(), '<outer/>');
+  });
   test('incomplete builder', () {
     final builder = XmlBuilder();
     builder.element('element', nest: () {

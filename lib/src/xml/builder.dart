@@ -148,34 +148,39 @@ class XmlBuilder {
   ///              ..element('break');
   ///     });
   ///
-  void element(String name,
-      {String? namespace,
-      Map<String, String?> namespaces = const {},
-      Map<String, String> attributes = const {},
-      bool isSelfClosing = true,
-      Object? nest}) {
+  void element(
+    String name, {
+    String? namespace,
+    Map<String, String?> namespaces = const {},
+    Map<String, String> attributes = const {},
+    bool isSelfClosing = true,
+    Object? nest,
+  }) {
     final element = NodeBuilder();
     _stack.add(element);
-    namespaces.forEach(this.namespace);
-    attributes.forEach(attribute);
-    if (nest != null) {
-      _insert(nest);
+    try {
+      namespaces.forEach(this.namespace);
+      attributes.forEach(attribute);
+      if (nest != null) {
+        _insert(nest);
+      }
+      element.name = _buildName(name, namespace);
+      element.isSelfClosing = isSelfClosing;
+      if (optimizeNamespaces) {
+        // Remove unused namespaces: The reason we first add them and then remove
+        // them again is to keep the order in which they have been added.
+        element.namespaces.forEach((uri, meta) {
+          if (!meta.used) {
+            final name = meta.name;
+            final attribute = element.attributes
+                .firstWhere((attribute) => attribute.name == name);
+            element.attributes.remove(attribute);
+          }
+        });
+      }
+    } finally {
+      _stack.removeLast();
     }
-    element.name = _buildName(name, namespace);
-    element.isSelfClosing = isSelfClosing;
-    if (optimizeNamespaces) {
-      // Remove unused namespaces: The reason we first add them and then remove
-      // them again is to keep the order in which they have been added.
-      element.namespaces.forEach((uri, meta) {
-        if (!meta.used) {
-          final name = meta.name;
-          final attribute = element.attributes
-              .firstWhere((attribute) => attribute.name == name);
-          element.attributes.remove(attribute);
-        }
-      });
-    }
-    _stack.removeLast();
     _stack.last.children.add(element.buildElement());
   }
 

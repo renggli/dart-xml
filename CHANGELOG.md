@@ -3,18 +3,19 @@
 ## 6.0.0 (unpublished)
 
 * Significantly improved error handling to include more information, such as tag names and location in the parsed source.
+* Use the pull-based parser for all parsing operations:
+  * Operations like `XmlDocument.parse(String input)` are up to 30% faster!
+  * Reduce size of library by removing duplicated parsing and validation functionality.
 * Cleanup dynamic calls and type declarations:
   * Avoid all dynamic calls across the library (thanks to https://github.com/srawlins).
   * Remove deprecated `XmlTransformer` as it requires dynamic calls in the `XmlVisitor`.
   * Cleanup the dynamic typing of `XmlVisitor`.
+* `XmlBuilder` keeps keeps correct nesting, even in case of exceptions.
 * Remove deprecated code:
   * `parse(String input)`: use `XmlDocument.parse(String input)` or `XmlDocumentFragment.parse(String input)` instead.
   * `XmlBuilder.build()`: use `XmlBuilder.buildDocument()` or `XmlBuilder.buildFragment()` instead.
   * `XmlProductionDefinition`, `XmlGrammarDefinition`, and `XmlParserDefinition`.
   * `XmlNormalizer.defaultInstance`: use `const XmlNormalizer()` instead.  
-* Use the pull-based parser for all parsing operations:
-  * Operations like `XmlDocument.parse(String input)` are up to 30% faster!
-  * Reduce size of library by removing duplicated parsing and validation functionality.
 
 ## 5.4.0
 
