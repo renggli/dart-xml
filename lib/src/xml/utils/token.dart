@@ -21,6 +21,8 @@ class XmlToken {
   static const String closeDoctypeBlock = ']';
   static const String openProcessing = '<?';
   static const String closeProcessing = '?>';
+  static const String entityStart = '&';
+  static const String entityEnd = ';';
 
   // https://en.wikipedia.org/wiki/QName
   static const String nameStartChars = ':A-Z_a-z'

@@ -37,8 +37,8 @@ class XmlEventParser {
   // Events
 
   Parser<XmlTextEvent> characterData() =>
-      XmlCharacterDataParser(entityMapping, XmlToken.openElement, 1)
-          .map((each) => XmlTextEvent(each));
+      XmlCharacterDataParser(XmlToken.openElement, 1)
+          .map((each) => XmlTextEvent(entityMapping.decode(each)));
 
   Parser<XmlStartElementEvent> startElement() => [
         XmlToken.openElement.toParser(),
@@ -67,7 +67,7 @@ class XmlEventParser {
         final attributeValue = each[5] as List<String>;
         return XmlEventAttribute(
             each[1] as String,
-            attributeValue[1],
+            entityMapping.decode(attributeValue[1]),
             attributeValue[0] == '"'
                 ? XmlAttributeType.DOUBLE_QUOTE
                 : XmlAttributeType.SINGLE_QUOTE);
@@ -80,13 +80,13 @@ class XmlEventParser {
 
   Parser<List<String>> attributeValueDouble() => [
         XmlToken.doubleQuote.toParser(),
-        XmlCharacterDataParser(entityMapping, XmlToken.doubleQuote, 0),
+        XmlCharacterDataParser(XmlToken.doubleQuote, 0),
         XmlToken.doubleQuote.toParser(),
       ].toSequenceParser();
 
   Parser<List<String>> attributeValueSingle() => [
         XmlToken.singleQuote.toParser(),
-        XmlCharacterDataParser(entityMapping, XmlToken.singleQuote, 0),
+        XmlCharacterDataParser(XmlToken.singleQuote, 0),
         XmlToken.singleQuote.toParser(),
       ].toSequenceParser();
 

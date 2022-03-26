@@ -3,12 +3,6 @@ import 'package:xml/src/xml/utils/character_data_parser.dart';
 import 'package:xml/xml.dart';
 
 void expectDecode(XmlEntityMapping mapping, String input, String output) {
-  final nodeText =
-      XmlDocument.parse('<data>$input</data>', entityMapping: mapping)
-          .rootElement
-          .text;
-  expect(nodeText, output, reason: 'parser decoding');
-
   final entityText = mapping.decode(input);
   expect(entityText, output, reason: 'entity decoding');
 }
@@ -16,37 +10,49 @@ void expectDecode(XmlEntityMapping mapping, String input, String output) {
 void testDefaultMapping(XmlEntityMapping entityMapping) {
   group('decode', () {
     test('&#xHHHH;', () {
-      expectDecode(entityMapping, '&#X41;', 'A');
-      expectDecode(entityMapping, '&#x61;', 'a');
-      expectDecode(entityMapping, '&#x7A;', 'z');
+      expect(entityMapping.decode('&#X41;'), 'A');
+      expect(entityMapping.decode('&#x61;'), 'a');
+      expect(entityMapping.decode('&#x7A;'), 'z');
     });
     test('&#dddd;', () {
-      expectDecode(entityMapping, '&#65;', 'A');
-      expectDecode(entityMapping, '&#97;', 'a');
-      expectDecode(entityMapping, '&#122;', 'z');
+      expect(entityMapping.decode('&#65;'), 'A');
+      expect(entityMapping.decode('&#97;'), 'a');
+      expect(entityMapping.decode('&#122;'), 'z');
     });
     test('&named;', () {
-      expectDecode(entityMapping, '&lt;', '<');
-      expectDecode(entityMapping, '&gt;', '>');
-      expectDecode(entityMapping, '&amp;', '&');
-      expectDecode(entityMapping, '&apos;', '\'');
-      expectDecode(entityMapping, '&quot;', '"');
+      expect(entityMapping.decode('&lt;'), '<');
+      expect(entityMapping.decode('&gt;'), '>');
+      expect(entityMapping.decode('&amp;'), '&');
+      expect(entityMapping.decode('&apos;'), '\'');
+      expect(entityMapping.decode('&quot;'), '"');
     });
     test('invalid', () {
-      expectDecode(entityMapping, '&invalid;', '&invalid;');
+      expect(entityMapping.decode('&invalid;'), '&invalid;');
     });
     test('incomplete', () {
-      expectDecode(entityMapping, '&amp', '&amp');
+      expect(entityMapping.decode('&'), '&');
+      expect(entityMapping.decode('&amp'), '&amp');
+      expect(entityMapping.decode('a&b'), 'a&b');
+      expect(entityMapping.decode('&&gt;'), '&>');
     });
     test('empty', () {
-      expectDecode(entityMapping, '&;', '&;');
+      expect(entityMapping.decode('&;'), '&;');
+    });
+    test('none', () {
+      expect(entityMapping.decode(''), '');
+      expect(entityMapping.decode('Hello'), 'Hello');
+      expect(entityMapping.decode('Hello World'), 'Hello World');
     });
     test('surrounded', () {
-      expectDecode(entityMapping, 'a&amp;b', 'a&b');
-      expectDecode(entityMapping, '&amp;x&amp;', '&x&');
+      expect(entityMapping.decode('a&amp;b'), 'a&b');
+      expect(entityMapping.decode('&amp;a&amp;'), '&a&');
+      expect(entityMapping.decode('a&amp;b&amp;c'), 'a&b&c');
+      expect(entityMapping.decode('&amp;a&amp;b&amp;'), '&a&b&');
+      expect(entityMapping.decode('a&amp;b&amp;c&amp;d'), 'a&b&c&d');
     });
     test('sequence', () {
-      expectDecode(entityMapping, '&amp;&amp;', '&&');
+      expect(entityMapping.decode('&amp;&amp;'), '&&');
+      expect(entityMapping.decode('&lt;&amp;&gt;'), '<&>');
     });
   });
   group('encode', () {
@@ -137,67 +143,6 @@ void testDefaultMapping(XmlEntityMapping entityMapping) {
           '&quot;hello&quot;');
     });
   });
-  group('character parser', () {
-    final parser = XmlCharacterDataParser(entityMapping, '*', 1);
-    test('parse without stopper', () {
-      final result1 = parser.parse('');
-      expect(result1.isFailure, isTrue);
-      expect(result1.position, 0);
-
-      final result2 = parser.parse('a');
-      expect(result2.isSuccess, isTrue);
-      expect(result2.position, 1);
-      expect(result2.value, 'a');
-
-      final result3 = parser.parse('ab');
-      expect(result3.isSuccess, isTrue);
-      expect(result3.position, 2);
-      expect(result3.value, 'ab');
-    });
-    test('parse with stopper', () {
-      final result1 = parser.parse('*');
-      expect(result1.isFailure, isTrue);
-      expect(result1.position, 0);
-
-      final result2 = parser.parse('a*');
-      expect(result2.isSuccess, isTrue);
-      expect(result2.position, 1);
-      expect(result2.value, 'a');
-
-      final result3 = parser.parse('ab*');
-      expect(result3.isSuccess, isTrue);
-      expect(result3.position, 2);
-      expect(result3.value, 'ab');
-    });
-    test('fast parse without stopper', () {
-      final result1 = parser.fastParseOn('', 0);
-      expect(result1, -1);
-
-      final result2 = parser.fastParseOn('a', 0);
-      expect(result2, 1);
-
-      final result3 = parser.fastParseOn('ab', 0);
-      expect(result3, 2);
-    });
-    test('fast parse with stopper', () {
-      final result1 = parser.fastParseOn('*', 0);
-      expect(result1, -1);
-
-      final result2 = parser.fastParseOn('a*', 0);
-      expect(result2, 1);
-
-      final result3 = parser.fastParseOn('ab*', 0);
-      expect(result3, 2);
-    });
-    test('copy and equality', () {
-      expect(parser.isEqualTo(parser), isTrue);
-      expect(parser.isEqualTo(parser.copy()), isTrue);
-      expect(parser.isEqualTo(XmlCharacterDataParser(entityMapping, '%', 1)),
-          isFalse);
-      expect(parser.isEqualTo(XmlCharacterDataParser(entityMapping, '*', 2)),
-          isFalse);
-    });
-  });
 }
 
 void main() {
@@ -256,6 +201,65 @@ void main() {
                 '<>&\'"', XmlAttributeType.DOUBLE_QUOTE),
             '<>&\'"');
       });
+    });
+  });
+  group('character parser', () {
+    final parser = XmlCharacterDataParser('*', 1);
+    test('parse without stopper', () {
+      final result1 = parser.parse('');
+      expect(result1.isFailure, isTrue);
+      expect(result1.position, 0);
+
+      final result2 = parser.parse('a');
+      expect(result2.isSuccess, isTrue);
+      expect(result2.position, 1);
+      expect(result2.value, 'a');
+
+      final result3 = parser.parse('ab');
+      expect(result3.isSuccess, isTrue);
+      expect(result3.position, 2);
+      expect(result3.value, 'ab');
+    });
+    test('parse with stopper', () {
+      final result1 = parser.parse('*');
+      expect(result1.isFailure, isTrue);
+      expect(result1.position, 0);
+
+      final result2 = parser.parse('a*');
+      expect(result2.isSuccess, isTrue);
+      expect(result2.position, 1);
+      expect(result2.value, 'a');
+
+      final result3 = parser.parse('ab*');
+      expect(result3.isSuccess, isTrue);
+      expect(result3.position, 2);
+      expect(result3.value, 'ab');
+    });
+    test('fast parse without stopper', () {
+      final result1 = parser.fastParseOn('', 0);
+      expect(result1, -1);
+
+      final result2 = parser.fastParseOn('a', 0);
+      expect(result2, 1);
+
+      final result3 = parser.fastParseOn('ab', 0);
+      expect(result3, 2);
+    });
+    test('fast parse with stopper', () {
+      final result1 = parser.fastParseOn('*', 0);
+      expect(result1, -1);
+
+      final result2 = parser.fastParseOn('a*', 0);
+      expect(result2, 1);
+
+      final result3 = parser.fastParseOn('ab*', 0);
+      expect(result3, 2);
+    });
+    test('copy and equality', () {
+      expect(parser.isEqualTo(parser), isTrue);
+      expect(parser.isEqualTo(parser.copy()), isTrue);
+      expect(parser.isEqualTo(XmlCharacterDataParser('%', 1)), isFalse);
+      expect(parser.isEqualTo(XmlCharacterDataParser('*', 2)), isFalse);
     });
   });
 }
