@@ -38,7 +38,7 @@ class XmlEventParser {
 
   Parser<XmlTextEvent> characterData() =>
       XmlCharacterDataParser(XmlToken.openElement, 1)
-          .map((each) => XmlTextEvent(entityMapping.decode(each)));
+          .map((each) => XmlRawTextEvent(each, entityMapping));
 
   Parser<XmlStartElementEvent> startElement() => [
         XmlToken.openElement.toParser(),
