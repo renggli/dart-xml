@@ -1,3 +1,13 @@
+const Map<String, String> allXml = {
+  'books.xml': booksXml,
+  'bookstore.xml': bookstoreXml,
+  'atom.xml': atomXml,
+  'shiporder.xsd': shiporderXsd,
+  'complicated.xml': complicatedXml,
+  'unicode.xml': unicodeXml,
+  'control_characters.xml': controlCharactersXml,
+};
+
 const String booksXml = '<?xml version="1.0"?>'
     '<catalog>'
     '   <book id="bk101">'
