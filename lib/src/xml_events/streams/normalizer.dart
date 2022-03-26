@@ -44,7 +44,6 @@ class _XmlNormalizeEventsSink extends ChunkedConversionSink<List<XmlEvent>> {
         // Propagate annotations.
         event.attachBuffer(event1.buffer);
         event.attachLocation(event1.start, event2.stop);
-        assert(event1.parent == event2.parent);
         event.attachParent(event1.parent);
         // Update the buffer.
         buffer[i] = event;

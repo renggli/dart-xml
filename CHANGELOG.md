@@ -6,6 +6,7 @@
 * Use the pull-based parser for all parsing operations:
   * Operations like `XmlDocument.parse(String input)` are up to 30% faster!
   * Reduce size of library by removing duplicated parsing and validation functionality.
+  * Fix entity decoding if the entity spawns multiple chunks.
 * Cleanup dynamic calls and type declarations:
   * Avoid all dynamic calls across the library (thanks to https://github.com/srawlins).
   * Remove deprecated `XmlTransformer` as it requires dynamic calls in the `XmlVisitor`.
