@@ -27,17 +27,21 @@ class XmlDefaultEntityMapping extends XmlEntityMapping {
     if (input.length > 1 && input[0] == '#') {
       if (input.length > 2 && (input[1] == 'x' || input[1] == 'X')) {
         // Hexadecimal character reference.
-        final value = int.tryParse(input.substring(2), radix: 16);
-        return value != null ? String.fromCharCode(value) : null;
+        return _decodeNumericEntity(input.substring(2), 16);
       } else {
         // Decimal character reference.
-        final value = int.tryParse(input.substring(1));
-        return value != null ? String.fromCharCode(value) : null;
+        return _decodeNumericEntity(input.substring(1), 10);
       }
     } else {
       // Named character reference.
       return entities[input];
     }
+  }
+
+  String? _decodeNumericEntity(String input, int radix) {
+    final value = int.tryParse(input, radix: radix);
+    if (value == null || value < 0 || 0x10FFFF < value) return null;
+    return String.fromCharCode(value);
   }
 
   @override

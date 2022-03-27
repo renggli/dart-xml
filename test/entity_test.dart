@@ -27,6 +27,20 @@ void testDefaultMapping(XmlEntityMapping entityMapping) {
       expect(entityMapping.decode('&#xInvalid;'), '&#xInvalid;');
       expect(entityMapping.decode('&#XInvalid;'), '&#XInvalid;');
     });
+    test('unicode', () {
+      // https://www.compart.com/en/unicode/U+0000
+      expect(entityMapping.decode('&#0;'), '\u0000');
+      expect(entityMapping.decode('&#x0000;'), '\u0000');
+      // https://www.compart.com/en/unicode/U+10FFFF
+      expect(entityMapping.decode('&#1114111;'), '\uDBFF\uDFFF');
+      expect(entityMapping.decode('&#x10FFFF;'), '\uDBFF\uDFFF');
+    });
+    test('unicode invalid', () {
+      expect(entityMapping.decode('&#-1;'), '&#-1;');
+      expect(entityMapping.decode('&#x-1;'), '&#x-1;');
+      expect(entityMapping.decode('&#1114112;'), '&#1114112;');
+      expect(entityMapping.decode('&#x110000;'), '&#x110000;');
+    });
     test('incomplete', () {
       expect(entityMapping.decode('&'), '&');
       expect(entityMapping.decode('&amp'), '&amp');
