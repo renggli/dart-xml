@@ -4,7 +4,6 @@ import 'package:xml/xml_events.dart';
 
 void assertDocumentParseInvariants(String input) {
   final document = XmlDocument.parse(input);
-  expect(document, isA<XmlDocument>());
   assertDocumentTreeInvariants(document);
   assertIteratorEventInvariants(input, document);
   assertStreamEventInvariants(input, document);
@@ -31,7 +30,6 @@ void assertDocumentTreeInvariants(XmlNode xml) {
 
 void assertFragmentParseInvariants(String input) {
   final fragment = XmlDocumentFragment.parse(input);
-  expect(fragment, isA<XmlDocumentFragment>());
   assertFragmentTreeInvariants(fragment);
   assertIteratorEventInvariants(input, fragment);
   assertStreamEventInvariants(input, fragment);

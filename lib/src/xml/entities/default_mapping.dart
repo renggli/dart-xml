@@ -57,10 +57,10 @@ class XmlDefaultEntityMapping extends XmlEntityMapping {
 
 // Encode XML text.
 
-final _textPattern = RegExp(r'[&<]|]]>' + _highlyDiscouraged);
+final _textPattern = RegExp(r'[&<' + _highlyDiscouragedCharClass + r']|]]>');
 
 String _textReplace(Match match) {
-  final toEscape = match.group(0);
+  final toEscape = match.group(0)!;
   switch (toEscape) {
     case '<':
       return '&lt;';
@@ -69,16 +69,17 @@ String _textReplace(Match match) {
     case ']]>':
       return ']]&gt;';
     default:
-      return _asNumericCharacterReferences(toEscape!);
+      return _asNumericCharacterReferences(toEscape);
   }
 }
 
 // Encode XML attribute values (single quotes).
 
-final _singeQuoteAttributePattern = RegExp(r"['&<\n\r\t]" + _highlyDiscouraged);
+final _singeQuoteAttributePattern =
+    RegExp(r"['&<\n\r\t" + _highlyDiscouragedCharClass + r']');
 
 String _singeQuoteAttributeReplace(Match match) {
-  final toEscape = match.group(0);
+  final toEscape = match.group(0)!;
   switch (toEscape) {
     case "'":
       return '&apos;';
@@ -87,17 +88,17 @@ String _singeQuoteAttributeReplace(Match match) {
     case '<':
       return '&lt;';
     default:
-      return _asNumericCharacterReferences(toEscape!);
+      return _asNumericCharacterReferences(toEscape);
   }
 }
 
 // Encode XML attribute values (double quotes).
 
 final _doubleQuoteAttributePattern =
-    RegExp(r'["&<\n\r\t]' + _highlyDiscouraged);
+    RegExp(r'["&<\n\r\t' + _highlyDiscouragedCharClass + r']');
 
 String _doubleQuoteAttributeReplace(Match match) {
-  final toEscape = match.group(0);
+  final toEscape = match.group(0)!;
   switch (toEscape) {
     case '"':
       return '&quot;';
@@ -106,7 +107,7 @@ String _doubleQuoteAttributeReplace(Match match) {
     case '<':
       return '&lt;';
     default:
-      return _asNumericCharacterReferences(toEscape!);
+      return _asNumericCharacterReferences(toEscape);
   }
 }
 
@@ -115,8 +116,8 @@ String _doubleQuoteAttributeReplace(Match match) {
 // Sources:
 // - https://www.w3.org/TR/xml/#charsets
 // - https://en.wikipedia.org/wiki/XML#Valid_Unicode_characters_in_XML_1.0_and_XML_1.1
-const _highlyDiscouraged =
-    r'|[\u0001-\u0008\u000b\u000c\u000e-\u001f\u007f-\u0084\u0086-\u009f]';
+const _highlyDiscouragedCharClass =
+    r'\u0001-\u0008\u000b\u000c\u000e-\u001f\u007f-\u0084\u0086-\u009f';
 
 String _asNumericCharacterReferences(String toEscape) => toEscape.runes
     .map((rune) => '&#x${rune.toRadixString(16).toUpperCase()};')

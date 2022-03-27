@@ -227,4 +227,4 @@ const String unicodeXml = '<?xml version="1.1" encoding="UTF-8"?>\n'
     '</電文情報>\n';
 
 const String controlCharactersXml = '<?xml version="1.0"?>\n'
-    '<name attr="bell\u0007">del\u007fbackspace\u0008</name>';
+    '<name attr="bell\u0007">del\u007fbackspace\u0008null\u0000</name>';

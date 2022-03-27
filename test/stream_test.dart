@@ -107,7 +107,8 @@ void main() {
           source,
           stringChunker,
           (stream) {
-            final actual = stream.toXmlEvents().toXmlString().join();
+            final actual =
+                stream.toXmlEvents().normalizeEvents().toXmlString().join();
             expect(actual, completion(source));
           },
         );
