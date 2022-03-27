@@ -2,11 +2,6 @@ import 'package:test/test.dart';
 import 'package:xml/src/xml/utils/character_data_parser.dart';
 import 'package:xml/xml.dart';
 
-void expectDecode(XmlEntityMapping mapping, String input, String output) {
-  final entityText = mapping.decode(input);
-  expect(entityText, output, reason: 'entity decoding');
-}
-
 void testDefaultMapping(XmlEntityMapping entityMapping) {
   group('decode', () {
     test('&#xHHHH;', () {
@@ -27,7 +22,10 @@ void testDefaultMapping(XmlEntityMapping entityMapping) {
       expect(entityMapping.decode('&quot;'), '"');
     });
     test('invalid', () {
-      expect(entityMapping.decode('&invalid;'), '&invalid;');
+      expect(entityMapping.decode('&Invalid;'), '&Invalid;');
+      expect(entityMapping.decode('&#Invalid;'), '&#Invalid;');
+      expect(entityMapping.decode('&#xInvalid;'), '&#xInvalid;');
+      expect(entityMapping.decode('&#XInvalid;'), '&#XInvalid;');
     });
     test('incomplete', () {
       expect(entityMapping.decode('&'), '&');
@@ -153,35 +151,35 @@ void main() {
     const entityMapping = XmlDefaultEntityMapping.html();
     testDefaultMapping(entityMapping);
     test('special', () {
-      expectDecode(entityMapping, '&eacute;', 'é');
-      expectDecode(entityMapping, '&Eacute;', 'É');
+      expect(entityMapping.decode('&eacute;'), 'é');
+      expect(entityMapping.decode('&Eacute;'), 'É');
     });
   });
   group('html5', () {
     const entityMapping = XmlDefaultEntityMapping.html5();
     testDefaultMapping(entityMapping);
     test('special', () {
-      expectDecode(entityMapping, '&bigstar;', '★');
-      expectDecode(entityMapping, '&block;', '█');
+      expect(entityMapping.decode('&bigstar;'), '★');
+      expect(entityMapping.decode('&block;'), '█');
     });
   });
   group('null', () {
     const entityMapping = XmlNullEntityMapping();
     group('decode', () {
       test('entities', () {
-        expectDecode(entityMapping, '&#X41;', '&#X41;');
-        expectDecode(entityMapping, '&#65;', '&#65;');
-        expectDecode(entityMapping, '&amp;', '&amp;');
+        expect(entityMapping.decode('&#X41;'), '&#X41;');
+        expect(entityMapping.decode('&#65;'), '&#65;');
+        expect(entityMapping.decode('&amp;'), '&amp;');
       });
       test('invalid entities', () {
-        expectDecode(entityMapping, '&;', '&;');
-        expectDecode(entityMapping, '&invalid;', '&invalid;');
-        expectDecode(entityMapping, '&incomplete', '&incomplete');
+        expect(entityMapping.decode('&;'), '&;');
+        expect(entityMapping.decode('&invalid;'), '&invalid;');
+        expect(entityMapping.decode('&incomplete'), '&incomplete');
       });
       test('combinations', () {
-        expectDecode(entityMapping, 'a&amp;b', 'a&amp;b');
-        expectDecode(entityMapping, '&amp;x&amp;', '&amp;x&amp;');
-        expectDecode(entityMapping, '&amp;&amp;', '&amp;&amp;');
+        expect(entityMapping.decode('a&amp;b'), 'a&amp;b');
+        expect(entityMapping.decode('&amp;x&amp;'), '&amp;x&amp;');
+        expect(entityMapping.decode('&amp;&amp;'), '&amp;&amp;');
       });
     });
     group('encode', () {
