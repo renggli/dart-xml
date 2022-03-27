@@ -51,7 +51,7 @@ final bookshelfXml = '''<?xml version="1.0"?>
 final document = XmlDocument.parse(bookshelfXml);
 ```
 
-The resulting object is an instance of `XmlDocument`. In case the document cannot be parsed, a `XmlParserException` is thrown.
+The resulting object is an instance of `XmlDocument`. In case the document cannot be parsed, a `XmlException` is thrown.
 
 To write back the parsed XML document, simply call `toString()` or `toXmlString(...)` if you need more control:
 
@@ -67,7 +67,7 @@ final file = new File('bookshelf.xml');
 final document = XmlDocument.parse(file.readAsStringSync());
 ```
 
-If your file is not _UTF-8_ encoded pass the correct encoding to `readAsStringSync`. To read and write large files you might want to use the [event-driven API](#event-driven) instead.
+If your file is not _UTF-8_ encoded pass the correct encoding to `readAsStringSync`. It is the responsibility of the caller to provide a standard Dart [String] using the default UTF-16 encoding. To read and write large files you might want to use the [event-driven API](#event-driven) instead.
 
 ### Traversing and Querying
 
@@ -90,8 +90,8 @@ For example, the `descendants` iterator could be used to extract all textual con
 
 ```dart
 final textual = document.descendants
-  .where((node) => node is XmlText && node.text.trim().isNotEmpty)
-  .join('\n');
+    .where((node) => node is XmlText && node.text.trim().isNotEmpty)
+    .join('\n');
 print(textual);
 ```
 
@@ -206,7 +206,9 @@ parseEvents(bookshelfXml)
     .forEach(print);
 ```
 
-This approach requires the whole input to be available at the beginning and does not work if the data itself is only available asynchronous, such as coming from a slow network connection. A more sophisticated API is provided with [Dart Streams](https://dart.dev/tutorials/language/streams).
+The function `parseEvents` supports various other options, see [its documentation](https://pub.dev/documentation/xml/latest/xml_events/parseEvents.html) for further examples.
+
+This approach requires the whole input to be available at the beginning and does not work if the data itself is only available asynchronous, such as coming from a slow network connection. A more flexible, but also more complicated API is provided with [Dart Streams](https://dart.dev/tutorials/language/streams).
 
 #### Streams
 
@@ -243,10 +245,10 @@ final url = Uri.parse('http://ip-api.com/xml/');
 final request = await HttpClient().getUrl(url);
 final response = await request.close();
 await response
-  .transform(utf8.decoder)
-  .toXmlEvents()
-  .normalizeEvents()
-  .forEachEvent(onText: (event) => print(event.text));
+    .transform(utf8.decoder)
+    .toXmlEvents()
+    .normalizeEvents()
+    .forEachEvent(onText: (event) => print(event.text));
 ```
 
 Similarly, the following snippet extracts sub-trees with location information from a `sitemap.xml` file, converts the XML events to XML nodes, and finally prints out the containing text:
@@ -254,26 +256,28 @@ Similarly, the following snippet extracts sub-trees with location information fr
 ```dart
 final file = File('sitemap.xml');
 await file.openRead()
-  .transform(utf8.decoder)
-  .toXmlEvents()
-  .selectSubtreeEvents((event) => event.name == 'loc')
-  .toXmlNodes()
-  .expand((nodes) => nodes)
-  .forEach((node) => print(node.innerText));
+    .transform(utf8.decoder)
+    .toXmlEvents()
+    .normalizeEvents()
+    .selectSubtreeEvents((event) => event.name == 'loc')
+    .toXmlNodes()
+    .expand((nodes) => nodes)
+    .forEach((node) => print(node.innerText));
 ```
 
 A common challenge when processing XML event streams is the lack of hierarchical information, thus it is very hard to figure out parent dependencies such as looking up a namespace URI. The `.withParentEvents()` transformation validates the hierarchy and annotates the events with their parent event. This enables features (such as `parentEvent` and the `namespaceUri` accessor) and makes mapping and selecting events considerably simpler. For example:
 
 ```dart
 await Stream.fromIterable([shiporderXsd])
-  .toXmlEvents()
-  .withParentEvents()
-  .selectSubtreeEvents((event) =>
-      event.localName == 'element' &&
-      event.namespaceUri == 'http://www.w3.org/2001/XMLSchema')
-  .toXmlNodes()
-  .expand((nodes) => nodes)
-  .forEach((node) => print(node.toXmlString(pretty: true)));
+    .toXmlEvents()
+    .normalizeEvents()
+    .withParentEvents()
+    .selectSubtreeEvents((event) =>
+        event.localName == 'element' &&
+        event.namespaceUri == 'http://www.w3.org/2001/XMLSchema')
+    .toXmlNodes()
+    .expand((nodes) => nodes)
+    .forEach((node) => print(node.toXmlString(pretty: true)));
 ```
 
 Misc

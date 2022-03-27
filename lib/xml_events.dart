@@ -41,9 +41,9 @@ export 'src/xml_events/visitor.dart' show XmlEventVisitor;
 
 /// Returns an [Iterable] of [XmlEvent] instances over the provided [String].
 ///
-/// Iteration can throw an [XmlParserException], if the input is malformed and
-/// cannot be properly parsed. In case of an error iteration can be resumed and
-/// the parsing is retried at the next possible input position.
+/// Iteration can throw an [XmlException], if the input is malformed and cannot
+/// be properly parsed. In case of an error iteration can be resumed and the
+/// parsing is retried at the next possible input position.
 ///
 /// If [validateNesting] is `true`, the parser validates the nesting of tags and
 /// throws an [XmlTagException] if there is a mismatch or tags are not closed.
