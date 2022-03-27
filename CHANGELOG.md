@@ -2,9 +2,9 @@
 
 ## 6.0.0 (unpublished)
 
-* Significantly improved error handling to include more information, such as tag names and location in the parsed source.
-* Use the pull-based parser for all parsing operations:
-  * Operations like `XmlDocument.parse(String input)` are up to 30% faster!
+* Significantly improve parsing performance between 10 and 30%.
+* Improved error handling to include more information, such as tag names and location in the parsed source.
+* Use the pull-based parser for all underlying parsing operations:
   * Reduce size of library by removing duplicated parsing and validation functionality.
   * Fix entity decoding if the entity spawns multiple chunks.
 * Cleanup dynamic calls and type declarations:
