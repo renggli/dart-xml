@@ -1,6 +1,6 @@
 # Changelog
 
-## 6.0.0 (unpublished)
+## 6.0.0 
 
 * Significantly improve parsing performance between 10 and 30%.
 * Improved error handling to include more information, such as tag names and location in the parsed source.
