@@ -1,4 +1,4 @@
-import '../../xml/utils/attribute_type.dart';
+import '../../xml/enums/attribute_type.dart';
 import '../annotations/has_parent.dart';
 import 'named.dart';
 

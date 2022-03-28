@@ -1,10 +1,10 @@
+import '../enums/node_type.dart';
 import '../nodes/document.dart';
 import '../nodes/document_fragment.dart';
 import '../nodes/element.dart';
 import '../nodes/node.dart';
 import '../nodes/text.dart';
 import '../utils/functions.dart';
-import '../utils/node_type.dart';
 import 'visitor.dart';
 
 extension XmlNormalizerExtension on XmlNode {

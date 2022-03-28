@@ -1,4 +1,5 @@
 import 'entities/entity_mapping.dart';
+import 'enums/attribute_type.dart';
 import 'nodes/attribute.dart';
 import 'nodes/cdata.dart';
 import 'nodes/comment.dart';
@@ -11,7 +12,6 @@ import 'nodes/element.dart';
 import 'nodes/node.dart';
 import 'nodes/processing.dart';
 import 'nodes/text.dart';
-import 'utils/attribute_type.dart';
 import 'utils/name.dart';
 import 'utils/namespace.dart' as ns;
 

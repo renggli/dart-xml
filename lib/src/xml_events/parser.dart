@@ -1,7 +1,7 @@
 import 'package:petitparser/petitparser.dart';
 
 import '../xml/entities/entity_mapping.dart';
-import '../xml/utils/attribute_type.dart';
+import '../xml/enums/attribute_type.dart';
 import '../xml/utils/cache.dart';
 import '../xml/utils/character_data_parser.dart';
 import '../xml/utils/token.dart';

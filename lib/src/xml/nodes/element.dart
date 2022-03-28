@@ -1,9 +1,9 @@
+import '../enums/node_type.dart';
 import '../mixins/has_attributes.dart';
 import '../mixins/has_children.dart';
 import '../mixins/has_name.dart';
 import '../mixins/has_parent.dart';
 import '../utils/name.dart';
-import '../utils/node_type.dart';
 import '../visitors/visitor.dart';
 import 'attribute.dart';
 import 'node.dart';

@@ -1,4 +1,4 @@
-import '../xml/utils/node_type.dart';
+import '../xml/enums/node_type.dart';
 import 'annotations/has_buffer.dart';
 import 'annotations/has_location.dart';
 import 'annotations/has_parent.dart';

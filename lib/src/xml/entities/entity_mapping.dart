@@ -1,4 +1,4 @@
-import '../utils/attribute_type.dart';
+import '../enums/attribute_type.dart';
 import '../utils/token.dart';
 
 /// Describes the decoding and encoding of character entities.

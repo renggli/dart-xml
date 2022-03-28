@@ -1,11 +1,11 @@
 // ignore_for_file: constant_identifier_names
 
-/// Enum of the different XML Node types.
+/// Enum of the different XML node types.
 enum XmlNodeType {
-  /// An attribute node, e.g. `id="123"`.
+  /// An attribute, e.g. `id="123"`.
   ATTRIBUTE,
 
-  /// Raw character data (CDATA), e.g.  `<![CDATA[escaped text]]>`.
+  /// A character data, e.g.  `<![CDATA[escaped text]]>`.
   CDATA,
 
   /// A comment, e.g. `<!-- comment -->`.
@@ -23,12 +23,12 @@ enum XmlNodeType {
   /// A document fragment, e.g. `#document-fragment`.
   DOCUMENT_FRAGMENT,
 
-  /// An element node, e.g. `<item>` or `<item />`.
+  /// An element, e.g. `<item>` or `<item />`.
   ELEMENT,
 
   /// A processing instruction, e.g. `<?pi test?>`.
   PROCESSING,
 
-  /// Text content within a node.
+  /// A text, e.g. `Hello World`.
   TEXT,
 }

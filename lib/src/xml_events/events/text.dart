@@ -1,5 +1,5 @@
 import '../../xml/entities/entity_mapping.dart';
-import '../../xml/utils/node_type.dart';
+import '../../xml/enums/node_type.dart';
 import '../event.dart';
 import '../visitor.dart';
 

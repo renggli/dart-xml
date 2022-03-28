@@ -1,10 +1,10 @@
 import 'package:collection/collection.dart' show DelegatingList;
 import 'package:meta/meta.dart';
 
+import '../enums/node_type.dart';
 import '../exceptions/parent_exception.dart';
 import '../exceptions/type_exception.dart';
 import '../nodes/node.dart';
-import 'node_type.dart';
 
 /// Mutable list of XmlNodes, manages the parenting of the nodes.
 class XmlNodeList<E extends XmlNode> extends DelegatingList<E> {

@@ -1,5 +1,5 @@
+import '../enums/node_type.dart';
 import '../nodes/node.dart';
-import '../utils/node_type.dart';
 import 'exception.dart';
 
 /// Exception thrown when an unsupported node type is used.

@@ -1,6 +1,6 @@
 import 'package:collection/collection.dart' show ListEquality;
 
-import '../../xml/utils/node_type.dart';
+import '../../xml/enums/node_type.dart';
 import '../event.dart';
 import '../utils/event_attribute.dart';
 import '../visitor.dart';

@@ -1,8 +1,8 @@
+import '../enums/attribute_type.dart';
+import '../enums/node_type.dart';
 import '../mixins/has_name.dart';
 import '../mixins/has_parent.dart';
-import '../utils/attribute_type.dart';
 import '../utils/name.dart';
-import '../utils/node_type.dart';
 import '../visitors/visitor.dart';
 import 'node.dart';
 

@@ -1,4 +1,4 @@
-import '../utils/attribute_type.dart';
+import '../enums/attribute_type.dart';
 import 'entity_mapping.dart';
 import 'named_entities.dart';
 

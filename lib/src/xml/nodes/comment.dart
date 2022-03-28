@@ -1,4 +1,4 @@
-import '../utils/node_type.dart';
+import '../enums/node_type.dart';
 import '../visitors/visitor.dart';
 import 'data.dart';
 
