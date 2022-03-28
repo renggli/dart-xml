@@ -8,7 +8,7 @@
   * Reduce size of library by removing duplicated parsing and validation functionality.
   * Fix entity decoding if the entity spawns multiple chunks.
 * Cleanup dynamic calls and type declarations:
-  * Avoid all dynamic calls across the library (thanks to https://github.com/srawlins).
+  * Avoid all dynamic calls across the library (thanks to [srawlins](https://github.com/srawlins)).
   * Remove deprecated `XmlTransformer` as it requires dynamic calls in the `XmlVisitor`.
   * Cleanup the dynamic typing of `XmlVisitor`.
 * `XmlBuilder` keeps keeps correct nesting, even in case of exceptions.
@@ -22,8 +22,8 @@
 
 * Dart 2.16 requirement.
 * Update to PetitParser 5.0.
-* Escape control characters (thanks to https://github.com/rspilker).
-* Add a predicate to pretty printer to insert a space character before self-closing elements (thanks to https://github.com/rspilker).
+* Escape control characters (thanks to [rspilker](https://github.com/rspilker)).
+* Add a predicate to pretty printer to insert a space character before self-closing elements (thanks to [rspilker](https://github.com/rspilker)).
 * Add predicates to normalizer to trim leading and trailing whitespaces, as well as collapse consecutive whitespaces.
 * Expose `qualifiedName`, `localName`, `namespacePrefix` and `namespaceUri` for convenience on the named nodes.
 
