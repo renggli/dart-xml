@@ -40,7 +40,6 @@ export 'src/xml/nodes/element.dart' show XmlElement;
 export 'src/xml/nodes/node.dart' show XmlNode;
 export 'src/xml/nodes/processing.dart' show XmlProcessing;
 export 'src/xml/nodes/text.dart' show XmlText;
-export 'src/xml/utils/flatten.dart' show XmlFlattenIterableExtension;
 export 'src/xml/utils/name.dart' show XmlName;
 export 'src/xml/utils/token.dart' show XmlToken;
 export 'src/xml/visitors/normalizer.dart' show XmlNormalizerExtension;
