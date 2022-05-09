@@ -29,6 +29,7 @@ class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
       input,
       entityMapping: entityMapping,
       validateNesting: true,
+      validateDocument: true,
     );
     return XmlDocument(XmlNodeDecoder().convertIterable(events));
   }

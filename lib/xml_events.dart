@@ -49,6 +49,11 @@ export 'src/xml_events/visitor.dart' show XmlEventVisitor;
 /// throws an [XmlTagException] if there is a mismatch or tags are not closed.
 /// Again, in case of an error iteration can be resumed with the next event.
 ///
+/// If [validateDocument] is `true`, the parser validates that the root elements
+/// of the input follow the requirements of an XML document. This means the
+/// document consists of an optional declaration, an optional doctype, and a
+/// single root element.
+///
 /// Furthermore, the following annotations can be enabled if needed:
 ///
 /// - If [withBuffer] is `true`, each event is annotated with the input buffer.
@@ -56,10 +61,11 @@ export 'src/xml_events/visitor.dart' show XmlEventVisitor;
 /// - If [withLocation] is `true`, each event is annotated with the starting
 ///   and stopping position (exclusive) of the event in the input buffer.
 /// - If [withParent] is `true`, each event is annotated with its logical
-///   parent event; this for example enables easy lookup of namespace URIs.
+///   parent event; this enables lookup of namespace URIs and other traversals.
 ///
 /// Iteration is lazy, meaning that none of the `input` is parsed and none of
-/// the events are created unless requested.
+/// the events are created unless requested. This technique is also called
+/// pull-parsing.
 ///
 /// The iterator terminates when the complete `input` is consumed.
 ///
@@ -75,6 +81,7 @@ Iterable<XmlEvent> parseEvents(
   String input, {
   XmlEntityMapping? entityMapping,
   bool validateNesting = false,
+  bool validateDocument = false,
   bool withBuffer = false,
   bool withLocation = false,
   bool withParent = false,
@@ -83,6 +90,7 @@ Iterable<XmlEvent> parseEvents(
       input,
       entityMapping: entityMapping ?? defaultEntityMapping,
       validateNesting: validateNesting,
+      validateDocument: validateDocument,
       withBuffer: withBuffer,
       withLocation: withLocation,
       withParent: withParent,

@@ -1,5 +1,8 @@
+import '../../xml/exceptions/parser_exception.dart';
 import '../../xml/exceptions/tag_exception.dart';
 import '../event.dart';
+import '../events/declaration.dart';
+import '../events/doctype.dart';
 import '../events/end_element.dart';
 import '../events/start_element.dart';
 
@@ -9,16 +12,19 @@ import '../events/start_element.dart';
 class XmlAnnotator {
   XmlAnnotator({
     required this.validateNesting,
+    required this.validateDocument,
     required this.withBuffer,
     required this.withLocation,
     required this.withParent,
   });
 
   final bool validateNesting;
+  final bool validateDocument;
   final bool withBuffer;
   final bool withLocation;
   final bool withParent;
 
+  final List<XmlEvent> _roots = [];
   final List<XmlStartElementEvent> _parents = [];
 
   void annotate(XmlEvent event, {String? buffer, int? start, int? stop}) {
@@ -30,10 +36,32 @@ class XmlAnnotator {
     if (withLocation) {
       event.attachLocation(start, stop);
     }
-    // Attach the parent event.
-    if (withParent || validateNesting) {
+    // Attach the parent event, and/or perform additional validation.
+    if (withParent || validateNesting || validateDocument) {
       if (withParent && _parents.isNotEmpty) {
         event.attachParent(_parents.last);
+      }
+      if (validateDocument && _parents.isEmpty) {
+        // Validate the document root events.
+        if (event is XmlDeclarationEvent) {
+          if (_roots.whereType<XmlDeclarationEvent>().isNotEmpty) {
+            throw XmlParserException('Expected at most one XML declaration',
+                buffer: buffer, position: start);
+          }
+          _roots.add(event);
+        } else if (event is XmlDoctypeEvent) {
+          if (_roots.whereType<XmlDoctypeEvent>().isNotEmpty) {
+            throw XmlParserException('Expected at most one doctype declaration',
+                buffer: buffer, position: start);
+          }
+          _roots.add(event);
+        } else if (event is XmlStartElementEvent) {
+          if (_roots.whereType<XmlStartElementEvent>().isNotEmpty) {
+            throw XmlParserException('Expected a single root element',
+                buffer: buffer, position: start);
+          }
+          _roots.add(event);
+        }
       }
       if (event is XmlStartElementEvent) {
         if (withParent) {
@@ -67,6 +95,11 @@ class XmlAnnotator {
     // Validate the parent relationship.
     if (validateNesting && _parents.isNotEmpty) {
       throw XmlTagException.missingClosingTag(_parents.last.name,
+          buffer: buffer, position: position);
+    }
+    // Validate the document root events.
+    if (validateDocument && _roots.whereType<XmlStartElementEvent>().isEmpty) {
+      throw XmlParserException('Expected a single root element',
           buffer: buffer, position: position);
     }
   }

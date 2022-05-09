@@ -76,27 +76,50 @@ void main() {
     test('processing instruction with attribute', () {
       assertDocumentParseInvariants('<?pi foo="bar"?><data />');
     });
-    group('empty', () {
-      test('completely', () {
-        final document = XmlDocument.parse('');
-        expect(document.children, isEmpty);
-        expect(document.declaration, isNull);
-        expect(document.doctypeElement, isNull);
-        expect(() => document.rootElement, throwsStateError);
+    group('validation errors', () {
+      test('empty', () {
+        expect(
+            () => XmlDocument.parse(''),
+            throwsA(isXmlParserException(
+              message: 'Expected a single root element',
+              position: 0,
+            )));
       });
       test('whitespace', () {
-        final document = XmlDocument.parse(' ');
-        expect(document.children, hasLength(1));
-        expect(document.declaration, isNull);
-        expect(document.doctypeElement, isNull);
-        expect(() => document.rootElement, throwsStateError);
+        expect(
+            () => XmlDocument.parse('  '),
+            throwsA(isXmlParserException(
+              message: 'Expected a single root element',
+              position: 2,
+            )));
       });
-      test('doctype and comment', () {
-        final document = XmlDocument.parse('<?xml version="1.0"?><!--empty-->');
-        expect(document.children, hasLength(2));
-        expect(document.declaration, isNotNull);
-        expect(document.doctypeElement, isNull);
-        expect(() => document.rootElement, throwsStateError);
+      test('repeated declaration', () {
+        expect(
+            () => XmlDocument.parse('<?xml version="1.0"?>'
+                '<?xml version="1.1"?>'
+                '<root />'),
+            throwsA(isXmlParserException(
+              message: 'Expected at most one XML declaration',
+              position: 21,
+            )));
+      });
+      test('repeated doctype', () {
+        expect(
+            () => XmlDocument.parse('<!DOCTYPE root-name SYSTEM "uri-ref">'
+                '<!DOCTYPE root-name PUBLIC "pub-id" "uri-ref">'
+                '<root />'),
+            throwsA(isXmlParserException(
+              message: 'Expected at most one doctype declaration',
+              position: 37,
+            )));
+      });
+      test('repeated root element', () {
+        expect(
+            () => XmlDocument.parse('<root1 /><root2 />'),
+            throwsA(isXmlParserException(
+              message: 'Expected a single root element',
+              position: 9,
+            )));
       });
     });
     group('parse errors', () {

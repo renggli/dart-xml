@@ -16,12 +16,14 @@ extension XmlEventDecoderExtension on Stream<String> {
   Stream<List<XmlEvent>> toXmlEvents({
     XmlEntityMapping? entityMapping,
     bool validateNesting = false,
+    bool validateDocument = false,
     bool withLocation = false,
     bool withParent = false,
   }) =>
       transform(XmlEventDecoder(
         entityMapping: entityMapping,
         validateNesting: validateNesting,
+        validateDocument: validateDocument,
         withLocation: withLocation,
         withParent: withParent,
       ));
@@ -32,12 +34,14 @@ class XmlEventDecoder extends Converter<String, List<XmlEvent>> {
   XmlEventDecoder({
     XmlEntityMapping? entityMapping,
     this.validateNesting = false,
+    this.validateDocument = false,
     this.withLocation = false,
     this.withParent = false,
   }) : entityMapping = entityMapping ?? defaultEntityMapping;
 
   final XmlEntityMapping entityMapping;
   final bool validateNesting;
+  final bool validateDocument;
   final bool withLocation;
   final bool withParent;
 
@@ -59,6 +63,7 @@ class XmlEventDecoder extends Converter<String, List<XmlEvent>> {
           entityMapping,
           XmlAnnotator(
             validateNesting: validateNesting,
+            validateDocument: validateDocument,
             withBuffer: false,
             withLocation: withLocation,
             withParent: withParent,
