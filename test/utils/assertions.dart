@@ -273,6 +273,9 @@ class EmptyVisitor with XmlVisitor {}
 void assertVisitorInvariants(XmlNode xml) {
   for (final node in [xml, ...xml.descendants]) {
     EmptyVisitor().visit(node);
+    if (node is XmlHasName) {
+      EmptyVisitor().visit((node as XmlHasName).name);
+    }
   }
 }
 

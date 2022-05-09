@@ -180,6 +180,12 @@ void main() {
   group('null', () {
     const entityMapping = XmlNullEntityMapping();
     group('decode', () {
+      test('basic', () {
+        expect(entityMapping.decodeEntity(''), isNull);
+        expect(entityMapping.decodeEntity('amp'), isNull);
+        expect(entityMapping.decodeEntity('#X41'), isNull);
+        expect(entityMapping.decodeEntity('#65'), isNull);
+      });
       test('entities', () {
         expect(entityMapping.decode('&#X41;'), '&#X41;');
         expect(entityMapping.decode('&#65;'), '&#65;');
