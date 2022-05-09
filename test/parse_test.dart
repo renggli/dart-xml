@@ -68,13 +68,27 @@ void main() {
       assertDocumentParseInvariants('<schema foo="bar"></schema>');
     });
     test('element with single quote attribute', () {
-      assertDocumentParseInvariants('<schema foo=\'bar\'></schema>');
+      assertDocumentParseInvariants("<schema foo='bar'></schema>");
     });
     test('processing instruction', () {
       assertDocumentParseInvariants('<?pi?><data />');
     });
     test('processing instruction with attribute', () {
       assertDocumentParseInvariants('<?pi foo="bar"?><data />');
+    });
+    test('document with comments', () {
+      assertDocumentParseInvariants('<?xml version="1.0"?>'
+          '<!--comment-->'
+          '<!DOCTYPE root-name SYSTEM "uri-reference">'
+          '<data />');
+      assertDocumentParseInvariants('<?xml version="1.0"?>'
+          '<!DOCTYPE root-name SYSTEM "uri-reference">'
+          '<!--comment-->'
+          '<data />');
+      assertDocumentParseInvariants('<?xml version="1.0"?>'
+          '<!DOCTYPE root-name SYSTEM "uri-reference">'
+          '<data />'
+          '<!--comment-->');
     });
     group('validation errors', () {
       test('empty', () {
@@ -113,11 +127,36 @@ void main() {
               position: 37,
             )));
       });
-      test('repeated root element', () {
+      test('unexpected declaration', () {
+        expect(
+            () => XmlDocument.parse('<!DOCTYPE root-name SYSTEM "uri-ref">'
+                '<?xml version="1.1"?>'),
+            throwsA(isXmlParserException(
+              message: 'Unexpected XML declaration',
+              position: 37,
+            )));
+        expect(
+            () => XmlDocument.parse('<root />'
+                '<?xml version="1.1"?>'),
+            throwsA(isXmlParserException(
+              message: 'Unexpected XML declaration',
+              position: 8,
+            )));
+      });
+      test('unexpected doctype', () {
+        expect(
+            () => XmlDocument.parse('<root />'
+                '<!DOCTYPE root-name SYSTEM "uri-ref">'),
+            throwsA(isXmlParserException(
+              message: 'Unexpected doctype declaration',
+              position: 8,
+            )));
+      });
+      test('unexpected root element', () {
         expect(
             () => XmlDocument.parse('<root1 /><root2 />'),
             throwsA(isXmlParserException(
-              message: 'Expected a single root element',
+              message: 'Unexpected root element',
               position: 9,
             )));
       });

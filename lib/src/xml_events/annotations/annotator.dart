@@ -47,17 +47,23 @@ class XmlAnnotator {
           if (_roots.whereType<XmlDeclarationEvent>().isNotEmpty) {
             throw XmlParserException('Expected at most one XML declaration',
                 buffer: buffer, position: start);
+          } else if (_roots.isNotEmpty) {
+            throw XmlParserException('Unexpected XML declaration',
+                buffer: buffer, position: start);
           }
           _roots.add(event);
         } else if (event is XmlDoctypeEvent) {
           if (_roots.whereType<XmlDoctypeEvent>().isNotEmpty) {
             throw XmlParserException('Expected at most one doctype declaration',
                 buffer: buffer, position: start);
+          } else if (_roots.whereType<XmlStartElementEvent>().isNotEmpty) {
+            throw XmlParserException('Unexpected doctype declaration',
+                buffer: buffer, position: start);
           }
           _roots.add(event);
         } else if (event is XmlStartElementEvent) {
           if (_roots.whereType<XmlStartElementEvent>().isNotEmpty) {
-            throw XmlParserException('Expected a single root element',
+            throw XmlParserException('Unexpected root element',
                 buffer: buffer, position: start);
           }
           _roots.add(event);
