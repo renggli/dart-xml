@@ -5,7 +5,7 @@ import 'data.dart';
 /// XML doctype node.
 class XmlDoctype extends XmlData {
   /// Create a doctype section with `text`.
-  XmlDoctype(String text) : super(text);
+  XmlDoctype(super.text);
 
   @override
   XmlNodeType get nodeType => XmlNodeType.DOCUMENT_TYPE;

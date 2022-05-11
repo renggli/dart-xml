@@ -1,10 +1,14 @@
 # Changelog
 
+## 6.1.0 (Unpublished)
+
+* Dart 2.17 requirement.
+* Validate the presence and order of root nodes when parsing; this got lost in 6.0.0 and can now also optionally be enabled for streaming and iterable parsers.
+
 ## 6.0.0 
 
 * Significantly improve parsing performance by up to 30%.
 * Improved error handling to include more information, such as tag names and location in the parsed source.
-  * Optionally validate the persence of root nodes in the `Iterator` and `Stream` parsers.
 * Use the pull-based parser for all underlying parsing operations:
   * Reduce size of library by removing duplicated parsing and validation functionality.
   * Fix entity decoding if the entity spawns multiple chunks.

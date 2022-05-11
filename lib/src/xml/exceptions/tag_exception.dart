@@ -5,12 +5,12 @@ import 'format_exception.dart';
 class XmlTagException extends XmlException with XmlFormatException {
   /// Creates a new XmlTagException.
   XmlTagException(
-    String message, {
+    super.message, {
     this.expectedName,
     this.actualName,
     this.buffer,
     this.position,
-  }) : super(message);
+  });
 
   /// Creates a new XmlTagException where [expectedName] was expected, but
   /// instead we found [actualName].

@@ -5,9 +5,8 @@ import 'exception.dart';
 /// Exception thrown when an unsupported node type is used.
 class XmlNodeTypeException extends XmlException {
   /// Creates a new XmlNodeTypeException.
-  XmlNodeTypeException(String message,
-      {required this.node, required this.types})
-      : super(message);
+  XmlNodeTypeException(super.message,
+      {required this.node, required this.types});
 
   /// Ensure that [node] is of one of the provided [types].
   static void checkValidType(XmlNode node, Iterable<XmlNodeType> types) {

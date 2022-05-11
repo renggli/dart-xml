@@ -1,6 +1,5 @@
 import 'package:meta/meta.dart';
 
-import '../entities/entity_mapping.dart';
 import '../mixins/has_attributes.dart';
 import '../nodes/attribute.dart';
 import '../nodes/document.dart';
@@ -15,8 +14,8 @@ import 'writer.dart';
 /// adapted.
 class XmlPrettyWriter extends XmlWriter {
   XmlPrettyWriter(
-    StringSink buffer, {
-    XmlEntityMapping? entityMapping,
+    super.buffer, {
+    super.entityMapping,
     int? level,
     String? indent,
     String? newLine,
@@ -26,8 +25,7 @@ class XmlPrettyWriter extends XmlWriter {
     this.spaceBeforeSelfClose,
   })  : level = level ?? 0,
         indent = indent ?? '  ',
-        newLine = newLine ?? '\n',
-        super(buffer, entityMapping: entityMapping);
+        newLine = newLine ?? '\n';
 
   int level;
   bool pretty = true;
