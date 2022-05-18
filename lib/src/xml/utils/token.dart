@@ -1,31 +1,40 @@
 /// Shared tokens for XML reading and writing.
 class XmlToken {
-  static const String doubleQuote = '"';
-  static const String singleQuote = "'";
-  static const String equals = '=';
-  static const String namespace = ':';
-  static const String whitespace = ' ';
-  static const String openComment = '<!--';
-  static const String closeComment = '-->';
-  static const String openCDATA = '<![CDATA[';
-  static const String closeCDATA = ']]>';
-  static const String openElement = '<';
-  static const String closeElement = '>';
-  static const String openEndElement = '</';
-  static const String closeEndElement = '/>';
-  static const String openDeclaration = '<?xml';
-  static const String closeDeclaration = '?>';
-  static const String openDoctype = '<!DOCTYPE';
-  static const String closeDoctype = '>';
-  static const String openDoctypeBlock = '[';
-  static const String closeDoctypeBlock = ']';
-  static const String openProcessing = '<?';
-  static const String closeProcessing = '?>';
-  static const String entityStart = '&';
-  static const String entityEnd = ';';
+  static const doubleQuote = '"';
+  static const singleQuote = "'";
+  static const equals = '=';
+  static const namespace = ':';
+  static const whitespace = ' ';
+  static const openComment = '<!--';
+  static const closeComment = '-->';
+  static const openCDATA = '<![CDATA[';
+  static const closeCDATA = ']]>';
+  static const openElement = '<';
+  static const closeElement = '>';
+  static const openEndElement = '</';
+  static const closeEndElement = '/>';
+  static const openDeclaration = '<?xml';
+  static const closeDeclaration = '?>';
+  static const openDoctype = '<!DOCTYPE';
+  static const closeDoctype = '>';
+  static const openDoctypeIntSubset = '[';
+  static const closeDoctypeIntSubset = ']';
+  static const doctypeSystemId = 'SYSTEM';
+  static const doctypePublicId = 'PUBLIC';
+  static const doctypeElementDecl = '<!ELEMENT';
+  static const doctypeAttlistDecl = '<!ATTLIST';
+  static const doctypeEntityDecl = '<!ENTITY';
+  static const doctypeNotationDecl = '<!NOTATION';
+  static const doctypeDeclEnd = '>';
+  static const doctypeReferenceStart = '%';
+  static const doctypeReferenceEnd = ';';
+  static const openProcessing = '<?';
+  static const closeProcessing = '?>';
+  static const entityStart = '&';
+  static const entityEnd = ';';
 
   // https://en.wikipedia.org/wiki/QName
-  static const String nameStartChars = ':A-Z_a-z'
+  static const nameStartChars = ':A-Z_a-z'
       '\u00c0-\u00d6'
       '\u00d8-\u00f6'
       '\u00f8-\u02ff'
@@ -37,7 +46,7 @@ class XmlToken {
       '\u3001-\ud7ff'
       '\uf900-\ufdcf'
       '\ufdf0-\ufffd';
-  static const String nameChars = '$nameStartChars'
+  static const nameChars = '$nameStartChars'
       '-.0-9'
       '\u00b7'
       '\u0300-\u036f'
