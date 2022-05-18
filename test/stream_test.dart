@@ -15,18 +15,20 @@ import 'utils/matchers.dart';
 @isTestGroup
 void chunkedTests<T>(
   String title,
-  T input,
+  T Function() factory,
   Stream<T> Function(T input, int Function() splitter) chunker,
   FutureOr<void> Function(Stream<T> stream) callback,
 ) =>
     group(title, () {
+      late final T input;
+      setUpAll(() => input = factory());
       for (var i = 1; i <= 512; i *= 2) {
         test(
           'chunks equally sized $i',
           () => callback(chunker(input, () => i)),
         );
       }
-      final random = Random(Object.hash(title, input));
+      final random = Random(title.hashCode);
       for (var i = 1; i <= 512; i *= 2) {
         test(
           'chunks randomly sized $i',
@@ -55,15 +57,17 @@ void main() {
   group('events', () {
     for (final entry in allXml.entries) {
       group(entry.key, () {
-        final document = XmlDocument.parse(entry.value);
-        final source = document.toXmlString();
-        final events = <XmlEvent>[];
-        setUp(() => events
-          ..clear()
-          ..addAll(parseEvents(source)));
+        late final XmlDocument document;
+        late final String source;
+        late final List<XmlEvent> events;
+        setUpAll(() {
+          document = XmlDocument.parse(entry.value);
+          source = document.toXmlString();
+          events = parseEvents(source).toList(growable: false);
+        });
         chunkedTests<String>(
           'string -> events',
-          source,
+          () => source,
           stringChunker,
           (stream) {
             final actual = stream.toXmlEvents().normalizeEvents().flatten();
@@ -72,7 +76,7 @@ void main() {
         );
         chunkedTests<List<XmlEvent>>(
           'events -> nodes',
-          events,
+          () => events,
           listChunker,
           (stream) {
             final actual = stream.toXmlNodes().flatten();
@@ -86,7 +90,7 @@ void main() {
         );
         chunkedTests<List<XmlNode>>(
           'nodes -> events',
-          document.children,
+          () => document.children,
           listChunker,
           (stream) {
             final actual = stream.toXmlEvents().flatten();
@@ -95,7 +99,7 @@ void main() {
         );
         chunkedTests<List<XmlEvent>>(
           'events -> string',
-          events,
+          () => events,
           listChunker,
           (stream) {
             final actual = stream.toXmlString().join();
@@ -104,7 +108,7 @@ void main() {
         );
         chunkedTests<String>(
           'string -> events -> string',
-          source,
+          () => source,
           stringChunker,
           (stream) {
             final actual =
@@ -114,7 +118,7 @@ void main() {
         );
         chunkedTests<List<XmlEvent>>(
           'events -> string -> events',
-          events,
+          () => events,
           listChunker,
           (stream) {
             final actual = stream
@@ -128,7 +132,7 @@ void main() {
         );
         chunkedTests<List<XmlEvent>>(
           'events -> nodes -> events',
-          events,
+          () => events,
           listChunker,
           (stream) {
             final actual = stream.toXmlNodes().toXmlEvents().flatten().toList();
@@ -137,7 +141,7 @@ void main() {
         );
         chunkedTests<List<XmlNode>>(
           'nodes -> events -> nodes',
-          document.children,
+          () => document.children,
           listChunker,
           (stream) async {
             final actual =
@@ -154,7 +158,7 @@ void main() {
         if (entry.value == shiporderXsd) {
           chunkedTests<List<XmlEvent>>(
             'events -> subtree -> nodes',
-            events,
+            () => events,
             listChunker,
             (stream) async {
               final actual = await stream
@@ -183,7 +187,7 @@ void main() {
           );
           chunkedTests<List<XmlEvent>>(
             'events -> parents -> subtree -> nodes',
-            events,
+            () => events,
             listChunker,
             (stream) async {
               final actual = await stream
@@ -216,7 +220,7 @@ void main() {
         }
         chunkedTests<List<XmlEvent>>(
           'events -> handler',
-          events,
+          () => events,
           listChunker,
           (stream) async {
             final cdata = <XmlCDATAEvent>[];
@@ -249,7 +253,7 @@ void main() {
         );
         chunkedTests<List<XmlEvent>>(
           'events -> withParent -> map',
-          events,
+          () => events,
           listChunker,
           (stream) async {
             final stacks = await stream
@@ -274,7 +278,7 @@ void main() {
   group('errors', () {
     chunkedTests<String>(
       'missing tag closing',
-      '<hello',
+      () => '<hello',
       stringChunker,
       (stream) {
         expect(
@@ -287,7 +291,7 @@ void main() {
     );
     chunkedTests<String>(
       'missing attribute closing',
-      '<foo bar="abc',
+      () => '<foo bar="abc',
       stringChunker,
       (stream) {
         expect(
@@ -300,7 +304,7 @@ void main() {
     );
     chunkedTests<String>(
       'missing comment closing',
-      '<!-- comment',
+      () => '<!-- comment',
       stringChunker,
       (stream) {
         expect(
@@ -314,7 +318,7 @@ void main() {
     group('tags not validated', () {
       chunkedTests<String>(
         'unexpected end tag',
-        '</foo>',
+        () => '</foo>',
         stringChunker,
         (stream) {
           expect(
@@ -327,7 +331,7 @@ void main() {
       );
       chunkedTests<String>(
         'missing end tag',
-        '<foo>',
+        () => '<foo>',
         stringChunker,
         (stream) {
           expect(
@@ -340,7 +344,7 @@ void main() {
       );
       chunkedTests<String>(
         'not matching end tag',
-        '<foo></bar></foo>',
+        () => '<foo></bar></foo>',
         stringChunker,
         (stream) {
           expect(
@@ -357,7 +361,7 @@ void main() {
     group('tags validated', () {
       chunkedTests<String>(
         'unexpected end tag',
-        '</foo>',
+        () => '</foo>',
         stringChunker,
         (stream) {
           expect(
@@ -370,7 +374,7 @@ void main() {
       );
       chunkedTests<String>(
         'missing end tag',
-        '<foo>',
+        () => '<foo>',
         stringChunker,
         (stream) {
           expect(
@@ -383,7 +387,7 @@ void main() {
       );
       chunkedTests<String>(
         'not matching end tag',
-        '<foo></bar></foo>',
+        () => '<foo></bar></foo>',
         stringChunker,
         (stream) {
           expect(
