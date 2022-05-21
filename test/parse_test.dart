@@ -96,9 +96,7 @@ void main() {
     });
     test('doctype (internal entity, included)', () {
       assertDocumentParseInvariants('<!DOCTYPE root [\n'
-          '  <!ENTITY % YN '
-          "Yes"
-          ' >\n'
+          '  <!ENTITY % YN "Yes" >\n'
           '  <!ENTITY WhatHeSaid "He said %YN;" >\n'
           ']>\n'
           '<root />');
