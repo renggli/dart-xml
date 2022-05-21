@@ -20,19 +20,17 @@ void chunkedTests<T>(
   FutureOr<void> Function(Stream<T> stream) callback,
 ) =>
     group(title, () {
-      late final T input;
-      setUpAll(() => input = factory());
       for (var i = 1; i <= 512; i *= 2) {
         test(
           'chunks equally sized $i',
-          () => callback(chunker(input, () => i)),
+          () => callback(chunker(factory(), () => i)),
         );
       }
       final random = Random(title.hashCode);
       for (var i = 1; i <= 512; i *= 2) {
         test(
           'chunks randomly sized $i',
-          () => callback(chunker(input, () => random.nextInt(1 + i))),
+          () => callback(chunker(factory(), () => random.nextInt(1 + i))),
         );
       }
     });
@@ -57,10 +55,10 @@ void main() {
   group('events', () {
     for (final entry in allXml.entries) {
       group(entry.key, () {
-        late final XmlDocument document;
-        late final String source;
-        late final List<XmlEvent> events;
-        setUpAll(() {
+        late XmlDocument document;
+        late String source;
+        late List<XmlEvent> events;
+        setUp(() {
           document = XmlDocument.parse(entry.value);
           source = document.toXmlString();
           events = parseEvents(source).toList(growable: false);
