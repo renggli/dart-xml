@@ -136,21 +136,94 @@ class XmlEventParser {
   Parser<XmlDoctypeEvent> doctype() => [
         XmlToken.openDoctype.toParser(),
         ref0(space),
+        ref0(nameToken),
+        [
+          ref0(space),
+          ref0(doctypeExternalId),
+        ].toSequenceParser().optional(),
+        ref0(spaceOptional),
+        ref0(doctypeIntSubset).optional(),
+        ref0(spaceOptional),
+        XmlToken.closeDoctype.toParser(),
+      ].toSequenceParser().flatten().map((each) => XmlDoctypeEvent(
+          each.substring(XmlToken.openDoctype.length + 1,
+              each.length - XmlToken.closeDoctype.length)));
+
+  Parser doctypeExternalId() => [
+        [
+          XmlToken.doctypeSystemId.toParser(),
+          ref0(space),
+          ref0(attributeValue),
+        ].toSequenceParser(),
+        [
+          XmlToken.doctypePublicId.toParser(),
+          ref0(space),
+          ref0(attributeValue),
+          ref0(space),
+          ref0(attributeValue)
+        ].toSequenceParser(),
+      ].toChoiceParser();
+
+  Parser doctypeIntSubset() => [
+        XmlToken.openDoctypeIntSubset.toParser(),
+        [
+          ref0(doctypeElementDecl),
+          ref0(doctypeAttlistDecl),
+          ref0(doctypeEntityDecl),
+          ref0(doctypeNotationDecl),
+          ref0(processing),
+          ref0(comment),
+          ref0(doctypeReference),
+          any(),
+        ].toChoiceParser().starLazy(XmlToken.closeDoctypeIntSubset.toParser()),
+        XmlToken.closeDoctypeIntSubset.toParser(),
+      ].toSequenceParser();
+
+  Parser doctypeElementDecl() => [
+        XmlToken.doctypeElementDecl.toParser(),
         [
           ref0(nameToken),
           ref0(attributeValue),
-          [
-            XmlToken.openDoctypeBlock.toParser(),
-            any().starLazy(XmlToken.closeDoctypeBlock.toParser()),
-            XmlToken.closeDoctypeBlock.toParser(),
-          ].toSequenceParser(),
-        ]
-            .toChoiceParser()
-            .separatedBy(ref0(spaceOptional))
-            .flatten('"{XmlToken.closeDoctype}" expected'),
-        ref0(spaceOptional),
-        XmlToken.closeDoctype.toParser(),
-      ].toSequenceParser().map((each) => XmlDoctypeEvent(each[2]));
+          any(),
+        ].toChoiceParser().starLazy(XmlToken.doctypeDeclEnd.toParser()),
+        XmlToken.doctypeDeclEnd.toParser(),
+      ].toSequenceParser();
+
+  Parser doctypeAttlistDecl() => [
+        XmlToken.doctypeAttlistDecl.toParser(),
+        [
+          ref0(nameToken),
+          ref0(attributeValue),
+          any(),
+        ].toChoiceParser().starLazy(XmlToken.doctypeDeclEnd.toParser()),
+        XmlToken.doctypeDeclEnd.toParser(),
+      ].toSequenceParser();
+
+  Parser doctypeEntityDecl() => [
+        XmlToken.doctypeEntityDecl.toParser(),
+        [
+          ref0(nameToken),
+          ref0(attributeValue),
+          any(),
+        ].toChoiceParser().starLazy(XmlToken.doctypeDeclEnd.toParser()),
+        XmlToken.doctypeDeclEnd.toParser(),
+      ].toSequenceParser();
+
+  Parser doctypeNotationDecl() => [
+        XmlToken.doctypeNotationDecl.toParser(),
+        [
+          ref0(nameToken),
+          ref0(attributeValue),
+          any(),
+        ].toChoiceParser().starLazy(XmlToken.doctypeDeclEnd.toParser()),
+        XmlToken.doctypeDeclEnd.toParser(),
+      ].toSequenceParser();
+
+  Parser doctypeReference() => [
+        XmlToken.doctypeReferenceStart.toParser(),
+        ref0(nameToken),
+        XmlToken.doctypeReferenceEnd.toParser(),
+      ].toSequenceParser();
 
   // Tokens
 

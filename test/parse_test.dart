@@ -36,20 +36,130 @@ void main() {
           '<!DOCTYPE root-name PUBLIC "public-identifier" "uri-reference">'
           '<root />');
     });
-    test('doctype (subset)', () {
-      assertDocumentParseInvariants('<!DOCTYPE root ['
-          '  <!ELEMENT root (child)>'
-          '  <!ATTLIST root attribute #IMPLIED>'
-          '  <!ENTITY copy "©">'
-          ']>'
+    test('doctype (empty)', () {
+      assertDocumentParseInvariants('<!DOCTYPE root []>\n'
           '<root />');
     });
-    test('doctype (combined)', () {
-      assertDocumentParseInvariants('<!DOCTYPE root SYSTEM "uri-reference" ['
-          '  <!ELEMENT root (child)>'
-          '  <!ATTLIST root attribute #IMPLIED>'
-          '  <!ENTITY copy "©">'
-          ']>'
+    test('doctype (comment)', () {
+      assertDocumentParseInvariants('<!DOCTYPE root [\n'
+          '  <!-- comment -->\n'
+          ']>\n'
+          '<root />');
+    });
+    test('doctype (processing)', () {
+      assertDocumentParseInvariants('<!DOCTYPE root [\n'
+          '  <?processing?>\n'
+          ']>\n'
+          '<root />');
+    });
+    test('doctype (element type declarations)', () {
+      assertDocumentParseInvariants('<!DOCTYPE root [\n'
+          '  <!ELEMENT br EMPTY>\n'
+          '  <!ELEMENT p (#PCDATA|emph)* >\n'
+          '  <!ELEMENT %name.para; %content.para; >\n'
+          ']>\n'
+          '<root />');
+    });
+    test('doctype (element content models)', () {
+      assertDocumentParseInvariants('<!DOCTYPE root [\n'
+          '  <!ELEMENT spec (front, body, back?)>\n'
+          '  <!ELEMENT div1 (head, (p | list | note)*, div2*)>\n'
+          '  <!ELEMENT dictionary-body (%div.mix; | %dict.mix;)*>\n'
+          ']>\n'
+          '<root />');
+    });
+    test('doctype (element mixed content)', () {
+      assertDocumentParseInvariants('<!DOCTYPE root [\n'
+          '  <!ELEMENT p (#PCDATA|a|ul|b|i|em)*>\n'
+          '  <!ELEMENT p (#PCDATA | %font; | %phrase; | %special; | %form;)* >\n'
+          '  <!ELEMENT b (#PCDATA)>\n'
+          ']>\n'
+          '<root />');
+    });
+    test('doctype (attribute-list)', () {
+      assertDocumentParseInvariants('<!DOCTYPE root [\n'
+          '  <!ATTLIST termdef\n'
+          '    id      ID      #REQUIRED\n'
+          '    name    CDATA   #IMPLIED>\n'
+          '  <!ATTLIST list\n'
+          '    type    (bullets|ordered|glossary)  "ordered">\n'
+          '  <!ATTLIST form\n'
+          '    method  CDATA   #FIXED "POST">\n'
+          ']>\n'
+          '<root />');
+    });
+    test('doctype (internal entity)', () {
+      assertDocumentParseInvariants('<!DOCTYPE root [\n'
+          '  <!ENTITY Pub-Status "This is a pre-release.">\n'
+          ']>\n'
+          '<root />');
+    });
+    test('doctype (internal entity, included)', () {
+      assertDocumentParseInvariants('<!DOCTYPE root [\n'
+          '  <!ENTITY % YN '
+          "Yes"
+          ' >\n'
+          '  <!ENTITY WhatHeSaid "He said %YN;" >\n'
+          ']>\n'
+          '<root />');
+    });
+    test('doctype (internal entity, replacement text)', () {
+      assertDocumentParseInvariants('<!DOCTYPE root [\n'
+          '  <!ENTITY % pub    "&#xc9;ditions Gallimard" >\n'
+          '  <!ENTITY   rights "All rights reserved" >\n'
+          '  <!ENTITY   book   "La Peste: Albert Camus,\n'
+          '    &#xA9; 1947 %pub;. &rights;" >\n'
+          ']>\n'
+          '<root />');
+    });
+    test('doctype (entity reference)', () {
+      assertDocumentParseInvariants('<!DOCTYPE root [\n'
+          '  <!ENTITY % ISOLat2\n'
+          '    SYSTEM "http://www.xml.com/iso/isolat2-xml.entities" >\n'
+          ']>\n'
+          '<root />');
+    });
+    test('doctype (external entities )', () {
+      assertDocumentParseInvariants('<!DOCTYPE root [\n'
+          '  <!ENTITY open-hatch\n'
+          '    SYSTEM "http://www.textuality.com/boilerplate/OpenHatch.xml">\n'
+          '  <!ENTITY open-hatch\n'
+          '    PUBLIC "-//Textuality//TEXT Standard open-hatch boilerplate//EN"\n'
+          '    "http://www.textuality.com/boilerplate/OpenHatch.xml">\n'
+          '  <!ENTITY hatch-pic\n'
+          '    SYSTEM "../grafix/OpenHatch.gif"\n'
+          '    NDATA gif >\n'
+          ']>\n'
+          '<root />');
+    });
+    test('doctype (notation)', () {
+      assertDocumentParseInvariants('<!DOCTYPE root [\n'
+          '  <!NOTATION open-hatch\n'
+          '    SYSTEM "http://www.textuality.com/boilerplate/OpenHatch.xml">\n'
+          '  <!NOTATION open-hatch\n'
+          '    PUBLIC "-//Textuality//TEXT Standard open-hatch boilerplate//EN">\n'
+          '  <!NOTATION open-hatch\n'
+          '    PUBLIC "-//Textuality//TEXT Standard open-hatch boilerplate//EN"\n'
+          '    "http://www.textuality.com/boilerplate/OpenHatch.xml">\n'
+          ']>\n'
+          '<root />');
+    });
+    test('doctype (ambiguous)', () {
+      assertDocumentParseInvariants('<!DOCTYPE ambiguous [\n'
+          '  <!-- comment [<brackets>] -->\n'
+          '  <?pi processing="[<brackets>]" ?>\n'
+          '  <!NOTATION not PUBLIC "[<brackets>]" \'[<brackets>]\'>\n'
+          '  <!ENTITY entity1 "[<brackets>]">\n'
+          '  <!ENTITY entity2 \'[<brackets>]\'>\n'
+          '  <!ENTITY % entity3 "[<brackets>]">\n'
+          '  <!ENTITY % entity4 \'[<brackets>]\'>\n'
+          '  <!ELEMENT element1 (#PCDATA)>\n'
+          '  <!ELEMENT element2 (element1 | element2)+>\n'
+          '  <!ELEMENT element3 (#PCDATA , element3)*>\n'
+          '  <!ATTLIST attlist1 entity1 (foo | bar)>\n'
+          '  <!ATTLIST attlist2 entity2 "[<brackets>]" #REQUIRED>\n'
+          '  <!ATTLIST attlist2 entity3 \'[<brackets>]\' #IMPLIED>\n'
+          ']>\n'
           '<root />');
     });
     test('element', () {

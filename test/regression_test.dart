@@ -111,4 +111,32 @@ void main() {
         </Alarm>
     ''');
   });
+  test('https://github.com/renggli/dart-xml/issues/144', () {
+    assertDocumentParseInvariants('''<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE kanjidic2 [
+	<!-- Version 1.6 - April 2008
+	This is the DTD of the XML-format kanji file combining information from
+	the KANJIDIC and KANJD212 files. It is intended to be largely self-
+	documenting, with each field being accompanied by an explanatory
+	comment.
+
+	The file covers the following kanji:
+	(a) the 6,355 kanji from JIS X 0208;
+	(b) the 5,801 kanji from JIS X 0212;
+	(c) the 3,693 kanji from JIS X 0213 as follows:
+		(i) the 2,741 kanji which are also in JIS X 0212 have
+		JIS X 0213 code-points (kuten) added to the existing entry;
+		(ii) the 952 "new" kanji have new entries.
+
+	At the end of the explanation for a number of fields there is a tag
+	with the format [N]. This indicates the leading letter(s) of the
+	equivalent field in the KANJIDIC and KANJD212 files.
+
+	The KANJIDIC documentation should also be read for additional 
+	information about the information in the file.
+	-->
+<!ELEMENT kanjidic2 (header,character*)>
+<!ELEMENT header (file_version,database_version,date_of_creation)>
+]><root/>''');
+  });
 }
