@@ -68,9 +68,7 @@ class XmlEventParser {
         return XmlEventAttribute(
             each[1] as String,
             entityMapping.decode(attributeValue[1]),
-            attributeValue[0] == '"'
-                ? XmlAttributeType.DOUBLE_QUOTE
-                : XmlAttributeType.SINGLE_QUOTE);
+            XmlAttributeType.fromToken(attributeValue[0]));
       });
 
   Parser<List<String>> attributeValue() => [

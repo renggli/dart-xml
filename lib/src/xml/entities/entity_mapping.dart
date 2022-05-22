@@ -54,13 +54,6 @@ abstract class XmlEntityMapping {
 
   /// Encodes a string to be serialized as XML attribute value together with
   /// its corresponding quotes.
-  String encodeAttributeValueWithQuotes(String input, XmlAttributeType type) {
-    final quote = _attributeQuote[type];
-    return '$quote${encodeAttributeValue(input, type)}$quote';
-  }
+  String encodeAttributeValueWithQuotes(String input, XmlAttributeType type) =>
+      '${type.token}${encodeAttributeValue(input, type)}${type.token}';
 }
-
-const Map<XmlAttributeType, String> _attributeQuote = {
-  XmlAttributeType.SINGLE_QUOTE: "'",
-  XmlAttributeType.DOUBLE_QUOTE: '"'
-};
