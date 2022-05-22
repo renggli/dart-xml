@@ -465,7 +465,9 @@ void main() {
     expect(node.depth, 1);
     expect(node.attributes, isEmpty);
     expect(node.children, isEmpty);
-    expect(node.text, 'html [<!-- internal subset -->]');
+    expect(node.name, 'html');
+    expect(node.externalId, isNull);
+    expect(node.internalSubset, '<!-- internal subset -->');
     expect(node.nodeType, XmlNodeType.DOCUMENT_TYPE);
     expect(node.nodeType.toString(), 'XmlNodeType.DOCUMENT_TYPE');
     expect(node.toString(), '<!DOCTYPE html [<!-- internal subset -->]>');

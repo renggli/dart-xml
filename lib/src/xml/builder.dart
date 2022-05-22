@@ -1,3 +1,4 @@
+import 'dtd/external_id.dart';
 import 'entities/entity_mapping.dart';
 import 'enums/attribute_type.dart';
 import 'nodes/attribute.dart';
@@ -89,12 +90,23 @@ class XmlBuilder {
   /// Adds a [XmlDoctype] node.
   ///
   /// For example, to generate an XML doctype element `<!DOCTYPE note SYSTEM
-  /// "Note.dtd">` one would write:
+  /// "note.dtd">` one would write:
   ///
-  ///     builder.doctype('note SYSTEM "Note.dtd"');
+  ///     builder.doctype('note', systemId: 'note.dtd');
   ///
-  void doctype(Object text) {
-    _stack.last.children.add(XmlDoctype(text.toString()));
+  void doctype(String name,
+      {String? publicId, String? systemId, String? internalSubset}) {
+    if (publicId != null && systemId == null) {
+      throw ArgumentError(
+          'A system ID is required, if a public ID is provided');
+    }
+    final externalId = publicId != null && systemId != null
+        ? DtdExternalId.public(publicId, XmlAttributeType.DOUBLE_QUOTE,
+            systemId, XmlAttributeType.DOUBLE_QUOTE)
+        : publicId == null && systemId != null
+            ? DtdExternalId.system(systemId, XmlAttributeType.DOUBLE_QUOTE)
+            : null;
+    _stack.last.children.add(XmlDoctype(name, externalId, internalSubset));
   }
 
   /// Adds a [XmlProcessing] node with the provided [target] and [text].

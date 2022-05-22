@@ -57,7 +57,17 @@ class XmlWriter with XmlVisitor {
   void visitDoctype(XmlDoctype node) {
     buffer.write(XmlToken.openDoctype);
     buffer.write(XmlToken.whitespace);
-    buffer.write(node.text);
+    buffer.write(node.name);
+    if (node.externalId != null) {
+      buffer.write(XmlToken.whitespace);
+      buffer.write(node.externalId);
+    }
+    if (node.internalSubset != null) {
+      buffer.write(XmlToken.whitespace);
+      buffer.write(XmlToken.openDoctypeIntSubset);
+      buffer.write(node.internalSubset);
+      buffer.write(XmlToken.closeDoctypeIntSubset);
+    }
     buffer.write(XmlToken.closeDoctype);
   }
 

@@ -410,7 +410,9 @@ void assertIteratorEventInvariants(String input, XmlNode node) {
     } else if (event is XmlDoctypeEvent) {
       final expected = nodes.removeAt(0) as XmlDoctype;
       expect(event.nodeType, expected.nodeType);
-      expect(event.text, expected.text);
+      expect(event.name, expected.name);
+      expect(event.externalId, expected.externalId);
+      expect(event.internalSubset, expected.internalSubset);
     } else if (event is XmlDeclarationEvent) {
       final expected = nodes.removeAt(0) as XmlDeclaration;
       expect(event.nodeType, expected.nodeType);
@@ -502,7 +504,9 @@ void assertStreamEventInvariants(String input, XmlNode node) {
     } else if (event is XmlDoctypeEvent) {
       final expected = nodes.removeAt(0) as XmlDoctype;
       expect(event.nodeType, expected.nodeType);
-      expect(event.text, expected.text);
+      expect(event.name, expected.name);
+      expect(event.externalId, expected.externalId);
+      expect(event.internalSubset, expected.internalSubset);
     } else if (event is XmlDeclarationEvent) {
       final expected = nodes.removeAt(0) as XmlDeclaration;
       expect(event.nodeType, expected.nodeType);

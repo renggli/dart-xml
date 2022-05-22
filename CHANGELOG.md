@@ -4,6 +4,7 @@
 
 * Dart 2.17 requirement.
 * Validate the presence and order of root nodes when parsing; this got lost in 6.0.0 and can now also optionally be enabled for streaming and iterable parsers.
+* Add support for basic document type parsing. The contents of the `XmlDoctype` can now be accessed through `name`, `externalId` and `internalSubset`.
 
 ## 6.0.0 
 

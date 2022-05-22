@@ -1,5 +1,6 @@
 import 'package:petitparser/petitparser.dart';
 
+import '../xml/dtd/external_id.dart';
 import '../xml/entities/entity_mapping.dart';
 import '../xml/enums/attribute_type.dart';
 import '../xml/utils/cache.dart';
@@ -135,34 +136,51 @@ class XmlEventParser {
         XmlToken.openDoctype.toParser(),
         ref0(space),
         ref0(nameToken),
-        [
-          ref0(space),
-          ref0(doctypeExternalId),
-        ].toSequenceParser().optional(),
+        ref0(doctypeExternalId).skip(before: ref0(space)).optional(),
         ref0(spaceOptional),
         ref0(doctypeIntSubset).optional(),
         ref0(spaceOptional),
         XmlToken.closeDoctype.toParser(),
-      ].toSequenceParser().flatten().map((each) => XmlDoctypeEvent(
-          each.substring(XmlToken.openDoctype.length + 1,
-              each.length - XmlToken.closeDoctype.length)));
+      ].toSequenceParser().map((each) {
+        final name = each[2] as String;
+        final externalId = each[3] as DtdExternalId?;
+        final internalSubset = each[5] as String?;
+        return XmlDoctypeEvent(name, externalId, internalSubset);
+      });
 
-  Parser doctypeExternalId() => [
+  // DTD entities
+
+  Parser<DtdExternalId> doctypeExternalId() => [
         [
           XmlToken.doctypeSystemId.toParser(),
           ref0(space),
           ref0(attributeValue),
-        ].toSequenceParser(),
+        ].toSequenceParser().map((each) {
+          final system = each[2] as List<String>;
+          return DtdExternalId.system(
+            system[1],
+            XmlAttributeType.fromToken(system[0]),
+          );
+        }),
         [
           XmlToken.doctypePublicId.toParser(),
           ref0(space),
           ref0(attributeValue),
           ref0(space),
-          ref0(attributeValue)
-        ].toSequenceParser(),
+          ref0(attributeValue),
+        ].toSequenceParser().map((each) {
+          final public = each[2] as List<String>;
+          final system = each[4] as List<String>;
+          return DtdExternalId.public(
+            public[1],
+            XmlAttributeType.fromToken(public[0]),
+            system[1],
+            XmlAttributeType.fromToken(system[0]),
+          );
+        }),
       ].toChoiceParser();
 
-  Parser doctypeIntSubset() => [
+  Parser<String> doctypeIntSubset() => [
         XmlToken.openDoctypeIntSubset.toParser(),
         [
           ref0(doctypeElementDecl),
@@ -173,9 +191,12 @@ class XmlEventParser {
           ref0(comment),
           ref0(doctypeReference),
           any(),
-        ].toChoiceParser().starLazy(XmlToken.closeDoctypeIntSubset.toParser()),
+        ]
+            .toChoiceParser()
+            .starLazy(XmlToken.closeDoctypeIntSubset.toParser())
+            .flatten('"${XmlToken.closeDoctypeIntSubset}" expected'),
         XmlToken.closeDoctypeIntSubset.toParser(),
-      ].toSequenceParser();
+      ].toSequenceParser().pick(1);
 
   Parser doctypeElementDecl() => [
         XmlToken.doctypeElementDecl.toParser(),

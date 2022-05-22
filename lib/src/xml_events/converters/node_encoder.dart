@@ -75,7 +75,8 @@ class _XmlNodeEncoderSink extends ChunkedConversionSink<List<XmlNode>>
       sink.add([XmlDeclarationEvent(convertAttributes(node.attributes))]);
 
   @override
-  void visitDoctype(XmlDoctype node) => sink.add([XmlDoctypeEvent(node.text)]);
+  void visitDoctype(XmlDoctype node) => sink
+      .add([XmlDoctypeEvent(node.name, node.externalId, node.internalSubset)]);
 
   @override
   void visitProcessing(XmlProcessing node) =>

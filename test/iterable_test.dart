@@ -70,13 +70,22 @@ void main() {
       expect(event.hashCode, other.hashCode);
     });
     test('doctype', () {
-      final iterator = parseEvents('<!DOCTYPE html>').iterator;
+      final iterator = parseEvents('<!DOCTYPE note\n'
+              'PUBLIC "public.dtd" "system.dtd"\n'
+              '[<!ENTITY copy "(c)">]\n'
+              '>')
+          .iterator;
       expect(iterator.moveNext(), isTrue);
       final event = iterator.current as XmlDoctypeEvent;
       assertComplete(iterator);
       expect(event.nodeType, XmlNodeType.DOCUMENT_TYPE);
-      expect(event.text, 'html');
-      final other = XmlDoctypeEvent(event.text);
+      expect(event.name, 'note');
+      expect(event.externalId, isNotNull);
+      expect(event.externalId!.publicId, 'public.dtd');
+      expect(event.externalId!.systemId, 'system.dtd');
+      expect(event.internalSubset, '<!ENTITY copy "(c)">');
+      final other =
+          XmlDoctypeEvent(event.name, event.externalId, event.internalSubset);
       expect(event, other);
       expect(event.hashCode, other.hashCode);
     });

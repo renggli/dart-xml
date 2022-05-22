@@ -38,7 +38,7 @@ void main() {
   test('all', () {
     final builder = XmlBuilder();
     builder.declaration();
-    builder.doctype('note SYSTEM "Note.dtd"');
+    builder.doctype('note', systemId: 'Note.dtd');
     builder.processing('processing', 'instruction');
     builder.element('element1', attributes: {'attribute1': 'value1'}, nest: () {
       builder.attribute('attribute2', 'value2',
@@ -214,6 +214,51 @@ void main() {
     final actual = xml.toString();
     const expected = '<text>abcdef</text>';
     expect(actual, expected);
+  });
+  test('doctype (plain)', () {
+    final builder = XmlBuilder()
+      ..doctype('note')
+      ..element('root');
+    final xml = builder.buildDocument();
+    assertDocumentTreeInvariants(xml);
+    final actual = xml.toString();
+    const expected = '<!DOCTYPE note><root/>';
+    expect(actual, expected);
+  });
+  test('doctype (system ID)', () {
+    final builder = XmlBuilder()
+      ..doctype('note', systemId: 'system.dtd')
+      ..element('root');
+    final xml = builder.buildDocument();
+    assertDocumentTreeInvariants(xml);
+    final actual = xml.toString();
+    const expected = '<!DOCTYPE note SYSTEM "system.dtd"><root/>';
+    expect(actual, expected);
+  });
+  test('doctype (public ID)', () {
+    final builder = XmlBuilder()
+      ..doctype('note', publicId: 'public.dtd', systemId: 'system.dtd')
+      ..element('root');
+    final xml = builder.buildDocument();
+    assertDocumentTreeInvariants(xml);
+    final actual = xml.toString();
+    const expected = '<!DOCTYPE note PUBLIC "public.dtd" "system.dtd"><root/>';
+    expect(actual, expected);
+  });
+  test('doctype (internal subset)', () {
+    final builder = XmlBuilder()
+      ..doctype('note', internalSubset: '<!ELEMENT br EMPTY>')
+      ..element('root');
+    final xml = builder.buildDocument();
+    assertDocumentTreeInvariants(xml);
+    final actual = xml.toString();
+    const expected = '<!DOCTYPE note [<!ELEMENT br EMPTY>]><root/>';
+    expect(actual, expected);
+  });
+  test('doctype (error)', () {
+    final builder = XmlBuilder();
+    expect(() => builder.doctype('note', publicId: 'public.dtd'),
+        throwsArgumentError);
   });
   test('xml', () {
     final builder = XmlBuilder();

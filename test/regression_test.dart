@@ -91,7 +91,11 @@ void main() {
         <TEI.2></TEI.2>
     ''');
     expect(document.doctypeElement, isNotNull);
-    expect(document.doctypeElement!.text, startsWith('TEI.2 PUBLIC'));
+    expect(document.doctypeElement!.name, 'TEI.2');
+    expect(document.doctypeElement!.externalId!.publicId,
+        '-//TEI P4//DTD Main DTD Driver File//EN');
+    expect(document.doctypeElement!.externalId!.systemId,
+        'http://www.tei-c.org/Guidelines/DTD/tei2.dtd');
   });
   test('https://stackoverflow.com/questions/68100391', () {
     const number = 20;
