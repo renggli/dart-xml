@@ -1,4 +1,5 @@
 import '../nodes/document_fragment.dart';
+import '../nodes/node.dart';
 import 'has_children.dart';
 import 'has_parent.dart';
 import 'has_writer.dart';
@@ -15,7 +16,14 @@ mixin XmlHasXml implements XmlChildrenBase, XmlParentBase, XmlHasWriter {
   String get innerXml => children.map((node) => node.toXmlString()).join();
 
   /// Replaces the markup representing the child nodes of this node.
-  set innerXml(String value) => children
-    ..clear()
-    ..add(XmlDocumentFragment.parse(value));
+  set innerXml(String value) {
+    if (this is! XmlHasChildren) {
+      throw UnsupportedError(
+          '${(this as XmlNode).nodeType} cannot have child nodes.');
+    }
+    children.clear();
+    if (value.isNotEmpty) {
+      children.add(XmlDocumentFragment.parse(value));
+    }
+  }
 }

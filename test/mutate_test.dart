@@ -254,6 +254,15 @@ void main() {
       },
       '<element/>',
     );
+    throwingTest(
+      'unsupported text node',
+      '<element>contents</element>',
+      (node) {
+        expect(node.firstChild, isA<XmlText>());
+        node.firstChild!.innerText = 'error';
+      },
+      throwsUnsupportedError,
+    );
   });
   group('innerXml', () {
     mutatingTest(
@@ -276,6 +285,15 @@ void main() {
         expect(node.innerXml, '');
       },
       '<element/>',
+    );
+    throwingTest(
+      'unsupported text node',
+      '<element>contents</element>',
+      (node) {
+        expect(node.firstChild, isA<XmlText>());
+        node.firstChild!.innerXml = 'error';
+      },
+      throwsUnsupportedError,
     );
   });
   group('outerXml', () {

@@ -19,6 +19,10 @@ mixin XmlHasText implements XmlChildrenBase {
 
   /// Replaces the children of this node with text contents.
   set innerText(String value) {
+    if (this is! XmlHasChildren) {
+      throw UnsupportedError(
+          '${(this as XmlNode).nodeType} cannot have child nodes.');
+    }
     children.clear();
     if (value.isNotEmpty) {
       children.add(XmlText(value));
