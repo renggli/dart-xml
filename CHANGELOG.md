@@ -1,6 +1,6 @@
 # Changelog
 
-## 6.1.0 (Unpublished)
+## 6.1.0
 
 * Dart 2.17 requirement.
 * Validate the presence and order of root nodes when parsing; this got lost in 6.0.0 and can now also optionally be enabled for streaming and iterable parsers.
