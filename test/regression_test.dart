@@ -144,20 +144,21 @@ void main() {
 ]><root/>''');
   });
   test('https://github.com/renggli/dart-xml/discussions/142', () {
-    assertDocumentParseInvariants('''<?xml version="1.0" encoding="utf-8"?>
-  <!DOCTYPE html [
-    <!ENTITY D "&#x2014;">
-    <!ENTITY o "&#x2018;">
-    <!ENTITY c "&#x2019;">
-    <!ENTITY O "&#x201C;">
-    <!ENTITY C "&#x201D;">
-  ]>
-  <html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-      <title>Alice's Adventures in Wonderland by Lewis Carroll</title>
-      <link rel="stylesheet" type="text/css" href="style.css"/>
-      <link rel="stylesheet" type="application/vnd.adobe-page-template"/>
-    </head>
-  </html>''');
+    final entityMapping = XmlDefaultEntityMapping({
+      ...XmlDefaultEntityMapping.html5().entities,
+      'O': '\u201C',
+      'C': '\u201D',
+    });
+    final document = XmlDocument.parse('''<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html [
+  <!ENTITY O "&#x201C;">
+  <!ENTITY C "&#x201D;">
+]>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head><title>Alice's Adventures in Wonderland by Lewis Carroll</title></head>
+  <body>&O;Who are <i>you</i>?&C; said the Caterpillar.</body>
+</html>''', entityMapping: entityMapping);
+    expect(document.findAllElements('body').first.innerText,
+        '“Who are you?” said the Caterpillar.');
   });
 }
