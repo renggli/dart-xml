@@ -301,7 +301,7 @@ Furthermore, there are [numerous packages](https://pub.dev/packages?q=dependency
 
 - [ ] Doesn't validate namespace declarations.
 - [ ] Doesn't validate schema declarations.
-- [ ] Doesn't parse and enforce the DTD.
+- [ ] Doesn't parse, apply or enforce the DTD.
 
 ### Standards
 
