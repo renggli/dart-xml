@@ -61,11 +61,23 @@ void assertDocumentInvariants(XmlNode xml) {
   }
   final document = xml.document!;
   expect(document.children, contains(document.rootElement));
-  if (document.declaration != null) {
-    expect(document.children, contains(document.declaration));
+  final declaration = document.declaration;
+  if (declaration != null) {
+    expect(document.children, contains(declaration));
+    expect(declaration.version, anyOf(isNull, isNotEmpty));
+    expect(declaration.encoding, anyOf(isNull, isNotEmpty));
+    expect(declaration.standalone, anyOf(false, true));
   }
-  if (document.doctypeElement != null) {
-    expect(document.children, contains(document.doctypeElement));
+  final doctypeElement = document.doctypeElement;
+  if (doctypeElement != null) {
+    expect(document.children, contains(doctypeElement));
+    expect(doctypeElement.name, isNotEmpty);
+    final externalId = doctypeElement.externalId;
+    if (externalId != null) {
+      expect(externalId.systemId, isNotEmpty);
+      expect(externalId.publicId, anyOf(isNull, isNotEmpty));
+    }
+    expect(doctypeElement.internalSubset, anyOf(isNull, isA<String>()));
   }
   expect(root.depth, 0);
 }

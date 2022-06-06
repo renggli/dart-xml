@@ -143,4 +143,21 @@ void main() {
 <!ELEMENT header (file_version,database_version,date_of_creation)>
 ]><root/>''');
   });
+  test('https://github.com/renggli/dart-xml/discussions/142', () {
+    assertDocumentParseInvariants('''<?xml version="1.0" encoding="utf-8"?>
+  <!DOCTYPE html [
+    <!ENTITY D "&#x2014;">
+    <!ENTITY o "&#x2018;">
+    <!ENTITY c "&#x2019;">
+    <!ENTITY O "&#x201C;">
+    <!ENTITY C "&#x201D;">
+  ]>
+  <html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+      <title>Alice's Adventures in Wonderland by Lewis Carroll</title>
+      <link rel="stylesheet" type="text/css" href="style.css"/>
+      <link rel="stylesheet" type="application/vnd.adobe-page-template"/>
+    </head>
+  </html>''');
+  });
 }
