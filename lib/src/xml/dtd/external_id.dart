@@ -1,7 +1,7 @@
 import '../enums/attribute_type.dart';
 import '../utils/token.dart';
 
-/// Immutable external ID .
+/// Immutable external ID.
 class DtdExternalId {
   DtdExternalId.public(String this.publicId, XmlAttributeType this.publicIdType,
       this.systemId, this.systemIdType);
