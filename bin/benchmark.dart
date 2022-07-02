@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:xml/xml.dart';
 import 'package:xml/xml_events.dart';
 
-import 'examples.dart';
+import '../test/utils/examples.dart';
 
 /// Measures the time it takes to run [function] in microseconds.
 ///
