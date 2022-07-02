@@ -1,4 +1,5 @@
 import '../enums/node_type.dart';
+import '../mixins/has_children.dart';
 import '../nodes/node.dart';
 import 'exception.dart';
 
@@ -15,6 +16,17 @@ class XmlNodeTypeException extends XmlException {
         'Got ${node.nodeType}, but expected one of ${types.join(', ')}',
         node: node,
         types: types,
+      );
+    }
+  }
+
+  /// Ensure that [node] can have children.
+  static void checkHasChildren(XmlNode node) {
+    if (node is! XmlHasChildren) {
+      throw XmlNodeTypeException(
+        '${node.nodeType} cannot have child nodes.',
+        node: node,
+        types: const [],
       );
     }
   }

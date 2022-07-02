@@ -261,7 +261,11 @@ void main() {
         expect(node.firstChild, isA<XmlText>());
         node.firstChild!.innerText = 'error';
       },
-      throwsUnsupportedError,
+      throwsA(isXmlNodeTypeException(
+        message: 'XmlNodeType.TEXT cannot have child nodes.',
+        node: isA<XmlText>(),
+        types: isEmpty,
+      )),
     );
   });
   group('innerXml', () {
@@ -293,7 +297,11 @@ void main() {
         expect(node.firstChild, isA<XmlText>());
         node.firstChild!.innerXml = 'error';
       },
-      throwsUnsupportedError,
+      throwsA(isXmlNodeTypeException(
+        message: 'XmlNodeType.TEXT cannot have child nodes.',
+        node: isA<XmlText>(),
+        types: isEmpty,
+      )),
     );
   });
   group('outerXml', () {

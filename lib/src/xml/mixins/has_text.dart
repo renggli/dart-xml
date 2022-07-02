@@ -1,3 +1,4 @@
+import '../exceptions/type_exception.dart';
 import '../navigation/descendants.dart';
 import '../nodes/cdata.dart';
 import '../nodes/data.dart';
@@ -19,10 +20,7 @@ mixin XmlHasText implements XmlChildrenBase {
 
   /// Replaces the children of this node with text contents.
   set innerText(String value) {
-    if (this is! XmlHasChildren) {
-      throw UnsupportedError(
-          '${(this as XmlNode).nodeType} cannot have child nodes.');
-    }
+    XmlNodeTypeException.checkHasChildren(this as XmlNode);
     children.clear();
     if (value.isNotEmpty) {
       children.add(XmlText(value));
