@@ -2,6 +2,8 @@
 
 ## 6.2.0 (unpublished)
 
+* Add the ability to tap into a stream of `XmlEvent` with `tapEachEvent` (similar to `forEachEvent`).
+
 ## 6.1.0
 
 * Dart 2.17 requirement.

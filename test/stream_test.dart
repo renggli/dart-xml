@@ -217,7 +217,76 @@ void main() {
           );
         }
         chunkedTests<List<XmlEvent>>(
-          'events -> handler',
+          'event -> forEachEvent',
+          () => events,
+          listChunker,
+          (stream) async {
+            final cdata = <XmlCDATAEvent>[];
+            final comment = <XmlCommentEvent>[];
+            final declaration = <XmlDeclarationEvent>[];
+            final doctype = <XmlDoctypeEvent>[];
+            final endElement = <XmlEndElementEvent>[];
+            final processing = <XmlProcessingEvent>[];
+            final startElement = <XmlStartElementEvent>[];
+            final text = <XmlTextEvent>[];
+            await stream.flatten().forEachEvent(
+                  onCDATA: cdata.add,
+                  onComment: comment.add,
+                  onDeclaration: declaration.add,
+                  onDoctype: doctype.add,
+                  onEndElement: endElement.add,
+                  onProcessing: processing.add,
+                  onStartElement: startElement.add,
+                  onText: text.add,
+                );
+            expect(cdata, events.whereType<XmlCDATAEvent>());
+            expect(comment, events.whereType<XmlCommentEvent>());
+            expect(declaration, events.whereType<XmlDeclarationEvent>());
+            expect(doctype, events.whereType<XmlDoctypeEvent>());
+            expect(endElement, events.whereType<XmlEndElementEvent>());
+            expect(processing, events.whereType<XmlProcessingEvent>());
+            expect(startElement, events.whereType<XmlStartElementEvent>());
+            expect(text, events.whereType<XmlTextEvent>());
+          },
+        );
+        chunkedTests<List<XmlEvent>>(
+          'events -> tapEachEvent',
+          () => events,
+          listChunker,
+          (stream) async {
+            final cdata = <XmlCDATAEvent>[];
+            final comment = <XmlCommentEvent>[];
+            final declaration = <XmlDeclarationEvent>[];
+            final doctype = <XmlDoctypeEvent>[];
+            final endElement = <XmlEndElementEvent>[];
+            final processing = <XmlProcessingEvent>[];
+            final startElement = <XmlStartElementEvent>[];
+            final text = <XmlTextEvent>[];
+            await stream
+                .flatten()
+                .tapEachEvent(
+                  onCDATA: cdata.add,
+                  onComment: comment.add,
+                  onDeclaration: declaration.add,
+                  onDoctype: doctype.add,
+                  onEndElement: endElement.add,
+                  onProcessing: processing.add,
+                  onStartElement: startElement.add,
+                  onText: text.add,
+                )
+                .drain();
+            expect(cdata, events.whereType<XmlCDATAEvent>());
+            expect(comment, events.whereType<XmlCommentEvent>());
+            expect(declaration, events.whereType<XmlDeclarationEvent>());
+            expect(doctype, events.whereType<XmlDoctypeEvent>());
+            expect(endElement, events.whereType<XmlEndElementEvent>());
+            expect(processing, events.whereType<XmlProcessingEvent>());
+            expect(startElement, events.whereType<XmlStartElementEvent>());
+            expect(text, events.whereType<XmlTextEvent>());
+          },
+        );
+        chunkedTests<List<XmlEvent>>(
+          'events -> forEachEvent',
           () => events,
           listChunker,
           (stream) async {
@@ -239,6 +308,41 @@ void main() {
               onStartElement: startElement.add,
               onText: text.add,
             );
+            expect(cdata, events.whereType<XmlCDATAEvent>());
+            expect(comment, events.whereType<XmlCommentEvent>());
+            expect(declaration, events.whereType<XmlDeclarationEvent>());
+            expect(doctype, events.whereType<XmlDoctypeEvent>());
+            expect(endElement, events.whereType<XmlEndElementEvent>());
+            expect(processing, events.whereType<XmlProcessingEvent>());
+            expect(startElement, events.whereType<XmlStartElementEvent>());
+            expect(text, events.whereType<XmlTextEvent>());
+          },
+        );
+        chunkedTests<List<XmlEvent>>(
+          'events -> tapEachEvent',
+          () => events,
+          listChunker,
+          (stream) async {
+            final cdata = <XmlCDATAEvent>[];
+            final comment = <XmlCommentEvent>[];
+            final declaration = <XmlDeclarationEvent>[];
+            final doctype = <XmlDoctypeEvent>[];
+            final endElement = <XmlEndElementEvent>[];
+            final processing = <XmlProcessingEvent>[];
+            final startElement = <XmlStartElementEvent>[];
+            final text = <XmlTextEvent>[];
+            await stream
+                .tapEachEvent(
+                  onCDATA: cdata.add,
+                  onComment: comment.add,
+                  onDeclaration: declaration.add,
+                  onDoctype: doctype.add,
+                  onEndElement: endElement.add,
+                  onProcessing: processing.add,
+                  onStartElement: startElement.add,
+                  onText: text.add,
+                )
+                .drain();
             expect(cdata, events.whereType<XmlCDATAEvent>());
             expect(comment, events.whereType<XmlCommentEvent>());
             expect(declaration, events.whereType<XmlDeclarationEvent>());

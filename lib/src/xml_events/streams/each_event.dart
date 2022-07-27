@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import '../event.dart';
 import '../events/cdata.dart';
 import '../events/comment.dart';
@@ -8,16 +10,46 @@ import '../events/processing.dart';
 import '../events/start_element.dart';
 import '../events/text.dart';
 import '../visitor.dart';
-import 'flatten.dart';
 
 typedef EventHandler<T> = void Function(T event);
 
-extension XmlForEachEventExtension on Stream<XmlEvent> {
+extension XmlEachEventStreamExtension on Stream<XmlEvent> {
+  /// Executes the provided callbacks on each event of this stream as a side
+  /// effect.
+  ///
+  /// Returns the unmodified stream of events. Note that this does not start
+  /// processing the events unless somebody subscribes to the stream.
+  Stream<XmlEvent> tapEachEvent({
+    EventHandler<XmlCDATAEvent>? onCDATA,
+    EventHandler<XmlCommentEvent>? onComment,
+    EventHandler<XmlDeclarationEvent>? onDeclaration,
+    EventHandler<XmlDoctypeEvent>? onDoctype,
+    EventHandler<XmlEndElementEvent>? onEndElement,
+    EventHandler<XmlProcessingEvent>? onProcessing,
+    EventHandler<XmlStartElementEvent>? onStartElement,
+    EventHandler<XmlTextEvent>? onText,
+  }) {
+    final handler = _XmlForEachEventHandler(
+      onCDATA: onCDATA,
+      onComment: onComment,
+      onDeclaration: onDeclaration,
+      onDoctype: onDoctype,
+      onEndElement: onEndElement,
+      onProcessing: onProcessing,
+      onStartElement: onStartElement,
+      onText: onText,
+    );
+    return map((event) {
+      handler.visit(event);
+      return event;
+    });
+  }
+
   /// Executes the provided callbacks on each event of this stream.
   ///
   /// Completes the returned [Future] when all events of this stream have been
   /// processed.
-  Future forEachEvent({
+  Future<void> forEachEvent({
     EventHandler<XmlCDATAEvent>? onCDATA,
     EventHandler<XmlCommentEvent>? onComment,
     EventHandler<XmlDeclarationEvent>? onDeclaration,
@@ -27,7 +59,7 @@ extension XmlForEachEventExtension on Stream<XmlEvent> {
     EventHandler<XmlStartElementEvent>? onStartElement,
     EventHandler<XmlTextEvent>? onText,
   }) =>
-      forEach(_XmlForEachEventHandler(
+      tapEachEvent(
         onCDATA: onCDATA,
         onComment: onComment,
         onDeclaration: onDeclaration,
@@ -36,15 +68,46 @@ extension XmlForEachEventExtension on Stream<XmlEvent> {
         onProcessing: onProcessing,
         onStartElement: onStartElement,
         onText: onText,
-      ));
+      ).drain();
 }
 
-extension XmlForEachEventListExtension on Stream<List<XmlEvent>> {
+extension XmlEachEventStreamListExtension on Stream<List<XmlEvent>> {
+  /// Executes the provided callbacks on each event of this stream as a side
+  /// effect.
+  ///
+  /// Returns the unmodified stream of events. Note that this does not start
+  /// processing the events unless somebody subscribes to the stream.
+  Stream<List<XmlEvent>> tapEachEvent({
+    EventHandler<XmlCDATAEvent>? onCDATA,
+    EventHandler<XmlCommentEvent>? onComment,
+    EventHandler<XmlDeclarationEvent>? onDeclaration,
+    EventHandler<XmlDoctypeEvent>? onDoctype,
+    EventHandler<XmlEndElementEvent>? onEndElement,
+    EventHandler<XmlProcessingEvent>? onProcessing,
+    EventHandler<XmlStartElementEvent>? onStartElement,
+    EventHandler<XmlTextEvent>? onText,
+  }) {
+    final handler = _XmlForEachEventHandler(
+      onCDATA: onCDATA,
+      onComment: onComment,
+      onDeclaration: onDeclaration,
+      onDoctype: onDoctype,
+      onEndElement: onEndElement,
+      onProcessing: onProcessing,
+      onStartElement: onStartElement,
+      onText: onText,
+    );
+    return map((eventList) {
+      eventList.forEach(handler.visit);
+      return eventList;
+    });
+  }
+
   /// Executes the provided callbacks on each event of this stream.
   ///
   /// Completes the returned [Future] when all events of this stream have been
   /// processed.
-  Future forEachEvent({
+  Future<void> forEachEvent({
     EventHandler<XmlCDATAEvent>? onCDATA,
     EventHandler<XmlCommentEvent>? onComment,
     EventHandler<XmlDeclarationEvent>? onDeclaration,
@@ -54,7 +117,7 @@ extension XmlForEachEventListExtension on Stream<List<XmlEvent>> {
     EventHandler<XmlStartElementEvent>? onStartElement,
     EventHandler<XmlTextEvent>? onText,
   }) =>
-      flatten().forEachEvent(
+      tapEachEvent(
         onCDATA: onCDATA,
         onComment: onComment,
         onDeclaration: onDeclaration,
@@ -63,7 +126,7 @@ extension XmlForEachEventListExtension on Stream<List<XmlEvent>> {
         onProcessing: onProcessing,
         onStartElement: onStartElement,
         onText: onText,
-      );
+      ).drain();
 }
 
 class _XmlForEachEventHandler with XmlEventVisitor {
