@@ -150,8 +150,6 @@ class _XmlForEachEventHandler with XmlEventVisitor {
   final EventHandler<XmlStartElementEvent>? onStartElement;
   final EventHandler<XmlTextEvent>? onText;
 
-  void call(XmlEvent input) => visit(input);
-
   @override
   void visitCDATAEvent(XmlCDATAEvent event) => onCDATA?.call(event);
 
