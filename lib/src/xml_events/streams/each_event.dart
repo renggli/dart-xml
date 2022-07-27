@@ -29,7 +29,7 @@ extension XmlEachEventStreamExtension on Stream<XmlEvent> {
     EventHandler<XmlStartElementEvent>? onStartElement,
     EventHandler<XmlTextEvent>? onText,
   }) {
-    final handler = _XmlForEachEventHandler(
+    final handler = XmlEventHandler(
       onCDATA: onCDATA,
       onComment: onComment,
       onDeclaration: onDeclaration,
@@ -87,7 +87,7 @@ extension XmlEachEventStreamListExtension on Stream<List<XmlEvent>> {
     EventHandler<XmlStartElementEvent>? onStartElement,
     EventHandler<XmlTextEvent>? onText,
   }) {
-    final handler = _XmlForEachEventHandler(
+    final handler = XmlEventHandler(
       onCDATA: onCDATA,
       onComment: onComment,
       onDeclaration: onDeclaration,
@@ -129,8 +129,8 @@ extension XmlEachEventStreamListExtension on Stream<List<XmlEvent>> {
       ).drain();
 }
 
-class _XmlForEachEventHandler with XmlEventVisitor {
-  const _XmlForEachEventHandler({
+class XmlEventHandler with XmlEventVisitor {
+  const XmlEventHandler({
     this.onCDATA,
     this.onComment,
     this.onDeclaration,
