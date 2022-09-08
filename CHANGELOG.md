@@ -3,6 +3,7 @@
 ## 6.2.0 (unpublished)
 
 * Add the ability to tap into a stream of `XmlEvent` with `tapEachEvent` (similar to `forEachEvent`).
+* Remove `XmlName` equality operator `==` and `hashCode`. This is inconsistent with the other DOM nodes, and the provided implementation might not have the desired behavior.
 
 ## 6.1.0
 

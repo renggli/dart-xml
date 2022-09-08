@@ -183,9 +183,9 @@ class XmlBuilder {
         // them again is to keep the order in which they have been added.
         element.namespaces.forEach((uri, meta) {
           if (!meta.used) {
-            final name = meta.name;
-            final attribute = element.attributes
-                .firstWhere((attribute) => attribute.name == name);
+            final qualified = meta.name.qualified;
+            final attribute = element.attributes.firstWhere(
+                (attribute) => attribute.name.qualified == qualified);
             element.attributes.remove(attribute);
           }
         });

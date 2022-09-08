@@ -182,7 +182,6 @@ void assertNamedInvariant(XmlHasName named) {
   }
   expect(named.name.namespaceUri,
       anyOf(isNull, (node) => node is String && node.isNotEmpty));
-  expect(named.name.qualified.hashCode, named.name.hashCode);
   expect(named.name.qualified, named.name.toString());
 }
 
@@ -292,6 +291,8 @@ void assertVisitorInvariants(XmlNode xml) {
 }
 
 void assertCompareInvariants(XmlNode original, XmlNode copy) {
+  expect(original, isNot(copy),
+      reason: 'The copied node should not be equal using ==.');
   expect(original, isNot(same(copy)),
       reason: 'The copied node should not be identical.');
   expect(original.nodeType, copy.nodeType,
@@ -299,8 +300,8 @@ void assertCompareInvariants(XmlNode original, XmlNode copy) {
   if (original is XmlHasName && copy is XmlHasName) {
     final originalNamed = original as XmlHasName; // ignore: avoid_as
     final copyNamed = copy as XmlHasName; // ignore: avoid_as
-    expect(originalNamed.name, copyNamed.name,
-        reason: 'The copied name should be equal.');
+    expect(originalNamed.name, isNot(copyNamed.name),
+        reason: 'The copied node should not be equal using ==.');
     expect(originalNamed.name, isNot(same(copyNamed.name)),
         reason: 'The copied name should not be identical.');
     expect(originalNamed.qualifiedName, copyNamed.qualifiedName);
