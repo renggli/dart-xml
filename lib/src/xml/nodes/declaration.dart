@@ -46,6 +46,9 @@ class XmlDeclaration extends XmlNode
 
   @override
   void accept(XmlVisitor visitor) => visitor.visitDeclaration(this);
+
+  @override
+  List<Object?> get comparable => attributes;
 }
 
 /// Supported attribute node types.

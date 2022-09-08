@@ -15,4 +15,7 @@ class XmlText extends XmlData {
 
   @override
   void accept(XmlVisitor visitor) => visitor.visitText(this);
+
+  @override
+  List<Object?> get comparable => [text.trim()];
 }

@@ -39,6 +39,9 @@ class XmlDocumentFragment extends XmlNode with XmlHasChildren<XmlNode> {
 
   @override
   void accept(XmlVisitor visitor) => visitor.visitDocumentFragment(this);
+
+  @override
+  List<Object?> get comparable => children;
 }
 
 /// Supported child node types.

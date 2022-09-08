@@ -6,12 +6,14 @@ import '../mixins/has_text.dart';
 import '../mixins/has_visitor.dart';
 import '../mixins/has_writer.dart';
 import '../mixins/has_xml.dart';
+import '../mixins/xml_camparable.dart';
 
 /// Immutable abstract XML node.
 abstract class XmlNode extends Object
     with
         XmlAttributesBase,
         XmlChildrenBase,
+        XmlComparable,
         XmlHasText,
         XmlHasVisitor,
         XmlHasWriter,

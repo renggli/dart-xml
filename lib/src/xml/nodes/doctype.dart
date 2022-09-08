@@ -26,4 +26,8 @@ class XmlDoctype extends XmlNode with XmlHasParent<XmlNode> {
 
   @override
   void accept(XmlVisitor visitor) => visitor.visitDoctype(this);
+
+  @override
+  // TODO: implement comparable
+  List<Object?> get comparable => [name, externalId, internalSubset];
 }

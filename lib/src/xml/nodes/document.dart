@@ -1,13 +1,17 @@
+import 'package:collection/collection.dart';
+
 import '../../../xml_events.dart';
 import '../entities/entity_mapping.dart';
 import '../exceptions/parser_exception.dart';
 import '../exceptions/tag_exception.dart';
 import '../mixins/has_children.dart';
 import '../visitors/visitor.dart';
+import 'comment.dart';
 import 'declaration.dart';
 import 'doctype.dart';
 import 'element.dart';
 import 'node.dart';
+import 'text.dart';
 
 /// XML document node.
 class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
@@ -100,6 +104,17 @@ class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
 
   @override
   void accept(XmlVisitor visitor) => visitor.visitDocument(this);
+
+  @override
+  List<Object?> get comparable =>
+      // empty text nodes and comments are not relevant for the data structure
+      children
+          .whereNot(
+            (element) =>
+                (element is XmlText && element.text.trim().isEmpty) ||
+                element is XmlComment,
+          )
+          .toList();
 }
 
 /// Supported child node types.

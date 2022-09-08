@@ -18,4 +18,7 @@ class XmlProcessing extends XmlData {
 
   @override
   void accept(XmlVisitor visitor) => visitor.visitProcessing(this);
+
+  @override
+  List<Object?> get comparable => [target, text];
 }

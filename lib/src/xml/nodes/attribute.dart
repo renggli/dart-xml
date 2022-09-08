@@ -31,4 +31,7 @@ class XmlAttribute extends XmlNode with XmlHasName, XmlHasParent<XmlNode> {
 
   @override
   void accept(XmlVisitor visitor) => visitor.visitAttribute(this);
+
+  @override
+  List<Object?> get comparable => [name, value];
 }

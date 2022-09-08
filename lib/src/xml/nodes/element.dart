@@ -1,12 +1,17 @@
+import 'package:collection/collection.dart';
+
 import '../enums/node_type.dart';
 import '../mixins/has_attributes.dart';
 import '../mixins/has_children.dart';
 import '../mixins/has_name.dart';
 import '../mixins/has_parent.dart';
 import '../utils/name.dart';
+import '../utils/namespace.dart';
 import '../visitors/visitor.dart';
 import 'attribute.dart';
+import 'comment.dart';
 import 'node.dart';
+import 'text.dart';
 
 /// XML element node.
 class XmlElement extends XmlNode
@@ -46,6 +51,33 @@ class XmlElement extends XmlNode
 
   @override
   void accept(XmlVisitor visitor) => visitor.visitElement(this);
+
+  @override
+  List<Object?> get comparable => [
+        name,
+        // when comparing two xml data models, it is not at all relevant how
+        // particular namespaces are prefixed. Only the data should be compared.
+        // Removing all namespace declarations hence
+        attributes
+            .whereNot(
+              (attribute) =>
+                  attribute.name.prefix == xmlns ||
+                  (attribute.name.prefix == null &&
+                      attribute.name.local == xmlns),
+            )
+            .toList()
+          // the order of attributes does not affect the data structure
+          ..sort(),
+        // empty text nodes and comments are not relevant for the data structure
+        children
+            .whereNot(
+              (element) =>
+                  (element is XmlText && element.text.trim().isEmpty) ||
+                  element is XmlComment,
+            )
+            .toList(),
+        isSelfClosing,
+      ];
 }
 
 /// Supported child node types.

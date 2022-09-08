@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 import '../mixins/has_parent.dart';
 import '../mixins/has_visitor.dart';
 import '../mixins/has_writer.dart';
+import '../mixins/xml_camparable.dart';
 import '../nodes/node.dart';
 import '../visitors/visitor.dart';
 import 'prefix_name.dart';
@@ -11,7 +12,12 @@ import 'token.dart';
 
 /// XML entity name.
 abstract class XmlName extends Object
-    with XmlHasVisitor, XmlHasWriter, XmlHasParent<XmlNode> {
+    with
+        XmlComparable,
+        XmlHasVisitor,
+        XmlHasWriter,
+        XmlHasParent<XmlNode>,
+        Comparable<XmlName> {
   /// Creates a qualified [XmlName] from a `local` name and an optional
   /// `prefix`.
   factory XmlName(String local, [String? prefix]) =>
@@ -52,11 +58,18 @@ abstract class XmlName extends Object
   void accept(XmlVisitor visitor) => visitor.visitName(this);
 
   @override
-  // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  bool operator ==(Object other) =>
-      other is XmlName && other.qualified == qualified;
+  List<Object?> get comparable => [local, namespaceUri];
 
   @override
-  // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => qualified.hashCode;
+  bool? additionalComparator(Object other) =>
+      other is XmlName && (other.local == local && other.prefix == prefix)
+          ? true
+          : null;
+
+  String get _compareToName => '$namespaceUri:$local';
+
+  @override
+  // comparing pseudo-namespace String preserving order of [namespaceUri]
+  int compareTo(XmlName other) =>
+      _compareToName.compareTo(other._compareToName);
 }

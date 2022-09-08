@@ -15,4 +15,7 @@ class XmlCDATA extends XmlData {
 
   @override
   void accept(XmlVisitor visitor) => visitor.visitCDATA(this);
+
+  @override
+  List<Object?> get comparable => [text];
 }

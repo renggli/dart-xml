@@ -1,7 +1,7 @@
 import '../utils/name.dart';
 
 /// Mixin for all nodes with a name.
-mixin XmlHasName {
+mixin XmlHasName implements Comparable<XmlHasName> {
   /// Return the name of the node.
   XmlName get name;
 
@@ -16,4 +16,7 @@ mixin XmlHasName {
 
   /// Return the namespace URI, or `null`.
   String? get namespaceUri => name.namespaceUri;
+
+  @override
+  int compareTo(XmlHasName other) => name.compareTo(other.name);
 }
