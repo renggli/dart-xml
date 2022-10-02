@@ -161,4 +161,56 @@ void main() {
     expect(document.findAllElements('body').first.innerText,
         '“Who are you?” said the Caterpillar.');
   });
+  group('https://github.com/renggli/dart-xml/discussions/154', () {
+    final document = XmlDocument.parse('<a>'
+        '<x>1</x>' // first match
+        '<b><x>2</x></b>' // second match
+        '<x>3<x></x></x>' // third match (does not descend into inner)
+        '</a>');
+    bool predicate(XmlNode node) => node is XmlElement && node.localName == 'x';
+
+    test('descendants & ancestors', () {
+      final nodes = document.descendants
+          // Find all the nodes that satisfy the condition.
+          .where((node) => predicate(node))
+          // Exclude the nodes that have parents satisfying the condition.
+          .where((node) => !node.ancestors.any(predicate));
+      expect(nodes.map((node) => node.innerText), ['1', '2', '3']);
+    });
+    test('recursive', () {
+      List<XmlNode> find(XmlNode node, bool Function(XmlNode) predicate) {
+        if (predicate(node)) {
+          // Return a matching node, ...
+          return [node];
+        } else {
+          // ... otherwise recurse into the children.
+          return [
+            ...node.attributes.expand((child) => find(child, predicate)),
+            ...node.children.expand((child) => find(child, predicate)),
+          ];
+        }
+      }
+
+      final nodes = find(document, predicate);
+      expect(nodes.map((node) => node.innerText), ['1', '2', '3']);
+    });
+    test('iterative', () {
+      List<XmlNode> find(XmlNode node, bool Function(XmlNode) predicate) {
+        final todo = [node];
+        final solutions = <XmlNode>[];
+        while (todo.isNotEmpty) {
+          final current = todo.removeAt(0);
+          if (predicate(current)) {
+            solutions.add(current);
+          } else {
+            todo.insertAll(0, current.nodes);
+          }
+        }
+        return solutions;
+      }
+
+      final nodes = find(document, predicate);
+      expect(nodes.map((node) => node.innerText), ['1', '2', '3']);
+    });
+  });
 }
