@@ -4,6 +4,7 @@
 
 * Add the ability to tap into a stream of `XmlEvent` with `tapEachEvent` (similar to `forEachEvent`).
 * Remove `XmlName` equality operator `==` and `hashCode`. This is inconsistent with the other DOM nodes, and the provided implementation might not have the desired behavior.
+* Upgrade to PetitParser 5.1 brings a 10% speed improvement (typed sequences).
 
 ## 6.1.0
 
