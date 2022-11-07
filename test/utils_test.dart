@@ -1,5 +1,8 @@
+import 'package:petitparser/reflection.dart';
 import 'package:test/test.dart';
+import 'package:xml/src/xml/entities/null_mapping.dart';
 import 'package:xml/src/xml/utils/cache.dart';
+import 'package:xml/src/xml_events/parser.dart';
 
 void main() {
   group('cache', () {
@@ -21,6 +24,12 @@ void main() {
       expect(cache[1], '1');
       expect(cache[0], '2');
       expect(cache[1], '3');
+    });
+  });
+  group('parser', () {
+    test('linter', () {
+      final parser = XmlEventParser(XmlNullEntityMapping()).build();
+      expect(linter(parser), isEmpty);
     });
   });
 }
