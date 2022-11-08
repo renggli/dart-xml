@@ -260,6 +260,61 @@ void main() {
     expect(() => builder.doctype('note', publicId: 'public.dtd'),
         throwsArgumentError);
   });
+  test('attribute', () {
+    final builder = XmlBuilder();
+    builder.element('element', nest: () {
+      builder.attribute('foo', 'bar');
+    });
+    final xml = builder.buildDocument();
+    assertDocumentInvariants(xml);
+    final actual = xml.toString();
+    expect(actual, '<element foo="bar"/>');
+  });
+  test('attribute (single quote)', () {
+    final builder = XmlBuilder();
+    builder.element('element', nest: () {
+      builder.attribute('foo', 'bar',
+          attributeType: XmlAttributeType.SINGLE_QUOTE);
+    });
+    final xml = builder.buildDocument();
+    assertDocumentInvariants(xml);
+    final actual = xml.toString();
+    expect(actual, '<element foo=\'bar\'/>');
+  });
+  test('attribute (replaced)', () {
+    final builder = XmlBuilder();
+    builder.element('element', nest: () {
+      builder.attribute('foo', 'bar');
+      builder.attribute('foo', 'zork');
+    });
+    final xml = builder.buildDocument();
+    assertDocumentInvariants(xml);
+    final actual = xml.toString();
+    expect(actual, '<element foo="zork"/>');
+  });
+  test('attribute (removed)', () {
+    final builder = XmlBuilder();
+    builder.element('element', nest: () {
+      builder.attribute('foo', 'bar');
+      builder.attribute('foo', null);
+    });
+    final xml = builder.buildDocument();
+    assertDocumentInvariants(xml);
+    final actual = xml.toString();
+    expect(actual, '<element/>');
+  });
+  test('attribute (multiple)', () {
+    final builder = XmlBuilder();
+    builder.element('element', nest: () {
+      for (var i = 1; i <= 5; i++) {
+        builder.attribute('a$i', i);
+      }
+    });
+    final xml = builder.buildDocument();
+    assertDocumentInvariants(xml);
+    final actual = xml.toString();
+    expect(actual, '<element a1="1" a2="2" a3="3" a4="4" a5="5"/>');
+  });
   test('xml', () {
     final builder = XmlBuilder();
     builder.xml('<element attr="value"/>');

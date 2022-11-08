@@ -14,6 +14,7 @@ import 'nodes/node.dart';
 import 'nodes/processing.dart';
 import 'nodes/text.dart';
 import 'utils/name.dart';
+import 'utils/name_matcher.dart';
 import 'utils/namespace.dart' as ns;
 
 /// A builder to create XML trees with code.
@@ -208,11 +209,23 @@ class XmlBuilder {
   ///        builder.attribute('lang', 'en');
   ///     });
   ///
-  void attribute(String name, Object value,
+  void attribute(String name, Object? value,
       {String? namespace, XmlAttributeType? attributeType}) {
-    final attribute = XmlAttribute(_buildName(name, namespace),
-        value.toString(), attributeType ?? XmlAttributeType.DOUBLE_QUOTE);
-    _stack.last.attributes.add(attribute);
+    final attributes = _stack.last.attributes;
+    final index = attributes.indexWhere(createNameLookup(name, namespace));
+    if (index < 0) {
+      if (value != null) {
+        final attribute = XmlAttribute(_buildName(name, namespace),
+            value.toString(), attributeType ?? XmlAttributeType.DOUBLE_QUOTE);
+        attributes.add(attribute);
+      }
+    } else {
+      if (value != null) {
+        attributes[index].value = value.toString();
+      } else {
+        attributes.removeAt(index);
+      }
+    }
   }
 
   /// Adds a raw XML string. The string will be parsed as [XmlDocumentFragment]
