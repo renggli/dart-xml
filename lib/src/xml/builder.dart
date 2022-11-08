@@ -14,7 +14,6 @@ import 'nodes/node.dart';
 import 'nodes/processing.dart';
 import 'nodes/text.dart';
 import 'utils/name.dart';
-import 'utils/name_matcher.dart';
 import 'utils/namespace.dart' as ns;
 
 /// A builder to create XML trees with code.
