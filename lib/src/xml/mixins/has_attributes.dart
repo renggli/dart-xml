@@ -48,7 +48,7 @@ mixin XmlHasAttributes implements XmlAttributesBase {
 
   @override
   void setAttribute(String name, String? value, {String? namespace}) {
-    final index = attributes.indexWhere(createNameMatcher(name, namespace));
+    final index = attributes.indexWhere(createNameLookup(name, namespace));
     if (index < 0) {
       if (value != null) {
         final prefix = namespace == null

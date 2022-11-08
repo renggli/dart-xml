@@ -1,6 +1,16 @@
 import '../mixins/has_name.dart';
 import 'functions.dart';
 
+/// Internal factory to create element lookup (disallowing wildcards).
+Predicate<XmlHasName> createNameLookup(String name, String? namespace) {
+  if (namespace == null) {
+    return (named) => named.name.local == name && named.name.prefix == null;
+  } else {
+    return (named) =>
+        named.name.local == name && named.name.namespaceUri == namespace;
+  }
+}
+
 /// Internal factory to create element matchers.
 Predicate<XmlHasName> createNameMatcher(String name, String? namespace) {
   if (name == '*') {
