@@ -315,6 +315,29 @@ void main() {
     final actual = xml.toString();
     expect(actual, '<element a1="1" a2="2" a3="3" a4="4" a5="5"/>');
   });
+  test('attribute (namespace)', () {
+    const namespaces = {
+      'http://www.w3.org/1999/xhtml': 'xhtml',
+      'http://www.w3.org/1999/xlink': 'xlink',
+    };
+    final builder = XmlBuilder();
+    builder.element('element', namespaces: namespaces, nest: () {
+      for (var uri in namespaces.keys) {
+        builder.attribute('lang', 'en', namespace: uri);
+      }
+      for (var uri in namespaces.keys) {
+        builder.attribute('lang', 'de', namespace: uri);
+      }
+    });
+    final xml = builder.buildDocument();
+    //assertDocumentTreeInvariants(xml);
+    final actual = xml.toString();
+    const expected = '<element '
+        'xmlns:xhtml="http://www.w3.org/1999/xhtml" '
+        'xmlns:xlink="http://www.w3.org/1999/xlink" '
+        'xhtml:lang="de" xlink:lang="de"/>';
+    expect(actual, expected);
+  });
   test('xml', () {
     final builder = XmlBuilder();
     builder.xml('<element attr="value"/>');

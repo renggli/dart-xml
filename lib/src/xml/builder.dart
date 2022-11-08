@@ -212,8 +212,11 @@ class XmlBuilder {
   void attribute(String name, Object? value,
       {String? namespace, XmlAttributeType? attributeType}) {
     final attributes = _stack.last.attributes;
-    final index = attributes.indexWhere(createNameLookup(name, namespace));
-    if (index < 0) {
+    final attributeName = _buildName(name, namespace);
+    final attributeIndex = attributes.indexWhere((attribute) =>
+        attribute.localName == attributeName.local &&
+        attribute.namespacePrefix == attributeName.prefix);
+    if (attributeIndex < 0) {
       if (value != null) {
         final attribute = XmlAttribute(_buildName(name, namespace),
             value.toString(), attributeType ?? XmlAttributeType.DOUBLE_QUOTE);
@@ -221,9 +224,9 @@ class XmlBuilder {
       }
     } else {
       if (value != null) {
-        attributes[index].value = value.toString();
+        attributes[attributeIndex].value = value.toString();
       } else {
-        attributes.removeAt(index);
+        attributes.removeAt(attributeIndex);
       }
     }
   }
@@ -301,9 +304,9 @@ class XmlBuilder {
   // Internal method to build a name.
   XmlName _buildName(String name, String? uri) {
     if (uri != null && uri.isNotEmpty) {
-      final meta = _lookup(uri);
-      meta.used = true;
-      return XmlName(name, meta.prefix);
+      final namespaceData = _lookup(uri);
+      namespaceData.used = true;
+      return XmlName(name, namespaceData.prefix);
     } else {
       return XmlName.fromString(name);
     }
