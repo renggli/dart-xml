@@ -136,6 +136,14 @@ void main() {
       expect(node.getAttributeNode('attr', namespace: 'uri')?.value, 'new');
       expect(node.toString(), '<data xmlns="uri" attr="new"/>');
     });
+    test('update attribute with qualified name', () {
+      final document = XmlDocument.parse('<data unknown:attr="old"/>');
+      final node = document.rootElement;
+      node.setAttribute('unknown:attr', 'new');
+      expect(node.getAttribute('unknown:attr'), 'new');
+      expect(node.getAttributeNode('unknown:attr')?.value, 'new');
+      expect(node.toString(), '<data unknown:attr="new"/>');
+    });
     test('remove attribute', () {
       final document = XmlDocument.parse('<data attr="old"/>');
       final node = document.rootElement;

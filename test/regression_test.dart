@@ -213,4 +213,16 @@ void main() {
       expect(nodes.map((node) => node.innerText), ['1', '2', '3']);
     });
   });
+  test('https://github.com/renggli/dart-xml/issues/156', () {
+    final bookshelfXml = '''<?xml version="1.0"?>
+      <car color:name="blue">
+      </car>''';
+    final document = XmlDocument.parse(bookshelfXml);
+    final carElement = document.rootElement;
+    expect(carElement.getAttribute('color:name'), equals('blue'));
+    // In 6.2.1, this creates another color:name
+    // attribute instead of overwriting the existing one.
+    carElement.setAttribute('color:name', 'red');
+    expect(carElement.getAttribute('color:name'), equals('red'));
+  });
 }

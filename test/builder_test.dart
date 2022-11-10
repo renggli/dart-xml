@@ -315,7 +315,19 @@ void main() {
     final actual = xml.toString();
     expect(actual, '<element a1="1" a2="2" a3="3" a4="4" a5="5"/>');
   });
-  test('attribute (namespace)', () {
+  test('attribute (update)', () {
+    final builder = XmlBuilder();
+    builder.element('element', nest: () {
+      builder.attribute('lang', 'en');
+      builder.attribute('lang', 'de');
+    });
+    final xml = builder.buildDocument();
+    assertDocumentTreeInvariants(xml);
+    final actual = xml.toString();
+    const expected = '<element lang="de"/>';
+    expect(actual, expected);
+  });
+  test('attribute (update with namespace)', () {
     const namespaces = {
       'http://www.w3.org/1999/xhtml': 'xhtml',
       'http://www.w3.org/1999/xlink': 'xlink',
@@ -330,12 +342,24 @@ void main() {
       }
     });
     final xml = builder.buildDocument();
-    //assertDocumentTreeInvariants(xml);
+    assertDocumentTreeInvariants(xml);
     final actual = xml.toString();
     const expected = '<element '
         'xmlns:xhtml="http://www.w3.org/1999/xhtml" '
         'xmlns:xlink="http://www.w3.org/1999/xlink" '
         'xhtml:lang="de" xlink:lang="de"/>';
+    expect(actual, expected);
+  });
+  test('attribute (update with unknown namespace)', () {
+    final builder = XmlBuilder();
+    builder.element('element', nest: () {
+      builder.attribute('xhtml:lang', 'en');
+      builder.attribute('xhtml:lang', 'de');
+    });
+    final xml = builder.buildDocument();
+    assertDocumentTreeInvariants(xml);
+    final actual = xml.toString();
+    const expected = '<element xhtml:lang="de"/>';
     expect(actual, expected);
   });
   test('xml', () {
