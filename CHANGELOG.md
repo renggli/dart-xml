@@ -1,5 +1,10 @@
 # Changelog
 
+## 7.0.0
+
+* Change the `XmlElement` constructor from positional to named parameters. This yields much more readable code, for example `XmlElement(XmlName('br'), [], [], true)` becomes `XmlElement(XmlName('br'), isSelfClosing: true)`.
+
+
 ## 6.2.0
 
 * Upgrade to PetitParser 5.1.0 brings a 10% speed improvement (typed sequences).
