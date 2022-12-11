@@ -5,7 +5,7 @@ typedef XmlLoader<K, V> = V Function(K key);
 class XmlCache<K, V> {
   XmlCache(this._loader, this._maxSize);
 
-  final XmlLoader _loader;
+  final XmlLoader<K, V> _loader;
   final int _maxSize;
   final Map<K, V> _values = {};
 

@@ -180,8 +180,7 @@ void assertNamedInvariant(XmlHasName named) {
   if (named.name.prefix != null) {
     expect(named.name.qualified, startsWith(named.name.prefix!));
   }
-  expect(named.name.namespaceUri,
-      anyOf(isNull, (node) => node is String && node.isNotEmpty));
+  expect(named.name.namespaceUri, anyOf(isNull, isNot(isEmpty)));
   expect(named.name.qualified, named.name.toString());
 }
 
@@ -232,7 +231,7 @@ void assertChildrenInvariants(XmlNode xml) {
 
 void assertTextInvariants(XmlNode xml) {
   for (final node in [xml, ...xml.descendants]) {
-    expect(node.text, (text) => text is String,
+    expect(node.text, isA<String>(),
         reason: 'All nodes are supposed to return text strings.');
     if (node is XmlText) {
       expect(node.text, isNotEmpty, reason: 'Text nodes cannot be empty.');
@@ -552,7 +551,7 @@ void assertStreamEventInvariants(String input, XmlNode node) {
 
 void assertStreamNodeInvariants(String input, XmlNode node) {
   final events = XmlEventCodec().decode(input);
-  final nodes = XmlNodeCodec().decode(events);
+  final nodes = const XmlNodeCodec().decode(events);
   expect(nodes.length, node.children.length);
   expect(
     nodes.map((each) => each.toXmlString()).join(),

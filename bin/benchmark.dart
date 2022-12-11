@@ -105,8 +105,8 @@ void addBenchmark(XmlBuilder builder, MapEntry<String, String> entry) {
     final document = XmlDocument.parse(source);
     final parser = benchmark(() => XmlDocument.parse(source));
     final streamEvents = benchmark(() => XmlEventDecoder().convert(source));
-    final streamNodes = benchmark(
-        () => XmlNodeDecoder().convert(XmlEventDecoder().convert(source)));
+    final streamNodes = benchmark(() =>
+        const XmlNodeDecoder().convert(XmlEventDecoder().convert(source)));
     final iterator = benchmark(() => parseEvents(source).toList());
     final serialize = benchmark(() => document.toXmlString());
     final serializePretty = benchmark(() => document.toXmlString(pretty: true));

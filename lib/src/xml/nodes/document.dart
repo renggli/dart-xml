@@ -31,7 +31,7 @@ class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
       validateNesting: true,
       validateDocument: true,
     );
-    return XmlDocument(XmlNodeDecoder().convertIterable(events));
+    return XmlDocument(const XmlNodeDecoder().convertIterable(events));
   }
 
   /// Create a document node with `children`.

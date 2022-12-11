@@ -28,7 +28,7 @@ void main() {
   });
   group('parser', () {
     test('linter', () {
-      final parser = XmlEventParser(XmlNullEntityMapping()).build();
+      final parser = const XmlEventParser(XmlNullEntityMapping()).build();
       expect(linter(parser), isEmpty);
     });
   });

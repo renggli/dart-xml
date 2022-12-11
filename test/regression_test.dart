@@ -145,7 +145,7 @@ void main() {
   });
   test('https://github.com/renggli/dart-xml/discussions/142', () {
     final entityMapping = XmlDefaultEntityMapping({
-      ...XmlDefaultEntityMapping.html5().entities,
+      ...const XmlDefaultEntityMapping.html5().entities,
       'O': '\u201C',
       'C': '\u201D',
     });
@@ -214,7 +214,7 @@ void main() {
     });
   });
   test('https://github.com/renggli/dart-xml/issues/156', () {
-    final bookshelfXml = '''<?xml version="1.0"?>
+    const bookshelfXml = '''<?xml version="1.0"?>
       <car color:name="blue">
       </car>''';
     final document = XmlDocument.parse(bookshelfXml);

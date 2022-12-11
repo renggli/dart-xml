@@ -21,7 +21,7 @@ class XmlDocumentFragment extends XmlNode with XmlHasChildren<XmlNode> {
       entityMapping: entityMapping,
       validateNesting: true,
     );
-    return XmlDocumentFragment(XmlNodeDecoder().convertIterable(events));
+    return XmlDocumentFragment(const XmlNodeDecoder().convertIterable(events));
   }
 
   /// Create a document fragment node with `children`.

@@ -18,11 +18,12 @@ class XmlDeclarationEvent extends XmlEvent {
   void accept(XmlEventVisitor visitor) => visitor.visitDeclarationEvent(this);
 
   @override
-  int get hashCode =>
-      Object.hash(nodeType, const ListEquality().hash(attributes));
+  int get hashCode => Object.hash(
+      nodeType, const ListEquality<XmlEventAttribute>().hash(attributes));
 
   @override
   bool operator ==(Object other) =>
       other is XmlDeclarationEvent &&
-      const ListEquality().equals(other.attributes, attributes);
+      const ListEquality<XmlEventAttribute>()
+          .equals(other.attributes, attributes);
 }

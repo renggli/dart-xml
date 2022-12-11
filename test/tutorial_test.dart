@@ -5,7 +5,7 @@ import 'package:xml/xml_events.dart';
 import 'utils/assertions.dart';
 
 void main() {
-  final bookshelfXml = '''<?xml version="1.0"?>
+  const bookshelfXml = '''<?xml version="1.0"?>
     <bookshelf>
       <book>
         <title lang="en">Growing a Language</title>

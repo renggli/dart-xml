@@ -6,7 +6,7 @@ Matcher isXmlParentException({
   dynamic node = anything,
   dynamic parent = anything,
 }) =>
-    TypeMatcher<XmlParentException>()
+    const TypeMatcher<XmlParentException>()
         .having((value) => value.message, 'message', message)
         .having((value) => value.node, 'node', node)
         .having((value) => value.parent, 'parent', parent)
@@ -19,7 +19,7 @@ Matcher isXmlParserException({
   dynamic line = anything,
   dynamic column = anything,
 }) =>
-    TypeMatcher<XmlParserException>()
+    const TypeMatcher<XmlParserException>()
         .having((value) => value.message, 'message', message)
         .having((value) => value.buffer, 'buffer', buffer)
         .having((value) => value.source, 'source', buffer)
@@ -34,7 +34,7 @@ Matcher isXmlNodeTypeException({
   dynamic node = anything,
   dynamic types = anything,
 }) =>
-    TypeMatcher<XmlNodeTypeException>()
+    const TypeMatcher<XmlNodeTypeException>()
         .having((value) => value.message, 'message', message)
         .having((value) => value.node, 'node', node)
         .having((value) => value.types, 'types', types)
@@ -49,7 +49,7 @@ Matcher isXmlTagException({
   dynamic line = anything,
   dynamic column = anything,
 }) =>
-    TypeMatcher<XmlTagException>()
+    const TypeMatcher<XmlTagException>()
         .having((value) => value.message, 'message', message)
         .having((value) => value.expectedName, 'expectedName', expectedName)
         .having((value) => value.actualName, 'actualName', actualName)

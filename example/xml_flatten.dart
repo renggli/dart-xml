@@ -27,8 +27,8 @@ void printUsage() {
 Future<void> main(List<String> arguments) async {
   final files = <File>[];
   final results = argumentParser.parse(arguments);
-  final normalize = results['normalize'];
-  final text = results['text'];
+  final normalize = results['normalize'] as bool;
+  final text = results['text'] as bool;
 
   for (final argument in results.rest) {
     final file = File(argument);

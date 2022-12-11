@@ -66,9 +66,9 @@ void printUsage() {
 }
 
 Future<void> lookupIp(args.ArgResults results, [String query = '']) async {
-  final bool incremental = results['incremental'];
-  final List<String> fields = results['fields'];
-  final String lang = results['lang'];
+  final incremental = results['incremental'] as bool;
+  final fields = results['fields'] as List<String>;
+  final lang = results['lang'] as String;
 
   // Build the query URL, perform the request, and convert response to UTF-8.
   final url = Uri.parse(
@@ -113,7 +113,7 @@ Future<void> lookupIp(args.ArgResults results, [String query = '']) async {
 Future<void> main(List<String> arguments) async {
   final results = argumentParser.parse(arguments);
 
-  if (results['help']) {
+  if (results['help'] as bool) {
     printUsage();
   }
 

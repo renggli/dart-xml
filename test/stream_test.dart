@@ -274,7 +274,7 @@ void main() {
                   onStartElement: startElement.add,
                   onText: text.add,
                 )
-                .drain();
+                .drain<void>();
             expect(cdata, events.whereType<XmlCDATAEvent>());
             expect(comment, events.whereType<XmlCommentEvent>());
             expect(declaration, events.whereType<XmlDeclarationEvent>());
@@ -342,7 +342,7 @@ void main() {
                   onStartElement: startElement.add,
                   onText: text.add,
                 )
-                .drain();
+                .drain<void>();
             expect(cdata, events.whereType<XmlCDATAEvent>());
             expect(comment, events.whereType<XmlCommentEvent>());
             expect(declaration, events.whereType<XmlDeclarationEvent>());

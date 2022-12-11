@@ -1,4 +1,5 @@
 import '../nodes/attribute.dart';
+import '../nodes/node.dart';
 import '../utils/name.dart';
 import '../utils/name_matcher.dart';
 import '../utils/namespace.dart';
@@ -27,7 +28,7 @@ mixin XmlAttributesBase {
 }
 
 /// Mixin for nodes with attributes.
-mixin XmlHasAttributes implements XmlAttributesBase {
+mixin XmlHasAttributes implements XmlAttributesBase, XmlNode {
   @override
   final XmlNodeList<XmlAttribute> attributes = XmlNodeList<XmlAttribute>();
 
@@ -51,9 +52,8 @@ mixin XmlHasAttributes implements XmlAttributesBase {
     final index = attributes.indexWhere(createNameLookup(name, namespace));
     if (index < 0) {
       if (value != null) {
-        final prefix = namespace == null
-            ? null
-            : lookupNamespacePrefix(this as dynamic, namespace);
+        final prefix =
+            namespace == null ? null : lookupNamespacePrefix(this, namespace);
         attributes.add(XmlAttribute(XmlName(name, prefix), value));
       }
     } else {

@@ -31,8 +31,8 @@ void printUsage() {
 void main(List<String> arguments) {
   final files = <File>[];
   final results = argumentParser.parse(arguments);
-  final position = results['position'];
-  final limit = int.parse(results['limit']);
+  final position = results['position'] as String;
+  final limit = int.parse(results['limit'] as String);
 
   for (final argument in results.rest) {
     final file = File(argument);
