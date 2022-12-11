@@ -149,9 +149,6 @@ class XmlColoredWriter extends XmlWriter with ColoredWriter {
       style(elementStyle, () => super.visitElement(node));
 
   @override
-  void visitName(XmlName name) => style(nameStyle, () => super.visitName(name));
-
-  @override
   void visitProcessing(XmlProcessing node) =>
       style(processingStyle, () => super.visitProcessing(node));
 
@@ -196,9 +193,6 @@ class XmlColoredPrettyWriter extends XmlPrettyWriter with ColoredWriter {
   @override
   void visitElement(XmlElement node) =>
       style(elementStyle, () => super.visitElement(node));
-
-  @override
-  void visitName(XmlName name) => style(nameStyle, () => super.visitName(name));
 
   @override
   void visitProcessing(XmlProcessing node) =>

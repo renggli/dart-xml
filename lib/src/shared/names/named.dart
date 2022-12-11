@@ -1,7 +1,7 @@
-import '../utils/name.dart';
+import 'name.dart';
 
-/// Mixin for all nodes with a name.
-mixin XmlHasName {
+/// Mixin for all objects with a name.
+mixin XmlNamed {
   /// Return the name of the node.
   XmlName get name;
 

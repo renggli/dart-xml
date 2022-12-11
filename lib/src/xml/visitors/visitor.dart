@@ -9,15 +9,11 @@ import '../nodes/document_fragment.dart';
 import '../nodes/element.dart';
 import '../nodes/processing.dart';
 import '../nodes/text.dart';
-import '../utils/name.dart';
 
 /// Basic visitor over [XmlHasVisitor] nodes.
 mixin XmlVisitor {
   /// Helper to dispatch the provided [node] onto this visitor.
   void visit(XmlHasVisitor node) => node.accept(this);
-
-  /// Visit an [XmlName].
-  void visitName(XmlName name) {}
 
   /// Visit an [XmlAttribute] node.
   void visitAttribute(XmlAttribute node) {}

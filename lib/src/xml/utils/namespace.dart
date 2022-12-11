@@ -1,41 +1,51 @@
-import '../nodes/attribute.dart';
-import '../nodes/node.dart';
+import '../../shared/names/scope.dart';
+import '../navigation/parent.dart';
+import '../nodes/element.dart';
 
-// XML namespace declarations.
-const String xml = 'xml';
-const String xmlUri = 'http://www.w3.org/XML/1998/namespace';
-const String xmlns = 'xmlns';
+class ElementNamespaceScope extends NamespaceScope {
+  ElementNamespaceScope(this.element);
 
-/// Lookup [XmlAttribute] with the given `prefix` and `local` name by walking up
-/// the XML DOM from the provided `start`. Return `null`, if the attribute
-/// cannot be found.
-XmlAttribute? lookupAttribute(XmlNode? start, String? prefix, String local) {
-  for (var node = start; node != null; node = node.parent) {
-    for (final attribute in node.attributes) {
-      final name = attribute.name;
-      if (name.prefix == prefix && name.local == local) {
-        return attribute;
-      }
-    }
-  }
-  return null;
-}
+  final XmlElement element;
 
-/// Lookup the namespace prefix (possibly an empty string), for the given
-/// namespace `uri` by walking up the XML DOM from the provided `start`.
-/// Return `null`, if the prefix cannot be found.
-String? lookupNamespacePrefix(XmlNode? start, String uri) {
-  for (var node = start; node != null; node = node.parent) {
-    for (final attribute in node.attributes) {
-      if (attribute.value == uri) {
-        final name = attribute.name;
-        if (name.prefix == xmlns) {
-          return name.local;
-        } else if (name.prefix == null && name.local == xmlns) {
-          return '';
+  @override
+  void add(String? prefix, String uri) =>
+      element.setAttribute(namespaceDeclarationName(prefix), uri);
+
+  @override
+  void remove(String? prefix) =>
+      element.removeAttribute(namespaceDeclarationName(prefix));
+
+  @override
+  String? lookupUri([String? prefix]) {
+    final name = namespaceDeclarationName(prefix);
+    for (XmlElement? current = element;
+        current != null;
+        current = current.parentElement) {
+      for (final attribute in current.attributes) {
+        if (attribute.qualifiedName == name) {
+          return attribute.value;
         }
       }
     }
+    return null;
   }
-  return null;
+
+  @override
+  String? lookupPrefix(String uri) {
+    for (XmlElement? current = element;
+        current != null;
+        current = current.parentElement) {
+      for (final attribute in current.attributes) {
+        if (attribute.value == uri) {
+          if (attribute.namespacePrefix == NamespaceScope.xmlns) {
+            return attribute.localName;
+          } else if (attribute.namespacePrefix == null &&
+              attribute.localName == NamespaceScope.xmlns) {
+            return '';
+          }
+        }
+      }
+    }
+    return null;
+  }
 }

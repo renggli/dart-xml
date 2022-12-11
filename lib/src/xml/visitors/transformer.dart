@@ -9,7 +9,6 @@ import '../nodes/document_fragment.dart';
 import '../nodes/element.dart';
 import '../nodes/processing.dart';
 import '../nodes/text.dart';
-import '../utils/name.dart';
 
 /// External transformer that creates an identical copy of the visited nodes.
 ///
@@ -37,8 +36,6 @@ class XmlTransformer {
       return visitDocumentFragment(node) as T;
     } else if (node is XmlElement) {
       return visitElement(node) as T;
-    } else if (node is XmlName) {
-      return visitName(node) as T;
     } else if (node is XmlProcessing) {
       return visitProcessing(node) as T;
     } else if (node is XmlText) {
@@ -49,7 +46,7 @@ class XmlTransformer {
   }
 
   XmlAttribute visitAttribute(XmlAttribute node) =>
-      XmlAttribute(visit(node.name), node.value, node.attributeType);
+      XmlAttribute(node.name, node.value, node.attributeType);
 
   XmlCDATA visitCDATA(XmlCDATA node) => XmlCDATA(node.text);
 
@@ -66,12 +63,10 @@ class XmlTransformer {
   XmlDocumentFragment visitDocumentFragment(XmlDocumentFragment node) =>
       XmlDocumentFragment(node.children.map(visit));
 
-  XmlElement visitElement(XmlElement node) => XmlElement(visit(node.name),
+  XmlElement visitElement(XmlElement node) => XmlElement(node.name,
       attributes: node.attributes.map(visit),
       children: node.children.map(visit),
       isSelfClosing: node.isSelfClosing);
-
-  XmlName visitName(XmlName name) => XmlName.fromString(name.qualified);
 
   XmlProcessing visitProcessing(XmlProcessing node) =>
       XmlProcessing(node.target, node.text);

@@ -1,9 +1,9 @@
+import '../../shared/names/name.dart';
+import '../../shared/names/named.dart';
 import '../enums/node_type.dart';
 import '../mixins/has_attributes.dart';
 import '../mixins/has_children.dart';
-import '../mixins/has_name.dart';
 import '../mixins/has_parent.dart';
-import '../utils/name.dart';
 import '../visitors/visitor.dart';
 import 'attribute.dart';
 import 'node.dart';
@@ -11,19 +11,17 @@ import 'node.dart';
 /// XML element node.
 class XmlElement extends XmlNode
     with
-        XmlHasName,
+        XmlNamed,
         XmlHasParent<XmlNode>,
         XmlHasAttributes,
         XmlHasChildren<XmlNode> {
   /// Create an element node with the provided [name], [attributes], and
   /// [children].
-  XmlElement(
-    this.name, {
+  XmlElement(this.name, {
     Iterable<XmlAttribute> attributes = const [],
     Iterable<XmlNode> children = const [],
     this.isSelfClosing = true,
   }) {
-    name.attachParent(this);
     this.attributes.initialize(this, attributeNodeTypes);
     this.attributes.addAll(attributes);
     this.children.initialize(this, childrenNodeTypes);
@@ -40,7 +38,7 @@ class XmlElement extends XmlNode
   XmlNodeType get nodeType => XmlNodeType.ELEMENT;
 
   @override
-  XmlElement copy() => XmlElement(name.copy(),
+  XmlElement copy() => XmlElement(name,
       attributes: attributes.map((each) => each.copy()),
       children: children.map((each) => each.copy()),
       isSelfClosing: isSelfClosing);

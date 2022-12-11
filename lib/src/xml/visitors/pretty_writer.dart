@@ -45,7 +45,7 @@ class XmlPrettyWriter extends XmlWriter {
   @override
   void visitElement(XmlElement node) {
     buffer.write(XmlToken.openElement);
-    visit(node.name);
+    buffer.write(node.qualifiedName);
     writeAttributes(node);
     if (node.children.isEmpty && node.isSelfClosing) {
       if (spaceBeforeSelfClose != null && spaceBeforeSelfClose!(node)) {
@@ -77,7 +77,7 @@ class XmlPrettyWriter extends XmlWriter {
         }
       }
       buffer.write(XmlToken.openEndElement);
-      visit(node.name);
+      buffer.write(node.qualifiedName);
       buffer.write(XmlToken.closeElement);
     }
   }

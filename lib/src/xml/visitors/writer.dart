@@ -12,7 +12,6 @@ import '../nodes/document_fragment.dart';
 import '../nodes/element.dart';
 import '../nodes/processing.dart';
 import '../nodes/text.dart';
-import '../utils/name.dart';
 import '../utils/token.dart';
 import 'visitor.dart';
 
@@ -26,7 +25,7 @@ class XmlWriter with XmlVisitor {
 
   @override
   void visitAttribute(XmlAttribute node) {
-    visit(node.name);
+    buffer.write(node.qualifiedName);
     buffer.write(XmlToken.equals);
     buffer.write(entityMapping.encodeAttributeValueWithQuotes(
         node.value, node.attributeType));
@@ -84,7 +83,7 @@ class XmlWriter with XmlVisitor {
   @override
   void visitElement(XmlElement node) {
     buffer.write(XmlToken.openElement);
-    visit(node.name);
+    buffer.write(node.qualifiedName);
     writeAttributes(node);
     if (node.children.isEmpty && node.isSelfClosing) {
       buffer.write(XmlToken.closeEndElement);
@@ -92,14 +91,9 @@ class XmlWriter with XmlVisitor {
       buffer.write(XmlToken.closeElement);
       writeIterable(node.children);
       buffer.write(XmlToken.openEndElement);
-      visit(node.name);
+      buffer.write(node.qualifiedName);
       buffer.write(XmlToken.closeElement);
     }
-  }
-
-  @override
-  void visitName(XmlName name) {
-    buffer.write(name.qualified);
   }
 
   @override

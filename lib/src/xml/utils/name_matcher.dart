@@ -1,35 +1,35 @@
-import '../mixins/has_name.dart';
+import '../../shared/names/named.dart';
 import 'functions.dart';
 
 /// Internal factory to create element lookups.
 ///
 /// The `name` is considered to be a local name if a `namespaceUri` is provided,
 /// otherwise `name` is considered to be fully qualified.
-Predicate<XmlHasName> createNameLookup(String name, String? namespace) {
+Predicate<XmlNamed> createNameLookup(String name, String? namespace) {
   if (namespace == null) {
-    return (named) => named.name.qualified == name;
+    return (named) => named.qualifiedName == name;
   } else {
     return (named) =>
-        named.name.local == name && named.name.namespaceUri == namespace;
+        named.localName == name && named.namespaceUri == namespace;
   }
 }
 
 /// Internal factory to create element matchers with wildcards.
-Predicate<XmlHasName> createNameMatcher(String name, String? namespace) {
+Predicate<XmlNamed> createNameMatcher(String name, String? namespace) {
   if (name == '*') {
     if (namespace == null || namespace == '*') {
       return (named) => true;
     } else {
-      return (named) => named.name.namespaceUri == namespace;
+      return (named) => named.namespaceUri == namespace;
     }
   } else {
     if (namespace == null) {
-      return (named) => named.name.qualified == name;
+      return (named) => named.qualifiedName == name;
     } else if (namespace == '*') {
-      return (named) => named.name.local == name;
+      return (named) => named.localName == name;
     } else {
       return (named) =>
-          named.name.local == name && named.name.namespaceUri == namespace;
+          named.localName == name && named.namespaceUri == namespace;
     }
   }
 }
