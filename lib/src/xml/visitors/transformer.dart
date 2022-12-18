@@ -16,7 +16,7 @@ import '../utils/name.dart';
 /// Subclass can override one or more of the methods to modify the generated
 /// copy.
 @Deprecated('Use `XmlNode.copy()` and mutate the DOM in-place, or create a '
-    'strongly-typed `XmlVisitor` over your DOM.')
+    'strongly-typed `XmlVisitor` over your DOM instead')
 class XmlTransformer {
   const XmlTransformer();
 

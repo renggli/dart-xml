@@ -11,7 +11,7 @@ mixin XmlHasParent {
   XmlStartElementEvent? get parent => _parent;
 
   /// Return the parent event of type [XmlStartElementEvent], or `null`.
-  @Deprecated('Use XmlEvent.parent instead.')
+  @Deprecated('Use `XmlEvent.parent` instead')
   XmlStartElementEvent? get parentEvent => _parent;
 
   /// Internal helper to attach the parent to the event, do not call directly.
