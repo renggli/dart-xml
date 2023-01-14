@@ -10,12 +10,12 @@ import 'visitor.dart';
 extension XmlNormalizerExtension on XmlNode {
   /// Puts all child nodes into a "normalized" form, that is
   ///
-  /// - no text node in the sub-tree is empty, and
-  /// - there are no adjacent text nodes.
+  /// - combine adjacent text nodes, and
+  /// - remove empty text nodes.
   ///
   /// Optionally, the following (possibly destructive) normalization operations
-  /// can be performed either selectively on nodes satisfying a predicate, or on
-  /// all nodes:
+  /// can be either performed selectively on text nodes satisfying a predicate,
+  /// or on all nodes:
   ///
   /// - If the predicate [collapseWhitespace] is `true`, consecutive whitespace
   ///   are replace with a single space-character.
