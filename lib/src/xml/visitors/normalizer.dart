@@ -14,8 +14,8 @@ extension XmlNormalizerExtension on XmlNode {
   /// - there are no adjacent text nodes.
   ///
   /// Optionally, the following (possibly destructive) normalization operations
-  /// can be performed. All operations can be either be performed selectively
-  /// on nodes satisfying a predicate, or on all nodes:
+  /// can be performed either selectively on nodes satisfying a predicate, or on
+  /// all nodes:
   ///
   /// - If the predicate [collapseWhitespace] is `true`, consecutive whitespace
   ///   are replace with a single space-character.
@@ -24,27 +24,22 @@ extension XmlNormalizerExtension on XmlNode {
   /// - If the predicate [trimWhitespace] is `true`, leading and trailing
   ///   whitespace are removed.
   void normalize({
+    // Collapse whitespace:
     Predicate<XmlText>? collapseWhitespace,
-    Predicate<XmlText>? normalizeNewline,
-    Predicate<XmlText>? trimWhitespace,
     bool? collapseAllWhitespace,
+    // Normalize newline:
+    Predicate<XmlText>? normalizeNewline,
     bool? normalizeAllNewline,
+    // Trim whitespace:
+    Predicate<XmlText>? trimWhitespace,
     bool? trimAllWhitespace,
   }) =>
       XmlNormalizer(
         collapseWhitespace:
-            _toPredicate(collapseWhitespace, collapseAllWhitespace),
-        normalizeNewline: _toPredicate(normalizeNewline, normalizeAllNewline),
-        trimWhitespace: _toPredicate(trimWhitespace, trimAllWhitespace),
+            toPredicate(collapseWhitespace, collapseAllWhitespace),
+        normalizeNewline: toPredicate(normalizeNewline, normalizeAllNewline),
+        trimWhitespace: toPredicate(trimWhitespace, trimAllWhitespace),
       ).visit(this);
-}
-
-Predicate<XmlText> _toPredicate(Predicate<XmlText>? predicate, bool? all) {
-  assert(predicate == null || all == null,
-      'Only specify the predicate or the boolean value, not both.');
-  if (predicate != null) return predicate;
-  if (all != null) return (node) => all;
-  return (node) => false;
 }
 
 /// Normalizes a node tree in-place.
