@@ -8,29 +8,56 @@ import '../utils/functions.dart';
 import 'visitor.dart';
 
 extension XmlNormalizerExtension on XmlNode {
-  /// Puts all child nodes into a "normalized" form, that is no text nodes in
-  /// the sub-tree are empty and there are no adjacent text nodes.
+  /// Puts all child nodes into a "normalized" form, that is
   ///
-  /// - If the predicate [trimWhitespace] returns `true`, leading and trailing
-  ///   whitespace in text nodes are removed.
-  /// - If the predicate [collapseWhitespace] returns `true`, consecutive
-  ///   whitespace in text nodes are replace with a single space-character.
+  /// - no text node in the sub-tree is empty, and
+  /// - there are no adjacent text nodes.
+  ///
+  /// Optionally, the following (possibly destructive) normalization operations
+  /// can be performed. All operations can be either be performed selectively
+  /// on nodes satisfying a predicate, or on all nodes:
+  ///
+  /// - If the predicate [collapseWhitespace] is `true`, consecutive whitespace
+  ///   are replace with a single space-character.
+  /// - If the predicate [normalizeNewline] is `true`, line endings are
+  ///   combined according to https://www.w3.org/TR/xml11/#sec-line-ends.
+  /// - If the predicate [trimWhitespace] is `true`, leading and trailing
+  ///   whitespace are removed.
   void normalize({
-    Predicate<XmlText>? trimWhitespace,
     Predicate<XmlText>? collapseWhitespace,
+    Predicate<XmlText>? normalizeNewline,
+    Predicate<XmlText>? trimWhitespace,
+    bool? collapseAllWhitespace,
+    bool? normalizeAllNewline,
+    bool? trimAllWhitespace,
   }) =>
       XmlNormalizer(
-        trimWhitespace: trimWhitespace,
-        collapseWhitespace: collapseWhitespace,
+        collapseWhitespace:
+            _toPredicate(collapseWhitespace, collapseAllWhitespace),
+        normalizeNewline: _toPredicate(normalizeNewline, normalizeAllNewline),
+        trimWhitespace: _toPredicate(trimWhitespace, trimAllWhitespace),
       ).visit(this);
+}
+
+Predicate<XmlText> _toPredicate(Predicate<XmlText>? predicate, bool? all) {
+  assert(predicate == null || all == null,
+      'Only specify the predicate or the boolean value, not both.');
+  if (predicate != null) return predicate;
+  if (all != null) return (node) => all;
+  return (node) => false;
 }
 
 /// Normalizes a node tree in-place.
 class XmlNormalizer with XmlVisitor {
-  const XmlNormalizer({this.trimWhitespace, this.collapseWhitespace});
+  const XmlNormalizer({
+    required this.collapseWhitespace,
+    required this.normalizeNewline,
+    required this.trimWhitespace,
+  });
 
-  final Predicate<XmlText>? trimWhitespace;
-  final Predicate<XmlText>? collapseWhitespace;
+  final Predicate<XmlText> collapseWhitespace;
+  final Predicate<XmlText> normalizeNewline;
+  final Predicate<XmlText> trimWhitespace;
 
   @override
   void visitDocument(XmlDocument node) => _normalize(node.children);
@@ -44,11 +71,14 @@ class XmlNormalizer with XmlVisitor {
 
   @override
   void visitText(XmlText node) {
-    if (trimWhitespace != null && trimWhitespace!(node)) {
+    if (trimWhitespace(node)) {
       node.text = node.text.trim();
     }
-    if (collapseWhitespace != null && collapseWhitespace!(node)) {
+    if (collapseWhitespace(node)) {
       node.text = node.text.replaceAll(_whitespace, ' ');
+    }
+    if (normalizeNewline(node)) {
+      node.text = node.text.replaceAll(_newline, '\n');
     }
   }
 
@@ -90,3 +120,4 @@ class XmlNormalizer with XmlVisitor {
 }
 
 final _whitespace = RegExp(r'\s+');
+final _newline = RegExp(r'\r\n|\r\u0085|\r|\u0085|\u2028');

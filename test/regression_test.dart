@@ -225,4 +225,16 @@ void main() {
     carElement.setAttribute('color:name', 'red');
     expect(carElement.getAttribute('color:name'), equals('red'));
   });
+  test('https://github.com/renggli/dart-xml/issues/160', () {
+    const xml = '<?xml version="1.0"?>\r\n'
+        '<aaa>\r\n'
+        '  <bbb ccc="ddd"/>\r\n'
+        '</aaa>';
+    final doc = XmlDocument.parse(xml);
+    // https://www.w3.org/TR/xml11/#sec-line-ends
+    doc.normalize(normalizeAllNewline: true);
+    final textNode = doc.rootElement.firstChild!;
+    expect(textNode.nodeType, XmlNodeType.TEXT);
+    expect(textNode.text, equals('\n  '));
+  });
 }

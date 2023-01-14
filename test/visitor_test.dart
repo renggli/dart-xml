@@ -31,7 +31,7 @@ void main() {
         XmlText(' a '),
         XmlText(' b '),
       ]);
-      element.normalize(trimWhitespace: (node) => true);
+      element.normalize(trimAllWhitespace: true);
       expect(element.children.length, 1);
       expect(element.toXmlString(), '<element>a  b</element>');
     });
@@ -48,7 +48,7 @@ void main() {
         XmlText(' a '),
         XmlText(' b '),
       ]);
-      element.normalize(collapseWhitespace: (node) => true);
+      element.normalize(collapseAllWhitespace: true);
       expect(element.children.length, 1);
       expect(element.toXmlString(), '<element> a b </element>');
     });
@@ -59,6 +59,29 @@ void main() {
       ]);
       element.normalize(collapseWhitespace: (node) => node.text == '2  2');
       expect(element.toXmlString(), '<element><a>1  1</a><b>2 2</b></element>');
+    });
+    test('normalize newlines', () {
+      final element = XmlElement(XmlName('element'), children: [
+        XmlElement(XmlName('xD'), children: [XmlText('\r')]),
+        XmlElement(XmlName('xD-xA'), children: [XmlText('\r\n')]),
+        XmlElement(XmlName('xD-x85'), children: [XmlText('\r\u0085')]),
+        XmlElement(XmlName('x85'), children: [XmlText('\u0085')]),
+        XmlElement(XmlName('x2028'), children: [XmlText('\u2028')]),
+      ]);
+      element.normalize(normalizeAllNewline: true);
+      expect(element.children.map((child) => child.text), everyElement('\n'));
+    });
+    test('selectively normalize newlines', () {
+      final element = XmlElement(XmlName('element'), children: [
+        XmlElement(XmlName('xD'), children: [XmlText('\r')]),
+        XmlElement(XmlName('xD-xA'), children: [XmlText('\r\n')]),
+        XmlElement(XmlName('xD-x85'), children: [XmlText('\r\u0085')]),
+        XmlElement(XmlName('x85'), children: [XmlText('\u0085')]),
+        XmlElement(XmlName('x2028'), children: [XmlText('\u2028')]),
+      ]);
+      element.normalize(normalizeNewline: (node) => node.text.length > 1);
+      expect(element.children.map((child) => child.text),
+          ['\r', '\n', '\n', '\u0085', '\u2028']);
     });
     test('document fragment', () {
       final fragment = XmlDocumentFragment([
