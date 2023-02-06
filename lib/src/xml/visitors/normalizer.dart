@@ -4,7 +4,7 @@ import '../nodes/document_fragment.dart';
 import '../nodes/element.dart';
 import '../nodes/node.dart';
 import '../nodes/text.dart';
-import '../utils/functions.dart';
+import '../utils/predicate.dart';
 import 'visitor.dart';
 
 extension XmlNormalizerExtension on XmlNode {

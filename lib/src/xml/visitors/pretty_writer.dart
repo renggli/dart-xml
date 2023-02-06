@@ -6,7 +6,7 @@ import '../nodes/document.dart';
 import '../nodes/element.dart';
 import '../nodes/node.dart';
 import '../nodes/text.dart';
-import '../utils/functions.dart';
+import '../utils/predicate.dart';
 import '../utils/token.dart';
 import 'writer.dart';
 

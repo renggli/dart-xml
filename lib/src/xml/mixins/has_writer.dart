@@ -1,7 +1,7 @@
 import '../entities/entity_mapping.dart';
 import '../nodes/attribute.dart';
 import '../nodes/node.dart';
-import '../utils/functions.dart';
+import '../utils/predicate.dart';
 import '../visitors/pretty_writer.dart';
 import '../visitors/writer.dart';
 import 'has_visitor.dart';

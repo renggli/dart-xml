@@ -1,5 +1,5 @@
 import '../mixins/has_name.dart';
-import 'functions.dart';
+import 'predicate.dart';
 
 /// Internal factory to create element lookups.
 ///
