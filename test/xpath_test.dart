@@ -16,6 +16,90 @@ void expectXPath(XmlNode? node, String expression,
                 : each)));
 
 void main() {
+  group('axis', () {
+    const input = '<?xml version="1.0"?>'
+        '<r><a1><b1/></a1><a2 b1="1" b2="2"><c1/><c2>'
+        '<d1></d1></c2></a2><a3><b2/></a3></r>';
+    final document = XmlDocument.parse(input);
+    final current = document.findAllElements('a2').single;
+    test('..', () {
+      expectXPath(current, '..', [document.rootElement]);
+    });
+    test('.', () {
+      expectXPath(current, '.', [
+        '<a2 b1="1" b2="2"><c1/><c2><d1></d1></c2></a2>',
+      ]);
+    });
+    test('/*', () {
+      expectXPath(current, '/*', [document.rootElement]);
+    });
+    test('//*', () {
+      expectXPath(current, '//*', [
+        document.rootElement,
+        '<a1><b1/></a1>',
+        '<b1/>',
+        '<a2 b1="1" b2="2"><c1/><c2><d1></d1></c2></a2>',
+        '<c1/>',
+        '<c2><d1></d1></c2>',
+        '<d1></d1>',
+        '<a3><b2/></a3>',
+        '<b2/>',
+      ]);
+    });
+    test('@*', () {
+      expectXPath(current, '@*', ['b1="1"', 'b2="2"']);
+    });
+    test('ancestor::*', () {
+      expectXPath(current, 'ancestor::*', [document.rootElement]);
+    });
+    test('ancestor-or-self::*', () {
+      expectXPath(current, 'ancestor-or-self::*', [
+        document.rootElement,
+        current,
+      ]);
+    });
+    test('attribute::*', () {
+      expectXPath(current, 'attribute::*', ['b1="1"', 'b2="2"']);
+    });
+    test('child::*', () {
+      expectXPath(current, 'child::*', ['<c1/>', '<c2><d1></d1></c2>']);
+    });
+    test('descendant::*', () {
+      expectXPath(current, 'descendant::*', [
+        '<c1/>',
+        '<c2><d1></d1></c2>',
+        '<d1></d1>',
+      ]);
+    });
+    test('descendant-or-self::*', () {
+      expectXPath(current, 'descendant-or-self::*', [
+        '<a2 b1="1" b2="2"><c1/><c2><d1></d1></c2></a2>',
+        '<c1/>',
+        '<c2><d1></d1></c2>',
+        '<d1></d1>',
+      ]);
+    });
+    test('following::*', () {
+      expectXPath(current, 'following::*', ['<a3><b2/></a3>', '<b2/>']);
+    });
+    test('following-sibling::*', () {
+      expectXPath(current, 'following-sibling::*', ['<a3><b2/></a3>']);
+    });
+    test('parent::*', () {
+      expectXPath(current, 'parent::*', [document.rootElement]);
+    });
+    test('preceding::*', () {
+      expectXPath(current, 'preceding::*', ['<a1><b1/></a1>', '<b1/>']);
+    });
+    test('preceding-sibling::*', () {
+      expectXPath(current, 'preceding-sibling::*', ['<a1><b1/></a1>']);
+    });
+    test('self::*', () {
+      expectXPath(current, 'self::*', [
+        '<a2 b1="1" b2="2"><c1/><c2><d1></d1></c2></a2>',
+      ]);
+    });
+  });
   group('https://en.wikipedia.org/wiki/XPath#Examples', () {
     final document = XmlDocument.parse(wikimediaXml);
     test('select name attributes for all projects', () {
