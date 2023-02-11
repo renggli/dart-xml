@@ -1,12 +1,21 @@
 const Map<String, String> allXml = {
+  'atom.xml': atomXml,
   'books.xml': booksXml,
   'bookstore.xml': bookstoreXml,
-  'atom.xml': atomXml,
-  'shiporder.xsd': shiporderXsd,
   'complicated.xml': complicatedXml,
-  'unicode.xml': unicodeXml,
   'control_characters.xml': controlCharactersXml,
+  'shiporder.xsd': shiporderXsd,
+  'unicode.xml': unicodeXml,
+  'wikimedia.xml': wikimediaXml,
 };
+
+const String atomXml = '<?xml version="1.0" encoding="UTF-8"?>'
+    '<app:service>'
+    '  <app:workspace>'
+    '    <cmisra:repositoryInfo xmlns:ns3="http://docs.oasis-open.org/ns/cmis/messaging/200908/">'
+    '    </cmisra:repositoryInfo>'
+    '  </app:workspace>'
+    '</app:service>';
 
 const String booksXml = '<?xml version="1.0"?>'
     '<catalog>'
@@ -141,13 +150,20 @@ const String bookstoreXml = '<?xml version="1.0" encoding="ISO-8859-1"?>\n'
     '  </book>\n'
     '</bookstore>';
 
-const String atomXml = '<?xml version="1.0" encoding="UTF-8"?>'
-    '<app:service>'
-    '  <app:workspace>'
-    '    <cmisra:repositoryInfo xmlns:ns3="http://docs.oasis-open.org/ns/cmis/messaging/200908/">'
-    '    </cmisra:repositoryInfo>'
-    '  </app:workspace>'
-    '</app:service>';
+const String complicatedXml = '<?xml version="1.0"?>\n'
+    '<!DOCTYPE name [ <!ELEMENT html (head, body)> ]>\n'
+    '<ns:foo attr="not namespaced" n1:ans="namespaced 1" '
+    '        n2:ans="namespace 2" >\n'
+    '  Plain text contents!'
+    '  <element/>\n'
+    '  <ns:element/>\n'
+    '  <!-- comment -->\n'
+    '  <![CDATA[cdata]]>\n'
+    '  <?processing instruction?>\n'
+    '</ns:foo>';
+
+const String controlCharactersXml = '<?xml version="1.0"?>\n'
+    '<name attr="bell\u0007">del\u007fbackspace\u0008null\u0000</name>';
 
 const String shiporderXsd = '<?xml version="1.0"?>'
     '<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">'
@@ -208,23 +224,32 @@ const String shiporderXsd = '<?xml version="1.0"?>'
     '  </xsd:simpleType>'
     '</xsd:schema>';
 
-const String complicatedXml = '<?xml version="1.0"?>\n'
-    '<!DOCTYPE name [ <!ELEMENT html (head, body)> ]>\n'
-    '<ns:foo attr="not namespaced" n1:ans="namespaced 1" '
-    '        n2:ans="namespace 2" >\n'
-    '  Plain text contents!'
-    '  <element/>\n'
-    '  <ns:element/>\n'
-    '  <!-- comment -->\n'
-    '  <![CDATA[cdata]]>\n'
-    '  <?processing instruction?>\n'
-    '</ns:foo>';
-
 const String unicodeXml = '<?xml version="1.1" encoding="UTF-8"?>\n'
     '<電文情報 version="5.0">\n'
     '<生年月日>昭和２８年２月１日</生年月日>\n'
     '<性別>男</性別>\n'
     '</電文情報>\n';
 
-const String controlCharactersXml = '<?xml version="1.0"?>\n'
-    '<name attr="bell\u0007">del\u007fbackspace\u0008null\u0000</name>';
+const String wikimediaXml = '<?xml version="1.0" encoding="utf-8"?>'
+    '<Wikimedia>'
+    '  <projects>'
+    '    <project name="Wikipedia" launch="2001-01-05">'
+    '      <editions>'
+    '        <edition language="English">en.wikipedia.org</edition>'
+    '        <edition language="German">de.wikipedia.org</edition>'
+    '        <edition language="French">fr.wikipedia.org</edition>'
+    '        <edition language="Polish">pl.wikipedia.org</edition>'
+    '        <edition language="Spanish">es.wikipedia.org</edition>'
+    '      </editions>'
+    '    </project>'
+    '    <project name="Wiktionary" launch="2002-12-12">'
+    '      <editions>'
+    '        <edition language="English">en.wiktionary.org</edition>'
+    '        <edition language="French">fr.wiktionary.org</edition>'
+    '        <edition language="Vietnamese">vi.wiktionary.org</edition>'
+    '        <edition language="Turkish">tr.wiktionary.org</edition>'
+    '        <edition language="Spanish">es.wiktionary.org</edition>'
+    '      </editions>'
+    '    </project>'
+    '  </projects>'
+    '</Wikimedia>';
