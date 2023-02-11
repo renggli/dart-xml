@@ -16,6 +16,7 @@ import 'stream_test.dart' as stream_test;
 import 'tutorial_test.dart' as tutorial_test;
 import 'utils_test.dart' as utils_test;
 import 'visitor_test.dart' as visitor_test;
+import 'xpath_test.dart' as xpath_test;
 
 void main() {
   group('builder', builder_test.main);
@@ -34,4 +35,5 @@ void main() {
   group('tutorial', tutorial_test.main);
   group('utils', utils_test.main);
   group('visitor', visitor_test.main);
+  group('xpath', xpath_test.main);
 }
