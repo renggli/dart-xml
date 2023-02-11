@@ -223,10 +223,21 @@ void main() {
       expectXPath(document.firstElementChild, 'unknown[xsd:attribute]');
       expectXPath(document.firstElementChild, 'xsd:complexType[unknown]');
     });
-    // // Selects all the employee children of the context node that have both a
-    // // secretary attribute and an assistant attribute.
-    // test('employee[@secretary and @assistant]', () {
-    //   throw UnsupportedError('Not yet implemented');
-    // });
+    // Selects all the employee children of the context node that have both a
+    // secretary attribute and an assistant attribute.
+    test('employee[@secretary and @assistant]', () {
+      expectXPath(
+          namedNode['PurchaseOrderType']?.firstElementChild,
+          'xsd:element[@name][@type]',
+          [namedNode['shipTo'], namedNode['billTo'], namedNode['items']]);
+      expectXPath(
+          namedNode['PurchaseOrderType']?.firstElementChild,
+          'xsd:element[@ref][@minOccurs]',
+          ['<xsd:element ref="comment" minOccurs="0"/>']);
+      expectXPath(namedNode['PurchaseOrderType']?.firstElementChild,
+          'xsd:element[@unknown][@type]');
+      expectXPath(namedNode['PurchaseOrderType']?.firstElementChild,
+          'xsd:element[@name][@unknown]');
+    });
   });
 }

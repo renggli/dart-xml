@@ -37,6 +37,11 @@ class DescendantOrSelfAxisResolver implements Resolver {
       nodes.expand((node) => [node].followedBy(node.descendants));
 }
 
+class EmptyAxisResolver implements Resolver {
+  @override
+  Iterable<XmlNode> call(Iterable<XmlNode> nodes) => [];
+}
+
 class FollowingAxisResolver implements Resolver {
   @override
   Iterable<XmlNode> call(Iterable<XmlNode> nodes) =>

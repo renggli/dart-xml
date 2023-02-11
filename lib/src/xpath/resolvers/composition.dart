@@ -1,8 +1,15 @@
 import '../../xml/nodes/node.dart';
 import '../resolver.dart';
+import 'axis.dart';
 
 class SequenceResolver implements Resolver {
-  SequenceResolver(this.resolvers);
+  SequenceResolver._(this.resolvers);
+
+  static Resolver fromList(List<Resolver> resolvers) => resolvers.isEmpty
+      ? EmptyAxisResolver()
+      : resolvers.length == 1
+          ? resolvers.single
+          : SequenceResolver._(resolvers);
 
   final List<Resolver> resolvers;
 

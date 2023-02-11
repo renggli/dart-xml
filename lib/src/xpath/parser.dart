@@ -19,7 +19,7 @@ class XPathParser {
   Parser<Resolver> path() => [
         ref0(absolutePath),
         ref0(relativePath),
-      ].toChoiceParser().map((path) => SequenceResolver(path));
+      ].toChoiceParser().map((path) => SequenceResolver.fromList(path));
 
   Parser<List<Resolver>> absolutePath() =>
       seq2(char('/'), ref0(relativePath).optionalWith([]))
@@ -38,7 +38,7 @@ class XPathParser {
         ref0(nodeTest),
         ref0(predicate).star(),
       ).map3((axis, nodeTest, predicates) =>
-          SequenceResolver([axis, nodeTest, ...predicates]));
+          SequenceResolver.fromList([axis, nodeTest, ...predicates]));
 
   Parser<Resolver> abbreviatedStep() => [
         string('..').map((_) => ParentAxisResolver()),
