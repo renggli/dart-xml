@@ -501,6 +501,51 @@ void main() {
         },
       );
     });
+    group('node decoder', () {
+      const decoder = XmlNodeDecoder();
+      test('missmatch closing tag', () {
+        expect(
+            () => decoder.convert([
+                  XmlStartElementEvent('foo', [], false),
+                  XmlEndElementEvent('bar'),
+                ]),
+            throwsA(isXmlTagException(
+              message: 'Expected </foo>, but found </bar>',
+              expectedName: 'foo',
+              actualName: 'bar',
+            )));
+      });
+      test('unexpected closing tag', () {
+        expect(
+            () => decoder.convert([XmlEndElementEvent('foo')]),
+            throwsA(isXmlTagException(
+              message: 'Unexpected </foo>',
+              expectedName: isNull,
+              actualName: 'foo',
+            )));
+      });
+      test('missing closing tag', () {
+        expect(
+            () => decoder.convert([XmlStartElementEvent('foo', [], false)]),
+            throwsA(isXmlTagException(
+              message: 'Missing </foo>',
+              expectedName: 'foo',
+              actualName: isNull,
+            )));
+      });
+      test('hidden parents', () {
+        final grandparent = XmlStartElementEvent('grandparent', [], false);
+        final parent = XmlStartElementEvent('parent', [], false)
+          ..attachParent(grandparent);
+        final child = XmlStartElementEvent('child', [], true)
+          ..attachParent(parent);
+        final node = decoder.convert([child]).single;
+        expect(node.hasParent, isTrue);
+        expect(node.parent?.hasParent, isTrue);
+        expect(node.parent?.parent?.toXmlString(),
+            '<grandparent><parent><child/></parent></grandparent>');
+      });
+    });
   });
   group('normalizeEvents', () {
     test('empty', () async {
