@@ -10,7 +10,7 @@ class IndexPredicateResolver implements Resolver {
   @override
   Iterable<XmlNode> call(Iterable<XmlNode> nodes) {
     final list = nodes.toList(growable: false);
-    final index = position < 0 ? list.length + position : position;
+    final index = position < 0 ? list.length + position : position - 1;
     return 0 <= index && index < list.length ? [list[index]] : [];
   }
 }

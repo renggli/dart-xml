@@ -57,7 +57,7 @@ void main() {
       expect(document.xpath('/bookshelf/book'), hasLength(2));
     });
     test('find the second book in the bookshelf', () {
-      expect(document.xpath('/bookshelf/book[1]'), hasLength(1));
+      expect(document.xpath('/bookshelf/book[2]'), hasLength(1));
     });
     test('find all the english titles anywhere', () {
       expect(document.xpath('//title[@lang="en"]'), hasLength(2));

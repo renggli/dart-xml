@@ -135,10 +135,10 @@ void main() {
     final document = XmlDocument.parse(input);
     final current = document.rootElement;
     test('[n]', () {
-      expectXPath(current, '*[0]', ['<e1 a="1"/>']);
-      expectXPath(current, '*[1]', ['<e2 a="2" b="3"/>']);
-      expectXPath(current, '*[2]', ['<e3 b="4"/>']);
-      expectXPath(current, '*[3]');
+      expectXPath(current, '*[1]', ['<e1 a="1"/>']);
+      expectXPath(current, '*[2]', ['<e2 a="2" b="3"/>']);
+      expectXPath(current, '*[3]', ['<e3 b="4"/>']);
+      expectXPath(current, '*[4]');
     });
     test('[-n]', () {
       expectXPath(current, '*[-1]', ['<e3 b="4"/>']);
@@ -250,11 +250,11 @@ void main() {
       });
       // Selects the first para child of the context node.
       test('para[1]', () {
-        expectXPath(namedNode['USAddress'], 'xsd:sequence[0]',
+        expectXPath(namedNode['USAddress'], 'xsd:sequence[1]',
             [namedNode['USAddress']?.firstElementChild]);
-        expectXPath(namedNode['USAddress'], 'xsd:attribute[0]',
+        expectXPath(namedNode['USAddress'], 'xsd:attribute[1]',
             [namedNode['USAddress']?.lastElementChild]);
-        expectXPath(namedNode['USAddress'], 'xsd:sequence[1]');
+        expectXPath(namedNode['USAddress'], 'xsd:sequence[2]');
       });
       // Selects the last para child of the context node.
       test('para[last()]', () {
@@ -274,10 +274,10 @@ void main() {
       });
       // Selects the second section of the fifth chapter of the doc.
       test('/doc/chapter[5]/section[2]', () {
-        expectXPath(document, '/xsd:schema/xsd:complexType[1]/xsd:attribute[0]',
+        expectXPath(document, '/xsd:schema/xsd:complexType[2]/xsd:attribute[1]',
             ['<xsd:attribute name="country" type="xsd:NMTOKEN" fixed="US"/>']);
         expectXPath(
-            document, '/xsd:schema/xsd:complexType[2]/xsd:attribute[0]');
+            document, '/xsd:schema/xsd:complexType[3]/xsd:attribute[1]');
       });
       // Selects the para element descendants of the chapter element children of
       // the context node.
@@ -349,27 +349,27 @@ void main() {
       // attribute with value warning.
       test('para[@type="warning"][5]', () {
         expectXPath(namedNode['USAddress']?.firstElementChild,
-            'xsd:element[@type="xsd:string"][0]', [namedNode['name']]);
+            'xsd:element[@type="xsd:string"][1]', [namedNode['name']]);
         expectXPath(namedNode['USAddress']?.firstElementChild,
-            'xsd:element[@type="xsd:string"][3]', [namedNode['state']]);
+            'xsd:element[@type="xsd:string"][4]', [namedNode['state']]);
         expectXPath(namedNode['USAddress']?.firstElementChild,
-            'xsd:element[@type="xsd:string"][4]');
+            'xsd:element[@type="xsd:string"][5]');
         expectXPath(namedNode['USAddress']?.firstElementChild,
-            'xsd:element[@type="xsd:decimal"][0]', [namedNode['zip']]);
+            'xsd:element[@type="xsd:decimal"][1]', [namedNode['zip']]);
         expectXPath(namedNode['USAddress']?.firstElementChild,
-            'xsd:element[@type="unknown"][0]');
+            'xsd:element[@type="unknown"][1]');
         expectXPath(namedNode['USAddress']?.firstElementChild,
-            'xsd:element[@unknown="xsd:decimal"][0]');
+            'xsd:element[@unknown="xsd:decimal"][1]');
       });
       // Selects the fifth para child of the context node if that child has a type
       // attribute with value warning.
       test('para[5][@type="warning"]', () {
         expectXPath(namedNode['USAddress']?.firstElementChild,
-            'xsd:element[3][@name="state"]', [namedNode['state']]);
+            'xsd:element[4][@name="state"]', [namedNode['state']]);
         expectXPath(namedNode['USAddress']?.firstElementChild,
-            'xsd:element[3][@name="unknown"]');
+            'xsd:element[4][@name="unknown"]');
         expectXPath(namedNode['USAddress']?.firstElementChild,
-            'xsd:element[5][@name="state"]');
+            'xsd:element[6][@name="state"]');
       });
       // Selects the chapter children of the context node that have one or more
       // title children with string-value equal to Introduction.

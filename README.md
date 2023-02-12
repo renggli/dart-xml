@@ -165,7 +165,7 @@ we can write:
 print(document.xpath('/bookshelf/book'));
 
 // Find the second book in the bookshelf.
-print(document.xpath('/bookshelf/book[1]'));
+print(document.xpath('/bookshelf/book[2]'));
 
 // Find all the english titles anywhere in the document.
 print(document.xpath('//title[@lang="en"]'));

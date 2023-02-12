@@ -2,12 +2,40 @@ import 'package:test/test.dart';
 import 'package:xml/src/xpath/exceptions/parser_exception.dart';
 import 'package:xml/xml.dart';
 
+Matcher isXmlNode({XmlNode? node, XmlNodeType? nodeType, String? outerXml}) {
+  var matcher = isA<XmlNode>();
+  if (node != null) {
+    return anyOf(
+        same(node),
+        matcher.having(
+          (node) => node.outerXml,
+          'outerXml',
+          node.outerXml,
+        ));
+  }
+  if (nodeType != null) {
+    matcher = matcher.having(
+      (node) => node.nodeType,
+      'nodeType',
+      nodeType,
+    );
+  }
+  if (outerXml != null) {
+    matcher = matcher.having(
+      (node) => node.outerXml,
+      'outerXml',
+      startsWith(outerXml),
+    );
+  }
+  return matcher;
+}
+
 Matcher isXmlParentException({
   dynamic message = isNotEmpty,
   dynamic node = anything,
   dynamic parent = anything,
 }) =>
-    const TypeMatcher<XmlParentException>()
+    isA<XmlParentException>()
         .having((value) => value.message, 'message', message)
         .having((value) => value.node, 'node', node)
         .having((value) => value.parent, 'parent', parent)
@@ -20,7 +48,7 @@ Matcher isXmlParserException({
   dynamic line = anything,
   dynamic column = anything,
 }) =>
-    const TypeMatcher<XmlParserException>()
+    isA<XmlParserException>()
         .having((value) => value.message, 'message', message)
         .having((value) => value.buffer, 'buffer', buffer)
         .having((value) => value.source, 'source', buffer)
@@ -35,7 +63,7 @@ Matcher isXmlNodeTypeException({
   dynamic node = anything,
   dynamic types = anything,
 }) =>
-    const TypeMatcher<XmlNodeTypeException>()
+    isA<XmlNodeTypeException>()
         .having((value) => value.message, 'message', message)
         .having((value) => value.node, 'node', node)
         .having((value) => value.types, 'types', types)
@@ -50,7 +78,7 @@ Matcher isXmlTagException({
   dynamic line = anything,
   dynamic column = anything,
 }) =>
-    const TypeMatcher<XmlTagException>()
+    isA<XmlTagException>()
         .having((value) => value.message, 'message', message)
         .having((value) => value.expectedName, 'expectedName', expectedName)
         .having((value) => value.actualName, 'actualName', actualName)
@@ -67,7 +95,7 @@ Matcher isXPathParserException({
   dynamic line = anything,
   dynamic column = anything,
 }) =>
-    const TypeMatcher<XPathParserException>()
+    isA<XPathParserException>()
         .having((value) => value.message, 'message', message)
         .having((value) => value.buffer, 'buffer', buffer)
         .having((value) => value.source, 'source', buffer)
