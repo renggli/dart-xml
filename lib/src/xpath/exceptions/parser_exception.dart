@@ -12,5 +12,5 @@ class XPathParserException extends XmlException with XmlFormatException {
   final int? position;
 
   @override
-  String toString() => 'XPathException: $message at $locationString';
+  String toString() => 'XPathParserException: $message$locationString';
 }
