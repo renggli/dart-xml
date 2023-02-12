@@ -9,12 +9,6 @@ class CommentTypeResolver implements Resolver {
       nodes.where((node) => node.nodeType == XmlNodeType.COMMENT);
 }
 
-class ElementTypeResolver implements Resolver {
-  @override
-  Iterable<XmlNode> call(Iterable<XmlNode> nodes) =>
-      nodes.where((node) => node.nodeType == XmlNodeType.ELEMENT);
-}
-
 class NodeTypeResolver implements Resolver {
   @override
   Iterable<XmlNode> call(Iterable<XmlNode> nodes) => nodes;
