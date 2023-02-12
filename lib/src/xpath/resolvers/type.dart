@@ -1,11 +1,12 @@
 import '../../xml/enums/node_type.dart';
 import '../../xml/nodes/node.dart';
+import '../../xml/nodes/processing.dart';
 import '../resolver.dart';
 
-class DocumentTypeResolver implements Resolver {
+class CommentTypeResolver implements Resolver {
   @override
   Iterable<XmlNode> call(Iterable<XmlNode> nodes) =>
-      nodes.where((node) => node.nodeType == XmlNodeType.DOCUMENT);
+      nodes.where((node) => node.nodeType == XmlNodeType.COMMENT);
 }
 
 class ElementTypeResolver implements Resolver {
@@ -14,31 +15,23 @@ class ElementTypeResolver implements Resolver {
       nodes.where((node) => node.nodeType == XmlNodeType.ELEMENT);
 }
 
-class AttributeTypeResolver implements Resolver {
+class NodeTypeResolver implements Resolver {
   @override
-  Iterable<XmlNode> call(Iterable<XmlNode> nodes) =>
-      nodes.where((node) => node.nodeType == XmlNodeType.ATTRIBUTE);
+  Iterable<XmlNode> call(Iterable<XmlNode> nodes) => nodes;
 }
 
-class CommentTypeResolver implements Resolver {
+class ProcessingTypeResolver implements Resolver {
+  ProcessingTypeResolver(this.target);
+
+  final String? target;
+
   @override
-  Iterable<XmlNode> call(Iterable<XmlNode> nodes) =>
-      nodes.where((node) => node.nodeType == XmlNodeType.COMMENT);
+  Iterable<XmlNode> call(Iterable<XmlNode> nodes) => nodes.where((node) =>
+      node is XmlProcessing && (target == null || node.target == target));
 }
 
 class TextTypeResolver implements Resolver {
   @override
   Iterable<XmlNode> call(Iterable<XmlNode> nodes) => nodes.where((node) =>
       node.nodeType == XmlNodeType.TEXT || node.nodeType == XmlNodeType.CDATA);
-}
-
-class ProcessingTypeResolver implements Resolver {
-  @override
-  Iterable<XmlNode> call(Iterable<XmlNode> nodes) =>
-      nodes.where((node) => node.nodeType == XmlNodeType.PROCESSING);
-}
-
-class NodeTypeResolver implements Resolver {
-  @override
-  Iterable<XmlNode> call(Iterable<XmlNode> nodes) => nodes;
 }

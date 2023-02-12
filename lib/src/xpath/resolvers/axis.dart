@@ -38,11 +38,6 @@ class DescendantOrSelfAxisResolver implements Resolver {
           .where((node) => node.nodeType != XmlNodeType.ATTRIBUTE)));
 }
 
-class EmptyAxisResolver implements Resolver {
-  @override
-  Iterable<XmlNode> call(Iterable<XmlNode> nodes) => [];
-}
-
 class FollowingAxisResolver implements Resolver {
   @override
   Iterable<XmlNode> call(Iterable<XmlNode> nodes) => nodes.expand((node) =>

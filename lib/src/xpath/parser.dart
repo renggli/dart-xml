@@ -76,9 +76,12 @@ class XPathParser {
 
   Parser<Resolver> typeTest() => [
         string('comment()').map((_) => CommentTypeResolver()),
+        string('element()').map((_) => ElementTypeResolver()),
+        string('node()').map((_) => NodeTypeResolver()),
+        seq3(string('processing-instruction('), ref0(literalToken).optional(),
+                char(')'))
+            .map3((_, target, __) => ProcessingTypeResolver(target)),
         string('text()').map((_) => TextTypeResolver()),
-        string('processing-instruction()').map((_) => ProcessingTypeResolver()),
-        string('node()').map((_) => ElementTypeResolver()),
       ].toChoiceParser();
 
   Parser<Resolver> nameTest() => [

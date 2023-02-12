@@ -100,6 +100,30 @@ void main() {
       ]);
     });
   });
+  group('type', () {
+    const input = '<?xml version="1.0"?>'
+        '<root><!--comment--><element/><?p1?><?p2?>text<![CDATA[data]]></root>';
+    final document = XmlDocument.parse(input);
+    final current = document.rootElement;
+    test('comment()', () {
+      expectXPath(current, 'comment()', ['<!--comment-->']);
+    });
+    test('element()', () {
+      expectXPath(current, 'element()', ['<element/>']);
+    });
+    test('node()', () {
+      expectXPath(current, 'node()', current.children);
+    });
+    test('processing-instruction()', () {
+      expectXPath(current, 'processing-instruction()', ['<?p1?>', '<?p2?>']);
+    });
+    test('processing-instruction("p2")', () {
+      expectXPath(current, 'processing-instruction("p2")', ['<?p2?>']);
+    });
+    test('text()', () {
+      expectXPath(current, 'text()', ['text', '<![CDATA[data]]>']);
+    });
+  });
   group('https://en.wikipedia.org/wiki/XPath#Examples', () {
     final document = XmlDocument.parse(wikimediaXml);
     test('select name attributes for all projects', () {
