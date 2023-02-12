@@ -1,6 +1,7 @@
 import 'package:test/test.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xml_events.dart';
+import 'package:xml/xpath.dart';
 
 import 'utils/assertions.dart';
 
@@ -49,6 +50,25 @@ void main() {
       final total = document
           .findAllElements('book')
           .map((node) => double.parse(node.findElements('price').single.text))
+          .reduce((a, b) => a + b);
+      expect(total, closeTo(69.94, 0.1));
+    });
+    test('find all the books in the bookshelf', () {
+      expect(document.xpath('/bookshelf/book'), hasLength(2));
+    });
+    test('find the second book in the bookshelf', () {
+      expect(document.xpath('/bookshelf/book[1]'), hasLength(1));
+    });
+    test('find all the english titles anywhere', () {
+      expect(document.xpath('//title[@lang="en"]'), hasLength(2));
+    });
+    test('find all the books with an english title', () {
+      expect(document.xpath('//book[title/@lang="en]'), hasLength(2));
+    });
+    test('sum up the prices of all the books', () {
+      final total = document
+          .xpath('//book/price/text()')
+          .map((node) => double.parse(node.text))
           .reduce((a, b) => a + b);
       expect(total, closeTo(69.94, 0.1));
     });

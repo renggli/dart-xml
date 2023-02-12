@@ -503,7 +503,7 @@ void main() {
     });
     group('node decoder', () {
       const decoder = XmlNodeDecoder();
-      test('missmatch closing tag', () {
+      test('mismatch closing tag', () {
         expect(
             () => decoder.convert([
                   XmlStartElementEvent('foo', [], false),

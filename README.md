@@ -11,9 +11,16 @@ Dart XML
 
 Dart XML is a lightweight library for parsing, traversing, querying, transforming and building XML documents.
 
-This library is open source, stable and well tested. Development happens on [GitHub](https://github.com/renggli/dart-xml). Feel free to report issues or create a pull-request there. General questions are best asked on [StackOverflow](https://stackoverflow.com/questions/tagged/xml+dart).
+This library provides a [DOM-based](#Reading-and-Writing) object model for accessing and manipulating XML documents, as
+well as an [event-based](#Event-driven) (comparable to SAX) for incremental reading and processing of XML streams.
+Furthermore, it supports a large subset of [XPath](#XPath) to simplify the querying of large documents.
 
-The package is hosted on [dart packages](https://pub.dev/packages/xml). Up-to-date [class documentation](https://pub.dev/documentation/xml/latest/) is created with every release.
+This library is open source, stable and well tested. Development happens
+on [GitHub](https://github.com/renggli/dart-xml). Feel free to report issues or create a pull-request there. General
+questions are best asked on [StackOverflow](https://stackoverflow.com/questions/tagged/xml+dart).
+
+The package is hosted on [dart packages](https://pub.dev/packages/xml).
+Up-to-date [class documentation](https://pub.dev/documentation/xml/latest/) is created with every release.
 
 
 Tutorial
@@ -80,7 +87,7 @@ Both lists are mutable and support all common `List` methods, such as `add(XmlNo
 
 There are methods to traverse the XML tree along different axes:
 
-- `siblings` returns an iterable over the nodes at the same level that preceed and follow this node in document order.
+- `siblings` returns an iterable over the nodes at the same level that proceed and follow this node in document order.
 - `preceding` returns an iterable over nodes preceding the opening tag of the current node in document order.
 - `descendants` returns an iterable over the descendants of the current node in document order. This includes the attributes of the current node, its children, the grandchildren, and so on.
 - `following` the nodes following the closing tag of the current node in document order.
@@ -122,17 +129,64 @@ This prints _Growing a Language_ and _Learning XML_.
 Similarly, to compute the total price of all the books one could write the following expression:
 
 ```dart
+
 final total = document.findAllElements('book')
-    .map((node) => double.parse(node.findElements('price').single.text))
-    .reduce((a, b) => a + b);
+        .map((node) =>
+        double.parse(node
+                .findElements('price')
+                .single
+                .text))
+        .reduce((a, b) => a + b);
+
 print(total);
 ```
 
-Note that this first finds all the books, and then extracts the price to avoid counting the price tag that is included in the bookshelf.
+Note that this first finds all the books, and then extracts the price to avoid counting the price tag that is included
+in the bookshelf.
+
+#### XPath
+
+To simplify accessing and extracting specific parts of a DOM document, this library supports the most commonly used
+subset of [XPath 1.0](https://www.w3.org/TR/1999/REC-xpath-19991116/) expressions; a full XPath engine is outside the
+scope of this library.
+
+To get started import the XPath library:
+
+```dart
+import 'package:xml/xpath.dart';
+```
+
+This exposes the static extension method `XmlNode.xpath(String expression)` that can be used on documents, and any other
+XML DOM node. The method returns an iterable over the matching XML DOM nodes. Using the `bookshelf` data defined above
+we can write:
+
+```dart
+// Find all the books in the bookshelf.
+print
+(
+document.xpath('/bookshelf/book'));
+
+// Find the second book in the bookshelf.
+print(document.xpath('/bookshelf/book[1]'));
+
+// Find all the english titles anywhere in the document.
+print(document.xpath('//title[@lang="en"]'));
+
+// Find all the books with an english title.
+print(document.xpath('//book[title/@lang="en]'));
+
+// Sum up the prices of all the books.
+final total = document.xpath('//book/price/text()')
+        .map((node) => double.parse(node.text))
+        .reduce((a, b) => a + b);
+print(total);
+```
 
 ### Building
 
-While it is possible to instantiate and compose `XmlDocument`, `XmlElement` and `XmlText` nodes manually, the `XmlBuilder` provides a simple fluent API to build complete XML trees. To create the above bookshelf example one would write:
+While it is possible to instantiate and compose `XmlDocument`, `XmlElement` and `XmlText` nodes manually,
+the `XmlBuilder` provides a simple fluent API to build complete XML trees. To create the above bookshelf example one
+would write:
 
 ```dart
 final builder = XmlBuilder();
@@ -295,6 +349,7 @@ Furthermore, there are [numerous packages](https://pub.dev/packages?q=dependency
 - [x] Reading documents using an event based API (SAX).
 - [x] Decodes and encodes commonly used character entities.
 - [x] Querying, traversing, and mutating API using Dart principles.
+- [x] Querying the DOM using a subset of XPath.
 - [x] Building XML trees using a builder API.
 
 ### Limitations
@@ -307,6 +362,7 @@ Furthermore, there are [numerous packages](https://pub.dev/packages?q=dependency
 
 - [Extensible Markup Language (XML) 1.0](https://www.w3.org/TR/xml/)
 - [Namespaces in XML 1.0](https://www.w3.org/TR/xml-names/)
+- [XPath 1.0](https://www.w3.org/TR/1999/REC-xpath-19991116/)
 - [W3C DOM4](https://www.w3.org/TR/domcore/)
 
 ### History
