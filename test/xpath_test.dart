@@ -100,16 +100,20 @@ void main() {
       ]);
     });
   });
-  group('type', () {
+  group('node test', () {
     const input = '<?xml version="1.0"?>'
-        '<root><!--comment--><element/><?p1?><?p2?>text<![CDATA[data]]></root>';
+        '<r><!--comment--><e1/><e2/><?p1?><?p2?>text<![CDATA[data]]></r>';
     final document = XmlDocument.parse(input);
     final current = document.rootElement;
+    test('*', () {
+      expectXPath(current, '*', ['<e1/>', '<e2/>']);
+    });
+    test('e1', () {
+      expectXPath(current, 'e1', ['<e1/>']);
+      expectXPath(current, 'e2', ['<e2/>']);
+    });
     test('comment()', () {
       expectXPath(current, 'comment()', ['<!--comment-->']);
-    });
-    test('element()', () {
-      expectXPath(current, 'element()', ['<element/>']);
     });
     test('node()', () {
       expectXPath(current, 'node()', current.children);
@@ -122,6 +126,32 @@ void main() {
     });
     test('text()', () {
       expectXPath(current, 'text()', ['text', '<![CDATA[data]]>']);
+    });
+  });
+  group('predicate', () {
+    const input = '<?xml version="1.0"?>'
+        '<r><e1 a="1"/><e2 a="2" b="3"/><e3 b="4"/></r>';
+    final document = XmlDocument.parse(input);
+    final current = document.rootElement;
+    test('[n]', () {
+      expectXPath(current, '*[0]', ['<e1 a="1"/>']);
+      expectXPath(current, '*[1]', ['<e2 a="2" b="3"/>']);
+      expectXPath(current, '*[2]', ['<e3 b="4"/>']);
+      expectXPath(current, '*[3]');
+    });
+    test('[-n]', () {
+      expectXPath(current, '*[-1]', ['<e3 b="4"/>']);
+      expectXPath(current, '*[-2]', ['<e2 a="2" b="3"/>']);
+      expectXPath(current, '*[-3]', ['<e1 a="1"/>']);
+      expectXPath(current, '*[-4]');
+    });
+    test('[@attr]', () {
+      expectXPath(current, '*[@a]', ['<e1 a="1"/>', '<e2 a="2" b="3"/>']);
+      expectXPath(current, '*[@b]', ['<e2 a="2" b="3"/>', '<e3 b="4"/>']);
+    });
+    test('[@attr="literal"]', () {
+      expectXPath(current, '*[@a="2"]', ['<e2 a="2" b="3"/>']);
+      expectXPath(current, '*[@b="3"]', ['<e2 a="2" b="3"/>']);
     });
   });
   group('https://en.wikipedia.org/wiki/XPath#Examples', () {
