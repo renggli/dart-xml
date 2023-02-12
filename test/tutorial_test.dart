@@ -63,7 +63,7 @@ void main() {
       expect(document.xpath('//title[@lang="en"]'), hasLength(2));
     });
     test('find all the books with an english title', () {
-      expect(document.xpath('//book[title/@lang="en]'), hasLength(2));
+      expect(document.xpath('//book[title/@lang="en"]'), hasLength(2));
     });
     test('sum up the prices of all the books', () {
       final total = document

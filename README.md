@@ -162,9 +162,7 @@ we can write:
 
 ```dart
 // Find all the books in the bookshelf.
-print
-(
-document.xpath('/bookshelf/book'));
+print(document.xpath('/bookshelf/book'));
 
 // Find the second book in the bookshelf.
 print(document.xpath('/bookshelf/book[1]'));
@@ -173,7 +171,7 @@ print(document.xpath('/bookshelf/book[1]'));
 print(document.xpath('//title[@lang="en"]'));
 
 // Find all the books with an english title.
-print(document.xpath('//book[title/@lang="en]'));
+print(document.xpath('//book[title/@lang="en"]'));
 
 // Sum up the prices of all the books.
 final total = document.xpath('//book/price/text()')
