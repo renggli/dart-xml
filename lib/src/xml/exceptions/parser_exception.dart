@@ -13,5 +13,5 @@ class XmlParserException extends XmlException with XmlFormatException {
   int? position;
 
   @override
-  String toString() => 'XmlParserException: $message at $locationString';
+  String toString() => 'XmlParserException: $message$locationString';
 }

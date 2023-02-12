@@ -25,7 +25,7 @@ mixin XmlFormatException implements FormatException {
 
   @internal
   String get locationString =>
-      buffer != null && position != null ? '$line:$column' : '$position';
+      buffer == null || position == null ? '' : ' at $line:$column';
 
   @override
   String? get source => buffer;
