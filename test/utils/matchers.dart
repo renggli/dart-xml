@@ -1,4 +1,5 @@
 import 'package:test/test.dart';
+import 'package:xml/src/xpath/exceptions/parser_exception.dart';
 import 'package:xml/xml.dart';
 
 Matcher isXmlParentException({
@@ -55,6 +56,23 @@ Matcher isXmlTagException({
         .having((value) => value.actualName, 'actualName', actualName)
         .having((value) => value.buffer, 'buffer', buffer)
         .having((value) => value.position, 'position', position)
+        .having((value) => value.line, 'line', line)
+        .having((value) => value.column, 'column', column)
+        .having((value) => value.toString(), 'toString', isNotEmpty);
+
+Matcher isXPathParserException({
+  dynamic message = isNotEmpty,
+  dynamic buffer = anything,
+  dynamic position = anything,
+  dynamic line = anything,
+  dynamic column = anything,
+}) =>
+    const TypeMatcher<XPathParserException>()
+        .having((value) => value.message, 'message', message)
+        .having((value) => value.buffer, 'buffer', buffer)
+        .having((value) => value.source, 'source', buffer)
+        .having((value) => value.position, 'position', position)
+        .having((value) => value.offset, 'offset', position)
         .having((value) => value.line, 'line', line)
         .having((value) => value.column, 'column', column)
         .having((value) => value.toString(), 'toString', isNotEmpty);
