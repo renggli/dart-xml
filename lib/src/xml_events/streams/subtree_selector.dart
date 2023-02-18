@@ -50,7 +50,8 @@ class _XmlSubtreeSelectorSink extends ChunkedConversionSink<List<XmlEvent>> {
         if (event is XmlStartElementEvent && !event.isSelfClosing) {
           stack.add(event);
         } else if (event is XmlEndElementEvent) {
-          XmlTagException.checkClosingTag(stack.last.name, event.name);
+          XmlTagException.checkClosingTag(stack.last.name, event.name,
+              buffer: event.buffer, position: event.start);
           stack.removeLast();
         }
         result.add(event);

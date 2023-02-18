@@ -50,8 +50,10 @@ class _XmlWithParentEventsSink extends ChunkedConversionSink<List<XmlEvent>>
 
   @override
   void close() {
-    if (currentParent != null) {
-      throw XmlTagException.missingClosingTag(currentParent!.name);
+    final parent = currentParent;
+    if (parent != null) {
+      throw XmlTagException.missingClosingTag(parent.name,
+          buffer: parent.buffer, position: parent.start);
     }
     sink.close();
   }
@@ -74,13 +76,16 @@ class _XmlWithParentEventsSink extends ChunkedConversionSink<List<XmlEvent>>
 
   @override
   void visitEndElementEvent(XmlEndElementEvent event) {
-    if (currentParent == null) {
-      throw XmlTagException.unexpectedClosingTag(event.name);
-    } else if (currentParent!.name != event.name) {
-      throw XmlTagException.mismatchClosingTag(currentParent!.name, event.name);
+    final parent = currentParent;
+    if (parent == null) {
+      throw XmlTagException.unexpectedClosingTag(event.name,
+          buffer: event.buffer, position: event.start);
+    } else if (parent.name != event.name) {
+      throw XmlTagException.mismatchClosingTag(parent.name, event.name,
+          buffer: event.buffer, position: event.start);
     }
-    event.attachParent(currentParent);
-    currentParent = currentParent!.parent;
+    event.attachParent(parent);
+    currentParent = parent.parent;
   }
 
   @override
