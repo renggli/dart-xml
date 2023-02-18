@@ -1,8 +1,10 @@
 # Changelog
 
-## 7.0.0
+## 7.0.0 (Unpublished)
 
 * Change the `XmlElement` constructor from positional to named parameters. This yields much more readable code, for example `XmlElement(XmlName('br'), [], [], true)` becomes `XmlElement(XmlName('br'), isSelfClosing: true)`.
+* Improve error position propagation when reading DOM.
+* Experimental support of a subset of XPath.
 * Add new-line normalization support.
 
 ## 6.2.0
