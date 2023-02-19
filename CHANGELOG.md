@@ -4,7 +4,7 @@
 
 * Change the `XmlElement` constructor from positional to named parameters. This yields much more readable code, for example `XmlElement(XmlName('br'), [], [], true)` becomes `XmlElement(XmlName('br'), isSelfClosing: true)`.
 * Deprecate the ambiguous `XmlNode.text`: Replace with `XmlNode.value` to access the textual contents of the node, or `XmlNode.innerText` to access the textual contents of its descendants.
-* Improve error position propagation when reading DOM.
+* Improve error position propagation when building an XML DOM.
 * Experimental support of a subset of XPath.
 * Add new-line normalization support.
 
