@@ -10,7 +10,12 @@ void main() {
       final document = XmlDocument.parse(
           '<ns:data key="value">Am I or are the other crazy?</ns:data>');
       final node = document.rootElement;
-      // expect(node.name, XmlName.fromString('ns:data'));
+      expect(node.qualifiedName, 'ns:data');
+      expect(node.namespacePrefix, 'ns');
+      expect(node.localName, 'data');
+      expect(node.name.qualified, 'ns:data');
+      expect(node.name.prefix, 'ns');
+      expect(node.name.local, 'data');
       expect(node.parent, same(document));
       expect(node.parentElement, isNull);
       expect(node.root, same(document));
@@ -19,9 +24,11 @@ void main() {
       expect(node.attributes, hasLength(1));
       expect(node.children, hasLength(1));
       expect(node.descendants, hasLength(2));
+      expect(node.value, isNull);
+      // ignore: deprecated_member_use_from_same_package
       expect(node.text, 'Am I or are the other crazy?');
+      expect(node.innerText, 'Am I or are the other crazy?');
       expect(node.nodeType, XmlNodeType.ELEMENT);
-      expect(node.nodeType.toString(), 'XmlNodeType.ELEMENT');
       expect(node.isSelfClosing, isTrue);
       expect(node.toString(),
           '<ns:data key="value">Am I or are the other crazy?</ns:data>');
@@ -29,7 +36,12 @@ void main() {
     test('self-closing', () {
       final document = XmlDocument.parse('<data/>');
       final node = document.rootElement;
-      // expect(node.name, XmlName.fromString('data'));
+      expect(node.qualifiedName, 'data');
+      expect(node.namespacePrefix, isNull);
+      expect(node.localName, 'data');
+      expect(node.name.qualified, 'data');
+      expect(node.name.prefix, isNull);
+      expect(node.name.local, 'data');
       expect(node.parent, same(document));
       expect(node.parentElement, isNull);
       expect(node.root, same(document));
@@ -38,9 +50,11 @@ void main() {
       expect(node.attributes, isEmpty);
       expect(node.children, isEmpty);
       expect(node.descendants, isEmpty);
-      expect(node.text, '');
+      expect(node.value, isNull);
+      // ignore: deprecated_member_use_from_same_package
+      expect(node.text, isEmpty);
+      expect(node.innerText, isEmpty);
       expect(node.nodeType, XmlNodeType.ELEMENT);
-      expect(node.nodeType.toString(), 'XmlNodeType.ELEMENT');
       expect(node.isSelfClosing, isTrue);
       expect(node.toString(), '<data/>');
     });
@@ -48,6 +62,11 @@ void main() {
       final document = XmlDocument.parse('<data></data>');
       final node = document.rootElement;
       expect(node.name.qualified, 'data');
+      expect(node.namespacePrefix, isNull);
+      expect(node.localName, 'data');
+      expect(node.name.qualified, 'data');
+      expect(node.name.prefix, isNull);
+      expect(node.name.local, 'data');
       expect(node.parent, same(document));
       expect(node.parentElement, isNull);
       expect(node.root, same(document));
@@ -56,9 +75,11 @@ void main() {
       expect(node.attributes, isEmpty);
       expect(node.children, isEmpty);
       expect(node.descendants, isEmpty);
-      expect(node.text, '');
+      expect(node.value, isNull);
+      // ignore: deprecated_member_use_from_same_package
+      expect(node.text, isEmpty);
+      expect(node.innerText, isEmpty);
       expect(node.nodeType, XmlNodeType.ELEMENT);
-      expect(node.nodeType.toString(), 'XmlNodeType.ELEMENT');
       expect(node.isSelfClosing, isFalse);
       expect(node.toString(), '<data></data>');
     });
@@ -176,7 +197,12 @@ void main() {
         final document = XmlDocument.parse(
             '<data ns:attr="Am I or are the other crazy?" />');
         final node = document.rootElement.attributes.single;
+        expect(node.qualifiedName, 'ns:attr');
+        expect(node.namespacePrefix, 'ns');
+        expect(node.localName, 'attr');
         expect(node.name.qualified, 'ns:attr');
+        expect(node.name.prefix, 'ns');
+        expect(node.name.local, 'attr');
         expect(node.value, 'Am I or are the other crazy?');
         expect(node.attributeType, XmlAttributeType.DOUBLE_QUOTE);
         expect(node.parent, same(document.rootElement));
@@ -187,14 +213,20 @@ void main() {
         expect(node.attributes, isEmpty);
         expect(node.children, isEmpty);
         expect(node.descendants, isEmpty);
+        // ignore: deprecated_member_use_from_same_package
         expect(node.text, isEmpty);
         expect(node.nodeType, XmlNodeType.ATTRIBUTE);
-        expect(node.nodeType.toString(), 'XmlNodeType.ATTRIBUTE');
         expect(node.toString(), 'ns:attr="Am I or are the other crazy?"');
       });
       test('empty', () {
         final document = XmlDocument.parse('<data attr="" />');
         final node = document.rootElement.attributes.single;
+        expect(node.qualifiedName, 'attr');
+        expect(node.namespacePrefix, isNull);
+        expect(node.localName, 'attr');
+        expect(node.name.qualified, 'attr');
+        expect(node.name.prefix, isNull);
+        expect(node.name.local, 'attr');
         expect(node.value, '');
         expect(node.toString(), 'attr=""');
       });
@@ -211,7 +243,12 @@ void main() {
         final document = XmlDocument.parse(
             '<data ns:attr=\'Am I or are the other crazy?\' />');
         final node = document.rootElement.attributes.single;
+        expect(node.qualifiedName, 'ns:attr');
+        expect(node.namespacePrefix, 'ns');
+        expect(node.localName, 'attr');
         expect(node.name.qualified, 'ns:attr');
+        expect(node.name.prefix, 'ns');
+        expect(node.name.local, 'attr');
         expect(node.value, 'Am I or are the other crazy?');
         expect(node.attributeType, XmlAttributeType.SINGLE_QUOTE);
         expect(node.parent, same(document.rootElement));
@@ -222,16 +259,22 @@ void main() {
         expect(node.attributes, isEmpty);
         expect(node.children, isEmpty);
         expect(node.descendants, isEmpty);
+        // ignore: deprecated_member_use_from_same_package
         expect(node.text, isEmpty);
         expect(node.nodeType, XmlNodeType.ATTRIBUTE);
-        expect(node.nodeType.toString(), 'XmlNodeType.ATTRIBUTE');
-        expect(node.toString(), "ns:attr='Am I or are the other crazy?'");
+        expect(node.toString(), 'ns:attr=\'Am I or are the other crazy?\'');
       });
       test('empty)', () {
         final document = XmlDocument.parse('<data attr=\'\' />');
         final node = document.rootElement.attributes.single;
+        expect(node.qualifiedName, 'attr');
+        expect(node.namespacePrefix, isNull);
+        expect(node.localName, 'attr');
+        expect(node.name.qualified, 'attr');
+        expect(node.name.prefix, isNull);
+        expect(node.name.local, 'attr');
         expect(node.value, '');
-        expect(node.toString(), "attr=''");
+        expect(node.toString(), 'attr=\'\'');
       });
       test('character references)', () {
         final document = XmlDocument.parse(
@@ -253,6 +296,8 @@ void main() {
       final document =
           XmlDocument.parse('<data>Am I or are the other crazy?</data>');
       final node = document.rootElement.children.single as XmlText;
+      expect(node.value, 'Am I or are the other crazy?');
+      // ignore: deprecated_member_use_from_same_package
       expect(node.text, 'Am I or are the other crazy?');
       expect(node.parent, same(document.rootElement));
       expect(node.parentElement, same(document.rootElement));
@@ -262,47 +307,69 @@ void main() {
       expect(node.attributes, isEmpty);
       expect(node.children, isEmpty);
       expect(node.nodeType, XmlNodeType.TEXT);
-      expect(node.nodeType.toString(), 'XmlNodeType.TEXT');
       expect(node.toString(), 'Am I or are the other crazy?');
     });
     test('character references', () {
       final document =
           XmlDocument.parse('<data>&lt;&gt;&amp;&apos;&quot;</data>');
       final node = document.rootElement.children.single;
+      expect(node.value, '<>&\'"');
+      // ignore: deprecated_member_use_from_same_package
       expect(node.text, '<>&\'"');
       expect(node.toString(), '&lt;>&amp;\'"');
     });
     test('nested', () {
       final root = XmlDocument.parse(
           '<p>Am <i>I</i> or are the <b>other</b><!-- very --> crazy?</p>');
+      expect(root.rootElement.value, isNull);
+      // ignore: deprecated_member_use_from_same_package
       expect(root.rootElement.text, 'Am I or are the other crazy?');
+      expect(root.rootElement.innerText, 'Am I or are the other crazy?');
     });
   });
-  test('cdata', () {
-    final document = XmlDocument.parse('<data>'
-        '<![CDATA[Methinks <word> it <word> is like a weasel!]]>'
-        '</data>');
-    expect(document.rootElement.text,
-        'Methinks <word> it <word> is like a weasel!');
-    final node = document.rootElement.children.single;
-    expect(node.text, 'Methinks <word> it <word> is like a weasel!');
-    expect(node.parent, same(document.rootElement));
-    expect(node.parentElement, same(document.rootElement));
-    expect(node.root, same(document));
-    expect(node.document, same(document));
-    expect(node.depth, 2);
-    expect(node.attributes, isEmpty);
-    expect(node.children, isEmpty);
-    expect(node.nodeType, XmlNodeType.CDATA);
-    expect(node.nodeType.toString(), 'XmlNodeType.CDATA');
-    expect(node.toString(),
-        '<![CDATA[Methinks <word> it <word> is like a weasel!]]>');
+  group('cdata', () {
+    test('basic', () {
+      final document = XmlDocument.parse('<data>'
+          '<![CDATA[Methinks <word> it <word> is like a weasel!]]>'
+          '</data>');
+      final node = document.rootElement.children.single;
+      expect(node.value, 'Methinks <word> it <word> is like a weasel!');
+      // ignore: deprecated_member_use_from_same_package
+      expect(node.text, 'Methinks <word> it <word> is like a weasel!');
+      expect(node.parent, same(document.rootElement));
+      expect(node.parentElement, same(document.rootElement));
+      expect(node.root, same(document));
+      expect(node.document, same(document));
+      expect(node.depth, 2);
+      expect(node.attributes, isEmpty);
+      expect(node.children, isEmpty);
+      expect(node.nodeType, XmlNodeType.CDATA);
+      expect(node.toString(),
+          '<![CDATA[Methinks <word> it <word> is like a weasel!]]>');
+    });
+    test('empty', () {
+      final document = XmlDocument.parse('<data><![CDATA[]]></data>');
+      final node = document.rootElement.children.single;
+      expect(node.value, isEmpty);
+      // ignore: deprecated_member_use_from_same_package
+      expect(node.text, isEmpty);
+      expect(node.parent, same(document.rootElement));
+      expect(node.parentElement, same(document.rootElement));
+      expect(node.root, same(document));
+      expect(node.document, same(document));
+      expect(node.depth, 2);
+      expect(node.attributes, isEmpty);
+      expect(node.children, isEmpty);
+      expect(node.nodeType, XmlNodeType.CDATA);
+      expect(node.toString(), '<![CDATA[]]>');
+    });
   });
   group('declaration', () {
-    test('declaration', () {
+    test('basic', () {
       final document =
           XmlDocument.parse('<?xml version="1.0" encoding="UTF-8"?><data/>');
       final node = document.declaration!;
+      expect(node.value, 'version="1.0" encoding="UTF-8"');
       expect(node.version, '1.0');
       expect(node.encoding, 'UTF-8');
       expect(node.standalone, isFalse);
@@ -314,8 +381,24 @@ void main() {
       expect(node.attributes, hasLength(2));
       expect(node.children, isEmpty);
       expect(node.nodeType, XmlNodeType.DECLARATION);
-      expect(node.nodeType.toString(), 'XmlNodeType.DECLARATION');
       expect(node.toString(), '<?xml version="1.0" encoding="UTF-8"?>');
+    });
+    test('empty', () {
+      final document = XmlDocument.parse('<?xml?><data/>');
+      final node = document.declaration!;
+      expect(node.value, '');
+      expect(node.version, isNull);
+      expect(node.encoding, isNull);
+      expect(node.standalone, isFalse);
+      expect(node.parent, same(document));
+      expect(node.parentElement, isNull);
+      expect(node.root, same(document));
+      expect(node.document, same(document));
+      expect(node.depth, 1);
+      expect(node.attributes, isEmpty);
+      expect(node.children, isEmpty);
+      expect(node.nodeType, XmlNodeType.DECLARATION);
+      expect(node.toString(), '<?xml?>');
     });
     test('add attribute', () {
       final document = XmlDocument.parse('<?xml?><data/>');
@@ -372,38 +455,77 @@ void main() {
       expect(node.toString(), '<?xml?>');
     });
   });
-  test('processing', () {
-    final document =
-        XmlDocument.parse('<?xml-stylesheet href="style.css"?><data/>');
-    final node = document.firstChild! as XmlProcessing;
-    expect(node.target, 'xml-stylesheet');
-    expect(node.text, 'href="style.css"');
-    expect(node.parent, same(document));
-    expect(node.parentElement, isNull);
-    expect(node.root, same(document));
-    expect(node.document, same(document));
-    expect(node.depth, 1);
-    expect(node.attributes, isEmpty);
-    expect(node.children, isEmpty);
-    expect(node.nodeType, XmlNodeType.PROCESSING);
-    expect(node.nodeType.toString(), 'XmlNodeType.PROCESSING');
-    expect(node.toString(), '<?xml-stylesheet href="style.css"?>');
+  group('processing', () {
+    test('basic', () {
+      final document =
+          XmlDocument.parse('<?xml-stylesheet href="style.css"?><data/>');
+      final node = document.firstChild! as XmlProcessing;
+      expect(node.target, 'xml-stylesheet');
+      expect(node.value, 'href="style.css"');
+      // ignore: deprecated_member_use_from_same_package
+      expect(node.text, 'href="style.css"');
+      expect(node.parent, same(document));
+      expect(node.parentElement, isNull);
+      expect(node.root, same(document));
+      expect(node.document, same(document));
+      expect(node.depth, 1);
+      expect(node.attributes, isEmpty);
+      expect(node.children, isEmpty);
+      expect(node.nodeType, XmlNodeType.PROCESSING);
+      expect(node.toString(), '<?xml-stylesheet href="style.css"?>');
+    });
+    test('empty', () {
+      final document = XmlDocument.parse('<?xml-stylesheet?><data/>');
+      final node = document.firstChild! as XmlProcessing;
+      expect(node.target, 'xml-stylesheet');
+      expect(node.value, isEmpty);
+      // ignore: deprecated_member_use_from_same_package
+      expect(node.text, isEmpty);
+      expect(node.parent, same(document));
+      expect(node.parentElement, isNull);
+      expect(node.root, same(document));
+      expect(node.document, same(document));
+      expect(node.depth, 1);
+      expect(node.attributes, isEmpty);
+      expect(node.children, isEmpty);
+      expect(node.nodeType, XmlNodeType.PROCESSING);
+      expect(node.toString(), '<?xml-stylesheet?>');
+    });
   });
-  test('comment', () {
-    final document =
-        XmlDocument.parse('<data><!--Am I or are the other crazy?--></data>');
-    final node = document.rootElement.children.single;
-    expect(node.parent, same(document.rootElement));
-    expect(node.parentElement, same(document.rootElement));
-    expect(node.root, same(document));
-    expect(node.document, same(document));
-    expect(node.depth, 2);
-    expect(node.attributes, isEmpty);
-    expect(node.children, isEmpty);
-    expect(node.text, 'Am I or are the other crazy?');
-    expect(node.nodeType, XmlNodeType.COMMENT);
-    expect(node.nodeType.toString(), 'XmlNodeType.COMMENT');
-    expect(node.toString(), '<!--Am I or are the other crazy?-->');
+  group('comment', () {
+    test('basic', () {
+      final document =
+          XmlDocument.parse('<data><!--Am I or are the other crazy?--></data>');
+      final node = document.rootElement.children.single;
+      expect(node.value, 'Am I or are the other crazy?');
+      // ignore: deprecated_member_use_from_same_package
+      expect(node.text, 'Am I or are the other crazy?');
+      expect(node.parent, same(document.rootElement));
+      expect(node.parentElement, same(document.rootElement));
+      expect(node.root, same(document));
+      expect(node.document, same(document));
+      expect(node.depth, 2);
+      expect(node.attributes, isEmpty);
+      expect(node.children, isEmpty);
+      expect(node.nodeType, XmlNodeType.COMMENT);
+      expect(node.toString(), '<!--Am I or are the other crazy?-->');
+    });
+    test('empty', () {
+      final document = XmlDocument.parse('<data><!----></data>');
+      final node = document.rootElement.children.single;
+      expect(node.value, isEmpty);
+      // ignore: deprecated_member_use_from_same_package
+      expect(node.text, isEmpty);
+      expect(node.parent, same(document.rootElement));
+      expect(node.parentElement, same(document.rootElement));
+      expect(node.root, same(document));
+      expect(node.document, same(document));
+      expect(node.depth, 2);
+      expect(node.attributes, isEmpty);
+      expect(node.children, isEmpty);
+      expect(node.nodeType, XmlNodeType.COMMENT);
+      expect(node.toString(), '<!---->');
+    });
   });
   group('document', () {
     test('basic', () {
@@ -415,9 +537,10 @@ void main() {
       expect(node.depth, 0);
       expect(node.attributes, isEmpty);
       expect(node.children, hasLength(1));
-      expect(node.text, '');
+      expect(node.value, isNull);
+      // ignore: deprecated_member_use_from_same_package
+      expect(node.text, isEmpty);
       expect(node.nodeType, XmlNodeType.DOCUMENT);
-      expect(node.nodeType.toString(), 'XmlNodeType.DOCUMENT');
       expect(node.toString(), '<data/>');
     });
     test('definition', () {
@@ -477,7 +600,6 @@ void main() {
     expect(node.externalId, isNull);
     expect(node.internalSubset, '<!-- internal subset -->');
     expect(node.nodeType, XmlNodeType.DOCUMENT_TYPE);
-    expect(node.nodeType.toString(), 'XmlNodeType.DOCUMENT_TYPE');
     expect(node.toString(), '<!DOCTYPE html [<!-- internal subset -->]>');
   });
   group('document fragment', () {
@@ -491,9 +613,10 @@ void main() {
       expect(node.depth, 0);
       expect(node.attributes, isEmpty);
       expect(node.children, hasLength(2));
+      expect(node.value, isNull);
+      // ignore: deprecated_member_use_from_same_package
       expect(node.text, 'No');
       expect(node.nodeType, XmlNodeType.DOCUMENT_FRAGMENT);
-      expect(node.nodeType.toString(), 'XmlNodeType.DOCUMENT_FRAGMENT');
       expect(node.toString(), '#document-fragment');
     });
     test('empty', () {
@@ -506,9 +629,10 @@ void main() {
       expect(node.depth, 0);
       expect(node.attributes, isEmpty);
       expect(node.children, isEmpty);
+      expect(node.value, isNull);
+      // ignore: deprecated_member_use_from_same_package
       expect(node.text, '');
       expect(node.nodeType, XmlNodeType.DOCUMENT_FRAGMENT);
-      expect(node.nodeType.toString(), 'XmlNodeType.DOCUMENT_FRAGMENT');
       expect(node.toString(), '#document-fragment');
     });
   });

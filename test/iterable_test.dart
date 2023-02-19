@@ -24,8 +24,8 @@ void main() {
       final event = iterator.current as XmlCDATAEvent;
       assertComplete(iterator);
       expect(event.nodeType, XmlNodeType.CDATA);
-      expect(event.text, '<nasty>');
-      final other = XmlCDATAEvent(event.text);
+      expect(event.value, '<nasty>');
+      final other = XmlCDATAEvent(event.value);
       expect(event, other);
       expect(event.hashCode, other.hashCode);
     });
@@ -35,8 +35,8 @@ void main() {
       final event = iterator.current as XmlCommentEvent;
       assertComplete(iterator);
       expect(event.nodeType, XmlNodeType.COMMENT);
-      expect(event.text, 'for amusement only');
-      final other = XmlCommentEvent(event.text);
+      expect(event.value, 'for amusement only');
+      final other = XmlCommentEvent(event.value);
       expect(event, other);
       expect(event.hashCode, other.hashCode);
     });
@@ -107,8 +107,8 @@ void main() {
       assertComplete(iterator);
       expect(event.nodeType, XmlNodeType.PROCESSING);
       expect(event.target, 'pi');
-      expect(event.text, 'test');
-      final other = XmlProcessingEvent(event.target, event.text);
+      expect(event.value, 'test');
+      final other = XmlProcessingEvent(event.target, event.value);
       expect(event, other);
       expect(event.hashCode, other.hashCode);
     });
@@ -157,8 +157,8 @@ void main() {
       final event = iterator.current as XmlTextEvent;
       assertComplete(iterator);
       expect(event.nodeType, XmlNodeType.TEXT);
-      expect(event.text, 'Hello World!');
-      final other = XmlTextEvent(event.text);
+      expect(event.value, 'Hello World!');
+      final other = XmlTextEvent(event.value);
       expect(event, other);
       expect(event.hashCode, other.hashCode);
     });
@@ -176,7 +176,7 @@ void main() {
             )));
         expect(iterator.moveNext(), isTrue);
         final event = iterator.current as XmlTextEvent;
-        expect(event.text, 'hello');
+        expect(event.value, 'hello');
         assertComplete(iterator);
       });
       test('missing attribute closing', () {
@@ -190,7 +190,7 @@ void main() {
             )));
         expect(iterator.moveNext(), isTrue);
         final event = iterator.current as XmlTextEvent;
-        expect(event.text, 'foo bar="abc');
+        expect(event.value, 'foo bar="abc');
         assertComplete(iterator);
       });
       test('missing comment closing', () {
@@ -204,7 +204,7 @@ void main() {
             )));
         expect(iterator.moveNext(), isTrue);
         final event = iterator.current as XmlTextEvent;
-        expect(event.text, '!-- comment');
+        expect(event.value, '!-- comment');
         assertComplete(iterator);
       });
     });
@@ -300,7 +300,7 @@ void main() {
     test('extract non-empty text', () {
       final texts = parseEvents(bookstoreXml)
           .whereType<XmlTextEvent>()
-          .map((event) => event.text.trim())
+          .map((event) => event.value.trim())
           .where((text) => text.isNotEmpty);
       expect(texts, ['Harry Potter', '29.99', 'Learning XML', '39.95']);
     });
@@ -322,7 +322,7 @@ void main() {
         if (previous is XmlStartElementEvent &&
             previous.name == 'genre' &&
             current is XmlTextEvent) {
-          genres.add(current.text);
+          genres.add(current.value);
         }
         return current;
       });

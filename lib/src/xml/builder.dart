@@ -51,7 +51,7 @@ class XmlBuilder {
       final lastChild = children.last;
       if (lastChild is XmlText) {
         // Merge consecutive text nodes into one
-        lastChild.text += text.toString();
+        lastChild.value += text.toString();
         return;
       }
     }
@@ -328,7 +328,7 @@ class XmlBuilder {
     } else if (value is XmlNode) {
       if (value is XmlText) {
         // Text nodes need to be unwrapped for merging.
-        text(value.text);
+        text(value.value);
       } else if (value is XmlAttribute) {
         // Attributes must be copied and added to the attributes list.
         _stack.last.attributes.add(value.copy());

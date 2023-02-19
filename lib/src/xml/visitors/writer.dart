@@ -35,14 +35,14 @@ class XmlWriter with XmlVisitor {
   @override
   void visitCDATA(XmlCDATA node) {
     buffer.write(XmlToken.openCDATA);
-    buffer.write(node.text);
+    buffer.write(node.value);
     buffer.write(XmlToken.closeCDATA);
   }
 
   @override
   void visitComment(XmlComment node) {
     buffer.write(XmlToken.openComment);
-    buffer.write(node.text);
+    buffer.write(node.value);
     buffer.write(XmlToken.closeComment);
   }
 
@@ -106,16 +106,16 @@ class XmlWriter with XmlVisitor {
   void visitProcessing(XmlProcessing node) {
     buffer.write(XmlToken.openProcessing);
     buffer.write(node.target);
-    if (node.text.isNotEmpty) {
+    if (node.value.isNotEmpty) {
       buffer.write(XmlToken.whitespace);
-      buffer.write(node.text);
+      buffer.write(node.value);
     }
     buffer.write(XmlToken.closeProcessing);
   }
 
   @override
   void visitText(XmlText node) {
-    buffer.write(entityMapping.encodeText(node.text));
+    buffer.write(entityMapping.encodeText(node.value));
   }
 
   void writeAttributes(XmlHasAttributes node) {

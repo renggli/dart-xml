@@ -93,8 +93,8 @@ Future<void> lookupIp(args.ArgResults results, [String query = '']) async {
         .withParentEvents()
         .selectSubtreeEvents((event) => event.parent?.name == 'query')
         .forEachEvent(
-          onText: (event) => textHandler(event, event.text),
-          onCDATA: (event) => textHandler(event, event.text),
+          onText: (event) => textHandler(event, event.value),
+          onCDATA: (event) => textHandler(event, event.value),
         );
   } else {
     // Wait until we have the full response body, then parse the input to a

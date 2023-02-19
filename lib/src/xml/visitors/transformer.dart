@@ -51,9 +51,9 @@ class XmlTransformer {
   XmlAttribute visitAttribute(XmlAttribute node) =>
       XmlAttribute(visit(node.name), node.value, node.attributeType);
 
-  XmlCDATA visitCDATA(XmlCDATA node) => XmlCDATA(node.text);
+  XmlCDATA visitCDATA(XmlCDATA node) => XmlCDATA(node.value);
 
-  XmlComment visitComment(XmlComment node) => XmlComment(node.text);
+  XmlComment visitComment(XmlComment node) => XmlComment(node.value);
 
   XmlDeclaration visitDeclaration(XmlDeclaration node) =>
       XmlDeclaration(node.attributes.map(visit));
@@ -74,7 +74,7 @@ class XmlTransformer {
   XmlName visitName(XmlName name) => XmlName.fromString(name.qualified);
 
   XmlProcessing visitProcessing(XmlProcessing node) =>
-      XmlProcessing(node.target, node.text);
+      XmlProcessing(node.target, node.value);
 
-  XmlText visitText(XmlText node) => XmlText(node.text);
+  XmlText visitText(XmlText node) => XmlText(node.value);
 }

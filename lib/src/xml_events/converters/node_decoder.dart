@@ -67,11 +67,11 @@ class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
 
   @override
   void visitCDATAEvent(XmlCDATAEvent event) =>
-      commit(XmlCDATA(event.text), event);
+      commit(XmlCDATA(event.value), event);
 
   @override
   void visitCommentEvent(XmlCommentEvent event) =>
-      commit(XmlComment(event.text), event);
+      commit(XmlComment(event.value), event);
 
   @override
   void visitDeclarationEvent(XmlDeclarationEvent event) =>
@@ -100,7 +100,7 @@ class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
 
   @override
   void visitProcessingEvent(XmlProcessingEvent event) =>
-      commit(XmlProcessing(event.target, event.text), event);
+      commit(XmlProcessing(event.target, event.value), event);
 
   @override
   void visitStartElementEvent(XmlStartElementEvent event) {
@@ -119,7 +119,8 @@ class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
   }
 
   @override
-  void visitTextEvent(XmlTextEvent event) => commit(XmlText(event.text), event);
+  void visitTextEvent(XmlTextEvent event) =>
+      commit(XmlText(event.value), event);
 
   @override
   void close() {

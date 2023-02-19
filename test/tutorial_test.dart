@@ -32,7 +32,9 @@ void main() {
   group('traversing and querying', () {
     test('extract text', () {
       final textual = document.descendants
-          .where((node) => node is XmlText && node.text.trim().isNotEmpty)
+          .whereType<XmlText>()
+          .map((text) => text.value.trim())
+          .where((string) => string.isNotEmpty)
           .join('\n');
       expect(
           textual,
@@ -41,15 +43,31 @@ void main() {
           'Learning XML\n'
           '39.95\n'
           '132.00');
+      expect(
+          document.innerText,
+          '\n'
+          '    \n'
+          '      \n'
+          '        Growing a Language\n'
+          '        29.99\n'
+          '      \n'
+          '      \n'
+          '        Learning XML\n'
+          '        39.95\n'
+          '      \n'
+          '      132.00\n'
+          '    ');
     });
     test('find all elements', () {
-      final titles = document.findAllElements('title').map((node) => node.text);
+      final titles =
+          document.findAllElements('title').map((element) => element.innerText);
       expect(titles, ['Growing a Language', 'Learning XML']);
     });
     test('nested find elements', () {
       final total = document
           .findAllElements('book')
-          .map((node) => double.parse(node.findElements('price').single.text))
+          .map((element) =>
+              double.parse(element.findElements('price').single.innerText))
           .reduce((a, b) => a + b);
       expect(total, closeTo(69.94, 0.1));
     });
@@ -68,7 +86,7 @@ void main() {
     test('sum up the prices of all the books', () {
       final total = document
           .xpath('//book/price/text()')
-          .map((node) => double.parse(node.text))
+          .map((node) => double.parse(node.value!))
           .reduce((a, b) => a + b);
       expect(total, closeTo(69.94, 0.1));
     });
@@ -116,7 +134,7 @@ void main() {
       final builtDocument = document.copy();
       builtDocument.rootElement.children.add(builder.buildFragment());
       final titles =
-          builtDocument.findAllElements('title').map((node) => node.text);
+          builtDocument.findAllElements('title').map((node) => node.innerText);
       expect(titles, [
         'Growing a Language',
         'Learning XML',
@@ -129,7 +147,7 @@ void main() {
     test('iterable', () {
       final result = parseEvents(bookshelfXml)
           .whereType<XmlTextEvent>()
-          .map((event) => event.text.trim())
+          .map((event) => event.value.trim())
           .where((text) => text.isNotEmpty)
           .join('\n');
       expect(
@@ -147,7 +165,7 @@ void main() {
           .normalizeEvents()
           .expand((events) => events
               .whereType<XmlTextEvent>()
-              .map((event) => event.text.trim())
+              .map((event) => event.value.trim())
               .where((text) => text.isNotEmpty))
           .join('\n');
       expect(

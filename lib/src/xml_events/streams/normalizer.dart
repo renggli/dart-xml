@@ -31,8 +31,8 @@ class _XmlNormalizeEventsSink extends ChunkedConversionSink<List<XmlEvent>> {
   @override
   void add(List<XmlEvent> chunk) {
     // Filter out empty text nodes.
-    buffer.addAll(
-        chunk.where((event) => !(event is XmlTextEvent && event.text.isEmpty)));
+    buffer.addAll(chunk
+        .where((event) => !(event is XmlTextEvent && event.value.isEmpty)));
     // Merge adjacent text nodes.
     for (var i = 0; i < buffer.length - 1;) {
       final event1 = buffer[i], event2 = buffer[i + 1];
@@ -40,7 +40,7 @@ class _XmlNormalizeEventsSink extends ChunkedConversionSink<List<XmlEvent>> {
         // Combine text nodes, decode the combined input.
         final event = event1 is XmlRawTextEvent && event2 is XmlRawTextEvent
             ? XmlRawTextEvent(event1.raw + event2.raw, event1.entityMapping)
-            : XmlTextEvent(event1.text + event2.text);
+            : XmlTextEvent(event1.value + event2.value);
         // Propagate annotations.
         event.attachBuffer(event1.buffer);
         event.attachLocation(event1.start, event2.stop);

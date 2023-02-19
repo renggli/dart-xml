@@ -97,9 +97,11 @@ For example, the `descendants` iterator could be used to extract all textual con
 
 ```dart
 final textual = document.descendants
-    .where((node) => node is XmlText && node.text.trim().isNotEmpty)
+    .whereType<XmlText>()
+    .map((text) => text.value.trim())
+    .where((string) => string.isNotEmpty)
     .join('\n');
-print(textual);
+print(textual);   // prints 'Growing a Language', '29.99', 'Learning XML', '39.95', and '132.00'
 ```
 
 There are convenience helpers to filter by element nodes only: `childElements`, `siblingElements`, `precedingElements`, `descendantElements`, `followingElements`, and `ancestorElements`.
@@ -116,12 +118,12 @@ For example, to find all the nodes with the _&lt;title&gt;_ tag you could write:
 final titles = document.findAllElements('title');
 ```
 
-The above code returns a lazy iterator that recursively walks the XML document and yields all the element nodes with the requested tag name. To extract the textual contents call `text`:
+The above code returns a lazy iterator that recursively walks the XML document and yields all the element nodes with the requested tag name. To extract the textual contents of an element call `innerText`:
 
 ```dart
 titles
-    .map((node) => node.text)
-    .forEach(print);
+    .map((element) => element.innerText)
+    .forEach(print);   // prints 'Growing a Language' and 'Learning XML'
 ```
 
 This prints _Growing a Language_ and _Learning XML_.
@@ -129,16 +131,13 @@ This prints _Growing a Language_ and _Learning XML_.
 Similarly, to compute the total price of all the books one could write the following expression:
 
 ```dart
-
 final total = document.findAllElements('book')
-        .map((node) =>
-        double.parse(node
-                .findElements('price')
-                .single
-                .text))
-        .reduce((a, b) => a + b);
-
-print(total);
+    .map((element) => double.parse(element
+        .findElements('price')
+        .single
+        .innerText))
+    .reduce((a, b) => a + b);
+print(total);   // prints 69.94
 ```
 
 Note that this first finds all the books, and then extracts the price to avoid counting the price tag that is included
@@ -175,9 +174,9 @@ print(document.xpath('//book[title/@lang="en"]'));
 
 // Sum up the prices of all the books.
 final total = document.xpath('//book/price/text()')
-        .map((node) => double.parse(node.text))
+        .map((node) => double.parse(node.value!))
         .reduce((a, b) => a + b);
-print(total);
+print(total);   // prints 69.94
 ```
 
 ### Building
@@ -253,7 +252,7 @@ In the simplest case you can get a `Iterable<XmlEvent>` over the input string us
 ```dart
 parseEvents(bookshelfXml)
     .whereType<XmlTextEvent>()
-    .map((event) => event.text.trim())
+    .map((event) => event.value.trim())
     .where((text) => text.isNotEmpty)
     .forEach(print);
 ```
@@ -300,7 +299,7 @@ await response
     .transform(utf8.decoder)
     .toXmlEvents()
     .normalizeEvents()
-    .forEachEvent(onText: (event) => print(event.text));
+    .forEachEvent(onText: (event) => print(event.value));
 ```
 
 Similarly, the following snippet extracts sub-trees with location information from a `sitemap.xml` file, converts the XML events to XML nodes, and finally prints out the containing text:

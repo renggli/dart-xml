@@ -231,10 +231,18 @@ void assertChildrenInvariants(XmlNode xml) {
 
 void assertTextInvariants(XmlNode xml) {
   for (final node in [xml, ...xml.descendants]) {
+    // ignore: deprecated_member_use_from_same_package
     expect(node.text, isA<String>(),
         reason: 'All nodes are supposed to return text strings.');
-    if (node is XmlText) {
-      expect(node.text, isNotEmpty, reason: 'Text nodes cannot be empty.');
+    if (node is XmlAttribute ||
+        node is XmlCDATA ||
+        node is XmlComment ||
+        node is XmlDeclaration ||
+        node is XmlProcessing ||
+        node is XmlText) {
+      expect(node.value, isA<String>(), reason: 'Values cannot be empty.');
+    } else {
+      expect(node.value, isNull);
     }
     XmlNodeType? previousType;
     final nodeTypes = node.children.map((node) => node.nodeType);
@@ -339,12 +347,12 @@ void compareNode(XmlNode first, XmlNode second) {
   final firstText = first.children
       .whereType<XmlText>()
       .map((node) =>
-          node.text.trim().replaceAll(_whitespaceOrLineTerminators, ' '))
+          node.value.trim().replaceAll(_whitespaceOrLineTerminators, ' '))
       .join();
   final secondText = second.children
       .whereType<XmlText>()
       .map((node) =>
-          node.text.trim().replaceAll(_whitespaceOrLineTerminators, ' '))
+          node.value.trim().replaceAll(_whitespaceOrLineTerminators, ' '))
       .join();
   expect(firstText, secondText);
   expect(first.attributes.length, second.attributes.length);
@@ -414,11 +422,15 @@ void assertIteratorEventInvariants(String input, XmlNode node) {
     } else if (event is XmlCDATAEvent) {
       final expected = nodes.removeAt(0) as XmlCDATA;
       expect(event.nodeType, expected.nodeType);
-      expect(event.text, expected.text);
+      expect(event.value, expected.value);
+      // ignore: deprecated_member_use_from_same_package
+      expect(event.text, expected.value);
     } else if (event is XmlCommentEvent) {
       final expected = nodes.removeAt(0) as XmlComment;
       expect(event.nodeType, expected.nodeType);
-      expect(event.text, expected.text);
+      expect(event.value, expected.value);
+      // ignore: deprecated_member_use_from_same_package
+      expect(event.text, expected.value);
     } else if (event is XmlDoctypeEvent) {
       final expected = nodes.removeAt(0) as XmlDoctype;
       expect(event.nodeType, expected.nodeType);
@@ -442,11 +454,15 @@ void assertIteratorEventInvariants(String input, XmlNode node) {
       final expected = nodes.removeAt(0) as XmlProcessing;
       expect(event.nodeType, expected.nodeType);
       expect(event.target, expected.target);
-      expect(event.text, expected.text);
+      expect(event.value, expected.value);
+      // ignore: deprecated_member_use_from_same_package
+      expect(event.text, expected.value);
     } else if (event is XmlTextEvent) {
       final expected = nodes.removeAt(0) as XmlText;
       expect(event.nodeType, expected.nodeType);
-      expect(event.text, expected.text);
+      expect(event.value, expected.value);
+      // ignore: deprecated_member_use_from_same_package
+      expect(event.text, expected.value);
     } else {
       fail('Unexpected event type: $event');
     }
@@ -508,11 +524,11 @@ void assertStreamEventInvariants(String input, XmlNode node) {
     } else if (event is XmlCDATAEvent) {
       final expected = nodes.removeAt(0) as XmlCDATA;
       expect(event.nodeType, expected.nodeType);
-      expect(event.text, expected.text);
+      expect(event.value, expected.value);
     } else if (event is XmlCommentEvent) {
       final expected = nodes.removeAt(0) as XmlComment;
       expect(event.nodeType, expected.nodeType);
-      expect(event.text, expected.text);
+      expect(event.value, expected.value);
     } else if (event is XmlDoctypeEvent) {
       final expected = nodes.removeAt(0) as XmlDoctype;
       expect(event.nodeType, expected.nodeType);
@@ -538,11 +554,11 @@ void assertStreamEventInvariants(String input, XmlNode node) {
       final expected = nodes.removeAt(0) as XmlProcessing;
       expect(event.nodeType, expected.nodeType);
       expect(event.target, expected.target);
-      expect(event.text, expected.text);
+      expect(event.value, expected.value);
     } else if (event is XmlTextEvent) {
       final expected = nodes.removeAt(0) as XmlText;
       expect(event.nodeType, expected.nodeType);
-      expect(event.text, expected.text);
+      expect(event.value, expected.value);
     } else {
       fail('Unexpected event type: $event');
     }

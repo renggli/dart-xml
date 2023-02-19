@@ -4,14 +4,14 @@ import 'data.dart';
 
 /// XML text node.
 class XmlText extends XmlData {
-  /// Create a text node with `text`.
-  XmlText(super.text);
+  /// Create a text node with `value`.
+  XmlText(super.value);
 
   @override
   XmlNodeType get nodeType => XmlNodeType.TEXT;
 
   @override
-  XmlText copy() => XmlText(text);
+  XmlText copy() => XmlText(value);
 
   @override
   void accept(XmlVisitor visitor) => visitor.visitText(this);

@@ -5,9 +5,12 @@ import '../visitor.dart';
 
 /// Event of an XML text node.
 class XmlTextEvent extends XmlEvent {
-  XmlTextEvent(this.text);
+  XmlTextEvent(this.value);
 
-  final String text;
+  final String value;
+
+  @Deprecated('Use `XmlTextEvent.value` instead.')
+  String get text => value;
 
   @override
   XmlNodeType get nodeType => XmlNodeType.TEXT;
@@ -16,10 +19,11 @@ class XmlTextEvent extends XmlEvent {
   void accept(XmlEventVisitor visitor) => visitor.visitTextEvent(this);
 
   @override
-  int get hashCode => Object.hash(nodeType, text);
+  int get hashCode => Object.hash(nodeType, value);
 
   @override
-  bool operator ==(Object other) => other is XmlTextEvent && other.text == text;
+  bool operator ==(Object other) =>
+      other is XmlTextEvent && other.value == value;
 }
 
 /// Internal event of an XML text node that is lazily decoded.
@@ -31,7 +35,10 @@ class XmlRawTextEvent extends XmlEvent implements XmlTextEvent {
   final XmlEntityMapping entityMapping;
 
   @override
-  late final String text = entityMapping.decode(raw);
+  late final String value = entityMapping.decode(raw);
+
+  @override
+  String get text => value;
 
   @override
   XmlNodeType get nodeType => XmlNodeType.TEXT;
@@ -40,8 +47,9 @@ class XmlRawTextEvent extends XmlEvent implements XmlTextEvent {
   void accept(XmlEventVisitor visitor) => visitor.visitTextEvent(this);
 
   @override
-  int get hashCode => Object.hash(nodeType, text);
+  int get hashCode => Object.hash(nodeType, value);
 
   @override
-  bool operator ==(Object other) => other is XmlTextEvent && other.text == text;
+  bool operator ==(Object other) =>
+      other is XmlTextEvent && other.value == value;
 }

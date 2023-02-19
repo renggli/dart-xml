@@ -1,4 +1,3 @@
-import '../enums/node_type.dart';
 import '../nodes/document.dart';
 import '../nodes/document_fragment.dart';
 import '../nodes/element.dart';
@@ -67,13 +66,13 @@ class XmlNormalizer with XmlVisitor {
   @override
   void visitText(XmlText node) {
     if (trimWhitespace(node)) {
-      node.text = node.text.trim();
+      node.value = node.value.trim();
     }
     if (collapseWhitespace(node)) {
-      node.text = node.text.replaceAll(_whitespace, ' ');
+      node.value = node.value.replaceAll(_whitespace, ' ');
     }
     if (normalizeNewline(node)) {
-      node.text = node.text.replaceAll(_newline, '\n');
+      node.value = node.value.replaceAll(_newline, '\n');
     }
   }
 
@@ -86,7 +85,7 @@ class XmlNormalizer with XmlVisitor {
   void _removeEmpty(List<XmlNode> children) {
     for (var i = 0; i < children.length;) {
       final node = children[i];
-      if (node.nodeType == XmlNodeType.TEXT && node.text.isEmpty) {
+      if (node is XmlText && node.value.isEmpty) {
         children.removeAt(i);
       } else {
         i++;
@@ -103,7 +102,7 @@ class XmlNormalizer with XmlVisitor {
           previousText = node;
           i++;
         } else {
-          previousText.text += node.text;
+          previousText.value += node.value;
           children.removeAt(i);
         }
       } else {

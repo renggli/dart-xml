@@ -1,6 +1,7 @@
 import '../enums/node_type.dart';
 import '../mixins/has_attributes.dart';
 import '../mixins/has_parent.dart';
+import '../utils/token.dart';
 import '../visitors/visitor.dart';
 import 'attribute.dart';
 import 'node.dart';
@@ -36,6 +37,14 @@ class XmlDeclaration extends XmlNode
           : value
               ? 'yes'
               : 'no');
+
+  @override
+  String get value {
+    if (attributes.isEmpty) return '';
+    final result = toXmlString();
+    return result.substring(XmlToken.openDeclaration.length + 1,
+        result.length - XmlToken.closeDeclaration.length);
+  }
 
   @override
   XmlNodeType get nodeType => XmlNodeType.DECLARATION;

@@ -151,7 +151,7 @@ void main() {
     builder.element('element', nest: [nested, nested]);
     final xml = builder.buildDocument();
     assertDocumentTreeInvariants(xml);
-    expect(xml.children[0].children[0].text, 'texttext');
+    expect(xml.children[0].children[0].value, 'texttext');
     expect(xml.children[0].children[0], isNot(same(nested)));
     final actual = xml.toString();
     const expected = '<element>texttext</element>';

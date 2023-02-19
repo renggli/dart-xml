@@ -42,7 +42,7 @@ void main() {
       '<element><![CDATA[text]]></element>',
       (node) {
         final cdata = node.children.first as XmlCDATA;
-        cdata.text = 'update';
+        cdata.value = 'update';
       },
       '<element><![CDATA[update]]></element>',
     );
@@ -51,7 +51,7 @@ void main() {
       '<element><!--comment--></element>',
       (node) {
         final comment = node.children.first as XmlComment;
-        comment.text = 'update';
+        comment.value = 'update';
       },
       '<element><!--update--></element>',
     );
@@ -70,7 +70,7 @@ void main() {
     test('processing (text)', () {
       final document = XmlDocument.parse('<?xml processing?><element/>');
       final processing = document.firstChild! as XmlProcessing;
-      processing.text = 'update';
+      processing.value = 'update';
       expect(document.toXmlString(), '<?xml update?><element/>');
     });
     mutatingTest(
@@ -78,7 +78,7 @@ void main() {
       '<element>Hello World</element>',
       (node) {
         final text = node.children.first as XmlText;
-        text.text = 'Dart rocks';
+        text.value = 'Dart rocks';
       },
       '<element>Dart rocks</element>',
     );

@@ -4,9 +4,12 @@ import '../visitor.dart';
 
 /// Event of an XML comment node.
 class XmlCommentEvent extends XmlEvent {
-  XmlCommentEvent(this.text);
+  XmlCommentEvent(this.value);
 
-  final String text;
+  final String value;
+
+  @Deprecated('Use `XmlCommentEvent.value` instead.')
+  String get text => value;
 
   @override
   XmlNodeType get nodeType => XmlNodeType.COMMENT;
@@ -15,9 +18,9 @@ class XmlCommentEvent extends XmlEvent {
   void accept(XmlEventVisitor visitor) => visitor.visitCommentEvent(this);
 
   @override
-  int get hashCode => Object.hash(nodeType, text);
+  int get hashCode => Object.hash(nodeType, value);
 
   @override
   bool operator ==(Object other) =>
-      other is XmlCommentEvent && other.text == text;
+      other is XmlCommentEvent && other.value == value;
 }

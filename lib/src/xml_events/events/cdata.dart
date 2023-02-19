@@ -4,9 +4,12 @@ import '../visitor.dart';
 
 /// Event of an XML CDATA node.
 class XmlCDATAEvent extends XmlEvent {
-  XmlCDATAEvent(this.text);
+  XmlCDATAEvent(this.value);
 
-  final String text;
+  final String value;
+
+  @Deprecated('Use `XmlCDATAEvent.value` instead.')
+  String get text => value;
 
   @override
   XmlNodeType get nodeType => XmlNodeType.CDATA;
@@ -15,9 +18,9 @@ class XmlCDATAEvent extends XmlEvent {
   void accept(XmlEventVisitor visitor) => visitor.visitCDATAEvent(this);
 
   @override
-  int get hashCode => Object.hash(nodeType, text);
+  int get hashCode => Object.hash(nodeType, value);
 
   @override
   bool operator ==(Object other) =>
-      other is XmlCDATAEvent && other.text == text;
+      other is XmlCDATAEvent && other.value == value;
 }

@@ -40,7 +40,7 @@ void main() {
         XmlElement(XmlName('a'), children: [XmlText(' 1 ')]),
         XmlElement(XmlName('b'), children: [XmlText(' 2 ')]),
       ]);
-      element.normalize(trimWhitespace: (node) => node.text == ' 2 ');
+      element.normalize(trimWhitespace: (node) => node.value == ' 2 ');
       expect(element.toXmlString(), '<element><a> 1 </a><b>2</b></element>');
     });
     test('collapse whitespace', () {
@@ -57,7 +57,7 @@ void main() {
         XmlElement(XmlName('a'), children: [XmlText('1  1')]),
         XmlElement(XmlName('b'), children: [XmlText('2  2')]),
       ]);
-      element.normalize(collapseWhitespace: (node) => node.text == '2  2');
+      element.normalize(collapseWhitespace: (node) => node.value == '2  2');
       expect(element.toXmlString(), '<element><a>1  1</a><b>2 2</b></element>');
     });
     test('normalize newlines', () {
@@ -69,7 +69,8 @@ void main() {
         XmlElement(XmlName('x2028'), children: [XmlText('\u2028')]),
       ]);
       element.normalize(normalizeAllNewline: true);
-      expect(element.children.map((child) => child.text), everyElement('\n'));
+      expect(
+          element.children.map((child) => child.innerText), everyElement('\n'));
     });
     test('selectively normalize newlines', () {
       final element = XmlElement(XmlName('element'), children: [
@@ -79,8 +80,8 @@ void main() {
         XmlElement(XmlName('x85'), children: [XmlText('\u0085')]),
         XmlElement(XmlName('x2028'), children: [XmlText('\u2028')]),
       ]);
-      element.normalize(normalizeNewline: (node) => node.text.length > 1);
-      expect(element.children.map((child) => child.text),
+      element.normalize(normalizeNewline: (node) => node.value.length > 1);
+      expect(element.children.map((child) => child.innerText),
           ['\r', '\n', '\n', '\u0085', '\u2028']);
     });
     test('document fragment', () {

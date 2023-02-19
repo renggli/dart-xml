@@ -113,12 +113,12 @@ class XmlPrettyWriter extends XmlWriter {
     for (final node in nodes) {
       if (node is XmlText) {
         final text =
-            node.text.trim().replaceAll(_whitespaceOrLineTerminators, ' ');
+            node.value.trim().replaceAll(_whitespaceOrLineTerminators, ' ');
         if (text.isNotEmpty) {
           if (result.isNotEmpty && result.last is XmlText) {
             result.last =
-                XmlText(result.last.text + XmlToken.whitespace + text);
-          } else if (node.text != text) {
+                XmlText('${result.last.value}${XmlToken.whitespace}$text');
+          } else if (node.value != text) {
             result.add(XmlText(text));
           } else {
             result.add(node);

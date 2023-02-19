@@ -61,14 +61,14 @@ class _XmlEventEncoderSink extends ChunkedConversionSink<List<XmlEvent>>
   @override
   void visitCDATAEvent(XmlCDATAEvent event) {
     sink.add(XmlToken.openCDATA);
-    sink.add(event.text);
+    sink.add(event.value);
     sink.add(XmlToken.closeCDATA);
   }
 
   @override
   void visitCommentEvent(XmlCommentEvent event) {
     sink.add(XmlToken.openComment);
-    sink.add(event.text);
+    sink.add(event.value);
     sink.add(XmlToken.closeComment);
   }
 
@@ -110,9 +110,9 @@ class _XmlEventEncoderSink extends ChunkedConversionSink<List<XmlEvent>>
   void visitProcessingEvent(XmlProcessingEvent event) {
     sink.add(XmlToken.openProcessing);
     sink.add(event.target);
-    if (event.text.isNotEmpty) {
+    if (event.value.isNotEmpty) {
       sink.add(XmlToken.whitespace);
-      sink.add(event.text);
+      sink.add(event.value);
     }
     sink.add(XmlToken.closeProcessing);
   }
@@ -131,7 +131,7 @@ class _XmlEventEncoderSink extends ChunkedConversionSink<List<XmlEvent>>
 
   @override
   void visitTextEvent(XmlTextEvent event) {
-    sink.add(entityMapping.encodeText(event.text));
+    sink.add(entityMapping.encodeText(event.value));
   }
 
   void addAttributes(List<XmlEventAttribute> attributes) {

@@ -232,7 +232,7 @@ void main() {
       test('text()', () {
         final documentation =
             document.findAllElements('xsd:documentation').single;
-        expectXPath(documentation, 'text()', [documentation.text]);
+        expectXPath(documentation, 'text()', [documentation.innerText]);
         expectXPath(namedNode['shipTo'], 'text()');
       });
       // Selects the name attribute of the context node.
@@ -376,10 +376,10 @@ void main() {
       test('chapter[title="Introduction"]', () {
         expectXPath(
             document.firstElementChild,
-            'xsd:complexType[xsd:attribute=""]',
+            'xsd:complexType[xsd:attribute]',
             [namedNode['PurchaseOrderType'], namedNode['USAddress']]);
-        expectXPath(document.firstElementChild, 'unknown[xsd:attribute=""]');
-        expectXPath(document.firstElementChild, 'xsd:complexType[unknown=""]');
+        expectXPath(document.firstElementChild, 'unknown[xsd:attribute]');
+        expectXPath(document.firstElementChild, 'xsd:complexType[unknown]');
         expectXPath(document.firstElementChild,
             'xsd:complexType[xsd:attribute="unknown"]');
       });

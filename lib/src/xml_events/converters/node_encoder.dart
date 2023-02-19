@@ -65,10 +65,10 @@ class _XmlNodeEncoderSink extends ChunkedConversionSink<List<XmlNode>>
   }
 
   @override
-  void visitCDATA(XmlCDATA node) => sink.add([XmlCDATAEvent(node.text)]);
+  void visitCDATA(XmlCDATA node) => sink.add([XmlCDATAEvent(node.value)]);
 
   @override
-  void visitComment(XmlComment node) => sink.add([XmlCommentEvent(node.text)]);
+  void visitComment(XmlComment node) => sink.add([XmlCommentEvent(node.value)]);
 
   @override
   void visitDeclaration(XmlDeclaration node) =>
@@ -80,10 +80,10 @@ class _XmlNodeEncoderSink extends ChunkedConversionSink<List<XmlNode>>
 
   @override
   void visitProcessing(XmlProcessing node) =>
-      sink.add([XmlProcessingEvent(node.target, node.text)]);
+      sink.add([XmlProcessingEvent(node.target, node.value)]);
 
   @override
-  void visitText(XmlText node) => sink.add([XmlTextEvent(node.text)]);
+  void visitText(XmlText node) => sink.add([XmlTextEvent(node.value)]);
 
   List<XmlEventAttribute> convertAttributes(
           XmlNodeList<XmlAttribute> attributes) =>

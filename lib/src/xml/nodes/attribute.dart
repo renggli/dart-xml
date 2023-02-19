@@ -18,6 +18,7 @@ class XmlAttribute extends XmlNode with XmlHasName, XmlHasParent<XmlNode> {
   final XmlName name;
 
   /// The value of the attribute.
+  @override
   String value;
 
   /// Return the quote type.

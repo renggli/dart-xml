@@ -52,7 +52,7 @@ void main(List<String> arguments) {
       file.readAsStringSync(),
       withBuffer: true,
       withLocation: true,
-    ).where((event) => event is! XmlTextEvent || event.text.trim().isNotEmpty);
+    ).where((event) => event is! XmlTextEvent || event.value.trim().isNotEmpty);
     for (final event in events) {
       final positionString = outputPosition(position, event).padLeft(10);
       final tokenString = outputString(limit, event);

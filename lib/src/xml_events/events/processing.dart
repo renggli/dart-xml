@@ -4,11 +4,14 @@ import '../visitor.dart';
 
 /// Event of an XML processing node.
 class XmlProcessingEvent extends XmlEvent {
-  XmlProcessingEvent(this.target, this.text);
+  XmlProcessingEvent(this.target, this.value);
 
   final String target;
 
-  final String text;
+  final String value;
+
+  @Deprecated('Use `XmlProcessingEvent.value` instead.')
+  String get text => value;
 
   @override
   XmlNodeType get nodeType => XmlNodeType.PROCESSING;
@@ -17,11 +20,11 @@ class XmlProcessingEvent extends XmlEvent {
   void accept(XmlEventVisitor visitor) => visitor.visitProcessingEvent(this);
 
   @override
-  int get hashCode => Object.hash(nodeType, text, target);
+  int get hashCode => Object.hash(nodeType, value, target);
 
   @override
   bool operator ==(Object other) =>
       other is XmlProcessingEvent &&
       other.target == target &&
-      other.text == text;
+      other.value == value;
 }

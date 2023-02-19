@@ -11,7 +11,7 @@ class TrimTextVisitor with XmlVisitor {
   void visitElement(XmlElement node) => node.children.forEach(visit);
 
   @override
-  void visitText(XmlText node) => node.text = node.text.trim();
+  void visitText(XmlText node) => node.value = node.value.trim();
 }
 
 void main() {
@@ -54,18 +54,18 @@ void main() {
     test('transformation class', () {
       final document = XmlDocument.parse(input);
       TrimTextVisitor().visit(document);
-      expect(document.rootElement.children[1].text, 'left');
-      expect(document.rootElement.children[3].text, 'both');
-      expect(document.rootElement.children[5].text, 'right');
+      expect(document.rootElement.children[1].innerText, 'left');
+      expect(document.rootElement.children[3].innerText, 'both');
+      expect(document.rootElement.children[5].innerText, 'right');
     });
     test('transformation function', () {
       final document = XmlDocument.parse(input);
       for (final node in document.descendants.whereType<XmlText>()) {
-        node.replace(XmlText(node.text.trim()));
+        node.replace(XmlText(node.value.trim()));
       }
-      expect(document.rootElement.children[1].text, 'left');
-      expect(document.rootElement.children[3].text, 'both');
-      expect(document.rootElement.children[5].text, 'right');
+      expect(document.rootElement.children[1].innerText, 'left');
+      expect(document.rootElement.children[3].innerText, 'both');
+      expect(document.rootElement.children[5].innerText, 'right');
     });
   });
   test('https://github.com/renggli/dart-xml/issues/100', () {
@@ -76,9 +76,9 @@ void main() {
           <os:itemsPerPage>50</os:itemsPerPage>
           <os:startIndex>1</os:startIndex>
         </feed>''');
-    expect(document.rootElement.getElement('os:totalResults')?.text, '0');
-    expect(document.rootElement.getElement('os:itemsPerPage')?.text, '50');
-    expect(document.rootElement.getElement('os:startIndex')?.text, '1');
+    expect(document.rootElement.getElement('os:totalResults')?.innerText, '0');
+    expect(document.rootElement.getElement('os:itemsPerPage')?.innerText, '50');
+    expect(document.rootElement.getElement('os:startIndex')?.innerText, '1');
   });
   test('https://github.com/renggli/dart-xml/issues/104', () {
     final document = XmlDocument.parse('''
@@ -235,6 +235,6 @@ void main() {
     doc.normalize(normalizeAllNewline: true);
     final textNode = doc.rootElement.firstChild!;
     expect(textNode.nodeType, XmlNodeType.TEXT);
-    expect(textNode.text, equals('\n  '));
+    expect(textNode.value, equals('\n  '));
   });
 }

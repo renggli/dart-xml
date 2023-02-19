@@ -4,8 +4,8 @@ import 'data.dart';
 
 /// XML processing instruction.
 class XmlProcessing extends XmlData {
-  /// Create a processing node with `target` and `text`.
-  XmlProcessing(this.target, String text) : super(text);
+  /// Create a processing node with `target` and `value`.
+  XmlProcessing(this.target, super.value);
 
   /// Return the processing target.
   final String target;
@@ -14,7 +14,7 @@ class XmlProcessing extends XmlData {
   XmlNodeType get nodeType => XmlNodeType.PROCESSING;
 
   @override
-  XmlProcessing copy() => XmlProcessing(target, text);
+  XmlProcessing copy() => XmlProcessing(target, value);
 
   @override
   void accept(XmlVisitor visitor) => visitor.visitProcessing(this);

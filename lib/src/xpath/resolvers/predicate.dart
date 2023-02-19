@@ -1,4 +1,3 @@
-import '../../xml/nodes/attribute.dart';
 import '../../xml/nodes/node.dart';
 import '../resolver.dart';
 
@@ -25,12 +24,7 @@ class InnerPredicateResolver implements Resolver {
   @override
   Iterable<XmlNode> call(Iterable<XmlNode> nodes) => nodes.where((node) {
         final result = resolver([node]);
-        if (value == null) {
-          return result.isNotEmpty;
-        }
-        return result.any((each) {
-          final text = each is XmlAttribute ? each.value : each.text;
-          return text == value;
-        });
+        if (value == null) return result.isNotEmpty;
+        return result.any((each) => each.value == value);
       });
 }
