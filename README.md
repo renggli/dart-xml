@@ -336,7 +336,7 @@ Misc
 
 ### Examples
 
-This package comes with several [examples](https://github.com/renggli/dart-xml/tree/main/example).
+This package comes with several [examples](https://github.com/renggli/dart-xml/tree/main/example), as well as a [web demo](https://petitparser.github.io/examples/xml/xml.html).
 
 Furthermore, there are [numerous packages](https://pub.dev/packages?q=dependency%3Axml) depending on this package.
 
