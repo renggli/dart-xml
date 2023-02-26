@@ -459,7 +459,7 @@ void main() {
     test('basic', () {
       final document =
           XmlDocument.parse('<?xml-stylesheet href="style.css"?><data/>');
-      final node = document.firstChild! as XmlProcessing;
+      final node = document.firstChild as XmlProcessing;
       expect(node.target, 'xml-stylesheet');
       expect(node.value, 'href="style.css"');
       // ignore: deprecated_member_use_from_same_package
@@ -476,7 +476,7 @@ void main() {
     });
     test('empty', () {
       final document = XmlDocument.parse('<?xml-stylesheet?><data/>');
-      final node = document.firstChild! as XmlProcessing;
+      final node = document.firstChild as XmlProcessing;
       expect(node.target, 'xml-stylesheet');
       expect(node.value, isEmpty);
       // ignore: deprecated_member_use_from_same_package
