@@ -400,7 +400,7 @@ void main() {
             stream.toXmlEvents(withLocation: true),
             emitsThrough(emitsError(isXmlParserException(
               message: '">" expected',
-              position: 5,
+              position: 8,
             ))));
       },
     );

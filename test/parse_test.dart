@@ -174,9 +174,19 @@ void main() {
     });
     test('element with double quote attribute', () {
       assertDocumentParseInvariants('<schema foo="bar"></schema>');
+      assertDocumentParseInvariants('<schema foo="bar" take="drop"></schema>');
     });
     test('element with single quote attribute', () {
       assertDocumentParseInvariants("<schema foo='bar'></schema>");
+      assertDocumentParseInvariants("<schema foo='bar' take='drop'></schema>");
+    });
+    test('element with attribute without quotes', () {
+      assertDocumentParseInvariants("<schema foo=bar></schema>");
+      assertDocumentParseInvariants("<schema foo=bar take=drop></schema>");
+    });
+    test('element with attribute without value', () {
+      assertDocumentParseInvariants("<schema foo></schema>");
+      assertDocumentParseInvariants("<schema foo bar></schema>");
     });
     test('processing instruction', () {
       assertDocumentParseInvariants('<?pi?><data />');
@@ -307,13 +317,13 @@ void main() {
             () => XmlDocument.parse('<data key'),
             throwsA(isXmlParserException(
               message: '">" expected',
-              position: 6,
+              position: 9,
             )));
         expect(
             () => XmlDocument.parse('<data key="ab'),
             throwsA(isXmlParserException(
               message: '">" expected',
-              position: 6,
+              position: 9,
             )));
       });
       test('comment', () {
@@ -381,19 +391,19 @@ void main() {
             () => XmlDocument.parse('<?xml version'),
             throwsA(isXmlParserException(
               message: '"?>" expected',
-              position: 6,
+              position: 13,
             )));
         expect(
             () => XmlDocument.parse('<?xml version='),
             throwsA(isXmlParserException(
               message: '"?>" expected',
-              position: 6,
+              position: 13,
             )));
         expect(
             () => XmlDocument.parse('<?xml version="1.0'),
             throwsA(isXmlParserException(
               message: '"?>" expected',
-              position: 6,
+              position: 13,
             )));
       });
       test('processing', () {
@@ -532,13 +542,13 @@ void main() {
             () => XmlDocumentFragment.parse('<data key'),
             throwsA(isXmlParserException(
               message: '">" expected',
-              position: 6,
+              position: 9,
             )));
         expect(
             () => XmlDocumentFragment.parse('<data key="ab'),
             throwsA(isXmlParserException(
               message: '">" expected',
-              position: 6,
+              position: 9,
             )));
       });
       test('comment', () {
@@ -606,19 +616,19 @@ void main() {
             () => XmlDocumentFragment.parse('<?xml version'),
             throwsA(isXmlParserException(
               message: '"?>" expected',
-              position: 6,
+              position: 13,
             )));
         expect(
             () => XmlDocumentFragment.parse('<?xml version='),
             throwsA(isXmlParserException(
               message: '"?>" expected',
-              position: 6,
+              position: 13,
             )));
         expect(
             () => XmlDocumentFragment.parse('<?xml version="1.0'),
             throwsA(isXmlParserException(
               message: '"?>" expected',
-              position: 6,
+              position: 13,
             )));
       });
       test('processing', () {

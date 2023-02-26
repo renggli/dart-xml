@@ -186,7 +186,7 @@ void main() {
             throwsA(isXmlParserException(
               message: '">" expected',
               buffer: '<foo bar="abc',
-              position: 5,
+              position: 8,
             )));
         expect(iterator.moveNext(), isTrue);
         final event = iterator.current as XmlTextEvent;

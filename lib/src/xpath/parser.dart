@@ -110,5 +110,5 @@ class XPathParser {
   Parser<String> nameToken() => eventParser.nameToken();
 
   Parser<String> literalToken() =>
-      eventParser.attributeValue().map3((_, value, __) => value);
+      eventParser.attributeValue().map2((value, _) => value);
 }
