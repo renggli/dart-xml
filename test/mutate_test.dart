@@ -550,6 +550,18 @@ void main() {
   });
   group('remove', () {
     mutatingTest<XmlElement>(
+      'attribute',
+      '<element attr="value"/>',
+      (node) => node.attributes.first.remove(),
+      '<element/>',
+    );
+    mutatingTest<XmlElement>(
+      'element',
+      '<element>Hello World</element>',
+      (node) => node.children.first.remove(),
+      '<element/>',
+    );
+    mutatingTest<XmlElement>(
       'element (attributes)',
       '<element attr="value"/>',
       (node) => node.attributes.remove(node.attributes.first),
@@ -745,6 +757,13 @@ void main() {
       '<element>child</element>',
       (node) => node.firstChild!.replace(XmlElement(XmlName('child'))),
       '<element><child/></element>',
+    );
+    mutatingTest<XmlElement>(
+      'element attribute with attribute',
+      '<element attr1="value1"/>',
+      (node) => node.attributes.first
+          .replace(XmlAttribute(XmlName('attr2'), "value2")),
+      '<element attr2="value2"/>',
     );
     mutatingTest<XmlElement>(
       'element text with empty fragment',

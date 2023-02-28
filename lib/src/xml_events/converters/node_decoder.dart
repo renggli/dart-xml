@@ -3,7 +3,7 @@ import 'dart:convert' show ChunkedConversionSink;
 import 'package:meta/meta.dart';
 
 import '../../xml/exceptions/tag_exception.dart';
-import '../../xml/navigation/parent.dart';
+import '../../xml/extensions/parent.dart';
 import '../../xml/nodes/attribute.dart';
 import '../../xml/nodes/cdata.dart';
 import '../../xml/nodes/comment.dart';

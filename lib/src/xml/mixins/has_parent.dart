@@ -11,9 +11,6 @@ mixin XmlParentBase {
   /// Test whether the node has a parent or not.
   bool get hasParent => false;
 
-  /// Replace this node with `other`.
-  void replace(XmlNode other) => _throwNoParent();
-
   /// Internal helper to attach a child to this parent, do not call directly.
   @internal
   void attachParent(covariant XmlNode parent) => _throwNoParent();
@@ -24,7 +21,7 @@ mixin XmlParentBase {
 
   /// Internal helper to throw an exception.
   void _throwNoParent() =>
-      throw UnsupportedError('$this does not have a parent.');
+      throw UnsupportedError('$this does not have a parent');
 }
 
 /// Mixin for nodes with a parent.
@@ -36,19 +33,6 @@ mixin XmlHasParent<T extends XmlNode> implements XmlParentBase {
 
   @override
   bool get hasParent => _parent != null;
-
-  @override
-  void replace(XmlNode other) {
-    if (_parent != null) {
-      final siblings = _parent!.children;
-      for (var i = 0; i < siblings.length; i++) {
-        if (identical(siblings[i], this)) {
-          siblings[i] = other;
-          break;
-        }
-      }
-    }
-  }
 
   @override
   void attachParent(T parent) {

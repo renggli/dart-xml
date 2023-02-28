@@ -7,6 +7,15 @@ class XmlParentException extends XmlException {
   /// Creates a new XmlParentException.
   XmlParentException(super.message, {required this.node, this.parent});
 
+  /// Ensure that [node] has a parent and returns that node.
+  static XmlNode checkParent(XmlParentBase node) {
+    final parent = node.parent;
+    if (parent == null) {
+      throw XmlParentException('Node has no parent', node: node);
+    }
+    return parent;
+  }
+
   /// Ensure that [node] has no parent.
   static void checkNoParent(XmlParentBase node) {
     if (node.parent != null) {

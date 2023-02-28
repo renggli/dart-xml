@@ -20,7 +20,7 @@ mixin XmlAttributesBase {
   /// If an attribute with the name already exist, its value is updated.
   /// If the value is `null`, the attribute is removed.
   void setAttribute(String name, String? value, {String? namespace}) =>
-      throw UnsupportedError('$this has no attributes.');
+      throw UnsupportedError('$this has no attributes');
 
   /// Removes the attribute value with the given fully qualified `name`.
   void removeAttribute(String name, {String? namespace}) =>

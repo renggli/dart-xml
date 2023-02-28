@@ -37,7 +37,7 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> {
 
   @override
   set length(int length) =>
-      throw UnsupportedError('Unsupported length change of node list.');
+      throw UnsupportedError('Unsupported length change of node list');
 
   @override
   void add(E value) {
@@ -117,7 +117,7 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> {
 
   @override
   void fillRange(int start, int end, [E? fillValue]) =>
-      throw UnsupportedError('Unsupported range filling of node list.');
+      throw UnsupportedError('Unsupported range filling of node list');
 
   @override
   void setRange(int start, int end, Iterable<E> iterable, [int skipCount = 0]) {

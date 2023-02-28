@@ -2,6 +2,8 @@ import 'package:test/test.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xml_events.dart';
 
+import 'matchers.dart';
+
 void assertDocumentParseInvariants(String input) {
   final document = XmlDocument.parse(input);
   assertDocumentTreeInvariants(document);
@@ -96,7 +98,9 @@ void assertParentInvariants(XmlNode xml) {
     if (node is XmlDocument || node is XmlDocumentFragment) {
       expect(node.parent, isNull);
       expect(node.hasParent, isFalse);
-      expect(() => node.replace(XmlDocument()), throwsUnsupportedError);
+      expect(() => node.remove(), throwsA(isXmlParentException(node: node)));
+      expect(() => node.replace(XmlDocument()),
+          throwsA(isXmlParentException(node: node)));
       expect(() => node.attachParent(XmlDocument()), throwsUnsupportedError);
       expect(() => node.detachParent(XmlDocument()), throwsUnsupportedError);
     } else {
@@ -116,10 +120,17 @@ void assertParentInvariants(XmlNode xml) {
 
 void assertSiblingInvariants(XmlNode xml) {
   for (final node in [xml, ...xml.descendants]) {
-    final childrenOfParent = node.parent?.children ?? <XmlNode>[node];
-    expect(node.siblings, unorderedEquals(childrenOfParent));
-    expect(node.siblingElements,
-        unorderedEquals(childrenOfParent.whereType<XmlElement>()));
+    final parent = node.parent;
+    if (parent != null) {
+      final siblings =
+          node is XmlAttribute ? parent.attributes : parent.children;
+      expect(node.siblings, same(siblings));
+      expect(node.siblingElements, siblings.whereType<XmlElement>());
+    } else {
+      expect(() => node.siblings, throwsA(isXmlParentException(node: node)));
+      expect(() => node.siblingElements,
+          throwsA(isXmlParentException(node: node)));
+    }
   }
 }
 

@@ -58,7 +58,8 @@ class XmlTransformer {
   XmlDeclaration visitDeclaration(XmlDeclaration node) =>
       XmlDeclaration(node.attributes.map(visit));
 
-  XmlDoctype visitDoctype(XmlDoctype node) => XmlDoctype(node.text);
+  XmlDoctype visitDoctype(XmlDoctype node) =>
+      XmlDoctype(node.name, node.externalId, node.internalSubset);
 
   XmlDocument visitDocument(XmlDocument node) =>
       XmlDocument(node.children.map(visit));
