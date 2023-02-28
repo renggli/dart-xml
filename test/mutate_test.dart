@@ -62,22 +62,50 @@ void main() {
       (node) => node.value = 'update',
       '<element><![CDATA[update]]></element>',
     );
+    mutatingTest<XmlCDATA>(
+      'cdata (text)',
+      '<element><![CDATA[text]]></element>',
+      // ignore: deprecated_member_use_from_same_package
+      (node) => node.text = 'update',
+      '<element><![CDATA[update]]></element>',
+    );
     mutatingTest<XmlComment>(
       'comment (value)',
       '<element><!--comment--></element>',
       (node) => node.value = 'update',
       '<element><!--update--></element>',
     );
+    mutatingTest<XmlComment>(
+      'comment (text)',
+      '<element><!--comment--></element>',
+      // ignore: deprecated_member_use_from_same_package
+      (node) => node.text = 'update',
+      '<element><!--update--></element>',
+    );
+    mutatingTest<XmlText>(
+      'text (value)',
+      '<element>text</element>',
+      (node) => node.value = 'update',
+      '<element>update</element>',
+    );
     mutatingTest<XmlText>(
       'text (text)',
-      '<element>Hello World</element>',
-      (node) => node.value = 'Dart rocks',
-      '<element>Dart rocks</element>',
+      '<element>text</element>',
+      // ignore: deprecated_member_use_from_same_package
+      (node) => node.text = 'update',
+      '<element>update</element>',
     );
     mutatingTest<XmlProcessing>(
       'processing (value)',
       '<?processing text?><element/>',
       (node) => node.value = 'update',
+      '<?processing update?><element/>',
+    );
+    mutatingTest<XmlProcessing>(
+      'processing (text)',
+      '<?processing text?><element/>',
+      // ignore: deprecated_member_use_from_same_package
+      (node) => node.text = 'update',
       '<?processing update?><element/>',
     );
     mutatingTest<XmlDeclaration>(

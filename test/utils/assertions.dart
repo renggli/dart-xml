@@ -300,10 +300,11 @@ void assertCopyInvariants(XmlNode xml) {
 class EmptyVisitor with XmlVisitor {}
 
 void assertVisitorInvariants(XmlNode xml) {
+  final visitor = EmptyVisitor();
   for (final node in [xml, ...xml.descendants]) {
-    EmptyVisitor().visit(node);
+    visitor.visit(node);
     if (node is XmlHasName) {
-      EmptyVisitor().visit((node as XmlHasName).name);
+      visitor.visit((node as XmlHasName).name);
     }
   }
 }
