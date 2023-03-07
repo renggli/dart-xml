@@ -237,4 +237,16 @@ void main() {
     expect(textNode.nodeType, XmlNodeType.TEXT);
     expect(textNode.value, equals('\n  '));
   });
+  test('https://github.com/renggli/dart-xml/discussions/168', () {
+    final actual = XmlDocument.parse(
+        '<XML><BOX><IMG><BLUR /><URL value="./" /></IMG></BOX></XML>');
+    final image = actual.findAllElements('IMG').single;
+    final blur = image.findAllElements('BLUR').single;
+    image.children.remove(blur);
+    image.replace(blur);
+    blur.children.add(image);
+    final expected = XmlDocument.parse(
+        '<XML><BOX><BLUR><IMG><URL value="./" /></IMG></BLUR></BOX></XML>');
+    expect(expected.toXmlString(), actual.toXmlString());
+  });
 }
