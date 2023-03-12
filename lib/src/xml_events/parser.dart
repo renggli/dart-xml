@@ -33,7 +33,7 @@ class XmlEventParser {
         ref0(declaration),
         ref0(processing),
         ref0(doctype),
-      ].toChoiceParser(failureJoiner: selectFarthest);
+      ].toChoiceParser(strategy: ChoiceStrategy.farthestFailure);
 
   // Events
 
@@ -49,7 +49,7 @@ class XmlEventParser {
         [
           XmlToken.closeElement.toParser(),
           XmlToken.closeEndElement.toParser(),
-        ].toChoiceParser(failureJoiner: selectFirst),
+        ].toChoiceParser(strategy: ChoiceStrategy.firstFailure),
       ).map5((_, nameToken, attributes, __, closeElement) =>
           XmlStartElementEvent(
               nameToken, attributes, closeElement == XmlToken.closeEndElement));

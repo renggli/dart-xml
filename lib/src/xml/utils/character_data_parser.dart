@@ -10,25 +10,21 @@ class XmlCharacterDataParser extends Parser<String> {
   final int _minLength;
 
   @override
-  Result<String> parseOn(Context context) {
+  void parseOn(Context context) {
     final buffer = context.buffer;
     final position = context.position;
     final index = position < buffer.length
         ? buffer.indexOf(_stopper, position)
         : buffer.length;
     final end = index == -1 ? buffer.length : index;
-    return end - position < _minLength
-        ? context.failure('Unable to parse character data.')
-        : context.success(buffer.substring(position, end), end);
-  }
-
-  @override
-  int fastParseOn(String buffer, int position) {
-    final index = position < buffer.length
-        ? buffer.indexOf(_stopper, position)
-        : buffer.length;
-    final end = index == -1 ? buffer.length : index;
-    return end - position < _minLength ? -1 : end;
+    if (end - position < _minLength) {
+      context.isSuccess = false;
+      context.message = 'Unable to parse character data.';
+    } else {
+      context.isSuccess = true;
+      context.position = end;
+      context.value = buffer.substring(position, end);
+    }
   }
 
   @override

@@ -14,3 +14,8 @@ dev_dependencies:
   args: ^2.4.0
   lints: ^2.0.0
   test: ^1.23.0
+dependency_overrides:
+  petitparser:
+    git:
+      url: https://github.com/petitparser/dart-petitparser.git
+      ref: mutable-context

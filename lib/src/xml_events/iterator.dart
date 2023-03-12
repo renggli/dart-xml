@@ -1,4 +1,4 @@
-import 'package:petitparser/petitparser.dart' show Parser, Result, Failure;
+import 'package:petitparser/petitparser.dart' show Parser, Context;
 
 import '../xml/entities/entity_mapping.dart';
 import '../xml/exceptions/parser_exception.dart';
@@ -10,12 +10,12 @@ class XmlEventIterator extends Iterator<XmlEvent> {
   XmlEventIterator(
       String input, XmlEntityMapping entityMapping, this._annotator)
       : _eventParser = eventParserCache[entityMapping],
-        _context = Failure<XmlEvent>(input, 0, '');
+        _context = Context(input);
 
   final Parser<XmlEvent> _eventParser;
   final XmlAnnotator _annotator;
 
-  Result<XmlEvent>? _context;
+  Context? _context;
   XmlEvent? _current;
 
   @override
@@ -25,25 +25,25 @@ class XmlEventIterator extends Iterator<XmlEvent> {
   bool moveNext() {
     final context = _context;
     if (context != null) {
-      final result = _eventParser.parseOn(context);
-      if (result.isSuccess) {
-        _context = result;
-        _current = result.value;
+      final position = context.position;
+      _eventParser.parseOn(context);
+      if (context.isSuccess) {
         _annotator.annotate(
-          result.value,
+          _current = context.value as XmlEvent,
           buffer: context.buffer,
-          start: context.position,
-          stop: result.position,
+          start: position,
+          stop: context.position,
         );
         return true;
-      } else if (context.position < context.buffer.length) {
+      } else if (position < context.end) {
         // In case of an error, skip one character and throw an exception.
-        _context = context.failure(result.message, context.position + 1);
-        throw XmlParserException(result.message,
-            buffer: result.buffer, position: result.position);
+        final errorPosition = context.position;
+        context.position = position + 1;
+        throw XmlParserException(context.message,
+            buffer: context.buffer, position: errorPosition);
       } else {
         // In case of reaching the end, terminate the iterator.
-        _context = null;
+        _context = _current = null;
         _annotator.close(
           buffer: context.buffer,
           position: context.position,

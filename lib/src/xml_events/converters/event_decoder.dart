@@ -89,22 +89,23 @@ class _XmlEventDecoderSink extends StringConversionSinkBase {
       return;
     }
     final result = <XmlEvent>[];
-    Result<XmlEvent> previous =
-        Failure<XmlEvent>(carry + str.substring(start, end), 0, '');
+    final context = carry.isEmpty
+        ? Context(str, start: start, end: end)
+        : Context(carry + str.substring(start, end));
     for (;;) {
-      final current = eventParser.parseOn(previous);
-      if (current.isSuccess) {
-        final event = current.value;
+      final position = context.position;
+      eventParser.parseOn(context);
+      if (context.isSuccess) {
+        final event = context.value as XmlEvent;
         annotator.annotate(
           event,
-          start: offset + previous.position,
-          stop: offset + current.position,
+          start: offset + position,
+          stop: offset + context.position,
         );
         result.add(event);
-        previous = current;
       } else {
-        carry = previous.buffer.substring(previous.position);
-        offset += previous.position;
+        carry = context.buffer.substring(position, context.end);
+        offset += position;
         break;
       }
     }
@@ -119,8 +120,9 @@ class _XmlEventDecoderSink extends StringConversionSinkBase {
   @override
   void close() {
     if (carry.isNotEmpty) {
-      final context = eventParser.parseOn(Failure<XmlEvent>(carry, 0, ''));
-      if (context.isFailure) {
+      final context = Context(carry);
+      eventParser.parseOn(context);
+      if (!context.isSuccess) {
         throw XmlParserException(context.message,
             position: offset + context.position);
       }
