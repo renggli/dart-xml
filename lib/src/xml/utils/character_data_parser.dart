@@ -13,13 +13,17 @@ class XmlCharacterDataParser extends Parser<String> {
   void parseOn(Context context) {
     final buffer = context.buffer;
     final position = context.position;
-    final index = position < buffer.length
+    final index = position < context.end
         ? buffer.indexOf(_stopper, position)
-        : buffer.length;
-    final end = index == -1 ? buffer.length : index;
+        : context.end;
+    final end = index == -1
+        ? context.end
+        : index > context.end
+            ? context.end
+            : index;
     if (end - position < _minLength) {
       context.isSuccess = false;
-      context.message = 'Unable to parse character data.';
+      context.message = 'Unable to parse character data';
     } else {
       context.isSuccess = true;
       context.position = end;
