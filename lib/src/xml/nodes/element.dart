@@ -15,20 +15,30 @@ class XmlElement extends XmlNode
         XmlHasParent<XmlNode>,
         XmlHasAttributes,
         XmlHasChildren<XmlNode> {
-  /// Create an element node with the provided [name], [attributes], and
+  /// Creates an element node with the provided [name], [attributes], and
   /// [children].
   XmlElement(
-    this.name, {
+    this.name, [
     Iterable<XmlAttribute> attributes = const [],
     Iterable<XmlNode> children = const [],
     this.isSelfClosing = true,
-  }) {
+  ]) {
     name.attachParent(this);
     this.attributes.initialize(this, attributeNodeTypes);
     this.attributes.addAll(attributes);
     this.children.initialize(this, childrenNodeTypes);
     this.children.addAll(children);
   }
+
+  /// Creates an element with the qualified [name], and with optional
+  /// [attributes] and [children].
+  XmlElement.tag(
+    String qualifiedName, {
+    Iterable<XmlAttribute> attributes = const [],
+    Iterable<XmlNode> children = const [],
+    bool isSelfClosing = true,
+  }) : this(XmlName.fromString(qualifiedName), attributes, children,
+            isSelfClosing);
 
   /// Defines whether the element should be self-closing when empty.
   bool isSelfClosing;
@@ -40,10 +50,11 @@ class XmlElement extends XmlNode
   XmlNodeType get nodeType => XmlNodeType.ELEMENT;
 
   @override
-  XmlElement copy() => XmlElement(name.copy(),
-      attributes: attributes.map((each) => each.copy()),
-      children: children.map((each) => each.copy()),
-      isSelfClosing: isSelfClosing);
+  XmlElement copy() => XmlElement(
+      name.copy(),
+      attributes.map((each) => each.copy()),
+      children.map((each) => each.copy()),
+      isSelfClosing);
 
   @override
   void accept(XmlVisitor visitor) => visitor.visitElement(this);

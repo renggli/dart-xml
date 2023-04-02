@@ -371,8 +371,8 @@ class NodeBuilder {
 
   late final XmlName name;
 
-  XmlElement buildElement() => XmlElement(name,
-      attributes: attributes, children: children, isSelfClosing: isSelfClosing);
+  XmlElement buildElement() =>
+      XmlElement(name, attributes, children, isSelfClosing);
 
   XmlDocument buildDocument() => XmlDocument(children);
 

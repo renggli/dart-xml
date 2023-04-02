@@ -4,7 +4,7 @@ import 'package:xml/xml.dart';
 void main() {
   group('normalizer', () {
     test('remove empty text', () {
-      final element = XmlElement(XmlName('element'), children: [
+      final element = XmlElement.tag('element', children: [
         XmlText(''),
         XmlElement(XmlName('element1')),
         XmlText(''),
@@ -17,7 +17,7 @@ void main() {
           element.toXmlString(), '<element><element1/><element2/></element>');
     });
     test('join adjacent text', () {
-      final element = XmlElement(XmlName('element'), children: [
+      final element = XmlElement.tag('element', children: [
         XmlText('aaa'),
         XmlText('bbb'),
         XmlText('ccc'),
@@ -27,7 +27,7 @@ void main() {
       expect(element.toXmlString(), '<element>aaabbbccc</element>');
     });
     test('trim whitespace', () {
-      final element = XmlElement(XmlName('element'), children: [
+      final element = XmlElement.tag('element', children: [
         XmlText(' a '),
         XmlText(' b '),
       ]);
@@ -36,15 +36,15 @@ void main() {
       expect(element.toXmlString(), '<element>a  b</element>');
     });
     test('selectively trim whitespace', () {
-      final element = XmlElement(XmlName('element'), children: [
-        XmlElement(XmlName('a'), children: [XmlText(' 1 ')]),
-        XmlElement(XmlName('b'), children: [XmlText(' 2 ')]),
+      final element = XmlElement.tag('element', children: [
+        XmlElement.tag('a', children: [XmlText(' 1 ')]),
+        XmlElement.tag('b', children: [XmlText(' 2 ')]),
       ]);
       element.normalize(trimWhitespace: (node) => node.value == ' 2 ');
       expect(element.toXmlString(), '<element><a> 1 </a><b>2</b></element>');
     });
     test('collapse whitespace', () {
-      final element = XmlElement(XmlName('element'), children: [
+      final element = XmlElement.tag('element', children: [
         XmlText(' a '),
         XmlText(' b '),
       ]);
@@ -53,32 +53,32 @@ void main() {
       expect(element.toXmlString(), '<element> a b </element>');
     });
     test('selectively collapse whitespace', () {
-      final element = XmlElement(XmlName('element'), children: [
-        XmlElement(XmlName('a'), children: [XmlText('1  1')]),
-        XmlElement(XmlName('b'), children: [XmlText('2  2')]),
+      final element = XmlElement.tag('element', children: [
+        XmlElement.tag('a', children: [XmlText('1  1')]),
+        XmlElement.tag('b', children: [XmlText('2  2')]),
       ]);
       element.normalize(collapseWhitespace: (node) => node.value == '2  2');
       expect(element.toXmlString(), '<element><a>1  1</a><b>2 2</b></element>');
     });
     test('normalize newlines', () {
-      final element = XmlElement(XmlName('element'), children: [
-        XmlElement(XmlName('xD'), children: [XmlText('\r')]),
-        XmlElement(XmlName('xD-xA'), children: [XmlText('\r\n')]),
-        XmlElement(XmlName('xD-x85'), children: [XmlText('\r\u0085')]),
-        XmlElement(XmlName('x85'), children: [XmlText('\u0085')]),
-        XmlElement(XmlName('x2028'), children: [XmlText('\u2028')]),
+      final element = XmlElement.tag('element', children: [
+        XmlElement.tag('xD', children: [XmlText('\r')]),
+        XmlElement.tag('xD-xA', children: [XmlText('\r\n')]),
+        XmlElement.tag('xD-x85', children: [XmlText('\r\u0085')]),
+        XmlElement.tag('x85', children: [XmlText('\u0085')]),
+        XmlElement.tag('x2028', children: [XmlText('\u2028')]),
       ]);
       element.normalize(normalizeAllNewline: true);
       expect(
           element.children.map((child) => child.innerText), everyElement('\n'));
     });
     test('selectively normalize newlines', () {
-      final element = XmlElement(XmlName('element'), children: [
-        XmlElement(XmlName('xD'), children: [XmlText('\r')]),
-        XmlElement(XmlName('xD-xA'), children: [XmlText('\r\n')]),
-        XmlElement(XmlName('xD-x85'), children: [XmlText('\r\u0085')]),
-        XmlElement(XmlName('x85'), children: [XmlText('\u0085')]),
-        XmlElement(XmlName('x2028'), children: [XmlText('\u2028')]),
+      final element = XmlElement.tag('element', children: [
+        XmlElement.tag('xD', children: [XmlText('\r')]),
+        XmlElement.tag('xD-xA', children: [XmlText('\r\n')]),
+        XmlElement.tag('xD-x85', children: [XmlText('\r\u0085')]),
+        XmlElement.tag('x85', children: [XmlText('\u0085')]),
+        XmlElement.tag('x2028', children: [XmlText('\u2028')]),
       ]);
       element.normalize(normalizeNewline: (node) => node.value.length > 1);
       expect(element.children.map((child) => child.innerText),
@@ -190,7 +190,7 @@ void main() {
       });
       test('normalize text', () {
         final input = XmlDocument([
-          XmlElement(XmlName.fromString('contents'), children: [
+          XmlElement.tag('contents', children: [
             XmlText(' Hello '),
             XmlText('   '),
             XmlText(' World '),
@@ -337,12 +337,12 @@ void main() {
             '</body>');
       });
       test('insert space before self-closing', () {
-        final element = XmlElement(
-          XmlName('base'),
+        final element = XmlElement.tag(
+          'base',
           children: [
             XmlElement(XmlName('simple')),
-            XmlElement(
-              XmlName('with-attributes'),
+            XmlElement.tag(
+              'with-attributes',
               attributes: [XmlAttribute(XmlName('attr'), 'val')],
             ),
             XmlElement(XmlName('do-not-add')),
