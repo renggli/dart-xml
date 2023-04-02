@@ -1,14 +1,14 @@
 # Changelog
 
-## 7.0.0 (Unpublished)
+## 7.0.0
 
+* Update to PetitParser 6.0.0, which brings speed improvements of up to 15% when reading large files.
 * Add `XmlElement.tag` constructor that greatly simplifies the creation of elements, i.e. `XmlElement(XmlName('br'), [], [], true)` becomes `XmlElement.tag('br', isSelfClosing: true)`.
 * Deprecate the ambiguous `XmlNode.text`: Replace with `XmlNode.value` to access the textual contents of the node, or `XmlNode.innerText` to access the textual contents of its descendants.
 * Fix `XmlNode.siblings` and various related methods to also work correctly on `XmlAttribute` nodes, make the method return a mutable list.
 * Improve `XmlNode.replace(XmlNode)` and add `XmlNode.remove()` for easy removal of a node.
 * Improve error position propagation when building an XML DOM.
 * Make the parser more forgiving when reading attributes.
-* Update to PetitParser 6.0.0, which brings speed improvements of up to 15% when parsing XML files.
 * Experimental support of a subset of XPath.
 * Add new-line normalization support.
 
