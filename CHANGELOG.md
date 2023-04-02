@@ -8,6 +8,7 @@
 * Improve `XmlNode.replace(XmlNode)` and add `XmlNode.remove()` for easy removal of a node.
 * Improve error position propagation when building an XML DOM.
 * Make the parser more forgiving when reading attributes.
+* Update to PetitParser 6.0.0, which brings speed improvements of up to 15% when parsing XML files.
 * Experimental support of a subset of XPath.
 * Add new-line normalization support.
 
