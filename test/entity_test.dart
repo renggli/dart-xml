@@ -1,3 +1,4 @@
+import 'package:petitparser/matcher.dart';
 import 'package:test/test.dart';
 import 'package:xml/src/xml/utils/character_data_parser.dart';
 import 'package:xml/xml.dart';
@@ -254,24 +255,14 @@ void main() {
       expect(result3.value, 'ab');
     });
     test('fast parse without stopper', () {
-      final result1 = parser.fastParseOn('', 0);
-      expect(result1, -1);
-
-      final result2 = parser.fastParseOn('a', 0);
-      expect(result2, 1);
-
-      final result3 = parser.fastParseOn('ab', 0);
-      expect(result3, 2);
+      expect(parser.accept(''), isFalse);
+      expect(parser.accept('a'), isTrue);
+      expect(parser.accept('ab'), isTrue);
     });
     test('fast parse with stopper', () {
-      final result1 = parser.fastParseOn('*', 0);
-      expect(result1, -1);
-
-      final result2 = parser.fastParseOn('a*', 0);
-      expect(result2, 1);
-
-      final result3 = parser.fastParseOn('ab*', 0);
-      expect(result3, 2);
+      expect(parser.accept('*'), isFalse);
+      expect(parser.accept('a*'), isTrue);
+      expect(parser.accept('ab*'), isTrue);
     });
     test('copy and equality', () {
       expect(parser.isEqualTo(parser), isTrue);

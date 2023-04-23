@@ -104,10 +104,8 @@ class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
 
   @override
   void visitStartElementEvent(XmlStartElementEvent event) {
-    final element = XmlElement(
-      XmlName.fromString(event.name),
-      attributes: convertAttributes(event.attributes),
-    );
+    final element = XmlElement.tag(event.name,
+        attributes: convertAttributes(event.attributes));
     if (event.isSelfClosing) {
       commit(element, event);
     } else {
@@ -138,12 +136,10 @@ class _XmlNodeDecoderSink extends ChunkedConversionSink<List<XmlEvent>>
       for (var outerElement = node, outerEvent = event?.parent;
           outerEvent != null;
           outerEvent = outerEvent.parent) {
-        outerElement = XmlElement(
-          XmlName.fromString(outerEvent.name),
-          attributes: convertAttributes(outerEvent.attributes),
-          children: [outerElement],
-          isSelfClosing: outerEvent.isSelfClosing,
-        );
+        outerElement = XmlElement.tag(outerEvent.name,
+            attributes: convertAttributes(outerEvent.attributes),
+            children: [outerElement],
+            isSelfClosing: outerEvent.isSelfClosing);
       }
       sink.add(<XmlNode>[node]);
     } else {

@@ -241,10 +241,10 @@ class XmlEventParser {
 
   // Tokens
 
-  Parser<String> space() => whitespace().plus().flatten('whitespace expected');
+  Parser<String> space() => whitespace().plusString('whitespace expected');
 
   Parser<String> spaceOptional() =>
-      whitespace().star().flatten('whitespace expected');
+      whitespace().starString('whitespace expected');
 
   Parser<String> nameToken() =>
       seq2(ref0(nameStartChar), ref0(nameChar).star()).flatten('name expected');

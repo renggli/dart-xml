@@ -68,9 +68,7 @@ class XmlTransformer {
       XmlDocumentFragment(node.children.map(visit));
 
   XmlElement visitElement(XmlElement node) => XmlElement(visit(node.name),
-      attributes: node.attributes.map(visit),
-      children: node.children.map(visit),
-      isSelfClosing: node.isSelfClosing);
+      node.attributes.map(visit), node.children.map(visit), node.isSelfClosing);
 
   XmlName visitName(XmlName name) => XmlName.fromString(name.qualified);
 

@@ -97,9 +97,9 @@ void main() {
           XmlDocument.parse('<element attr="value1">text</element>');
       final node = document.rootElement;
       expect(() => XmlElement(node.name), throwsA(isXmlParentException()));
-      expect(() => XmlElement(XmlName('data'), attributes: node.attributes),
+      expect(() => XmlElement.tag('data', attributes: node.attributes),
           throwsA(isXmlParentException()));
-      expect(() => XmlElement(XmlName('data'), children: node.children),
+      expect(() => XmlElement.tag('data', children: node.children),
           throwsA(isXmlParentException()));
     });
     test('add attribute', () {
