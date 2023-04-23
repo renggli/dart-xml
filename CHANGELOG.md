@@ -1,7 +1,8 @@
 # Changelog
 
-## 6.3.0 (Unpublished)
+## 6.3.0
 
+* Upgrade to Dart 2.19 and PetitParser 5.4.
 * Add `XmlElement.tag` constructor that greatly simplifies the creation of elements, i.e. `XmlElement(XmlName('br'), [], [], true)` becomes `XmlElement.tag('br', isSelfClosing: true)`.
 * Deprecate the ambiguous `XmlNode.text`: Replace with `XmlNode.value` to access the textual contents of the node, or `XmlNode.innerText` to access the textual contents of its descendants.
 * Fix `XmlNode.siblings` and various related methods to also work correctly on `XmlAttribute` nodes, make the method return a mutable list.
@@ -13,7 +14,7 @@
 
 ## 6.2.0
 
-* Upgrade to PetitParser 5.1.0 brings a 10% speed improvement (typed sequences).
+* Upgrade to PetitParser 5.1 brings a 10% speed improvement (typed sequences).
 * Add the ability to tap into a stream of `XmlEvent` with `tapEachEvent` (similar to `forEachEvent`).
 * Remove `XmlName` equality operator `==` and `hashCode`. This is inconsistent with the other DOM nodes, and the provided implementation might not have the desired behavior.
 * Improved error reporting when accessing `innerText` or `innerXml` on DOM nodes that cannot have children.
