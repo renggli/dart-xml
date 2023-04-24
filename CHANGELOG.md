@@ -7,7 +7,7 @@
 * Deprecate the ambiguous `XmlNode.text`: Replace with `XmlNode.value` to access the textual contents of the node, or `XmlNode.innerText` to access the textual contents of its descendants.
 * Fix `XmlNode.siblings` and various related methods to also work correctly on `XmlAttribute` nodes, make the method return a mutable list.
 * Improve `XmlNode.replace(XmlNode)` and add `XmlNode.remove()` for easy removal of a node.
-* Improve error position propagation when building an XML DOM.
+* Improve error position propagation when building the XML DOM.
 * Make the parser more forgiving when reading attributes.
 * Experimental support of a subset of XPath.
 * Add new-line normalization support.
