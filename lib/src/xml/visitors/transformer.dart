@@ -20,33 +20,20 @@ import '../utils/name.dart';
 class XmlTransformer {
   const XmlTransformer();
 
-  T visit<T extends XmlHasVisitor>(T node) {
-    if (node is XmlAttribute) {
-      return visitAttribute(node) as T;
-    } else if (node is XmlCDATA) {
-      return visitCDATA(node) as T;
-    } else if (node is XmlComment) {
-      return visitComment(node) as T;
-    } else if (node is XmlDeclaration) {
-      return visitDeclaration(node) as T;
-    } else if (node is XmlDoctype) {
-      return visitDoctype(node) as T;
-    } else if (node is XmlDocument) {
-      return visitDocument(node) as T;
-    } else if (node is XmlDocumentFragment) {
-      return visitDocumentFragment(node) as T;
-    } else if (node is XmlElement) {
-      return visitElement(node) as T;
-    } else if (node is XmlName) {
-      return visitName(node) as T;
-    } else if (node is XmlProcessing) {
-      return visitProcessing(node) as T;
-    } else if (node is XmlText) {
-      return visitText(node) as T;
-    } else {
-      throw StateError('Unknown node type: ${node.runtimeType}');
-    }
-  }
+  T visit<T extends XmlHasVisitor>(T node) => switch (node) {
+        XmlAttribute() => visitAttribute(node) as T,
+        XmlCDATA() => visitCDATA(node) as T,
+        XmlComment() => visitComment(node) as T,
+        XmlDeclaration() => visitDeclaration(node) as T,
+        XmlDoctype() => visitDoctype(node) as T,
+        XmlDocument() => visitDocument(node) as T,
+        XmlDocumentFragment() => visitDocumentFragment(node) as T,
+        XmlElement() => visitElement(node) as T,
+        XmlName() => visitName(node) as T,
+        XmlProcessing() => visitProcessing(node) as T,
+        XmlText() => visitText(node) as T,
+        _ => visitOther(node) as T,
+      };
 
   XmlAttribute visitAttribute(XmlAttribute node) =>
       XmlAttribute(visit(node.name), node.value, node.attributeType);
@@ -76,4 +63,7 @@ class XmlTransformer {
       XmlProcessing(node.target, node.value);
 
   XmlText visitText(XmlText node) => XmlText(node.value);
+
+  XmlHasVisitor visitOther(XmlHasVisitor node) =>
+      throw StateError('Unknown node type: ${node.runtimeType}');
 }

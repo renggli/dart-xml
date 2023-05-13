@@ -43,56 +43,60 @@ class XmlAnnotator {
       }
       if (validateDocument && _parents.isEmpty) {
         // Validate the document root events.
-        if (event is XmlDeclarationEvent) {
-          if (_roots.whereType<XmlDeclarationEvent>().isNotEmpty) {
-            throw XmlParserException('Expected at most one XML declaration',
-                buffer: buffer, position: start);
-          } else if (_roots.isNotEmpty) {
-            throw XmlParserException('Unexpected XML declaration',
-                buffer: buffer, position: start);
-          }
-          _roots.add(event);
-        } else if (event is XmlDoctypeEvent) {
-          if (_roots.whereType<XmlDoctypeEvent>().isNotEmpty) {
-            throw XmlParserException('Expected at most one doctype declaration',
-                buffer: buffer, position: start);
-          } else if (_roots.whereType<XmlStartElementEvent>().isNotEmpty) {
-            throw XmlParserException('Unexpected doctype declaration',
-                buffer: buffer, position: start);
-          }
-          _roots.add(event);
-        } else if (event is XmlStartElementEvent) {
-          if (_roots.whereType<XmlStartElementEvent>().isNotEmpty) {
-            throw XmlParserException('Unexpected root element',
-                buffer: buffer, position: start);
-          }
-          _roots.add(event);
+        switch (event) {
+          case XmlDeclarationEvent():
+            if (_roots.whereType<XmlDeclarationEvent>().isNotEmpty) {
+              throw XmlParserException('Expected at most one XML declaration',
+                  buffer: buffer, position: start);
+            } else if (_roots.isNotEmpty) {
+              throw XmlParserException('Unexpected XML declaration',
+                  buffer: buffer, position: start);
+            }
+            _roots.add(event);
+          case XmlDoctypeEvent():
+            if (_roots.whereType<XmlDoctypeEvent>().isNotEmpty) {
+              throw XmlParserException(
+                  'Expected at most one doctype declaration',
+                  buffer: buffer,
+                  position: start);
+            } else if (_roots.whereType<XmlStartElementEvent>().isNotEmpty) {
+              throw XmlParserException('Unexpected doctype declaration',
+                  buffer: buffer, position: start);
+            }
+            _roots.add(event);
+          case XmlStartElementEvent():
+            if (_roots.whereType<XmlStartElementEvent>().isNotEmpty) {
+              throw XmlParserException('Unexpected root element',
+                  buffer: buffer, position: start);
+            }
+            _roots.add(event);
         }
       }
-      if (event is XmlStartElementEvent) {
-        if (withParent) {
-          for (final attribute in event.attributes) {
-            attribute.attachParent(event);
+      switch (event) {
+        case XmlStartElementEvent():
+          if (withParent) {
+            for (final attribute in event.attributes) {
+              attribute.attachParent(event);
+            }
           }
-        }
-        if (!event.isSelfClosing) {
-          _parents.add(event);
-        }
-      } else if (event is XmlEndElementEvent) {
-        // Validate the parent relationship.
-        if (validateNesting) {
-          if (_parents.isEmpty) {
-            throw XmlTagException.unexpectedClosingTag(event.name,
-                buffer: buffer, position: start);
-          } else if (_parents.last.name != event.name) {
-            throw XmlTagException.mismatchClosingTag(
-                _parents.last.name, event.name,
-                buffer: buffer, position: start);
+          if (!event.isSelfClosing) {
+            _parents.add(event);
           }
-        }
-        if (_parents.isNotEmpty) {
-          _parents.removeLast();
-        }
+        case XmlEndElementEvent():
+          // Validate the parent relationship.
+          if (validateNesting) {
+            if (_parents.isEmpty) {
+              throw XmlTagException.unexpectedClosingTag(event.name,
+                  buffer: buffer, position: start);
+            } else if (_parents.last.name != event.name) {
+              throw XmlTagException.mismatchClosingTag(
+                  _parents.last.name, event.name,
+                  buffer: buffer, position: start);
+            }
+          }
+          if (_parents.isNotEmpty) {
+            _parents.removeLast();
+          }
       }
     }
   }
