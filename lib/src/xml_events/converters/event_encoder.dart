@@ -45,8 +45,9 @@ class XmlEventEncoder extends Converter<List<XmlEvent>, String> {
       _XmlEventEncoderSink(sink, entityMapping);
 }
 
-class _XmlEventEncoderSink extends ChunkedConversionSink<List<XmlEvent>>
-    with XmlEventVisitor {
+class _XmlEventEncoderSink
+    with XmlEventVisitor
+    implements ChunkedConversionSink<List<XmlEvent>> {
   _XmlEventEncoderSink(this.sink, this.entityMapping);
 
   final Sink<String> sink;

@@ -25,7 +25,7 @@ class XmlAncestorsIterable extends IterableBase<XmlNode> {
 }
 
 /// Iterator to walk over the ancestors of a node.
-class XmlAncestorsIterator extends Iterator<XmlNode> {
+class XmlAncestorsIterator implements Iterator<XmlNode> {
   XmlAncestorsIterator(this._current);
 
   XmlNode? _current;

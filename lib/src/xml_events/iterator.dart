@@ -6,7 +6,7 @@ import 'annotations/annotator.dart';
 import 'event.dart';
 import 'parser.dart';
 
-class XmlEventIterator extends Iterator<XmlEvent> {
+class XmlEventIterator implements Iterator<XmlEvent> {
   XmlEventIterator(
       String input, XmlEntityMapping entityMapping, this._annotator)
       : _eventParser = eventParserCache[entityMapping],

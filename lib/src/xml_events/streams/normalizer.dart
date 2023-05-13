@@ -22,7 +22,7 @@ class XmlNormalizeEvents extends XmlListConverter<XmlEvent, XmlEvent> {
       _XmlNormalizeEventsSink(sink);
 }
 
-class _XmlNormalizeEventsSink extends ChunkedConversionSink<List<XmlEvent>> {
+class _XmlNormalizeEventsSink implements ChunkedConversionSink<List<XmlEvent>> {
   _XmlNormalizeEventsSink(this.sink);
 
   final Sink<List<XmlEvent>> sink;

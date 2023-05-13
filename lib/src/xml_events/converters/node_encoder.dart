@@ -39,8 +39,9 @@ class XmlNodeEncoder extends XmlListConverter<XmlNode, XmlEvent> {
       _XmlNodeEncoderSink(sink);
 }
 
-class _XmlNodeEncoderSink extends ChunkedConversionSink<List<XmlNode>>
-    with XmlVisitor {
+class _XmlNodeEncoderSink
+    with XmlVisitor
+    implements ChunkedConversionSink<List<XmlNode>> {
   _XmlNodeEncoderSink(this.sink);
 
   final Sink<List<XmlEvent>> sink;

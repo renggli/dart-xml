@@ -26,7 +26,7 @@ class XmlFollowingIterable extends IterableBase<XmlNode> {
 }
 
 /// Iterator to walk over the followers of a node.
-class XmlFollowingIterator extends Iterator<XmlNode> {
+class XmlFollowingIterator implements Iterator<XmlNode> {
   XmlFollowingIterator(XmlNode start) {
     final following = <XmlNode>[];
     for (var parent = start.parent, child = start;

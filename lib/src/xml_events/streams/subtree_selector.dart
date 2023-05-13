@@ -28,7 +28,7 @@ class XmlSubtreeSelector extends XmlListConverter<XmlEvent, XmlEvent> {
       _XmlSubtreeSelectorSink(sink, predicate);
 }
 
-class _XmlSubtreeSelectorSink extends ChunkedConversionSink<List<XmlEvent>> {
+class _XmlSubtreeSelectorSink implements ChunkedConversionSink<List<XmlEvent>> {
   _XmlSubtreeSelectorSink(this.sink, this.predicate);
 
   final Sink<List<XmlEvent>> sink;
