@@ -2,7 +2,7 @@
 
 ## 6.4.0 (Unpublished)
 
-* Dart 3.0 requirement.
+* Dart 3.0 requirement and PetitParser 6.
 
 ## 6.3.0
 

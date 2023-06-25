@@ -63,39 +63,34 @@ class XmlEventParser {
       ).map3((_, name, attribute) => XmlEventAttribute(
           name, entityMapping.decode(attribute.first), attribute.second));
 
-  Parser<Sequence2<String, XmlAttributeType>> attributeAssignment() => seq4(
+  Parser<(String, XmlAttributeType)> attributeAssignment() => seq4(
           ref0(spaceOptional),
           XmlToken.equals.toParser(),
           ref0(spaceOptional),
           ref0(attributeValue))
       .map4((_, __, ___, value) => value)
-      .optionalWith(const Sequence2('', XmlAttributeType.DOUBLE_QUOTE));
+      .optionalWith(const ('', XmlAttributeType.DOUBLE_QUOTE));
 
-  Parser<Sequence2<String, XmlAttributeType>> attributeValue() => [
+  Parser<(String, XmlAttributeType)> attributeValue() => [
         ref0(attributeValueDoubleQuote),
         ref0(attributeValueSingleQuote),
         ref0(attributeValueNoQuote),
       ].toChoiceParser();
 
-  Parser<Sequence2<String, XmlAttributeType>> attributeValueDoubleQuote() =>
-      seq3(
-              XmlToken.doubleQuote.toParser(),
-              XmlCharacterDataParser(XmlToken.doubleQuote, 0),
-              XmlToken.doubleQuote.toParser())
-          .map3((_, value, __) =>
-              Sequence2(value, XmlAttributeType.DOUBLE_QUOTE));
+  Parser<(String, XmlAttributeType)> attributeValueDoubleQuote() => seq3(
+          XmlToken.doubleQuote.toParser(),
+          XmlCharacterDataParser(XmlToken.doubleQuote, 0),
+          XmlToken.doubleQuote.toParser())
+      .map3((_, value, __) => (value, XmlAttributeType.DOUBLE_QUOTE));
 
-  Parser<Sequence2<String, XmlAttributeType>> attributeValueSingleQuote() =>
-      seq3(
-              XmlToken.singleQuote.toParser(),
-              XmlCharacterDataParser(XmlToken.singleQuote, 0),
-              XmlToken.singleQuote.toParser())
-          .map3((_, value, __) =>
-              Sequence2(value, XmlAttributeType.SINGLE_QUOTE));
+  Parser<(String, XmlAttributeType)> attributeValueSingleQuote() => seq3(
+          XmlToken.singleQuote.toParser(),
+          XmlCharacterDataParser(XmlToken.singleQuote, 0),
+          XmlToken.singleQuote.toParser())
+      .map3((_, value, __) => (value, XmlAttributeType.SINGLE_QUOTE));
 
-  Parser<Sequence2<String, XmlAttributeType>> attributeValueNoQuote() =>
-      ref0(nameToken)
-          .map((value) => Sequence2(value, XmlAttributeType.DOUBLE_QUOTE));
+  Parser<(String, XmlAttributeType)> attributeValueNoQuote() =>
+      ref0(nameToken).map((value) => (value, XmlAttributeType.DOUBLE_QUOTE));
 
   Parser<XmlEndElementEvent> endElement() => seq4(
         XmlToken.openEndElement.toParser(),
