@@ -61,7 +61,7 @@ class XmlEventParser {
         ref0(nameToken),
         ref0(attributeAssignment),
       ).map3((_, name, attribute) => XmlEventAttribute(
-          name, entityMapping.decode(attribute.first), attribute.second));
+          name, entityMapping.decode(attribute.$1), attribute.$2));
 
   Parser<(String, XmlAttributeType)> attributeAssignment() => seq4(
           ref0(spaceOptional),
@@ -158,7 +158,7 @@ class XmlEventParser {
         ref0(space),
         ref0(attributeValue),
       ).map3((_, __, attribute) =>
-          DtdExternalId.system(attribute.first, attribute.second));
+          DtdExternalId.system(attribute.$1, attribute.$2));
 
   Parser<DtdExternalId> doctypeExternalIdPublic() => seq5(
         XmlToken.doctypePublicId.toParser(),
@@ -167,8 +167,8 @@ class XmlEventParser {
         ref0(space),
         ref0(attributeValue),
       ).map5((_, __, publicAttribute, ___, systemAttribute) =>
-          DtdExternalId.public(publicAttribute.first, publicAttribute.second,
-              systemAttribute.first, systemAttribute.second));
+          DtdExternalId.public(publicAttribute.$1, publicAttribute.$2,
+              systemAttribute.$1, systemAttribute.$2));
 
   Parser<String> doctypeIntSubset() => seq3(
         XmlToken.openDoctypeIntSubset.toParser(),

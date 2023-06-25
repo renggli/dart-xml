@@ -103,7 +103,7 @@ class XPathParser {
   Parser<Resolver> inner() => seq2(
         ref0(path),
         seq2(char('='), ref0(literalToken)).optional(),
-      ).map2((path, value) => InnerPredicateResolver(path, value?.second));
+      ).map2((path, value) => InnerPredicateResolver(path, value?.$2));
 
   static const eventParser = XmlEventParser(XmlNullEntityMapping());
 
