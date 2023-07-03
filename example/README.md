@@ -20,6 +20,15 @@ dart example/ip_api.dart --help
 dart example/ip_api.dart --fields=query,city,country
 ```
 
+### feeds
+
+Simple RSS feed reader that manages a list of feeds in `feeds.xml` and that can retrieve and print them to the command line.
+
+```bash
+dart example/feeds.dart --help
+dart example/feeds.dart read
+```
+
 ### xml_flatten
 
 This example contains a command-line application that flattens an XML documents from the file-system into a list of events that are printed to the console. For example: 
