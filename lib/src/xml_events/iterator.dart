@@ -39,11 +39,13 @@ class XmlEventIterator implements Iterator<XmlEvent> {
       } else if (context.position < context.buffer.length) {
         // In case of an error, skip one character and throw an exception.
         _context = context.failure(result.message, context.position + 1);
+        _current = null;
         throw XmlParserException(result.message,
             buffer: result.buffer, position: result.position);
       } else {
         // In case of reaching the end, terminate the iterator.
         _context = null;
+        _current = null;
         _annotator.close(
           buffer: context.buffer,
           position: context.position,
