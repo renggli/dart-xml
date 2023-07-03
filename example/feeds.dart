@@ -106,8 +106,8 @@ class ReadCommand extends RssCommand {
           stdout.writeln('$title ($link)');
         }
       }
-    }, onError: (error) {
-      stderr.writeln(error.toString());
+    }, onError: (dynamic error) {
+      stderr.writeln(error);
     }).asFuture<void>();
   }
 
