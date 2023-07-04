@@ -1,18 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:xml/xml.dart';
 
-T? getArgument<T>(ArgResults? results, String name) {
-  if (results == null) return null;
-  return results[name] as T?;
-}
-
 abstract class RssCommand extends Command<void> {
   String get feedsName =>
-      getArgument(globalResults, 'feeds') ?? 'example/feeds.xml';
+      globalResults!['feeds'] as String? ?? 'example/feeds.xml';
 
   File get feedsFile => File(feedsName);
 
@@ -26,9 +20,8 @@ abstract class RssCommand extends Command<void> {
     }
   }
 
-  Future<void> writeFeeds(XmlDocument document) async {
-    await feedsFile.writeAsString(document.toXmlString(pretty: true));
-  }
+  Future<void> writeFeeds(XmlDocument document) =>
+      feedsFile.writeAsString(document.toXmlString(pretty: true));
 }
 
 class AddCommand extends RssCommand {
@@ -45,7 +38,7 @@ class AddCommand extends RssCommand {
       final builder = XmlBuilder()..element('url', nest: feed);
       document.rootElement.children.add(builder.buildFragment());
     }
-    writeFeeds(document);
+    await writeFeeds(document);
   }
 }
 
@@ -65,7 +58,7 @@ class RemoveCommand extends RssCommand {
         element.remove();
       }
     }
-    writeFeeds(document);
+    await writeFeeds(document);
   }
 }
 
@@ -106,9 +99,7 @@ class ReadCommand extends RssCommand {
           stdout.writeln('$title ($link)');
         }
       }
-    }, onError: (dynamic error) {
-      stderr.writeln(error);
-    }).asFuture<void>();
+    }, onError: (dynamic error) => stderr.writeln(error)).asFuture<void>();
   }
 
   final httpClient = HttpClient();
@@ -129,7 +120,6 @@ final runner = CommandRunner<void>('feeds', 'Manages and reads RSS feeds.')
 
 Future<void> main(List<String> arguments) async {
   runner.argParser.addOption('feeds', help: 'path to current feeds');
-
   await runner.run(arguments).catchError((Object error) {
     stdout.writeln(error);
     exit(1);
