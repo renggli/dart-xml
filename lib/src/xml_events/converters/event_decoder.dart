@@ -90,10 +90,10 @@ class _XmlEventDecoderSink extends StringConversionSinkBase {
     }
     final result = <XmlEvent>[];
     Result<XmlEvent> previous =
-        Failure<XmlEvent>(carry + str.substring(start, end), 0, '');
+        Failure(carry + str.substring(start, end), 0, '');
     for (;;) {
       final current = eventParser.parseOn(previous);
-      if (current.isSuccess) {
+      if (current is Success) {
         final event = current.value;
         annotator.annotate(
           event,
@@ -119,8 +119,8 @@ class _XmlEventDecoderSink extends StringConversionSinkBase {
   @override
   void close() {
     if (carry.isNotEmpty) {
-      final context = eventParser.parseOn(Failure<XmlEvent>(carry, 0, ''));
-      if (context.isFailure) {
+      final context = eventParser.parseOn(Failure(carry, 0, ''));
+      if (context is Failure) {
         throw XmlParserException(context.message,
             position: offset + context.position);
       }

@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'package:petitparser/core.dart';
 
 import 'src/xml/nodes/node.dart';
 import 'src/xml/utils/cache.dart';
@@ -17,7 +18,7 @@ extension XPathExtension on XmlNode {
 final _parser = const XPathParser().build();
 final _cache = XmlCache<String, Resolver>((expression) {
   final result = _parser.parse(expression);
-  if (result.isFailure) {
+  if (result is Failure) {
     throw XPathParserException(result.message,
         buffer: expression, position: result.position);
   }

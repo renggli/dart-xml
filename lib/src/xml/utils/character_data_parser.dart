@@ -17,9 +17,11 @@ class XmlCharacterDataParser extends Parser<String> {
         ? buffer.indexOf(_stopper, position)
         : buffer.length;
     final end = index == -1 ? buffer.length : index;
-    return end - position < _minLength
-        ? context.failure('Unable to parse character data.')
-        : context.success(buffer.substring(position, end), end);
+    if (end - position < _minLength) {
+      return context.failure('Unable to parse character data.');
+    } else {
+      return context.success(buffer.substring(position, end), end);
+    }
   }
 
   @override

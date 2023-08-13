@@ -1,4 +1,4 @@
-import 'package:petitparser/petitparser.dart' show Parser, Result, Failure;
+import 'package:petitparser/core.dart';
 
 import '../xml/entities/entity_mapping.dart';
 import '../xml/exceptions/parser_exception.dart';
@@ -10,7 +10,7 @@ class XmlEventIterator implements Iterator<XmlEvent> {
   XmlEventIterator(
       String input, XmlEntityMapping entityMapping, this._annotator)
       : _eventParser = eventParserCache[entityMapping],
-        _context = Failure<XmlEvent>(input, 0, '');
+        _context = Failure(input, 0, '');
 
   final Parser<XmlEvent> _eventParser;
   final XmlAnnotator _annotator;
@@ -26,7 +26,7 @@ class XmlEventIterator implements Iterator<XmlEvent> {
     final context = _context;
     if (context != null) {
       final result = _eventParser.parseOn(context);
-      if (result.isSuccess) {
+      if (result is Success) {
         _context = result;
         _current = result.value;
         _annotator.annotate(

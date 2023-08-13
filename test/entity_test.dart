@@ -1,3 +1,4 @@
+import 'package:petitparser/core.dart';
 import 'package:petitparser/matcher.dart';
 import 'package:test/test.dart';
 import 'package:xml/src/xml/utils/character_data_parser.dart';
@@ -226,31 +227,31 @@ void main() {
     final parser = XmlCharacterDataParser('*', 1);
     test('parse without stopper', () {
       final result1 = parser.parse('');
-      expect(result1.isFailure, isTrue);
+      expect(result1 is Failure, isTrue);
       expect(result1.position, 0);
 
       final result2 = parser.parse('a');
-      expect(result2.isSuccess, isTrue);
+      expect(result2 is Success, isTrue);
       expect(result2.position, 1);
       expect(result2.value, 'a');
 
       final result3 = parser.parse('ab');
-      expect(result3.isSuccess, isTrue);
+      expect(result3 is Success, isTrue);
       expect(result3.position, 2);
       expect(result3.value, 'ab');
     });
     test('parse with stopper', () {
       final result1 = parser.parse('*');
-      expect(result1.isFailure, isTrue);
+      expect(result1 is Failure, isTrue);
       expect(result1.position, 0);
 
       final result2 = parser.parse('a*');
-      expect(result2.isSuccess, isTrue);
+      expect(result2 is Success, isTrue);
       expect(result2.position, 1);
       expect(result2.value, 'a');
 
       final result3 = parser.parse('ab*');
-      expect(result3.isSuccess, isTrue);
+      expect(result3 is Success, isTrue);
       expect(result3.position, 2);
       expect(result3.value, 'ab');
     });
