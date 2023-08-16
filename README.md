@@ -283,6 +283,8 @@ Various other transformations are provided to simplify processing complex stream
   `Stream<T> flatten()` on `Stream<Iterable<T>>`
 - Executes the provided callbacks on each event of this stream. \
   `Future forEachEvent({onText: ...})` on `Stream<XmlEvent>`.
+- Executes the provided callbacks on each event of this stream as a side-effect. \
+  `Stream<XmlEvent> tapEachEvent({onText: ...})` on `Stream<XmlEvent>`.
 
 For example, the following snippet downloads data from the Internet, converts the UTF-8 input to a Dart `String`, decodes the stream of characters to `XmlEvent`s, and finally normalizes and prints the events:
 
