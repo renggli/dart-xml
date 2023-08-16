@@ -263,20 +263,15 @@ This approach requires the whole input to be available at the beginning and does
 
 #### Streams
 
-To asynchronously parse and process events directly from a file or HTTP stream use the provided codecs to convert between strings, events and DOM tree nodes:
+To asynchronously parse and process events directly from a file or HTTP stream use the provided extension methods on `Stream` to convert between streams of strings, events and DOM tree nodes:
 
-- Codec: `XmlEventCodec`
-  - Decodes a `String ` to a sequence of `XmlEvent ` objects. \
-    `Stream<List<XmlEvent>> toXmlEvents()` on `Stream<String>`
-  - Encodes a sequence of `XmlEvent ` objects to a `String `. \
-    `Stream<String> toXmlString()` on `Stream<List<XmlEvent>>`
-- Codec: `XmlNodeCodec`
-  - Decodes a sequence of `XmlEvent ` objects to `XmlNode ` objects. \
-    `Stream<List<XmlNode>> toXmlNodes()` on `Stream<List<XmlEvent>>`
-  - Encodes a sequence of `XmlNode ` objects to `XmlEvent ` objects. \
-    `Stream<List<XmlEvent>> toXmlEvents()` on `Stream<List<XmlNode>>`
+![stream-ext.png](doc/stream-ext.png)
 
-Various transformations are provided to simplify processing complex streams:
+For more control the underlying `Codec` and `Converter` implementations can be used:
+
+![stream-codec.png](doc/stream-codec.png)
+
+Various other transformations are provided to simplify processing complex streams:
 
 - Normalizes a sequence of `XmlEvent` objects by removing empty and combining adjacent text events. \
   `Stream<List<XmlEvent>> normalizeEvents()` on `Stream<List<XmlEvent>>`
