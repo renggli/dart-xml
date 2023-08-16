@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:xml/xml.dart';
+import 'package:xml/xml_events.dart';
 
 import 'utils/assertions.dart';
 
@@ -248,5 +249,33 @@ void main() {
     final expected = XmlDocument.parse(
         '<XML><BOX><BLUR><IMG><URL value="./" /></IMG></BLUR></BOX></XML>');
     expect(expected.toXmlString(), actual.toXmlString());
+  });
+  group('https://github.com/renggli/dart-xml/discussions/177', () {
+    const input = '<rss><items><item>a</item><item>b</item></items></rss>';
+    test('iterable', () {
+      var started = false;
+      final found = <XmlEvent>[];
+      for (final event in parseEvents(input)) {
+        if (event is XmlStartElementEvent && event.name == 'item') {
+          started = true;
+        } else if (event is XmlEndElementEvent && event.name == 'item') {
+          started = false;
+        } else if (started) {
+          found.add(event); // an event that is part of `<item>...</item>`
+        }
+      }
+      expect(found, [XmlTextEvent('a'), XmlTextEvent('b')]);
+    });
+    test('stream', () async {
+      final result = await Stream.value(input)
+          .toXmlEvents()
+          .normalizeEvents()
+          .selectSubtreeEvents((event) => event.name == 'item')
+          .toXmlNodes()
+          .expand((nodes) => nodes)
+          .toList();
+      expect(result.map((each) => each.toString()),
+          ['<item>a</item>', '<item>b</item>']);
+    });
   });
 }
