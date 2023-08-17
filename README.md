@@ -265,11 +265,11 @@ This approach requires the whole input to be available at the beginning and does
 
 To asynchronously parse and process events directly from a file or HTTP stream use the provided extension methods on `Stream` to convert between streams of strings, events and DOM tree nodes:
 
-![stream-ext.png](doc/stream-ext.png)
+![Stream Extensions Methods](https://raw.githubusercontent.com/renggli/dart-xml/HEAD/doc/stream-ext.png)
 
 For more control the underlying `Codec` and `Converter` implementations can be used:
 
-![stream-codec.png](doc/stream-codec.png)
+![Stream Codec and Converter](https://raw.githubusercontent.com/renggli/dart-xml/HEAD/doc/stream-codec.png)
 
 Various other transformations are provided to simplify processing complex streams:
 
