@@ -2,7 +2,7 @@
 
 ## 6.4.0
 
-* Dart 3.1 and PetitParser 6.0 requirement.
+* Dart 3.0 and PetitParser 6.0 requirement.
 * Add RSS feed reader example.
 
 ## 6.3.0
