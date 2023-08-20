@@ -12,6 +12,19 @@ mixin XmlChildrenBase {
   Iterable<XmlElement> get childElements => const [];
 
   /// Return the first child element with the given `name`, or `null`.
+  ///
+  /// Both `name` and `namespace` can be a specific [String]; or `'*'` to match
+  /// anything. If no `namespace` is provided, the _fully qualified_ name is
+  /// compared; otherwise only the _local name_ is considered.
+  ///
+  /// For example:
+  /// - `element.getElement('xsd:name')` returns the first element with the
+  ///   fully qualified tag name `xsd:name`.
+  /// - `element.getElement('name', namespace: '*')` returns the first element
+  ///   with the local tag name `name` no matter the namespace.
+  /// - `element.getElement('*', namespace: 'http://www.w3.org/2001/XMLSchema')`
+  ///   returns the first element within the provided namespace URI.
+  ///
   XmlElement? getElement(String name, {String? namespace}) => null;
 
   /// Return the first child of this node, or `null` if there are no children.

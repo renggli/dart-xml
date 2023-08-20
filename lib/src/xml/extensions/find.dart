@@ -7,16 +7,15 @@ extension XmlFindExtension on XmlNode {
   /// Return a lazy [Iterable] of the _direct_ child elements in document
   /// order with the specified tag `name` and `namespace`.
   ///
-  /// Both `name` and `namespace` can be set to a specific [String] or `'*'` to
-  /// match anything. If no `namespace` is provided, the _fully qualified_ name
-  /// will be matched, otherwise only the _local name_ is compared.
+  /// Both `name` and `namespace` can be a specific [String]; or `'*'` to match
+  /// anything. If no `namespace` is provided, the _fully qualified_ name is
+  /// compared; otherwise only the _local name_ is considered.
   ///
   /// For example:
-  /// - `element.findElements('xsd:annotation')` finds all direct child elements
-  ///   with the fully qualified tag name `xsd:annotation`.
-  /// - `element.findElements('annotation', namespace: '*')` finds all direct
-  ///   child elements with the local tag name `annotation` no matter their
-  ///   namespace.
+  /// - `element.findElements('xsd:name')` finds all direct child elements with
+  ///   the fully qualified tag name `xsd:name`.
+  /// - `element.findElements('name', namespace: '*')` finds all direct child
+  ///   elements with the local tag name `name` no matter their namespace.
   /// - `element.findElements('*', namespace: 'http://www.w3.org/2001/XMLSchema')`
   ///   finds all direct child elements within the provided namespace URI.
   ///
@@ -26,15 +25,15 @@ extension XmlFindExtension on XmlNode {
   /// Return a lazy [Iterable] of the _recursive_ child elements in document
   /// order with the specified tag `name`.
   ///
-  /// Both `name` and `namespace` can be set to a specific [String] or `'*'` to
-  /// match anything. If no `namespace` is provided, the _fully qualified_ name
-  /// will be matched, otherwise only the _local name_ is compared.
+  /// Both `name` and `namespace` can be a specific [String]; or `'*'` to match
+  /// anything. If no `namespace` is provided, the _fully qualified_ name is
+  /// compared; otherwise only the _local name_ is considered.
   ///
   /// For example:
-  /// - `document.findAllElements('xsd:annotation')` finds all elements with the
-  ///   fully qualified tag name `xsd:annotation`.
-  /// - `document.findAllElements('annotation', namespace: '*')` finds all
-  ///   elements with the local tag name `annotation` no matter their namespace.
+  /// - `document.findAllElements('xsd:name')` finds all elements with the fully
+  ///   qualified tag name `xsd:name`.
+  /// - `document.findAllElements('name', namespace: '*')` finds all elements
+  ///   with the local tag name `name` no matter their namespace.
   /// - `document.findAllElements('*', namespace: 'http://www.w3.org/2001/XMLSchema')`
   ///   finds all elements with the given namespace URI.
   ///
