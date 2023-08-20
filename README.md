@@ -339,19 +339,19 @@ Furthermore, there are [numerous packages](https://pub.dev/packages?q=dependency
 
 ### Supports
 
-- [x] Standard well-formed XML (and HTML).
-- [x] Reading documents using an event based API (SAX).
-- [x] Decodes and encodes commonly used character entities.
-- [x] Querying, traversing, and mutating API using Dart principles.
-- [x] Querying the DOM using a subset of XPath.
-- [x] Building XML trees using a builder API.
+- ☑ Standard well-formed XML (and HTML).
+- ☑ Reading documents using an event based API (SAX).
+- ☑ Decodes and encodes commonly used character entities.
+- ☑ Querying, traversing, and mutating API using Dart principles.
+- ☑ Querying the DOM using a subset of XPath.
+- ☑ Building XML trees using a builder API.
 
 ### Limitations
 
-- [ ] Doesn't validate namespace declarations.
-- [ ] Doesn't validate schema declarations.
-- [ ] Doesn't parse, apply or enforce the DTD.
-- [ ] Doesn't support XSL or XSLT.
+- ☐ Doesn't validate namespace declarations.
+- ☐ Doesn't validate schema declarations.
+- ☐ Doesn't parse, apply or enforce the DTD.
+- ☐ Doesn't support XSL or XSLT.
 
 ### Standards
 
