@@ -35,7 +35,7 @@ class XmlTagException extends XmlException with XmlFormatException {
       XmlTagException('Missing </$expectedName>',
           expectedName: expectedName, buffer: buffer, position: position);
 
-  /// Ensure that the [expected] tag matches the [actual] one.
+  /// Ensure that the expected tag matches the actual one.
   static void checkClosingTag(String expectedName, String actualName,
       {String? buffer, int? position}) {
     if (expectedName != actualName) {
