@@ -1,17 +1,18 @@
 import '../../xml/enums/node_type.dart';
-import '../../xml/nodes/node.dart';
 import '../../xml/nodes/processing.dart';
+import '../context.dart';
 import '../resolver.dart';
+import '../values.dart';
 
 class CommentTypeResolver implements Resolver {
   @override
-  Iterable<XmlNode> call(Iterable<XmlNode> nodes) =>
-      nodes.where((node) => node.nodeType == XmlNodeType.COMMENT);
+  Value call(Context context, Value value) => NodesValue(
+      value.nodes.where((node) => node.nodeType == XmlNodeType.COMMENT));
 }
 
 class NodeTypeResolver implements Resolver {
   @override
-  Iterable<XmlNode> call(Iterable<XmlNode> nodes) => nodes;
+  Value call(Context context, Value value) => NodesValue(value.nodes);
 }
 
 class ProcessingTypeResolver implements Resolver {
@@ -20,12 +21,15 @@ class ProcessingTypeResolver implements Resolver {
   final String? target;
 
   @override
-  Iterable<XmlNode> call(Iterable<XmlNode> nodes) => nodes.where((node) =>
-      node is XmlProcessing && (target == null || node.target == target));
+  Value call(Context context, Value value) =>
+      NodesValue(value.nodes.where((node) =>
+          node is XmlProcessing && (target == null || node.target == target)));
 }
 
 class TextTypeResolver implements Resolver {
   @override
-  Iterable<XmlNode> call(Iterable<XmlNode> nodes) => nodes.where((node) =>
-      node.nodeType == XmlNodeType.TEXT || node.nodeType == XmlNodeType.CDATA);
+  Value call(Context context, Value value) => NodesValue(value.nodes.where(
+      (node) =>
+          node.nodeType == XmlNodeType.TEXT ||
+          node.nodeType == XmlNodeType.CDATA));
 }

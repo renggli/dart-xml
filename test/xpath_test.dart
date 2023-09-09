@@ -1,4 +1,6 @@
+import 'package:petitparser/reflection.dart';
 import 'package:test/test.dart';
+import 'package:xml/src/xpath/parser.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -16,7 +18,211 @@ void expectXPath(XmlNode? node, String expression,
                     .having((node) => node.outerXml, 'outerXml', each)
                 : each)));
 
+void expectEvaluate(XmlNode? node, String expression, dynamic matcher) =>
+    expect(node!.xpathEvaluate(expression), matcher);
+
+Matcher isNodes(dynamic value) =>
+    isA<NodesValue>().having((value) => value.nodes, 'nodes', value);
+
+Matcher isString(dynamic value) =>
+    isA<StringValue>().having((value) => value.string, 'string', value);
+
+Matcher isNumber(dynamic value) =>
+    isA<NumberValue>().having((value) => value.number, 'number', value);
+
+Matcher isBoolean(dynamic value) =>
+    isA<BooleanValue>().having((value) => value.boolean, 'boolean', value);
+
 void main() {
+  group('literals', () {
+    final xml = XmlDocument();
+    test('number', () {
+      expectEvaluate(xml, '0', isNumber(0));
+      expectEvaluate(xml, '1', isNumber(1));
+      expectEvaluate(xml, '-1', isNumber(-1));
+      expectEvaluate(xml, '1.2', isNumber(1.2));
+      expectEvaluate(xml, '-1.2', isNumber(-1.2));
+    });
+    test('string', () {
+      expectEvaluate(xml, '""', isString(''));
+      expectEvaluate(xml, '"Bar"', isString('Bar'));
+      expectEvaluate(xml, "''", isString(''));
+      expectEvaluate(xml, "'Foo'", isString('Foo'));
+    });
+  });
+  group('functions', () {
+    final xml = XmlDocument.parse('<r><a>1</a><b>2<c/>3</b></r>');
+    group('nodes', () {
+      // TODO
+    });
+    group('string', () {
+      test('string(nodes)', () {
+        expectEvaluate(xml, 'string(.)', isString('123'));
+        expectEvaluate(xml, 'string(/r/*)', isString('1'));
+      });
+      test('string(string)', () {
+        expectEvaluate(xml, 'string("")', isString(''));
+        expectEvaluate(xml, 'string("hello")', isString('hello'));
+      });
+      test('string(number)', () {
+        expectEvaluate(xml, 'string(0 div 0)', isString('NaN'));
+        expectEvaluate(xml, 'string(0)', isString('0'));
+        expectEvaluate(xml, 'string(+0)', isString('0'));
+        expectEvaluate(xml, 'string(-0)', isString('0'));
+        expectEvaluate(xml, 'string(1 div 0)', isString('Infinity'));
+        expectEvaluate(xml, 'string(-1 div 0)', isString('-Infinity'));
+        expectEvaluate(xml, 'string(42)', isString('42'));
+        expectEvaluate(xml, 'string(-42)', isString('-42'));
+        expectEvaluate(xml, 'string(3.1415)', isString('3.1415'));
+        expectEvaluate(xml, 'string(-3.1415)', isString('-3.1415'));
+      });
+      test('string(boolean)', () {
+        expectEvaluate(xml, 'string(false())', isString('false'));
+        expectEvaluate(xml, 'string(true())', isString('true'));
+      });
+      test('concat', () {
+        expect(() => expectEvaluate(xml, 'concat()', isString('')),
+            throwsA(isXPathFunctionException(name: 'concat')));
+        expect(() => expectEvaluate(xml, 'concat("a")', isString('a')),
+            throwsA(isXPathFunctionException(name: 'concat')));
+        expectEvaluate(xml, 'concat("a", "b")', isString('ab'));
+        expectEvaluate(xml, 'concat("a", "b", "c")', isString('abc'));
+      });
+      test('starts-with', () {
+        expectEvaluate(xml, 'starts-with("abc", "")', isBoolean(true));
+        expectEvaluate(xml, 'starts-with("abc", "a")', isBoolean(true));
+        expectEvaluate(xml, 'starts-with("abc", "ab")', isBoolean(true));
+        expectEvaluate(xml, 'starts-with("abc", "abc")', isBoolean(true));
+        expectEvaluate(xml, 'starts-with("abc", "abcd")', isBoolean(false));
+        expectEvaluate(xml, 'starts-with("abc", "bc")', isBoolean(false));
+      });
+      test('contains', () {
+        expectEvaluate(xml, 'contains("abc", "")', isBoolean(true));
+        expectEvaluate(xml, 'contains("abc", "a")', isBoolean(true));
+        expectEvaluate(xml, 'contains("abc", "b")', isBoolean(true));
+        expectEvaluate(xml, 'contains("abc", "c")', isBoolean(true));
+        expectEvaluate(xml, 'contains("abc", "d")', isBoolean(false));
+        expectEvaluate(xml, 'contains("abc", "ac")', isBoolean(false));
+      });
+      test('substring-before', () {
+        expectEvaluate(xml, 'substring-before("abcde", "c")', isString('ab'));
+        expectEvaluate(xml, 'substring-before("abcde", "x")', isString(''));
+      });
+      test('substring-after', () {
+        expectEvaluate(xml, 'substring-after("abcde", "c")', isString('de'));
+        expectEvaluate(xml, 'substring-after("abcde", "x")', isString(''));
+      });
+      test('substring', () {
+        expectEvaluate(xml, 'substring("12345", 3)', isString('345'));
+        expectEvaluate(xml, 'substring("12345", 2, 3)', isString('234'));
+        expectEvaluate(xml, 'substring("12345", 0, 3)', isString('12'));
+        expectEvaluate(xml, 'substring("12345", 4, 9)', isString('45'));
+        expectEvaluate(xml, 'substring("12345", 1.5, 2.6)', isString('234'));
+        expectEvaluate(xml, 'substring("12345", 0 div 0, 3)', isString(''));
+        expectEvaluate(xml, 'substring("12345", 1, 0 div 0)', isString(''));
+        expectEvaluate(
+            xml, 'substring("12345", -42, 1 div 0)', isString('12345'));
+        expectEvaluate(
+            xml, 'substring("12345", -1 div 0, 1 div 0)', isString(''));
+      });
+      test('string-length', () {
+        expectEvaluate(xml, 'string-length("")', isNumber(0));
+        expectEvaluate(xml, 'string-length("1")', isNumber(1));
+        expectEvaluate(xml, 'string-length("12")', isNumber(2));
+        expectEvaluate(xml, 'string-length("123")', isNumber(3));
+      });
+      test('normalize-space', () {
+        expectEvaluate(xml, 'normalize-space("")', isString(''));
+        expectEvaluate(xml, 'normalize-space(" 1 ")', isString('1'));
+        expectEvaluate(xml, 'normalize-space(" 1  2 ")', isString('1 2'));
+        expectEvaluate(xml, 'normalize-space("1 \n2")', isString('1 2'));
+      });
+      test('translate', () {
+        expectEvaluate(xml, 'translate("bar", "abc", "ABC")', isString('BAr'));
+        expectEvaluate(xml, 'translate("-aaa-", "a-", "A")', isString('AAA'));
+      });
+    });
+    group('number', () {
+      test('number(nodes)', () {
+        // TODO
+      });
+      test('number(string)', () {
+        expectEvaluate(xml, 'number("")', isNumber(isNaN));
+        expectEvaluate(xml, 'number("x")', isNumber(isNaN));
+        expectEvaluate(xml, 'number("1")', isNumber(1));
+        expectEvaluate(xml, 'number("1.2")', isNumber(1.2));
+        expectEvaluate(xml, 'number("-1")', isNumber(-1));
+        expectEvaluate(xml, 'number("-1.2")', isNumber(-1.2));
+      });
+      test('number(number)', () {
+        expectEvaluate(xml, 'number(0)', isNumber(0));
+        expectEvaluate(xml, 'number(-1)', isNumber(-1));
+        expectEvaluate(xml, 'number(-1.2)', isNumber(-1.2));
+      });
+      test('number(boolean)', () {
+        expectEvaluate(xml, 'number(true())', isNumber(1));
+        expectEvaluate(xml, 'number(false())', isNumber(0));
+      });
+      test('sum', () {
+        expectEvaluate(xml, 'sum(//text())', isNumber(6));
+      });
+      test('floor', () {
+        expectEvaluate(xml, 'floor(-1.5)', isNumber(-2));
+        expectEvaluate(xml, 'floor(1.5)', isNumber(1));
+      });
+      test('ceiling', () {
+        expectEvaluate(xml, 'ceiling(-1.5)', isNumber(-1));
+        expectEvaluate(xml, 'ceiling(1.5)', isNumber(2));
+      });
+      test('round', () {
+        expectEvaluate(xml, 'round(-1.2)', isNumber(-1));
+        expectEvaluate(xml, 'round(1.2)', isNumber(1));
+      });
+      test('math', () {
+        expectEvaluate(xml, '-(1)', isNumber(-1));
+        expectEvaluate(xml, '1 + 2', isNumber(3));
+        expectEvaluate(xml, '1 - 2', isNumber(-1));
+        expectEvaluate(xml, '2 * 3', isNumber(6));
+        expectEvaluate(xml, '5 div 2', isNumber(2.5));
+        expectEvaluate(xml, '5 idiv 2', isNumber(2));
+        expectEvaluate(xml, '5 mod 2', isNumber(1));
+        expectEvaluate(xml, '2 + 3 * 4', isNumber(14));
+        expectEvaluate(xml, '2 * 3 + 4', isNumber(10));
+      });
+    });
+    group('boolean', () {
+      test('boolean(nodes)', () {
+        expectEvaluate(xml, 'boolean(//a)', isBoolean(true));
+        expectEvaluate(xml, 'boolean(//absent)', isBoolean(false));
+      });
+      test('boolean(string)', () {
+        expectEvaluate(xml, 'boolean("")', isBoolean(false));
+        expectEvaluate(xml, 'boolean("a")', isBoolean(true));
+        expectEvaluate(xml, 'boolean("ab")', isBoolean(true));
+      });
+      test('boolean(number)', () {
+        expectEvaluate(xml, 'boolean(0)', isBoolean(true));
+        expectEvaluate(xml, 'boolean(1)', isBoolean(false));
+        expectEvaluate(xml, 'boolean(-1)', isBoolean(false));
+        expectEvaluate(xml, 'boolean(0 div 0)', isBoolean(false));
+        expectEvaluate(xml, 'boolean(1 div 0)', isBoolean(false));
+      });
+      test('boolean(boolean)', () {
+        expectEvaluate(xml, 'boolean(true())', isBoolean(true));
+        expectEvaluate(xml, 'boolean(false())', isBoolean(false));
+      });
+      test('not(boolean)', () {
+        expectEvaluate(xml, 'not(true())', isBoolean(false));
+        expectEvaluate(xml, 'not(false())', isBoolean(true));
+      });
+      test('true()', () {
+        expectEvaluate(xml, 'true()', isBoolean(true));
+      });
+      test('false()', () {
+        expectEvaluate(xml, 'false()', isBoolean(false));
+      });
+    });
+  });
   group('axis', () {
     const input = '<?xml version="1.0"?>'
         '<r><a1><b1/></a1><a2 b1="1" b2="2"><c1/><c2>'
@@ -409,6 +615,12 @@ void main() {
         expectXPath(namedNode['PurchaseOrderType']?.firstElementChild,
             'xsd:element[@name][@unknown]');
       });
+    });
+  });
+  group('parser', () {
+    test('linter', () {
+      final parser = const XPathParser().build();
+      expect(linter(parser), isEmpty);
     });
   });
 }

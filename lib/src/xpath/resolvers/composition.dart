@@ -1,5 +1,6 @@
-import '../../xml/nodes/node.dart';
+import '../context.dart';
 import '../resolver.dart';
+import '../values.dart';
 
 class SequenceResolver implements Resolver {
   SequenceResolver._(this.resolvers);
@@ -10,6 +11,6 @@ class SequenceResolver implements Resolver {
   final List<Resolver> resolvers;
 
   @override
-  Iterable<XmlNode> call(Iterable<XmlNode> nodes) => resolvers
-      .fold<Iterable<XmlNode>>(nodes, (elements, current) => current(elements));
+  Value call(Context context, Value value) => resolvers.fold<Value>(
+      value, (innerValue, current) => current(context, innerValue));
 }

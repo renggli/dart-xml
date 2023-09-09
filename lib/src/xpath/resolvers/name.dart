@@ -1,11 +1,12 @@
 import '../../xml/mixins/has_name.dart';
-import '../../xml/nodes/node.dart';
+import '../context.dart';
 import '../resolver.dart';
+import '../values.dart';
 
 class HasNameResolver implements Resolver {
   @override
-  Iterable<XmlNode> call(Iterable<XmlNode> nodes) =>
-      nodes.where((node) => node is XmlHasName && true);
+  Value call(Context context, Value value) =>
+      NodesValue(value.nodes.where((node) => node is XmlHasName && true));
 }
 
 class QualifiedNameResolver implements Resolver {
@@ -14,7 +15,7 @@ class QualifiedNameResolver implements Resolver {
   final String qualifiedName;
 
   @override
-  Iterable<XmlNode> call(Iterable<XmlNode> nodes) =>
-      nodes.where((Object node) =>
-          node is XmlHasName && node.qualifiedName == qualifiedName);
+  Value call(Context context, Value value) =>
+      NodesValue(value.nodes.where((Object node) =>
+          node is XmlHasName && node.qualifiedName == qualifiedName));
 }

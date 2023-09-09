@@ -1,6 +1,6 @@
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/exceptions/parser_exception.dart';
 import 'package:xml/xml.dart';
+import 'package:xml/xpath.dart';
 
 Matcher isXmlNode({XmlNode? node, XmlNodeType? nodeType, String? outerXml}) {
   var matcher = isA<XmlNode>();
@@ -103,4 +103,15 @@ Matcher isXPathParserException({
         .having((value) => value.offset, 'offset', position)
         .having((value) => value.line, 'line', line)
         .having((value) => value.column, 'column', column)
+        .having((value) => value.toString(), 'toString', isNotEmpty);
+
+Matcher isXPathFunctionException({
+  dynamic message = isNotEmpty,
+  dynamic name = anything,
+  dynamic args = anything,
+}) =>
+    isA<XPathFunctionException>()
+        .having((value) => value.message, 'message', message)
+        .having((value) => value.name, 'name', name)
+        .having((value) => value.args, 'args', args)
         .having((value) => value.toString(), 'toString', isNotEmpty);
