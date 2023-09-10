@@ -43,7 +43,7 @@ XPathValue namespaceUri(XPathContext context, List<XPathExpression> arguments) {
   XPathEvaluationException.checkArgumentCount('namespace-uri', arguments, 0, 1);
   final value = arguments.isEmpty ? context.value : arguments[0](context);
   return switch (value.nodes.firstOrNull) {
-    XmlHasName(namespaceUri: final value!) => XPathString(value),
+    XmlHasName(namespaceUri: final value?) => XPathString(value),
     _ => XPathString.empty,
   };
 }

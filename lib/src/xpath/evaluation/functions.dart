@@ -31,16 +31,16 @@ const Map<String, XPathFunction> standardFunctions = {
   'string': string_func.string,
   'normalize-space': string_func.normalizeSpace,
   'translate': string_func.translate,
-  // Boolean Functions
-  'boolean': boolean_func.boolean,
-  'not': boolean_func.not,
-  'true': boolean_func.trueValue,
-  'false': boolean_func.falseValue,
-  'lang': boolean_func.lang,
   // Number Functions
   'number': number_func.number,
   'sum': number_func.sum,
   'floor': number_func.floor,
   'ceiling': number_func.ceiling,
   'round': number_func.round,
+  // Boolean Functions
+  'boolean': boolean_func.boolean,
+  'not': boolean_func.not,
+  'true': boolean_func.trueValue,
+  'false': boolean_func.falseValue,
+  'lang': boolean_func.lang,
 };

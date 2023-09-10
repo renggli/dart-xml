@@ -35,7 +35,7 @@ void expectEvaluate(
             variables: variables, functions: functions),
         matcher);
 
-Matcher isNodes(dynamic value) =>
+Matcher isNodeSet(dynamic value) =>
     isA<XPathNodeSet>().having((value) => value.nodes, 'nodes', value);
 
 Matcher isString(dynamic value) =>
@@ -51,7 +51,7 @@ void main() {
   group('values', () {
     group('nodes', () {
       test('empty', () {
-        const value = XPathNodeSet([]);
+        const value = XPathNodeSet.empty;
         expect(value.nodes, isEmpty);
         expect(value.string, '');
         expect(value.number, isNaN);
@@ -244,12 +244,60 @@ void main() {
   group('functions', () {
     final xml = XmlDocument.parse('<r><a>1</a><b>2<c/>3</b></r>');
     group('nodes', () {
-      // TODO
+      test('last()', () {
+        expectEvaluate(xml, 'last()', isNumber(1));
+        expectEvaluate(
+            xml, '/r/*[last()]', isNodeSet([xml.rootElement.children.last]));
+      });
+      test('position()', () {
+        expectEvaluate(xml, 'position()', isNumber(1));
+        expectEvaluate(
+            xml, '/r/*[position()]', isNodeSet(xml.rootElement.children));
+      });
+      test('count(node-set)', () {
+        expectEvaluate(xml, 'count(/*)', isNumber(1));
+        expectEvaluate(xml, 'count(/r/*)', isNumber(2));
+        expectEvaluate(xml, 'count(/r/b/*)', isNumber(1));
+        expectEvaluate(xml, 'count(/r/b/absent)', isNumber(0));
+      });
+      test('id(object)', () {
+        // TODO
+      });
+      test('local-name(node-set?)', () {
+        expectEvaluate(xml, 'local-name(/r/*)', isString('a'));
+        expectEvaluate(
+          xml,
+          '/r/*[local-name()="a"]',
+          isNodeSet(xml.findAllElements('a')),
+        );
+      });
+      test('namespace-uri(node-set?)', () {
+        expectEvaluate(xml, 'namespace-uri(/r/*)', isString(''));
+        expectEvaluate(
+          xml,
+          '/r/*[namespace-uri()=""]',
+          isNodeSet(xml.rootElement.findElements('*')),
+        );
+      });
+      test('name(node-set?)', () {
+        expectEvaluate(xml, 'name(/r/*)', isString('a'));
+        expectEvaluate(
+          xml,
+          '/r/*[name()="a"]',
+          isNodeSet(xml.findAllElements('a')),
+        );
+      });
+      test('intersect(node-set, node-set)', () {
+        // TODO
+      });
+      test('union(node-set, node-set)', () {
+        // TODO
+      });
     });
     group('string', () {
       test('string(nodes)', () {
-        expectEvaluate(xml, 'string(.)', isString('123'));
-        expectEvaluate(xml, 'string(/r/*)', isString('1'));
+        expectEvaluate(xml, 'string()', isString('123'));
+        expectEvaluate(xml, 'string(/r/b)', isString('23'));
       });
       test('string(string)', () {
         expectEvaluate(xml, 'string("")', isString(''));
@@ -333,7 +381,8 @@ void main() {
     });
     group('number', () {
       test('number(nodes)', () {
-        // TODO
+        expectEvaluate(xml, 'number()', isNumber(123));
+        expectEvaluate(xml, 'number(/r/b)', isNumber(23));
       });
       test('number(string)', () {
         expectEvaluate(xml, 'number("")', isNumber(isNaN));
@@ -367,20 +416,52 @@ void main() {
         expectEvaluate(xml, 'round(-1.2)', isNumber(-1));
         expectEvaluate(xml, 'round(1.2)', isNumber(1));
       });
-      test('math', () {
-        expectEvaluate(xml, '-(1)', isNumber(-1));
+      test('- (prefix)', () {
+        expectEvaluate(xml, '-1', isNumber(-1));
+        expectEvaluate(xml, '--1', isNumber(1));
+        expectEvaluate(xml, '---1', isNumber(-1));
+      });
+      test('+ (prefix)', () {
+        expectEvaluate(xml, '+1', isNumber(1));
+        expectEvaluate(xml, '++1', isNumber(1));
+        expectEvaluate(xml, '+++1', isNumber(1));
+      });
+      test('+', () {
         expectEvaluate(xml, '1 + 2', isNumber(3));
+        expectEvaluate(xml, '3 + 4', isNumber(7));
+      });
+      test('-', () {
         expectEvaluate(xml, '1 - 2', isNumber(-1));
+        expectEvaluate(xml, '4 - 3', isNumber(1));
+      });
+      test('*', () {
         expectEvaluate(xml, '2 * 3', isNumber(6));
+        expectEvaluate(xml, '3 * 2', isNumber(6));
+      });
+      test('div', () {
+        expectEvaluate(xml, '6 div 3', isNumber(2));
         expectEvaluate(xml, '5 div 2', isNumber(2.5));
+      });
+      test('idiv', () {
         expectEvaluate(xml, '5 idiv 2', isNumber(2));
+        expectEvaluate(xml, '8 idiv 2', isNumber(4));
+      });
+      test('neg', () {
         expectEvaluate(xml, '5 mod 2', isNumber(1));
+        expectEvaluate(xml, '8 mod 2', isNumber(0));
+      });
+      test('priority', () {
         expectEvaluate(xml, '2 + 3 * 4', isNumber(14));
         expectEvaluate(xml, '2 * 3 + 4', isNumber(10));
+      });
+      test('parenthesis', () {
+        expectEvaluate(xml, '(2 + 3) * 4', isNumber(20));
+        expectEvaluate(xml, '2 * (3 + 4)', isNumber(14));
       });
     });
     group('boolean', () {
       test('boolean(nodes)', () {
+        expectEvaluate(xml, 'boolean()', isBoolean(true));
         expectEvaluate(xml, 'boolean(//a)', isBoolean(true));
         expectEvaluate(xml, 'boolean(//absent)', isBoolean(false));
       });
@@ -409,6 +490,48 @@ void main() {
       });
       test('false()', () {
         expectEvaluate(xml, 'false()', isBoolean(false));
+      });
+      test('<', () {
+        expectEvaluate(xml, '1 < 2', isBoolean(isTrue));
+        expectEvaluate(xml, '2 < 2', isBoolean(isFalse));
+        expectEvaluate(xml, '2 < 1', isBoolean(isFalse));
+      });
+      test('<=', () {
+        expectEvaluate(xml, '1 <= 2', isBoolean(isTrue));
+        expectEvaluate(xml, '2 <= 2', isBoolean(isTrue));
+        expectEvaluate(xml, '2 <= 1', isBoolean(isFalse));
+      });
+      test('>', () {
+        expectEvaluate(xml, '1 > 2', isBoolean(isFalse));
+        expectEvaluate(xml, '2 > 2', isBoolean(isFalse));
+        expectEvaluate(xml, '2 > 1', isBoolean(isTrue));
+      });
+      test('>=', () {
+        expectEvaluate(xml, '1 >= 2', isBoolean(isFalse));
+        expectEvaluate(xml, '2 >= 2', isBoolean(isTrue));
+        expectEvaluate(xml, '2 >= 1', isBoolean(isTrue));
+      });
+      test('=', () {
+        expectEvaluate(xml, '1 = 2', isBoolean(isFalse));
+        expectEvaluate(xml, '2 = 2', isBoolean(isTrue));
+        expectEvaluate(xml, '2 = 1', isBoolean(isFalse));
+      });
+      test('!=', () {
+        expectEvaluate(xml, '1 != 2', isBoolean(isTrue));
+        expectEvaluate(xml, '2 != 2', isBoolean(isFalse));
+        expectEvaluate(xml, '2 != 1', isBoolean(isTrue));
+      });
+      test('and', () {
+        expectEvaluate(xml, 'true() and true()', isBoolean(isTrue));
+        expectEvaluate(xml, 'true() and false()', isBoolean(isFalse));
+        expectEvaluate(xml, 'false() and true()', isBoolean(isFalse));
+        expectEvaluate(xml, 'false() and false()', isBoolean(isFalse));
+      });
+      test('or', () {
+        expectEvaluate(xml, 'true() or true()', isBoolean(isTrue));
+        expectEvaluate(xml, 'true() or false()', isBoolean(isTrue));
+        expectEvaluate(xml, 'false() or true()', isBoolean(isTrue));
+        expectEvaluate(xml, 'false() or false()', isBoolean(isFalse));
       });
     });
   });

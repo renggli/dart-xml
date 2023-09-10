@@ -10,7 +10,7 @@ import 'expression.dart';
 /// Wrapper of XPath values.
 @immutable
 sealed class XPathValue implements XPathExpression {
-  /// The wrapped value.
+  /// The value.
   dynamic get value;
 
   /// Returns the node-set of this value.
