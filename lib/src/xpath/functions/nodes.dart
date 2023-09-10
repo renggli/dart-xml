@@ -1,62 +1,71 @@
 import '../../xml/mixins/has_name.dart';
-import '../exceptions/function_exception.dart';
-import '../values.dart';
+import '../evaluation/context.dart';
+import '../evaluation/expression.dart';
+import '../evaluation/values.dart';
+import '../exceptions/evaluation_exception.dart';
 
 // number last()
-Value last(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('last', args, 0);
-  throw UnimplementedError();
+XPathValue last(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('last', arguments, 0);
+  return XPathNumber(context.last);
 }
 
 // number position()
-Value position(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('position', args, 0);
-  throw UnimplementedError();
+XPathValue position(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('position', arguments, 0);
+  return XPathNumber(context.position);
 }
 
 // number count(node-set)
-Value count(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('count', args, 1);
-  return NumberValue(args[0].nodes.length);
+XPathValue count(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('count', arguments, 1);
+  return XPathNumber(arguments[0](context).nodes.length);
 }
 
 // node-set id(object)
-Value id(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('id', args, 1);
-  throw UnimplementedError();
+XPathValue id(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('id', arguments, 1);
+  throw UnimplementedError('id');
 }
 
 // string local-name(node-set?)
-Value localName(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('local-name', args, 1);
-  final node = args[0].nodes.firstOrNull;
-  return StringValue(node is XmlHasName ? (node as XmlHasName).localName : '');
+XPathValue localName(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('local-name', arguments, 0, 1);
+  final value = arguments.isEmpty ? context.value : arguments[0](context);
+  return switch (value.nodes.firstOrNull) {
+    XmlHasName(localName: final value) => XPathString(value),
+    _ => XPathString.empty,
+  };
 }
 
 // string namespace-uri(node-set?)
-Value namespaceUri(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('namespace-uri', args, 1);
-  final node = args[0].nodes.firstOrNull;
-  return StringValue(
-      node is XmlHasName ? (node as XmlHasName).namespaceUri ?? '' : '');
+XPathValue namespaceUri(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('namespace-uri', arguments, 0, 1);
+  final value = arguments.isEmpty ? context.value : arguments[0](context);
+  return switch (value.nodes.firstOrNull) {
+    XmlHasName(namespaceUri: final value!) => XPathString(value),
+    _ => XPathString.empty,
+  };
 }
 
 // string name(node-set?)
-Value name(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('name', args, 1);
-  final node = args[0].nodes.firstOrNull;
-  return StringValue(
-      node is XmlHasName ? (node as XmlHasName).qualifiedName : '');
+XPathValue name(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('name', arguments, 0, 1);
+  final value = arguments.isEmpty ? context.value : arguments[0](context);
+  return switch (value.nodes.firstOrNull) {
+    XmlHasName(qualifiedName: final value) => XPathString(value),
+    _ => XPathString.empty,
+  };
 }
 
 // node-set intersect(node-set, node-set)
-Value intersect(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('intersect', args, 2);
-  throw UnimplementedError();
+XPathValue intersect(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('intersect', arguments, 2);
+  throw UnimplementedError('intersect');
 }
 
 // node-set union(node-set, node-set)
-Value union(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('union', args, 2);
-  throw UnimplementedError();
+XPathValue union(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('union', arguments, 2);
+  throw UnimplementedError('union');
 }

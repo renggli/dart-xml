@@ -1,14 +1,15 @@
 import 'package:meta/meta.dart';
 
-import '../xml/nodes/document.dart';
-import '../xml/nodes/element.dart';
-import '../xml/nodes/node.dart';
-import '../xml/nodes/text.dart';
+import '../../xml/nodes/document.dart';
+import '../../xml/nodes/element.dart';
+import '../../xml/nodes/node.dart';
+import '../../xml/nodes/text.dart';
 import 'context.dart';
-import 'resolver.dart';
+import 'expression.dart';
 
+/// Wrapper of XPath values.
 @immutable
-sealed class Value implements Resolver {
+sealed class XPathValue implements XPathExpression {
   /// The wrapped value.
   dynamic get value;
 
@@ -25,8 +26,12 @@ sealed class Value implements Resolver {
   bool get boolean;
 }
 
-class NodesValue implements Value {
-  const NodesValue(this.value);
+/// Wrapper around an [Iterable] of [XmlNode]s in XPath.
+class XPathNodeSet implements XPathValue {
+  const XPathNodeSet(this.value);
+
+  /// The empty node-set as a reusable object
+  static const empty = XPathNodeSet([]);
 
   @override
   final Iterable<XmlNode> value;
@@ -70,15 +75,15 @@ class NodesValue implements Value {
   bool get boolean => value.isNotEmpty;
 
   @override
-  Value call(Context context, Value value) => this;
+  XPathValue call(XPathContext context) => this;
 
   @override
   String toString() {
     final buffer = StringBuffer('[');
     final iterator = value.iterator;
     var i = 0;
-    while (iterator.moveNext() && i++ < 3) {
-      if (i > 0) buffer.write(' ,');
+    while (iterator.moveNext() && i < 3) {
+      if (i > 0) buffer.write(', ');
       final inner = StringBuffer();
       _stringForNodeOn(iterator.current, inner);
       if (inner.length > 20) {
@@ -87,6 +92,7 @@ class NodesValue implements Value {
       } else {
         buffer.write(inner.toString());
       }
+      i++;
     }
     if (i >= 3) buffer.write(', ...');
     buffer.write(']');
@@ -94,15 +100,19 @@ class NodesValue implements Value {
   }
 }
 
-class StringValue implements Value {
-  const StringValue(this.value);
+/// Wrapper around a [String] in XPath.
+class XPathString implements XPathValue {
+  const XPathString(this.value);
+
+  /// The empty string as a reusable object.
+  static const empty = XPathString('');
 
   @override
   final String value;
 
   @override
   Iterable<XmlNode> get nodes =>
-      throw StateError('Unable to convert string to node-set');
+      throw StateError('Unable to convert string "$value" to node-set');
 
   @override
   String get string => value;
@@ -114,24 +124,25 @@ class StringValue implements Value {
   bool get boolean => value.isNotEmpty;
 
   @override
-  Value call(Context context, Value value) => this;
+  XPathValue call(XPathContext context) => this;
 
   @override
   String toString() => '"$value"';
 }
 
-class NumberValue implements Value {
-  const NumberValue(this.value);
+/// Wrapper around a [num] in XPath.
+class XPathNumber implements XPathValue {
+  const XPathNumber(this.value);
 
   @override
   final num value;
 
   @override
   Iterable<XmlNode> get nodes =>
-      throw StateError('Unable to convert number to node-set');
+      throw StateError('Unable to convert number $value to node-set');
 
   @override
-  String get string => value.toString();
+  String get string => value == 0 ? '0' : value.toString();
 
   @override
   num get number => value;
@@ -140,24 +151,22 @@ class NumberValue implements Value {
   bool get boolean => value == 0;
 
   @override
-  Value call(Context context, Value value) => this;
+  XPathValue call(XPathContext context) => this;
 
   @override
   String toString() => value.toString();
 }
 
-class BooleanValue implements Value {
-  factory BooleanValue(bool value) =>
-      value ? const BooleanValue._(true) : const BooleanValue._(false);
-
-  const BooleanValue._(this.value);
+/// Wrapper around a [bool] in XPath.
+class XPathBoolean implements XPathValue {
+  const XPathBoolean(this.value);
 
   @override
   final bool value;
 
   @override
   Iterable<XmlNode> get nodes =>
-      throw StateError('Unable to convert boolean to node-set');
+      throw StateError('Unable to convert boolean $value to node-set');
 
   @override
   String get string => value ? 'true' : 'false';
@@ -169,7 +178,7 @@ class BooleanValue implements Value {
   bool get boolean => value;
 
   @override
-  Value call(Context context, Value value) => this;
+  XPathValue call(XPathContext context) => this;
 
   @override
   String toString() => '$value()';

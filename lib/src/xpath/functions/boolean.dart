@@ -1,81 +1,93 @@
-import '../exceptions/function_exception.dart';
-import '../resolvers/operators.dart';
-import '../values.dart';
+import '../evaluation/context.dart';
+import '../evaluation/expression.dart';
+import '../evaluation/values.dart';
+import '../exceptions/evaluation_exception.dart';
 
-// boolean boolean(object)
-Value boolean(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('boolean', args, 1);
-  return BooleanValue(args[0].boolean);
+// boolean boolean(object?)
+XPathValue boolean(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('boolean', arguments, 0, 1);
+  final value = arguments.isEmpty ? context.value : arguments[0](context);
+  return XPathBoolean(value.boolean);
 }
 
 // boolean not(boolean)
-Value not(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('not', args, 1);
-  return BooleanValue(!args[0].boolean);
+XPathValue not(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('not', arguments, 1);
+  return XPathBoolean(!arguments[0](context).boolean);
 }
 
 // boolean true()
-Value trueValue(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('true', args, 0);
-  return BooleanValue(true);
+XPathValue trueValue(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('true', arguments, 0);
+  return const XPathBoolean(true);
 }
 
 // boolean false()
-Value falseValue(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('false', args, 0);
-  return BooleanValue(false);
+XPathValue falseValue(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('false', arguments, 0);
+  return const XPathBoolean(false);
 }
 
 // boolean lang(string)
-Value lang(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('lang', args, 1);
-  throw UnimplementedError();
+XPathValue lang(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('lang', arguments, 1);
+  throw UnimplementedError('lang');
 }
 
 // boolean <(number, number)
-Value lessThan(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('<', args, 2);
-  return BooleanValue(args[0].number < args[1].number);
+XPathValue lessThan(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('<', arguments, 2);
+  return XPathBoolean(
+      arguments[0](context).number < arguments[1](context).number);
 }
 
 // boolean <=(number, number)
-Value lessThanOrEqual(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('<=', args, 2);
-  return BooleanValue(args[0].number <= args[1].number);
+XPathValue lessThanOrEqual(
+    XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('<=', arguments, 2);
+  return XPathBoolean(
+      arguments[0](context).number <= arguments[1](context).number);
 }
 
 // boolean >(number, number)
-Value greaterThan(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('>', args, 2);
-  return BooleanValue(args[0].number > args[1].number);
+XPathValue greaterThan(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('>', arguments, 2);
+  return XPathBoolean(
+      arguments[0](context).number > arguments[1](context).number);
 }
 
 // boolean >=(number, number)
-Value greaterThanOrEqual(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('>=', args, 2);
-  return BooleanValue(args[0].number >= args[1].number);
+XPathValue greaterThanOrEqual(
+    XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('>=', arguments, 2);
+  return XPathBoolean(
+      arguments[0](context).number >= arguments[1](context).number);
 }
 
 // boolean =(object, object)
-Value equal(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('=', args, 2);
-  return BooleanValue(args[0].string == args[1].string);
+XPathValue equal(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('=', arguments, 2);
+  return XPathBoolean(
+      arguments[0](context).string == arguments[1](context).string);
 }
 
 // boolean !=(object, object)
-Value notEqual(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('!=', args, 2);
-  return BooleanValue(args[0].string != args[1].string);
+XPathValue notEqual(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('!=', arguments, 2);
+  return XPathBoolean(
+      arguments[0](context).string != arguments[1](context).string);
 }
 
 // boolean and(boolean, boolean)
-Value and(List<Lazy<Value>> args) {
-  XPathFunctionException.checkArgumentCount('and', args, 2);
-  return BooleanValue(args[0]().boolean && args[1]().boolean);
+XPathValue and(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('and', arguments, 2);
+  return XPathBoolean(
+      arguments[0](context).boolean && arguments[1](context).boolean);
 }
 
 // boolean or(boolean, boolean)
-Value or(List<Lazy<Value>> args) {
-  XPathFunctionException.checkArgumentCount('or', args, 2);
-  return BooleanValue(args[0]().boolean || args[1]().boolean);
+XPathValue or(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('or', arguments, 2);
+  return XPathBoolean(
+      arguments[0](context).boolean || arguments[1](context).boolean);
 }

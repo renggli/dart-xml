@@ -7,33 +7,198 @@ import 'package:xml/xpath.dart';
 import 'utils/examples.dart';
 import 'utils/matchers.dart';
 
-void expectXPath(XmlNode? node, String expression,
-        [Iterable<Object?>? expected]) =>
+void expectXPath(
+  XmlNode? node,
+  String expression,
+  dynamic matcher, {
+  Map<String, XPathValue> variables = const {},
+  Map<String, XPathFunction> functions = const {},
+}) =>
     expect(
-        node!.xpath(expression),
-        expected == null
-            ? isEmpty
-            : orderedEquals(expected.map((each) => each is String
+        node!.xpath(expression, variables: variables, functions: functions),
+        matcher is Iterable
+            ? orderedEquals(matcher.map((each) => each is String
                 ? isA<XmlNode>()
                     .having((node) => node.outerXml, 'outerXml', each)
-                : each)));
+                : each))
+            : matcher);
 
-void expectEvaluate(XmlNode? node, String expression, dynamic matcher) =>
-    expect(node!.xpathEvaluate(expression), matcher);
+void expectEvaluate(
+  XmlNode? node,
+  String expression,
+  dynamic matcher, {
+  Map<String, XPathValue> variables = const {},
+  Map<String, XPathFunction> functions = const {},
+}) =>
+    expect(
+        node!.xpathEvaluate(expression,
+            variables: variables, functions: functions),
+        matcher);
 
 Matcher isNodes(dynamic value) =>
-    isA<NodesValue>().having((value) => value.nodes, 'nodes', value);
+    isA<XPathNodeSet>().having((value) => value.nodes, 'nodes', value);
 
 Matcher isString(dynamic value) =>
-    isA<StringValue>().having((value) => value.string, 'string', value);
+    isA<XPathString>().having((value) => value.string, 'string', value);
 
 Matcher isNumber(dynamic value) =>
-    isA<NumberValue>().having((value) => value.number, 'number', value);
+    isA<XPathNumber>().having((value) => value.number, 'number', value);
 
 Matcher isBoolean(dynamic value) =>
-    isA<BooleanValue>().having((value) => value.boolean, 'boolean', value);
+    isA<XPathBoolean>().having((value) => value.boolean, 'boolean', value);
 
 void main() {
+  group('values', () {
+    group('nodes', () {
+      test('empty', () {
+        const value = XPathNodeSet([]);
+        expect(value.nodes, isEmpty);
+        expect(value.string, '');
+        expect(value.number, isNaN);
+        expect(value.boolean, isFalse);
+        expect(value.toString(), '[]');
+      });
+      test('document', () {
+        final nodes = [XmlDocument.parse('<r>123</r>')];
+        final value = XPathNodeSet(nodes);
+        expect(value.nodes, nodes);
+        expect(value.string, '123');
+        expect(value.number, 123);
+        expect(value.boolean, isTrue);
+        expect(value.toString(), '[123]');
+      });
+      test('elements', () {
+        final nodes = [
+          XmlDocument.parse('<a>1</a>').rootElement,
+          XmlDocument.parse('<b>2</b>').rootElement,
+        ];
+        final value = XPathNodeSet(nodes);
+        expect(value.nodes, nodes);
+        expect(value.string, '1');
+        expect(value.number, 1);
+        expect(value.boolean, isTrue);
+        expect(value.toString(), '[1, 2]');
+      });
+      test('attributes', () {
+        final nodes =
+            XmlDocument.parse('<a b="1" c="2">0</a>').rootElement.attributes;
+        final value = XPathNodeSet(nodes);
+        expect(value.nodes, nodes);
+        expect(value.string, '1');
+        expect(value.number, 1);
+        expect(value.boolean, isTrue);
+        expect(value.toString(), '[1, 2]');
+      });
+      test('crop long values', () {
+        final nodes = [
+          XmlDocument.parse('<r>'
+                  '<p>The quick brown fox jumps over the lazy dog.</p>'
+                  '</r>')
+              .rootElement
+        ];
+        final value = XPathNodeSet(nodes);
+        expect(value.nodes, nodes);
+        expect(value.string, 'The quick brown fox jumps over the lazy dog.');
+        expect(value.number, isNaN);
+        expect(value.boolean, isTrue);
+        expect(value.toString(), '[The quick brown fox ...]');
+      });
+      test('crop many values', () {
+        final nodes = XmlDocument.parse('<r>'
+                '<p>First</p>'
+                '<p>Second</p>'
+                '<p>Third</p>'
+                '<p>Fourth</p>'
+                '</r>')
+            .rootElement
+            .children;
+        final value = XPathNodeSet(nodes);
+        expect(value.nodes, nodes);
+        expect(value.string, 'First');
+        expect(value.number, isNaN);
+        expect(value.boolean, isTrue);
+        expect(value.toString(), '[First, Second, Third, ...]');
+      });
+    });
+    group('string', () {
+      test('empty', () {
+        const value = XPathString('');
+        expect(() => value.nodes, throwsStateError);
+        expect(value.string, '');
+        expect(value.number, isNaN);
+        expect(value.boolean, isFalse);
+        expect(value.toString(), '""');
+      });
+      test('full', () {
+        const value = XPathString('123');
+        expect(() => value.nodes, throwsStateError);
+        expect(value.string, '123');
+        expect(value.number, 123);
+        expect(value.boolean, isTrue);
+        expect(value.toString(), '"123"');
+      });
+    });
+    group('number', () {
+      test('0', () {
+        const value = XPathNumber(0);
+        expect(() => value.nodes, throwsStateError);
+        expect(value.string, '0');
+        expect(value.number, 0);
+        expect(value.boolean, isTrue);
+        expect(value.toString(), '0');
+      });
+      test('1.14', () {
+        const value = XPathNumber(1.14);
+        expect(() => value.nodes, throwsStateError);
+        expect(value.string, '1.14');
+        expect(value.number, 1.14);
+        expect(value.boolean, isFalse);
+        expect(value.toString(), '1.14');
+      });
+      test('nan', () {
+        const value = XPathNumber(double.nan);
+        expect(() => value.nodes, throwsStateError);
+        expect(value.string, 'NaN');
+        expect(value.number, isNaN);
+        expect(value.boolean, isFalse);
+        expect(value.toString(), 'NaN');
+      });
+      test('+infinity', () {
+        const value = XPathNumber(double.infinity);
+        expect(() => value.nodes, throwsStateError);
+        expect(value.string, 'Infinity');
+        expect(value.number, double.infinity);
+        expect(value.boolean, isFalse);
+        expect(value.toString(), 'Infinity');
+      });
+      test('-infinity', () {
+        const value = XPathNumber(double.negativeInfinity);
+        expect(() => value.nodes, throwsStateError);
+        expect(value.string, '-Infinity');
+        expect(value.number, double.negativeInfinity);
+        expect(value.boolean, isFalse);
+        expect(value.toString(), '-Infinity');
+      });
+    });
+    group('boolean', () {
+      test('true', () {
+        const value = XPathBoolean(true);
+        expect(() => value.nodes, throwsStateError);
+        expect(value.string, 'true');
+        expect(value.number, 1);
+        expect(value.boolean, isTrue);
+        expect(value.toString(), 'true()');
+      });
+      test('false', () {
+        const value = XPathBoolean(false);
+        expect(() => value.nodes, throwsStateError);
+        expect(value.string, 'false');
+        expect(value.number, 0);
+        expect(value.boolean, isFalse);
+        expect(value.toString(), 'false()');
+      });
+    });
+  });
   group('literals', () {
     final xml = XmlDocument();
     test('number', () {
@@ -48,6 +213,32 @@ void main() {
       expectEvaluate(xml, '"Bar"', isString('Bar'));
       expectEvaluate(xml, "''", isString(''));
       expectEvaluate(xml, "'Foo'", isString('Foo'));
+    });
+    test('variable', () {
+      expectEvaluate(xml, '\$a', isString('hello'),
+          variables: const {'a': XPathString('hello')});
+      expectEvaluate(xml, '\$a', isNumber(123),
+          variables: const {'a': XPathNumber(123)});
+      expectEvaluate(xml, '\$a', isBoolean(false),
+          variables: const {'a': XPathBoolean(false)});
+      expect(() => expectEvaluate(xml, '\$a', anything),
+          throwsA(isXPathEvaluationException()));
+    });
+    test('function', () {
+      expectEvaluate(xml, 'custom("hello", 42, true())', isString('ok'),
+          functions: {
+            'custom': (context, arguments) {
+              expect(context.node, same(xml));
+              expect(context.position, 1);
+              expect(context.last, 1);
+              expect(arguments, [
+                isString('hello'),
+                isNumber(42),
+                isBoolean(true),
+              ]);
+              return const XPathString('ok');
+            }
+          });
     });
   });
   group('functions', () {
@@ -65,10 +256,8 @@ void main() {
         expectEvaluate(xml, 'string("hello")', isString('hello'));
       });
       test('string(number)', () {
-        expectEvaluate(xml, 'string(0 div 0)', isString('NaN'));
         expectEvaluate(xml, 'string(0)', isString('0'));
-        expectEvaluate(xml, 'string(+0)', isString('0'));
-        expectEvaluate(xml, 'string(-0)', isString('0'));
+        expectEvaluate(xml, 'string(0 div 0)', isString('NaN'));
         expectEvaluate(xml, 'string(1 div 0)', isString('Infinity'));
         expectEvaluate(xml, 'string(-1 div 0)', isString('-Infinity'));
         expectEvaluate(xml, 'string(42)', isString('42'));
@@ -82,9 +271,9 @@ void main() {
       });
       test('concat', () {
         expect(() => expectEvaluate(xml, 'concat()', isString('')),
-            throwsA(isXPathFunctionException(name: 'concat')));
+            throwsA(isXPathEvaluationException(name: 'concat')));
         expect(() => expectEvaluate(xml, 'concat("a")', isString('a')),
-            throwsA(isXPathFunctionException(name: 'concat')));
+            throwsA(isXPathEvaluationException(name: 'concat')));
         expectEvaluate(xml, 'concat("a", "b")', isString('ab'));
         expectEvaluate(xml, 'concat("a", "b", "c")', isString('abc'));
       });
@@ -344,13 +533,13 @@ void main() {
       expectXPath(current, '*[1]', ['<e1 a="1"/>']);
       expectXPath(current, '*[2]', ['<e2 a="2" b="3"/>']);
       expectXPath(current, '*[3]', ['<e3 b="4"/>']);
-      expectXPath(current, '*[4]');
+      expectXPath(current, '*[4]', isEmpty);
     });
-    test('[-n]', () {
-      expectXPath(current, '*[-1]', ['<e3 b="4"/>']);
-      expectXPath(current, '*[-2]', ['<e2 a="2" b="3"/>']);
-      expectXPath(current, '*[-3]', ['<e1 a="1"/>']);
-      expectXPath(current, '*[-4]');
+    test('[last()]', () {
+      expectXPath(current, '*[last()]', ['<e3 b="4"/>']);
+      expectXPath(current, '*[last()-1]', ['<e2 a="2" b="3"/>']);
+      expectXPath(current, '*[last()-2]', ['<e1 a="1"/>']);
+      expectXPath(current, '*[last()-3]', isEmpty);
     });
     test('[@attr]', () {
       expectXPath(current, '*[@a]', ['<e1 a="1"/>', '<e2 a="2" b="3"/>']);
@@ -367,7 +556,7 @@ void main() {
       expect(
           () => document.xpath(''),
           throwsA(isXPathParserException(
-              message: '"." expected', buffer: '', position: 0)));
+              message: 'name expected', buffer: '', position: 0)));
     });
     test('predicate', () {
       expect(
@@ -426,20 +615,20 @@ void main() {
           '<xsd:element name="purchaseOrder" type="PurchaseOrderType"/>',
           '<xsd:element name="comment" type="xsd:string"/>'
         ]);
-        expectXPath(document, 'unknown');
+        expectXPath(document, 'unknown', isEmpty);
       });
       // Selects all element children of the context node.
       test('*', () {
         expectXPath(namedNode['PurchaseOrderType'], '*',
             namedNode['PurchaseOrderType']?.childElements);
-        expectXPath(namedNode['purchaseOrder'], '*');
+        expectXPath(namedNode['purchaseOrder'], '*', isEmpty);
       });
       // Selects all text node children of the context node.
       test('text()', () {
         final documentation =
             document.findAllElements('xsd:documentation').single;
         expectXPath(documentation, 'text()', [documentation.innerText]);
-        expectXPath(namedNode['shipTo'], 'text()');
+        expectXPath(namedNode['shipTo'], 'text()', isEmpty);
       });
       // Selects the name attribute of the context node.
       test('@name', () {
@@ -447,7 +636,7 @@ void main() {
             namedNode['purchaseOrder'], '@name', ['name="purchaseOrder"']);
         expectXPath(
             namedNode['purchaseOrder'], '@type', ['type="PurchaseOrderType"']);
-        expectXPath(namedNode['purchaseOrder'], '@unknown');
+        expectXPath(namedNode['purchaseOrder'], '@unknown', isEmpty);
       });
       // Selects all the attributes of the context node.
       test('@*', () {
@@ -460,15 +649,15 @@ void main() {
             [namedNode['USAddress']?.firstElementChild]);
         expectXPath(namedNode['USAddress'], 'xsd:attribute[1]',
             [namedNode['USAddress']?.lastElementChild]);
-        expectXPath(namedNode['USAddress'], 'xsd:sequence[2]');
+        expectXPath(namedNode['USAddress'], 'xsd:sequence[2]', isEmpty);
       });
       // Selects the last para child of the context node.
       test('para[last()]', () {
-        expectXPath(namedNode['USAddress'], 'xsd:sequence[-1]',
+        expectXPath(namedNode['USAddress'], 'xsd:sequence[last()]',
             [namedNode['USAddress']?.firstElementChild]);
-        expectXPath(namedNode['USAddress'], 'xsd:attribute[-1]',
+        expectXPath(namedNode['USAddress'], 'xsd:attribute[last()]',
             [namedNode['USAddress']?.lastElementChild]);
-        expectXPath(namedNode['USAddress'], 'xsd:sequence[-2]');
+        expectXPath(namedNode['USAddress'], 'xsd:sequence[last()-1]', isEmpty);
       });
       // // Selects all para grandchildren of the context node.
       test('*/para', () {
@@ -476,14 +665,14 @@ void main() {
           '<xsd:element name="purchaseOrder" type="PurchaseOrderType"/>',
           '<xsd:element name="comment" type="xsd:string"/>'
         ]);
-        expectXPath(document, '*/xsd:attribute');
+        expectXPath(document, '*/xsd:attribute', isEmpty);
       });
       // Selects the second section of the fifth chapter of the doc.
       test('/doc/chapter[5]/section[2]', () {
         expectXPath(document, '/xsd:schema/xsd:complexType[2]/xsd:attribute[1]',
             ['<xsd:attribute name="country" type="xsd:NMTOKEN" fixed="US"/>']);
-        expectXPath(
-            document, '/xsd:schema/xsd:complexType[3]/xsd:attribute[1]');
+        expectXPath(document, '/xsd:schema/xsd:complexType[3]/xsd:attribute[1]',
+            isEmpty);
       });
       // Selects the para element descendants of the chapter element children of
       // the context node.
@@ -493,8 +682,8 @@ void main() {
           namedNode['country'],
           namedNode['partNum']
         ]);
-        expectXPath(document, 'unknown//xsd:attribute');
-        expectXPath(document, 'xsd:schema//unknown');
+        expectXPath(document, 'unknown//xsd:attribute', isEmpty);
+        expectXPath(document, 'xsd:schema//unknown', isEmpty);
       });
       // Selects all the para descendants of the document root and thus selects
       // all para elements in the same document as the context node.
@@ -504,7 +693,7 @@ void main() {
           namedNode['country'],
           namedNode['partNum']
         ]);
-        expectXPath(document, '//unknown');
+        expectXPath(document, '//unknown', isEmpty);
       });
       // Selects all the item elements in the same document as the context node
       // that have an olist parent.
@@ -514,8 +703,8 @@ void main() {
           namedNode['country'],
           namedNode['partNum']
         ]);
-        expectXPath(document, '//unknown/xsd:attribute');
-        expectXPath(document, '//xsd:complexType/unknown');
+        expectXPath(document, '//unknown/xsd:attribute', isEmpty);
+        expectXPath(document, '//xsd:complexType/unknown', isEmpty);
       });
       // Selects the context node.
       test('.', () {
@@ -531,25 +720,27 @@ void main() {
         ]);
         expectXPath(
             namedNode['item'], './/xsd:attribute', [namedNode['partNum']]);
-        expectXPath(document, './/unknown');
+        expectXPath(document, './/unknown', isEmpty);
       });
       // Selects the parent of the context node.
       test('..', () {
-        expectXPath(document, '..');
+        expectXPath(document, '..', isEmpty);
         expectXPath(document.firstElementChild, '..', [document]);
       });
       // Selects the lang attribute of the parent of the context node.
       test('../@lang', () {
         expectXPath(namedNode['country'], '../@name', ['name="USAddress"']);
-        expectXPath(namedNode['country'], '../@unknown');
+        expectXPath(namedNode['country'], '../@unknown', isEmpty);
       });
       // Selects all para children of the context node that have a type attribute
       // with value warning.
       test('para[@type="warning"]', () {
         expectXPath(namedNode['USAddress'], 'xsd:attribute[@name="country"]',
             [namedNode['country']]);
-        expectXPath(namedNode['USAddress'], 'unknown[@name="country"]');
-        expectXPath(namedNode['USAddress'], 'xsd:attribute[@name="unknown"]');
+        expectXPath(
+            namedNode['USAddress'], 'unknown[@name="country"]', isEmpty);
+        expectXPath(
+            namedNode['USAddress'], 'xsd:attribute[@name="unknown"]', isEmpty);
       });
       // Selects the fifth para child of the context node that has a type
       // attribute with value warning.
@@ -559,13 +750,13 @@ void main() {
         expectXPath(namedNode['USAddress']?.firstElementChild,
             'xsd:element[@type="xsd:string"][4]', [namedNode['state']]);
         expectXPath(namedNode['USAddress']?.firstElementChild,
-            'xsd:element[@type="xsd:string"][5]');
+            'xsd:element[@type="xsd:string"][5]', isEmpty);
         expectXPath(namedNode['USAddress']?.firstElementChild,
             'xsd:element[@type="xsd:decimal"][1]', [namedNode['zip']]);
         expectXPath(namedNode['USAddress']?.firstElementChild,
-            'xsd:element[@type="unknown"][1]');
+            'xsd:element[@type="unknown"][1]', isEmpty);
         expectXPath(namedNode['USAddress']?.firstElementChild,
-            'xsd:element[@unknown="xsd:decimal"][1]');
+            'xsd:element[@unknown="xsd:decimal"][1]', isEmpty);
       });
       // Selects the fifth para child of the context node if that child has a type
       // attribute with value warning.
@@ -573,9 +764,9 @@ void main() {
         expectXPath(namedNode['USAddress']?.firstElementChild,
             'xsd:element[4][@name="state"]', [namedNode['state']]);
         expectXPath(namedNode['USAddress']?.firstElementChild,
-            'xsd:element[4][@name="unknown"]');
+            'xsd:element[4][@name="unknown"]', isEmpty);
         expectXPath(namedNode['USAddress']?.firstElementChild,
-            'xsd:element[6][@name="state"]');
+            'xsd:element[6][@name="state"]', isEmpty);
       });
       // Selects the chapter children of the context node that have one or more
       // title children with string-value equal to Introduction.
@@ -584,10 +775,12 @@ void main() {
             document.firstElementChild,
             'xsd:complexType[xsd:attribute]',
             [namedNode['PurchaseOrderType'], namedNode['USAddress']]);
-        expectXPath(document.firstElementChild, 'unknown[xsd:attribute]');
-        expectXPath(document.firstElementChild, 'xsd:complexType[unknown]');
+        expectXPath(
+            document.firstElementChild, 'unknown[xsd:attribute]', isEmpty);
+        expectXPath(
+            document.firstElementChild, 'xsd:complexType[unknown]', isEmpty);
         expectXPath(document.firstElementChild,
-            'xsd:complexType[xsd:attribute="unknown"]');
+            'xsd:complexType[xsd:attribute="unknown"]', isEmpty);
       });
       // Selects the chapter children of the context node that have one or more
       // title children.
@@ -596,8 +789,10 @@ void main() {
             document.firstElementChild,
             'xsd:complexType[xsd:attribute]',
             [namedNode['PurchaseOrderType'], namedNode['USAddress']]);
-        expectXPath(document.firstElementChild, 'unknown[xsd:attribute]');
-        expectXPath(document.firstElementChild, 'xsd:complexType[unknown]');
+        expectXPath(
+            document.firstElementChild, 'unknown[xsd:attribute]', isEmpty);
+        expectXPath(
+            document.firstElementChild, 'xsd:complexType[unknown]', isEmpty);
       });
       // Selects all the employee children of the context node that have both a
       // secretary attribute and an assistant attribute.
@@ -611,9 +806,9 @@ void main() {
             'xsd:element[@ref][@minOccurs]',
             ['<xsd:element ref="comment" minOccurs="0"/>']);
         expectXPath(namedNode['PurchaseOrderType']?.firstElementChild,
-            'xsd:element[@unknown][@type]');
+            'xsd:element[@unknown][@type]', isEmpty);
         expectXPath(namedNode['PurchaseOrderType']?.firstElementChild,
-            'xsd:element[@name][@unknown]');
+            'xsd:element[@name][@unknown]', isEmpty);
       });
     });
   });

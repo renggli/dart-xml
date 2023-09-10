@@ -3,34 +3,43 @@ import 'package:petitparser/core.dart' show Failure;
 
 import 'src/xml/nodes/node.dart';
 import 'src/xml/utils/cache.dart';
-import 'src/xpath/context.dart';
+import 'src/xpath/evaluation/context.dart';
+import 'src/xpath/evaluation/expression.dart';
+import 'src/xpath/evaluation/functions.dart';
+import 'src/xpath/evaluation/values.dart';
 import 'src/xpath/exceptions/parser_exception.dart';
 import 'src/xpath/parser.dart';
-import 'src/xpath/resolver.dart';
-import 'src/xpath/values.dart';
 
+export 'src/xpath/evaluation/functions.dart' show XPathFunction;
+export 'src/xpath/evaluation/values.dart';
+export 'src/xpath/exceptions/evaluation_exception.dart';
 export 'src/xpath/exceptions/parser_exception.dart';
-export 'src/xpath/exceptions/function_exception.dart';
-export 'src/xpath/values.dart';
 
 extension XPathExtension on XmlNode {
   /// Returns an iterable over the nodes matching the provided XPath
   /// [expression].
   @experimental
-  Iterable<XmlNode> xpath(String expression) => xpathEvaluate(expression).nodes;
+  Iterable<XmlNode> xpath(String expression,
+          {Map<String, XPathValue> variables = const {},
+          Map<String, XPathFunction> functions = const {}}) =>
+      xpathEvaluate(expression, variables: variables, functions: functions)
+          .nodes;
 
   /// Returns the value resulting from evaluating the given XPath [expression].
   ///
-  /// The returned value is of type [NodesValue], [StringValue], [NumberValue],
-  /// or [BooleanValue]. You can fetch the underlying data by calling
-  /// [Value.nodes], [Value.string], [Value.number], or [Value.boolean]
-  /// respectively.
-  Value xpathEvaluate(String expression) =>
-      _cache[expression](Context(), NodesValue([this]));
+  /// The returned value is of type [XPathNodeSet], [XPathString], [XPathNumber],
+  /// or [XPathBoolean]. You can fetch the underlying data by calling
+  /// [XPathValue.nodes], [XPathValue.string], [XPathValue.number], or
+  /// [XPathValue.boolean] respectively.
+  XPathValue xpathEvaluate(String expression,
+          {Map<String, XPathValue> variables = const {},
+          Map<String, XPathFunction> functions = const {}}) =>
+      _cache[expression](
+          XPathContext(this, variables: variables, functions: functions));
 }
 
 final _parser = const XPathParser().build();
-final _cache = XmlCache<String, Resolver>((expression) {
+final _cache = XmlCache<String, XPathExpression>((expression) {
   final result = _parser.parse(expression);
   if (result is Failure) {
     throw XPathParserException(result.message,

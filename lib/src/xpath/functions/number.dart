@@ -1,78 +1,87 @@
-import '../exceptions/function_exception.dart';
-import '../values.dart';
+import '../evaluation/context.dart';
+import '../evaluation/expression.dart';
+import '../evaluation/values.dart';
+import '../exceptions/evaluation_exception.dart';
 
 // number number(object?)
-Value number(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('number', args, 1);
-  return NumberValue(args[0].number);
+XPathValue number(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('number', arguments, 0, 1);
+  final value = arguments.isEmpty ? context.value : arguments[0](context);
+  return XPathNumber(value.number);
 }
 
 // number sum(node-set)
-Value sum(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('sum', args, 1);
-  return NumberValue(args[0]
-      .nodes
+XPathValue sum(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('sum', arguments, 1);
+  final nodes = arguments[0](context).nodes;
+  return XPathNumber(nodes
       .map((node) => num.tryParse(node.toXmlString()) ?? 0)
       .fold(0, (a, b) => a + b));
 }
 
 // number floor(number)
-Value floor(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('floor', args, 1);
-  return NumberValue(args[0].number.floor());
+XPathValue floor(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('floor', arguments, 1);
+  return XPathNumber(arguments[0](context).number.floor());
 }
 
 // number ceiling(number)
-Value ceiling(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('ceiling', args, 1);
-  return NumberValue(args[0].number.ceil());
+XPathValue ceiling(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('ceiling', arguments, 1);
+  return XPathNumber(arguments[0](context).number.ceil());
 }
 
 // number round(number)
-Value round(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('round', args, 1);
-  final value = args[0].number;
-  return NumberValue(value.isFinite ? value.round() : value);
+XPathValue round(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('round', arguments, 1);
+  final value = arguments[0](context).number;
+  return XPathNumber(value.isFinite ? value.round() : value);
 }
 
 // number -(number)
-Value neg(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('-', args, 1);
-  return NumberValue(-args[0].number);
+XPathValue neg(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('-', arguments, 1);
+  return XPathNumber(-arguments[0](context).number);
 }
 
 // number +(number, number)
-Value add(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('+', args, 2);
-  return NumberValue(args[0].number + args[1].number);
+XPathValue add(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('+', arguments, 2);
+  return XPathNumber(
+      arguments[0](context).number + arguments[1](context).number);
 }
 
 // number -(number, number)
-Value sub(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('-', args, 2);
-  return NumberValue(args[0].number - args[1].number);
+XPathValue sub(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('-', arguments, 2);
+  return XPathNumber(
+      arguments[0](context).number - arguments[1](context).number);
 }
 
 // number *(number, number)
-Value mul(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('*', args, 2);
-  return NumberValue(args[0].number * args[1].number);
+XPathValue mul(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('*', arguments, 2);
+  return XPathNumber(
+      arguments[0](context).number * arguments[1](context).number);
 }
 
 // number div(number, number)
-Value div(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('div', args, 2);
-  return NumberValue(args[0].number / args[1].number);
+XPathValue div(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('div', arguments, 2);
+  return XPathNumber(
+      arguments[0](context).number / arguments[1](context).number);
 }
 
 // number div(number, number)
-Value idiv(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('idiv', args, 2);
-  return NumberValue(args[0].number ~/ args[1].number);
+XPathValue idiv(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('idiv', arguments, 2);
+  return XPathNumber(
+      arguments[0](context).number ~/ arguments[1](context).number);
 }
 
 // number mod(number, number)
-Value mod(List<Value> args) {
-  XPathFunctionException.checkArgumentCount('mod', args, 2);
-  return NumberValue(args[0].number % args[1].number);
+XPathValue mod(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('mod', arguments, 2);
+  return XPathNumber(
+      arguments[0](context).number % arguments[1](context).number);
 }

@@ -105,13 +105,11 @@ Matcher isXPathParserException({
         .having((value) => value.column, 'column', column)
         .having((value) => value.toString(), 'toString', isNotEmpty);
 
-Matcher isXPathFunctionException({
+Matcher isXPathEvaluationException({
   dynamic message = isNotEmpty,
   dynamic name = anything,
   dynamic args = anything,
 }) =>
-    isA<XPathFunctionException>()
+    isA<XPathEvaluationException>()
         .having((value) => value.message, 'message', message)
-        .having((value) => value.name, 'name', name)
-        .having((value) => value.args, 'args', args)
         .having((value) => value.toString(), 'toString', isNotEmpty);
