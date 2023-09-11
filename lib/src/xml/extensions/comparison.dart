@@ -1,6 +1,15 @@
 import '../../../xml.dart';
 import '../nodes/data.dart';
 
+class XmlDocumentPosition {
+  static const int disconnected = 1;
+  static const int preceding = 2;
+  static const int following = 3;
+  static const int contains = 8;
+  static const int containedBy = 16;
+  static const int implementationSpecific = 32;
+}
+
 extension XmlComparisonExtension on XmlNode {
   /// Tests whether this node is equal to [other].
   ///
@@ -22,6 +31,53 @@ extension XmlComparisonExtension on XmlNode {
       }
     }
     return false;
+  }
+
+  /// Compares the position of this node and [other].
+  ///
+  /// Returns _0_ if the nodes are the same, _-1_ if this node is before the
+  /// argument, and _1_ if after. Throws a [StateError], if the nodes do not
+  /// share a parent.
+  ///
+  /// Implementation note: The code takes great care to avoid unnecessary
+  /// object allocation (intermediate lists) since this code might be called a
+  /// lot.
+  int compareNodePosition(XmlNode other) {
+    if (this == other) return 0;
+    XmlNode? node1 = this, node2 = other;
+    var depth1 = node1.depth, depth2 = node2.depth;
+    if (depth1 > depth2) {
+      while (node1 != null && depth1 > depth2) {
+        node1 = node1.parent;
+        depth1--;
+      }
+      if (node1 == node2) return 1;
+    } else if (depth2 > depth1) {
+      while (node2 != null && depth2 > depth1) {
+        node2 = node2.parent;
+        depth2--;
+      }
+      if (node1 == node2) return -1;
+    }
+    while (node1 != null && node2 != null && node1.parent != node2.parent) {
+      node1 = node1.parent;
+      node2 = node2.parent;
+    }
+    if (node1 != null && node2 != null) {
+      final parent = node1.parent;
+      assert(parent == node2.parent);
+      if (parent != null) {
+        for (final attribute in parent.attributes) {
+          if (attribute == node1) return -1;
+          if (attribute == node2) return 1;
+        }
+        for (final child in parent.children) {
+          if (child == node1) return -1;
+          if (child == node2) return 1;
+        }
+      }
+    }
+    throw StateError('$this and $other are in disconnected DOM trees.');
   }
 }
 

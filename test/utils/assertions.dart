@@ -294,32 +294,48 @@ void assertIteratorInvariants(XmlNode xml) {
 
 void assertComparatorInvariants(XmlNode xml) {
   const unique = 'unique-2404879675441';
+  final uniqueNodes = [
+    XmlAttribute(XmlName(unique), unique),
+    XmlCDATA(unique),
+    XmlComment(unique),
+    XmlDeclaration([XmlAttribute(XmlName(unique), unique)]),
+    XmlDoctype(unique),
+    XmlDocument([XmlElement(XmlName(unique))]),
+    XmlDocumentFragment([XmlElement(XmlName(unique))]),
+    XmlElement(XmlName(unique)),
+    XmlProcessing(unique, unique),
+    XmlText(unique),
+  ];
   for (final node in [xml, ...xml.descendants]) {
     // compare
-    expect(node.isEqualNode(XmlText(unique)), isFalse);
-    expect(node.isEqualNode(XmlCDATA(unique)), isFalse);
-    expect(node.isEqualNode(XmlComment(unique)), isFalse);
-    expect(node.isEqualNode(XmlProcessing(unique, unique)), isFalse);
-    expect(node.isEqualNode(XmlElement(XmlName(unique))), isFalse);
-    expect(node.isEqualNode(XmlAttribute(XmlName(unique), unique)), isFalse);
-    expect(
-        node.isEqualNode(XmlDeclaration([
-          XmlAttribute(XmlName(unique), unique),
-        ])),
-        isFalse);
-    expect(node.isEqualNode(XmlDoctype(unique)), isFalse);
+    expect(node.isEqualNode(node), isTrue);
+    for (final uniqueNode in uniqueNodes) {
+      expect(node.isEqualNode(uniqueNode), isFalse);
+      expect(uniqueNode.isEqualNode(node), isFalse);
+    }
     // contains
     expect(node.contains(node), isTrue);
     expect(node.descendants.map(node.contains), everyElement(isTrue));
     expect(node.ancestors.map(node.contains), everyElement(isFalse));
     expect(node.following.map(node.contains), everyElement(isFalse));
+    for (final uniqueNode in uniqueNodes) {
+      expect(node.contains(uniqueNode), isFalse);
+      expect(uniqueNode.contains(node), isFalse);
+    }
+    // compareNodePosition
+    expect(node.preceding.map(node.compareNodePosition), everyElement(1));
+    expect(node.compareNodePosition(node), 0);
+    expect(node.following.map(node.compareNodePosition), everyElement(-1));
+    for (final uniqueNode in uniqueNodes) {
+      expect(() => node.compareNodePosition(uniqueNode), throwsStateError);
+      expect(() => uniqueNode.compareNodePosition(node), throwsStateError);
+    }
   }
 }
 
 void assertCopyInvariants(XmlNode xml) {
   final copy = xml.copy();
-  expect(xml, isNot(copy),
-      reason: 'The copied node should not be equal using ==.');
+  expect(xml, isNot(copy), reason: 'The copied node should not be equal.');
   expect(xml, isNot(same(copy)),
       reason: 'The copied node should not be identical.');
   expect(xml.isEqualNode(copy), isTrue,

@@ -35,9 +35,9 @@ class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
   }
 
   /// Create a document node with `children`.
-  XmlDocument([Iterable<XmlNode> childrenIterable = const []]) {
-    children.initialize(this, childrenNodeTypes);
-    children.addAll(childrenIterable);
+  XmlDocument([Iterable<XmlNode> children = const []]) {
+    this.children.initialize(this, childrenNodeTypes);
+    this.children.addAll(children);
   }
 
   /// Return the [XmlDeclaration] element, or `null` if not defined.

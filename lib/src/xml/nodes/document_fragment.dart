@@ -25,9 +25,9 @@ class XmlDocumentFragment extends XmlNode with XmlHasChildren<XmlNode> {
   }
 
   /// Create a document fragment node with `children`.
-  XmlDocumentFragment([Iterable<XmlNode> childrenIterable = const []]) {
-    children.initialize(this, childrenNodeTypes);
-    children.addAll(childrenIterable);
+  XmlDocumentFragment([Iterable<XmlNode> children = const []]) {
+    this.children.initialize(this, childrenNodeTypes);
+    this.children.addAll(children);
   }
 
   @override
