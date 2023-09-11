@@ -9,9 +9,9 @@ import 'node.dart';
 /// XML document declaration.
 class XmlDeclaration extends XmlNode
     with XmlHasParent<XmlNode>, XmlHasAttributes {
-  XmlDeclaration([Iterable<XmlAttribute> attributesIterable = const []]) {
-    attributes.initialize(this, attributeNodeTypes);
-    attributes.addAll(attributesIterable);
+  XmlDeclaration([Iterable<XmlAttribute> attributes = const []]) {
+    this.attributes.initialize(this, attributeNodeTypes);
+    this.attributes.addAll(attributes);
   }
 
   /// Return the XML version of the document, or `null`.

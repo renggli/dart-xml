@@ -14,6 +14,7 @@ export 'src/xml/exceptions/parser_exception.dart' show XmlParserException;
 export 'src/xml/exceptions/tag_exception.dart' show XmlTagException;
 export 'src/xml/exceptions/type_exception.dart' show XmlNodeTypeException;
 export 'src/xml/extensions/ancestors.dart' show XmlAncestorsExtension;
+export 'src/xml/extensions/comparison.dart' show XmlComparisonExtension;
 export 'src/xml/extensions/descendants.dart' show XmlDescendantsExtension;
 export 'src/xml/extensions/find.dart' show XmlFindExtension;
 export 'src/xml/extensions/following.dart' show XmlFollowingExtension;

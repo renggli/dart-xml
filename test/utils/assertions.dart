@@ -25,6 +25,7 @@ void assertDocumentTreeInvariants(XmlNode xml) {
   assertChildrenInvariants(xml);
   assertTextInvariants(xml);
   assertIteratorInvariants(xml);
+  assertComparatorInvariants(xml);
   assertCopyInvariants(xml);
   assertVisitorInvariants(xml);
   assertPrintingInvariants(xml);
@@ -51,6 +52,7 @@ void assertFragmentTreeInvariants(XmlNode xml) {
   assertChildrenInvariants(xml);
   assertTextInvariants(xml);
   assertIteratorInvariants(xml);
+  assertComparatorInvariants(xml);
   assertCopyInvariants(xml);
   assertVisitorInvariants(xml);
 }
@@ -290,11 +292,40 @@ void assertIteratorInvariants(XmlNode xml) {
   check(xml);
 }
 
+void assertComparatorInvariants(XmlNode xml) {
+  const unique = 'unique-2404879675441';
+  for (final node in [xml, ...xml.descendants]) {
+    // compare
+    expect(node.isEqualNode(XmlText(unique)), isFalse);
+    expect(node.isEqualNode(XmlCDATA(unique)), isFalse);
+    expect(node.isEqualNode(XmlComment(unique)), isFalse);
+    expect(node.isEqualNode(XmlProcessing(unique, unique)), isFalse);
+    expect(node.isEqualNode(XmlElement(XmlName(unique))), isFalse);
+    expect(node.isEqualNode(XmlAttribute(XmlName(unique), unique)), isFalse);
+    expect(
+        node.isEqualNode(XmlDeclaration([
+          XmlAttribute(XmlName(unique), unique),
+        ])),
+        isFalse);
+    expect(node.isEqualNode(XmlDoctype(unique)), isFalse);
+    // contains
+    expect(node.contains(node), isTrue);
+    expect(node.descendants.map(node.contains), everyElement(isTrue));
+    expect(node.ancestors.map(node.contains), everyElement(isFalse));
+    expect(node.following.map(node.contains), everyElement(isFalse));
+  }
+}
+
 void assertCopyInvariants(XmlNode xml) {
   final copy = xml.copy();
+  expect(xml, isNot(copy),
+      reason: 'The copied node should not be equal using ==.');
+  expect(xml, isNot(same(copy)),
+      reason: 'The copied node should not be identical.');
+  expect(xml.isEqualNode(copy), isTrue,
+      reason: 'The copied node should be equal');
   assertParentInvariants(copy);
   assertNameInvariants(copy);
-  assertCompareInvariants(xml, copy);
 }
 
 class EmptyVisitor with XmlVisitor {}
@@ -306,41 +337,6 @@ void assertVisitorInvariants(XmlNode xml) {
     if (node is XmlHasName) {
       visitor.visit((node as XmlHasName).name);
     }
-  }
-}
-
-void assertCompareInvariants(XmlNode original, XmlNode copy) {
-  expect(original, isNot(copy),
-      reason: 'The copied node should not be equal using ==.');
-  expect(original, isNot(same(copy)),
-      reason: 'The copied node should not be identical.');
-  expect(original.nodeType, copy.nodeType,
-      reason: 'The copied node type should be the same.');
-  if (original is XmlHasName && copy is XmlHasName) {
-    final originalNamed = original as XmlHasName; // ignore: avoid_as
-    final copyNamed = copy as XmlHasName; // ignore: avoid_as
-    expect(originalNamed.name, isNot(copyNamed.name),
-        reason: 'The copied node should not be equal using ==.');
-    expect(originalNamed.name, isNot(same(copyNamed.name)),
-        reason: 'The copied name should not be identical.');
-    expect(originalNamed.qualifiedName, copyNamed.qualifiedName);
-    expect(originalNamed.localName, copyNamed.localName);
-    expect(originalNamed.namespacePrefix, copyNamed.namespacePrefix);
-    expect(originalNamed.namespaceUri, copyNamed.namespaceUri);
-  }
-  expect(original.attributes.length, copy.attributes.length,
-      reason: 'The amount of copied attributes should be the same.');
-  for (var i = 0; i < original.attributes.length; i++) {
-    assertCompareInvariants(original.attributes[i], copy.attributes[i]);
-  }
-  expect(original.children.length, copy.children.length,
-      reason: 'The amount of copied children should be the same.');
-  for (var i = 0; i < original.children.length; i++) {
-    assertCompareInvariants(original.children[i], copy.children[i]);
-  }
-  if (original is XmlElement && copy is XmlElement) {
-    expect(original.isSelfClosing, copy.isSelfClosing,
-        reason: 'The copied self-closing attribute should be equal.');
   }
 }
 
