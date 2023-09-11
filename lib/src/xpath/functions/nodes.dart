@@ -1,4 +1,4 @@
-import '../../xml/mixins/has_name.dart';
+import '../../../xml.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../evaluation/values.dart';
@@ -25,7 +25,15 @@ XPathValue count(XPathContext context, List<XPathExpression> arguments) {
 // node-set id(object)
 XPathValue id(XPathContext context, List<XPathExpression> arguments) {
   XPathEvaluationException.checkArgumentCount('id', arguments, 1);
-  throw UnimplementedError('id');
+  final object = arguments[0](context);
+  final ids = object is XPathNodeSet
+      ? object.value.map((node) => node.innerText).toSet()
+      : object.string.split(' ').toSet();
+  if (ids.isEmpty) return XPathNodeSet.empty;
+  // This should likely consult the DTD about the ID attribute ...
+  return XPathNodeSet(context.node.root.descendantElements
+      .where((element) => ids.contains(element.getAttribute('id')))
+      .toList());
 }
 
 // string local-name(node-set?)

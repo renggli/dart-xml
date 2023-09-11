@@ -21,7 +21,8 @@ void expectXPath(
                 ? isA<XmlNode>()
                     .having((node) => node.outerXml, 'outerXml', each)
                 : each))
-            : matcher);
+            : matcher,
+        reason: expression);
 
 void expectEvaluate(
   XmlNode? node,
@@ -33,7 +34,8 @@ void expectEvaluate(
     expect(
         node!.xpathEvaluate(expression,
             variables: variables, functions: functions),
-        matcher);
+        matcher,
+        reason: expression);
 
 Matcher isNodeSet(dynamic value) =>
     isA<XPathNodeSet>().having((value) => value.nodes, 'nodes', value);
@@ -261,7 +263,13 @@ void main() {
         expectEvaluate(xml, 'count(/r/b/absent)', isNumber(0));
       });
       test('id(object)', () {
-        // TODO
+        final xml = XmlDocument.parse('<r><a id="a">a</a><b id="b">b</b></r>');
+        expectEvaluate(xml, 'id("a b")', isNodeSet(xml.rootElement.children));
+        expectEvaluate(
+            xml, 'id("b")', isNodeSet([xml.rootElement.children.last]));
+        expectEvaluate(xml, 'id(/r/*)', isNodeSet(xml.rootElement.children));
+        expectEvaluate(
+            xml, 'id(/r/b)', isNodeSet([xml.rootElement.children.last]));
       });
       test('local-name(node-set?)', () {
         expectEvaluate(xml, 'local-name(/r/*)', isString('a'));
@@ -490,6 +498,29 @@ void main() {
       });
       test('false()', () {
         expectEvaluate(xml, 'false()', isBoolean(false));
+      });
+      test('lang(string)', () {
+        final positives = [
+          '<para xml:lang="en"/>',
+          '<div xml:lang="en"><para/></div>',
+          '<para xml:lang="EN"/>',
+          '<para xml:lang="en-us"/>',
+        ];
+        for (var positive in positives) {
+          final xml = XmlDocument.parse(positive);
+          final start = xml.findAllElements('para').first;
+          expectEvaluate(start, 'lang("en")', isBoolean(true));
+        }
+        final negatives = [
+          '<para/>',
+          '<para xml:lang=""/>',
+          '<para xml:lang="de"/>',
+        ];
+        for (var positive in negatives) {
+          final xml = XmlDocument.parse(positive);
+          final start = xml.findAllElements('para').first;
+          expectEvaluate(start, 'lang("en")', isBoolean(false));
+        }
       });
       test('<', () {
         expectEvaluate(xml, '1 < 2', isBoolean(isTrue));

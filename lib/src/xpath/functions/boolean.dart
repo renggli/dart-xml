@@ -1,3 +1,4 @@
+import '../../../xml.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../evaluation/values.dart';
@@ -31,7 +32,13 @@ XPathValue falseValue(XPathContext context, List<XPathExpression> arguments) {
 // boolean lang(string)
 XPathValue lang(XPathContext context, List<XPathExpression> arguments) {
   XPathEvaluationException.checkArgumentCount('lang', arguments, 1);
-  throw UnimplementedError('lang');
+  final lang = [context.node, ...context.node.ancestors]
+      .map((node) => node.getAttribute('xml:lang'))
+      .where((lang) => lang != null)
+      .firstOrNull;
+  if (lang == null) return const XPathBoolean(false);
+  final argument = arguments[0](context).string.toLowerCase();
+  return XPathBoolean(lang.toLowerCase().startsWith(argument));
 }
 
 // boolean <(number, number)
