@@ -6,11 +6,11 @@ extension XmlParentExtension on XmlNode {
   /// Return the root of the tree in which this node is found, whether that's
   /// a document or another element.
   XmlNode get root {
-    var current = this;
-    while (current.parent != null) {
-      current = current.parent!;
+    var node = this;
+    while (node.parent != null) {
+      node = node.parent!;
     }
-    return current;
+    return node;
   }
 
   /// Return the document that contains this node, or `null` if the node is
@@ -23,9 +23,9 @@ extension XmlParentExtension on XmlNode {
   /// Return the first parent of this node that is of type [XmlElement], or
   /// `null` if there is none.
   XmlElement? get parentElement {
-    for (var current = parent; current != null; current = current.parent) {
-      if (current is XmlElement) {
-        return current;
+    for (var node = parent; node != null; node = node.parent) {
+      if (node is XmlElement) {
+        return node;
       }
     }
     return null;
@@ -34,9 +34,7 @@ extension XmlParentExtension on XmlNode {
   /// Return the depth of this node in its tree, a root node has depth 0.
   int get depth {
     var result = 0;
-    var current = this;
-    while (current.parent != null) {
-      current = current.parent!;
+    for (var node = parent; node != null; node = node.parent) {
       result++;
     }
     return result;
