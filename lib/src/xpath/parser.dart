@@ -42,7 +42,7 @@ class XPathParser {
       ..prefix(_t('+'), (t, a) => a);
     builder.group()
       ..left(_t('intersect'), (a, t, b) => _SFE(t, nodes.intersect, [a, b]))
-      ..left(_t('except'), (a, t, b) => _SFE(t, nodes.intersect, [a, b]));
+      ..left(_t('except'), (a, t, b) => _SFE(t, nodes.except, [a, b]));
     builder.group()
       ..left(_t('union'), (a, t, b) => _SFE(t, nodes.union, [a, b]))
       ..left(_t('|'), (a, t, b) => _SFE(t, nodes.union, [a, b]));

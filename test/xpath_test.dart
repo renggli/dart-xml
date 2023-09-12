@@ -70,10 +70,8 @@ void main() {
         expect(value.toString(), '[123]');
       });
       test('elements', () {
-        final nodes = [
-          XmlDocument.parse('<a>1</a>').rootElement,
-          XmlDocument.parse('<b>2</b>').rootElement,
-        ];
+        final nodes =
+            XmlDocument.parse('<r><a>1</a><b>2</b></r>').rootElement.children;
         final value = XPathNodeSet(nodes);
         expect(value.nodes, nodes);
         expect(value.string, '1');
@@ -120,6 +118,19 @@ void main() {
         expect(value.number, isNaN);
         expect(value.boolean, isTrue);
         expect(value.toString(), '[First, Second, Third, ...]');
+      });
+      test('sorting', () {
+        final nodes =
+            XmlDocument.parse('<r><a/><b/><c/></r>').rootElement.children;
+        final value = XPathNodeSet([nodes[2], nodes[1], nodes[0]]);
+        expect(value.nodes, nodes);
+      });
+      test('deduplication', () {
+        final nodes =
+            XmlDocument.parse('<r><a/><b/><c/></r>').rootElement.children;
+        final value =
+            XPathNodeSet([nodes[2], nodes[2], nodes[0], nodes[0], nodes[1]]);
+        expect(value.nodes, nodes);
       });
     });
     group('string', () {
@@ -296,10 +307,43 @@ void main() {
         );
       });
       test('intersect(node-set, node-set)', () {
-        // TODO
+        final xml = XmlDocument.parse('<r><a/><b/><c/></r>');
+        final children = xml.rootElement.children;
+        expectEvaluate(xml, '(r/*) intersect (r/*)', isNodeSet(children));
+        expectEvaluate(xml, '(r/*) intersect (r/b)', isNodeSet([children[1]]));
+        expectEvaluate(xml, '(r/b) intersect (r/*)', isNodeSet([children[1]]));
+        expectEvaluate(xml, '(r/b) intersect (r/b)', isNodeSet([children[1]]));
+        expectEvaluate(xml, '(r/a) intersect (r/c)', isNodeSet(isEmpty));
+      });
+      test('except(node-set, node-set)', () {
+        final xml = XmlDocument.parse('<r><a/><b/><c/></r>');
+        final children = xml.rootElement.children;
+        expectEvaluate(xml, '(r/*) except (r/*)', isNodeSet(isEmpty));
+        expectEvaluate(
+            xml, '(r/*) except (r/b)', isNodeSet([children[0], children[2]]));
+        expectEvaluate(xml, '(r/b) except (r/*)', isNodeSet(isEmpty));
+        expectEvaluate(xml, '(r/b) except (r/b)', isNodeSet(isEmpty));
+        expectEvaluate(xml, '(r/a) except (r/c)', isNodeSet([children[0]]));
       });
       test('union(node-set, node-set)', () {
-        // TODO
+        final xml = XmlDocument.parse('<r><a/><b/><c/></r>');
+        final children = xml.rootElement.children;
+        expectEvaluate(xml, '(r/*) union (r/*)', isNodeSet(children));
+        expectEvaluate(xml, '(r/a) union (r/a)', isNodeSet([children[0]]));
+        expectEvaluate(
+            xml, '(r/a) union (r/c)', isNodeSet([children[0], children[2]]));
+        expectEvaluate(
+            xml, '(r/c) union (r/a)', isNodeSet([children[0], children[2]]));
+      });
+      test('|(node-set, node-set)', () {
+        final xml = XmlDocument.parse('<r><a/><b/><c/></r>');
+        final children = xml.rootElement.children;
+        expectEvaluate(xml, '(r/*) | (r/*)', isNodeSet(children));
+        expectEvaluate(xml, '(r/a) | (r/a)', isNodeSet([children[0]]));
+        expectEvaluate(
+            xml, '(r/a) | (r/c)', isNodeSet([children[0], children[2]]));
+        expectEvaluate(
+            xml, '(r/c) | (r/a)', isNodeSet([children[0], children[2]]));
       });
     });
     group('string', () {

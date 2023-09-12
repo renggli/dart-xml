@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 
+import '../../xml/extensions/comparison.dart';
 import '../../xml/nodes/document.dart';
 import '../../xml/nodes/element.dart';
 import '../../xml/nodes/node.dart';
@@ -28,16 +29,29 @@ sealed class XPathValue implements XPathExpression {
 
 /// Wrapper around an [Iterable] of [XmlNode]s in XPath.
 class XPathNodeSet implements XPathValue {
-  const XPathNodeSet(this.value);
+  /// Constructs a new node-set from [nodes]. By default we assume that the
+  /// input require sorting (`isSorted = false`) and deduplication (`isUnique
+  /// = false`).
+  factory XPathNodeSet(Iterable<XmlNode> nodes,
+      {bool isSorted = false, bool isUnique = false}) {
+    if (!isUnique) nodes = nodes.toSet();
+    final list = nodes.toList(growable: false);
+    if (!isUnique || !isUnique) {
+      list.sort((a, b) => a.compareNodePosition(b));
+    }
+    return XPathNodeSet._(list);
+  }
+
+  const XPathNodeSet._(this.value);
 
   /// The empty node-set as a reusable object
-  static const empty = XPathNodeSet([]);
+  static const empty = XPathNodeSet._([]);
 
   @override
-  final Iterable<XmlNode> value;
+  final List<XmlNode> value;
 
   @override
-  Iterable<XmlNode> get nodes => value;
+  List<XmlNode> get nodes => value;
 
   @override
   String get string {
