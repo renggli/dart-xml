@@ -31,6 +31,7 @@ extension XPathExtension on XmlNode {
   /// or [XPathBoolean]. You can fetch the underlying data by calling
   /// [XPathValue.nodes], [XPathValue.string], [XPathValue.number], or
   /// [XPathValue.boolean] respectively.
+  @experimental
   XPathValue xpathEvaluate(String expression,
           {Map<String, XPathValue> variables = const {},
           Map<String, XPathFunction> functions = const {}}) =>
