@@ -1,8 +1,10 @@
 import 'package:test/test.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xml_events.dart';
+import 'package:xml/xpath.dart';
 
 import 'utils/assertions.dart';
+import 'utils/examples.dart';
 
 class TrimTextVisitor with XmlVisitor {
   @override
@@ -277,5 +279,10 @@ void main() {
       expect(result.map((each) => each.toString()),
           ['<item>a</item>', '<item>b</item>']);
     });
+  });
+  test('https://stackoverflow.com/questions/77055363', () {
+    final xml = XmlDocument.parse(booksXml);
+    final result = xml.xpath('//book[contains(@id, "106")]/title');
+    expect(result.map((each) => each.innerText), ['Lover Birds']);
   });
 }
