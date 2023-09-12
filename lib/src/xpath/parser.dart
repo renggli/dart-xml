@@ -19,6 +19,7 @@ import 'functions/number.dart' as number;
 // XPath 2.0: https://www.w3.org/TR/xpath20/
 // XPath 3.0: https://www.w3.org/TR/xpath-30/
 // XPath 3.1: https://www.w3.org/TR/xpath-31/
+// https://www.w3.org/TR/xpath-functions-30/
 class XPathParser {
   const XPathParser();
 

@@ -460,6 +460,10 @@ void main() {
         expectEvaluate(xml, 'floor(-1.5)', isNumber(-2));
         expectEvaluate(xml, 'floor(1.5)', isNumber(1));
       });
+      test('abs', () {
+        expectEvaluate(xml, 'abs(-2)', isNumber(2));
+        expectEvaluate(xml, 'abs(3)', isNumber(3));
+      });
       test('ceiling', () {
         expectEvaluate(xml, 'ceiling(-1.5)', isNumber(-1));
         expectEvaluate(xml, 'ceiling(1.5)', isNumber(2));

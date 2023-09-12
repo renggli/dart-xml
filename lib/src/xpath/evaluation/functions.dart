@@ -32,6 +32,7 @@ const Map<String, XPathFunction> standardFunctions = {
   'normalize-space': string_func.normalizeSpace,
   'translate': string_func.translate,
   // Number Functions
+  'abs': number_func.abs,
   'number': number_func.number,
   'sum': number_func.sum,
   'floor': number_func.floor,

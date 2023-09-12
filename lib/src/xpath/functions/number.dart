@@ -19,6 +19,12 @@ XPathValue sum(XPathContext context, List<XPathExpression> arguments) {
       .fold(0, (a, b) => a + b));
 }
 
+// number abs(number)
+XPathValue abs(XPathContext context, List<XPathExpression> arguments) {
+  XPathEvaluationException.checkArgumentCount('abs', arguments, 1);
+  return XPathNumber(arguments[0](context).number.abs());
+}
+
 // number floor(number)
 XPathValue floor(XPathContext context, List<XPathExpression> arguments) {
   XPathEvaluationException.checkArgumentCount('floor', arguments, 1);
