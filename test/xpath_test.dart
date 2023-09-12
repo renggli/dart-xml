@@ -234,7 +234,7 @@ void main() {
           variables: const {'a': XPathNumber(123)});
       expectEvaluate(xml, '\$a', isBoolean(false),
           variables: const {'a': XPathBoolean(false)});
-      expect(() => expectEvaluate(xml, '\$a', anything),
+      expect(() => expectEvaluate(xml, '\$unknown', anything),
           throwsA(isXPathEvaluationException()));
     });
     test('function', () {
@@ -252,6 +252,8 @@ void main() {
               return const XPathString('ok');
             }
           });
+      expect(() => expectEvaluate(xml, 'unknown()', anything),
+          throwsA(isXPathEvaluationException()));
     });
   });
   group('functions', () {
@@ -370,9 +372,9 @@ void main() {
         expectEvaluate(xml, 'string(true())', isString('true'));
       });
       test('concat', () {
-        expect(() => expectEvaluate(xml, 'concat()', isString('')),
+        expect(() => expectEvaluate(xml, 'concat()', anything),
             throwsA(isXPathEvaluationException(name: 'concat')));
-        expect(() => expectEvaluate(xml, 'concat("a")', isString('a')),
+        expect(() => expectEvaluate(xml, 'concat("a")', anything),
             throwsA(isXPathEvaluationException(name: 'concat')));
         expectEvaluate(xml, 'concat("a", "b")', isString('ab'));
         expectEvaluate(xml, 'concat("a", "b", "c")', isString('abc'));
@@ -400,6 +402,8 @@ void main() {
       test('substring-after', () {
         expectEvaluate(xml, 'substring-after("abcde", "c")', isString('de'));
         expectEvaluate(xml, 'substring-after("abcde", "x")', isString(''));
+        expect(() => expectEvaluate(xml, 'substring-after("abcde")', anything),
+            throwsA(isXPathEvaluationException(name: 'substring-after')));
       });
       test('substring', () {
         expectEvaluate(xml, 'substring("12345", 3)', isString('345'));
@@ -413,6 +417,8 @@ void main() {
             xml, 'substring("12345", -42, 1 div 0)', isString('12345'));
         expectEvaluate(
             xml, 'substring("12345", -1 div 0, 1 div 0)', isString(''));
+        expect(() => expectEvaluate(xml, 'substring("abcde")', anything),
+            throwsA(isXPathEvaluationException(name: 'substring')));
       });
       test('string-length', () {
         expectEvaluate(xml, 'string-length("")', isNumber(0));
@@ -753,16 +759,16 @@ void main() {
     });
   });
   group('errors', () {
-    final document = XmlDocument.parse('<?xml version="1.0"?><root/>');
+    final xml = XmlDocument.parse('<?xml version="1.0"?><root/>');
     test('empty', () {
       expect(
-          () => document.xpath(''),
+          () => xml.xpath(''),
           throwsA(isXPathParserException(
               message: 'name expected', buffer: '', position: 0)));
     });
     test('predicate', () {
       expect(
-          () => document.xpath('*[1'),
+          () => xml.xpath('*[1'),
           throwsA(isXPathParserException(
               message: 'end of input expected', buffer: '*[1', position: 1)));
     });
