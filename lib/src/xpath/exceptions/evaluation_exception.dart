@@ -38,4 +38,7 @@ class XPathEvaluationException extends XmlException {
     if (value != null) return value;
     throw XPathEvaluationException('Undeclared function "$name"');
   }
+
+  @override
+  String toString() => 'XPathEvaluationException: $message';
 }
