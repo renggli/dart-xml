@@ -13,7 +13,7 @@ extension XmlSiblingExtension on XmlNode {
 
   /// Returns an [Iterable] over the [XmlElement] siblings of this node. If the
   /// node has no parent or no siblings, return an empty collection.
-  List<XmlNode> get siblingElements =>
+  List<XmlElement> get siblingElements =>
       siblings.whereType<XmlElement>().toList(growable: false);
 
   /// Return the previous sibling of this node, or `null`.
