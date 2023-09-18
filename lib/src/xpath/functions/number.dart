@@ -13,9 +13,9 @@ XPathValue number(XPathContext context, List<XPathExpression> arguments) {
 // number sum(node-set)
 XPathValue sum(XPathContext context, List<XPathExpression> arguments) {
   XPathEvaluationException.checkArgumentCount('sum', arguments, 1);
-  final nodes = arguments[0](context).nodes;
-  return XPathNumber(nodes
-      .map((node) => num.tryParse(node.toXmlString()) ?? 0)
+  return XPathNumber(arguments[0](context)
+      .nodes
+      .map((node) => num.tryParse(XPathNodeSet([node]).string) ?? 0)
       .fold(0, (a, b) => a + b));
 }
 

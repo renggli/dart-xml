@@ -461,6 +461,8 @@ void main() {
       });
       test('sum', () {
         expectEvaluate(xml, 'sum(//text())', isNumber(6));
+        final attr = XmlDocument.parse('<r><e a="36"/><e a="6"/></r>');
+        expectEvaluate(attr, 'sum(/r/e/@a)', isNumber(42));
       });
       test('floor', () {
         expectEvaluate(xml, 'floor(-1.5)', isNumber(-2));
