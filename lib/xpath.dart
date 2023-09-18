@@ -14,6 +14,7 @@ export 'src/xpath/evaluation/functions.dart' show XPathFunction;
 export 'src/xpath/evaluation/values.dart';
 export 'src/xpath/exceptions/evaluation_exception.dart';
 export 'src/xpath/exceptions/parser_exception.dart';
+export 'src/xpath/generator.dart' show XPathGenerator;
 
 extension XPathExtension on XmlNode {
   /// Returns an iterable over the nodes matching the provided XPath
