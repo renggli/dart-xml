@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_lambdas
+
 import 'dart:io';
 
 import 'package:xml/xml.dart';

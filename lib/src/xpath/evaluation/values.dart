@@ -36,7 +36,7 @@ class XPathNodeSet implements XPathValue {
       {bool isSorted = false, bool isUnique = false}) {
     if (!isUnique) nodes = nodes.toSet();
     final list = nodes.toList(growable: false);
-    if (!isUnique || !isUnique) {
+    if (!isSorted || !isUnique) {
       list.sort((a, b) => a.compareNodePosition(b));
     }
     return XPathNodeSet._(list);

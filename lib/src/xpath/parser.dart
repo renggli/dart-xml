@@ -70,15 +70,15 @@ class XPathParser {
   Parser<XPathExpression> path() => [
         ref0(absolutePath),
         ref0(relativePath),
-      ].toChoiceParser().map((path) => SequenceExpression(path));
+      ].toChoiceParser().map(SequenceExpression.new);
 
   Parser<List<XPathExpression>> absolutePath() =>
       seq2(_t('/'), ref0(relativePath).optionalWith([]))
           .map2((_, path) => [RootAxisExpression(), ...path]);
 
-  Parser<List<XPathExpression>> relativePath() =>
-      ref0(step).plusSeparated(_t('/')).map((list) =>
-          list.elements.map((each) => SequenceExpression(each)).toList());
+  Parser<List<XPathExpression>> relativePath() => ref0(step)
+      .plusSeparated(_t('/'))
+      .map((list) => list.elements.map(SequenceExpression.new).toList());
 
   Parser<List<XPathExpression>> step() => ref0(axisStep);
 
@@ -165,8 +165,7 @@ class XPathParser {
         seq3(anyOf('eE'), anyOf('+-').optional(), digit().plus()).optional(),
       ).flatten('number').map((value) => XPathNumber(num.parse(value)));
 
-  Parser<XPathExpression> stringLiteral() =>
-      ref0(string).map((value) => XPathString(value));
+  Parser<XPathExpression> stringLiteral() => ref0(string).map(XPathString.new);
 
   Parser<String> string() => [
         ref0(eventParser.attributeValueDoubleQuote),

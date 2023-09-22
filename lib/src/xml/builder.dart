@@ -1,6 +1,7 @@
 import 'dtd/external_id.dart';
 import 'entities/entity_mapping.dart';
 import 'enums/attribute_type.dart';
+import 'exceptions/parser_exception.dart';
 import 'nodes/attribute.dart';
 import 'nodes/cdata.dart';
 import 'nodes/comment.dart';

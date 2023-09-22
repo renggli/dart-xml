@@ -562,7 +562,7 @@ void main() {
           '<para xml:lang="EN"/>',
           '<para xml:lang="en-us"/>',
         ];
-        for (var positive in positives) {
+        for (final positive in positives) {
           final xml = XmlDocument.parse(positive);
           final start = xml.findAllElements('para').first;
           expectEvaluate(start, 'lang("en")', isBoolean(true));
@@ -572,7 +572,7 @@ void main() {
           '<para xml:lang=""/>',
           '<para xml:lang="de"/>',
         ];
-        for (var positive in negatives) {
+        for (final positive in negatives) {
           final xml = XmlDocument.parse(positive);
           final start = xml.findAllElements('para').first;
           expectEvaluate(start, 'lang("en")', isBoolean(false));

@@ -1,4 +1,6 @@
 /// XML position printer.
+library xml_pos;
+
 import 'dart:io';
 import 'dart:math';
 
@@ -82,7 +84,7 @@ String outputPosition(String position, XmlEvent event) {
 }
 
 String outputString(int limit, XmlEvent event) {
-  final input = event.buffer!.substring(event.start!, event.stop!);
+  final input = event.buffer!.substring(event.start!, event.stop);
   final index = input.indexOf('\n');
   final length = min(limit, index < 0 ? input.length : index);
   final output = input.substring(0, length);

@@ -1,4 +1,6 @@
 /// XML pretty printer and highlighter.
+library xml_pp;
+
 import 'dart:io';
 
 import 'package:args/args.dart' as args;

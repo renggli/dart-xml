@@ -1,4 +1,4 @@
-import 'dart:convert' show Converter, ChunkedConversionSink;
+import 'dart:convert' show ChunkedConversionSink, Converter;
 
 import '../../xml/entities/default_mapping.dart';
 import '../../xml/entities/entity_mapping.dart';

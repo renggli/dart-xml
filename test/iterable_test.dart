@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use_from_same_package
+// ignore_for_file: deprecated_member_use_from_same_package, unnecessary_lambdas
 
 import 'package:test/test.dart';
 import 'package:xml/xml_events.dart';
@@ -260,7 +260,7 @@ void main() {
   });
   group('annotations', () {
     test('default', () {
-      for (var event in parseEvents(shiporderXsd)) {
+      for (final event in parseEvents(shiporderXsd)) {
         expect(event.buffer, isNull);
         expect(event.start, isNull);
         expect(event.stop, isNull);
@@ -269,22 +269,22 @@ void main() {
       }
     });
     test('buffer', () {
-      for (var event in parseEvents(shiporderXsd, withBuffer: true)) {
+      for (final event in parseEvents(shiporderXsd, withBuffer: true)) {
         expect(event.buffer, shiporderXsd);
       }
     });
     test('location', () {
-      for (var event in parseEvents(shiporderXsd, withLocation: true)) {
+      for (final event in parseEvents(shiporderXsd, withLocation: true)) {
         expect(event.start, isNotNull);
         expect(event.stop, isNotNull);
         expect(event.start! <= event.stop!, isTrue);
-        final outtake = shiporderXsd.substring(event.start!, event.stop!);
+        final outtake = shiporderXsd.substring(event.start!, event.stop);
         expect(parseEvents(outtake), [event]);
       }
     });
     test('parent', () {
       final stack = <XmlStartElementEvent>[];
-      for (var event in parseEvents(shiporderXsd, withParent: true)) {
+      for (final event in parseEvents(shiporderXsd, withParent: true)) {
         expect(event.parent, stack.isNotEmpty ? stack.last : isNull);
         expect(event.parentEvent, stack.isNotEmpty ? stack.last : isNull);
         if (event is XmlStartElementEvent && !event.isSelfClosing) {

@@ -1,7 +1,10 @@
 /// Dart XML Events is an event based library to asynchronously parse XML
 /// documents and to convert them to other representations.
+library xml_events;
+
 import 'src/xml/entities/default_mapping.dart';
 import 'src/xml/entities/entity_mapping.dart';
+import 'src/xml/exceptions/parser_exception.dart';
 import 'src/xml/exceptions/tag_exception.dart';
 import 'src/xml_events/event.dart';
 import 'src/xml_events/iterable.dart';
@@ -11,13 +14,13 @@ export 'src/xml/enums/node_type.dart' show XmlNodeType;
 export 'src/xml_events/codec/event_codec.dart' show XmlEventCodec;
 export 'src/xml_events/codec/node_codec.dart' show XmlNodeCodec;
 export 'src/xml_events/converters/event_decoder.dart'
-    show XmlEventDecoderExtension, XmlEventDecoder;
+    show XmlEventDecoder, XmlEventDecoderExtension;
 export 'src/xml_events/converters/event_encoder.dart'
-    show XmlEventEncoderExtension, XmlEventEncoder;
+    show XmlEventEncoder, XmlEventEncoderExtension;
 export 'src/xml_events/converters/node_decoder.dart'
-    show XmlNodeDecoderExtension, XmlNodeDecoder;
+    show XmlNodeDecoder, XmlNodeDecoderExtension;
 export 'src/xml_events/converters/node_encoder.dart'
-    show XmlNodeEncoderExtension, XmlNodeEncoder;
+    show XmlNodeEncoder, XmlNodeEncoderExtension;
 export 'src/xml_events/event.dart' show XmlEvent;
 export 'src/xml_events/events/cdata.dart' show XmlCDATAEvent;
 export 'src/xml_events/events/comment.dart' show XmlCommentEvent;
@@ -31,19 +34,19 @@ export 'src/xml_events/streams/each_event.dart'
     show XmlEachEventStreamExtension, XmlEachEventStreamListExtension;
 export 'src/xml_events/streams/flatten.dart' show XmlFlattenStreamExtension;
 export 'src/xml_events/streams/normalizer.dart'
-    show XmlNormalizeEventsExtension, XmlNormalizeEvents;
+    show XmlNormalizeEvents, XmlNormalizeEventsExtension;
 export 'src/xml_events/streams/subtree_selector.dart'
-    show XmlSubtreeSelectorExtension, XmlSubtreeSelector;
+    show XmlSubtreeSelector, XmlSubtreeSelectorExtension;
 export 'src/xml_events/streams/with_parent.dart'
-    show XmlWithParentEventsExtension, XmlWithParentEvents;
+    show XmlWithParentEvents, XmlWithParentEventsExtension;
 export 'src/xml_events/utils/event_attribute.dart' show XmlEventAttribute;
 export 'src/xml_events/visitor.dart' show XmlEventVisitor;
 
 /// Returns an [Iterable] of [XmlEvent] instances over the provided [String].
 ///
-/// Iteration can throw an [XmlException], if the input is malformed and cannot
-/// be properly parsed. In case of an error iteration can be resumed and the
-/// parsing is retried at the next possible input position.
+/// Iteration can throw an [XmlParserException], if the input is malformed and
+/// cannot be properly parsed. In case of an error iteration can be resumed and
+/// the parsing is retried at the next possible input position.
 ///
 /// If [validateNesting] is `true`, the parser validates the nesting of tags and
 /// throws an [XmlTagException] if there is a mismatch or tags are not closed.

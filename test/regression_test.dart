@@ -175,7 +175,7 @@ void main() {
     test('descendants & ancestors', () {
       final nodes = document.descendants
           // Find all the nodes that satisfy the condition.
-          .where((node) => predicate(node))
+          .where(predicate)
           // Exclude the nodes that have parents satisfying the condition.
           .where((node) => !node.ancestors.any(predicate));
       expect(nodes.map((node) => node.innerText), ['1', '2', '3']);

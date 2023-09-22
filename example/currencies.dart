@@ -1,4 +1,6 @@
 /// Prints currency exchange table using www.floatrates.com.
+library currencies;
+
 import 'dart:convert';
 import 'dart:io';
 

@@ -1,4 +1,6 @@
 /// XML grep.
+library xml_grep;
+
 import 'dart:io';
 
 import 'package:args/args.dart' as args;

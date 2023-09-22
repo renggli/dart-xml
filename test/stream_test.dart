@@ -1,7 +1,7 @@
 // ignore_for_file: deprecated_member_use_from_same_package
 
 import 'dart:async';
-import 'dart:math' show min, Random;
+import 'dart:math' show Random, min;
 
 import 'package:meta/meta.dart';
 import 'package:test/test.dart';

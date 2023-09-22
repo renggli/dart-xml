@@ -1,8 +1,10 @@
 /// Dart XML is a lightweight library for parsing, traversing, querying and
 /// building XML documents.
+library xml;
+
 export 'src/xml/builder.dart' show XmlBuilder;
 export 'src/xml/entities/default_mapping.dart'
-    show defaultEntityMapping, XmlDefaultEntityMapping;
+    show XmlDefaultEntityMapping, defaultEntityMapping;
 export 'src/xml/entities/entity_mapping.dart' show XmlEntityMapping;
 export 'src/xml/entities/null_mapping.dart' show XmlNullEntityMapping;
 export 'src/xml/enums/attribute_type.dart' show XmlAttributeType;

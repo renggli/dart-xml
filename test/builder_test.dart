@@ -334,10 +334,10 @@ void main() {
     };
     final builder = XmlBuilder();
     builder.element('element', namespaces: namespaces, nest: () {
-      for (var uri in namespaces.keys) {
+      for (final uri in namespaces.keys) {
         builder.attribute('lang', 'en', namespace: uri);
       }
-      for (var uri in namespaces.keys) {
+      for (final uri in namespaces.keys) {
         builder.attribute('lang', 'de', namespace: uri);
       }
     });
