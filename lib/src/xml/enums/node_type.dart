@@ -2,33 +2,39 @@
 
 /// Enum of the different XML node types.
 enum XmlNodeType {
-  /// An attribute, e.g. `id="123"`.
+  /// An attribute like `id="123"`.
   ATTRIBUTE,
 
-  /// A character data, e.g.  `<![CDATA[escaped text]]>`.
+  /// A CDATA section like `<!CDATA[[...]]>`.
   CDATA,
 
-  /// A comment, e.g. `<!-- comment -->`.
+  /// A comment like `<!-- comment -->`.
   COMMENT,
 
-  /// A xml declaration, e.g. `<?xml version='1.0'?>`.
+  /// An XML declaration like `<?xml version='1.0'?>`.
   DECLARATION,
 
-  /// A document type declaration, e.g. `<!DOCTYPE html>`.
+  /// A document type declaration like `<!DOCTYPE html>`.
   DOCUMENT_TYPE,
 
-  /// A document object.
+  /// A document object at the root of a document tree.
   DOCUMENT,
 
-  /// A document fragment, e.g. `#document-fragment`.
+  /// A document fragment.
   DOCUMENT_FRAGMENT,
 
-  /// An element, e.g. `<item>` or `<item />`.
+  /// An element node like `<item>`.
   ELEMENT,
 
-  /// A processing instruction, e.g. `<?pi test?>`.
+  /// An entity declaration like ` <!ENTITY...>`.
+  ENTITY,
+
+  /// A notation declaration like `<!NOTATION...>`.
+  NOTATION,
+
+  /// A processing instruction like `<?pi test?>`.
   PROCESSING,
 
-  /// A text, e.g. `Hello World`.
+  /// The text contents of a node.
   TEXT,
 }
