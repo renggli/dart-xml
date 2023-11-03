@@ -68,6 +68,16 @@ void testDefaultMapping(XmlEntityMapping entityMapping) {
       expect(entityMapping.decode('&amp;&amp;'), '&&');
       expect(entityMapping.decode('&lt;&amp;&gt;'), '<&>');
     });
+    test('document', () {
+      final document =
+          XmlDocument.parse('<xml>a&amp;b</xml>', entityMapping: entityMapping);
+      expect(document.rootElement.innerText, 'a&b');
+    });
+    test('fragment', () {
+      final fragment =
+          XmlDocumentFragment.parse('a&amp;b', entityMapping: entityMapping);
+      expect(fragment.innerText, 'a&b');
+    });
   });
   group('encode', () {
     test('text', () {
@@ -177,6 +187,30 @@ void main() {
     test('special', () {
       expect(entityMapping.decode('&bigstar;'), '★');
       expect(entityMapping.decode('&block;'), '█');
+    });
+  });
+  group('custom', () {
+    const entityMapping = XmlDefaultEntityMapping({
+      'joy': '😂',
+      'tears': '😢',
+    });
+    test('basic', () {
+      expect(entityMapping.decodeEntity('joy'), '😂');
+      expect(entityMapping.decodeEntity('tears'), '😢');
+    });
+    test('entities', () {
+      expect(entityMapping.decode('&joy;'), '😂');
+      expect(entityMapping.decode('&tears;'), '😢');
+    });
+    test('document', () {
+      final document = XmlDocument.parse('<xml>&joy; and &tears;</xml>',
+          entityMapping: entityMapping);
+      expect(document.rootElement.innerText, '😂 and 😢');
+    });
+    test('fragment', () {
+      final fragment = XmlDocumentFragment.parse('&joy; and &tears;',
+          entityMapping: entityMapping);
+      expect(fragment.innerText, '😂 and 😢');
     });
   });
   group('null', () {
