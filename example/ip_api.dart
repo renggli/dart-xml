@@ -8,7 +8,7 @@ import 'package:args/args.dart' as args;
 import 'package:xml/xml.dart';
 import 'package:xml/xml_events.dart';
 
-final HttpClient httpClient = HttpClient();
+final httpClient = HttpClient();
 
 final args.ArgParser argumentParser = args.ArgParser()
   ..addFlag(
