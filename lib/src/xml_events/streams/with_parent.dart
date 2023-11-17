@@ -8,6 +8,8 @@ import '../events/comment.dart';
 import '../events/declaration.dart';
 import '../events/doctype.dart';
 import '../events/end_element.dart';
+import '../events/entity.dart';
+import '../events/notation.dart';
 import '../events/processing.dart';
 import '../events/start_element.dart';
 import '../events/text.dart';
@@ -88,6 +90,14 @@ class _XmlWithParentEventsSink
     event.attachParent(parent);
     currentParent = parent.parent;
   }
+
+  @override
+  void visitEntityEvent(XmlEntityEvent event) =>
+      event.attachParent(currentParent);
+
+  @override
+  void visitNotationEvent(XmlNotationEvent event) =>
+      event.attachParent(currentParent);
 
   @override
   void visitProcessingEvent(XmlProcessingEvent event) =>

@@ -4,6 +4,8 @@ import 'events/comment.dart';
 import 'events/declaration.dart';
 import 'events/doctype.dart';
 import 'events/end_element.dart';
+import 'events/entity.dart';
+import 'events/notation.dart';
 import 'events/processing.dart';
 import 'events/start_element.dart';
 import 'events/text.dart';
@@ -14,26 +16,32 @@ mixin XmlEventVisitor {
   void visit(XmlEvent event) => event.accept(this);
 
   /// Visit an [XmlCDATAEvent] event.
-  void visitCDATAEvent(XmlCDATAEvent event);
+  void visitCDATAEvent(XmlCDATAEvent event) {}
 
   /// Visit an [XmlCommentEvent] event.
-  void visitCommentEvent(XmlCommentEvent event);
+  void visitCommentEvent(XmlCommentEvent event) {}
 
   /// Visit an [XmlDeclarationEvent] event.
-  void visitDeclarationEvent(XmlDeclarationEvent event);
+  void visitDeclarationEvent(XmlDeclarationEvent event) {}
 
   /// Visit an [XmlDoctypeEvent] event.
-  void visitDoctypeEvent(XmlDoctypeEvent event);
+  void visitDoctypeEvent(XmlDoctypeEvent event) {}
 
   /// Visit an [XmlEndElementEvent] event.
-  void visitEndElementEvent(XmlEndElementEvent event);
+  void visitEndElementEvent(XmlEndElementEvent event) {}
+
+  /// Visit an [XmlEntityEvent] event.
+  void visitEntityEvent(XmlEntityEvent event) {}
+
+  /// Visit an [XmlNotationEvent] event.
+  void visitNotationEvent(XmlNotationEvent event) {}
 
   /// Visit an [XmlCommentEvent] event.
-  void visitProcessingEvent(XmlProcessingEvent event);
+  void visitProcessingEvent(XmlProcessingEvent event) {}
 
   /// Visit an [XmlCommentEvent] event.
-  void visitStartElementEvent(XmlStartElementEvent event);
+  void visitStartElementEvent(XmlStartElementEvent event) {}
 
   /// Visit an [XmlCommentEvent] event.
-  void visitTextEvent(XmlTextEvent event);
+  void visitTextEvent(XmlTextEvent event) {}
 }
