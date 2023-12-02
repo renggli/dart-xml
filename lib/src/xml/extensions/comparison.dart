@@ -1,15 +1,6 @@
 import '../../../xml.dart';
 import '../nodes/data.dart';
 
-class XmlDocumentPosition {
-  static const int disconnected = 1;
-  static const int preceding = 2;
-  static const int following = 3;
-  static const int contains = 8;
-  static const int containedBy = 16;
-  static const int implementationSpecific = 32;
-}
-
 extension XmlComparisonExtension on XmlNode {
   /// Tests whether this node is equal to [other].
   ///
