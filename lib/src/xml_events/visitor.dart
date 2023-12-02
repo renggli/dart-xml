@@ -4,8 +4,6 @@ import 'events/comment.dart';
 import 'events/declaration.dart';
 import 'events/doctype.dart';
 import 'events/end_element.dart';
-import 'events/entity.dart';
-import 'events/notation.dart';
 import 'events/processing.dart';
 import 'events/start_element.dart';
 import 'events/text.dart';
@@ -29,12 +27,6 @@ mixin XmlEventVisitor {
 
   /// Visit an [XmlEndElementEvent] event.
   void visitEndElementEvent(XmlEndElementEvent event) {}
-
-  /// Visit an [XmlEntityEvent] event.
-  void visitEntityEvent(XmlEntityEvent event) {}
-
-  /// Visit an [XmlNotationEvent] event.
-  void visitNotationEvent(XmlNotationEvent event) {}
 
   /// Visit an [XmlCommentEvent] event.
   void visitProcessingEvent(XmlProcessingEvent event) {}

@@ -5,7 +5,6 @@
 * Add support for most XPath 1.0 variables and functions, including set-operations and ensuring document order in the result.
 * Add `XmlNode.xpathGenerate` to create a readable XPath for all nodes.
 * Add support for node comparison: `XmlNode.isEqualNode` and `XmlNode.compareNodePosition`.
-* Add events and node types for _entity_ and _notation_ nodes.
 
 ## 6.4.0
 

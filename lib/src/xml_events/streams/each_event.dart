@@ -6,8 +6,6 @@ import '../events/comment.dart';
 import '../events/declaration.dart';
 import '../events/doctype.dart';
 import '../events/end_element.dart';
-import '../events/entity.dart';
-import '../events/notation.dart';
 import '../events/processing.dart';
 import '../events/start_element.dart';
 import '../events/text.dart';
@@ -27,8 +25,6 @@ extension XmlEachEventStreamExtension on Stream<XmlEvent> {
     EventHandler<XmlDeclarationEvent>? onDeclaration,
     EventHandler<XmlDoctypeEvent>? onDoctype,
     EventHandler<XmlEndElementEvent>? onEndElement,
-    EventHandler<XmlEntityEvent>? onEntityEvent,
-    EventHandler<XmlNotationEvent>? onNotationEvent,
     EventHandler<XmlProcessingEvent>? onProcessing,
     EventHandler<XmlStartElementEvent>? onStartElement,
     EventHandler<XmlTextEvent>? onText,
@@ -39,8 +35,6 @@ extension XmlEachEventStreamExtension on Stream<XmlEvent> {
       onDeclaration: onDeclaration,
       onDoctype: onDoctype,
       onEndElement: onEndElement,
-      onEntityEvent: onEntityEvent,
-      onNotationEvent: onNotationEvent,
       onProcessing: onProcessing,
       onStartElement: onStartElement,
       onText: onText,
@@ -61,8 +55,6 @@ extension XmlEachEventStreamExtension on Stream<XmlEvent> {
     EventHandler<XmlDeclarationEvent>? onDeclaration,
     EventHandler<XmlDoctypeEvent>? onDoctype,
     EventHandler<XmlEndElementEvent>? onEndElement,
-    EventHandler<XmlEntityEvent>? onEntityEvent,
-    EventHandler<XmlNotationEvent>? onNotationEvent,
     EventHandler<XmlProcessingEvent>? onProcessing,
     EventHandler<XmlStartElementEvent>? onStartElement,
     EventHandler<XmlTextEvent>? onText,
@@ -73,8 +65,6 @@ extension XmlEachEventStreamExtension on Stream<XmlEvent> {
         onDeclaration: onDeclaration,
         onDoctype: onDoctype,
         onEndElement: onEndElement,
-        onEntityEvent: onEntityEvent,
-        onNotationEvent: onNotationEvent,
         onProcessing: onProcessing,
         onStartElement: onStartElement,
         onText: onText,
@@ -93,8 +83,6 @@ extension XmlEachEventStreamListExtension on Stream<List<XmlEvent>> {
     EventHandler<XmlDeclarationEvent>? onDeclaration,
     EventHandler<XmlDoctypeEvent>? onDoctype,
     EventHandler<XmlEndElementEvent>? onEndElement,
-    EventHandler<XmlEntityEvent>? onEntityEvent,
-    EventHandler<XmlNotationEvent>? onNotationEvent,
     EventHandler<XmlProcessingEvent>? onProcessing,
     EventHandler<XmlStartElementEvent>? onStartElement,
     EventHandler<XmlTextEvent>? onText,
@@ -105,8 +93,6 @@ extension XmlEachEventStreamListExtension on Stream<List<XmlEvent>> {
       onDeclaration: onDeclaration,
       onDoctype: onDoctype,
       onEndElement: onEndElement,
-      onEntityEvent: onEntityEvent,
-      onNotationEvent: onNotationEvent,
       onProcessing: onProcessing,
       onStartElement: onStartElement,
       onText: onText,
@@ -127,8 +113,6 @@ extension XmlEachEventStreamListExtension on Stream<List<XmlEvent>> {
     EventHandler<XmlDeclarationEvent>? onDeclaration,
     EventHandler<XmlDoctypeEvent>? onDoctype,
     EventHandler<XmlEndElementEvent>? onEndElement,
-    EventHandler<XmlEntityEvent>? onEntityEvent,
-    EventHandler<XmlNotationEvent>? onNotationEvent,
     EventHandler<XmlProcessingEvent>? onProcessing,
     EventHandler<XmlStartElementEvent>? onStartElement,
     EventHandler<XmlTextEvent>? onText,
@@ -139,8 +123,6 @@ extension XmlEachEventStreamListExtension on Stream<List<XmlEvent>> {
         onDeclaration: onDeclaration,
         onDoctype: onDoctype,
         onEndElement: onEndElement,
-        onEntityEvent: onEntityEvent,
-        onNotationEvent: onNotationEvent,
         onProcessing: onProcessing,
         onStartElement: onStartElement,
         onText: onText,
@@ -154,8 +136,6 @@ class XmlEventHandler with XmlEventVisitor {
     this.onDeclaration,
     this.onDoctype,
     this.onEndElement,
-    this.onEntityEvent,
-    this.onNotationEvent,
     this.onProcessing,
     this.onStartElement,
     this.onText,
@@ -166,8 +146,6 @@ class XmlEventHandler with XmlEventVisitor {
   final EventHandler<XmlDeclarationEvent>? onDeclaration;
   final EventHandler<XmlDoctypeEvent>? onDoctype;
   final EventHandler<XmlEndElementEvent>? onEndElement;
-  final EventHandler<XmlEntityEvent>? onEntityEvent;
-  final EventHandler<XmlNotationEvent>? onNotationEvent;
   final EventHandler<XmlProcessingEvent>? onProcessing;
   final EventHandler<XmlStartElementEvent>? onStartElement;
   final EventHandler<XmlTextEvent>? onText;
@@ -188,13 +166,6 @@ class XmlEventHandler with XmlEventVisitor {
   @override
   void visitEndElementEvent(XmlEndElementEvent event) =>
       onEndElement?.call(event);
-
-  @override
-  void visitEntityEvent(XmlEntityEvent event) => onEntityEvent?.call(event);
-
-  @override
-  void visitNotationEvent(XmlNotationEvent event) =>
-      onNotationEvent?.call(event);
 
   @override
   void visitProcessingEvent(XmlProcessingEvent event) =>
