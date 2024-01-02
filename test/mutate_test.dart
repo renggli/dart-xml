@@ -111,13 +111,13 @@ void main() {
     mutatingTest<XmlDeclaration>(
       'declaration (version)',
       '<?xml version="1.0"?><element/>',
-      (node) => node.version = "1.5",
+      (node) => node.version = '1.5',
       '<?xml version="1.5"?><element/>',
     );
     mutatingTest<XmlDeclaration>(
       'declaration (encoding)',
       '<?xml encoding="latin"?><element/>',
-      (node) => node.encoding = "utf-8",
+      (node) => node.encoding = 'utf-8',
       '<?xml encoding="utf-8"?><element/>',
     );
     mutatingTest<XmlDeclaration>(
@@ -790,7 +790,7 @@ void main() {
       'element attribute with attribute',
       '<element attr1="value1"/>',
       (node) => node.attributes.first
-          .replace(XmlAttribute(XmlName('attr2'), "value2")),
+          .replace(XmlAttribute(XmlName('attr2'), 'value2')),
       '<element attr2="value2"/>',
     );
     mutatingTest<XmlElement>(

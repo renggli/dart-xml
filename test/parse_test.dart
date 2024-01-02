@@ -181,12 +181,12 @@ void main() {
       assertDocumentParseInvariants("<schema foo='bar' take='drop'></schema>");
     });
     test('element with attribute without quotes', () {
-      assertDocumentParseInvariants("<schema foo=bar></schema>");
-      assertDocumentParseInvariants("<schema foo=bar take=drop></schema>");
+      assertDocumentParseInvariants('<schema foo=bar></schema>');
+      assertDocumentParseInvariants('<schema foo=bar take=drop></schema>');
     });
     test('element with attribute without value', () {
-      assertDocumentParseInvariants("<schema foo></schema>");
-      assertDocumentParseInvariants("<schema foo bar></schema>");
+      assertDocumentParseInvariants('<schema foo></schema>');
+      assertDocumentParseInvariants('<schema foo bar></schema>');
     });
     test('processing instruction', () {
       assertDocumentParseInvariants('<?pi?><data />');
