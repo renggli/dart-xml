@@ -1,5 +1,5 @@
 /// A simple command-line based RSS feed reader.
-library feeds;
+library;
 
 import 'dart:convert';
 import 'dart:io';

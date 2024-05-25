@@ -1,5 +1,5 @@
 /// XML grep.
-library xml_grep;
+library;
 
 import 'dart:io';
 

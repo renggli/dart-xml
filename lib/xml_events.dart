@@ -1,6 +1,6 @@
 /// Dart XML Events is an event based library to asynchronously parse XML
 /// documents and to convert them to other representations.
-library xml_events;
+library;
 
 import 'src/xml/entities/default_mapping.dart';
 import 'src/xml/entities/entity_mapping.dart';
@@ -74,12 +74,13 @@ export 'src/xml_events/visitor.dart' show XmlEventVisitor;
 ///
 /// For example, to print all trimmed non-empty text elements one would write:
 ///
-///    parseEvents(bookstoreXml)
-///        .whereType<XmlTextEvent>()
-///        .map((event) => event.text.trim())
-///        .where((text) => text.isNotEmpty)
-///        .forEach(print);
-///
+/// ```dart
+/// parseEvents(bookstoreXml)
+///     .whereType<XmlTextEvent>()
+///     .map((event) => event.text.trim())
+///     .where((text) => text.isNotEmpty)
+///     .forEach(print);
+/// ```
 Iterable<XmlEvent> parseEvents(
   String input, {
   XmlEntityMapping? entityMapping,

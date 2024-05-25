@@ -1,5 +1,5 @@
 /// XML pretty printer and highlighter.
-library xml_pp;
+library;
 
 import 'dart:io';
 

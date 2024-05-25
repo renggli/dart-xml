@@ -44,8 +44,9 @@ class XmlBuilder {
   ///
   /// For example, to generate the text `Hello World` one would write:
   ///
-  ///     builder.text('Hello World');
-  ///
+  /// ```dart
+  /// builder.text('Hello World');
+  /// ```
   void text(Object text) {
     final children = _stack.last.children;
     if (children.isNotEmpty) {
@@ -64,8 +65,9 @@ class XmlBuilder {
   /// For example, to generate an XML CDATA element `<![CDATA[Hello World]]>`
   /// one would write:
   ///
-  ///     builder.cdata('Hello World');
-  ///
+  /// ```dart
+  /// builder.cdata('Hello World');
+  /// ```
   void cdata(Object text) {
     _stack.last.children.add(XmlCDATA(text.toString()));
   }
@@ -75,8 +77,9 @@ class XmlBuilder {
   /// For example, to generate an XML declaration `<?xml version="1.0"
   /// encoding="utf-8"?>` one would write:
   ///
-  ///      builder.declaration(encoding: 'UTF-8');
-  ///
+  /// ```dart
+  /// builder.declaration(encoding: 'UTF-8');
+  /// ```
   void declaration(
       {String version = '1.0',
       String? encoding,
@@ -93,8 +96,9 @@ class XmlBuilder {
   /// For example, to generate an XML doctype element `<!DOCTYPE note SYSTEM
   /// "note.dtd">` one would write:
   ///
-  ///     builder.doctype('note', systemId: 'note.dtd');
-  ///
+  /// ```dart
+  /// builder.doctype('note', systemId: 'note.dtd');
+  /// ```
   void doctype(String name,
       {String? publicId, String? systemId, String? internalSubset}) {
     if (publicId != null && systemId == null) {
@@ -115,8 +119,9 @@ class XmlBuilder {
   /// For example, to generate an XML processing element `<?xml-stylesheet
   /// href="/style.css"?>` one would write:
   ///
-  ///     builder.processing('xml-stylesheet', 'href="/style.css"');
-  ///
+  /// ```dart
+  /// builder.processing('xml-stylesheet', 'href="/style.css"');
+  /// ```
   void processing(String target, Object text) {
     _stack.last.children.add(XmlProcessing(target, text.toString()));
   }
@@ -126,8 +131,9 @@ class XmlBuilder {
   /// For example, to generate an XML comment `<!--Hello World-->` one would
   /// write:
   ///
-  ///     builder.comment('Hello World');
-  ///
+  /// ```dart
+  /// builder.comment('Hello World');
+  /// ```
   void comment(Object text) {
     _stack.last.children.add(XmlComment(text.toString()));
   }
@@ -152,15 +158,18 @@ class XmlBuilder {
   /// For example, to generate an XML element with the tag _message_ and the
   /// contained text _Hello World_ one would write:
   ///
-  ///     builder.element('message', nest: 'Hello World');
+  /// ```dart
+  /// builder.element('message', nest: 'Hello World');
+  /// ```
   ///
   /// To add multiple child elements one would use:
   ///
-  ///     builder.element('message', nest: () {
-  ///       builder..text('Hello World')
-  ///              ..element('break');
-  ///     });
-  ///
+  /// ```dart
+  /// builder.element('message', nest: () {
+  ///   builder..text('Hello World')
+  ///          ..element('break');
+  /// });
+  /// ```
   void element(
     String name, {
     String? namespace,
@@ -205,10 +214,11 @@ class XmlBuilder {
   /// To generate an element with the tag _message_ and the
   /// attribute _lang="en"_ one would write:
   ///
-  ///     builder.element('message', nest: () {
-  ///        builder.attribute('lang', 'en');
-  ///     });
-  ///
+  /// ```dart
+  /// builder.element('message', nest: () {
+  ///    builder.attribute('lang', 'en');
+  /// });
+  /// ```
   void attribute(String name, Object? value,
       {String? namespace, XmlAttributeType? attributeType}) {
     final attributes = _stack.last.attributes;
@@ -237,11 +247,12 @@ class XmlBuilder {
   /// To generate a bookshelf element with two predefined book elements, one
   /// would write:
   ///
-  ///     builder.element('bookshelf', nest: () {
-  ///       builder.xml('<book><title>Growing a Language</title></book>');
-  ///       builder.xml('<book><title>Learning XML</title></book>');
-  ///     });
-  ///
+  /// ```dart
+  /// builder.element('bookshelf', nest: () {
+  ///   builder.xml('<book><title>Growing a Language</title></book>');
+  ///   builder.xml('<book><title>Learning XML</title></book>');
+  /// });
+  /// ```
   void xml(String input, {XmlEntityMapping? entityMapping}) {
     final fragment =
         XmlDocumentFragment.parse(input, entityMapping: entityMapping);

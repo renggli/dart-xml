@@ -1,5 +1,5 @@
 /// XML flatten.
-library xml_flatten;
+library;
 
 import 'dart:convert';
 import 'dart:io';

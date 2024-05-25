@@ -16,8 +16,10 @@ class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
   ///
   /// For example, the following code prints `Hello World`:
   ///
-  ///    final document = new XmlDocument.parse('<?xml?><root message="Hello World" />');
-  ///    print(document.rootElement.getAttribute('message'));
+  /// ```dart
+  /// final document = new XmlDocument.parse('<?xml?><root message="Hello World" />');
+  /// print(document.rootElement.getAttribute('message'));
+  /// ```
   ///
   /// Note: It is the responsibility of the caller to provide a standard Dart
   /// [String] using the default UTF-16 encoding.
@@ -44,10 +46,11 @@ class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
   ///
   /// For example the following code prints `<?xml version="1.0">`:
   ///
-  ///    var xml = '<?xml version="1.0">'
-  ///              '<shelf></shelf>';
-  ///    print(XmlDocument.parse(xml).doctypeElement);
-  ///
+  /// ```dart
+  /// var xml = '<?xml version="1.0">'
+  ///           '<shelf></shelf>';
+  /// print(XmlDocument.parse(xml).doctypeElement);
+  /// ```
   XmlDeclaration? get declaration {
     for (final node in children) {
       if (node is XmlDeclaration) {
@@ -61,10 +64,11 @@ class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
   ///
   /// For example, the following code prints `<!DOCTYPE html>`:
   ///
-  ///    var xml = '<!DOCTYPE html>'
-  ///              '<html><body></body></html>';
-  ///    print(XmlDocument.parse(xml).doctypeElement);
-  ///
+  /// ```dart
+  /// var xml = '<!DOCTYPE html>'
+  ///           '<html><body></body></html>';
+  /// print(XmlDocument.parse(xml).doctypeElement);
+  /// ```
   XmlDoctype? get doctypeElement {
     for (final node in children) {
       if (node is XmlDoctype) {
@@ -79,10 +83,11 @@ class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
   ///
   /// For example, the following code prints `<books />`:
   ///
-  ///     var xml = '<?xml version="1.0"?>'
-  ///               '<books />';
-  ///     print(XmlDocument.parse(xml).rootElement);
-  ///
+  /// ```dart
+  /// var xml = '<?xml version="1.0"?>'
+  ///           '<books />';
+  /// print(XmlDocument.parse(xml).rootElement);
+  /// ```
   XmlElement get rootElement {
     for (final node in children) {
       if (node is XmlElement) {
