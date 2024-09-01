@@ -151,7 +151,7 @@ const String bookstoreXml = '<?xml version="1.0" encoding="ISO-8859-1"?>\n'
     '</bookstore>';
 
 const String complicatedXml = '<?xml version="1.0"?>\n'
-    '<!DOCTYPE name [ <!ELEMENT html (head, body)> ]>\n'
+    '<!DOCTYPE name SYSTEM "complicated.dtd" [ <!ELEMENT html (head, body)> ]>\n'
     '<ns:foo attr="not namespaced" n1:ans="namespaced 1" '
     '        n2:ans="namespace 2" >\n'
     '  Plain text contents!'
