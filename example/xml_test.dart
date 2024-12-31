@@ -29,7 +29,10 @@ Future<void> main(List<String> arguments) async {
 
   for (final file in files) {
     stdout.writeln(file.path);
-    await file.openRead().transform(utf8.decoder).toXmlEvents()
+    await file
+        .openRead()
+        .transform(utf8.decoder)
+        .toXmlEvents()
         .handleError((Object error) => stderr.writeln('$error'))
         .drain<void>();
   }
