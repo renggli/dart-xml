@@ -1,5 +1,10 @@
 # Changelog
 
+## 6.6.0
+
+* Upgrade to PetitParser 7.0.
+* Enable full unicode decoding of names.
+
 ## 6.5.0
 
 * Add support for most XPath 1.0 functions, including set-operations and ensuring document order for node-sets.

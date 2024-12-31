@@ -45,7 +45,8 @@ class XmlToken {
       '\u2c00-\u2fef'
       '\u3001-\ud7ff'
       '\uf900-\ufdcf'
-      '\ufdf0-\ufffd';
+      '\ufdf0-\ufffd'
+      '\u{10000}-\u{effff}';
   static const nameChars = '$nameStartChars'
       '-.0-9'
       '\u00b7'
