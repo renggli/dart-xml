@@ -14,7 +14,7 @@ environment:
 dependencies:
   collection: ^1.19.0
   meta: ^1.16.0
-  petitparser: ^7.0.0
+  petitparser: ^6.0.0
 dev_dependencies:
   args: ^2.5.0
   lints: ^5.0.0
@@ -22,4 +22,6 @@ dev_dependencies:
 
 dependency_overrides:
   petitparser:
-    git: https://github.com/petitparser/dart-petitparser
+    git:
+      url: https://github.com/petitparser/dart-petitparser
+      ref: unicode
