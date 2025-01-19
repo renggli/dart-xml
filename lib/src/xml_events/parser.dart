@@ -103,7 +103,7 @@ class XmlEventParser {
         XmlToken.openComment.toParser(),
         any()
             .starLazy(XmlToken.closeComment.toParser())
-            .flatten('"${XmlToken.closeComment}" expected'),
+            .flatten(message: '"${XmlToken.closeComment}" expected'),
         XmlToken.closeComment.toParser(),
       ).map3((_, text, __) => XmlCommentEvent(text));
 
@@ -111,7 +111,7 @@ class XmlEventParser {
         XmlToken.openCDATA.toParser(),
         any()
             .starLazy(XmlToken.closeCDATA.toParser())
-            .flatten('"${XmlToken.closeCDATA}" expected'),
+            .flatten(message: '"${XmlToken.closeCDATA}" expected'),
         XmlToken.closeCDATA.toParser(),
       ).map3((_, text, __) => XmlCDATAEvent(text));
 
@@ -129,7 +129,7 @@ class XmlEventParser {
           ref0(space),
           any()
               .starLazy(XmlToken.closeProcessing.toParser())
-              .flatten('"${XmlToken.closeProcessing}" expected'),
+              .flatten(message: '"${XmlToken.closeProcessing}" expected'),
         ).map2((_, text) => text).optionalWith(''),
         XmlToken.closeProcessing.toParser(),
       ).map4((_, target, text, __) => XmlProcessingEvent(target, text));
@@ -184,7 +184,7 @@ class XmlEventParser {
         ]
             .toChoiceParser()
             .starLazy(XmlToken.closeDoctypeIntSubset.toParser())
-            .flatten('"${XmlToken.closeDoctypeIntSubset}" expected'),
+            .flatten(message: '"${XmlToken.closeDoctypeIntSubset}" expected'),
         XmlToken.closeDoctypeIntSubset.toParser(),
       ).map3((_, contents, __) => contents);
 
@@ -236,13 +236,14 @@ class XmlEventParser {
 
   // Tokens
 
-  Parser<String> space() => whitespace().plusString('whitespace expected');
+  Parser<String> space() =>
+      whitespace().plusString(message: 'whitespace expected');
 
   Parser<String> spaceOptional() =>
-      whitespace().starString('whitespace expected');
+      whitespace().starString(message: 'whitespace expected');
 
-  Parser<String> nameToken() =>
-      seq2(ref0(nameStartChar), ref0(nameChar).star()).flatten('name expected');
+  Parser<String> nameToken() => seq2(ref0(nameStartChar), ref0(nameChar).star())
+      .flatten(message: 'name expected');
 
   Parser<String> nameStartChar() => pattern(XmlToken.nameStartChars);
 

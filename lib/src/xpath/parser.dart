@@ -163,7 +163,9 @@ class XPathParser {
         digit().plus(),
         seq2(char('.'), digit().plus()).optional(),
         seq3(anyOf('eE'), anyOf('+-').optional(), digit().plus()).optional(),
-      ).flatten('number').map((value) => XPathNumber(num.parse(value)));
+      )
+          .flatten(message: 'number')
+          .map((value) => XPathNumber(num.parse(value)));
 
   Parser<XPathExpression> stringLiteral() => ref0(string).map(XPathString.new);
 

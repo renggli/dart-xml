@@ -1,5 +1,11 @@
 # Changelog
 
+## 7.0.0
+
+* Dart 3.6 and PetitParser 7 requirement.
+* [TODO] Full unicode decoding of names.
+* [TODO] Preserving namespaces of copied nodes.
+
 ## 6.5.0
 
 * Add support for most XPath 1.0 functions, including set-operations and ensuring document order for node-sets.
