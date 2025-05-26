@@ -259,7 +259,7 @@ void assertTextInvariants(XmlNode xml) {
   for (final node in [xml, ...xml.descendants]) {
     // ignore: deprecated_member_use_from_same_package
     expect(
-      node.text,
+      node.innerText,
       isA<String>(),
       reason: 'All nodes are supposed to return text strings.',
     );

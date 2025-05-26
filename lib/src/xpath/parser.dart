@@ -35,7 +35,7 @@ class XPathParser {
       ..primitive(ref0(variable))
       ..primitive(ref0(function))
       ..primitive(ref0(path));
-    builder.group().wrapper(_t('('), _t(')'), (_, expr, __) => expr);
+    builder.group().wrapper(_t('('), _t(')'), (_, expr, _) => expr);
     builder.group()
       ..prefix(_t('-'), (t, a) => _SFE(t, number.neg, [a]))
       ..prefix(_t('+'), (t, a) => a);
@@ -141,7 +141,7 @@ class XPathParser {
       _t('processing-instruction('),
       ref0(string).optional(),
       char(')'),
-    ).map3((_, target, __) => ProcessingTypeExpression(target)),
+    ).map3((_, target, _) => ProcessingTypeExpression(target)),
     _t('text()').map((_) => TextTypeExpression()),
   ].toChoiceParser();
 
@@ -157,7 +157,7 @@ class XPathParser {
     char('['),
     ref0(expression),
     char(']'),
-  ).map3((_, expr, __) => PredicateExpression(expr));
+  ).map3((_, expr, _) => PredicateExpression(expr));
 
   Parser<XPathExpression> literal() =>
       [ref0(numberLiteral), ref0(stringLiteral)].toChoiceParser();
@@ -188,7 +188,7 @@ class XPathParser {
     ).starSeparated(char(',').trim()).map((list) => list.elements),
     _t(',').optional(),
     _t(')'),
-  ).map5((name, _, args, __, ___) => _DFE(name, args));
+  ).map5((name, _, args, _, _) => _DFE(name, args));
 
   Parser<String> name() => ref0(eventParser.nameToken);
 
