@@ -18,22 +18,21 @@ void chunkedTests<T>(
   T Function() factory,
   Stream<T> Function(T input, int Function() splitter) chunker,
   FutureOr<void> Function(Stream<T> stream) callback,
-) =>
-    group(title, () {
-      for (var i = 1; i <= 512; i *= 2) {
-        test(
-          'chunks equally sized $i',
-          () => callback(chunker(factory(), () => i)),
-        );
-      }
-      final random = Random(title.hashCode);
-      for (var i = 1; i <= 512; i *= 2) {
-        test(
-          'chunks randomly sized $i',
-          () => callback(chunker(factory(), () => random.nextInt(1 + i))),
-        );
-      }
-    });
+) => group(title, () {
+  for (var i = 1; i <= 512; i *= 2) {
+    test(
+      'chunks equally sized $i',
+      () => callback(chunker(factory(), () => i)),
+    );
+  }
+  final random = Random(title.hashCode);
+  for (var i = 1; i <= 512; i *= 2) {
+    test(
+      'chunks randomly sized $i',
+      () => callback(chunker(factory(), () => random.nextInt(1 + i))),
+    );
+  }
+});
 
 Stream<String> stringChunker(String input, int Function() splitter) async* {
   while (input.isNotEmpty) {
@@ -63,26 +62,24 @@ void main() {
           source = document.toXmlString();
           events = parseEvents(source).toList(growable: false);
         });
-        chunkedTests<String>(
-          'string -> events',
-          () => source,
-          stringChunker,
-          (stream) {
-            final actual = stream.toXmlEvents().normalizeEvents().flatten();
-            expect(actual, emitsInOrder([...events, emitsDone]));
-          },
-        );
+        chunkedTests<String>('string -> events', () => source, stringChunker, (
+          stream,
+        ) {
+          final actual = stream.toXmlEvents().normalizeEvents().flatten();
+          expect(actual, emitsInOrder([...events, emitsDone]));
+        });
         chunkedTests<List<XmlEvent>>(
           'events -> nodes',
           () => events,
           listChunker,
           (stream) {
             final actual = stream.toXmlNodes().flatten();
-            final expected =
-                document.children.map((node) => predicate<XmlNode>((actual) {
-                      compareNode(actual, node);
-                      return true;
-                    }, 'matches $node'));
+            final expected = document.children.map(
+              (node) => predicate<XmlNode>((actual) {
+                compareNode(actual, node);
+                return true;
+              }, 'matches $node'),
+            );
             expect(actual, emitsInOrder([...expected, emitsDone]));
           },
         );
@@ -109,8 +106,11 @@ void main() {
           () => source,
           stringChunker,
           (stream) {
-            final actual =
-                stream.toXmlEvents().normalizeEvents().toXmlString().join();
+            final actual = stream
+                .toXmlEvents()
+                .normalizeEvents()
+                .toXmlString()
+                .join();
             expect(actual, completion(source));
           },
         );
@@ -142,15 +142,21 @@ void main() {
           () => document.children,
           listChunker,
           (stream) async {
-            final actual =
-                await stream.toXmlEvents().toXmlNodes().flatten().toList();
+            final actual = await stream
+                .toXmlEvents()
+                .toXmlNodes()
+                .flatten()
+                .toList();
             expect(
+              actual,
+              pairwiseCompare<XmlNode, XmlNode>(document.children, (
                 actual,
-                pairwiseCompare<XmlNode, XmlNode>(document.children,
-                    (actual, expected) {
-                  compareNode(actual, expected);
-                  return true;
-                }, 'not matching'));
+                expected,
+              ) {
+                compareNode(actual, expected);
+                return true;
+              }, 'not matching'),
+            );
           },
         );
         if (entry.value == shiporderXsd) {
@@ -166,17 +172,19 @@ void main() {
                   .toList();
               final expected = document
                   .findAllElements('element', namespace: '*')
-                  .where((element) => !element.ancestors
-                      .whereType<XmlElement>()
-                      .any((parent) => parent.name.local == 'element'))
+                  .where(
+                    (element) => !element.ancestors.whereType<XmlElement>().any(
+                      (parent) => parent.name.local == 'element',
+                    ),
+                  )
                   .toList();
               expect(
-                  actual,
-                  pairwiseCompare<XmlNode, XmlNode>(expected,
-                      (actual, expected) {
-                    compareNode(actual, expected);
-                    return true;
-                  }, 'not matching'));
+                actual,
+                pairwiseCompare<XmlNode, XmlNode>(expected, (actual, expected) {
+                  compareNode(actual, expected);
+                  return true;
+                }, 'not matching'),
+              );
               actual
                   .expand((node) => [node, ...node.descendants])
                   .whereType<XmlHasName>()
@@ -196,23 +204,29 @@ void main() {
                   .toList();
               final expected = document
                   .findAllElements('element', namespace: '*')
-                  .where((element) => !element.ancestors
-                      .whereType<XmlElement>()
-                      .any((parent) => parent.name.local == 'element'))
+                  .where(
+                    (element) => !element.ancestors.whereType<XmlElement>().any(
+                      (parent) => parent.name.local == 'element',
+                    ),
+                  )
                   .toList();
               expect(
-                  actual,
-                  pairwiseCompare<XmlNode, XmlNode>(expected,
-                      (actual, expected) {
-                    compareNode(actual, expected);
-                    return true;
-                  }, 'not matching'));
+                actual,
+                pairwiseCompare<XmlNode, XmlNode>(expected, (actual, expected) {
+                  compareNode(actual, expected);
+                  return true;
+                }, 'not matching'),
+              );
               actual
                   .expand((node) => [node, ...node.descendants])
                   .whereType<XmlHasName>()
                   .where((node) => node.name.prefix == 'xsd')
-                  .forEach((node) => expect(node.name.namespaceUri,
-                      'http://www.w3.org/2001/XMLSchema'));
+                  .forEach(
+                    (node) => expect(
+                      node.name.namespaceUri,
+                      'http://www.w3.org/2001/XMLSchema',
+                    ),
+                  );
             },
           );
         }
@@ -230,15 +244,15 @@ void main() {
             final startElement = <XmlStartElementEvent>[];
             final text = <XmlTextEvent>[];
             await stream.flatten().forEachEvent(
-                  onCDATA: cdata.add,
-                  onComment: comment.add,
-                  onDeclaration: declaration.add,
-                  onDoctype: doctype.add,
-                  onEndElement: endElement.add,
-                  onProcessing: processing.add,
-                  onStartElement: startElement.add,
-                  onText: text.add,
-                );
+              onCDATA: cdata.add,
+              onComment: comment.add,
+              onDeclaration: declaration.add,
+              onDoctype: doctype.add,
+              onEndElement: endElement.add,
+              onProcessing: processing.add,
+              onStartElement: startElement.add,
+              onText: text.add,
+            );
             expect(cdata, events.whereType<XmlCDATAEvent>());
             expect(comment, events.whereType<XmlCommentEvent>());
             expect(declaration, events.whereType<XmlDeclarationEvent>());
@@ -363,14 +377,17 @@ void main() {
                 .normalizeEvents()
                 .flatten()
                 .map((event) {
-              final stack = <XmlEvent>[];
-              for (XmlEvent? current = event;
-                  current != null;
-                  current = current.parent) {
-                stack.insert(0, current);
-              }
-              return stack;
-            }).toList();
+                  final stack = <XmlEvent>[];
+                  for (
+                    XmlEvent? current = event;
+                    current != null;
+                    current = current.parent
+                  ) {
+                    stack.insert(0, current);
+                  }
+                  return stack;
+                })
+                .toList();
             expect(stacks.map((events) => events.last), events);
           },
         );
@@ -378,30 +395,31 @@ void main() {
     }
   });
   group('errors', () {
-    chunkedTests<String>(
-      'missing tag closing',
-      () => '<hello',
-      stringChunker,
-      (stream) {
-        expect(
-            stream.toXmlEvents(withLocation: true),
-            emitsThrough(emitsError(isXmlParserException(
-              message: '">" expected',
-              position: 6,
-            ))));
-      },
-    );
+    chunkedTests<String>('missing tag closing', () => '<hello', stringChunker, (
+      stream,
+    ) {
+      expect(
+        stream.toXmlEvents(withLocation: true),
+        emitsThrough(
+          emitsError(
+            isXmlParserException(message: '">" expected', position: 6),
+          ),
+        ),
+      );
+    });
     chunkedTests<String>(
       'missing attribute closing',
       () => '<foo bar="abc',
       stringChunker,
       (stream) {
         expect(
-            stream.toXmlEvents(withLocation: true),
-            emitsThrough(emitsError(isXmlParserException(
-              message: '">" expected',
-              position: 8,
-            ))));
+          stream.toXmlEvents(withLocation: true),
+          emitsThrough(
+            emitsError(
+              isXmlParserException(message: '">" expected', position: 8),
+            ),
+          ),
+        );
       },
     );
     chunkedTests<String>(
@@ -410,11 +428,13 @@ void main() {
       stringChunker,
       (stream) {
         expect(
-            stream.toXmlEvents(withLocation: true),
-            emitsThrough(emitsError(isXmlParserException(
-              message: '"-->" expected',
-              position: 4,
-            ))));
+          stream.toXmlEvents(withLocation: true),
+          emitsThrough(
+            emitsError(
+              isXmlParserException(message: '"-->" expected', position: 4),
+            ),
+          ),
+        );
       },
     );
     group('tags not validated', () {
@@ -424,39 +444,33 @@ void main() {
         stringChunker,
         (stream) {
           expect(
-              stream.toXmlEvents(withLocation: true).flatten(),
-              emitsInOrder([
-                XmlEndElementEvent('foo'),
-                emitsDone,
-              ]));
+            stream.toXmlEvents(withLocation: true).flatten(),
+            emitsInOrder([XmlEndElementEvent('foo'), emitsDone]),
+          );
         },
       );
-      chunkedTests<String>(
-        'missing end tag',
-        () => '<foo>',
-        stringChunker,
-        (stream) {
-          expect(
-              stream.toXmlEvents(withLocation: true).flatten(),
-              emitsInOrder([
-                XmlStartElementEvent('foo', [], false),
-                emitsDone,
-              ]));
-        },
-      );
+      chunkedTests<String>('missing end tag', () => '<foo>', stringChunker, (
+        stream,
+      ) {
+        expect(
+          stream.toXmlEvents(withLocation: true).flatten(),
+          emitsInOrder([XmlStartElementEvent('foo', [], false), emitsDone]),
+        );
+      });
       chunkedTests<String>(
         'not matching end tag',
         () => '<foo></bar></foo>',
         stringChunker,
         (stream) {
           expect(
-              stream.toXmlEvents(withLocation: true).flatten(),
-              emitsInOrder([
-                XmlStartElementEvent('foo', [], false),
-                XmlEndElementEvent('bar'),
-                XmlEndElementEvent('foo'),
-                emitsDone,
-              ]));
+            stream.toXmlEvents(withLocation: true).flatten(),
+            emitsInOrder([
+              XmlStartElementEvent('foo', [], false),
+              XmlEndElementEvent('bar'),
+              XmlEndElementEvent('foo'),
+              emitsDone,
+            ]),
+          );
         },
       );
     });
@@ -467,37 +481,46 @@ void main() {
         stringChunker,
         (stream) {
           expect(
-              stream
-                  .toXmlEvents(validateNesting: true, withLocation: true)
-                  .flatten(),
-              emitsThrough(emitsError(
-                  isXmlTagException(actualName: 'foo', position: 0))));
+            stream
+                .toXmlEvents(validateNesting: true, withLocation: true)
+                .flatten(),
+            emitsThrough(
+              emitsError(isXmlTagException(actualName: 'foo', position: 0)),
+            ),
+          );
         },
       );
-      chunkedTests<String>(
-        'missing end tag',
-        () => '<foo>',
-        stringChunker,
-        (stream) {
-          expect(
-              stream
-                  .toXmlEvents(validateNesting: true, withLocation: true)
-                  .flatten(),
-              emitsThrough(emitsError(
-                  isXmlTagException(expectedName: 'foo', position: 5))));
-        },
-      );
+      chunkedTests<String>('missing end tag', () => '<foo>', stringChunker, (
+        stream,
+      ) {
+        expect(
+          stream
+              .toXmlEvents(validateNesting: true, withLocation: true)
+              .flatten(),
+          emitsThrough(
+            emitsError(isXmlTagException(expectedName: 'foo', position: 5)),
+          ),
+        );
+      });
       chunkedTests<String>(
         'not matching end tag',
         () => '<foo></bar></foo>',
         stringChunker,
         (stream) {
           expect(
-              stream
-                  .toXmlEvents(validateNesting: true, withLocation: true)
-                  .flatten(),
-              emitsThrough(emitsError(isXmlTagException(
-                  expectedName: 'foo', actualName: 'bar', position: 5))));
+            stream
+                .toXmlEvents(validateNesting: true, withLocation: true)
+                .flatten(),
+            emitsThrough(
+              emitsError(
+                isXmlTagException(
+                  expectedName: 'foo',
+                  actualName: 'bar',
+                  position: 5,
+                ),
+              ),
+            ),
+          );
         },
       );
     });
@@ -505,33 +528,42 @@ void main() {
       const decoder = XmlNodeDecoder();
       test('mismatch closing tag', () {
         expect(
-            () => decoder.convert([
-                  XmlStartElementEvent('foo', [], false),
-                  XmlEndElementEvent('bar'),
-                ]),
-            throwsA(isXmlTagException(
+          () => decoder.convert([
+            XmlStartElementEvent('foo', [], false),
+            XmlEndElementEvent('bar'),
+          ]),
+          throwsA(
+            isXmlTagException(
               message: 'Expected </foo>, but found </bar>',
               expectedName: 'foo',
               actualName: 'bar',
-            )));
+            ),
+          ),
+        );
       });
       test('unexpected closing tag', () {
         expect(
-            () => decoder.convert([XmlEndElementEvent('foo')]),
-            throwsA(isXmlTagException(
+          () => decoder.convert([XmlEndElementEvent('foo')]),
+          throwsA(
+            isXmlTagException(
               message: 'Unexpected </foo>',
               expectedName: isNull,
               actualName: 'foo',
-            )));
+            ),
+          ),
+        );
       });
       test('missing closing tag', () {
         expect(
-            () => decoder.convert([XmlStartElementEvent('foo', [], false)]),
-            throwsA(isXmlTagException(
+          () => decoder.convert([XmlStartElementEvent('foo', [], false)]),
+          throwsA(
+            isXmlTagException(
               message: 'Missing </foo>',
               expectedName: 'foo',
               actualName: isNull,
-            )));
+            ),
+          ),
+        );
       });
       test('hidden parents', () {
         final grandparent = XmlStartElementEvent('grandparent', [], false);
@@ -542,36 +574,35 @@ void main() {
         final node = decoder.convert([child]).single;
         expect(node.hasParent, isTrue);
         expect(node.parent?.hasParent, isTrue);
-        expect(node.parent?.parent?.toXmlString(),
-            '<grandparent><parent><child/></parent></grandparent>');
+        expect(
+          node.parent?.parent?.toXmlString(),
+          '<grandparent><parent><child/></parent></grandparent>',
+        );
       });
     });
   });
   group('normalizeEvents', () {
     test('empty', () async {
       final input = <XmlEvent>[XmlTextEvent('')];
-      final output = await Stream.fromIterable([input])
-          .normalizeEvents()
-          .flatten()
-          .toList();
+      final output = await Stream.fromIterable([
+        input,
+      ]).normalizeEvents().flatten().toList();
       const expected = <XmlEvent>[];
       expect(output, expected);
     });
     test('whitespace', () async {
       final input = <XmlEvent>[XmlTextEvent(' \n\t')];
-      final actual = await Stream.fromIterable([input])
-          .normalizeEvents()
-          .flatten()
-          .toList();
+      final actual = await Stream.fromIterable([
+        input,
+      ]).normalizeEvents().flatten().toList();
       final expected = <XmlEvent>[XmlTextEvent(' \n\t')];
       expect(actual, expected);
     });
     test('combine two', () async {
       final input = <XmlEvent>[XmlTextEvent('a'), XmlTextEvent('b')];
-      final actual = await Stream.fromIterable([input])
-          .normalizeEvents()
-          .flatten()
-          .toList();
+      final actual = await Stream.fromIterable([
+        input,
+      ]).normalizeEvents().flatten().toList();
       final expected = <XmlEvent>[XmlTextEvent('ab')];
       expect(actual, expected);
     });
@@ -583,10 +614,9 @@ void main() {
         XmlTextEvent('d'),
         XmlTextEvent('e'),
       ];
-      final actual = await Stream.fromIterable([input])
-          .normalizeEvents()
-          .flatten()
-          .toList();
+      final actual = await Stream.fromIterable([
+        input,
+      ]).normalizeEvents().flatten().toList();
       final expected = <XmlEvent>[XmlTextEvent('abcde')];
       expect(actual, expected);
     });
@@ -599,10 +629,9 @@ void main() {
         XmlTextEvent('d'),
         XmlTextEvent('e'),
       ];
-      final actual = await Stream.fromIterable([input])
-          .normalizeEvents()
-          .flatten()
-          .toList();
+      final actual = await Stream.fromIterable([
+        input,
+      ]).normalizeEvents().flatten().toList();
       final expected = <XmlEvent>[
         XmlTextEvent('abc'),
         XmlStartElementEvent('br', [], true),
@@ -622,10 +651,9 @@ void main() {
         XmlStartElementEvent('element', [], true),
         XmlTextEvent('text'),
       ];
-      final output = await Stream.fromIterable([input])
-          .withParentEvents()
-          .flatten()
-          .toList();
+      final output = await Stream.fromIterable([
+        input,
+      ]).withParentEvents().flatten().toList();
       expect(output, input, reason: 'equality is unaffected');
       for (var i = 0; i < input.length; i++) {
         expect(input[i], same(output[i]), reason: 'root element is identical');
@@ -643,10 +671,9 @@ void main() {
         XmlTextEvent('text'),
         XmlEndElementEvent('element'),
       ];
-      final output = await Stream.fromIterable([input])
-          .withParentEvents()
-          .flatten()
-          .toList();
+      final output = await Stream.fromIterable([
+        input,
+      ]).withParentEvents().flatten().toList();
       expect(output, input, reason: 'equality is unaffected');
       for (var i = 1; i < input.length; i++) {
         expect(output[i].parent, same(output[0]));
@@ -662,10 +689,9 @@ void main() {
         XmlEndElementEvent('second'),
         XmlEndElementEvent('first'),
       ];
-      final output = await Stream.fromIterable([input])
-          .withParentEvents()
-          .flatten()
-          .toList();
+      final output = await Stream.fromIterable([
+        input,
+      ]).withParentEvents().flatten().toList();
       expect(output, input, reason: 'equality is unaffected');
       expect(output[0], same(input[0]), reason: 'root element is identical');
       expect(output[0].parent, isNull);
@@ -683,12 +709,14 @@ void main() {
       ];
       final stream = Stream.fromIterable(input).withParentEvents().flatten();
       expect(
-          stream,
-          emitsInOrder([
-            input[0][0],
-            emitsError(isXmlTagException(
-                message: 'Expected </open>, but found </close>')),
-          ]));
+        stream,
+        emitsInOrder([
+          input[0][0],
+          emitsError(
+            isXmlTagException(message: 'Expected </open>, but found </close>'),
+          ),
+        ]),
+      );
     });
     test('closing tag missing', () {
       final input = <List<XmlEvent>>[
@@ -696,11 +724,12 @@ void main() {
       ];
       final stream = Stream.fromIterable(input).withParentEvents().flatten();
       expect(
-          stream,
-          emitsInOrder([
-            input[0][0],
-            emitsError(isXmlTagException(message: 'Missing </open>')),
-          ]));
+        stream,
+        emitsInOrder([
+          input[0][0],
+          emitsError(isXmlTagException(message: 'Missing </open>')),
+        ]),
+      );
     });
     test('closing tag unexpected', () {
       final input = <List<XmlEvent>>[
@@ -721,8 +750,9 @@ void main() {
         XmlTextEvent('second'),
         XmlEndElementEvent('outer'),
       ];
-      final actual = const XmlWithParentEvents()
-          .convert(const XmlNormalizeEvents().convert(input));
+      final actual = const XmlWithParentEvents().convert(
+        const XmlNormalizeEvents().convert(input),
+      );
       expect(actual, hasLength(3));
       expect(actual[1].parent, same(actual[0]));
       expect(actual[2].parent, same(actual[0]));
@@ -735,8 +765,9 @@ void main() {
         XmlTextEvent('second'),
         XmlEndElementEvent('outer'),
       ];
-      final actual = const XmlNormalizeEvents()
-          .convert(const XmlWithParentEvents().convert(input));
+      final actual = const XmlNormalizeEvents().convert(
+        const XmlWithParentEvents().convert(input),
+      );
       expect(actual, hasLength(3));
       expect(actual[1].parent, same(actual[0]));
       expect(actual[2].parent, same(actual[0]));
@@ -744,11 +775,9 @@ void main() {
     test('default namespace', () async {
       const url = 'http://www.w3.org/1999/xhtml';
       const input = '<html xmlns="$url"><body lang="en"/></html>';
-      final events = await Stream.fromIterable([input])
-          .toXmlEvents()
-          .withParentEvents()
-          .flatten()
-          .toList();
+      final events = await Stream.fromIterable([
+        input,
+      ]).toXmlEvents().withParentEvents().flatten().toList();
       for (final event in events) {
         if (event is XmlStartElementEvent) {
           expect(event.namespaceUri, url);
@@ -762,14 +791,13 @@ void main() {
     });
     test('prefix namespace', () async {
       const url = 'http://www.w3.org/1999/xhtml';
-      const input = '<xhtml:html xmlns:xhtml="$url">'
+      const input =
+          '<xhtml:html xmlns:xhtml="$url">'
           '<xhtml:body xhtml:lang="en"/>'
           '</xhtml:html>';
-      final events = await Stream.fromIterable([input])
-          .toXmlEvents()
-          .withParentEvents()
-          .flatten()
-          .toList();
+      final events = await Stream.fromIterable([
+        input,
+      ]).toXmlEvents().withParentEvents().flatten().toList();
       for (final event in events) {
         if (event is XmlStartElementEvent) {
           expect(event.namespaceUri, url);

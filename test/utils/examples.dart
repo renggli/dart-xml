@@ -9,7 +9,8 @@ const Map<String, String> allXml = {
   'wikimedia.xml': wikimediaXml,
 };
 
-const String atomXml = '<?xml version="1.0" encoding="UTF-8"?>'
+const String atomXml =
+    '<?xml version="1.0" encoding="UTF-8"?>'
     '<app:service>'
     '  <app:workspace>'
     '    <cmisra:repositoryInfo xmlns:ns3="http://docs.oasis-open.org/ns/cmis/messaging/200908/">'
@@ -17,7 +18,8 @@ const String atomXml = '<?xml version="1.0" encoding="UTF-8"?>'
     '  </app:workspace>'
     '</app:service>';
 
-const String booksXml = '<?xml version="1.0"?>'
+const String booksXml =
+    '<?xml version="1.0"?>'
     '<catalog>'
     '   <book id="bk101">'
     '      <author>Gambardella, Matthew</author>'
@@ -138,7 +140,8 @@ const String booksXml = '<?xml version="1.0"?>'
     '   </book>'
     '</catalog>';
 
-const String bookstoreXml = '<?xml version="1.0" encoding="ISO-8859-1"?>\n'
+const String bookstoreXml =
+    '<?xml version="1.0" encoding="ISO-8859-1"?>\n'
     '<bookstore>\n'
     '  <book>\n'
     '    <title lang="eng">Harry Potter</title>\n'
@@ -150,7 +153,8 @@ const String bookstoreXml = '<?xml version="1.0" encoding="ISO-8859-1"?>\n'
     '  </book>\n'
     '</bookstore>';
 
-const String complicatedXml = '<?xml version="1.0"?>\n'
+const String complicatedXml =
+    '<?xml version="1.0"?>\n'
     '<!DOCTYPE name SYSTEM "complicated.dtd" [ <!ELEMENT html (head, body)> ]>\n'
     '<ns:foo attr="not namespaced" n1:ans="namespaced 1" '
     '        n2:ans="namespace 2" >\n'
@@ -162,10 +166,12 @@ const String complicatedXml = '<?xml version="1.0"?>\n'
     '  <?processing instruction?>\n'
     '</ns:foo>';
 
-const String controlCharactersXml = '<?xml version="1.0"?>\n'
+const String controlCharactersXml =
+    '<?xml version="1.0"?>\n'
     '<name attr="bell\u0007">del\u007fbackspace\u0008null\u0000</name>';
 
-const String shiporderXsd = '<?xml version="1.0"?>'
+const String shiporderXsd =
+    '<?xml version="1.0"?>'
     '<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">'
     '  <xsd:annotation>'
     '    <xsd:documentation xml:lang="en">'
@@ -224,13 +230,15 @@ const String shiporderXsd = '<?xml version="1.0"?>'
     '  </xsd:simpleType>'
     '</xsd:schema>';
 
-const String unicodeXml = '<?xml version="1.1" encoding="UTF-8"?>\n'
+const String unicodeXml =
+    '<?xml version="1.1" encoding="UTF-8"?>\n'
     '<電文情報 version="5.0">\n'
     '<生年月日>昭和２８年２月１日</生年月日>\n'
     '<性別>男</性別>\n'
     '</電文情報>\n';
 
-const String wikimediaXml = '<?xml version="1.0" encoding="utf-8"?>'
+const String wikimediaXml =
+    '<?xml version="1.0" encoding="utf-8"?>'
     '<Wikimedia>'
     '  <projects>'
     '    <project name="Wikipedia" launch="2001-01-05">'

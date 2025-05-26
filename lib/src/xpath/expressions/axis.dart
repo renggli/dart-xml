@@ -41,7 +41,8 @@ class DescendantAxisExpression extends AxisExpression {
 class DescendantOrSelfAxisExpression extends AxisExpression {
   @override
   Iterable<XmlNode> find(XmlNode node) => [node].followedBy(
-      node.descendants.where((each) => each.nodeType != XmlNodeType.ATTRIBUTE));
+    node.descendants.where((each) => each.nodeType != XmlNodeType.ATTRIBUTE),
+  );
 }
 
 class FollowingAxisExpression extends AxisExpression {
@@ -71,8 +72,10 @@ class PrecedingAxisExpression extends AxisExpression {
   @override
   Iterable<XmlNode> find(XmlNode node) {
     final ancestors = node.ancestors.toSet();
-    return node.preceding.where((each) =>
-        !ancestors.contains(each) && each.nodeType != XmlNodeType.ATTRIBUTE);
+    return node.preceding.where(
+      (each) =>
+          !ancestors.contains(each) && each.nodeType != XmlNodeType.ATTRIBUTE,
+    );
   }
 }
 

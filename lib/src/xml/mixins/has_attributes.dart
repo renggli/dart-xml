@@ -107,8 +107,9 @@ mixin XmlHasAttributes implements XmlAttributesBase, XmlNode {
     final index = attributes.indexWhere(createNameLookup(name, namespace));
     if (index < 0) {
       if (value != null) {
-        final prefix =
-            namespace == null ? null : lookupNamespacePrefix(this, namespace);
+        final prefix = namespace == null
+            ? null
+            : lookupNamespacePrefix(this, namespace);
         attributes.add(XmlAttribute(XmlName(name, prefix), value));
       }
     } else {

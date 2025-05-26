@@ -46,28 +46,41 @@ class XmlAnnotator {
         switch (event) {
           case XmlDeclarationEvent():
             if (_roots.whereType<XmlDeclarationEvent>().isNotEmpty) {
-              throw XmlParserException('Expected at most one XML declaration',
-                  buffer: buffer, position: start);
+              throw XmlParserException(
+                'Expected at most one XML declaration',
+                buffer: buffer,
+                position: start,
+              );
             } else if (_roots.isNotEmpty) {
-              throw XmlParserException('Unexpected XML declaration',
-                  buffer: buffer, position: start);
+              throw XmlParserException(
+                'Unexpected XML declaration',
+                buffer: buffer,
+                position: start,
+              );
             }
             _roots.add(event);
           case XmlDoctypeEvent():
             if (_roots.whereType<XmlDoctypeEvent>().isNotEmpty) {
               throw XmlParserException(
-                  'Expected at most one doctype declaration',
-                  buffer: buffer,
-                  position: start);
+                'Expected at most one doctype declaration',
+                buffer: buffer,
+                position: start,
+              );
             } else if (_roots.whereType<XmlStartElementEvent>().isNotEmpty) {
-              throw XmlParserException('Unexpected doctype declaration',
-                  buffer: buffer, position: start);
+              throw XmlParserException(
+                'Unexpected doctype declaration',
+                buffer: buffer,
+                position: start,
+              );
             }
             _roots.add(event);
           case XmlStartElementEvent():
             if (_roots.whereType<XmlStartElementEvent>().isNotEmpty) {
-              throw XmlParserException('Unexpected root element',
-                  buffer: buffer, position: start);
+              throw XmlParserException(
+                'Unexpected root element',
+                buffer: buffer,
+                position: start,
+              );
             }
             _roots.add(event);
         }
@@ -86,12 +99,18 @@ class XmlAnnotator {
           // Validate the parent relationship.
           if (validateNesting) {
             if (_parents.isEmpty) {
-              throw XmlTagException.unexpectedClosingTag(event.name,
-                  buffer: buffer, position: start);
+              throw XmlTagException.unexpectedClosingTag(
+                event.name,
+                buffer: buffer,
+                position: start,
+              );
             } else if (_parents.last.name != event.name) {
               throw XmlTagException.mismatchClosingTag(
-                  _parents.last.name, event.name,
-                  buffer: buffer, position: start);
+                _parents.last.name,
+                event.name,
+                buffer: buffer,
+                position: start,
+              );
             }
           }
           if (_parents.isNotEmpty) {
@@ -104,13 +123,19 @@ class XmlAnnotator {
   void close({String? buffer, int? position}) {
     // Validate the parent relationship.
     if (validateNesting && _parents.isNotEmpty) {
-      throw XmlTagException.missingClosingTag(_parents.last.name,
-          buffer: buffer, position: position);
+      throw XmlTagException.missingClosingTag(
+        _parents.last.name,
+        buffer: buffer,
+        position: position,
+      );
     }
     // Validate the document root events.
     if (validateDocument && _roots.whereType<XmlStartElementEvent>().isEmpty) {
-      throw XmlParserException('Expected a single root element',
-          buffer: buffer, position: position);
+      throw XmlParserException(
+        'Expected a single root element',
+        buffer: buffer,
+        position: position,
+      );
     }
   }
 }

@@ -11,8 +11,11 @@ class XPathEvaluationException extends XmlException {
 
   /// Checks the number of arguments passed to a XPath function.
   static void checkArgumentCount(
-      String name, List<XPathExpression> arguments, int min,
-      [int? max]) {
+    String name,
+    List<XPathExpression> arguments,
+    int min, [
+    int? max,
+  ]) {
     final count = arguments.length;
     if (min <= count && count <= (max ?? min)) return;
     final buffer = StringBuffer('Function "$name" expects ');

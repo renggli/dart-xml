@@ -19,14 +19,15 @@ extension XmlEventDecoderExtension on Stream<String> {
     bool validateDocument = false,
     bool withLocation = false,
     bool withParent = false,
-  }) =>
-      transform(XmlEventDecoder(
-        entityMapping: entityMapping,
-        validateNesting: validateNesting,
-        validateDocument: validateDocument,
-        withLocation: withLocation,
-        withParent: withParent,
-      ));
+  }) => transform(
+    XmlEventDecoder(
+      entityMapping: entityMapping,
+      validateNesting: validateNesting,
+      validateDocument: validateDocument,
+      withLocation: withLocation,
+      withParent: withParent,
+    ),
+  );
 }
 
 /// A converter that decodes a [String] to a sequence of [XmlEvent] objects.
@@ -59,21 +60,24 @@ class XmlEventDecoder extends Converter<String, List<XmlEvent>> {
   @override
   StringConversionSink startChunkedConversion(Sink<List<XmlEvent>> sink) =>
       _XmlEventDecoderSink(
-          sink,
-          entityMapping,
-          XmlAnnotator(
-            validateNesting: validateNesting,
-            validateDocument: validateDocument,
-            withBuffer: false,
-            withLocation: withLocation,
-            withParent: withParent,
-          ));
+        sink,
+        entityMapping,
+        XmlAnnotator(
+          validateNesting: validateNesting,
+          validateDocument: validateDocument,
+          withBuffer: false,
+          withLocation: withLocation,
+          withParent: withParent,
+        ),
+      );
 }
 
 class _XmlEventDecoderSink extends StringConversionSinkBase {
   _XmlEventDecoderSink(
-      this.sink, XmlEntityMapping entityMapping, this.annotator)
-      : eventParser = eventParserCache[entityMapping];
+    this.sink,
+    XmlEntityMapping entityMapping,
+    this.annotator,
+  ) : eventParser = eventParserCache[entityMapping];
 
   final Sink<List<XmlEvent>> sink;
   final Parser<XmlEvent> eventParser;
@@ -89,8 +93,11 @@ class _XmlEventDecoderSink extends StringConversionSinkBase {
       return;
     }
     final result = <XmlEvent>[];
-    Result<XmlEvent> previous =
-        Failure(carry + str.substring(start, end), 0, '');
+    Result<XmlEvent> previous = Failure(
+      carry + str.substring(start, end),
+      0,
+      '',
+    );
     for (;;) {
       final current = eventParser.parseOn(previous);
       if (current is Success) {
@@ -121,8 +128,10 @@ class _XmlEventDecoderSink extends StringConversionSinkBase {
     if (carry.isNotEmpty) {
       final context = eventParser.parseOn(Failure(carry, 0, ''));
       if (context is Failure) {
-        throw XmlParserException(context.message,
-            position: offset + context.position);
+        throw XmlParserException(
+          context.message,
+          position: offset + context.position,
+        );
       }
     }
     annotator.close(position: offset);

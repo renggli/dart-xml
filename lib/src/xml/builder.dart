@@ -80,10 +80,11 @@ class XmlBuilder {
   /// ```dart
   /// builder.declaration(encoding: 'UTF-8');
   /// ```
-  void declaration(
-      {String version = '1.0',
-      String? encoding,
-      Map<String, String> attributes = const {}}) {
+  void declaration({
+    String version = '1.0',
+    String? encoding,
+    Map<String, String> attributes = const {},
+  }) {
     final declaration = XmlDeclaration()
       ..version = version
       ..encoding = encoding;
@@ -99,18 +100,27 @@ class XmlBuilder {
   /// ```dart
   /// builder.doctype('note', systemId: 'note.dtd');
   /// ```
-  void doctype(String name,
-      {String? publicId, String? systemId, String? internalSubset}) {
+  void doctype(
+    String name, {
+    String? publicId,
+    String? systemId,
+    String? internalSubset,
+  }) {
     if (publicId != null && systemId == null) {
       throw ArgumentError(
-          'A system ID is required, if a public ID is provided');
+        'A system ID is required, if a public ID is provided',
+      );
     }
     final externalId = publicId != null && systemId != null
-        ? DtdExternalId.public(publicId, XmlAttributeType.DOUBLE_QUOTE,
-            systemId, XmlAttributeType.DOUBLE_QUOTE)
+        ? DtdExternalId.public(
+            publicId,
+            XmlAttributeType.DOUBLE_QUOTE,
+            systemId,
+            XmlAttributeType.DOUBLE_QUOTE,
+          )
         : publicId == null && systemId != null
-            ? DtdExternalId.system(systemId, XmlAttributeType.DOUBLE_QUOTE)
-            : null;
+        ? DtdExternalId.system(systemId, XmlAttributeType.DOUBLE_QUOTE)
+        : null;
     _stack.last.children.add(XmlDoctype(name, externalId, internalSubset));
   }
 
@@ -195,7 +205,8 @@ class XmlBuilder {
           if (!meta.used) {
             final qualified = meta.name.qualified;
             final attribute = element.attributes.firstWhere(
-                (attribute) => attribute.name.qualified == qualified);
+              (attribute) => attribute.name.qualified == qualified,
+            );
             element.attributes.remove(attribute);
           }
         });
@@ -219,17 +230,26 @@ class XmlBuilder {
   ///    builder.attribute('lang', 'en');
   /// });
   /// ```
-  void attribute(String name, Object? value,
-      {String? namespace, XmlAttributeType? attributeType}) {
+  void attribute(
+    String name,
+    Object? value, {
+    String? namespace,
+    XmlAttributeType? attributeType,
+  }) {
     final attributes = _stack.last.attributes;
     final attributeName = _buildName(name, namespace);
-    final attributeIndex = attributes.indexWhere((attribute) =>
-        attribute.localName == attributeName.local &&
-        attribute.namespacePrefix == attributeName.prefix);
+    final attributeIndex = attributes.indexWhere(
+      (attribute) =>
+          attribute.localName == attributeName.local &&
+          attribute.namespacePrefix == attributeName.prefix,
+    );
     if (attributeIndex < 0) {
       if (value != null) {
-        final attribute = XmlAttribute(_buildName(name, namespace),
-            value.toString(), attributeType ?? XmlAttributeType.DOUBLE_QUOTE);
+        final attribute = XmlAttribute(
+          _buildName(name, namespace),
+          value.toString(),
+          attributeType ?? XmlAttributeType.DOUBLE_QUOTE,
+        );
         attributes.add(attribute);
       }
     } else {
@@ -254,8 +274,10 @@ class XmlBuilder {
   /// });
   /// ```
   void xml(String input, {XmlEntityMapping? entityMapping}) {
-    final fragment =
-        XmlDocumentFragment.parse(input, entityMapping: entityMapping);
+    final fragment = XmlDocumentFragment.parse(
+      input,
+      entityMapping: entityMapping,
+    );
     _stack.last.children.add(fragment);
   }
 
@@ -267,19 +289,23 @@ class XmlBuilder {
       throw ArgumentError('The "$prefix" prefix cannot be bound.');
     }
     if (optimizeNamespaces &&
-        _stack.any((builder) =>
-            builder.namespaces.containsKey(uri) &&
-            builder.namespaces[uri]!.prefix == prefix)) {
+        _stack.any(
+          (builder) =>
+              builder.namespaces.containsKey(uri) &&
+              builder.namespaces[uri]!.prefix == prefix,
+        )) {
       // Namespace prefix already correctly specified in an ancestor.
       return;
     }
     if (_stack.last.namespaces.values.any((meta) => meta.prefix == prefix)) {
       throw ArgumentError(
-          'The "$prefix" prefix conflicts with existing binding.');
+        'The "$prefix" prefix conflicts with existing binding.',
+      );
     }
     final meta = NamespaceData(prefix, false);
-    _stack.last.attributes
-        .add(XmlAttribute(meta.name, uri, XmlAttributeType.DOUBLE_QUOTE));
+    _stack.last.attributes.add(
+      XmlAttribute(meta.name, uri, XmlAttributeType.DOUBLE_QUOTE),
+    );
     _stack.last.namespaces[uri] = meta;
   }
 
@@ -326,8 +352,9 @@ class XmlBuilder {
   // Internal method to lookup an namespace prefix.
   NamespaceData _lookup(String uri) {
     final builder = _stack.lastWhere(
-        (builder) => builder.namespaces.containsKey(uri),
-        orElse: () => throw ArgumentError('Undefined namespace: $uri'));
+      (builder) => builder.namespaces.containsKey(uri),
+      orElse: () => throw ArgumentError('Undefined namespace: $uri'),
+    );
     return builder.namespaces[uri]!;
   }
 

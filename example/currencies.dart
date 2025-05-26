@@ -19,8 +19,9 @@ Future<void> main(List<String> arguments) async {
     stdout.writeln('Example: currencies EUR CHF ...');
     exit(1);
   }
-  final currencies =
-      arguments.map((argument) => argument.trim().toLowerCase()).toSet();
+  final currencies = arguments
+      .map((argument) => argument.trim().toLowerCase())
+      .toSet();
   writeCell();
   currencies.forEach(writeCell);
   stdout.writeln();
@@ -36,14 +37,22 @@ Future<void> main(List<String> arguments) async {
       if (sourceCurrency == targetCurrency) {
         writeCell();
       } else {
-        writeCell(document.rootElement
-            .findElements('item')
-            .where((item) => item.findElements('targetCurrency').any(
-                (element) => element.innerText.toLowerCase() == targetCurrency))
-            .first
-            .findElements('exchangeRate')
-            .first
-            .innerText);
+        writeCell(
+          document.rootElement
+              .findElements('item')
+              .where(
+                (item) => item
+                    .findElements('targetCurrency')
+                    .any(
+                      (element) =>
+                          element.innerText.toLowerCase() == targetCurrency,
+                    ),
+              )
+              .first
+              .findElements('exchangeRate')
+              .first
+              .innerText,
+        );
       }
     }
     stdout.writeln();

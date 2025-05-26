@@ -19,7 +19,8 @@ class TrimTextVisitor with XmlVisitor {
 
 void main() {
   test('https://github.com/renggli/dart-xml/issues/38', () {
-    const input = '<?xml?><InstantaneousDemand><DeviceMacId>'
+    const input =
+        '<?xml?><InstantaneousDemand><DeviceMacId>'
         '0xd8d5b9000000b3e8</DeviceMacId><MeterMacId>0x00135003007c27b4'
         '</MeterMacId><TimeStamp>0x2244aeb3</TimeStamp><Demand>0x0006c1'
         '</Demand><Multiplier>0x00000001</Multiplier><Divisor>0x000003e8'
@@ -39,13 +40,17 @@ void main() {
     final fragment = XmlDocumentFragment.parse(input);
     final href = fragment
         .findElements('link')
-        .where((element) =>
-            element.getAttribute('rel') ==
-            'http://opds-spec.org/image/thumbnail')
+        .where(
+          (element) =>
+              element.getAttribute('rel') ==
+              'http://opds-spec.org/image/thumbnail',
+        )
         .map((element) => element.getAttribute('href'))
         .single;
-    expect(href,
-        'https://covers.feedbooks.net/book/2936.jpg?size=large&t=1549045871');
+    expect(
+      href,
+      'https://covers.feedbooks.net/book/2936.jpg?size=large&t=1549045871',
+    );
   });
   group('https://github.com/renggli/dart-xml/issues/99', () {
     const input = '''
@@ -95,10 +100,14 @@ void main() {
     ''');
     expect(document.doctypeElement, isNotNull);
     expect(document.doctypeElement!.name, 'TEI.2');
-    expect(document.doctypeElement!.externalId!.publicId,
-        '-//TEI P4//DTD Main DTD Driver File//EN');
-    expect(document.doctypeElement!.externalId!.systemId,
-        'http://www.tei-c.org/Guidelines/DTD/tei2.dtd');
+    expect(
+      document.doctypeElement!.externalId!.publicId,
+      '-//TEI P4//DTD Main DTD Driver File//EN',
+    );
+    expect(
+      document.doctypeElement!.externalId!.systemId,
+      'http://www.tei-c.org/Guidelines/DTD/tei2.dtd',
+    );
   });
   test('https://stackoverflow.com/questions/68100391', () {
     const number = 20;
@@ -161,15 +170,19 @@ void main() {
   <head><title>Alice's Adventures in Wonderland by Lewis Carroll</title></head>
   <body>&O;Who are <i>you</i>?&C; said the Caterpillar.</body>
 </html>''', entityMapping: entityMapping);
-    expect(document.findAllElements('body').first.innerText,
-        '“Who are you?” said the Caterpillar.');
+    expect(
+      document.findAllElements('body').first.innerText,
+      '“Who are you?” said the Caterpillar.',
+    );
   });
   group('https://github.com/renggli/dart-xml/discussions/154', () {
-    final document = XmlDocument.parse('<a>'
-        '<x>1</x>' // first match
-        '<b><x>2</x></b>' // second match
-        '<x>3<x></x></x>' // third match (does not descend into inner)
-        '</a>');
+    final document = XmlDocument.parse(
+      '<a>'
+      '<x>1</x>' // first match
+      '<b><x>2</x></b>' // second match
+      '<x>3<x></x></x>' // third match (does not descend into inner)
+      '</a>',
+    );
     bool predicate(XmlNode node) => node is XmlElement && node.localName == 'x';
 
     test('descendants & ancestors', () {
@@ -229,7 +242,8 @@ void main() {
     expect(carElement.getAttribute('color:name'), equals('red'));
   });
   test('https://github.com/renggli/dart-xml/issues/160', () {
-    const xml = '<?xml version="1.0"?>\r\n'
+    const xml =
+        '<?xml version="1.0"?>\r\n'
         '<aaa>\r\n'
         '  <bbb ccc="ddd"/>\r\n'
         '</aaa>';
@@ -242,14 +256,16 @@ void main() {
   });
   test('https://github.com/renggli/dart-xml/discussions/168', () {
     final actual = XmlDocument.parse(
-        '<XML><BOX><IMG><BLUR /><URL value="./" /></IMG></BOX></XML>');
+      '<XML><BOX><IMG><BLUR /><URL value="./" /></IMG></BOX></XML>',
+    );
     final image = actual.findAllElements('IMG').single;
     final blur = image.findAllElements('BLUR').single;
     image.children.remove(blur);
     image.replace(blur);
     blur.children.add(image);
     final expected = XmlDocument.parse(
-        '<XML><BOX><BLUR><IMG><URL value="./" /></IMG></BLUR></BOX></XML>');
+      '<XML><BOX><BLUR><IMG><URL value="./" /></IMG></BLUR></BOX></XML>',
+    );
     expect(expected.toXmlString(), actual.toXmlString());
   });
   group('https://github.com/renggli/dart-xml/discussions/177', () {
@@ -276,8 +292,10 @@ void main() {
           .toXmlNodes()
           .expand((nodes) => nodes)
           .toList();
-      expect(result.map((each) => each.toString()),
-          ['<item>a</item>', '<item>b</item>']);
+      expect(result.map((each) => each.toString()), [
+        '<item>a</item>',
+        '<item>b</item>',
+      ]);
     });
   });
   test('https://stackoverflow.com/questions/77055363', () {

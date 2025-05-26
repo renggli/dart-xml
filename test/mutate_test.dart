@@ -6,14 +6,17 @@ import 'utils/assertions.dart';
 import 'utils/matchers.dart';
 
 @isTest
-void mutatingTest<T extends XmlNode>(String description, String before,
-    void Function(T node) action, String after) {
+void mutatingTest<T extends XmlNode>(
+  String description,
+  String before,
+  void Function(T node) action,
+  String after,
+) {
   test(description, () {
     final document = XmlDocument.parse(before);
-    final node = <XmlNode>[document]
-        .followedBy(document.descendants)
-        .whereType<T>()
-        .first;
+    final node = <XmlNode>[
+      document,
+    ].followedBy(document.descendants).whereType<T>().first;
     action(node);
     document.normalize();
     expect(document.toXmlString(), after, reason: 'should be modified');
@@ -22,14 +25,17 @@ void mutatingTest<T extends XmlNode>(String description, String before,
 }
 
 @isTest
-void throwingTest<T extends XmlNode>(String description, String before,
-    void Function(T node) action, Matcher matcher) {
+void throwingTest<T extends XmlNode>(
+  String description,
+  String before,
+  void Function(T node) action,
+  Matcher matcher,
+) {
   test(description, () {
     final document = XmlDocument.parse(before);
-    final node = <XmlNode>[document]
-        .followedBy(document.descendants)
-        .whereType<T>()
-        .first;
+    final node = <XmlNode>[
+      document,
+    ].followedBy(document.descendants).whereType<T>().first;
     expect(() => action(node), matcher);
     expect(document.toXmlString(), before, reason: 'should not be modified');
     assertDocumentTreeInvariants(document);
@@ -182,8 +188,12 @@ void main() {
       'element (attribute children)',
       '<element/>',
       (node) => node.children.add(wrong),
-      throwsA(isXmlNodeTypeException(
-          node: wrong, types: contains(XmlNodeType.ELEMENT))),
+      throwsA(
+        isXmlNodeTypeException(
+          node: wrong,
+          types: contains(XmlNodeType.ELEMENT),
+        ),
+      ),
     );
     throwingTest<XmlDocument>(
       'element (parent error)',
@@ -246,8 +256,12 @@ void main() {
       'element (attribute children)',
       '<element/>',
       (node) => node.children.addAll([wrong]),
-      throwsA(isXmlNodeTypeException(
-          node: wrong, types: contains(XmlNodeType.ELEMENT))),
+      throwsA(
+        isXmlNodeTypeException(
+          node: wrong,
+          types: contains(XmlNodeType.ELEMENT),
+        ),
+      ),
     );
     throwingTest<XmlDocument>(
       'element (parent error)',
@@ -257,26 +271,16 @@ void main() {
     );
   });
   group('innerText', () {
-    mutatingTest<XmlElement>(
-      'empty with text',
-      '<element/>',
-      (node) {
-        expect(node.innerText, '');
-        node.innerText = 'inner text';
-        expect(node.innerText, 'inner text');
-      },
-      '<element>inner text</element>',
-    );
-    mutatingTest<XmlElement>(
-      'empty with text (encoded)',
-      '<element/>',
-      (node) {
-        expect(node.innerText, '');
-        node.innerText = '<child>';
-        expect(node.innerText, '<child>');
-      },
-      '<element>&lt;child></element>',
-    );
+    mutatingTest<XmlElement>('empty with text', '<element/>', (node) {
+      expect(node.innerText, '');
+      node.innerText = 'inner text';
+      expect(node.innerText, 'inner text');
+    }, '<element>inner text</element>');
+    mutatingTest<XmlElement>('empty with text (encoded)', '<element/>', (node) {
+      expect(node.innerText, '');
+      node.innerText = '<child>';
+      expect(node.innerText, '<child>');
+    }, '<element>&lt;child></element>');
     mutatingTest<XmlElement>(
       'multiple with text',
       '<element>multiple <child/>nodes</element>',
@@ -287,17 +291,14 @@ void main() {
       },
       '<element>replaced</element>',
     );
-    mutatingTest<XmlElement>(
-      'text with empty',
-      '<element>contents</element>',
-      (node) {
-        expect(node.innerText, 'contents');
-        node.innerText = '';
-        expect(node.children, isEmpty);
-        expect(node.innerText, '');
-      },
-      '<element/>',
-    );
+    mutatingTest<XmlElement>('text with empty', '<element>contents</element>', (
+      node,
+    ) {
+      expect(node.innerText, 'contents');
+      node.innerText = '';
+      expect(node.children, isEmpty);
+      expect(node.innerText, '');
+    }, '<element/>');
     throwingTest<XmlElement>(
       'unsupported text node',
       '<element>contents</element>',
@@ -305,11 +306,13 @@ void main() {
         expect(node.firstChild, isA<XmlText>());
         node.firstChild!.innerText = 'error';
       },
-      throwsA(isXmlNodeTypeException(
-        message: 'XmlNodeType.TEXT cannot have child nodes.',
-        node: isA<XmlText>(),
-        types: isEmpty,
-      )),
+      throwsA(
+        isXmlNodeTypeException(
+          message: 'XmlNodeType.TEXT cannot have child nodes.',
+          node: isA<XmlText>(),
+          types: isEmpty,
+        ),
+      ),
     );
   });
   group('innerXml', () {
@@ -341,11 +344,13 @@ void main() {
         expect(node.firstChild, isA<XmlText>());
         node.firstChild!.innerXml = 'error';
       },
-      throwsA(isXmlNodeTypeException(
-        message: 'XmlNodeType.TEXT cannot have child nodes.',
-        node: isA<XmlText>(),
-        types: isEmpty,
-      )),
+      throwsA(
+        isXmlNodeTypeException(
+          message: 'XmlNodeType.TEXT cannot have child nodes.',
+          node: isA<XmlText>(),
+          types: isEmpty,
+        ),
+      ),
     );
   });
   group('outerXml', () {
@@ -397,8 +402,10 @@ void main() {
     mutatingTest<XmlElement>(
       'element (copy attribute)',
       '<element1 attr1="value1"><element2 attr2="value2"/></element1>',
-      (node) => node.children.first.attributes
-          .insert(1, node.attributes.first.copy()),
+      (node) => node.children.first.attributes.insert(
+        1,
+        node.attributes.first.copy(),
+      ),
       '<element1 attr1="value1"><element2 attr2="value2" attr1="value1"/></element1>',
     );
     mutatingTest<XmlElement>(
@@ -449,8 +456,12 @@ void main() {
       'element (attribute children)',
       '<element/>',
       (node) => node.children.insert(0, wrong),
-      throwsA(isXmlNodeTypeException(
-          node: wrong, types: contains(XmlNodeType.ELEMENT))),
+      throwsA(
+        isXmlNodeTypeException(
+          node: wrong,
+          types: contains(XmlNodeType.ELEMENT),
+        ),
+      ),
     );
     throwingTest<XmlDocument>(
       'element (parent error)',
@@ -463,8 +474,9 @@ void main() {
     mutatingTest<XmlElement>(
       'element (attributes)',
       '<element attr1="value1"/>',
-      (node) => node.attributes
-          .insertAll(1, [XmlAttribute(XmlName('attr2'), 'value2')]),
+      (node) => node.attributes.insertAll(1, [
+        XmlAttribute(XmlName('attr2'), 'value2'),
+      ]),
       '<element attr1="value1" attr2="value2"/>',
     );
     mutatingTest<XmlElement>(
@@ -476,8 +488,9 @@ void main() {
     mutatingTest<XmlElement>(
       'element (copy attribute)',
       '<element1 attr1="value1"><element2 attr2="value2"/></element1>',
-      (node) => node.children.first.attributes
-          .insertAll(1, [node.attributes.first.copy()]),
+      (node) => node.children.first.attributes.insertAll(1, [
+        node.attributes.first.copy(),
+      ]),
       '<element1 attr1="value1"><element2 attr2="value2" attr1="value1"/></element1>',
     );
     mutatingTest<XmlElement>(
@@ -511,8 +524,9 @@ void main() {
     throwingTest<XmlElement>(
       'element (attribute range error)',
       '<element attr1="value1"/>',
-      (node) => node.attributes
-          .insertAll(2, [XmlAttribute(XmlName('attr2'), 'value2')]),
+      (node) => node.attributes.insertAll(2, [
+        XmlAttribute(XmlName('attr2'), 'value2'),
+      ]),
       throwsRangeError,
     );
     throwingTest<XmlElement>(
@@ -526,8 +540,12 @@ void main() {
       'element (attribute children)',
       '<element/>',
       (node) => node.children.insertAll(0, [wrong]),
-      throwsA(isXmlNodeTypeException(
-          node: wrong, types: contains(XmlNodeType.ELEMENT))),
+      throwsA(
+        isXmlNodeTypeException(
+          node: wrong,
+          types: contains(XmlNodeType.ELEMENT),
+        ),
+      ),
     );
     throwingTest<XmlDocument>(
       'element (parent error)',
@@ -566,8 +584,12 @@ void main() {
       'element (attribute children)',
       '<element1><element2/></element1>',
       (node) => node.children[0] = wrong,
-      throwsA(isXmlNodeTypeException(
-          node: wrong, types: contains(XmlNodeType.ELEMENT))),
+      throwsA(
+        isXmlNodeTypeException(
+          node: wrong,
+          types: contains(XmlNodeType.ELEMENT),
+        ),
+      ),
     );
     throwingTest<XmlDocument>(
       'element (parent error)',
@@ -649,7 +671,8 @@ void main() {
       'element (children)',
       '<element1><element2/><element3/></element1>',
       (node) => node.children.removeWhere(
-          (node) => node is XmlElement && node.localName == 'element3'),
+        (node) => node is XmlElement && node.localName == 'element3',
+      ),
       '<element1><element2/></element1>',
     );
   });
@@ -665,7 +688,8 @@ void main() {
       'element (children)',
       '<element1><element2/><element3/></element1>',
       (node) => node.children.retainWhere(
-          (node) => node is XmlElement && node.localName == 'element2'),
+        (node) => node is XmlElement && node.localName == 'element2',
+      ),
       '<element1><element2/></element1>',
     );
   });
@@ -757,9 +781,7 @@ void main() {
     mutatingTest<XmlElement>(
       'element (children)',
       '<element1><element2/><element3/></element1>',
-      (node) => node.children.setRange(1, 2, [
-        XmlElement(XmlName('element4')),
-      ]),
+      (node) => node.children.setRange(1, 2, [XmlElement(XmlName('element4'))]),
       '<element1><element2/><element4/></element1>',
     );
     throwingTest<XmlElement>(
@@ -789,8 +811,9 @@ void main() {
     mutatingTest<XmlElement>(
       'element attribute with attribute',
       '<element attr1="value1"/>',
-      (node) => node.attributes.first
-          .replace(XmlAttribute(XmlName('attr2'), 'value2')),
+      (node) => node.attributes.first.replace(
+        XmlAttribute(XmlName('attr2'), 'value2'),
+      ),
       '<element attr2="value2"/>',
     );
     mutatingTest<XmlElement>(
@@ -802,27 +825,30 @@ void main() {
     mutatingTest<XmlElement>(
       'element text with one element fragment',
       '<element><child/></element>',
-      (node) => node.firstChild!.replace(XmlDocumentFragment([
-        XmlText('child'),
-      ])),
+      (node) =>
+          node.firstChild!.replace(XmlDocumentFragment([XmlText('child')])),
       '<element>child</element>',
     );
     mutatingTest<XmlElement>(
       'element text with multiple element fragment',
       '<element><child/></element>',
-      (node) => node.firstChild!.replace(XmlDocumentFragment([
-        XmlElement(XmlName('child1')),
-        XmlElement(XmlName('child2')),
-      ])),
+      (node) => node.firstChild!.replace(
+        XmlDocumentFragment([
+          XmlElement(XmlName('child1')),
+          XmlElement(XmlName('child2')),
+        ]),
+      ),
       '<element><child1/><child2/></element>',
     );
     mutatingTest<XmlElement>(
       'element node with multiple element fragment',
       '<element>before<child/>after</element>',
-      (node) => node.children[1].replace(XmlDocumentFragment([
-        XmlElement(XmlName('child1')),
-        XmlElement(XmlName('child2')),
-      ])),
+      (node) => node.children[1].replace(
+        XmlDocumentFragment([
+          XmlElement(XmlName('child1')),
+          XmlElement(XmlName('child2')),
+        ]),
+      ),
       '<element>before<child1/><child2/>after</element>',
     );
   });
@@ -830,8 +856,9 @@ void main() {
     mutatingTest<XmlElement>(
       'element (attributes)',
       '<element attr1="value1" attr2="value2"/>',
-      (node) => node.attributes
-          .replaceRange(0, 1, [XmlAttribute(XmlName('attr3'), 'value3')]),
+      (node) => node.attributes.replaceRange(0, 1, [
+        XmlAttribute(XmlName('attr3'), 'value3'),
+      ]),
       '<element attr3="value3" attr2="value2"/>',
     );
     throwingTest<XmlElement>(
@@ -840,7 +867,7 @@ void main() {
       (node) => node.attributes.replaceRange(0, 3, [
         XmlAttribute(XmlName('attr3'), 'value3'),
         XmlAttribute(XmlName('attr4'), 'value4'),
-        XmlAttribute(XmlName('attr5'), 'value5')
+        XmlAttribute(XmlName('attr5'), 'value5'),
       ]),
       throwsRangeError,
     );

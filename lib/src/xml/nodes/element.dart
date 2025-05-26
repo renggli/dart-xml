@@ -37,8 +37,12 @@ class XmlElement extends XmlNode
     Iterable<XmlAttribute> attributes = const [],
     Iterable<XmlNode> children = const [],
     bool isSelfClosing = true,
-  }) : this(XmlName.fromString(qualifiedName), attributes, children,
-            isSelfClosing);
+  }) : this(
+         XmlName.fromString(qualifiedName),
+         attributes,
+         children,
+         isSelfClosing,
+       );
 
   /// Defines whether the element should be self-closing when empty.
   bool isSelfClosing;
@@ -51,10 +55,11 @@ class XmlElement extends XmlNode
 
   @override
   XmlElement copy() => XmlElement(
-      name.copy(),
-      attributes.map((each) => each.copy()),
-      children.map((each) => each.copy()),
-      isSelfClosing);
+    name.copy(),
+    attributes.map((each) => each.copy()),
+    children.map((each) => each.copy()),
+    isSelfClosing,
+  );
 
   @override
   void accept(XmlVisitor visitor) => visitor.visitElement(this);
@@ -70,6 +75,4 @@ const Set<XmlNodeType> childrenNodeTypes = {
 };
 
 /// Supported attribute node types.
-const Set<XmlNodeType> attributeNodeTypes = {
-  XmlNodeType.ATTRIBUTE,
-};
+const Set<XmlNodeType> attributeNodeTypes = {XmlNodeType.ATTRIBUTE};

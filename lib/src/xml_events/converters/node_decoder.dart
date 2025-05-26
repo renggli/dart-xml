@@ -40,16 +40,17 @@ class XmlNodeDecoder extends XmlListConverter<XmlEvent, XmlNode> {
 
   @override
   ChunkedConversionSink<List<XmlEvent>> startChunkedConversion(
-          Sink<List<XmlNode>> sink) =>
-      _XmlNodeDecoderSink(sink);
+    Sink<List<XmlNode>> sink,
+  ) => _XmlNodeDecoderSink(sink);
 
   // Internal helper to efficiently convert an [Iterable] of [XmlEvent] to a
   // list of [XmlNodes].
   @internal
   List<XmlNode> convertIterable(Iterable<XmlEvent> events) {
     final result = <XmlNode>[];
-    final sink =
-        _XmlNodeDecoderSink(ConversionSink<List<XmlNode>>(result.addAll));
+    final sink = _XmlNodeDecoderSink(
+      ConversionSink<List<XmlNode>>(result.addAll),
+    );
     events.forEach(sink.visit);
     return result;
   }
@@ -80,17 +81,26 @@ class _XmlNodeDecoderSink
 
   @override
   void visitDoctypeEvent(XmlDoctypeEvent event) => commit(
-      XmlDoctype(event.name, event.externalId, event.internalSubset), event);
+    XmlDoctype(event.name, event.externalId, event.internalSubset),
+    event,
+  );
 
   @override
   void visitEndElementEvent(XmlEndElementEvent event) {
     if (parent == null) {
-      throw XmlTagException.unexpectedClosingTag(event.name,
-          buffer: event.buffer, position: event.start);
+      throw XmlTagException.unexpectedClosingTag(
+        event.name,
+        buffer: event.buffer,
+        position: event.start,
+      );
     }
     final element = parent!;
-    XmlTagException.checkClosingTag(element.name.qualified, event.name,
-        buffer: event.buffer, position: event.start);
+    XmlTagException.checkClosingTag(
+      element.name.qualified,
+      event.name,
+      buffer: event.buffer,
+      position: event.start,
+    );
     element.isSelfClosing = element.children.isNotEmpty;
     parent = element.parentElement;
 
@@ -105,8 +115,10 @@ class _XmlNodeDecoderSink
 
   @override
   void visitStartElementEvent(XmlStartElementEvent event) {
-    final element = XmlElement.tag(event.name,
-        attributes: convertAttributes(event.attributes));
+    final element = XmlElement.tag(
+      event.name,
+      attributes: convertAttributes(event.attributes),
+    );
     if (event.isSelfClosing) {
       commit(element, event);
     } else {
@@ -134,13 +146,17 @@ class _XmlNodeDecoderSink
       // If we have information about a parent event, create hidden
       // [XmlElement] nodes to make sure namespace resolution works
       // as expected.
-      for (var outerElement = node, outerEvent = event?.parent;
-          outerEvent != null;
-          outerEvent = outerEvent.parent) {
-        outerElement = XmlElement.tag(outerEvent.name,
-            attributes: convertAttributes(outerEvent.attributes),
-            children: [outerElement],
-            isSelfClosing: outerEvent.isSelfClosing);
+      for (
+        var outerElement = node, outerEvent = event?.parent;
+        outerEvent != null;
+        outerEvent = outerEvent.parent
+      ) {
+        outerElement = XmlElement.tag(
+          outerEvent.name,
+          attributes: convertAttributes(outerEvent.attributes),
+          children: [outerElement],
+          isSelfClosing: outerEvent.isSelfClosing,
+        );
       }
       sink.add(<XmlNode>[node]);
     } else {
@@ -149,9 +165,12 @@ class _XmlNodeDecoderSink
   }
 
   Iterable<XmlAttribute> convertAttributes(
-          Iterable<XmlEventAttribute> attributes) =>
-      attributes.map((attribute) => XmlAttribute(
-          XmlName.fromString(attribute.name),
-          attribute.value,
-          attribute.attributeType));
+    Iterable<XmlEventAttribute> attributes,
+  ) => attributes.map(
+    (attribute) => XmlAttribute(
+      XmlName.fromString(attribute.name),
+      attribute.value,
+      attribute.attributeType,
+    ),
+  );
 }

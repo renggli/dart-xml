@@ -17,35 +17,37 @@ final args.ArgParser argumentParser = args.ArgParser()
     defaultsTo: true,
     help: 'Incrementally parses and prints the response',
   )
-  ..addMultiOption('fields',
-      abbr: 'f',
-      defaultsTo: ['status', 'message', 'query', 'country', 'city'],
-      allowed: [
-        'as',
-        'asname',
-        'city',
-        'continent',
-        'continentCode',
-        'country',
-        'countryCode',
-        'currency',
-        'district',
-        'isp',
-        'lat',
-        'lon',
-        'message',
-        'mobile',
-        'org',
-        'proxy',
-        'query',
-        'region',
-        'regionName',
-        'reverse',
-        'status',
-        'timezone',
-        'zip',
-      ],
-      help: 'Fields to be returned')
+  ..addMultiOption(
+    'fields',
+    abbr: 'f',
+    defaultsTo: ['status', 'message', 'query', 'country', 'city'],
+    allowed: [
+      'as',
+      'asname',
+      'city',
+      'continent',
+      'continentCode',
+      'country',
+      'countryCode',
+      'currency',
+      'district',
+      'isp',
+      'lat',
+      'lon',
+      'message',
+      'mobile',
+      'org',
+      'proxy',
+      'query',
+      'region',
+      'regionName',
+      'reverse',
+      'status',
+      'timezone',
+      'zip',
+    ],
+    help: 'Fields to be returned',
+  )
   ..addOption(
     'lang',
     abbr: 'l',
@@ -74,7 +76,8 @@ Future<void> lookupIp(args.ArgResults results, [String query = '']) async {
 
   // Build the query URL, perform the request, and convert response to UTF-8.
   final url = Uri.parse(
-      'http://ip-api.com/xml/$query?fields=${fields.join(',')}&lang=$lang');
+    'http://ip-api.com/xml/$query?fields=${fields.join(',')}&lang=$lang',
+  );
   final request = await httpClient.getUrl(url);
   final response = await request.close();
   final stream = response.transform(utf8.decoder);

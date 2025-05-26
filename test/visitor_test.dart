@@ -4,85 +4,108 @@ import 'package:xml/xml.dart';
 void main() {
   group('normalizer', () {
     test('remove empty text', () {
-      final element = XmlElement.tag('element', children: [
-        XmlText(''),
-        XmlElement(XmlName('element1')),
-        XmlText(''),
-        XmlElement(XmlName('element2')),
-        XmlText(''),
-      ]);
+      final element = XmlElement.tag(
+        'element',
+        children: [
+          XmlText(''),
+          XmlElement(XmlName('element1')),
+          XmlText(''),
+          XmlElement(XmlName('element2')),
+          XmlText(''),
+        ],
+      );
       element.normalize();
       expect(element.children.length, 2);
       expect(
-          element.toXmlString(), '<element><element1/><element2/></element>');
+        element.toXmlString(),
+        '<element><element1/><element2/></element>',
+      );
     });
     test('join adjacent text', () {
-      final element = XmlElement.tag('element', children: [
-        XmlText('aaa'),
-        XmlText('bbb'),
-        XmlText('ccc'),
-      ]);
+      final element = XmlElement.tag(
+        'element',
+        children: [XmlText('aaa'), XmlText('bbb'), XmlText('ccc')],
+      );
       element.normalize();
       expect(element.children.length, 1);
       expect(element.toXmlString(), '<element>aaabbbccc</element>');
     });
     test('trim whitespace', () {
-      final element = XmlElement.tag('element', children: [
-        XmlText(' a '),
-        XmlText(' b '),
-      ]);
+      final element = XmlElement.tag(
+        'element',
+        children: [XmlText(' a '), XmlText(' b ')],
+      );
       element.normalize(trimAllWhitespace: true);
       expect(element.children.length, 1);
       expect(element.toXmlString(), '<element>a  b</element>');
     });
     test('selectively trim whitespace', () {
-      final element = XmlElement.tag('element', children: [
-        XmlElement.tag('a', children: [XmlText(' 1 ')]),
-        XmlElement.tag('b', children: [XmlText(' 2 ')]),
-      ]);
+      final element = XmlElement.tag(
+        'element',
+        children: [
+          XmlElement.tag('a', children: [XmlText(' 1 ')]),
+          XmlElement.tag('b', children: [XmlText(' 2 ')]),
+        ],
+      );
       element.normalize(trimWhitespace: (node) => node.value == ' 2 ');
       expect(element.toXmlString(), '<element><a> 1 </a><b>2</b></element>');
     });
     test('collapse whitespace', () {
-      final element = XmlElement.tag('element', children: [
-        XmlText(' a '),
-        XmlText(' b '),
-      ]);
+      final element = XmlElement.tag(
+        'element',
+        children: [XmlText(' a '), XmlText(' b ')],
+      );
       element.normalize(collapseAllWhitespace: true);
       expect(element.children.length, 1);
       expect(element.toXmlString(), '<element> a b </element>');
     });
     test('selectively collapse whitespace', () {
-      final element = XmlElement.tag('element', children: [
-        XmlElement.tag('a', children: [XmlText('1  1')]),
-        XmlElement.tag('b', children: [XmlText('2  2')]),
-      ]);
+      final element = XmlElement.tag(
+        'element',
+        children: [
+          XmlElement.tag('a', children: [XmlText('1  1')]),
+          XmlElement.tag('b', children: [XmlText('2  2')]),
+        ],
+      );
       element.normalize(collapseWhitespace: (node) => node.value == '2  2');
       expect(element.toXmlString(), '<element><a>1  1</a><b>2 2</b></element>');
     });
     test('normalize newlines', () {
-      final element = XmlElement.tag('element', children: [
-        XmlElement.tag('xD', children: [XmlText('\r')]),
-        XmlElement.tag('xD-xA', children: [XmlText('\r\n')]),
-        XmlElement.tag('xD-x85', children: [XmlText('\r\u0085')]),
-        XmlElement.tag('x85', children: [XmlText('\u0085')]),
-        XmlElement.tag('x2028', children: [XmlText('\u2028')]),
-      ]);
+      final element = XmlElement.tag(
+        'element',
+        children: [
+          XmlElement.tag('xD', children: [XmlText('\r')]),
+          XmlElement.tag('xD-xA', children: [XmlText('\r\n')]),
+          XmlElement.tag('xD-x85', children: [XmlText('\r\u0085')]),
+          XmlElement.tag('x85', children: [XmlText('\u0085')]),
+          XmlElement.tag('x2028', children: [XmlText('\u2028')]),
+        ],
+      );
       element.normalize(normalizeAllNewline: true);
       expect(
-          element.children.map((child) => child.innerText), everyElement('\n'));
+        element.children.map((child) => child.innerText),
+        everyElement('\n'),
+      );
     });
     test('selectively normalize newlines', () {
-      final element = XmlElement.tag('element', children: [
-        XmlElement.tag('xD', children: [XmlText('\r')]),
-        XmlElement.tag('xD-xA', children: [XmlText('\r\n')]),
-        XmlElement.tag('xD-x85', children: [XmlText('\r\u0085')]),
-        XmlElement.tag('x85', children: [XmlText('\u0085')]),
-        XmlElement.tag('x2028', children: [XmlText('\u2028')]),
-      ]);
+      final element = XmlElement.tag(
+        'element',
+        children: [
+          XmlElement.tag('xD', children: [XmlText('\r')]),
+          XmlElement.tag('xD-xA', children: [XmlText('\r\n')]),
+          XmlElement.tag('xD-x85', children: [XmlText('\r\u0085')]),
+          XmlElement.tag('x85', children: [XmlText('\u0085')]),
+          XmlElement.tag('x2028', children: [XmlText('\u2028')]),
+        ],
+      );
       element.normalize(normalizeNewline: (node) => node.value.length > 1);
-      expect(element.children.map((child) => child.innerText),
-          ['\r', '\n', '\n', '\u0085', '\u2028']);
+      expect(element.children.map((child) => child.innerText), [
+        '\r',
+        '\n',
+        '\n',
+        '\u0085',
+        '\u2028',
+      ]);
     });
     test('document fragment', () {
       final fragment = XmlDocumentFragment([
@@ -104,124 +127,151 @@ void main() {
       final element = XmlElement(XmlName('element'));
       element.children.add(fragment);
       expect(element.children.length, 5);
-      expect(element.toXmlString(),
-          '<element>aaa<element1/>bbbccc<element2/>ddd</element>');
+      expect(
+        element.toXmlString(),
+        '<element>aaa<element1/>bbbccc<element2/>ddd</element>',
+      );
     });
   });
   group('writer', () {
-    final document = XmlDocument.parse('<body>\n'
-        '  <a>\tWhat\r the  heck?\n</a>\n'
-        '  <b>\tWhat\r the  heck?\n</b>\n'
-        '</body>');
+    final document = XmlDocument.parse(
+      '<body>\n'
+      '  <a>\tWhat\r the  heck?\n</a>\n'
+      '  <b>\tWhat\r the  heck?\n</b>\n'
+      '</body>',
+    );
     test('default', () {
       final output = document.toXmlString();
       expect(
-          output,
-          '<body>\n'
-          '  <a>\tWhat\r the  heck?\n</a>\n'
-          '  <b>\tWhat\r the  heck?\n</b>\n'
-          '</body>');
+        output,
+        '<body>\n'
+        '  <a>\tWhat\r the  heck?\n</a>\n'
+        '  <b>\tWhat\r the  heck?\n</b>\n'
+        '</body>',
+      );
     });
     test('pretty', () {
       final output = document.toXmlString(pretty: true);
       expect(
-          output,
-          '<body>\n'
-          '  <a>What the heck?</a>\n'
-          '  <b>What the heck?</b>\n'
-          '</body>');
+        output,
+        '<body>\n'
+        '  <a>What the heck?</a>\n'
+        '  <b>What the heck?</b>\n'
+        '</body>',
+      );
     });
     test('indent', () {
       final output = document.toXmlString(pretty: true, indent: '\t');
       expect(
-          output,
-          '<body>\n'
-          '\t<a>What the heck?</a>\n'
-          '\t<b>What the heck?</b>\n'
-          '</body>');
+        output,
+        '<body>\n'
+        '\t<a>What the heck?</a>\n'
+        '\t<b>What the heck?</b>\n'
+        '</body>',
+      );
     });
     test('newline', () {
       final output = document.toXmlString(pretty: true, newLine: '\r\n');
       expect(
-          output,
-          '<body>\r\n'
-          '  <a>What the heck?</a>\r\n'
-          '  <b>What the heck?</b>\r\n'
-          '</body>');
+        output,
+        '<body>\r\n'
+        '  <a>What the heck?</a>\r\n'
+        '  <b>What the heck?</b>\r\n'
+        '</body>',
+      );
     });
     group('whitespace', () {
       test('preserve all', () {
         final output = document.toXmlString(
-            pretty: true, preserveWhitespace: (node) => true);
+          pretty: true,
+          preserveWhitespace: (node) => true,
+        );
         expect(
-            output,
-            '<body>\n'
-            '  <a>\tWhat\r the  heck?\n</a>\n'
-            '  <b>\tWhat\r the  heck?\n</b>\n'
-            '</body>');
+          output,
+          '<body>\n'
+          '  <a>\tWhat\r the  heck?\n</a>\n'
+          '  <b>\tWhat\r the  heck?\n</b>\n'
+          '</body>',
+        );
       });
       test('preserve some', () {
         final output = document.toXmlString(
-            pretty: true,
-            preserveWhitespace: (node) =>
-                node is XmlElement && node.localName == 'b');
+          pretty: true,
+          preserveWhitespace: (node) =>
+              node is XmlElement && node.localName == 'b',
+        );
         expect(
-            output,
-            '<body>\n'
-            '  <a>What the heck?</a>\n'
-            '  <b>\tWhat\r the  heck?\n</b>\n'
-            '</body>');
+          output,
+          '<body>\n'
+          '  <a>What the heck?</a>\n'
+          '  <b>\tWhat\r the  heck?\n</b>\n'
+          '</body>',
+        );
       });
       test('preserve nested', () {
-        final input = XmlDocument.parse('<html><body>'
-            '<p><b>bold</b>, <i>italic</i> and <b><i>both</i></b>.</p>'
-            '</body></html>');
+        final input = XmlDocument.parse(
+          '<html><body>'
+          '<p><b>bold</b>, <i>italic</i> and <b><i>both</i></b>.</p>'
+          '</body></html>',
+        );
         final output = input.toXmlString(
-            pretty: true,
-            preserveWhitespace: (node) =>
-                node is XmlElement && node.localName == 'p');
+          pretty: true,
+          preserveWhitespace: (node) =>
+              node is XmlElement && node.localName == 'p',
+        );
         expect(
-            output,
-            '<html>\n'
-            '  <body>\n'
-            '    <p><b>bold</b>, <i>italic</i> and <b><i>both</i></b>.</p>\n'
-            '  </body>\n'
-            '</html>');
+          output,
+          '<html>\n'
+          '  <body>\n'
+          '    <p><b>bold</b>, <i>italic</i> and <b><i>both</i></b>.</p>\n'
+          '  </body>\n'
+          '</html>',
+        );
       });
       test('normalize text', () {
         final input = XmlDocument([
-          XmlElement.tag('contents', children: [
-            XmlText(' Hello '),
-            XmlText('   '),
-            XmlText(' World '),
-            XmlText(' '),
-          ])
+          XmlElement.tag(
+            'contents',
+            children: [
+              XmlText(' Hello '),
+              XmlText('   '),
+              XmlText(' World '),
+              XmlText(' '),
+            ],
+          ),
         ]);
         final output = input.toXmlString(pretty: true);
         expect(output, '<contents>Hello World</contents>');
       });
     });
     group('attributes', () {
-      const input = '<body>'
+      const input =
+          '<body>'
           '<a a="1">AAA</a>'
           '<b a="1" b="2">BBB</b>'
           '<c a="1" b="2" c="3">CCC</c>'
           '</body>';
       final document = XmlDocument.parse(input);
-      tearDown(() => expect(document.toXmlString(), input,
-          reason: 'Modified the original DOM.'));
+      tearDown(
+        () => expect(
+          document.toXmlString(),
+          input,
+          reason: 'Modified the original DOM.',
+        ),
+      );
       test('indent none', () {
         final output = document.toXmlString(
           pretty: true,
           indentAttribute: (node) => false,
         );
         expect(
-            output,
-            '<body>\n'
-            '  <a a="1">AAA</a>\n'
-            '  <b a="1" b="2">BBB</b>\n'
-            '  <c a="1" b="2" c="3">CCC</c>\n'
-            '</body>');
+          output,
+          '<body>\n'
+          '  <a a="1">AAA</a>\n'
+          '  <b a="1" b="2">BBB</b>\n'
+          '  <c a="1" b="2" c="3">CCC</c>\n'
+          '</body>',
+        );
       });
       test('indent all', () {
         final output = document.toXmlString(
@@ -229,18 +279,19 @@ void main() {
           indentAttribute: (node) => true,
         );
         expect(
-            output,
-            '<body>\n'
-            '  <a\n'
-            '    a="1">AAA</a>\n'
-            '  <b\n'
-            '    a="1"\n'
-            '    b="2">BBB</b>\n'
-            '  <c\n'
-            '    a="1"\n'
-            '    b="2"\n'
-            '    c="3">CCC</c>\n'
-            '</body>');
+          output,
+          '<body>\n'
+          '  <a\n'
+          '    a="1">AAA</a>\n'
+          '  <b\n'
+          '    a="1"\n'
+          '    b="2">BBB</b>\n'
+          '  <c\n'
+          '    a="1"\n'
+          '    b="2"\n'
+          '    c="3">CCC</c>\n'
+          '</body>',
+        );
       });
       test('intend after first', () {
         final output = document.toXmlString(
@@ -248,15 +299,16 @@ void main() {
           indentAttribute: (node) => node.parent!.attributes.first != node,
         );
         expect(
-            output,
-            '<body>\n'
-            '  <a a="1">AAA</a>\n'
-            '  <b a="1"\n'
-            '    b="2">BBB</b>\n'
-            '  <c a="1"\n'
-            '    b="2"\n'
-            '    c="3">CCC</c>\n'
-            '</body>');
+          output,
+          '<body>\n'
+          '  <a a="1">AAA</a>\n'
+          '  <b a="1"\n'
+          '    b="2">BBB</b>\n'
+          '  <c a="1"\n'
+          '    b="2"\n'
+          '    c="3">CCC</c>\n'
+          '</body>',
+        );
       });
       test('indent when multiple', () {
         final output = document.toXmlString(
@@ -264,17 +316,18 @@ void main() {
           indentAttribute: (node) => node.parent!.attributes.length > 1,
         );
         expect(
-            output,
-            '<body>\n'
-            '  <a a="1">AAA</a>\n'
-            '  <b\n'
-            '    a="1"\n'
-            '    b="2">BBB</b>\n'
-            '  <c\n'
-            '    a="1"\n'
-            '    b="2"\n'
-            '    c="3">CCC</c>\n'
-            '</body>');
+          output,
+          '<body>\n'
+          '  <a a="1">AAA</a>\n'
+          '  <b\n'
+          '    a="1"\n'
+          '    b="2">BBB</b>\n'
+          '  <c\n'
+          '    a="1"\n'
+          '    b="2"\n'
+          '    c="3">CCC</c>\n'
+          '</body>',
+        );
       });
       test('indent every second', () {
         final output = document.toXmlString(
@@ -285,13 +338,14 @@ void main() {
           },
         );
         expect(
-            output,
-            '<body>\n'
-            '  <a a="1">AAA</a>\n'
-            '  <b a="1" b="2">BBB</b>\n'
-            '  <c a="1" b="2"\n'
-            '    c="3">CCC</c>\n'
-            '</body>');
+          output,
+          '<body>\n'
+          '  <a a="1">AAA</a>\n'
+          '  <b a="1" b="2">BBB</b>\n'
+          '  <c a="1" b="2"\n'
+          '    c="3">CCC</c>\n'
+          '</body>',
+        );
       });
       test('no indent in preserve mode', () {
         final output = document.toXmlString(
@@ -300,12 +354,13 @@ void main() {
           indentAttribute: (node) => true,
         );
         expect(
-            output,
-            '<body>'
-            '<a a="1">AAA</a>'
-            '<b a="1" b="2">BBB</b>'
-            '<c a="1" b="2" c="3">CCC</c>'
-            '</body>');
+          output,
+          '<body>'
+          '<a a="1">AAA</a>'
+          '<b a="1" b="2">BBB</b>'
+          '<c a="1" b="2" c="3">CCC</c>'
+          '</body>',
+        );
       });
       test('sort reverse', () {
         final output = document.toXmlString(
@@ -314,12 +369,13 @@ void main() {
               b.name.qualified.compareTo(a.name.qualified),
         );
         expect(
-            output,
-            '<body>\n'
-            '  <a a="1">AAA</a>\n'
-            '  <b b="2" a="1">BBB</b>\n'
-            '  <c c="3" b="2" a="1">CCC</c>\n'
-            '</body>');
+          output,
+          '<body>\n'
+          '  <a a="1">AAA</a>\n'
+          '  <b b="2" a="1">BBB</b>\n'
+          '  <c c="3" b="2" a="1">CCC</c>\n'
+          '</body>',
+        );
       });
       test('sort reverse in preserve mode', () {
         final output = document.toXmlString(
@@ -329,12 +385,13 @@ void main() {
               b.name.qualified.compareTo(a.name.qualified),
         );
         expect(
-            output,
-            '<body>'
-            '<a a="1">AAA</a>'
-            '<b b="2" a="1">BBB</b>'
-            '<c c="3" b="2" a="1">CCC</c>'
-            '</body>');
+          output,
+          '<body>'
+          '<a a="1">AAA</a>'
+          '<b b="2" a="1">BBB</b>'
+          '<c c="3" b="2" a="1">CCC</c>'
+          '</body>',
+        );
       });
       test('insert space before self-closing', () {
         final element = XmlElement.tag(

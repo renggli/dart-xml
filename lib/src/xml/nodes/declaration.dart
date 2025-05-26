@@ -31,19 +31,22 @@ class XmlDeclaration extends XmlNode
 
   /// Set the value of the standalone directive.
   set standalone(bool? value) => setAttribute(
-      standaloneAttribute,
-      value == null
-          ? null
-          : value
-              ? 'yes'
-              : 'no');
+    standaloneAttribute,
+    value == null
+        ? null
+        : value
+        ? 'yes'
+        : 'no',
+  );
 
   @override
   String get value {
     if (attributes.isEmpty) return '';
     final result = toXmlString();
-    return result.substring(XmlToken.openDeclaration.length + 1,
-        result.length - XmlToken.closeDeclaration.length);
+    return result.substring(
+      XmlToken.openDeclaration.length + 1,
+      result.length - XmlToken.closeDeclaration.length,
+    );
   }
 
   @override
@@ -58,9 +61,7 @@ class XmlDeclaration extends XmlNode
 }
 
 /// Supported attribute node types.
-const Set<XmlNodeType> attributeNodeTypes = {
-  XmlNodeType.ATTRIBUTE,
-};
+const Set<XmlNodeType> attributeNodeTypes = {XmlNodeType.ATTRIBUTE};
 
 /// Known attribute names.
 const versionAttribute = 'version';

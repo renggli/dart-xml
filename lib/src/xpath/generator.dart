@@ -18,10 +18,14 @@ extension XPathGenerator on XmlNode {
     for (XmlNode? current = this; current != null; current = current.parent) {
       switch (current) {
         case XmlAttribute(qualifiedName: final name):
-          result.add(_createSegment(current,
+          result.add(
+            _createSegment(
+              current,
               where: (each) =>
                   each is XmlAttribute && each.qualifiedName == name,
-              filter: '@$name'));
+              filter: '@$name',
+            ),
+          );
         case XmlElement(qualifiedName: final name):
           if (byId != null) {
             final attribute = current.getAttributeNode(byId);
@@ -30,37 +34,59 @@ extension XPathGenerator on XmlNode {
               return result.reversed.join('/');
             }
           }
-          result.add(_createSegment(current,
+          result.add(
+            _createSegment(
+              current,
               where: (each) => each is XmlElement && each.qualifiedName == name,
-              filter: name));
+              filter: name,
+            ),
+          );
         case XmlText():
         case XmlCDATA():
-          result.add(_createSegment(current,
+          result.add(
+            _createSegment(
+              current,
               where: (each) => each is XmlText || each is XmlCDATA,
-              filter: 'text()'));
+              filter: 'text()',
+            ),
+          );
         case XmlComment():
-          result.add(_createSegment(current,
-              where: (each) => each is XmlComment, filter: 'comment()'));
+          result.add(
+            _createSegment(
+              current,
+              where: (each) => each is XmlComment,
+              filter: 'comment()',
+            ),
+          );
         case XmlProcessing():
-          result.add(_createSegment(current,
+          result.add(
+            _createSegment(
+              current,
               where: (each) => each is XmlProcessing,
-              filter: 'processing-instruction()'));
+              filter: 'processing-instruction()',
+            ),
+          );
         case XmlDocument():
           result.add(this == current ? '/' : '');
         default:
           result.add(
-              _createSegment(current, where: (each) => true, filter: 'node()'));
+            _createSegment(current, where: (each) => true, filter: 'node()'),
+          );
       }
     }
     return result.reversed.join('/');
   }
 }
 
-String _createSegment(XmlNode node,
-    {required bool Function(XmlNode) where, required String filter}) {
+String _createSegment(
+  XmlNode node, {
+  required bool Function(XmlNode) where,
+  required String filter,
+}) {
   final buffer = StringBuffer(filter);
-  final siblings =
-      node.hasParent ? node.siblings.where(where).toList() : [node];
+  final siblings = node.hasParent
+      ? node.siblings.where(where).toList()
+      : [node];
   if (siblings.length > 1) {
     buffer.write('[${1 + siblings.indexOf(node)}]');
   }

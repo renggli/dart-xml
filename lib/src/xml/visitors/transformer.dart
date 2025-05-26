@@ -15,25 +15,27 @@ import '../utils/name.dart';
 ///
 /// Subclass can override one or more of the methods to modify the generated
 /// copy.
-@Deprecated('Use `XmlNode.copy()` and mutate the DOM in-place, or create a '
-    'strongly-typed `XmlVisitor` over your DOM instead')
+@Deprecated(
+  'Use `XmlNode.copy()` and mutate the DOM in-place, or create a '
+  'strongly-typed `XmlVisitor` over your DOM instead',
+)
 class XmlTransformer {
   const XmlTransformer();
 
   T visit<T extends XmlHasVisitor>(T node) => switch (node) {
-        XmlAttribute() => visitAttribute(node) as T,
-        XmlCDATA() => visitCDATA(node) as T,
-        XmlComment() => visitComment(node) as T,
-        XmlDeclaration() => visitDeclaration(node) as T,
-        XmlDoctype() => visitDoctype(node) as T,
-        XmlDocument() => visitDocument(node) as T,
-        XmlDocumentFragment() => visitDocumentFragment(node) as T,
-        XmlElement() => visitElement(node) as T,
-        XmlName() => visitName(node) as T,
-        XmlProcessing() => visitProcessing(node) as T,
-        XmlText() => visitText(node) as T,
-        _ => visitOther(node) as T,
-      };
+    XmlAttribute() => visitAttribute(node) as T,
+    XmlCDATA() => visitCDATA(node) as T,
+    XmlComment() => visitComment(node) as T,
+    XmlDeclaration() => visitDeclaration(node) as T,
+    XmlDoctype() => visitDoctype(node) as T,
+    XmlDocument() => visitDocument(node) as T,
+    XmlDocumentFragment() => visitDocumentFragment(node) as T,
+    XmlElement() => visitElement(node) as T,
+    XmlName() => visitName(node) as T,
+    XmlProcessing() => visitProcessing(node) as T,
+    XmlText() => visitText(node) as T,
+    _ => visitOther(node) as T,
+  };
 
   XmlAttribute visitAttribute(XmlAttribute node) =>
       XmlAttribute(visit(node.name), node.value, node.attributeType);
@@ -54,8 +56,12 @@ class XmlTransformer {
   XmlDocumentFragment visitDocumentFragment(XmlDocumentFragment node) =>
       XmlDocumentFragment(node.children.map(visit));
 
-  XmlElement visitElement(XmlElement node) => XmlElement(visit(node.name),
-      node.attributes.map(visit), node.children.map(visit), node.isSelfClosing);
+  XmlElement visitElement(XmlElement node) => XmlElement(
+    visit(node.name),
+    node.attributes.map(visit),
+    node.children.map(visit),
+    node.isSelfClosing,
+  );
 
   XmlName visitName(XmlName name) => XmlName.fromString(name.qualified);
 

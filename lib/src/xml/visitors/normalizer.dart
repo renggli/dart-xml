@@ -32,13 +32,11 @@ extension XmlNormalizerExtension on XmlNode {
     // Trim whitespace:
     Predicate<XmlText>? trimWhitespace,
     bool? trimAllWhitespace,
-  }) =>
-      XmlNormalizer(
-        collapseWhitespace:
-            toPredicate(collapseWhitespace, collapseAllWhitespace),
-        normalizeNewline: toPredicate(normalizeNewline, normalizeAllNewline),
-        trimWhitespace: toPredicate(trimWhitespace, trimAllWhitespace),
-      ).visit(this);
+  }) => XmlNormalizer(
+    collapseWhitespace: toPredicate(collapseWhitespace, collapseAllWhitespace),
+    normalizeNewline: toPredicate(normalizeNewline, normalizeAllNewline),
+    trimWhitespace: toPredicate(trimWhitespace, trimAllWhitespace),
+  ).visit(this);
 }
 
 /// Normalizes a node tree in-place.

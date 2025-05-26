@@ -11,8 +11,8 @@ extension XmlSubtreeSelectorExtension on Stream<List<XmlEvent>> {
   /// From a sequence of [XmlEvent] objects filter the event sequences that
   /// form sub-trees for which [predicate] returns `true`.
   Stream<List<XmlEvent>> selectSubtreeEvents(
-          Predicate<XmlStartElementEvent> predicate) =>
-      transform(XmlSubtreeSelector(predicate));
+    Predicate<XmlStartElementEvent> predicate,
+  ) => transform(XmlSubtreeSelector(predicate));
 }
 
 /// A converter that selects [XmlEvent] objects that are part of a sub-tree
@@ -24,8 +24,8 @@ class XmlSubtreeSelector extends XmlListConverter<XmlEvent, XmlEvent> {
 
   @override
   ChunkedConversionSink<List<XmlEvent>> startChunkedConversion(
-          Sink<List<XmlEvent>> sink) =>
-      _XmlSubtreeSelectorSink(sink, predicate);
+    Sink<List<XmlEvent>> sink,
+  ) => _XmlSubtreeSelectorSink(sink, predicate);
 }
 
 class _XmlSubtreeSelectorSink implements ChunkedConversionSink<List<XmlEvent>> {
@@ -50,8 +50,12 @@ class _XmlSubtreeSelectorSink implements ChunkedConversionSink<List<XmlEvent>> {
         if (event is XmlStartElementEvent && !event.isSelfClosing) {
           stack.add(event);
         } else if (event is XmlEndElementEvent) {
-          XmlTagException.checkClosingTag(stack.last.name, event.name,
-              buffer: event.buffer, position: event.start);
+          XmlTagException.checkClosingTag(
+            stack.last.name,
+            event.name,
+            buffer: event.buffer,
+            position: event.start,
+          );
           stack.removeLast();
         }
         result.add(event);

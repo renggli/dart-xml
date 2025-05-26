@@ -53,10 +53,14 @@ class XmlDefaultEntityMapping extends XmlEntityMapping {
     switch (type) {
       case XmlAttributeType.SINGLE_QUOTE:
         return input.replaceAllMapped(
-            _singeQuoteAttributePattern, _singeQuoteAttributeReplace);
+          _singeQuoteAttributePattern,
+          _singeQuoteAttributeReplace,
+        );
       case XmlAttributeType.DOUBLE_QUOTE:
         return input.replaceAllMapped(
-            _doubleQuoteAttributePattern, _doubleQuoteAttributeReplace);
+          _doubleQuoteAttributePattern,
+          _doubleQuoteAttributeReplace,
+        );
     }
   }
 }
@@ -81,8 +85,9 @@ String _textReplace(Match match) {
 
 // Encode XML attribute values (single quotes).
 
-final _singeQuoteAttributePattern =
-    RegExp(r"['&<\n\r\t" + _highlyDiscouragedCharClass + r']');
+final _singeQuoteAttributePattern = RegExp(
+  r"['&<\n\r\t" + _highlyDiscouragedCharClass + r']',
+);
 
 String _singeQuoteAttributeReplace(Match match) {
   final toEscape = match.group(0)!;
@@ -100,8 +105,9 @@ String _singeQuoteAttributeReplace(Match match) {
 
 // Encode XML attribute values (double quotes).
 
-final _doubleQuoteAttributePattern =
-    RegExp(r'["&<\n\r\t' + _highlyDiscouragedCharClass + r']');
+final _doubleQuoteAttributePattern = RegExp(
+  r'["&<\n\r\t' + _highlyDiscouragedCharClass + r']',
+);
 
 String _doubleQuoteAttributeReplace(Match match) {
   final toEscape = match.group(0)!;

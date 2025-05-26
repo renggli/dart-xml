@@ -89,13 +89,12 @@ Iterable<XmlEvent> parseEvents(
   bool withBuffer = false,
   bool withLocation = false,
   bool withParent = false,
-}) =>
-    XmlEventIterable(
-      input,
-      entityMapping: entityMapping ?? defaultEntityMapping,
-      validateNesting: validateNesting,
-      validateDocument: validateDocument,
-      withBuffer: withBuffer,
-      withLocation: withLocation,
-      withParent: withParent,
-    );
+}) => XmlEventIterable(
+  input,
+  entityMapping: entityMapping ?? defaultEntityMapping,
+  validateNesting: validateNesting,
+  validateDocument: validateDocument,
+  withBuffer: withBuffer,
+  withLocation: withLocation,
+  withParent: withParent,
+);

@@ -3,12 +3,16 @@ import '../utils/token.dart';
 
 /// Immutable external ID.
 class DtdExternalId {
-  DtdExternalId.public(String this.publicId, XmlAttributeType this.publicIdType,
-      this.systemId, this.systemIdType);
+  DtdExternalId.public(
+    String this.publicId,
+    XmlAttributeType this.publicIdType,
+    this.systemId,
+    this.systemIdType,
+  );
 
   DtdExternalId.system(this.systemId, this.systemIdType)
-      : publicId = null,
-        publicIdType = null;
+    : publicId = null,
+      publicIdType = null;
 
   /// The public identifier for the external subset of the document type
   /// definition. This is a string, or `null`.

@@ -13,7 +13,8 @@ final args.ArgParser argumentParser = args.ArgParser()
   ..addOption(
     'format',
     abbr: 'f',
-    help: 'Format string of each event:\n'
+    help:
+        'Format string of each event:\n'
         '\t%s Event string\n'
         '\t%t Node type\n'
         '\t%p Position',
@@ -33,19 +34,21 @@ void printUsage() {
   exit(1);
 }
 
-String formatEvent(XmlEvent event, String format) =>
-    format.splitMapJoin(formatRegExp, onMatch: (match) {
-      switch (match.group(1)) {
-        case 's':
-          return event.toString();
-        case 't':
-          return event.nodeType.toString();
-        case 'p':
-          return event.start.toString();
-        default:
-          return match.group(1)!;
-      }
-    });
+String formatEvent(XmlEvent event, String format) => format.splitMapJoin(
+  formatRegExp,
+  onMatch: (match) {
+    switch (match.group(1)) {
+      case 's':
+        return event.toString();
+      case 't':
+        return event.nodeType.toString();
+      case 'p':
+        return event.start.toString();
+      default:
+        return match.group(1)!;
+    }
+  },
+);
 
 Future<void> main(List<String> arguments) async {
   final files = <File>[];
@@ -67,8 +70,10 @@ Future<void> main(List<String> arguments) async {
   }
 
   for (final file in files) {
-    var stream =
-        file.openRead().transform(utf8.decoder).toXmlEvents(withLocation: true);
+    var stream = file
+        .openRead()
+        .transform(utf8.decoder)
+        .toXmlEvents(withLocation: true);
     if (normalize) {
       stream = stream.normalizeEvents();
     }

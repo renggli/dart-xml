@@ -16,8 +16,8 @@ abstract class XmlName extends Object
   /// `prefix`.
   factory XmlName(String local, [String? prefix]) =>
       prefix == null || prefix.isEmpty
-          ? XmlSimpleName(local)
-          : XmlPrefixName(prefix, local, '$prefix${XmlToken.namespace}$local');
+      ? XmlSimpleName(local)
+      : XmlPrefixName(prefix, local, '$prefix${XmlToken.namespace}$local');
 
   /// Create a [XmlName] by parsing the provided `qualified` name.
   factory XmlName.fromString(String qualified) {

@@ -69,13 +69,17 @@ void testDefaultMapping(XmlEntityMapping entityMapping) {
       expect(entityMapping.decode('&lt;&amp;&gt;'), '<&>');
     });
     test('document', () {
-      final document =
-          XmlDocument.parse('<xml>a&amp;b</xml>', entityMapping: entityMapping);
+      final document = XmlDocument.parse(
+        '<xml>a&amp;b</xml>',
+        entityMapping: entityMapping,
+      );
       expect(document.rootElement.innerText, 'a&b');
     });
     test('fragment', () {
-      final fragment =
-          XmlDocumentFragment.parse('a&amp;b', entityMapping: entityMapping);
+      final fragment = XmlDocumentFragment.parse(
+        'a&amp;b',
+        entityMapping: entityMapping,
+      );
       expect(fragment.innerText, 'a&b');
     });
   });
@@ -83,88 +87,112 @@ void testDefaultMapping(XmlEntityMapping entityMapping) {
     test('text', () {
       expect(entityMapping.encodeText('<'), '&lt;');
       expect(entityMapping.encodeText('&'), '&amp;');
-      expect(entityMapping.encodeText('\u0000\u0008\u0009\u0084\u0085\u0086'),
-          '\u0000&#x8;\u0009&#x84;\u0085&#x86;');
+      expect(
+        entityMapping.encodeText('\u0000\u0008\u0009\u0084\u0085\u0086'),
+        '\u0000&#x8;\u0009&#x84;\u0085&#x86;',
+      );
       expect(entityMapping.encodeText('hello'), 'hello');
       expect(entityMapping.encodeText('<foo &amp;>'), '&lt;foo &amp;amp;>');
     });
     test('attribute (single quote)', () {
       expect(
-          entityMapping.encodeAttributeValue(
-              "'", XmlAttributeType.SINGLE_QUOTE),
-          '&apos;');
+        entityMapping.encodeAttributeValue("'", XmlAttributeType.SINGLE_QUOTE),
+        '&apos;',
+      );
       expect(
-          entityMapping.encodeAttributeValue(
-              '"', XmlAttributeType.SINGLE_QUOTE),
-          '"');
+        entityMapping.encodeAttributeValue('"', XmlAttributeType.SINGLE_QUOTE),
+        '"',
+      );
       expect(
-          entityMapping.encodeAttributeValue(
-              '\t', XmlAttributeType.SINGLE_QUOTE),
-          '&#x9;');
+        entityMapping.encodeAttributeValue('\t', XmlAttributeType.SINGLE_QUOTE),
+        '&#x9;',
+      );
       expect(
-          entityMapping.encodeAttributeValue(
-              '\n', XmlAttributeType.SINGLE_QUOTE),
-          '&#xA;');
+        entityMapping.encodeAttributeValue('\n', XmlAttributeType.SINGLE_QUOTE),
+        '&#xA;',
+      );
       expect(
-          entityMapping.encodeAttributeValue(
-              '\r', XmlAttributeType.SINGLE_QUOTE),
-          '&#xD;');
+        entityMapping.encodeAttributeValue('\r', XmlAttributeType.SINGLE_QUOTE),
+        '&#xD;',
+      );
       expect(
-          entityMapping.encodeAttributeValue(
-              '\u0000\u0008\u0009\u0084\u0085\u0086',
-              XmlAttributeType.SINGLE_QUOTE),
-          '\u0000&#x8;&#x9;&#x84;\u0085&#x86;');
+        entityMapping.encodeAttributeValue(
+          '\u0000\u0008\u0009\u0084\u0085\u0086',
+          XmlAttributeType.SINGLE_QUOTE,
+        ),
+        '\u0000&#x8;&#x9;&#x84;\u0085&#x86;',
+      );
       expect(
-          entityMapping.encodeAttributeValue(
-              'hello', XmlAttributeType.SINGLE_QUOTE),
-          'hello');
+        entityMapping.encodeAttributeValue(
+          'hello',
+          XmlAttributeType.SINGLE_QUOTE,
+        ),
+        'hello',
+      );
       expect(
-          entityMapping.encodeAttributeValue(
-              "'hello'", XmlAttributeType.SINGLE_QUOTE),
-          '&apos;hello&apos;');
+        entityMapping.encodeAttributeValue(
+          "'hello'",
+          XmlAttributeType.SINGLE_QUOTE,
+        ),
+        '&apos;hello&apos;',
+      );
       expect(
-          entityMapping.encodeAttributeValue(
-              '"hello"', XmlAttributeType.SINGLE_QUOTE),
-          '"hello"');
+        entityMapping.encodeAttributeValue(
+          '"hello"',
+          XmlAttributeType.SINGLE_QUOTE,
+        ),
+        '"hello"',
+      );
     });
     test('encode attribute (double quote)', () {
       expect(
-          entityMapping.encodeAttributeValue(
-              "'", XmlAttributeType.DOUBLE_QUOTE),
-          "'");
+        entityMapping.encodeAttributeValue("'", XmlAttributeType.DOUBLE_QUOTE),
+        "'",
+      );
       expect(
-          entityMapping.encodeAttributeValue(
-              '"', XmlAttributeType.DOUBLE_QUOTE),
-          '&quot;');
+        entityMapping.encodeAttributeValue('"', XmlAttributeType.DOUBLE_QUOTE),
+        '&quot;',
+      );
       expect(
-          entityMapping.encodeAttributeValue(
-              '\t', XmlAttributeType.DOUBLE_QUOTE),
-          '&#x9;');
+        entityMapping.encodeAttributeValue('\t', XmlAttributeType.DOUBLE_QUOTE),
+        '&#x9;',
+      );
       expect(
-          entityMapping.encodeAttributeValue(
-              '\n', XmlAttributeType.DOUBLE_QUOTE),
-          '&#xA;');
+        entityMapping.encodeAttributeValue('\n', XmlAttributeType.DOUBLE_QUOTE),
+        '&#xA;',
+      );
       expect(
-          entityMapping.encodeAttributeValue(
-              '\r', XmlAttributeType.DOUBLE_QUOTE),
-          '&#xD;');
+        entityMapping.encodeAttributeValue('\r', XmlAttributeType.DOUBLE_QUOTE),
+        '&#xD;',
+      );
       expect(
-          entityMapping.encodeAttributeValue(
-              '\u0000\u0008\u0009\u0084\u0085\u0086',
-              XmlAttributeType.DOUBLE_QUOTE),
-          '\u0000&#x8;&#x9;&#x84;\u0085&#x86;');
+        entityMapping.encodeAttributeValue(
+          '\u0000\u0008\u0009\u0084\u0085\u0086',
+          XmlAttributeType.DOUBLE_QUOTE,
+        ),
+        '\u0000&#x8;&#x9;&#x84;\u0085&#x86;',
+      );
       expect(
-          entityMapping.encodeAttributeValue(
-              'hello', XmlAttributeType.DOUBLE_QUOTE),
-          'hello');
+        entityMapping.encodeAttributeValue(
+          'hello',
+          XmlAttributeType.DOUBLE_QUOTE,
+        ),
+        'hello',
+      );
       expect(
-          entityMapping.encodeAttributeValue(
-              "'hello'", XmlAttributeType.DOUBLE_QUOTE),
-          "'hello'");
+        entityMapping.encodeAttributeValue(
+          "'hello'",
+          XmlAttributeType.DOUBLE_QUOTE,
+        ),
+        "'hello'",
+      );
       expect(
-          entityMapping.encodeAttributeValue(
-              '"hello"', XmlAttributeType.DOUBLE_QUOTE),
-          '&quot;hello&quot;');
+        entityMapping.encodeAttributeValue(
+          '"hello"',
+          XmlAttributeType.DOUBLE_QUOTE,
+        ),
+        '&quot;hello&quot;',
+      );
     });
   });
 }
@@ -190,10 +218,7 @@ void main() {
     });
   });
   group('custom', () {
-    const entityMapping = XmlDefaultEntityMapping({
-      'joy': '😂',
-      'tears': '😢',
-    });
+    const entityMapping = XmlDefaultEntityMapping({'joy': '😂', 'tears': '😢'});
     test('basic', () {
       expect(entityMapping.decodeEntity('joy'), '😂');
       expect(entityMapping.decodeEntity('tears'), '😢');
@@ -203,13 +228,17 @@ void main() {
       expect(entityMapping.decode('&tears;'), '😢');
     });
     test('document', () {
-      final document = XmlDocument.parse('<xml>&joy; and &tears;</xml>',
-          entityMapping: entityMapping);
+      final document = XmlDocument.parse(
+        '<xml>&joy; and &tears;</xml>',
+        entityMapping: entityMapping,
+      );
       expect(document.rootElement.innerText, '😂 and 😢');
     });
     test('fragment', () {
-      final fragment = XmlDocumentFragment.parse('&joy; and &tears;',
-          entityMapping: entityMapping);
+      final fragment = XmlDocumentFragment.parse(
+        '&joy; and &tears;',
+        entityMapping: entityMapping,
+      );
       expect(fragment.innerText, '😂 and 😢');
     });
   });
@@ -247,13 +276,19 @@ void main() {
       });
       test('attribute', () {
         expect(
-            entityMapping.encodeAttributeValue(
-                '<>&\'"', XmlAttributeType.SINGLE_QUOTE),
-            '<>&\'"');
+          entityMapping.encodeAttributeValue(
+            '<>&\'"',
+            XmlAttributeType.SINGLE_QUOTE,
+          ),
+          '<>&\'"',
+        );
         expect(
-            entityMapping.encodeAttributeValue(
-                '<>&\'"', XmlAttributeType.DOUBLE_QUOTE),
-            '<>&\'"');
+          entityMapping.encodeAttributeValue(
+            '<>&\'"',
+            XmlAttributeType.DOUBLE_QUOTE,
+          ),
+          '<>&\'"',
+        );
       });
     });
   });

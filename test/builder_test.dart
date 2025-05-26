@@ -8,23 +8,35 @@ void main() {
   test('basic', () {
     final builder = XmlBuilder();
     builder.declaration(encoding: 'UTF-8');
-    builder.processing('xml-stylesheet',
-        'href="/style.css" type="text/css" title="default stylesheet"');
-    builder.element('bookstore', nest: () {
-      builder.comment('Only one book?');
-      builder.element('book', nest: () {
-        builder.element('title', nest: () {
-          builder.attribute('lang', 'en');
-          builder.text('Harry ');
-          builder.cdata('Potter');
-        });
-        builder.element('price', nest: 29.99);
-      });
-    });
+    builder.processing(
+      'xml-stylesheet',
+      'href="/style.css" type="text/css" title="default stylesheet"',
+    );
+    builder.element(
+      'bookstore',
+      nest: () {
+        builder.comment('Only one book?');
+        builder.element(
+          'book',
+          nest: () {
+            builder.element(
+              'title',
+              nest: () {
+                builder.attribute('lang', 'en');
+                builder.text('Harry ');
+                builder.cdata('Potter');
+              },
+            );
+            builder.element('price', nest: 29.99);
+          },
+        );
+      },
+    );
     final document = builder.buildDocument();
     assertDocumentTreeInvariants(document);
     final actual = document.toString();
-    const expected = '<?xml version="1.0" encoding="UTF-8"?>'
+    const expected =
+        '<?xml version="1.0" encoding="UTF-8"?>'
         '<?xml-stylesheet href="/style.css" type="text/css" title="default stylesheet"?>'
         '<bookstore>'
         '<!--Only one book?-->'
@@ -40,20 +52,31 @@ void main() {
     builder.declaration();
     builder.doctype('note', systemId: 'Note.dtd');
     builder.processing('processing', 'instruction');
-    builder.element('element1', attributes: {'attribute1': 'value1'}, nest: () {
-      builder.attribute('attribute2', 'value2',
-          attributeType: XmlAttributeType.DOUBLE_QUOTE);
-      builder.attribute('attribute3', 'value3',
-          attributeType: XmlAttributeType.SINGLE_QUOTE);
-      builder.element('element2');
-      builder.comment('comment');
-      builder.cdata('cdata');
-      builder.text('textual');
-    });
+    builder.element(
+      'element1',
+      attributes: {'attribute1': 'value1'},
+      nest: () {
+        builder.attribute(
+          'attribute2',
+          'value2',
+          attributeType: XmlAttributeType.DOUBLE_QUOTE,
+        );
+        builder.attribute(
+          'attribute3',
+          'value3',
+          attributeType: XmlAttributeType.SINGLE_QUOTE,
+        );
+        builder.element('element2');
+        builder.comment('comment');
+        builder.cdata('cdata');
+        builder.text('textual');
+      },
+    );
     final xml = builder.buildDocument();
     assertDocumentTreeInvariants(xml);
     final actual = xml.toString();
-    const expected = '<?xml version="1.0"?>'
+    const expected =
+        '<?xml version="1.0"?>'
         '<!DOCTYPE note SYSTEM "Note.dtd">'
         '<?processing instruction?>'
         '<element1 attribute1="value1" attribute2="value2" '
@@ -67,17 +90,24 @@ void main() {
   });
   test('self-closing', () {
     final builder = XmlBuilder();
-    builder.element('element', nest: () {
-      builder.element('self-closing-default');
-      builder.element('self-closing-true', isSelfClosing: true);
-      builder.element('self-closing-true-with-children',
-          isSelfClosing: true, nest: '!');
-      builder.element('self-closing-false', isSelfClosing: false);
-    });
+    builder.element(
+      'element',
+      nest: () {
+        builder.element('self-closing-default');
+        builder.element('self-closing-true', isSelfClosing: true);
+        builder.element(
+          'self-closing-true-with-children',
+          isSelfClosing: true,
+          nest: '!',
+        );
+        builder.element('self-closing-false', isSelfClosing: false);
+      },
+    );
     final xml = builder.buildDocument();
     assertDocumentTreeInvariants(xml);
     final actual = xml.toString();
-    const expected = '<element>'
+    const expected =
+        '<element>'
         '<self-closing-default/>'
         '<self-closing-true/>'
         '<self-closing-true-with-children>!</self-closing-true-with-children>'
@@ -96,11 +126,14 @@ void main() {
   });
   test('nested iterable', () {
     final builder = XmlBuilder();
-    builder.element('element', nest: [
-      () => builder.text('st'),
-      'ri',
-      ['n', 'g']
-    ]);
+    builder.element(
+      'element',
+      nest: [
+        () => builder.text('st'),
+        'ri',
+        ['n', 'g'],
+      ],
+    );
     final xml = builder.buildDocument();
     assertDocumentTreeInvariants(xml);
     final actual = xml.toString();
@@ -192,11 +225,15 @@ void main() {
     builder.element('element', nest: nested);
     final xml = builder.buildDocument();
     assertDocumentTreeInvariants(xml);
-    expect(xml.children[0].children[0].toXmlString(),
-        nested.children[0].toXmlString());
+    expect(
+      xml.children[0].children[0].toXmlString(),
+      nested.children[0].toXmlString(),
+    );
     expect(xml.children[0].children[0], isNot(same(nested.children[0])));
-    expect(xml.children[0].children[1].toXmlString(),
-        nested.children[1].toXmlString());
+    expect(
+      xml.children[0].children[1].toXmlString(),
+      nested.children[1].toXmlString(),
+    );
     expect(xml.children[0].children[1], isNot(same(nested.children[1])));
     final actual = xml.toString();
     const expected = '<element>foo<!--bar--></element>';
@@ -204,11 +241,14 @@ void main() {
   });
   test('text', () {
     final builder = XmlBuilder();
-    builder.element('text', nest: () {
-      builder.text('abc');
-      builder.text('');
-      builder.text('def');
-    });
+    builder.element(
+      'text',
+      nest: () {
+        builder.text('abc');
+        builder.text('');
+        builder.text('def');
+      },
+    );
     final xml = builder.buildDocument();
     assertDocumentTreeInvariants(xml);
     final actual = xml.toString();
@@ -257,14 +297,19 @@ void main() {
   });
   test('doctype (error)', () {
     final builder = XmlBuilder();
-    expect(() => builder.doctype('note', publicId: 'public.dtd'),
-        throwsArgumentError);
+    expect(
+      () => builder.doctype('note', publicId: 'public.dtd'),
+      throwsArgumentError,
+    );
   });
   test('attribute', () {
     final builder = XmlBuilder();
-    builder.element('element', nest: () {
-      builder.attribute('foo', 'bar');
-    });
+    builder.element(
+      'element',
+      nest: () {
+        builder.attribute('foo', 'bar');
+      },
+    );
     final xml = builder.buildDocument();
     assertDocumentInvariants(xml);
     final actual = xml.toString();
@@ -272,10 +317,16 @@ void main() {
   });
   test('attribute (single quote)', () {
     final builder = XmlBuilder();
-    builder.element('element', nest: () {
-      builder.attribute('foo', 'bar',
-          attributeType: XmlAttributeType.SINGLE_QUOTE);
-    });
+    builder.element(
+      'element',
+      nest: () {
+        builder.attribute(
+          'foo',
+          'bar',
+          attributeType: XmlAttributeType.SINGLE_QUOTE,
+        );
+      },
+    );
     final xml = builder.buildDocument();
     assertDocumentInvariants(xml);
     final actual = xml.toString();
@@ -283,10 +334,13 @@ void main() {
   });
   test('attribute (replaced)', () {
     final builder = XmlBuilder();
-    builder.element('element', nest: () {
-      builder.attribute('foo', 'bar');
-      builder.attribute('foo', 'zork');
-    });
+    builder.element(
+      'element',
+      nest: () {
+        builder.attribute('foo', 'bar');
+        builder.attribute('foo', 'zork');
+      },
+    );
     final xml = builder.buildDocument();
     assertDocumentInvariants(xml);
     final actual = xml.toString();
@@ -294,10 +348,13 @@ void main() {
   });
   test('attribute (removed)', () {
     final builder = XmlBuilder();
-    builder.element('element', nest: () {
-      builder.attribute('foo', 'bar');
-      builder.attribute('foo', null);
-    });
+    builder.element(
+      'element',
+      nest: () {
+        builder.attribute('foo', 'bar');
+        builder.attribute('foo', null);
+      },
+    );
     final xml = builder.buildDocument();
     assertDocumentInvariants(xml);
     final actual = xml.toString();
@@ -305,11 +362,14 @@ void main() {
   });
   test('attribute (multiple)', () {
     final builder = XmlBuilder();
-    builder.element('element', nest: () {
-      for (var i = 1; i <= 5; i++) {
-        builder.attribute('a$i', i);
-      }
-    });
+    builder.element(
+      'element',
+      nest: () {
+        for (var i = 1; i <= 5; i++) {
+          builder.attribute('a$i', i);
+        }
+      },
+    );
     final xml = builder.buildDocument();
     assertDocumentInvariants(xml);
     final actual = xml.toString();
@@ -317,10 +377,13 @@ void main() {
   });
   test('attribute (update)', () {
     final builder = XmlBuilder();
-    builder.element('element', nest: () {
-      builder.attribute('lang', 'en');
-      builder.attribute('lang', 'de');
-    });
+    builder.element(
+      'element',
+      nest: () {
+        builder.attribute('lang', 'en');
+        builder.attribute('lang', 'de');
+      },
+    );
     final xml = builder.buildDocument();
     assertDocumentTreeInvariants(xml);
     final actual = xml.toString();
@@ -333,18 +396,23 @@ void main() {
       'http://www.w3.org/1999/xlink': 'xlink',
     };
     final builder = XmlBuilder();
-    builder.element('element', namespaces: namespaces, nest: () {
-      for (final uri in namespaces.keys) {
-        builder.attribute('lang', 'en', namespace: uri);
-      }
-      for (final uri in namespaces.keys) {
-        builder.attribute('lang', 'de', namespace: uri);
-      }
-    });
+    builder.element(
+      'element',
+      namespaces: namespaces,
+      nest: () {
+        for (final uri in namespaces.keys) {
+          builder.attribute('lang', 'en', namespace: uri);
+        }
+        for (final uri in namespaces.keys) {
+          builder.attribute('lang', 'de', namespace: uri);
+        }
+      },
+    );
     final xml = builder.buildDocument();
     assertDocumentTreeInvariants(xml);
     final actual = xml.toString();
-    const expected = '<element '
+    const expected =
+        '<element '
         'xmlns:xhtml="http://www.w3.org/1999/xhtml" '
         'xmlns:xlink="http://www.w3.org/1999/xlink" '
         'xhtml:lang="de" xlink:lang="de"/>';
@@ -352,10 +420,13 @@ void main() {
   });
   test('attribute (update with unknown namespace)', () {
     final builder = XmlBuilder();
-    builder.element('element', nest: () {
-      builder.attribute('xhtml:lang', 'en');
-      builder.attribute('xhtml:lang', 'de');
-    });
+    builder.element(
+      'element',
+      nest: () {
+        builder.attribute('xhtml:lang', 'en');
+        builder.attribute('xhtml:lang', 'de');
+      },
+    );
     final xml = builder.buildDocument();
     assertDocumentTreeInvariants(xml);
     final actual = xml.toString();
@@ -373,9 +444,12 @@ void main() {
   });
   test('xml (nested)', () {
     final builder = XmlBuilder();
-    builder.element('outer', nest: () {
-      builder.xml('<inner attr="value"/>');
-    });
+    builder.element(
+      'outer',
+      nest: () {
+        builder.xml('<inner attr="value"/>');
+      },
+    );
     final xml = builder.buildDocument();
     assertDocumentTreeInvariants(xml);
     final actual = xml.toString();
@@ -384,10 +458,13 @@ void main() {
   });
   test('xml (multiple)', () {
     final builder = XmlBuilder();
-    builder.element('outer', nest: () {
-      builder.xml('<inner1/>');
-      builder.xml('<inner2>hello</inner2>');
-    });
+    builder.element(
+      'outer',
+      nest: () {
+        builder.xml('<inner1/>');
+        builder.xml('<inner2>hello</inner2>');
+      },
+    );
     final xml = builder.buildDocument();
     assertDocumentTreeInvariants(xml);
     final actual = xml.toString();
@@ -396,17 +473,23 @@ void main() {
   });
   test('xml (invalid)', () {
     final builder = XmlBuilder();
-    builder.element('outer', nest: () {
-      expect(
+    builder.element(
+      'outer',
+      nest: () {
+        expect(
           () => builder.xml('<broken>'),
-          throwsA(isXmlTagException(
-            message: 'Missing </broken>',
-            expectedName: 'broken',
-            actualName: isNull,
-            buffer: '<broken>',
-            position: 8,
-          )));
-    });
+          throwsA(
+            isXmlTagException(
+              message: 'Missing </broken>',
+              expectedName: 'broken',
+              actualName: isNull,
+              buffer: '<broken>',
+              position: 8,
+            ),
+          ),
+        );
+      },
+    );
     final xml = builder.buildDocument();
     assertDocumentTreeInvariants(xml);
     final actual = xml.toString();
@@ -416,11 +499,15 @@ void main() {
   test('namespace binding', () {
     const uri = 'http://www.w3.org/2001/XMLSchema';
     final builder = XmlBuilder();
-    builder.element('schema', nest: () {
-      builder.namespace(uri, 'xsd');
-      builder.attribute('lang', 'en', namespace: uri);
-      builder.element('element', namespace: uri);
-    }, namespace: uri);
+    builder.element(
+      'schema',
+      nest: () {
+        builder.namespace(uri, 'xsd');
+        builder.attribute('lang', 'en', namespace: uri);
+        builder.element('element', namespace: uri);
+      },
+      namespace: uri,
+    );
     final xml = builder.buildDocument();
     assertDocumentTreeInvariants(xml);
     final actual = xml.toString();
@@ -433,11 +520,15 @@ void main() {
   test('default namespace binding', () {
     const uri = 'http://www.w3.org/2001/XMLSchema';
     final builder = XmlBuilder();
-    builder.element('schema', nest: () {
-      builder.namespace(uri);
-      builder.attribute('lang', 'en', namespace: uri);
-      builder.element('element', namespace: uri);
-    }, namespace: uri);
+    builder.element(
+      'schema',
+      nest: () {
+        builder.namespace(uri);
+        builder.attribute('lang', 'en', namespace: uri);
+        builder.element('element', namespace: uri);
+      },
+      namespace: uri,
+    );
     final xml = builder.buildDocument();
     assertDocumentTreeInvariants(xml);
     final actual = xml.toString();
@@ -449,64 +540,95 @@ void main() {
   });
   test('undefined namespace', () {
     final builder = XmlBuilder();
-    expect(() => builder.element('element', namespace: 'http://foo.com/'),
-        throwsArgumentError);
+    expect(
+      () => builder.element('element', namespace: 'http://foo.com/'),
+      throwsArgumentError,
+    );
   });
   test('invalid namespace', () {
     final builder = XmlBuilder();
-    builder.element('element', nest: () {
-      expect(() => builder.namespace('http://foo.com/', 'xml'),
-          throwsArgumentError);
-      expect(() => builder.namespace('http://2.foo.com/', 'xmlns'),
-          throwsArgumentError);
-    });
+    builder.element(
+      'element',
+      nest: () {
+        expect(
+          () => builder.namespace('http://foo.com/', 'xml'),
+          throwsArgumentError,
+        );
+        expect(
+          () => builder.namespace('http://2.foo.com/', 'xmlns'),
+          throwsArgumentError,
+        );
+      },
+    );
     final actual = builder.buildDocument().toString();
     const expected = '<element/>';
     expect(actual, expected);
   });
   test('conflicting namespace', () {
     final builder = XmlBuilder();
-    builder.element('element', nest: () {
-      builder.namespace('http://foo.com/', 'foo');
-      expect(() => builder.namespace('http://2.foo.com/', 'foo'),
-          throwsArgumentError);
-    }, namespace: 'http://foo.com/');
+    builder.element(
+      'element',
+      nest: () {
+        builder.namespace('http://foo.com/', 'foo');
+        expect(
+          () => builder.namespace('http://2.foo.com/', 'foo'),
+          throwsArgumentError,
+        );
+      },
+      namespace: 'http://foo.com/',
+    );
     final actual = builder.buildDocument().toString();
     const expected = '<foo:element xmlns:foo="http://foo.com/"/>';
     expect(actual, expected);
   });
   test('unused namespace', () {
     final builder = XmlBuilder();
-    builder.element('element', nest: () {
-      builder.namespace('http://foo.com/', 'foo');
-    });
+    builder.element(
+      'element',
+      nest: () {
+        builder.namespace('http://foo.com/', 'foo');
+      },
+    );
     final actual = builder.buildDocument().toString();
     const expected = '<element xmlns:foo="http://foo.com/"/>';
     expect(actual, expected);
   });
   test('unused namespace (optimized)', () {
     final builder = XmlBuilder(optimizeNamespaces: true);
-    builder.element('element', nest: () {
-      builder.namespace('http://foo.com/', 'foo');
-    });
+    builder.element(
+      'element',
+      nest: () {
+        builder.namespace('http://foo.com/', 'foo');
+      },
+    );
     final actual = builder.buildDocument().toString();
     const expected = '<element/>';
     expect(actual, expected);
   });
   test('duplicate namespace', () {
     final builder = XmlBuilder();
-    builder.element('element', nest: () {
-      builder.namespace('http://foo.com/', 'foo');
-      builder.element('outer', nest: () {
+    builder.element(
+      'element',
+      nest: () {
         builder.namespace('http://foo.com/', 'foo');
-        builder.element('inner', nest: () {
-          builder.namespace('http://foo.com/', 'foo');
-          builder.attribute('lang', 'en', namespace: 'http://foo.com/');
-        });
-      });
-    });
+        builder.element(
+          'outer',
+          nest: () {
+            builder.namespace('http://foo.com/', 'foo');
+            builder.element(
+              'inner',
+              nest: () {
+                builder.namespace('http://foo.com/', 'foo');
+                builder.attribute('lang', 'en', namespace: 'http://foo.com/');
+              },
+            );
+          },
+        );
+      },
+    );
     final actual = builder.buildDocument().toString();
-    const expected = '<element xmlns:foo="http://foo.com/">'
+    const expected =
+        '<element xmlns:foo="http://foo.com/">'
         '<outer xmlns:foo="http://foo.com/">'
         '<inner xmlns:foo="http://foo.com/" foo:lang="en"/>'
         '</outer>'
@@ -515,18 +637,28 @@ void main() {
   });
   test('duplicate namespace on attribute (optimized)', () {
     final builder = XmlBuilder(optimizeNamespaces: true);
-    builder.element('element', nest: () {
-      builder.namespace('http://foo.com/', 'foo');
-      builder.element('outer', nest: () {
+    builder.element(
+      'element',
+      nest: () {
         builder.namespace('http://foo.com/', 'foo');
-        builder.element('inner', nest: () {
-          builder.namespace('http://foo.com/', 'foo');
-          builder.attribute('lang', 'en', namespace: 'http://foo.com/');
-        });
-      });
-    });
+        builder.element(
+          'outer',
+          nest: () {
+            builder.namespace('http://foo.com/', 'foo');
+            builder.element(
+              'inner',
+              nest: () {
+                builder.namespace('http://foo.com/', 'foo');
+                builder.attribute('lang', 'en', namespace: 'http://foo.com/');
+              },
+            );
+          },
+        );
+      },
+    );
     final actual = builder.buildDocument().toString();
-    const expected = '<element xmlns:foo="http://foo.com/">'
+    const expected =
+        '<element xmlns:foo="http://foo.com/">'
         '<outer>'
         '<inner foo:lang="en"/>'
         '</outer>'
@@ -535,15 +667,22 @@ void main() {
   });
   test('duplicate namespace on element (optimized)', () {
     final builder = XmlBuilder(optimizeNamespaces: true);
-    builder.element('element', nest: () {
-      builder.namespace('http://foo.com/', 'foo');
-      builder.element('outer', nest: () {
+    builder.element(
+      'element',
+      nest: () {
         builder.namespace('http://foo.com/', 'foo');
-        builder.element('inner', namespace: 'http://foo.com/');
-      });
-    });
+        builder.element(
+          'outer',
+          nest: () {
+            builder.namespace('http://foo.com/', 'foo');
+            builder.element('inner', namespace: 'http://foo.com/');
+          },
+        );
+      },
+    );
     final actual = builder.buildDocument().toString();
-    const expected = '<element xmlns:foo="http://foo.com/">'
+    const expected =
+        '<element xmlns:foo="http://foo.com/">'
         '<outer>'
         '<foo:inner/>'
         '</outer>'
@@ -552,12 +691,13 @@ void main() {
   });
   test('namespace defined with element', () {
     final builder = XmlBuilder();
-    builder.element('element', namespaces: {
-      'http://foo.com/': 'foo',
-      'http://bar.com/': null,
-    });
+    builder.element(
+      'element',
+      namespaces: {'http://foo.com/': 'foo', 'http://bar.com/': null},
+    );
     final actual = builder.buildDocument().toString();
-    const expected = '<element xmlns:foo="http://foo.com/" '
+    const expected =
+        '<element xmlns:foo="http://foo.com/" '
         'xmlns="http://bar.com/"/>';
     expect(actual, expected);
   });
@@ -574,7 +714,10 @@ void main() {
   test('declaration', () {
     final builder = XmlBuilder();
     builder.declaration(
-        version: '0.5', encoding: 'ASCII', attributes: {'foo': 'bar'});
+      version: '0.5',
+      encoding: 'ASCII',
+      attributes: {'foo': 'bar'},
+    );
     builder.element('data');
     final xml = builder.buildDocument();
     assertDocumentTreeInvariants(xml);
@@ -585,28 +728,39 @@ void main() {
   test('declaration outside of document', () {
     final builder = XmlBuilder();
     expect(
-        () => builder.element('data', nest: builder.declaration),
-        throwsA(isXmlNodeTypeException(
-            message: startsWith('Got XmlNodeType.DECLARATION'),
-            node: isNotNull,
-            types: contains(XmlNodeType.ELEMENT))));
+      () => builder.element('data', nest: builder.declaration),
+      throwsA(
+        isXmlNodeTypeException(
+          message: startsWith('Got XmlNodeType.DECLARATION'),
+          node: isNotNull,
+          types: contains(XmlNodeType.ELEMENT),
+        ),
+      ),
+    );
   });
   test('exception during nesting', () {
     final builder = XmlBuilder();
-    builder.element('outer', nest: () {
-      expect(
-        () => builder.element('inner', nest: () => throw UnimplementedError()),
-        throwsUnsupportedError,
-      );
-    });
+    builder.element(
+      'outer',
+      nest: () {
+        expect(
+          () =>
+              builder.element('inner', nest: () => throw UnimplementedError()),
+          throwsUnsupportedError,
+        );
+      },
+    );
     final document = builder.buildDocument();
     expect(document.toString(), '<outer/>');
   });
   test('incomplete builder', () {
     final builder = XmlBuilder();
-    builder.element('element', nest: () {
-      expect(builder.buildDocument, throwsStateError);
-    });
+    builder.element(
+      'element',
+      nest: () {
+        expect(builder.buildDocument, throwsStateError);
+      },
+    );
     final document = builder.buildDocument();
     expect(document.toString(), '<element/>');
   });

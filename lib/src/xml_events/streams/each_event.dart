@@ -58,17 +58,16 @@ extension XmlEachEventStreamExtension on Stream<XmlEvent> {
     EventHandler<XmlProcessingEvent>? onProcessing,
     EventHandler<XmlStartElementEvent>? onStartElement,
     EventHandler<XmlTextEvent>? onText,
-  }) =>
-      tapEachEvent(
-        onCDATA: onCDATA,
-        onComment: onComment,
-        onDeclaration: onDeclaration,
-        onDoctype: onDoctype,
-        onEndElement: onEndElement,
-        onProcessing: onProcessing,
-        onStartElement: onStartElement,
-        onText: onText,
-      ).drain();
+  }) => tapEachEvent(
+    onCDATA: onCDATA,
+    onComment: onComment,
+    onDeclaration: onDeclaration,
+    onDoctype: onDoctype,
+    onEndElement: onEndElement,
+    onProcessing: onProcessing,
+    onStartElement: onStartElement,
+    onText: onText,
+  ).drain();
 }
 
 extension XmlEachEventStreamListExtension on Stream<List<XmlEvent>> {
@@ -116,17 +115,16 @@ extension XmlEachEventStreamListExtension on Stream<List<XmlEvent>> {
     EventHandler<XmlProcessingEvent>? onProcessing,
     EventHandler<XmlStartElementEvent>? onStartElement,
     EventHandler<XmlTextEvent>? onText,
-  }) =>
-      tapEachEvent(
-        onCDATA: onCDATA,
-        onComment: onComment,
-        onDeclaration: onDeclaration,
-        onDoctype: onDoctype,
-        onEndElement: onEndElement,
-        onProcessing: onProcessing,
-        onStartElement: onStartElement,
-        onText: onText,
-      ).drain();
+  }) => tapEachEvent(
+    onCDATA: onCDATA,
+    onComment: onComment,
+    onDeclaration: onDeclaration,
+    onDoctype: onDoctype,
+    onEndElement: onEndElement,
+    onProcessing: onProcessing,
+    onStartElement: onStartElement,
+    onText: onText,
+  ).drain();
 }
 
 class XmlEventHandler with XmlEventVisitor {

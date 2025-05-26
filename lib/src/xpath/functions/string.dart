@@ -17,7 +17,11 @@ XPathValue string(XPathContext context, List<XPathExpression> arguments) {
 // string concat(string, string, string*)
 XPathValue concat(XPathContext context, List<XPathExpression> arguments) {
   XPathEvaluationException.checkArgumentCount(
-      'concat', arguments, 2, unbounded);
+    'concat',
+    arguments,
+    2,
+    unbounded,
+  );
   final result = arguments.map((each) => each(context).string);
   return XPathString(result.join());
 }
@@ -40,7 +44,9 @@ XPathValue contains(XPathContext context, List<XPathExpression> arguments) {
 
 // string substring-before(string, string)
 XPathValue substringBefore(
-    XPathContext context, List<XPathExpression> arguments) {
+  XPathContext context,
+  List<XPathExpression> arguments,
+) {
   XPathEvaluationException.checkArgumentCount('substring-before', arguments, 2);
   final string = arguments[0](context).string;
   final index = string.indexOf(arguments[1](context).string);
@@ -49,7 +55,9 @@ XPathValue substringBefore(
 
 // string substring-after(string, string)
 XPathValue substringAfter(
-    XPathContext context, List<XPathExpression> arguments) {
+  XPathContext context,
+  List<XPathExpression> arguments,
+) {
   XPathEvaluationException.checkArgumentCount('substring-after', arguments, 2);
   final string = arguments[0](context).string;
   final index = string.indexOf(arguments[1](context).string);
@@ -63,14 +71,17 @@ XPathValue substring(XPathContext context, List<XPathExpression> arguments) {
   final start_ = arguments[1](context).number;
   if (!start_.isFinite) return XPathString.empty;
   final start = start_.round() - 1;
-  final end_ =
-      arguments.length > 2 ? arguments[2](context).number : double.infinity;
+  final end_ = arguments.length > 2
+      ? arguments[2](context).number
+      : double.infinity;
   if (end_.isNaN || end_ <= 0) return XPathString.empty;
   final end = end_.isFinite ? start + end_.round() : string.length;
-  return XPathString(string.substring(
-    math.min(math.max(0, start), string.length),
-    math.min(math.max(start, end), string.length),
-  ));
+  return XPathString(
+    string.substring(
+      math.min(math.max(0, start), string.length),
+      math.min(math.max(start, end), string.length),
+    ),
+  );
 }
 
 // number string-length(string?)
@@ -82,9 +93,15 @@ XPathValue stringLength(XPathContext context, List<XPathExpression> arguments) {
 
 // string normalize-space(string?)
 XPathValue normalizeSpace(
-    XPathContext context, List<XPathExpression> arguments) {
+  XPathContext context,
+  List<XPathExpression> arguments,
+) {
   XPathEvaluationException.checkArgumentCount(
-      'normalize-space', arguments, 0, 1);
+    'normalize-space',
+    arguments,
+    0,
+    1,
+  );
   final value = arguments.isEmpty ? context.value : arguments[0](context);
   return XPathString(value.string.trim().replaceAll(_whitespace, ' '));
 }
@@ -99,7 +116,7 @@ XPathValue translate(XPathContext context, List<XPathExpression> arguments) {
   final targetChars = arguments[2](context).string;
   final mapping = {
     for (var i = 0; i < sourceChars.length; i++)
-      sourceChars[i]: i < targetChars.length ? targetChars[i] : ''
+      sourceChars[i]: i < targetChars.length ? targetChars[i] : '',
   };
   final buffer = StringBuffer();
   for (var i = 0; i < input.length; i++) {

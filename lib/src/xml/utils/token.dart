@@ -34,7 +34,8 @@ class XmlToken {
   static const entityEnd = ';';
 
   // https://en.wikipedia.org/wiki/QName
-  static const nameStartChars = ':A-Z_a-z'
+  static const nameStartChars =
+      ':A-Z_a-z'
       '\u00c0-\u00d6'
       '\u00d8-\u00f6'
       '\u00f8-\u02ff'
@@ -46,7 +47,8 @@ class XmlToken {
       '\u3001-\ud7ff'
       '\uf900-\ufdcf'
       '\ufdf0-\ufffd';
-  static const nameChars = '$nameStartChars'
+  static const nameChars =
+      '$nameStartChars'
       '-.0-9'
       '\u00b7'
       '\u0300-\u036f'

@@ -7,23 +7,14 @@ import 'package:args/args.dart' as args;
 import 'package:xml/xml.dart';
 
 final args.ArgParser argumentParser = args.ArgParser()
-  ..addOption(
-    'tag',
-    abbr: 't',
-    help: 'Filter by tag name.',
-    defaultsTo: '*',
-  )
+  ..addOption('tag', abbr: 't', help: 'Filter by tag name.', defaultsTo: '*')
   ..addOption(
     'namespace',
     abbr: 'n',
     help: 'Filter by namespace.',
     defaultsTo: '*',
   )
-  ..addFlag(
-    'pretty',
-    abbr: 'p',
-    help: 'Pretty print matching results.',
-  );
+  ..addFlag('pretty', abbr: 'p', help: 'Pretty print matching results.');
 
 void printUsage() {
   stdout.writeln('Usage: xml_grep [options] {files}');

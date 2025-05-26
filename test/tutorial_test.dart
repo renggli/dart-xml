@@ -25,8 +25,10 @@ void main() {
     });
     test('printing document', () {
       expect(document.toString(), bookshelfXml);
-      expect(document.toXmlString(pretty: true, indent: '\t'),
-          startsWith('<?xml version="1.0"?>'));
+      expect(
+        document.toXmlString(pretty: true, indent: '\t'),
+        startsWith('<?xml version="1.0"?>'),
+      );
     });
   });
   group('traversing and querying', () {
@@ -37,37 +39,42 @@ void main() {
           .where((string) => string.isNotEmpty)
           .join('\n');
       expect(
-          textual,
-          'Growing a Language\n'
-          '29.99\n'
-          'Learning XML\n'
-          '39.95\n'
-          '132.00');
+        textual,
+        'Growing a Language\n'
+        '29.99\n'
+        'Learning XML\n'
+        '39.95\n'
+        '132.00',
+      );
       expect(
-          document.innerText,
-          '\n'
-          '    \n'
-          '      \n'
-          '        Growing a Language\n'
-          '        29.99\n'
-          '      \n'
-          '      \n'
-          '        Learning XML\n'
-          '        39.95\n'
-          '      \n'
-          '      132.00\n'
-          '    ');
+        document.innerText,
+        '\n'
+        '    \n'
+        '      \n'
+        '        Growing a Language\n'
+        '        29.99\n'
+        '      \n'
+        '      \n'
+        '        Learning XML\n'
+        '        39.95\n'
+        '      \n'
+        '      132.00\n'
+        '    ',
+      );
     });
     test('find all elements', () {
-      final titles =
-          document.findAllElements('title').map((element) => element.innerText);
+      final titles = document
+          .findAllElements('title')
+          .map((element) => element.innerText);
       expect(titles, ['Growing a Language', 'Learning XML']);
     });
     test('nested find elements', () {
       final total = document
           .findAllElements('book')
-          .map((element) =>
-              double.parse(element.findElements('price').single.innerText))
+          .map(
+            (element) =>
+                double.parse(element.findElements('price').single.innerText),
+          )
           .reduce((a, b) => a + b);
       expect(total, closeTo(69.94, 0.1));
     });
@@ -95,37 +102,64 @@ void main() {
     test('a document', () {
       final builder = XmlBuilder();
       builder.processing('xml', 'version="1.0"');
-      builder.element('bookshelf', nest: () {
-        builder.element('book', nest: () {
-          builder.element('title', nest: () {
-            builder.attribute('lang', 'en');
-            builder.text('Growing a Language');
-          });
-          builder.element('price', nest: 29.99);
-        });
-        builder.element('book', nest: () {
-          builder.element('title', nest: () {
-            builder.attribute('lang', 'en');
-            builder.text('Learning XML');
-          });
-          builder.element('price', nest: 39.95);
-        });
-        builder.element('price', nest: '132.00');
-      });
+      builder.element(
+        'bookshelf',
+        nest: () {
+          builder.element(
+            'book',
+            nest: () {
+              builder.element(
+                'title',
+                nest: () {
+                  builder.attribute('lang', 'en');
+                  builder.text('Growing a Language');
+                },
+              );
+              builder.element('price', nest: 29.99);
+            },
+          );
+          builder.element(
+            'book',
+            nest: () {
+              builder.element(
+                'title',
+                nest: () {
+                  builder.attribute('lang', 'en');
+                  builder.text('Learning XML');
+                },
+              );
+              builder.element('price', nest: 39.95);
+            },
+          );
+          builder.element('price', nest: '132.00');
+        },
+      );
       final builtDocument = builder.buildDocument();
-      expect(document.toXmlString(pretty: true),
-          builtDocument.toXmlString(pretty: true));
+      expect(
+        document.toXmlString(pretty: true),
+        builtDocument.toXmlString(pretty: true),
+      );
     });
     test('a fragment', () {
       void buildBook(
-          XmlBuilder builder, String title, String language, num price) {
-        builder.element('book', nest: () {
-          builder.element('title', nest: () {
-            builder.attribute('lang', language);
-            builder.text(title);
-          });
-          builder.element('price', nest: price);
-        });
+        XmlBuilder builder,
+        String title,
+        String language,
+        num price,
+      ) {
+        builder.element(
+          'book',
+          nest: () {
+            builder.element(
+              'title',
+              nest: () {
+                builder.attribute('lang', language);
+                builder.text(title);
+              },
+            );
+            builder.element('price', nest: price);
+          },
+        );
       }
 
       final builder = XmlBuilder();
@@ -133,13 +167,14 @@ void main() {
       buildBook(builder, 'Voyages extraordinaries', 'fr', 18.20);
       final builtDocument = document.copy();
       builtDocument.rootElement.children.add(builder.buildFragment());
-      final titles =
-          builtDocument.findAllElements('title').map((node) => node.innerText);
+      final titles = builtDocument
+          .findAllElements('title')
+          .map((node) => node.innerText);
       expect(titles, [
         'Growing a Language',
         'Learning XML',
         'The War of the Worlds',
-        'Voyages extraordinaries'
+        'Voyages extraordinaries',
       ]);
     });
   });
@@ -151,30 +186,34 @@ void main() {
           .where((text) => text.isNotEmpty)
           .join('\n');
       expect(
-          result,
-          'Growing a Language\n'
-          '29.99\n'
-          'Learning XML\n'
-          '39.95\n'
-          '132.00');
+        result,
+        'Growing a Language\n'
+        '29.99\n'
+        'Learning XML\n'
+        '39.95\n'
+        '132.00',
+      );
     });
     test('stream', () async {
       final stream = Stream.fromIterable([bookshelfXml]);
       final result = await stream
           .toXmlEvents()
           .normalizeEvents()
-          .expand((events) => events
-              .whereType<XmlTextEvent>()
-              .map((event) => event.value.trim())
-              .where((text) => text.isNotEmpty))
+          .expand(
+            (events) => events
+                .whereType<XmlTextEvent>()
+                .map((event) => event.value.trim())
+                .where((text) => text.isNotEmpty),
+          )
           .join('\n');
       expect(
-          result,
-          'Growing a Language\n'
-          '29.99\n'
-          'Learning XML\n'
-          '39.95\n'
-          '132.00');
+        result,
+        'Growing a Language\n'
+        '29.99\n'
+        'Learning XML\n'
+        '39.95\n'
+        '132.00',
+      );
     });
     test('stream select subtree', () async {
       final stream = Stream.fromIterable([bookshelfXml]);
@@ -187,9 +226,10 @@ void main() {
           .map((node) => node.innerText)
           .join('\n');
       expect(
-          result,
-          'Growing a Language\n'
-          'Learning XML');
+        result,
+        'Growing a Language\n'
+        'Learning XML',
+      );
     });
   });
 }

@@ -7,8 +7,8 @@ import 'expression.dart';
 import 'values.dart';
 
 /// Type definition for all XPath functions.
-typedef XPathFunction = XPathValue Function(
-    XPathContext context, List<XPathExpression> arguments);
+typedef XPathFunction =
+    XPathValue Function(XPathContext context, List<XPathExpression> arguments);
 
 /// The standard XPath functions.
 const Map<String, XPathFunction> standardFunctions = {

@@ -45,56 +45,68 @@ XPathValue lang(XPathContext context, List<XPathExpression> arguments) {
 XPathValue lessThan(XPathContext context, List<XPathExpression> arguments) {
   XPathEvaluationException.checkArgumentCount('<', arguments, 2);
   return XPathBoolean(
-      arguments[0](context).number < arguments[1](context).number);
+    arguments[0](context).number < arguments[1](context).number,
+  );
 }
 
 // boolean <=(number, number)
 XPathValue lessThanOrEqual(
-    XPathContext context, List<XPathExpression> arguments) {
+  XPathContext context,
+  List<XPathExpression> arguments,
+) {
   XPathEvaluationException.checkArgumentCount('<=', arguments, 2);
   return XPathBoolean(
-      arguments[0](context).number <= arguments[1](context).number);
+    arguments[0](context).number <= arguments[1](context).number,
+  );
 }
 
 // boolean >(number, number)
 XPathValue greaterThan(XPathContext context, List<XPathExpression> arguments) {
   XPathEvaluationException.checkArgumentCount('>', arguments, 2);
   return XPathBoolean(
-      arguments[0](context).number > arguments[1](context).number);
+    arguments[0](context).number > arguments[1](context).number,
+  );
 }
 
 // boolean >=(number, number)
 XPathValue greaterThanOrEqual(
-    XPathContext context, List<XPathExpression> arguments) {
+  XPathContext context,
+  List<XPathExpression> arguments,
+) {
   XPathEvaluationException.checkArgumentCount('>=', arguments, 2);
   return XPathBoolean(
-      arguments[0](context).number >= arguments[1](context).number);
+    arguments[0](context).number >= arguments[1](context).number,
+  );
 }
 
 // boolean =(object, object)
 XPathValue equal(XPathContext context, List<XPathExpression> arguments) {
   XPathEvaluationException.checkArgumentCount('=', arguments, 2);
   return XPathBoolean(
-      arguments[0](context).string == arguments[1](context).string);
+    arguments[0](context).string == arguments[1](context).string,
+  );
 }
 
 // boolean !=(object, object)
 XPathValue notEqual(XPathContext context, List<XPathExpression> arguments) {
   XPathEvaluationException.checkArgumentCount('!=', arguments, 2);
   return XPathBoolean(
-      arguments[0](context).string != arguments[1](context).string);
+    arguments[0](context).string != arguments[1](context).string,
+  );
 }
 
 // boolean and(boolean, boolean)
 XPathValue and(XPathContext context, List<XPathExpression> arguments) {
   XPathEvaluationException.checkArgumentCount('and', arguments, 2);
   return XPathBoolean(
-      arguments[0](context).boolean && arguments[1](context).boolean);
+    arguments[0](context).boolean && arguments[1](context).boolean,
+  );
 }
 
 // boolean or(boolean, boolean)
 XPathValue or(XPathContext context, List<XPathExpression> arguments) {
   XPathEvaluationException.checkArgumentCount('or', arguments, 2);
   return XPathBoolean(
-      arguments[0](context).boolean || arguments[1](context).boolean);
+    arguments[0](context).boolean || arguments[1](context).boolean,
+  );
 }

@@ -52,8 +52,9 @@ void main() {
       expect(event.hashCode, other.hashCode);
     });
     test('declaration (attributes)', () {
-      final iterator =
-          parseEvents('<?xml version="1.0" author=\'lfr\'?>').iterator;
+      final iterator = parseEvents(
+        '<?xml version="1.0" author=\'lfr\'?>',
+      ).iterator;
       expect(iterator.moveNext(), isTrue);
       final event = iterator.current as XmlDeclarationEvent;
       assertComplete(iterator);
@@ -70,11 +71,12 @@ void main() {
       expect(event.hashCode, other.hashCode);
     });
     test('doctype', () {
-      final iterator = parseEvents('<!DOCTYPE note\n'
-              'PUBLIC "public.dtd" "system.dtd"\n'
-              '[<!ENTITY copy "(c)">]\n'
-              '>')
-          .iterator;
+      final iterator = parseEvents(
+        '<!DOCTYPE note\n'
+        'PUBLIC "public.dtd" "system.dtd"\n'
+        '[<!ENTITY copy "(c)">]\n'
+        '>',
+      ).iterator;
       expect(iterator.moveNext(), isTrue);
       final event = iterator.current as XmlDoctypeEvent;
       assertComplete(iterator);
@@ -84,8 +86,11 @@ void main() {
       expect(event.externalId!.publicId, 'public.dtd');
       expect(event.externalId!.systemId, 'system.dtd');
       expect(event.internalSubset, '<!ENTITY copy "(c)">');
-      final other =
-          XmlDoctypeEvent(event.name, event.externalId, event.internalSubset);
+      final other = XmlDoctypeEvent(
+        event.name,
+        event.externalId,
+        event.internalSubset,
+      );
       expect(event, other);
       expect(event.hashCode, other.hashCode);
     });
@@ -122,7 +127,10 @@ void main() {
       expect(event.attributes, isEmpty);
       expect(event.isSelfClosing, isFalse);
       final other = XmlStartElementEvent(
-          event.name, event.attributes, event.isSelfClosing);
+        event.name,
+        event.attributes,
+        event.isSelfClosing,
+      );
       expect(event, other);
       expect(event.hashCode, other.hashCode);
     });
@@ -142,12 +150,15 @@ void main() {
       expect(event.attributes[1].attributeType, XmlAttributeType.SINGLE_QUOTE);
       expect(event.isSelfClosing, isTrue);
       final other = XmlStartElementEvent(
-          event.name,
-          event.attributes
-              .map((attr) =>
-                  XmlEventAttribute(attr.name, attr.value, attr.attributeType))
-              .toList(),
-          event.isSelfClosing);
+        event.name,
+        event.attributes
+            .map(
+              (attr) =>
+                  XmlEventAttribute(attr.name, attr.value, attr.attributeType),
+            )
+            .toList(),
+        event.isSelfClosing,
+      );
       expect(event, other);
       expect(event.hashCode, other.hashCode);
     });
@@ -168,12 +179,15 @@ void main() {
       test('missing tag closing', () {
         final iterator = parseEvents('<hello').iterator;
         expect(
-            iterator.moveNext,
-            throwsA(isXmlParserException(
+          iterator.moveNext,
+          throwsA(
+            isXmlParserException(
               message: '">" expected',
               buffer: '<hello',
               position: 6,
-            )));
+            ),
+          ),
+        );
         expect(iterator.moveNext(), isTrue);
         final event = iterator.current as XmlTextEvent;
         expect(event.value, 'hello');
@@ -182,12 +196,15 @@ void main() {
       test('missing attribute closing', () {
         final iterator = parseEvents('<foo bar="abc').iterator;
         expect(
-            iterator.moveNext,
-            throwsA(isXmlParserException(
+          iterator.moveNext,
+          throwsA(
+            isXmlParserException(
               message: '">" expected',
               buffer: '<foo bar="abc',
               position: 8,
-            )));
+            ),
+          ),
+        );
         expect(iterator.moveNext(), isTrue);
         final event = iterator.current as XmlTextEvent;
         expect(event.value, 'foo bar="abc');
@@ -196,12 +213,15 @@ void main() {
       test('missing comment closing', () {
         final iterator = parseEvents('<!-- comment').iterator;
         expect(
-            iterator.moveNext,
-            throwsA(isXmlParserException(
+          iterator.moveNext,
+          throwsA(
+            isXmlParserException(
               message: '"-->" expected',
               buffer: '<!-- comment',
               position: 4,
-            )));
+            ),
+          ),
+        );
         expect(iterator.moveNext(), isTrue);
         final event = iterator.current as XmlTextEvent;
         expect(event.value, '!-- comment');
@@ -222,15 +242,17 @@ void main() {
         expect(events, [
           XmlStartElementEvent('foo', [], false),
           XmlEndElementEvent('bar'),
-          XmlEndElementEvent('foo')
+          XmlEndElementEvent('foo'),
         ]);
       });
     });
     group('validated', () {
       test('unexpected end tag', () {
         final iterator = parseEvents('</foo>', validateNesting: true).iterator;
-        expect(() => iterator.moveNext(),
-            throwsA(isXmlTagException(actualName: 'foo', position: 0)));
+        expect(
+          () => iterator.moveNext(),
+          throwsA(isXmlTagException(actualName: 'foo', position: 0)),
+        );
         expect(iterator.current, XmlEndElementEvent('foo'));
         assertComplete(iterator);
       });
@@ -238,19 +260,29 @@ void main() {
         final iterator = parseEvents('<foo>', validateNesting: true).iterator;
         expect(iterator.moveNext(), isTrue);
         expect(iterator.current, XmlStartElementEvent('foo', [], false));
-        expect(() => iterator.moveNext(),
-            throwsA(isXmlTagException(expectedName: 'foo', position: 5)));
+        expect(
+          () => iterator.moveNext(),
+          throwsA(isXmlTagException(expectedName: 'foo', position: 5)),
+        );
         assertComplete(iterator);
       });
       test('not matching end tag', () {
-        final iterator =
-            parseEvents('<foo></bar></foo>', validateNesting: true).iterator;
+        final iterator = parseEvents(
+          '<foo></bar></foo>',
+          validateNesting: true,
+        ).iterator;
         expect(iterator.moveNext(), isTrue);
         expect(iterator.current, XmlStartElementEvent('foo', [], false));
         expect(
-            () => iterator.moveNext(),
-            throwsA(isXmlTagException(
-                expectedName: 'foo', actualName: 'bar', position: 5)));
+          () => iterator.moveNext(),
+          throwsA(
+            isXmlTagException(
+              expectedName: 'foo',
+              actualName: 'bar',
+              position: 5,
+            ),
+          ),
+        );
         expect(iterator.current, XmlEndElementEvent('bar'));
         expect(iterator.moveNext(), isTrue);
         expect(iterator.current, XmlEndElementEvent('foo'));
@@ -314,9 +346,9 @@ void main() {
       expect(maxExclusive, '100');
     });
     test('extract all genres', () {
-// Some libraries provide a sliding window iterator
-// https://github.com/renggli/dart-more/blob/main/lib/src/iterable/window.dart
-// which would make this code trivial to write and read:
+      // Some libraries provide a sliding window iterator
+      // https://github.com/renggli/dart-more/blob/main/lib/src/iterable/window.dart
+      // which would make this code trivial to write and read:
       final genres = <String>{};
       parseEvents(booksXml).reduce((previous, current) {
         if (previous is XmlStartElementEvent &&
@@ -327,14 +359,15 @@ void main() {
         return current;
       });
       expect(
-          genres,
-          containsAll([
-            'Computer',
-            'Fantasy',
-            'Romance',
-            'Horror',
-            'Science Fiction',
-          ]));
+        genres,
+        containsAll([
+          'Computer',
+          'Fantasy',
+          'Romance',
+          'Horror',
+          'Science Fiction',
+        ]),
+      );
     });
   });
 }

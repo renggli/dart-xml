@@ -3,8 +3,8 @@ import 'package:petitparser/petitparser.dart';
 /// Optimized parser to read character data.
 class XmlCharacterDataParser extends Parser<String> {
   XmlCharacterDataParser(this._stopper, this._minLength)
-      : assert(_stopper.length == 1, 'Invalid stopper character: $_stopper'),
-        assert(_minLength >= 0, 'Invalid minimum length: $_minLength');
+    : assert(_stopper.length == 1, 'Invalid stopper character: $_stopper'),
+      assert(_minLength >= 0, 'Invalid minimum length: $_minLength');
 
   final String _stopper;
   final int _minLength;

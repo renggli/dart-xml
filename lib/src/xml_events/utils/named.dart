@@ -25,8 +25,9 @@ mixin XmlNamed implements XmlHasParent {
     final prefix = index < 0 ? null : xmlns;
     final local = index < 0 ? xmlns : name.substring(0, index);
     // Identify the start element to match.
-    final start =
-        this is XmlStartElementEvent ? this as XmlStartElementEvent : parent;
+    final start = this is XmlStartElementEvent
+        ? this as XmlStartElementEvent
+        : parent;
     // Walk up the tree to find the matching namespace.
     for (var event = start; event != null; event = event.parent) {
       for (final attribute in event.attributes) {

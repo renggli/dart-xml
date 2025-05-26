@@ -15,9 +15,11 @@ import '../test/utils/examples.dart';
 ///  - the code is benchmarked for the duration of [measure].
 ///
 /// The resulting duration is the average time measured to run [function] once.
-double benchmark(void Function() function,
-    {Duration warmup = const Duration(milliseconds: 200),
-    Duration measure = const Duration(seconds: 2)}) {
+double benchmark(
+  void Function() function, {
+  Duration warmup = const Duration(milliseconds: 200),
+  Duration measure = const Duration(seconds: 2),
+}) {
   _benchmark(function, warmup);
   return _benchmark(function, measure);
 }
@@ -47,14 +49,20 @@ String characterData() {
   const string = '''a&bc<def"gehi'jklm>nopqr''';
   final builder = XmlBuilder();
   builder.processing('xml', 'version="1.0"');
-  builder.element('character', nest: () {
-    for (var i = 0; i < 20; i++) {
-      builder.text('$string$string$string$string$string$string');
-      builder.element('foo', nest: () {
-        builder.attribute('key', '$string$string$string$string');
-      });
-    }
-  });
+  builder.element(
+    'character',
+    nest: () {
+      for (var i = 0; i < 20; i++) {
+        builder.text('$string$string$string$string$string$string');
+        builder.element(
+          'foo',
+          nest: () {
+            builder.attribute('key', '$string$string$string$string');
+          },
+        );
+      }
+    },
+  );
   return builder.buildDocument().toString();
 }
 
@@ -74,60 +82,86 @@ void main(List<String> args) {
   if (args.contains('xml')) {
     stdout.writeln(document.toXmlString(pretty: true));
   } else {
-    stdout.writeln([
-      '',
-      ...document
+    stdout.writeln(
+      [
+        '',
+        ...document
+            .findAllElements('benchmark')
+            .first
+            .findAllElements('measure')
+            .map((measure) => measure.getAttribute('name')),
+      ].join(';'),
+    );
+    stdout.write(
+      document
           .findAllElements('benchmark')
-          .first
-          .findAllElements('measure')
-          .map((measure) => measure.getAttribute('name'))
-    ].join(';'));
-    stdout.write(document
-        .findAllElements('benchmark')
-        .map((benchmark) => [
+          .map(
+            (benchmark) => [
               benchmark.getAttribute('name'),
-              ...benchmark.findAllElements('time').map((time) => time.innerText)
-            ].join(';'))
-        .join('\n'));
+              ...benchmark
+                  .findAllElements('time')
+                  .map((time) => time.innerText),
+            ].join(';'),
+          )
+          .join('\n'),
+    );
   }
 }
 
 void addBenchmarks(XmlBuilder builder) {
   builder.processing('xml', 'version="1.0"');
-  builder.element('benchmarks', nest: () {
-    for (final entry in benchmarks.entries) {
-      addBenchmark(builder, entry);
-    }
-  });
+  builder.element(
+    'benchmarks',
+    nest: () {
+      for (final entry in benchmarks.entries) {
+        addBenchmark(builder, entry);
+      }
+    },
+  );
 }
 
 void addBenchmark(XmlBuilder builder, MapEntry<String, String> entry) {
-  builder.element('benchmark', attributes: {'name': entry.key}, nest: () {
-    final source = entry.value;
-    final document = XmlDocument.parse(source);
-    final parser = benchmark(() => XmlDocument.parse(source));
-    final streamEvents = benchmark(() => XmlEventDecoder().convert(source));
-    final streamNodes = benchmark(() =>
-        const XmlNodeDecoder().convert(XmlEventDecoder().convert(source)));
-    final iterator = benchmark(() => parseEvents(source).toList());
-    final serialize = benchmark(() => document.toXmlString());
-    final serializePretty = benchmark(() => document.toXmlString(pretty: true));
-    addMeasure(builder, 'parser', parser);
-    addMeasure(builder, 'streamEvents', streamEvents, parser);
-    addMeasure(builder, 'streamNodes', streamNodes, parser);
-    addMeasure(builder, 'iterator', iterator, parser);
-    addMeasure(builder, 'serialize', serialize);
-    addMeasure(builder, 'serializePretty', serializePretty, serialize);
-  });
+  builder.element(
+    'benchmark',
+    attributes: {'name': entry.key},
+    nest: () {
+      final source = entry.value;
+      final document = XmlDocument.parse(source);
+      final parser = benchmark(() => XmlDocument.parse(source));
+      final streamEvents = benchmark(() => XmlEventDecoder().convert(source));
+      final streamNodes = benchmark(
+        () => const XmlNodeDecoder().convert(XmlEventDecoder().convert(source)),
+      );
+      final iterator = benchmark(() => parseEvents(source).toList());
+      final serialize = benchmark(() => document.toXmlString());
+      final serializePretty = benchmark(
+        () => document.toXmlString(pretty: true),
+      );
+      addMeasure(builder, 'parser', parser);
+      addMeasure(builder, 'streamEvents', streamEvents, parser);
+      addMeasure(builder, 'streamNodes', streamNodes, parser);
+      addMeasure(builder, 'iterator', iterator, parser);
+      addMeasure(builder, 'serialize', serialize);
+      addMeasure(builder, 'serializePretty', serializePretty, serialize);
+    },
+  );
 }
 
-void addMeasure(XmlBuilder builder, String name, double measure,
-    [double? reference]) {
-  builder.element('measure', attributes: {'name': name}, nest: () {
-    builder.element('time', nest: measure.toStringAsFixed(6));
-    if (reference != null) {
-      final speedup = percentChange(reference, measure);
-      builder.element('speedup', nest: speedup.toStringAsFixed(2));
-    }
-  });
+void addMeasure(
+  XmlBuilder builder,
+  String name,
+  double measure, [
+  double? reference,
+]) {
+  builder.element(
+    'measure',
+    attributes: {'name': name},
+    nest: () {
+      builder.element('time', nest: measure.toStringAsFixed(6));
+      if (reference != null) {
+        final speedup = percentChange(reference, measure);
+        builder.element('speedup', nest: speedup.toStringAsFixed(2));
+      }
+    },
+  );
 }

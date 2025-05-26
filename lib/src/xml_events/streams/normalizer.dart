@@ -18,8 +18,8 @@ class XmlNormalizeEvents extends XmlListConverter<XmlEvent, XmlEvent> {
 
   @override
   ChunkedConversionSink<List<XmlEvent>> startChunkedConversion(
-          Sink<List<XmlEvent>> sink) =>
-      _XmlNormalizeEventsSink(sink);
+    Sink<List<XmlEvent>> sink,
+  ) => _XmlNormalizeEventsSink(sink);
 }
 
 class _XmlNormalizeEventsSink implements ChunkedConversionSink<List<XmlEvent>> {
@@ -31,8 +31,9 @@ class _XmlNormalizeEventsSink implements ChunkedConversionSink<List<XmlEvent>> {
   @override
   void add(List<XmlEvent> chunk) {
     // Filter out empty text nodes.
-    buffer.addAll(chunk
-        .where((event) => !(event is XmlTextEvent && event.value.isEmpty)));
+    buffer.addAll(
+      chunk.where((event) => !(event is XmlTextEvent && event.value.isEmpty)),
+    );
     // Merge adjacent text nodes.
     for (var i = 0; i < buffer.length - 1;) {
       final event1 = buffer[i], event2 = buffer[i + 1];

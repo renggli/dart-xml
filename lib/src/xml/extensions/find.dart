@@ -42,7 +42,10 @@ extension XmlFindExtension on XmlNode {
 }
 
 Iterable<XmlElement> filterElements(
-    Iterable<XmlNode> iterable, String name, String? namespace) {
+  Iterable<XmlNode> iterable,
+  String name,
+  String? namespace,
+) {
   final matcher = createNameMatcher(name, namespace);
   return iterable.whereType<XmlElement>().where(matcher);
 }

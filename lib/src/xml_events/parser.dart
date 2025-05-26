@@ -25,23 +25,25 @@ class XmlEventParser {
   Parser<XmlEvent> build() => resolve<XmlEvent>(ref0(event));
 
   Parser<XmlEvent> event() => [
-        ref0(characterData),
-        ref0(startElement),
-        ref0(endElement),
-        ref0(comment),
-        ref0(cdata),
-        ref0(declaration),
-        ref0(processing),
-        ref0(doctype),
-      ].toChoiceParser(failureJoiner: selectFarthest);
+    ref0(characterData),
+    ref0(startElement),
+    ref0(endElement),
+    ref0(comment),
+    ref0(cdata),
+    ref0(declaration),
+    ref0(processing),
+    ref0(doctype),
+  ].toChoiceParser(failureJoiner: selectFarthest);
 
   // Events
 
-  Parser<XmlTextEvent> characterData() =>
-      XmlCharacterDataParser(XmlToken.openElement, 1)
-          .map((each) => XmlRawTextEvent(each, entityMapping));
+  Parser<XmlTextEvent> characterData() => XmlCharacterDataParser(
+    XmlToken.openElement,
+    1,
+  ).map((each) => XmlRawTextEvent(each, entityMapping));
 
-  Parser<XmlStartElementEvent> startElement() => seq5(
+  Parser<XmlStartElementEvent> startElement() =>
+      seq5(
         XmlToken.openElement.toParser(),
         ref0(nameToken),
         ref0(attributes),
@@ -50,91 +52,101 @@ class XmlEventParser {
           XmlToken.closeElement.toParser(),
           XmlToken.closeEndElement.toParser(),
         ].toChoiceParser(failureJoiner: selectFirst),
-      ).map5((_, nameToken, attributes, __, closeElement) =>
-          XmlStartElementEvent(
-              nameToken, attributes, closeElement == XmlToken.closeEndElement));
+      ).map5(
+        (_, nameToken, attributes, __, closeElement) => XmlStartElementEvent(
+          nameToken,
+          attributes,
+          closeElement == XmlToken.closeEndElement,
+        ),
+      );
 
   Parser<List<XmlEventAttribute>> attributes() => ref0(attribute).star();
 
-  Parser<XmlEventAttribute> attribute() => seq3(
-        ref0(space),
-        ref0(nameToken),
-        ref0(attributeAssignment),
-      ).map3((_, name, attribute) => XmlEventAttribute(
-          name, entityMapping.decode(attribute.$1), attribute.$2));
+  Parser<XmlEventAttribute> attribute() =>
+      seq3(ref0(space), ref0(nameToken), ref0(attributeAssignment)).map3(
+        (_, name, attribute) => XmlEventAttribute(
+          name,
+          entityMapping.decode(attribute.$1),
+          attribute.$2,
+        ),
+      );
 
-  Parser<(String, XmlAttributeType)> attributeAssignment() => seq4(
-          ref0(spaceOptional),
-          XmlToken.equals.toParser(),
-          ref0(spaceOptional),
-          ref0(attributeValue))
-      .map4((_, __, ___, value) => value)
-      .optionalWith(const ('', XmlAttributeType.DOUBLE_QUOTE));
+  Parser<(String, XmlAttributeType)> attributeAssignment() =>
+      seq4(
+        ref0(spaceOptional),
+        XmlToken.equals.toParser(),
+        ref0(spaceOptional),
+        ref0(attributeValue),
+      ).map4((_, __, ___, value) => value).optionalWith(const (
+        '',
+        XmlAttributeType.DOUBLE_QUOTE,
+      ));
 
   Parser<(String, XmlAttributeType)> attributeValue() => [
-        ref0(attributeValueDoubleQuote),
-        ref0(attributeValueSingleQuote),
-        ref0(attributeValueNoQuote),
-      ].toChoiceParser();
+    ref0(attributeValueDoubleQuote),
+    ref0(attributeValueSingleQuote),
+    ref0(attributeValueNoQuote),
+  ].toChoiceParser();
 
   Parser<(String, XmlAttributeType)> attributeValueDoubleQuote() => seq3(
-          XmlToken.doubleQuote.toParser(),
-          XmlCharacterDataParser(XmlToken.doubleQuote, 0),
-          XmlToken.doubleQuote.toParser())
-      .map3((_, value, __) => (value, XmlAttributeType.DOUBLE_QUOTE));
+    XmlToken.doubleQuote.toParser(),
+    XmlCharacterDataParser(XmlToken.doubleQuote, 0),
+    XmlToken.doubleQuote.toParser(),
+  ).map3((_, value, __) => (value, XmlAttributeType.DOUBLE_QUOTE));
 
   Parser<(String, XmlAttributeType)> attributeValueSingleQuote() => seq3(
-          XmlToken.singleQuote.toParser(),
-          XmlCharacterDataParser(XmlToken.singleQuote, 0),
-          XmlToken.singleQuote.toParser())
-      .map3((_, value, __) => (value, XmlAttributeType.SINGLE_QUOTE));
+    XmlToken.singleQuote.toParser(),
+    XmlCharacterDataParser(XmlToken.singleQuote, 0),
+    XmlToken.singleQuote.toParser(),
+  ).map3((_, value, __) => (value, XmlAttributeType.SINGLE_QUOTE));
 
   Parser<(String, XmlAttributeType)> attributeValueNoQuote() =>
       ref0(nameToken).map((value) => (value, XmlAttributeType.DOUBLE_QUOTE));
 
   Parser<XmlEndElementEvent> endElement() => seq4(
-        XmlToken.openEndElement.toParser(),
-        ref0(nameToken),
-        ref0(spaceOptional),
-        XmlToken.closeElement.toParser(),
-      ).map4((_, name, __, ___) => XmlEndElementEvent(name));
+    XmlToken.openEndElement.toParser(),
+    ref0(nameToken),
+    ref0(spaceOptional),
+    XmlToken.closeElement.toParser(),
+  ).map4((_, name, __, ___) => XmlEndElementEvent(name));
 
   Parser<XmlCommentEvent> comment() => seq3(
-        XmlToken.openComment.toParser(),
-        any()
-            .starLazy(XmlToken.closeComment.toParser())
-            .flatten(message: '"${XmlToken.closeComment}" expected'),
-        XmlToken.closeComment.toParser(),
-      ).map3((_, text, __) => XmlCommentEvent(text));
+    XmlToken.openComment.toParser(),
+    any()
+        .starLazy(XmlToken.closeComment.toParser())
+        .flatten(message: '"${XmlToken.closeComment}" expected'),
+    XmlToken.closeComment.toParser(),
+  ).map3((_, text, __) => XmlCommentEvent(text));
 
   Parser<XmlCDATAEvent> cdata() => seq3(
-        XmlToken.openCDATA.toParser(),
-        any()
-            .starLazy(XmlToken.closeCDATA.toParser())
-            .flatten(message: '"${XmlToken.closeCDATA}" expected'),
-        XmlToken.closeCDATA.toParser(),
-      ).map3((_, text, __) => XmlCDATAEvent(text));
+    XmlToken.openCDATA.toParser(),
+    any()
+        .starLazy(XmlToken.closeCDATA.toParser())
+        .flatten(message: '"${XmlToken.closeCDATA}" expected'),
+    XmlToken.closeCDATA.toParser(),
+  ).map3((_, text, __) => XmlCDATAEvent(text));
 
   Parser<XmlDeclarationEvent> declaration() => seq4(
-        XmlToken.openDeclaration.toParser(),
-        ref0(attributes),
-        ref0(spaceOptional),
-        XmlToken.closeDeclaration.toParser(),
-      ).map4((_, attributes, __, ___) => XmlDeclarationEvent(attributes));
+    XmlToken.openDeclaration.toParser(),
+    ref0(attributes),
+    ref0(spaceOptional),
+    XmlToken.closeDeclaration.toParser(),
+  ).map4((_, attributes, __, ___) => XmlDeclarationEvent(attributes));
 
   Parser<XmlProcessingEvent> processing() => seq4(
-        XmlToken.openProcessing.toParser(),
-        ref0(nameToken),
-        seq2(
-          ref0(space),
-          any()
-              .starLazy(XmlToken.closeProcessing.toParser())
-              .flatten(message: '"${XmlToken.closeProcessing}" expected'),
-        ).map2((_, text) => text).optionalWith(''),
-        XmlToken.closeProcessing.toParser(),
-      ).map4((_, target, text, __) => XmlProcessingEvent(target, text));
+    XmlToken.openProcessing.toParser(),
+    ref0(nameToken),
+    seq2(
+      ref0(space),
+      any()
+          .starLazy(XmlToken.closeProcessing.toParser())
+          .flatten(message: '"${XmlToken.closeProcessing}" expected'),
+    ).map2((_, text) => text).optionalWith(''),
+    XmlToken.closeProcessing.toParser(),
+  ).map4((_, target, text, __) => XmlProcessingEvent(target, text));
 
-  Parser<XmlDoctypeEvent> doctype() => seq8(
+  Parser<XmlDoctypeEvent> doctype() =>
+      seq8(
         XmlToken.openDoctype.toParser(),
         ref0(space),
         ref0(nameToken),
@@ -143,36 +155,46 @@ class XmlEventParser {
         ref0(doctypeIntSubset).optional(),
         ref0(spaceOptional),
         XmlToken.closeDoctype.toParser(),
-      ).map8((_, __, name, externalId, ___, internalSubset, ____, _____) =>
-          XmlDoctypeEvent(name, externalId, internalSubset));
+      ).map8(
+        (_, __, name, externalId, ___, internalSubset, ____, _____) =>
+            XmlDoctypeEvent(name, externalId, internalSubset),
+      );
 
   // DTD entities
 
   Parser<DtdExternalId> doctypeExternalId() => [
-        ref0(doctypeExternalIdSystem),
-        ref0(doctypeExternalIdPublic),
-      ].toChoiceParser();
+    ref0(doctypeExternalIdSystem),
+    ref0(doctypeExternalIdPublic),
+  ].toChoiceParser();
 
-  Parser<DtdExternalId> doctypeExternalIdSystem() => seq3(
+  Parser<DtdExternalId> doctypeExternalIdSystem() =>
+      seq3(
         XmlToken.doctypeSystemId.toParser(),
         ref0(space),
         ref0(attributeValue),
-      ).map3((_, __, attribute) =>
-          DtdExternalId.system(attribute.$1, attribute.$2));
+      ).map3(
+        (_, __, attribute) => DtdExternalId.system(attribute.$1, attribute.$2),
+      );
 
-  Parser<DtdExternalId> doctypeExternalIdPublic() => seq5(
+  Parser<DtdExternalId> doctypeExternalIdPublic() =>
+      seq5(
         XmlToken.doctypePublicId.toParser(),
         ref0(space),
         ref0(attributeValue),
         ref0(space),
         ref0(attributeValue),
-      ).map5((_, __, publicAttribute, ___, systemAttribute) =>
-          DtdExternalId.public(publicAttribute.$1, publicAttribute.$2,
-              systemAttribute.$1, systemAttribute.$2));
+      ).map5(
+        (_, __, publicAttribute, ___, systemAttribute) => DtdExternalId.public(
+          publicAttribute.$1,
+          publicAttribute.$2,
+          systemAttribute.$1,
+          systemAttribute.$2,
+        ),
+      );
 
   Parser<String> doctypeIntSubset() => seq3(
-        XmlToken.openDoctypeIntSubset.toParser(),
-        [
+    XmlToken.openDoctypeIntSubset.toParser(),
+    [
           ref0(doctypeElementDecl),
           ref0(doctypeAttlistDecl),
           ref0(doctypeEntityDecl),
@@ -182,57 +204,57 @@ class XmlEventParser {
           ref0(doctypeReference),
           any(),
         ]
-            .toChoiceParser()
-            .starLazy(XmlToken.closeDoctypeIntSubset.toParser())
-            .flatten(message: '"${XmlToken.closeDoctypeIntSubset}" expected'),
-        XmlToken.closeDoctypeIntSubset.toParser(),
-      ).map3((_, contents, __) => contents);
+        .toChoiceParser()
+        .starLazy(XmlToken.closeDoctypeIntSubset.toParser())
+        .flatten(message: '"${XmlToken.closeDoctypeIntSubset}" expected'),
+    XmlToken.closeDoctypeIntSubset.toParser(),
+  ).map3((_, contents, __) => contents);
 
   Parser doctypeElementDecl() => seq3(
-        XmlToken.doctypeElementDecl.toParser(),
-        [
-          ref0(nameToken),
-          ref0(attributeValue),
-          any(),
-        ].toChoiceParser().starLazy(XmlToken.doctypeDeclEnd.toParser()),
-        XmlToken.doctypeDeclEnd.toParser(),
-      );
+    XmlToken.doctypeElementDecl.toParser(),
+    [
+      ref0(nameToken),
+      ref0(attributeValue),
+      any(),
+    ].toChoiceParser().starLazy(XmlToken.doctypeDeclEnd.toParser()),
+    XmlToken.doctypeDeclEnd.toParser(),
+  );
 
   Parser doctypeAttlistDecl() => seq3(
-        XmlToken.doctypeAttlistDecl.toParser(),
-        [
-          ref0(nameToken),
-          ref0(attributeValue),
-          any(),
-        ].toChoiceParser().starLazy(XmlToken.doctypeDeclEnd.toParser()),
-        XmlToken.doctypeDeclEnd.toParser(),
-      );
+    XmlToken.doctypeAttlistDecl.toParser(),
+    [
+      ref0(nameToken),
+      ref0(attributeValue),
+      any(),
+    ].toChoiceParser().starLazy(XmlToken.doctypeDeclEnd.toParser()),
+    XmlToken.doctypeDeclEnd.toParser(),
+  );
 
   Parser doctypeEntityDecl() => seq3(
-        XmlToken.doctypeEntityDecl.toParser(),
-        [
-          ref0(nameToken),
-          ref0(attributeValue),
-          any(),
-        ].toChoiceParser().starLazy(XmlToken.doctypeDeclEnd.toParser()),
-        XmlToken.doctypeDeclEnd.toParser(),
-      );
+    XmlToken.doctypeEntityDecl.toParser(),
+    [
+      ref0(nameToken),
+      ref0(attributeValue),
+      any(),
+    ].toChoiceParser().starLazy(XmlToken.doctypeDeclEnd.toParser()),
+    XmlToken.doctypeDeclEnd.toParser(),
+  );
 
   Parser doctypeNotationDecl() => seq3(
-        XmlToken.doctypeNotationDecl.toParser(),
-        [
-          ref0(nameToken),
-          ref0(attributeValue),
-          any(),
-        ].toChoiceParser().starLazy(XmlToken.doctypeDeclEnd.toParser()),
-        XmlToken.doctypeDeclEnd.toParser(),
-      );
+    XmlToken.doctypeNotationDecl.toParser(),
+    [
+      ref0(nameToken),
+      ref0(attributeValue),
+      any(),
+    ].toChoiceParser().starLazy(XmlToken.doctypeDeclEnd.toParser()),
+    XmlToken.doctypeDeclEnd.toParser(),
+  );
 
   Parser doctypeReference() => seq3(
-        XmlToken.doctypeReferenceStart.toParser(),
-        ref0(nameToken),
-        XmlToken.doctypeReferenceEnd.toParser(),
-      );
+    XmlToken.doctypeReferenceStart.toParser(),
+    ref0(nameToken),
+    XmlToken.doctypeReferenceEnd.toParser(),
+  );
 
   // Tokens
 
@@ -242,13 +264,17 @@ class XmlEventParser {
   Parser<String> spaceOptional() =>
       whitespace().starString(message: 'whitespace expected');
 
-  Parser<String> nameToken() => seq2(ref0(nameStartChar), ref0(nameChar).star())
-      .flatten(message: 'name expected');
+  Parser<String> nameToken() => seq2(
+    ref0(nameStartChar),
+    ref0(nameChar).star(),
+  ).flatten(message: 'name expected');
 
   Parser<String> nameStartChar() => pattern(XmlToken.nameStartChars);
 
   Parser<String> nameChar() => pattern(XmlToken.nameChars);
 }
 
-final XmlCache<XmlEntityMapping, Parser<XmlEvent>> eventParserCache =
-    XmlCache((entityMapping) => XmlEventParser(entityMapping).build(), 5);
+final XmlCache<XmlEntityMapping, Parser<XmlEvent>> eventParserCache = XmlCache(
+  (entityMapping) => XmlEventParser(entityMapping).build(),
+  5,
+);

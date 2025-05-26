@@ -177,9 +177,9 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> {
   }
 
   Iterable<E> _expandFragment(E fragment) => fragment.children.map((node) {
-        XmlNodeTypeException.checkValidType(node, _nodeTypes);
-        return node.copy() as E;
-      });
+    XmlNodeTypeException.checkValidType(node, _nodeTypes);
+    return node.copy() as E;
+  });
 
   Iterable<E> _expandNodes(Iterable<E> iterable) {
     final expanded = <E>[];

@@ -23,9 +23,9 @@ class XmlPrettyWriter extends XmlWriter {
     this.indentAttribute,
     this.sortAttributes,
     this.spaceBeforeSelfClose,
-  })  : level = level ?? 0,
-        indent = indent ?? '  ',
-        newLine = newLine ?? '\n';
+  }) : level = level ?? 0,
+       indent = indent ?? '  ',
+       newLine = newLine ?? '\n';
 
   int level;
   bool pretty = true;
@@ -67,7 +67,9 @@ class XmlPrettyWriter extends XmlWriter {
             buffer.write(newLine);
             buffer.write(indent * level);
             writeIterable(
-                normalizeText(node.children), newLine + indent * level);
+              normalizeText(node.children),
+              newLine + indent * level,
+            );
             level--;
             buffer.write(newLine);
             buffer.write(indent * level);
@@ -112,12 +114,15 @@ class XmlPrettyWriter extends XmlWriter {
     final result = <XmlNode>[];
     for (final node in nodes) {
       if (node is XmlText) {
-        final text =
-            node.value.trim().replaceAll(_whitespaceOrLineTerminators, ' ');
+        final text = node.value.trim().replaceAll(
+          _whitespaceOrLineTerminators,
+          ' ',
+        );
         if (text.isNotEmpty) {
           if (result.isNotEmpty && result.last is XmlText) {
-            result.last =
-                XmlText('${result.last.value}${XmlToken.whitespace}$text');
+            result.last = XmlText(
+              '${result.last.value}${XmlToken.whitespace}$text',
+            );
           } else if (node.value != text) {
             result.add(XmlText(text));
           } else {

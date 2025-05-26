@@ -39,10 +39,10 @@ class XPathContext {
 
   /// Creates a copy of the current context.
   XPathContext copy() => XPathContext(
-        node,
-        position: position,
-        last: last,
-        variables: variables,
-        functions: functions,
-      );
+    node,
+    position: position,
+    last: last,
+    variables: variables,
+    functions: functions,
+  );
 }

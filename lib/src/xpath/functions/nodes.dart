@@ -32,11 +32,12 @@ XPathValue id(XPathContext context, List<XPathExpression> arguments) {
   if (ids.isEmpty) return XPathNodeSet.empty;
   // This should likely consult the DTD about the ID attribute ...
   return XPathNodeSet(
-      context.node.root.descendantElements
-          .where((element) => ids.contains(element.getAttribute('id')))
-          .toList(),
-      isSorted: true,
-      isUnique: true);
+    context.node.root.descendantElements
+        .where((element) => ids.contains(element.getAttribute('id')))
+        .toList(),
+    isSorted: true,
+    isUnique: true,
+  );
 }
 
 // string local-name(node-set?)

@@ -23,11 +23,15 @@ extension XPathExtension on XmlNode {
   /// Returns an iterable over the nodes matching the provided XPath
   /// [expression].
   @experimental
-  Iterable<XmlNode> xpath(String expression,
-          {Map<String, XPathValue> variables = const {},
-          Map<String, XPathFunction> functions = const {}}) =>
-      xpathEvaluate(expression, variables: variables, functions: functions)
-          .nodes;
+  Iterable<XmlNode> xpath(
+    String expression, {
+    Map<String, XPathValue> variables = const {},
+    Map<String, XPathFunction> functions = const {},
+  }) => xpathEvaluate(
+    expression,
+    variables: variables,
+    functions: functions,
+  ).nodes;
 
   /// Returns the value resulting from evaluating the given XPath [expression].
   ///
@@ -36,19 +40,24 @@ extension XPathExtension on XmlNode {
   /// [XPathValue.nodes], [XPathValue.string], [XPathValue.number], or
   /// [XPathValue.boolean] respectively.
   @experimental
-  XPathValue xpathEvaluate(String expression,
-          {Map<String, XPathValue> variables = const {},
-          Map<String, XPathFunction> functions = const {}}) =>
-      _cache[expression](
-          XPathContext(this, variables: variables, functions: functions));
+  XPathValue xpathEvaluate(
+    String expression, {
+    Map<String, XPathValue> variables = const {},
+    Map<String, XPathFunction> functions = const {},
+  }) => _cache[expression](
+    XPathContext(this, variables: variables, functions: functions),
+  );
 }
 
 final _parser = const XPathParser().build();
 final _cache = XmlCache<String, XPathExpression>((expression) {
   final result = _parser.parse(expression);
   if (result is Failure) {
-    throw XPathParserException(result.message,
-        buffer: expression, position: result.position);
+    throw XPathParserException(
+      result.message,
+      buffer: expression,
+      position: result.position,
+    );
   }
   return result.value;
 }, 25);

@@ -35,8 +35,8 @@ class XmlNodeEncoder extends XmlListConverter<XmlNode, XmlEvent> {
 
   @override
   ChunkedConversionSink<List<XmlNode>> startChunkedConversion(
-          Sink<List<XmlEvent>> sink) =>
-      _XmlNodeEncoderSink(sink);
+    Sink<List<XmlEvent>> sink,
+  ) => _XmlNodeEncoderSink(sink);
 }
 
 class _XmlNodeEncoderSink
@@ -56,8 +56,11 @@ class _XmlNodeEncoderSink
   void visitElement(XmlElement node) {
     final isSelfClosing = node.isSelfClosing && node.children.isEmpty;
     sink.add([
-      XmlStartElementEvent(node.name.qualified,
-          convertAttributes(node.attributes), isSelfClosing)
+      XmlStartElementEvent(
+        node.name.qualified,
+        convertAttributes(node.attributes),
+        isSelfClosing,
+      ),
     ]);
     if (!isSelfClosing) {
       node.children.forEach(visit);
@@ -76,8 +79,9 @@ class _XmlNodeEncoderSink
       sink.add([XmlDeclarationEvent(convertAttributes(node.attributes))]);
 
   @override
-  void visitDoctype(XmlDoctype node) => sink
-      .add([XmlDoctypeEvent(node.name, node.externalId, node.internalSubset)]);
+  void visitDoctype(XmlDoctype node) => sink.add([
+    XmlDoctypeEvent(node.name, node.externalId, node.internalSubset),
+  ]);
 
   @override
   void visitProcessing(XmlProcessing node) =>
@@ -87,12 +91,14 @@ class _XmlNodeEncoderSink
   void visitText(XmlText node) => sink.add([XmlTextEvent(node.value)]);
 
   List<XmlEventAttribute> convertAttributes(
-          XmlNodeList<XmlAttribute> attributes) =>
-      attributes
-          .map((attribute) => XmlEventAttribute(
-                attribute.name.qualified,
-                attribute.value,
-                attribute.attributeType,
-              ))
-          .toList(growable: false);
+    XmlNodeList<XmlAttribute> attributes,
+  ) => attributes
+      .map(
+        (attribute) => XmlEventAttribute(
+          attribute.name.qualified,
+          attribute.value,
+          attribute.attributeType,
+        ),
+      )
+      .toList(growable: false);
 }

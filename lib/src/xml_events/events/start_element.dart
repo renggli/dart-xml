@@ -24,14 +24,20 @@ class XmlStartElementEvent extends XmlEvent with XmlNamed {
   void accept(XmlEventVisitor visitor) => visitor.visitStartElementEvent(this);
 
   @override
-  int get hashCode => Object.hash(nodeType, name, isSelfClosing,
-      const ListEquality<XmlEventAttribute>().hash(attributes));
+  int get hashCode => Object.hash(
+    nodeType,
+    name,
+    isSelfClosing,
+    const ListEquality<XmlEventAttribute>().hash(attributes),
+  );
 
   @override
   bool operator ==(Object other) =>
       other is XmlStartElementEvent &&
       other.name == name &&
       other.isSelfClosing == isSelfClosing &&
-      const ListEquality<XmlEventAttribute>()
-          .equals(other.attributes, attributes);
+      const ListEquality<XmlEventAttribute>().equals(
+        other.attributes,
+        attributes,
+      );
 }

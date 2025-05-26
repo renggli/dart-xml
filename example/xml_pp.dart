@@ -86,13 +86,21 @@ void main(List<String> arguments) {
   // just call `document.toXmlString(pretty: true, indent: '  ')`.
   final visitor = pretty
       ? (color
-          ? XmlColoredPrettyWriter(stdout,
-              entityMapping: entityMapping, indent: indent, newLine: newLine)
-          : XmlPrettyWriter(stdout,
-              entityMapping: entityMapping, indent: indent, newLine: newLine))
+            ? XmlColoredPrettyWriter(
+                stdout,
+                entityMapping: entityMapping,
+                indent: indent,
+                newLine: newLine,
+              )
+            : XmlPrettyWriter(
+                stdout,
+                entityMapping: entityMapping,
+                indent: indent,
+                newLine: newLine,
+              ))
       : (color
-          ? XmlColoredWriter(stdout, entityMapping: entityMapping)
-          : XmlWriter(stdout, entityMapping: entityMapping));
+            ? XmlColoredWriter(stdout, entityMapping: entityMapping)
+            : XmlWriter(stdout, entityMapping: entityMapping));
   for (final file in files) {
     visitor.visit(XmlDocument.parse(file.readAsStringSync()));
   }
@@ -162,8 +170,12 @@ class XmlColoredWriter extends XmlWriter with ColoredWriter {
 }
 
 class XmlColoredPrettyWriter extends XmlPrettyWriter with ColoredWriter {
-  XmlColoredPrettyWriter(super.buffer,
-      {super.entityMapping, super.indent, super.newLine});
+  XmlColoredPrettyWriter(
+    super.buffer, {
+    super.entityMapping,
+    super.indent,
+    super.newLine,
+  });
   @override
   final List<String> styles = [];
 

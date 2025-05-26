@@ -32,8 +32,11 @@ class XPathNodeSet implements XPathValue {
   /// Constructs a new node-set from [nodes]. By default we assume that the
   /// input require sorting (`isSorted = false`) and deduplication (`isUnique
   /// = false`).
-  factory XPathNodeSet(Iterable<XmlNode> nodes,
-      {bool isSorted = false, bool isUnique = false}) {
+  factory XPathNodeSet(
+    Iterable<XmlNode> nodes, {
+    bool isSorted = false,
+    bool isUnique = false,
+  }) {
     if (!isUnique) nodes = nodes.toSet();
     final list = nodes.toList(growable: false);
     if (!isSorted || !isUnique) {

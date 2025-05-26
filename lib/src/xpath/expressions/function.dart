@@ -23,8 +23,10 @@ class DynamicFunctionExpression implements XPathExpression {
 
   @override
   XPathValue call(XPathContext context) {
-    final function =
-        XPathEvaluationException.checkFunction(name, context.getFunction(name));
+    final function = XPathEvaluationException.checkFunction(
+      name,
+      context.getFunction(name),
+    );
     return function(context, arguments.map((each) => each(context)).toList());
   }
 }

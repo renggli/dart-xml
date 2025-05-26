@@ -24,14 +24,14 @@ class XmlEventIterable extends Iterable<XmlEvent> {
 
   @override
   Iterator<XmlEvent> get iterator => XmlEventIterator(
-        input,
-        entityMapping,
-        XmlAnnotator(
-          validateNesting: validateNesting,
-          validateDocument: validateDocument,
-          withBuffer: withBuffer,
-          withLocation: withLocation,
-          withParent: withParent,
-        ),
-      );
+    input,
+    entityMapping,
+    XmlAnnotator(
+      validateNesting: validateNesting,
+      validateDocument: validateDocument,
+      withBuffer: withBuffer,
+      withLocation: withLocation,
+      withParent: withParent,
+    ),
+  );
 }

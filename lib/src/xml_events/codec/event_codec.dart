@@ -8,8 +8,8 @@ import '../event.dart';
 /// Converts between [String] and [XmlEvent] sequences.
 class XmlEventCodec extends Codec<List<XmlEvent>, String> {
   XmlEventCodec({XmlEntityMapping? entityMapping})
-      : decoder = XmlEventDecoder(entityMapping: entityMapping),
-        encoder = XmlEventEncoder(entityMapping: entityMapping);
+    : decoder = XmlEventDecoder(entityMapping: entityMapping),
+      encoder = XmlEventEncoder(entityMapping: entityMapping);
 
   /// Decodes a [String] to a sequence of [XmlEvent] objects.
   @override
