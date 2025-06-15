@@ -1,10 +1,9 @@
 # Changelog
 
-## 7.0.0
+## 6.6.0
 
-- Dart 3.6 and PetitParser 7 requirement.
-- [TODO] Full unicode decoding of names.
-- [TODO] Preserving namespaces of copied nodes.
+- Dart 3.8 and PetitParser 7.0 requirement.
+- Correct decoding of names with surrogate characters.
 
 ## 6.5.0
 
