@@ -266,9 +266,10 @@ class XmlEventParser {
     ref0(nameChar).star(),
   ).flatten(message: 'name expected');
 
-  Parser<String> nameStartChar() => pattern(XmlToken.nameStartChars);
+  Parser<String> nameStartChar() =>
+      pattern(XmlToken.nameStartChars, unicode: true);
 
-  Parser<String> nameChar() => pattern(XmlToken.nameChars);
+  Parser<String> nameChar() => pattern(XmlToken.nameChars, unicode: true);
 }
 
 final XmlCache<XmlEntityMapping, Parser<XmlEvent>> eventParserCache = XmlCache(

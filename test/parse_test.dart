@@ -4,6 +4,50 @@ import 'package:xml/xml.dart';
 import 'utils/assertions.dart';
 import 'utils/matchers.dart';
 
+const nameStartChars = {
+  'A',
+  'Z',
+  '_',
+  'a',
+  'z',
+  '\u{c0}',
+  '\u{d6}',
+  '\u{d8}',
+  '\u{f6}',
+  '\u{f8}',
+  '\u{2ff}',
+  '\u{370}',
+  '\u{37d}',
+  '\u{37f}',
+  '\u{1fff}',
+  '\u{200c}',
+  '\u{200d}',
+  '\u{2070}',
+  '\u{218f}',
+  '\u{2c00}',
+  '\u{2fef}',
+  '\u{3001}',
+  '\u{d7ff}',
+  '\u{f900}',
+  '\u{fdcf}',
+  '\u{fdf0}',
+  '\u{fffd}',
+  '\u{10000}',
+  '\u{effff}',
+};
+const nameChars = {
+  ...nameStartChars,
+  '-',
+  '.',
+  '0',
+  '9',
+  '\u{B7}',
+  '\u{300}',
+  '\u{36F}',
+  '\u{203F}',
+  '\u{2040}',
+};
+
 void main() {
   group('document', () {
     test('cdata', () {
@@ -221,6 +265,40 @@ void main() {
     test('element with attribute without value', () {
       assertDocumentParseInvariants('<schema foo></schema>');
       assertDocumentParseInvariants('<schema foo bar></schema>');
+    });
+    test('element with special initial char', () {
+      for (final char in nameStartChars) {
+        final qualified = char;
+        final closed = XmlDocument.parse('<$qualified />');
+        expect(closed.rootElement.name.qualified, qualified);
+        final openClosed = XmlDocument.parse('<$qualified></$qualified>');
+        expect(openClosed.rootElement.name.qualified, qualified);
+      }
+    });
+    test('element with special continuation char', () {
+      for (final char in nameChars) {
+        final qualified = 'x$char';
+        final closed = XmlDocument.parse('<$qualified />');
+        expect(closed.rootElement.name.qualified, qualified);
+        final openClosed = XmlDocument.parse('<$qualified></$qualified>');
+        expect(openClosed.rootElement.name.qualified, qualified);
+      }
+    });
+    test('element with attribute with special initial char', () {
+      for (final char in nameStartChars) {
+        final qualified = char;
+        final root = XmlDocument.parse('<root $qualified="ok" />');
+        expect(root.rootElement.attributes.first.name.qualified, qualified);
+        expect(root.rootElement.getAttribute(qualified), 'ok');
+      }
+    });
+    test('element with attribute with with special continuation char', () {
+      for (final char in nameChars) {
+        final qualified = 'x$char';
+        final root = XmlDocument.parse('<root $qualified="ok" />');
+        expect(root.rootElement.attributes.first.name.qualified, qualified);
+        expect(root.rootElement.getAttribute(qualified), 'ok');
+      }
     });
     test('processing instruction', () {
       assertDocumentParseInvariants('<?pi?><data />');

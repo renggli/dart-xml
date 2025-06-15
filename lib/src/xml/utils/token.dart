@@ -36,21 +36,22 @@ class XmlToken {
   // https://en.wikipedia.org/wiki/QName
   static const nameStartChars =
       ':A-Z_a-z'
-      '\u00c0-\u00d6'
-      '\u00d8-\u00f6'
-      '\u00f8-\u02ff'
-      '\u0370-\u037d'
-      '\u037f-\u1fff'
-      '\u200c-\u200d'
-      '\u2070-\u218f'
-      '\u2c00-\u2fef'
-      '\u3001-\ud7ff'
-      '\uf900-\ufdcf'
-      '\ufdf0-\ufffd';
+      '\u{c0}-\u{d6}'
+      '\u{d8}-\u{f6}'
+      '\u{f8}-\u{2ff}'
+      '\u{370}-\u{37d}'
+      '\u{37f}-\u{1fff}'
+      '\u{200c}-\u{200d}'
+      '\u{2070}-\u{218f}'
+      '\u{2c00}-\u{2fef}'
+      '\u{3001}-\u{d7ff}'
+      '\u{f900}-\u{fdcf}'
+      '\u{fdf0}-\u{fffd}'
+      '\u{10000}-\u{effff}';
   static const nameChars =
       '$nameStartChars'
       '-.0-9'
-      '\u00b7'
-      '\u0300-\u036f'
-      '\u203f-\u2040';
+      '\u{b7}'
+      '\u{300}-\u{36f}'
+      '\u{203f}-\u{2040}';
 }
