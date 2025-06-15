@@ -1,5 +1,4 @@
-Dart XML
-========
+# Dart XML
 
 [![Pub Package](https://img.shields.io/pub/v/xml.svg)](https://pub.dev/packages/xml)
 [![Build Status](https://github.com/renggli/dart-xml/actions/workflows/dart.yml/badge.svg?branch=main)](https://github.com/renggli/dart-xml/actions/workflows/dart.yml)
@@ -22,9 +21,7 @@ questions are best asked on [StackOverflow](https://stackoverflow.com/questions/
 The package is hosted on [dart packages](https://pub.dev/packages/xml).
 Up-to-date [class documentation](https://pub.dev/documentation/xml/latest/) is created with every release.
 
-
-Tutorial
---------
+## Tutorial
 
 ### Installation
 
@@ -328,8 +325,7 @@ await Stream.fromIterable([shiporderXsd])
     .forEach((node) => print(node.toXmlString(pretty: true)));
 ```
 
-Misc
-----
+## Misc
 
 ### Examples
 
