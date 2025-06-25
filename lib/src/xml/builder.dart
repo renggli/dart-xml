@@ -201,15 +201,13 @@ class XmlBuilder {
       if (optimizeNamespaces) {
         // Remove unused namespaces: The reason we first add them and then remove
         // them again is to keep the order in which they have been added.
-        element.namespaces.forEach((uri, meta) {
-          if (!meta.used) {
-            final qualified = meta.name.qualified;
-            final attribute = element.attributes.firstWhere(
-              (attribute) => attribute.name.qualified == qualified,
-            );
-            element.attributes.remove(attribute);
-          }
-        });
+        final toRemove = element.namespaces.values
+            .where((meta) => !meta.used)
+            .map((meta) => meta.name.qualified)
+            .toSet();
+        element.attributes.removeWhere(
+          (attribute) => toRemove.contains(attribute.name.qualified),
+        );
       }
     } finally {
       _stack.removeLast();
