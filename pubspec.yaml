@@ -13,7 +13,7 @@ environment:
   sdk: ^3.8.0
 dependencies:
   collection: ^1.19.0
-  meta: ^1.17.0
+  meta: ^1.16.0
   petitparser: ^7.0.0
 dev_dependencies:
   args: ^2.7.0
