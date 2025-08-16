@@ -1,5 +1,10 @@
 # Changelog
 
+## 6.6.1
+
+- Dart and Flutter 3.9 compatibility.
+- Minor optimization to eliminate unused namespaces.
+
 ## 6.6.0
 
 - Dart 3.8 and PetitParser 7.0 requirement.
