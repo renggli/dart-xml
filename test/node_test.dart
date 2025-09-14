@@ -675,4 +675,43 @@ void main() {
       expect(node.toString(), '#document-fragment');
     });
   });
+  group('html script', () {
+    test('self closing', () {
+      final document = XmlDocument.parse('<script />');
+      final node = document.rootElement;
+      expect(node.name.qualified, 'script');
+      expect(node.attributes, isEmpty);
+      expect(node.children, isEmpty);
+      expect(node.toString(), '<script/>');
+    });
+    test('code containing <', () {
+      const code =
+          '<script type="text/javascript">var a = 1 < 2; /* < */</script>';
+      final document = XmlDocument.parse(
+        code,
+        entityMapping: const XmlDefaultEntityMapping.html(),
+      );
+      final node = document.rootElement;
+      expect(node.name.qualified, 'script');
+      expect(node.attributes, hasLength(1));
+      expect(node.children, hasLength(1));
+      expect(
+        node.toXmlString(),
+        isNot(code),
+        reason: 'without using html entity mapping, < in code will be escaped',
+      );
+      expect(
+        node.toXmlString(entityMapping: const XmlDefaultEntityMapping.html()),
+        code,
+      );
+    });
+    test('code containing < without using html entity mapping', () {
+      expect(
+        () => XmlDocument.parse('<script>1<2</script>'),
+        throwsA(
+          isXmlParserException(message: 'name expected', line: 1, column: 11),
+        ),
+      );
+    });
+  });
 }

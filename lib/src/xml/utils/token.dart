@@ -32,6 +32,7 @@ class XmlToken {
   static const closeProcessing = '?>';
   static const entityStart = '&';
   static const entityEnd = ';';
+  static const htmlScriptElement = 'script';
 
   // https://en.wikipedia.org/wiki/QName
   static const nameStartChars =

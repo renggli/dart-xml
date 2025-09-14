@@ -19,10 +19,15 @@ import 'visitor.dart';
 /// A visitor that writes XML nodes exactly as they were parsed.
 class XmlWriter with XmlVisitor {
   XmlWriter(this.buffer, {XmlEntityMapping? entityMapping})
-    : entityMapping = entityMapping ?? defaultEntityMapping;
+    : entityMapping = entityMapping ?? defaultEntityMapping,
+      isHtml =
+          entityMapping == const XmlDefaultEntityMapping.html() ||
+          entityMapping == const XmlDefaultEntityMapping.html5();
 
   final StringSink buffer;
   final XmlEntityMapping entityMapping;
+  final bool isHtml;
+  bool inHtmlScript = false;
 
   @override
   void visitAttribute(XmlAttribute node) {
@@ -94,7 +99,13 @@ class XmlWriter with XmlVisitor {
       buffer.write(XmlToken.closeEndElement);
     } else {
       buffer.write(XmlToken.closeElement);
+      if (isHtml && node.qualifiedName == XmlToken.htmlScriptElement) {
+        inHtmlScript = true;
+      }
       writeIterable(node.children);
+      if (inHtmlScript) {
+        inHtmlScript = false;
+      }
       buffer.write(XmlToken.openEndElement);
       visit(node.name);
       buffer.write(XmlToken.closeElement);
@@ -119,6 +130,10 @@ class XmlWriter with XmlVisitor {
 
   @override
   void visitText(XmlText node) {
+    if (inHtmlScript) {
+      buffer.write(node.value);
+      return;
+    }
     buffer.write(entityMapping.encodeText(node.value));
   }
 

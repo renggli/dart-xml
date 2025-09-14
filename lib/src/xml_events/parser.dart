@@ -1,6 +1,7 @@
 import 'package:petitparser/petitparser.dart';
 
 import '../xml/dtd/external_id.dart';
+import '../xml/entities/default_mapping.dart';
 import '../xml/entities/entity_mapping.dart';
 import '../xml/enums/attribute_type.dart';
 import '../xml/utils/cache.dart';
@@ -12,6 +13,7 @@ import 'events/comment.dart';
 import 'events/declaration.dart';
 import 'events/doctype.dart';
 import 'events/end_element.dart';
+import 'events/html_script_element.dart';
 import 'events/processing.dart';
 import 'events/start_element.dart';
 import 'events/text.dart';
@@ -24,16 +26,26 @@ class XmlEventParser {
 
   Parser<XmlEvent> build() => resolve<XmlEvent>(ref0(event));
 
-  Parser<XmlEvent> event() => [
-    ref0(characterData),
-    ref0(startElement),
-    ref0(endElement),
-    ref0(comment),
-    ref0(cdata),
-    ref0(declaration),
-    ref0(processing),
-    ref0(doctype),
-  ].toChoiceParser(failureJoiner: selectFarthest);
+  bool _isHtml() =>
+      entityMapping == const XmlDefaultEntityMapping.html() ||
+      entityMapping == const XmlDefaultEntityMapping.html5();
+
+  Parser<XmlEvent> event() {
+    final choices = [
+      ref0(characterData),
+      ref0(startElement),
+      ref0(endElement),
+      ref0(comment),
+      ref0(cdata),
+      ref0(declaration),
+      ref0(processing),
+      ref0(doctype),
+    ];
+    if (_isHtml()) {
+      choices.insert(1, ref0(htmlScriptElement));
+    }
+    return choices.toChoiceParser(failureJoiner: selectFarthest);
+  }
 
   // Events
 
@@ -41,6 +53,34 @@ class XmlEventParser {
     XmlToken.openElement,
     1,
   ).map((each) => XmlRawTextEvent(each, entityMapping));
+
+  Parser<XmlEvent> htmlScriptElement() =>
+      seq5(
+        XmlToken.openElement.toParser(),
+        XmlToken.htmlScriptElement.toParser(),
+        ref0(attributes),
+        ref0(spaceOptional),
+        [
+          XmlToken.closeEndElement.toParser(),
+          seq2(XmlToken.closeElement.toParser(), ref0(htmlScriptCode)),
+        ].toChoiceParser(failureJoiner: selectLast),
+      ).map5((_, name, attributes, _, rest) {
+        final startEvent = XmlStartElementEvent(
+          name,
+          attributes,
+          rest == XmlToken.closeEndElement,
+        );
+        if (startEvent.isSelfClosing) {
+          return startEvent;
+        }
+        final (_, codeEvent) = rest as (String, XmlTextEvent);
+        return HtmlScriptElementEvent(startEvent, codeEvent);
+      });
+
+  Parser<XmlTextEvent> htmlScriptCode() => XmlCharacterDataParser(
+    '${XmlToken.openEndElement}${XmlToken.htmlScriptElement}${XmlToken.closeElement}',
+    0,
+  ).map(XmlTextEvent.new);
 
   Parser<XmlStartElementEvent> startElement() =>
       seq5(
