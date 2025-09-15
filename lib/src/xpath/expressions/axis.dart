@@ -6,7 +6,7 @@ import '../evaluation/values.dart';
 abstract class AxisExpression implements XPathExpression {
   @override
   XPathValue call(XPathContext context) =>
-      XPathNodeSet(find(context.node), isUnique: true, isSorted: true);
+      XPathNodeSet.fromSortedUniqueNodes(find(context.node));
 
   Iterable<XmlNode> find(XmlNode node);
 }

@@ -44,9 +44,15 @@ extension XPathExtension on XmlNode {
     String expression, {
     Map<String, XPathValue> variables = const {},
     Map<String, XPathFunction> functions = const {},
-  }) => _cache[expression](
-    XPathContext(this, variables: variables, functions: functions),
-  );
+  }) {
+    final value = _cache[expression](
+      XPathContext(this, variables: variables, functions: functions),
+    );
+    if (value is XPathNodeSet) {
+      return value.toSorted();
+    }
+    return value;
+  }
 }
 
 final _parser = const XPathParser().build();

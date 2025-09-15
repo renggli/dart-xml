@@ -2,6 +2,7 @@ import '../../xml/nodes/node.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../evaluation/values.dart';
+import 'filters.dart';
 
 class SequenceExpression implements XPathExpression {
   SequenceExpression(this.expressions);
@@ -10,26 +11,38 @@ class SequenceExpression implements XPathExpression {
 
   @override
   XPathValue call(XPathContext context) {
-    var nodes = context.value.nodes.toList();
-    var innerNodes = <XmlNode>[];
+    var nodeSet = context.value;
     final innerContext = context.copy();
+    outer:
     for (final expression in expressions) {
-      if (nodes.isEmpty) return XPathNodeSet.empty;
-      innerContext.last = nodes.length;
-      for (var i = 0; i < nodes.length; i++) {
-        innerContext.node = nodes[i];
-        innerContext.position = i + 1;
+      if (nodeSet.value.isEmpty) return XPathNodeSet.empty;
+      innerContext.nodeSet = nodeSet;
+      final innerNodes = <XmlNode>[];
+      var pos = 1;
+      for (final node in nodeSet.value) {
+        innerContext.node = node;
+        innerContext.visitingPosition = pos++;
         final result = expression(innerContext);
         if (result is XPathNodeSet) {
+          if (nodeSet.value.length == 1) {
+            // Fast path: single node set, we can reuse the result directly.
+            // In this way, we also preserve the sorted property.
+            nodeSet = result;
+            continue outer;
+          }
           innerNodes.addAll(result.nodes);
         } else if (result.boolean) {
           innerNodes.add(innerContext.node);
         }
       }
-      nodes = innerNodes;
-      innerNodes = <XmlNode>[];
+      if (nodeSet.isSorted && expression is NodePredicateExpression) {
+        // The result is still sorted and unique.
+        nodeSet = XPathNodeSet.fromSortedUniqueNodes(innerNodes);
+      } else {
+        nodeSet = XPathNodeSet(innerNodes);
+      }
     }
-    return XPathNodeSet(nodes);
+    return nodeSet;
   }
 }
 

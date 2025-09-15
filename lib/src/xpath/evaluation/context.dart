@@ -6,23 +6,28 @@ import 'values.dart';
 class XPathContext {
   XPathContext(
     this.node, {
-    this.position = 1,
-    this.last = 1,
+    XPathNodeSet? nodeSet,
     this.variables = const {},
     this.functions = const {},
-  });
+  }) : nodeSet = nodeSet ?? XPathNodeSet.fromSortedUniqueNodes([node]);
 
   /// Mutable context node.
   XmlNode node;
 
-  /// Mutable context position.
-  int position = 1;
+  /// Mutable context node set.
+  XPathNodeSet nodeSet;
 
-  /// Mutable context size.
-  int last = 1;
+  /// The visiting position.
+  int? visitingPosition;
 
-  /// The current node as an [XPathValue].
-  XPathValue get value => XPathNodeSet([node]);
+  /// The position in document order.
+  int get position => nodeSet.getPosition(node, visitingPosition);
+
+  /// The size of the context node set.
+  int get last => nodeSet.value.length;
+
+  /// The current node as an [XPathNodeSet].
+  XPathNodeSet get value => XPathNodeSet.fromSortedUniqueNodes([node]);
 
   /// Looks up an XPath variable with the given [name].
   XPathValue? getVariable(String name) => variables[name];
@@ -40,8 +45,7 @@ class XPathContext {
   /// Creates a copy of the current context.
   XPathContext copy() => XPathContext(
     node,
-    position: position,
-    last: last,
+    nodeSet: nodeSet,
     variables: variables,
     functions: functions,
   );

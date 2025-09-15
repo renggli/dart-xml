@@ -59,7 +59,7 @@ void main() {
   group('values', () {
     group('nodes', () {
       test('empty', () {
-        const value = XPathNodeSet.empty;
+        final value = XPathNodeSet.empty;
         expect(value.nodes, isEmpty);
         expect(value.string, '');
         expect(value.number, isNaN);
@@ -132,7 +132,7 @@ void main() {
         final nodes = XmlDocument.parse(
           '<r><a/><b/><c/></r>',
         ).rootElement.children;
-        final value = XPathNodeSet([nodes[2], nodes[1], nodes[0]]);
+        final value = XPathNodeSet([nodes[2], nodes[1], nodes[0]]).toSorted();
         expect(value.nodes, nodes);
       });
       test('deduplication', () {
@@ -146,7 +146,7 @@ void main() {
           nodes[0],
           nodes[1],
         ]);
-        expect(value.nodes, nodes);
+        expect(value.nodes, nodes.toSet());
       });
     });
     group('string', () {

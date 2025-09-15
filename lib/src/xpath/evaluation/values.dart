@@ -1,6 +1,6 @@
+import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
-import '../../xml/extensions/comparison.dart';
 import '../../xml/nodes/document.dart';
 import '../../xml/nodes/element.dart';
 import '../../xml/nodes/node.dart';
@@ -29,32 +29,131 @@ sealed class XPathValue implements XPathExpression {
 
 /// Wrapper around an [Iterable] of [XmlNode]s in XPath.
 class XPathNodeSet implements XPathValue {
-  /// Constructs a new node-set from [nodes]. By default we assume that the
-  /// input require sorting (`isSorted = false`) and deduplication (`isUnique
-  /// = false`).
-  factory XPathNodeSet(
-    Iterable<XmlNode> nodes, {
-    bool isSorted = false,
-    bool isUnique = false,
-  }) {
-    if (!isUnique) nodes = nodes.toSet();
-    final list = nodes.toList(growable: false);
-    if (!isSorted || !isUnique) {
-      list.sort((a, b) => a.compareNodePosition(b));
+  /// Creates a new [XPathNodeSet] from the given [nodes].
+  factory XPathNodeSet(Iterable<XmlNode> nodes) {
+    final set = Set.unmodifiable(nodes);
+    if (set.length == 1) {
+      return XPathNodeSet._(set.toList(), true);
     }
-    return XPathNodeSet._(list);
+    return XPathNodeSet._(set, false);
   }
 
-  const XPathNodeSet._(this.value);
+  /// Creates a new [XPathNodeSet] from the given sorted [nodes].
+  /// The nodes must be sorted in document order and unique.
+  factory XPathNodeSet.fromSortedUniqueNodes(Iterable<XmlNode> nodes) {
+    assert(nodes is! Set<XmlNode>, 'Nodes must not be an unordered set');
+    return XPathNodeSet._(List.unmodifiable(nodes), true);
+  }
 
-  /// The empty node-set as a reusable object
-  static const empty = XPathNodeSet._([]);
+  XPathNodeSet._(this.value, this.isSorted);
+
+  static final empty = XPathNodeSet._([], true);
 
   @override
-  final List<XmlNode> value;
+  final Iterable<XmlNode> value;
+
+  final bool isSorted;
 
   @override
-  List<XmlNode> get nodes => value;
+  Iterable<XmlNode> get nodes => value;
+
+  List<XmlNode> get _list {
+    assert(isSorted);
+    return value as List<XmlNode>;
+  }
+
+  final Map<XmlNode, int> _positions = {};
+
+  XPathNodeSet toSorted() {
+    if (isSorted) return this;
+    final list = value.sortedBy(getPosition);
+    return XPathNodeSet._(list, true);
+  }
+
+  int getPosition(XmlNode node, [int? hintPosition]) {
+    if (isSorted && hintPosition != null && _list[hintPosition - 1] == node) {
+      return hintPosition;
+    }
+    if (_positions.isEmpty) {
+      _computePositions();
+      assert(_positions.length == value.length);
+    }
+    return _positions[node]!;
+  }
+
+  /// Compute the position of each node in this set.
+  void _computePositions() {
+    assert(_positions.isEmpty);
+
+    if (isSorted) {
+      final list = _list;
+      for (var i = 0; i < list.length; i++) {
+        _positions[list.elementAt(i)] = i + 1;
+      }
+      return;
+    }
+
+    var pos = 1;
+
+    void visit(XmlNode node) {
+      if (value.contains(node)) {
+        _positions[node] = pos++;
+      }
+      for (final child in node.children) {
+        visit(child);
+      }
+      for (final attribute in node.attributes) {
+        visit(attribute);
+      }
+    }
+
+    final root = _computeLCA();
+    visit(root);
+  }
+
+  /// Compute the least common ancestor of all nodes in this set.
+  /// Time complexity is O(n) where n is the total number of distinct nodes in the paths from the tree root to each node.
+  ///
+  /// Implementation:
+  /// 1. We find the ancestors set (S) of the first node.
+  /// 2. For each node, we traverse its ancestors until we find one (x) in S.
+  /// 3. For each such x, the one with the largest distance to the first node is the LCA.
+  XmlNode _computeLCA() {
+    final ancestorToDist = <XmlNode, int>{};
+    var lca = value.first;
+    XmlNode? p = lca;
+    XmlNode? root;
+    var dist = 0;
+    while (p != null) {
+      ancestorToDist[p] = dist++;
+      root = p;
+      p = p.parent;
+    }
+    assert(root != null);
+    dist = 0;
+    final visited = <XmlNode>{lca};
+    outer:
+    for (final each in value) {
+      p = each;
+      while (!ancestorToDist.containsKey(p)) {
+        if (visited.contains(p)) {
+          continue outer;
+        }
+        visited.add(p!);
+        p = p.parent;
+        assert(p != null);
+      }
+      final curDist = ancestorToDist[p]!;
+      if (curDist > dist) {
+        dist = curDist;
+        lca = p!;
+        if (lca == root) {
+          break;
+        }
+      }
+    }
+    return lca;
+  }
 
   @override
   String get string {
