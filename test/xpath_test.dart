@@ -44,7 +44,7 @@ void expectEvaluate(
 );
 
 Matcher isNodeSet(dynamic value) =>
-    isA<XPathNodeSet>().having((value) => value.nodes, 'nodes', value);
+    isA<XPathNodeSet>().having((value) => value.sortedNodes, 'nodes', value);
 
 Matcher isString(dynamic value) =>
     isA<XPathString>().having((value) => value.string, 'string', value);
@@ -129,11 +129,17 @@ void main() {
         expect(value.toString(), '[First, Second, Third, ...]');
       });
       test('sorting', () {
-        final nodes = XmlDocument.parse(
-          '<r><a/><b/><c/></r>',
-        ).rootElement.children;
-        final value = XPathNodeSet([nodes[2], nodes[1], nodes[0]]);
-        expect(value.nodes, nodes);
+        final document = XmlDocument.parse(
+          '<r id="r"><a id="a"/><b id="b"/><c id="c"/></r>',
+        );
+        final nodes = document.rootElement.children;
+        final nodeSet = XPathNodeSet([nodes[2], nodes[1], nodes[0]]);
+        expect(nodeSet.sortedNodes, nodes);
+        final attributes = document.descendantElements
+            .map((each) => each.getAttributeNode('id')!)
+            .toList();
+        final attributeSet = XPathNodeSet(attributes.reversed);
+        expect(attributeSet.sortedNodes, attributes);
       });
       test('deduplication', () {
         final nodes = XmlDocument.parse(
@@ -146,7 +152,8 @@ void main() {
           nodes[0],
           nodes[1],
         ]);
-        expect(value.nodes, nodes);
+        expect(value.nodes.length, nodes.length);
+        expect(value.nodes.toSet(), nodes.toSet());
       });
     });
     group('string', () {
@@ -714,6 +721,10 @@ void main() {
         '<a2 b1="1" b2="2"><c1/><c2><d1></d1></c2></a2>',
       ]);
     });
+    test('/', () {
+      final document = XmlDocument.parse('<r/>');
+      expectXPath(document, '/', [document]);
+    });
     test('/*', () {
       expectXPath(current, '/*', [document.rootElement]);
     });
@@ -783,6 +794,16 @@ void main() {
         '<a2 b1="1" b2="2"><c1/><c2><d1></d1></c2></a2>',
       ]);
     });
+    test('reverse axis order', () {
+      final document = XmlDocument.parse('<r><a/></r>');
+      expectXPath(document, '//a/ancestor-or-self::*[1]', ['<a/>']);
+      expectXPath(document, '//a/ancestor-or-self::*[2]', ['<r><a/></r>']);
+      expectXPath(document, '//ancestor-or-self::*[1]', [
+        '<r><a/></r>',
+        '<a/>',
+      ]);
+      expectXPath(document, '//ancestor-or-self::*[2]', ['<r><a/></r>']);
+    });
   });
   group('node test', () {
     const input =
@@ -792,6 +813,7 @@ void main() {
     final current = document.rootElement;
     test('*', () {
       expectXPath(current, '*', ['<e1/>', '<e2/>']);
+      expectXPath(document, 'self::*', isEmpty);
     });
     test('e1', () {
       expectXPath(current, 'e1', ['<e1/>']);
@@ -802,6 +824,7 @@ void main() {
     });
     test('node()', () {
       expectXPath(current, 'node()', current.children);
+      expectXPath(document, 'self::node()', [document]);
     });
     test('processing-instruction()', () {
       expectXPath(current, 'processing-instruction()', ['<?p1?>', '<?p2?>']);
@@ -850,6 +873,18 @@ void main() {
             message: 'name expected',
             buffer: '',
             position: 0,
+          ),
+        ),
+      );
+    });
+    test('//', () {
+      expect(
+        () => xml.xpath('//'),
+        throwsA(
+          isXPathParserException(
+            message: 'end of input expected',
+            buffer: '//',
+            position: 1,
           ),
         ),
       );
@@ -1210,6 +1245,24 @@ void main() {
     test('linter', () {
       final parser = const XPathParser().build();
       expect(linter(parser), isEmpty);
+    });
+  });
+  group('more', () {
+    test('//*/*', () {
+      final xml = XmlDocument.parse('<a><b><c/></b><d><e/></d></a>');
+      expectXPath(xml, '//*/*', ['<b><c/></b>', '<c/>', '<d><e/></d>', '<e/>']);
+    });
+    test('//@id', () {
+      final xml = XmlDocument.parse(
+        '<a id="a"><b id="b"><c id="c"/></b><d id="d"><e id="e"/></d></a>',
+      );
+      expectXPath(xml, '//@id', [
+        'id="a"',
+        'id="b"',
+        'id="c"',
+        'id="d"',
+        'id="e"',
+      ]);
     });
   });
 }

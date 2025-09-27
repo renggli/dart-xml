@@ -1,21 +1,25 @@
+import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
-import '../../xml/extensions/comparison.dart';
-import '../../xml/nodes/document.dart';
-import '../../xml/nodes/element.dart';
-import '../../xml/nodes/node.dart';
-import '../../xml/nodes/text.dart';
+import '../../../xml.dart';
 import 'context.dart';
 import 'expression.dart';
 
 /// Wrapper of XPath values.
 @immutable
 sealed class XPathValue implements XPathExpression {
+  const XPathValue();
+
   /// The value.
   dynamic get value;
 
-  /// Returns the node-set of this value.
+  /// Returns the **unordered** node-set of this value.
+  /// Use [sortedNodes] to get the node-set in document order.
   Iterable<XmlNode> get nodes;
+
+  /// Returns the node-set in document order of this value.
+  /// Be aware that this can be an expensive operation.
+  Iterable<XmlNode> get sortedNodes => nodes;
 
   /// Returns the string of this value.
   String get string;
@@ -27,34 +31,115 @@ sealed class XPathValue implements XPathExpression {
   bool get boolean;
 }
 
-/// Wrapper around an [Iterable] of [XmlNode]s in XPath.
+/// An unordered collection of nodes without duplicates
 class XPathNodeSet implements XPathValue {
-  /// Constructs a new node-set from [nodes]. By default we assume that the
-  /// input require sorting (`isSorted = false`) and deduplication (`isUnique
-  /// = false`).
   factory XPathNodeSet(
     Iterable<XmlNode> nodes, {
-    bool isSorted = false,
-    bool isUnique = false,
+    bool isSortedAndUnique = false,
   }) {
-    if (!isUnique) nodes = nodes.toSet();
-    final list = nodes.toList(growable: false);
-    if (!isSorted || !isUnique) {
-      list.sort((a, b) => a.compareNodePosition(b));
+    if (isSortedAndUnique || nodes.length <= 1) {
+      return XPathNodeSet._(nodes.toList(growable: false), true);
     }
-    return XPathNodeSet._(list);
+    final list = nodes.toSet().toList(growable: false);
+    return XPathNodeSet._(list, false);
   }
 
-  const XPathNodeSet._(this.value);
+  const XPathNodeSet._(this.value, this.isSorted);
 
   /// The empty node-set as a reusable object
-  static const empty = XPathNodeSet._([]);
+  static const empty = XPathNodeSet._([], true);
 
   @override
   final List<XmlNode> value;
 
+  final bool isSorted;
+
   @override
   List<XmlNode> get nodes => value;
+
+  /// Return the nodes in document order without duplicates.
+  /// It can be an expensive operation, so call it only when necessary.
+  @override
+  List<XmlNode> get sortedNodes {
+    if (isSorted) {
+      return value;
+    }
+    const threshold = 80;
+    if (value.length <= threshold) {
+      return value.sorted((a, b) => a.compareNodePosition(b));
+    }
+    return _sort();
+  }
+
+  /// Returns itself if already sorted, otherwise returns a sorted copy.
+  XPathNodeSet toSorted() {
+    if (isSorted) {
+      return this;
+    }
+    return XPathNodeSet._(sortedNodes, true);
+  }
+
+  /// Sort the nodes by traversing the LCA tree in pre-order.
+  List<XmlNode> _sort() {
+    final set = value.toSet();
+    final root = _computeLCA();
+    final stack = <XmlNode>[root];
+    final ret = <XmlNode>[];
+    while (stack.isNotEmpty) {
+      final node = stack.removeLast();
+      if (set.contains(node)) {
+        ret.add(node);
+      }
+      stack.addAll(node.children.reversed);
+      stack.addAll(node.attributes.reversed);
+    }
+    assert(ret.length == set.length);
+    return ret;
+  }
+
+  /// Compute the least common ancestor of all nodes in this set.
+  /// Time complexity is O(n) where n is the total number of distinct nodes in the paths from the tree root to each node.
+  ///
+  /// Implementation:
+  /// 1. We find the ancestors set (S) of the first node.
+  /// 2. For each node, we traverse its ancestors until we find one (x) in S.
+  /// 3. For each such x, the one with the largest distance to the first node is the LCA.
+  XmlNode _computeLCA() {
+    final ancestorToDist = <XmlNode, int>{};
+    var lca = value.first;
+    XmlNode? p = lca;
+    XmlNode? root;
+    var dist = 0;
+    while (p != null) {
+      ancestorToDist[p] = dist++;
+      root = p;
+      p = p.parent;
+    }
+    assert(root != null);
+    dist = 0;
+    final visited = <XmlNode>{lca};
+    outer:
+    for (final each in value) {
+      p = each;
+      while (!ancestorToDist.containsKey(p)) {
+        if (visited.contains(p)) {
+          continue outer;
+        }
+        visited.add(p!);
+        p = p.parent;
+        assert(p != null);
+      }
+      final curDist = ancestorToDist[p]!;
+      if (curDist > dist) {
+        dist = curDist;
+        lca = p!;
+        if (lca == root) {
+          break;
+        }
+      }
+    }
+    return lca;
+  }
 
   @override
   String get string {
@@ -118,7 +203,7 @@ class XPathNodeSet implements XPathValue {
 }
 
 /// Wrapper around a [String] in XPath.
-class XPathString implements XPathValue {
+class XPathString extends XPathValue {
   const XPathString(this.value);
 
   /// The empty string as a reusable object.
@@ -148,7 +233,7 @@ class XPathString implements XPathValue {
 }
 
 /// Wrapper around a [num] in XPath.
-class XPathNumber implements XPathValue {
+class XPathNumber extends XPathValue {
   const XPathNumber(this.value);
 
   @override
@@ -175,7 +260,7 @@ class XPathNumber implements XPathValue {
 }
 
 /// Wrapper around a [bool] in XPath.
-class XPathBoolean implements XPathValue {
+class XPathBoolean extends XPathValue {
   const XPathBoolean(this.value);
 
   @override

@@ -39,14 +39,22 @@ extension XPathExtension on XmlNode {
   /// or [XPathBoolean]. You can fetch the underlying data by calling
   /// [XPathValue.nodes], [XPathValue.string], [XPathValue.number], or
   /// [XPathValue.boolean] respectively.
+  /// The [XPathNodeSet] returned by this method is guaranteed to be
+  /// in document order.
   @experimental
   XPathValue xpathEvaluate(
     String expression, {
     Map<String, XPathValue> variables = const {},
     Map<String, XPathFunction> functions = const {},
-  }) => _cache[expression](
-    XPathContext(this, variables: variables, functions: functions),
-  );
+  }) {
+    final value = _cache[expression](
+      XPathContext(this, variables: variables, functions: functions),
+    );
+    if (value is XPathNodeSet) {
+      return value.toSorted();
+    }
+    return value;
+  }
 }
 
 final _parser = const XPathParser().build();
