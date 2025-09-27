@@ -1,5 +1,12 @@
 # Changelog
 
+## 6.7.0
+
+- Significantly improve XPath evaluation performance for large documents.
+- **BREAKING CHANGE**: `XPathValue.nodes` may now return nodes in unordered form.
+  - _Note_: Order is still guaranteed when using `XmlNode.xpathEvaluate` method.
+- Add `XPathValue.sortedNodes` for guaranteed document order regardless of how the `XPathValue` was obtained.
+
 ## 6.6.1
 
 - Dart and Flutter 3.9 compatibility.

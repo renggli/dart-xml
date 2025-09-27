@@ -6,10 +6,12 @@ import '../xml/entities/null_mapping.dart';
 import '../xml_events/parser.dart';
 import 'evaluation/expression.dart';
 import 'evaluation/values.dart';
-import 'expressions/axis.dart';
-import 'expressions/filters.dart';
 import 'expressions/function.dart';
 import 'expressions/path.dart';
+import 'expressions/step/axis.dart';
+import 'expressions/step/node_test.dart';
+import 'expressions/step/predicate.dart';
+import 'expressions/step/step.dart';
 import 'expressions/variable.dart';
 import 'functions/boolean.dart' as boolean;
 import 'functions/nodes.dart' as nodes;
@@ -66,98 +68,89 @@ class XPathParser {
   }
 
   Parser<XPathExpression> path() => [
-    ref0(absolutePath),
-    ref0(relativePath),
-  ].toChoiceParser().map(SequenceExpression.new);
-
-  Parser<List<XPathExpression>> absolutePath() => seq2(
-    _t('/'),
-    ref0(relativePath).optionalWith([]),
-  ).map2((_, path) => [RootAxisExpression(), ...path]);
-
-  Parser<List<XPathExpression>> relativePath() => ref0(step)
-      .plusSeparated(_t('/'))
-      .map((list) => list.elements.map(SequenceExpression.new).toList());
-
-  Parser<List<XPathExpression>> step() => ref0(axisStep);
-
-  Parser<List<XPathExpression>> axisStep() => seq2(
-    [ref0(reverseStep), ref0(forwardStep)].toChoiceParser(),
-    ref0(predicate).star(),
-  ).map2((step, predicates) => [...step, ...predicates]);
-
-  Parser<List<XPathExpression>> reverseStep() => [
-    [ref0(reverseAxis), ref0(nodeTest)].toSequenceParser(),
-    ref0(abbrevReverseStep),
+    ref0(absolutePath).map((steps) => PathExpression(steps, true)),
+    ref0(relativePath).map((steps) => PathExpression(steps, false)),
   ].toChoiceParser();
 
-  Parser<XPathExpression> reverseAxis() => [
-    _t('ancestor-or-self::').map((_) => AncestorOrSelfAxisExpression()),
-    _t('ancestor::').map((_) => AncestorAxisExpression()),
-    _t('parent::').map((_) => ParentAxisExpression()),
-    _t('preceding-sibling::').map((_) => PrecedingSiblingAxisExpression()),
-    _t('preceding::').map((_) => PrecedingAxisExpression()),
-  ].toChoiceParser();
-
-  Parser<List<XPathExpression>> abbrevReverseStep() => [
-    _t('..').map((_) => [ParentAxisExpression()]),
-    _t('.').map((_) => [SelfAxisExpression()]),
-  ].toChoiceParser();
-
-  Parser<List<XPathExpression>> forwardStep() => [
-    [ref0(forwardAxis), ref0(nodeTest)].toSequenceParser(),
-    ref0(abbrevForwardStep),
-  ].toChoiceParser();
-
-  Parser<XPathExpression> forwardAxis() => [
-    _t('attribute::').map((_) => AttributeAxisExpression()),
-    _t('child::').map((_) => ChildAxisExpression()),
-    _t('descendant-or-self::').map((_) => DescendantOrSelfAxisExpression()),
-    _t('descendant::').map((_) => DescendantAxisExpression()),
-    _t('following-sibling::').map((_) => FollowingSiblingAxisExpression()),
-    _t('following::').map((_) => FollowingAxisExpression()),
-    _t('self::').map((_) => SelfAxisExpression()),
-  ].toChoiceParser();
-
-  Parser<List<XPathExpression>> abbrevForwardStep() => [
+  Parser<List<Step>> absolutePath() => [
+    seq2(_t('//'), ref0(relativePath)).map2(
+      (_, steps) => [Step.abbrevAxisStep(DescendantOrSelfAxis()), ...steps],
+    ),
     seq2(
       _t('/'),
-      ref0(nodeTest),
-    ).map2((_, test) => [DescendantOrSelfAxisExpression(), test]),
-    seq2(
-      _t('@'),
-      ref0(nodeTest),
-    ).map2((_, test) => [AttributeAxisExpression(), test]),
-    ref0(nodeTest).map((test) => [ChildAxisExpression(), test]),
+      ref0(relativePath).optionalWith([]),
+    ).map2((start, steps) => steps),
   ].toChoiceParser();
 
-  Parser<XPathExpression> nodeTest() =>
+  Parser<List<Step>> relativePath() => ref0(step)
+      .plusSeparated([_t('//'), _t('/')].toChoiceParser())
+      .map((list) {
+        final steps = [list.elements.first];
+        for (var i = 1; i < list.elements.length; i++) {
+          final sep = list.separators[i - 1];
+          if (sep == '//') {
+            steps.add(Step.abbrevAxisStep(DescendantOrSelfAxis()));
+          }
+          steps.add(list.elements[i]);
+        }
+        return steps;
+      });
+
+  Parser<Step> step() => [
+    ref0(abbrevStep),
+    seq3(ref0(axis).optional(), ref0(nodeTest), ref0(predicate).star()).map3(
+      (axis, nodeTest, predicates) =>
+          Step(axis ?? ChildAxis(), nodeTest, predicates),
+    ),
+  ].toChoiceParser();
+
+  Parser<Step> abbrevStep() => [
+    _t('..').map((_) => Step.abbrevAxisStep(ParentAxis())),
+    _t('.').map((_) => Step.abbrevAxisStep(SelfAxis())),
+  ].toChoiceParser();
+
+  Parser<Axis> axis() => [
+    [_t('attribute::'), _t('@')].toChoiceParser().map((_) => AttributeAxis()),
+    _t('child::').map((_) => ChildAxis()),
+    _t('descendant-or-self::').map((_) => DescendantOrSelfAxis()),
+    _t('descendant::').map((_) => DescendantAxis()),
+    _t('following-sibling::').map((_) => FollowingSiblingAxis()),
+    _t('following::').map((_) => FollowingAxis()),
+    _t('self::').map((_) => SelfAxis()),
+    _t('ancestor-or-self::').map((_) => AncestorOrSelfAxis()),
+    _t('ancestor::').map((_) => AncestorAxis()),
+    _t('parent::').map((_) => ParentAxis()),
+    _t('preceding-sibling::').map((_) => PrecedingSiblingAxis()),
+    _t('preceding::').map((_) => PrecedingAxis()),
+  ].toChoiceParser();
+
+  Parser<NodeTest> nodeTest() =>
       [ref0(kindTest), ref0(nameTest)].toChoiceParser();
 
-  Parser<XPathExpression> kindTest() => [
-    _t('comment()').map((_) => CommentTypeExpression()),
-    _t('node()').map((_) => NodeTypeExpression()),
+  Parser<NodeTest> kindTest() => [
+    _t('comment()').map((_) => CommentTypeNodeTest()),
+    _t('node()').map((_) => NodeTypeNodeTest()),
     seq3(
       _t('processing-instruction('),
       ref0(string).optional(),
       char(')'),
-    ).map3((_, target, _) => ProcessingTypeExpression(target)),
-    _t('text()').map((_) => TextTypeExpression()),
+    ).map3((_, target, _) => ProcessingTypeNodeTest(target)),
+    _t('text()').map((_) => TextTypeNodeTest()),
   ].toChoiceParser();
 
-  Parser<XPathExpression> nameTest() => [
-    _t('*').map((_) => HasNameExpression()),
+  Parser<NodeTest> nameTest() => [
+    _t('*').map((_) => HasNameNodeTest()),
     seq2(
       ref0(name),
       char('(').not(),
-    ).map2((name, _) => QualifiedNameExpression(name)),
+    ).map2((name, _) => QualifiedNameNodeTest(name)),
   ].toChoiceParser();
 
-  Parser<XPathExpression> predicate() => seq3(
+  Parser<Predicate> predicate() => seq3(
     char('['),
     ref0(expression),
     char(']'),
-  ).map3((_, expr, _) => PredicateExpression(expr));
+  ).map3((_, expr, _) => Predicate(expr));
 
   Parser<XPathExpression> literal() =>
       [ref0(numberLiteral), ref0(stringLiteral)].toChoiceParser();
