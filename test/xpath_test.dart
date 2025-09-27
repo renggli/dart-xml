@@ -160,6 +160,7 @@ void main() {
       test('empty', () {
         const value = XPathString('');
         expect(() => value.nodes, throwsStateError);
+        expect(() => value.sortedNodes, throwsStateError);
         expect(value.string, '');
         expect(value.number, isNaN);
         expect(value.boolean, isFalse);
@@ -168,6 +169,7 @@ void main() {
       test('full', () {
         const value = XPathString('123');
         expect(() => value.nodes, throwsStateError);
+        expect(() => value.sortedNodes, throwsStateError);
         expect(value.string, '123');
         expect(value.number, 123);
         expect(value.boolean, isTrue);
@@ -178,6 +180,7 @@ void main() {
       test('0', () {
         const value = XPathNumber(0);
         expect(() => value.nodes, throwsStateError);
+        expect(() => value.sortedNodes, throwsStateError);
         expect(value.string, '0');
         expect(value.number, 0);
         expect(value.boolean, isTrue);
@@ -186,6 +189,7 @@ void main() {
       test('1.14', () {
         const value = XPathNumber(1.14);
         expect(() => value.nodes, throwsStateError);
+        expect(() => value.sortedNodes, throwsStateError);
         expect(value.string, '1.14');
         expect(value.number, 1.14);
         expect(value.boolean, isFalse);
@@ -194,6 +198,7 @@ void main() {
       test('nan', () {
         const value = XPathNumber(double.nan);
         expect(() => value.nodes, throwsStateError);
+        expect(() => value.sortedNodes, throwsStateError);
         expect(value.string, 'NaN');
         expect(value.number, isNaN);
         expect(value.boolean, isFalse);
@@ -202,6 +207,7 @@ void main() {
       test('+infinity', () {
         const value = XPathNumber(double.infinity);
         expect(() => value.nodes, throwsStateError);
+        expect(() => value.sortedNodes, throwsStateError);
         expect(value.string, 'Infinity');
         expect(value.number, double.infinity);
         expect(value.boolean, isFalse);
@@ -210,6 +216,7 @@ void main() {
       test('-infinity', () {
         const value = XPathNumber(double.negativeInfinity);
         expect(() => value.nodes, throwsStateError);
+        expect(() => value.sortedNodes, throwsStateError);
         expect(value.string, '-Infinity');
         expect(value.number, double.negativeInfinity);
         expect(value.boolean, isFalse);
@@ -220,6 +227,7 @@ void main() {
       test('true', () {
         const value = XPathBoolean(true);
         expect(() => value.nodes, throwsStateError);
+        expect(() => value.sortedNodes, throwsStateError);
         expect(value.string, 'true');
         expect(value.number, 1);
         expect(value.boolean, isTrue);
@@ -228,6 +236,7 @@ void main() {
       test('false', () {
         const value = XPathBoolean(false);
         expect(() => value.nodes, throwsStateError);
+        expect(() => value.sortedNodes, throwsStateError);
         expect(value.string, 'false');
         expect(value.number, 0);
         expect(value.boolean, isFalse);
@@ -1262,6 +1271,22 @@ void main() {
         'id="c"',
         'id="d"',
         'id="e"',
+      ]);
+    });
+    test('//self::*', () {
+      final xml = XmlDocument.parse('<a><b/></a>');
+      expectXPath(xml, '//self::*', ['<a><b/></a>', '<b/>']);
+    });
+    test('large items sorting', () {
+      final buffer = StringBuffer()..write('<r>');
+      for (var i = 1; i <= 1000; i++) {
+        buffer.write('<e id="$i"/>');
+      }
+      buffer.write('</r>');
+      final xml = XmlDocument.parse(buffer.toString());
+      // The xpath expression should be complex enough to trigger the sorting of node-set
+      expectXPath(xml, '//r/e/@id', [
+        for (var i = 1; i <= 1000; i++) 'id="$i"',
       ]);
     });
   });
