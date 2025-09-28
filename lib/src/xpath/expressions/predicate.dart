@@ -1,6 +1,6 @@
-import '../../evaluation/context.dart';
-import '../../evaluation/expression.dart';
-import '../../evaluation/values.dart';
+import '../evaluation/context.dart';
+import '../evaluation/expression.dart';
+import '../evaluation/values.dart';
 
 class Predicate {
   Predicate(this.expression);

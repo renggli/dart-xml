@@ -3,9 +3,9 @@ import '../../xml/nodes/node.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../evaluation/values.dart';
-import 'step/axis.dart';
-import 'step/node_test.dart';
-import 'step/step.dart';
+import 'axis.dart';
+import 'node_test.dart';
+import 'step.dart';
 
 class PathExpression implements XPathExpression {
   factory PathExpression(List<Step> steps, {required bool isAbsolute}) {

@@ -1,9 +1,10 @@
-import '../../../xml/nodes/node.dart';
-import '../../evaluation/context.dart';
+import 'package:collection/collection.dart';
+
+import '../../xml/nodes/node.dart';
+import '../evaluation/context.dart';
 import 'axis.dart';
 import 'node_test.dart';
 import 'predicate.dart';
-import 'utils.dart';
 
 class Step {
   const Step(this.axis, this.nodeTest, this.predicates);
@@ -38,7 +39,7 @@ class Step {
       result = matched;
     }
     if (axis is ReverseAxis) {
-      result.reverse();
+      result.reverseRange(0, result.length);
     }
     return result;
   }

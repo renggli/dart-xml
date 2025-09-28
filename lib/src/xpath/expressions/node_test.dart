@@ -1,7 +1,7 @@
-import '../../../xml/enums/node_type.dart';
-import '../../../xml/mixins/has_name.dart';
-import '../../../xml/nodes/node.dart';
-import '../../../xml/nodes/processing.dart';
+import '../../xml/enums/node_type.dart';
+import '../../xml/mixins/has_name.dart';
+import '../../xml/nodes/node.dart';
+import '../../xml/nodes/processing.dart';
 
 sealed class NodeTest {
   bool matches(XmlNode node);

@@ -1,10 +1,10 @@
 import 'package:petitparser/reflection.dart';
 import 'package:test/test.dart';
+import 'package:xml/src/xpath/expressions/axis.dart';
+import 'package:xml/src/xpath/expressions/node_test.dart';
 import 'package:xml/src/xpath/expressions/path.dart';
-import 'package:xml/src/xpath/expressions/step/axis.dart';
-import 'package:xml/src/xpath/expressions/step/node_test.dart';
-import 'package:xml/src/xpath/expressions/step/predicate.dart';
-import 'package:xml/src/xpath/expressions/step/step.dart';
+import 'package:xml/src/xpath/expressions/predicate.dart';
+import 'package:xml/src/xpath/expressions/step.dart';
 import 'package:xml/src/xpath/parser.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
