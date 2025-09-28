@@ -47,7 +47,7 @@ class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
   /// });
   /// print(document.toXmlString());
   /// ```
-  factory XmlDocument.build(void Function(XmlBuilder builder) callback) {
+  factory XmlDocument.build(CallbackWithBuilder callback) {
     final builder = XmlBuilder();
     callback(builder);
     return builder.buildDocument();

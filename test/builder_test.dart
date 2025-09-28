@@ -115,6 +115,35 @@ void main() {
         '</element>';
     expect(actual, expected);
   });
+  test('nested callback', () {
+    final builder = XmlBuilder();
+    builder.element(
+      'element',
+      nest: () {
+        builder.element('nested');
+      },
+    );
+    final xml = builder.buildDocument();
+    assertDocumentTreeInvariants(xml);
+    final actual = xml.toString();
+    const expected = '<element><nested/></element>';
+    expect(actual, expected);
+  });
+  test('nested callback with inner builder', () {
+    final builder = XmlBuilder();
+    builder.element(
+      'element',
+      nest: (XmlBuilder innerBuilder) {
+        expect(innerBuilder, same(builder));
+        innerBuilder.element('nested');
+      },
+    );
+    final xml = builder.buildDocument();
+    assertDocumentTreeInvariants(xml);
+    final actual = xml.toString();
+    const expected = '<element><nested/></element>';
+    expect(actual, expected);
+  });
   test('nested string', () {
     final builder = XmlBuilder();
     builder.element('element', nest: 'string');

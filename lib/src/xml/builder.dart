@@ -359,8 +359,10 @@ class XmlBuilder {
   // Internal method to add children to the current element.
   void _insert(Object? value) {
     switch (value) {
-      case VoidFunction():
+      case Callback():
         value();
+      case CallbackWithBuilder():
+        value(this);
       case Iterable():
         value.forEach(_insert);
       case XmlNode():
@@ -420,4 +422,5 @@ class NodeBuilder {
   XmlDocumentFragment buildFragment() => XmlDocumentFragment(children);
 }
 
-typedef VoidFunction = void Function();
+typedef Callback = void Function();
+typedef CallbackWithBuilder = void Function(XmlBuilder builder);
