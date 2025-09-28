@@ -358,30 +358,32 @@ class XmlBuilder {
 
   // Internal method to add children to the current element.
   void _insert(Object? value) {
-    if (value is void Function()) {
-      value();
-    } else if (value is void Function(XmlBuilder)) {
-      value(this);
-    } else if (value is Iterable) {
-      value.forEach(_insert);
-    } else if (value is XmlNode) {
-      if (value is XmlText) {
-        // Text nodes need to be unwrapped for merging.
-        text(value.value);
-      } else if (value is XmlAttribute) {
-        // Attributes must be copied and added to the attributes list.
-        _stack.last.attributes.add(value.copy());
-      } else if (value is XmlElement || value is XmlData) {
-        // Children nodes must be copied and added to the children list.
-        _stack.last.children.add(value.copy());
-      } else if (value is XmlDocumentFragment) {
-        // Document fragments must be copied and unwrapped.
-        value.children.map((element) => element.copy()).forEach(_insert);
-      } else {
-        throw ArgumentError('Unable to add element of type ${value.nodeType}');
-      }
-    } else {
-      text(value.toString());
+    switch (value) {
+      case VoidFunction():
+        value();
+      case Iterable():
+        value.forEach(_insert);
+      case XmlNode():
+        switch (value) {
+          // Text nodes need to be unwrapped for merging.
+          case XmlText():
+            text(value.value);
+          // Attributes must be copied and added to the attributes list.
+          case XmlAttribute():
+            _stack.last.attributes.add(value.copy());
+          // Children nodes must be copied and added to the children list.
+          case XmlElement() || XmlData() || XmlDeclaration():
+            _stack.last.children.add(value.copy());
+          // Document fragments must be copied and unwrapped.
+          case XmlDocumentFragment():
+            value.children.map((element) => element.copy()).forEach(_insert);
+          default:
+            throw ArgumentError(
+              'Unable to add element of type ${value.nodeType}',
+            );
+        }
+      default:
+        text(value.toString());
     }
   }
 }
@@ -417,3 +419,5 @@ class NodeBuilder {
 
   XmlDocumentFragment buildFragment() => XmlDocumentFragment(children);
 }
+
+typedef VoidFunction = void Function();
