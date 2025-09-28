@@ -1,61 +1,58 @@
 // ignore_for_file: depend_on_referenced_packages
 
-import 'dart:io';
-
-import 'package:benchmark_harness/benchmark_harness.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
+import 'benchmark.dart';
 
-class XPathBenchmark extends BenchmarkBase {
-  final XmlDocument document;
-  final String expression;
+const sizes = [100, 1000, 10000];
+const queries = [
+  '//item',
+  '//item/name',
+  '/root/item/name',
+  '//item[@id=100]',
+  '//item[100]',
+  '//*',
+  '//*/name',
+  '//*[@id=100]',
+  '//*[100]',
+];
 
-  XPathBenchmark(this.document, this.expression) : super('XPath($expression)');
-
-  @override
-  void run() {
-    document.xpath(expression);
-  }
-
-  @override
-  void exercise() => run(); // Just run once per exercise
-}
-
-String _generateXml(int itemCount) {
-  final buffer = StringBuffer();
-  buffer.writeln('<root>');
-
-  for (var i = 0; i < itemCount; i++) {
-    buffer.writeln('  <item id="$i">');
-    buffer.writeln('    <name>Item $i</name>');
-    buffer.writeln('    <value>$i</value>');
-    buffer.writeln('    <description>This is item number $i</description>');
-    buffer.writeln('  </item>');
-  }
-
-  buffer.writeln('</root>');
-  return buffer.toString();
-}
-
-void run(int n) {
-  final xmlString = _generateXml(n);
-  stdout.writeln('Generated XML with $n items.');
-  final document = XmlDocument.parse(xmlString);
-  XPathBenchmark(document, '//item').report();
-  XPathBenchmark(document, '//item/name').report();
-  XPathBenchmark(document, '/root/item/name').report();
-  XPathBenchmark(document, '//item[@id=100]').report();
-  XPathBenchmark(document, '//item[100]').report();
-  XPathBenchmark(document, '//*').report();
-  XPathBenchmark(document, '//*/name').report();
-  XPathBenchmark(document, '//*[@id=100]').report();
-  XPathBenchmark(document, '//*[100]').report();
-  stdout.writeln('---');
-}
+XmlDocument createDocument(int size) => XmlDocument.build(
+  (builder) => builder.element(
+    'root',
+    attributes: {'size': size.toString()},
+    nest: () {
+      for (var i = 0; i < size; i++) {
+        builder.element(
+          'item',
+          nest: () {
+            builder.attribute('id', '$i');
+            builder.element('name', nest: 'Item $i');
+            builder.element('value', nest: '$i');
+            builder.element('description', nest: 'This is item number $i');
+          },
+        );
+      }
+    },
+  ),
+);
 
 void main(List<String> args) {
-  final list = args.isEmpty ? [1000] : args.map(int.parse);
-  for (final n in list) {
-    run(n);
-  }
+  final documents = sizes.map(createDocument).toList();
+  final report = XmlDocument.build(
+    createReport(
+      queries.map(
+        (query) => createBenchmark(
+          query,
+          documents.map(
+            (document) => createMeasure(
+              document.rootElement.getAttribute('size')!,
+              benchmark(() => document.xpath(query)),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+  printReport(report, xml: !args.contains('--no-xml'));
 }

@@ -1,11 +1,5 @@
-// ignore_for_file: unnecessary_lambdas
-
 import 'dart:io';
-
 import 'package:xml/xml.dart';
-import 'package:xml/xml_events.dart';
-
-import '../test/utils/examples.dart';
 
 /// Measures the time it takes to run [function] in microseconds.
 ///
@@ -45,41 +39,45 @@ double _benchmark(void Function() function, Duration duration) {
 double percentChange(double reference, double comparison) =>
     100 * (reference - comparison) / reference;
 
-String characterData() {
-  const string = '''a&bc<def"gehi'jklm>nopqr''';
-  final builder = XmlBuilder();
-  builder.processing('xml', 'version="1.0"');
-  builder.element(
-    'character',
-    nest: () {
-      for (var i = 0; i < 20; i++) {
-        builder.text('$string$string$string$string$string$string');
-        builder.element(
-          'foo',
-          nest: () {
-            builder.attribute('key', '$string$string$string$string');
-          },
-        );
-      }
-    },
-  );
-  return builder.buildDocument().toString();
-}
+/// Creates a factory function for benchmark reports.
+void Function(XmlBuilder) createReport(Iterable<Object?> benchmarks) =>
+    (builder) {
+      builder.processing('xml', 'version="1.0"');
+      builder.element('benchmarks', nest: benchmarks);
+    };
 
-final Map<String, String> benchmarks = {
-  'atom': atomXml,
-  'books': booksXml,
-  'bookstore': bookstoreXml,
-  'complicated': complicatedXml,
-  'shiporder': shiporderXsd,
-  'decoding': characterData(),
-};
+/// Creates a factory function for a single benchmark entry.
+void Function(XmlBuilder) createBenchmark(
+  String name,
+  Iterable<Object?> measures,
+) =>
+    (builder) => builder.element(
+      'benchmark',
+      attributes: {'name': name},
+      nest: measures,
+    );
 
-void main(List<String> args) {
-  final builder = XmlBuilder();
-  addBenchmarks(builder);
-  final document = builder.buildDocument();
-  if (args.contains('xml')) {
+/// Creates a factory function for a single measure entry.
+void Function(XmlBuilder) createMeasure(
+  String name,
+  double measure, [
+  double? reference,
+]) =>
+    (builder) => builder.element(
+      'measure',
+      attributes: {'name': name},
+      nest: () {
+        builder.element('time', nest: measure.toStringAsFixed(6));
+        if (reference != null) {
+          final speedup = percentChange(reference, measure);
+          builder.element('speedup', nest: speedup.toStringAsFixed(2));
+        }
+      },
+    );
+
+/// Prints the results of the benchmark document to the console.
+void printReport(XmlDocument document, {bool xml = true}) {
+  if (xml) {
     stdout.writeln(document.toXmlString(pretty: true));
   } else {
     stdout.writeln(
@@ -106,62 +104,4 @@ void main(List<String> args) {
           .join('\n'),
     );
   }
-}
-
-void addBenchmarks(XmlBuilder builder) {
-  builder.processing('xml', 'version="1.0"');
-  builder.element(
-    'benchmarks',
-    nest: () {
-      for (final entry in benchmarks.entries) {
-        addBenchmark(builder, entry);
-      }
-    },
-  );
-}
-
-void addBenchmark(XmlBuilder builder, MapEntry<String, String> entry) {
-  builder.element(
-    'benchmark',
-    attributes: {'name': entry.key},
-    nest: () {
-      final source = entry.value;
-      final document = XmlDocument.parse(source);
-      final parser = benchmark(() => XmlDocument.parse(source));
-      final streamEvents = benchmark(() => XmlEventDecoder().convert(source));
-      final streamNodes = benchmark(
-        () => const XmlNodeDecoder().convert(XmlEventDecoder().convert(source)),
-      );
-      final iterator = benchmark(() => parseEvents(source).toList());
-      final serialize = benchmark(() => document.toXmlString());
-      final serializePretty = benchmark(
-        () => document.toXmlString(pretty: true),
-      );
-      addMeasure(builder, 'parser', parser);
-      addMeasure(builder, 'streamEvents', streamEvents, parser);
-      addMeasure(builder, 'streamNodes', streamNodes, parser);
-      addMeasure(builder, 'iterator', iterator, parser);
-      addMeasure(builder, 'serialize', serialize);
-      addMeasure(builder, 'serializePretty', serializePretty, serialize);
-    },
-  );
-}
-
-void addMeasure(
-  XmlBuilder builder,
-  String name,
-  double measure, [
-  double? reference,
-]) {
-  builder.element(
-    'measure',
-    attributes: {'name': name},
-    nest: () {
-      builder.element('time', nest: measure.toStringAsFixed(6));
-      if (reference != null) {
-        final speedup = percentChange(reference, measure);
-        builder.element('speedup', nest: speedup.toStringAsFixed(2));
-      }
-    },
-  );
 }
