@@ -128,18 +128,18 @@ class XPathParser {
       [ref0(kindTest), ref0(nameTest)].toChoiceParser();
 
   Parser<NodeTest> kindTest() => [
-    _t('comment()').map((_) => CommentTypeNodeTest()),
-    _t('node()').map((_) => NodeTypeNodeTest()),
+    _t('comment()').map((_) => const CommentTypeNodeTest()),
+    _t('node()').map((_) => const NodeTypeNodeTest()),
     seq3(
       _t('processing-instruction('),
       ref0(string).optional(),
       char(')'),
     ).map3((_, target, _) => ProcessingTypeNodeTest(target)),
-    _t('text()').map((_) => TextTypeNodeTest()),
+    _t('text()').map((_) => const TextTypeNodeTest()),
   ].toChoiceParser();
 
   Parser<NodeTest> nameTest() => [
-    _t('*').map((_) => HasNameNodeTest()),
+    _t('*').map((_) => const HasNameNodeTest()),
     seq2(
       ref0(name),
       char('(').not(),

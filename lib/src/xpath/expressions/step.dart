@@ -10,7 +10,7 @@ class Step {
   const Step(this.axis, this.nodeTest, this.predicates);
 
   Step.abbrevAxisStep(this.axis)
-    : nodeTest = NodeTypeNodeTest(),
+    : nodeTest = const NodeTypeNodeTest(),
       predicates = const [];
 
   final Axis axis;

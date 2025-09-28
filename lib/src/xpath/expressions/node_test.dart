@@ -1,24 +1,31 @@
+import 'package:meta/meta.dart';
+
 import '../../xml/enums/node_type.dart';
 import '../../xml/mixins/has_name.dart';
 import '../../xml/nodes/node.dart';
 import '../../xml/nodes/processing.dart';
 
+@immutable
 sealed class NodeTest {
   bool matches(XmlNode node);
 }
 
-class CommentTypeNodeTest extends NodeTest {
+class CommentTypeNodeTest implements NodeTest {
+  const CommentTypeNodeTest();
+
   @override
   bool matches(XmlNode node) => node.nodeType == XmlNodeType.COMMENT;
 }
 
-class NodeTypeNodeTest extends NodeTest {
+class NodeTypeNodeTest implements NodeTest {
+  const NodeTypeNodeTest();
+
   @override
   bool matches(XmlNode node) => true;
 }
 
-class ProcessingTypeNodeTest extends NodeTest {
-  ProcessingTypeNodeTest(this.target);
+class ProcessingTypeNodeTest implements NodeTest {
+  const ProcessingTypeNodeTest(this.target);
 
   final String? target;
 
@@ -27,19 +34,23 @@ class ProcessingTypeNodeTest extends NodeTest {
       node is XmlProcessing && (target == null || node.target == target);
 }
 
-class TextTypeNodeTest extends NodeTest {
+class TextTypeNodeTest implements NodeTest {
+  const TextTypeNodeTest();
+
   @override
   bool matches(XmlNode node) =>
       node.nodeType == XmlNodeType.TEXT || node.nodeType == XmlNodeType.CDATA;
 }
 
-class HasNameNodeTest extends NodeTest {
+class HasNameNodeTest implements NodeTest {
+  const HasNameNodeTest();
+
   @override
   bool matches(XmlNode node) => node is XmlHasName;
 }
 
-class QualifiedNameNodeTest extends NodeTest {
-  QualifiedNameNodeTest(this.qualifiedName);
+class QualifiedNameNodeTest implements NodeTest {
+  const QualifiedNameNodeTest(this.qualifiedName);
 
   final String qualifiedName;
 
