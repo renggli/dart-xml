@@ -31,18 +31,26 @@ class PathExpression implements XPathExpression {
         /// - '//' + descendant-or-self::x => descendant-or-self::x
         switch (step.axis) {
           case ChildAxis():
-            merged = Step(DescendantAxis(), step.nodeTest, step.predicates);
+            merged = Step(
+              const DescendantAxis(),
+              step.nodeTest,
+              step.predicates,
+            );
           case DescendantAxis():
-            merged = Step(DescendantAxis(), step.nodeTest, step.predicates);
+            merged = Step(
+              const DescendantAxis(),
+              step.nodeTest,
+              step.predicates,
+            );
           case SelfAxis():
             merged = Step(
-              DescendantOrSelfAxis(),
+              const DescendantOrSelfAxis(),
               step.nodeTest,
               step.predicates,
             );
           case DescendantOrSelfAxis():
             merged = Step(
-              DescendantOrSelfAxis(),
+              const DescendantOrSelfAxis(),
               step.nodeTest,
               step.predicates,
             );

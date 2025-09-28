@@ -76,7 +76,7 @@ class XPathParser {
     seq2(
       _t('//'),
       ref0(relativePath),
-    ).map2((_, steps) => [Step(DescendantOrSelfAxis()), ...steps]),
+    ).map2((_, steps) => [const Step(DescendantOrSelfAxis()), ...steps]),
     seq2(
       _t('/'),
       ref0(relativePath).optionalWith([]),
@@ -90,7 +90,7 @@ class XPathParser {
         for (var i = 1; i < list.elements.length; i++) {
           final sep = list.separators[i - 1];
           if (sep == '//') {
-            steps.add(Step(DescendantOrSelfAxis()));
+            steps.add(const Step(DescendantOrSelfAxis()));
           }
           steps.add(list.elements[i]);
         }
@@ -101,28 +101,31 @@ class XPathParser {
     ref0(abbrevStep),
     seq3(ref0(axis).optional(), ref0(nodeTest), ref0(predicate).star()).map3(
       (axis, nodeTest, predicates) =>
-          Step(axis ?? ChildAxis(), nodeTest, predicates),
+          Step(axis ?? const ChildAxis(), nodeTest, predicates),
     ),
   ].toChoiceParser();
 
   Parser<Step> abbrevStep() => [
-    _t('..').map((_) => Step(ParentAxis())),
-    _t('.').map((_) => Step(SelfAxis())),
+    _t('..').map((_) => const Step(ParentAxis())),
+    _t('.').map((_) => const Step(SelfAxis())),
   ].toChoiceParser();
 
   Parser<Axis> axis() => [
-    [_t('attribute::'), _t('@')].toChoiceParser().map((_) => AttributeAxis()),
-    _t('child::').map((_) => ChildAxis()),
-    _t('descendant-or-self::').map((_) => DescendantOrSelfAxis()),
-    _t('descendant::').map((_) => DescendantAxis()),
-    _t('following-sibling::').map((_) => FollowingSiblingAxis()),
-    _t('following::').map((_) => FollowingAxis()),
-    _t('self::').map((_) => SelfAxis()),
-    _t('ancestor-or-self::').map((_) => AncestorOrSelfAxis()),
-    _t('ancestor::').map((_) => AncestorAxis()),
-    _t('parent::').map((_) => ParentAxis()),
-    _t('preceding-sibling::').map((_) => PrecedingSiblingAxis()),
-    _t('preceding::').map((_) => PrecedingAxis()),
+    [
+      _t('attribute::'),
+      _t('@'),
+    ].toChoiceParser().map((_) => const AttributeAxis()),
+    _t('child::').map((_) => const ChildAxis()),
+    _t('descendant-or-self::').map((_) => const DescendantOrSelfAxis()),
+    _t('descendant::').map((_) => const DescendantAxis()),
+    _t('following-sibling::').map((_) => const FollowingSiblingAxis()),
+    _t('following::').map((_) => const FollowingAxis()),
+    _t('self::').map((_) => const SelfAxis()),
+    _t('ancestor-or-self::').map((_) => const AncestorOrSelfAxis()),
+    _t('ancestor::').map((_) => const AncestorAxis()),
+    _t('parent::').map((_) => const ParentAxis()),
+    _t('preceding-sibling::').map((_) => const PrecedingSiblingAxis()),
+    _t('preceding::').map((_) => const PrecedingAxis()),
   ].toChoiceParser();
 
   Parser<NodeTest> nodeTest() =>

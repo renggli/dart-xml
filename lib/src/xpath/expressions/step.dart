@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
 import '../../xml/nodes/node.dart';
@@ -27,21 +26,21 @@ class Step {
         result.add(node);
       }
     }
-    final inner = context.copy();
-    inner.last = result.length;
-    for (final predicate in predicates) {
-      final matched = <XmlNode>[];
-      for (var i = 0; i < result.length; i++) {
-        inner.node = result[i];
-        inner.position = i + 1;
-        if (predicate.matches(inner)) {
-          matched.add(inner.node);
+    if (predicates.isNotEmpty) {
+      final isReverseIndexed = axis is ReverseAxis;
+      final inner = context.copy();
+      inner.last = result.length;
+      for (final predicate in predicates) {
+        final matched = <XmlNode>[];
+        for (var i = 0; i < result.length; i++) {
+          inner.node = result[isReverseIndexed ? result.length - i - 1 : i];
+          inner.position = i + 1;
+          if (predicate.matches(inner)) {
+            matched.add(inner.node);
+          }
         }
+        result = matched;
       }
-      result = matched;
-    }
-    if (axis is ReverseAxis) {
-      result.reverseRange(0, result.length);
     }
     return result;
   }

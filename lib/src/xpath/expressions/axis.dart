@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+
 import '../../xml/enums/node_type.dart';
 import '../../xml/extensions/ancestors.dart';
 import '../../xml/extensions/descendants.dart';
@@ -6,85 +8,75 @@ import '../../xml/extensions/preceding.dart';
 import '../../xml/extensions/sibling.dart';
 import '../../xml/nodes/node.dart';
 
+@immutable
 sealed class Axis {
+  /// Return all nodes selected by this axis in document order.
   Iterable<XmlNode> find(XmlNode node);
 }
 
+/// Marker interface for axes that are indexed in reverse document order. This
+/// includes the ancestor, ancestor-or-self, preceding, and preceding-sibling axes:
 /// https://www.w3.org/TR/1999/REC-xpath-19991116/#predicates
-/// The ancestor, ancestor-or-self, preceding, and preceding-sibling axes are reverse axes.
-/// The proximity position of a member of a node-set with respect to an axis is defined to be the position of the node in the node-set
-/// ordered in reverse document order if the axis is a reverse axis.
-sealed class ReverseAxis implements Axis {}
+@immutable
+sealed class ReverseAxis {}
 
-class AncestorAxis extends ReverseAxis {
+class AncestorAxis implements Axis, ReverseAxis {
+  const AncestorAxis();
+
   @override
-  Iterable<XmlNode> find(XmlNode node) => node.ancestors;
+  Iterable<XmlNode> find(XmlNode node) => node.ancestors.toList().reversed;
 }
 
-class AncestorOrSelfAxis extends ReverseAxis {
+class AncestorOrSelfAxis implements Axis, ReverseAxis {
+  const AncestorOrSelfAxis();
+
   @override
-  Iterable<XmlNode> find(XmlNode node) => [node].followedBy(node.ancestors);
+  Iterable<XmlNode> find(XmlNode node) =>
+      node.ancestors.toList().reversed.followedBy([node]);
 }
 
-class PrecedingAxis extends ReverseAxis {
-  @override
-  Iterable<XmlNode> find(XmlNode node) {
-    final ancestors = node.ancestors.toSet();
-    return node.preceding
-        .where(
-          (each) =>
-              !ancestors.contains(each) &&
-              each.nodeType != XmlNodeType.ATTRIBUTE,
-        )
-        .toList()
-        .reversed;
-  }
-}
+class AttributeAxis implements Axis {
+  const AttributeAxis();
 
-class PrecedingSiblingAxis extends ReverseAxis {
-  @override
-  Iterable<XmlNode> find(XmlNode node) {
-    final siblings = node.siblings;
-    final index = siblings.indexOf(node);
-    return siblings.getRange(0, index).toList().reversed;
-  }
-}
-
-class SelfAxis extends Axis {
-  @override
-  Iterable<XmlNode> find(XmlNode node) => [node];
-}
-
-class AttributeAxis extends Axis {
   @override
   Iterable<XmlNode> find(XmlNode node) => node.attributes;
 }
 
-class ChildAxis extends Axis {
+class ChildAxis implements Axis {
+  const ChildAxis();
+
   @override
   Iterable<XmlNode> find(XmlNode node) => node.children;
 }
 
-class DescendantAxis extends Axis {
+class DescendantAxis implements Axis {
+  const DescendantAxis();
+
   @override
   Iterable<XmlNode> find(XmlNode node) =>
       node.descendants.where((each) => each.nodeType != XmlNodeType.ATTRIBUTE);
 }
 
-class DescendantOrSelfAxis extends Axis {
+class DescendantOrSelfAxis implements Axis {
+  const DescendantOrSelfAxis();
+
   @override
   Iterable<XmlNode> find(XmlNode node) => [node].followedBy(
     node.descendants.where((each) => each.nodeType != XmlNodeType.ATTRIBUTE),
   );
 }
 
-class FollowingAxis extends Axis {
+class FollowingAxis implements Axis {
+  const FollowingAxis();
+
   @override
   Iterable<XmlNode> find(XmlNode node) =>
       node.following.where((each) => each.nodeType != XmlNodeType.ATTRIBUTE);
 }
 
-class FollowingSiblingAxis extends Axis {
+class FollowingSiblingAxis implements Axis {
+  const FollowingSiblingAxis();
+
   @override
   Iterable<XmlNode> find(XmlNode node) {
     final siblings = node.siblings;
@@ -93,10 +85,43 @@ class FollowingSiblingAxis extends Axis {
   }
 }
 
-class ParentAxis extends Axis {
+class ParentAxis implements Axis {
+  const ParentAxis();
+
   @override
   Iterable<XmlNode> find(XmlNode node) {
     final parent = node.parent;
     return parent == null ? [] : [parent];
   }
+}
+
+class PrecedingAxis implements Axis, ReverseAxis {
+  const PrecedingAxis();
+
+  @override
+  Iterable<XmlNode> find(XmlNode node) {
+    final ancestors = node.ancestors.toSet();
+    return node.preceding.where(
+      (each) =>
+          !ancestors.contains(each) && each.nodeType != XmlNodeType.ATTRIBUTE,
+    );
+  }
+}
+
+class PrecedingSiblingAxis implements Axis, ReverseAxis {
+  const PrecedingSiblingAxis();
+
+  @override
+  Iterable<XmlNode> find(XmlNode node) {
+    final siblings = node.siblings;
+    final index = siblings.indexOf(node);
+    return siblings.getRange(0, index);
+  }
+}
+
+class SelfAxis implements Axis {
+  const SelfAxis();
+
+  @override
+  Iterable<XmlNode> find(XmlNode node) => [node];
 }
