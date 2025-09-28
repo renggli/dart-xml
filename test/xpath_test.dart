@@ -1390,35 +1390,35 @@ void main() {
       /// 1. anyStep (selfStep | attributeStep)*
       /// 2. (selfStep | childStep)+ (descendantStep | descendantOrSelfStep)? (selfStep | attributeStep)*
       expect(
-        PathExpression([
-          const Step(AncestorOrSelfAxis()),
-          const Step(SelfAxis()),
-          const Step(SelfAxis()),
-          const Step(AttributeAxis(), QualifiedNameNodeTest('id')),
+        PathExpression(const [
+          Step(AncestorOrSelfAxis()),
+          Step(SelfAxis()),
+          Step(SelfAxis()),
+          Step(AttributeAxis(), QualifiedNameNodeTest('id')),
         ], isAbsolute: true).isOrderPreserved,
         isTrue,
       );
       expect(
-        PathExpression([
-          const Step(ChildAxis()),
-          const Step(ChildAxis()),
-          const Step(SelfAxis()),
-          const Step(DescendantAxis()),
-          const Step(SelfAxis()),
-          const Step(SelfAxis()),
-          const Step(AttributeAxis(), QualifiedNameNodeTest('id')),
+        PathExpression(const [
+          Step(ChildAxis()),
+          Step(ChildAxis()),
+          Step(SelfAxis()),
+          Step(DescendantAxis()),
+          Step(SelfAxis()),
+          Step(SelfAxis()),
+          Step(AttributeAxis(), QualifiedNameNodeTest('id')),
         ], isAbsolute: false).isOrderPreserved,
         isTrue,
       );
       expect(
-        PathExpression([
-          const Step(ChildAxis()),
-          const Step(ChildAxis()),
-          const Step(SelfAxis()),
-          const Step(DescendantOrSelfAxis()),
-          const Step(SelfAxis()),
-          const Step(SelfAxis()),
-          const Step(AttributeAxis(), QualifiedNameNodeTest('id')),
+        PathExpression(const [
+          Step(ChildAxis()),
+          Step(ChildAxis()),
+          Step(SelfAxis()),
+          Step(DescendantOrSelfAxis()),
+          Step(SelfAxis()),
+          Step(SelfAxis()),
+          Step(AttributeAxis(), QualifiedNameNodeTest('id')),
         ], isAbsolute: false).isOrderPreserved,
         isTrue,
       );

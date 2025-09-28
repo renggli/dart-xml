@@ -5,7 +5,7 @@ import '../evaluation/values.dart';
 import '../exceptions/evaluation_exception.dart';
 
 class StaticFunctionExpression implements XPathExpression {
-  StaticFunctionExpression(this.name, this.function, this.arguments);
+  const StaticFunctionExpression(this.name, this.function, this.arguments);
 
   final String name; // just for debugging
   final XPathFunction function;
@@ -16,7 +16,7 @@ class StaticFunctionExpression implements XPathExpression {
 }
 
 class DynamicFunctionExpression implements XPathExpression {
-  DynamicFunctionExpression(this.name, this.arguments);
+  const DynamicFunctionExpression(this.name, this.arguments);
 
   final String name;
   final List<XPathExpression> arguments;

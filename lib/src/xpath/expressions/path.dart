@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+
 import '../../xml/extensions/parent.dart';
 import '../../xml/nodes/node.dart';
 import '../evaluation/context.dart';
@@ -7,6 +9,7 @@ import 'axis.dart';
 import 'node_test.dart';
 import 'step.dart';
 
+@immutable
 class PathExpression implements XPathExpression {
   factory PathExpression(List<Step> steps, {required bool isAbsolute}) {
     if (steps.isEmpty) {
@@ -24,36 +27,27 @@ class PathExpression implements XPathExpression {
       if (last.axis is DescendantOrSelfAxis &&
           last.nodeTest is NodeTypeNodeTest &&
           last.predicates.isEmpty) {
-        /// Try to merge the '//' step with the next step:
-        /// - '//' + child::x => descendant::x
-        /// - '//' + descendant::x => descendant::x
-        /// - '//' + self::x => descendant-or-self::x
-        /// - '//' + descendant-or-self::x => descendant-or-self::x
+        // Try to merge the '//' step with the next step:
         switch (step.axis) {
+          // child::x => descendant::x
           case ChildAxis():
             merged = Step(
               const DescendantAxis(),
               step.nodeTest,
               step.predicates,
             );
-          case DescendantAxis():
-            merged = Step(
-              const DescendantAxis(),
-              step.nodeTest,
-              step.predicates,
-            );
+          // self::x => descendant-or-self::x
           case SelfAxis():
             merged = Step(
               const DescendantOrSelfAxis(),
               step.nodeTest,
               step.predicates,
             );
+          // descendant::x => descendant::x
+          case DescendantAxis():
+          // descendant-or-self::x => descendant-or-self::x
           case DescendantOrSelfAxis():
-            merged = Step(
-              const DescendantOrSelfAxis(),
-              step.nodeTest,
-              step.predicates,
-            );
+            merged = step;
           default:
         }
       }
@@ -65,53 +59,54 @@ class PathExpression implements XPathExpression {
       }
     }
 
-    /// The resulting nodes' document order and uniqueness is preserved,
-    /// if the steps match the following patterns:
-    /// 1. anyStep (selfStep | attributeStep)*
-    /// 2. (selfStep | childStep)+ (descendantStep | descendantOrSelfStep)? (selfStep | attributeStep)*
-    ///
-    /// Proof:
-    ///
-    /// Suppose we have node-set S_prev which is the result of the previous step and it's in document order.
-    /// And we are going to apply step f to it, where f is at least the second step obviously, then we get node-set S_next = f(S_prev).
-    ///
-    /// For any node pair i, j in S_next, where i comes before j in S_next, we need to prove that i comes before j in document order (1).
-    ///
-    /// Let's denote any nodes in S_prev that generate i and j as i' and j' respectively.
-    /// If i' = j', then i comes before j in document order because step f is a forward step, so (1) is true.
-    /// So we only need to discuss the case where **i' != j'**.
-    ///
-    /// To prove (1), we need to prove that:
-    /// - i' comes not after j' in S_prev (2)
-    /// - all nodes in f(i') come before all nodes in f(j') in document order (3).
-    ///
-    /// If i' comes after j' and we still get i before j in S_next, that means both f(i') and f(j') will produce i (4).
-    /// To prove (2), we just need to prove that (4) is impossible.
-    ///
-    /// Let's discuss each pattern:
-    ///
-    /// **Pattern 1**
-    /// Step f can only be selfStep or attributeStep.
-    /// For such step f, f(i') and f(j') cannot produce the same node i, so (4) is impossible and (2) is true.
-    /// Now that i' comes before j' in S_prev, we have:
-    /// - If f is selfStep, then i = i' and j = j', so (3) is true.
-    /// - If f is attributeStep, then all attributes of i' must come before all attributes of j' in document order, so (3) is true.
-    ///
-    /// **Pattern 2**
-    /// We only need to discuss a simpler form of pattern2:
-    /// - (selfStep | childStep)+ (descendantStep | descendantOrSelfStep)?
-    /// Because if this simpler form will produce nodes in document order, then these steps can be viewed as a single complex step.
-    /// Adding `(selfStep | attributeStep)*` after it is the same as pattern 1, which has been proved.
-    /// So step f can be selfStep, childStep, descendantStep, or descendantOrSelfStep.
-    /// For selfStep, the proof is the same as pattern 1.
-    /// And after all the steps before f, the resulting nodes have the same depth, which means j' cannot be the descendant of i' and vice versa (5).
-    /// For descendantOrSelfStep:
-    /// - Because of (5), f(i') and f(j') cannot produce the same node i, so (4) is impossible and (2) is true.
-    /// - Because of (2) and (5), all nodes in f(i') must come before all nodes in f(j') in document order, so (3) is true.
-    /// Same proof applies to descendantStep and childStep.
-    ///
-    /// So for all the patterns, (2) and (3) are true, so (1) is true.
-    /// By induction, the document order and uniqueness is preserved after applying all the steps.
+    // The resulting nodes' document order and uniqueness is preserved,
+    // if the steps match the following patterns:
+    //
+    // 1. anyStep (selfStep | attributeStep)*
+    // 2. (selfStep | childStep)+ (descendantStep | descendantOrSelfStep)? (selfStep | attributeStep)*
+    //
+    // Proof:
+    //
+    // Suppose we have node-set S_prev which is the result of the previous step and it's in document order.
+    // And we are going to apply step f to it, where f is at least the second step obviously, then we get node-set S_next = f(S_prev).
+    //
+    // For any node pair i, j in S_next, where i comes before j in S_next, we need to prove that i comes before j in document order (1).
+    //
+    // Let's denote any nodes in S_prev that generate i and j as i' and j' respectively.
+    // If i' = j', then i comes before j in document order because step f is a forward step, so (1) is true.
+    // So we only need to discuss the case where **i' != j'**.
+    //
+    // To prove (1), we need to prove that:
+    // - i' comes not after j' in S_prev (2)
+    // - all nodes in f(i') come before all nodes in f(j') in document order (3).
+    //
+    // If i' comes after j' and we still get i before j in S_next, that means both f(i') and f(j') will produce i (4).
+    // To prove (2), we just need to prove that (4) is impossible.
+    //
+    // Let's discuss each pattern:
+    //
+    // **Pattern 1**
+    // Step f can only be selfStep or attributeStep.
+    // For such step f, f(i') and f(j') cannot produce the same node i, so (4) is impossible and (2) is true.
+    // Now that i' comes before j' in S_prev, we have:
+    // - If f is selfStep, then i = i' and j = j', so (3) is true.
+    // - If f is attributeStep, then all attributes of i' must come before all attributes of j' in document order, so (3) is true.
+    //
+    // **Pattern 2**
+    // We only need to discuss a simpler form of pattern2:
+    // - (selfStep | childStep)+ (descendantStep | descendantOrSelfStep)?
+    // Because if this simpler form will produce nodes in document order, then these steps can be viewed as a single complex step.
+    // Adding `(selfStep | attributeStep)*` after it is the same as pattern 1, which has been proved.
+    // So step f can be selfStep, childStep, descendantStep, or descendantOrSelfStep.
+    // For selfStep, the proof is the same as pattern 1.
+    // And after all the steps before f, the resulting nodes have the same depth, which means j' cannot be the descendant of i' and vice versa (5).
+    // For descendantOrSelfStep:
+    // - Because of (5), f(i') and f(j') cannot produce the same node i, so (4) is impossible and (2) is true.
+    // - Because of (2) and (5), all nodes in f(i') must come before all nodes in f(j') in document order, so (3) is true.
+    // Same proof applies to descendantStep and childStep.
+    //
+    // So for all the patterns, (2) and (3) are true, so (1) is true.
+    // By induction, the document order and uniqueness is preserved after applying all the steps.
     bool isPattern1() {
       for (var i = 1; i < optimizedSteps.length; i++) {
         final step = optimizedSteps[i];
@@ -170,19 +165,15 @@ class PathExpression implements XPathExpression {
       return XPathNodeSet([context.node.root]);
     }
     Iterable<XmlNode> nodes = isAbsolute ? [context.node.root] : [context.node];
-    final ctx = context.copy();
+    final inner = context.copy();
     for (final step in steps) {
       final innerNodes = <XmlNode>[];
       for (final node in nodes) {
-        ctx.node = node;
-        final ret = step.find(ctx);
-        innerNodes.addAll(ret);
+        inner.node = node;
+        final result = step.find(inner);
+        innerNodes.addAll(result);
       }
-      if (isOrderPreserved) {
-        nodes = innerNodes;
-      } else {
-        nodes = innerNodes.toSet();
-      }
+      nodes = isOrderPreserved ? innerNodes : innerNodes.toSet();
     }
     return XPathNodeSet(nodes, isSortedAndUnique: isOrderPreserved);
   }
