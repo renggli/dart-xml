@@ -12,29 +12,35 @@ import 'package:xml/xpath.dart';
 import 'utils/examples.dart';
 import 'utils/matchers.dart';
 
+dynamic isXmlNode(dynamic value) => value is String
+    ? isA<XmlNode>().having((node) => node.outerXml, 'outerXml', value)
+    : value;
+
 void expectXPath(
   XmlNode? node,
   String expression,
   dynamic matcher, {
+  Map<int, dynamic> indexed = const {},
   Map<String, XPathValue> variables = const {},
   Map<String, XPathFunction> functions = const {},
-}) => expect(
-  node!.xpath(expression, variables: variables, functions: functions),
-  matcher is Iterable
-      ? orderedEquals(
-          matcher.map(
-            (each) => each is String
-                ? isA<XmlNode>().having(
-                    (node) => node.outerXml,
-                    'outerXml',
-                    each,
-                  )
-                : each,
-          ),
-        )
-      : matcher,
-  reason: expression,
-);
+}) {
+  expect(node, isNotNull);
+  expect(
+    node!.xpath(expression, variables: variables, functions: functions),
+    matcher is Iterable
+        ? orderedEquals(matcher.map(isXmlNode))
+        : isXmlNode(matcher),
+    reason: expression,
+  );
+  for (final MapEntry(key: index, value: matcher) in indexed.entries) {
+    final indexedExpression = '$expression[$index]';
+    expect(
+      node.xpath(indexedExpression, variables: variables, functions: functions),
+      orderedEquals([isXmlNode(matcher)]),
+      reason: indexedExpression,
+    );
+  }
+}
 
 void expectEvaluate(
   XmlNode? node,
@@ -723,8 +729,8 @@ void main() {
   group('axis', () {
     const input =
         '<?xml version="1.0"?>'
-        '<r><a1><b1/></a1><a2 b1="1" b2="2"><c1/><c2>'
-        '<d1></d1></c2></a2><a3><b2/></a3></r>';
+        '<r><a0/><a1><b1/></a1><a2 b1="1" b2="2"><c1/><c2>'
+        '<d1></d1></c2></a2><a3><b2/></a3><a4/></r>';
     final document = XmlDocument.parse(input);
     final current = document.findAllElements('a2').single;
     test('..', () {
@@ -743,65 +749,138 @@ void main() {
       expectXPath(current, '/*', [document.rootElement]);
     });
     test('//*', () {
-      expectXPath(current, '//*', [
-        document.rootElement,
-        '<a1><b1/></a1>',
-        '<b1/>',
-        '<a2 b1="1" b2="2"><c1/><c2><d1></d1></c2></a2>',
-        '<c1/>',
-        '<c2><d1></d1></c2>',
-        '<d1></d1>',
-        '<a3><b2/></a3>',
-        '<b2/>',
-      ]);
+      expectXPath(
+        current,
+        '//*',
+        [
+          document.rootElement,
+          '<a0/>',
+          '<a1><b1/></a1>',
+          '<b1/>',
+          '<a2 b1="1" b2="2"><c1/><c2><d1></d1></c2></a2>',
+          '<c1/>',
+          '<c2><d1></d1></c2>',
+          '<d1></d1>',
+          '<a3><b2/></a3>',
+          '<b2/>',
+          '<a4/>',
+        ],
+        indexed: {
+          1: document.rootElement,
+          2: '<a0/>',
+          3: '<a1><b1/></a1>',
+          4: '<b1/>',
+          5: '<a2 b1="1" b2="2"><c1/><c2><d1></d1></c2></a2>',
+          6: '<c1/>',
+          7: '<c2><d1></d1></c2>',
+          8: '<d1></d1>',
+          9: '<a3><b2/></a3>',
+          10: '<b2/>',
+          11: '<a4/>',
+        },
+      );
     });
     test('@*', () {
-      expectXPath(current, '@*', ['b1="1"', 'b2="2"']);
+      expectXPath(
+        current,
+        '@*',
+        ['b1="1"', 'b2="2"'],
+        indexed: {1: 'b1="1"', 2: 'b2="2"'},
+      );
     });
     test('ancestor::*', () {
       expectXPath(current, 'ancestor::*', [document.rootElement]);
+      expectXPath(
+        current.firstElementChild,
+        'ancestor::*',
+        [document.rootElement, current],
+        indexed: {1: current, 2: document.rootElement},
+      );
     });
     test('ancestor-or-self::*', () {
-      expectXPath(current, 'ancestor-or-self::*', [
-        document.rootElement,
+      expectXPath(
         current,
-      ]);
+        'ancestor-or-self::*',
+        [document.rootElement, current],
+        indexed: {1: current, 2: document.rootElement},
+      );
     });
     test('attribute::*', () {
-      expectXPath(current, 'attribute::*', ['b1="1"', 'b2="2"']);
+      expectXPath(
+        current,
+        'attribute::*',
+        ['b1="1"', 'b2="2"'],
+        indexed: {1: 'b1="1"', 2: 'b2="2"'},
+      );
     });
     test('child::*', () {
-      expectXPath(current, 'child::*', ['<c1/>', '<c2><d1></d1></c2>']);
+      expectXPath(
+        current,
+        'child::*',
+        ['<c1/>', '<c2><d1></d1></c2>'],
+        indexed: {1: '<c1/>', 2: '<c2><d1></d1></c2>'},
+      );
     });
     test('descendant::*', () {
-      expectXPath(current, 'descendant::*', [
-        '<c1/>',
-        '<c2><d1></d1></c2>',
-        '<d1></d1>',
-      ]);
+      expectXPath(
+        current,
+        'descendant::*',
+        ['<c1/>', '<c2><d1></d1></c2>', '<d1></d1>'],
+        indexed: {1: '<c1/>', 2: '<c2><d1></d1></c2>', 3: '<d1></d1>'},
+      );
     });
     test('descendant-or-self::*', () {
-      expectXPath(current, 'descendant-or-self::*', [
-        '<a2 b1="1" b2="2"><c1/><c2><d1></d1></c2></a2>',
-        '<c1/>',
-        '<c2><d1></d1></c2>',
-        '<d1></d1>',
-      ]);
+      expectXPath(
+        current,
+        'descendant-or-self::*',
+        [
+          '<a2 b1="1" b2="2"><c1/><c2><d1></d1></c2></a2>',
+          '<c1/>',
+          '<c2><d1></d1></c2>',
+          '<d1></d1>',
+        ],
+        indexed: {
+          1: '<a2 b1="1" b2="2"><c1/><c2><d1></d1></c2></a2>',
+          2: '<c1/>',
+          3: '<c2><d1></d1></c2>',
+          4: '<d1></d1>',
+        },
+      );
     });
     test('following::*', () {
-      expectXPath(current, 'following::*', ['<a3><b2/></a3>', '<b2/>']);
+      expectXPath(
+        current,
+        'following::*',
+        ['<a3><b2/></a3>', '<b2/>', '<a4/>'],
+        indexed: {1: '<a3><b2/></a3>', 2: '<b2/>', 3: '<a4/>'},
+      );
     });
     test('following-sibling::*', () {
-      expectXPath(current, 'following-sibling::*', ['<a3><b2/></a3>']);
+      expectXPath(
+        current,
+        'following-sibling::*',
+        ['<a3><b2/></a3>', '<a4/>'],
+        indexed: {1: '<a3><b2/></a3>', 2: '<a4/>'},
+      );
     });
     test('parent::*', () {
       expectXPath(current, 'parent::*', [document.rootElement]);
     });
     test('preceding::*', () {
-      expectXPath(current, 'preceding::*', ['<a1><b1/></a1>', '<b1/>']);
+      expectXPath(
+        current,
+        'preceding::*',
+        ['<a0/>', '<a1><b1/></a1>', '<b1/>'],
+        indexed: {1: '<b1/>', 2: '<a1><b1/></a1>', 3: '<a0/>'},
+      );
     });
     test('preceding-sibling::*', () {
-      expectXPath(current, 'preceding-sibling::*', ['<a1><b1/></a1>']);
+      expectXPath(
+        current,
+        'preceding-sibling::*',
+        ['<a0/>', '<a1><b1/></a1>'],
+        indexed: {1: '<a1><b1/></a1>', 2: '<a0/>'},
+      );
     });
     test('self::*', () {
       expectXPath(current, 'self::*', [
