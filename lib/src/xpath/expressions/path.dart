@@ -7,10 +7,14 @@ import 'step/node_test.dart';
 import 'step/step.dart';
 
 class PathExpression implements XPathExpression {
-  factory PathExpression(List<Step> steps, bool isAbsolute) {
+  factory PathExpression(List<Step> steps, {required bool isAbsolute}) {
     if (steps.isEmpty) {
       assert(isAbsolute);
-      return const PathExpression._([], true, true);
+      return const PathExpression._(
+        [],
+        isAbsolute: true,
+        isOrderPreserved: true,
+      );
     }
     final optimizedSteps = <Step>[steps.first];
     for (final step in steps.skip(1)) {
@@ -28,7 +32,7 @@ class PathExpression implements XPathExpression {
           case ChildAxis():
             merged = Step(DescendantAxis(), step.nodeTest, step.predicates);
           case DescendantAxis():
-            merged = step;
+            merged = Step(DescendantAxis(), step.nodeTest, step.predicates);
           case SelfAxis():
             merged = Step(
               DescendantOrSelfAxis(),
@@ -36,7 +40,11 @@ class PathExpression implements XPathExpression {
               step.predicates,
             );
           case DescendantOrSelfAxis():
-            merged = step;
+            merged = Step(
+              DescendantOrSelfAxis(),
+              step.nodeTest,
+              step.predicates,
+            );
           default:
         }
       }
@@ -51,7 +59,7 @@ class PathExpression implements XPathExpression {
     /// The resulting nodes' document order and uniqueness is preserved,
     /// if the steps match the following patterns:
     /// 1. anyStep (selfStep | attributeStep)*
-    /// 2. (selfStep | attributeStep | childStep)+ (descendantStep | descendantOrSelfStep)?
+    /// 2. (selfStep | childStep)+ (descendantStep | descendantOrSelfStep)? (selfStep | attributeStep)*
     ///
     /// Proof:
     ///
@@ -81,8 +89,12 @@ class PathExpression implements XPathExpression {
     /// - If f is attributeStep, then all attributes of i' must come before all attributes of j' in document order, so (3) is true.
     ///
     /// **Pattern 2**
-    /// Step f can be selfStep, attributeStep, childStep, descendantStep, or descendantOrSelfStep.
-    /// For selfStep and attributeStep, the proof is the same as pattern 1.
+    /// We only need to discuss a simpler form of pattern2:
+    /// - (selfStep | childStep)+ (descendantStep | descendantOrSelfStep)?
+    /// Because if this simpler form will produce nodes in document order, then these steps can be viewed as a single complex step.
+    /// Adding `(selfStep | attributeStep)*` after it is the same as pattern 1, which has been proved.
+    /// So step f can be selfStep, childStep, descendantStep, or descendantOrSelfStep.
+    /// For selfStep, the proof is the same as pattern 1.
     /// And after all the steps before f, the resulting nodes have the same depth, which means j' cannot be the descendant of i' and vice versa (5).
     /// For descendantOrSelfStep:
     /// - Because of (5), f(i') and f(j') cannot produce the same node i, so (4) is impossible and (2) is true.
@@ -109,22 +121,33 @@ class PathExpression implements XPathExpression {
           break;
         }
       }
-      if (i == optimizedSteps.length) return true;
-      if (i == optimizedSteps.length - 1) {
+      if (i < optimizedSteps.length) {
         final axis = optimizedSteps[i].axis;
-        return axis is DescendantAxis || axis is DescendantOrSelfAxis;
+        if (axis is DescendantAxis || axis is DescendantOrSelfAxis) {
+          i++;
+        }
       }
-      return false;
+      for (; i < optimizedSteps.length; i++) {
+        final axis = optimizedSteps[i].axis;
+        if (axis is! SelfAxis && axis is! AttributeAxis) {
+          return false;
+        }
+      }
+      return true;
     }
 
     return PathExpression._(
       optimizedSteps,
-      isAbsolute,
-      isPattern1() || isPattern2(),
+      isAbsolute: isAbsolute,
+      isOrderPreserved: isPattern1() || isPattern2(),
     );
   }
 
-  const PathExpression._(this.steps, this.isAbsolute, this.isOrderPreserved);
+  const PathExpression._(
+    this.steps, {
+    required this.isAbsolute,
+    required this.isOrderPreserved,
+  });
 
   final List<Step> steps;
   final bool isAbsolute;
@@ -143,7 +166,7 @@ class PathExpression implements XPathExpression {
       final innerNodes = <XmlNode>[];
       for (final node in nodes) {
         ctx.node = node;
-        final ret = step(ctx);
+        final ret = step.find(ctx);
         innerNodes.addAll(ret);
       }
       if (isOrderPreserved) {
