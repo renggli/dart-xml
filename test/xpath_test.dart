@@ -1356,28 +1356,24 @@ void main() {
         expect(actualStep.predicates, step.predicates);
       }
 
-      final predicates = [Predicate(const XPathBoolean(true))];
+      const predicates = [Predicate(XPathBoolean(true))];
 
       expectOptimized(
-        Step(const ChildAxis(), const QualifiedNameNodeTest('x'), predicates),
+        const Step(ChildAxis(), QualifiedNameNodeTest('x'), predicates),
         const DescendantAxis(),
       );
       expectOptimized(
-        Step(
-          const DescendantAxis(),
-          const QualifiedNameNodeTest('x'),
-          predicates,
-        ),
+        const Step(DescendantAxis(), QualifiedNameNodeTest('x'), predicates),
         const DescendantAxis(),
       );
       expectOptimized(
-        Step(const SelfAxis(), const QualifiedNameNodeTest('x'), predicates),
+        const Step(SelfAxis(), QualifiedNameNodeTest('x'), predicates),
         const DescendantOrSelfAxis(),
       );
       expectOptimized(
-        Step(
-          const DescendantOrSelfAxis(),
-          const QualifiedNameNodeTest('x'),
+        const Step(
+          DescendantOrSelfAxis(),
+          QualifiedNameNodeTest('x'),
           predicates,
         ),
         const DescendantOrSelfAxis(),

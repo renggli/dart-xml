@@ -1,9 +1,12 @@
+import 'package:meta/meta.dart';
+
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../evaluation/values.dart';
 
+@immutable
 class Predicate {
-  Predicate(this.expression);
+  const Predicate(this.expression);
 
   final XPathExpression expression;
 
