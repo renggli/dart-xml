@@ -73,9 +73,10 @@ class XPathParser {
   ].toChoiceParser();
 
   Parser<List<Step>> absolutePath() => [
-    seq2(_t('//'), ref0(relativePath)).map2(
-      (_, steps) => [Step.abbrevAxisStep(DescendantOrSelfAxis()), ...steps],
-    ),
+    seq2(
+      _t('//'),
+      ref0(relativePath),
+    ).map2((_, steps) => [Step(DescendantOrSelfAxis()), ...steps]),
     seq2(
       _t('/'),
       ref0(relativePath).optionalWith([]),
@@ -89,7 +90,7 @@ class XPathParser {
         for (var i = 1; i < list.elements.length; i++) {
           final sep = list.separators[i - 1];
           if (sep == '//') {
-            steps.add(Step.abbrevAxisStep(DescendantOrSelfAxis()));
+            steps.add(Step(DescendantOrSelfAxis()));
           }
           steps.add(list.elements[i]);
         }
@@ -105,8 +106,8 @@ class XPathParser {
   ].toChoiceParser();
 
   Parser<Step> abbrevStep() => [
-    _t('..').map((_) => Step.abbrevAxisStep(ParentAxis())),
-    _t('.').map((_) => Step.abbrevAxisStep(SelfAxis())),
+    _t('..').map((_) => Step(ParentAxis())),
+    _t('.').map((_) => Step(SelfAxis())),
   ].toChoiceParser();
 
   Parser<Axis> axis() => [

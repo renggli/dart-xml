@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:meta/meta.dart';
 
 import '../../xml/nodes/node.dart';
 import '../evaluation/context.dart';
@@ -6,12 +7,13 @@ import 'axis.dart';
 import 'node_test.dart';
 import 'predicate.dart';
 
+@immutable
 class Step {
-  const Step(this.axis, this.nodeTest, this.predicates);
-
-  Step.abbrevAxisStep(this.axis)
-    : nodeTest = const NodeTypeNodeTest(),
-      predicates = const [];
+  const Step(
+    this.axis, [
+    this.nodeTest = const NodeTypeNodeTest(),
+    this.predicates = const [],
+  ]);
 
   final Axis axis;
   final NodeTest nodeTest;
@@ -25,15 +27,15 @@ class Step {
         result.add(node);
       }
     }
-    final ctx = context.copy();
+    final inner = context.copy();
+    inner.last = result.length;
     for (final predicate in predicates) {
-      ctx.last = result.length;
       final matched = <XmlNode>[];
       for (var i = 0; i < result.length; i++) {
-        ctx.node = result[i];
-        ctx.position = i + 1;
-        if (predicate.matches(ctx)) {
-          matched.add(ctx.node);
+        inner.node = result[i];
+        inner.position = i + 1;
+        if (predicate.matches(inner)) {
+          matched.add(inner.node);
         }
       }
       result = matched;
