@@ -1,7 +1,11 @@
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
-import '../../../xml.dart';
+import '../../xml/extensions/comparison.dart';
+import '../../xml/nodes/document.dart';
+import '../../xml/nodes/element.dart';
+import '../../xml/nodes/node.dart';
+import '../../xml/nodes/text.dart';
 import 'context.dart';
 import 'expression.dart';
 

@@ -1,4 +1,4 @@
-import '../../../xml_events.dart';
+import '../../../xml_events.dart' show XmlNodeDecoder, XmlNodeType, parseEvents;
 import '../builder.dart';
 import '../entities/entity_mapping.dart';
 import '../exceptions/parser_exception.dart';

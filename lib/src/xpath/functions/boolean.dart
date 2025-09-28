@@ -1,4 +1,4 @@
-import '../../../xml.dart';
+import '../../xml/extensions/ancestors.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../evaluation/values.dart';

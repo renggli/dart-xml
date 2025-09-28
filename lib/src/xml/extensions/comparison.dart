@@ -1,5 +1,9 @@
-import '../../../xml.dart';
+import '../mixins/has_name.dart';
 import '../nodes/data.dart';
+import '../nodes/doctype.dart';
+import '../nodes/node.dart';
+import '../nodes/processing.dart';
+import 'parent.dart';
 
 extension XmlComparisonExtension on XmlNode {
   /// Tests whether this node is equal to [other].

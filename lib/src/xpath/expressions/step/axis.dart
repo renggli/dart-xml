@@ -1,4 +1,10 @@
-import '../../../../xml.dart';
+import '../../../xml/enums/node_type.dart';
+import '../../../xml/extensions/ancestors.dart';
+import '../../../xml/extensions/descendants.dart';
+import '../../../xml/extensions/following.dart';
+import '../../../xml/extensions/preceding.dart';
+import '../../../xml/extensions/sibling.dart';
+import '../../../xml/nodes/node.dart';
 import 'utils.dart';
 
 sealed class Axis {

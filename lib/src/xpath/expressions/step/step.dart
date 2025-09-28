@@ -1,4 +1,4 @@
-import '../../../../xml.dart';
+import '../../../xml/nodes/node.dart';
 import '../../evaluation/context.dart';
 import 'axis.dart';
 import 'node_test.dart';

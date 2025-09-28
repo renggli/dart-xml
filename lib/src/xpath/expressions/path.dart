@@ -1,4 +1,5 @@
-import '../../../xml.dart';
+import '../../xml/extensions/parent.dart';
+import '../../xml/nodes/node.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../evaluation/values.dart';

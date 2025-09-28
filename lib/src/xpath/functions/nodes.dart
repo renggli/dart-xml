@@ -1,4 +1,7 @@
-import '../../../xml.dart';
+import '../../xml/extensions/descendants.dart';
+import '../../xml/extensions/parent.dart';
+import '../../xml/extensions/string.dart';
+import '../../xml/mixins/has_name.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../evaluation/values.dart';
