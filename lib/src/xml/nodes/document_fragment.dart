@@ -1,4 +1,5 @@
 import '../../../xml_events.dart';
+import '../builder.dart';
 import '../entities/entity_mapping.dart';
 import '../exceptions/parser_exception.dart';
 import '../mixins/has_children.dart';
@@ -22,6 +23,16 @@ class XmlDocumentFragment extends XmlNode with XmlHasChildren<XmlNode> {
       validateNesting: true,
     );
     return XmlDocumentFragment(const XmlNodeDecoder().convertIterable(events));
+  }
+
+  /// Returns an [XmlDocumentFragment] built from calling the provided `callback`
+  /// with an [XmlBuilder].
+  factory XmlDocumentFragment.build(
+    void Function(XmlBuilder builder) callback,
+  ) {
+    final builder = XmlBuilder();
+    callback(builder);
+    return builder.buildFragment();
   }
 
   /// Create a document fragment node with `children`.

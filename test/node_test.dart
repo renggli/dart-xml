@@ -86,6 +86,17 @@ void main() {
       expect(node.isSelfClosing, isFalse);
       expect(node.toString(), '<data></data>');
     });
+    test('builder', () {
+      final document = XmlDocument.build((builder) {
+        builder.declaration();
+        builder.element('root', nest: 'Hello World');
+      });
+      assertDocumentInvariants(document);
+      expect(
+        document.toXmlString(),
+        '<?xml version="1.0"?><root>Hello World</root>',
+      );
+    });
     test('nested', () {
       final document = XmlDocument.parse('<outer><inner/></outer>');
       final outer = document.rootElement;
@@ -644,7 +655,7 @@ void main() {
   group('document fragment', () {
     test('basic', () {
       final node = XmlDocumentFragment.parse('<!--Am I a joke to you?-->No');
-      assertCopyInvariants(node);
+      assertFragmentInvariants(node);
       expect(node.parent, isNull);
       expect(node.parentElement, isNull);
       expect(node.root, node);
@@ -660,7 +671,7 @@ void main() {
     });
     test('empty', () {
       final node = XmlDocumentFragment();
-      assertCopyInvariants(node);
+      assertFragmentInvariants(node);
       expect(node.parent, isNull);
       expect(node.parentElement, isNull);
       expect(node.root, node);
@@ -673,6 +684,14 @@ void main() {
       expect(node.text, '');
       expect(node.nodeType, XmlNodeType.DOCUMENT_FRAGMENT);
       expect(node.toString(), '#document-fragment');
+    });
+    test('builder', () {
+      final node = XmlDocumentFragment.build((builder) {
+        builder.element('one');
+        builder.element('two');
+      });
+      assertFragmentInvariants(node);
+      expect(node.innerXml, '<one/><two/>');
     });
   });
 }

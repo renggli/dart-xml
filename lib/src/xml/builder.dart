@@ -360,6 +360,8 @@ class XmlBuilder {
   void _insert(Object? value) {
     if (value is void Function()) {
       value();
+    } else if (value is void Function(XmlBuilder)) {
+      value(this);
     } else if (value is Iterable) {
       value.forEach(_insert);
     } else if (value is XmlNode) {

@@ -1,4 +1,5 @@
 import '../../../xml_events.dart';
+import '../builder.dart';
 import '../entities/entity_mapping.dart';
 import '../exceptions/parser_exception.dart';
 import '../exceptions/tag_exception.dart';
@@ -31,6 +32,25 @@ class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
       validateDocument: true,
     );
     return XmlDocument(const XmlNodeDecoder().convertIterable(events));
+  }
+
+  /// Returns an [XmlDocument] built from calling the provided `callback` with an
+  /// [XmlBuilder].
+  ///
+  /// For example, the following code creates a document with a single root element
+  /// and textual contents:
+  ///
+  /// ```dart
+  /// final document = XmlDocument.build((builder) {
+  ///   builder.declaration();
+  ///   builder.element('root', nest: 'Hello World');
+  /// });
+  /// print(document.toXmlString());
+  /// ```
+  factory XmlDocument.build(void Function(XmlBuilder builder) callback) {
+    final builder = XmlBuilder();
+    callback(builder);
+    return builder.buildDocument();
   }
 
   /// Create a document node with `children`.
