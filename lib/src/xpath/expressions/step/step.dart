@@ -17,7 +17,7 @@ class Step {
   final List<Predicate> predicates;
 
   /// Apply this step to the given context, returning the resulting nodes in document order.
-  List<XmlNode> call(XPathContext context) {
+  List<XmlNode> find(XPathContext context) {
     var result = <XmlNode>[];
     for (final node in axis.find(context.node)) {
       if (nodeTest.matches(node)) {

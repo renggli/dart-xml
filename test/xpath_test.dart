@@ -1,5 +1,10 @@
 import 'package:petitparser/reflection.dart';
 import 'package:test/test.dart';
+import 'package:xml/src/xpath/expressions/path.dart';
+import 'package:xml/src/xpath/expressions/step/axis.dart';
+import 'package:xml/src/xpath/expressions/step/node_test.dart';
+import 'package:xml/src/xpath/expressions/step/predicate.dart';
+import 'package:xml/src/xpath/expressions/step/step.dart';
 import 'package:xml/src/xpath/parser.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
@@ -1256,6 +1261,82 @@ void main() {
       expect(linter(parser), isEmpty);
     });
   });
+  group('path expression', () {
+    test('step optimization', () {
+      /// - '//' + child::x => descendant::x
+      /// - '//' + descendant::x => descendant::x
+      /// - '//' + self::x => descendant-or-self::x
+      /// - '//' + descendant-or-self::x => descendant-or-self::x
+      void expectOptimized(Step step, Axis newAxis) {
+        final abbrevStep = Step(DescendantOrSelfAxis(), NodeTypeNodeTest(), []);
+        final path = PathExpression([abbrevStep, step], isAbsolute: true);
+        expect(path.steps, hasLength(1));
+        final actualStep = path.steps.single;
+        expect(actualStep.axis.runtimeType, newAxis.runtimeType);
+        expect(actualStep.nodeTest, step.nodeTest);
+        expect(actualStep.predicates, step.predicates);
+      }
+
+      final predicates = [Predicate(const XPathBoolean(true))];
+
+      expectOptimized(
+        Step(ChildAxis(), QualifiedNameNodeTest('x'), predicates),
+        DescendantAxis(),
+      );
+      expectOptimized(
+        Step(DescendantAxis(), QualifiedNameNodeTest('x'), predicates),
+        DescendantAxis(),
+      );
+      expectOptimized(
+        Step(SelfAxis(), QualifiedNameNodeTest('x'), predicates),
+        DescendantOrSelfAxis(),
+      );
+      expectOptimized(
+        Step(DescendantOrSelfAxis(), QualifiedNameNodeTest('x'), predicates),
+        DescendantOrSelfAxis(),
+      );
+    });
+
+    test('order preservation', () {
+      /// The resulting nodes' document order and uniqueness is preserved,
+      /// if the steps match the following patterns:
+      /// 1. anyStep (selfStep | attributeStep)*
+      /// 2. (selfStep | childStep)+ (descendantStep | descendantOrSelfStep)? (selfStep | attributeStep)*
+      expect(
+        PathExpression([
+          Step(AncestorOrSelfAxis(), NodeTypeNodeTest(), []),
+          Step(SelfAxis(), NodeTypeNodeTest(), []),
+          Step(SelfAxis(), NodeTypeNodeTest(), []),
+          Step(AttributeAxis(), QualifiedNameNodeTest('id'), []),
+        ], isAbsolute: true).isOrderPreserved,
+        isTrue,
+      );
+      expect(
+        PathExpression([
+          Step(ChildAxis(), NodeTypeNodeTest(), []),
+          Step(ChildAxis(), NodeTypeNodeTest(), []),
+          Step(SelfAxis(), NodeTypeNodeTest(), []),
+          Step(DescendantAxis(), NodeTypeNodeTest(), []),
+          Step(SelfAxis(), NodeTypeNodeTest(), []),
+          Step(SelfAxis(), NodeTypeNodeTest(), []),
+          Step(AttributeAxis(), QualifiedNameNodeTest('id'), []),
+        ], isAbsolute: false).isOrderPreserved,
+        isTrue,
+      );
+      expect(
+        PathExpression([
+          Step(ChildAxis(), NodeTypeNodeTest(), []),
+          Step(ChildAxis(), NodeTypeNodeTest(), []),
+          Step(SelfAxis(), NodeTypeNodeTest(), []),
+          Step(DescendantOrSelfAxis(), NodeTypeNodeTest(), []),
+          Step(SelfAxis(), NodeTypeNodeTest(), []),
+          Step(SelfAxis(), NodeTypeNodeTest(), []),
+          Step(AttributeAxis(), QualifiedNameNodeTest('id'), []),
+        ], isAbsolute: false).isOrderPreserved,
+        isTrue,
+      );
+    });
+  });
   group('more', () {
     test('//*/*', () {
       final xml = XmlDocument.parse('<a><b><c/></b><d><e/></d></a>');
@@ -1276,18 +1357,6 @@ void main() {
     test('//self::*', () {
       final xml = XmlDocument.parse('<a><b/></a>');
       expectXPath(xml, '//self::*', ['<a><b/></a>', '<b/>']);
-    });
-    test('large items sorting', () {
-      final buffer = StringBuffer()..write('<r>');
-      for (var i = 1; i <= 1000; i++) {
-        buffer.write('<e id="$i"/>');
-      }
-      buffer.write('</r>');
-      final xml = XmlDocument.parse(buffer.toString());
-      // The xpath expression should be complex enough to trigger the sorting of node-set
-      expectXPath(xml, '//r/e/@id', [
-        for (var i = 1; i <= 1000; i++) 'id="$i"',
-      ]);
     });
   });
 }

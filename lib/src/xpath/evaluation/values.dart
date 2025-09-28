@@ -40,7 +40,8 @@ class XPathNodeSet implements XPathValue {
     if (isSortedAndUnique || nodes.length <= 1) {
       return XPathNodeSet._(nodes.toList(growable: false), true);
     }
-    final list = nodes.toSet().toList(growable: false);
+    final set = nodes is Set<XmlNode> ? nodes : nodes.toSet();
+    final list = set.toList(growable: false);
     return XPathNodeSet._(list, false);
   }
 
@@ -64,11 +65,7 @@ class XPathNodeSet implements XPathValue {
     if (isSorted) {
       return value;
     }
-    const threshold = 80;
-    if (value.length <= threshold) {
-      return value.sorted((a, b) => a.compareNodePosition(b));
-    }
-    return _sort();
+    return value.sorted((a, b) => a.compareNodePosition(b));
   }
 
   /// Returns itself if already sorted, otherwise returns a sorted copy.
@@ -77,68 +74,6 @@ class XPathNodeSet implements XPathValue {
       return this;
     }
     return XPathNodeSet._(sortedNodes, true);
-  }
-
-  /// Sort the nodes by traversing the LCA tree in pre-order.
-  List<XmlNode> _sort() {
-    final set = value.toSet();
-    final root = _computeLCA();
-    final stack = <XmlNode>[root];
-    final ret = <XmlNode>[];
-    while (stack.isNotEmpty) {
-      final node = stack.removeLast();
-      if (set.contains(node)) {
-        ret.add(node);
-      }
-      stack.addAll(node.children.reversed);
-      stack.addAll(node.attributes.reversed);
-    }
-    assert(ret.length == set.length);
-    return ret;
-  }
-
-  /// Compute the least common ancestor of all nodes in this set.
-  /// Time complexity is O(n) where n is the total number of distinct nodes in the paths from the tree root to each node.
-  ///
-  /// Implementation:
-  /// 1. We find the ancestors set (S) of the first node.
-  /// 2. For each node, we traverse its ancestors until we find one (x) in S.
-  /// 3. For each such x, the one with the largest distance to the first node is the LCA.
-  XmlNode _computeLCA() {
-    final ancestorToDist = <XmlNode, int>{};
-    var lca = value.first;
-    XmlNode? p = lca;
-    XmlNode? root;
-    var dist = 0;
-    while (p != null) {
-      ancestorToDist[p] = dist++;
-      root = p;
-      p = p.parent;
-    }
-    assert(root != null);
-    dist = 0;
-    final visited = <XmlNode>{lca};
-    outer:
-    for (final each in value) {
-      p = each;
-      while (!ancestorToDist.containsKey(p)) {
-        if (visited.contains(p)) {
-          continue outer;
-        }
-        visited.add(p!);
-        p = p.parent;
-        assert(p != null);
-      }
-      final curDist = ancestorToDist[p]!;
-      if (curDist > dist) {
-        dist = curDist;
-        lca = p!;
-        if (lca == root) {
-          break;
-        }
-      }
-    }
-    return lca;
   }
 
   @override

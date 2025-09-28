@@ -68,8 +68,8 @@ class XPathParser {
   }
 
   Parser<XPathExpression> path() => [
-    ref0(absolutePath).map((steps) => PathExpression(steps, true)),
-    ref0(relativePath).map((steps) => PathExpression(steps, false)),
+    ref0(absolutePath).map((steps) => PathExpression(steps, isAbsolute: true)),
+    ref0(relativePath).map((steps) => PathExpression(steps, isAbsolute: false)),
   ].toChoiceParser();
 
   Parser<List<Step>> absolutePath() => [
