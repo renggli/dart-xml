@@ -1,5 +1,3 @@
-import 'package:meta/meta.dart';
-
 import '../../xml/extensions/parent.dart';
 import '../../xml/nodes/node.dart';
 import '../evaluation/context.dart';
@@ -9,7 +7,6 @@ import 'axis.dart';
 import 'node_test.dart';
 import 'step.dart';
 
-@immutable
 class PathExpression implements XPathExpression {
   factory PathExpression(List<Step> steps, {required bool isAbsolute}) {
     if (steps.isEmpty) {

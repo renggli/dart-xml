@@ -4,7 +4,7 @@ import '../evaluation/values.dart';
 import '../exceptions/evaluation_exception.dart';
 
 class VariableExpression implements XPathExpression {
-  VariableExpression(this.name);
+  const VariableExpression(this.name);
 
   final String name;
 

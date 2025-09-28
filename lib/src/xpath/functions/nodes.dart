@@ -30,7 +30,7 @@ XPathValue id(XPathContext context, List<XPathExpression> arguments) {
   XPathEvaluationException.checkArgumentCount('id', arguments, 1);
   final object = arguments[0](context);
   final ids = object is XPathNodeSet
-      ? object.value.map((node) => node.innerText).toSet()
+      ? object.nodes.map((node) => node.innerText).toSet()
       : object.string.split(' ').toSet();
   if (ids.isEmpty) return XPathNodeSet.empty;
   // This should likely consult the DTD about the ID attribute ...
@@ -38,6 +38,7 @@ XPathValue id(XPathContext context, List<XPathExpression> arguments) {
     context.node.root.descendantElements.where(
       (element) => ids.contains(element.getAttribute('id')),
     ),
+    isSortedAndUnique: true,
   );
 }
 
