@@ -1256,6 +1256,11 @@ void main() {
         }
       });
     }
+    test('element without siblings', () {
+      final element = XmlElement.tag('node');
+      final expression = element.xpathGenerate();
+      expect(expression, 'node');
+    });
   });
   group('parser', () {
     test('linter', () {
