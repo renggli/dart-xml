@@ -38,7 +38,8 @@ XPathValue id(XPathContext context, List<XPathExpression> arguments) {
     context.node.root.descendantElements.where(
       (element) => ids.contains(element.getAttribute('id')),
     ),
-    isSortedAndUnique: true,
+    isSorted: true,
+    isUnique: true,
   );
 }
 
@@ -76,14 +77,14 @@ XPathValue name(XPathContext context, List<XPathExpression> arguments) {
 XPathValue intersect(XPathContext context, List<XPathExpression> arguments) {
   XPathEvaluationException.checkArgumentCount('intersect', arguments, 2);
   final a = arguments[0](context).nodes, b = arguments[1](context).nodes;
-  return XPathNodeSet(a.toSet().intersection(b.toSet()));
+  return XPathNodeSet(a.toSet().intersection(b.toSet()), isUnique: true);
 }
 
 // node-set except(node-set, node-set)
 XPathValue except(XPathContext context, List<XPathExpression> arguments) {
   XPathEvaluationException.checkArgumentCount('except', arguments, 2);
   final a = arguments[0](context).nodes, b = arguments[1](context).nodes;
-  return XPathNodeSet(a.toSet()..removeAll(b));
+  return XPathNodeSet(a.toSet()..removeAll(b), isUnique: true);
 }
 
 // node-set union(node-set, node-set)

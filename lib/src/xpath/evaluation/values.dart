@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
 import '../../xml/extensions/comparison.dart';
@@ -12,15 +11,8 @@ import 'expression.dart';
 /// Wrapper of XPath values.
 @immutable
 sealed class XPathValue implements XPathExpression {
-  const XPathValue();
-
-  /// Returns the **unordered** node-set of this value.
-  /// Use [sortedNodes] to get the node-set in document order.
+  /// Returns the node-set (unique and in document-order) of this value.
   Iterable<XmlNode> get nodes;
-
-  /// Returns the node-set in document order of this value.
-  /// Be aware that this can be an expensive operation.
-  Iterable<XmlNode> get sortedNodes => nodes;
 
   /// Returns the string of this value.
   String get string;
@@ -32,39 +24,39 @@ sealed class XPathValue implements XPathExpression {
   bool get boolean;
 }
 
-/// An unordered collection of nodes without duplicates
+/// Wrapper around an [Iterable] of unique [XmlNode]s in document-order.
 class XPathNodeSet implements XPathValue {
+  /// Constructs a new node-set from `nodes`. By default we assume that the
+  /// input require sorting (`isSorted = false`) and deduplication (`isUnique
+  /// = false`).
   factory XPathNodeSet(
     Iterable<XmlNode> nodes, {
-    bool isSortedAndUnique = false,
+    bool isUnique = false,
+    bool isSorted = false,
   }) {
-    if (isSortedAndUnique || nodes.length <= 1) {
-      return XPathNodeSet._(nodes.toList(growable: false), true);
+    final hasMultipleNodes = nodes.length > 1;
+    if (hasMultipleNodes && !isUnique) {
+      isSorted = false;
+      nodes = nodes.toSet();
     }
-    final set = nodes is Set<XmlNode> ? nodes : nodes.toSet();
-    final list = set.toList(growable: false);
-    return XPathNodeSet._(list, false);
+    final list = nodes.toList(growable: false);
+    if (hasMultipleNodes && !isSorted) {
+      list.sort((a, b) => a.compareNodePosition(b));
+    }
+    return XPathNodeSet._(list);
   }
 
-  const XPathNodeSet._(this.nodes, this.isSorted);
+  /// Constructs a new node-set from a single `node`.
+  factory XPathNodeSet.single(XmlNode node) => XPathNodeSet._([node]);
 
-  /// The empty node-set as a reusable object
-  static const empty = XPathNodeSet._([], true);
+  /// Constructs a node node-set from a list of unique nodes in document-order.
+  const XPathNodeSet._(this.nodes);
 
-  final bool isSorted;
+  /// The empty node-set as a reusable object.
+  static const empty = XPathNodeSet._([]);
 
   @override
   final List<XmlNode> nodes;
-
-  /// Return the nodes in document order without duplicates.
-  /// It can be an expensive operation, so call it only when necessary.
-  @override
-  List<XmlNode> get sortedNodes =>
-      isSorted ? nodes : nodes.sorted((a, b) => a.compareNodePosition(b));
-
-  /// Returns itself if already sorted, otherwise returns a sorted copy.
-  XPathNodeSet toSorted() =>
-      isSorted ? this : XPathNodeSet._(sortedNodes, true);
 
   @override
   String get string {
@@ -128,7 +120,7 @@ class XPathNodeSet implements XPathValue {
 }
 
 /// Wrapper around a [String] in XPath.
-class XPathString extends XPathValue {
+class XPathString implements XPathValue {
   const XPathString(this.string);
 
   /// The empty string as a reusable object.
@@ -155,7 +147,7 @@ class XPathString extends XPathValue {
 }
 
 /// Wrapper around a [num] in XPath.
-class XPathNumber extends XPathValue {
+class XPathNumber implements XPathValue {
   const XPathNumber(this.number);
 
   @override
@@ -179,7 +171,7 @@ class XPathNumber extends XPathValue {
 }
 
 /// Wrapper around a [bool] in XPath.
-class XPathBoolean extends XPathValue {
+class XPathBoolean implements XPathValue {
   const XPathBoolean(this.boolean);
 
   @override

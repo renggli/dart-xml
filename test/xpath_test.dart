@@ -55,7 +55,7 @@ void expectEvaluate(
 );
 
 Matcher isNodeSet(dynamic value) =>
-    isA<XPathNodeSet>().having((value) => value.sortedNodes, 'nodes', value);
+    isA<XPathNodeSet>().having((value) => value.nodes, 'nodes', value);
 
 Matcher isString(dynamic value) =>
     isA<XPathString>().having((value) => value.string, 'string', value);
@@ -145,12 +145,12 @@ void main() {
         );
         final nodes = document.rootElement.children;
         final nodeSet = XPathNodeSet([nodes[2], nodes[1], nodes[0]]);
-        expect(nodeSet.sortedNodes, nodes);
+        expect(nodeSet.nodes, nodes);
         final attributes = document.descendantElements
             .map((each) => each.getAttributeNode('id')!)
             .toList();
         final attributeSet = XPathNodeSet(attributes.reversed);
-        expect(attributeSet.sortedNodes, attributes);
+        expect(attributeSet.nodes, attributes);
       });
       test('deduplication', () {
         final nodes = XmlDocument.parse(
@@ -171,7 +171,6 @@ void main() {
       test('empty', () {
         const value = XPathString('');
         expect(() => value.nodes, throwsStateError);
-        expect(() => value.sortedNodes, throwsStateError);
         expect(value.string, '');
         expect(value.number, isNaN);
         expect(value.boolean, isFalse);
@@ -180,7 +179,6 @@ void main() {
       test('full', () {
         const value = XPathString('123');
         expect(() => value.nodes, throwsStateError);
-        expect(() => value.sortedNodes, throwsStateError);
         expect(value.string, '123');
         expect(value.number, 123);
         expect(value.boolean, isTrue);
@@ -191,7 +189,6 @@ void main() {
       test('0', () {
         const value = XPathNumber(0);
         expect(() => value.nodes, throwsStateError);
-        expect(() => value.sortedNodes, throwsStateError);
         expect(value.string, '0');
         expect(value.number, 0);
         expect(value.boolean, isTrue);
@@ -200,7 +197,6 @@ void main() {
       test('1.14', () {
         const value = XPathNumber(1.14);
         expect(() => value.nodes, throwsStateError);
-        expect(() => value.sortedNodes, throwsStateError);
         expect(value.string, '1.14');
         expect(value.number, 1.14);
         expect(value.boolean, isFalse);
@@ -209,7 +205,6 @@ void main() {
       test('nan', () {
         const value = XPathNumber(double.nan);
         expect(() => value.nodes, throwsStateError);
-        expect(() => value.sortedNodes, throwsStateError);
         expect(value.string, 'NaN');
         expect(value.number, isNaN);
         expect(value.boolean, isFalse);
@@ -218,7 +213,6 @@ void main() {
       test('+infinity', () {
         const value = XPathNumber(double.infinity);
         expect(() => value.nodes, throwsStateError);
-        expect(() => value.sortedNodes, throwsStateError);
         expect(value.string, 'Infinity');
         expect(value.number, double.infinity);
         expect(value.boolean, isFalse);
@@ -227,7 +221,6 @@ void main() {
       test('-infinity', () {
         const value = XPathNumber(double.negativeInfinity);
         expect(() => value.nodes, throwsStateError);
-        expect(() => value.sortedNodes, throwsStateError);
         expect(value.string, '-Infinity');
         expect(value.number, double.negativeInfinity);
         expect(value.boolean, isFalse);
@@ -238,7 +231,6 @@ void main() {
       test('true', () {
         const value = XPathBoolean(true);
         expect(() => value.nodes, throwsStateError);
-        expect(() => value.sortedNodes, throwsStateError);
         expect(value.string, 'true');
         expect(value.number, 1);
         expect(value.boolean, isTrue);
@@ -247,7 +239,6 @@ void main() {
       test('false', () {
         const value = XPathBoolean(false);
         expect(() => value.nodes, throwsStateError);
-        expect(() => value.sortedNodes, throwsStateError);
         expect(value.string, 'false');
         expect(value.number, 0);
         expect(value.boolean, isFalse);

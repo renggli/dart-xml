@@ -159,7 +159,7 @@ class PathExpression implements XPathExpression {
   @override
   XPathValue call(XPathContext context) {
     if (steps.isEmpty) {
-      return XPathNodeSet([context.node.root]);
+      return XPathNodeSet.single(context.node.root);
     }
     Iterable<XmlNode> nodes = isAbsolute ? [context.node.root] : [context.node];
     final inner = context.copy();
@@ -172,6 +172,10 @@ class PathExpression implements XPathExpression {
       }
       nodes = isOrderPreserved ? innerNodes : innerNodes.toSet();
     }
-    return XPathNodeSet(nodes, isSortedAndUnique: isOrderPreserved);
+    return XPathNodeSet(
+      nodes,
+      isSorted: isOrderPreserved,
+      isUnique: isOrderPreserved,
+    );
   }
 }

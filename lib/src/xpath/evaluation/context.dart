@@ -22,7 +22,7 @@ class XPathContext {
   int last = 1;
 
   /// The current node as an [XPathValue].
-  XPathValue get value => XPathNodeSet([node]);
+  XPathValue get value => XPathNodeSet.single(node);
 
   /// Looks up an XPath variable with the given [name].
   XPathValue? getVariable(String name) => variables[name];
