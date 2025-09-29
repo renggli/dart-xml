@@ -1,13 +1,10 @@
 # Changelog
 
-## 6.7.0
+## 6.7.0 (unpublished)
 
-- Fix XPath reverse axes position issue.
-- Fix XPath grammar issue (https://github.com/renggli/dart-xml/issues/193).
-- Significantly improve XPath evaluation performance for large documents.
-- **BREAKING CHANGE**: `XPathValue.nodes` may now return nodes in unordered form.
-  - _Note_: Order is still guaranteed when using `XmlNode.xpathEvaluate` method.
-- Add `XPathValue.sortedNodes` for guaranteed document order regardless of how the `XPathValue` was obtained.
+- Fix XPath grammar [issue](https://github.com/renggli/dart-xml/issues/193).
+- Fix XPath reverse axes position [issue](https://github.com/renggli/dart-xml/issues/194).
+- Significantly improve XPath evaluation [performance](https://github.com/renggli/dart-xml/issues/194#issuecomment-3311509567) for large documents.
 
 ## 6.6.1
 
