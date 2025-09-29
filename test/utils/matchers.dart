@@ -2,26 +2,19 @@ import 'package:test/test.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
-Matcher isXmlNode({XmlNode? node, XmlNodeType? nodeType, String? outerXml}) {
-  var matcher = isA<XmlNode>();
-  if (node != null) {
-    return anyOf(
-      same(node),
-      matcher.having((node) => node.outerXml, 'outerXml', node.outerXml),
-    );
-  }
-  if (nodeType != null) {
-    matcher = matcher.having((node) => node.nodeType, 'nodeType', nodeType);
-  }
-  if (outerXml != null) {
-    matcher = matcher.having(
-      (node) => node.outerXml,
-      'outerXml',
-      startsWith(outerXml),
-    );
-  }
-  return matcher;
-}
+Matcher isXmlNode(dynamic matcher) => switch (matcher) {
+  String() => isA<XmlNode>().having(
+    (each) => each.outerXml,
+    'outerXml',
+    matcher,
+  ),
+  XmlNode() => isA<XmlNode>().having(
+    (each) => each.isEqualNode(matcher),
+    'node',
+    isTrue,
+  ),
+  _ => allOf(isA<XmlNode>(), matcher),
+};
 
 Matcher isXmlParentException({
   dynamic message = isNotEmpty,

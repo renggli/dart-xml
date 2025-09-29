@@ -12,33 +12,38 @@ import 'package:xml/xpath.dart';
 import 'utils/examples.dart';
 import 'utils/matchers.dart';
 
-dynamic isXmlNode(dynamic value) => value is String
-    ? isA<XmlNode>().having((node) => node.outerXml, 'outerXml', value)
-    : value;
+enum AxisDirection { none, forward, reverse }
 
 void expectXPath(
   XmlNode? node,
   String expression,
-  dynamic matcher, {
-  Map<int, dynamic> indexed = const {},
+  Iterable<dynamic> matchers, {
+  AxisDirection axisDirection = AxisDirection.none,
   Map<String, XPathValue> variables = const {},
   Map<String, XPathFunction> functions = const {},
 }) {
-  expect(node, isNotNull);
   expect(
     node!.xpath(expression, variables: variables, functions: functions),
-    matcher is Iterable
-        ? orderedEquals(matcher.map(isXmlNode))
-        : isXmlNode(matcher),
+    orderedEquals(matchers.map(isXmlNode)),
     reason: expression,
   );
-  for (final MapEntry(key: index, value: matcher) in indexed.entries) {
-    final indexedExpression = '$expression[$index]';
-    expect(
-      node.xpath(indexedExpression, variables: variables, functions: functions),
-      orderedEquals([isXmlNode(matcher)]),
-      reason: indexedExpression,
-    );
+  // Indexed access works correctly across axis directions.
+  if (axisDirection != AxisDirection.none) {
+    for (var i = 0; i < matchers.length; i++) {
+      final indexedExpression = '$expression[${i + 1}]';
+      final indexedMatcher = axisDirection == AxisDirection.forward
+          ? matchers.elementAt(i)
+          : matchers.elementAt(matchers.length - i - 1);
+      expect(
+        node.xpath(
+          indexedExpression,
+          variables: variables,
+          functions: functions,
+        ),
+        orderedEquals([isXmlNode(indexedMatcher)]),
+        reason: indexedExpression,
+      );
+    }
   }
 }
 
@@ -740,44 +745,22 @@ void main() {
       expectXPath(current, '/*', [document.rootElement]);
     });
     test('//*', () {
-      expectXPath(
-        current,
-        '//*',
-        [
-          document.rootElement,
-          '<a0/>',
-          '<a1><b1/></a1>',
-          '<b1/>',
-          '<a2 b1="1" b2="2"><c1/><c2><d1></d1></c2></a2>',
-          '<c1/>',
-          '<c2><d1></d1></c2>',
-          '<d1></d1>',
-          '<a3><b2/></a3>',
-          '<b2/>',
-          '<a4/>',
-        ],
-        indexed: {
-          1: document.rootElement,
-          2: '<a0/>',
-          3: '<a1><b1/></a1>',
-          4: '<b1/>',
-          5: '<a2 b1="1" b2="2"><c1/><c2><d1></d1></c2></a2>',
-          6: '<c1/>',
-          7: '<c2><d1></d1></c2>',
-          8: '<d1></d1>',
-          9: '<a3><b2/></a3>',
-          10: '<b2/>',
-          11: '<a4/>',
-        },
-      );
+      expectXPath(current, '//*', [
+        document.rootElement,
+        '<a0/>',
+        '<a1><b1/></a1>',
+        '<b1/>',
+        '<a2 b1="1" b2="2"><c1/><c2><d1></d1></c2></a2>',
+        '<c1/>',
+        '<c2><d1></d1></c2>',
+        '<d1></d1>',
+        '<a3><b2/></a3>',
+        '<b2/>',
+        '<a4/>',
+      ]);
     });
     test('@*', () {
-      expectXPath(
-        current,
-        '@*',
-        ['b1="1"', 'b2="2"'],
-        indexed: {1: 'b1="1"', 2: 'b2="2"'},
-      );
+      expectXPath(current, '@*', ['b1="1"', 'b2="2"']);
     });
     test('ancestor::*', () {
       expectXPath(current, 'ancestor::*', [document.rootElement]);
@@ -785,108 +768,77 @@ void main() {
         current.firstElementChild,
         'ancestor::*',
         [document.rootElement, current],
-        indexed: {1: current, 2: document.rootElement},
+        axisDirection: AxisDirection.reverse,
       );
     });
     test('ancestor-or-self::*', () {
-      expectXPath(
+      expectXPath(current, 'ancestor-or-self::*', [
+        document.rootElement,
         current,
-        'ancestor-or-self::*',
-        [document.rootElement, current],
-        indexed: {1: current, 2: document.rootElement},
-      );
+      ], axisDirection: AxisDirection.reverse);
     });
     test('attribute::*', () {
-      expectXPath(
-        current,
-        'attribute::*',
-        ['b1="1"', 'b2="2"'],
-        indexed: {1: 'b1="1"', 2: 'b2="2"'},
-      );
+      expectXPath(current, 'attribute::*', [
+        'b1="1"',
+        'b2="2"',
+      ], axisDirection: AxisDirection.forward);
     });
     test('child::*', () {
-      expectXPath(
-        current,
-        'child::*',
-        ['<c1/>', '<c2><d1></d1></c2>'],
-        indexed: {1: '<c1/>', 2: '<c2><d1></d1></c2>'},
-      );
+      expectXPath(current, 'child::*', [
+        '<c1/>',
+        '<c2><d1></d1></c2>',
+      ], axisDirection: AxisDirection.forward);
     });
     test('descendant::*', () {
-      expectXPath(
-        current,
-        'descendant::*',
-        ['<c1/>', '<c2><d1></d1></c2>', '<d1></d1>'],
-        indexed: {1: '<c1/>', 2: '<c2><d1></d1></c2>', 3: '<d1></d1>'},
-      );
+      expectXPath(current, 'descendant::*', [
+        '<c1/>',
+        '<c2><d1></d1></c2>',
+        '<d1></d1>',
+      ], axisDirection: AxisDirection.forward);
     });
     test('descendant-or-self::*', () {
-      expectXPath(
-        current,
-        'descendant-or-self::*',
-        [
-          '<a2 b1="1" b2="2"><c1/><c2><d1></d1></c2></a2>',
-          '<c1/>',
-          '<c2><d1></d1></c2>',
-          '<d1></d1>',
-        ],
-        indexed: {
-          1: '<a2 b1="1" b2="2"><c1/><c2><d1></d1></c2></a2>',
-          2: '<c1/>',
-          3: '<c2><d1></d1></c2>',
-          4: '<d1></d1>',
-        },
-      );
+      expectXPath(current, 'descendant-or-self::*', [
+        '<a2 b1="1" b2="2"><c1/><c2><d1></d1></c2></a2>',
+        '<c1/>',
+        '<c2><d1></d1></c2>',
+        '<d1></d1>',
+      ], axisDirection: AxisDirection.forward);
     });
     test('following::*', () {
-      expectXPath(
-        current,
-        'following::*',
-        ['<a3><b2/></a3>', '<b2/>', '<a4/>'],
-        indexed: {1: '<a3><b2/></a3>', 2: '<b2/>', 3: '<a4/>'},
-      );
+      expectXPath(current, 'following::*', [
+        '<a3><b2/></a3>',
+        '<b2/>',
+        '<a4/>',
+      ], axisDirection: AxisDirection.forward);
     });
     test('following-sibling::*', () {
-      expectXPath(
-        current,
-        'following-sibling::*',
-        ['<a3><b2/></a3>', '<a4/>'],
-        indexed: {1: '<a3><b2/></a3>', 2: '<a4/>'},
-      );
+      expectXPath(current, 'following-sibling::*', [
+        '<a3><b2/></a3>',
+        '<a4/>',
+      ], axisDirection: AxisDirection.forward);
     });
     test('parent::*', () {
-      expectXPath(current, 'parent::*', [document.rootElement]);
+      expectXPath(current, 'parent::*', [
+        document.rootElement,
+      ], axisDirection: AxisDirection.forward);
     });
     test('preceding::*', () {
-      expectXPath(
-        current,
-        'preceding::*',
-        ['<a0/>', '<a1><b1/></a1>', '<b1/>'],
-        indexed: {1: '<b1/>', 2: '<a1><b1/></a1>', 3: '<a0/>'},
-      );
+      expectXPath(current, 'preceding::*', [
+        '<a0/>',
+        '<a1><b1/></a1>',
+        '<b1/>',
+      ], axisDirection: AxisDirection.reverse);
     });
     test('preceding-sibling::*', () {
-      expectXPath(
-        current,
-        'preceding-sibling::*',
-        ['<a0/>', '<a1><b1/></a1>'],
-        indexed: {1: '<a1><b1/></a1>', 2: '<a0/>'},
-      );
+      expectXPath(current, 'preceding-sibling::*', [
+        '<a0/>',
+        '<a1><b1/></a1>',
+      ], axisDirection: AxisDirection.reverse);
     });
     test('self::*', () {
       expectXPath(current, 'self::*', [
         '<a2 b1="1" b2="2"><c1/><c2><d1></d1></c2></a2>',
-      ]);
-    });
-    test('reverse axis order', () {
-      final document = XmlDocument.parse('<r><a/></r>');
-      expectXPath(document, '//a/ancestor-or-self::*[1]', ['<a/>']);
-      expectXPath(document, '//a/ancestor-or-self::*[2]', ['<r><a/></r>']);
-      expectXPath(document, '//ancestor-or-self::*[1]', [
-        '<r><a/></r>',
-        '<a/>',
-      ]);
-      expectXPath(document, '//ancestor-or-self::*[2]', ['<r><a/></r>']);
+      ], axisDirection: AxisDirection.forward);
     });
   });
   group('node test', () {
@@ -897,7 +849,7 @@ void main() {
     final current = document.rootElement;
     test('*', () {
       expectXPath(current, '*', ['<e1/>', '<e2/>']);
-      expectXPath(document, 'self::*', isEmpty);
+      expectXPath(document, 'self::*', []);
     });
     test('e1', () {
       expectXPath(current, 'e1', ['<e1/>']);
@@ -930,13 +882,13 @@ void main() {
       expectXPath(current, '*[1]', ['<e1 a="1"/>']);
       expectXPath(current, '*[2]', ['<e2 a="2" b="3"/>']);
       expectXPath(current, '*[3]', ['<e3 b="4"/>']);
-      expectXPath(current, '*[4]', isEmpty);
+      expectXPath(current, '*[4]', []);
     });
     test('[last()]', () {
       expectXPath(current, '*[last()]', ['<e3 b="4"/>']);
       expectXPath(current, '*[last()-1]', ['<e2 a="2" b="3"/>']);
       expectXPath(current, '*[last()-2]', ['<e1 a="1"/>']);
-      expectXPath(current, '*[last()-3]', isEmpty);
+      expectXPath(current, '*[last()-3]', []);
     });
     test('[@attr]', () {
       expectXPath(current, '*[@a]', ['<e1 a="1"/>', '<e2 a="2" b="3"/>']);
@@ -1038,16 +990,16 @@ void main() {
           '<xsd:element name="purchaseOrder" type="PurchaseOrderType"/>',
           '<xsd:element name="comment" type="xsd:string"/>',
         ]);
-        expectXPath(document, 'unknown', isEmpty);
+        expectXPath(document, 'unknown', []);
       });
       // Selects all element children of the context node.
       test('*', () {
         expectXPath(
           namedNode['PurchaseOrderType'],
           '*',
-          namedNode['PurchaseOrderType']?.childElements,
+          namedNode['PurchaseOrderType']!.childElements,
         );
-        expectXPath(namedNode['purchaseOrder'], '*', isEmpty);
+        expectXPath(namedNode['purchaseOrder'], '*', []);
       });
       // Selects all text node children of the context node.
       test('text()', () {
@@ -1055,7 +1007,7 @@ void main() {
             .findAllElements('xsd:documentation')
             .single;
         expectXPath(documentation, 'text()', [documentation.innerText]);
-        expectXPath(namedNode['shipTo'], 'text()', isEmpty);
+        expectXPath(namedNode['shipTo'], 'text()', []);
       });
       // Selects the name attribute of the context node.
       test('@name', () {
@@ -1065,7 +1017,7 @@ void main() {
         expectXPath(namedNode['purchaseOrder'], '@type', [
           'type="PurchaseOrderType"',
         ]);
-        expectXPath(namedNode['purchaseOrder'], '@unknown', isEmpty);
+        expectXPath(namedNode['purchaseOrder'], '@unknown', []);
       });
       // Selects all the attributes of the context node.
       test('@*', () {
@@ -1082,7 +1034,7 @@ void main() {
         expectXPath(namedNode['USAddress'], 'xsd:attribute[1]', [
           namedNode['USAddress']?.lastElementChild,
         ]);
-        expectXPath(namedNode['USAddress'], 'xsd:sequence[2]', isEmpty);
+        expectXPath(namedNode['USAddress'], 'xsd:sequence[2]', []);
       });
       // Selects the last para child of the context node.
       test('para[last()]', () {
@@ -1092,7 +1044,7 @@ void main() {
         expectXPath(namedNode['USAddress'], 'xsd:attribute[last()]', [
           namedNode['USAddress']?.lastElementChild,
         ]);
-        expectXPath(namedNode['USAddress'], 'xsd:sequence[last()-1]', isEmpty);
+        expectXPath(namedNode['USAddress'], 'xsd:sequence[last()-1]', []);
       });
       // // Selects all para grandchildren of the context node.
       test('*/para', () {
@@ -1100,7 +1052,7 @@ void main() {
           '<xsd:element name="purchaseOrder" type="PurchaseOrderType"/>',
           '<xsd:element name="comment" type="xsd:string"/>',
         ]);
-        expectXPath(document, '*/xsd:attribute', isEmpty);
+        expectXPath(document, '*/xsd:attribute', []);
       });
       // Selects the second section of the fifth chapter of the doc.
       test('/doc/chapter[5]/section[2]', () {
@@ -1112,7 +1064,7 @@ void main() {
         expectXPath(
           document,
           '/xsd:schema/xsd:complexType[3]/xsd:attribute[1]',
-          isEmpty,
+          [],
         );
       });
       // Selects the para element descendants of the chapter element children of
@@ -1123,8 +1075,8 @@ void main() {
           namedNode['country'],
           namedNode['partNum'],
         ]);
-        expectXPath(document, 'unknown//xsd:attribute', isEmpty);
-        expectXPath(document, 'xsd:schema//unknown', isEmpty);
+        expectXPath(document, 'unknown//xsd:attribute', []);
+        expectXPath(document, 'xsd:schema//unknown', []);
       });
       // Selects all the para descendants of the document root and thus selects
       // all para elements in the same document as the context node.
@@ -1134,7 +1086,7 @@ void main() {
           namedNode['country'],
           namedNode['partNum'],
         ]);
-        expectXPath(document, '//unknown', isEmpty);
+        expectXPath(document, '//unknown', []);
       });
       // Selects all the item elements in the same document as the context node
       // that have an olist parent.
@@ -1144,8 +1096,8 @@ void main() {
           namedNode['country'],
           namedNode['partNum'],
         ]);
-        expectXPath(document, '//unknown/xsd:attribute', isEmpty);
-        expectXPath(document, '//xsd:complexType/unknown', isEmpty);
+        expectXPath(document, '//unknown/xsd:attribute', []);
+        expectXPath(document, '//xsd:complexType/unknown', []);
       });
       // Selects the context node.
       test('.', () {
@@ -1162,17 +1114,17 @@ void main() {
         expectXPath(namedNode['item'], './/xsd:attribute', [
           namedNode['partNum'],
         ]);
-        expectXPath(document, './/unknown', isEmpty);
+        expectXPath(document, './/unknown', []);
       });
       // Selects the parent of the context node.
       test('..', () {
-        expectXPath(document, '..', isEmpty);
+        expectXPath(document, '..', []);
         expectXPath(document.firstElementChild, '..', [document]);
       });
       // Selects the lang attribute of the parent of the context node.
       test('../@lang', () {
         expectXPath(namedNode['country'], '../@name', ['name="USAddress"']);
-        expectXPath(namedNode['country'], '../@unknown', isEmpty);
+        expectXPath(namedNode['country'], '../@unknown', []);
       });
       // Selects all para children of the context node that have a type attribute
       // with value warning.
@@ -1180,15 +1132,11 @@ void main() {
         expectXPath(namedNode['USAddress'], 'xsd:attribute[@name="country"]', [
           namedNode['country'],
         ]);
-        expectXPath(
-          namedNode['USAddress'],
-          'unknown[@name="country"]',
-          isEmpty,
-        );
+        expectXPath(namedNode['USAddress'], 'unknown[@name="country"]', []);
         expectXPath(
           namedNode['USAddress'],
           'xsd:attribute[@name="unknown"]',
-          isEmpty,
+          [],
         );
       });
       // Selects the fifth para child of the context node that has a type
@@ -1207,7 +1155,7 @@ void main() {
         expectXPath(
           namedNode['USAddress']?.firstElementChild,
           'xsd:element[@type="xsd:string"][5]',
-          isEmpty,
+          [],
         );
         expectXPath(
           namedNode['USAddress']?.firstElementChild,
@@ -1217,12 +1165,12 @@ void main() {
         expectXPath(
           namedNode['USAddress']?.firstElementChild,
           'xsd:element[@type="unknown"][1]',
-          isEmpty,
+          [],
         );
         expectXPath(
           namedNode['USAddress']?.firstElementChild,
           'xsd:element[@unknown="xsd:decimal"][1]',
-          isEmpty,
+          [],
         );
       });
       // Selects the fifth para child of the context node if that child has a type
@@ -1236,12 +1184,12 @@ void main() {
         expectXPath(
           namedNode['USAddress']?.firstElementChild,
           'xsd:element[4][@name="unknown"]',
-          isEmpty,
+          [],
         );
         expectXPath(
           namedNode['USAddress']?.firstElementChild,
           'xsd:element[6][@name="state"]',
-          isEmpty,
+          [],
         );
       });
       // Selects the chapter children of the context node that have one or more
@@ -1252,20 +1200,12 @@ void main() {
           'xsd:complexType[xsd:attribute]',
           [namedNode['PurchaseOrderType'], namedNode['USAddress']],
         );
-        expectXPath(
-          document.firstElementChild,
-          'unknown[xsd:attribute]',
-          isEmpty,
-        );
-        expectXPath(
-          document.firstElementChild,
-          'xsd:complexType[unknown]',
-          isEmpty,
-        );
+        expectXPath(document.firstElementChild, 'unknown[xsd:attribute]', []);
+        expectXPath(document.firstElementChild, 'xsd:complexType[unknown]', []);
         expectXPath(
           document.firstElementChild,
           'xsd:complexType[xsd:attribute="unknown"]',
-          isEmpty,
+          [],
         );
       });
       // Selects the chapter children of the context node that have one or more
@@ -1276,16 +1216,8 @@ void main() {
           'xsd:complexType[xsd:attribute]',
           [namedNode['PurchaseOrderType'], namedNode['USAddress']],
         );
-        expectXPath(
-          document.firstElementChild,
-          'unknown[xsd:attribute]',
-          isEmpty,
-        );
-        expectXPath(
-          document.firstElementChild,
-          'xsd:complexType[unknown]',
-          isEmpty,
-        );
+        expectXPath(document.firstElementChild, 'unknown[xsd:attribute]', []);
+        expectXPath(document.firstElementChild, 'xsd:complexType[unknown]', []);
       });
       // Selects all the employee children of the context node that have both a
       // secretary attribute and an assistant attribute.
@@ -1303,12 +1235,12 @@ void main() {
         expectXPath(
           namedNode['PurchaseOrderType']?.firstElementChild,
           'xsd:element[@unknown][@type]',
-          isEmpty,
+          [],
         );
         expectXPath(
           namedNode['PurchaseOrderType']?.firstElementChild,
           'xsd:element[@name][@unknown]',
-          isEmpty,
+          [],
         );
       });
     });
