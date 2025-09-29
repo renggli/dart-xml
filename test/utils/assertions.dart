@@ -28,6 +28,7 @@ void assertDocumentTreeInvariants(XmlNode xml) {
   assertTextInvariants(xml);
   assertIteratorInvariants(xml);
   assertComparatorInvariants(xml);
+  assertSortingInvariants(xml);
   assertCopyInvariants(xml);
   assertVisitorInvariants(xml);
   assertPrintingInvariants(xml);
@@ -55,6 +56,7 @@ void assertFragmentTreeInvariants(XmlNode xml) {
   assertTextInvariants(xml);
   assertIteratorInvariants(xml);
   assertComparatorInvariants(xml);
+  assertSortingInvariants(xml);
   assertCopyInvariants(xml);
   assertVisitorInvariants(xml);
 }
@@ -313,7 +315,10 @@ void assertIteratorInvariants(XmlNode xml) {
   check(xml);
 }
 
-void assertComparatorInvariants(XmlNode xml) {
+void _assertComparatorInvariants(
+  XmlNode xml,
+  int Function(XmlNode, XmlNode) cmp,
+) {
   const unique = 'unique-2404879675441';
   final uniqueNodes = [
     XmlAttribute(XmlName(unique), unique),
@@ -344,14 +349,26 @@ void assertComparatorInvariants(XmlNode xml) {
       expect(uniqueNode.contains(node), isFalse);
     }
     // compareNodePosition
-    expect(node.preceding.map(node.compareNodePosition), everyElement(1));
-    expect(node.compareNodePosition(node), 0);
-    expect(node.following.map(node.compareNodePosition), everyElement(-1));
+    expect(node.preceding.map((e) => cmp(node, e)), everyElement(1));
+    expect(cmp(node, node), 0);
+    expect(node.following.map((e) => cmp(node, e)), everyElement(-1));
     for (final uniqueNode in uniqueNodes) {
-      expect(() => node.compareNodePosition(uniqueNode), throwsStateError);
-      expect(() => uniqueNode.compareNodePosition(node), throwsStateError);
+      expect(() => cmp(node, uniqueNode), throwsStateError);
+      expect(() => cmp(uniqueNode, node), throwsStateError);
     }
   }
+}
+
+void assertComparatorInvariants(XmlNode xml) {
+  _assertComparatorInvariants(xml, (a, b) => a.compareNodePosition(b));
+}
+
+void assertSortingInvariants(XmlNode xml) {
+  _assertComparatorInvariants(xml, (a, b) {
+    final sorted = [a, b].sortedInDocumentOrder();
+    if (identical(sorted[0], sorted[1])) return 0;
+    return identical(sorted[0], a) ? -1 : 1;
+  });
 }
 
 void assertCopyInvariants(XmlNode xml) {

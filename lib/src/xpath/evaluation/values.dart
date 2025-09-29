@@ -1,10 +1,6 @@
 import 'package:meta/meta.dart';
 
-import '../../xml/extensions/comparison.dart';
-import '../../xml/nodes/document.dart';
-import '../../xml/nodes/element.dart';
-import '../../xml/nodes/node.dart';
-import '../../xml/nodes/text.dart';
+import '../../../xml.dart';
 import 'context.dart';
 import 'expression.dart';
 
@@ -39,11 +35,11 @@ class XPathNodeSet implements XPathValue {
       isSorted = false;
       nodes = nodes.toSet();
     }
-    final list = nodes.toList(growable: false);
-    if (hasMultipleNodes && !isSorted) {
-      list.sort((a, b) => a.compareNodePosition(b));
-    }
-    return XPathNodeSet._(list);
+    return XPathNodeSet._(
+      (hasMultipleNodes && !isSorted)
+          ? nodes.sortedInDocumentOrder()
+          : nodes.toList(growable: false),
+    );
   }
 
   /// Constructs a new node-set from a single `node`.

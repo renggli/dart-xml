@@ -25,6 +25,7 @@ export 'src/xml/extensions/nodes.dart' show XmlNodesExtension;
 export 'src/xml/extensions/parent.dart' show XmlParentExtension;
 export 'src/xml/extensions/preceding.dart' show XmlPrecedingExtension;
 export 'src/xml/extensions/sibling.dart' show XmlSiblingExtension;
+export 'src/xml/extensions/sort.dart' show XmlSortExtension;
 export 'src/xml/extensions/string.dart' show XmlStringExtension;
 export 'src/xml/mixins/has_attributes.dart' show XmlHasAttributes;
 export 'src/xml/mixins/has_children.dart' show XmlHasChildren;
