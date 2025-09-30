@@ -1274,36 +1274,37 @@ void main() {
       /// - '//' + descendant::x => descendant::x
       /// - '//' + self::x => descendant-or-self::x
       /// - '//' + descendant-or-self::x => descendant-or-self::x
-      void expectOptimized(Step step, Axis newAxis) {
+      void expectOptimized(Axis stepAxis, Axis newAxis) {
         const abbrevStep = Step(DescendantOrSelfAxis());
-        final path = PathExpression([abbrevStep, step], isAbsolute: true);
-        expect(path.steps, hasLength(1));
-        final actualStep = path.steps.single;
-        expect(actualStep.axis.runtimeType, newAxis.runtimeType);
-        expect(actualStep.nodeTest, step.nodeTest);
-        expect(actualStep.predicates, step.predicates);
+        const nodeTest = QualifiedNameNodeTest('x');
+        {
+          // empty predicates
+          final path = PathExpression([
+            abbrevStep,
+            Step(stepAxis, nodeTest),
+          ], isAbsolute: true);
+          expect(path.steps, hasLength(1));
+          final actualStep = path.steps.single;
+          expect(actualStep.axis.runtimeType, newAxis.runtimeType);
+          expect(actualStep.nodeTest, nodeTest);
+          expect(actualStep.predicates, isEmpty);
+        }
+        {
+          // non-empty predicates
+          const predicates = [Predicate(XPathNumber(1))];
+          final path = PathExpression([
+            abbrevStep,
+            Step(stepAxis, nodeTest, predicates),
+          ], isAbsolute: true);
+          expect(path.steps, hasLength(2));
+        }
       }
 
-      const predicates = [Predicate(XPathBoolean(true))];
-
+      expectOptimized(const ChildAxis(), const DescendantAxis());
+      expectOptimized(const SelfAxis(), const DescendantOrSelfAxis());
+      expectOptimized(const DescendantAxis(), const DescendantAxis());
       expectOptimized(
-        const Step(ChildAxis(), QualifiedNameNodeTest('x'), predicates),
-        const DescendantAxis(),
-      );
-      expectOptimized(
-        const Step(DescendantAxis(), QualifiedNameNodeTest('x'), predicates),
-        const DescendantAxis(),
-      );
-      expectOptimized(
-        const Step(SelfAxis(), QualifiedNameNodeTest('x'), predicates),
         const DescendantOrSelfAxis(),
-      );
-      expectOptimized(
-        const Step(
-          DescendantOrSelfAxis(),
-          QualifiedNameNodeTest('x'),
-          predicates,
-        ),
         const DescendantOrSelfAxis(),
       );
     });
@@ -1368,6 +1369,10 @@ void main() {
     test('//self::*', () {
       final xml = XmlDocument.parse('<a><b/></a>');
       expectXPath(xml, '//self::*', ['<a><b/></a>', '<b/>']);
+    });
+    test('//*[2]', () {
+      final xml = XmlDocument.parse('<r><a/><b/></r>');
+      expectXPath(xml, '//*[2]', ['<b/>']);
     });
   });
 }

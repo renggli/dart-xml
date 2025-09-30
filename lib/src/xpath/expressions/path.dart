@@ -23,8 +23,12 @@ class PathExpression implements XPathExpression {
       final last = optimizedSteps.last;
       if (last.axis is DescendantOrSelfAxis &&
           last.nodeTest is NodeTypeNodeTest &&
-          last.predicates.isEmpty) {
+          last.predicates.isEmpty &&
+          step.predicates.isEmpty) {
         // Try to merge the '//' step with the next step:
+        // The next step must not have any predicates,
+        // because the predicates might depend on the `position` of the context node
+        // and we cannot guarantee the `position` is still preserved after merging.
         switch (step.axis) {
           // child::x => descendant::x
           case ChildAxis():
@@ -175,7 +179,7 @@ class PathExpression implements XPathExpression {
     return XPathNodeSet(
       nodes,
       isSorted: isOrderPreserved,
-      isUnique: isOrderPreserved,
+      isUnique: true, // always unique
     );
   }
 }
