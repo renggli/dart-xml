@@ -4,7 +4,7 @@ import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 import 'benchmark.dart';
 
-const sizes = [100, 1000, 10000];
+const sizes = [1, 10, 100, 1000, 10000];
 const queries = [
   '//item',
   '//item/name',
@@ -26,8 +26,7 @@ XmlDocument createDocument(int size) => XmlDocument.build(
         builder.element(
           'item',
           nest: () {
-            builder.attribute('id', '$i');
-            builder.element('name', nest: 'Item $i');
+            builder.element('name', nest: 'Item $i', attributes: {'id': '$i'});
             builder.element('value', nest: '$i');
             builder.element('description', nest: 'This is item number $i');
           },
