@@ -1,8 +1,12 @@
 import 'package:meta/meta.dart';
 
-import '../../../xml.dart';
+import '../../xml/nodes/document.dart';
+import '../../xml/nodes/element.dart';
+import '../../xml/nodes/node.dart';
+import '../../xml/nodes/text.dart';
 import 'context.dart';
 import 'expression.dart';
+import 'sort.dart';
 
 /// Wrapper of XPath values.
 @immutable
@@ -37,7 +41,7 @@ class XPathNodeSet implements XPathValue {
     }
     return XPathNodeSet._(
       (hasMultipleNodes && !isSorted)
-          ? nodes.sortedInDocumentOrder()
+          ? nodes.sortedInDocumentOrder(isUnique: true)
           : nodes.toList(growable: false),
     );
   }

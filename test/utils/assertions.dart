@@ -1,6 +1,7 @@
 // ignore_for_file: unnecessary_lambdas
 
 import 'package:test/test.dart';
+import 'package:xml/src/xpath/evaluation/sort.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xml_events.dart';
 
@@ -317,7 +318,7 @@ void assertIteratorInvariants(XmlNode xml) {
 
 void _assertComparatorInvariants(
   XmlNode xml,
-  int Function(XmlNode, XmlNode) cmp,
+  int Function(XmlNode, XmlNode) compare,
 ) {
   const unique = 'unique-2404879675441';
   final uniqueNodes = [
@@ -349,12 +350,12 @@ void _assertComparatorInvariants(
       expect(uniqueNode.contains(node), isFalse);
     }
     // compareNodePosition
-    expect(node.preceding.map((e) => cmp(node, e)), everyElement(1));
-    expect(cmp(node, node), 0);
-    expect(node.following.map((e) => cmp(node, e)), everyElement(-1));
+    expect(node.preceding.map((e) => compare(node, e)), everyElement(1));
+    expect(compare(node, node), 0);
+    expect(node.following.map((e) => compare(node, e)), everyElement(-1));
     for (final uniqueNode in uniqueNodes) {
-      expect(() => cmp(node, uniqueNode), throwsStateError);
-      expect(() => cmp(uniqueNode, node), throwsStateError);
+      expect(() => compare(node, uniqueNode), throwsStateError);
+      expect(() => compare(uniqueNode, node), throwsStateError);
     }
   }
 }
@@ -365,7 +366,7 @@ void assertComparatorInvariants(XmlNode xml) {
 
 void assertSortingInvariants(XmlNode xml) {
   _assertComparatorInvariants(xml, (a, b) {
-    final sorted = [a, b].sortedInDocumentOrder();
+    final sorted = [a, b].sortedInDocumentOrder(isUnique: false);
     if (identical(sorted[0], sorted[1])) return 0;
     return identical(sorted[0], a) ? -1 : 1;
   });
