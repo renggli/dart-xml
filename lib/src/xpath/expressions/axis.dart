@@ -15,8 +15,8 @@ sealed class Axis {
 }
 
 /// Marker interface for axes that are indexed in reverse document order. This
-/// includes the ancestor, ancestor-or-self, preceding, and preceding-sibling axes:
-/// https://www.w3.org/TR/1999/REC-xpath-19991116/#predicates
+/// includes the ancestor, ancestor-or-self, preceding, and preceding-sibling
+/// axes: https://www.w3.org/TR/1999/REC-xpath-19991116/#predicates
 @immutable
 sealed class ReverseAxis {}
 

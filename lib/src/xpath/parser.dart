@@ -38,6 +38,7 @@ class XPathParser {
       ..primitive(ref0(function))
       ..primitive(ref0(path));
     builder.group().wrapper(_t('('), _t(')'), (_, expr, _) => expr);
+    builder.group().postfix(ref0(predicate), PredicateExpression.new);
     builder.group()
       ..prefix(_t('-'), (t, a) => _SFE(t, number.neg, [a]))
       ..prefix(_t('+'), (t, a) => a);

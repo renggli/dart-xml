@@ -29,8 +29,8 @@ class Step {
     if (predicates.isNotEmpty) {
       final isReverseIndexed = axis is ReverseAxis;
       final inner = context.copy();
-      inner.last = result.length;
       for (final predicate in predicates) {
+        inner.last = result.length;
         final matched = <XmlNode>[];
         for (var i = 0; i < result.length; i++) {
           inner.node = result[isReverseIndexed ? result.length - i - 1 : i];

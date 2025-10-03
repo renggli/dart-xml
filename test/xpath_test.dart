@@ -633,6 +633,25 @@ void main() {
           isNodeSet([children[0], children[2]]),
         );
       });
+      test('predicate', () {
+        final xml = XmlDocument.parse('<r><a/><b/><c/></r>');
+        final children = xml.rootElement.children;
+        expectEvaluate(xml, '(/r/*)[1]', isNodeSet([children[0]]));
+        expectEvaluate(xml, '(/r/*)[last()]', isNodeSet([children[2]]));
+        expectEvaluate(xml, '(/r/*)[position()]', isNodeSet(children));
+        expectEvaluate(xml, '(/r/*)[false()]', isNodeSet(isEmpty));
+        expectEvaluate(xml, '(/r/*)[true()]', isNodeSet(children));
+        expectEvaluate(
+          xml,
+          '(/r/*)[position()<=2][last()]',
+          isNodeSet([children[1]]),
+        );
+        expectEvaluate(
+          xml,
+          '(/r/c/preceding-sibling::*)[last()]',
+          isNodeSet([children[1]]),
+        );
+      });
     });
     group('string', () {
       test('string(nodes)', () {
@@ -1097,6 +1116,14 @@ void main() {
     test('[@attr="literal"]', () {
       expectXPath(current, '*[@a="2"]', ['<e2 a="2" b="3"/>']);
       expectXPath(current, '*[@b="3"]', ['<e2 a="2" b="3"/>']);
+    });
+    test('multiple predicates', () {
+      expectXPath(current, '*[position()>1][position()<2]', [
+        '<e2 a="2" b="3"/>',
+      ]);
+      expectXPath(current, '*[position()<3][position()>1]', [
+        '<e2 a="2" b="3"/>',
+      ]);
     });
   });
   group('path', () {
