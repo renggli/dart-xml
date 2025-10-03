@@ -34,7 +34,7 @@ XPathValue id(XPathContext context, List<XPathExpression> arguments) {
       : object.string.split(' ').toSet();
   if (ids.isEmpty) return XPathNodeSet.empty;
   // This should likely consult the DTD about the ID attribute ...
-  return XPathNodeSet(
+  return XPathNodeSet.fromIterable(
     context.node.root.descendantElements.where(
       (element) => ids.contains(element.getAttribute('id')),
     ),
@@ -77,19 +77,31 @@ XPathValue name(XPathContext context, List<XPathExpression> arguments) {
 XPathValue intersect(XPathContext context, List<XPathExpression> arguments) {
   XPathEvaluationException.checkArgumentCount('intersect', arguments, 2);
   final a = arguments[0](context).nodes, b = arguments[1](context).nodes;
-  return XPathNodeSet(a.toSet().intersection(b.toSet()), isUnique: true);
+  return XPathNodeSet.fromIterable(
+    a.toSet().intersection(b.toSet()),
+    isSorted: true,
+    isUnique: true,
+  );
 }
 
 // node-set except(node-set, node-set)
 XPathValue except(XPathContext context, List<XPathExpression> arguments) {
   XPathEvaluationException.checkArgumentCount('except', arguments, 2);
   final a = arguments[0](context).nodes, b = arguments[1](context).nodes;
-  return XPathNodeSet(a.toSet()..removeAll(b), isUnique: true);
+  return XPathNodeSet.fromIterable(
+    a.toSet()..removeAll(b),
+    isSorted: true,
+    isUnique: true,
+  );
 }
 
 // node-set union(node-set, node-set)
 XPathValue union(XPathContext context, List<XPathExpression> arguments) {
   XPathEvaluationException.checkArgumentCount('union', arguments, 2);
   final a = arguments[0](context).nodes, b = arguments[1](context).nodes;
-  return XPathNodeSet(a.followedBy(b));
+  return XPathNodeSet.fromIterable(
+    a.toSet()..addAll(b),
+    isSorted: false,
+    isUnique: true,
+  );
 }

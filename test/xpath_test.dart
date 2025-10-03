@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:petitparser/reflection.dart';
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/expressions/axis.dart';
@@ -144,32 +146,175 @@ void main() {
         expect(value.boolean, isTrue);
         expect(value.toString(), '[First, Second, Third, ...]');
       });
-      test('sorting', () {
-        final document = XmlDocument.parse(
-          '<r id="r"><a id="a"/><b id="b"/><c id="c"/></r>',
-        );
-        final nodes = document.rootElement.children;
-        final nodeSet = XPathNodeSet([nodes[2], nodes[1], nodes[0]]);
-        expect(nodeSet.nodes, nodes);
-        final attributes = document.descendantElements
-            .map((each) => each.getAttributeNode('id')!)
-            .toList();
-        final attributeSet = XPathNodeSet(attributes.reversed);
-        expect(attributeSet.nodes, attributes);
-      });
-      test('deduplication', () {
-        final nodes = XmlDocument.parse(
-          '<r><a/><b/><c/></r>',
-        ).rootElement.children;
-        final value = XPathNodeSet([
-          nodes[2],
-          nodes[2],
-          nodes[0],
-          nodes[0],
-          nodes[1],
-        ]);
-        expect(value.nodes.length, nodes.length);
-        expect(value.nodes.toSet(), nodes.toSet());
+      group('construction', () {
+        final nodes = [
+          for (var i = 0; i < 100; i++)
+            XmlElement.tag('node', children: [XmlText('Node ${i + 1}')]),
+        ];
+        XmlDocument([XmlElement.tag('root', children: nodes)]);
+        group('fromIterable', () {
+          test('empty from list', () {
+            final iterable = <XmlNode>[];
+            final value = XPathNodeSet.fromIterable(iterable);
+            expect(value, same(XPathNodeSet.empty));
+            expect(value.nodes, isEmpty);
+            expect(value.string, '');
+            expect(value.number, isNaN);
+            expect(value.boolean, isFalse);
+            expect(value.toString(), '[]');
+          });
+          test('empty from set', () {
+            final iterable = <XmlNode>{};
+            final value = XPathNodeSet.fromIterable(iterable);
+            expect(value, same(XPathNodeSet.empty));
+            expect(value.nodes, isEmpty);
+            expect(value.string, '');
+            expect(value.number, isNaN);
+            expect(value.boolean, isFalse);
+            expect(value.toString(), '[]');
+          });
+          test('single from list', () {
+            final iterable = [nodes[0]];
+            final value = XPathNodeSet.fromIterable(iterable);
+            expect(value.nodes, same(iterable));
+            expect(value.string, 'Node 1');
+            expect(value.number, isNaN);
+            expect(value.boolean, isTrue);
+            expect(value.toString(), '[Node 1]');
+          });
+          test('single from set', () {
+            final iterable = {nodes[0]};
+            final value = XPathNodeSet.fromIterable(iterable);
+            expect(value.nodes, iterable);
+            expect(value.string, 'Node 1');
+            expect(value.number, isNaN);
+            expect(value.boolean, isTrue);
+            expect(value.toString(), '[Node 1]');
+          });
+          test('multiple from list', () {
+            final iterable = [nodes[0], nodes[1]];
+            final value = XPathNodeSet.fromIterable(
+              iterable,
+              isSorted: true,
+              isUnique: true,
+            );
+            expect(value.nodes, same(iterable));
+            expect(value.string, 'Node 1');
+            expect(value.number, isNaN);
+            expect(value.boolean, isTrue);
+            expect(value.toString(), '[Node 1, Node 2]');
+          });
+          test('multiple from set', () {
+            final iterable = {nodes[0], nodes[1]};
+            final value = XPathNodeSet.fromIterable(
+              iterable,
+              isSorted: true,
+              isUnique: true,
+            );
+            expect(value.nodes, iterable);
+            expect(value.string, 'Node 1');
+            expect(value.number, isNaN);
+            expect(value.boolean, isTrue);
+            expect(value.toString(), '[Node 1, Node 2]');
+          });
+          test('duplicates from list', () {
+            final iterable = [nodes[0], nodes[1], nodes[1]];
+            final value = XPathNodeSet.fromIterable(
+              iterable,
+              isUnique: false,
+              isSorted: true,
+            );
+            expect(value.nodes, [nodes[0], nodes[1]]);
+            expect(value.string, 'Node 1');
+            expect(value.number, isNaN);
+            expect(value.boolean, isTrue);
+            expect(value.toString(), '[Node 1, Node 2]');
+          });
+          test('duplicates from set', () {
+            final iterable = {nodes[0], nodes[1], nodes[1]};
+            final value = XPathNodeSet.fromIterable(
+              iterable,
+              isUnique: false,
+              isSorted: true,
+            );
+            expect(value.nodes, [nodes[0], nodes[1]]);
+            expect(value.string, 'Node 1');
+            expect(value.number, isNaN);
+            expect(value.boolean, isTrue);
+            expect(value.toString(), '[Node 1, Node 2]');
+          });
+          test('unsorted from small list', () {
+            final iterable = [nodes[1], nodes[0]];
+            final value = XPathNodeSet.fromIterable(
+              iterable,
+              isUnique: true,
+              isSorted: false,
+            );
+            expect(value.nodes, [nodes[0], nodes[1]]);
+            expect(value.string, 'Node 1');
+            expect(value.number, isNaN);
+            expect(value.boolean, isTrue);
+            expect(value.toString(), '[Node 1, Node 2]');
+          });
+          test('unsorted from small set', () {
+            final iterable = {nodes[1], nodes[0]};
+            final value = XPathNodeSet.fromIterable(
+              iterable,
+              isUnique: true,
+              isSorted: false,
+            );
+            expect(value.nodes, [nodes[0], nodes[1]]);
+            expect(value.string, 'Node 1');
+            expect(value.number, isNaN);
+            expect(value.boolean, isTrue);
+            expect(value.toString(), '[Node 1, Node 2]');
+          });
+          test('unsorted from large list', () {
+            final iterable = [...nodes.reversed];
+            final value = XPathNodeSet.fromIterable(
+              iterable,
+              isUnique: true,
+              isSorted: false,
+            );
+            expect(value.nodes, nodes);
+            expect(value.string, 'Node 1');
+            expect(value.number, isNaN);
+            expect(value.boolean, isTrue);
+            expect(value.toString(), '[Node 1, Node 2, Node 3, ...]');
+          });
+          test('unsorted from large set', () {
+            final iterable = {...nodes.reversed};
+            final value = XPathNodeSet.fromIterable(
+              iterable,
+              isUnique: true,
+              isSorted: false,
+            );
+            expect(value.nodes, nodes);
+            expect(value.string, 'Node 1');
+            expect(value.number, isNaN);
+            expect(value.boolean, isTrue);
+            expect(value.toString(), '[Node 1, Node 2, Node 3, ...]');
+          });
+          test('duplicates and unsorted stress', () {
+            final random = Random(521365);
+            for (var count = 5; count <= 1000; count++) {
+              final iterable = [
+                for (var i = 0; i < count; i++)
+                  nodes[random.nextInt(nodes.length)],
+              ];
+              final sorted = nodes.where(iterable.contains).toList();
+              final value = XPathNodeSet.fromIterable(iterable);
+              expect(value.nodes, sorted);
+              expect(value.string, sorted.first.innerText);
+              expect(value.number, isNaN);
+              expect(value.boolean, isTrue);
+              expect(
+                value.toString(),
+                startsWith('[${sorted.first.innerText}, '),
+              );
+            }
+          });
+        });
       });
     });
     group('string', () {

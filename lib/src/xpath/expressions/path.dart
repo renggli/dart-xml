@@ -165,21 +165,29 @@ class PathExpression implements XPathExpression {
     if (steps.isEmpty) {
       return XPathNodeSet.single(context.node.root);
     }
-    Iterable<XmlNode> nodes = isAbsolute ? [context.node.root] : [context.node];
     final inner = context.copy();
-    for (final step in steps) {
-      final innerNodes = <XmlNode>[];
-      for (final node in nodes) {
-        inner.node = node;
-        final result = step.find(inner);
-        innerNodes.addAll(result);
+    if (isOrderPreserved) {
+      var nodes = [if (isAbsolute) context.node.root else context.node];
+      for (final step in steps) {
+        final innerNodes = <XmlNode>[];
+        for (final node in nodes) {
+          inner.node = node;
+          innerNodes.addAll(step.find(inner));
+        }
+        nodes = innerNodes;
       }
-      nodes = isOrderPreserved ? innerNodes : innerNodes.toSet();
+      return XPathNodeSet(nodes);
+    } else {
+      var nodes = {if (isAbsolute) context.node.root else context.node};
+      for (final step in steps) {
+        final innerNodes = <XmlNode>{};
+        for (final node in nodes) {
+          inner.node = node;
+          innerNodes.addAll(step.find(inner));
+        }
+        nodes = innerNodes;
+      }
+      return XPathNodeSet.fromIterable(nodes, isSorted: false, isUnique: true);
     }
-    return XPathNodeSet(
-      nodes,
-      isSorted: isOrderPreserved,
-      isUnique: true, // always unique
-    );
   }
 }

@@ -1,6 +1,8 @@
 import 'package:meta/meta.dart';
 
 import '../../xml/extensions/comparison.dart';
+import '../../xml/extensions/descendants.dart';
+import '../../xml/extensions/parent.dart';
 import '../../xml/nodes/document.dart';
 import '../../xml/nodes/element.dart';
 import '../../xml/nodes/node.dart';
@@ -12,7 +14,7 @@ import 'expression.dart';
 @immutable
 sealed class XPathValue implements XPathExpression {
   /// Returns the node-set (unique and in document-order) of this value.
-  Iterable<XmlNode> get nodes;
+  List<XmlNode> get nodes;
 
   /// Returns the string of this value.
   String get string;
@@ -26,34 +28,62 @@ sealed class XPathValue implements XPathExpression {
 
 /// Wrapper around an [Iterable] of unique [XmlNode]s in document-order.
 class XPathNodeSet implements XPathValue {
-  /// Constructs a new node-set from `nodes`. By default we assume that the
-  /// input require sorting (`isSorted = false`) and deduplication (`isUnique
-  /// = false`).
-  factory XPathNodeSet(
+  /// Constructs a node-set from an iterable of `nodes`.
+  ///
+  /// Optionally removes duplicates and orders the nodes in document-order.
+  /// The implementaiton tries to avoid unnecessary copying and moving of nodes.
+  factory XPathNodeSet.fromIterable(
     Iterable<XmlNode> nodes, {
     bool isUnique = false,
     bool isSorted = false,
   }) {
-    final hasMultipleNodes = nodes.length > 1;
-    if (hasMultipleNodes && !isUnique) {
-      isSorted = false;
+    // Short path, if this is a trivial case.
+    switch (nodes.length) {
+      case 0:
+        return XPathNodeSet.empty;
+      case 1:
+        return XPathNodeSet(nodes is List<XmlNode> ? nodes : nodes.toList());
+    }
+    // Compute the unique nodes, if required.
+    if (!isUnique && nodes is! Set<XmlNode>) {
       nodes = nodes.toSet();
     }
-    final list = nodes.toList(growable: false);
-    if (hasMultipleNodes && !isSorted) {
-      list.sort((a, b) => a.compareNodePosition(b));
+    // Sort the nodes, if required.
+    if (!isSorted) {
+      // https://github.com/renggli/dart-xml/issues/196
+      if (nodes.length < 50) {
+        final list = nodes is List<XmlNode> ? nodes : nodes.toList();
+        list.sort((a, b) => a.compareNodePosition(b));
+        return XPathNodeSet(list);
+      } else {
+        final selected = nodes is Set<XmlNode> ? nodes : nodes.toSet();
+        return XPathNodeSet(
+          nodes.first.root.descendants.where(selected.contains).toList(),
+        );
+      }
     }
-    return XPathNodeSet._(list);
+    return XPathNodeSet(nodes is List<XmlNode> ? nodes : nodes.toList());
   }
 
-  /// Constructs a new node-set from a single `node`.
-  factory XPathNodeSet.single(XmlNode node) => XPathNodeSet._([node]);
+  /// Constructs a node-set from a single `node`.
+  XPathNodeSet.single(XmlNode node) : nodes = [node];
 
-  /// Constructs a node node-set from a list of unique nodes in document-order.
-  const XPathNodeSet._(this.nodes);
+  /// Constructs a node-set from a list of unique `nodes` in document-order.
+  XPathNodeSet(this.nodes) {
+    assert(() {
+      for (var i = 1; i < nodes.length; i++) {
+        if (nodes[i - 1].compareNodePosition(nodes[i]) >= 0) {
+          return false;
+        }
+      }
+      return true;
+    }(), 'Nodes are required to be unique and in document-order');
+  }
 
   /// The empty node-set as a reusable object.
   static const empty = XPathNodeSet._([]);
+
+  const XPathNodeSet._(this.nodes);
 
   @override
   final List<XmlNode> nodes;
@@ -127,7 +157,7 @@ class XPathString implements XPathValue {
   static const empty = XPathString('');
 
   @override
-  Iterable<XmlNode> get nodes =>
+  List<XmlNode> get nodes =>
       throw StateError('Unable to convert string "$string" to node-set');
 
   @override
@@ -151,7 +181,7 @@ class XPathNumber implements XPathValue {
   const XPathNumber(this.number);
 
   @override
-  Iterable<XmlNode> get nodes =>
+  List<XmlNode> get nodes =>
       throw StateError('Unable to convert number $number to node-set');
 
   @override
@@ -175,7 +205,7 @@ class XPathBoolean implements XPathValue {
   const XPathBoolean(this.boolean);
 
   @override
-  Iterable<XmlNode> get nodes =>
+  List<XmlNode> get nodes =>
       throw StateError('Unable to convert boolean $boolean to node-set');
 
   @override
