@@ -2,6 +2,21 @@ import 'package:test/test.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
+/// Returns `true`, if assertions are enabled.
+bool hasAssertionsEnabled() {
+  try {
+    assert(false);
+    return false;
+  } catch (exception) {
+    return true;
+  }
+}
+
+/// Returns a [Matcher] that asserts on a [AssertionError].
+final isAssertionError = hasAssertionsEnabled()
+    ? const TypeMatcher<AssertionError>()
+    : throw UnsupportedError('Assertions are disabled');
+
 Matcher isXmlNode(dynamic matcher) => switch (matcher) {
   String() => isA<XmlNode>().having(
     (each) => each.outerXml,

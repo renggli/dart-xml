@@ -152,6 +152,61 @@ void main() {
             XmlElement.tag('node', children: [XmlText('Node ${i + 1}')]),
         ];
         XmlDocument([XmlElement.tag('root', children: nodes)]);
+        group('default', () {
+          test('empty', () {
+            final value = XPathNodeSet([]);
+            expect(value.nodes, isEmpty);
+            expect(value.string, '');
+            expect(value.number, isNaN);
+            expect(value.boolean, isFalse);
+            expect(value.toString(), '[]');
+          });
+          test('single', () {
+            final value = XPathNodeSet([nodes[0]]);
+            expect(value.nodes, [nodes[0]]);
+            expect(value.string, 'Node 1');
+            expect(value.number, isNaN);
+            expect(value.boolean, isTrue);
+            expect(value.toString(), '[Node 1]');
+          });
+          test('many', () {
+            final value = XPathNodeSet(nodes);
+            expect(value.nodes, nodes);
+            expect(value.string, 'Node 1');
+            expect(value.number, isNaN);
+            expect(value.boolean, isTrue);
+            expect(value.toString(), '[Node 1, Node 2, Node 3, ...]');
+          });
+          test('duplicate', () {
+            expect(
+              () => XPathNodeSet([nodes[5], nodes[6], nodes[6]]),
+              throwsA(isAssertionError),
+            );
+          }, skip: !hasAssertionsEnabled());
+          test('unsorted', () {
+            expect(
+              () => XPathNodeSet([nodes[5], nodes[7], nodes[6]]),
+              throwsA(isAssertionError),
+            );
+          }, skip: !hasAssertionsEnabled());
+        }, skip: !hasAssertionsEnabled());
+        test('empty', () {
+          const value = XPathNodeSet.empty;
+          expect(value.nodes, isEmpty);
+          expect(value.string, '');
+          expect(value.number, isNaN);
+          expect(value.boolean, isFalse);
+          expect(value.toString(), '[]');
+        });
+        test('single', () {
+          final node = nodes[0];
+          final value = XPathNodeSet.single(node);
+          expect(value.nodes, [node]);
+          expect(value.string, 'Node 1');
+          expect(value.number, isNaN);
+          expect(value.boolean, isTrue);
+          expect(value.toString(), '[Node 1]');
+        });
         group('fromIterable', () {
           test('empty from list', () {
             final iterable = <XmlNode>[];
@@ -302,8 +357,8 @@ void main() {
                 for (var i = 0; i < count; i++)
                   nodes[random.nextInt(nodes.length)],
               ];
-              final sorted = nodes.where(iterable.contains).toList();
               final value = XPathNodeSet.fromIterable(iterable);
+              final sorted = nodes.where(iterable.contains).toList();
               expect(value.nodes, sorted);
               expect(value.string, sorted.first.innerText);
               expect(value.number, isNaN);

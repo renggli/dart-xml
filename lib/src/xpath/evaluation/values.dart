@@ -28,10 +28,27 @@ sealed class XPathValue implements XPathExpression {
 
 /// Wrapper around an [Iterable] of unique [XmlNode]s in document-order.
 class XPathNodeSet implements XPathValue {
-  /// Constructs a node-set from an iterable of `nodes`.
+  /// Constructs a node-set from a list of unique `nodes` in document-order.
+  XPathNodeSet(this.nodes) {
+    assert(() {
+      for (var i = 1; i < nodes.length; i++) {
+        if (nodes[i - 1].compareNodePosition(nodes[i]) >= 0) {
+          return false;
+        }
+      }
+      return true;
+    }(), 'Nodes are required to be unique and in document-order');
+  }
+
+  /// Constructs a node-set from a single `node`.
+  XPathNodeSet.single(XmlNode node) : nodes = [node];
+
+  /// Constructs a node-set from an iterable of `nodes`. Unless told oltherwise,
+  /// removes duplicates and orders the nodes in document-order.
   ///
-  /// Optionally removes duplicates and orders the nodes in document-order.
-  /// The implementaiton tries to avoid unnecessary copying and moving of nodes.
+  /// The implementaiton tries to avoid unnecessary allocation and copying of
+  /// nodes. If a lot of nodes need to be sorted, the document-order nodes are
+  /// extracted from a full traversal of the node tree.
   factory XPathNodeSet.fromIterable(
     Iterable<XmlNode> nodes, {
     bool isUnique = false,
@@ -63,21 +80,6 @@ class XPathNodeSet implements XPathValue {
       }
     }
     return XPathNodeSet(nodes is List<XmlNode> ? nodes : nodes.toList());
-  }
-
-  /// Constructs a node-set from a single `node`.
-  XPathNodeSet.single(XmlNode node) : nodes = [node];
-
-  /// Constructs a node-set from a list of unique `nodes` in document-order.
-  XPathNodeSet(this.nodes) {
-    assert(() {
-      for (var i = 1; i < nodes.length; i++) {
-        if (nodes[i - 1].compareNodePosition(nodes[i]) >= 0) {
-          return false;
-        }
-      }
-      return true;
-    }(), 'Nodes are required to be unique and in document-order');
   }
 
   /// The empty node-set as a reusable object.
