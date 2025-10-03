@@ -17,6 +17,8 @@ final isAssertionError = hasAssertionsEnabled()
     ? const TypeMatcher<AssertionError>()
     : throw UnsupportedError('Assertions are disabled');
 
+/// Returns a [Matcher] that asserts on a [XmlNode] with a string serialization
+/// or a structurally equivalent node.
 Matcher isXmlNode(dynamic matcher) => switch (matcher) {
   String() => isA<XmlNode>().having(
     (each) => each.outerXml,
@@ -28,9 +30,10 @@ Matcher isXmlNode(dynamic matcher) => switch (matcher) {
     'node',
     isTrue,
   ),
-  _ => allOf(isA<XmlNode>(), matcher),
+  _ => throw ArgumentError.value(matcher, 'matcher', 'Invalid type'),
 };
 
+/// Returns a [Matcher] that assert on a [XmlParentException].
 Matcher isXmlParentException({
   dynamic message = isNotEmpty,
   dynamic node = anything,
@@ -41,6 +44,7 @@ Matcher isXmlParentException({
     .having((value) => value.parent, 'parent', parent)
     .having((value) => value.toString(), 'toString', isNotEmpty);
 
+/// Returns a [Matcher] that assert on a [XmlParserException].
 Matcher isXmlParserException({
   dynamic message = isNotEmpty,
   dynamic buffer = anything,
@@ -57,6 +61,7 @@ Matcher isXmlParserException({
     .having((value) => value.column, 'column', column)
     .having((value) => value.toString(), 'toString', isNotEmpty);
 
+/// Returns a [Matcher] that assert on a [XmlNodeTypeException].
 Matcher isXmlNodeTypeException({
   dynamic message = isNotEmpty,
   dynamic node = anything,
@@ -67,6 +72,7 @@ Matcher isXmlNodeTypeException({
     .having((value) => value.types, 'types', types)
     .having((value) => value.toString(), 'toString', isNotEmpty);
 
+/// Returns a [Matcher] that assert on a [XmlTagException].
 Matcher isXmlTagException({
   dynamic message = isNotEmpty,
   dynamic expectedName = anything,
@@ -85,6 +91,7 @@ Matcher isXmlTagException({
     .having((value) => value.column, 'column', column)
     .having((value) => value.toString(), 'toString', isNotEmpty);
 
+/// Returns a [Matcher] that assert on a [XPathParserException].
 Matcher isXPathParserException({
   dynamic message = isNotEmpty,
   dynamic buffer = anything,
@@ -101,6 +108,7 @@ Matcher isXPathParserException({
     .having((value) => value.column, 'column', column)
     .having((value) => value.toString(), 'toString', isNotEmpty);
 
+/// Returns a [Matcher] that assert on a [XPathEvaluationException].
 Matcher isXPathEvaluationException({
   dynamic message = isNotEmpty,
   dynamic name = anything,

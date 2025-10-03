@@ -1099,6 +1099,147 @@ void main() {
       expectXPath(current, '*[@b="3"]', ['<e2 a="2" b="3"/>']);
     });
   });
+  group('path', () {
+    group('step optimization', () {
+      void expectOptimized(Axis stepAxis, Axis newAxis) {
+        {
+          // Applies optimization.
+          final path = PathExpression([
+            const Step(DescendantOrSelfAxis()),
+            Step(stepAxis, const QualifiedNameNodeTest('x')),
+          ], isAbsolute: true);
+          expect(path.steps, hasLength(1));
+          final actualStep = path.steps.single;
+          expect(actualStep.axis.runtimeType, newAxis.runtimeType);
+          expect(actualStep.nodeTest, const QualifiedNameNodeTest('x'));
+          expect(actualStep.predicates, isEmpty);
+        }
+        {
+          // Incompatible initial step.
+          final path = PathExpression([
+            const Step(SelfAxis()),
+            Step(stepAxis, const QualifiedNameNodeTest('x')),
+          ], isAbsolute: true);
+          expect(path.steps, hasLength(2));
+        }
+        {
+          // Incompatible node test.
+          final path = PathExpression([
+            const Step(DescendantOrSelfAxis(), CommentTypeNodeTest()),
+            Step(stepAxis, const QualifiedNameNodeTest('x')),
+          ], isAbsolute: true);
+          expect(path.steps, hasLength(2));
+        }
+        {
+          // Incompatible predicate.
+          final path = PathExpression([
+            const Step(DescendantOrSelfAxis()),
+            Step(stepAxis, const QualifiedNameNodeTest('x'), const [
+              Predicate(XPathNumber(1)),
+            ]),
+          ], isAbsolute: true);
+          expect(path.steps, hasLength(2));
+        }
+      }
+
+      test(
+        '//child::x => descendant::x',
+        () => expectOptimized(const ChildAxis(), const DescendantAxis()),
+      );
+      test(
+        '//self::x => descendant-or-self::x',
+        () => expectOptimized(const SelfAxis(), const DescendantOrSelfAxis()),
+      );
+      test(
+        '//descendant::x => descendant::x',
+        () => expectOptimized(const DescendantAxis(), const DescendantAxis()),
+      );
+      test(
+        '//descendant-or-self::x => descendant-or-self::x',
+        () => expectOptimized(
+          const DescendantOrSelfAxis(),
+          const DescendantOrSelfAxis(),
+        ),
+      );
+    });
+    group('order preservation', () {
+      test('anyStep (selfStep | attributeStep)*', () {
+        expect(
+          PathExpression(const [
+            Step(AncestorOrSelfAxis()),
+          ], isAbsolute: true).isOrderPreserved,
+          isTrue,
+        );
+        expect(
+          PathExpression(const [
+            Step(AncestorOrSelfAxis()),
+            Step(SelfAxis()),
+            Step(SelfAxis()),
+            Step(AttributeAxis(), QualifiedNameNodeTest('id')),
+          ], isAbsolute: true).isOrderPreserved,
+          isTrue,
+        );
+        expect(
+          PathExpression(const [
+            Step(AncestorOrSelfAxis()),
+            Step(DescendantAxis()),
+          ], isAbsolute: true).isOrderPreserved,
+          isFalse,
+        );
+      });
+      test(
+        '(selfStep | childStep)+ (descendantStep | descendantOrSelfStep)? (selfStep | attributeStep)*',
+        () {
+          expect(
+            PathExpression(const [
+              Step(ChildAxis()),
+              Step(ChildAxis()),
+              Step(SelfAxis()),
+              Step(DescendantAxis()),
+              Step(SelfAxis()),
+              Step(SelfAxis()),
+              Step(AttributeAxis(), QualifiedNameNodeTest('id')),
+            ], isAbsolute: false).isOrderPreserved,
+            isTrue,
+          );
+          expect(
+            PathExpression(const [
+              Step(ChildAxis()),
+              Step(ChildAxis()),
+              Step(SelfAxis()),
+              Step(SelfAxis()),
+              Step(AttributeAxis(), QualifiedNameNodeTest('id')),
+            ], isAbsolute: false).isOrderPreserved,
+            isTrue,
+          );
+          expect(
+            PathExpression(const [
+              Step(ChildAxis()),
+              Step(ChildAxis()),
+              Step(SelfAxis()),
+              Step(DescendantOrSelfAxis()),
+              Step(SelfAxis()),
+              Step(SelfAxis()),
+              Step(AttributeAxis(), QualifiedNameNodeTest('id')),
+            ], isAbsolute: false).isOrderPreserved,
+            isTrue,
+          );
+          expect(
+            PathExpression(const [
+              Step(ChildAxis()),
+              Step(ChildAxis()),
+              Step(SelfAxis()),
+              Step(ParentAxis()),
+              Step(SelfAxis()),
+              Step(SelfAxis()),
+              Step(AttributeAxis(), QualifiedNameNodeTest('id')),
+            ], isAbsolute: false).isOrderPreserved,
+            isFalse,
+          );
+        },
+      );
+    });
+  });
   group('errors', () {
     final xml = XmlDocument.parse('<?xml version="1.0"?><root/>');
     test('empty', () {
@@ -1466,87 +1607,6 @@ void main() {
     test('linter', () {
       final parser = const XPathParser().build();
       expect(linter(parser), isEmpty);
-    });
-  });
-  group('path expression', () {
-    test('step optimization', () {
-      /// - '//' + child::x => descendant::x
-      /// - '//' + descendant::x => descendant::x
-      /// - '//' + self::x => descendant-or-self::x
-      /// - '//' + descendant-or-self::x => descendant-or-self::x
-      void expectOptimized(Axis stepAxis, Axis newAxis) {
-        const abbrevStep = Step(DescendantOrSelfAxis());
-        const nodeTest = QualifiedNameNodeTest('x');
-        {
-          // empty predicates
-          final path = PathExpression([
-            abbrevStep,
-            Step(stepAxis, nodeTest),
-          ], isAbsolute: true);
-          expect(path.steps, hasLength(1));
-          final actualStep = path.steps.single;
-          expect(actualStep.axis.runtimeType, newAxis.runtimeType);
-          expect(actualStep.nodeTest, nodeTest);
-          expect(actualStep.predicates, isEmpty);
-        }
-        {
-          // non-empty predicates
-          const predicates = [Predicate(XPathNumber(1))];
-          final path = PathExpression([
-            abbrevStep,
-            Step(stepAxis, nodeTest, predicates),
-          ], isAbsolute: true);
-          expect(path.steps, hasLength(2));
-        }
-      }
-
-      expectOptimized(const ChildAxis(), const DescendantAxis());
-      expectOptimized(const SelfAxis(), const DescendantOrSelfAxis());
-      expectOptimized(const DescendantAxis(), const DescendantAxis());
-      expectOptimized(
-        const DescendantOrSelfAxis(),
-        const DescendantOrSelfAxis(),
-      );
-    });
-
-    test('order preservation', () {
-      /// The resulting nodes' document order and uniqueness is preserved,
-      /// if the steps match the following patterns:
-      /// 1. anyStep (selfStep | attributeStep)*
-      /// 2. (selfStep | childStep)+ (descendantStep | descendantOrSelfStep)? (selfStep | attributeStep)*
-      expect(
-        PathExpression(const [
-          Step(AncestorOrSelfAxis()),
-          Step(SelfAxis()),
-          Step(SelfAxis()),
-          Step(AttributeAxis(), QualifiedNameNodeTest('id')),
-        ], isAbsolute: true).isOrderPreserved,
-        isTrue,
-      );
-      expect(
-        PathExpression(const [
-          Step(ChildAxis()),
-          Step(ChildAxis()),
-          Step(SelfAxis()),
-          Step(DescendantAxis()),
-          Step(SelfAxis()),
-          Step(SelfAxis()),
-          Step(AttributeAxis(), QualifiedNameNodeTest('id')),
-        ], isAbsolute: false).isOrderPreserved,
-        isTrue,
-      );
-      expect(
-        PathExpression(const [
-          Step(ChildAxis()),
-          Step(ChildAxis()),
-          Step(SelfAxis()),
-          Step(DescendantOrSelfAxis()),
-          Step(SelfAxis()),
-          Step(SelfAxis()),
-          Step(AttributeAxis(), QualifiedNameNodeTest('id')),
-        ], isAbsolute: false).isOrderPreserved,
-        isTrue,
-      );
     });
   });
   group('more', () {
