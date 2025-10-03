@@ -187,7 +187,7 @@ class PathExpression implements XPathExpression {
         }
         nodes = innerNodes;
       }
-      return XPathNodeSet.fromIterable(nodes, isSorted: false, isUnique: true);
+      return XPathNodeSet.fromIterable(nodes, isUnique: true);
     }
   }
 }
