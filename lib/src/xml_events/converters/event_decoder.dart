@@ -48,12 +48,11 @@ class XmlEventDecoder extends Converter<String, List<XmlEvent>> {
 
   @override
   List<XmlEvent> convert(String input, [int start = 0, int? end]) {
-    end = RangeError.checkValidRange(start, end, input.length);
     final list = <XmlEvent>[];
     final sink = ConversionSink<List<XmlEvent>>(list.addAll);
-    startChunkedConversion(sink)
-      ..add(input)
-      ..close();
+    startChunkedConversion(
+      sink,
+    ).addSlice(input, start, end ?? input.length, true);
     return list;
   }
 
