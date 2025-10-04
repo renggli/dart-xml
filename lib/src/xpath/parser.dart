@@ -129,8 +129,11 @@ class XPathParser {
     _t('preceding::').map((_) => const PrecedingAxis()),
   ].toChoiceParser();
 
-  Parser<NodeTest> nodeTest() =>
-      [ref0(kindTest), ref0(nameTest)].toChoiceParser();
+  Parser<NodeTest> nodeTest() => [
+    ref0(kindTest),
+    ref0(nameTest),
+    failure<NodeTest>(message: 'node test expected'),
+  ].toChoiceParser();
 
   Parser<NodeTest> kindTest() => [
     _t('comment()').map((_) => const CommentTypeNodeTest()),
@@ -144,11 +147,26 @@ class XPathParser {
   ].toChoiceParser();
 
   Parser<NodeTest> nameTest() => [
-    _t('*').map((_) => const HasNameNodeTest()),
+    seq2(
+      _t('*:'),
+      ref0(nonColonizedName),
+    ).map2((_, localName) => LocalNameNodeTest(localName)),
+    _t('*').map((_) => const NameNodeTest()),
+    seq2(
+      ref0(bracedUri),
+      _t('*'),
+    ).map2((namespaceUri, _) => NamespaceUriNodeTest(namespaceUri)),
+    seq2(
+      ref0(bracedUri),
+      ref0(nonColonizedName),
+    ).map2(NamespaceUriAndLocalNameNodeTest.new),
+    seq2(ref0(nonColonizedName), _t(':*')).map2(
+      (namespacePrefix, _) => NamespacePrefixNameNodeTest(namespacePrefix),
+    ),
     seq2(
       ref0(qualifiedName),
-      char('(').not(message: 'no "(" expected'),
-    ).map2((name, _) => QualifiedNameNodeTest(name)),
+      char('(').not(),
+    ).map2((qualifiedName, _) => QualifiedNameNodeTest(qualifiedName)),
   ].toChoiceParser();
 
   Parser<Predicate> predicate() => seq3(
@@ -187,6 +205,12 @@ class XPathParser {
     _t(',').optional(),
     _t(')'),
   ).map5((name, _, args, _, _) => _DFE(name, args));
+
+  Parser<String> bracedUri() => seq3(
+    'Q{'.toParser(),
+    pattern('^{}').starString(),
+    '}'.toParser(),
+  ).map3((_, uri, _) => uri);
 
   Parser<String> qualifiedName() => ref0(eventParser.qualifiedNameToken);
   Parser<String> nonColonizedName() => ref0(eventParser.nonColonizedNameToken);

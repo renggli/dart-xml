@@ -42,19 +42,59 @@ class TextTypeNodeTest implements NodeTest {
       node.nodeType == XmlNodeType.TEXT || node.nodeType == XmlNodeType.CDATA;
 }
 
-class HasNameNodeTest implements NodeTest {
-  const HasNameNodeTest();
+class NameNodeTest implements NodeTest {
+  const NameNodeTest();
 
   @override
-  bool matches(XmlNode node) => node is XmlHasName;
+  bool matches(XmlNode node) =>
+      node is XmlHasName && matchesName(node as XmlHasName);
+
+  bool matchesName(XmlHasName node) => true;
 }
 
-class QualifiedNameNodeTest implements NodeTest {
+class QualifiedNameNodeTest extends NameNodeTest {
   const QualifiedNameNodeTest(this.qualifiedName);
 
   final String qualifiedName;
 
   @override
-  bool matches(XmlNode node) =>
-      node is XmlHasName && (node as XmlHasName).qualifiedName == qualifiedName;
+  bool matchesName(XmlHasName node) => node.qualifiedName == qualifiedName;
+}
+
+class NamespaceUriAndLocalNameNodeTest extends NameNodeTest {
+  const NamespaceUriAndLocalNameNodeTest(this.namespaceUri, this.localName);
+
+  final String namespaceUri;
+  final String localName;
+
+  @override
+  bool matchesName(XmlHasName node) =>
+      node.namespaceUri == namespaceUri && node.localName == localName;
+}
+
+class NamespacePrefixNameNodeTest extends NameNodeTest {
+  const NamespacePrefixNameNodeTest(this.namespacePrefix);
+
+  final String namespacePrefix;
+
+  @override
+  bool matchesName(XmlHasName node) => node.namespacePrefix == namespacePrefix;
+}
+
+class LocalNameNodeTest extends NameNodeTest {
+  const LocalNameNodeTest(this.localName);
+
+  final String localName;
+
+  @override
+  bool matchesName(XmlHasName node) => node.localName == localName;
+}
+
+class NamespaceUriNodeTest extends NameNodeTest {
+  const NamespaceUriNodeTest(this.namespaceUri);
+
+  final String namespaceUri;
+
+  @override
+  bool matchesName(XmlHasName node) => node.namespaceUri == namespaceUri;
 }

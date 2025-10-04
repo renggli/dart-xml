@@ -1063,16 +1063,41 @@ void main() {
   group('node test', () {
     const input =
         '<?xml version="1.0"?>'
-        '<r><!--comment--><e1/><e2/><?p1?><?p2?>text<![CDATA[data]]></r>';
+        '<r xmlns:ns1="uri1" xmlns:ns2="uri2">'
+        '<!--comment--><e1/><e2/><?p1?><?p2?>text<![CDATA[data]]><ns1:e3/><ns2:e3/>'
+        '</r>';
     final document = XmlDocument.parse(input);
     final current = document.rootElement;
-    test('*', () {
-      expectXPath(current, '*', ['<e1/>', '<e2/>']);
-      expectXPath(document, 'self::*', []);
-    });
-    test('e1', () {
+    test('fully qualified name', () {
       expectXPath(current, 'e1', ['<e1/>']);
       expectXPath(current, 'e2', ['<e2/>']);
+      expectXPath(current, 'e3', []);
+      expectXPath(current, 'ns1:e3', ['<ns1:e3/>']);
+      expectXPath(current, 'ns2:e3', ['<ns2:e3/>']);
+    });
+    test('fully qualified name with URI namespace', () {
+      expectXPath(current, 'Q{uri1}e3', ['<ns1:e3/>']);
+      expectXPath(current, 'Q{uri2}e3', ['<ns2:e3/>']);
+      expectXPath(current, 'Q{uri3}e3', []);
+    });
+    test('local name wildcard', () {
+      expectXPath(current, 'ns1:*', ['<ns1:e3/>']);
+      expectXPath(current, 'ns2:*', ['<ns2:e3/>']);
+      expectXPath(current, 'ns3:*', []);
+    });
+    test('local name wildcard with URI namespace', () {
+      expectXPath(current, 'Q{uri1}*', ['<ns1:e3/>']);
+      expectXPath(current, 'Q{uri2}*', ['<ns2:e3/>']);
+      expectXPath(current, 'Q{uri3}*', []);
+    });
+    test('namespace prefix wildcard', () {
+      expectXPath(current, '*:e1', ['<e1/>']);
+      expectXPath(current, '*:e2', ['<e2/>']);
+      expectXPath(current, '*:e3', ['<ns1:e3/>', '<ns2:e3/>']);
+    });
+    test('wildcard', () {
+      expectXPath(current, '*', ['<e1/>', '<e2/>', '<ns1:e3/>', '<ns2:e3/>']);
+      expectXPath(document, 'self::*', []);
     });
     test('comment()', () {
       expectXPath(current, 'comment()', ['<!--comment-->']);
@@ -1599,15 +1624,17 @@ void main() {
     group('errors', () {
       final xml = XmlDocument.parse('<?xml version="1.0"?><root/>');
       final cases = {
-        '': ('qualified name expected', 0),
-        ':': ('qualified name expected', 0),
+        '': ('node test expected', 0),
+        ':': ('node test expected', 0),
         '//': ('end of input expected', 1),
         '*[': ('end of input expected', 1),
-        ':false()': ('qualified name expected', 0),
+        '*]': ('end of input expected', 1),
+        '*:': ('end of input expected', 1),
+        ':false()': ('node test expected', 0),
         'false:()': ('end of input expected', 5),
-        'false(:)': ('no "(" expected', 5),
+        'false(:)': ('node test expected', 0),
         'false():': ('end of input expected', 7),
-        ':a/b': ('qualified name expected', 0),
+        ':a/b': ('node test expected', 0),
         'a:/b': ('end of input expected', 1),
         'a/:b': ('end of input expected', 1),
         'a/b:': ('end of input expected', 3),
