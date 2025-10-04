@@ -147,7 +147,7 @@ class XPathParser {
     _t('*').map((_) => const HasNameNodeTest()),
     seq2(
       ref0(qualifiedName),
-      char('(').not(message: 'no function call expected'),
+      char('(').not(message: 'no "(" expected'),
     ).map2((name, _) => QualifiedNameNodeTest(name)),
   ].toChoiceParser();
 
