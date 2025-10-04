@@ -136,11 +136,14 @@ class XPathParser {
   ].toChoiceParser();
 
   Parser<NodeTest> kindTest() => [
+    _t('attribute()').map((_) => const AttributeTypeNodeTest()),
     _t('comment()').map((_) => const CommentTypeNodeTest()),
+    _t('document-node()').map((_) => const DocumentTypeNodeTest()),
+    _t('element()').map((_) => const ElementTypeNodeTest()),
     _t('node()').map((_) => const NodeTypeNodeTest()),
     seq3(
       _t('processing-instruction('),
-      ref0(string).optional(),
+      [ref0(nonColonizedName), ref0(string)].toChoiceParser().optional(),
       char(')'),
     ).map3((_, target, _) => ProcessingTypeNodeTest(target)),
     _t('text()').map((_) => const TextTypeNodeTest()),
