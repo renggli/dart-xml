@@ -6,6 +6,10 @@ import 'package:xml/xml_events.dart';
 
 import 'matchers.dart';
 
+class EmptyVisitor with XmlVisitor {}
+
+class EmptyEventVistor with XmlEventVisitor {}
+
 void assertDocumentParseInvariants(String input) {
   final document = XmlDocument.parse(input);
   assertDocumentTreeInvariants(document);
@@ -371,8 +375,6 @@ void assertCopyInvariants(XmlNode xml) {
   assertNameInvariants(copy);
 }
 
-class EmptyVisitor with XmlVisitor {}
-
 void assertVisitorInvariants(XmlNode xml) {
   final visitor = EmptyVisitor();
   for (final node in [xml, ...xml.descendants]) {
@@ -447,6 +449,7 @@ void assertIteratorEventInvariants(String input, XmlNode node) {
       .where((node) => includedTypes.contains(node.nodeType))
       .toList(growable: true);
   final stack = <XmlStartElementEvent>[];
+  final visitor = EmptyEventVistor();
   while (iterator.moveNext()) {
     final event = iterator.current;
     if (event is XmlStartElementEvent) {
@@ -525,6 +528,7 @@ void assertIteratorEventInvariants(String input, XmlNode node) {
     } else {
       fail('Unexpected event type: $event');
     }
+    visitor.visit(event);
   }
   expect(nodes, isEmpty, reason: '$nodes were not closed.');
   expect(iterator.moveNext(), isFalse);
