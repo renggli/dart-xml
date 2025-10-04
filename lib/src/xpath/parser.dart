@@ -146,8 +146,8 @@ class XPathParser {
   Parser<NodeTest> nameTest() => [
     _t('*').map((_) => const HasNameNodeTest()),
     seq2(
-      ref0(name),
-      char('(').not(),
+      ref0(qualifiedName),
+      char('(').not(message: 'no function call expected'),
     ).map2((name, _) => QualifiedNameNodeTest(name)),
   ].toChoiceParser();
 
@@ -175,11 +175,11 @@ class XPathParser {
 
   Parser<XPathExpression> variable() => seq2(
     char('\$'),
-    ref0(name),
+    ref0(qualifiedName),
   ).trim().map2((_, name) => VariableExpression(name));
 
   Parser<XPathExpression> function() => seq5(
-    ref0(name).trim(),
+    ref0(qualifiedName).trim(),
     _t('('),
     ref0(
       expression,
@@ -188,7 +188,8 @@ class XPathParser {
     _t(')'),
   ).map5((name, _, args, _, _) => _DFE(name, args));
 
-  Parser<String> name() => ref0(eventParser.nameToken);
+  Parser<String> qualifiedName() => ref0(eventParser.qualifiedNameToken);
+  Parser<String> nonColonizedName() => ref0(eventParser.nonColonizedNameToken);
 
   static const eventParser = XmlEventParser(XmlNullEntityMapping());
 }

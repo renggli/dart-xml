@@ -1267,45 +1267,6 @@ void main() {
       );
     });
   });
-  group('errors', () {
-    final xml = XmlDocument.parse('<?xml version="1.0"?><root/>');
-    test('empty', () {
-      expect(
-        () => xml.xpath(''),
-        throwsA(
-          isXPathParserException(
-            message: 'name expected',
-            buffer: '',
-            position: 0,
-          ),
-        ),
-      );
-    });
-    test('//', () {
-      expect(
-        () => xml.xpath('//'),
-        throwsA(
-          isXPathParserException(
-            message: 'end of input expected',
-            buffer: '//',
-            position: 1,
-          ),
-        ),
-      );
-    });
-    test('predicate', () {
-      expect(
-        () => xml.xpath('*[1'),
-        throwsA(
-          isXPathParserException(
-            message: 'end of input expected',
-            buffer: '*[1',
-            position: 1,
-          ),
-        ),
-      );
-    });
-  });
   group('examples', () {
     group('https://en.wikipedia.org/wiki/XPath#Examples', () {
       final document = XmlDocument.parse(wikimediaXml);
@@ -1634,6 +1595,39 @@ void main() {
     test('linter', () {
       final parser = const XPathParser().build();
       expect(linter(parser), isEmpty);
+    });
+    group('errors', () {
+      final xml = XmlDocument.parse('<?xml version="1.0"?><root/>');
+      final cases = {
+        '': ('qualified name expected', 0),
+        ':': ('qualified name expected', 0),
+        '//': ('end of input expected', 1),
+        '*[': ('end of input expected', 1),
+        ':false()': ('qualified name expected', 0),
+        'false:()': ('end of input expected', 5),
+        'false(:)': ('no function call expected', 5),
+        ':a/b': ('qualified name expected', 0),
+        'a:/b': ('end of input expected', 1),
+        '/c:/d': ('end of input expected', 2),
+        '//e:/f': ('end of input expected', 3),
+        'g://h': ('end of input expected', 1),
+      };
+      for (final MapEntry(key: path, value: (message, position))
+          in cases.entries) {
+        test(
+          path,
+          () => expect(
+            () => xml.xpath(path),
+            throwsA(
+              isXPathParserException(
+                message: message,
+                buffer: path,
+                position: position,
+              ),
+            ),
+          ),
+        );
+      }
     });
   });
   group('more', () {

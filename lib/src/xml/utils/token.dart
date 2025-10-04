@@ -54,4 +54,11 @@ class XmlToken {
       '\u{b7}'
       '\u{300}-\u{36f}'
       '\u{203f}-\u{2040}';
+  static const chars =
+      '\u{9}'
+      '\u{a}'
+      '\u{d}'
+      '\u{20}-\u{d7ff}'
+      '\u{e000}-\u{fffd}'
+      '\u{10000}-\u{10ffff}';
 }
