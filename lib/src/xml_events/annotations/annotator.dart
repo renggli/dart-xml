@@ -24,8 +24,13 @@ class XmlAnnotator {
   final bool withLocation;
   final bool withParent;
 
-  final List<XmlEvent> _roots = [];
+  // State to validate parent relationship.
   final List<XmlStartElementEvent> _parents = [];
+
+  // State to validate document root.
+  var hasDeclaration = false;
+  var hasDoctype = false;
+  var hasElement = false;
 
   void annotate(XmlEvent event, {String? buffer, int? start, int? stop}) {
     // Attach the buffer.
@@ -45,44 +50,44 @@ class XmlAnnotator {
         // Validate the document root events.
         switch (event) {
           case XmlDeclarationEvent():
-            if (_roots.whereType<XmlDeclarationEvent>().isNotEmpty) {
+            if (hasDeclaration) {
               throw XmlParserException(
                 'Expected at most one XML declaration',
                 buffer: buffer,
                 position: start,
               );
-            } else if (_roots.isNotEmpty) {
+            } else if (hasDoctype || hasElement) {
               throw XmlParserException(
                 'Unexpected XML declaration',
                 buffer: buffer,
                 position: start,
               );
             }
-            _roots.add(event);
+            hasDeclaration = true;
           case XmlDoctypeEvent():
-            if (_roots.whereType<XmlDoctypeEvent>().isNotEmpty) {
+            if (hasDoctype) {
               throw XmlParserException(
                 'Expected at most one doctype declaration',
                 buffer: buffer,
                 position: start,
               );
-            } else if (_roots.whereType<XmlStartElementEvent>().isNotEmpty) {
+            } else if (hasElement) {
               throw XmlParserException(
                 'Unexpected doctype declaration',
                 buffer: buffer,
                 position: start,
               );
             }
-            _roots.add(event);
+            hasDoctype = true;
           case XmlStartElementEvent():
-            if (_roots.whereType<XmlStartElementEvent>().isNotEmpty) {
+            if (hasElement) {
               throw XmlParserException(
                 'Unexpected root element',
                 buffer: buffer,
                 position: start,
               );
             }
-            _roots.add(event);
+            hasElement = true;
         }
       }
       switch (event) {
@@ -130,7 +135,7 @@ class XmlAnnotator {
       );
     }
     // Validate the document root events.
-    if (validateDocument && _roots.whereType<XmlStartElementEvent>().isEmpty) {
+    if (validateDocument && !hasElement) {
       throw XmlParserException(
         'Expected a single root element',
         buffer: buffer,
