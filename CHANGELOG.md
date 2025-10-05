@@ -2,9 +2,9 @@
 
 ## 6.7.0 (unpublished)
 
-- Fix XPath grammar [issue](https://github.com/renggli/dart-xml/issues/193).
-- Fix XPath reverse axes position [issue](https://github.com/renggli/dart-xml/issues/194).
 - Significantly improve XPath evaluation [performance](https://github.com/renggli/dart-xml/issues/194#issuecomment-3311509567) for large documents.
+- Add missing XPath name tests (namespace prefix, namespace URI, local name, and wildcards) and node tests (`attribute()`, `document-node()` and `element()`).
+- Fix issues with XPath [axis parsing](https://github.com/renggli/dart-xml/issues/193), [reverse axis access](https://github.com/renggli/dart-xml/issues/194), and [predicate expressions](https://github.com/renggli/dart-xml/issues/194).
 
 ## 6.6.1
 

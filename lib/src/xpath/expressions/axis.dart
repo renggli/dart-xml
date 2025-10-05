@@ -85,7 +85,7 @@ class FollowingSiblingAxis implements Axis {
   }
 }
 
-class ParentAxis implements Axis {
+class ParentAxis implements Axis, ReverseAxis {
   const ParentAxis();
 
   @override
