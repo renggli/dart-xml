@@ -1650,6 +1650,34 @@ void main() {
       final parser = const XPathParser().build();
       expect(linter(parser), isEmpty);
     });
+    group('whitespace', () {
+      final document = XmlDocument.parse('<r><a/></r>');
+      test('space', () {
+        expectXPath(document, '//a', ['<a/>']);
+        expectXPath(document, ' //a', ['<a/>']);
+        expectXPath(document, '// a', ['<a/>']);
+        expectXPath(document, '//a ', ['<a/>']);
+      });
+      test('other', () {
+        expectXPath(document, '//\na', ['<a/>']);
+        expectXPath(document, '//\ra', ['<a/>']);
+        expectXPath(document, '//\ta', ['<a/>']);
+      });
+      test('comments', () {
+        expectXPath(document, '(: comment :)//a', ['<a/>']);
+        expectXPath(document, '//(: comment :)a', ['<a/>']);
+        expectXPath(document, '//a(: comment :)', ['<a/>']);
+      });
+      test('nested comments', () {
+        expectXPath(document, '//(: comment (: nested :) :)a', ['<a/>']);
+        expectXPath(document, '//(: (: nested :) (: nested :) :)a', ['<a/>']);
+      });
+      test('combined space and comment', () {
+        expectXPath(document, '//(: comment :) a', ['<a/>']);
+        expectXPath(document, '// (: comment :)a', ['<a/>']);
+        expectXPath(document, '// (: comment :) a', ['<a/>']);
+      });
+    });
     group('errors', () {
       final xml = XmlDocument.parse('<?xml version="1.0"?><root/>');
       final cases = {
