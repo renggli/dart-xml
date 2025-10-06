@@ -239,10 +239,9 @@ class XPathParser {
       trim(ref0(eventParser.nonColonizedNameToken));
 
   Parser<String> token(String token) => ref1(trim, token.toParser());
-  Parser<T> trim<T>(Parser<T> parser) => parser.trim(ref(_whitespace));
+  Parser<T> trim<T>(Parser<T> parser) => parser.trim(ref0(whitespace));
 
-  Parser<void> whitespace() => ref0(_whitespace).star();
-  Parser<void> _whitespace() => [ref0(_space), ref0(_comment)].toChoiceParser();
+  Parser<void> whitespace() => [ref0(_space), ref0(_comment)].toChoiceParser();
   Parser<void> _space() => pattern('\u{9}\u{A}\u{D}\u{20}');
   Parser<void> _comment() => seq3(
     '(:'.toParser(),
