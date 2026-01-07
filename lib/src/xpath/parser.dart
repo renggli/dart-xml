@@ -91,26 +91,22 @@ class XPathParser {
   ).map((_) => unimplemented('IfExpr'));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-OrExpr
-  Parser<XPathExpression> orExpr() =>
-      ref0(andExpr).plusSeparated(token('or')).map((list) {
-        var result = list.elements.first;
-        for (var i = 1; i < list.elements.length; i++) {
-          final right = list.elements[i];
-          result = _SFE(boolean.or, [result, right]);
-        }
-        return result;
-      });
+  Parser<XPathExpression> orExpr() => ref0(andExpr)
+      .plusSeparated(token('or'))
+      .map(
+        (list) => list.elements.length == 1
+            ? list.elements.first
+            : StaticFunctionExpression(boolean.or, list.elements),
+      );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-AndExpr
-  Parser<XPathExpression> andExpr() =>
-      ref0(comparisonExpr).plusSeparated(token('and')).map((list) {
-        var result = list.elements.first;
-        for (var i = 1; i < list.elements.length; i++) {
-          final right = list.elements[i];
-          result = _SFE(boolean.and, [result, right]);
-        }
-        return result;
-      });
+  Parser<XPathExpression> andExpr() => ref0(comparisonExpr)
+      .plusSeparated(token('and'))
+      .map(
+        (list) => list.elements.length == 1
+            ? list.elements.first
+            : StaticFunctionExpression(boolean.and, list.elements),
+      );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ComparisonExpr
   Parser<XPathExpression> comparisonExpr() =>
@@ -124,7 +120,7 @@ class XPathParser {
         if (optional == null) return left;
         final op = optional.$1;
         final right = optional.$2;
-        return _SFE(op, [left, right]);
+        return StaticFunctionExpression(op, [left, right]);
       });
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-StringConcatExpr
@@ -155,9 +151,9 @@ class XPathParser {
           final op = list.separators[i - 1];
           final right = list.elements[i];
           if (op == '+') {
-            result = _SFE(number.add, [result, right]);
+            result = StaticFunctionExpression(number.add, [result, right]);
           } else {
-            result = _SFE(number.sub, [result, right]);
+            result = StaticFunctionExpression(number.sub, [result, right]);
           }
         }
         return result;
@@ -179,13 +175,13 @@ class XPathParser {
           final op = list.separators[i - 1];
           final right = list.elements[i];
           if (op == '*') {
-            result = _SFE(number.mul, [result, right]);
+            result = StaticFunctionExpression(number.mul, [result, right]);
           } else if (op == 'div') {
-            result = _SFE(number.div, [result, right]);
+            result = StaticFunctionExpression(number.div, [result, right]);
           } else if (op == 'idiv') {
-            result = _SFE(number.idiv, [result, right]);
+            result = StaticFunctionExpression(number.idiv, [result, right]);
           } else if (op == 'mod') {
-            result = _SFE(number.mod, [result, right]);
+            result = StaticFunctionExpression(number.mod, [result, right]);
           }
         }
         return result;
@@ -198,7 +194,7 @@ class XPathParser {
         var result = list.elements.first;
         for (var i = 1; i < list.elements.length; i++) {
           final right = list.elements[i];
-          result = _SFE(nodes.union, [result, right]);
+          result = StaticFunctionExpression(nodes.union, [result, right]);
         }
         return result;
       });
@@ -212,9 +208,9 @@ class XPathParser {
           final op = list.separators[i - 1];
           final right = list.elements[i];
           if (op == 'intersect') {
-            result = _SFE(nodes.intersect, [result, right]);
+            result = StaticFunctionExpression(nodes.intersect, [result, right]);
           } else {
-            result = _SFE(nodes.except, [result, right]);
+            result = StaticFunctionExpression(nodes.except, [result, right]);
           }
         }
         return result;
@@ -269,7 +265,7 @@ class XPathParser {
         var result = value;
         for (final op in ops.reversed) {
           if (op == '-') {
-            result = _SFE(number.neg, [result]);
+            result = StaticFunctionExpression(number.neg, [result]);
           }
         }
         return result;
@@ -579,8 +575,10 @@ class XPathParser {
       token('.').constant(const ContextItemExpression());
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-FunctionCall
-  Parser<XPathExpression> functionCall() =>
-      seq2(ref0(eqName), ref0(argumentList)).map2(_DFE.new);
+  Parser<XPathExpression> functionCall() => seq2(
+    ref0(eqName),
+    ref0(argumentList),
+  ).map2(DynamicFunctionExpression.new);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-Argument
   Parser<XPathExpression> argument() =>
@@ -880,6 +878,3 @@ Never unimplemented(String feature, [dynamic arg]) => throw UnimplementedError(
   '$feature not yet implemented'
   '${arg == null ? '' : ': $arg'}',
 );
-
-typedef _SFE = StaticFunctionExpression;
-typedef _DFE = DynamicFunctionExpression;

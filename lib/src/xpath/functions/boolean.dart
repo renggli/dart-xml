@@ -1,3 +1,5 @@
+import 'package:petitparser/petitparser.dart' show unbounded;
+
 import '../../xml/extensions/ancestors.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
@@ -95,18 +97,14 @@ XPathValue notEqual(XPathContext context, List<XPathExpression> arguments) {
   );
 }
 
-// boolean and(boolean, boolean)
+// boolean and(boolean, boolean, boolean*)
 XPathValue and(XPathContext context, List<XPathExpression> arguments) {
-  XPathEvaluationException.checkArgumentCount('and', arguments, 2);
-  return XPathBoolean(
-    arguments[0](context).boolean && arguments[1](context).boolean,
-  );
+  XPathEvaluationException.checkArgumentCount('and', arguments, 2, unbounded);
+  return XPathBoolean(arguments.every((arg) => arg(context).boolean));
 }
 
-// boolean or(boolean, boolean)
+// boolean or(boolean, boolean, boolean*)
 XPathValue or(XPathContext context, List<XPathExpression> arguments) {
-  XPathEvaluationException.checkArgumentCount('or', arguments, 2);
-  return XPathBoolean(
-    arguments[0](context).boolean || arguments[1](context).boolean,
-  );
+  XPathEvaluationException.checkArgumentCount('or', arguments, 2, unbounded);
+  return XPathBoolean(arguments.any((arg) => arg(context).boolean));
 }
