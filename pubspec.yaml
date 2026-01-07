@@ -19,3 +19,7 @@ dev_dependencies:
   args: ^2.7.0
   lints: ^6.0.0
   test: ^1.26.0
+dependency_overrides:
+  petitparser:
+    git:
+      url: https://github.com/renggli/dart-petitparser.git

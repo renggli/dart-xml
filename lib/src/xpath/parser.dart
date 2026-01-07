@@ -379,13 +379,13 @@ class XPathParser {
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ForwardAxis
   Parser<Axis> forwardAxis() => [
-    token('child::').map((_) => const ChildAxis()),
-    token('descendant::').map((_) => const DescendantAxis()),
-    token('attribute::').map((_) => const AttributeAxis()),
-    token('self::').map((_) => const SelfAxis()),
-    token('descendant-or-self::').map((_) => const DescendantOrSelfAxis()),
-    token('following-sibling::').map((_) => const FollowingSiblingAxis()),
-    token('following::').map((_) => const FollowingAxis()),
+    token('child::').constant(const ChildAxis()),
+    token('descendant::').constant(const DescendantAxis()),
+    token('attribute::').constant(const AttributeAxis()),
+    token('self::').constant(const SelfAxis()),
+    token('descendant-or-self::').constant(const DescendantOrSelfAxis()),
+    token('following-sibling::').constant(const FollowingSiblingAxis()),
+    token('following::').constant(const FollowingAxis()),
     token('namespace::').map((_) => unimplemented('NamespaceAxis')),
   ].toChoiceParser();
 
@@ -407,16 +407,16 @@ class XPathParser {
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ReverseAxis
   Parser<Axis> reverseAxis() => [
-    token('parent::').map((_) => const ParentAxis()),
-    token('ancestor::').map((_) => const AncestorAxis()),
-    token('preceding-sibling::').map((_) => const PrecedingSiblingAxis()),
-    token('preceding::').map((_) => const PrecedingAxis()),
-    token('ancestor-or-self::').map((_) => const AncestorOrSelfAxis()),
+    token('parent::').constant(const ParentAxis()),
+    token('ancestor::').constant(const AncestorAxis()),
+    token('preceding-sibling::').constant(const PrecedingSiblingAxis()),
+    token('preceding::').constant(const PrecedingAxis()),
+    token('ancestor-or-self::').constant(const AncestorOrSelfAxis()),
   ].toChoiceParser().cast<Axis>();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-AbbrevReverseStep
   Parser<Step> abbrevReverseStep() =>
-      token('..').map((_) => const Step(ParentAxis(), NodeTypeNodeTest()));
+      token('..').constant(const Step(ParentAxis(), NodeTypeNodeTest()));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-NodeTest
   Parser<NodeTest> nodeTest() => [
@@ -457,7 +457,7 @@ class XPathParser {
       token(':'),
       token('*'),
     ).map3((prefix, _, _) => NamespacePrefixNameNodeTest(prefix)),
-    token('*').map((_) => const NameNodeTest()),
+    token('*').constant(const NameNodeTest()),
   ].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-PostfixExpr
@@ -576,7 +576,7 @@ class XPathParser {
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ContextItemExpr
   Parser<XPathExpression> contextItemExpr() =>
-      token('.').map((_) => const ContextItemExpression());
+      token('.').constant(const ContextItemExpression());
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-FunctionCall
   Parser<XPathExpression> functionCall() =>
@@ -683,7 +683,7 @@ class XPathParser {
     token('node'),
     token('('),
     token(')'),
-  ).map((_) => const NodeTypeNodeTest());
+  ).constant(const NodeTypeNodeTest());
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-DocumentTest
   Parser<NodeTest> documentTest() => seq4(
@@ -691,21 +691,21 @@ class XPathParser {
     token('('),
     [ref0(elementTest), ref0(schemaElementTest)].toChoiceParser().optional(),
     token(')'),
-  ).map((_) => const DocumentTypeNodeTest());
+  ).constant(const DocumentTypeNodeTest());
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-TextTest
   Parser<NodeTest> textTest() => seq3(
     token('text'),
     token('('),
     token(')'),
-  ).map((_) => const TextTypeNodeTest());
+  ).constant(const TextTypeNodeTest());
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-CommentTest
   Parser<NodeTest> commentTest() => seq3(
     token('comment'),
     token('('),
     token(')'),
-  ).map((_) => const CommentTypeNodeTest());
+  ).constant(const CommentTypeNodeTest());
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-NamespaceNodeTest
   Parser<NodeTest> namespaceNodeTest() => seq3(
