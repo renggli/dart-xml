@@ -453,12 +453,39 @@ void main() {
   });
   group('literals', () {
     final xml = XmlDocument();
-    test('number', () {
+    test('integer', () {
       expectEvaluate(xml, '0', isNumber(0));
-      expectEvaluate(xml, '1', isNumber(1));
-      expectEvaluate(xml, '-1', isNumber(-1));
-      expectEvaluate(xml, '1.2', isNumber(1.2));
-      expectEvaluate(xml, '-1.2', isNumber(-1.2));
+      expectEvaluate(xml, '12', isNumber(12));
+      expectEvaluate(xml, '123', isNumber(123));
+    });
+    test('decimal', () {
+      expectEvaluate(xml, '.0', isNumber(0.0));
+      expectEvaluate(xml, '.12', isNumber(0.12));
+      expectEvaluate(xml, '.123', isNumber(0.123));
+      expectEvaluate(xml, '0.1', isNumber(0.1));
+      expectEvaluate(xml, '12.34', isNumber(12.34));
+      expectEvaluate(xml, '123.456', isNumber(123.456));
+      expectEvaluate(xml, '0.', isNumber(0.0));
+      expectEvaluate(xml, '12.', isNumber(12.0));
+      expectEvaluate(xml, '123.', isNumber(123.0));
+    });
+    test('double', () {
+      expectEvaluate(xml, '1e2', isNumber(1e2));
+      expectEvaluate(xml, '1E2', isNumber(1e2));
+      expectEvaluate(xml, '1e+2', isNumber(1e+2));
+      expectEvaluate(xml, '1e-2', isNumber(1e-2));
+      expectEvaluate(xml, '.1e2', isNumber(.1e2));
+      expectEvaluate(xml, '.1E2', isNumber(.1e2));
+      expectEvaluate(xml, '.1e+2', isNumber(.1e+2));
+      expectEvaluate(xml, '.1e-2', isNumber(.1e-2));
+      expectEvaluate(xml, '1.2e3', isNumber(1.2e3));
+      expectEvaluate(xml, '1.2E3', isNumber(1.2E3));
+      expectEvaluate(xml, '1.2e+3', isNumber(1.2e+3));
+      expectEvaluate(xml, '1.2e-3', isNumber(1.2e-3));
+      expectEvaluate(xml, '1.e2', isNumber(1.0e2));
+      expectEvaluate(xml, '1.E2', isNumber(1.0E2));
+      expectEvaluate(xml, '1.e+2', isNumber(1.0e+2));
+      expectEvaluate(xml, '1.e-2', isNumber(1.0e-2));
     });
     test('string', () {
       expectEvaluate(xml, '""', isString(''));
@@ -1648,7 +1675,8 @@ void main() {
   group('parser', () {
     test('linter', () {
       final parser = const XPathParser().build();
-      expect(linter(parser), isEmpty);
+      final issues = linter(parser);
+      expect(issues, isEmpty);
     });
     group('whitespace', () {
       final document = XmlDocument.parse('<r><a/></r>');
@@ -1681,17 +1709,17 @@ void main() {
     group('errors', () {
       final xml = XmlDocument.parse('<?xml version="1.0"?><root/>');
       final cases = {
-        '': ('node test expected', 0),
-        ':': ('node test expected', 0),
+        '': ('"?" expected', 0),
+        ':': ('"?" expected', 0),
         '//': ('end of input expected', 1),
         '*[': ('end of input expected', 1),
         '*]': ('end of input expected', 1),
         '*:': ('end of input expected', 1),
-        ':false()': ('node test expected', 0),
+        ':false()': ('"?" expected', 0),
         'false:()': ('end of input expected', 5),
-        'false(:)': ('node test expected', 0),
+        'false(:)': ('"?" expected', 0),
         'false():': ('end of input expected', 7),
-        ':a/b': ('node test expected', 0),
+        ':a/b': ('"?" expected', 0),
         'a:/b': ('end of input expected', 1),
         'a/:b': ('end of input expected', 1),
         'a/b:': ('end of input expected', 3),

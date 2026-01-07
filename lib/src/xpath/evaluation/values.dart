@@ -182,6 +182,8 @@ class XPathString implements XPathValue {
 class XPathNumber implements XPathValue {
   const XPathNumber(this.number);
 
+  XPathNumber.fromString(String input) : this(num.parse(input));
+
   @override
   List<XmlNode> get nodes =>
       throw StateError('Unable to convert number $number to node-set');

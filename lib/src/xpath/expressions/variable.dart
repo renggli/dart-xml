@@ -3,6 +3,13 @@ import '../evaluation/expression.dart';
 import '../evaluation/values.dart';
 import '../exceptions/evaluation_exception.dart';
 
+class ContextItemExpression implements XPathExpression {
+  const ContextItemExpression();
+
+  @override
+  XPathValue call(XPathContext context) => context.value;
+}
+
 class VariableExpression implements XPathExpression {
   const VariableExpression(this.name);
 

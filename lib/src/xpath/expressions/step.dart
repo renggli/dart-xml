@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import '../../xml/nodes/node.dart';
 import '../evaluation/context.dart';
+import '../evaluation/expression.dart' show XPathExpression;
 import 'axis.dart';
 import 'node_test.dart';
 import 'predicate.dart';
@@ -44,4 +45,22 @@ class Step {
     }
     return result;
   }
+}
+
+class ExpressionStep implements Step {
+  const ExpressionStep(this.expression);
+
+  final XPathExpression expression;
+
+  @override
+  Axis get axis => const SelfAxis();
+
+  @override
+  NodeTest get nodeTest => const NodeTypeNodeTest();
+
+  @override
+  List<Predicate> get predicates => const [];
+
+  @override
+  List<XmlNode> find(XPathContext context) => expression(context).nodes;
 }
