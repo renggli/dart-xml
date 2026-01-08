@@ -396,7 +396,7 @@ void main() {
         expect(() => value.nodes, throwsStateError);
         expect(value.string, '0');
         expect(value.number, 0);
-        expect(value.boolean, isTrue);
+        expect(value.boolean, isFalse);
         expect(value.toString(), '0');
       });
       test('1.14', () {
@@ -404,8 +404,16 @@ void main() {
         expect(() => value.nodes, throwsStateError);
         expect(value.string, '1.14');
         expect(value.number, 1.14);
-        expect(value.boolean, isFalse);
+        expect(value.boolean, isTrue);
         expect(value.toString(), '1.14');
+      });
+      test('-3', () {
+        const value = XPathNumber(-3);
+        expect(() => value.nodes, throwsStateError);
+        expect(value.string, '-3');
+        expect(value.number, -3);
+        expect(value.boolean, isTrue);
+        expect(value.toString(), '-3');
       });
       test('nan', () {
         const value = XPathNumber(double.nan);
@@ -420,7 +428,7 @@ void main() {
         expect(() => value.nodes, throwsStateError);
         expect(value.string, 'Infinity');
         expect(value.number, double.infinity);
-        expect(value.boolean, isFalse);
+        expect(value.boolean, isTrue);
         expect(value.toString(), 'Infinity');
       });
       test('-infinity', () {
@@ -428,7 +436,7 @@ void main() {
         expect(() => value.nodes, throwsStateError);
         expect(value.string, '-Infinity');
         expect(value.number, double.negativeInfinity);
-        expect(value.boolean, isFalse);
+        expect(value.boolean, isTrue);
         expect(value.toString(), '-Infinity');
       });
     });
@@ -881,11 +889,11 @@ void main() {
         expectEvaluate(xml, 'boolean("ab")', isBoolean(true));
       });
       test('boolean(number)', () {
-        expectEvaluate(xml, 'boolean(0)', isBoolean(true));
-        expectEvaluate(xml, 'boolean(1)', isBoolean(false));
-        expectEvaluate(xml, 'boolean(-1)', isBoolean(false));
+        expectEvaluate(xml, 'boolean(0)', isBoolean(false));
+        expectEvaluate(xml, 'boolean(1)', isBoolean(true));
+        expectEvaluate(xml, 'boolean(-1)', isBoolean(true));
         expectEvaluate(xml, 'boolean(0 div 0)', isBoolean(false));
-        expectEvaluate(xml, 'boolean(1 div 0)', isBoolean(false));
+        expectEvaluate(xml, 'boolean(1 div 0)', isBoolean(true));
       });
       test('boolean(boolean)', () {
         expectEvaluate(xml, 'boolean(true())', isBoolean(true));

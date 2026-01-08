@@ -195,7 +195,7 @@ class XPathNumber implements XPathValue {
   final num number;
 
   @override
-  bool get boolean => number == 0;
+  bool get boolean => !(number == 0 || number.isNaN);
 
   @override
   XPathValue call(XPathContext context) => this;
