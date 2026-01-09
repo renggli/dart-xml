@@ -7,6 +7,7 @@ import '../../xml/nodes/document.dart';
 import '../../xml/nodes/element.dart';
 import '../../xml/nodes/node.dart';
 import '../../xml/nodes/text.dart';
+import '../exceptions/evaluation_exception.dart';
 import 'context.dart';
 import 'expression.dart';
 
@@ -160,7 +161,7 @@ class XPathString implements XPathValue {
 
   @override
   List<XmlNode> get nodes =>
-      throw StateError('Unable to convert string "$string" to node-set');
+      throw XPathEvaluationException('$this cannot be converted to a node-set');
 
   @override
   final String string;
@@ -186,7 +187,7 @@ class XPathNumber implements XPathValue {
 
   @override
   List<XmlNode> get nodes =>
-      throw StateError('Unable to convert number $number to node-set');
+      throw XPathEvaluationException('$this cannot be converted to a node-set');
 
   @override
   String get string => number == 0 ? '0' : number.toString();
@@ -210,7 +211,7 @@ class XPathBoolean implements XPathValue {
 
   @override
   List<XmlNode> get nodes =>
-      throw StateError('Unable to convert boolean $boolean to node-set');
+      throw XPathEvaluationException('$this cannot be converted to a node-set');
 
   @override
   String get string => boolean ? 'true' : 'false';
@@ -226,4 +227,63 @@ class XPathBoolean implements XPathValue {
 
   @override
   String toString() => '$boolean()';
+}
+
+/// Wrapper around a [List] in XPath.
+class XPathArray<T> implements XPathValue {
+  const XPathArray(this.members);
+
+  final List<XPathValue> members;
+
+  @override
+  List<XmlNode> get nodes =>
+      throw XPathEvaluationException('$this cannot be converted to a node-set');
+
+  @override
+  String get string =>
+      throw XPathEvaluationException('$this cannot be converted to a string');
+
+  @override
+  num get number => double.nan;
+
+  @override
+  bool get boolean => members.isNotEmpty;
+
+  @override
+  XPathValue call(XPathContext context) => this;
+
+  @override
+  String toString() => 'array { ${members.join(', ')} }';
+}
+
+/// Wrapper around a [Map] in XPath.
+class XPathMap<K, V> implements XPathValue {
+  const XPathMap(this.members);
+
+  final Map<K, V> members;
+
+  @override
+  List<XmlNode> get nodes =>
+      throw XPathEvaluationException('$this cannot be converted to a node-set');
+
+  @override
+  String get string =>
+      throw XPathEvaluationException('$this cannot be converted to a string');
+
+  @override
+  num get number => double.nan;
+
+  @override
+  bool get boolean => members.isNotEmpty;
+
+  @override
+  XPathValue call(XPathContext context) => this;
+
+  @override
+  String toString() {
+    final entries = members.entries.map(
+      (entry) => '${entry.key}: ${entry.value}',
+    );
+    return 'map { ${entries.join(', ')} }';
+  }
 }

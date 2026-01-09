@@ -109,10 +109,7 @@ Matcher isXPathParserException({
     .having((value) => value.toString(), 'toString', isNotEmpty);
 
 /// Returns a [Matcher] that assert on a [XPathEvaluationException].
-Matcher isXPathEvaluationException({
-  dynamic message = isNotEmpty,
-  dynamic name = anything,
-  dynamic args = anything,
-}) => isA<XPathEvaluationException>()
-    .having((value) => value.message, 'message', message)
-    .having((value) => value.toString(), 'toString', isNotEmpty);
+Matcher isXPathEvaluationException({dynamic message = isNotEmpty}) =>
+    isA<XPathEvaluationException>()
+        .having((value) => value.message, 'message', message)
+        .having((value) => value.toString(), 'toString', isNotEmpty);

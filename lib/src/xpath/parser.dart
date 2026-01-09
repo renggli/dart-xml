@@ -11,6 +11,7 @@ import 'expressions/function.dart';
 import 'expressions/node_test.dart';
 import 'expressions/path.dart';
 import 'expressions/predicate.dart';
+import 'expressions/statement.dart';
 import 'expressions/step.dart';
 import 'expressions/variable.dart';
 import 'functions/boolean.dart' as boolean;
@@ -45,50 +46,72 @@ class XPathParser {
   ].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ForExpr
-  Parser<XPathExpression> forExpr() => seq2(
+  Parser<XPathExpression> forExpr() => seq3(
     ref0(simpleForClause),
-    seq2(token('return'), ref0(exprSingle)),
-  ).map((_) => unimplemented('ForExpr'));
+    token('return'),
+    ref0(exprSingle),
+  ).map3((bindings, _, body) => ForExpression(bindings, body));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-SimpleForClause
-  Parser<void> simpleForClause() =>
-      seq2(token('for'), ref0(simpleForBinding).plusSeparated(token(',')));
+  Parser<List<XPathBinding>> simpleForClause() => seq2(
+    token('for'),
+    ref0(simpleForBinding).plusSeparated(token(',')),
+  ).map2((_, list) => list.elements);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-SimpleForBinding
-  Parser<void> simpleForBinding() =>
-      seq3(ref0(varName), token('in'), ref0(exprSingle));
+  Parser<XPathBinding> simpleForBinding() => seq3(
+    ref0(varName),
+    token('in'),
+    ref0(exprSingle),
+  ).map3((name, _, expression) => (name: name, expression: expression));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-LetExpr
-  Parser<XPathExpression> letExpr() => seq2(
+  Parser<XPathExpression> letExpr() => seq3(
     ref0(simpleLetClause),
-    seq2(token('return'), ref0(exprSingle)),
-  ).map((_) => unimplemented('LetExpr'));
+    token('return'),
+    ref0(exprSingle),
+  ).map3((bindings, _, body) => LetExpression(bindings, body));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-SimpleLetClause
-  Parser<void> simpleLetClause() =>
-      seq2(token('let'), ref0(simpleLetBinding).plusSeparated(token(',')));
+  Parser<List<XPathBinding>> simpleLetClause() => seq2(
+    token('let'),
+    ref0(simpleLetBinding).plusSeparated(token(',')),
+  ).map2((_, list) => list.elements);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-SimpleLetBinding
-  Parser<void> simpleLetBinding() =>
-      seq3(ref0(varName), token(':='), ref0(exprSingle));
+  Parser<XPathBinding> simpleLetBinding() => seq3(
+    ref0(varName),
+    token(':='),
+    ref0(exprSingle),
+  ).map3((name, _, expression) => (name: name, expression: expression));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-QuantifiedExpr
-  Parser<XPathExpression> quantifiedExpr() => seq4(
-    [token('some'), token('every')].toChoiceParser(),
-    ref0(simpleForBinding).plusSeparated(token(',')),
-    token('satisfies'),
-    ref0(exprSingle),
-  ).map((_) => unimplemented('QuantifiedExpr'));
+  Parser<XPathExpression> quantifiedExpr() =>
+      seq4(
+        [
+          token('some').constant(SomeExpression.new),
+          token('every').constant(EveryExpression.new),
+        ].toChoiceParser(),
+        ref0(simpleForBinding).plusSeparated(token(',')),
+        token('satisfies'),
+        ref0(exprSingle),
+      ).map4(
+        (quantifier, bindings, _, body) => quantifier(bindings.elements, body),
+      );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-IfExpr
-  Parser<XPathExpression> ifExpr() => seq6(
-    token('if'),
-    ref0(expr).skip(before: token('('), after: token(')')),
-    token('then'),
-    ref0(exprSingle),
-    token('else'),
-    ref0(exprSingle),
-  ).map((_) => unimplemented('IfExpr'));
+  Parser<XPathExpression> ifExpr() =>
+      seq6(
+        token('if'),
+        ref0(expr).skip(before: token('('), after: token(')')),
+        token('then'),
+        ref0(exprSingle),
+        token('else'),
+        ref0(exprSingle),
+      ).map6(
+        (_, cond, _, trueExpr, _, falseExpr) =>
+            IfExpression(cond, trueExpr, falseExpr),
+      );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-OrExpr
   Parser<XPathExpression> orExpr() => ref0(andExpr)

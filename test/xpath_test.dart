@@ -375,7 +375,7 @@ void main() {
     group('string', () {
       test('empty', () {
         const value = XPathString('');
-        expect(() => value.nodes, throwsStateError);
+        expect(() => value.nodes, throwsA(isXPathEvaluationException()));
         expect(value.string, '');
         expect(value.number, isNaN);
         expect(value.boolean, isFalse);
@@ -383,7 +383,7 @@ void main() {
       });
       test('full', () {
         const value = XPathString('123');
-        expect(() => value.nodes, throwsStateError);
+        expect(() => value.nodes, throwsA(isXPathEvaluationException()));
         expect(value.string, '123');
         expect(value.number, 123);
         expect(value.boolean, isTrue);
@@ -393,7 +393,7 @@ void main() {
     group('number', () {
       test('0', () {
         const value = XPathNumber(0);
-        expect(() => value.nodes, throwsStateError);
+        expect(() => value.nodes, throwsA(isXPathEvaluationException()));
         expect(value.string, '0');
         expect(value.number, 0);
         expect(value.boolean, isFalse);
@@ -401,7 +401,7 @@ void main() {
       });
       test('1.14', () {
         const value = XPathNumber(1.14);
-        expect(() => value.nodes, throwsStateError);
+        expect(() => value.nodes, throwsA(isXPathEvaluationException()));
         expect(value.string, '1.14');
         expect(value.number, 1.14);
         expect(value.boolean, isTrue);
@@ -409,7 +409,7 @@ void main() {
       });
       test('-3', () {
         const value = XPathNumber(-3);
-        expect(() => value.nodes, throwsStateError);
+        expect(() => value.nodes, throwsA(isXPathEvaluationException()));
         expect(value.string, '-3');
         expect(value.number, -3);
         expect(value.boolean, isTrue);
@@ -417,7 +417,7 @@ void main() {
       });
       test('nan', () {
         const value = XPathNumber(double.nan);
-        expect(() => value.nodes, throwsStateError);
+        expect(() => value.nodes, throwsA(isXPathEvaluationException()));
         expect(value.string, 'NaN');
         expect(value.number, isNaN);
         expect(value.boolean, isFalse);
@@ -425,7 +425,7 @@ void main() {
       });
       test('+infinity', () {
         const value = XPathNumber(double.infinity);
-        expect(() => value.nodes, throwsStateError);
+        expect(() => value.nodes, throwsA(isXPathEvaluationException()));
         expect(value.string, 'Infinity');
         expect(value.number, double.infinity);
         expect(value.boolean, isTrue);
@@ -433,7 +433,7 @@ void main() {
       });
       test('-infinity', () {
         const value = XPathNumber(double.negativeInfinity);
-        expect(() => value.nodes, throwsStateError);
+        expect(() => value.nodes, throwsA(isXPathEvaluationException()));
         expect(value.string, '-Infinity');
         expect(value.number, double.negativeInfinity);
         expect(value.boolean, isTrue);
@@ -443,7 +443,7 @@ void main() {
     group('boolean', () {
       test('true', () {
         const value = XPathBoolean(true);
-        expect(() => value.nodes, throwsStateError);
+        expect(() => value.nodes, throwsA(isXPathEvaluationException()));
         expect(value.string, 'true');
         expect(value.number, 1);
         expect(value.boolean, isTrue);
@@ -451,7 +451,7 @@ void main() {
       });
       test('false', () {
         const value = XPathBoolean(false);
-        expect(() => value.nodes, throwsStateError);
+        expect(() => value.nodes, throwsA(isXPathEvaluationException()));
         expect(value.string, 'false');
         expect(value.number, 0);
         expect(value.boolean, isFalse);
@@ -714,11 +714,11 @@ void main() {
       test('concat', () {
         expect(
           () => expectEvaluate(xml, 'concat()', anything),
-          throwsA(isXPathEvaluationException(name: 'concat')),
+          throwsA(isXPathEvaluationException()),
         );
         expect(
           () => expectEvaluate(xml, 'concat("a")', anything),
-          throwsA(isXPathEvaluationException(name: 'concat')),
+          throwsA(isXPathEvaluationException()),
         );
         expectEvaluate(xml, 'concat("a", "b")', isString('ab'));
         expectEvaluate(xml, 'concat("a", "b", "c")', isString('abc'));
@@ -748,7 +748,7 @@ void main() {
         expectEvaluate(xml, 'substring-after("abcde", "x")', isString(''));
         expect(
           () => expectEvaluate(xml, 'substring-after("abcde")', anything),
-          throwsA(isXPathEvaluationException(name: 'substring-after')),
+          throwsA(isXPathEvaluationException()),
         );
       });
       test('substring', () {
@@ -771,7 +771,7 @@ void main() {
         );
         expect(
           () => expectEvaluate(xml, 'substring("abcde")', anything),
-          throwsA(isXPathEvaluationException(name: 'substring')),
+          throwsA(isXPathEvaluationException()),
         );
       });
       test('string-length', () {
@@ -1354,6 +1354,39 @@ void main() {
           );
         },
       );
+    });
+  });
+  group('statements', () {
+    final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
+    group('for', () {});
+    group('let', () {
+      test('simple', () {
+        expectEvaluate(document, 'let \$x := 1 return \$x', isNumber(1));
+      });
+      test('multiple', () {
+        expectEvaluate(
+          document,
+          'let \$x := 1, \$y := 2 return \$x + \$y',
+          isNumber(3),
+        );
+      });
+      test('referential', () {
+        expectEvaluate(
+          document,
+          'let \$x := 1, \$y := \$x + 1 return \$x + \$y',
+          isNumber(3),
+        );
+      });
+    });
+    group('some', () {});
+    group('every', () {});
+    group('if', () {
+      test('true', () {
+        expectEvaluate(document, 'if (true()) then 1 else 2', isNumber(1));
+      });
+      test('false', () {
+        expectEvaluate(document, 'if (false()) then 1 else 2', isNumber(2));
+      });
     });
   });
   group('examples', () {

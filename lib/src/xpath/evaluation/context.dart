@@ -38,11 +38,14 @@ class XPathContext {
   final Map<String, XPathFunction> functions;
 
   /// Creates a copy of the current context.
-  XPathContext copy() => XPathContext(
+  XPathContext copy({
+    Map<String, XPathValue>? variables,
+    Map<String, XPathFunction>? functions,
+  }) => XPathContext(
     node,
     position: position,
     last: last,
-    variables: variables,
-    functions: functions,
+    variables: variables ?? this.variables,
+    functions: functions ?? this.functions,
   );
 }
