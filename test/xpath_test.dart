@@ -7,6 +7,7 @@ import 'package:xml/src/xpath/expressions/node_test.dart';
 import 'package:xml/src/xpath/expressions/path.dart';
 import 'package:xml/src/xpath/expressions/predicate.dart';
 import 'package:xml/src/xpath/expressions/step.dart';
+import 'package:xml/src/xpath/expressions/variable.dart';
 import 'package:xml/src/xpath/parser.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
@@ -1251,7 +1252,7 @@ void main() {
           final path = PathExpression([
             const Step(DescendantOrSelfAxis()),
             Step(stepAxis, const QualifiedNameNodeTest('x'), const [
-              Predicate(XPathNumber(1)),
+              Predicate(LiteralExpression(XPathNumber(1))),
             ]),
           ], isAbsolute: true);
           expect(path.steps, hasLength(2));

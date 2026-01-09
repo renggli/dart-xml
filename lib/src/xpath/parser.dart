@@ -539,11 +539,13 @@ class XPathParser {
   ].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-Literal
-  Parser<XPathValue> literal() =>
-      [ref0(numericLiteral), ref0(stringLiteral)].toChoiceParser();
+  Parser<LiteralExpression> literal() => [
+    ref0(numericLiteral),
+    ref0(stringLiteral),
+  ].toChoiceParser().map(LiteralExpression.new);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-NumericLiteral
-  Parser<XPathValue> numericLiteral() => [
+  Parser<XPathNumber> numericLiteral() => [
     ref0(doubleLiteral),
     ref0(decimalLiteral),
     ref0(integerLiteral),

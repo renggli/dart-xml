@@ -19,3 +19,12 @@ class VariableExpression implements XPathExpression {
   XPathValue call(XPathContext context) =>
       XPathEvaluationException.checkVariable(name, context.getVariable(name));
 }
+
+class LiteralExpression implements XPathExpression {
+  const LiteralExpression(this.value);
+
+  final XPathValue value;
+
+  @override
+  XPathValue call(XPathContext context) => value;
+}

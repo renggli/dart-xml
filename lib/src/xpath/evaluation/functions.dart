@@ -3,12 +3,11 @@ import '../functions/nodes.dart' as nodes_func;
 import '../functions/number.dart' as number_func;
 import '../functions/string.dart' as string_func;
 import 'context.dart';
-import 'expression.dart';
 import 'values.dart';
 
 /// Type definition for all XPath functions.
 typedef XPathFunction =
-    XPathValue Function(XPathContext context, List<XPathExpression> arguments);
+    XPathValue Function(XPathContext context, List<XPathValue> arguments);
 
 /// The standard XPath functions.
 const Map<String, XPathFunction> standardFunctions = {

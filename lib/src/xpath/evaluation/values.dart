@@ -8,12 +8,10 @@ import '../../xml/nodes/element.dart';
 import '../../xml/nodes/node.dart';
 import '../../xml/nodes/text.dart';
 import '../exceptions/evaluation_exception.dart';
-import 'context.dart';
-import 'expression.dart';
 
 /// Wrapper of XPath values.
 @immutable
-sealed class XPathValue implements XPathExpression {
+sealed class XPathValue {
   /// Returns the node-set (unique and in document-order) of this value.
   List<XmlNode> get nodes;
 
@@ -127,9 +125,6 @@ class XPathNodeSet implements XPathValue {
   bool get boolean => nodes.isNotEmpty;
 
   @override
-  XPathValue call(XPathContext context) => this;
-
-  @override
   String toString() {
     final buffer = StringBuffer('[');
     final iterator = nodes.iterator;
@@ -173,9 +168,6 @@ class XPathString implements XPathValue {
   bool get boolean => string.isNotEmpty;
 
   @override
-  XPathValue call(XPathContext context) => this;
-
-  @override
   String toString() => '"$string"';
 }
 
@@ -199,9 +191,6 @@ class XPathNumber implements XPathValue {
   bool get boolean => !(number == 0 || number.isNaN);
 
   @override
-  XPathValue call(XPathContext context) => this;
-
-  @override
   String toString() => number.toString();
 }
 
@@ -221,9 +210,6 @@ class XPathBoolean implements XPathValue {
 
   @override
   final bool boolean;
-
-  @override
-  XPathValue call(XPathContext context) => this;
 
   @override
   String toString() => '$boolean()';
@@ -250,9 +236,6 @@ class XPathArray<T> implements XPathValue {
   bool get boolean => members.isNotEmpty;
 
   @override
-  XPathValue call(XPathContext context) => this;
-
-  @override
   String toString() => 'array { ${members.join(', ')} }';
 }
 
@@ -275,9 +258,6 @@ class XPathMap<K, V> implements XPathValue {
 
   @override
   bool get boolean => members.isNotEmpty;
-
-  @override
-  XPathValue call(XPathContext context) => this;
 
   @override
   String toString() {

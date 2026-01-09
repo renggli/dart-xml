@@ -1,7 +1,6 @@
 import 'package:petitparser/petitparser.dart' show unbounded;
 
 import '../../xml/exceptions/exception.dart';
-import '../evaluation/expression.dart';
 import '../evaluation/functions.dart';
 import '../evaluation/values.dart';
 
@@ -12,7 +11,7 @@ class XPathEvaluationException extends XmlException {
   /// Checks the number of arguments passed to a XPath function.
   static void checkArgumentCount(
     String name,
-    List<XPathExpression> arguments,
+    List<dynamic> arguments,
     int min, [
     int? max,
   ]) {

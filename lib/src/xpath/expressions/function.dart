@@ -11,7 +11,8 @@ class StaticFunctionExpression implements XPathExpression {
   final List<XPathExpression> arguments;
 
   @override
-  XPathValue call(XPathContext context) => function(context, arguments);
+  XPathValue call(XPathContext context) =>
+      function(context, arguments.map((each) => each(context)).toList());
 }
 
 class DynamicFunctionExpression implements XPathExpression {
