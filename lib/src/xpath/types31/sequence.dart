@@ -27,11 +27,8 @@ class XPathSequence extends DelegatingIterable<Object> {
 }
 
 extension XPathSequenceExtension on Object {
-  /// Converts an object to an XPath sequence.
   XPathSequence toXPathSequence() {
     final self = this;
-    if (self is XPathSequence) return self;
-    if (self is Iterable<Object>) return XPathSequence(self);
-    return XPathSequence.single(self);
+    return self is XPathSequence ? self : XPathSequence.single(self);
   }
 }

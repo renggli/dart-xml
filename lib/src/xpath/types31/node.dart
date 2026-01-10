@@ -1,14 +1,14 @@
 import '../../xml/nodes/node.dart';
 import '../exceptions/evaluation_exception.dart';
 
-extension type const XPathNode(XmlNode _value) implements XmlNode {}
+extension type const XPathNode(XmlNode _) implements XmlNode {}
 
 extension XPathNodeExtension on Object {
   XPathNode toXPathNode() {
     final self = this;
     if (self is XmlNode) {
       return XPathNode(self);
-    } else if (self is Iterable) {
+    } else if (self is Iterable<Object>) {
       if (self.length == 1) {
         final first = self.first;
         if (first is XmlNode) {
@@ -16,8 +16,6 @@ extension XPathNodeExtension on Object {
         }
       }
     }
-    throw XPathEvaluationException(
-      'Unsupported type for node casting: ${self.runtimeType}',
-    );
+    XPathEvaluationException.unsupportedCast(self, 'node');
   }
 }

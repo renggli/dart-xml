@@ -1,10 +1,14 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/exceptions/evaluation_exception.dart';
-import 'package:xml/src/xpath/values31/boolean.dart';
-import 'package:xml/src/xpath/values31/node.dart';
-import 'package:xml/src/xpath/values31/number.dart';
-import 'package:xml/src/xpath/values31/sequence.dart';
-import 'package:xml/src/xpath/values31/string.dart';
+import 'package:xml/src/xpath/types31/array.dart';
+import 'package:xml/src/xpath/types31/boolean.dart';
+import 'package:xml/src/xpath/types31/date_time.dart';
+import 'package:xml/src/xpath/types31/duration.dart';
+import 'package:xml/src/xpath/types31/map.dart';
+import 'package:xml/src/xpath/types31/node.dart';
+import 'package:xml/src/xpath/types31/number.dart';
+import 'package:xml/src/xpath/types31/sequence.dart';
+import 'package:xml/src/xpath/types31/string.dart';
 import 'package:xml/xml.dart';
 
 void main() {
@@ -36,18 +40,18 @@ void main() {
       expect(document.rootElement.toXPathString(), '123');
       expect(document.findAllElements('b').first.toXPathString(), '23');
       expect(XmlText('foo').toXPathString(), 'foo');
+      expect(XmlCDATA('bar').toXPathString(), 'bar');
+      expect(XmlComment('baz').toXPathString(), 'baz');
+      expect(XmlProcessing('target', 'qux').toXPathString(), 'qux');
     });
     test('cast from sequence', () {
-      expect(<Object>[].toXPathString(), '');
-      expect(['abc'].toXPathString(), 'abc');
-      expect([123].toXPathString(), '123');
+      expect(XPathSequence.empty.toXPathString(), '');
+      expect(XPathSequence.single('abc').toXPathString(), 'abc');
+      expect(XPathSequence.single(123).toXPathString(), '123');
       expect(
-        () => ['a', 'b'].toXPathString(),
+        () => const XPathSequence(['a', 'b']).toXPathString(),
         throwsA(isA<XPathEvaluationException>()),
       );
-    });
-    test('cast to sequence', () {
-      expect('abc'.toXPathSequence(), ['abc']);
     });
   });
   group('boolean', () {
@@ -68,18 +72,15 @@ void main() {
       expect(node.toXPathBoolean(), true);
     });
     test('cast from sequence', () {
-      expect(<Object>[].toXPathBoolean(), false);
-      expect([node].toXPathBoolean(), true);
-      expect([node, document].toXPathBoolean(), true);
-      expect([1].toXPathBoolean(), true);
-      expect([0].toXPathBoolean(), false);
+      expect(XPathSequence.empty.toXPathBoolean(), false);
+      expect(XPathSequence.single(node).toXPathBoolean(), true);
+      expect(XPathSequence([node, document]).toXPathBoolean(), true);
+      expect(const XPathSequence([1]).toXPathBoolean(), true);
+      expect(const XPathSequence([0]).toXPathBoolean(), false);
       expect(
-        () => [1, 2].toXPathBoolean(),
+        () => const XPathSequence([1, 2]).toXPathBoolean(),
         throwsA(isA<XPathEvaluationException>()),
       );
-    });
-    test('cast to sequence', () {
-      expect(true.toXPathSequence(), [true]);
     });
   });
   group('number', () {
@@ -99,15 +100,15 @@ void main() {
       expect(node.toXPathNumber(), 1);
     });
     test('cast from sequence', () {
-      expect(<Object>[].toXPathNumber(), isNaN);
-      expect([123].toXPathNumber(), 123);
       expect(
-        () => [123, 456].toXPathNumber(),
+        () => XPathSequence.empty.toXPathNumber(),
         throwsA(isA<XPathEvaluationException>()),
       );
-    });
-    test('cast to sequence', () {
-      expect(123.toXPathSequence(), [123]);
+      expect(XPathSequence.single(123).toXPathNumber(), 123);
+      expect(
+        () => const XPathSequence([123, 456]).toXPathNumber(),
+        throwsA(isA<XPathEvaluationException>()),
+      );
     });
   });
   group('node', () {
@@ -139,18 +140,105 @@ void main() {
       expect(document.toXPathNode(), document);
     });
     test('cast from sequence', () {
-      expect([node].toXPathNode(), node);
+      expect(
+        () => XPathSequence.empty.toXPathNode(),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+      expect(XPathSequence.single(node).toXPathNode(), node);
       expect(
         () => [node, document].toXPathNode(),
         throwsA(isA<XPathEvaluationException>()),
       );
       expect(() => [1].toXPathNode(), throwsA(isA<XPathEvaluationException>()));
     });
-    test('cast to sequence', () {
-      expect(node.toXPathSequence(), [node]);
+  });
+  group('array', () {
+    test('cast from array', () {
+      final array = [1, 2, 3];
+      expect(array.toXPathArray(), array);
+    });
+    test('cast from sequence', () {
+      expect(XPathSequence.single([1, 2]).toXPathArray(), [1, 2]);
+      expect(
+        () => XPathSequence.empty.toXPathArray(),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+    });
+    test('cast from other', () {
+      expect(
+        () => 123.toXPathArray(),
+        throwsA(isA<XPathEvaluationException>()),
+      );
     });
   });
-
+  group('date time', () {
+    test('cast from date time', () {
+      final dateTime = DateTime.now();
+      expect(dateTime.toXPathDateTime(), dateTime);
+    });
+    test('cast from string', () {
+      final dateTime = DateTime.parse('2021-01-01T00:00:00.000');
+      expect('2021-01-01T00:00:00.000'.toXPathDateTime(), dateTime);
+      expect(
+        () => 'invalid'.toXPathDateTime(),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+    });
+    test('cast from sequence', () {
+      final dateTime = DateTime.now();
+      expect(XPathSequence.single(dateTime).toXPathDateTime(), dateTime);
+      expect(
+        () => XPathSequence.empty.toXPathDateTime(),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+    });
+    test('cast from other', () {
+      expect(
+        () => 123.toXPathDateTime(),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+    });
+  });
+  group('duration', () {
+    test('cast from duration', () {
+      const duration = Duration(seconds: 1);
+      expect(duration.toXPathDuration(), duration);
+    });
+    test('cast from string', () {
+      expect(() => 'P1Y'.toXPathDuration(), throwsA(isA<UnimplementedError>()));
+    });
+    test('cast from sequence', () {
+      const duration = Duration(seconds: 1);
+      expect(XPathSequence.single(duration).toXPathDuration(), duration);
+      expect(
+        () => XPathSequence.empty.toXPathDuration(),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+    });
+    test('cast from other', () {
+      expect(
+        () => 123.toXPathDuration(),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+    });
+  });
+  group('map', () {
+    test('cast from map', () {
+      final map = {'a': 1};
+      expect(map.toXPathMap(), map);
+    });
+    test('cast from sequence', () {
+      final map = {'a': 1};
+      expect(XPathSequence.single(map).toXPathMap(), map);
+      expect(
+        () => XPathSequence.empty.toXPathMap(),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+    });
+    test('cast from other', () {
+      expect(() => 123.toXPathMap(), throwsA(isA<XPathEvaluationException>()));
+    });
+  });
   group('sequence', () {
     test('emtpy', () {
       expect(XPathSequence.empty, isEmpty);
@@ -186,8 +274,13 @@ void main() {
       expect(XPathSequence.falseSequence, [false]);
     });
     test('cast to sequence', () {
-      expect([1, 2].toXPathSequence(), [1, 2]);
       expect(XPathSequence.empty.toXPathSequence(), isEmpty);
+      expect('abc'.toXPathSequence(), XPathSequence.single('abc'));
+      expect([1, 2].toXPathSequence(), XPathSequence.single([1, 2]));
+      expect(
+        XPathSequence.trueSequence.toXPathSequence(),
+        XPathSequence.trueSequence,
+      );
     });
     test('range efficiency', () {
       final range = XPathSequence.range(1, 1000000);

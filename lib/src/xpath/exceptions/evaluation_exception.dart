@@ -29,17 +29,21 @@ class XPathEvaluationException extends XmlException {
     throw XPathEvaluationException(buffer.toString());
   }
 
-  // Checks the presence of a variable.
+  /// Checks the presence of a variable.
   static XPathValue checkVariable(String name, XPathValue? value) {
     if (value != null) return value;
     throw XPathEvaluationException('Undeclared variable "$name"');
   }
 
-  // Checks the presence of a function.
+  /// Checks the presence of a function.
   static XPathFunction checkFunction(String name, XPathFunction? value) {
     if (value != null) return value;
     throw XPathEvaluationException('Undeclared function "$name"');
   }
+
+  /// Unsupported cast from [value] to [type].
+  static Never unsupportedCast(Object value, String type) =>
+      throw XPathEvaluationException('Unsupported cast from $value to $type');
 
   @override
   String toString() => 'XPathEvaluationException: $message';

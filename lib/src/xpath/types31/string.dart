@@ -3,8 +3,9 @@ import '../../xml/nodes/element.dart';
 import '../../xml/nodes/node.dart';
 import '../../xml/nodes/text.dart';
 import '../exceptions/evaluation_exception.dart';
+import 'sequence.dart';
 
-extension type const XPathString(String _value) implements String {
+extension type const XPathString(String _) implements String {
   static const empty = XPathString('');
 }
 
@@ -28,19 +29,13 @@ extension XPathStringExtension on Object {
       final buffer = StringBuffer();
       _stringForNodeOn(self, buffer);
       return XPathString(buffer.toString());
-    } else if (self is Iterable) {
-      if (self.isEmpty) return XPathString.empty;
-      final list = self.toList();
-      if (list.length > 1) {
-        throw XPathEvaluationException(
-          'A sequence of more than one item cannot be cast to a string',
-        );
-      }
-      return (list.first as Object).toXPathString();
+    } else if (self is XPathSequence) {
+      final iterator = self.iterator;
+      if (!iterator.moveNext()) return XPathString.empty;
+      final item = iterator.current;
+      if (!iterator.moveNext()) return item.toXPathString();
     }
-    throw XPathEvaluationException(
-      'Unsupported type for string casting: ${self.runtimeType}',
-    );
+    XPathEvaluationException.unsupportedCast(self, 'string');
   }
 }
 

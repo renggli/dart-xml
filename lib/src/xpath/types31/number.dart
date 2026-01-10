@@ -1,8 +1,9 @@
 import '../../xml/nodes/node.dart';
 import '../exceptions/evaluation_exception.dart';
+import 'sequence.dart';
 import 'string.dart';
 
-extension type const XPathNumber(num _value) implements num {}
+extension type const XPathNumber(num _) implements num {}
 
 extension XPathNumberExtension on Object {
   XPathNumber toXPathNumber() {
@@ -15,17 +16,10 @@ extension XPathNumberExtension on Object {
       return XPathNumber(num.tryParse(self) ?? double.nan);
     } else if (self is XmlNode) {
       return self.toXPathString().toXPathNumber();
-    } else if (self is Iterable) {
-      if (self.isEmpty) return const XPathNumber(double.nan);
-      if (self.length > 1) {
-        throw XPathEvaluationException(
-          'A sequence of more than one item cannot be cast to a number',
-        );
-      }
-      return (self.first as Object).toXPathNumber();
+    } else if (self is XPathSequence) {
+      final item = self.singleOrNull;
+      if (item != null) return item.toXPathNumber();
     }
-    throw XPathEvaluationException(
-      'Unsupported type for number casting: ${self.runtimeType}',
-    );
+    XPathEvaluationException.unsupportedCast(self, 'number');
   }
 }
