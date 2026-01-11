@@ -1,9 +1,11 @@
 import 'package:test/test.dart';
+import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/exceptions/evaluation_exception.dart';
 import 'package:xml/src/xpath/types31/array.dart';
 import 'package:xml/src/xpath/types31/boolean.dart';
 import 'package:xml/src/xpath/types31/date_time.dart';
 import 'package:xml/src/xpath/types31/duration.dart';
+import 'package:xml/src/xpath/types31/function.dart';
 import 'package:xml/src/xpath/types31/map.dart';
 import 'package:xml/src/xpath/types31/node.dart';
 import 'package:xml/src/xpath/types31/number.dart';
@@ -14,6 +16,7 @@ import 'package:xml/xml.dart';
 void main() {
   final document = XmlDocument.parse('<r><a>1</a><b>2<c>3</c></b></r>');
   final node = document.findAllElements('a').single;
+  final context = XPathContext(document);
 
   group('string', () {
     test('cast from string', () {
@@ -300,6 +303,76 @@ void main() {
       expect(singular.single, 'foo');
       expect(singular.contains('foo'), true);
       expect(singular.contains('bar'), false);
+    });
+  });
+  group('function', () {
+    test('cast from individual XPathFunction', () {
+      XPathSequence myFunction(
+        XPathContext context,
+        List<XPathSequence> arguments,
+      ) => XPathSequence.single('ok');
+
+      final casted = myFunction.toXPathFunction();
+      expect(casted, myFunction);
+      expect(casted(context, []), ['ok']);
+    });
+    test('cast from XPathArray (array as function)', () {
+      const array = XPathArray(['a', 'b', 'c']);
+      final casted = array.toXPathFunction();
+
+      // array(1) -> 'a'
+      final result1 = casted(context, [XPathSequence.single(1)]);
+      expect(result1, ['a']);
+
+      // array(2) -> 'b'
+      final result2 = casted(context, [XPathSequence.single(2)]);
+      expect(result2, ['b']);
+
+      // array(4) -> error
+      expect(
+        () => casted(context, [XPathSequence.single(4)]),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+    });
+    test('cast from XPathMap (map as function)', () {
+      const map = XPathMap({'key1': 'val1', 'key2': 'val2'});
+      final casted = map.toXPathFunction();
+
+      // map('key1') -> 'val1'
+      final result1 = casted(context, [XPathSequence.single('key1')]);
+      expect(result1, ['val1']);
+
+      // map('unknown') -> empty
+      final result2 = casted(context, [XPathSequence.single('unknown')]);
+      expect(result2, isEmpty);
+    });
+    test('cast from XPathSequence (containing a function)', () {
+      XPathSequence myFunction(
+        XPathContext context,
+        List<XPathSequence> arguments,
+      ) => XPathSequence.single('sequence-ok');
+
+      final sequence = XPathSequence.single(myFunction);
+      final casted = sequence.toXPathFunction();
+      expect(casted(context, []), ['sequence-ok']);
+    });
+    test('cast from unsupported type', () {
+      expect(
+        () => 'string'.toXPathFunction(),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+      expect(
+        () => 123.toXPathFunction(),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+      expect(
+        () => XPathSequence.empty.toXPathFunction(),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+      expect(
+        () => const XPathSequence(['a', 'b']).toXPathFunction(),
+        throwsA(isA<XPathEvaluationException>()),
+      );
     });
   });
 }

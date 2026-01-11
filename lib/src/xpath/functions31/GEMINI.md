@@ -413,8 +413,8 @@ This module implements the XPath 3.1 functions as defined in [XPath Functions an
 #### Functions on functions
 
 * `fn:function-lookup`
-* `fn:function-name`
-* `fn:function-arity`
+* `fn:function-name` ✅ in [higher_order.dart]
+* `fn:function-arity` ✅ in [higher_order.dart]
 
 #### Basic higher-order functions
 

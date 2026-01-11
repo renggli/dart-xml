@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/functions31/accessor.dart';
@@ -30,7 +29,7 @@ final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
 final context = XPathContext(document);
 
 void main() {
-  group('accessor.dart', () {
+  group('accessor', () {
     test('fn:node-name', () {
       final a = document.findAllElements('a').first;
       expect(fnNodeName(XPathContext(a), []), XPathSequence.single(a.name));
@@ -117,8 +116,7 @@ void main() {
       );
     });
   });
-
-  group('error.dart', () {
+  group('error', () {
     test('fn:error', () {
       expect(
         () => fnError(context, []),
@@ -171,7 +169,6 @@ void main() {
         expect(e.toString(), contains('code: desc ([obj])'));
       }
     });
-
     test('fn:trace', () {
       expect(
         fnTrace(context, [
@@ -182,8 +179,7 @@ void main() {
       );
     });
   });
-
-  group('number.dart', () {
+  group('number', () {
     test('fn:abs', () {
       expect(
         fnAbs(context, [XPathSequence.single(-5)]),
@@ -474,8 +470,7 @@ void main() {
       );
     });
   });
-
-  group('string.dart', () {
+  group('string', () {
     test('fn:concat', () {
       expect(
         fnConcat(context, [
@@ -741,7 +736,6 @@ void main() {
         orderedEquals(['', 'r', 'c', 'd', 'r', '']),
       );
     });
-
     test('fn:analyze-string', () {
       expect(
         () => fnAnalyzeString(context, []),
@@ -749,8 +743,7 @@ void main() {
       );
     });
   });
-
-  group('boolean.dart', () {
+  group('boolean', () {
     test('op:boolean-equal', () {
       expect(
         opBooleanEqual(context, [
@@ -843,8 +836,7 @@ void main() {
       );
     });
   });
-
-  group('node.dart', () {
+  group('node', () {
     test('fn:name', () {
       final a = document.findAllElements('a').first;
       expect(
@@ -897,7 +889,6 @@ void main() {
         XPathSequence.single(const v31.XPathString('/r/a')),
       );
     });
-
     group('node hierarchy', () {
       final document = XmlDocument.parse('''
         <root>
@@ -912,7 +903,6 @@ void main() {
       final child1 = root.children.whereType<XmlElement>().first;
       final grandchild2 = child1.children.whereType<XmlElement>().last;
       final child3 = root.children.whereType<XmlElement>().last;
-
       test('fn:name', () {
         expect(
           fnName(context, [XPathSequence.single(root)]),
@@ -980,8 +970,7 @@ void main() {
       });
     });
   });
-
-  group('context.dart', () {
+  group('context', () {
     test('fn:position', () {
       expect(fnPosition(context, []), XPathSequence.single(1));
     });
@@ -1015,8 +1004,7 @@ void main() {
       expect(fnStaticBaseUri(context, []), isEmpty);
     });
   });
-
-  group('sequence.dart', () {
+  group('sequence', () {
     group('general functions and operators on sequences', () {
       test('fn:empty', () {
         expect(
@@ -1028,7 +1016,6 @@ void main() {
           XPathSequence.falseSequence,
         );
       });
-
       test('fn:exists', () {
         expect(
           fnExists(context, [XPathSequence.empty]),
@@ -1039,7 +1026,6 @@ void main() {
           XPathSequence.trueSequence,
         );
       });
-
       test('fn:head', () {
         expect(fnHead(context, [XPathSequence.empty]), XPathSequence.empty);
         expect(
@@ -1049,7 +1035,6 @@ void main() {
           XPathSequence.single(1),
         );
       });
-
       test('fn:tail', () {
         expect(fnTail(context, [XPathSequence.empty]), XPathSequence.empty);
         expect(
@@ -1065,7 +1050,6 @@ void main() {
           const XPathSequence([2, 3]),
         );
       });
-
       test('fn:insert-before', () {
         expect(
           fnInsertBefore(context, [
@@ -1108,7 +1092,6 @@ void main() {
           const XPathSequence([1, 2, 0]),
         );
       });
-
       test('fn:remove', () {
         expect(
           fnRemove(context, [
@@ -1132,7 +1115,6 @@ void main() {
           const XPathSequence([1, 2, 3]),
         );
       });
-
       test('fn:reverse', () {
         expect(
           fnReverse(context, [
@@ -1142,7 +1124,6 @@ void main() {
         );
         expect(fnReverse(context, [XPathSequence.empty]), XPathSequence.empty);
       });
-
       test('fn:subsequence', () {
         expect(
           fnSubsequence(context, [
@@ -1184,13 +1165,11 @@ void main() {
           const XPathSequence([1]),
         );
       });
-
       test('fn:unordered', () {
         const seq = XPathSequence([1, 2, 3]);
         expect(fnUnordered(context, [seq]), seq);
       });
     });
-
     group('functions that compare values in sequences', () {
       test('fn:distinct-values', () {
         expect(
@@ -1200,7 +1179,6 @@ void main() {
           const XPathSequence([1, 2, 3]),
         );
       });
-
       test('fn:index-of', () {
         expect(
           fnIndexOf(context, [
@@ -1217,7 +1195,6 @@ void main() {
           XPathSequence.empty,
         );
       });
-
       test('fn:deep-equal', () {
         expect(
           fnDeepEqual(context, [
@@ -1242,7 +1219,6 @@ void main() {
         );
       });
     });
-
     group('functions that test the cardinality of sequences', () {
       test('fn:zero-or-one', () {
         expect(
@@ -1260,7 +1236,6 @@ void main() {
           throwsA(isA<XPathEvaluationException>()),
         );
       });
-
       test('fn:one-or-more', () {
         expect(
           fnOneOrMore(context, [XPathSequence.single(1)]),
@@ -1277,7 +1252,6 @@ void main() {
           throwsA(isA<XPathEvaluationException>()),
         );
       });
-
       test('fn:exactly-one', () {
         expect(
           fnExactlyOne(context, [XPathSequence.single(1)]),
@@ -1295,7 +1269,6 @@ void main() {
         );
       });
     });
-
     group('aggregate functions', () {
       test('fn:count', () {
         expect(
@@ -1309,7 +1282,6 @@ void main() {
           XPathSequence.single(3),
         );
       });
-
       test('fn:avg', () {
         expect(
           fnAvg(context, [
@@ -1319,7 +1291,6 @@ void main() {
         );
         expect(fnAvg(context, [XPathSequence.empty]), XPathSequence.empty);
       });
-
       test('fn:max', () {
         expect(
           fnMax(context, [
@@ -1329,7 +1300,6 @@ void main() {
         );
         expect(fnMax(context, [XPathSequence.empty]), XPathSequence.empty);
       });
-
       test('fn:min', () {
         expect(
           fnMin(context, [
@@ -1339,7 +1309,6 @@ void main() {
         );
         expect(fnMin(context, [XPathSequence.empty]), XPathSequence.empty);
       });
-
       test('fn:sum', () {
         expect(fnSum(context, [XPathSequence.empty]), XPathSequence.single(0));
         expect(
@@ -1354,7 +1323,6 @@ void main() {
         );
       });
     });
-
     group('functions on node identifiers', () {
       test('fn:id', () {
         expect(
@@ -1381,7 +1349,6 @@ void main() {
         );
       });
     });
-
     group('functions giving access to external information', () {
       test('fn:doc', () {
         expect(
@@ -1432,7 +1399,6 @@ void main() {
         );
       });
     });
-
     group('parsing and serializing', () {
       test('fn:serialize', () {
         expect(
@@ -1454,8 +1420,7 @@ void main() {
       });
     });
   });
-
-  group('higher_order.dart', () {
+  group('higher_order', () {
     test('fn:sort', () {
       expect(
         fnSort(context, [
@@ -1469,110 +1434,123 @@ void main() {
         ]).toList(),
         orderedEquals(['a', 'b', 'c']),
       );
+      // Sort with key
       expect(
-        () => fnSort(context, [
-          const XPathSequence(['a']),
+        fnSort(context, [
+          const XPathSequence(['apple', 'be', 'cat']),
           XPathSequence.empty,
-          XPathSequence.single('key'),
-        ]),
-        throwsA(isA<UnimplementedError>()),
+          XPathSequence.single(
+            (XPathContext context, List<XPathSequence> args) =>
+                XPathSequence.single(args[0].toXPathString().length),
+          ),
+        ]).toList(),
+        orderedEquals(['be', 'cat', 'apple']),
       );
     });
-
     test('fn:apply', () {
+      XPathSequence add(XPathContext context, List<XPathSequence> args) =>
+          XPathSequence.single((args[0].first as num) + (args[1].first as num));
       expect(
-        () => fnApply(context, [XPathSequence.empty, XPathSequence.empty]),
-        throwsA(isA<UnimplementedError>()),
+        fnApply(context, [
+          XPathSequence.single(add),
+          XPathSequence.single([1, 2]),
+        ]),
+        orderedEquals([3]),
       );
     });
-
     test('fn:for-each', () {
+      XPathSequence double(XPathContext context, List<XPathSequence> args) =>
+          XPathSequence.single((args[0].first as num) * 2);
       expect(
-        () => fnForEach(context, [XPathSequence.empty, XPathSequence.empty]),
-        throwsA(isA<UnimplementedError>()),
+        fnForEach(context, [
+          const XPathSequence([1, 2, 3]),
+          XPathSequence.single(double),
+        ]).toList(),
+        orderedEquals([2, 4, 6]),
       );
     });
-
     test('fn:filter', () {
+      XPathSequence isEven(XPathContext context, List<XPathSequence> args) =>
+          XPathSequence.single((args[0].first as num) % 2 == 0);
       expect(
-        () => fnFilter(context, [XPathSequence.empty, XPathSequence.empty]),
-        throwsA(isA<UnimplementedError>()),
+        fnFilter(context, [
+          const XPathSequence([1, 2, 3, 4]),
+          XPathSequence.single(isEven),
+        ]).toList(),
+        orderedEquals([2, 4]),
       );
     });
-
     test('fn:fold-left', () {
+      XPathSequence add(XPathContext context, List<XPathSequence> args) =>
+          XPathSequence.single((args[0].first as num) + (args[1].first as num));
       expect(
-        () => fnFoldLeft(context, [
-          XPathSequence.empty,
-          XPathSequence.empty,
-          XPathSequence.empty,
-        ]),
-        throwsA(isA<UnimplementedError>()),
+        fnFoldLeft(context, [
+          const XPathSequence([1, 2, 3, 4, 5]),
+          XPathSequence.single(0),
+          XPathSequence.single(add),
+        ]).first,
+        equals(15),
       );
     });
-
     test('fn:fold-right', () {
+      XPathSequence sub(XPathContext context, List<XPathSequence> args) =>
+          XPathSequence.single((args[0].first as num) - (args[1].first as num));
+      // (1 - (2 - (3 - (4 - (5 - 0))))) = 1 - (2 - (3 - (4 - 5))) = 1 - (2 - (3 - (-1))) = 1 - (2 - 4) = 1 - (-2) = 3
       expect(
-        () => fnFoldRight(context, [
-          XPathSequence.empty,
-          XPathSequence.empty,
-          XPathSequence.empty,
-        ]),
-        throwsA(isA<UnimplementedError>()),
+        fnFoldRight(context, [
+          const XPathSequence([1, 2, 3, 4, 5]),
+          XPathSequence.single(0),
+          XPathSequence.single(sub),
+        ]).first,
+        equals(3),
       );
     });
-
     test('fn:for-each-pair', () {
+      XPathSequence concat(XPathContext context, List<XPathSequence> args) =>
+          XPathSequence.single(
+            args[0].toXPathString() + args[1].toXPathString(),
+          );
       expect(
-        () => fnForEachPair(context, [
-          XPathSequence.empty,
-          XPathSequence.empty,
-          XPathSequence.empty,
-        ]),
-        throwsA(isA<UnimplementedError>()),
+        fnForEachPair(context, [
+          const XPathSequence(['a', 'b', 'c']),
+          const XPathSequence(['1', '2', '3']),
+          XPathSequence.single(concat),
+        ]).toList(),
+        orderedEquals(['a1', 'b2', 'c3']),
       );
     });
-
     test('fn:function-lookup', () {
       expect(
-        () => fnFunctionLookup(context, [
-          XPathSequence.empty,
-          XPathSequence.empty,
-        ]),
+        () => fnFunctionLookup(context, []),
         throwsA(isA<UnimplementedError>()),
       );
     });
-
     test('fn:function-name', () {
       expect(
-        () => fnFunctionName(context, [XPathSequence.empty]),
+        () => fnFunctionName(context, []),
         throwsA(isA<UnimplementedError>()),
       );
     });
-
     test('fn:function-arity', () {
       expect(
-        () => fnFunctionArity(context, [XPathSequence.empty]),
+        () => fnFunctionArity(context, []),
         throwsA(isA<UnimplementedError>()),
       );
     });
-
     test('fn:load-xquery-module', () {
       expect(
-        () => fnLoadXqueryModule(context, [XPathSequence.empty]),
+        () => fnLoadXqueryModule(context, []),
         throwsA(isA<UnimplementedError>()),
       );
     });
-
     test('fn:transform', () {
       expect(
-        () => fnTransform(context, [XPathSequence.empty]),
+        () => fnTransform(context, []),
         throwsA(isA<UnimplementedError>()),
       );
     });
   });
-
-  group('map.dart', () {
+  group('map', () {
     test('map:merge', () {
       final map1 = {'a': 1, 'b': 2};
       final map2 = {'b': 3, 'c': 4};
@@ -1588,12 +1566,10 @@ void main() {
         throwsA(isA<XPathEvaluationException>()),
       );
     });
-
     test('map:size', () {
       final map = {'a': 1, 'b': 2};
       expect(mapSize(context, [XPathSequence.single(map)]), orderedEquals([2]));
     });
-
     test('map:keys', () {
       final map = {'a': 1, 'b': 2};
       // Keys matching is order-dependent? Map keys order is iteration order.
@@ -1602,7 +1578,6 @@ void main() {
         containsAll(['a', 'b']),
       );
     });
-
     test('map:contains', () {
       final map = {'a': 1};
       expect(
@@ -1620,7 +1595,6 @@ void main() {
         orderedEquals([false]),
       );
     });
-
     test('map:get', () {
       final map = {'a': 1};
       expect(
@@ -1632,7 +1606,6 @@ void main() {
         isEmpty,
       );
     });
-
     test('map:find', () {
       // Stub implementation alias to map:get
       final map = {'a': 1};
@@ -1644,7 +1617,6 @@ void main() {
         orderedEquals([1]),
       );
     });
-
     test('map:put', () {
       final map = {'a': 1};
       expect(
@@ -1656,7 +1628,6 @@ void main() {
         equals({'a': 1, 'b': 2}),
       );
     });
-
     test('map:entry', () {
       expect(
         mapEntry(context, [
@@ -1666,7 +1637,6 @@ void main() {
         equals({'a': 1}),
       );
     });
-
     test('map:remove', () {
       final map = {'a': 1, 'b': 2};
       expect(
@@ -1684,16 +1654,22 @@ void main() {
         equals({}),
       );
     });
-
     test('map:for-each', () {
+      final map = {'a': 1, 'b': 2};
+      XPathSequence concat(XPathContext context, List<XPathSequence> args) =>
+          XPathSequence.single(
+            args[0].toXPathString() + args[1].toXPathString(),
+          );
       expect(
-        () => mapForEach(context, [XPathSequence.empty, XPathSequence.empty]),
-        throwsA(isA<UnimplementedError>()),
+        mapForEach(context, [
+          XPathSequence.single(map),
+          XPathSequence.single(concat),
+        ]).toList(),
+        containsAll(['a1', 'b2']),
       );
     });
   });
-
-  group('array.dart', () {
+  group('array', () {
     test('array:size', () {
       final array = ['a', 'b', 'c'];
       expect(
@@ -1701,7 +1677,6 @@ void main() {
         orderedEquals([3]),
       );
     });
-
     test('array:get', () {
       final array = ['a', 'b'];
       expect(
@@ -1726,7 +1701,6 @@ void main() {
         throwsA(isA<XPathEvaluationException>()),
       );
     });
-
     test('array:put', () {
       final array = ['a', 'b'];
       expect(
@@ -1746,7 +1720,6 @@ void main() {
         throwsA(isA<XPathEvaluationException>()),
       );
     });
-
     test('array:append', () {
       final array = ['a'];
       expect(
@@ -1757,7 +1730,6 @@ void main() {
         equals(['a', 'b']),
       );
     });
-
     test('array:subarray', () {
       final array = ['a', 'b', 'c', 'd'];
       expect(
@@ -1798,7 +1770,6 @@ void main() {
         throwsA(isA<XPathEvaluationException>()),
       );
     });
-
     test('array:remove', () {
       final array = ['a', 'b', 'c'];
       expect(
@@ -1823,7 +1794,6 @@ void main() {
         throwsA(isA<XPathEvaluationException>()),
       );
     });
-
     test('array:insert-before', () {
       final array = ['a', 'c'];
       expect(
@@ -1843,7 +1813,6 @@ void main() {
         throwsA(isA<XPathEvaluationException>()),
       );
     });
-
     test('array:head', () {
       expect(
         arrayHead(context, [
@@ -1858,7 +1827,6 @@ void main() {
         throwsA(isA<XPathEvaluationException>()),
       );
     });
-
     test('array:tail', () {
       expect(
         arrayTail(context, [
@@ -1873,7 +1841,6 @@ void main() {
         throwsA(isA<XPathEvaluationException>()),
       );
     });
-
     test('array:reverse', () {
       expect(
         arrayReverse(context, [
@@ -1884,7 +1851,6 @@ void main() {
         equals(['c', 'b', 'a']),
       );
     });
-
     test('array:join', () {
       expect(
         arrayJoin(context, [
@@ -1902,7 +1868,6 @@ void main() {
         orderedEquals([1, 2, 3, 4, 5]),
       );
     });
-
     test('array:flatten', () {
       final input = [
         1,
@@ -1919,48 +1884,109 @@ void main() {
         orderedEquals([1, 2, 3, 4, 5]),
       );
     });
-
-    test('unimplemented array functions', () {
+    test('array:for-each', () {
+      final array = [1, 2, 3];
+      XPathSequence double(XPathContext context, List<XPathSequence> args) =>
+          XPathSequence.single((args[0].first as num) * 2);
+      final result =
+          arrayForEach(context, [
+                XPathSequence.single(array),
+                XPathSequence.single(double),
+              ]).first
+              as List;
       expect(
-        () => arrayForEach(context, [XPathSequence.empty, XPathSequence.empty]),
-        throwsA(isA<UnimplementedError>()),
+        result.map((e) => (e as Object).toXPathSequence().first).toList(),
+        orderedEquals([2, 4, 6]),
       );
+    });
+    test('array:filter', () {
+      final array = [1, 2, 3, 4];
+      XPathSequence isEven(XPathContext context, List<XPathSequence> args) =>
+          XPathSequence.single((args[0].first as num) % 2 == 0);
+      final result =
+          arrayFilter(context, [
+                XPathSequence.single(array),
+                XPathSequence.single(isEven),
+              ]).first
+              as List;
       expect(
-        () => arrayFilter(context, [XPathSequence.empty, XPathSequence.empty]),
-        throwsA(isA<UnimplementedError>()),
+        result.map((e) => (e as Object).toXPathSequence().first).toList(),
+        orderedEquals([2, 4]),
       );
+    });
+    test('array:fold-left', () {
+      final array = [1, 2, 3, 4, 5];
+      XPathSequence add(XPathContext context, List<XPathSequence> args) =>
+          XPathSequence.single((args[0].first as num) + (args[1].first as num));
       expect(
-        () => arrayFoldLeft(context, [
-          XPathSequence.empty,
-          XPathSequence.empty,
-          XPathSequence.empty,
-        ]),
-        throwsA(isA<UnimplementedError>()),
+        arrayFoldLeft(context, [
+          XPathSequence.single(array),
+          XPathSequence.single(0),
+          XPathSequence.single(add),
+        ]).first,
+        equals(15),
       );
+    });
+    test('array:fold-right', () {
+      final array = [1, 2, 3, 4, 5];
+      XPathSequence sub(XPathContext context, List<XPathSequence> args) =>
+          XPathSequence.single((args[0].first as num) - (args[1].first as num));
       expect(
-        () => arrayFoldRight(context, [
-          XPathSequence.empty,
-          XPathSequence.empty,
-          XPathSequence.empty,
-        ]),
-        throwsA(isA<UnimplementedError>()),
+        arrayFoldRight(context, [
+          XPathSequence.single(array),
+          XPathSequence.single(0),
+          XPathSequence.single(sub),
+        ]).first,
+        equals(3),
       );
+    });
+    test('array:for-each-pair', () {
+      final array1 = ['a', 'b', 'c'];
+      final array2 = ['1', '2', '3'];
+      XPathSequence concat(XPathContext context, List<XPathSequence> args) =>
+          XPathSequence.single(
+            args[0].toXPathString() + args[1].toXPathString(),
+          );
+      final result =
+          arrayForEachPair(context, [
+                XPathSequence.single(array1),
+                XPathSequence.single(array2),
+                XPathSequence.single(concat),
+              ]).first
+              as List;
       expect(
-        () => arrayForEachPair(context, [
-          XPathSequence.empty,
-          XPathSequence.empty,
-          XPathSequence.empty,
-        ]),
-        throwsA(isA<UnimplementedError>()),
+        result
+            .map((e) => (e as Object).toXPathSequence().first.toString())
+            .toList(),
+        orderedEquals(['a1', 'b2', 'c3']),
       );
+    });
+    test('array:sort', () {
+      final array = [3, 1, 2];
+      final result =
+          arraySort(context, [XPathSequence.single(array)]).first as List;
       expect(
-        () => arraySort(context, [XPathSequence.empty]),
-        throwsA(isA<UnimplementedError>()),
+        result.map((e) => (e as Object).toXPathSequence().first).toList(),
+        orderedEquals([1, 2, 3]),
+      );
+      // Sort with key
+      final array2 = ['apple', 'be', 'cat'];
+      XPathSequence length(XPathContext context, List<XPathSequence> args) =>
+          XPathSequence.single(args[0].toXPathString().length);
+      final result2 =
+          arraySort(context, [
+                XPathSequence.single(array2),
+                XPathSequence.empty,
+                XPathSequence.single(length),
+              ]).first
+              as List;
+      expect(
+        result2.map((e) => (e as Object).toXPathSequence().first).toList(),
+        orderedEquals(['be', 'cat', 'apple']),
       );
     });
   });
-
-  group('binary.dart', () {
+  group('binary', () {
     test('op:hexBinary-equal', () {
       expect(
         opHexBinaryEqual(context, [
@@ -1977,7 +2003,6 @@ void main() {
         orderedEquals([false]),
       );
     });
-
     test('op:hexBinary-less-than', () {
       expect(
         opHexBinaryLessThan(context, [
@@ -1987,7 +2012,6 @@ void main() {
         orderedEquals([true]),
       );
     });
-
     test('op:hexBinary-greater-than', () {
       expect(
         opHexBinaryGreaterThan(context, [
@@ -1997,7 +2021,6 @@ void main() {
         orderedEquals([true]),
       );
     });
-
     test('op:base64Binary-equal', () {
       expect(
         opBase64BinaryEqual(context, [
@@ -2007,7 +2030,6 @@ void main() {
         orderedEquals([true]),
       );
     });
-
     test('op:base64Binary-less-than', () {
       expect(
         opBase64BinaryLessThan(context, [
@@ -2017,7 +2039,6 @@ void main() {
         orderedEquals([true]),
       );
     });
-
     test('op:base64Binary-greater-than', () {
       expect(
         opBase64BinaryGreaterThan(context, [
@@ -2028,8 +2049,7 @@ void main() {
       );
     });
   });
-
-  group('notation.dart', () {
+  group('notation', () {
     test('op:NOTATION-equal', () {
       expect(
         opNotationEqual(context, [
@@ -2040,15 +2060,13 @@ void main() {
       );
     });
   });
-
-  group('qname.dart', () {
+  group('qname', () {
     test('op:QName-equal', () {
       expect(
         opQNameEqual(context, [XPathSequence.empty, XPathSequence.empty]),
         equals(XPathSequence.empty),
       );
     });
-
     test('fn:namespace-uri-for-prefix', () {
       expect(
         () => fnNamespaceUriForPrefix(context, [
@@ -2058,7 +2076,6 @@ void main() {
         throwsA(isA<UnimplementedError>()),
       );
     });
-
     test('fn:resolve-QName', () {
       expect(
         fnResolveQName(context, [
@@ -2068,7 +2085,6 @@ void main() {
         isA<XmlName>(),
       );
     });
-
     test('fn:QName', () {
       expect(
         fnQName(context, [
@@ -2078,7 +2094,6 @@ void main() {
         isA<XmlName>(),
       );
     });
-
     test('fn:prefix-from-QName', () {
       final qname = XmlName.fromString('p:local');
       expect(
@@ -2086,7 +2101,6 @@ void main() {
         orderedEquals(['p']),
       );
     });
-
     test('fn:local-name-from-QName', () {
       final qname = XmlName.fromString('p:local');
       expect(
@@ -2094,7 +2108,6 @@ void main() {
         orderedEquals(['local']),
       );
     });
-
     test('fn:namespace-uri-from-QName', () {
       final qname = XmlName.fromString('p:local');
       expect(
@@ -2102,7 +2115,6 @@ void main() {
         isEmpty,
       );
     });
-
     test('fn:in-scope-prefixes', () {
       expect(
         () => fnInScopePrefixes(context, [XPathSequence.empty]),
@@ -2110,15 +2122,13 @@ void main() {
       );
     });
   });
-
-  group('date_time.dart', () {
+  group('date_time', () {
     test('fn:year-from-date', () {
       expect(
         fnYearFromDate(context, [XPathSequence.single(DateTime(2023, 10, 26))]),
         orderedEquals([2023]),
       );
     });
-
     test('op:dateTime-equal', () {
       final dt1 = DateTime(2023, 1, 1);
       final dt2 = DateTime(2023, 1, 1);
@@ -2138,7 +2148,6 @@ void main() {
         orderedEquals([false]),
       );
     });
-
     test('fn:dateTime', () {
       expect(
         fnDateTime(context, [
@@ -2148,7 +2157,6 @@ void main() {
         equals(DateTime(2023, 10, 26, 12, 30, 45)),
       );
     });
-
     test('fn:year-from-dateTime', () {
       final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
       expect(
@@ -2156,7 +2164,6 @@ void main() {
         orderedEquals([2023]),
       );
     });
-
     test('fn:month-from-dateTime', () {
       final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
       expect(
@@ -2164,7 +2171,6 @@ void main() {
         orderedEquals([10]),
       );
     });
-
     test('fn:day-from-dateTime', () {
       final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
       expect(
@@ -2172,7 +2178,6 @@ void main() {
         orderedEquals([26]),
       );
     });
-
     test('fn:hours-from-dateTime', () {
       final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
       expect(
@@ -2180,7 +2185,6 @@ void main() {
         orderedEquals([12]),
       );
     });
-
     test('fn:minutes-from-dateTime', () {
       final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
       expect(
@@ -2188,7 +2192,6 @@ void main() {
         orderedEquals([30]),
       );
     });
-
     test('fn:seconds-from-dateTime', () {
       final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
       expect(
@@ -2196,7 +2199,6 @@ void main() {
         orderedEquals([45.0]),
       );
     });
-
     test('op:dateTime-less-than', () {
       final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
       final dt2 = DateTime.utc(2023, 10, 27, 12, 30, 45);
@@ -2215,7 +2217,6 @@ void main() {
         orderedEquals([false]),
       );
     });
-
     test('op:dateTime-greater-than', () {
       final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
       final dt2 = DateTime.utc(2023, 10, 27, 12, 30, 45);
@@ -2227,7 +2228,6 @@ void main() {
         orderedEquals([true]),
       );
     });
-
     test('op:subtract-dateTimes', () {
       final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
       final dt2 = DateTime.utc(2023, 10, 27, 12, 30, 45);
@@ -2239,7 +2239,6 @@ void main() {
         equals(const Duration(days: 1)),
       );
     });
-
     test('op:add-duration-to-dateTime', () {
       final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
       final dt2 = DateTime.utc(2023, 10, 27, 12, 30, 45);
@@ -2252,7 +2251,6 @@ void main() {
         equals(dt2),
       );
     });
-
     test('op:subtract-duration-from-dateTime', () {
       final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
       final dt2 = DateTime.utc(2023, 10, 27, 12, 30, 45);
@@ -2265,7 +2263,6 @@ void main() {
         equals(dt1),
       );
     });
-
     test('fn:timezone-from-dateTime', () {
       final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
       expect(
@@ -2273,7 +2270,6 @@ void main() {
         orderedEquals([Duration.zero]),
       );
     });
-
     test('fn:year-from-date', () {
       final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
       expect(
@@ -2281,7 +2277,6 @@ void main() {
         orderedEquals([2023]),
       );
     });
-
     test('fn:month-from-date', () {
       final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
       expect(
@@ -2289,7 +2284,6 @@ void main() {
         orderedEquals([10]),
       );
     });
-
     test('fn:day-from-date', () {
       final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
       expect(
@@ -2297,7 +2291,6 @@ void main() {
         orderedEquals([26]),
       );
     });
-
     test('fn:timezone-from-date', () {
       final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
       expect(
@@ -2305,7 +2298,6 @@ void main() {
         orderedEquals([Duration.zero]),
       );
     });
-
     test('fn:hours-from-time', () {
       final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
       expect(
@@ -2313,7 +2305,6 @@ void main() {
         orderedEquals([12]),
       );
     });
-
     test('fn:minutes-from-time', () {
       final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
       expect(
@@ -2321,7 +2312,6 @@ void main() {
         orderedEquals([30]),
       );
     });
-
     test('fn:seconds-from-time', () {
       final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
       expect(
@@ -2329,7 +2319,6 @@ void main() {
         orderedEquals([45.0]),
       );
     });
-
     test('fn:timezone-from-time', () {
       final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
       expect(
@@ -2337,7 +2326,6 @@ void main() {
         orderedEquals([Duration.zero]),
       );
     });
-
     test('operators coverage', () {
       // opDateEqual
       expect(
@@ -2444,7 +2432,6 @@ void main() {
         XPathSequence.trueSequence,
       );
     });
-
     test('missing functions stubs', () {
       expect(
         () => fnAdjustDateTimeToTimezone(context, [XPathSequence.empty]),
@@ -2479,8 +2466,7 @@ void main() {
       );
     });
   });
-
-  group('duration.dart', () {
+  group('duration', () {
     test('op:duration-equal', () {
       const d1 = Duration(days: 1);
       const d2 = Duration(days: 1);
@@ -2500,7 +2486,6 @@ void main() {
         orderedEquals([false]),
       );
     });
-
     test('op:yearMonthDuration-less-than', () {
       const d1 = Duration(days: 1);
       const d2 = Duration(days: 2);
@@ -2512,7 +2497,6 @@ void main() {
         orderedEquals([true]),
       );
     });
-
     test('op:yearMonthDuration-greater-than', () {
       const d1 = Duration(days: 1);
       const d2 = Duration(days: 2);
@@ -2524,7 +2508,6 @@ void main() {
         orderedEquals([true]),
       );
     });
-
     test('op:dayTimeDuration-less-than', () {
       const d1 = Duration(days: 1);
       const d2 = Duration(days: 2);
@@ -2536,7 +2519,6 @@ void main() {
         orderedEquals([true]),
       );
     });
-
     test('op:dayTimeDuration-greater-than', () {
       const d1 = Duration(days: 1);
       const d2 = Duration(days: 2);
@@ -2548,7 +2530,6 @@ void main() {
         orderedEquals([true]),
       );
     });
-
     test('op:add-yearMonthDurations', () {
       const d1 = Duration(days: 1);
       const d2 = Duration(days: 2);
@@ -2560,7 +2541,6 @@ void main() {
         equals(d1 + d2),
       );
     });
-
     test('op:subtract-yearMonthDurations', () {
       const d1 = Duration(days: 1);
       const d2 = Duration(days: 2);
@@ -2572,7 +2552,6 @@ void main() {
         equals(d1),
       );
     });
-
     test('op:multiply-yearMonthDuration', () {
       const d1 = Duration(days: 1);
       const d2 = Duration(days: 2);
@@ -2584,7 +2563,6 @@ void main() {
         equals(d2),
       );
     });
-
     test('op:divide-yearMonthDuration', () {
       const d1 = Duration(days: 1);
       const d2 = Duration(days: 2);
@@ -2596,7 +2574,6 @@ void main() {
         equals(d1),
       );
     });
-
     test('op:divide-yearMonthDuration-by-yearMonthDuration', () {
       const d1 = Duration(days: 1);
       const d2 = Duration(days: 2);
@@ -2608,7 +2585,6 @@ void main() {
         orderedEquals([2.0]),
       );
     });
-
     test('op:add-dayTimeDurations', () {
       const d1 = Duration(days: 1);
       const d2 = Duration(days: 2);
@@ -2620,7 +2596,6 @@ void main() {
         equals(d1 + d2),
       );
     });
-
     test('op:subtract-dayTimeDurations', () {
       const d1 = Duration(days: 1);
       const d2 = Duration(days: 2);
@@ -2632,7 +2607,6 @@ void main() {
         equals(d1),
       );
     });
-
     test('op:multiply-dayTimeDuration', () {
       const d1 = Duration(days: 1);
       const d2 = Duration(days: 2);
@@ -2644,7 +2618,6 @@ void main() {
         equals(d2),
       );
     });
-
     test('op:divide-dayTimeDuration', () {
       const d1 = Duration(days: 1);
       const d2 = Duration(days: 2);
@@ -2656,7 +2629,6 @@ void main() {
         equals(d1),
       );
     });
-
     test('op:divide-dayTimeDuration-by-dayTimeDuration', () {
       const d1 = Duration(days: 1);
       const d2 = Duration(days: 2);
@@ -2668,7 +2640,6 @@ void main() {
         orderedEquals([2.0]),
       );
     });
-
     test('fn:years-from-duration', () {
       const d1 = Duration(days: 1);
       expect(
@@ -2676,7 +2647,6 @@ void main() {
         orderedEquals([0]),
       );
     });
-
     test('fn:months-from-duration', () {
       const d1 = Duration(days: 1);
       expect(
@@ -2684,7 +2654,6 @@ void main() {
         orderedEquals([0]),
       );
     });
-
     test('fn:days-from-duration', () {
       const d1 = Duration(days: 1);
       expect(
@@ -2692,7 +2661,6 @@ void main() {
         orderedEquals([1]),
       );
     });
-
     test('fn:hours-from-duration', () {
       const d3 = Duration(hours: 1);
       expect(
@@ -2700,7 +2668,6 @@ void main() {
         orderedEquals([1]),
       );
     });
-
     test('fn:minutes-from-duration', () {
       const d = Duration(minutes: 90);
       expect(
@@ -2708,7 +2675,6 @@ void main() {
         orderedEquals([30]),
       );
     });
-
     test('fn:seconds-from-duration', () {
       const d = Duration(seconds: 90); // 1 min 30 sec
       expect(
@@ -2717,8 +2683,7 @@ void main() {
       );
     });
   });
-
-  group('json.dart', () {
+  group('json', () {
     test('fn:parse-json', () {
       expect(
         () => fnParseJson(context, [XPathSequence.empty]),
@@ -2744,7 +2709,7 @@ void main() {
       );
     });
   });
-  group('uri.dart', () {
+  group('uri', () {
     test('fn:resolve-uri', () {
       expect(
         fnResolveUri(context, [XPathSequence.single('foo')]),

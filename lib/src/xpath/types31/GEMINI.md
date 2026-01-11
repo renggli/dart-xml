@@ -25,9 +25,9 @@ XML nodes are represented by the [XmlNode](../../xml/nodes/node.dart) class and 
 
 | XPath Type | Dart Type | Dart Extension Type | Dart Cast |
 | --- | --- | --- | --- |
-| `function(*)` | `Function` | n/a | n/a |
-| `array(*)` | `List<Object>` | `XPathArray` | `.toXPathArray()` |
-| `map(*)` | `Map<Object, Object>` | `XPathMap` | `.toXPathMap()` |
+| `function(*)` | `Function` | `XPathFunction` | `.toXPathFunction()` |
+| `array(*)` | `List<Object>` | `XPathArray` | `.toXPathArray()` and `.toXPathFunction()` |
+| `map(*)` | `Map<Object, Object>` | `XPathMap` | `.toXPathMap()` and `.toXPathFunction()` |
 
 ## Atomics
 

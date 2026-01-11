@@ -1,5 +1,6 @@
 import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
+import '../types31/function.dart';
 import '../types31/map.dart';
 import '../types31/sequence.dart';
 
@@ -125,5 +126,26 @@ XPathSequence mapRemove(XPathContext context, List<XPathSequence> arguments) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-for-each
 XPathSequence mapForEach(XPathContext context, List<XPathSequence> arguments) {
-  throw UnimplementedError('map:for-each');
+  XPathEvaluationException.checkArgumentCount('map:for-each', arguments, 2);
+  final map = XPathEvaluationException.extractExactlyOne(
+    'map:for-each',
+    'map',
+    arguments[0],
+  ).toXPathMap();
+  final action = XPathEvaluationException.extractExactlyOne(
+    'map:for-each',
+    'action',
+    arguments[1],
+  ).toXPathFunction();
+
+  final result = <Object>[];
+  for (final entry in map.entries) {
+    result.addAll(
+      action(context, [
+        XPathSequence.single(entry.key),
+        entry.value.toXPathSequence(),
+      ]),
+    );
+  }
+  return XPathSequence(result);
 }

@@ -1,8 +1,13 @@
+import 'dart:math' as math;
+
 import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types31/array.dart';
+import '../types31/boolean.dart';
+import '../types31/function.dart';
 import '../types31/number.dart';
 import '../types31/sequence.dart';
+import '../types31/string.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-size
 XPathSequence arraySize(XPathContext context, List<XPathSequence> arguments) {
@@ -226,12 +231,46 @@ XPathSequence arrayForEach(
   XPathContext context,
   List<XPathSequence> arguments,
 ) {
-  throw UnimplementedError('array:for-each');
+  XPathEvaluationException.checkArgumentCount('array:for-each', arguments, 2);
+  final array = XPathEvaluationException.extractExactlyOne(
+    'array:for-each',
+    'array',
+    arguments[0],
+  ).toXPathArray();
+  final action = XPathEvaluationException.extractExactlyOne(
+    'array:for-each',
+    'action',
+    arguments[1],
+  ).toXPathFunction();
+
+  final result = <Object>[];
+  for (final member in array) {
+    result.add(action(context, [member.toXPathSequence()]));
+  }
+  return XPathSequence.single(XPathArray(result));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-filter
 XPathSequence arrayFilter(XPathContext context, List<XPathSequence> arguments) {
-  throw UnimplementedError('array:filter');
+  XPathEvaluationException.checkArgumentCount('array:filter', arguments, 2);
+  final array = XPathEvaluationException.extractExactlyOne(
+    'array:filter',
+    'array',
+    arguments[0],
+  ).toXPathArray();
+  final function = XPathEvaluationException.extractExactlyOne(
+    'array:filter',
+    'function',
+    arguments[1],
+  ).toXPathFunction();
+
+  final result = <Object>[];
+  for (final member in array) {
+    if (function(context, [member.toXPathSequence()]).toXPathBoolean()) {
+      result.add(member);
+    }
+  }
+  return XPathSequence.single(XPathArray(result));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-fold-left
@@ -239,7 +278,23 @@ XPathSequence arrayFoldLeft(
   XPathContext context,
   List<XPathSequence> arguments,
 ) {
-  throw UnimplementedError('array:fold-left');
+  XPathEvaluationException.checkArgumentCount('array:fold-left', arguments, 3);
+  final array = XPathEvaluationException.extractExactlyOne(
+    'array:fold-left',
+    'array',
+    arguments[0],
+  ).toXPathArray();
+  var zero = arguments[1];
+  final function = XPathEvaluationException.extractExactlyOne(
+    'array:fold-left',
+    'function',
+    arguments[2],
+  ).toXPathFunction();
+
+  for (final member in array) {
+    zero = function(context, [zero, member.toXPathSequence()]);
+  }
+  return zero;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-fold-right
@@ -247,7 +302,23 @@ XPathSequence arrayFoldRight(
   XPathContext context,
   List<XPathSequence> arguments,
 ) {
-  throw UnimplementedError('array:fold-right');
+  XPathEvaluationException.checkArgumentCount('array:fold-right', arguments, 3);
+  final array = XPathEvaluationException.extractExactlyOne(
+    'array:fold-right',
+    'array',
+    arguments[0],
+  ).toXPathArray();
+  var zero = arguments[1];
+  final function = XPathEvaluationException.extractExactlyOne(
+    'array:fold-right',
+    'function',
+    arguments[2],
+  ).toXPathFunction();
+
+  for (final member in array.reversed) {
+    zero = function(context, [member.toXPathSequence(), zero]);
+  }
+  return zero;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-for-each-pair
@@ -255,12 +326,86 @@ XPathSequence arrayForEachPair(
   XPathContext context,
   List<XPathSequence> arguments,
 ) {
-  throw UnimplementedError('array:for-each-pair');
+  XPathEvaluationException.checkArgumentCount(
+    'array:for-each-pair',
+    arguments,
+    3,
+  );
+  final array1 = XPathEvaluationException.extractExactlyOne(
+    'array:for-each-pair',
+    'array1',
+    arguments[0],
+  ).toXPathArray();
+  final array2 = XPathEvaluationException.extractExactlyOne(
+    'array:for-each-pair',
+    'array2',
+    arguments[1],
+  ).toXPathArray();
+  final action = XPathEvaluationException.extractExactlyOne(
+    'array:for-each-pair',
+    'function',
+    arguments[2],
+  ).toXPathFunction();
+
+  final result = <Object>[];
+  final minLen = math.min(array1.length, array2.length);
+  for (var i = 0; i < minLen; i++) {
+    result.add(
+      action(context, [
+        array1[i].toXPathSequence(),
+        array2[i].toXPathSequence(),
+      ]),
+    );
+  }
+  return XPathSequence.single(XPathArray(result));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-sort
 XPathSequence arraySort(XPathContext context, List<XPathSequence> arguments) {
-  throw UnimplementedError('array:sort');
+  XPathEvaluationException.checkArgumentCount('array:sort', arguments, 1, 3);
+  final array = XPathEvaluationException.extractExactlyOne(
+    'array:sort',
+    'array',
+    arguments[0],
+  ).toXPathArray();
+  // ignore: unused_local_variable
+  final collation = arguments.length > 1
+      ? XPathEvaluationException.extractZeroOrOne(
+          'array:sort',
+          'collation',
+          arguments[1],
+        )?.toXPathString()
+      : null;
+  final key = arguments.length > 2
+      ? XPathEvaluationException.extractExactlyOne(
+          'array:sort',
+          'key',
+          arguments[2],
+        ).toXPathFunction()
+      : null;
+
+  final list = List.of(array);
+  list.sort((a, b) {
+    if (key != null) {
+      final keyA = key(context, [a.toXPathSequence()]).toAtomicValue();
+      final keyB = key(context, [b.toXPathSequence()]).toAtomicValue();
+      if (keyA is Comparable && keyB is Comparable) {
+        try {
+          return keyA.compareTo(keyB);
+        } catch (_) {}
+      }
+      return keyA.toString().compareTo(keyB.toString());
+    }
+    final valA = a.toAtomicValue();
+    final valB = b.toAtomicValue();
+    if (valA is Comparable && valB is Comparable) {
+      try {
+        return valA.compareTo(valB);
+      } catch (_) {}
+    }
+    return valA.toString().compareTo(valB.toString());
+  });
+  return XPathSequence.single(XPathArray(list));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-flatten
