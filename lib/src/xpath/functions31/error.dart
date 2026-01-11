@@ -43,8 +43,9 @@ XPathSequence fnTrace(
   XPathSequence value, [
   XPathSequence? label,
 ]) {
-  if (label != null) {
-    XPathEvaluationException.checkExactlyOne(label);
-  }
+  final labelOpt = label != null
+      ? XPathEvaluationException.checkZeroOrOne(label)?.toXPathString()
+      : null;
+  context.onTraceCallback?.call(value, labelOpt);
   return value;
 }

@@ -4,6 +4,7 @@ import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types31/number.dart';
 import '../types31/sequence.dart';
+import '../types31/string.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-empty
 XPathSequence fnEmpty(XPathContext context, XPathSequence arg) =>
@@ -273,22 +274,53 @@ XPathSequence fnGenerateId(XPathContext context, [XPathSequence? arg]) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-doc
 XPathSequence fnDoc(XPathContext context, XPathSequence href) {
-  throw UnimplementedError('fn:doc is not yet implemented');
+  final uri = XPathEvaluationException.checkZeroOrOne(href)?.toXPathString();
+  if (uri == null) return XPathSequence.empty;
+  final doc = context.documents[uri];
+  if (doc == null) {
+    // If validation is required, we might error, but spec says "or returns empty sequence if not found" is not exactly true, usually it errors if resource is missing?
+    // "If $uri is not a valid xs:anyURI, an error is raised [err:FODC0005]."
+    // "If the resource cannot be retrieved... [err:FODC0002]."
+    throw XPathEvaluationException('Document not found: $uri');
+  }
+  return XPathSequence.single(doc);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-doc-available
 XPathSequence fnDocAvailable(XPathContext context, XPathSequence href) {
-  throw UnimplementedError('fn:doc-available is not yet implemented');
+  final uri = XPathEvaluationException.checkZeroOrOne(href)?.toXPathString();
+  if (uri == null) return XPathSequence.falseSequence;
+  return context.documents.containsKey(uri)
+      ? XPathSequence.trueSequence
+      : XPathSequence.falseSequence;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-collection
 XPathSequence fnCollection(XPathContext context, [XPathSequence? arg]) {
-  throw UnimplementedError('fn:collection is not yet implemented');
+  final uri = arg == null
+      ? null
+      : XPathEvaluationException.checkZeroOrOne(arg)?.toXPathString();
+  if (uri == null) {
+    // Return default collection if defined, else potentially empty
+    return XPathSequence(
+      context.documents.values,
+    ); // Return all known docs as default collection?
+  }
+  // Basic support: treat uri as matching a document key
+  final doc = context.documents[uri];
+  return doc != null ? XPathSequence.single(doc) : XPathSequence.empty;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-uri-collection
 XPathSequence fnUriCollection(XPathContext context, [XPathSequence? arg]) {
-  throw UnimplementedError('fn:uri-collection is not yet implemented');
+  final uri = arg == null
+      ? null
+      : XPathEvaluationException.checkZeroOrOne(arg)?.toXPathString();
+  if (uri == null) {
+    return XPathSequence(context.documents.keys.map(XPathString.new));
+  }
+  // If specific collection URI provided, return URIs in that collection
+  return XPathSequence.empty;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-unparsed-text

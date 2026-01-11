@@ -1,5 +1,7 @@
 import '../../xml/mixins/has_name.dart';
+import '../../xml/nodes/document.dart';
 import '../../xml/nodes/element.dart';
+import '../../xml/nodes/node.dart';
 import '../../xml/nodes/processing.dart';
 import '../../xml/utils/name.dart';
 import '../evaluation/context.dart';
@@ -53,8 +55,23 @@ XPathSequence fnBaseUri(XPathContext context, [XPathSequence? arg]) {
   final argOpt = arg == null
       ? context.node
       : XPathEvaluationException.checkZeroOrOne(arg);
-  if (argOpt != null) {
-    // TODO: Implement base-uri retrieval
+  if (argOpt is XmlNode) {
+    // 1. Look for xml:base on the node or its ancestors
+    for (XmlNode? current = argOpt; current != null; current = current.parent) {
+      if (current is XmlElement) {
+        final xmlBase = current.getAttribute('xml:base');
+        if (xmlBase != null) {
+          try {
+            return XPathSequence.single(
+              XPathString(Uri.parse(xmlBase).toString()),
+            );
+          } catch (_) {
+            // If invalid URI, ignore
+          }
+        }
+      }
+    }
+    // 2. Fallback to static base URI if available (not tracked in PetitXml currently)
   }
   return XPathSequence.empty;
 }
@@ -64,8 +81,10 @@ XPathSequence fnDocumentUri(XPathContext context, [XPathSequence? arg]) {
   final argOpt = arg == null
       ? context.node
       : XPathEvaluationException.checkZeroOrOne(arg);
-  if (argOpt != null) {
-    // TODO: Implement document-uri retrieval
+  if (argOpt is XmlDocument) {
+    // PetitXml does not track the source URI of a document.
+    // If it did, we would return it here.
+    // For now, return empty sequence as per spec for "no document URI"
   }
   return XPathSequence.empty;
 }

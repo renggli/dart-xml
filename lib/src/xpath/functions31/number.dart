@@ -130,9 +130,10 @@ XPathSequence fnFormatInteger(
     value,
   )?.toXPathNumber();
   if (valueOpt == null) return XPathSequence.empty;
-  // TODO: Implement picture parameter.
-  // TODO: Implement language parameter.
-  return XPathSequence.single(valueOpt.toInt().toXPathString());
+
+  // Basic implementation ignoring picture string intricacies
+  // TODO: Add proper picture string parsing support
+  return XPathSequence.single(XPathString(valueOpt.toInt().toString()));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-format-number
@@ -140,15 +141,16 @@ XPathSequence fnFormatNumber(
   XPathContext context,
   XPathSequence value,
   XPathSequence picture, [
-  XPathSequence? language,
+  XPathSequence? decimalFormatName,
 ]) {
   final valueOpt = XPathEvaluationException.checkZeroOrOne(
     value,
   )?.toXPathNumber();
   if (valueOpt == null) return XPathSequence.empty;
-  // TODO: Implement picture parameter.
-  // TODO: Implement language parameter.
-  return XPathSequence.single(valueOpt.toInt().toXPathString());
+
+  // Basic implementation
+  // TODO: Add proper picture string parsing support
+  return XPathSequence.single(XPathString(valueOpt.toString()));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-abs

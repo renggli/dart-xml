@@ -1,4 +1,5 @@
 import '../../xml/nodes/node.dart';
+import '../types31/sequence.dart';
 import 'functions.dart';
 import 'values.dart';
 
@@ -10,6 +11,8 @@ class XPathContext {
     this.last = 1,
     this.variables = const {},
     this.functions = const {},
+    this.documents = const {},
+    this.onTraceCallback,
   });
 
   /// Mutable context node.
@@ -37,15 +40,28 @@ class XPathContext {
   /// User-defined functions.
   final Map<String, XPathFunction> functions;
 
+  /// Available documents.
+  final Map<String, XmlNode> documents;
+
+  /// Callback to trace evaluation.
+  final XPathTraceCallback? onTraceCallback;
+
   /// Creates a copy of the current context.
   XPathContext copy({
     Map<String, XPathValue>? variables,
     Map<String, XPathFunction>? functions,
+    Map<String, XmlNode>? documents,
+    XPathTraceCallback? onTraceCallback,
   }) => XPathContext(
     node,
     position: position,
     last: last,
     variables: variables ?? this.variables,
     functions: functions ?? this.functions,
+    documents: documents ?? this.documents,
+    onTraceCallback: onTraceCallback,
   );
 }
+
+/// Function type for tracing evaluation.
+typedef XPathTraceCallback = void Function(XPathSequence value, String? label);

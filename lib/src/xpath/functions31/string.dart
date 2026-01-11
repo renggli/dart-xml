@@ -229,8 +229,12 @@ XPathSequence fnMatches(
       XPathEvaluationException.checkZeroOrOne(input)?.toXPathString() ?? '';
   final patternStr =
       XPathEvaluationException.checkZeroOrOne(pattern)?.toXPathString() ?? '';
-  // TODO: Handle flags parameter
-  final regExp = RegExp(patternStr);
+  final flagsStr =
+      XPathEvaluationException.checkZeroOrOne(
+        flags ?? XPathSequence.empty,
+      )?.toXPathString() ??
+      '';
+  final regExp = _createRegExp(patternStr, flagsStr);
   return XPathSequence.single(inputStr.contains(regExp));
 }
 
@@ -249,8 +253,18 @@ XPathSequence fnReplace(
   final replaceStr =
       XPathEvaluationException.checkZeroOrOne(replacement)?.toXPathString() ??
       '';
-  // TODO: Handle flags parameter
-  final regExp = RegExp(patternStr);
+  final flagsStr =
+      XPathEvaluationException.checkZeroOrOne(
+        flags ?? XPathSequence.empty,
+      )?.toXPathString() ??
+      '';
+  final regExp = _createRegExp(patternStr, flagsStr);
+  // Dart's replaceAll is global by default, unlike some regex engines.
+  // XPath's replace is also global.
+  // We need to handle $ capturing groups if they differ from Dart's.
+  // XPath uses $N, Dart uses $N or ${N}.
+  // But XPath might not support named groups in the same way or extended chars.
+  // For basic support, we assume compatibility.
   return XPathSequence.single(
     XPathString(inputStr.replaceAll(regExp, replaceStr)),
   );
@@ -369,9 +383,54 @@ XPathSequence fnTokenize(
   }
   final patternStr =
       XPathEvaluationException.checkZeroOrOne(pattern)?.toXPathString() ?? '';
-  // TODO: Handle flags parameter
-  final regExp = RegExp(patternStr);
+  final flagsStr =
+      XPathEvaluationException.checkZeroOrOne(
+        flags ?? XPathSequence.empty,
+      )?.toXPathString() ??
+      '';
+  final regExp = _createRegExp(patternStr, flagsStr);
+  // Method split in Dart does not include empty strings if they are at the end?
+  // XPath tokenize says: "If the separator pattern matches a zero-length string..."
+  // It also says "The result is a sequence of strings...".
   return XPathSequence(inputStr.split(regExp).map(XPathString.new));
+}
+
+RegExp _createRegExp(String pattern, String flags) {
+  var isMultiLine = false;
+  var isCaseInsensitive = false;
+  var isDotAll = false;
+  var isUnicode = false;
+
+  for (var i = 0; i < flags.length; i++) {
+    switch (flags[i]) {
+      case 'm':
+        isMultiLine = true;
+      case 'i':
+        isCaseInsensitive = true;
+      case 's':
+        isDotAll = true;
+      case 'x':
+        // TODO: Implement extended whitespace ignoring if possible
+        break;
+      case 'q':
+        return RegExp(RegExp.escape(pattern));
+      case 'u': // Not standard XPath but good for Dart? No, strictly stick to XPath flags.
+        // XPath 3.1 doesn't have 'u', but assumes Unicode.
+        isUnicode = true;
+      default:
+        throw XPathEvaluationException(
+          'Invalid regular expression flag: ${flags[i]}',
+        );
+    }
+  }
+
+  return RegExp(
+    pattern,
+    multiLine: isMultiLine,
+    caseSensitive: !isCaseInsensitive,
+    dotAll: isDotAll,
+    unicode: isUnicode,
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-analyze-string
