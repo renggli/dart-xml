@@ -3,77 +3,59 @@ import '../exceptions/evaluation_exception.dart';
 import '../types31/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-for-each
-XPathSequence fnForEach(
-  XPathContext context,
-  XPathSequence seq,
-  XPathSequence action,
-) {
+XPathSequence fnForEach(XPathContext context, List<XPathSequence> arguments) {
   throw UnimplementedError('fn:for-each');
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-filter
-XPathSequence fnFilter(
-  XPathContext context,
-  XPathSequence seq,
-  XPathSequence f,
-) {
+XPathSequence fnFilter(XPathContext context, List<XPathSequence> arguments) {
   throw UnimplementedError('fn:filter');
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-fold-left
-XPathSequence fnFoldLeft(
-  XPathContext context,
-  XPathSequence seq,
-  XPathSequence zero,
-  XPathSequence f,
-) {
+XPathSequence fnFoldLeft(XPathContext context, List<XPathSequence> arguments) {
   throw UnimplementedError('fn:fold-left');
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-fold-right
-XPathSequence fnFoldRight(
-  XPathContext context,
-  XPathSequence seq,
-  XPathSequence zero,
-  XPathSequence f,
-) {
+XPathSequence fnFoldRight(XPathContext context, List<XPathSequence> arguments) {
   throw UnimplementedError('fn:fold-right');
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-for-each-pair
 XPathSequence fnForEachPair(
   XPathContext context,
-  XPathSequence seq1,
-  XPathSequence seq2,
-  XPathSequence f,
+  List<XPathSequence> arguments,
 ) {
   throw UnimplementedError('fn:for-each-pair');
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-sort
-XPathSequence fnSort(
-  XPathContext context,
-  XPathSequence seq, [
-  XPathSequence? collation,
-  XPathSequence? key,
-]) {
-  if (key != null) {
+XPathSequence fnSort(XPathContext context, List<XPathSequence> arguments) {
+  XPathEvaluationException.checkArgumentCount('fn:sort', arguments, 1, 3);
+  final input = arguments[0];
+  // Argument 1: collation (ignored for now)
+  // Argument 2: key (unsupported)
+
+  if (arguments.length > 2) {
     throw UnimplementedError('fn:sort with key is not supported');
   }
-  if (collation != null) {
-    // Check cardinality even if ignored
-    XPathEvaluationException.checkExactlyOne(collation);
+  if (arguments.length > 1) {
+    // Check cardinality of collation
+    XPathEvaluationException.extractExactlyOne(
+      'fn:sort',
+      'collation',
+      arguments[1],
+    );
     // TODO: Support collation
   }
-  // Basic sort using string/number comparison logic
-  final list = seq.toList();
+
+  final list = input.toList();
   list.sort((a, b) {
     if (a is Comparable && b is Comparable) {
       try {
         return a.compareTo(b);
-      } catch (_) {
-        // Fallback to string comparison if types incompatible?
-      }
+      } catch (_) {}
     }
     return a.toString().compareTo(b.toString());
   });
@@ -81,43 +63,43 @@ XPathSequence fnSort(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-apply
-XPathSequence fnApply(
-  XPathContext context,
-  XPathSequence function,
-  XPathSequence array,
-) {
+XPathSequence fnApply(XPathContext context, List<XPathSequence> arguments) {
   throw UnimplementedError('fn:apply');
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-function-lookup
 XPathSequence fnFunctionLookup(
   XPathContext context,
-  XPathSequence name,
-  XPathSequence arity,
+  List<XPathSequence> arguments,
 ) {
   throw UnimplementedError('fn:function-lookup');
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-function-name
-XPathSequence fnFunctionName(XPathContext context, XPathSequence function) {
+XPathSequence fnFunctionName(
+  XPathContext context,
+  List<XPathSequence> arguments,
+) {
   throw UnimplementedError('fn:function-name');
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-function-arity
-XPathSequence fnFunctionArity(XPathContext context, XPathSequence function) {
+XPathSequence fnFunctionArity(
+  XPathContext context,
+  List<XPathSequence> arguments,
+) {
   throw UnimplementedError('fn:function-arity');
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-load-xquery-module
 XPathSequence fnLoadXqueryModule(
   XPathContext context,
-  XPathSequence moduleUri, [
-  XPathSequence? options,
-]) {
+  List<XPathSequence> arguments,
+) {
   throw UnimplementedError('fn:load-xquery-module');
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-transform
-XPathSequence fnTransform(XPathContext context, XPathSequence options) {
+XPathSequence fnTransform(XPathContext context, List<XPathSequence> arguments) {
   throw UnimplementedError('fn:transform');
 }

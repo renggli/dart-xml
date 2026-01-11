@@ -6,26 +6,32 @@ This module implements the XPath 3.1 functions as defined in [XPath Functions an
 
 1. **Naming Convention**:
     * Reference the W3C spec URL in the method comment.
-    * Dart function names should use `camelCase` (e.g., `fnNodeName`).
-    * Prefix function names with their namespace prefix (e.g. `fn`, `op`, `math`, `map`, `array`), i.e. `fnNodeName` for `fn:node-name`.
+    * Dart function names should use `camelCase`, i.e. `fnFunctionName` for `fn:function-name`.
 
 2. **Function Signature**:
     * All functions must return `XPathSequence`.
     * The first argument is always `XPathContext context`.
-    * Subsequent arguments map to the XPath function arguments of type `XPathSequence`.
-    * Arguments not present in all function overloads are of nullable type `XPathSequence?`.
-    * Argument names should match the names in the standard.
+    * The second argument is always `List<XPathSequence> arguments`.
+    * For example: `XPathSequence fnFunctionName(XPathContext context, List<XPathSequence> arguments)`.
 
 3. **Argument Extraction**:
-    * Ideally verify and extract each argument in a single Dart statement.
-    * If the Dart function argument is nullable provide a default value as part of a ternary statement.
-    * Otherwise check the cardinality of the `XPathSequence` as follows:
-      * Use `XPathEvaluationException.checkExactlyOne(argument)` if the argument expects `1` cardinality.
-      * Use `XPathEvaluationException.checkZeroOrOne(argument)` if the argument expects `?` cardinality.
-      * Use `XPathEvaluationException.checkOneOrMore(argument)` if the argument expects `+` cardinality.
-      * No check needed; use the `XPathSequence` directly as an iterable if the argument expects `*` cardinality.
-    * Use `.toXPathString()`, `.toXPathNumber()`, `.toXPathBoolean()`, to convert arguments to primitive types after cardinality checks.
-    * Store the normalized arguments in final variables for later use, to avoid name conflicts append `Val` (for `1` cardinality), `Opt` (for `?` cardinality), or `Iter` to the argument name.
+    * The first line of each function must call `XPathEvaluationException.checkArgumentCount('fn:function-name', arguments, min, max)` to verify the number of arguments.
+      * `min` is referring to the minimum number of arguments required.
+      * `max` is referring to the maximum number of arguments supported:
+        * If left out, this means the function expects exactly `min` arguments.
+        * If `unbounded`, this means the function expects at least `min` arguments.
+    * Extract, validate and convert each argument to a final variable using a single Dart statement. Name the variable after the argument name used in the standard.
+      * If the argument is missing, assign a default value. Check the presence with `i < arguments.length`.
+      * If the argument is present ...
+        * First check the cardinality of the `XPathSequence` argument:
+          * If the argument is of exactly-one cardinality (`1`) use `XPathEvaluationException.extractExactlyOne('fn:function-name', 'argumentName', arguments[i])`. This function returns a single value that can be directly used.
+          * If the argument is of zero-or-one cardinality (`?`) use `XPathEvaluationException.extractZeroOrOne('fn:function-name', 'argumentName', arguments[i])`. This function returns a single value or `null`. Use the `?.` to convert and/or `??` to fall-back to a default value.
+          * If the argument is of one-or-more cardinality (`+`) use `XPathEvaluationException.extractOneOrMore('fn:function-name', 'argumentName', arguments[i])`. This function returns `XPathSequence` that can be directly used.
+          * If the argument is of zero-or-more cardinality (`*`) directly use `arguments[i]`.
+        * If applicable, convert the argument to the desired type:
+          * Use `.toXPathString()` to convert to a string.
+          * Use `.toXPathNumber()` to convert to a number.
+          * etc.
 
 4. **Return Value**:
     * Return `XPathSequence.empty` for empty sequences.
@@ -34,7 +40,7 @@ This module implements the XPath 3.1 functions as defined in [XPath Functions an
 
 5. **Testing**:
     * Add tests to `test/xpath_31_functions_test.dart`.
-    * Update the status list in `AGENTS.md` with `✅` and the file name when completed.
+    * Update the status list in `GEMINI.md` with `✅` and the file name when completed.
 
 ## Status of the current implementations
 

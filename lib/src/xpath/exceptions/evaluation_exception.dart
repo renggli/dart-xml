@@ -11,14 +11,14 @@ class XPathEvaluationException extends XmlException {
 
   /// Checks the number of arguments passed to a XPath function.
   static void checkArgumentCount(
-    String name,
+    String functionName,
     List<dynamic> arguments,
     int min, [
     int? max,
   ]) {
     final count = arguments.length;
     if (min <= count && count <= (max ?? min)) return;
-    final buffer = StringBuffer('Function "$name" expects ');
+    final buffer = StringBuffer('Function "$functionName" expects ');
     if (min == max || max == null) {
       buffer.write('$min arguments');
     } else if (max == unbounded) {
@@ -28,6 +28,52 @@ class XPathEvaluationException extends XmlException {
     }
     buffer.write(', but got $count');
     throw XPathEvaluationException(buffer.toString());
+  }
+
+  /// Extracts the value of a sequence that has at most one item.
+  static Object? extractZeroOrOne(
+    String functionName,
+    String argumentName,
+    XPathSequence value,
+  ) {
+    final iterator = value.iterator;
+    if (!iterator.moveNext()) return null;
+    final item = iterator.current;
+    if (!iterator.moveNext()) return item;
+    throw XPathEvaluationException(
+      'Function "$functionName" argument "$argumentName" expects a sequence '
+      'with zero-or-one items, but got $value',
+    );
+  }
+
+  /// Extracts the value of a sequence that has exactly one item.
+  static Object extractExactlyOne(
+    String functionName,
+    String argumentName,
+    XPathSequence value,
+  ) {
+    final iterator = value.iterator;
+    if (iterator.moveNext()) {
+      final item = iterator.current;
+      if (!iterator.moveNext()) return item;
+    }
+    throw XPathEvaluationException(
+      'Function "$functionName" argument "$argumentName" expects a sequence '
+      'with exactly-one item, but got $value',
+    );
+  }
+
+  /// Extracts the values of a sequence that has at least one item.
+  static XPathSequence extractOneOrMore(
+    String functionName,
+    String argumentName,
+    XPathSequence value,
+  ) {
+    if (value.isNotEmpty) return value;
+    throw XPathEvaluationException(
+      'Function "$functionName" argument "$argumentName" expects a sequence '
+      'with one-or-more items, but got $value',
+    );
   }
 
   /// Checks the presence of a variable.
@@ -45,37 +91,6 @@ class XPathEvaluationException extends XmlException {
   /// Unsupported cast from [value] to [type].
   static Never unsupportedCast(Object value, String type) =>
       throw XPathEvaluationException('Unsupported cast from $value to $type');
-
-  /// Checks that a sequence has at most one item.
-  static Object? checkZeroOrOne(XPathSequence value) {
-    final iterator = value.iterator;
-    if (!iterator.moveNext()) return null;
-    final item = iterator.current;
-    if (!iterator.moveNext()) return item;
-    throw XPathEvaluationException(
-      'Expected sequence with zero-or-one items, but got $value',
-    );
-  }
-
-  /// Checks that a sequence has exactly one item.
-  static Object checkExactlyOne(XPathSequence value) {
-    final iterator = value.iterator;
-    if (iterator.moveNext()) {
-      final item = iterator.current;
-      if (!iterator.moveNext()) return item;
-    }
-    throw XPathEvaluationException(
-      'Expected sequence with exactly one item, but got $value',
-    );
-  }
-
-  /// Checks that a sequence has at least one item.
-  static Iterable<Object> checkOneOrMore(XPathSequence value) {
-    if (value.isNotEmpty) return value;
-    throw XPathEvaluationException(
-      'Expected sequence with one-or-more items, but got $value',
-    );
-  }
 
   @override
   String toString() => 'XPathEvaluationException: $message';

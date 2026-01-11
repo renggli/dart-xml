@@ -7,11 +7,23 @@ import '../types31/string.dart';
 /// https://www.w3.org/TR/xpath-functions-31/#func-NOTATION-equal
 XPathSequence opNotationEqual(
   XPathContext context,
-  XPathSequence arg1,
-  XPathSequence arg2,
+  List<XPathSequence> arguments,
 ) {
-  final val1 = XPathEvaluationException.checkZeroOrOne(arg1)?.toXPathString();
-  final val2 = XPathEvaluationException.checkZeroOrOne(arg2)?.toXPathString();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
-  return XPathSequence.single(val1 == val2);
+  XPathEvaluationException.checkArgumentCount(
+    'op:NOTATION-equal',
+    arguments,
+    2,
+  );
+  final arg1 = XPathEvaluationException.extractZeroOrOne(
+    'op:NOTATION-equal',
+    'arg1',
+    arguments[0],
+  )?.toXPathString();
+  final arg2 = XPathEvaluationException.extractZeroOrOne(
+    'op:NOTATION-equal',
+    'arg2',
+    arguments[1],
+  )?.toXPathString();
+  if (arg1 == null || arg2 == null) return XPathSequence.empty;
+  return XPathSequence.single(arg1 == arg2);
 }

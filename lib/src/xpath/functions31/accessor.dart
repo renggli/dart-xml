@@ -10,54 +10,77 @@ import '../types31/sequence.dart';
 import '../types31/string.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-node-name
-XPathSequence fnNodeName(XPathContext context, [XPathSequence? node]) {
-  final nodeOpt = node == null
-      ? context.node
-      : XPathEvaluationException.checkZeroOrOne(node);
-  if (nodeOpt is XmlHasName) {
-    return XPathSequence.single(nodeOpt.name);
-  } else if (nodeOpt is XmlProcessing) {
-    return XPathSequence.single(XmlName.fromString(nodeOpt.target));
+XPathSequence fnNodeName(XPathContext context, List<XPathSequence> arguments) {
+  XPathEvaluationException.checkArgumentCount('fn:node-name', arguments, 0, 1);
+  final node = arguments.isNotEmpty
+      ? XPathEvaluationException.extractZeroOrOne(
+          'fn:node-name',
+          'node',
+          arguments[0],
+        )
+      : context.node;
+  if (node is XmlHasName) {
+    return XPathSequence.single(node.name);
+  } else if (node is XmlProcessing) {
+    return XPathSequence.single(XmlName.fromString(node.target));
   }
   return XPathSequence.empty;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-nilled
-XPathSequence fnNilled(XPathContext context, [XPathSequence? node]) {
-  final nodeOpt = node == null
-      ? context.node
-      : XPathEvaluationException.checkZeroOrOne(node);
+XPathSequence fnNilled(XPathContext context, List<XPathSequence> arguments) {
+  XPathEvaluationException.checkArgumentCount('fn:nilled', arguments, 0, 1);
+  final node = arguments.isNotEmpty
+      ? XPathEvaluationException.extractZeroOrOne(
+          'fn:nilled',
+          'node',
+          arguments[0],
+        )
+      : context.node;
   // PetitXml doesn't have a built-in concept of nilled, returning false
   // for elements.
-  if (nodeOpt is XmlElement) return XPathSequence.falseSequence;
+  if (node is XmlElement) return XPathSequence.falseSequence;
   return XPathSequence.empty;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-string
-XPathSequence fnString(XPathContext context, [XPathSequence? arg]) {
-  final argOpt = arg == null
-      ? context.node
-      : XPathEvaluationException.checkZeroOrOne(arg);
-  if (argOpt != null) return XPathSequence.single(argOpt.toXPathString());
+XPathSequence fnString(XPathContext context, List<XPathSequence> arguments) {
+  XPathEvaluationException.checkArgumentCount('fn:string', arguments, 0, 1);
+  final arg = arguments.isNotEmpty
+      ? XPathEvaluationException.extractZeroOrOne(
+          'fn:string',
+          'arg',
+          arguments[0],
+        )
+      : context.node;
+  if (arg != null) return XPathSequence.single(arg.toXPathString());
   return XPathSequence.single(XPathString.empty);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-data
-XPathSequence fnData(XPathContext context, [XPathSequence? arg]) {
-  final argIter = arg ?? XPathSequence.single(context.node);
+XPathSequence fnData(XPathContext context, List<XPathSequence> arguments) {
+  XPathEvaluationException.checkArgumentCount('fn:data', arguments, 0, 1);
+  final arg = arguments.isNotEmpty
+      ? arguments[0]
+      : (XPathSequence.single(context.node));
   return XPathSequence(
-    argIter.expand((item) => item is Iterable<Object> ? item : [item]),
+    arg.expand((item) => item is Iterable<Object> ? item : [item]),
   );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-base-uri
-XPathSequence fnBaseUri(XPathContext context, [XPathSequence? arg]) {
-  final argOpt = arg == null
-      ? context.node
-      : XPathEvaluationException.checkZeroOrOne(arg);
-  if (argOpt is XmlNode) {
+XPathSequence fnBaseUri(XPathContext context, List<XPathSequence> arguments) {
+  XPathEvaluationException.checkArgumentCount('fn:base-uri', arguments, 0, 1);
+  final node = arguments.isNotEmpty
+      ? XPathEvaluationException.extractZeroOrOne(
+          'fn:base-uri',
+          'node',
+          arguments[0],
+        )
+      : context.node;
+  if (node is XmlNode) {
     // 1. Look for xml:base on the node or its ancestors
-    for (XmlNode? current = argOpt; current != null; current = current.parent) {
+    for (XmlNode? current = node; current != null; current = current.parent) {
       if (current is XmlElement) {
         final xmlBase = current.getAttribute('xml:base');
         if (xmlBase != null) {
@@ -77,11 +100,24 @@ XPathSequence fnBaseUri(XPathContext context, [XPathSequence? arg]) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-document-uri
-XPathSequence fnDocumentUri(XPathContext context, [XPathSequence? arg]) {
-  final argOpt = arg == null
-      ? context.node
-      : XPathEvaluationException.checkZeroOrOne(arg);
-  if (argOpt is XmlDocument) {
+XPathSequence fnDocumentUri(
+  XPathContext context,
+  List<XPathSequence> arguments,
+) {
+  XPathEvaluationException.checkArgumentCount(
+    'fn:document-uri',
+    arguments,
+    0,
+    1,
+  );
+  final node = arguments.isNotEmpty
+      ? XPathEvaluationException.extractZeroOrOne(
+          'fn:document-uri',
+          'node',
+          arguments[0],
+        )
+      : context.node;
+  if (node is XmlDocument) {
     // PetitXml does not track the source URI of a document.
     // If it did, we would return it here.
     // For now, return empty sequence as per spec for "no document URI"
