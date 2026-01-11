@@ -1,6 +1,6 @@
-# XPath 3.1 Types
+# XPath Types
 
-This library implements the XPath 3.1 types as defined in [XPath Functions and Operators 3.1](https://www.w3.org/TR/xpath-functions-31/).
+This module implements the XPath 3.1 types as defined in [XPath Functions and Operators 3.1](https://www.w3.org/TR/xpath-functions-31/).
 
 Sequences are implemented as an `XPathSequence`, a thin wrapper around a Dart [Iterable].
 The impelementation is defined in [sequence.dart](sequence.dart).

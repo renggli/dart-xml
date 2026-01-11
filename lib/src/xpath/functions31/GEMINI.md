@@ -1,4 +1,6 @@
-# XPath Functions 3.12
+# XPath Functions
+
+This module implements the XPath 3.1 functions as defined in [XPath Functions and Operators 3.1](https://www.w3.org/TR/xpath-functions-31/).
 
 ## Instructions on how to implement functions
 
