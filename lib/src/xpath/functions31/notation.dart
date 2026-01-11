@@ -1,4 +1,5 @@
 import '../evaluation/context.dart';
+import '../exceptions/evaluation_exception.dart';
 import '../types31/sequence.dart';
 
 import '../types31/string.dart';
@@ -9,8 +10,8 @@ XPathSequence opNotationEqual(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final s1 = arg1.firstOrNull?.toXPathString();
-  final s2 = arg2.firstOrNull?.toXPathString();
-  if (s1 == null || s2 == null) return XPathSequence.empty;
-  return XPathSequence.single(s1 == s2);
+  final val1 = XPathEvaluationException.checkZeroOrOne(arg1)?.toXPathString();
+  final val2 = XPathEvaluationException.checkZeroOrOne(arg2)?.toXPathString();
+  if (val1 == null || val2 == null) return XPathSequence.empty;
+  return XPathSequence.single(val1 == val2);
 }

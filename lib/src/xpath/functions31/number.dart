@@ -1,8 +1,12 @@
 import 'dart:math' as math;
 
+import 'package:collection/collection.dart';
+
 import '../evaluation/context.dart';
+import '../exceptions/evaluation_exception.dart';
 import '../types31/number.dart';
 import '../types31/sequence.dart';
+import '../types31/string.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-numeric-add
 XPathSequence opNumericAdd(
@@ -10,9 +14,8 @@ XPathSequence opNumericAdd(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathNumber();
-  final val2 = arg2.firstOrNull?.toXPathNumber();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
+  final val1 = XPathEvaluationException.checkExactlyOne(arg1).toXPathNumber();
+  final val2 = XPathEvaluationException.checkExactlyOne(arg2).toXPathNumber();
   return XPathSequence.single(val1 + val2);
 }
 
@@ -22,9 +25,8 @@ XPathSequence opNumericSubtract(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathNumber();
-  final val2 = arg2.firstOrNull?.toXPathNumber();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
+  final val1 = XPathEvaluationException.checkExactlyOne(arg1).toXPathNumber();
+  final val2 = XPathEvaluationException.checkExactlyOne(arg2).toXPathNumber();
   return XPathSequence.single(val1 - val2);
 }
 
@@ -34,9 +36,8 @@ XPathSequence opNumericMultiply(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathNumber();
-  final val2 = arg2.firstOrNull?.toXPathNumber();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
+  final val1 = XPathEvaluationException.checkExactlyOne(arg1).toXPathNumber();
+  final val2 = XPathEvaluationException.checkExactlyOne(arg2).toXPathNumber();
   return XPathSequence.single(val1 * val2);
 }
 
@@ -46,9 +47,8 @@ XPathSequence opNumericDivide(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathNumber();
-  final val2 = arg2.firstOrNull?.toXPathNumber();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
+  final val1 = XPathEvaluationException.checkExactlyOne(arg1).toXPathNumber();
+  final val2 = XPathEvaluationException.checkExactlyOne(arg2).toXPathNumber();
   return XPathSequence.single(val1 / val2);
 }
 
@@ -58,9 +58,8 @@ XPathSequence opNumericIntegerDivide(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathNumber();
-  final val2 = arg2.firstOrNull?.toXPathNumber();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
+  final val1 = XPathEvaluationException.checkExactlyOne(arg1).toXPathNumber();
+  final val2 = XPathEvaluationException.checkExactlyOne(arg2).toXPathNumber();
   return XPathSequence.single((val1 / val2).truncate());
 }
 
@@ -70,23 +69,20 @@ XPathSequence opNumericMod(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathNumber();
-  final val2 = arg2.firstOrNull?.toXPathNumber();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
+  final val1 = XPathEvaluationException.checkExactlyOne(arg1).toXPathNumber();
+  final val2 = XPathEvaluationException.checkExactlyOne(arg2).toXPathNumber();
   return XPathSequence.single(val1 % val2);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-numeric-unary-plus
 XPathSequence opNumericUnaryPlus(XPathContext context, XPathSequence arg) {
-  final val = arg.firstOrNull?.toXPathNumber();
-  if (val == null) return XPathSequence.empty;
+  final val = XPathEvaluationException.checkExactlyOne(arg).toXPathNumber();
   return XPathSequence.single(val);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-numeric-unary-minus
 XPathSequence opNumericUnaryMinus(XPathContext context, XPathSequence arg) {
-  final val = arg.firstOrNull?.toXPathNumber();
-  if (val == null) return XPathSequence.empty;
+  final val = XPathEvaluationException.checkExactlyOne(arg).toXPathNumber();
   return XPathSequence.single(-val);
 }
 
@@ -96,9 +92,8 @@ XPathSequence opNumericEqual(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathNumber();
-  final val2 = arg2.firstOrNull?.toXPathNumber();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
+  final val1 = XPathEvaluationException.checkExactlyOne(arg1).toXPathNumber();
+  final val2 = XPathEvaluationException.checkExactlyOne(arg2).toXPathNumber();
   return XPathSequence.single(val1 == val2);
 }
 
@@ -108,9 +103,8 @@ XPathSequence opNumericLessThan(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathNumber();
-  final val2 = arg2.firstOrNull?.toXPathNumber();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
+  final val1 = XPathEvaluationException.checkExactlyOne(arg1).toXPathNumber();
+  final val2 = XPathEvaluationException.checkExactlyOne(arg2).toXPathNumber();
   return XPathSequence.single(val1 < val2);
 }
 
@@ -120,9 +114,8 @@ XPathSequence opNumericGreaterThan(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathNumber();
-  final val2 = arg2.firstOrNull?.toXPathNumber();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
+  final val1 = XPathEvaluationException.checkExactlyOne(arg1).toXPathNumber();
+  final val2 = XPathEvaluationException.checkExactlyOne(arg2).toXPathNumber();
   return XPathSequence.single(val1 > val2);
 }
 
@@ -133,33 +126,50 @@ XPathSequence fnFormatInteger(
   XPathSequence picture, [
   XPathSequence? language,
 ]) {
-  final val = value.firstOrNull?.toXPathNumber();
-  final pic = picture.firstOrNull?.toString();
-  if (val == null || pic == null) return XPathSequence.empty;
-  // TODO: Implement full picture string parsing.
-  // This is a basic implementation for common cases.
-  return XPathSequence.single(val.toInt().toString());
+  final valueOpt = XPathEvaluationException.checkZeroOrOne(
+    value,
+  )?.toXPathNumber();
+  if (valueOpt == null) return XPathSequence.empty;
+  // TODO: Implement picture parameter.
+  // TODO: Implement language parameter.
+  return XPathSequence.single(valueOpt.toInt().toXPathString());
+}
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-format-number
+XPathSequence fnFormatNumber(
+  XPathContext context,
+  XPathSequence value,
+  XPathSequence picture, [
+  XPathSequence? language,
+]) {
+  final valueOpt = XPathEvaluationException.checkZeroOrOne(
+    value,
+  )?.toXPathNumber();
+  if (valueOpt == null) return XPathSequence.empty;
+  // TODO: Implement picture parameter.
+  // TODO: Implement language parameter.
+  return XPathSequence.single(valueOpt.toInt().toXPathString());
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-abs
 XPathSequence fnAbs(XPathContext context, XPathSequence arg) {
-  final value = arg.firstOrNull;
-  if (value == null) return XPathSequence.empty;
-  return XPathSequence.single(value.toXPathNumber().abs());
+  final valOpt = XPathEvaluationException.checkZeroOrOne(arg)?.toXPathNumber();
+  if (valOpt == null) return XPathSequence.empty;
+  return XPathSequence.single(valOpt.abs());
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-ceiling
 XPathSequence fnCeiling(XPathContext context, XPathSequence arg) {
-  final value = arg.firstOrNull;
-  if (value == null) return XPathSequence.empty;
-  return XPathSequence.single(value.toXPathNumber().ceil());
+  final valOpt = XPathEvaluationException.checkZeroOrOne(arg)?.toXPathNumber();
+  if (valOpt == null) return XPathSequence.empty;
+  return XPathSequence.single(valOpt.ceil());
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-floor
 XPathSequence fnFloor(XPathContext context, XPathSequence arg) {
-  final value = arg.firstOrNull;
-  if (value == null) return XPathSequence.empty;
-  return XPathSequence.single(value.toXPathNumber().floor());
+  final valOpt = XPathEvaluationException.checkZeroOrOne(arg)?.toXPathNumber();
+  if (valOpt == null) return XPathSequence.empty;
+  return XPathSequence.single(valOpt.floor());
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-round
@@ -168,14 +178,17 @@ XPathSequence fnRound(
   XPathSequence arg, [
   XPathSequence? precision,
 ]) {
-  if (arg.isEmpty) return XPathSequence.empty;
-  final value = arg.first.toXPathNumber();
-  if (precision == null) {
-    if (value.isNaN || value.isInfinite) return XPathSequence.single(value);
-    return XPathSequence.single(value.round());
-  }
-  // TODO: Implement precision argument for fn:round
-  return XPathSequence.single(value.round());
+  final argOpt = XPathEvaluationException.checkZeroOrOne(arg)?.toXPathNumber();
+  if (argOpt == null) return XPathSequence.empty;
+  if (argOpt.isNaN || argOpt.isInfinite) return XPathSequence.single(argOpt);
+  final precisionVal = precision == null
+      ? 0
+      : XPathEvaluationException.checkExactlyOne(
+          precision,
+        ).toXPathNumber().toInt();
+  if (precisionVal == 0) return XPathSequence.single(argOpt.round());
+  final factor = math.pow(10, precisionVal);
+  return XPathSequence.single((argOpt * factor).round() / factor);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-round-half-to-even
@@ -184,25 +197,30 @@ XPathSequence fnRoundHalfToEven(
   XPathSequence arg, [
   XPathSequence? precision,
 ]) {
-  if (arg.isEmpty) return XPathSequence.empty;
-  final value = arg.first.toXPathNumber();
-  if (value.isNaN || value.isInfinite) return XPathSequence.single(value);
-  // Simple implementation for precision 0
-  final rounded = value.round();
-  if ((value - rounded).abs() == 0.5) {
-    if (rounded.isEven) return XPathSequence.single(rounded);
-    final floor = value.floor();
-    final ceil = value.ceil();
-    return XPathSequence.single(floor == rounded ? ceil : floor);
-  }
-  return XPathSequence.single(rounded);
+  final argOpt = XPathEvaluationException.checkZeroOrOne(arg)?.toXPathNumber();
+  if (argOpt == null) return XPathSequence.empty;
+  if (argOpt.isNaN || argOpt.isInfinite) return XPathSequence.single(argOpt);
+  final precisionVal = precision == null
+      ? 0
+      : XPathEvaluationException.checkExactlyOne(
+          precision,
+        ).toXPathNumber().toInt();
+  final factor = math.pow(10, precisionVal);
+  final value = argOpt * factor;
+  final rounded = value.roundToDouble();
+  final result = ((value - rounded).abs() == 0.5 && rounded % 2 != 0)
+      ? rounded - (rounded > value ? 1.0 : -1.0)
+      : rounded;
+  return XPathSequence.single(result / factor);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-number
 XPathSequence fnNumber(XPathContext context, [XPathSequence? arg]) {
   final valueSequence = arg ?? context.value.toXPathSequence();
   if (valueSequence.isEmpty) return XPathSequence.single(double.nan);
-  return XPathSequence.single(valueSequence.first.toXPathNumber());
+  return XPathSequence.single(
+    XPathEvaluationException.checkZeroOrOne(valueSequence)!.toXPathNumber(),
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-pi
@@ -210,87 +228,86 @@ XPathSequence mathPi(XPathContext context) => XPathSequence.single(math.pi);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-exp
 XPathSequence mathExp(XPathContext context, XPathSequence arg) {
-  final val = arg.firstOrNull?.toXPathNumber();
-  if (val == null) return XPathSequence.empty;
-  return XPathSequence.single(math.exp(val));
+  final valOpt = XPathEvaluationException.checkZeroOrOne(arg)?.toXPathNumber();
+  if (valOpt == null) return XPathSequence.empty;
+  return XPathSequence.single(math.exp(valOpt));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-exp10
 XPathSequence mathExp10(XPathContext context, XPathSequence arg) {
-  final val = arg.firstOrNull?.toXPathNumber();
-  if (val == null) return XPathSequence.empty;
-  return XPathSequence.single(math.pow(10, val));
+  final valOpt = XPathEvaluationException.checkZeroOrOne(arg)?.toXPathNumber();
+  if (valOpt == null) return XPathSequence.empty;
+  return XPathSequence.single(math.pow(10, valOpt));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-log
 XPathSequence mathLog(XPathContext context, XPathSequence arg) {
-  final val = arg.firstOrNull?.toXPathNumber();
-  if (val == null) return XPathSequence.empty;
-  return XPathSequence.single(math.log(val));
+  final valOpt = XPathEvaluationException.checkZeroOrOne(arg)?.toXPathNumber();
+  if (valOpt == null) return XPathSequence.empty;
+  return XPathSequence.single(math.log(valOpt));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-log10
 XPathSequence mathLog10(XPathContext context, XPathSequence arg) {
-  final val = arg.firstOrNull?.toXPathNumber();
-  if (val == null) return XPathSequence.empty;
-  return XPathSequence.single(math.log(val) / math.ln10);
+  final valOpt = XPathEvaluationException.checkZeroOrOne(arg)?.toXPathNumber();
+  if (valOpt == null) return XPathSequence.empty;
+  return XPathSequence.single(math.log(valOpt) / math.ln10);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-pow
 XPathSequence mathPow(XPathContext context, XPathSequence x, XPathSequence y) {
-  final xVal = x.firstOrNull?.toXPathNumber();
-  final yVal = y.firstOrNull?.toXPathNumber();
-  if (xVal == null || yVal == null) return XPathSequence.empty;
+  final xVal = XPathEvaluationException.checkZeroOrOne(x)?.toXPathNumber();
+  final yVal = XPathEvaluationException.checkExactlyOne(y).toXPathNumber();
+  if (xVal == null) return XPathSequence.empty;
   return XPathSequence.single(math.pow(xVal, yVal));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-sqrt
 XPathSequence mathSqrt(XPathContext context, XPathSequence arg) {
-  final val = arg.firstOrNull?.toXPathNumber();
-  if (val == null) return XPathSequence.empty;
+  final val = XPathEvaluationException.checkExactlyOne(arg).toXPathNumber();
   return XPathSequence.single(math.sqrt(val));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-sin
 XPathSequence mathSin(XPathContext context, XPathSequence arg) {
-  final val = arg.firstOrNull?.toXPathNumber();
-  if (val == null) return XPathSequence.empty;
-  return XPathSequence.single(math.sin(val));
+  final valOpt = XPathEvaluationException.checkZeroOrOne(arg)?.toXPathNumber();
+  if (valOpt == null) return XPathSequence.empty;
+  return XPathSequence.single(math.sin(valOpt));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-cos
 XPathSequence mathCos(XPathContext context, XPathSequence arg) {
-  final val = arg.firstOrNull?.toXPathNumber();
-  if (val == null) return XPathSequence.empty;
-  return XPathSequence.single(math.cos(val));
+  final valOpt = XPathEvaluationException.checkZeroOrOne(arg)?.toXPathNumber();
+  if (valOpt == null) return XPathSequence.empty;
+  return XPathSequence.single(math.cos(valOpt));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-tan
 XPathSequence mathTan(XPathContext context, XPathSequence arg) {
-  final val = arg.firstOrNull?.toXPathNumber();
-  if (val == null) return XPathSequence.empty;
-  return XPathSequence.single(math.tan(val));
+  final valOpt = XPathEvaluationException.checkZeroOrOne(arg)?.toXPathNumber();
+  if (valOpt == null) return XPathSequence.empty;
+  return XPathSequence.single(math.tan(valOpt));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-asin
 XPathSequence mathAsin(XPathContext context, XPathSequence arg) {
-  final val = arg.firstOrNull?.toXPathNumber();
-  if (val == null) return XPathSequence.empty;
-  return XPathSequence.single(math.asin(val));
+  final valOpt = XPathEvaluationException.checkZeroOrOne(arg)?.toXPathNumber();
+  if (valOpt == null) return XPathSequence.empty;
+  return XPathSequence.single(math.asin(valOpt));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-acos
 XPathSequence mathAcos(XPathContext context, XPathSequence arg) {
-  final val = arg.firstOrNull?.toXPathNumber();
-  if (val == null) return XPathSequence.empty;
-  return XPathSequence.single(math.acos(val));
+  final valOpt = XPathEvaluationException.checkZeroOrOne(arg)?.toXPathNumber();
+  if (valOpt == null) return XPathSequence.empty;
+  return XPathSequence.single(math.acos(valOpt));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-atan
 XPathSequence mathAtan(XPathContext context, XPathSequence arg) {
-  final val = arg.firstOrNull?.toXPathNumber();
-  if (val == null) return XPathSequence.empty;
-  return XPathSequence.single(math.atan(val));
+  final valOpt = XPathEvaluationException.checkZeroOrOne(arg)?.toXPathNumber();
+  if (valOpt == null) return XPathSequence.empty;
+  return XPathSequence.single(math.atan(valOpt));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-atan2
@@ -299,9 +316,8 @@ XPathSequence mathAtan2(
   XPathSequence yArg,
   XPathSequence xArg,
 ) {
-  final y = yArg.firstOrNull?.toXPathNumber();
-  final x = xArg.firstOrNull?.toXPathNumber();
-  if (x == null || y == null) return XPathSequence.empty;
+  final y = XPathEvaluationException.checkExactlyOne(yArg).toXPathNumber();
+  final x = XPathEvaluationException.checkExactlyOne(xArg).toXPathNumber();
   return XPathSequence.single(math.atan2(y, x));
 }
 
@@ -310,10 +326,15 @@ XPathSequence fnRandomNumberGenerator(
   XPathContext context, [
   XPathSequence? seed,
 ]) {
-  // This is a simplified implementation. The standard suggests returning a map
-  // with 'number', 'next', and 'permute' functions.
-  // For now, we just return a sequence with a single random number.
-  final seedValue = seed?.toXPathNumber().toInt();
-  final random = math.Random(seedValue);
-  return XPathSequence.single(random.nextDouble());
+  final seedVal = seed == null
+      ? null
+      : XPathEvaluationException.checkZeroOrOne(seed)?.hashCode;
+  final random = math.Random(seedVal);
+  final generator = <String, Object>{};
+  generator['number'] = random.nextDouble();
+  generator['next'] = (XPathContext context) =>
+      generator['number'] = random.nextDouble();
+  generator['permute'] = (XPathContext context, XPathSequence sequence) =>
+      XPathSequence(sequence.shuffled(random));
+  return XPathSequence.single(generator);
 }

@@ -10,13 +10,19 @@ XPathSequence fnConcat(
   XPathContext context,
   XPathSequence arg1,
   XPathSequence arg2, [
-  List<XPathSequence> rest = const [],
+  XPathSequence? arg3,
+  XPathSequence? arg4,
+  XPathSequence? arg5,
+  XPathSequence? arg6,
+  XPathSequence? arg7,
+  XPathSequence? arg8,
+  XPathSequence? arg9,
 ]) {
   final buffer = StringBuffer();
-  for (final arg in [arg1, arg2, ...rest]) {
-    if (arg.isNotEmpty) {
-      buffer.write(arg.first.toXPathString());
-    }
+  for (final arg in [arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9]) {
+    if (arg == null) break;
+    final item = XPathEvaluationException.checkZeroOrOne(arg)?.toXPathString();
+    if (item != null) buffer.write(item);
   }
   return XPathSequence.single(XPathString(buffer.toString()));
 }
@@ -24,11 +30,15 @@ XPathSequence fnConcat(
 /// https://www.w3.org/TR/xpath-functions-31/#func-string-join
 XPathSequence fnStringJoin(
   XPathContext context,
-  XPathSequence sequence, [
+  XPathSequence input, [
   XPathSequence? separator,
 ]) {
-  final sep = separator?.firstOrNull?.toXPathString() ?? '';
-  final result = sequence.map((item) => item.toXPathString()).join(sep);
+  final sepVal =
+      XPathEvaluationException.checkZeroOrOne(
+        separator ?? XPathSequence.empty,
+      )?.toXPathString() ??
+      '';
+  final result = input.map((item) => item.toXPathString()).join(sepVal);
   return XPathSequence.single(XPathString(result));
 }
 
@@ -36,21 +46,31 @@ XPathSequence fnStringJoin(
 XPathSequence fnSubstring(
   XPathContext context,
   XPathSequence sourceString,
-  XPathSequence startingLoc, [
+  XPathSequence start, [
   XPathSequence? length,
 ]) {
-  final string = sourceString.firstOrNull?.toXPathString() ?? '';
-  final start_ = startingLoc.firstOrNull?.toXPathNumber() as num? ?? double.nan;
-  if (!start_.isFinite) return XPathSequence.single(XPathString.empty);
-  final start = start_.round() - 1;
-  final end_ = length != null
-      ? (length.firstOrNull?.toXPathNumber() as num? ?? double.nan)
-      : double.infinity;
-  if (end_.isNaN || end_ <= 0) return XPathSequence.single(XPathString.empty);
-  final end = end_.isFinite ? start + end_.round() : string.length;
+  final string =
+      XPathEvaluationException.checkZeroOrOne(sourceString)?.toXPathString() ??
+      '';
+  final startVal = XPathEvaluationException.checkExactlyOne(
+    start,
+  ).toXPathNumber().toDouble();
+  if (!startVal.isFinite) return XPathSequence.single(XPathString.empty);
+  final startIdx = startVal.round() - 1;
 
-  final i = start.clamp(0, string.length);
-  final j = end.clamp(i, string.length);
+  final endVal = length != null
+      ? XPathEvaluationException.checkExactlyOne(
+          length,
+        ).toXPathNumber().toDouble()
+      : double.infinity;
+
+  if (endVal.isNaN || endVal <= 0) {
+    return XPathSequence.single(XPathString.empty);
+  }
+  final endIdx = endVal.isFinite ? startIdx + endVal.round() : string.length;
+
+  final i = startIdx.clamp(0, string.length);
+  final j = endIdx.clamp(i, string.length);
   return XPathSequence.single(XPathString(string.substring(i, j)));
 }
 
@@ -58,7 +78,7 @@ XPathSequence fnSubstring(
 XPathSequence fnStringLength(XPathContext context, [XPathSequence? arg]) {
   final value = arg == null
       ? context.value.toXPathString()
-      : (arg.firstOrNull?.toXPathString() ?? '');
+      : (XPathEvaluationException.checkZeroOrOne(arg)?.toXPathString() ?? '');
   return XPathSequence.single(value.length);
 }
 
@@ -66,21 +86,23 @@ XPathSequence fnStringLength(XPathContext context, [XPathSequence? arg]) {
 XPathSequence fnNormalizeSpace(XPathContext context, [XPathSequence? arg]) {
   final value = arg == null
       ? context.value.toXPathString()
-      : (arg.firstOrNull?.toXPathString() ?? '');
+      : (XPathEvaluationException.checkZeroOrOne(arg)?.toXPathString() ?? '');
   final result = value.trim().replaceAll(RegExp(r'\s+'), ' ');
   return XPathSequence.single(XPathString(result));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-upper-case
 XPathSequence fnUpperCase(XPathContext context, XPathSequence arg) {
-  final value = arg.firstOrNull?.toXPathString() ?? '';
-  return XPathSequence.single(XPathString(value.toUpperCase()));
+  final valOpt =
+      XPathEvaluationException.checkZeroOrOne(arg)?.toXPathString() ?? '';
+  return XPathSequence.single(XPathString(valOpt.toUpperCase()));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-lower-case
 XPathSequence fnLowerCase(XPathContext context, XPathSequence arg) {
-  final value = arg.firstOrNull?.toXPathString() ?? '';
-  return XPathSequence.single(XPathString(value.toLowerCase()));
+  final valOpt =
+      XPathEvaluationException.checkZeroOrOne(arg)?.toXPathString() ?? '';
+  return XPathSequence.single(XPathString(valOpt.toLowerCase()));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-contains
@@ -90,10 +112,12 @@ XPathSequence fnContains(
   XPathSequence arg2, [
   XPathSequence? collation,
 ]) {
-  final string = arg1.firstOrNull?.toXPathString() ?? '';
-  final pattern = arg2.firstOrNull?.toXPathString() ?? '';
+  final val1 =
+      XPathEvaluationException.checkZeroOrOne(arg1)?.toXPathString() ?? '';
+  final val2 =
+      XPathEvaluationException.checkZeroOrOne(arg2)?.toXPathString() ?? '';
   // TODO: Handle collation parameter
-  return XPathSequence.single(string.contains(pattern));
+  return XPathSequence.single(val1.contains(val2));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-starts-with
@@ -103,10 +127,12 @@ XPathSequence fnStartsWith(
   XPathSequence arg2, [
   XPathSequence? collation,
 ]) {
-  final string = arg1.firstOrNull?.toXPathString() ?? '';
-  final pattern = arg2.firstOrNull?.toXPathString() ?? '';
+  final val1 =
+      XPathEvaluationException.checkZeroOrOne(arg1)?.toXPathString() ?? '';
+  final val2 =
+      XPathEvaluationException.checkZeroOrOne(arg2)?.toXPathString() ?? '';
   // TODO: Handle collation parameter
-  return XPathSequence.single(string.startsWith(pattern));
+  return XPathSequence.single(val1.startsWith(val2));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-ends-with
@@ -116,10 +142,12 @@ XPathSequence fnEndsWith(
   XPathSequence arg2, [
   XPathSequence? collation,
 ]) {
-  final string = arg1.firstOrNull?.toXPathString() ?? '';
-  final pattern = arg2.firstOrNull?.toXPathString() ?? '';
+  final val1 =
+      XPathEvaluationException.checkZeroOrOne(arg1)?.toXPathString() ?? '';
+  final val2 =
+      XPathEvaluationException.checkZeroOrOne(arg2)?.toXPathString() ?? '';
   // TODO: Handle collation parameter
-  return XPathSequence.single(string.endsWith(pattern));
+  return XPathSequence.single(val1.endsWith(val2));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-substring-before
@@ -129,12 +157,14 @@ XPathSequence fnSubstringBefore(
   XPathSequence arg2, [
   XPathSequence? collation,
 ]) {
-  final string = arg1.firstOrNull?.toXPathString() ?? '';
-  final pattern = arg2.firstOrNull?.toXPathString() ?? '';
+  final val1 =
+      XPathEvaluationException.checkZeroOrOne(arg1)?.toXPathString() ?? '';
+  final val2 =
+      XPathEvaluationException.checkZeroOrOne(arg2)?.toXPathString() ?? '';
   // TODO: Handle collation parameter
-  final index = string.indexOf(pattern);
+  final index = val1.indexOf(val2);
   return XPathSequence.single(
-    XPathString(index >= 0 ? string.substring(0, index) : ''),
+    XPathString(index >= 0 ? val1.substring(0, index) : ''),
   );
 }
 
@@ -145,13 +175,15 @@ XPathSequence fnSubstringAfter(
   XPathSequence arg2, [
   XPathSequence? collation,
 ]) {
-  final string = arg1.firstOrNull?.toXPathString() ?? '';
-  final pattern = arg2.firstOrNull?.toXPathString() ?? '';
+  final val1 =
+      XPathEvaluationException.checkZeroOrOne(arg1)?.toXPathString() ?? '';
+  final val2 =
+      XPathEvaluationException.checkZeroOrOne(arg2)?.toXPathString() ?? '';
   // TODO: Handle collation parameter
-  if (pattern.isEmpty) return XPathSequence.single(XPathString(string));
-  final index = string.indexOf(pattern);
+  if (val2.isEmpty) return XPathSequence.single(XPathString(val1));
+  final index = val1.indexOf(val2);
   return XPathSequence.single(
-    XPathString(index >= 0 ? string.substring(index + pattern.length) : ''),
+    XPathString(index >= 0 ? val1.substring(index + val2.length) : ''),
   );
 }
 
@@ -162,15 +194,19 @@ XPathSequence fnTranslate(
   XPathSequence mapString,
   XPathSequence transString,
 ) {
-  final input = arg.firstOrNull?.toXPathString() ?? '';
-  final sourceChars = mapString.firstOrNull?.toXPathString() ?? '';
-  final targetChars = transString.firstOrNull?.toXPathString() ?? '';
+  final input =
+      XPathEvaluationException.checkZeroOrOne(arg)?.toXPathString() ?? '';
+  final mapStr =
+      XPathEvaluationException.checkZeroOrOne(mapString)?.toXPathString() ?? '';
+  final transStr =
+      XPathEvaluationException.checkZeroOrOne(transString)?.toXPathString() ??
+      '';
 
   final mapping = <String, String>{};
-  for (var i = 0; i < sourceChars.length; i++) {
-    final char = sourceChars[i];
+  for (var i = 0; i < mapStr.length; i++) {
+    final char = mapStr[i];
     if (!mapping.containsKey(char)) {
-      mapping[char] = i < targetChars.length ? targetChars[i] : '';
+      mapping[char] = i < transStr.length ? transStr[i] : '';
     }
   }
 
@@ -189,11 +225,13 @@ XPathSequence fnMatches(
   XPathSequence pattern, [
   XPathSequence? flags,
 ]) {
-  final string = input.firstOrNull?.toXPathString() ?? '';
-  final patternStr = pattern.firstOrNull?.toXPathString() ?? '';
+  final inputStr =
+      XPathEvaluationException.checkZeroOrOne(input)?.toXPathString() ?? '';
+  final patternStr =
+      XPathEvaluationException.checkZeroOrOne(pattern)?.toXPathString() ?? '';
   // TODO: Handle flags parameter
   final regExp = RegExp(patternStr);
-  return XPathSequence.single(string.contains(regExp));
+  return XPathSequence.single(inputStr.contains(regExp));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-replace
@@ -204,13 +242,17 @@ XPathSequence fnReplace(
   XPathSequence replacement, [
   XPathSequence? flags,
 ]) {
-  final string = input.firstOrNull?.toXPathString() ?? '';
-  final patternStr = pattern.firstOrNull?.toXPathString() ?? '';
-  final replacementStr = replacement.firstOrNull?.toXPathString() ?? '';
+  final inputStr =
+      XPathEvaluationException.checkZeroOrOne(input)?.toXPathString() ?? '';
+  final patternStr =
+      XPathEvaluationException.checkZeroOrOne(pattern)?.toXPathString() ?? '';
+  final replaceStr =
+      XPathEvaluationException.checkZeroOrOne(replacement)?.toXPathString() ??
+      '';
   // TODO: Handle flags parameter
   final regExp = RegExp(patternStr);
   return XPathSequence.single(
-    XPathString(string.replaceAll(regExp, replacementStr)),
+    XPathString(inputStr.replaceAll(regExp, replaceStr)),
   );
 }
 
@@ -229,8 +271,9 @@ XPathSequence fnCodepointsToString(XPathContext context, XPathSequence arg) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-string-to-codepoints
 XPathSequence fnStringToCodepoints(XPathContext context, XPathSequence arg) {
-  final string = arg.firstOrNull?.toXPathString() ?? '';
-  return XPathSequence(string.runes);
+  final valOpt =
+      XPathEvaluationException.checkZeroOrOne(arg)?.toXPathString() ?? '';
+  return XPathSequence(valOpt.runes);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-compare
@@ -240,10 +283,14 @@ XPathSequence fnCompare(
   XPathSequence comparand2, [
   XPathSequence? collation,
 ]) {
-  final string1 = comparand1.firstOrNull?.toXPathString() ?? '';
-  final string2 = comparand2.firstOrNull?.toXPathString() ?? '';
+  final val1 =
+      XPathEvaluationException.checkZeroOrOne(comparand1)?.toXPathString() ??
+      '';
+  final val2 =
+      XPathEvaluationException.checkZeroOrOne(comparand2)?.toXPathString() ??
+      '';
   // TODO: Handle collation parameter
-  return XPathSequence.single(string1.compareTo(string2));
+  return XPathSequence.single(val1.compareTo(val2));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-codepoint-equal
@@ -252,10 +299,14 @@ XPathSequence fnCodepointEqual(
   XPathSequence comparand1,
   XPathSequence comparand2,
 ) {
-  final string1 = comparand1.firstOrNull?.toXPathString();
-  final string2 = comparand2.firstOrNull?.toXPathString();
-  if (string1 == null || string2 == null) return XPathSequence.empty;
-  return XPathSequence.single(string1 == string2);
+  final val1 = XPathEvaluationException.checkZeroOrOne(
+    comparand1,
+  )?.toXPathString();
+  final val2 = XPathEvaluationException.checkZeroOrOne(
+    comparand2,
+  )?.toXPathString();
+  if (val1 == null || val2 == null) return XPathSequence.empty;
+  return XPathSequence.single(val1 == val2);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-collation-key
@@ -266,10 +317,11 @@ XPathSequence fnCollationKey(
 ]) {
   // Basic implementation: return codepoints as key.
   // In a real implementation, this would depend on the collation.
-  final string = key.firstOrNull?.toXPathString() ?? '';
+  final keyVal =
+      XPathEvaluationException.checkZeroOrOne(key)?.toXPathString() ?? '';
   // TODO: Handle collation parameter
   return XPathSequence.single(
-    XPathString(String.fromCharCodes(string.runes)), // Identity for now
+    XPathString(String.fromCharCodes(keyVal.runes)), // Identity for now
   );
 }
 
@@ -280,8 +332,10 @@ XPathSequence fnContainsToken(
   XPathSequence token, [
   XPathSequence? collation,
 ]) {
-  final inputStr = input.firstOrNull?.toXPathString() ?? '';
-  final tokenStr = token.firstOrNull?.toXPathString() ?? '';
+  final inputStr =
+      XPathEvaluationException.checkZeroOrOne(input)?.toXPathString() ?? '';
+  final tokenStr =
+      XPathEvaluationException.checkZeroOrOne(token)?.toXPathString() ?? '';
   // TODO: Handle collation parameter
   final tokens = inputStr.trim().split(RegExp(r'\s+'));
   return XPathSequence.single(tokens.contains(tokenStr.trim()));
@@ -293,9 +347,10 @@ XPathSequence fnNormalizeUnicode(
   XPathSequence arg, [
   XPathSequence? normalizationForm,
 ]) {
-  final value = arg.firstOrNull?.toXPathString() ?? '';
+  final valOpt =
+      XPathEvaluationException.checkZeroOrOne(arg)?.toXPathString() ?? '';
   // Dart doesn't support normalization directly in core.
-  return XPathSequence.single(XPathString(value));
+  return XPathSequence.single(XPathString(valOpt));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-tokenize
@@ -305,16 +360,18 @@ XPathSequence fnTokenize(
   XPathSequence? pattern,
   XPathSequence? flags,
 ]) {
-  final string = input.firstOrNull?.toXPathString() ?? '';
+  final inputStr =
+      XPathEvaluationException.checkZeroOrOne(input)?.toXPathString() ?? '';
   if (pattern == null) {
     return XPathSequence(
-      string.trim().split(RegExp(r'\s+')).map(XPathString.new),
+      inputStr.trim().split(RegExp(r'\s+')).map(XPathString.new),
     );
   }
-  final patternStr = pattern.firstOrNull?.toXPathString() ?? '';
+  final patternStr =
+      XPathEvaluationException.checkZeroOrOne(pattern)?.toXPathString() ?? '';
   // TODO: Handle flags parameter
   final regExp = RegExp(patternStr);
-  return XPathSequence(string.split(regExp).map(XPathString.new));
+  return XPathSequence(inputStr.split(regExp).map(XPathString.new));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-analyze-string

@@ -4,7 +4,7 @@ import '../types31/sequence.dart';
 /// https://www.w3.org/TR/xpath-functions-31/#func-parse-json
 XPathSequence fnParseJson(
   XPathContext context,
-  XPathSequence arg, [
+  XPathSequence jsonText, [
   XPathSequence? options,
 ]) {
   throw UnimplementedError('fn:parse-json');

@@ -1,4 +1,5 @@
 import '../evaluation/context.dart';
+import '../exceptions/evaluation_exception.dart';
 import '../types31/date_time.dart';
 import '../types31/duration.dart';
 import '../types31/sequence.dart';
@@ -11,64 +12,82 @@ XPathSequence fnDateTime(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final date = arg1.firstOrNull?.toXPathDateTime();
-  final time = arg2.firstOrNull?.toXPathDateTime();
-  if (date == null || time == null) return XPathSequence.empty;
+  final arg1Opt = XPathEvaluationException.checkZeroOrOne(
+    arg1,
+  )?.toXPathDateTime();
+  final arg2Opt = XPathEvaluationException.checkZeroOrOne(
+    arg2,
+  )?.toXPathDateTime();
+  if (arg1Opt == null || arg2Opt == null) return XPathSequence.empty;
   return XPathSequence.single(
     DateTime(
-      date.year,
-      date.month,
-      date.day,
-      time.hour,
-      time.minute,
-      time.second,
-      time.millisecond,
-      time.microsecond,
+      arg1Opt.year,
+      arg1Opt.month,
+      arg1Opt.day,
+      arg2Opt.hour,
+      arg2Opt.minute,
+      arg2Opt.second,
+      arg2Opt.millisecond,
+      arg2Opt.microsecond,
     ).toXPathDateTime(),
   );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-year-from-dateTime
 XPathSequence fnYearFromDateTime(XPathContext context, XPathSequence arg) {
-  final value = arg.firstOrNull?.toXPathDateTime();
-  if (value == null) return XPathSequence.empty;
-  return XPathSequence.single(value.year);
+  final argOpt = XPathEvaluationException.checkZeroOrOne(
+    arg,
+  )?.toXPathDateTime();
+  if (argOpt == null) return XPathSequence.empty;
+  return XPathSequence.single(argOpt.year);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-month-from-dateTime
 XPathSequence fnMonthFromDateTime(XPathContext context, XPathSequence arg) {
-  final value = arg.firstOrNull?.toXPathDateTime();
-  if (value == null) return XPathSequence.empty;
-  return XPathSequence.single(value.month);
+  final argOpt = XPathEvaluationException.checkZeroOrOne(
+    arg,
+  )?.toXPathDateTime();
+  if (argOpt == null) return XPathSequence.empty;
+  return XPathSequence.single(argOpt.month);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-day-from-dateTime
 XPathSequence fnDayFromDateTime(XPathContext context, XPathSequence arg) {
-  final value = arg.firstOrNull?.toXPathDateTime();
-  if (value == null) return XPathSequence.empty;
-  return XPathSequence.single(value.day);
+  final argOpt = XPathEvaluationException.checkZeroOrOne(
+    arg,
+  )?.toXPathDateTime();
+  if (argOpt == null) return XPathSequence.empty;
+  return XPathSequence.single(argOpt.day);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hours-from-dateTime
 XPathSequence fnHoursFromDateTime(XPathContext context, XPathSequence arg) {
-  final value = arg.firstOrNull?.toXPathDateTime();
-  if (value == null) return XPathSequence.empty;
-  return XPathSequence.single(value.hour);
+  final argOpt = XPathEvaluationException.checkZeroOrOne(
+    arg,
+  )?.toXPathDateTime();
+  if (argOpt == null) return XPathSequence.empty;
+  return XPathSequence.single(argOpt.hour);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-minutes-from-dateTime
 XPathSequence fnMinutesFromDateTime(XPathContext context, XPathSequence arg) {
-  final value = arg.firstOrNull?.toXPathDateTime();
-  if (value == null) return XPathSequence.empty;
-  return XPathSequence.single(value.minute);
+  final argOpt = XPathEvaluationException.checkZeroOrOne(
+    arg,
+  )?.toXPathDateTime();
+  if (argOpt == null) return XPathSequence.empty;
+  return XPathSequence.single(argOpt.minute);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-seconds-from-dateTime
 XPathSequence fnSecondsFromDateTime(XPathContext context, XPathSequence arg) {
-  final value = arg.firstOrNull?.toXPathDateTime();
-  if (value == null) return XPathSequence.empty;
+  final argOpt = XPathEvaluationException.checkZeroOrOne(
+    arg,
+  )?.toXPathDateTime();
+  if (argOpt == null) return XPathSequence.empty;
   return XPathSequence.single(
-    value.second + value.millisecond / 1000.0 + value.microsecond / 1000000.0,
+    argOpt.second +
+        argOpt.millisecond / 1000.0 +
+        argOpt.microsecond / 1000000.0,
   );
 }
 
@@ -78,10 +97,14 @@ XPathSequence opDateTimeEqual(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathDateTime();
-  final val2 = arg2.firstOrNull?.toXPathDateTime();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
-  return XPathSequence.single(val1.isAtSameMomentAs(val2));
+  final arg1Opt = XPathEvaluationException.checkZeroOrOne(
+    arg1,
+  )?.toXPathDateTime();
+  final arg2Opt = XPathEvaluationException.checkZeroOrOne(
+    arg2,
+  )?.toXPathDateTime();
+  if (arg1Opt == null || arg2Opt == null) return XPathSequence.empty;
+  return XPathSequence.single(arg1Opt.isAtSameMomentAs(arg2Opt));
 }
 
 XPathSequence opDateTimeLessThan(
@@ -89,10 +112,14 @@ XPathSequence opDateTimeLessThan(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathDateTime();
-  final val2 = arg2.firstOrNull?.toXPathDateTime();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
-  return XPathSequence.single(val1.isBefore(val2));
+  final arg1Opt = XPathEvaluationException.checkZeroOrOne(
+    arg1,
+  )?.toXPathDateTime();
+  final arg2Opt = XPathEvaluationException.checkZeroOrOne(
+    arg2,
+  )?.toXPathDateTime();
+  if (arg1Opt == null || arg2Opt == null) return XPathSequence.empty;
+  return XPathSequence.single(arg1Opt.isBefore(arg2Opt));
 }
 
 XPathSequence opDateTimeGreaterThan(
@@ -100,10 +127,14 @@ XPathSequence opDateTimeGreaterThan(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathDateTime();
-  final val2 = arg2.firstOrNull?.toXPathDateTime();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
-  return XPathSequence.single(val1.isAfter(val2));
+  final arg1Opt = XPathEvaluationException.checkZeroOrOne(
+    arg1,
+  )?.toXPathDateTime();
+  final arg2Opt = XPathEvaluationException.checkZeroOrOne(
+    arg2,
+  )?.toXPathDateTime();
+  if (arg1Opt == null || arg2Opt == null) return XPathSequence.empty;
+  return XPathSequence.single(arg1Opt.isAfter(arg2Opt));
 }
 
 // TODO: Specialized operators for Date and Time if distinct types are introduced.
@@ -150,10 +181,14 @@ XPathSequence opSubtractDateTimes(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathDateTime();
-  final val2 = arg2.firstOrNull?.toXPathDateTime();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
-  return XPathSequence.single(val1.difference(val2).toXPathDuration());
+  final arg1Opt = XPathEvaluationException.checkZeroOrOne(
+    arg1,
+  )?.toXPathDateTime();
+  final arg2Opt = XPathEvaluationException.checkZeroOrOne(
+    arg2,
+  )?.toXPathDateTime();
+  if (arg1Opt == null || arg2Opt == null) return XPathSequence.empty;
+  return XPathSequence.single(arg1Opt.difference(arg2Opt).toXPathDuration());
 }
 
 XPathSequence opSubtractDates(
@@ -173,10 +208,14 @@ XPathSequence opAddDurationToDateTime(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathDateTime();
-  final val2 = arg2.firstOrNull?.toXPathDuration();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
-  return XPathSequence.single(val1.add(val2).toXPathDateTime());
+  final arg1Opt = XPathEvaluationException.checkZeroOrOne(
+    arg1,
+  )?.toXPathDateTime();
+  final arg2Opt = XPathEvaluationException.checkZeroOrOne(
+    arg2,
+  )?.toXPathDuration();
+  if (arg1Opt == null || arg2Opt == null) return XPathSequence.empty;
+  return XPathSequence.single(arg1Opt.add(arg2Opt).toXPathDateTime());
 }
 
 XPathSequence opSubtractDurationFromDateTime(
@@ -184,75 +223,205 @@ XPathSequence opSubtractDurationFromDateTime(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathDateTime();
-  final val2 = arg2.firstOrNull?.toXPathDuration();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
-  return XPathSequence.single(val1.subtract(val2).toXPathDateTime());
+  final arg1Opt = XPathEvaluationException.checkZeroOrOne(
+    arg1,
+  )?.toXPathDateTime();
+  final arg2Opt = XPathEvaluationException.checkZeroOrOne(
+    arg2,
+  )?.toXPathDuration();
+  if (arg1Opt == null || arg2Opt == null) return XPathSequence.empty;
+  return XPathSequence.single(arg1Opt.subtract(arg2Opt).toXPathDateTime());
 }
 
 // Extraction functions
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-timezone-from-dateTime
 XPathSequence fnTimezoneFromDateTime(XPathContext context, XPathSequence arg) {
-  final value = arg.firstOrNull?.toXPathDateTime();
-  if (value == null) return XPathSequence.empty;
-  return XPathSequence.single(value.timeZoneOffset);
+  final argOpt = XPathEvaluationException.checkZeroOrOne(
+    arg,
+  )?.toXPathDateTime();
+  if (argOpt == null) return XPathSequence.empty;
+  return XPathSequence.single(argOpt.timeZoneOffset.toXPathDuration());
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-year-from-date
 XPathSequence fnYearFromDate(XPathContext context, XPathSequence arg) {
-  final value = arg.firstOrNull?.toXPathDateTime();
-  if (value == null) return XPathSequence.empty;
-  return XPathSequence.single(value.year);
+  final argOpt = XPathEvaluationException.checkZeroOrOne(
+    arg,
+  )?.toXPathDateTime();
+  if (argOpt == null) return XPathSequence.empty;
+  return XPathSequence.single(argOpt.year);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-month-from-date
 XPathSequence fnMonthFromDate(XPathContext context, XPathSequence arg) {
-  final value = arg.firstOrNull?.toXPathDateTime();
-  if (value == null) return XPathSequence.empty;
-  return XPathSequence.single(value.month);
+  final argOpt = XPathEvaluationException.checkZeroOrOne(
+    arg,
+  )?.toXPathDateTime();
+  if (argOpt == null) return XPathSequence.empty;
+  return XPathSequence.single(argOpt.month);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-day-from-date
 XPathSequence fnDayFromDate(XPathContext context, XPathSequence arg) {
-  final value = arg.firstOrNull?.toXPathDateTime();
-  if (value == null) return XPathSequence.empty;
-  return XPathSequence.single(value.day);
+  final argOpt = XPathEvaluationException.checkZeroOrOne(
+    arg,
+  )?.toXPathDateTime();
+  if (argOpt == null) return XPathSequence.empty;
+  return XPathSequence.single(argOpt.day);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-timezone-from-date
 XPathSequence fnTimezoneFromDate(XPathContext context, XPathSequence arg) {
-  final value = arg.firstOrNull?.toXPathDateTime();
-  if (value == null) return XPathSequence.empty;
-  return XPathSequence.single(value.timeZoneOffset);
+  final argOpt = XPathEvaluationException.checkZeroOrOne(
+    arg,
+  )?.toXPathDateTime();
+  if (argOpt == null) return XPathSequence.empty;
+  return XPathSequence.single(argOpt.timeZoneOffset.toXPathDuration());
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hours-from-time
 XPathSequence fnHoursFromTime(XPathContext context, XPathSequence arg) {
-  final value = arg.firstOrNull?.toXPathDateTime();
-  if (value == null) return XPathSequence.empty;
-  return XPathSequence.single(value.hour);
+  final argOpt = XPathEvaluationException.checkZeroOrOne(
+    arg,
+  )?.toXPathDateTime();
+  if (argOpt == null) return XPathSequence.empty;
+  return XPathSequence.single(argOpt.hour);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-minutes-from-time
 XPathSequence fnMinutesFromTime(XPathContext context, XPathSequence arg) {
-  final value = arg.firstOrNull?.toXPathDateTime();
-  if (value == null) return XPathSequence.empty;
-  return XPathSequence.single(value.minute);
+  final argOpt = XPathEvaluationException.checkZeroOrOne(
+    arg,
+  )?.toXPathDateTime();
+  if (argOpt == null) return XPathSequence.empty;
+  return XPathSequence.single(argOpt.minute);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-seconds-from-time
 XPathSequence fnSecondsFromTime(XPathContext context, XPathSequence arg) {
-  final value = arg.firstOrNull?.toXPathDateTime();
-  if (value == null) return XPathSequence.empty;
+  final argOpt = XPathEvaluationException.checkZeroOrOne(
+    arg,
+  )?.toXPathDateTime();
+  if (argOpt == null) return XPathSequence.empty;
   return XPathSequence.single(
-    value.second + value.millisecond / 1000.0 + value.microsecond / 1000000.0,
+    argOpt.second +
+        argOpt.millisecond / 1000.0 +
+        argOpt.microsecond / 1000000.0,
   );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-timezone-from-time
 XPathSequence fnTimezoneFromTime(XPathContext context, XPathSequence arg) {
-  final value = arg.firstOrNull?.toXPathDateTime();
-  if (value == null) return XPathSequence.empty;
-  return XPathSequence.single(value.timeZoneOffset);
+  final argOpt = XPathEvaluationException.checkZeroOrOne(
+    arg,
+  )?.toXPathDateTime();
+  if (argOpt == null) return XPathSequence.empty;
+  return XPathSequence.single(argOpt.timeZoneOffset.toXPathDuration());
+}
+
+// Missing operators
+XPathSequence opGYearMonthEqual(
+  XPathContext context,
+  XPathSequence arg1,
+  XPathSequence arg2,
+) => opDateTimeEqual(context, arg1, arg2);
+
+XPathSequence opGYearEqual(
+  XPathContext context,
+  XPathSequence arg1,
+  XPathSequence arg2,
+) => opDateTimeEqual(context, arg1, arg2);
+
+XPathSequence opGMonthDayEqual(
+  XPathContext context,
+  XPathSequence arg1,
+  XPathSequence arg2,
+) => opDateTimeEqual(context, arg1, arg2);
+
+XPathSequence opGMonthEqual(
+  XPathContext context,
+  XPathSequence arg1,
+  XPathSequence arg2,
+) => opDateTimeEqual(context, arg1, arg2);
+
+XPathSequence opGDayEqual(
+  XPathContext context,
+  XPathSequence arg1,
+  XPathSequence arg2,
+) => opDateTimeEqual(context, arg1, arg2);
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-adjust-dateTime-to-timezone
+XPathSequence fnAdjustDateTimeToTimezone(
+  XPathContext context,
+  XPathSequence arg, [
+  XPathSequence? timezone,
+]) {
+  // TODO: Implement timezone adjustment
+  throw UnimplementedError('fn:adjust-dateTime-to-timezone');
+}
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-adjust-date-to-timezone
+XPathSequence fnAdjustDateToTimezone(
+  XPathContext context,
+  XPathSequence arg, [
+  XPathSequence? timezone,
+]) {
+  // TODO: Implement timezone adjustment
+  throw UnimplementedError('fn:adjust-date-to-timezone');
+}
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-adjust-time-to-timezone
+XPathSequence fnAdjustTimeToTimezone(
+  XPathContext context,
+  XPathSequence arg, [
+  XPathSequence? timezone,
+]) {
+  // TODO: Implement timezone adjustment
+  throw UnimplementedError('fn:adjust-time-to-timezone');
+}
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-format-dateTime
+XPathSequence fnFormatDateTime(
+  XPathContext context,
+  XPathSequence value,
+  XPathSequence picture, [
+  XPathSequence? language,
+  XPathSequence? calendar,
+  XPathSequence? place,
+]) {
+  // TODO: Implement dateTime formatting
+  throw UnimplementedError('fn:format-dateTime');
+}
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-format-date
+XPathSequence fnFormatDate(
+  XPathContext context,
+  XPathSequence value,
+  XPathSequence picture, [
+  XPathSequence? language,
+  XPathSequence? calendar,
+  XPathSequence? place,
+]) {
+  // TODO: Implement date formatting
+  throw UnimplementedError('fn:format-date');
+}
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-format-time
+XPathSequence fnFormatTime(
+  XPathContext context,
+  XPathSequence value,
+  XPathSequence picture, [
+  XPathSequence? language,
+  XPathSequence? calendar,
+  XPathSequence? place,
+]) {
+  // TODO: Implement time formatting
+  throw UnimplementedError('fn:format-time');
+}
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-parse-ietf-date
+XPathSequence fnParseIetfDate(XPathContext context, XPathSequence value) {
+  // TODO: Implement parsing
+  throw UnimplementedError('fn:parse-ietf-date');
 }

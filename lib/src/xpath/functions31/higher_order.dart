@@ -1,4 +1,5 @@
 import '../evaluation/context.dart';
+import '../exceptions/evaluation_exception.dart';
 import '../types31/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-for-each
@@ -59,6 +60,11 @@ XPathSequence fnSort(
   if (key != null) {
     throw UnimplementedError('fn:sort with key is not supported');
   }
+  if (collation != null) {
+    // Check cardinality even if ignored
+    XPathEvaluationException.checkExactlyOne(collation);
+    // TODO: Support collation
+  }
   // Basic sort using string/number comparison logic
   final list = seq.toList();
   list.sort((a, b) {
@@ -81,4 +87,37 @@ XPathSequence fnApply(
   XPathSequence array,
 ) {
   throw UnimplementedError('fn:apply');
+}
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-function-lookup
+XPathSequence fnFunctionLookup(
+  XPathContext context,
+  XPathSequence name,
+  XPathSequence arity,
+) {
+  throw UnimplementedError('fn:function-lookup');
+}
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-function-name
+XPathSequence fnFunctionName(XPathContext context, XPathSequence function) {
+  throw UnimplementedError('fn:function-name');
+}
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-function-arity
+XPathSequence fnFunctionArity(XPathContext context, XPathSequence function) {
+  throw UnimplementedError('fn:function-arity');
+}
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-load-xquery-module
+XPathSequence fnLoadXqueryModule(
+  XPathContext context,
+  XPathSequence moduleUri, [
+  XPathSequence? options,
+]) {
+  throw UnimplementedError('fn:load-xquery-module');
+}
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-transform
+XPathSequence fnTransform(XPathContext context, XPathSequence options) {
+  throw UnimplementedError('fn:transform');
 }

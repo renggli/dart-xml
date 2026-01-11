@@ -11,21 +11,27 @@ Never fnError(
   XPathSequence? errorObject,
 ]) {
   final buffer = StringBuffer();
-  final codeValue = code?.firstOrNull?.toXPathString();
-  if (codeValue != null) buffer.write(codeValue);
-  final descriptionValue = description?.firstOrNull?.toXPathString();
-  if (descriptionValue != null) {
+  final codeOpt = code != null
+      ? XPathEvaluationException.checkZeroOrOne(code)?.toXPathString()
+      : null;
+  if (codeOpt != null) buffer.write(codeOpt);
+  final descriptionOpt = description != null
+      ? XPathEvaluationException.checkZeroOrOne(description)?.toXPathString()
+      : null;
+  if (descriptionOpt != null) {
     if (buffer.isNotEmpty) {
       buffer.write(': ');
     }
-    buffer.write(descriptionValue);
+    buffer.write(descriptionOpt);
   }
-  final errorObjectValue = errorObject?.firstOrNull?.toXPathString();
-  if (errorObjectValue != null) {
+  final errorObjectOpt = errorObject != null
+      ? XPathEvaluationException.checkZeroOrOne(errorObject)?.toXPathString()
+      : null;
+  if (errorObjectOpt != null) {
     if (buffer.isEmpty) {
-      buffer.write(errorObjectValue);
+      buffer.write(errorObjectOpt);
     } else {
-      buffer.write(' ($errorObjectValue)');
+      buffer.write(' ($errorObjectOpt)');
     }
   }
   throw XPathEvaluationException(buffer.toString());
@@ -36,4 +42,9 @@ XPathSequence fnTrace(
   XPathContext context,
   XPathSequence value, [
   XPathSequence? label,
-]) => value;
+]) {
+  if (label != null) {
+    XPathEvaluationException.checkExactlyOne(label);
+  }
+  return value;
+}

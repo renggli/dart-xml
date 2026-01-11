@@ -2,6 +2,7 @@ import 'dart:math';
 
 import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
+import '../types31/number.dart';
 import '../types31/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-empty
@@ -27,7 +28,9 @@ XPathSequence fnInsertBefore(
   XPathSequence position,
   XPathSequence inserts,
 ) {
-  var pos = position.isEmpty ? 1 : position.first as int;
+  var pos = XPathEvaluationException.checkExactlyOne(
+    position,
+  ).toXPathNumber().toInt();
   if (pos < 1) {
     pos = 1;
   } else if (pos > target.length) {
@@ -50,7 +53,9 @@ XPathSequence fnRemove(
   XPathSequence target,
   XPathSequence position,
 ) {
-  final pos = position.isEmpty ? 0 : position.first as int;
+  final pos = XPathEvaluationException.checkExactlyOne(
+    position,
+  ).toXPathNumber().toInt();
   return XPathSequence(() sync* {
     var i = 1;
     for (final item in target) {
@@ -71,14 +76,16 @@ XPathSequence fnSubsequence(
   XPathSequence startingLoc, [
   XPathSequence? length,
 ]) {
-  final startingLocVal = startingLoc.isEmpty
-      ? 1.0
-      : (startingLoc.first as num).toDouble();
+  final startingLocVal = XPathEvaluationException.checkExactlyOne(
+    startingLoc,
+  ).toXPathNumber().toDouble();
   final startingIdx = startingLocVal.round();
   if (length == null) {
     return XPathSequence(sourceSeq.skip(max(0, startingIdx - 1)));
   }
-  final lengthVal = (length.first as num).toDouble();
+  final lengthVal = XPathEvaluationException.checkExactlyOne(
+    length,
+  ).toXPathNumber().toDouble();
   final endingIdx = (startingLocVal + lengthVal).round();
   return XPathSequence(() sync* {
     var i = 1;
@@ -104,17 +111,16 @@ XPathSequence fnDistinctValues(
 /// https://www.w3.org/TR/xpath-functions-31/#func-index-of
 XPathSequence fnIndexOf(
   XPathContext context,
-  XPathSequence seqParam,
-  XPathSequence srchParam, [
+  XPathSequence seq,
+  XPathSequence search, [
   XPathSequence? collation,
 ]) {
-  final search = srchParam.firstOrNull;
-  if (search == null) return XPathSequence.empty;
+  final searchVal = XPathEvaluationException.checkExactlyOne(search);
   // TODO: Handle collation parameter
   return XPathSequence(() sync* {
     var i = 1;
-    for (final item in seqParam) {
-      if (item == search) yield i;
+    for (final item in seq) {
+      if (item == searchVal) yield i;
       i++;
     }
   }());

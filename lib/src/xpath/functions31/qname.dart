@@ -1,5 +1,6 @@
 import '../../xml/utils/name.dart';
 import '../evaluation/context.dart';
+import '../exceptions/evaluation_exception.dart';
 import '../types31/sequence.dart';
 import '../types31/string.dart';
 
@@ -9,10 +10,12 @@ XPathSequence fnResolveQName(
   XPathSequence qname,
   XPathSequence element,
 ) {
-  final qnameValue = qname.firstOrNull?.toXPathString();
-  if (qnameValue == null || element.isEmpty) return XPathSequence.empty;
+  final qnameOpt = XPathEvaluationException.checkZeroOrOne(
+    qname,
+  )?.toXPathString();
+  if (qnameOpt == null || element.isEmpty) return XPathSequence.empty;
   // TODO: Implement proper QName resolution using element's in-scope namespaces.
-  return XPathSequence.single(XmlName.fromString(qnameValue));
+  return XPathSequence.single(XmlName.fromString(qnameOpt));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-QName
@@ -21,40 +24,46 @@ XPathSequence fnQName(
   XPathSequence paramUri,
   XPathSequence paramQName,
 ) {
-  final qname = paramQName.firstOrNull?.toXPathString() ?? '';
-  return XPathSequence.single(XmlName.fromString(qname));
+  // final uriOpt = XPathEvaluationException.checkZeroOrOne(
+  //   paramUri,
+  // )?.toXPathString();
+  final qnameVal = XPathEvaluationException.checkExactlyOne(
+    paramQName,
+  ).toXPathString();
+  // TODO: Use uriOpt in QName creation.
+  return XPathSequence.single(XmlName.fromString(qnameVal));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-prefix-from-QName
 XPathSequence fnPrefixFromQName(XPathContext context, XPathSequence arg) {
-  final value = arg.firstOrNull;
-  if (value is! XmlName) return XPathSequence.empty;
-  return value.prefix == null
+  final valOpt = XPathEvaluationException.checkZeroOrOne(arg);
+  if (valOpt is! XmlName) return XPathSequence.empty;
+  return valOpt.prefix == null
       ? XPathSequence.empty
-      : XPathSequence.single(XPathString(value.prefix!));
+      : XPathSequence.single(XPathString(valOpt.prefix!));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-local-name-from-QName
 XPathSequence fnLocalNameFromQName(XPathContext context, XPathSequence arg) {
-  final value = arg.firstOrNull;
-  if (value is! XmlName) return XPathSequence.empty;
-  return XPathSequence.single(XPathString(value.local));
+  final valOpt = XPathEvaluationException.checkZeroOrOne(arg);
+  if (valOpt is! XmlName) return XPathSequence.empty;
+  return XPathSequence.single(XPathString(valOpt.local));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-namespace-uri-from-QName
 XPathSequence fnNamespaceUriFromQName(XPathContext context, XPathSequence arg) {
-  final value = arg.firstOrNull;
-  if (value is! XmlName) return XPathSequence.empty;
-  return value.namespaceUri == null
+  final valOpt = XPathEvaluationException.checkZeroOrOne(arg);
+  if (valOpt is! XmlName) return XPathSequence.empty;
+  return valOpt.namespaceUri == null
       ? XPathSequence.empty
-      : XPathSequence.single(XPathString(value.namespaceUri!));
+      : XPathSequence.single(XPathString(valOpt.namespaceUri!));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-QName-equal
 XPathSequence opQNameEqual(
   XPathContext context,
-  XPathSequence value1,
-  XPathSequence value2,
+  XPathSequence arg1,
+  XPathSequence arg2,
 ) {
   throw UnimplementedError('op:QName-equal');
 }

@@ -1,5 +1,4 @@
 import '../evaluation/context.dart';
-
 import '../exceptions/evaluation_exception.dart';
 import '../types31/duration.dart';
 import '../types31/number.dart';
@@ -10,10 +9,14 @@ XPathSequence opDurationEqual(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathDuration();
-  final val2 = arg2.firstOrNull?.toXPathDuration();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
-  return XPathSequence.single(val1 == val2);
+  final arg1Opt = XPathEvaluationException.checkZeroOrOne(
+    arg1,
+  )?.toXPathDuration();
+  final arg2Opt = XPathEvaluationException.checkZeroOrOne(
+    arg2,
+  )?.toXPathDuration();
+  if (arg1Opt == null || arg2Opt == null) return XPathSequence.empty;
+  return XPathSequence.single(arg1Opt == arg2Opt);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-yearMonthDuration-less-than
@@ -22,10 +25,14 @@ XPathSequence opYearMonthDurationLessThan(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathDuration();
-  final val2 = arg2.firstOrNull?.toXPathDuration();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
-  return XPathSequence.single(val1 < val2);
+  final arg1Opt = XPathEvaluationException.checkZeroOrOne(
+    arg1,
+  )?.toXPathDuration();
+  final arg2Opt = XPathEvaluationException.checkZeroOrOne(
+    arg2,
+  )?.toXPathDuration();
+  if (arg1Opt == null || arg2Opt == null) return XPathSequence.empty;
+  return XPathSequence.single(arg1Opt < arg2Opt);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-yearMonthDuration-greater-than
@@ -34,10 +41,14 @@ XPathSequence opYearMonthDurationGreaterThan(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathDuration();
-  final val2 = arg2.firstOrNull?.toXPathDuration();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
-  return XPathSequence.single(val1 > val2);
+  final arg1Opt = XPathEvaluationException.checkZeroOrOne(
+    arg1,
+  )?.toXPathDuration();
+  final arg2Opt = XPathEvaluationException.checkZeroOrOne(
+    arg2,
+  )?.toXPathDuration();
+  if (arg1Opt == null || arg2Opt == null) return XPathSequence.empty;
+  return XPathSequence.single(arg1Opt > arg2Opt);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-dayTimeDuration-less-than
@@ -46,10 +57,14 @@ XPathSequence opDayTimeDurationLessThan(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathDuration();
-  final val2 = arg2.firstOrNull?.toXPathDuration();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
-  return XPathSequence.single(val1 < val2);
+  final arg1Opt = XPathEvaluationException.checkZeroOrOne(
+    arg1,
+  )?.toXPathDuration();
+  final arg2Opt = XPathEvaluationException.checkZeroOrOne(
+    arg2,
+  )?.toXPathDuration();
+  if (arg1Opt == null || arg2Opt == null) return XPathSequence.empty;
+  return XPathSequence.single(arg1Opt < arg2Opt);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-dayTimeDuration-greater-than
@@ -58,10 +73,14 @@ XPathSequence opDayTimeDurationGreaterThan(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathDuration();
-  final val2 = arg2.firstOrNull?.toXPathDuration();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
-  return XPathSequence.single(val1 > val2);
+  final arg1Opt = XPathEvaluationException.checkZeroOrOne(
+    arg1,
+  )?.toXPathDuration();
+  final arg2Opt = XPathEvaluationException.checkZeroOrOne(
+    arg2,
+  )?.toXPathDuration();
+  if (arg1Opt == null || arg2Opt == null) return XPathSequence.empty;
+  return XPathSequence.single(arg1Opt > arg2Opt);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-add-yearMonthDurations
@@ -70,10 +89,14 @@ XPathSequence opAddYearMonthDurations(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathDuration();
-  final val2 = arg2.firstOrNull?.toXPathDuration();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
-  return XPathSequence.single((val1 + val2).toXPathDuration());
+  final arg1Opt = XPathEvaluationException.checkZeroOrOne(
+    arg1,
+  )?.toXPathDuration();
+  final arg2Opt = XPathEvaluationException.checkZeroOrOne(
+    arg2,
+  )?.toXPathDuration();
+  if (arg1Opt == null || arg2Opt == null) return XPathSequence.empty;
+  return XPathSequence.single((arg1Opt + arg2Opt).toXPathDuration());
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-subtract-yearMonthDurations
@@ -82,10 +105,14 @@ XPathSequence opSubtractYearMonthDurations(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathDuration();
-  final val2 = arg2.firstOrNull?.toXPathDuration();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
-  return XPathSequence.single((val1 - val2).toXPathDuration());
+  final arg1Opt = XPathEvaluationException.checkZeroOrOne(
+    arg1,
+  )?.toXPathDuration();
+  final arg2Opt = XPathEvaluationException.checkZeroOrOne(
+    arg2,
+  )?.toXPathDuration();
+  if (arg1Opt == null || arg2Opt == null) return XPathSequence.empty;
+  return XPathSequence.single((arg1Opt - arg2Opt).toXPathDuration());
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-multiply-yearMonthDuration
@@ -94,10 +121,14 @@ XPathSequence opMultiplyYearMonthDuration(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathDuration();
-  final val2 = arg2.firstOrNull?.toXPathNumber();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
-  return XPathSequence.single((val1 * val2).toXPathDuration());
+  final arg1Opt = XPathEvaluationException.checkZeroOrOne(
+    arg1,
+  )?.toXPathDuration();
+  final arg2Opt = XPathEvaluationException.checkZeroOrOne(
+    arg2,
+  )?.toXPathNumber();
+  if (arg1Opt == null || arg2Opt == null) return XPathSequence.empty;
+  return XPathSequence.single((arg1Opt * arg2Opt).toXPathDuration());
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-divide-yearMonthDuration
@@ -106,10 +137,14 @@ XPathSequence opDivideYearMonthDuration(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathDuration();
-  final val2 = arg2.firstOrNull?.toXPathNumber();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
-  return XPathSequence.single((val1 ~/ val2.toInt()).toXPathDuration());
+  final arg1Opt = XPathEvaluationException.checkZeroOrOne(
+    arg1,
+  )?.toXPathDuration();
+  final arg2Opt = XPathEvaluationException.checkZeroOrOne(
+    arg2,
+  )?.toXPathNumber();
+  if (arg1Opt == null || arg2Opt == null) return XPathSequence.empty;
+  return XPathSequence.single((arg1Opt ~/ arg2Opt.toInt()).toXPathDuration());
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-divide-yearMonthDuration-by-yearMonthDuration
@@ -118,13 +153,17 @@ XPathSequence opDivideYearMonthDurationByYearMonthDuration(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathDuration();
-  final val2 = arg2.firstOrNull?.toXPathDuration();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
-  if (val2.inMicroseconds == 0) {
+  final arg1Opt = XPathEvaluationException.checkZeroOrOne(
+    arg1,
+  )?.toXPathDuration();
+  final arg2Opt = XPathEvaluationException.checkZeroOrOne(
+    arg2,
+  )?.toXPathDuration();
+  if (arg1Opt == null || arg2Opt == null) return XPathSequence.empty;
+  if (arg2Opt.inMicroseconds == 0) {
     throw XPathEvaluationException('Division by zero');
   }
-  return XPathSequence.single(val1.inMicroseconds / val2.inMicroseconds);
+  return XPathSequence.single(arg1Opt.inMicroseconds / arg2Opt.inMicroseconds);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-add-dayTimeDurations
@@ -133,10 +172,14 @@ XPathSequence opAddDayTimeDurations(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathDuration();
-  final val2 = arg2.firstOrNull?.toXPathDuration();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
-  return XPathSequence.single((val1 + val2).toXPathDuration());
+  final arg1Opt = XPathEvaluationException.checkZeroOrOne(
+    arg1,
+  )?.toXPathDuration();
+  final arg2Opt = XPathEvaluationException.checkZeroOrOne(
+    arg2,
+  )?.toXPathDuration();
+  if (arg1Opt == null || arg2Opt == null) return XPathSequence.empty;
+  return XPathSequence.single((arg1Opt + arg2Opt).toXPathDuration());
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-subtract-dayTimeDurations
@@ -145,10 +188,14 @@ XPathSequence opSubtractDayTimeDurations(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathDuration();
-  final val2 = arg2.firstOrNull?.toXPathDuration();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
-  return XPathSequence.single((val1 - val2).toXPathDuration());
+  final arg1Opt = XPathEvaluationException.checkZeroOrOne(
+    arg1,
+  )?.toXPathDuration();
+  final arg2Opt = XPathEvaluationException.checkZeroOrOne(
+    arg2,
+  )?.toXPathDuration();
+  if (arg1Opt == null || arg2Opt == null) return XPathSequence.empty;
+  return XPathSequence.single((arg1Opt - arg2Opt).toXPathDuration());
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-multiply-dayTimeDuration
@@ -157,10 +204,14 @@ XPathSequence opMultiplyDayTimeDuration(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathDuration();
-  final val2 = arg2.firstOrNull?.toXPathNumber();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
-  return XPathSequence.single((val1 * val2).toXPathDuration());
+  final arg1Opt = XPathEvaluationException.checkZeroOrOne(
+    arg1,
+  )?.toXPathDuration();
+  final arg2Opt = XPathEvaluationException.checkZeroOrOne(
+    arg2,
+  )?.toXPathNumber();
+  if (arg1Opt == null || arg2Opt == null) return XPathSequence.empty;
+  return XPathSequence.single((arg1Opt * arg2Opt).toXPathDuration());
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-divide-dayTimeDuration
@@ -169,10 +220,14 @@ XPathSequence opDivideDayTimeDuration(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathDuration();
-  final val2 = arg2.firstOrNull?.toXPathNumber();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
-  return XPathSequence.single((val1 ~/ val2.toInt()).toXPathDuration());
+  final arg1Opt = XPathEvaluationException.checkZeroOrOne(
+    arg1,
+  )?.toXPathDuration();
+  final arg2Opt = XPathEvaluationException.checkZeroOrOne(
+    arg2,
+  )?.toXPathNumber();
+  if (arg1Opt == null || arg2Opt == null) return XPathSequence.empty;
+  return XPathSequence.single((arg1Opt ~/ arg2Opt.toInt()).toXPathDuration());
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-divide-dayTimeDuration-by-dayTimeDuration
@@ -181,54 +236,70 @@ XPathSequence opDivideDayTimeDurationByDayTimeDuration(
   XPathSequence arg1,
   XPathSequence arg2,
 ) {
-  final val1 = arg1.firstOrNull?.toXPathDuration();
-  final val2 = arg2.firstOrNull?.toXPathDuration();
-  if (val1 == null || val2 == null) return XPathSequence.empty;
-  if (val2.inMicroseconds == 0) {
+  final arg1Opt = XPathEvaluationException.checkZeroOrOne(
+    arg1,
+  )?.toXPathDuration();
+  final arg2Opt = XPathEvaluationException.checkZeroOrOne(
+    arg2,
+  )?.toXPathDuration();
+  if (arg1Opt == null || arg2Opt == null) return XPathSequence.empty;
+  if (arg2Opt.inMicroseconds == 0) {
     throw XPathEvaluationException('Division by zero');
   }
-  return XPathSequence.single(val1.inMicroseconds / val2.inMicroseconds);
+  return XPathSequence.single(arg1Opt.inMicroseconds / arg2Opt.inMicroseconds);
 }
 
 XPathSequence fnYearsFromDuration(XPathContext context, XPathSequence arg) {
-  final value = arg.firstOrNull?.toXPathDuration();
-  if (value == null) return XPathSequence.empty;
+  final argOpt = XPathEvaluationException.checkZeroOrOne(
+    arg,
+  )?.toXPathDuration();
+  if (argOpt == null) return XPathSequence.empty;
   return XPathSequence.single(0); // Not supported in Dart
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-months-from-duration
 XPathSequence fnMonthsFromDuration(XPathContext context, XPathSequence arg) {
-  final value = arg.firstOrNull?.toXPathDuration();
-  if (value == null) return XPathSequence.empty;
+  final argOpt = XPathEvaluationException.checkZeroOrOne(
+    arg,
+  )?.toXPathDuration();
+  if (argOpt == null) return XPathSequence.empty;
   return XPathSequence.single(0); // Not supported in Dart
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-days-from-duration
 XPathSequence fnDaysFromDuration(XPathContext context, XPathSequence arg) {
-  final value = arg.firstOrNull?.toXPathDuration();
-  if (value == null) return XPathSequence.empty;
-  return XPathSequence.single(value.inDays);
+  final argOpt = XPathEvaluationException.checkZeroOrOne(
+    arg,
+  )?.toXPathDuration();
+  if (argOpt == null) return XPathSequence.empty;
+  return XPathSequence.single(argOpt.inDays);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hours-from-duration
 XPathSequence fnHoursFromDuration(XPathContext context, XPathSequence arg) {
-  final value = arg.firstOrNull?.toXPathDuration();
-  if (value == null) return XPathSequence.empty;
-  return XPathSequence.single(value.inHours % 24);
+  final argOpt = XPathEvaluationException.checkZeroOrOne(
+    arg,
+  )?.toXPathDuration();
+  if (argOpt == null) return XPathSequence.empty;
+  return XPathSequence.single(argOpt.inHours % 24);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-minutes-from-duration
 XPathSequence fnMinutesFromDuration(XPathContext context, XPathSequence arg) {
-  final value = arg.firstOrNull?.toXPathDuration();
-  if (value == null) return XPathSequence.empty;
-  return XPathSequence.single(value.inMinutes % 60);
+  final argOpt = XPathEvaluationException.checkZeroOrOne(
+    arg,
+  )?.toXPathDuration();
+  if (argOpt == null) return XPathSequence.empty;
+  return XPathSequence.single(argOpt.inMinutes % 60);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-seconds-from-duration
 XPathSequence fnSecondsFromDuration(XPathContext context, XPathSequence arg) {
-  final value = arg.firstOrNull?.toXPathDuration();
-  if (value == null) return XPathSequence.empty;
+  final argOpt = XPathEvaluationException.checkZeroOrOne(
+    arg,
+  )?.toXPathDuration();
+  if (argOpt == null) return XPathSequence.empty;
   return XPathSequence.single(
-    value.inSeconds % 60 + (value.inMicroseconds % 1000000) / 1000000.0,
+    argOpt.inSeconds % 60 + (argOpt.inMicroseconds % 1000000) / 1000000.0,
   );
 }

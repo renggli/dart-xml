@@ -17,6 +17,7 @@ dependencies:
   petitparser: ^7.0.0
 dev_dependencies:
   args: ^2.7.0
+  coverage: ^1.15.0
   lints: ^6.0.0
   test: ^1.26.0
 dependency_overrides:

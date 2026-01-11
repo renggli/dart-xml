@@ -1,4 +1,6 @@
 import '../evaluation/context.dart';
+import '../types31/date_time.dart';
+import '../types31/duration.dart';
 import '../types31/sequence.dart';
 import '../types31/string.dart';
 
@@ -12,13 +14,13 @@ XPathSequence fnLast(XPathContext context) =>
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-current-dateTime
 XPathSequence fnCurrentDateTime(XPathContext context) =>
-    XPathSequence.single(DateTime.now());
+    XPathSequence.single(XPathDateTime(DateTime.now()));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-current-date
 XPathSequence fnCurrentDate(XPathContext context) {
   final dateTime = DateTime.now();
   return XPathSequence.single(
-    DateTime(dateTime.year, dateTime.month, dateTime.day),
+    XPathDateTime(DateTime(dateTime.year, dateTime.month, dateTime.day)),
   );
 }
 
@@ -26,22 +28,24 @@ XPathSequence fnCurrentDate(XPathContext context) {
 XPathSequence fnCurrentTime(XPathContext context) {
   final dateTime = DateTime.now();
   return XPathSequence.single(
-    DateTime(
-      0,
-      0,
-      0,
-      dateTime.hour,
-      dateTime.minute,
-      dateTime.second,
-      dateTime.millisecond,
-      dateTime.microsecond,
+    XPathDateTime(
+      DateTime(
+        0,
+        0,
+        0,
+        dateTime.hour,
+        dateTime.minute,
+        dateTime.second,
+        dateTime.millisecond,
+        dateTime.microsecond,
+      ),
     ),
   );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-implicit-timezone
 XPathSequence fnImplicitTimezone(XPathContext context) =>
-    XPathSequence.single(const Duration(seconds: 0));
+    XPathSequence.single(const XPathDuration(Duration(seconds: 0)));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-default-collation
 XPathSequence fnDefaultCollation(XPathContext context) => XPathSequence.single(
