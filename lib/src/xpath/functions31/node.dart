@@ -1,4 +1,5 @@
 import '../../xml/extensions/ancestors.dart';
+import '../../xml/extensions/comparison.dart';
 import '../../xml/extensions/parent.dart';
 import '../../xml/mixins/has_children.dart';
 import '../../xml/mixins/has_name.dart';
@@ -12,14 +13,7 @@ import '../types31/string.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-name
 XPathSequence fnName(XPathContext context, List<XPathSequence> arguments) {
-  XPathEvaluationException.checkArgumentCount('fn:name', arguments, 0, 1);
-  final arg = arguments.isEmpty
-      ? context.node.toXPathNode()
-      : XPathEvaluationException.extractZeroOrOne(
-          'fn:name',
-          'arg',
-          arguments[0],
-        )?.toXPathNode();
+  final arg = _nodeOrContext('fn:name', context, arguments);
   if (arg is XmlHasName) {
     return XPathSequence.single((arg as XmlHasName).qualifiedName);
   }
@@ -28,14 +22,7 @@ XPathSequence fnName(XPathContext context, List<XPathSequence> arguments) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-local-name
 XPathSequence fnLocalName(XPathContext context, List<XPathSequence> arguments) {
-  XPathEvaluationException.checkArgumentCount('fn:local-name', arguments, 0, 1);
-  final arg = arguments.isEmpty
-      ? context.node.toXPathNode()
-      : XPathEvaluationException.extractZeroOrOne(
-          'fn:local-name',
-          'arg',
-          arguments[0],
-        )?.toXPathNode();
+  final arg = _nodeOrContext('fn:local-name', context, arguments);
   if (arg is XmlHasName) {
     return XPathSequence.single(XPathString((arg as XmlHasName).localName));
   }
@@ -47,19 +34,7 @@ XPathSequence fnNamespaceUri(
   XPathContext context,
   List<XPathSequence> arguments,
 ) {
-  XPathEvaluationException.checkArgumentCount(
-    'fn:namespace-uri',
-    arguments,
-    0,
-    1,
-  );
-  final arg = arguments.isEmpty
-      ? context.node.toXPathNode()
-      : XPathEvaluationException.extractZeroOrOne(
-          'fn:namespace-uri',
-          'arg',
-          arguments[0],
-        )?.toXPathNode();
+  final arg = _nodeOrContext('fn:namespace-uri', context, arguments);
   if (arg is XmlHasName) {
     return XPathSequence.single(
       XPathString((arg as XmlHasName).namespaceUri ?? ''),
@@ -70,17 +45,10 @@ XPathSequence fnNamespaceUri(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-root
 XPathSequence fnRoot(XPathContext context, List<XPathSequence> arguments) {
-  XPathEvaluationException.checkArgumentCount('fn:root', arguments, 0, 1);
-  final arg = arguments.isEmpty
-      ? context.node.toXPathNode()
-      : XPathEvaluationException.extractZeroOrOne(
-          'fn:root',
-          'arg',
-          arguments[0],
-        )?.toXPathNode();
+  final arg = _nodeOrContext('fn:root', context, arguments);
   if (arg != null) {
     // arg is XPathNode (implements XmlNode)
-    return XPathSequence.single((arg as XmlNode).root);
+    return XPathSequence.single(arg.root);
   }
   return XPathSequence.empty;
 }
@@ -90,19 +58,7 @@ XPathSequence fnHasChildren(
   XPathContext context,
   List<XPathSequence> arguments,
 ) {
-  XPathEvaluationException.checkArgumentCount(
-    'fn:has-children',
-    arguments,
-    0,
-    1,
-  );
-  final node = arguments.isEmpty
-      ? context.node.toXPathNode()
-      : XPathEvaluationException.extractZeroOrOne(
-          'fn:has-children',
-          'node',
-          arguments[0],
-        )?.toXPathNode();
+  final node = _nodeOrContext('fn:has-children', context, arguments);
   if (node is XmlHasChildren) {
     return XPathSequence.single((node as XmlHasChildren).children.isNotEmpty);
   }
@@ -147,16 +103,57 @@ XPathSequence fnOutermost(XPathContext context, List<XPathSequence> arguments) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-path
 XPathSequence fnPath(XPathContext context, List<XPathSequence> arguments) {
-  XPathEvaluationException.checkArgumentCount('fn:path', arguments, 0, 1);
-  final arg = arguments.isEmpty
-      ? context.node.toXPathNode()
-      : XPathEvaluationException.extractZeroOrOne(
-          'fn:path',
-          'arg',
-          arguments[0],
-        )?.toXPathNode();
+  final arg = _nodeOrContext('fn:path', context, arguments);
   if (arg != null) {
-    return XPathSequence.single(XPathString((arg as XmlNode).xpathGenerate()));
+    return XPathSequence.single(XPathString(arg.xpathGenerate()));
   }
   return XPathSequence.empty;
+}
+
+/// https://www.w3.org/TR/xpath-31/#combining_seq
+XPathSequence opUnion(XPathContext context, List<XPathSequence> arguments) =>
+    _nodeSetOperation('op:union', arguments, (a, b) => a.union(b));
+
+/// https://www.w3.org/TR/xpath-31/#combining_seq
+XPathSequence opIntersect(
+  XPathContext context,
+  List<XPathSequence> arguments,
+) => _nodeSetOperation('op:intersect', arguments, (a, b) => a.intersection(b));
+
+/// https://www.w3.org/TR/xpath-31/#combining_seq
+XPathSequence opExcept(XPathContext context, List<XPathSequence> arguments) =>
+    _nodeSetOperation('op:except', arguments, (a, b) => a.difference(b));
+
+XmlNode? _nodeOrContext(
+  String name,
+  XPathContext context,
+  List<XPathSequence> arguments,
+) {
+  XPathEvaluationException.checkArgumentCount(name, arguments, 0, 1);
+  return arguments.isNotEmpty
+      ? XPathEvaluationException.extractZeroOrOne(
+          name,
+          'node',
+          arguments[0],
+        )?.toXPathNode()
+      : context.node.toXPathNode();
+}
+
+XPathSequence _nodeSetOperation(
+  String name,
+  List<XPathSequence> arguments,
+  Set<XmlNode> Function(Set<XmlNode>, Set<XmlNode>) operation,
+) {
+  XPathEvaluationException.checkArgumentCount(name, arguments, 2);
+  final arg1 = arguments[0]
+      .map((item) => item.toXPathNode())
+      .whereType<XmlNode>()
+      .toSet();
+  final arg2 = arguments[1]
+      .map((item) => item.toXPathNode())
+      .whereType<XmlNode>()
+      .toSet();
+  final result = operation(arg1, arg2).toList();
+  result.sort((a, b) => a.compareNodePosition(b));
+  return XPathSequence(result);
 }

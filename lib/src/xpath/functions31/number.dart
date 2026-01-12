@@ -1,7 +1,5 @@
 import 'dart:math' as math;
-
 import 'package:collection/collection.dart';
-
 import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types31/number.dart';
@@ -178,66 +176,22 @@ XPathSequence opNumericUnaryMinus(
 XPathSequence opNumericEqual(
   XPathContext context,
   List<XPathSequence> arguments,
-) {
-  XPathEvaluationException.checkArgumentCount('op:numeric-equal', arguments, 2);
-  final arg1 = XPathEvaluationException.extractExactlyOne(
-    'op:numeric-equal',
-    'arg1',
-    arguments[0],
-  ).toXPathNumber();
-  final arg2 = XPathEvaluationException.extractExactlyOne(
-    'op:numeric-equal',
-    'arg2',
-    arguments[1],
-  ).toXPathNumber();
-  return XPathSequence.single(arg1 == arg2);
-}
+) => XPathSequence.single(_compareNumber('op:numeric-equal', arguments) == 0);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-numeric-less-than
 XPathSequence opNumericLessThan(
   XPathContext context,
   List<XPathSequence> arguments,
-) {
-  XPathEvaluationException.checkArgumentCount(
-    'op:numeric-less-than',
-    arguments,
-    2,
-  );
-  final arg1 = XPathEvaluationException.extractExactlyOne(
-    'op:numeric-less-than',
-    'arg1',
-    arguments[0],
-  ).toXPathNumber();
-  final arg2 = XPathEvaluationException.extractExactlyOne(
-    'op:numeric-less-than',
-    'arg2',
-    arguments[1],
-  ).toXPathNumber();
-  return XPathSequence.single(arg1 < arg2);
-}
+) =>
+    XPathSequence.single(_compareNumber('op:numeric-less-than', arguments) < 0);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-numeric-greater-than
 XPathSequence opNumericGreaterThan(
   XPathContext context,
   List<XPathSequence> arguments,
-) {
-  XPathEvaluationException.checkArgumentCount(
-    'op:numeric-greater-than',
-    arguments,
-    2,
-  );
-  final arg1 = XPathEvaluationException.extractExactlyOne(
-    'op:numeric-greater-than',
-    'arg1',
-    arguments[0],
-  ).toXPathNumber();
-  final arg2 = XPathEvaluationException.extractExactlyOne(
-    'op:numeric-greater-than',
-    'arg2',
-    arguments[1],
-  ).toXPathNumber();
-  return XPathSequence.single(arg1 > arg2);
-}
+) => XPathSequence.single(
+  _compareNumber('op:numeric-greater-than', arguments) > 0,
+);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-format-integer
 XPathSequence fnFormatInteger(
@@ -269,9 +223,7 @@ XPathSequence fnFormatInteger(
           arguments[2],
         )?.toXPathString()
       : null;
-
   if (value == null) return XPathSequence.empty;
-
   // Basic implementation ignoring picture string intricacies
   // TODO: Add proper picture string parsing support
   return XPathSequence.single(XPathString(value.toInt().toString()));
@@ -307,9 +259,7 @@ XPathSequence fnFormatNumber(
           arguments[2],
         )?.toXPathString()
       : null;
-
   if (value == null) return XPathSequence.empty;
-
   // Basic implementation
   // TODO: Add proper picture string parsing support
   return XPathSequence.single(XPathString(value.toString()));
@@ -368,7 +318,6 @@ XPathSequence fnRound(XPathContext context, List<XPathSequence> arguments) {
       : 0;
   if (arg == null) return XPathSequence.empty;
   if (arg.isNaN || arg.isInfinite) return XPathSequence.single(arg);
-
   if (precision == 0) return XPathSequence.single(arg.round());
   final factor = math.pow(10, precision);
   return XPathSequence.single((arg * factor).round() / factor);
@@ -397,7 +346,6 @@ XPathSequence fnRoundHalfToEven(
           arguments[1],
         ).toXPathNumber().toInt()
       : 0;
-
   if (arg == null) return XPathSequence.empty;
   if (arg.isNaN || arg.isInfinite) return XPathSequence.single(arg);
   final factor = math.pow(10, precision);
@@ -621,4 +569,19 @@ XPathSequence fnRandomNumberGenerator(
   generator['permute'] = (XPathContext context, List<XPathSequence> args) =>
       XPathSequence(args[0].shuffled(random));
   return XPathSequence.single(generator);
+}
+
+int _compareNumber(String name, List<XPathSequence> arguments) {
+  XPathEvaluationException.checkArgumentCount(name, arguments, 2);
+  final value1 = XPathEvaluationException.extractExactlyOne(
+    name,
+    'arg1',
+    arguments[0],
+  ).toXPathNumber();
+  final value2 = XPathEvaluationException.extractExactlyOne(
+    name,
+    'arg2',
+    arguments[1],
+  ).toXPathNumber();
+  return value1.compareTo(value2);
 }

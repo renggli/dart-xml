@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/functions31/accessor.dart';
@@ -19,6 +20,7 @@ import 'package:xml/src/xpath/functions31/qname.dart';
 import 'package:xml/src/xpath/functions31/sequence.dart';
 import 'package:xml/src/xpath/functions31/string.dart';
 import 'package:xml/src/xpath/functions31/uri.dart';
+import 'package:xml/src/xpath/types31/date_time.dart';
 import 'package:xml/src/xpath/types31/map.dart';
 import 'package:xml/src/xpath/types31/sequence.dart';
 import 'package:xml/src/xpath/types31/string.dart' as v31;
@@ -471,6 +473,12 @@ void main() {
     });
   });
   group('string', () {
+    test('fn:collation-key', () {
+      expect(
+        fnCollationKey(context, [XPathSequence.single('abc')]),
+        XPathSequence.single(const v31.XPathString('abc')),
+      );
+    });
     test('fn:concat', () {
       expect(
         fnConcat(context, [
@@ -837,6 +845,44 @@ void main() {
     });
   });
   group('node', () {
+    test('op:union', () {
+      final doc = XmlDocument.parse('<r><a/><b/></r>');
+      final a = doc.findAllElements('a').single;
+      final b = doc.findAllElements('b').single;
+      expect(
+        opUnion(context, [XPathSequence.single(a), XPathSequence.single(b)]),
+        XPathSequence([a, b]),
+      );
+      // Test document order preservation/enforcement
+      expect(
+        opUnion(context, [XPathSequence.single(b), XPathSequence.single(a)]),
+        XPathSequence([a, b]),
+      );
+    });
+    test('op:intersect', () {
+      final doc = XmlDocument.parse('<r><a/><b/></r>');
+      final a = doc.findAllElements('a').single;
+      final b = doc.findAllElements('b').single;
+      expect(
+        opIntersect(context, [
+          XPathSequence([a, b]),
+          XPathSequence.single(a),
+        ]),
+        XPathSequence.single(a),
+      );
+    });
+    test('op:except', () {
+      final doc = XmlDocument.parse('<r><a/><b/></r>');
+      final a = doc.findAllElements('a').single;
+      final b = doc.findAllElements('b').single;
+      expect(
+        opExcept(context, [
+          XPathSequence([a, b]),
+          XPathSequence.single(a),
+        ]),
+        XPathSequence.single(b),
+      );
+    });
     test('fn:name', () {
       final a = document.findAllElements('a').first;
       expect(
@@ -1551,6 +1597,29 @@ void main() {
     });
   });
   group('map', () {
+    test('op:same-key', () {
+      expect(
+        opSameKey(context, [
+          XPathSequence.single('a'),
+          XPathSequence.single('a'),
+        ]),
+        XPathSequence.trueSequence,
+      );
+      expect(
+        opSameKey(context, [
+          XPathSequence.single(double.nan),
+          XPathSequence.single(double.nan),
+        ]),
+        XPathSequence.trueSequence,
+      );
+      expect(
+        opSameKey(context, [
+          XPathSequence.single('a'),
+          XPathSequence.single('b'),
+        ]),
+        XPathSequence.falseSequence,
+      );
+    });
     test('map:merge', () {
       final map1 = {'a': 1, 'b': 2};
       final map2 = {'b': 3, 'c': 4};
@@ -2034,7 +2103,7 @@ void main() {
       expect(
         opBase64BinaryLessThan(context, [
           XPathSequence.single('AA=='),
-          XPathSequence.single('BB=='),
+          XPathSequence.single('AQ=='),
         ]),
         orderedEquals([true]),
       );
@@ -2042,7 +2111,7 @@ void main() {
     test('op:base64Binary-greater-than', () {
       expect(
         opBase64BinaryGreaterThan(context, [
-          XPathSequence.single('BB=='),
+          XPathSequence.single('AQ=='),
           XPathSequence.single('AA=='),
         ]),
         orderedEquals([true]),
@@ -2123,6 +2192,33 @@ void main() {
     });
   });
   group('date_time', () {
+    test('fn:adjust-dateTime-to-timezone', () {
+      final dt = DateTime.utc(2020, 1, 1, 10, 0, 0);
+      // Adjust to UTC (same)
+      expect(
+        fnAdjustDateTimeToTimezone(context, [
+          XPathSequence.single(dt),
+          XPathSequence.single(const Duration()),
+        ]),
+        XPathSequence.single(dt.toXPathDateTime()),
+      );
+      // Adjust to Implicit (Local)
+      expect(
+        fnAdjustDateTimeToTimezone(context, [XPathSequence.single(dt)]),
+        XPathSequence.single(dt.toLocal().toXPathDateTime()),
+      );
+    });
+    test('fn:format-dateTime', () {
+      final dt = DateTime.utc(2020, 1, 1, 12, 0, 0);
+      expect(
+        fnFormatDateTime(context, [
+          XPathSequence.single(dt),
+          XPathSequence.single('[Y]-[M]-[D]'),
+        ]),
+        // Basic implementation returns ISO string
+        XPathSequence.single(v31.XPathString(dt.toIso8601String())),
+      );
+    });
     test('fn:year-from-date', () {
       expect(
         fnYearFromDate(context, [XPathSequence.single(DateTime(2023, 10, 26))]),
@@ -2430,39 +2526,6 @@ void main() {
           XPathSequence.single(DateTime(2021)),
         ]),
         XPathSequence.trueSequence,
-      );
-    });
-    test('missing functions stubs', () {
-      expect(
-        () => fnAdjustDateTimeToTimezone(context, [XPathSequence.empty]),
-        throwsA(isA<UnimplementedError>()),
-      );
-      expect(
-        () => fnAdjustDateToTimezone(context, [XPathSequence.empty]),
-        throwsA(isA<UnimplementedError>()),
-      );
-      expect(
-        () => fnAdjustTimeToTimezone(context, [XPathSequence.empty]),
-        throwsA(isA<UnimplementedError>()),
-      );
-      expect(
-        () => fnFormatDateTime(context, [
-          XPathSequence.empty,
-          XPathSequence.empty,
-        ]),
-        throwsA(isA<UnimplementedError>()),
-      );
-      expect(
-        () => fnFormatDate(context, [XPathSequence.empty, XPathSequence.empty]),
-        throwsA(isA<UnimplementedError>()),
-      );
-      expect(
-        () => fnFormatTime(context, [XPathSequence.empty, XPathSequence.empty]),
-        throwsA(isA<UnimplementedError>()),
-      );
-      expect(
-        () => fnParseIetfDate(context, [XPathSequence.empty]),
-        throwsA(isA<UnimplementedError>()),
       );
     });
   });

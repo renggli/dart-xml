@@ -7,13 +7,11 @@ This module implements the XPath 3.1 functions as defined in [XPath Functions an
 1. **Naming Convention**:
     * Reference the W3C spec URL in the method comment.
     * Dart function names should use `camelCase`, i.e. `fnFunctionName` for `fn:function-name`.
-
 2. **Function Signature**:
     * All functions must return `XPathSequence`.
     * The first argument is always `XPathContext context`.
     * The second argument is always `List<XPathSequence> arguments`.
     * For example: `XPathSequence fnFunctionName(XPathContext context, List<XPathSequence> arguments)`.
-
 3. **Argument Extraction**:
     * The first line of each function must call `XPathEvaluationException.checkArgumentCount('fn:function-name', arguments, min, max)` to verify the number of arguments.
       * `min` is referring to the minimum number of arguments required.
@@ -32,12 +30,10 @@ This module implements the XPath 3.1 functions as defined in [XPath Functions an
           * Use `.toXPathString()` to convert to a string.
           * Use `.toXPathNumber()` to convert to a number.
           * etc.
-
 4. **Return Value**:
     * Return `XPathSequence.empty` for empty sequences.
     * Return `XPathSequence.single(value)` for single values.
     * Return `XPathSequence([item1, item2])` for sequences.
-
 5. **Testing**:
     * Add tests to `test/xpath_31_functions_test.dart`.
     * Update the status list in `GEMINI.md` with `✅` and the file name when completed.
@@ -91,11 +87,11 @@ This module implements the XPath 3.1 functions as defined in [XPath Functions an
 
 #### Formatting integers
 
-* `fn:format-integer`
+* `fn:format-integer` ✅ in [number.dart]
 
 #### Formatting numbers
 
-* `fn:format-number`
+* `fn:format-number` ✅ in [number.dart]
 
 #### Trigonometric and exponential functions
 
@@ -116,7 +112,7 @@ This module implements the XPath 3.1 functions as defined in [XPath Functions an
 
 #### Random Numbers
 
-* `fn:random-number-generator`
+* `fn:random-number-generator` ✅ in [number.dart]
 
 ### Functions on strings
 
@@ -129,7 +125,7 @@ This module implements the XPath 3.1 functions as defined in [XPath Functions an
 
 * `fn:compare`
 * `fn:codepoint-equal`
-* `fn:collation-key`
+* `fn:collation-key` ✅ in [string.dart]
 * `fn:contains-token`
 
 #### Functions on string values
@@ -264,9 +260,9 @@ This module implements the XPath 3.1 functions as defined in [XPath Functions an
 
 #### Timezone adjustment functions on dates and time values
 
-* `fn:adjust-dateTime-to-timezone`
-* `fn:adjust-date-to-timezone`
-* `fn:adjust-time-to-timezone`
+* `fn:adjust-dateTime-to-timezone` ✅ in [date_time.dart]
+* `fn:adjust-date-to-timezone` ✅ in [date_time.dart]
+* `fn:adjust-time-to-timezone` ✅ in [date_time.dart]
 
 #### Arithmetic operators on durations, dates and times
 
@@ -286,13 +282,13 @@ This module implements the XPath 3.1 functions as defined in [XPath Functions an
 
 #### Formatting dates and times
 
-* `fn:format-dateTime`
-* `fn:format-date`
-* `fn:format-time`
+* `fn:format-dateTime` ✅ in [date_time.dart]
+* `fn:format-date` ✅ in [date_time.dart]
+* `fn:format-time` ✅ in [date_time.dart]
 
 #### Parsing dates and times
 
-* `fn:parse-ietf-date`
+* `fn:parse-ietf-date` ✅ in [date_time.dart]
 
 ### Functions related to QNames
 
@@ -336,6 +332,9 @@ This module implements the XPath 3.1 functions as defined in [XPath Functions an
 * `fn:has-children` ✅ in [node.dart]
 * `fn:innermost` ✅ in [node.dart]
 * `fn:outermost` ✅ in [node.dart]
+* `op:union` ✅ in [node.dart]
+* `op:intersect` ✅ in [node.dart]
+* `op:except` ✅ in [node.dart]
 
 ### Functions and operators on sequences
 
@@ -435,7 +434,7 @@ This module implements the XPath 3.1 functions as defined in [XPath Functions an
 
 #### Functions that Operate on Maps
 
-* `op:same-key`
+* `op:same-key` ✅ in [map.dart]
 * `map:merge` ✅ in [map.dart]
 * `map:size` ✅ in [map.dart]
 * `map:keys` ✅ in [map.dart]

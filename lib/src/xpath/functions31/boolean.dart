@@ -34,7 +34,6 @@ XPathSequence fnFalse(XPathContext context, List<XPathSequence> arguments) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-lang
 XPathSequence fnLang(XPathContext context, List<XPathSequence> arguments) {
   XPathEvaluationException.checkArgumentCount('fn:lang', arguments, 1, 2);
-
   final node = arguments.length > 1
       ? XPathEvaluationException.extractExactlyOne(
           'fn:lang',
@@ -42,22 +41,18 @@ XPathSequence fnLang(XPathContext context, List<XPathSequence> arguments) {
           arguments[1],
         ).toXPathNode()
       : context.node;
-
   final lang = [node, ...node.ancestors]
       .whereType<XmlElement>()
       .map((node) => node.getAttribute('xml:lang'))
       .where((lang) => lang != null)
       .firstOrNull;
-
   if (lang == null) return XPathSequence.falseSequence;
-
   final testlang = XPathEvaluationException.extractZeroOrOne(
     'fn:lang',
     'testlang',
     arguments[0],
   )?.toXPathString();
   if (testlang == null) return XPathSequence.falseSequence;
-
   return XPathSequence.single(
     lang.toLowerCase().startsWith(testlang.toLowerCase()),
   );
@@ -67,63 +62,35 @@ XPathSequence fnLang(XPathContext context, List<XPathSequence> arguments) {
 XPathSequence opBooleanEqual(
   XPathContext context,
   List<XPathSequence> arguments,
-) {
-  XPathEvaluationException.checkArgumentCount('op:boolean-equal', arguments, 2);
-  final arg1 = XPathEvaluationException.extractExactlyOne(
-    'op:boolean-equal',
-    'arg1',
-    arguments[0],
-  ).toXPathBoolean();
-  final arg2 = XPathEvaluationException.extractExactlyOne(
-    'op:boolean-equal',
-    'arg2',
-    arguments[1],
-  ).toXPathBoolean();
-  return XPathSequence.single(arg1 == arg2);
-}
+) => XPathSequence.single(_compareBoolean('op:boolean-equal', arguments) == 0);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-boolean-less-than
 XPathSequence opBooleanLessThan(
   XPathContext context,
   List<XPathSequence> arguments,
-) {
-  XPathEvaluationException.checkArgumentCount(
-    'op:boolean-less-than',
-    arguments,
-    2,
-  );
-  final arg1 = XPathEvaluationException.extractExactlyOne(
-    'op:boolean-less-than',
-    'arg1',
-    arguments[0],
-  ).toXPathBoolean();
-  final arg2 = XPathEvaluationException.extractExactlyOne(
-    'op:boolean-less-than',
-    'arg2',
-    arguments[1],
-  ).toXPathBoolean();
-  return XPathSequence.single(!arg1 && arg2);
-}
+) => XPathSequence.single(
+  _compareBoolean('op:boolean-less-than', arguments) < 0,
+);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-boolean-greater-than
 XPathSequence opBooleanGreaterThan(
   XPathContext context,
   List<XPathSequence> arguments,
-) {
-  XPathEvaluationException.checkArgumentCount(
-    'op:boolean-greater-than',
-    arguments,
-    2,
-  );
-  final arg1 = XPathEvaluationException.extractExactlyOne(
-    'op:boolean-greater-than',
+) => XPathSequence.single(
+  _compareBoolean('op:boolean-greater-than', arguments) > 0,
+);
+
+int _compareBoolean(String name, List<XPathSequence> arguments) {
+  XPathEvaluationException.checkArgumentCount(name, arguments, 2);
+  final value1 = XPathEvaluationException.extractExactlyOne(
+    name,
     'arg1',
     arguments[0],
   ).toXPathBoolean();
-  final arg2 = XPathEvaluationException.extractExactlyOne(
-    'op:boolean-greater-than',
+  final value2 = XPathEvaluationException.extractExactlyOne(
+    name,
     'arg2',
     arguments[1],
   ).toXPathBoolean();
-  return XPathSequence.single(arg1 && !arg2);
+  return (value1 ? 1 : 0).compareTo(value2 ? 1 : 0);
 }

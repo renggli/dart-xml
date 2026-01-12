@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-
 import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types31/array.dart';
@@ -53,7 +52,6 @@ XPathSequence arrayPut(XPathContext context, List<XPathSequence> arguments) {
     arguments[1],
   ).toXPathNumber().toInt();
   final member = arguments[2];
-
   if (position < 1 || position > array.length) {
     throw XPathEvaluationException('array:put: Index out of bounds: $position');
   }
@@ -71,7 +69,6 @@ XPathSequence arrayAppend(XPathContext context, List<XPathSequence> arguments) {
     arguments[0],
   ).toXPathArray();
   final member = arguments[1];
-
   final result = List.of(array);
   result.add(member.toAtomicValue());
   return XPathSequence.single(result);
@@ -98,9 +95,7 @@ XPathSequence arraySubarray(
     'start',
     arguments[1],
   ).toXPathNumber().toInt();
-
   final lengthArg = arguments.length > 2 ? arguments[2] : null;
-
   final length = lengthArg != null
       ? XPathEvaluationException.extractExactlyOne(
           'array:subarray',
@@ -108,7 +103,6 @@ XPathSequence arraySubarray(
           lengthArg,
         ).toXPathNumber().toInt()
       : array.length - start + 1;
-
   if (start < 1 || start > array.length + 1) {
     throw XPathEvaluationException('array:subarray: Start out of bounds');
   }
@@ -130,7 +124,6 @@ XPathSequence arrayRemove(XPathContext context, List<XPathSequence> arguments) {
     arguments[0],
   ).toXPathArray();
   final positions = arguments[1];
-
   final positionsList = positions
       .map((pos) => pos.toXPathNumber().toInt())
       .toList();
@@ -166,7 +159,6 @@ XPathSequence arrayInsertBefore(
     arguments[1],
   ).toXPathNumber().toInt();
   final member = arguments[2];
-
   if (position < 1 || position > array.length + 1) {
     throw XPathEvaluationException('array:insert-before: Index out of bounds');
   }
@@ -242,7 +234,6 @@ XPathSequence arrayForEach(
     'action',
     arguments[1],
   ).toXPathFunction();
-
   final result = <Object>[];
   for (final member in array) {
     result.add(action(context, [member.toXPathSequence()]));
@@ -263,7 +254,6 @@ XPathSequence arrayFilter(XPathContext context, List<XPathSequence> arguments) {
     'function',
     arguments[1],
   ).toXPathFunction();
-
   final result = <Object>[];
   for (final member in array) {
     if (function(context, [member.toXPathSequence()]).toXPathBoolean()) {
@@ -290,7 +280,6 @@ XPathSequence arrayFoldLeft(
     'function',
     arguments[2],
   ).toXPathFunction();
-
   for (final member in array) {
     zero = function(context, [zero, member.toXPathSequence()]);
   }
@@ -314,7 +303,6 @@ XPathSequence arrayFoldRight(
     'function',
     arguments[2],
   ).toXPathFunction();
-
   for (final member in array.reversed) {
     zero = function(context, [member.toXPathSequence(), zero]);
   }
@@ -346,7 +334,6 @@ XPathSequence arrayForEachPair(
     'function',
     arguments[2],
   ).toXPathFunction();
-
   final result = <Object>[];
   final minLen = math.min(array1.length, array2.length);
   for (var i = 0; i < minLen; i++) {
@@ -383,7 +370,6 @@ XPathSequence arraySort(XPathContext context, List<XPathSequence> arguments) {
           arguments[2],
         ).toXPathFunction()
       : null;
-
   final list = List.of(array);
   list.sort((a, b) {
     if (key != null) {

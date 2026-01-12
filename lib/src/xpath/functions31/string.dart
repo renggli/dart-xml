@@ -1,5 +1,4 @@
 import 'package:petitparser/petitparser.dart' show unbounded;
-
 import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types31/number.dart';
@@ -67,7 +66,6 @@ XPathSequence fnSubstring(XPathContext context, List<XPathSequence> arguments) {
   ).toXPathNumber().toDouble();
   if (!start.isFinite) return XPathSequence.single(XPathString.empty);
   final startIdx = start.round() - 1;
-
   final length = arguments.length > 2
       ? XPathEvaluationException.extractExactlyOne(
           'fn:substring',
@@ -75,14 +73,12 @@ XPathSequence fnSubstring(XPathContext context, List<XPathSequence> arguments) {
           arguments[2],
         ).toXPathNumber().toDouble()
       : double.infinity;
-
   if (length.isNaN || length <= 0) {
     return XPathSequence.single(XPathString.empty);
   }
   final endIdx = length.isFinite
       ? startIdx + length.round()
       : sourceString.length;
-
   final i = startIdx.clamp(0, sourceString.length);
   final j = endIdx.clamp(i, sourceString.length);
   return XPathSequence.single(XPathString(sourceString.substring(i, j)));
@@ -160,75 +156,30 @@ XPathSequence fnLowerCase(XPathContext context, List<XPathSequence> arguments) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-contains
-XPathSequence fnContains(XPathContext context, List<XPathSequence> arguments) {
-  XPathEvaluationException.checkArgumentCount('fn:contains', arguments, 2, 3);
-  final arg1 =
-      XPathEvaluationException.extractZeroOrOne(
-        'fn:contains',
-        'arg1',
-        arguments[0],
-      )?.toXPathString() ??
-      '';
-  final arg2 =
-      XPathEvaluationException.extractZeroOrOne(
-        'fn:contains',
-        'arg2',
-        arguments[1],
-      )?.toXPathString() ??
-      '';
-  // TODO: Handle collation parameter
-  return XPathSequence.single(arg1.contains(arg2));
-}
+XPathSequence fnContains(XPathContext context, List<XPathSequence> arguments) =>
+    _stringPredicate(
+      'fn:contains',
+      arguments,
+      (arg1, arg2) => arg1.contains(arg2),
+    );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-starts-with
 XPathSequence fnStartsWith(
   XPathContext context,
   List<XPathSequence> arguments,
-) {
-  XPathEvaluationException.checkArgumentCount(
-    'fn:starts-with',
-    arguments,
-    2,
-    3,
-  );
-  final arg1 =
-      XPathEvaluationException.extractZeroOrOne(
-        'fn:starts-with',
-        'arg1',
-        arguments[0],
-      )?.toXPathString() ??
-      '';
-  final arg2 =
-      XPathEvaluationException.extractZeroOrOne(
-        'fn:starts-with',
-        'arg2',
-        arguments[1],
-      )?.toXPathString() ??
-      '';
-  // TODO: Handle collation parameter
-  return XPathSequence.single(arg1.startsWith(arg2));
-}
+) => _stringPredicate(
+  'fn:starts-with',
+  arguments,
+  (arg1, arg2) => arg1.startsWith(arg2),
+);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-ends-with
-XPathSequence fnEndsWith(XPathContext context, List<XPathSequence> arguments) {
-  XPathEvaluationException.checkArgumentCount('fn:ends-with', arguments, 2, 3);
-  final arg1 =
-      XPathEvaluationException.extractZeroOrOne(
-        'fn:ends-with',
-        'arg1',
-        arguments[0],
-      )?.toXPathString() ??
-      '';
-  final arg2 =
-      XPathEvaluationException.extractZeroOrOne(
-        'fn:ends-with',
-        'arg2',
-        arguments[1],
-      )?.toXPathString() ??
-      '';
-  // TODO: Handle collation parameter
-  return XPathSequence.single(arg1.endsWith(arg2));
-}
+XPathSequence fnEndsWith(XPathContext context, List<XPathSequence> arguments) =>
+    _stringPredicate(
+      'fn:ends-with',
+      arguments,
+      (arg1, arg2) => arg1.endsWith(arg2),
+    );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-substring-before
 XPathSequence fnSubstringBefore(
@@ -315,7 +266,6 @@ XPathSequence fnTranslate(XPathContext context, List<XPathSequence> arguments) {
     'transString',
     arguments[2],
   ).toXPathString();
-
   final mapping = <String, String>{};
   for (var i = 0; i < mapStr.length; i++) {
     final char = mapStr[i];
@@ -323,7 +273,6 @@ XPathSequence fnTranslate(XPathContext context, List<XPathSequence> arguments) {
       mapping[char] = i < transStr.length ? transStr[i] : '';
     }
   }
-
   final buffer = StringBuffer();
   for (var i = 0; i < arg.length; i++) {
     final char = arg[i];
@@ -585,12 +534,40 @@ XPathSequence fnTokenize(XPathContext context, List<XPathSequence> arguments) {
   return XPathSequence(input.split(regExp).map(XPathString.new));
 }
 
+/// https://www.w3.org/TR/xpath-functions-31/#func-analyze-string
+XPathSequence fnAnalyzeString(
+  XPathContext context,
+  List<XPathSequence> arguments,
+) => throw UnimplementedError('fn:analyze-string');
+XPathSequence _stringPredicate(
+  String name,
+  List<XPathSequence> arguments,
+  bool Function(String, String) predicate,
+) {
+  XPathEvaluationException.checkArgumentCount(name, arguments, 2, 3);
+  final arg1 =
+      XPathEvaluationException.extractZeroOrOne(
+        name,
+        'arg1',
+        arguments[0],
+      )?.toXPathString() ??
+      '';
+  final arg2 =
+      XPathEvaluationException.extractZeroOrOne(
+        name,
+        'arg2',
+        arguments[1],
+      )?.toXPathString() ??
+      '';
+  // TODO: Handle collation parameter
+  return XPathSequence.single(predicate(arg1, arg2));
+}
+
 RegExp _createRegExp(String pattern, String flags) {
   var isMultiLine = false;
   var isCaseInsensitive = false;
   var isDotAll = false;
   var isUnicode = false;
-
   for (var i = 0; i < flags.length; i++) {
     switch (flags[i]) {
       case 'm':
@@ -613,7 +590,6 @@ RegExp _createRegExp(String pattern, String flags) {
         );
     }
   }
-
   return RegExp(
     pattern,
     multiLine: isMultiLine,
@@ -621,12 +597,4 @@ RegExp _createRegExp(String pattern, String flags) {
     dotAll: isDotAll,
     unicode: isUnicode,
   );
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-analyze-string
-XPathSequence fnAnalyzeString(
-  XPathContext context,
-  List<XPathSequence> arguments,
-) {
-  throw UnimplementedError('fn:analyze-string');
 }

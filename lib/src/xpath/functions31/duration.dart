@@ -4,124 +4,44 @@ import '../types31/duration.dart';
 import '../types31/number.dart';
 import '../types31/sequence.dart';
 
+/// https://www.w3.org/TR/xpath-functions-31/#func-duration-equal
 XPathSequence opDurationEqual(
   XPathContext context,
   List<XPathSequence> arguments,
-) {
-  XPathEvaluationException.checkArgumentCount(
-    'op:duration-equal',
-    arguments,
-    2,
-  );
-  final arg1 = XPathEvaluationException.extractZeroOrOne(
-    'op:duration-equal',
-    'arg1',
-    arguments[0],
-  )?.toXPathDuration();
-  final arg2 = XPathEvaluationException.extractZeroOrOne(
-    'op:duration-equal',
-    'arg2',
-    arguments[1],
-  )?.toXPathDuration();
-  if (arg1 == null || arg2 == null) return XPathSequence.empty;
-  return XPathSequence.single(arg1 == arg2);
-}
+) =>
+    XPathSequence.single(_compareDuration('op:duration-equal', arguments) == 0);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-yearMonthDuration-less-than
 XPathSequence opYearMonthDurationLessThan(
   XPathContext context,
   List<XPathSequence> arguments,
-) {
-  XPathEvaluationException.checkArgumentCount(
-    'op:yearMonthDuration-less-than',
-    arguments,
-    2,
-  );
-  final arg1 = XPathEvaluationException.extractZeroOrOne(
-    'op:yearMonthDuration-less-than',
-    'arg1',
-    arguments[0],
-  )?.toXPathDuration();
-  final arg2 = XPathEvaluationException.extractZeroOrOne(
-    'op:yearMonthDuration-less-than',
-    'arg2',
-    arguments[1],
-  )?.toXPathDuration();
-  if (arg1 == null || arg2 == null) return XPathSequence.empty;
-  return XPathSequence.single(arg1 < arg2);
-}
+) => XPathSequence.single(
+  _compareDuration('op:yearMonthDuration-less-than', arguments) < 0,
+);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-yearMonthDuration-greater-than
 XPathSequence opYearMonthDurationGreaterThan(
   XPathContext context,
   List<XPathSequence> arguments,
-) {
-  XPathEvaluationException.checkArgumentCount(
-    'op:yearMonthDuration-greater-than',
-    arguments,
-    2,
-  );
-  final arg1 = XPathEvaluationException.extractZeroOrOne(
-    'op:yearMonthDuration-greater-than',
-    'arg1',
-    arguments[0],
-  )?.toXPathDuration();
-  final arg2 = XPathEvaluationException.extractZeroOrOne(
-    'op:yearMonthDuration-greater-than',
-    'arg2',
-    arguments[1],
-  )?.toXPathDuration();
-  if (arg1 == null || arg2 == null) return XPathSequence.empty;
-  return XPathSequence.single(arg1 > arg2);
-}
+) => XPathSequence.single(
+  _compareDuration('op:yearMonthDuration-greater-than', arguments) > 0,
+);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-dayTimeDuration-less-than
 XPathSequence opDayTimeDurationLessThan(
   XPathContext context,
   List<XPathSequence> arguments,
-) {
-  XPathEvaluationException.checkArgumentCount(
-    'op:dayTimeDuration-less-than',
-    arguments,
-    2,
-  );
-  final arg1 = XPathEvaluationException.extractZeroOrOne(
-    'op:dayTimeDuration-less-than',
-    'arg1',
-    arguments[0],
-  )?.toXPathDuration();
-  final arg2 = XPathEvaluationException.extractZeroOrOne(
-    'op:dayTimeDuration-less-than',
-    'arg2',
-    arguments[1],
-  )?.toXPathDuration();
-  if (arg1 == null || arg2 == null) return XPathSequence.empty;
-  return XPathSequence.single(arg1 < arg2);
-}
+) => XPathSequence.single(
+  _compareDuration('op:dayTimeDuration-less-than', arguments) < 0,
+);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-dayTimeDuration-greater-than
 XPathSequence opDayTimeDurationGreaterThan(
   XPathContext context,
   List<XPathSequence> arguments,
-) {
-  XPathEvaluationException.checkArgumentCount(
-    'op:dayTimeDuration-greater-than',
-    arguments,
-    2,
-  );
-  final arg1 = XPathEvaluationException.extractZeroOrOne(
-    'op:dayTimeDuration-greater-than',
-    'arg1',
-    arguments[0],
-  )?.toXPathDuration();
-  final arg2 = XPathEvaluationException.extractZeroOrOne(
-    'op:dayTimeDuration-greater-than',
-    'arg2',
-    arguments[1],
-  )?.toXPathDuration();
-  if (arg1 == null || arg2 == null) return XPathSequence.empty;
-  return XPathSequence.single(arg1 > arg2);
-}
+) => XPathSequence.single(
+  _compareDuration('op:dayTimeDuration-greater-than', arguments) > 0,
+);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-add-yearMonthDurations
 XPathSequence opAddYearMonthDurations(
@@ -482,4 +402,19 @@ XPathSequence fnSecondsFromDuration(
   return XPathSequence.single(
     arg.inSeconds % 60 + (arg.inMicroseconds % 1000000) / 1000000.0,
   );
+}
+
+int _compareDuration(String name, List<XPathSequence> arguments) {
+  XPathEvaluationException.checkArgumentCount(name, arguments, 2);
+  final value1 = XPathEvaluationException.extractExactlyOne(
+    name,
+    'arg1',
+    arguments[0],
+  ).toXPathDuration();
+  final value2 = XPathEvaluationException.extractExactlyOne(
+    name,
+    'arg2',
+    arguments[1],
+  ).toXPathDuration();
+  return value1.compareTo(value2);
 }

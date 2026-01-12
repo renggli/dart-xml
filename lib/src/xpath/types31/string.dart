@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import '../../xml/nodes/document.dart';
 import '../../xml/nodes/element.dart';
 import '../../xml/nodes/node.dart';
 import '../../xml/nodes/text.dart';
 import '../exceptions/evaluation_exception.dart';
+import 'binary.dart';
 import 'sequence.dart';
 
 extension type const XPathString(String _) implements String {
@@ -25,6 +28,15 @@ extension XPathStringExtension on Object {
       return XPathString(
         string.endsWith('.0') ? string.substring(0, string.length - 2) : string,
       );
+    } else if (self is XPathHexBinary) {
+      return XPathString(
+        self
+            .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
+            .join()
+            .toUpperCase(),
+      );
+    } else if (self is XPathBase64Binary) {
+      return XPathString(base64Encode(self));
     } else if (self is XmlNode) {
       final buffer = StringBuffer();
       _stringForNodeOn(self, buffer);

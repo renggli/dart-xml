@@ -1,7 +1,6 @@
 import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types31/sequence.dart';
-
 import '../types31/string.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-NOTATION-equal

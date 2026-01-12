@@ -1,0 +1,55 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:collection/collection.dart';
+
+import '../exceptions/evaluation_exception.dart';
+import 'sequence.dart';
+
+class XPathBase64Binary extends DelegatingList<int> {
+  XPathBase64Binary(Uint8List super.base);
+}
+
+class XPathHexBinary extends DelegatingList<int> {
+  XPathHexBinary(Uint8List super.base);
+}
+
+extension XPathBinaryExtension on Object {
+  XPathBase64Binary toXPathBase64Binary() {
+    final self = this;
+    if (self is XPathBase64Binary) {
+      return self;
+    } else if (self is Uint8List) {
+      return XPathBase64Binary(self);
+    } else if (self is List<int>) {
+      return XPathBase64Binary(Uint8List.fromList(self));
+    } else if (self is String) {
+      return XPathBase64Binary(base64Decode(self));
+    } else if (self is XPathSequence) {
+      final item = self.singleOrNull;
+      if (item != null) return item.toXPathBase64Binary();
+    }
+    throw XPathEvaluationException.unsupportedCast(self, 'base64Binary');
+  }
+
+  XPathHexBinary toXPathHexBinary() {
+    final self = this;
+    if (self is XPathHexBinary) {
+      return self;
+    } else if (self is Uint8List) {
+      return XPathHexBinary(self);
+    } else if (self is List<int>) {
+      return XPathHexBinary(Uint8List.fromList(self));
+    } else if (self is String) {
+      final bytes = Uint8List(self.length ~/ 2);
+      for (var i = 0; i < self.length; i += 2) {
+        bytes[i ~/ 2] = int.parse(self.substring(i, i + 2), radix: 16);
+      }
+      return XPathHexBinary(bytes);
+    } else if (self is XPathSequence) {
+      final item = self.singleOrNull;
+      if (item != null) return item.toXPathHexBinary();
+    }
+    throw XPathEvaluationException.unsupportedCast(self, 'hexBinary');
+  }
+}

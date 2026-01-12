@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types31/number.dart';
@@ -49,7 +48,6 @@ XPathSequence fnInsertBefore(
     arguments[1],
   ).toXPathNumber().toInt();
   final inserts = arguments[2];
-
   if (pos < 1) {
     pos = 1;
   } else if (pos > target.length) {
@@ -75,7 +73,6 @@ XPathSequence fnRemove(XPathContext context, List<XPathSequence> arguments) {
     'position',
     arguments[1],
   ).toXPathNumber().toInt();
-
   return XPathSequence(() sync* {
     var i = 1;
     for (final item in target) {
@@ -110,18 +107,15 @@ XPathSequence fnSubsequence(
     arguments[1],
   ).toXPathNumber().toDouble();
   final startingIdx = startingLoc.round();
-
   if (arguments.length == 2) {
     return XPathSequence(sourceSeq.skip(max(0, startingIdx - 1)));
   }
-
   final length = XPathEvaluationException.extractExactlyOne(
     'fn:subsequence',
     'length',
     arguments[2],
   ).toXPathNumber().toDouble();
   final endingIdx = (startingLoc + length).round();
-
   return XPathSequence(() sync* {
     var i = 1;
     for (final item in sourceSeq) {
@@ -180,11 +174,9 @@ XPathSequence fnDeepEqual(XPathContext context, List<XPathSequence> arguments) {
   final parameter1 = arguments[0];
   final parameter2 = arguments[1];
   // Argument 3: collation (ignored for now via TODO)
-
   if (parameter1.length != parameter2.length) {
     return XPathSequence.falseSequence;
   }
-
   final it1 = parameter1.iterator;
   final it2 = parameter2.iterator;
   while (it1.moveNext() && it2.moveNext()) {
@@ -257,7 +249,6 @@ XPathSequence fnMax(XPathContext context, List<XPathSequence> arguments) {
   XPathEvaluationException.checkArgumentCount('fn:max', arguments, 1, 2);
   final arg = arguments[0];
   // Argument 2: collation (ignored for now via TODO)
-
   if (arg.isEmpty) return XPathSequence.empty;
   num? maxVal;
   for (final item in arg) {
@@ -272,7 +263,6 @@ XPathSequence fnMin(XPathContext context, List<XPathSequence> arguments) {
   XPathEvaluationException.checkArgumentCount('fn:min', arguments, 1, 2);
   final arg = arguments[0];
   // Argument 2: collation (ignored for now via TODO)
-
   if (arg.isEmpty) return XPathSequence.empty;
   num? minVal;
   for (final item in arg) {

@@ -15,7 +15,6 @@ XPathSequence fnForEach(XPathContext context, List<XPathSequence> arguments) {
     'action',
     arguments[1],
   ).toXPathFunction();
-
   final result = <Object>[];
   for (final item in seq) {
     result.addAll(action(context, [XPathSequence.single(item)]));
@@ -32,7 +31,6 @@ XPathSequence fnFilter(XPathContext context, List<XPathSequence> arguments) {
     'function',
     arguments[1],
   ).toXPathFunction();
-
   final result = <Object>[];
   for (final item in seq) {
     if (function(context, [XPathSequence.single(item)]).toXPathBoolean()) {
@@ -52,7 +50,6 @@ XPathSequence fnFoldLeft(XPathContext context, List<XPathSequence> arguments) {
     'function',
     arguments[2],
   ).toXPathFunction();
-
   for (final item in seq) {
     zero = function(context, [zero, XPathSequence.single(item)]);
   }
@@ -69,7 +66,6 @@ XPathSequence fnFoldRight(XPathContext context, List<XPathSequence> arguments) {
     'function',
     arguments[2],
   ).toXPathFunction();
-
   final items = seq.toList().reversed;
   for (final item in items) {
     zero = function(context, [XPathSequence.single(item), zero]);
@@ -90,7 +86,6 @@ XPathSequence fnForEachPair(
     'action',
     arguments[2],
   ).toXPathFunction();
-
   final iter1 = seq1.iterator;
   final iter2 = seq2.iterator;
   final result = <Object>[];
@@ -124,7 +119,6 @@ XPathSequence fnSort(XPathContext context, List<XPathSequence> arguments) {
           arguments[2],
         ).toXPathFunction()
       : null;
-
   final list = input.toList();
   list.sort((a, b) {
     if (key != null) {
@@ -160,7 +154,6 @@ XPathSequence fnApply(XPathContext context, List<XPathSequence> arguments) {
     'array',
     arguments[1],
   ).toXPathArray();
-
   return function(context, array.map((e) => e.toXPathSequence()).toList());
 }
 

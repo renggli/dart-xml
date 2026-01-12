@@ -34,7 +34,6 @@ XPathSequence fnQName(XPathContext context, List<XPathSequence> arguments) {
     'paramQName',
     arguments[1],
   ).toXPathString();
-
   // TODO: XmlName in PetitXml currently does not store the namespace URI explicitly
   // when detached, so uriOpt is ignored here. This is a limitation.
   return XPathSequence.single(XmlName.fromString(paramQName));
@@ -117,9 +116,7 @@ XPathSequence opQNameEqual(
     'arg2',
     arguments[1],
   );
-
   if (arg1 == null || arg2 == null) return XPathSequence.empty;
-
   if (arg1 is XmlName && arg2 is XmlName) {
     return XPathSequence.single(arg1 == arg2);
   }

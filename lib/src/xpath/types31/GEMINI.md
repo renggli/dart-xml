@@ -106,8 +106,8 @@ Helpers are defined in [boolean.dart](boolean.dart).
 
 | XPath Type | Dart Type | Dart Extension Type | Dart Cast |
 | --- | --- | --- | --- |
-| `xs:base64Binary` | `List<int>` | n/a | n/a |
-| `xs:hexBinary` | `List<int>` | n/a | n/a |
+| `xs:base64Binary` | `Uint8List` | `XPathBase64Binary` | `.toXPathBase64Binary()` |
+| `xs:hexBinary` | `Uint8List` | `XPathHexBinary` | `.toXPathHexBinary()` |
 | `xs:anyURI` | `String` | `XPathString` | `.toXPathString()` |
 | `xs:QName` | `String` | `XPathString` | `.toXPathString()` |
 | `xs:NOTATION` | `String` | `XPathString` | `.toXPathString()` |

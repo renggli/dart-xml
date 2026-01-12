@@ -4,12 +4,23 @@ import '../types31/function.dart';
 import '../types31/map.dart';
 import '../types31/sequence.dart';
 
+/// https://www.w3.org/TR/xpath-functions-31/#func-same-key
+XPathSequence opSameKey(XPathContext context, List<XPathSequence> arguments) {
+  XPathEvaluationException.checkArgumentCount('op:same-key', arguments, 2);
+  final k1 = arguments[0].toAtomicValue();
+  final k2 = arguments[1].toAtomicValue();
+  // TODO: Handle timezone, etc.
+  if (k1 is num && k1.isNaN && k2 is num && k2.isNaN) {
+    return XPathSequence.trueSequence;
+  }
+  return XPathSequence.single(k1 == k2);
+}
+
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-merge
 XPathSequence mapMerge(XPathContext context, List<XPathSequence> arguments) {
   XPathEvaluationException.checkArgumentCount('map:merge', arguments, 1, 2);
   final maps = arguments[0];
   // arguments[1] is options, currently ignored
-
   final result = <Object?, Object?>{};
   for (final item in maps) {
     result.addAll(item.toXPathMap());
@@ -89,7 +100,6 @@ XPathSequence mapPut(XPathContext context, List<XPathSequence> arguments) {
     arguments[1],
   );
   final value = arguments[2];
-
   final result = Map.of(map);
   result[key] = value.toAtomicValue();
   return XPathSequence.single(result);
@@ -116,7 +126,6 @@ XPathSequence mapRemove(XPathContext context, List<XPathSequence> arguments) {
     arguments[0],
   ).toXPathMap();
   final keys = arguments[1];
-
   final result = Map.of(map);
   for (final key in keys) {
     result.remove(key);
@@ -137,7 +146,6 @@ XPathSequence mapForEach(XPathContext context, List<XPathSequence> arguments) {
     'action',
     arguments[1],
   ).toXPathFunction();
-
   final result = <Object>[];
   for (final entry in map.entries) {
     result.addAll(
