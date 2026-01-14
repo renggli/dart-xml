@@ -10,6 +10,7 @@ import 'expressions/function.dart';
 import 'expressions/node_test.dart';
 import 'expressions/path.dart';
 import 'expressions/predicate.dart';
+import 'expressions/sequence.dart';
 import 'expressions/statement.dart';
 import 'expressions/step.dart';
 import 'expressions/variable.dart';
@@ -34,7 +35,7 @@ class XPathParser {
       .map(
         (list) => list.elements.length == 1
             ? list.elements.first
-            : unimplemented('SequenceExpr'),
+            : SequenceExpression(list.elements),
       );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ExprSingle
