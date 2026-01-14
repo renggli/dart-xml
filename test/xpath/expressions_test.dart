@@ -134,5 +134,40 @@ void main() {
         );
       });
     });
+
+    group('range', () {
+      test('1 to 3', () {
+        expectEvaluate(
+          xml,
+          '1 to 3',
+          isA<XPathSequence>().having(
+            (seq) => seq.map((item) => item.toXPathNumber()),
+            'values',
+            orderedEquals([1, 2, 3]),
+          ),
+        );
+      });
+      test('1 to 1', () {
+        expectEvaluate(xml, '1 to 1', isNumber(1));
+      });
+      test('3 to 1', () {
+        expectEvaluate(xml, '3 to 1', isEmpty);
+      });
+      test('empty operand', () {
+        expectEvaluate(xml, '() to 1', isEmpty);
+        expectEvaluate(xml, '1 to ()', isEmpty);
+      });
+      test('double operand', () {
+        expectEvaluate(
+          xml,
+          '1.0 to 3.0',
+          isA<XPathSequence>().having(
+            (seq) => seq.map((item) => item.toXPathNumber()),
+            'values',
+            orderedEquals([1, 2, 3]),
+          ),
+        );
+      });
+    });
   });
 }

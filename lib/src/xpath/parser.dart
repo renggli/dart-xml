@@ -10,6 +10,7 @@ import 'expressions/function.dart';
 import 'expressions/node_test.dart';
 import 'expressions/path.dart';
 import 'expressions/predicate.dart';
+import 'expressions/range.dart';
 import 'expressions/sequence.dart';
 import 'expressions/statement.dart';
 import 'expressions/step.dart';
@@ -164,7 +165,7 @@ class XPathParser {
         seq2(token('to'), ref0(additiveExpr)).optional(),
       ).map2(
         (left, optional) =>
-            optional == null ? left : unimplemented('RangeExpr'),
+            optional == null ? left : RangeExpression(left, optional.$2),
       );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-AdditiveExpr
@@ -616,9 +617,10 @@ class XPathParser {
   Parser<String> varName() => trim(ref0(eqName).skip(before: char('\$')));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ParenthesizedExpr
-  Parser<XPathExpression> parenthesizedExpr() => ref0(
-    expr,
-  ).skip(before: token('('), after: token(')')).map((expr) => expr);
+  Parser<XPathExpression> parenthesizedExpr() => ref0(expr)
+      .optional()
+      .skip(before: token('('), after: token(')'))
+      .map((expr) => expr ?? const SequenceExpression([]));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ContextItemExpr
   Parser<XPathExpression> contextItemExpr() =>
