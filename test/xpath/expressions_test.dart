@@ -169,5 +169,20 @@ void main() {
         );
       });
     });
+
+    group('concat', () {
+      test('strings', () {
+        expectEvaluate(xml, '"a" || "b"', isString('ab'));
+      });
+      test('numbers', () {
+        expectEvaluate(xml, '1 || 2', isString('12'));
+      });
+      test('mixed', () {
+        expectEvaluate(xml, '"a" || 1 || "b"', isString('a1b'));
+      });
+      test('empty', () {
+        expectEvaluate(xml, '"a" || () || "b"', isString('ab'));
+      });
+    });
   });
 }

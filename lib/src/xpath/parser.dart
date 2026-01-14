@@ -14,6 +14,7 @@ import 'expressions/range.dart';
 import 'expressions/sequence.dart';
 import 'expressions/statement.dart';
 import 'expressions/step.dart';
+import 'expressions/string_concat.dart';
 import 'expressions/variable.dart';
 import 'functions31/general.dart' as general;
 import 'functions31/node.dart' as nodes;
@@ -155,7 +156,7 @@ class XPathParser {
       .map(
         (list) => list.elements.length == 1
             ? list.elements.first
-            : unimplemented('StringConcatExpr'),
+            : StringConcatExpression(list.elements),
       );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-RangeExpr
