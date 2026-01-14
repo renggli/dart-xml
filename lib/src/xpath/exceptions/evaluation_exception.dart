@@ -91,6 +91,10 @@ class XPathEvaluationException extends XmlException {
   static Never unsupportedCast(Object value, String type) =>
       throw XPathEvaluationException('Unsupported cast from $value to $type');
 
+  /// Thrown when a map key is invalid.
+  static Never invalidMapKey(XPathSequence key) =>
+      throw XPathEvaluationException('Invalid map key: $key');
+
   @override
   String toString() => 'XPathEvaluationException: $message';
 }

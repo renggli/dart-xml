@@ -1,4 +1,6 @@
 import 'package:test/test.dart';
+import 'package:xml/src/xpath/types31/array.dart';
+import 'package:xml/src/xpath/types31/map.dart';
 import 'package:xml/src/xpath/types31/number.dart';
 import 'package:xml/src/xpath/types31/sequence.dart';
 import 'package:xml/xml.dart';
@@ -182,6 +184,116 @@ void main() {
       });
       test('empty', () {
         expectEvaluate(xml, '"a" || () || "b"', isString('ab'));
+      });
+    });
+
+    group('constructors', () {
+      group('map', () {
+        test('empty', () {
+          expectEvaluate(
+            xml,
+            'map {}',
+            isA<XPathSequence>().having(
+              (seq) => seq.single,
+              'single',
+              isA<XPathMap>().having((m) => m, 'map', isEmpty),
+            ),
+          );
+        });
+        test('simple', () {
+          expectEvaluate(
+            xml,
+            'map { "a": 1, "b": 2 }',
+            isA<XPathSequence>().having(
+              (seq) => seq.single,
+              'single',
+              isA<XPathMap>().having(
+                (m) => m,
+                'map',
+                allOf(
+                  containsPair('a', isNumber(1)),
+                  containsPair('b', isNumber(2)),
+                ),
+              ),
+            ),
+          );
+        });
+      });
+      group('array', () {
+        test('square empty', () {
+          expectEvaluate(
+            xml,
+            '[]',
+            isA<XPathSequence>().having(
+              (seq) => seq.single,
+              'single',
+              isA<XPathArray>().having((a) => a, 'array', isEmpty),
+            ),
+          );
+        });
+        test('square simple', () {
+          expectEvaluate(
+            xml,
+            '[1, 2]',
+            isA<XPathSequence>().having(
+              (seq) => seq.single,
+              'single',
+              isA<XPathArray>().having(
+                (a) => a,
+                'array',
+                orderedEquals([isNumber(1), isNumber(2)]),
+              ),
+            ),
+          );
+        });
+        test('square nested', () {
+          expectEvaluate(
+            xml,
+            '[(1, 2), 3]',
+            isA<XPathSequence>().having(
+              (seq) => seq.single,
+              'single',
+              isA<XPathArray>().having(
+                (a) => a,
+                'array',
+                orderedEquals([
+                  isA<XPathSequence>().having(
+                    (s) => s.map((i) => i.toXPathNumber()),
+                    'values',
+                    orderedEquals([1, 2]),
+                  ),
+                  isNumber(3),
+                ]),
+              ),
+            ),
+          );
+        });
+        test('curly empty', () {
+          expectEvaluate(
+            xml,
+            'array {}',
+            isA<XPathSequence>().having(
+              (seq) => seq.single,
+              'single',
+              isA<XPathArray>().having((a) => a, 'array', isEmpty),
+            ),
+          );
+        });
+        test('curly flatten', () {
+          expectEvaluate(
+            xml,
+            'array { (1, 2), 3 }',
+            isA<XPathSequence>().having(
+              (seq) => seq.single,
+              'single',
+              isA<XPathArray>().having(
+                (a) => a,
+                'array',
+                orderedEquals([isNumber(1), isNumber(2), isNumber(3)]),
+              ),
+            ),
+          );
+        });
       });
     });
   });

@@ -1363,18 +1363,21 @@ void main() {
     });
     group('errors', () {
       final xml = XmlDocument.parse('<?xml version="1.0"?><root/>');
+      // The exact error message and position might change as the grammar
+      // changes. These tests are supposed to verify that invalid input is
+      // rejected, not necessarily the messagen and position.
       final cases = {
-        '': ('"?" expected', 0),
-        ':': ('"?" expected', 0),
+        '': ('qualified name expected', 0),
+        ':': ('qualified name expected', 0),
         '//': ('end of input expected', 1),
         '*[': ('end of input expected', 1),
         '*]': ('end of input expected', 1),
         '*:': ('end of input expected', 1),
-        ':false()': ('"?" expected', 0),
+        ':false()': ('qualified name expected', 0),
         'false:()': ('end of input expected', 5),
-        'false(:)': ('"?" expected', 0),
+        'false(:)': ('success not expected', 5),
         'false():': ('end of input expected', 7),
-        ':a/b': ('"?" expected', 0),
+        ':a/b': ('qualified name expected', 0),
         'a:/b': ('end of input expected', 1),
         'a/:b': ('end of input expected', 1),
         'a/b:': ('end of input expected', 3),

@@ -6,6 +6,7 @@ import '../xml_events/parser.dart';
 import 'evaluation/expression.dart';
 import 'evaluation/functions.dart';
 import 'expressions/axis.dart';
+import 'expressions/constructors.dart';
 import 'expressions/function.dart';
 import 'expressions/node_test.dart';
 import 'expressions/path.dart';
@@ -21,6 +22,7 @@ import 'functions31/node.dart' as nodes;
 import 'functions31/number.dart' as number;
 import 'types31/sequence.dart';
 import 'types31/string.dart';
+import 'utils/reserved_names.dart';
 
 // XPath 3.1 Grammar: https://www.w3.org/TR/xpath-31
 class XPathParser {
@@ -401,8 +403,8 @@ class XPathParser {
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-StepExpr
   Parser<Step> stepExpr() => [
-    ref0(axisStep),
     ref0(postfixExpr).map(ExpressionStep.new),
+    ref0(axisStep),
   ].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-AxisStep
@@ -624,12 +626,13 @@ class XPathParser {
       .map((expr) => expr ?? const SequenceExpression([]));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ContextItemExpr
-  Parser<XPathExpression> contextItemExpr() =>
-      token('.').constant(const ContextItemExpression());
+  Parser<XPathExpression> contextItemExpr() => trim(
+    seq2(char('.'), char('.').not()),
+  ).map((_) => const ContextItemExpression());
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-FunctionCall
   Parser<XPathExpression> functionCall() => seq2(
-    ref0(eqName),
+    ref0(eqName).where((name) => !reservedFunctionNames.contains(name)),
     ref0(argumentList),
   ).map2(DynamicFunctionExpression.new);
 
@@ -646,18 +649,20 @@ class XPathParser {
       [ref0(namedFunctionRef), ref0(inlineFunctionExpr)].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-MapConstructor
-  Parser<XPathExpression> mapConstructor() => seq3(
+  Parser<XPathExpression> mapConstructor() => seq4(
     token('map'),
     token('{'),
-    seq2(
-      ref0(mapConstructorEntry),
-      seq2(token(','), ref0(mapConstructorEntry)).star(),
-    ).optional(),
-  ).skip(after: token('}')).map((_) => unimplemented('MapConstructor'));
+    ref0(mapConstructorEntry).starSeparated(token(',')),
+    token('}'),
+  ).map4((_, _, entries, _) => MapConstructor(entries.elements));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-MapConstructorEntry
-  Parser<void> mapConstructorEntry() =>
-      seq3(ref0(exprSingle), token(':'), ref0(exprSingle));
+  Parser<MapEntry<XPathExpression, XPathExpression>> mapConstructorEntry() =>
+      seq3(
+        ref0(exprSingle),
+        token(':'),
+        ref0(exprSingle),
+      ).map3((key, _, value) => MapEntry(key, value));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ArrayConstructor
   Parser<XPathExpression> arrayConstructor() => [
@@ -666,17 +671,21 @@ class XPathParser {
   ].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-SquareArrayConstructor
-  Parser<XPathExpression> squareArrayConstructor() => ref0(expr)
+  Parser<XPathExpression> squareArrayConstructor() => ref0(exprSingle)
+      .plusSeparated(token(','))
+      .map(
+        (list) => SquareArrayConstructor(list.elements.cast<XPathExpression>()),
+      )
       .optional()
       .skip(before: token('['), after: token(']'))
-      .map((_) => unimplemented('SquareArrayConstructor'));
+      .map((expr) => expr ?? const SquareArrayConstructor([]));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-CurlyArrayConstructor
-  Parser<XPathExpression> curlyArrayConstructor() => seq3(
-    token('array'),
-    token('{'),
-    ref0(expr).optional(),
-  ).skip(after: token('}')).map((_) => unimplemented('CurlyArrayConstructor'));
+  Parser<XPathExpression> curlyArrayConstructor() =>
+      seq4(token('array'), token('{'), ref0(expr).optional(), token('}')).map4(
+        (_, _, expr, _) =>
+            CurlyArrayConstructor(expr ?? const SequenceExpression([])),
+      );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-UnaryLookup
   Parser<XPathExpression> unaryLookup() => seq2(
