@@ -238,7 +238,7 @@ XPathSequence fnAvg(XPathContext context, List<XPathSequence> arguments) {
   var sum = 0.0;
   var count = 0;
   for (final item in arg) {
-    sum += (item as num).toDouble();
+    sum += item.toXPathNumber().toDouble();
     count++;
   }
   return XPathSequence.single(sum / count);
@@ -290,7 +290,7 @@ XPathSequence fnSum(XPathContext context, List<XPathSequence> arguments) {
   }
   var sum = 0.0;
   for (final item in arg) {
-    sum += (item as num).toDouble();
+    sum += item.toXPathNumber().toDouble();
   }
   return XPathSequence.single(sum);
 }

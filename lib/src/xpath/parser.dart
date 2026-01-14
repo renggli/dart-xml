@@ -5,7 +5,6 @@ import '../xml/entities/null_mapping.dart';
 import '../xml_events/parser.dart';
 import 'evaluation/expression.dart';
 import 'evaluation/functions.dart';
-import 'evaluation/values.dart';
 import 'expressions/axis.dart';
 import 'expressions/function.dart';
 import 'expressions/node_test.dart';
@@ -14,9 +13,11 @@ import 'expressions/predicate.dart';
 import 'expressions/statement.dart';
 import 'expressions/step.dart';
 import 'expressions/variable.dart';
-import 'functions/boolean.dart' as boolean;
-import 'functions/nodes.dart' as nodes;
-import 'functions/number.dart' as number;
+import 'functions31/general.dart' as general;
+import 'functions31/node.dart' as nodes;
+import 'functions31/number.dart' as number;
+import 'types31/sequence.dart';
+import 'types31/string.dart';
 
 // XPath 3.1 Grammar: https://www.w3.org/TR/xpath-31
 class XPathParser {
@@ -119,7 +120,7 @@ class XPathParser {
       .map(
         (list) => list.elements.length == 1
             ? list.elements.first
-            : StaticFunctionExpression(boolean.or, list.elements),
+            : StaticFunctionExpression(general.opOr, list.elements),
       );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-AndExpr
@@ -128,7 +129,7 @@ class XPathParser {
       .map(
         (list) => list.elements.length == 1
             ? list.elements.first
-            : StaticFunctionExpression(boolean.and, list.elements),
+            : StaticFunctionExpression(general.opAnd, list.elements),
       );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ComparisonExpr
@@ -174,9 +175,15 @@ class XPathParser {
           final op = list.separators[i - 1];
           final right = list.elements[i];
           if (op == '+') {
-            result = StaticFunctionExpression(number.add, [result, right]);
+            result = StaticFunctionExpression(number.opNumericAdd, [
+              result,
+              right,
+            ]);
           } else {
-            result = StaticFunctionExpression(number.sub, [result, right]);
+            result = StaticFunctionExpression(number.opNumericSubtract, [
+              result,
+              right,
+            ]);
           }
         }
         return result;
@@ -198,13 +205,25 @@ class XPathParser {
           final op = list.separators[i - 1];
           final right = list.elements[i];
           if (op == '*') {
-            result = StaticFunctionExpression(number.mul, [result, right]);
+            result = StaticFunctionExpression(number.opNumericMultiply, [
+              result,
+              right,
+            ]);
           } else if (op == 'div') {
-            result = StaticFunctionExpression(number.div, [result, right]);
+            result = StaticFunctionExpression(number.opNumericDivide, [
+              result,
+              right,
+            ]);
           } else if (op == 'idiv') {
-            result = StaticFunctionExpression(number.idiv, [result, right]);
+            result = StaticFunctionExpression(number.opNumericIntegerDivide, [
+              result,
+              right,
+            ]);
           } else if (op == 'mod') {
-            result = StaticFunctionExpression(number.mod, [result, right]);
+            result = StaticFunctionExpression(number.opNumericMod, [
+              result,
+              right,
+            ]);
           }
         }
         return result;
@@ -217,7 +236,7 @@ class XPathParser {
         var result = list.elements.first;
         for (var i = 1; i < list.elements.length; i++) {
           final right = list.elements[i];
-          result = StaticFunctionExpression(nodes.union, [result, right]);
+          result = StaticFunctionExpression(nodes.opUnion, [result, right]);
         }
         return result;
       });
@@ -231,9 +250,12 @@ class XPathParser {
           final op = list.separators[i - 1];
           final right = list.elements[i];
           if (op == 'intersect') {
-            result = StaticFunctionExpression(nodes.intersect, [result, right]);
+            result = StaticFunctionExpression(nodes.opIntersect, [
+              result,
+              right,
+            ]);
           } else {
-            result = StaticFunctionExpression(nodes.except, [result, right]);
+            result = StaticFunctionExpression(nodes.opExcept, [result, right]);
           }
         }
         return result;
@@ -288,7 +310,9 @@ class XPathParser {
         var result = value;
         for (final op in ops.reversed) {
           if (op == '-') {
-            result = StaticFunctionExpression(number.neg, [result]);
+            result = StaticFunctionExpression(number.opNumericUnaryMinus, [
+              result,
+            ]);
           }
         }
         return result;
@@ -299,12 +323,12 @@ class XPathParser {
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-GeneralComp
   Parser<XPathFunction> generalComp() => [
-    token('!=').map((_) => boolean.notEqual),
-    token('<=').map((_) => boolean.lessThanOrEqual),
-    token('>=').map((_) => boolean.greaterThanOrEqual),
-    token('=').map((_) => boolean.equal),
-    token('<').map((_) => boolean.lessThan),
-    token('>').map((_) => boolean.greaterThan),
+    token('!=').map((_) => general.opGeneralNotEqual),
+    token('<=').map((_) => general.opGeneralLessThanOrEqual),
+    token('>=').map((_) => general.opGeneralGreaterThanOrEqual),
+    token('=').map((_) => general.opGeneralEqual),
+    token('<').map((_) => general.opGeneralLessThan),
+    token('>').map((_) => general.opGeneralGreaterThan),
   ].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ValueComp
@@ -545,26 +569,26 @@ class XPathParser {
   ].toChoiceParser().map(LiteralExpression.new);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-NumericLiteral
-  Parser<XPathNumber> numericLiteral() => [
+  Parser<XPathSequence> numericLiteral() => [
     ref0(doubleLiteral),
     ref0(decimalLiteral),
     ref0(integerLiteral),
   ].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-IntegerLiteral
-  Parser<XPathNumber> integerLiteral() =>
-      trim(digit().plusString()).map(XPathNumber.fromString);
+  Parser<XPathSequence> integerLiteral() =>
+      trim(digit().plusString()).map((s) => XPathSequence.single(int.parse(s)));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-DecimalLiteral
-  Parser<XPathNumber> decimalLiteral() => trim(
+  Parser<XPathSequence> decimalLiteral() => trim(
     [
       seq2(char('.'), digit().plus()),
       seq3(digit().plus(), char('.'), digit().star()),
     ].toChoiceParser(),
-  ).flatten().map(XPathNumber.fromString);
+  ).flatten().map((s) => XPathSequence.single(double.parse(s)));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-DoubleLiteral
-  Parser<XPathNumber> doubleLiteral() => trim(
+  Parser<XPathSequence> doubleLiteral() => trim(
     seq4(
       [
         seq2(char('.'), digit().plus()),
@@ -574,15 +598,15 @@ class XPathParser {
       anyOf('+-').optional(),
       digit().plus(),
     ),
-  ).flatten().map(XPathNumber.fromString);
+  ).flatten().map((s) => XPathSequence.single(double.parse(s)));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-StringLiteral
-  Parser<XPathString> stringLiteral() => trim(
+  Parser<XPathSequence> stringLiteral() => trim(
     [
       ref0(eventParser.attributeValueDoubleQuote),
       ref0(eventParser.attributeValueSingleQuote),
     ].toChoiceParser(),
-  ).map((tuple) => XPathString(tuple.$1));
+  ).map((tuple) => XPathSequence.single(XPathString(tuple.$1)));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-VarRef
   Parser<XPathExpression> varRef() => ref0(varName).map(VariableExpression.new);
@@ -742,12 +766,14 @@ class XPathParser {
       seq4(
         token('processing-instruction'),
         token('('),
-        [ref0(ncName), ref0(stringLiteral)].toChoiceParser().optional(),
+        [
+          ref0(ncName).map(XPathSequence.single),
+          ref0(stringLiteral),
+        ].toChoiceParser().optional(),
         token(')'),
       ).map4(
-        (_, _, arg, _) => ProcessingTypeNodeTest(
-          arg is XPathString ? arg.string : arg as String?,
-        ),
+        (_, _, arg, _) =>
+            ProcessingTypeNodeTest(arg?.firstOrNull?.toXPathString()),
       );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-AttributeTest

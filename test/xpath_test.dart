@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:petitparser/reflection.dart';
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/expressions/axis.dart';
@@ -9,6 +7,9 @@ import 'package:xml/src/xpath/expressions/predicate.dart';
 import 'package:xml/src/xpath/expressions/step.dart';
 import 'package:xml/src/xpath/expressions/variable.dart';
 import 'package:xml/src/xpath/parser.dart';
+import 'package:xml/src/xpath/types31/boolean.dart';
+import 'package:xml/src/xpath/types31/number.dart';
+import 'package:xml/src/xpath/types31/string.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -22,7 +23,7 @@ void expectXPath(
   String expression,
   Iterable<dynamic> matchers, {
   AxisDirection axisDirection = AxisDirection.none,
-  Map<String, XPathValue> variables = const {},
+  Map<String, XPathSequence> variables = const {},
   Map<String, XPathFunction> functions = const {},
 }) {
   expect(
@@ -54,7 +55,7 @@ void expectEvaluate(
   XmlNode? node,
   String expression,
   dynamic matcher, {
-  Map<String, XPathValue> variables = const {},
+  Map<String, XPathSequence> variables = const {},
   Map<String, XPathFunction> functions = const {},
 }) => expect(
   node!.xpathEvaluate(expression, variables: variables, functions: functions),
@@ -62,404 +63,31 @@ void expectEvaluate(
   reason: expression,
 );
 
-Matcher isNodeSet(dynamic value) =>
-    isA<XPathNodeSet>().having((value) => value.nodes, 'nodes', value);
+Matcher isNodeSet(dynamic value) => isA<XPathSequence>().having(
+  (value) => value.whereType<XmlNode>().toList(),
+  'nodes',
+  value,
+);
 
-Matcher isString(dynamic value) =>
-    isA<XPathString>().having((value) => value.string, 'string', value);
+Matcher isString(dynamic value) => isA<XPathSequence>().having(
+  (value) => value.toXPathString(),
+  'string',
+  value,
+);
 
-Matcher isNumber(dynamic value) =>
-    isA<XPathNumber>().having((value) => value.number, 'number', value);
+Matcher isNumber(dynamic value) => isA<XPathSequence>().having(
+  (value) => value.toXPathNumber(),
+  'number',
+  value,
+);
 
-Matcher isBoolean(dynamic value) =>
-    isA<XPathBoolean>().having((value) => value.boolean, 'boolean', value);
+Matcher isBoolean(dynamic value) => isA<XPathSequence>().having(
+  (value) => value.toXPathBoolean(),
+  'boolean',
+  value,
+);
 
 void main() {
-  group('values', () {
-    group('nodes', () {
-      test('empty', () {
-        const value = XPathNodeSet.empty;
-        expect(value.nodes, isEmpty);
-        expect(value.string, '');
-        expect(value.number, isNaN);
-        expect(value.boolean, isFalse);
-        expect(value.toString(), '[]');
-      });
-      test('document', () {
-        final nodes = [XmlDocument.parse('<r>123</r>')];
-        final value = XPathNodeSet(nodes);
-        expect(value.nodes, nodes);
-        expect(value.string, '123');
-        expect(value.number, 123);
-        expect(value.boolean, isTrue);
-        expect(value.toString(), '[123]');
-      });
-      test('elements', () {
-        final nodes = XmlDocument.parse(
-          '<r><a>1</a><b>2</b></r>',
-        ).rootElement.children;
-        final value = XPathNodeSet(nodes);
-        expect(value.nodes, nodes);
-        expect(value.string, '1');
-        expect(value.number, 1);
-        expect(value.boolean, isTrue);
-        expect(value.toString(), '[1, 2]');
-      });
-      test('attributes', () {
-        final nodes = XmlDocument.parse(
-          '<a b="1" c="2">0</a>',
-        ).rootElement.attributes;
-        final value = XPathNodeSet(nodes);
-        expect(value.nodes, nodes);
-        expect(value.string, '1');
-        expect(value.number, 1);
-        expect(value.boolean, isTrue);
-        expect(value.toString(), '[1, 2]');
-      });
-      test('crop long values', () {
-        final nodes = [
-          XmlDocument.parse(
-            '<r>'
-            '<p>The quick brown fox jumps over the lazy dog.</p>'
-            '</r>',
-          ).rootElement,
-        ];
-        final value = XPathNodeSet(nodes);
-        expect(value.nodes, nodes);
-        expect(value.string, 'The quick brown fox jumps over the lazy dog.');
-        expect(value.number, isNaN);
-        expect(value.boolean, isTrue);
-        expect(value.toString(), '[The quick brown fox ...]');
-      });
-      test('crop many values', () {
-        final nodes = XmlDocument.parse(
-          '<r>'
-          '<p>First</p>'
-          '<p>Second</p>'
-          '<p>Third</p>'
-          '<p>Fourth</p>'
-          '</r>',
-        ).rootElement.children;
-        final value = XPathNodeSet(nodes);
-        expect(value.nodes, nodes);
-        expect(value.string, 'First');
-        expect(value.number, isNaN);
-        expect(value.boolean, isTrue);
-        expect(value.toString(), '[First, Second, Third, ...]');
-      });
-      group('construction', () {
-        final nodes = [
-          for (var i = 0; i < 100; i++)
-            XmlElement.tag('node', children: [XmlText('Node ${i + 1}')]),
-        ];
-        XmlDocument([XmlElement.tag('root', children: nodes)]);
-        group('default', () {
-          test('empty', () {
-            final value = XPathNodeSet([]);
-            expect(value.nodes, isEmpty);
-            expect(value.string, '');
-            expect(value.number, isNaN);
-            expect(value.boolean, isFalse);
-            expect(value.toString(), '[]');
-          });
-          test('single', () {
-            final value = XPathNodeSet([nodes[0]]);
-            expect(value.nodes, [nodes[0]]);
-            expect(value.string, 'Node 1');
-            expect(value.number, isNaN);
-            expect(value.boolean, isTrue);
-            expect(value.toString(), '[Node 1]');
-          });
-          test('many', () {
-            final value = XPathNodeSet(nodes);
-            expect(value.nodes, nodes);
-            expect(value.string, 'Node 1');
-            expect(value.number, isNaN);
-            expect(value.boolean, isTrue);
-            expect(value.toString(), '[Node 1, Node 2, Node 3, ...]');
-          });
-          test('duplicate', () {
-            expect(
-              () => XPathNodeSet([nodes[5], nodes[6], nodes[6]]),
-              throwsA(isAssertionError),
-            );
-          }, skip: !hasAssertionsEnabled());
-          test('unsorted', () {
-            expect(
-              () => XPathNodeSet([nodes[5], nodes[7], nodes[6]]),
-              throwsA(isAssertionError),
-            );
-          }, skip: !hasAssertionsEnabled());
-        }, skip: !hasAssertionsEnabled());
-        test('empty', () {
-          const value = XPathNodeSet.empty;
-          expect(value.nodes, isEmpty);
-          expect(value.string, '');
-          expect(value.number, isNaN);
-          expect(value.boolean, isFalse);
-          expect(value.toString(), '[]');
-        });
-        test('single', () {
-          final node = nodes[0];
-          final value = XPathNodeSet.single(node);
-          expect(value.nodes, [node]);
-          expect(value.string, 'Node 1');
-          expect(value.number, isNaN);
-          expect(value.boolean, isTrue);
-          expect(value.toString(), '[Node 1]');
-        });
-        group('fromIterable', () {
-          test('empty from list', () {
-            final iterable = <XmlNode>[];
-            final value = XPathNodeSet.fromIterable(iterable);
-            expect(value, same(XPathNodeSet.empty));
-            expect(value.nodes, isEmpty);
-            expect(value.string, '');
-            expect(value.number, isNaN);
-            expect(value.boolean, isFalse);
-            expect(value.toString(), '[]');
-          });
-          test('empty from set', () {
-            final iterable = <XmlNode>{};
-            final value = XPathNodeSet.fromIterable(iterable);
-            expect(value, same(XPathNodeSet.empty));
-            expect(value.nodes, isEmpty);
-            expect(value.string, '');
-            expect(value.number, isNaN);
-            expect(value.boolean, isFalse);
-            expect(value.toString(), '[]');
-          });
-          test('single from list', () {
-            final iterable = [nodes[0]];
-            final value = XPathNodeSet.fromIterable(iterable);
-            expect(value.nodes, same(iterable));
-            expect(value.string, 'Node 1');
-            expect(value.number, isNaN);
-            expect(value.boolean, isTrue);
-            expect(value.toString(), '[Node 1]');
-          });
-          test('single from set', () {
-            final iterable = {nodes[0]};
-            final value = XPathNodeSet.fromIterable(iterable);
-            expect(value.nodes, iterable);
-            expect(value.string, 'Node 1');
-            expect(value.number, isNaN);
-            expect(value.boolean, isTrue);
-            expect(value.toString(), '[Node 1]');
-          });
-          test('multiple from list', () {
-            final iterable = [nodes[0], nodes[1]];
-            final value = XPathNodeSet.fromIterable(
-              iterable,
-              isSorted: true,
-              isUnique: true,
-            );
-            expect(value.nodes, same(iterable));
-            expect(value.string, 'Node 1');
-            expect(value.number, isNaN);
-            expect(value.boolean, isTrue);
-            expect(value.toString(), '[Node 1, Node 2]');
-          });
-          test('multiple from set', () {
-            final iterable = {nodes[0], nodes[1]};
-            final value = XPathNodeSet.fromIterable(
-              iterable,
-              isSorted: true,
-              isUnique: true,
-            );
-            expect(value.nodes, iterable);
-            expect(value.string, 'Node 1');
-            expect(value.number, isNaN);
-            expect(value.boolean, isTrue);
-            expect(value.toString(), '[Node 1, Node 2]');
-          });
-          test('duplicates from list', () {
-            final iterable = [nodes[0], nodes[1], nodes[1]];
-            final value = XPathNodeSet.fromIterable(
-              iterable,
-              isUnique: false,
-              isSorted: true,
-            );
-            expect(value.nodes, [nodes[0], nodes[1]]);
-            expect(value.string, 'Node 1');
-            expect(value.number, isNaN);
-            expect(value.boolean, isTrue);
-            expect(value.toString(), '[Node 1, Node 2]');
-          });
-          test('duplicates from set', () {
-            final iterable = {nodes[0], nodes[1], nodes[1]};
-            final value = XPathNodeSet.fromIterable(
-              iterable,
-              isUnique: false,
-              isSorted: true,
-            );
-            expect(value.nodes, [nodes[0], nodes[1]]);
-            expect(value.string, 'Node 1');
-            expect(value.number, isNaN);
-            expect(value.boolean, isTrue);
-            expect(value.toString(), '[Node 1, Node 2]');
-          });
-          test('unsorted from small list', () {
-            final iterable = [nodes[1], nodes[0]];
-            final value = XPathNodeSet.fromIterable(
-              iterable,
-              isUnique: true,
-              isSorted: false,
-            );
-            expect(value.nodes, [nodes[0], nodes[1]]);
-            expect(value.string, 'Node 1');
-            expect(value.number, isNaN);
-            expect(value.boolean, isTrue);
-            expect(value.toString(), '[Node 1, Node 2]');
-          });
-          test('unsorted from small set', () {
-            final iterable = {nodes[1], nodes[0]};
-            final value = XPathNodeSet.fromIterable(
-              iterable,
-              isUnique: true,
-              isSorted: false,
-            );
-            expect(value.nodes, [nodes[0], nodes[1]]);
-            expect(value.string, 'Node 1');
-            expect(value.number, isNaN);
-            expect(value.boolean, isTrue);
-            expect(value.toString(), '[Node 1, Node 2]');
-          });
-          test('unsorted from large list', () {
-            final iterable = [...nodes.reversed];
-            final value = XPathNodeSet.fromIterable(
-              iterable,
-              isUnique: true,
-              isSorted: false,
-            );
-            expect(value.nodes, nodes);
-            expect(value.string, 'Node 1');
-            expect(value.number, isNaN);
-            expect(value.boolean, isTrue);
-            expect(value.toString(), '[Node 1, Node 2, Node 3, ...]');
-          });
-          test('unsorted from large set', () {
-            final iterable = {...nodes.reversed};
-            final value = XPathNodeSet.fromIterable(
-              iterable,
-              isUnique: true,
-              isSorted: false,
-            );
-            expect(value.nodes, nodes);
-            expect(value.string, 'Node 1');
-            expect(value.number, isNaN);
-            expect(value.boolean, isTrue);
-            expect(value.toString(), '[Node 1, Node 2, Node 3, ...]');
-          });
-          test('duplicates and unsorted stress', () {
-            final random = Random(521365);
-            for (var count = 5; count <= 1000; count++) {
-              final iterable = [
-                for (var i = 0; i < count; i++)
-                  nodes[random.nextInt(nodes.length)],
-              ];
-              final value = XPathNodeSet.fromIterable(iterable);
-              final sorted = nodes.where(iterable.contains).toList();
-              expect(value.nodes, sorted);
-              expect(value.string, sorted.first.innerText);
-              expect(value.number, isNaN);
-              expect(value.boolean, isTrue);
-              expect(
-                value.toString(),
-                startsWith('[${sorted.first.innerText}, '),
-              );
-            }
-          });
-        });
-      });
-    });
-    group('string', () {
-      test('empty', () {
-        const value = XPathString('');
-        expect(() => value.nodes, throwsA(isXPathEvaluationException()));
-        expect(value.string, '');
-        expect(value.number, isNaN);
-        expect(value.boolean, isFalse);
-        expect(value.toString(), '""');
-      });
-      test('full', () {
-        const value = XPathString('123');
-        expect(() => value.nodes, throwsA(isXPathEvaluationException()));
-        expect(value.string, '123');
-        expect(value.number, 123);
-        expect(value.boolean, isTrue);
-        expect(value.toString(), '"123"');
-      });
-    });
-    group('number', () {
-      test('0', () {
-        const value = XPathNumber(0);
-        expect(() => value.nodes, throwsA(isXPathEvaluationException()));
-        expect(value.string, '0');
-        expect(value.number, 0);
-        expect(value.boolean, isFalse);
-        expect(value.toString(), '0');
-      });
-      test('1.14', () {
-        const value = XPathNumber(1.14);
-        expect(() => value.nodes, throwsA(isXPathEvaluationException()));
-        expect(value.string, '1.14');
-        expect(value.number, 1.14);
-        expect(value.boolean, isTrue);
-        expect(value.toString(), '1.14');
-      });
-      test('-3', () {
-        const value = XPathNumber(-3);
-        expect(() => value.nodes, throwsA(isXPathEvaluationException()));
-        expect(value.string, '-3');
-        expect(value.number, -3);
-        expect(value.boolean, isTrue);
-        expect(value.toString(), '-3');
-      });
-      test('nan', () {
-        const value = XPathNumber(double.nan);
-        expect(() => value.nodes, throwsA(isXPathEvaluationException()));
-        expect(value.string, 'NaN');
-        expect(value.number, isNaN);
-        expect(value.boolean, isFalse);
-        expect(value.toString(), 'NaN');
-      });
-      test('+infinity', () {
-        const value = XPathNumber(double.infinity);
-        expect(() => value.nodes, throwsA(isXPathEvaluationException()));
-        expect(value.string, 'Infinity');
-        expect(value.number, double.infinity);
-        expect(value.boolean, isTrue);
-        expect(value.toString(), 'Infinity');
-      });
-      test('-infinity', () {
-        const value = XPathNumber(double.negativeInfinity);
-        expect(() => value.nodes, throwsA(isXPathEvaluationException()));
-        expect(value.string, '-Infinity');
-        expect(value.number, double.negativeInfinity);
-        expect(value.boolean, isTrue);
-        expect(value.toString(), '-Infinity');
-      });
-    });
-    group('boolean', () {
-      test('true', () {
-        const value = XPathBoolean(true);
-        expect(() => value.nodes, throwsA(isXPathEvaluationException()));
-        expect(value.string, 'true');
-        expect(value.number, 1);
-        expect(value.boolean, isTrue);
-        expect(value.toString(), 'true()');
-      });
-      test('false', () {
-        const value = XPathBoolean(false);
-        expect(() => value.nodes, throwsA(isXPathEvaluationException()));
-        expect(value.string, 'false');
-        expect(value.number, 0);
-        expect(value.boolean, isFalse);
-        expect(value.toString(), 'false()');
-      });
-    });
-  });
   group('literals', () {
     final xml = XmlDocument();
     test('integer', () {
@@ -507,19 +135,19 @@ void main() {
         xml,
         '\$a',
         isString('hello'),
-        variables: const {'a': XPathString('hello')},
+        variables: {'a': const XPathString('hello').toXPathSequence()},
       );
       expectEvaluate(
         xml,
         '\$a',
         isNumber(123),
-        variables: const {'a': XPathNumber(123)},
+        variables: {'a': const XPathNumber(123).toXPathSequence()},
       );
       expectEvaluate(
         xml,
         '\$a',
         isBoolean(false),
-        variables: const {'a': XPathBoolean(false)},
+        variables: {'a': const XPathBoolean(false).toXPathSequence()},
       );
       expect(
         () => expectEvaluate(xml, '\$unknown', anything),
@@ -541,7 +169,7 @@ void main() {
               isNumber(42),
               isBoolean(true),
             ]);
-            return const XPathString('ok');
+            return XPathSequence.single(const XPathString('ok'));
           },
         },
       );
@@ -576,23 +204,8 @@ void main() {
         expectEvaluate(xml, 'count(/r/b/*)', isNumber(1));
         expectEvaluate(xml, 'count(/r/b/absent)', isNumber(0));
       });
-      test('id(object)', () {
-        final xml = XmlDocument.parse('<r><a id="a">a</a><b id="b">b</b></r>');
-        expectEvaluate(xml, 'id("a b")', isNodeSet(xml.rootElement.children));
-        expectEvaluate(
-          xml,
-          'id("b")',
-          isNodeSet([xml.rootElement.children.last]),
-        );
-        expectEvaluate(xml, 'id(/r/*)', isNodeSet(xml.rootElement.children));
-        expectEvaluate(
-          xml,
-          'id(/r/b)',
-          isNodeSet([xml.rootElement.children.last]),
-        );
-      });
       test('local-name(node-set?)', () {
-        expectEvaluate(xml, 'local-name(/r/*)', isString('a'));
+        expectEvaluate(xml, 'local-name(/r/a)', isString('a'));
         expectEvaluate(
           xml,
           '/r/*[local-name()="a"]',
@@ -600,7 +213,7 @@ void main() {
         );
       });
       test('namespace-uri(node-set?)', () {
-        expectEvaluate(xml, 'namespace-uri(/r/*)', isString(''));
+        expectEvaluate(xml, 'namespace-uri(/r/a)', isString(''));
         expectEvaluate(
           xml,
           '/r/*[namespace-uri()=""]',
@@ -608,7 +221,7 @@ void main() {
         );
       });
       test('name(node-set?)', () {
-        expectEvaluate(xml, 'name(/r/*)', isString('a'));
+        expectEvaluate(xml, 'name(/r/a)', isString('a'));
         expectEvaluate(
           xml,
           '/r/*[name()="a"]',
@@ -701,8 +314,8 @@ void main() {
       test('string(number)', () {
         expectEvaluate(xml, 'string(0)', isString('0'));
         expectEvaluate(xml, 'string(0 div 0)', isString('NaN'));
-        expectEvaluate(xml, 'string(1 div 0)', isString('Infinity'));
-        expectEvaluate(xml, 'string(-1 div 0)', isString('-Infinity'));
+        expectEvaluate(xml, 'string(1 div 0)', isString('INF'));
+        expectEvaluate(xml, 'string(-1 div 0)', isString('-INF'));
         expectEvaluate(xml, 'string(42)', isString('42'));
         expectEvaluate(xml, 'string(-42)', isString('-42'));
         expectEvaluate(xml, 'string(3.1415)', isString('3.1415'));
@@ -880,7 +493,7 @@ void main() {
     });
     group('boolean', () {
       test('boolean(nodes)', () {
-        expectEvaluate(xml, 'boolean()', isBoolean(true));
+        expectEvaluate(xml, 'boolean(.)', isBoolean(true));
         expectEvaluate(xml, 'boolean(//a)', isBoolean(true));
         expectEvaluate(xml, 'boolean(//absent)', isBoolean(false));
       });
@@ -1251,8 +864,8 @@ void main() {
           // Incompatible predicate.
           final path = PathExpression([
             const Step(DescendantOrSelfAxis()),
-            Step(stepAxis, const QualifiedNameNodeTest('x'), const [
-              Predicate(LiteralExpression(XPathNumber(1))),
+            Step(stepAxis, const QualifiedNameNodeTest('x'), [
+              Predicate(LiteralExpression(XPathSequence.single(1))),
             ]),
           ], isAbsolute: true);
           expect(path.steps, hasLength(2));

@@ -22,7 +22,6 @@ import 'package:xml/src/xpath/functions31/string.dart';
 import 'package:xml/src/xpath/functions31/uri.dart';
 import 'package:xml/src/xpath/types31/date_time.dart';
 import 'package:xml/src/xpath/types31/map.dart';
-import 'package:xml/src/xpath/types31/sequence.dart';
 import 'package:xml/src/xpath/types31/string.dart' as v31;
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
@@ -2775,8 +2774,18 @@ void main() {
   group('uri', () {
     test('fn:resolve-uri', () {
       expect(
-        fnResolveUri(context, [XPathSequence.single('foo')]),
-        XPathSequence.single(const v31.XPathString('foo')),
+        fnResolveUri(context, [
+          XPathSequence.single(const v31.XPathString('foo')),
+          XPathSequence.single(const v31.XPathString('http://example.com/')),
+        ]),
+        XPathSequence.single(const v31.XPathString('http://example.com/foo')),
+      );
+      expect(
+        () => fnResolveUri(context, [
+          XPathSequence.single(const v31.XPathString('foo')),
+          XPathSequence.single(const v31.XPathString('::invalid::')),
+        ]),
+        throwsA(isA<XPathEvaluationException>()),
       );
     });
     test('fn:encode-for-uri', () {

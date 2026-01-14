@@ -1,8 +1,8 @@
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
-import '../evaluation/functions.dart';
-import '../evaluation/values.dart';
 import '../exceptions/evaluation_exception.dart';
+import '../types31/function.dart';
+import '../types31/sequence.dart';
 
 class StaticFunctionExpression implements XPathExpression {
   const StaticFunctionExpression(this.function, this.arguments);
@@ -11,7 +11,7 @@ class StaticFunctionExpression implements XPathExpression {
   final List<XPathExpression> arguments;
 
   @override
-  XPathValue call(XPathContext context) =>
+  XPathSequence call(XPathContext context) =>
       function(context, arguments.map((each) => each(context)).toList());
 }
 
@@ -22,7 +22,7 @@ class DynamicFunctionExpression implements XPathExpression {
   final List<XPathExpression> arguments;
 
   @override
-  XPathValue call(XPathContext context) {
+  XPathSequence call(XPathContext context) {
     final function = XPathEvaluationException.checkFunction(
       name,
       context.getFunction(name),

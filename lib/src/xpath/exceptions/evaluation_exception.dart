@@ -2,7 +2,6 @@ import 'package:petitparser/petitparser.dart' show unbounded;
 
 import '../../xml/exceptions/exception.dart';
 import '../evaluation/functions.dart';
-import '../evaluation/values.dart';
 import '../types31/sequence.dart';
 
 /// Exception thrown when calling an XPath functions fails.
@@ -77,7 +76,7 @@ class XPathEvaluationException extends XmlException {
   }
 
   /// Checks the presence of a variable.
-  static XPathValue checkVariable(String name, XPathValue? value) {
+  static XPathSequence checkVariable(String name, XPathSequence? value) {
     if (value != null) return value;
     throw XPathEvaluationException('Undeclared variable "$name"');
   }

@@ -20,7 +20,7 @@ class Step {
   final List<Predicate> predicates;
 
   /// Apply this step to the given context, returning the resulting nodes in document order.
-  List<XmlNode> find(XPathContext context) {
+  Iterable<Object> call(XPathContext context) {
     var result = <XmlNode>[];
     for (final node in axis.find(context.node)) {
       if (nodeTest.matches(node)) {
@@ -62,5 +62,5 @@ class ExpressionStep implements Step {
   List<Predicate> get predicates => const [];
 
   @override
-  List<XmlNode> find(XPathContext context) => expression(context).nodes;
+  Iterable<Object> call(XPathContext context) => expression(context);
 }

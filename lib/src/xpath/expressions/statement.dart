@@ -1,6 +1,7 @@
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
-import '../evaluation/values.dart';
+import '../types31/boolean.dart';
+import '../types31/sequence.dart';
 
 typedef XPathBinding = ({String name, XPathExpression expression});
 
@@ -11,7 +12,7 @@ class ForExpression implements XPathExpression {
   final XPathExpression body;
 
   @override
-  XPathValue call(XPathContext context) => throw UnimplementedError();
+  XPathSequence call(XPathContext context) => throw UnimplementedError();
 }
 
 class LetExpression implements XPathExpression {
@@ -21,7 +22,7 @@ class LetExpression implements XPathExpression {
   final XPathExpression body;
 
   @override
-  XPathValue call(XPathContext context) {
+  XPathSequence call(XPathContext context) {
     final inner = context.copy(variables: {...context.variables});
     for (final binding in bindings) {
       inner.variables[binding.name] = binding.expression(inner);
@@ -37,7 +38,7 @@ class SomeExpression implements XPathExpression {
   final XPathExpression body;
 
   @override
-  XPathValue call(XPathContext context) => throw UnimplementedError();
+  XPathSequence call(XPathContext context) => throw UnimplementedError();
 }
 
 class EveryExpression implements XPathExpression {
@@ -47,7 +48,7 @@ class EveryExpression implements XPathExpression {
   final XPathExpression body;
 
   @override
-  XPathValue call(XPathContext context) => throw UnimplementedError();
+  XPathSequence call(XPathContext context) => throw UnimplementedError();
 }
 
 class IfExpression implements XPathExpression {
@@ -58,7 +59,8 @@ class IfExpression implements XPathExpression {
   final XPathExpression falseExpression;
 
   @override
-  XPathValue call(XPathContext context) => condition(context).boolean
+  XPathSequence call(XPathContext context) =>
+      condition(context).toXPathBoolean()
       ? trueExpression(context)
       : falseExpression(context);
 }

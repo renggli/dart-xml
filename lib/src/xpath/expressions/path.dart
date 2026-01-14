@@ -1,8 +1,9 @@
+import '../../xml/extensions/comparison.dart';
 import '../../xml/extensions/parent.dart';
 import '../../xml/nodes/node.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
-import '../evaluation/values.dart';
+import '../types31/sequence.dart';
 import 'axis.dart';
 import 'node_test.dart';
 import 'step.dart';
@@ -161,33 +162,44 @@ class PathExpression implements XPathExpression {
   final bool isOrderPreserved;
 
   @override
-  XPathValue call(XPathContext context) {
+  XPathSequence call(XPathContext context) {
     if (steps.isEmpty) {
-      return XPathNodeSet.single(context.node.root);
+      return XPathSequence.single(context.node.root);
     }
     final inner = context.copy();
     if (isOrderPreserved) {
-      var nodes = [if (isAbsolute) context.node.root else context.node];
+      var nodes = <Object>[if (isAbsolute) context.node.root else context.node];
       for (final step in steps) {
-        final innerNodes = <XmlNode>[];
+        final innerNodes = <Object>[];
         for (final node in nodes) {
-          inner.node = node;
-          innerNodes.addAll(step.find(inner));
+          if (node is XmlNode) {
+            inner.node = node;
+            innerNodes.addAll(step(inner));
+          }
         }
         nodes = innerNodes;
       }
-      return XPathNodeSet(nodes);
+      return XPathSequence(nodes);
     } else {
-      var nodes = {if (isAbsolute) context.node.root else context.node};
+      var nodes = <Object>{if (isAbsolute) context.node.root else context.node};
       for (final step in steps) {
-        final innerNodes = <XmlNode>{};
+        final innerNodes = <Object>{};
         for (final node in nodes) {
-          inner.node = node;
-          innerNodes.addAll(step.find(inner));
+          if (node is XmlNode) {
+            inner.node = node;
+            innerNodes.addAll(step(inner));
+          }
         }
         nodes = innerNodes;
       }
-      return XPathNodeSet.fromIterable(nodes, isUnique: true);
+      final result = nodes.toList();
+      result.sort((a, b) {
+        if (a is XmlNode && b is XmlNode) {
+          return a.compareNodePosition(b);
+        }
+        return 0;
+      });
+      return XPathSequence(result);
     }
   }
 }

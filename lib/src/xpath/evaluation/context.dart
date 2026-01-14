@@ -1,7 +1,6 @@
 import '../../xml/nodes/node.dart';
+import '../types31/function.dart';
 import '../types31/sequence.dart';
-import 'functions.dart';
-import 'values.dart';
 
 /// Runtime execution context to evaluate XPath expressions.
 class XPathContext {
@@ -24,18 +23,17 @@ class XPathContext {
   /// Mutable context size.
   int last = 1;
 
-  /// The current node as an [XPathValue].
-  XPathValue get value => XPathNodeSet.single(node);
+  /// The current node as an [XPathSequence].
+  XPathSequence get value => XPathSequence.single(node);
 
   /// Looks up an XPath variable with the given [name].
-  XPathValue? getVariable(String name) => variables[name];
+  XPathSequence? getVariable(String name) => variables[name];
 
   /// Looks up a XPath function with the given [name].
-  XPathFunction? getFunction(String name) =>
-      functions[name] ?? standardFunctions[name];
+  XPathFunction? getFunction(String name) => functions[name];
 
   /// User-defined variables.
-  final Map<String, XPathValue> variables;
+  final Map<String, XPathSequence> variables;
 
   /// User-defined functions.
   final Map<String, XPathFunction> functions;
@@ -48,7 +46,7 @@ class XPathContext {
 
   /// Creates a copy of the current context.
   XPathContext copy({
-    Map<String, XPathValue>? variables,
+    Map<String, XPathSequence>? variables,
     Map<String, XPathFunction>? functions,
     Map<String, XmlNode>? documents,
     XPathTraceCallback? onTraceCallback,

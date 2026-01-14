@@ -42,9 +42,17 @@ XPathSequence fnData(XPathContext context, List<XPathSequence> arguments) {
   final arg = arguments.isNotEmpty
       ? arguments[0]
       : (XPathSequence.single(context.node));
-  return XPathSequence(
-    arg.expand((item) => item is Iterable<Object> ? item : [item]),
-  );
+  return XPathSequence(arg.expand(_atomize));
+}
+
+Iterable<Object> _atomize(Object item) {
+  if (item is XmlNode) {
+    return [item.toXPathString()];
+  } else if (item is Iterable<Object>) {
+    return item.expand(_atomize);
+  } else {
+    return [item];
+  }
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-base-uri
