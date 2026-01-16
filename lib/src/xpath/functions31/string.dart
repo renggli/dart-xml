@@ -64,7 +64,7 @@ XPathSequence fnSubstring(XPathContext context, List<XPathSequence> arguments) {
     'start',
     arguments[1],
   ).toXPathNumber().toDouble();
-  if (!start.isFinite) return XPathSequence.single(XPathString.empty);
+  if (!start.isFinite) return const XPathSequence.single(XPathString.empty);
   final startIdx = start.round() - 1;
   final length = arguments.length > 2
       ? XPathEvaluationException.extractExactlyOne(
@@ -74,7 +74,7 @@ XPathSequence fnSubstring(XPathContext context, List<XPathSequence> arguments) {
         ).toXPathNumber().toDouble()
       : double.infinity;
   if (length.isNaN || length <= 0) {
-    return XPathSequence.single(XPathString.empty);
+    return const XPathSequence.single(XPathString.empty);
   }
   final endIdx = length.isFinite
       ? startIdx + length.round()

@@ -363,7 +363,7 @@ XPathSequence fnNumber(XPathContext context, List<XPathSequence> arguments) {
   final arg = arguments.isNotEmpty
       ? arguments[0]
       : context.value.toXPathSequence();
-  if (arg.isEmpty) return XPathSequence.single(double.nan);
+  if (arg.isEmpty) return const XPathSequence.single(double.nan);
   return XPathSequence.single(
     XPathEvaluationException.extractZeroOrOne(
       'fn:number',
@@ -376,7 +376,7 @@ XPathSequence fnNumber(XPathContext context, List<XPathSequence> arguments) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-pi
 XPathSequence mathPi(XPathContext context, List<XPathSequence> arguments) {
   XPathEvaluationException.checkArgumentCount('math:pi', arguments, 0);
-  return XPathSequence.single(math.pi);
+  return const XPathSequence.single(math.pi);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-exp

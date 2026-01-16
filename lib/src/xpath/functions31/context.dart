@@ -1,7 +1,6 @@
 import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types31/date_time.dart';
-import '../types31/duration.dart';
 import '../types31/sequence.dart';
 import '../types31/string.dart';
 
@@ -75,7 +74,7 @@ XPathSequence fnImplicitTimezone(
     arguments,
     0,
   );
-  return XPathSequence.single(const XPathDuration(Duration(seconds: 0)));
+  return const XPathSequence.single(Duration(seconds: 0));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-default-collation
@@ -88,10 +87,8 @@ XPathSequence fnDefaultCollation(
     arguments,
     0,
   );
-  return XPathSequence.single(
-    const XPathString(
-      'http://www.w3.org/2005/xpath-functions/collation/codepoint',
-    ),
+  return const XPathSequence.single(
+    XPathString('http://www.w3.org/2005/xpath-functions/collation/codepoint'),
   );
 }
 
@@ -105,7 +102,7 @@ XPathSequence fnDefaultLanguage(
     arguments,
     0,
   );
-  return XPathSequence.single(const XPathString('en'));
+  return const XPathSequence.single(XPathString('en'));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-static-base-uri

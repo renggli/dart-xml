@@ -17,7 +17,7 @@ XPathSequence fnName(XPathContext context, List<XPathSequence> arguments) {
   if (arg is XmlHasName) {
     return XPathSequence.single((arg as XmlHasName).qualifiedName);
   }
-  return XPathSequence.single(XPathString.empty);
+  return const XPathSequence.single(XPathString.empty);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-local-name
@@ -26,7 +26,7 @@ XPathSequence fnLocalName(XPathContext context, List<XPathSequence> arguments) {
   if (arg is XmlHasName) {
     return XPathSequence.single(XPathString((arg as XmlHasName).localName));
   }
-  return XPathSequence.single(XPathString.empty);
+  return const XPathSequence.single(XPathString.empty);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-namespace-uri
@@ -40,7 +40,7 @@ XPathSequence fnNamespaceUri(
       XPathString((arg as XmlHasName).namespaceUri ?? ''),
     );
   }
-  return XPathSequence.single(XPathString.empty);
+  return const XPathSequence.single(XPathString.empty);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-root

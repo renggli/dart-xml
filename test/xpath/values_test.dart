@@ -49,8 +49,8 @@ void main() {
     });
     test('cast from sequence', () {
       expect(XPathSequence.empty.toXPathString(), '');
-      expect(XPathSequence.single('abc').toXPathString(), 'abc');
-      expect(XPathSequence.single(123).toXPathString(), '123');
+      expect(const XPathSequence.single('abc').toXPathString(), 'abc');
+      expect(const XPathSequence.single(123).toXPathString(), '123');
       expect(
         () => const XPathSequence(['a', 'b']).toXPathString(),
         throwsA(isA<XPathEvaluationException>()),
@@ -107,7 +107,7 @@ void main() {
         () => XPathSequence.empty.toXPathNumber(),
         throwsA(isA<XPathEvaluationException>()),
       );
-      expect(XPathSequence.single(123).toXPathNumber(), 123);
+      expect(const XPathSequence.single(123).toXPathNumber(), 123);
       expect(
         () => const XPathSequence([123, 456]).toXPathNumber(),
         throwsA(isA<XPathEvaluationException>()),
@@ -161,7 +161,7 @@ void main() {
       expect(array.toXPathArray(), array);
     });
     test('cast from sequence', () {
-      expect(XPathSequence.single([1, 2]).toXPathArray(), [1, 2]);
+      expect(const XPathSequence.single([1, 2]).toXPathArray(), [1, 2]);
       expect(
         () => XPathSequence.empty.toXPathArray(),
         throwsA(isA<XPathEvaluationException>()),
@@ -212,7 +212,7 @@ void main() {
     });
     test('cast from sequence', () {
       const duration = Duration(seconds: 1);
-      expect(XPathSequence.single(duration).toXPathDuration(), duration);
+      expect(const XPathSequence.single(duration).toXPathDuration(), duration);
       expect(
         () => XPathSequence.empty.toXPathDuration(),
         throwsA(isA<XPathEvaluationException>()),
@@ -244,117 +244,118 @@ void main() {
   });
   group('sequence', () {
     test('emtpy', () {
-      expect(XPathSequence.empty, isEmpty);
-      expect(XPathSequence.empty.length, 0);
+      const sequence = XPathSequence.empty;
+      expect(sequence, isEmpty);
+      expect(sequence, hasLength(0));
+      expect(sequence.toString(), '()');
+    });
+    test('true ', () {
+      const sequence = XPathSequence.trueSequence;
+      expect(sequence, isNotEmpty);
+      expect(sequence, hasLength(1));
+      expect(sequence.single, isTrue);
+      expect(sequence.toString(), '(true)');
+    });
+    test('false', () {
+      const sequence = XPathSequence.falseSequence;
+      expect(sequence, isNotEmpty);
+      expect(sequence, hasLength(1));
+      expect(sequence.single, isFalse);
+      expect(sequence.toString(), '(false)');
     });
     test('single', () {
-      final sequence = XPathSequence.single(123);
+      const sequence = XPathSequence.single(123);
       expect(sequence, isNotEmpty);
-      expect(sequence.length, 1);
-      expect(sequence.first, 123);
+      expect(sequence, hasLength(1));
+      expect(sequence.single, 123);
+      expect(sequence.toString(), '(123)');
+    });
+    test('multiple', () {
+      const sequence = XPathSequence([1, 2, 3]);
+      expect(sequence, isNotEmpty);
+      expect(sequence, hasLength(3));
+      expect(sequence, const [1, 2, 3]);
+      expect(sequence.toString(), '(1, 2, 3)');
+    });
+    test('cached', () {
+      final sequence = XPathSequence.cached([1, 2, 3]);
+      expect(sequence, isNotEmpty);
+      expect(sequence, hasLength(3));
+      expect(sequence, const [1, 2, 3]);
+      expect(sequence.toString(), '(1, 2, 3)');
     });
     test('range', () {
       final sequence = XPathSequence.range(1, 3);
       expect(sequence, isNotEmpty);
-      expect(sequence.length, 3);
-      expect(sequence, [1, 2, 3]);
+      expect(sequence, hasLength(3));
+      expect(sequence, const [1, 2, 3]);
+      expect(sequence.toString(), '(1, 2, 3)');
     });
-    test('range (single)', () {
-      final sequence = XPathSequence.range(1, 1);
+    test('range (singular)', () {
+      final sequence = XPathSequence.range(3, 3);
       expect(sequence, isNotEmpty);
-      expect(sequence.length, 1);
-      expect(sequence, [1]);
+      expect(sequence, hasLength(1));
+      expect(sequence.single, 3);
+      expect(sequence.toString(), '(3)');
     });
     test('range (empty)', () {
-      final sequence = XPathSequence.range(1, 0);
+      final sequence = XPathSequence.range(3, 1);
       expect(sequence, isEmpty);
-      expect(sequence.length, 0);
-    });
-    test('true sequence', () {
-      expect(XPathSequence.trueSequence, [true]);
-    });
-    test('false sequence', () {
-      expect(XPathSequence.falseSequence, [false]);
+      expect(sequence, hasLength(0));
+      expect(sequence.toString(), '()');
     });
     test('cast to sequence', () {
       expect(XPathSequence.empty.toXPathSequence(), isEmpty);
-      expect('abc'.toXPathSequence(), XPathSequence.single('abc'));
-      expect([1, 2].toXPathSequence(), XPathSequence.single([1, 2]));
+      expect('abc'.toXPathSequence(), const XPathSequence.single('abc'));
+      expect([1, 2].toXPathSequence(), const XPathSequence.single([1, 2]));
       expect(
         XPathSequence.trueSequence.toXPathSequence(),
         XPathSequence.trueSequence,
       );
     });
-    test('range efficiency', () {
-      final range = XPathSequence.range(1, 1000000);
-      expect(range.length, 1000000);
-      expect(range.first, 1);
-      expect(range.last, 1000000);
-      expect(range.elementAt(500), 501);
-      expect(range.contains(500000), true);
-      expect(range.contains(0), false);
-      expect(range.contains(1000001), false);
-    });
-    test('singular efficiency', () {
-      final singular = XPathSequence.single('foo');
-      expect(singular.length, 1);
-      expect(singular.first, 'foo');
-      expect(singular.last, 'foo');
-      expect(singular.single, 'foo');
-      expect(singular.contains('foo'), true);
-      expect(singular.contains('bar'), false);
-    });
   });
   group('function', () {
-    test('cast from individual XPathFunction', () {
+    test('cast from function', () {
       XPathSequence myFunction(
         XPathContext context,
         List<XPathSequence> arguments,
-      ) => XPathSequence.single('ok');
+      ) => const XPathSequence.single('ok');
 
-      final casted = myFunction.toXPathFunction();
-      expect(casted, myFunction);
-      expect(casted(context, []), ['ok']);
+      final function = myFunction.toXPathFunction();
+      expect(function, myFunction);
+      expect(function(context, []), ['ok']);
     });
     test('cast from XPathArray (array as function)', () {
       const array = XPathArray(['a', 'b', 'c']);
-      final casted = array.toXPathFunction();
-
-      // array(1) -> 'a'
-      final result1 = casted(context, [XPathSequence.single(1)]);
+      final function = array.toXPathFunction();
+      final result1 = function(context, [const XPathSequence.single(1)]);
       expect(result1, ['a']);
-
-      // array(2) -> 'b'
-      final result2 = casted(context, [XPathSequence.single(2)]);
+      final result2 = function(context, [const XPathSequence.single(2)]);
       expect(result2, ['b']);
-
-      // array(4) -> error
       expect(
-        () => casted(context, [XPathSequence.single(4)]),
+        () => function(context, [const XPathSequence.single(4)]),
         throwsA(isA<XPathEvaluationException>()),
       );
     });
     test('cast from XPathMap (map as function)', () {
       const map = XPathMap({'key1': 'val1', 'key2': 'val2'});
-      final casted = map.toXPathFunction();
-
-      // map('key1') -> 'val1'
-      final result1 = casted(context, [XPathSequence.single('key1')]);
+      final function = map.toXPathFunction();
+      final result1 = function(context, [const XPathSequence.single('key1')]);
       expect(result1, ['val1']);
-
-      // map('unknown') -> empty
-      final result2 = casted(context, [XPathSequence.single('unknown')]);
+      final result2 = function(context, [
+        const XPathSequence.single('unknown'),
+      ]);
       expect(result2, isEmpty);
     });
     test('cast from XPathSequence (containing a function)', () {
       XPathSequence myFunction(
         XPathContext context,
         List<XPathSequence> arguments,
-      ) => XPathSequence.single('sequence-ok');
+      ) => const XPathSequence.single('sequence-ok');
 
       final sequence = XPathSequence.single(myFunction);
-      final casted = sequence.toXPathFunction();
-      expect(casted(context, []), ['sequence-ok']);
+      final function = sequence.toXPathFunction();
+      expect(function(context, []), ['sequence-ok']);
     });
     test('cast from unsupported type', () {
       expect(

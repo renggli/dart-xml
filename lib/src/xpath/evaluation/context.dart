@@ -1,6 +1,7 @@
 import '../../xml/nodes/node.dart';
 import '../types31/function.dart';
 import '../types31/sequence.dart';
+import '../types31/string.dart';
 
 /// Runtime execution context to evaluate XPath expressions.
 class XPathContext {
@@ -62,4 +63,5 @@ class XPathContext {
 }
 
 /// Function type for tracing evaluation.
-typedef XPathTraceCallback = void Function(XPathSequence value, String? label);
+typedef XPathTraceCallback =
+    void Function(XPathSequence value, XPathString? label);

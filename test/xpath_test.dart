@@ -169,7 +169,7 @@ void main() {
               isNumber(42),
               isBoolean(true),
             ]);
-            return XPathSequence.single(const XPathString('ok'));
+            return const XPathSequence.single(XPathString('ok'));
           },
         },
       );
@@ -864,7 +864,7 @@ void main() {
           // Incompatible predicate.
           final path = PathExpression([
             const Step(DescendantOrSelfAxis()),
-            Step(stepAxis, const QualifiedNameNodeTest('x'), [
+            Step(stepAxis, const QualifiedNameNodeTest('x'), const [
               Predicate(LiteralExpression(XPathSequence.single(1))),
             ]),
           ], isAbsolute: true);

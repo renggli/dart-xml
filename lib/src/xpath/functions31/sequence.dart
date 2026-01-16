@@ -286,7 +286,7 @@ XPathSequence fnSum(XPathContext context, List<XPathSequence> arguments) {
         ),
       );
     }
-    return XPathSequence.single(0);
+    return const XPathSequence.single(0);
   }
   var sum = 0.0;
   for (final item in arg) {

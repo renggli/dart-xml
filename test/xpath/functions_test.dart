@@ -23,8 +23,11 @@ import 'package:xml/src/xpath/functions31/uri.dart';
 import 'package:xml/src/xpath/types31/date_time.dart';
 import 'package:xml/src/xpath/types31/map.dart';
 import 'package:xml/src/xpath/types31/string.dart' as v31;
+import 'package:xml/src/xpath/types31/string.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
+
+import '../utils/matchers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
 final context = XPathContext(document);
@@ -40,6 +43,13 @@ void main() {
       );
       expect(fnNodeName(context, [XPathSequence.empty]), XPathSequence.empty);
     });
+    test('fn:node-name (processing-instruction)', () {
+      final pi = XmlProcessing('target', 'value');
+      expect(
+        fnNodeName(context, [XPathSequence.single(pi)]).first.toString(),
+        equals('target'),
+      );
+    });
     test('fn:nilled', () {
       expect(
         fnNilled(context, [XPathSequence.single(document)]),
@@ -53,67 +63,43 @@ void main() {
     });
     test('fn:string', () {
       expect(
-        fnString(context, [XPathSequence.single('foo')]),
-        XPathSequence.single(const v31.XPathString('foo')),
+        fnString(context, [const XPathSequence.single('foo')]),
+        const XPathSequence.single(v31.XPathString('foo')),
       );
       expect(
         fnString(context, [XPathSequence.empty]),
-        XPathSequence.single(v31.XPathString.empty),
+        const XPathSequence.single(v31.XPathString.empty),
       );
       expect(
         fnString(XPathContext(document.findAllElements('a').first), []),
-        XPathSequence.single(const v31.XPathString('1')),
+        const XPathSequence.single(v31.XPathString('1')),
       );
     });
     test('fn:data', () {
       expect(fnData(context, [XPathSequence.empty]), XPathSequence.empty);
       expect(
-        fnData(context, [XPathSequence.single(123)]),
-        XPathSequence.single(123),
+        fnData(context, [const XPathSequence.single(123)]),
+        const XPathSequence.single(123),
       );
       expect(
         fnData(context, [
-          XPathSequence.single([1, 2, 3]),
+          const XPathSequence.single([1, 2, 3]),
         ]),
         const XPathSequence([1, 2, 3]),
       );
     });
     test('fn:base-uri', () {
+      expect(fnBaseUri(context, []), isEmpty);
       expect(
         fnBaseUri(context, [XPathSequence.single(document)]),
         XPathSequence.empty,
       );
     });
     test('fn:document-uri', () {
+      expect(fnDocumentUri(context, []), isEmpty);
       expect(
         fnDocumentUri(context, [XPathSequence.single(document)]),
         XPathSequence.empty,
-      );
-    });
-    test('fn:node-name processing-instruction', () {
-      final pi = XmlProcessing('target', 'value');
-      expect(
-        fnNodeName(context, [XPathSequence.single(pi)]).first.toString(),
-        equals('target'),
-      );
-    });
-    test('fn:base-uri', () {
-      expect(fnBaseUri(context, []), isEmpty);
-    });
-    test('fn:document-uri', () {
-      expect(fnDocumentUri(context, []), isEmpty);
-    });
-    test('fn:nilled', () {
-      // Element -> false
-      final el = XmlElement(XmlName.fromString('e'));
-      expect(
-        fnNilled(context, [XPathSequence.single(el)]),
-        orderedEquals([false]),
-      );
-      // Other -> empty
-      expect(
-        fnNilled(context, [XPathSequence.single(const v31.XPathString('s'))]),
-        isEmpty,
       );
     });
   });
@@ -121,113 +107,75 @@ void main() {
     test('fn:error', () {
       expect(
         () => fnError(context, []),
-        throwsA(isA<XPathEvaluationException>()),
+        throwsA(isXPathEvaluationException(message: '')),
       );
       expect(
-        () => fnError(context, [XPathSequence.single('err:code')]),
+        () => fnError(context, const [XPathSequence.single('code')]),
+        throwsA(isXPathEvaluationException(message: 'code')),
+      );
+      expect(
+        () => fnError(context, const [
+          XPathSequence.single('code'),
+          XPathSequence.single('description'),
+        ]),
+        throwsA(isXPathEvaluationException(message: 'code: description')),
+      );
+      expect(
+        () => fnError(context, const [
+          XPathSequence.single('code'),
+          XPathSequence.single('description'),
+          XPathSequence([1, 2, 3]),
+        ]),
         throwsA(
-          isA<XPathEvaluationException>().having(
-            (e) => e.message,
-            'message',
-            contains('err:code'),
-          ),
+          isXPathEvaluationException(message: 'code: description (1, 2, 3)'),
         ),
       );
     });
-    test('fn:trace', () {
-      final seq = XPathSequence.single(1);
-      final traceLog = <(XPathSequence, String?)>[];
+    test('fn:trace (without handler)', () {
+      const value = XPathSequence.single('value');
+      const label = XPathSequence.single('label');
+      expect(fnTrace(context, [value]), value);
+      expect(fnTrace(context, [value, label]), value);
+    });
+    test('fn:trace (with handler)', () {
+      const value = XPathSequence.single('value');
+      const label = XPathSequence.single('label');
+      final traceLog = <(XPathSequence, XPathString?)>[];
       final traceContext = context.copy(
-        onTraceCallback: (value, label) {
-          traceLog.add((value, label));
-        },
+        onTraceCallback: (value, label) => traceLog.add((value, label)),
       );
-      expect(fnTrace(traceContext, [seq]), seq);
-      expect(traceLog, hasLength(1));
-      expect(traceLog.first.$1, seq);
-      expect(traceLog.first.$2, null);
-      expect(fnTrace(traceContext, [seq, XPathSequence.single('label')]), seq);
-      expect(traceLog, hasLength(2));
-      expect(traceLog.last.$1, seq);
-      expect(traceLog.last.$2, 'label');
-    });
-    test('fn:error', () {
-      expect(
-        () => fnError(context, []),
-        throwsA(isA<XPathEvaluationException>()),
-      );
-      expect(
-        () => fnError(context, [XPathSequence.single('code')]),
-        throwsA(isA<XPathEvaluationException>()),
-      );
-      try {
-        fnError(context, [
-          XPathSequence.single('code'),
-          XPathSequence.single('desc'),
-          XPathSequence.single('obj'),
-        ]);
-      } catch (e) {
-        expect(e.toString(), contains('code: desc ([obj])'));
-      }
-    });
-    test('fn:trace', () {
-      expect(
-        fnTrace(context, [
-          XPathSequence.single('value'),
-          XPathSequence.single('label'),
-        ]),
-        orderedEquals(['value']),
-      );
+      expect(fnTrace(traceContext, [value]), value);
+      expect(fnTrace(traceContext, [value, label]), value);
+      expect(traceLog, [(value, null), (value, label.single)]);
     });
   });
   group('number', () {
     test('fn:abs', () {
       expect(
-        fnAbs(context, [XPathSequence.single(-5)]),
-        XPathSequence.single(5),
+        fnAbs(context, [const XPathSequence.single(-5)]),
+        const XPathSequence.single(5),
       );
       expect(fnAbs(context, [XPathSequence.empty]), XPathSequence.empty);
     });
-    test('fn:ceiling', () {
-      expect(
-        fnCeiling(context, [XPathSequence.single(1.1)]),
-        XPathSequence.single(2),
-      );
-    });
-    test('fn:floor', () {
-      expect(
-        fnFloor(context, [XPathSequence.single(1.9)]),
-        XPathSequence.single(1),
-      );
-    });
-    test('fn:round', () {
-      expect(
-        fnRound(context, [XPathSequence.single(1.1)]),
-        XPathSequence.single(1),
-      );
-      expect(
-        fnRound(context, [XPathSequence.single(1.5)]),
-        XPathSequence.single(2),
-      );
-    });
+
     test('fn:round-half-to-even', () {
       expect(
-        fnRoundHalfToEven(context, [XPathSequence.single(0.5)]),
-        XPathSequence.single(0),
+        fnRoundHalfToEven(context, [const XPathSequence.single(0.5)]),
+        const XPathSequence.single(0),
       );
       expect(
-        fnRoundHalfToEven(context, [XPathSequence.single(1.5)]),
-        XPathSequence.single(2),
+        fnRoundHalfToEven(context, [const XPathSequence.single(1.5)]),
+        const XPathSequence.single(2),
       );
       expect(
-        fnRoundHalfToEven(context, [XPathSequence.single(2.5)]),
-        XPathSequence.single(2),
+        fnRoundHalfToEven(context, [const XPathSequence.single(2.5)]),
+        const XPathSequence.single(2),
       );
     });
     test('fn:number', () {
       expect(
-        fnNumber(context, [XPathSequence.single('123')]),
-        XPathSequence.single(123),
+        fnNumber(context, [const XPathSequence.single('123')]),
+        const XPathSequence.single(123),
       );
       expect(
         (fnNumber(context, [XPathSequence.empty]).first as num).isNaN,
@@ -235,12 +183,12 @@ void main() {
       );
     });
     test('math:pi', () {
-      expect(mathPi(context, []), XPathSequence.single(math.pi));
+      expect(mathPi(context, []), const XPathSequence.single(math.pi));
     });
     test('math:sqrt', () {
       expect(
-        mathSqrt(context, [XPathSequence.single(4)]),
-        XPathSequence.single(2),
+        mathSqrt(context, [const XPathSequence.single(4)]),
+        const XPathSequence.single(2),
       );
     });
     test('fn:random-number-generator', () {
@@ -269,8 +217,8 @@ void main() {
     test('op:numeric-add', () {
       expect(
         opNumericAdd(context, [
-          XPathSequence.single(1),
-          XPathSequence.single(2),
+          const XPathSequence.single(1),
+          const XPathSequence.single(2),
         ]),
         orderedEquals([3]),
       );
@@ -278,8 +226,8 @@ void main() {
     test('op:numeric-subtract', () {
       expect(
         opNumericSubtract(context, [
-          XPathSequence.single(3),
-          XPathSequence.single(2),
+          const XPathSequence.single(3),
+          const XPathSequence.single(2),
         ]),
         orderedEquals([1]),
       );
@@ -287,8 +235,8 @@ void main() {
     test('op:numeric-multiply', () {
       expect(
         opNumericMultiply(context, [
-          XPathSequence.single(2),
-          XPathSequence.single(3),
+          const XPathSequence.single(2),
+          const XPathSequence.single(3),
         ]),
         orderedEquals([6]),
       );
@@ -296,8 +244,8 @@ void main() {
     test('op:numeric-divide', () {
       expect(
         opNumericDivide(context, [
-          XPathSequence.single(6),
-          XPathSequence.single(2),
+          const XPathSequence.single(6),
+          const XPathSequence.single(2),
         ]),
         orderedEquals([3.0]),
       );
@@ -305,8 +253,8 @@ void main() {
     test('op:numeric-integer-divide', () {
       expect(
         opNumericIntegerDivide(context, [
-          XPathSequence.single(10),
-          XPathSequence.single(3),
+          const XPathSequence.single(10),
+          const XPathSequence.single(3),
         ]),
         orderedEquals([3]),
       );
@@ -314,29 +262,29 @@ void main() {
     test('op:numeric-mod', () {
       expect(
         opNumericMod(context, [
-          XPathSequence.single(10),
-          XPathSequence.single(3),
+          const XPathSequence.single(10),
+          const XPathSequence.single(3),
         ]),
         orderedEquals([1]),
       );
     });
     test('op:numeric-unary-plus', () {
       expect(
-        opNumericUnaryPlus(context, [XPathSequence.single(1)]),
+        opNumericUnaryPlus(context, [const XPathSequence.single(1)]),
         orderedEquals([1]),
       );
     });
     test('op:numeric-unary-minus', () {
       expect(
-        opNumericUnaryMinus(context, [XPathSequence.single(1)]),
+        opNumericUnaryMinus(context, [const XPathSequence.single(1)]),
         orderedEquals([-1]),
       );
     });
     test('op:numeric-equal', () {
       expect(
         opNumericEqual(context, [
-          XPathSequence.single(1),
-          XPathSequence.single(1),
+          const XPathSequence.single(1),
+          const XPathSequence.single(1),
         ]),
         orderedEquals([true]),
       );
@@ -344,8 +292,8 @@ void main() {
     test('op:numeric-less-than', () {
       expect(
         opNumericLessThan(context, [
-          XPathSequence.single(1),
-          XPathSequence.single(2),
+          const XPathSequence.single(1),
+          const XPathSequence.single(2),
         ]),
         orderedEquals([true]),
       );
@@ -353,144 +301,143 @@ void main() {
     test('op:numeric-greater-than', () {
       expect(
         opNumericGreaterThan(context, [
-          XPathSequence.single(2),
-          XPathSequence.single(1),
+          const XPathSequence.single(2),
+          const XPathSequence.single(1),
         ]),
         orderedEquals([true]),
       );
     });
-    test('fn:abs', () {
-      expect(fnAbs(context, [XPathSequence.single(-1)]), orderedEquals([1]));
-      expect(fnAbs(context, [XPathSequence.empty]), isEmpty);
-    });
     test('fn:ceiling', () {
       expect(
-        fnCeiling(context, [XPathSequence.single(1.5)]),
+        fnCeiling(context, [const XPathSequence.single(1.5)]),
         orderedEquals([2]),
       );
     });
     test('fn:floor', () {
-      expect(fnFloor(context, [XPathSequence.single(1.5)]), orderedEquals([1]));
+      expect(
+        fnFloor(context, [const XPathSequence.single(1.5)]),
+        orderedEquals([1]),
+      );
     });
     test('fn:round', () {
-      expect(fnRound(context, [XPathSequence.single(1.5)]), orderedEquals([2]));
+      expect(
+        fnRound(context, [const XPathSequence.single(1.5)]),
+        orderedEquals([2]),
+      );
       expect(fnRound(context, [XPathSequence.empty]), isEmpty);
       expect(
-        fnRound(context, [XPathSequence.single(double.nan)]),
+        fnRound(context, [const XPathSequence.single(double.nan)]),
         orderedEquals([isNaN]),
       );
       expect(
-        fnRound(context, [XPathSequence.single(1.5), XPathSequence.single(1)]),
+        fnRound(context, [
+          const XPathSequence.single(1.5),
+          const XPathSequence.single(1),
+        ]),
         orderedEquals([1.5]),
       );
-    });
-    test('fn:round-half-to-even', () {
-      expect(
-        fnRoundHalfToEven(context, [XPathSequence.single(1.5)]),
-        orderedEquals([2]),
-      );
-      expect(
-        fnRoundHalfToEven(context, [XPathSequence.single(2.5)]),
-        orderedEquals([2]),
-      );
-      expect(fnRoundHalfToEven(context, [XPathSequence.empty]), isEmpty);
     });
     test('fn:format-integer', () {
       expect(
         fnFormatInteger(context, [
-          XPathSequence.single(123),
-          XPathSequence.single('000'),
+          const XPathSequence.single(123),
+          const XPathSequence.single('000'),
         ]),
         orderedEquals(['123']),
       );
       expect(
         fnFormatInteger(context, [
           XPathSequence.empty,
-          XPathSequence.single('000'),
+          const XPathSequence.single('000'),
         ]),
         isEmpty,
       );
-    });
-    test('fn:number', () {
-      expect(
-        fnNumber(context, [XPathSequence.single('123')]),
-        orderedEquals([123]),
-      );
-      expect(fnNumber(context, [XPathSequence.empty]), orderedEquals([isNaN]));
     });
     test('math functions', () {
       expect(
         mathPi(context, []),
         orderedEquals([predicate((x) => (x as double) > 3.14)]),
       );
-      expect(mathExp(context, [XPathSequence.single(0)]), orderedEquals([1.0]));
       expect(
-        mathExp10(context, [XPathSequence.single(0)]),
+        mathExp(context, [const XPathSequence.single(0)]),
         orderedEquals([1.0]),
       );
       expect(
-        mathLog(context, [XPathSequence.single(math.e)]),
+        mathExp10(context, [const XPathSequence.single(0)]),
         orderedEquals([1.0]),
       );
       expect(
-        mathLog10(context, [XPathSequence.single(10)]),
+        mathLog(context, [const XPathSequence.single(math.e)]),
         orderedEquals([1.0]),
       );
       expect(
-        mathPow(context, [XPathSequence.single(2), XPathSequence.single(3)]),
+        mathLog10(context, [const XPathSequence.single(10)]),
+        orderedEquals([1.0]),
+      );
+      expect(
+        mathPow(context, [
+          const XPathSequence.single(2),
+          const XPathSequence.single(3),
+        ]),
         orderedEquals([8.0]),
       );
       expect(
-        mathSqrt(context, [XPathSequence.single(4)]),
+        mathSqrt(context, [const XPathSequence.single(4)]),
         orderedEquals([2.0]),
       );
-      expect(mathSin(context, [XPathSequence.single(0)]), orderedEquals([0.0]));
-      expect(mathCos(context, [XPathSequence.single(0)]), orderedEquals([1.0]));
-      expect(mathTan(context, [XPathSequence.single(0)]), orderedEquals([0.0]));
       expect(
-        mathAsin(context, [XPathSequence.single(0)]),
+        mathSin(context, [const XPathSequence.single(0)]),
         orderedEquals([0.0]),
       );
       expect(
-        mathAcos(context, [XPathSequence.single(1)]),
+        mathCos(context, [const XPathSequence.single(0)]),
+        orderedEquals([1.0]),
+      );
+      expect(
+        mathTan(context, [const XPathSequence.single(0)]),
         orderedEquals([0.0]),
       );
       expect(
-        mathAtan(context, [XPathSequence.single(0)]),
+        mathAsin(context, [const XPathSequence.single(0)]),
         orderedEquals([0.0]),
       );
       expect(
-        mathAtan2(context, [XPathSequence.single(0), XPathSequence.single(1)]),
+        mathAcos(context, [const XPathSequence.single(1)]),
         orderedEquals([0.0]),
       );
-    });
-    test('fn:random-number-generator', () {
       expect(
-        fnRandomNumberGenerator(context, [XPathSequence.single(1)]),
-        hasLength(1),
+        mathAtan(context, [const XPathSequence.single(0)]),
+        orderedEquals([0.0]),
+      );
+      expect(
+        mathAtan2(context, [
+          const XPathSequence.single(0),
+          const XPathSequence.single(1),
+        ]),
+        orderedEquals([0.0]),
       );
     });
   });
   group('string', () {
     test('fn:collation-key', () {
       expect(
-        fnCollationKey(context, [XPathSequence.single('abc')]),
-        XPathSequence.single(const v31.XPathString('abc')),
+        fnCollationKey(context, [const XPathSequence.single('abc')]),
+        const XPathSequence.single(v31.XPathString('abc')),
       );
     });
     test('fn:concat', () {
       expect(
         fnConcat(context, [
-          XPathSequence.single('a'),
-          XPathSequence.single('b'),
+          const XPathSequence.single('a'),
+          const XPathSequence.single('b'),
         ]),
-        XPathSequence.single(const v31.XPathString('ab')),
+        const XPathSequence.single(v31.XPathString('ab')),
       );
       expect(
         fnConcat(context, [
-          XPathSequence.single('a'),
-          XPathSequence.single('b'),
-          XPathSequence.single('c'),
+          const XPathSequence.single('a'),
+          const XPathSequence.single('b'),
+          const XPathSequence.single('c'),
         ]),
         orderedEquals(['abc']),
       );
@@ -499,14 +446,14 @@ void main() {
       expect(
         fnStringJoin(context, [
           const XPathSequence(['a', 'b']),
-          XPathSequence.single(','),
+          const XPathSequence.single(','),
         ]),
-        XPathSequence.single(const v31.XPathString('a,b')),
+        const XPathSequence.single(v31.XPathString('a,b')),
       );
       expect(
         fnStringJoin(context, [
           const XPathSequence(['a', 'b', 'c']),
-          XPathSequence.single('-'),
+          const XPathSequence.single('-'),
         ]),
         orderedEquals(['a-b-c']),
       );
@@ -520,39 +467,39 @@ void main() {
     test('fn:substring', () {
       expect(
         fnSubstring(context, [
-          XPathSequence.single('motor car'),
-          XPathSequence.single(6),
+          const XPathSequence.single('motor car'),
+          const XPathSequence.single(6),
         ]),
         orderedEquals([' car']),
       );
       expect(
         fnSubstring(context, [
-          XPathSequence.single('metadata'),
-          XPathSequence.single(4),
-          XPathSequence.single(3),
+          const XPathSequence.single('metadata'),
+          const XPathSequence.single(4),
+          const XPathSequence.single(3),
         ]),
         orderedEquals(['ada']),
       );
       expect(
         fnSubstring(context, [
-          XPathSequence.single('12345'),
-          XPathSequence.single(1.5),
-          XPathSequence.single(2.6),
+          const XPathSequence.single('12345'),
+          const XPathSequence.single(1.5),
+          const XPathSequence.single(2.6),
         ]),
         orderedEquals(['234']),
       );
       expect(
         fnSubstring(context, [
-          XPathSequence.single('12345'),
-          XPathSequence.single(0),
-          XPathSequence.single(3),
+          const XPathSequence.single('12345'),
+          const XPathSequence.single(0),
+          const XPathSequence.single(3),
         ]),
         orderedEquals(['12']),
       );
     });
     test('fn:string-length', () {
       expect(
-        fnStringLength(context, [XPathSequence.single('abc')]),
+        fnStringLength(context, [const XPathSequence.single('abc')]),
         orderedEquals([3]),
       );
       expect(
@@ -562,41 +509,41 @@ void main() {
     });
     test('fn:normalize-space', () {
       expect(
-        fnNormalizeSpace(context, [XPathSequence.single('  a  b   c  ')]),
+        fnNormalizeSpace(context, [const XPathSequence.single('  a  b   c  ')]),
         orderedEquals(['a b c']),
       );
     });
     test('fn:upper-case', () {
       expect(
-        fnUpperCase(context, [XPathSequence.single('abc')]),
+        fnUpperCase(context, [const XPathSequence.single('abc')]),
         orderedEquals(['ABC']),
       );
     });
     test('fn:lower-case', () {
       expect(
-        fnLowerCase(context, [XPathSequence.single('ABC')]),
+        fnLowerCase(context, [const XPathSequence.single('ABC')]),
         orderedEquals(['abc']),
       );
     });
     test('fn:contains', () {
       expect(
         fnContains(context, [
-          XPathSequence.single('abc'),
-          XPathSequence.single('b'),
+          const XPathSequence.single('abc'),
+          const XPathSequence.single('b'),
         ]),
         XPathSequence.trueSequence,
       );
       expect(
         fnContains(context, [
-          XPathSequence.single('tattoo'),
-          XPathSequence.single('t'),
+          const XPathSequence.single('tattoo'),
+          const XPathSequence.single('t'),
         ]),
         orderedEquals([true]),
       );
       expect(
         fnContains(context, [
-          XPathSequence.single('tattoo'),
-          XPathSequence.single('z'),
+          const XPathSequence.single('tattoo'),
+          const XPathSequence.single('z'),
         ]),
         orderedEquals([false]),
       );
@@ -604,8 +551,8 @@ void main() {
     test('fn:starts-with', () {
       expect(
         fnStartsWith(context, [
-          XPathSequence.single('tattoo'),
-          XPathSequence.single('tat'),
+          const XPathSequence.single('tattoo'),
+          const XPathSequence.single('tat'),
         ]),
         orderedEquals([true]),
       );
@@ -613,8 +560,8 @@ void main() {
     test('fn:ends-with', () {
       expect(
         fnEndsWith(context, [
-          XPathSequence.single('tattoo'),
-          XPathSequence.single('too'),
+          const XPathSequence.single('tattoo'),
+          const XPathSequence.single('too'),
         ]),
         orderedEquals([true]),
       );
@@ -622,8 +569,8 @@ void main() {
     test('fn:substring-before', () {
       expect(
         fnSubstringBefore(context, [
-          XPathSequence.single('tattoo'),
-          XPathSequence.single('too'),
+          const XPathSequence.single('tattoo'),
+          const XPathSequence.single('too'),
         ]),
         orderedEquals(['tat']),
       );
@@ -631,8 +578,8 @@ void main() {
     test('fn:substring-after', () {
       expect(
         fnSubstringAfter(context, [
-          XPathSequence.single('tattoo'),
-          XPathSequence.single('tat'),
+          const XPathSequence.single('tattoo'),
+          const XPathSequence.single('tat'),
         ]),
         orderedEquals(['too']),
       );
@@ -640,9 +587,9 @@ void main() {
     test('fn:translate', () {
       expect(
         fnTranslate(context, [
-          XPathSequence.single('bar'),
-          XPathSequence.single('abc'),
-          XPathSequence.single('ABC'),
+          const XPathSequence.single('bar'),
+          const XPathSequence.single('abc'),
+          const XPathSequence.single('ABC'),
         ]),
         orderedEquals(['BAr']),
       );
@@ -650,15 +597,15 @@ void main() {
     test('fn:matches', () {
       expect(
         fnMatches(context, [
-          XPathSequence.single('abc'),
-          XPathSequence.single('b'),
+          const XPathSequence.single('abc'),
+          const XPathSequence.single('b'),
         ]),
         XPathSequence.trueSequence,
       );
       expect(
         fnMatches(context, [
-          XPathSequence.single('abracadabra'),
-          XPathSequence.single('bra'),
+          const XPathSequence.single('abracadabra'),
+          const XPathSequence.single('bra'),
         ]),
         orderedEquals([true]),
       );
@@ -666,9 +613,9 @@ void main() {
     test('fn:replace', () {
       expect(
         fnReplace(context, [
-          XPathSequence.single('abracadabra'),
-          XPathSequence.single('bra'),
-          XPathSequence.single('*'),
+          const XPathSequence.single('abracadabra'),
+          const XPathSequence.single('bra'),
+          const XPathSequence.single('*'),
         ]),
         orderedEquals(['a*cada*']),
       );
@@ -681,21 +628,21 @@ void main() {
         orderedEquals(['abc']),
       );
       expect(
-        () => fnCodepointsToString(context, [XPathSequence.single(-1)]),
+        () => fnCodepointsToString(context, [const XPathSequence.single(-1)]),
         throwsA(isA<XPathEvaluationException>()),
       );
     });
     test('fn:string-to-codepoints', () {
       expect(
-        fnStringToCodepoints(context, [XPathSequence.single('abc')]),
+        fnStringToCodepoints(context, [const XPathSequence.single('abc')]),
         orderedEquals([97, 98, 99]),
       );
     });
     test('fn:compare', () {
       expect(
         fnCompare(context, [
-          XPathSequence.single('a'),
-          XPathSequence.single('b'),
+          const XPathSequence.single('a'),
+          const XPathSequence.single('b'),
         ]),
         orderedEquals([-1]),
       );
@@ -703,42 +650,37 @@ void main() {
     test('fn:codepoint-equal', () {
       expect(
         fnCodepointEqual(context, [
-          XPathSequence.single('a'),
-          XPathSequence.single('a'),
+          const XPathSequence.single('a'),
+          const XPathSequence.single('a'),
         ]),
         orderedEquals([true]),
       );
     });
-    test('fn:collation-key', () {
-      expect(
-        fnCollationKey(context, [XPathSequence.single('abc')]),
-        orderedEquals(['abc']),
-      );
-    });
+
     test('fn:contains-token', () {
       expect(
         fnContainsToken(context, [
-          XPathSequence.single('a b c'),
-          XPathSequence.single('b'),
+          const XPathSequence.single('a b c'),
+          const XPathSequence.single('b'),
         ]),
         orderedEquals([true]),
       );
     });
     test('fn:normalize-unicode', () {
       expect(
-        fnNormalizeUnicode(context, [XPathSequence.single('a')]),
+        fnNormalizeUnicode(context, [const XPathSequence.single('a')]),
         orderedEquals(['a']),
       );
     });
     test('fn:tokenize', () {
       expect(
-        fnTokenize(context, [XPathSequence.single('a b c')]).toList(),
+        fnTokenize(context, [const XPathSequence.single('a b c')]).toList(),
         orderedEquals(['a', 'b', 'c']),
       );
       expect(
         fnTokenize(context, [
-          XPathSequence.single('abracadabra'),
-          XPathSequence.single('(ab)|(a)'),
+          const XPathSequence.single('abracadabra'),
+          const XPathSequence.single('(ab)|(a)'),
         ]).toList(),
         orderedEquals(['', 'r', 'c', 'd', 'r', '']),
       );
@@ -801,7 +743,7 @@ void main() {
     });
     test('fn:boolean', () {
       expect(
-        fnBoolean(context, [XPathSequence.single(true)]),
+        fnBoolean(context, [const XPathSequence.single(true)]),
         XPathSequence.trueSequence,
       );
       expect(
@@ -809,13 +751,13 @@ void main() {
         XPathSequence.falseSequence,
       );
       expect(
-        fnBoolean(context, [XPathSequence.single(1)]),
+        fnBoolean(context, [const XPathSequence.single(1)]),
         orderedEquals([true]),
       );
     });
     test('fn:not', () {
       expect(
-        fnNot(context, [XPathSequence.single(true)]),
+        fnNot(context, [const XPathSequence.single(true)]),
         XPathSequence.falseSequence,
       );
     });
@@ -830,15 +772,15 @@ void main() {
       final c = doc.rootElement.children.whereType<XmlElement>().first;
       final newContext = XPathContext(c);
       expect(
-        fnLang(newContext, [XPathSequence.single('en')]),
+        fnLang(newContext, [const XPathSequence.single('en')]),
         orderedEquals([true]),
       );
       expect(
-        fnLang(newContext, [XPathSequence.single('fr')]),
+        fnLang(newContext, [const XPathSequence.single('fr')]),
         orderedEquals([false]),
       );
       expect(
-        fnLang(newContext, [XPathSequence.single('EN-US')]),
+        fnLang(newContext, [const XPathSequence.single('EN-US')]),
         orderedEquals([false]),
       );
     });
@@ -886,14 +828,14 @@ void main() {
       final a = document.findAllElements('a').first;
       expect(
         fnName(context, [XPathSequence.single(a)]),
-        XPathSequence.single(const v31.XPathString('a')),
+        const XPathSequence.single(v31.XPathString('a')),
       );
     });
     test('fn:local-name', () {
       final a = document.findAllElements('a').first;
       expect(
         fnLocalName(context, [XPathSequence.single(a)]),
-        XPathSequence.single(const v31.XPathString('a')),
+        const XPathSequence.single(v31.XPathString('a')),
       );
     });
     test('fn:root', () {
@@ -901,12 +843,6 @@ void main() {
       expect(
         fnRoot(context, [XPathSequence.single(a)]),
         XPathSequence.single(document),
-      );
-    });
-    test('fn:has-children', () {
-      expect(
-        fnHasChildren(context, [XPathSequence.single(document)]),
-        XPathSequence.trueSequence,
       );
     });
     test('fn:innermost', () {
@@ -931,96 +867,16 @@ void main() {
       final a = document.findAllElements('a').first;
       expect(
         fnPath(context, [XPathSequence.single(a)]),
-        XPathSequence.single(const v31.XPathString('/r/a')),
+        const XPathSequence.single(v31.XPathString('/r/a')),
       );
-    });
-    group('node hierarchy', () {
-      final document = XmlDocument.parse('''
-        <root>
-          <child1>
-            <grandchild1/>
-            <grandchild2/>
-          </child1>
-          <child2/>
-          <child3/>
-        </root>''');
-      final root = document.rootElement;
-      final child1 = root.children.whereType<XmlElement>().first;
-      final grandchild2 = child1.children.whereType<XmlElement>().last;
-      final child3 = root.children.whereType<XmlElement>().last;
-      test('fn:name', () {
-        expect(
-          fnName(context, [XPathSequence.single(root)]),
-          orderedEquals(['root']),
-        );
-        expect(
-          fnName(context, [XPathSequence.single(document)]),
-          orderedEquals(['']),
-        );
-      });
-      test('fn:local-name', () {
-        expect(
-          fnLocalName(context, [XPathSequence.single(root)]),
-          orderedEquals(['root']),
-        );
-      });
-      test('fn:namespace-uri', () {
-        expect(
-          fnNamespaceUri(context, [XPathSequence.single(root)]),
-          orderedEquals(['']),
-        );
-      });
-      test('fn:root', () {
-        expect(
-          fnRoot(context, [XPathSequence.single(grandchild2)]).first,
-          equals(document),
-        );
-      });
-      test('fn:has-children', () {
-        expect(
-          fnHasChildren(context, [XPathSequence.single(root)]),
-          orderedEquals([true]),
-        );
-        expect(
-          fnHasChildren(context, [XPathSequence.single(grandchild2)]),
-          orderedEquals([false]),
-        );
-      });
-      test('fn:innermost', () {
-        expect(
-          fnInnermost(context, [
-            XPathSequence([root, child1, grandchild2, child3]),
-          ]).toList(),
-          containsAll([grandchild2, child3]),
-        );
-      });
-      test('fn:outermost', () {
-        expect(
-          fnOutermost(context, [
-            XPathSequence([root, child1, grandchild2, child3]),
-          ]).toList(),
-          orderedEquals([root]),
-        );
-      });
-      test('fn:path', () {
-        // Basic path test, implementation might be simple
-        final path = fnPath(context, [
-          XPathSequence.single(grandchild2),
-        ]).firstOrNull?.toString();
-        // Implementation uses names and indexes.
-        // root -> child[1] -> grandchild[1]
-        // path string format: /root/child[1]/grandchild
-        expect(path, isNotNull);
-        expect(path, matches(RegExp(r'/root.*child.*grandchild')));
-      });
     });
   });
   group('context', () {
     test('fn:position', () {
-      expect(fnPosition(context, []), XPathSequence.single(1));
+      expect(fnPosition(context, []), const XPathSequence.single(1));
     });
     test('fn:last', () {
-      expect(fnLast(context, []), XPathSequence.single(1));
+      expect(fnLast(context, []), const XPathSequence.single(1));
     });
     test('fn:current-dateTime', () {
       expect(fnCurrentDateTime(context, []).first, isA<DateTime>());
@@ -1057,7 +913,7 @@ void main() {
           XPathSequence.trueSequence,
         );
         expect(
-          fnEmpty(context, [XPathSequence.single(1)]),
+          fnEmpty(context, [const XPathSequence.single(1)]),
           XPathSequence.falseSequence,
         );
       });
@@ -1067,7 +923,7 @@ void main() {
           XPathSequence.falseSequence,
         );
         expect(
-          fnExists(context, [XPathSequence.single(1)]),
+          fnExists(context, [const XPathSequence.single(1)]),
           XPathSequence.trueSequence,
         );
       });
@@ -1077,7 +933,7 @@ void main() {
           fnHead(context, [
             const XPathSequence([1, 2, 3]),
           ]),
-          XPathSequence.single(1),
+          const XPathSequence.single(1),
         );
       });
       test('fn:tail', () {
@@ -1099,40 +955,40 @@ void main() {
         expect(
           fnInsertBefore(context, [
             const XPathSequence([1, 2]),
-            XPathSequence.single(1),
-            XPathSequence.single(0),
+            const XPathSequence.single(1),
+            const XPathSequence.single(0),
           ]),
           const XPathSequence([0, 1, 2]),
         );
         expect(
           fnInsertBefore(context, [
             const XPathSequence([1, 2]),
-            XPathSequence.single(2),
-            XPathSequence.single(0),
+            const XPathSequence.single(2),
+            const XPathSequence.single(0),
           ]),
           const XPathSequence([1, 0, 2]),
         );
         expect(
           fnInsertBefore(context, [
             const XPathSequence([1, 2]),
-            XPathSequence.single(3),
-            XPathSequence.single(0),
+            const XPathSequence.single(3),
+            const XPathSequence.single(0),
           ]),
           const XPathSequence([1, 2, 0]),
         );
         expect(
           fnInsertBefore(context, [
             const XPathSequence([1, 2]),
-            XPathSequence.single(0),
-            XPathSequence.single(0),
+            const XPathSequence.single(0),
+            const XPathSequence.single(0),
           ]),
           const XPathSequence([0, 1, 2]),
         );
         expect(
           fnInsertBefore(context, [
             const XPathSequence([1, 2]),
-            XPathSequence.single(10),
-            XPathSequence.single(0),
+            const XPathSequence.single(10),
+            const XPathSequence.single(0),
           ]),
           const XPathSequence([1, 2, 0]),
         );
@@ -1141,21 +997,21 @@ void main() {
         expect(
           fnRemove(context, [
             const XPathSequence([1, 2, 3]),
-            XPathSequence.single(2),
+            const XPathSequence.single(2),
           ]),
           const XPathSequence([1, 3]),
         );
         expect(
           fnRemove(context, [
             const XPathSequence([1, 2, 3]),
-            XPathSequence.single(0),
+            const XPathSequence.single(0),
           ]),
           const XPathSequence([1, 2, 3]),
         );
         expect(
           fnRemove(context, [
             const XPathSequence([1, 2, 3]),
-            XPathSequence.single(4),
+            const XPathSequence.single(4),
           ]),
           const XPathSequence([1, 2, 3]),
         );
@@ -1173,39 +1029,39 @@ void main() {
         expect(
           fnSubsequence(context, [
             const XPathSequence([1, 2, 3, 4, 5]),
-            XPathSequence.single(2),
+            const XPathSequence.single(2),
           ]),
           const XPathSequence([2, 3, 4, 5]),
         );
         expect(
           fnSubsequence(context, [
             const XPathSequence([1, 2, 3, 4, 5]),
-            XPathSequence.single(2),
-            XPathSequence.single(2),
+            const XPathSequence.single(2),
+            const XPathSequence.single(2),
           ]),
           const XPathSequence([2, 3]),
         );
         expect(
           fnSubsequence(context, [
             const XPathSequence([1, 2, 3, 4, 5]),
-            XPathSequence.single(0),
-            XPathSequence.single(2),
+            const XPathSequence.single(0),
+            const XPathSequence.single(2),
           ]),
           const XPathSequence([1]),
         );
         expect(
           fnSubsequence(context, [
             const XPathSequence([1, 2, 3, 4, 5]),
-            XPathSequence.single(-1),
-            XPathSequence.single(3),
+            const XPathSequence.single(-1),
+            const XPathSequence.single(3),
           ]),
           const XPathSequence([1]),
         );
         expect(
           fnSubsequence(context, [
             const XPathSequence([1, 2, 3, 4, 5]),
-            XPathSequence.single(0.5),
-            XPathSequence.single(1),
+            const XPathSequence.single(0.5),
+            const XPathSequence.single(1),
           ]),
           const XPathSequence([1]),
         );
@@ -1228,14 +1084,14 @@ void main() {
         expect(
           fnIndexOf(context, [
             const XPathSequence([1, 2, 1, 3]),
-            XPathSequence.single(1),
+            const XPathSequence.single(1),
           ]),
           const XPathSequence([1, 3]),
         );
         expect(
           fnIndexOf(context, [
             const XPathSequence([1, 2, 3]),
-            XPathSequence.single(4),
+            const XPathSequence.single(4),
           ]),
           XPathSequence.empty,
         );
@@ -1271,8 +1127,8 @@ void main() {
           XPathSequence.empty,
         );
         expect(
-          fnZeroOrOne(context, [XPathSequence.single(1)]),
-          XPathSequence.single(1),
+          fnZeroOrOne(context, [const XPathSequence.single(1)]),
+          const XPathSequence.single(1),
         );
         expect(
           () => fnZeroOrOne(context, [
@@ -1283,8 +1139,8 @@ void main() {
       });
       test('fn:one-or-more', () {
         expect(
-          fnOneOrMore(context, [XPathSequence.single(1)]),
-          XPathSequence.single(1),
+          fnOneOrMore(context, [const XPathSequence.single(1)]),
+          const XPathSequence.single(1),
         );
         expect(
           fnOneOrMore(context, [
@@ -1299,8 +1155,8 @@ void main() {
       });
       test('fn:exactly-one', () {
         expect(
-          fnExactlyOne(context, [XPathSequence.single(1)]),
-          XPathSequence.single(1),
+          fnExactlyOne(context, [const XPathSequence.single(1)]),
+          const XPathSequence.single(1),
         );
         expect(
           () => fnExactlyOne(context, [XPathSequence.empty]),
@@ -1318,13 +1174,13 @@ void main() {
       test('fn:count', () {
         expect(
           fnCount(context, [XPathSequence.empty]),
-          XPathSequence.single(0),
+          const XPathSequence.single(0),
         );
         expect(
           fnCount(context, [
             const XPathSequence([1, 2, 3]),
           ]),
-          XPathSequence.single(3),
+          const XPathSequence.single(3),
         );
       });
       test('fn:avg', () {
@@ -1332,7 +1188,7 @@ void main() {
           fnAvg(context, [
             const XPathSequence([1, 2, 3]),
           ]),
-          XPathSequence.single(2.0),
+          const XPathSequence.single(2.0),
         );
         expect(fnAvg(context, [XPathSequence.empty]), XPathSequence.empty);
       });
@@ -1341,7 +1197,7 @@ void main() {
           fnMax(context, [
             const XPathSequence([1, 3, 2]),
           ]),
-          XPathSequence.single(3),
+          const XPathSequence.single(3),
         );
         expect(fnMax(context, [XPathSequence.empty]), XPathSequence.empty);
       });
@@ -1350,40 +1206,43 @@ void main() {
           fnMin(context, [
             const XPathSequence([3, 1, 2]),
           ]),
-          XPathSequence.single(1),
+          const XPathSequence.single(1),
         );
         expect(fnMin(context, [XPathSequence.empty]), XPathSequence.empty);
       });
       test('fn:sum', () {
-        expect(fnSum(context, [XPathSequence.empty]), XPathSequence.single(0));
         expect(
-          fnSum(context, [XPathSequence.empty, XPathSequence.single(42)]),
-          XPathSequence.single(42),
+          fnSum(context, [XPathSequence.empty]),
+          const XPathSequence.single(0),
+        );
+        expect(
+          fnSum(context, [XPathSequence.empty, const XPathSequence.single(42)]),
+          const XPathSequence.single(42),
         );
         expect(
           fnSum(context, [
             const XPathSequence([1, 2, 3]),
           ]),
-          XPathSequence.single(6.0),
+          const XPathSequence.single(6.0),
         );
       });
     });
     group('functions on node identifiers', () {
       test('fn:id', () {
         expect(
-          () => fnId(context, [XPathSequence.single('id')]),
+          () => fnId(context, [const XPathSequence.single('id')]),
           throwsA(isA<UnimplementedError>()),
         );
       });
       test('fn:element-with-id', () {
         expect(
-          () => fnElementWithId(context, [XPathSequence.single('id')]),
+          () => fnElementWithId(context, [const XPathSequence.single('id')]),
           throwsA(isA<UnimplementedError>()),
         );
       });
       test('fn:idref', () {
         expect(
-          () => fnIdref(context, [XPathSequence.single('id')]),
+          () => fnIdref(context, [const XPathSequence.single('id')]),
           throwsA(isA<UnimplementedError>()),
         );
       });
@@ -1397,13 +1256,13 @@ void main() {
     group('functions giving access to external information', () {
       test('fn:doc', () {
         expect(
-          () => fnDoc(context, [XPathSequence.single('uri')]),
+          () => fnDoc(context, [const XPathSequence.single('uri')]),
           throwsA(isA<XPathEvaluationException>()),
         );
       });
       test('fn:doc-available', () {
         expect(
-          fnDocAvailable(context, [XPathSequence.single('uri')]),
+          fnDocAvailable(context, [const XPathSequence.single('uri')]),
           equals(XPathSequence.falseSequence),
         );
       });
@@ -1415,25 +1274,30 @@ void main() {
       });
       test('fn:unparsed-text', () {
         expect(
-          () => fnUnparsedText(context, [XPathSequence.single('uri')]),
+          () => fnUnparsedText(context, [const XPathSequence.single('uri')]),
           throwsA(isA<UnimplementedError>()),
         );
       });
       test('fn:unparsed-text-lines', () {
         expect(
-          () => fnUnparsedTextLines(context, [XPathSequence.single('uri')]),
+          () =>
+              fnUnparsedTextLines(context, [const XPathSequence.single('uri')]),
           throwsA(isA<UnimplementedError>()),
         );
       });
       test('fn:unparsed-text-available', () {
         expect(
-          () => fnUnparsedTextAvailable(context, [XPathSequence.single('uri')]),
+          () => fnUnparsedTextAvailable(context, [
+            const XPathSequence.single('uri'),
+          ]),
           throwsA(isA<UnimplementedError>()),
         );
       });
       test('fn:environment-variable', () {
         expect(
-          () => fnEnvironmentVariable(context, [XPathSequence.single('name')]),
+          () => fnEnvironmentVariable(context, [
+            const XPathSequence.single('name'),
+          ]),
           throwsA(isA<UnimplementedError>()),
         );
       });
@@ -1453,13 +1317,14 @@ void main() {
       });
       test('fn:parse-xml', () {
         expect(
-          () => fnParseXml(context, [XPathSequence.single('<r/>')]),
+          () => fnParseXml(context, [const XPathSequence.single('<r/>')]),
           throwsA(isA<UnimplementedError>()),
         );
       });
       test('fn:parse-xml-fragment', () {
         expect(
-          () => fnParseXmlFragment(context, [XPathSequence.single('<r/>')]),
+          () =>
+              fnParseXmlFragment(context, [const XPathSequence.single('<r/>')]),
           throwsA(isA<UnimplementedError>()),
         );
       });
@@ -1498,7 +1363,7 @@ void main() {
       expect(
         fnApply(context, [
           XPathSequence.single(add),
-          XPathSequence.single([1, 2]),
+          const XPathSequence.single([1, 2]),
         ]),
         orderedEquals([3]),
       );
@@ -1531,7 +1396,7 @@ void main() {
       expect(
         fnFoldLeft(context, [
           const XPathSequence([1, 2, 3, 4, 5]),
-          XPathSequence.single(0),
+          const XPathSequence.single(0),
           XPathSequence.single(add),
         ]).first,
         equals(15),
@@ -1544,7 +1409,7 @@ void main() {
       expect(
         fnFoldRight(context, [
           const XPathSequence([1, 2, 3, 4, 5]),
-          XPathSequence.single(0),
+          const XPathSequence.single(0),
           XPathSequence.single(sub),
         ]).first,
         equals(3),
@@ -1599,22 +1464,22 @@ void main() {
     test('op:same-key', () {
       expect(
         opSameKey(context, [
-          XPathSequence.single('a'),
-          XPathSequence.single('a'),
+          const XPathSequence.single('a'),
+          const XPathSequence.single('a'),
         ]),
         XPathSequence.trueSequence,
       );
       expect(
         opSameKey(context, [
-          XPathSequence.single(double.nan),
-          XPathSequence.single(double.nan),
+          const XPathSequence.single(double.nan),
+          const XPathSequence.single(double.nan),
         ]),
         XPathSequence.trueSequence,
       );
       expect(
         opSameKey(context, [
-          XPathSequence.single('a'),
-          XPathSequence.single('b'),
+          const XPathSequence.single('a'),
+          const XPathSequence.single('b'),
         ]),
         XPathSequence.falseSequence,
       );
@@ -1630,7 +1495,7 @@ void main() {
         equals({'a': 1, 'b': 3, 'c': 4}),
       );
       expect(
-        () => mapMerge(context, [XPathSequence.single(123)]),
+        () => mapMerge(context, [const XPathSequence.single(123)]),
         throwsA(isA<XPathEvaluationException>()),
       );
     });
@@ -1651,14 +1516,14 @@ void main() {
       expect(
         mapContains(context, [
           XPathSequence.single(map),
-          XPathSequence.single('a'),
+          const XPathSequence.single('a'),
         ]),
         orderedEquals([true]),
       );
       expect(
         mapContains(context, [
           XPathSequence.single(map),
-          XPathSequence.single('b'),
+          const XPathSequence.single('b'),
         ]),
         orderedEquals([false]),
       );
@@ -1666,11 +1531,17 @@ void main() {
     test('map:get', () {
       final map = {'a': 1};
       expect(
-        mapGet(context, [XPathSequence.single(map), XPathSequence.single('a')]),
+        mapGet(context, [
+          XPathSequence.single(map),
+          const XPathSequence.single('a'),
+        ]),
         orderedEquals([1]),
       );
       expect(
-        mapGet(context, [XPathSequence.single(map), XPathSequence.single('b')]),
+        mapGet(context, [
+          XPathSequence.single(map),
+          const XPathSequence.single('b'),
+        ]),
         isEmpty,
       );
     });
@@ -1680,7 +1551,7 @@ void main() {
       expect(
         mapFind(context, [
           XPathSequence.single(map),
-          XPathSequence.single('a'),
+          const XPathSequence.single('a'),
         ]),
         orderedEquals([1]),
       );
@@ -1690,8 +1561,8 @@ void main() {
       expect(
         mapPut(context, [
           XPathSequence.single(map),
-          XPathSequence.single('b'),
-          XPathSequence.single(2),
+          const XPathSequence.single('b'),
+          const XPathSequence.single(2),
         ]).first,
         equals({'a': 1, 'b': 2}),
       );
@@ -1699,8 +1570,8 @@ void main() {
     test('map:entry', () {
       expect(
         mapEntry(context, [
-          XPathSequence.single('a'),
-          XPathSequence.single(1),
+          const XPathSequence.single('a'),
+          const XPathSequence.single(1),
         ]).first,
         equals({'a': 1}),
       );
@@ -1710,7 +1581,7 @@ void main() {
       expect(
         mapRemove(context, [
           XPathSequence.single(map),
-          XPathSequence.single('a'),
+          const XPathSequence.single('a'),
         ]).first,
         equals({'b': 2}),
       );
@@ -1750,21 +1621,21 @@ void main() {
       expect(
         arrayGet(context, [
           XPathSequence.single(array),
-          XPathSequence.single(1),
+          const XPathSequence.single(1),
         ]),
         orderedEquals(['a']),
       );
       expect(
         () => arrayGet(context, [
           XPathSequence.single(array),
-          XPathSequence.single(3),
+          const XPathSequence.single(3),
         ]),
         throwsA(isA<XPathEvaluationException>()),
       );
       expect(
         () => arrayGet(context, [
           XPathSequence.single(array),
-          XPathSequence.single(0),
+          const XPathSequence.single(0),
         ]),
         throwsA(isA<XPathEvaluationException>()),
       );
@@ -1774,16 +1645,16 @@ void main() {
       expect(
         arrayPut(context, [
           XPathSequence.single(array),
-          XPathSequence.single(1),
-          XPathSequence.single('c'),
+          const XPathSequence.single(1),
+          const XPathSequence.single('c'),
         ]).first,
         equals(['c', 'b']),
       );
       expect(
         () => arrayPut(context, [
           XPathSequence.single(array),
-          XPathSequence.single(3),
-          XPathSequence.single('c'),
+          const XPathSequence.single(3),
+          const XPathSequence.single('c'),
         ]),
         throwsA(isA<XPathEvaluationException>()),
       );
@@ -1793,7 +1664,7 @@ void main() {
       expect(
         arrayAppend(context, [
           XPathSequence.single(array),
-          XPathSequence.single('b'),
+          const XPathSequence.single('b'),
         ]).first,
         equals(['a', 'b']),
       );
@@ -1803,37 +1674,37 @@ void main() {
       expect(
         arraySubarray(context, [
           XPathSequence.single(array),
-          XPathSequence.single(2),
+          const XPathSequence.single(2),
         ]).first,
         equals(['b', 'c', 'd']),
       );
       expect(
         arraySubarray(context, [
           XPathSequence.single(array),
-          XPathSequence.single(2),
-          XPathSequence.single(2),
+          const XPathSequence.single(2),
+          const XPathSequence.single(2),
         ]).first,
         equals(['b', 'c']),
       );
       expect(
         () => arraySubarray(context, [
           XPathSequence.single(array),
-          XPathSequence.single(0),
+          const XPathSequence.single(0),
         ]),
         throwsA(isA<XPathEvaluationException>()),
       );
       expect(
         arraySubarray(context, [
           XPathSequence.single(array),
-          XPathSequence.single(5),
+          const XPathSequence.single(5),
         ]).first,
         equals([]),
       );
       expect(
         () => arraySubarray(context, [
           XPathSequence.single(array),
-          XPathSequence.single(4),
-          XPathSequence.single(2),
+          const XPathSequence.single(4),
+          const XPathSequence.single(2),
         ]),
         throwsA(isA<XPathEvaluationException>()),
       );
@@ -1843,7 +1714,7 @@ void main() {
       expect(
         arrayRemove(context, [
           XPathSequence.single(array),
-          XPathSequence.single(2),
+          const XPathSequence.single(2),
         ]).first,
         equals(['a', 'c']),
       );
@@ -1857,7 +1728,7 @@ void main() {
       expect(
         () => arrayRemove(context, [
           XPathSequence.single(array),
-          XPathSequence.single(4),
+          const XPathSequence.single(4),
         ]),
         throwsA(isA<XPathEvaluationException>()),
       );
@@ -1867,16 +1738,16 @@ void main() {
       expect(
         arrayInsertBefore(context, [
           XPathSequence.single(array),
-          XPathSequence.single(2),
-          XPathSequence.single('b'),
+          const XPathSequence.single(2),
+          const XPathSequence.single('b'),
         ]).first,
         equals(['a', 'b', 'c']),
       );
       expect(
         () => arrayInsertBefore(context, [
           XPathSequence.single(array),
-          XPathSequence.single(4),
-          XPathSequence.single('d'),
+          const XPathSequence.single(4),
+          const XPathSequence.single('d'),
         ]),
         throwsA(isA<XPathEvaluationException>()),
       );
@@ -1891,7 +1762,7 @@ void main() {
         orderedEquals(['a']),
       );
       expect(
-        () => arrayHead(context, [XPathSequence.single([])]),
+        () => arrayHead(context, [const XPathSequence.single([])]),
         throwsA(isA<XPathEvaluationException>()),
       );
     });
@@ -1905,7 +1776,7 @@ void main() {
         equals(['b', 'c']),
       );
       expect(
-        () => arrayTail(context, [XPathSequence.single([])]),
+        () => arrayTail(context, [const XPathSequence.single([])]),
         throwsA(isA<XPathEvaluationException>()),
       );
     });
@@ -1922,7 +1793,7 @@ void main() {
     test('array:join', () {
       expect(
         arrayJoin(context, [
-          XPathSequence.single([1, 2]),
+          const XPathSequence.single([1, 2]),
         ]).first,
         orderedEquals([1, 2]),
       );
@@ -1989,7 +1860,7 @@ void main() {
       expect(
         arrayFoldLeft(context, [
           XPathSequence.single(array),
-          XPathSequence.single(0),
+          const XPathSequence.single(0),
           XPathSequence.single(add),
         ]).first,
         equals(15),
@@ -2002,7 +1873,7 @@ void main() {
       expect(
         arrayFoldRight(context, [
           XPathSequence.single(array),
-          XPathSequence.single(0),
+          const XPathSequence.single(0),
           XPathSequence.single(sub),
         ]).first,
         equals(3),
@@ -2058,15 +1929,15 @@ void main() {
     test('op:hexBinary-equal', () {
       expect(
         opHexBinaryEqual(context, [
-          XPathSequence.single('AB'),
-          XPathSequence.single('AB'),
+          const XPathSequence.single('AB'),
+          const XPathSequence.single('AB'),
         ]),
         orderedEquals([true]),
       );
       expect(
         opHexBinaryEqual(context, [
-          XPathSequence.single('AB'),
-          XPathSequence.single('AC'),
+          const XPathSequence.single('AB'),
+          const XPathSequence.single('AC'),
         ]),
         orderedEquals([false]),
       );
@@ -2074,8 +1945,8 @@ void main() {
     test('op:hexBinary-less-than', () {
       expect(
         opHexBinaryLessThan(context, [
-          XPathSequence.single('AA'),
-          XPathSequence.single('BB'),
+          const XPathSequence.single('AA'),
+          const XPathSequence.single('BB'),
         ]),
         orderedEquals([true]),
       );
@@ -2083,8 +1954,8 @@ void main() {
     test('op:hexBinary-greater-than', () {
       expect(
         opHexBinaryGreaterThan(context, [
-          XPathSequence.single('BB'),
-          XPathSequence.single('AA'),
+          const XPathSequence.single('BB'),
+          const XPathSequence.single('AA'),
         ]),
         orderedEquals([true]),
       );
@@ -2092,8 +1963,8 @@ void main() {
     test('op:base64Binary-equal', () {
       expect(
         opBase64BinaryEqual(context, [
-          XPathSequence.single('AA=='),
-          XPathSequence.single('AA=='),
+          const XPathSequence.single('AA=='),
+          const XPathSequence.single('AA=='),
         ]),
         orderedEquals([true]),
       );
@@ -2101,8 +1972,8 @@ void main() {
     test('op:base64Binary-less-than', () {
       expect(
         opBase64BinaryLessThan(context, [
-          XPathSequence.single('AA=='),
-          XPathSequence.single('AQ=='),
+          const XPathSequence.single('AA=='),
+          const XPathSequence.single('AQ=='),
         ]),
         orderedEquals([true]),
       );
@@ -2110,8 +1981,8 @@ void main() {
     test('op:base64Binary-greater-than', () {
       expect(
         opBase64BinaryGreaterThan(context, [
-          XPathSequence.single('AQ=='),
-          XPathSequence.single('AA=='),
+          const XPathSequence.single('AQ=='),
+          const XPathSequence.single('AA=='),
         ]),
         orderedEquals([true]),
       );
@@ -2121,8 +1992,8 @@ void main() {
     test('op:NOTATION-equal', () {
       expect(
         opNotationEqual(context, [
-          XPathSequence.single('foo:bar'),
-          XPathSequence.single('foo:bar'),
+          const XPathSequence.single('foo:bar'),
+          const XPathSequence.single('foo:bar'),
         ]),
         orderedEquals([true]),
       );
@@ -2147,8 +2018,8 @@ void main() {
     test('fn:resolve-QName', () {
       expect(
         fnResolveQName(context, [
-          XPathSequence.single('p:local'),
-          XPathSequence.single(const v31.XPathString('element')),
+          const XPathSequence.single('p:local'),
+          const XPathSequence.single(v31.XPathString('element')),
         ]).first,
         isA<XmlName>(),
       );
@@ -2156,8 +2027,8 @@ void main() {
     test('fn:QName', () {
       expect(
         fnQName(context, [
-          XPathSequence.single('uri'),
-          XPathSequence.single('p:local'),
+          const XPathSequence.single('uri'),
+          const XPathSequence.single('p:local'),
         ]).first,
         isA<XmlName>(),
       );
@@ -2169,7 +2040,7 @@ void main() {
         orderedEquals(['p']),
       );
     });
-    test('fn:local-name-from-QName', () {
+    test('fn:local-name-from-qname', () {
       final qname = XmlName.fromString('p:local');
       expect(
         fnLocalNameFromQName(context, [XPathSequence.single(qname)]),
@@ -2197,7 +2068,7 @@ void main() {
       expect(
         fnAdjustDateTimeToTimezone(context, [
           XPathSequence.single(dt),
-          XPathSequence.single(const Duration()),
+          const XPathSequence.single(Duration()),
         ]),
         XPathSequence.single(dt.toXPathDateTime()),
       );
@@ -2212,7 +2083,7 @@ void main() {
       expect(
         fnFormatDateTime(context, [
           XPathSequence.single(dt),
-          XPathSequence.single('[Y]-[M]-[D]'),
+          const XPathSequence.single('[Y]-[M]-[D]'),
         ]),
         // Basic implementation returns ISO string
         XPathSequence.single(v31.XPathString(dt.toIso8601String())),
@@ -2250,13 +2121,6 @@ void main() {
           XPathSequence.single(DateTime.utc(0, 1, 1, 12, 30, 45)),
         ]).first,
         equals(DateTime(2023, 10, 26, 12, 30, 45)),
-      );
-    });
-    test('fn:year-from-dateTime', () {
-      final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
-      expect(
-        fnYearFromDateTime(context, [XPathSequence.single(dt1)]),
-        orderedEquals([2023]),
       );
     });
     test('fn:month-from-dateTime', () {
@@ -2341,7 +2205,7 @@ void main() {
       expect(
         opAddDurationToDateTime(context, [
           XPathSequence.single(dt1),
-          XPathSequence.single(dur),
+          const XPathSequence.single(dur),
         ]).first,
         equals(dt2),
       );
@@ -2353,7 +2217,7 @@ void main() {
       expect(
         opSubtractDurationFromDateTime(context, [
           XPathSequence.single(dt2),
-          XPathSequence.single(dur),
+          const XPathSequence.single(dur),
         ]).first,
         equals(dt1),
       );
@@ -2535,15 +2399,15 @@ void main() {
       const d3 = Duration(days: 2);
       expect(
         opDurationEqual(context, [
-          XPathSequence.single(d1),
-          XPathSequence.single(d2),
+          const XPathSequence.single(d1),
+          const XPathSequence.single(d2),
         ]),
         orderedEquals([true]),
       );
       expect(
         opDurationEqual(context, [
-          XPathSequence.single(d1),
-          XPathSequence.single(d3),
+          const XPathSequence.single(d1),
+          const XPathSequence.single(d3),
         ]),
         orderedEquals([false]),
       );
@@ -2553,8 +2417,8 @@ void main() {
       const d2 = Duration(days: 2);
       expect(
         opYearMonthDurationLessThan(context, [
-          XPathSequence.single(d1),
-          XPathSequence.single(d2),
+          const XPathSequence.single(d1),
+          const XPathSequence.single(d2),
         ]),
         orderedEquals([true]),
       );
@@ -2564,8 +2428,8 @@ void main() {
       const d2 = Duration(days: 2);
       expect(
         opYearMonthDurationGreaterThan(context, [
-          XPathSequence.single(d2),
-          XPathSequence.single(d1),
+          const XPathSequence.single(d2),
+          const XPathSequence.single(d1),
         ]),
         orderedEquals([true]),
       );
@@ -2575,8 +2439,8 @@ void main() {
       const d2 = Duration(days: 2);
       expect(
         opDayTimeDurationLessThan(context, [
-          XPathSequence.single(d1),
-          XPathSequence.single(d2),
+          const XPathSequence.single(d1),
+          const XPathSequence.single(d2),
         ]),
         orderedEquals([true]),
       );
@@ -2586,8 +2450,8 @@ void main() {
       const d2 = Duration(days: 2);
       expect(
         opDayTimeDurationGreaterThan(context, [
-          XPathSequence.single(d2),
-          XPathSequence.single(d1),
+          const XPathSequence.single(d2),
+          const XPathSequence.single(d1),
         ]),
         orderedEquals([true]),
       );
@@ -2597,8 +2461,8 @@ void main() {
       const d2 = Duration(days: 2);
       expect(
         opAddYearMonthDurations(context, [
-          XPathSequence.single(d1),
-          XPathSequence.single(d2),
+          const XPathSequence.single(d1),
+          const XPathSequence.single(d2),
         ]).first,
         equals(d1 + d2),
       );
@@ -2608,8 +2472,8 @@ void main() {
       const d2 = Duration(days: 2);
       expect(
         opSubtractYearMonthDurations(context, [
-          XPathSequence.single(d2),
-          XPathSequence.single(d1),
+          const XPathSequence.single(d2),
+          const XPathSequence.single(d1),
         ]).first,
         equals(d1),
       );
@@ -2619,8 +2483,8 @@ void main() {
       const d2 = Duration(days: 2);
       expect(
         opMultiplyYearMonthDuration(context, [
-          XPathSequence.single(d1),
-          XPathSequence.single(2),
+          const XPathSequence.single(d1),
+          const XPathSequence.single(2),
         ]).first,
         equals(d2),
       );
@@ -2630,8 +2494,8 @@ void main() {
       const d2 = Duration(days: 2);
       expect(
         opDivideYearMonthDuration(context, [
-          XPathSequence.single(d2),
-          XPathSequence.single(2),
+          const XPathSequence.single(d2),
+          const XPathSequence.single(2),
         ]).first,
         equals(d1),
       );
@@ -2641,8 +2505,8 @@ void main() {
       const d2 = Duration(days: 2);
       expect(
         opDivideYearMonthDurationByYearMonthDuration(context, [
-          XPathSequence.single(d2),
-          XPathSequence.single(d1),
+          const XPathSequence.single(d2),
+          const XPathSequence.single(d1),
         ]),
         orderedEquals([2.0]),
       );
@@ -2652,8 +2516,8 @@ void main() {
       const d2 = Duration(days: 2);
       expect(
         opAddDayTimeDurations(context, [
-          XPathSequence.single(d1),
-          XPathSequence.single(d2),
+          const XPathSequence.single(d1),
+          const XPathSequence.single(d2),
         ]).first,
         equals(d1 + d2),
       );
@@ -2663,8 +2527,8 @@ void main() {
       const d2 = Duration(days: 2);
       expect(
         opSubtractDayTimeDurations(context, [
-          XPathSequence.single(d2),
-          XPathSequence.single(d1),
+          const XPathSequence.single(d2),
+          const XPathSequence.single(d1),
         ]).first,
         equals(d1),
       );
@@ -2674,8 +2538,8 @@ void main() {
       const d2 = Duration(days: 2);
       expect(
         opMultiplyDayTimeDuration(context, [
-          XPathSequence.single(d1),
-          XPathSequence.single(2),
+          const XPathSequence.single(d1),
+          const XPathSequence.single(2),
         ]).first,
         equals(d2),
       );
@@ -2685,8 +2549,8 @@ void main() {
       const d2 = Duration(days: 2);
       expect(
         opDivideDayTimeDuration(context, [
-          XPathSequence.single(d2),
-          XPathSequence.single(2),
+          const XPathSequence.single(d2),
+          const XPathSequence.single(2),
         ]).first,
         equals(d1),
       );
@@ -2696,8 +2560,8 @@ void main() {
       const d2 = Duration(days: 2);
       expect(
         opDivideDayTimeDurationByDayTimeDuration(context, [
-          XPathSequence.single(d2),
-          XPathSequence.single(d1),
+          const XPathSequence.single(d2),
+          const XPathSequence.single(d1),
         ]),
         orderedEquals([2.0]),
       );
@@ -2705,42 +2569,42 @@ void main() {
     test('fn:years-from-duration', () {
       const d1 = Duration(days: 1);
       expect(
-        fnYearsFromDuration(context, [XPathSequence.single(d1)]),
+        fnYearsFromDuration(context, [const XPathSequence.single(d1)]),
         orderedEquals([0]),
       );
     });
     test('fn:months-from-duration', () {
       const d1 = Duration(days: 1);
       expect(
-        fnMonthsFromDuration(context, [XPathSequence.single(d1)]),
+        fnMonthsFromDuration(context, [const XPathSequence.single(d1)]),
         orderedEquals([0]),
       );
     });
     test('fn:days-from-duration', () {
       const d1 = Duration(days: 1);
       expect(
-        fnDaysFromDuration(context, [XPathSequence.single(d1)]),
+        fnDaysFromDuration(context, [const XPathSequence.single(d1)]),
         orderedEquals([1]),
       );
     });
     test('fn:hours-from-duration', () {
       const d3 = Duration(hours: 1);
       expect(
-        fnHoursFromDuration(context, [XPathSequence.single(d3)]),
+        fnHoursFromDuration(context, [const XPathSequence.single(d3)]),
         orderedEquals([1]),
       );
     });
     test('fn:minutes-from-duration', () {
       const d = Duration(minutes: 90);
       expect(
-        fnMinutesFromDuration(context, [XPathSequence.single(d)]),
+        fnMinutesFromDuration(context, [const XPathSequence.single(d)]),
         orderedEquals([30]),
       );
     });
     test('fn:seconds-from-duration', () {
       const d = Duration(seconds: 90); // 1 min 30 sec
       expect(
-        fnSecondsFromDuration(context, [XPathSequence.single(d)]),
+        fnSecondsFromDuration(context, [const XPathSequence.single(d)]),
         orderedEquals([30.0]),
       );
     });
@@ -2754,7 +2618,7 @@ void main() {
     });
     test('fn:json-doc', () {
       expect(
-        () => fnJsonDoc(context, [XPathSequence.single('url')]),
+        () => fnJsonDoc(context, [const XPathSequence.single('url')]),
         throwsA(isA<UnimplementedError>()),
       );
     });
@@ -2775,35 +2639,35 @@ void main() {
     test('fn:resolve-uri', () {
       expect(
         fnResolveUri(context, [
-          XPathSequence.single(const v31.XPathString('foo')),
-          XPathSequence.single(const v31.XPathString('http://example.com/')),
+          const XPathSequence.single(v31.XPathString('foo')),
+          const XPathSequence.single(v31.XPathString('http://example.com/')),
         ]),
-        XPathSequence.single(const v31.XPathString('http://example.com/foo')),
+        const XPathSequence.single(v31.XPathString('http://example.com/foo')),
       );
       expect(
         () => fnResolveUri(context, [
-          XPathSequence.single(const v31.XPathString('foo')),
-          XPathSequence.single(const v31.XPathString('::invalid::')),
+          const XPathSequence.single(v31.XPathString('foo')),
+          const XPathSequence.single(v31.XPathString('::invalid::')),
         ]),
         throwsA(isA<XPathEvaluationException>()),
       );
     });
     test('fn:encode-for-uri', () {
       expect(
-        fnEncodeForUri(context, [XPathSequence.single(' ')]),
-        XPathSequence.single(const v31.XPathString('%20')),
+        fnEncodeForUri(context, [const XPathSequence.single(' ')]),
+        const XPathSequence.single(v31.XPathString('%20')),
       );
     });
     test('fn:iri-to-uri', () {
       expect(
-        fnIriToUri(context, [XPathSequence.single(' ')]),
-        XPathSequence.single(const v31.XPathString('%20')),
+        fnIriToUri(context, [const XPathSequence.single(' ')]),
+        const XPathSequence.single(v31.XPathString('%20')),
       );
     });
     test('fn:escape-html-uri', () {
       expect(
-        fnEscapeHtmlUri(context, [XPathSequence.single(' ')]),
-        XPathSequence.single(const v31.XPathString('%20')),
+        fnEscapeHtmlUri(context, [const XPathSequence.single(' ')]),
+        const XPathSequence.single(v31.XPathString('%20')),
       );
     });
   });

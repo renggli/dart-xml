@@ -304,7 +304,7 @@ XPathSequence fnYearsFromDuration(
     arguments[0],
   )?.toXPathDuration();
   if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(0); // Not supported in Dart
+  return const XPathSequence.single(0); // Not supported in Dart
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-months-from-duration
@@ -323,7 +323,7 @@ XPathSequence fnMonthsFromDuration(
     arguments[0],
   )?.toXPathDuration();
   if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(0); // Not supported in Dart
+  return const XPathSequence.single(0); // Not supported in Dart
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-days-from-duration

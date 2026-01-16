@@ -33,7 +33,7 @@ XPathSequence fnNilled(XPathContext context, List<XPathSequence> arguments) {
 XPathSequence fnString(XPathContext context, List<XPathSequence> arguments) {
   final arg = _nodeOrContext('fn:string', context, arguments);
   if (arg != null) return XPathSequence.single(arg.toXPathString());
-  return XPathSequence.single(XPathString.empty);
+  return const XPathSequence.single(XPathString.empty);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-data

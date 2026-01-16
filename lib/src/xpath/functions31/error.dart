@@ -21,17 +21,14 @@ XPathSequence fnError(XPathContext context, List<XPathSequence> arguments) {
       'description',
       arguments[1],
     );
-    if (buffer.isNotEmpty) {
-      buffer.write(': ');
-    }
+    if (buffer.isNotEmpty) buffer.write(': ');
     buffer.write(description.toXPathString());
   }
   if (arguments.length > 2) {
-    final errorObject = arguments[2];
-    if (buffer.isEmpty) {
+    final errorObject = arguments[2].toXPathSequence();
+    if (errorObject.isNotEmpty) {
+      if (buffer.isNotEmpty) buffer.write(' ');
       buffer.write(errorObject);
-    } else {
-      buffer.write(' ($errorObject)');
     }
   }
   throw XPathEvaluationException(buffer.toString());
