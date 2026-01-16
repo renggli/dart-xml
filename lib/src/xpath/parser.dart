@@ -22,7 +22,6 @@ import 'functions31/node.dart' as nodes;
 import 'functions31/number.dart' as number;
 import 'types31/sequence.dart';
 import 'types31/string.dart';
-import 'utils/reserved_names.dart';
 
 // XPath 3.1 Grammar: https://www.w3.org/TR/xpath-31
 class XPathParser {
@@ -272,26 +271,29 @@ class XPathParser {
       .map(
         (list) => list.elements.length == 1
             ? list.elements.first
-            : unimplemented('InstanceofExpr'),
+            : _unimplemented('InstanceofExpr'),
       );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-TreatExpr
   Parser<XPathExpression> treatExpr() => seq2(
     ref0(castableExpr),
     seq2(token('treat as'), ref0(sequenceType)).optional(),
-  ).map((tuple) => tuple.$2 == null ? tuple.$1 : unimplemented('TreatExpr'));
+  ).map((tuple) => tuple.$2 == null ? tuple.$1 : _unimplemented('TreatExpr'));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-CastableExpr
-  Parser<XPathExpression> castableExpr() => seq2(
-    ref0(castExpr),
-    seq2(token('castable as'), ref0(singleType)).optional(),
-  ).map((tuple) => tuple.$2 == null ? tuple.$1 : unimplemented('CastableExpr'));
+  Parser<XPathExpression> castableExpr() =>
+      seq2(
+        ref0(castExpr),
+        seq2(token('castable as'), ref0(singleType)).optional(),
+      ).map(
+        (tuple) => tuple.$2 == null ? tuple.$1 : _unimplemented('CastableExpr'),
+      );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-CastExpr
   Parser<XPathExpression> castExpr() => seq2(
     ref0(arrowExpr),
     seq2(token('cast as'), ref0(singleType)).optional(),
-  ).map((tuple) => tuple.$2 == null ? tuple.$1 : unimplemented('CastExpr'));
+  ).map((tuple) => tuple.$2 == null ? tuple.$1 : _unimplemented('CastExpr'));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ArrowExpr
   Parser<XPathExpression> arrowExpr() => seq2(
@@ -300,7 +302,7 @@ class XPathParser {
       token('=>'),
       seq2(ref0(arrowFunctionSpecifier), ref0(argumentList)),
     ).star(),
-  ).map2((expr, arrows) => arrows.isEmpty ? expr : unimplemented('ArrowExpr'));
+  ).map2((expr, arrows) => arrows.isEmpty ? expr : _unimplemented('ArrowExpr'));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ArrowFunctionSpecifier
   Parser<void> arrowFunctionSpecifier() =>
@@ -344,14 +346,14 @@ class XPathParser {
     token('le'),
     token('gt'),
     token('ge'),
-  ].toChoiceParser().map((op) => unimplemented('ValueComp', op));
+  ].toChoiceParser().map((op) => _unimplemented('ValueComp', op));
 
   // https://www.w3.org/TR/xpath-30/#prod-xpath30-NodeComp
   Parser<XPathFunction> nodeComp() => [
     token('is'),
     token('<<'),
     token('>>'),
-  ].toChoiceParser().map((op) => unimplemented('NodeComp', op));
+  ].toChoiceParser().map((op) => _unimplemented('NodeComp', op));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-SimpleMapExpr
   Parser<XPathExpression> simpleMapExpr() => ref0(pathExpr)
@@ -359,7 +361,7 @@ class XPathParser {
       .map(
         (list) => list.elements.length == 1
             ? list.elements.first
-            : unimplemented('SimpleMapExpr'),
+            : _unimplemented('SimpleMapExpr'),
       );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-PathExpr
@@ -434,7 +436,7 @@ class XPathParser {
     token('descendant-or-self::').constant(const DescendantOrSelfAxis()),
     token('following-sibling::').constant(const FollowingSiblingAxis()),
     token('following::').constant(const FollowingAxis()),
-    token('namespace::').map((_) => unimplemented('NamespaceAxis')),
+    token('namespace::').map((_) => _unimplemented('NamespaceAxis')),
   ].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-AbbrevForwardStep
@@ -523,7 +525,7 @@ class XPathParser {
           if (postfix is Predicate) {
             result = PredicateExpression(result, postfix);
           } else {
-            return unimplemented('Postfix', postfix);
+            return _unimplemented('Postfix', postfix);
           }
         }
         return result;
@@ -531,7 +533,7 @@ class XPathParser {
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-Lookup
   Parser<XPathExpression> lookup() =>
-      seq2(token('?'), ref0(keySpecifier)).map((_) => unimplemented('Lookup'));
+      seq2(token('?'), ref0(keySpecifier)).map((_) => _unimplemented('Lookup'));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-KeySpecifier
   Parser<void> keySpecifier() => [
@@ -632,7 +634,7 @@ class XPathParser {
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-FunctionCall
   Parser<XPathExpression> functionCall() => seq2(
-    ref0(eqName).where((name) => !reservedFunctionNames.contains(name)),
+    ref0(eqName).where((name) => !_reservedFunctionNames.contains(name)),
     ref0(argumentList),
   ).map2(DynamicFunctionExpression.new);
 
@@ -642,7 +644,7 @@ class XPathParser {
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ArgumentPlaceholder
   Parser<XPathExpression> argumentPlaceholder() =>
-      token('?').map((_) => unimplemented('ArgumentPlaceholder'));
+      token('?').map((_) => _unimplemented('ArgumentPlaceholder'));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-FunctionItemExpr
   Parser<XPathExpression> functionItemExpr() =>
@@ -691,14 +693,14 @@ class XPathParser {
   Parser<XPathExpression> unaryLookup() => seq2(
     token('?'),
     ref0(keySpecifier),
-  ).map((_) => unimplemented('UnaryLookup'));
+  ).map((_) => _unimplemented('UnaryLookup'));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-NamedFunctionRef
   Parser<XPathExpression> namedFunctionRef() => seq3(
     ref0(eqName),
     token('#'),
     ref0(integerLiteral),
-  ).map((_) => unimplemented('NamedFunctionRef'));
+  ).map((_) => _unimplemented('NamedFunctionRef'));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-InlineFunctionExpr
   Parser<XPathExpression> inlineFunctionExpr() => seq4(
@@ -706,7 +708,7 @@ class XPathParser {
     seq3(token('('), ref0(paramList).optional(), token(')')),
     ref0(typeDeclaration).optional(),
     ref0(functionBody),
-  ).map((_) => unimplemented('InlineFunctionExpr'));
+  ).map((_) => _unimplemented('InlineFunctionExpr'));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ParamList
   Parser<void> paramList() => ref0(param).plusSeparated(token(','));
@@ -772,7 +774,7 @@ class XPathParser {
     token('namespace-node'),
     token('('),
     token(')'),
-  ).map((_) => unimplemented('NamespaceNodeTest'));
+  ).map((_) => _unimplemented('NamespaceNodeTest'));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-PITest
   Parser<NodeTest> piTest() =>
@@ -802,7 +804,7 @@ class XPathParser {
       ).map4(
         (_, _, arg, _) => arg == null
             ? const AttributeTypeNodeTest()
-            : unimplemented('AttributeTest'),
+            : _unimplemented('AttributeTest'),
       );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-AttribNameOrWildcard
@@ -815,7 +817,7 @@ class XPathParser {
     token('('),
     ref0(attributeDeclaration),
     token(')'),
-  ).map4((_, _, arg, _) => unimplemented('SchemaAttributeTest'));
+  ).map4((_, _, arg, _) => _unimplemented('SchemaAttributeTest'));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-AttributeDeclaration
   Parser<void> attributeDeclaration() => ref0(attributeName);
@@ -833,7 +835,7 @@ class XPathParser {
       ).map4(
         (_, _, arg, _) => arg == null
             ? const ElementTypeNodeTest()
-            : unimplemented('ElementTest'),
+            : _unimplemented('ElementTest'),
       );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ElementNameOrWildcard
@@ -846,7 +848,7 @@ class XPathParser {
     token('('),
     ref0(elementDeclaration),
     token(')'),
-  ).map4((_, _, arg, _) => unimplemented('SchemaElementTest'));
+  ).map4((_, _, arg, _) => _unimplemented('SchemaElementTest'));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ElementDeclaration
   Parser<void> elementDeclaration() => ref0(elementName);
@@ -938,7 +940,27 @@ class XPathParser {
   static const eventParser = XmlEventParser(XmlNullEntityMapping());
 }
 
-Never unimplemented(String feature, [dynamic arg]) => throw UnimplementedError(
+Never _unimplemented(String feature, [dynamic arg]) => throw UnimplementedError(
   '$feature not yet implemented'
   '${arg == null ? '' : ': $arg'}',
 );
+
+const _reservedFunctionNames = {
+  'attribute',
+  'comment',
+  'document-node',
+  'element',
+  'empty-sequence',
+  'function',
+  'if',
+  'item',
+  'map',
+  'namespace-node',
+  'node',
+  'processing-instruction',
+  'schema-attribute',
+  'schema-element',
+  'switch',
+  'text',
+  'typeswitch',
+};

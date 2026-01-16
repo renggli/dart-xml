@@ -1,7 +1,10 @@
+import 'dart:typed_data';
+
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/exceptions/evaluation_exception.dart';
 import 'package:xml/src/xpath/types31/array.dart';
+import 'package:xml/src/xpath/types31/binary.dart';
 import 'package:xml/src/xpath/types31/boolean.dart';
 import 'package:xml/src/xpath/types31/date_time.dart';
 import 'package:xml/src/xpath/types31/duration.dart';
@@ -274,21 +277,33 @@ void main() {
       const sequence = XPathSequence([1, 2, 3]);
       expect(sequence, isNotEmpty);
       expect(sequence, hasLength(3));
-      expect(sequence, const [1, 2, 3]);
+      expect(sequence, [1, 2, 3]);
       expect(sequence.toString(), '(1, 2, 3)');
     });
     test('cached', () {
-      final sequence = XPathSequence.cached([1, 2, 3]);
+      var iteratorCount = 0;
+      final iterable = Iterable.generate(3, (i) {
+        iteratorCount++;
+        return i + 1;
+      });
+      final sequence = XPathSequence.cached(iterable);
+
       expect(sequence, isNotEmpty);
       expect(sequence, hasLength(3));
-      expect(sequence, const [1, 2, 3]);
+      expect(sequence, [1, 2, 3]);
+      expect(iteratorCount, 3); // Iterated once
+
+      // Iterate again
+      expect(sequence, [1, 2, 3]);
+      expect(iteratorCount, 3); // Should not have iterated again
+
       expect(sequence.toString(), '(1, 2, 3)');
     });
     test('range', () {
       final sequence = XPathSequence.range(1, 3);
       expect(sequence, isNotEmpty);
       expect(sequence, hasLength(3));
-      expect(sequence, const [1, 2, 3]);
+      expect(sequence, [1, 2, 3]);
       expect(sequence.toString(), '(1, 2, 3)');
     });
     test('range (singular)', () {
@@ -323,7 +338,7 @@ void main() {
 
       final function = myFunction.toXPathFunction();
       expect(function, myFunction);
-      expect(function(context, []), ['ok']);
+      expect(function(context, const <XPathSequence>[]), ['ok']);
     });
     test('cast from XPathArray (array as function)', () {
       const array = XPathArray(['a', 'b', 'c']);
@@ -355,7 +370,7 @@ void main() {
 
       final sequence = XPathSequence.single(myFunction);
       final function = sequence.toXPathFunction();
-      expect(function(context, []), ['sequence-ok']);
+      expect(function(context, const <XPathSequence>[]), ['sequence-ok']);
     });
     test('cast from unsupported type', () {
       expect(
@@ -372,6 +387,67 @@ void main() {
       );
       expect(
         () => const XPathSequence(['a', 'b']).toXPathFunction(),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+    });
+  });
+  group('binary', () {
+    test('cast from Uint8List (Base64)', () {
+      final bytes = Uint8List.fromList([1, 2, 3]);
+      final binary = bytes.toXPathBase64Binary();
+      expect(binary, [1, 2, 3]);
+      expect(binary, isA<XPathBase64Binary>());
+    });
+    test('cast from List<int> (Base64)', () {
+      final list = [1, 2, 3];
+      final binary = list.toXPathBase64Binary();
+      expect(binary, [1, 2, 3]);
+      expect(binary, isA<XPathBase64Binary>());
+    });
+    test('cast from String (Base64)', () {
+      // AQID is base64 for [1, 2, 3]
+      final binary = 'AQID'.toXPathBase64Binary();
+      expect(binary, [1, 2, 3]);
+    });
+    test('cast from XPathSequence (Base64)', () {
+      final binary = XPathSequence.single(
+        Uint8List.fromList([1]),
+      ).toXPathBase64Binary();
+      expect(binary, [1]);
+    });
+    test('cast from unrelated type (Base64)', () {
+      expect(
+        () => 123.toXPathBase64Binary(),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+    });
+
+    test('cast from Uint8List (Hex)', () {
+      final bytes = Uint8List.fromList([1, 2, 3]);
+      final binary = bytes.toXPathHexBinary();
+      expect(binary, [1, 2, 3]);
+      expect(binary, isA<XPathHexBinary>());
+    });
+    test('cast from List<int> (Hex)', () {
+      final list = [1, 2, 3];
+      final binary = list.toXPathHexBinary();
+      expect(binary, [1, 2, 3]);
+      expect(binary, isA<XPathHexBinary>());
+    });
+    test('cast from String (Hex)', () {
+      // 010203 is hex for [1, 2, 3]
+      final binary = '010203'.toXPathHexBinary();
+      expect(binary, [1, 2, 3]);
+    });
+    test('cast from XPathSequence (Hex)', () {
+      final binary = XPathSequence.single(
+        Uint8List.fromList([1]),
+      ).toXPathHexBinary();
+      expect(binary, [1]);
+    });
+    test('cast from unrelated type (Hex)', () {
+      expect(
+        () => 123.toXPathHexBinary(),
         throwsA(isA<XPathEvaluationException>()),
       );
     });

@@ -601,6 +601,7 @@ XPathSequence fnParseIetfDate(
   XPathContext context,
   List<XPathSequence> arguments,
 ) => throw UnimplementedError('fn:parse-ietf-date');
+
 int? _compareDateTime(String name, List<XPathSequence> arguments) {
   XPathEvaluationException.checkArgumentCount(name, arguments, 2);
   final value1 = XPathEvaluationException.extractZeroOrOne(
