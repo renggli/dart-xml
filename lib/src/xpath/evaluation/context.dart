@@ -58,7 +58,7 @@ class XPathContext {
     variables: variables ?? this.variables,
     functions: functions ?? this.functions,
     documents: documents ?? this.documents,
-    onTraceCallback: onTraceCallback,
+    onTraceCallback: onTraceCallback ?? this.onTraceCallback,
   );
 }
 

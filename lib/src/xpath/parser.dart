@@ -941,8 +941,7 @@ class XPathParser {
 }
 
 Never _unimplemented(String feature, [dynamic arg]) => throw UnimplementedError(
-  '$feature not yet implemented'
-  '${arg == null ? '' : ': $arg'}',
+  '$feature${arg != null ? ' ($arg)' : ''} not yet implemented',
 );
 
 const _reservedFunctionNames = {
