@@ -8,15 +8,13 @@ final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
 final context = XPathContext(document);
 
 void main() {
-  group('notation', () {
-    test('op:NOTATION-equal', () {
-      expect(
-        opNotationEqual(context, [
-          const XPathSequence.single('foo:bar'),
-          const XPathSequence.single('foo:bar'),
-        ]),
-        [true],
-      );
-    });
+  test('op:NOTATION-equal', () {
+    expect(
+      opNotationEqual(context, [
+        const XPathSequence.single('foo:bar'),
+        const XPathSequence.single('foo:bar'),
+      ]),
+      [true],
+    );
   });
 }

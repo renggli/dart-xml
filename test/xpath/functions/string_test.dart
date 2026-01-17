@@ -5,6 +5,9 @@ import 'package:xml/src/xpath/types/string.dart' as v31;
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
+import '../../utils/matchers.dart';
+import '../helpers.dart';
+
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
 final context = XPathContext(document);
 
@@ -408,6 +411,102 @@ void main() {
         ]),
         [true],
       );
+    });
+  });
+  group('integration', () {
+    final xml = XmlDocument.parse('<r><a>1</a><b>2<c/>3</b></r>');
+    test('string(nodes)', () {
+      expectEvaluate(xml, 'string()', ['123']);
+      expectEvaluate(xml, 'string(/r/b)', ['23']);
+    });
+    test('string(string)', () {
+      expectEvaluate(xml, 'string("")', ['']);
+      expectEvaluate(xml, 'string("hello")', ['hello']);
+    });
+    test('string(number)', () {
+      expectEvaluate(xml, 'string(0)', ['0']);
+      expectEvaluate(xml, 'string(0 div 0)', ['NaN']);
+      expectEvaluate(xml, 'string(1 div 0)', ['INF']);
+      expectEvaluate(xml, 'string(-1 div 0)', ['-INF']);
+      expectEvaluate(xml, 'string(42)', ['42']);
+      expectEvaluate(xml, 'string(-42)', ['-42']);
+      expectEvaluate(xml, 'string(3.1415)', ['3.1415']);
+      expectEvaluate(xml, 'string(-3.1415)', ['-3.1415']);
+    });
+    test('string(boolean)', () {
+      expectEvaluate(xml, 'string(false())', ['false']);
+      expectEvaluate(xml, 'string(true())', ['true']);
+    });
+    test('concat', () {
+      expect(
+        () => expectEvaluate(xml, 'concat()', anything),
+        throwsA(isXPathEvaluationException()),
+      );
+      expect(
+        () => expectEvaluate(xml, 'concat("a")', anything),
+        throwsA(isXPathEvaluationException()),
+      );
+      expectEvaluate(xml, 'concat("a", "b")', ['ab']);
+      expectEvaluate(xml, 'concat("a", "b", "c")', ['abc']);
+    });
+    test('starts-with', () {
+      expectEvaluate(xml, 'starts-with("abc", "")', [true]);
+      expectEvaluate(xml, 'starts-with("abc", "a")', [true]);
+      expectEvaluate(xml, 'starts-with("abc", "ab")', [true]);
+      expectEvaluate(xml, 'starts-with("abc", "abc")', [true]);
+      expectEvaluate(xml, 'starts-with("abc", "abcd")', [false]);
+      expectEvaluate(xml, 'starts-with("abc", "bc")', [false]);
+    });
+    test('contains', () {
+      expectEvaluate(xml, 'contains("abc", "")', [true]);
+      expectEvaluate(xml, 'contains("abc", "a")', [true]);
+      expectEvaluate(xml, 'contains("abc", "b")', [true]);
+      expectEvaluate(xml, 'contains("abc", "c")', [true]);
+      expectEvaluate(xml, 'contains("abc", "d")', [false]);
+      expectEvaluate(xml, 'contains("abc", "ac")', [false]);
+    });
+    test('substring-before', () {
+      expectEvaluate(xml, 'substring-before("abcde", "c")', ['ab']);
+      expectEvaluate(xml, 'substring-before("abcde", "x")', ['']);
+    });
+    test('substring-after', () {
+      expectEvaluate(xml, 'substring-after("abcde", "c")', ['de']);
+      expectEvaluate(xml, 'substring-after("abcde", "x")', ['']);
+      expect(
+        () => expectEvaluate(xml, 'substring-after("abcde")', anything),
+        throwsA(isXPathEvaluationException()),
+      );
+    });
+    test('substring', () {
+      expectEvaluate(xml, 'substring("12345", 3)', ['345']);
+      expectEvaluate(xml, 'substring("12345", 2, 3)', ['234']);
+      expectEvaluate(xml, 'substring("12345", 0, 3)', ['12']);
+      expectEvaluate(xml, 'substring("12345", 4, 9)', ['45']);
+      expectEvaluate(xml, 'substring("12345", 1.5, 2.6)', ['234']);
+      expectEvaluate(xml, 'substring("12345", 0 div 0, 3)', ['']);
+      expectEvaluate(xml, 'substring("12345", 1, 0 div 0)', ['']);
+      expectEvaluate(xml, 'substring("12345", -42, 1 div 0)', ['12345']);
+      expectEvaluate(xml, 'substring("12345", -1 div 0, 1 div 0)', ['']);
+      expect(
+        () => expectEvaluate(xml, 'substring("abcde")', anything),
+        throwsA(isXPathEvaluationException()),
+      );
+    });
+    test('string-length', () {
+      expectEvaluate(xml, 'string-length("")', [0]);
+      expectEvaluate(xml, 'string-length("1")', [1]);
+      expectEvaluate(xml, 'string-length("12")', [2]);
+      expectEvaluate(xml, 'string-length("123")', [3]);
+    });
+    test('normalize-space', () {
+      expectEvaluate(xml, 'normalize-space("")', ['']);
+      expectEvaluate(xml, 'normalize-space(" 1 ")', ['1']);
+      expectEvaluate(xml, 'normalize-space(" 1  2 ")', ['1 2']);
+      expectEvaluate(xml, 'normalize-space("1 \n2")', ['1 2']);
+    });
+    test('translate', () {
+      expectEvaluate(xml, 'translate("bar", "abc", "ABC")', ['BAr']);
+      expectEvaluate(xml, 'translate("-aaa-", "a-", "A")', ['AAA']);
     });
   });
 }

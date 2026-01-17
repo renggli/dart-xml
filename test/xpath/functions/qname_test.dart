@@ -9,62 +9,60 @@ final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
 final context = XPathContext(document);
 
 void main() {
-  group('qname', () {
-    test('op:QName-equal', () {
-      expect(
-        opQNameEqual(context, [XPathSequence.empty, XPathSequence.empty]),
-        isEmpty,
-      );
-    });
-    test('fn:namespace-uri-for-prefix', () {
-      expect(
-        () => fnNamespaceUriForPrefix(context, [
-          XPathSequence.empty,
-          XPathSequence.empty,
-        ]),
-        throwsA(isA<UnimplementedError>()),
-      );
-    });
-    test('fn:resolve-QName', () {
-      expect(
-        fnResolveQName(context, [
-          const XPathSequence.single('p:local'),
-          const XPathSequence.single(v31.XPathString('element')),
-        ]).first,
-        isA<XmlName>(),
-      );
-    });
-    test('fn:QName', () {
-      expect(
-        fnQName(context, [
-          const XPathSequence.single('uri'),
-          const XPathSequence.single('p:local'),
-        ]).first,
-        isA<XmlName>(),
-      );
-    });
-    test('fn:prefix-from-QName', () {
-      final qname = XmlName.fromString('p:local');
-      expect(fnPrefixFromQName(context, [XPathSequence.single(qname)]), ['p']);
-    });
-    test('fn:local-name-from-qname', () {
-      final qname = XmlName.fromString('p:local');
-      expect(fnLocalNameFromQName(context, [XPathSequence.single(qname)]), [
-        'local',
-      ]);
-    });
-    test('fn:namespace-uri-from-QName', () {
-      final qname = XmlName.fromString('p:local');
-      expect(
-        fnNamespaceUriFromQName(context, [XPathSequence.single(qname)]),
-        isEmpty,
-      );
-    });
-    test('fn:in-scope-prefixes', () {
-      expect(
-        () => fnInScopePrefixes(context, [XPathSequence.empty]),
-        throwsA(isA<UnimplementedError>()),
-      );
-    });
+  test('op:QName-equal', () {
+    expect(
+      opQNameEqual(context, [XPathSequence.empty, XPathSequence.empty]),
+      isEmpty,
+    );
+  });
+  test('fn:namespace-uri-for-prefix', () {
+    expect(
+      () => fnNamespaceUriForPrefix(context, [
+        XPathSequence.empty,
+        XPathSequence.empty,
+      ]),
+      throwsA(isA<UnimplementedError>()),
+    );
+  });
+  test('fn:resolve-QName', () {
+    expect(
+      fnResolveQName(context, [
+        const XPathSequence.single('p:local'),
+        const XPathSequence.single(v31.XPathString('element')),
+      ]).first,
+      isA<XmlName>(),
+    );
+  });
+  test('fn:QName', () {
+    expect(
+      fnQName(context, [
+        const XPathSequence.single('uri'),
+        const XPathSequence.single('p:local'),
+      ]).first,
+      isA<XmlName>(),
+    );
+  });
+  test('fn:prefix-from-QName', () {
+    final qname = XmlName.fromString('p:local');
+    expect(fnPrefixFromQName(context, [XPathSequence.single(qname)]), ['p']);
+  });
+  test('fn:local-name-from-qname', () {
+    final qname = XmlName.fromString('p:local');
+    expect(fnLocalNameFromQName(context, [XPathSequence.single(qname)]), [
+      'local',
+    ]);
+  });
+  test('fn:namespace-uri-from-QName', () {
+    final qname = XmlName.fromString('p:local');
+    expect(
+      fnNamespaceUriFromQName(context, [XPathSequence.single(qname)]),
+      isEmpty,
+    );
+  });
+  test('fn:in-scope-prefixes', () {
+    expect(
+      () => fnInScopePrefixes(context, [XPathSequence.empty]),
+      throwsA(isA<UnimplementedError>()),
+    );
   });
 }

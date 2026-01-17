@@ -4,6 +4,8 @@ import 'package:xml/src/xpath/functions/boolean.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
+import '../helpers.dart';
+
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
 final context = XPathContext(document);
 
@@ -89,6 +91,105 @@ void main() {
       expect(fnLang(newContext, [const XPathSequence.single('EN-US')]), [
         false,
       ]);
+    });
+  });
+  group('integration', () {
+    final xml = XmlDocument.parse('<r><a>1</a><b>2<c/>3</b></r>');
+    test('boolean(nodes)', () {
+      expectEvaluate(xml, 'boolean(.)', [true]);
+      expectEvaluate(xml, 'boolean(//a)', [true]);
+      expectEvaluate(xml, 'boolean(//absent)', [false]);
+    });
+    test('boolean(string)', () {
+      expectEvaluate(xml, 'boolean("")', [false]);
+      expectEvaluate(xml, 'boolean("a")', [true]);
+      expectEvaluate(xml, 'boolean("ab")', [true]);
+    });
+    test('boolean(number)', () {
+      expectEvaluate(xml, 'boolean(0)', [false]);
+      expectEvaluate(xml, 'boolean(1)', [true]);
+      expectEvaluate(xml, 'boolean(-1)', [true]);
+      expectEvaluate(xml, 'boolean(0 div 0)', [false]);
+      expectEvaluate(xml, 'boolean(1 div 0)', [true]);
+    });
+    test('boolean(boolean)', () {
+      expectEvaluate(xml, 'boolean(true())', [true]);
+      expectEvaluate(xml, 'boolean(false())', [false]);
+    });
+    test('not(boolean)', () {
+      expectEvaluate(xml, 'not(true())', [false]);
+      expectEvaluate(xml, 'not(false())', [true]);
+    });
+    test('true()', () {
+      expectEvaluate(xml, 'true()', [true]);
+    });
+    test('false()', () {
+      expectEvaluate(xml, 'false()', [false]);
+    });
+    test('lang(string)', () {
+      final positives = [
+        '<para xml:lang="en"/>',
+        '<div xml:lang="en"><para/></div>',
+        '<para xml:lang="EN"/>',
+        '<para xml:lang="en-us"/>',
+      ];
+      for (final positive in positives) {
+        final xml = XmlDocument.parse(positive);
+        final start = xml.findAllElements('para').first;
+        expectEvaluate(start, 'lang("en")', [true]);
+      }
+      final negatives = [
+        '<para/>',
+        '<para xml:lang=""/>',
+        '<para xml:lang="de"/>',
+      ];
+      for (final positive in negatives) {
+        final xml = XmlDocument.parse(positive);
+        final start = xml.findAllElements('para').first;
+        expectEvaluate(start, 'lang("en")', [false]);
+      }
+    });
+    test('<', () {
+      expectEvaluate(xml, '1 < 2', [isTrue]);
+      expectEvaluate(xml, '2 < 2', [isFalse]);
+      expectEvaluate(xml, '2 < 1', [isFalse]);
+    });
+    test('<=', () {
+      expectEvaluate(xml, '1 <= 2', [isTrue]);
+      expectEvaluate(xml, '2 <= 2', [isTrue]);
+      expectEvaluate(xml, '2 <= 1', [isFalse]);
+    });
+    test('>', () {
+      expectEvaluate(xml, '1 > 2', [isFalse]);
+      expectEvaluate(xml, '2 > 2', [isFalse]);
+      expectEvaluate(xml, '2 > 1', [isTrue]);
+    });
+    test('>=', () {
+      expectEvaluate(xml, '1 >= 2', [isFalse]);
+      expectEvaluate(xml, '2 >= 2', [isTrue]);
+      expectEvaluate(xml, '2 >= 1', [isTrue]);
+    });
+    test('=', () {
+      expectEvaluate(xml, '1 = 2', [isFalse]);
+      expectEvaluate(xml, '2 = 2', [isTrue]);
+      expectEvaluate(xml, '2 = 1', [isFalse]);
+    });
+    test('!=', () {
+      expectEvaluate(xml, '1 != 2', [isTrue]);
+      expectEvaluate(xml, '2 != 2', [isFalse]);
+      expectEvaluate(xml, '2 != 1', [isTrue]);
+    });
+    test('and', () {
+      expectEvaluate(xml, 'true() and true()', [isTrue]);
+      expectEvaluate(xml, 'true() and false()', [isFalse]);
+      expectEvaluate(xml, 'false() and true()', [isFalse]);
+      expectEvaluate(xml, 'false() and false()', [isFalse]);
+    });
+    test('or', () {
+      expectEvaluate(xml, 'true() or true()', [isTrue]);
+      expectEvaluate(xml, 'true() or false()', [isTrue]);
+      expectEvaluate(xml, 'false() or true()', [isTrue]);
+      expectEvaluate(xml, 'false() or false()', [isFalse]);
     });
   });
 }
