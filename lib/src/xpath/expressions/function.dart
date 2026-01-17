@@ -1,8 +1,8 @@
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../exceptions/evaluation_exception.dart';
-import '../types31/function.dart';
-import '../types31/sequence.dart';
+import '../types/function.dart';
+import '../types/sequence.dart';
 
 class StaticFunctionExpression implements XPathExpression {
   const StaticFunctionExpression(this.function, this.arguments);

@@ -1,7 +1,7 @@
 import '../../xml/nodes/node.dart';
-import '../types31/function.dart';
-import '../types31/sequence.dart';
-import '../types31/string.dart';
+import '../types/function.dart';
+import '../types/sequence.dart';
+import '../types/string.dart';
 
 /// Runtime execution context to evaluate XPath expressions.
 class XPathContext {

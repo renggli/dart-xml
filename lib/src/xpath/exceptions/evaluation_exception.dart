@@ -2,7 +2,7 @@ import 'package:petitparser/petitparser.dart' show unbounded;
 
 import '../../xml/exceptions/exception.dart';
 import '../evaluation/functions.dart';
-import '../types31/sequence.dart';
+import '../types/sequence.dart';
 
 /// Exception thrown when calling an XPath functions fails.
 class XPathEvaluationException extends XmlException {

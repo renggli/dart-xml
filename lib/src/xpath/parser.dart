@@ -17,11 +17,11 @@ import 'expressions/statement.dart';
 import 'expressions/step.dart';
 import 'expressions/string_concat.dart';
 import 'expressions/variable.dart';
-import 'functions31/general.dart' as general;
-import 'functions31/node.dart' as nodes;
-import 'functions31/number.dart' as number;
-import 'types31/sequence.dart';
-import 'types31/string.dart';
+import 'functions/general.dart' as general;
+import 'functions/node.dart' as nodes;
+import 'functions/number.dart' as number;
+import 'types/sequence.dart';
+import 'types/string.dart';
 
 // XPath 3.1 Grammar: https://www.w3.org/TR/xpath-31
 class XPathParser {

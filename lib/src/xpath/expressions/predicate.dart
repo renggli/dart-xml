@@ -3,8 +3,8 @@ import 'package:meta/meta.dart';
 import '../../xml/nodes/node.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
-import '../types31/boolean.dart';
-import '../types31/sequence.dart';
+import '../types/boolean.dart';
+import '../types/sequence.dart';
 
 @immutable
 class Predicate {

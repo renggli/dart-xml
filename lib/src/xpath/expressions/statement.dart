@@ -1,7 +1,7 @@
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
-import '../types31/boolean.dart';
-import '../types31/sequence.dart';
+import '../types/boolean.dart';
+import '../types/sequence.dart';
 
 typedef XPathBinding = ({String name, XPathExpression expression});
 

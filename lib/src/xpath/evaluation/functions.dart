@@ -1,24 +1,24 @@
-import '../functions31/accessor.dart' as accessor;
-import '../functions31/array.dart' as array;
-import '../functions31/binary.dart' as binary;
-import '../functions31/boolean.dart' as boolean;
-import '../functions31/context.dart' as context_func;
-import '../functions31/date_time.dart' as date_time;
-import '../functions31/duration.dart' as duration;
-import '../functions31/error.dart' as error;
-import '../functions31/higher_order.dart' as higher_order;
-import '../functions31/json.dart' as json;
-import '../functions31/map.dart' as map;
-import '../functions31/node.dart' as node;
-import '../functions31/notation.dart' as notation;
-import '../functions31/number.dart' as number;
-import '../functions31/qname.dart' as qname;
-import '../functions31/sequence.dart' as sequence;
-import '../functions31/string.dart' as string;
-import '../functions31/uri.dart' as uri;
-import '../types31/function.dart';
+import '../functions/accessor.dart' as accessor;
+import '../functions/array.dart' as array;
+import '../functions/binary.dart' as binary;
+import '../functions/boolean.dart' as boolean;
+import '../functions/context.dart' as context_func;
+import '../functions/date_time.dart' as date_time;
+import '../functions/duration.dart' as duration;
+import '../functions/error.dart' as error;
+import '../functions/higher_order.dart' as higher_order;
+import '../functions/json.dart' as json;
+import '../functions/map.dart' as map;
+import '../functions/node.dart' as node;
+import '../functions/notation.dart' as notation;
+import '../functions/number.dart' as number;
+import '../functions/qname.dart' as qname;
+import '../functions/sequence.dart' as sequence;
+import '../functions/string.dart' as string;
+import '../functions/uri.dart' as uri;
+import '../types/function.dart';
 
-export '../types31/function.dart';
+export '../types/function.dart';
 
 /// The standard XPath functions.
 const Map<String, XPathFunction> standardFunctions = {

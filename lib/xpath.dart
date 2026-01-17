@@ -11,13 +11,13 @@ import 'src/xpath/evaluation/expression.dart';
 import 'src/xpath/evaluation/functions.dart';
 import 'src/xpath/exceptions/parser_exception.dart';
 import 'src/xpath/parser.dart';
-import 'src/xpath/types31/sequence.dart';
+import 'src/xpath/types/sequence.dart';
 
 export 'src/xpath/evaluation/functions.dart' show XPathFunction;
 export 'src/xpath/exceptions/evaluation_exception.dart';
 export 'src/xpath/exceptions/parser_exception.dart';
 export 'src/xpath/generator.dart' show XPathGenerator;
-export 'src/xpath/types31/sequence.dart';
+export 'src/xpath/types/sequence.dart';
 
 extension XPathExtension on XmlNode {
   /// Returns an iterable over the nodes matching the provided XPath

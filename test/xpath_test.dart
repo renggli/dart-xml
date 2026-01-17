@@ -7,9 +7,9 @@ import 'package:xml/src/xpath/expressions/predicate.dart';
 import 'package:xml/src/xpath/expressions/step.dart';
 import 'package:xml/src/xpath/expressions/variable.dart';
 import 'package:xml/src/xpath/parser.dart';
-import 'package:xml/src/xpath/types31/boolean.dart';
-import 'package:xml/src/xpath/types31/number.dart';
-import 'package:xml/src/xpath/types31/string.dart';
+import 'package:xml/src/xpath/types/boolean.dart';
+import 'package:xml/src/xpath/types/number.dart';
+import 'package:xml/src/xpath/types/string.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 

@@ -1,7 +1,7 @@
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
-import '../types31/sequence.dart';
-import '../types31/string.dart';
+import '../types/sequence.dart';
+import '../types/string.dart';
 
 class StringConcatExpression implements XPathExpression {
   const StringConcatExpression(this.expressions);

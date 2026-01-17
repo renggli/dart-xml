@@ -1,6 +1,6 @@
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
-import '../types31/sequence.dart';
+import '../types/sequence.dart';
 
 class SequenceExpression implements XPathExpression {
   const SequenceExpression(this.expressions);

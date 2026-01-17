@@ -3,7 +3,7 @@ import '../../xml/extensions/parent.dart';
 import '../../xml/nodes/node.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
-import '../types31/sequence.dart';
+import '../types/sequence.dart';
 import 'axis.dart';
 import 'node_test.dart';
 import 'step.dart';

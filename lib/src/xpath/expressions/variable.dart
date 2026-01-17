@@ -1,7 +1,7 @@
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../exceptions/evaluation_exception.dart';
-import '../types31/sequence.dart';
+import '../types/sequence.dart';
 
 class ContextItemExpression implements XPathExpression {
   const ContextItemExpression();
