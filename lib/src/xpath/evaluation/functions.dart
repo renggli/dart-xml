@@ -16,12 +16,11 @@ import '../functions/qname.dart' as qname;
 import '../functions/sequence.dart' as sequence;
 import '../functions/string.dart' as string;
 import '../functions/uri.dart' as uri;
-import '../types/function.dart';
 
 export '../types/function.dart';
 
 /// The standard XPath functions.
-const Map<String, XPathFunction> standardFunctions = {
+const Map<String, Object> standardFunctions = {
   // Accessors
   'node-name': accessor.fnNodeName,
   'nilled': accessor.fnNilled,
@@ -170,6 +169,9 @@ const Map<String, XPathFunction> standardFunctions = {
   'for-each-pair': higher_order.fnForEachPair,
   'sort': higher_order.fnSort,
   'apply': higher_order.fnApply,
+  'function-lookup': higher_order.fnFunctionLookup,
+  'load-xquery-module': higher_order.fnLoadXqueryModule,
+  'transform': higher_order.fnTransform,
 
   // JSON
   'parse-json': json.fnParseJson,

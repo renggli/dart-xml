@@ -26,7 +26,7 @@ extension XPathExtension on XmlNode {
   Iterable<XmlNode> xpath(
     String expression, {
     Map<String, XPathSequence> variables = const {},
-    Map<String, XPathFunction> functions = const {},
+    Map<String, Object> functions = const {},
   }) => xpathEvaluate(
     expression,
     variables: variables,
@@ -41,7 +41,7 @@ extension XPathExtension on XmlNode {
   XPathSequence xpathEvaluate(
     String expression, {
     Map<String, XPathSequence> variables = const {},
-    Map<String, XPathFunction> functions = const {},
+    Map<String, Object> functions = const {},
   }) {
     final allFunctions = {...standardFunctions, ...functions};
     return _cache[expression](

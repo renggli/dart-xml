@@ -1,39 +1,44 @@
 import '../evaluation/context.dart';
+import '../evaluation/definition.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-resolve-uri
-XPathSequence fnResolveUri(
+const fnResolveUri = XPathFunctionDefinition(
+  namespace: 'fn',
+  name: 'resolve-uri',
+  requiredArguments: [
+    XPathArgumentDefinition(
+      name: 'relative',
+      type: XPathString,
+      cardinality: XPathArgumentCardinality.zeroOrOne,
+    ),
+  ],
+  optionalArguments: [
+    XPathArgumentDefinition(
+      name: 'base',
+      type: XPathString,
+      cardinality: XPathArgumentCardinality.zeroOrOne,
+    ),
+  ],
+  function: _fnResolveUri,
+);
+
+XPathSequence _fnResolveUri(
   XPathContext context,
-  List<XPathSequence> arguments,
-) {
-  XPathEvaluationException.checkArgumentCount(
-    'fn:resolve-uri',
-    arguments,
-    1,
-    2,
-  );
-  final relative = XPathEvaluationException.extractZeroOrOne(
-    'fn:resolve-uri',
-    'relative',
-    arguments[0],
-  )?.toXPathString();
+  XPathString? relative, [
+  Object? base = _missing,
+]) {
   if (relative == null) return XPathSequence.empty;
-  if (arguments.length < 2) {
+  if (identical(base, _missing)) {
     // TODO: Use base-uri from static context if available
     return XPathSequence.single(XPathString(relative));
   }
-  final base =
-      XPathEvaluationException.extractZeroOrOne(
-        'fn:resolve-uri',
-        'base',
-        arguments[1],
-      )?.toXPathString() ??
-      '';
+  final baseStr = (base as XPathString?) ?? '';
   try {
     return XPathSequence.single(
-      XPathString(Uri.parse(base).resolve(relative).toString()),
+      XPathString(Uri.parse(baseStr).resolve(relative).toString()),
     );
   } catch (e) {
     throw XPathEvaluationException('Invalid URI: $e');
@@ -41,55 +46,61 @@ XPathSequence fnResolveUri(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-encode-for-uri
-XPathSequence fnEncodeForUri(
-  XPathContext context,
-  List<XPathSequence> arguments,
-) {
-  XPathEvaluationException.checkArgumentCount(
-    'fn:encode-for-uri',
-    arguments,
-    1,
-  );
-  final uriPart =
-      XPathEvaluationException.extractZeroOrOne(
-        'fn:encode-for-uri',
-        'uriPart',
-        arguments[0],
-      )?.toXPathString() ??
-      '';
-  return XPathSequence.single(XPathString(Uri.encodeComponent(uriPart)));
+const fnEncodeForUri = XPathFunctionDefinition(
+  namespace: 'fn',
+  name: 'encode-for-uri',
+  requiredArguments: [
+    XPathArgumentDefinition(
+      name: 'uriPart',
+      type: XPathString,
+      cardinality: XPathArgumentCardinality.zeroOrOne,
+    ),
+  ],
+  function: _fnEncodeForUri,
+);
+
+XPathSequence _fnEncodeForUri(XPathContext context, XPathString? uriPart) {
+  final part = uriPart ?? '';
+  return XPathSequence.single(XPathString(Uri.encodeComponent(part)));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-iri-to-uri
-XPathSequence fnIriToUri(XPathContext context, List<XPathSequence> arguments) {
-  XPathEvaluationException.checkArgumentCount('fn:iri-to-uri', arguments, 1);
-  final iri =
-      XPathEvaluationException.extractZeroOrOne(
-        'fn:iri-to-uri',
-        'iri',
-        arguments[0],
-      )?.toXPathString() ??
-      '';
-  return XPathSequence.single(XPathString(Uri.encodeFull(iri)));
+const fnIriToUri = XPathFunctionDefinition(
+  namespace: 'fn',
+  name: 'iri-to-uri',
+  requiredArguments: [
+    XPathArgumentDefinition(
+      name: 'iri',
+      type: XPathString,
+      cardinality: XPathArgumentCardinality.zeroOrOne,
+    ),
+  ],
+  function: _fnIriToUri,
+);
+
+XPathSequence _fnIriToUri(XPathContext context, XPathString? iri) {
+  final val = iri ?? '';
+  return XPathSequence.single(XPathString(Uri.encodeFull(val)));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-escape-html-uri
-XPathSequence fnEscapeHtmlUri(
-  XPathContext context,
-  List<XPathSequence> arguments,
-) {
-  XPathEvaluationException.checkArgumentCount(
-    'fn:escape-html-uri',
-    arguments,
-    1,
-  );
-  final uri =
-      XPathEvaluationException.extractZeroOrOne(
-        'fn:escape-html-uri',
-        'uri',
-        arguments[0],
-      )?.toXPathString() ??
-      '';
+const fnEscapeHtmlUri = XPathFunctionDefinition(
+  namespace: 'fn',
+  name: 'escape-html-uri',
+  requiredArguments: [
+    XPathArgumentDefinition(
+      name: 'uri',
+      type: XPathString,
+      cardinality: XPathArgumentCardinality.zeroOrOne,
+    ),
+  ],
+  function: _fnEscapeHtmlUri,
+);
+
+XPathSequence _fnEscapeHtmlUri(XPathContext context, XPathString? uri) {
+  final val = uri ?? '';
   // Simple implementation using Uri.encodeFull which is similar to what's required
-  return XPathSequence.single(XPathString(Uri.encodeFull(uri)));
+  return XPathSequence.single(XPathString(Uri.encodeFull(val)));
 }
+
+const _missing = Object();

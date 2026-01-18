@@ -1,5 +1,7 @@
 import 'dart:math' as math;
+
 import '../evaluation/context.dart';
+import '../evaluation/definition.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types/array.dart';
 import '../types/boolean.dart';
@@ -9,121 +11,158 @@ import '../types/sequence.dart';
 import '../types/string.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-size
-XPathSequence arraySize(XPathContext context, List<XPathSequence> arguments) {
-  XPathEvaluationException.checkArgumentCount('array:size', arguments, 1);
-  final array = XPathEvaluationException.extractExactlyOne(
-    'array:size',
-    'array',
-    arguments[0],
-  ).toXPathArray();
-  return XPathSequence.single(array.length);
-}
+const arraySize = XPathFunctionDefinition(
+  namespace: 'array',
+  name: 'size',
+  requiredArguments: [XPathArgumentDefinition(name: 'array', type: XPathArray)],
+  function: _arraySize,
+);
+
+XPathSequence _arraySize(XPathContext context, XPathArray array) =>
+    XPathSequence.single(array.length);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-get
-XPathSequence arrayGet(XPathContext context, List<XPathSequence> arguments) {
-  XPathEvaluationException.checkArgumentCount('array:get', arguments, 2);
-  final array = XPathEvaluationException.extractExactlyOne(
-    'array:get',
-    'array',
-    arguments[0],
-  ).toXPathArray();
-  final position = XPathEvaluationException.extractExactlyOne(
-    'array:get',
-    'position',
-    arguments[1],
-  ).toXPathNumber().toInt();
-  if (position < 1 || position > array.length) {
-    throw XPathEvaluationException('array:get: Index out of bounds: $position');
+const arrayGet = XPathFunctionDefinition(
+  namespace: 'array',
+  name: 'get',
+  requiredArguments: [
+    XPathArgumentDefinition(name: 'array', type: XPathArray),
+    XPathArgumentDefinition(name: 'position', type: XPathNumber),
+  ],
+  function: _arrayGet,
+);
+
+XPathSequence _arrayGet(
+  XPathContext context,
+  XPathArray array,
+  XPathNumber position,
+) {
+  final pos = position.toInt();
+  if (pos < 1 || pos > array.length) {
+    throw XPathEvaluationException('array:get: Index out of bounds: $pos');
   }
-  return array[position - 1].toXPathSequence();
+  return array[pos - 1].toXPathSequence();
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-put
-XPathSequence arrayPut(XPathContext context, List<XPathSequence> arguments) {
-  XPathEvaluationException.checkArgumentCount('array:put', arguments, 3);
-  final array = XPathEvaluationException.extractExactlyOne(
-    'array:put',
-    'array',
-    arguments[0],
-  ).toXPathArray();
-  final position = XPathEvaluationException.extractExactlyOne(
-    'array:put',
-    'position',
-    arguments[1],
-  ).toXPathNumber().toInt();
-  final member = arguments[2];
-  if (position < 1 || position > array.length) {
-    throw XPathEvaluationException('array:put: Index out of bounds: $position');
+const arrayPut = XPathFunctionDefinition(
+  namespace: 'array',
+  name: 'put',
+  requiredArguments: [
+    XPathArgumentDefinition(name: 'array', type: XPathArray),
+    XPathArgumentDefinition(name: 'position', type: XPathNumber),
+    XPathArgumentDefinition(
+      name: 'member',
+      type: XPathSequence,
+      cardinality: XPathArgumentCardinality.zeroOrMore,
+    ),
+  ],
+  function: _arrayPut,
+);
+
+XPathSequence _arrayPut(
+  XPathContext context,
+  XPathArray array,
+  XPathNumber position,
+  XPathSequence member,
+) {
+  final pos = position.toInt();
+  if (pos < 1 || pos > array.length) {
+    throw XPathEvaluationException('array:put: Index out of bounds: $pos');
   }
   final result = List.of(array);
-  result[position - 1] = member.toAtomicValue();
+  result[pos - 1] = member.toAtomicValue();
   return XPathSequence.single(result);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-append
-XPathSequence arrayAppend(XPathContext context, List<XPathSequence> arguments) {
-  XPathEvaluationException.checkArgumentCount('array:append', arguments, 2);
-  final array = XPathEvaluationException.extractExactlyOne(
-    'array:append',
-    'array',
-    arguments[0],
-  ).toXPathArray();
-  final member = arguments[1];
+const arrayAppend = XPathFunctionDefinition(
+  namespace: 'array',
+  name: 'append',
+  requiredArguments: [
+    XPathArgumentDefinition(name: 'array', type: XPathArray),
+    XPathArgumentDefinition(
+      name: 'member',
+      type: XPathSequence,
+      cardinality: XPathArgumentCardinality.zeroOrMore,
+    ),
+  ],
+  function: _arrayAppend,
+);
+
+XPathSequence _arrayAppend(
+  XPathContext context,
+  XPathArray array,
+  XPathSequence member,
+) {
   final result = List.of(array);
   result.add(member.toAtomicValue());
   return XPathSequence.single(result);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-subarray
-XPathSequence arraySubarray(
+const arraySubarray = XPathFunctionDefinition(
+  namespace: 'array',
+  name: 'subarray',
+  requiredArguments: [
+    XPathArgumentDefinition(name: 'array', type: XPathArray),
+    XPathArgumentDefinition(name: 'start', type: XPathNumber),
+  ],
+  optionalArguments: [
+    XPathArgumentDefinition(
+      name: 'length',
+      type: XPathNumber,
+      cardinality: XPathArgumentCardinality.zeroOrOne,
+    ),
+  ],
+  function: _arraySubarray,
+);
+
+XPathSequence _arraySubarray(
   XPathContext context,
-  List<XPathSequence> arguments,
-) {
-  XPathEvaluationException.checkArgumentCount(
-    'array:subarray',
-    arguments,
-    2,
-    3,
-  );
-  final array = XPathEvaluationException.extractExactlyOne(
-    'array:subarray',
-    'array',
-    arguments[0],
-  ).toXPathArray();
-  final start = XPathEvaluationException.extractExactlyOne(
-    'array:subarray',
-    'start',
-    arguments[1],
-  ).toXPathNumber().toInt();
-  final lengthArg = arguments.length > 2 ? arguments[2] : null;
-  final length = lengthArg != null
-      ? XPathEvaluationException.extractExactlyOne(
-          'array:subarray',
-          'length',
-          lengthArg,
-        ).toXPathNumber().toInt()
-      : array.length - start + 1;
-  if (start < 1 || start > array.length + 1) {
+  XPathArray array,
+  XPathNumber start, [
+  Object? length = _missing,
+]) {
+  final startPos = start.toInt();
+  final lenVal = identical(length, _missing) || length == null
+      ? array.length - startPos + 1
+      : (length as XPathNumber).toInt();
+
+  if (startPos < 1 || startPos > array.length + 1) {
     throw XPathEvaluationException('array:subarray: Start out of bounds');
   }
-  if (length < 0) {
+  if (lenVal < 0) {
     throw XPathEvaluationException('array:subarray: Negative length');
   }
-  if (start + length - 1 > array.length) {
+  if (startPos + lenVal - 1 > array.length) {
     throw XPathEvaluationException('array:subarray: Range out of bounds');
   }
-  return XPathSequence.single(array.sublist(start - 1, start + length - 1));
+  return XPathSequence.single(
+    array.sublist(startPos - 1, startPos + lenVal - 1),
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-remove
-XPathSequence arrayRemove(XPathContext context, List<XPathSequence> arguments) {
-  XPathEvaluationException.checkArgumentCount('array:remove', arguments, 2);
-  final array = XPathEvaluationException.extractExactlyOne(
-    'array:remove',
-    'array',
-    arguments[0],
-  ).toXPathArray();
-  final positions = arguments[1];
+const arrayRemove = XPathFunctionDefinition(
+  namespace: 'array',
+  name: 'remove',
+  requiredArguments: [
+    XPathArgumentDefinition(name: 'array', type: XPathArray),
+    XPathArgumentDefinition(
+      name: 'positions',
+      type: XPathSequence,
+      cardinality: XPathArgumentCardinality.zeroOrMore,
+    ),
+  ],
+  function: _arrayRemove,
+);
+
+XPathSequence _arrayRemove(
+  XPathContext context,
+  XPathArray array,
+  XPathSequence positions,
+) {
   final positionsList = positions
       .map((pos) => pos.toXPathNumber().toInt())
       .toList();
@@ -139,42 +178,45 @@ XPathSequence arrayRemove(XPathContext context, List<XPathSequence> arguments) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-insert-before
-XPathSequence arrayInsertBefore(
+const arrayInsertBefore = XPathFunctionDefinition(
+  namespace: 'array',
+  name: 'insert-before',
+  requiredArguments: [
+    XPathArgumentDefinition(name: 'array', type: XPathArray),
+    XPathArgumentDefinition(name: 'position', type: XPathNumber),
+    XPathArgumentDefinition(
+      name: 'member',
+      type: XPathSequence,
+      cardinality: XPathArgumentCardinality.zeroOrMore,
+    ),
+  ],
+  function: _arrayInsertBefore,
+);
+
+XPathSequence _arrayInsertBefore(
   XPathContext context,
-  List<XPathSequence> arguments,
+  XPathArray array,
+  XPathNumber position,
+  XPathSequence member,
 ) {
-  XPathEvaluationException.checkArgumentCount(
-    'array:insert-before',
-    arguments,
-    3,
-  );
-  final array = XPathEvaluationException.extractExactlyOne(
-    'array:insert-before',
-    'array',
-    arguments[0],
-  ).toXPathArray();
-  final position = XPathEvaluationException.extractExactlyOne(
-    'array:insert-before',
-    'position',
-    arguments[1],
-  ).toXPathNumber().toInt();
-  final member = arguments[2];
-  if (position < 1 || position > array.length + 1) {
+  final pos = position.toInt();
+  if (pos < 1 || pos > array.length + 1) {
     throw XPathEvaluationException('array:insert-before: Index out of bounds');
   }
   final result = List.of(array);
-  result.insert(position - 1, member.toAtomicValue());
+  result.insert(pos - 1, member.toAtomicValue());
   return XPathSequence.single(result);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-head
-XPathSequence arrayHead(XPathContext context, List<XPathSequence> arguments) {
-  XPathEvaluationException.checkArgumentCount('array:head', arguments, 1);
-  final array = XPathEvaluationException.extractExactlyOne(
-    'array:head',
-    'array',
-    arguments[0],
-  ).toXPathArray();
+const arrayHead = XPathFunctionDefinition(
+  namespace: 'array',
+  name: 'head',
+  requiredArguments: [XPathArgumentDefinition(name: 'array', type: XPathArray)],
+  function: _arrayHead,
+);
+
+XPathSequence _arrayHead(XPathContext context, XPathArray array) {
   if (array.isEmpty) {
     throw XPathEvaluationException('array:head: Array is empty');
   }
@@ -182,13 +224,14 @@ XPathSequence arrayHead(XPathContext context, List<XPathSequence> arguments) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-tail
-XPathSequence arrayTail(XPathContext context, List<XPathSequence> arguments) {
-  XPathEvaluationException.checkArgumentCount('array:tail', arguments, 1);
-  final array = XPathEvaluationException.extractExactlyOne(
-    'array:tail',
-    'array',
-    arguments[0],
-  ).toXPathArray();
+const arrayTail = XPathFunctionDefinition(
+  namespace: 'array',
+  name: 'tail',
+  requiredArguments: [XPathArgumentDefinition(name: 'array', type: XPathArray)],
+  function: _arrayTail,
+);
+
+XPathSequence _arrayTail(XPathContext context, XPathArray array) {
   if (array.isEmpty) {
     throw XPathEvaluationException('array:tail: Array is empty');
   }
@@ -196,44 +239,51 @@ XPathSequence arrayTail(XPathContext context, List<XPathSequence> arguments) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-reverse
-XPathSequence arrayReverse(
-  XPathContext context,
-  List<XPathSequence> arguments,
-) {
-  XPathEvaluationException.checkArgumentCount('array:reverse', arguments, 1);
-  final array = XPathEvaluationException.extractExactlyOne(
-    'array:reverse',
-    'array',
-    arguments[0],
-  ).toXPathArray();
-  return XPathSequence.single(array.reversed.toList());
-}
+const arrayReverse = XPathFunctionDefinition(
+  namespace: 'array',
+  name: 'reverse',
+  requiredArguments: [XPathArgumentDefinition(name: 'array', type: XPathArray)],
+  function: _arrayReverse,
+);
+
+XPathSequence _arrayReverse(XPathContext context, XPathArray array) =>
+    XPathSequence.single(array.reversed.toList());
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-join
-XPathSequence arrayJoin(XPathContext context, List<XPathSequence> arguments) {
-  XPathEvaluationException.checkArgumentCount('array:join', arguments, 1);
-  final arrays = arguments[0];
-  return XPathSequence.single(
-    arrays.expand((array) => array.toXPathArray()).toList(),
-  );
-}
+const arrayJoin = XPathFunctionDefinition(
+  namespace: 'array',
+  name: 'join',
+  requiredArguments: [
+    XPathArgumentDefinition(
+      name: 'arrays',
+      type: XPathSequence,
+      cardinality: XPathArgumentCardinality.zeroOrMore,
+    ),
+  ],
+  function: _arrayJoin,
+);
+
+XPathSequence _arrayJoin(XPathContext context, XPathSequence arrays) =>
+    XPathSequence.single(
+      arrays.expand((array) => array.toXPathArray()).toList(),
+    );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-for-each
-XPathSequence arrayForEach(
+const arrayForEach = XPathFunctionDefinition(
+  namespace: 'array',
+  name: 'for-each',
+  requiredArguments: [
+    XPathArgumentDefinition(name: 'array', type: XPathArray),
+    XPathArgumentDefinition(name: 'action', type: XPathFunction),
+  ],
+  function: _arrayForEach,
+);
+
+XPathSequence _arrayForEach(
   XPathContext context,
-  List<XPathSequence> arguments,
+  XPathArray array,
+  XPathFunction action,
 ) {
-  XPathEvaluationException.checkArgumentCount('array:for-each', arguments, 2);
-  final array = XPathEvaluationException.extractExactlyOne(
-    'array:for-each',
-    'array',
-    arguments[0],
-  ).toXPathArray();
-  final action = XPathEvaluationException.extractExactlyOne(
-    'array:for-each',
-    'action',
-    arguments[1],
-  ).toXPathFunction();
   final result = <Object>[];
   for (final member in array) {
     result.add(action(context, [member.toXPathSequence()]));
@@ -242,18 +292,21 @@ XPathSequence arrayForEach(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-filter
-XPathSequence arrayFilter(XPathContext context, List<XPathSequence> arguments) {
-  XPathEvaluationException.checkArgumentCount('array:filter', arguments, 2);
-  final array = XPathEvaluationException.extractExactlyOne(
-    'array:filter',
-    'array',
-    arguments[0],
-  ).toXPathArray();
-  final function = XPathEvaluationException.extractExactlyOne(
-    'array:filter',
-    'function',
-    arguments[1],
-  ).toXPathFunction();
+const arrayFilter = XPathFunctionDefinition(
+  namespace: 'array',
+  name: 'filter',
+  requiredArguments: [
+    XPathArgumentDefinition(name: 'array', type: XPathArray),
+    XPathArgumentDefinition(name: 'function', type: XPathFunction),
+  ],
+  function: _arrayFilter,
+);
+
+XPathSequence _arrayFilter(
+  XPathContext context,
+  XPathArray array,
+  XPathFunction function,
+) {
   final result = <Object>[];
   for (final member in array) {
     if (function(context, [member.toXPathSequence()]).toXPathBoolean()) {
@@ -264,81 +317,78 @@ XPathSequence arrayFilter(XPathContext context, List<XPathSequence> arguments) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-fold-left
-XPathSequence arrayFoldLeft(
+const arrayFoldLeft = XPathFunctionDefinition(
+  namespace: 'array',
+  name: 'fold-left',
+  requiredArguments: [
+    XPathArgumentDefinition(name: 'array', type: XPathArray),
+    XPathArgumentDefinition(name: 'zero', type: XPathSequence),
+    XPathArgumentDefinition(name: 'function', type: XPathFunction),
+  ],
+  function: _arrayFoldLeft,
+);
+
+XPathSequence _arrayFoldLeft(
   XPathContext context,
-  List<XPathSequence> arguments,
+  XPathArray array,
+  XPathSequence zero,
+  XPathFunction function,
 ) {
-  XPathEvaluationException.checkArgumentCount('array:fold-left', arguments, 3);
-  final array = XPathEvaluationException.extractExactlyOne(
-    'array:fold-left',
-    'array',
-    arguments[0],
-  ).toXPathArray();
-  var zero = arguments[1];
-  final function = XPathEvaluationException.extractExactlyOne(
-    'array:fold-left',
-    'function',
-    arguments[2],
-  ).toXPathFunction();
+  var result = zero;
   for (final member in array) {
-    zero = function(context, [zero, member.toXPathSequence()]);
+    result = function(context, [result, member.toXPathSequence()]);
   }
-  return zero;
+  return result;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-fold-right
-XPathSequence arrayFoldRight(
+const arrayFoldRight = XPathFunctionDefinition(
+  namespace: 'array',
+  name: 'fold-right',
+  requiredArguments: [
+    XPathArgumentDefinition(name: 'array', type: XPathArray),
+    XPathArgumentDefinition(name: 'zero', type: XPathSequence),
+    XPathArgumentDefinition(name: 'function', type: XPathFunction),
+  ],
+  function: _arrayFoldRight,
+);
+
+XPathSequence _arrayFoldRight(
   XPathContext context,
-  List<XPathSequence> arguments,
+  XPathArray array,
+  XPathSequence zero,
+  XPathFunction function,
 ) {
-  XPathEvaluationException.checkArgumentCount('array:fold-right', arguments, 3);
-  final array = XPathEvaluationException.extractExactlyOne(
-    'array:fold-right',
-    'array',
-    arguments[0],
-  ).toXPathArray();
-  var zero = arguments[1];
-  final function = XPathEvaluationException.extractExactlyOne(
-    'array:fold-right',
-    'function',
-    arguments[2],
-  ).toXPathFunction();
+  var result = zero;
   for (final member in array.reversed) {
-    zero = function(context, [member.toXPathSequence(), zero]);
+    result = function(context, [member.toXPathSequence(), result]);
   }
-  return zero;
+  return result;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-for-each-pair
-XPathSequence arrayForEachPair(
+const arrayForEachPair = XPathFunctionDefinition(
+  namespace: 'array',
+  name: 'for-each-pair',
+  requiredArguments: [
+    XPathArgumentDefinition(name: 'array1', type: XPathArray),
+    XPathArgumentDefinition(name: 'array2', type: XPathArray),
+    XPathArgumentDefinition(name: 'function', type: XPathFunction),
+  ],
+  function: _arrayForEachPair,
+);
+
+XPathSequence _arrayForEachPair(
   XPathContext context,
-  List<XPathSequence> arguments,
+  XPathArray array1,
+  XPathArray array2,
+  XPathFunction function,
 ) {
-  XPathEvaluationException.checkArgumentCount(
-    'array:for-each-pair',
-    arguments,
-    3,
-  );
-  final array1 = XPathEvaluationException.extractExactlyOne(
-    'array:for-each-pair',
-    'array1',
-    arguments[0],
-  ).toXPathArray();
-  final array2 = XPathEvaluationException.extractExactlyOne(
-    'array:for-each-pair',
-    'array2',
-    arguments[1],
-  ).toXPathArray();
-  final action = XPathEvaluationException.extractExactlyOne(
-    'array:for-each-pair',
-    'function',
-    arguments[2],
-  ).toXPathFunction();
   final result = <Object>[];
   final minLen = math.min(array1.length, array2.length);
   for (var i = 0; i < minLen; i++) {
     result.add(
-      action(context, [
+      function(context, [
         array1[i].toXPathSequence(),
         array2[i].toXPathSequence(),
       ]),
@@ -348,33 +398,42 @@ XPathSequence arrayForEachPair(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-sort
-XPathSequence arraySort(XPathContext context, List<XPathSequence> arguments) {
-  XPathEvaluationException.checkArgumentCount('array:sort', arguments, 1, 3);
-  final array = XPathEvaluationException.extractExactlyOne(
-    'array:sort',
-    'array',
-    arguments[0],
-  ).toXPathArray();
+const arraySort = XPathFunctionDefinition(
+  namespace: 'array',
+  name: 'sort',
+  requiredArguments: [XPathArgumentDefinition(name: 'array', type: XPathArray)],
+  optionalArguments: [
+    XPathArgumentDefinition(
+      name: 'collation',
+      type: XPathString,
+      cardinality: XPathArgumentCardinality.zeroOrOne,
+    ),
+    XPathArgumentDefinition(
+      name: 'key',
+      type: XPathFunction,
+      cardinality: XPathArgumentCardinality.zeroOrOne,
+    ),
+  ],
+  function: _arraySort,
+);
+
+XPathSequence _arraySort(
+  XPathContext context,
+  XPathArray array, [
+  Object? collation = _missing,
+  Object? key = _missing,
+]) {
   // ignore: unused_local_variable
-  final collation = arguments.length > 1
-      ? XPathEvaluationException.extractZeroOrOne(
-          'array:sort',
-          'collation',
-          arguments[1],
-        )?.toXPathString()
-      : null;
-  final key = arguments.length > 2
-      ? XPathEvaluationException.extractExactlyOne(
-          'array:sort',
-          'key',
-          arguments[2],
-        ).toXPathFunction()
-      : null;
+  final coll = identical(collation, _missing)
+      ? null
+      : collation as XPathString?;
+  final keyFunc = identical(key, _missing) ? null : key as XPathFunction?;
+
   final list = List.of(array);
   list.sort((a, b) {
-    if (key != null) {
-      final keyA = key(context, [a.toXPathSequence()]).toAtomicValue();
-      final keyB = key(context, [b.toXPathSequence()]).toAtomicValue();
+    if (keyFunc != null) {
+      final keyA = keyFunc(context, [a.toXPathSequence()]).toAtomicValue();
+      final keyB = keyFunc(context, [b.toXPathSequence()]).toAtomicValue();
       if (keyA is Comparable && keyB is Comparable) {
         try {
           return keyA.compareTo(keyB);
@@ -395,12 +454,20 @@ XPathSequence arraySort(XPathContext context, List<XPathSequence> arguments) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-flatten
-XPathSequence arrayFlatten(
-  XPathContext context,
-  List<XPathSequence> arguments,
-) {
-  XPathEvaluationException.checkArgumentCount('array:flatten', arguments, 1);
-  final input = arguments[0];
+const arrayFlatten = XPathFunctionDefinition(
+  namespace: 'array',
+  name: 'flatten',
+  requiredArguments: [
+    XPathArgumentDefinition(
+      name: 'input',
+      type: XPathSequence,
+      cardinality: XPathArgumentCardinality.zeroOrMore,
+    ),
+  ],
+  function: _arrayFlatten,
+);
+
+XPathSequence _arrayFlatten(XPathContext context, XPathSequence input) {
   final result = <Object>[];
   void flatten(XPathArray array) {
     for (final value in array) {
@@ -412,6 +479,25 @@ XPathSequence arrayFlatten(
     }
   }
 
-  flatten(XPathArray(input.toList()));
+  // Previous impl: flatten(XPathArray(input.toList()));
+  // input is sequence. Items in sequence might be arrays?
+  // array:flatten((1, [2, 3], [[4]])) -> 1, 2, 3, 4
+  // If item is array, flatten recursively. If not, add.
+  // Actually spec says input is sequence.
+  // The function flattens ANY usage of arrays within the sequence.
+  // Original impl wrapped input in array then flattened? No, it called `XPathArray(input.toList())`.
+  // That created a single array of items.
+  // Then `flatten` traversed it.
+  // If `input` contained `[1, 2]`, `flatten` encountered it.
+  // So logic is:
+  for (final item in input) {
+    if (item is XPathArray) {
+      flatten(item); // uses same flatten helper
+    } else {
+      result.add(item);
+    }
+  }
   return XPathSequence(result);
 }
+
+const _missing = Object();

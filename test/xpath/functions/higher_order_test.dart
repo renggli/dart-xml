@@ -1,6 +1,7 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/functions/higher_order.dart';
+import 'package:xml/src/xpath/types/map.dart';
 import 'package:xml/src/xpath/types/string.dart' as v31;
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
@@ -107,31 +108,44 @@ void main() {
   });
   test('fn:function-lookup', () {
     expect(
-      () => fnFunctionLookup(context, const <XPathSequence>[]),
+      () => fnFunctionLookup(context, [
+        const XPathSequence.single('name'),
+        const XPathSequence.single(1),
+      ]),
       throwsA(isA<UnimplementedError>()),
     );
   });
   test('fn:function-name', () {
     expect(
-      () => fnFunctionName(context, const <XPathSequence>[]),
+      () => fnFunctionName(context, [
+        XPathSequence.single(
+          (XPathContext context, List<XPathSequence> args) =>
+              XPathSequence.empty,
+        ),
+      ]),
       throwsA(isA<UnimplementedError>()),
     );
   });
   test('fn:function-arity', () {
     expect(
-      () => fnFunctionArity(context, const <XPathSequence>[]),
+      () => fnFunctionArity(context, [
+        XPathSequence.single(
+          (XPathContext context, List<XPathSequence> args) =>
+              XPathSequence.empty,
+        ),
+      ]),
       throwsA(isA<UnimplementedError>()),
     );
   });
   test('fn:load-xquery-module', () {
     expect(
-      () => fnLoadXqueryModule(context, const <XPathSequence>[]),
+      () => fnLoadXqueryModule(context, [const XPathSequence.single('uri')]),
       throwsA(isA<UnimplementedError>()),
     );
   });
   test('fn:transform', () {
     expect(
-      () => fnTransform(context, const <XPathSequence>[]),
+      () => fnTransform(context, [const XPathSequence.single(XPathMap({}))]),
       throwsA(isA<UnimplementedError>()),
     );
   });

@@ -1,5 +1,4 @@
 import '../../xml/nodes/node.dart';
-import '../types/function.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
 
@@ -31,13 +30,13 @@ class XPathContext {
   XPathSequence? getVariable(String name) => variables[name];
 
   /// Looks up a XPath function with the given [name].
-  XPathFunction? getFunction(String name) => functions[name];
+  Object? getFunction(String name) => functions[name];
 
   /// User-defined variables.
   final Map<String, XPathSequence> variables;
 
   /// User-defined functions.
-  final Map<String, XPathFunction> functions;
+  final Map<String, Object> functions;
 
   /// Available documents.
   final Map<String, XmlNode> documents;
@@ -48,7 +47,7 @@ class XPathContext {
   /// Creates a copy of the current context.
   XPathContext copy({
     Map<String, XPathSequence>? variables,
-    Map<String, XPathFunction>? functions,
+    Map<String, Object>? functions,
     Map<String, XmlNode>? documents,
     XPathTraceCallback? onTraceCallback,
   }) => XPathContext(

@@ -1,55 +1,110 @@
 import '../evaluation/context.dart';
-import '../exceptions/evaluation_exception.dart';
+import '../evaluation/definition.dart';
 import '../types/binary.dart';
 import '../types/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hexBinary-equal
-XPathSequence opHexBinaryEqual(
-  XPathContext context,
-  List<XPathSequence> arguments,
-) => XPathSequence.single(
-  _compareHexBinary('op:hexBinary-equal', arguments) == 0,
+const opHexBinaryEqual = XPathFunctionDefinition(
+  namespace: 'op',
+  name: 'hexBinary-equal',
+  requiredArguments: [
+    XPathArgumentDefinition(name: 'value1', type: XPathHexBinary),
+    XPathArgumentDefinition(name: 'value2', type: XPathHexBinary),
+  ],
+  function: _opHexBinaryEqual,
 );
+
+XPathSequence _opHexBinaryEqual(
+  XPathContext context,
+  XPathHexBinary value1,
+  XPathHexBinary value2,
+) => XPathSequence.single(_compareBinary(value1, value2) == 0);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hexBinary-less-than
-XPathSequence opHexBinaryLessThan(
-  XPathContext context,
-  List<XPathSequence> arguments,
-) => XPathSequence.single(
-  _compareHexBinary('op:hexBinary-less-than', arguments) < 0,
+const opHexBinaryLessThan = XPathFunctionDefinition(
+  namespace: 'op',
+  name: 'hexBinary-less-than',
+  requiredArguments: [
+    XPathArgumentDefinition(name: 'value1', type: XPathHexBinary),
+    XPathArgumentDefinition(name: 'value2', type: XPathHexBinary),
+  ],
+  function: _opHexBinaryLessThan,
 );
+
+XPathSequence _opHexBinaryLessThan(
+  XPathContext context,
+  XPathHexBinary value1,
+  XPathHexBinary value2,
+) => XPathSequence.single(_compareBinary(value1, value2) < 0);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hexBinary-greater-than
-XPathSequence opHexBinaryGreaterThan(
-  XPathContext context,
-  List<XPathSequence> arguments,
-) => XPathSequence.single(
-  _compareHexBinary('op:hexBinary-greater-than', arguments) > 0,
+const opHexBinaryGreaterThan = XPathFunctionDefinition(
+  namespace: 'op',
+  name: 'hexBinary-greater-than',
+  requiredArguments: [
+    XPathArgumentDefinition(name: 'value1', type: XPathHexBinary),
+    XPathArgumentDefinition(name: 'value2', type: XPathHexBinary),
+  ],
+  function: _opHexBinaryGreaterThan,
 );
+
+XPathSequence _opHexBinaryGreaterThan(
+  XPathContext context,
+  XPathHexBinary value1,
+  XPathHexBinary value2,
+) => XPathSequence.single(_compareBinary(value1, value2) > 0);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-base64Binary-equal
-XPathSequence opBase64BinaryEqual(
-  XPathContext context,
-  List<XPathSequence> arguments,
-) => XPathSequence.single(
-  _compareBase64Binary('op:base64Binary-equal', arguments) == 0,
+const opBase64BinaryEqual = XPathFunctionDefinition(
+  namespace: 'op',
+  name: 'base64Binary-equal',
+  requiredArguments: [
+    XPathArgumentDefinition(name: 'value1', type: XPathBase64Binary),
+    XPathArgumentDefinition(name: 'value2', type: XPathBase64Binary),
+  ],
+  function: _opBase64BinaryEqual,
 );
+
+XPathSequence _opBase64BinaryEqual(
+  XPathContext context,
+  XPathBase64Binary value1,
+  XPathBase64Binary value2,
+) => XPathSequence.single(_compareBinary(value1, value2) == 0);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-base64Binary-less-than
-XPathSequence opBase64BinaryLessThan(
-  XPathContext context,
-  List<XPathSequence> arguments,
-) => XPathSequence.single(
-  _compareBase64Binary('op:base64Binary-less-than', arguments) < 0,
+const opBase64BinaryLessThan = XPathFunctionDefinition(
+  namespace: 'op',
+  name: 'base64Binary-less-than',
+  requiredArguments: [
+    XPathArgumentDefinition(name: 'value1', type: XPathBase64Binary),
+    XPathArgumentDefinition(name: 'value2', type: XPathBase64Binary),
+  ],
+  function: _opBase64BinaryLessThan,
 );
 
-/// https://www.w3.org/TR/xpath-functions-31/#func-base64Binary-greater-than
-XPathSequence opBase64BinaryGreaterThan(
+XPathSequence _opBase64BinaryLessThan(
   XPathContext context,
-  List<XPathSequence> arguments,
-) => XPathSequence.single(
-  _compareBase64Binary('op:base64Binary-greater-than', arguments) > 0,
+  XPathBase64Binary value1,
+  XPathBase64Binary value2,
+) => XPathSequence.single(_compareBinary(value1, value2) < 0);
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-base64Binary-greater-than
+const opBase64BinaryGreaterThan = XPathFunctionDefinition(
+  namespace: 'op',
+  name: 'base64Binary-greater-than',
+  requiredArguments: [
+    XPathArgumentDefinition(name: 'value1', type: XPathBase64Binary),
+    XPathArgumentDefinition(name: 'value2', type: XPathBase64Binary),
+  ],
+  function: _opBase64BinaryGreaterThan,
 );
+
+XPathSequence _opBase64BinaryGreaterThan(
+  XPathContext context,
+  XPathBase64Binary value1,
+  XPathBase64Binary value2,
+) => XPathSequence.single(_compareBinary(value1, value2) > 0);
+
 int _compareBinary(List<int> a, List<int> b) {
   final len = a.length < b.length ? a.length : b.length;
   for (var i = 0; i < len; i++) {
@@ -57,34 +112,4 @@ int _compareBinary(List<int> a, List<int> b) {
     if (diff != 0) return diff;
   }
   return a.length.compareTo(b.length);
-}
-
-int _compareHexBinary(String name, List<XPathSequence> arguments) {
-  XPathEvaluationException.checkArgumentCount(name, arguments, 2);
-  final value1 = XPathEvaluationException.extractExactlyOne(
-    name,
-    'value1',
-    arguments[0],
-  ).toXPathHexBinary();
-  final value2 = XPathEvaluationException.extractExactlyOne(
-    name,
-    'value2',
-    arguments[1],
-  ).toXPathHexBinary();
-  return _compareBinary(value1, value2);
-}
-
-int _compareBase64Binary(String name, List<XPathSequence> arguments) {
-  XPathEvaluationException.checkArgumentCount(name, arguments, 2);
-  final value1 = XPathEvaluationException.extractExactlyOne(
-    name,
-    'value1',
-    arguments[0],
-  ).toXPathBase64Binary();
-  final value2 = XPathEvaluationException.extractExactlyOne(
-    name,
-    'value2',
-    arguments[1],
-  ).toXPathBase64Binary();
-  return _compareBinary(value1, value2);
 }

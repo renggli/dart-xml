@@ -19,7 +19,7 @@ void main() {
     expect(
       () => fnNamespaceUriForPrefix(context, [
         XPathSequence.empty,
-        XPathSequence.empty,
+        XPathSequence.single(document),
       ]),
       throwsA(isA<UnimplementedError>()),
     );
@@ -61,7 +61,7 @@ void main() {
   });
   test('fn:in-scope-prefixes', () {
     expect(
-      () => fnInScopePrefixes(context, [XPathSequence.empty]),
+      () => fnInScopePrefixes(context, [XPathSequence.single(document)]),
       throwsA(isA<UnimplementedError>()),
     );
   });

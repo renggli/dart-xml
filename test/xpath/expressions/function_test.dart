@@ -42,15 +42,15 @@ void main() {
     });
 
     test('evaluate missing function', () {
-      const expr = DynamicFunctionExpression('fun', []);
+      const expression = DynamicFunctionExpression('fun', []);
       final context = XPathContext(XmlElement.tag('root'));
       expect(
-        () => expr(context),
+        () => expression(context),
         throwsA(
           isA<XPathEvaluationException>().having(
             (e) => e.message,
             'message',
-            'Undeclared function "fun"',
+            'Unknown function: fun',
           ),
         ),
       );

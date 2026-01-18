@@ -272,7 +272,7 @@ void main() {
     test('fn:analyze-string', () {
       expect(
         () => fnAnalyzeString(context, const <XPathSequence>[]),
-        throwsA(isA<UnimplementedError>()),
+        throwsA(isA<XPathEvaluationException>()),
       );
     });
 
