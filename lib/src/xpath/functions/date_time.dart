@@ -852,6 +852,10 @@ XPathSequence _fnTimezoneFromTime(XPathContext context, XPathDateTime? arg) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-adjust-dateTime-to-timezone
+Object _defaultTimezone(XPathContext context) =>
+    XPathDuration(DateTime.now().timeZoneOffset);
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-adjust-dateTime-to-timezone
 const fnAdjustDateTimeToTimezone = XPathFunctionDefinition(
   namespace: 'fn',
   name: 'adjust-dateTime-to-timezone',
@@ -867,6 +871,7 @@ const fnAdjustDateTimeToTimezone = XPathFunctionDefinition(
       name: 'timezone',
       type: XPathDuration,
       cardinality: XPathArgumentCardinality.zeroOrOne,
+      defaultValue: _defaultTimezone,
     ),
   ],
   function: _fnAdjustDateTimeToTimezone,
@@ -875,30 +880,26 @@ const fnAdjustDateTimeToTimezone = XPathFunctionDefinition(
 XPathSequence _fnAdjustDateTimeToTimezone(
   XPathContext context,
   XPathDateTime? arg, [
-  Object? timezone = _missing,
+  XPathDuration? timezone,
 ]) {
   if (arg == null) return XPathSequence.empty;
-  if (identical(timezone, _missing)) {
-    // No timezone argument: adjust to implicit timezone (Local)
-    return XPathSequence.single(arg.toLocal().toXPathDateTime());
-  }
-  final tz = timezone as XPathDuration?;
-  if (tz == null) {
-    // Empty sequence: return value without timezone.
-    // Dart DateTime always has a timezone (UTC or Local).
-    // This is an approximation.
+  if (timezone == null) {
+    // Empty sequence: return value without timezone (or as is).
+    // Spec: "If $timezone is the empty sequence, the result is ... without a timezone."
+    // Dart DateTime always has timezone.
     return XPathSequence.single(arg);
   }
-  if (tz.inMicroseconds == 0) {
+
+  // Adjust to specific timezone.
+  if (timezone.inMicroseconds == 0) {
     return XPathSequence.single(arg.toUtc().toXPathDateTime());
   }
-  // Implementation restriction: Dart DateTime only supports UTC and Local.
-  // We cannot represent arbitrary timezones.
-  // If the offset matches Local, we convert to Local.
-  final localOffset = arg.toLocal().timeZoneOffset;
-  if (tz.inMicroseconds == localOffset.inMicroseconds) {
+
+  final localOffset = DateTime.now().timeZoneOffset;
+  if (timezone.inMicroseconds == localOffset.inMicroseconds) {
     return XPathSequence.single(arg.toLocal().toXPathDateTime());
   }
+
   throw XPathEvaluationException(
     'Implementation restriction: specific timezones not supported by Dart DateTime',
   );
@@ -920,6 +921,7 @@ const fnAdjustDateToTimezone = XPathFunctionDefinition(
       name: 'timezone',
       type: XPathDuration,
       cardinality: XPathArgumentCardinality.zeroOrOne,
+      defaultValue: _defaultTimezone,
     ),
   ],
   function: _fnAdjustDateTimeToTimezone,
@@ -941,6 +943,7 @@ const fnAdjustTimeToTimezone = XPathFunctionDefinition(
       name: 'timezone',
       type: XPathDuration,
       cardinality: XPathArgumentCardinality.zeroOrOne,
+      defaultValue: _defaultTimezone,
     ),
   ],
   function: _fnAdjustDateTimeToTimezone,
@@ -1070,5 +1073,3 @@ const fnParseIetfDate = XPathFunctionDefinition(
 
 XPathSequence _fnParseIetfDate(XPathContext context, [XPathString? value]) =>
     throw UnimplementedError('fn:parse-ietf-date');
-
-const _missing = Object();

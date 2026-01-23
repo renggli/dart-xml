@@ -35,11 +35,6 @@ extension XPathSequenceExtension on Object {
     final self = this;
     return self is XPathSequence ? self : XPathSequence.single(self);
   }
-
-  Object toAtomicValue() {
-    final self = this;
-    return self is XPathSequence ? (self.singleOrNull ?? self) : self;
-  }
 }
 
 /// The empty sequence.

@@ -31,6 +31,9 @@ XML nodes are represented by the [XmlNode](../../xml/nodes/node.dart) class and 
 
 ## Atomics
 
+Atomics are implemented as an `XPathAtomic`, a thin wrapper around a Dart [Object].
+The impelementation is defined in [atomic.dart](atomic.dart).
+
 ### Dates, Times and Durations
 
 Date and time values are represented by the Dart `DateTime` class.

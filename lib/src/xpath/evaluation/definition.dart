@@ -62,6 +62,8 @@ class XPathFunctionDefinition {
     for (final definition in optionalArguments) {
       if (index < arguments.length) {
         positionalArguments.add(definition.convert(this, arguments[index++]));
+      } else if (definition.defaultValue != null) {
+        positionalArguments.add(definition.defaultValue!(context));
       }
     }
     // Process variadic arguments.
@@ -89,6 +91,7 @@ class XPathArgumentDefinition {
     required this.name,
     required this.type,
     this.cardinality = XPathArgumentCardinality.exactlyOne,
+    this.defaultValue,
   });
 
   /// The name of the argument.
@@ -99,6 +102,9 @@ class XPathArgumentDefinition {
 
   /// The cardinality of the argument.
   final XPathArgumentCardinality cardinality;
+
+  /// The default value of the argument.
+  final Object? Function(XPathContext context)? defaultValue;
 
   /// Process the argument.
   Object? convert(XPathFunctionDefinition definition, XPathSequence sequence) {

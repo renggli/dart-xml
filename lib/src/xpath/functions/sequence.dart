@@ -1,8 +1,7 @@
-import 'dart:math';
-
 import '../evaluation/context.dart';
 import '../evaluation/definition.dart';
 import '../exceptions/evaluation_exception.dart';
+import '../types/atomic.dart';
 import '../types/number.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
@@ -165,6 +164,9 @@ const fnReverse = XPathFunctionDefinition(
 XPathSequence _fnReverse(XPathContext context, XPathSequence arg) =>
     XPathSequence(arg.toList().reversed);
 
+Object _defaultSubsequenceLength(XPathContext context) =>
+    const XPathNumber(double.infinity);
+
 /// https://www.w3.org/TR/xpath-functions-31/#func-subsequence
 const fnSubsequence = XPathFunctionDefinition(
   namespace: 'fn',
@@ -178,7 +180,12 @@ const fnSubsequence = XPathFunctionDefinition(
     XPathArgumentDefinition(name: 'startingLoc', type: XPathNumber),
   ],
   optionalArguments: [
-    XPathArgumentDefinition(name: 'length', type: XPathNumber),
+    XPathArgumentDefinition(
+      name: 'length',
+      type: XPathNumber,
+      cardinality: XPathArgumentCardinality.zeroOrOne,
+      defaultValue: _defaultSubsequenceLength,
+    ),
   ],
   function: _fnSubsequence,
 );
@@ -187,19 +194,27 @@ XPathSequence _fnSubsequence(
   XPathContext context,
   XPathSequence sourceSeq,
   XPathNumber startingLoc, [
-  Object? length = _missing,
+  XPathNumber? length,
 ]) {
   final startingLocVal = startingLoc.toDouble();
   final startingIdx = startingLocVal.round();
-  if (identical(length, _missing)) {
-    return XPathSequence(sourceSeq.skip(max(0, startingIdx - 1)));
+  if (length == null) {
+    // If length provided as empty sequence, return empty sequence.
+    // Note: If omitted, defaults to infinity.
+    // Wait, need to check if defaultValue logic worked.
+    // Yes, defaultValue injects Infinity. So if null, it was explicitly empty.
+    return XPathSequence.empty;
   }
-  final lengthVal = (length as XPathNumber).toDouble();
-  final endingIdx = (startingLocVal + lengthVal).round();
+  final lengthVal = length.toDouble();
+  // If infinity (omitted) -> consume till end.
+  // If numeric (provided) -> consume length.
+  final endingIdx = lengthVal.isInfinite
+      ? 0
+      : (startingLocVal + lengthVal).round();
   return XPathSequence(() sync* {
     var i = 1;
     for (final item in sourceSeq) {
-      if (i >= startingIdx && i < endingIdx) {
+      if (i >= startingIdx && (lengthVal.isInfinite || i < endingIdx)) {
         yield item;
       }
       i++;
@@ -249,7 +264,7 @@ const fnDistinctValues = XPathFunctionDefinition(
 XPathSequence _fnDistinctValues(
   XPathContext context,
   XPathSequence arg, [
-  Object? collation = _missing,
+  XPathString? collation,
 ]) => XPathSequence(arg.toSet());
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-index-of
@@ -278,7 +293,7 @@ XPathSequence _fnIndexOf(
   XPathContext context,
   XPathSequence seq,
   XPathSequence search, [
-  Object? collation = _missing,
+  XPathString? collation,
 ]) {
   // Argument 3: collation (ignored for now via TODO)
   // Search item is exactly one? 'search' argument definition minValues: 1.
@@ -331,7 +346,7 @@ XPathSequence _fnDeepEqual(
   XPathContext context,
   XPathSequence parameter1,
   XPathSequence parameter2, [
-  Object? collation = _missing,
+  XPathString? collation,
 ]) {
   // Argument 3: collation (ignored for now via TODO)
   if (parameter1.length != parameter2.length) {
@@ -480,7 +495,7 @@ const fnMax = XPathFunctionDefinition(
 XPathSequence _fnMax(
   XPathContext context,
   XPathSequence arg, [
-  Object? collation = _missing,
+  XPathString? collation,
 ]) {
   if (arg.isEmpty) return XPathSequence.empty;
   num? maxVal;
@@ -518,7 +533,7 @@ const fnMin = XPathFunctionDefinition(
 XPathSequence _fnMin(
   XPathContext context,
   XPathSequence arg, [
-  Object? collation = _missing,
+  XPathString? collation,
 ]) {
   if (arg.isEmpty) return XPathSequence.empty;
   num? minVal;
@@ -528,6 +543,8 @@ XPathSequence _fnMin(
   }
   return XPathSequence.single(minVal!);
 }
+
+Object _defaultSumZero(XPathContext context) => const XPathNumber(0);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-sum
 const fnSum = XPathFunctionDefinition(
@@ -543,8 +560,9 @@ const fnSum = XPathFunctionDefinition(
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'zero',
-      type: XPathSequence,
+      type: XPathAtomicValue,
       cardinality: XPathArgumentCardinality.zeroOrOne, // optional
+      defaultValue: _defaultSumZero,
     ),
   ],
   function: _fnSum,
@@ -553,16 +571,10 @@ const fnSum = XPathFunctionDefinition(
 XPathSequence _fnSum(
   XPathContext context,
   XPathSequence arg, [
-  Object? zero = _missing,
+  XPathAtomicValue? zero,
 ]) {
   if (arg.isEmpty) {
-    if (!identical(zero, _missing)) {
-      // zero is passed as XPathSequence (single item or empty or more?)
-      // spec: $zero as xs:anyAtomicType?
-      // We return it.
-      return zero as XPathSequence;
-    }
-    return const XPathSequence.single(0);
+    return zero?.toXPathSequence() ?? XPathSequence.empty;
   }
   var sum = 0.0;
   for (final item in arg) {
@@ -594,8 +606,8 @@ const fnId = XPathFunctionDefinition(
 
 XPathSequence _fnId(
   XPathContext context, [
-  Object? arg = _missing,
-  Object? node = _missing,
+  XPathSequence? arg,
+  XPathSequence? node,
 ]) {
   throw UnimplementedError('fn:id is not yet implemented');
 }
@@ -623,8 +635,8 @@ const fnElementWithId = XPathFunctionDefinition(
 
 XPathSequence _fnElementWithId(
   XPathContext context, [
-  Object? arg = _missing,
-  Object? node = _missing,
+  XPathSequence? arg,
+  XPathSequence? node,
 ]) {
   throw UnimplementedError('fn:element-with-id is not yet implemented');
 }
@@ -652,8 +664,8 @@ const fnIdref = XPathFunctionDefinition(
 
 XPathSequence _fnIdref(
   XPathContext context, [
-  Object? arg = _missing,
-  Object? node = _missing,
+  XPathSequence? arg,
+  XPathSequence? node,
 ]) {
   throw UnimplementedError('fn:idref is not yet implemented');
 }
@@ -673,7 +685,7 @@ const fnGenerateId = XPathFunctionDefinition(
   function: _fnGenerateId,
 );
 
-XPathSequence _fnGenerateId(XPathContext context, [Object? node = _missing]) {
+XPathSequence _fnGenerateId(XPathContext context, [XPathSequence? node]) {
   throw UnimplementedError('fn:generate-id is not yet implemented');
 }
 
@@ -736,20 +748,15 @@ const fnCollection = XPathFunctionDefinition(
   function: _fnCollection,
 );
 
-XPathSequence _fnCollection(XPathContext context, [Object? arg = _missing]) {
-  final argVal = identical(arg, _missing) ? null : arg as XPathString?;
-  // Argument logic: if no arg provided (0 args), arg is _missing.
-  // If arg provided but empty sequence -> argVal is null?
-  // Previous: extractZeroOrOne... check arguments.isEmpty.
-  // If called without args -> default used.
-  // If called with empty sequence -> returns null.
-  // Wait, _missing is for omitted argument.
-  // If arg omitted, return sequence(documents.values).
-  // If arg is empty (null), logic is:
-  // "evaluating fn:collection with no argument is... equivalent to ... fn:collection(fn:default-collection())".
-  // Existing logic: `if (arg == null) ...`.
-  // If I use `arg = _missing`: same logic?
-  if (identical(arg, _missing) || arg == null) {
+XPathSequence _fnCollection(XPathContext context, [XPathString? arg]) {
+  final argVal = arg;
+  // Argument logic: if no arg provided (0 args), arg is null (implied).
+  // Implicit behavior: "evaluating fn:collection with no argument is... equivalent to ... fn:collection(fn:default-collection())".
+  // But standard says: "If the argument is omitted..."
+  // If argument is empty sequence (null), also returns sequence of docs?
+  // "If $arg is the empty sequence, the function behaves as if it had been called without an argument."
+  // So null arg => default collection.
+  if (argVal == null) {
     return XPathSequence(context.documents.values);
   }
   final doc = context.documents[argVal];
@@ -771,9 +778,9 @@ const fnUriCollection = XPathFunctionDefinition(
   function: _fnUriCollection,
 );
 
-XPathSequence _fnUriCollection(XPathContext context, [Object? arg = _missing]) {
-  final argVal = identical(arg, _missing) ? null : arg as XPathString?;
-  if (identical(arg, _missing) || argVal == null) {
+XPathSequence _fnUriCollection(XPathContext context, [XPathString? arg]) {
+  final argVal = arg;
+  if (argVal == null) {
     return XPathSequence(context.documents.keys.map(XPathString.new));
   }
   return XPathSequence.empty;
@@ -796,8 +803,8 @@ const fnUnparsedText = XPathFunctionDefinition(
 
 XPathSequence _fnUnparsedText(
   XPathContext context, [
-  Object? href = _missing,
-  Object? encoding = _missing,
+  XPathString? href,
+  XPathString? encoding,
 ]) {
   throw UnimplementedError('fn:unparsed-text is not yet implemented');
 }
@@ -819,8 +826,8 @@ const fnUnparsedTextLines = XPathFunctionDefinition(
 
 XPathSequence _fnUnparsedTextLines(
   XPathContext context, [
-  Object? href = _missing,
-  Object? encoding = _missing,
+  XPathString? href,
+  XPathString? encoding,
 ]) {
   throw UnimplementedError('fn:unparsed-text-lines is not yet implemented');
 }
@@ -842,8 +849,8 @@ const fnUnparsedTextAvailable = XPathFunctionDefinition(
 
 XPathSequence _fnUnparsedTextAvailable(
   XPathContext context, [
-  Object? href = _missing,
-  Object? encoding = _missing,
+  XPathString? href,
+  XPathString? encoding,
 ]) {
   throw UnimplementedError('fn:unparsed-text-available is not yet implemented');
 }
@@ -858,7 +865,7 @@ const fnEnvironmentVariable = XPathFunctionDefinition(
 
 XPathSequence _fnEnvironmentVariable(
   XPathContext context, [
-  Object? name = _missing,
+  XPathString? name,
 ]) {
   throw UnimplementedError('fn:environment-variable is not yet implemented');
 }
@@ -884,7 +891,7 @@ const fnParseXml = XPathFunctionDefinition(
   function: _fnParseXml,
 );
 
-XPathSequence _fnParseXml(XPathContext context, [Object? arg = _missing]) {
+XPathSequence _fnParseXml(XPathContext context, [XPathString? arg]) {
   throw UnimplementedError('fn:parse-xml is not yet implemented');
 }
 
@@ -924,9 +931,7 @@ const fnSerialize = XPathFunctionDefinition(
 XPathSequence _fnSerialize(
   XPathContext context,
   XPathSequence arg, [
-  Object? params = _missing,
+  XPathSequence? params,
 ]) {
   throw UnimplementedError('fn:serialize is not yet implemented');
 }
-
-const _missing = Object();

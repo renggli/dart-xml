@@ -2,6 +2,7 @@ import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types/array.dart';
+import '../types/atomic.dart';
 import '../types/map.dart';
 import '../types/sequence.dart';
 
@@ -33,7 +34,10 @@ class SquareArrayConstructor implements XPathExpression {
   @override
   XPathSequence call(XPathContext context) => XPathSequence.single(
     XPathArray(
-      members.map((member) => member(context).toAtomicValue()).toList(),
+      members.map((member) {
+        final val = member(context);
+        return val.length == 1 ? val.first : val;
+      }).toList(),
     ),
   );
 }

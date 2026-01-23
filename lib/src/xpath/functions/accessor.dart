@@ -10,6 +10,8 @@ import '../types/node.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
 
+Object _defaultNode(XPathContext context) => context.node.toXPathNode();
+
 /// https://www.w3.org/TR/xpath-functions-31/#func-node-name
 const fnNodeName = XPathFunctionDefinition(
   namespace: 'fn',
@@ -19,15 +21,14 @@ const fnNodeName = XPathFunctionDefinition(
       name: 'node',
       type: XPathNode,
       cardinality: XPathArgumentCardinality.zeroOrOne,
+      defaultValue: _defaultNode,
     ),
   ],
   function: _fnNodeName,
 );
 
-XPathSequence _fnNodeName(XPathContext context, [Object? node = _missing]) {
-  final n = identical(node, _missing)
-      ? context.node.toXPathNode()
-      : (node as XPathNode?);
+XPathSequence _fnNodeName(XPathContext context, [XPathNode? node]) {
+  final n = node;
   if (n is XmlHasName) {
     return XPathSequence.single((n as XmlHasName).name);
   } else if (n is XmlProcessing) {
@@ -47,20 +48,22 @@ const fnNilled = XPathFunctionDefinition(
       name: 'node',
       type: XPathNode,
       cardinality: XPathArgumentCardinality.zeroOrOne,
+      defaultValue: _defaultNode,
     ),
   ],
   function: _fnNilled,
 );
 
-XPathSequence _fnNilled(XPathContext context, [Object? node = _missing]) {
-  final n = identical(node, _missing)
-      ? context.node.toXPathNode()
-      : (node as XPathNode?);
+XPathSequence _fnNilled(XPathContext context, [XPathNode? node]) {
+  final n = node;
   // PetitXml doesn't have a built-in concept of nilled, returning false
   // for elements.
   if (n is XmlElement) return XPathSequence.falseSequence;
   return XPathSequence.empty;
 }
+
+Object _defaultString(XPathContext context) =>
+    XPathSequence.single(context.node.toXPathString());
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-string
 const fnString = XPathFunctionDefinition(
@@ -71,18 +74,18 @@ const fnString = XPathFunctionDefinition(
       name: 'arg',
       type: XPathSequence,
       cardinality: XPathArgumentCardinality.zeroOrOne,
+      defaultValue: _defaultString,
     ),
   ],
   function: _fnString,
 );
 
-XPathSequence _fnString(XPathContext context, [Object? arg = _missing]) {
-  if (identical(arg, _missing)) {
-    return XPathSequence.single(context.node.toXPathString());
-  }
+XPathSequence _fnString(XPathContext context, [XPathSequence? arg]) {
   if (arg == null) return const XPathSequence.single(XPathString.empty);
-  return XPathSequence.single((arg as XPathSequence).toXPathString());
+  return XPathSequence.single(arg.toXPathString());
 }
+
+Object _defaultData(XPathContext context) => XPathSequence.single(context.node);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-data
 const fnData = XPathFunctionDefinition(
@@ -93,15 +96,14 @@ const fnData = XPathFunctionDefinition(
       name: 'arg',
       type: XPathSequence,
       cardinality: XPathArgumentCardinality.zeroOrMore,
+      defaultValue: _defaultData,
     ),
   ],
   function: _fnData,
 );
 
-XPathSequence _fnData(XPathContext context, [Object? arg = _missing]) {
-  final a = identical(arg, _missing)
-      ? XPathSequence.single(context.node)
-      : (arg as XPathSequence? ?? XPathSequence.empty);
+XPathSequence _fnData(XPathContext context, [XPathSequence? arg]) {
+  final a = arg ?? XPathSequence.empty;
   return XPathSequence(a.expand(_atomize));
 }
 
@@ -124,15 +126,14 @@ const fnBaseUri = XPathFunctionDefinition(
       name: 'node',
       type: XPathNode,
       cardinality: XPathArgumentCardinality.zeroOrOne,
+      defaultValue: _defaultNode,
     ),
   ],
   function: _fnBaseUri,
 );
 
-XPathSequence _fnBaseUri(XPathContext context, [Object? node = _missing]) {
-  final n = identical(node, _missing)
-      ? context.node.toXPathNode()
-      : (node as XPathNode?);
+XPathSequence _fnBaseUri(XPathContext context, [XPathNode? node]) {
+  final n = node;
   // 1. Look for xml:base on the node or its ancestors
 
   for (XmlNode? current = n; current != null; current = current.parent) {
@@ -162,15 +163,14 @@ const fnDocumentUri = XPathFunctionDefinition(
       name: 'node',
       type: XPathNode,
       cardinality: XPathArgumentCardinality.zeroOrOne,
+      defaultValue: _defaultNode,
     ),
   ],
   function: _fnDocumentUri,
 );
 
-XPathSequence _fnDocumentUri(XPathContext context, [Object? node = _missing]) {
-  final n = identical(node, _missing)
-      ? context.node.toXPathNode()
-      : (node as XPathNode?);
+XPathSequence _fnDocumentUri(XPathContext context, [XPathNode? node]) {
+  final n = node;
   if (n is XmlDocument) {
     // PetitXml does not track the source URI of a document.
     // If it did, we would return it here.
@@ -178,5 +178,3 @@ XPathSequence _fnDocumentUri(XPathContext context, [Object? node = _missing]) {
   }
   return XPathSequence.empty;
 }
-
-const _missing = Object();

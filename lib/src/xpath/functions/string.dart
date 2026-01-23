@@ -76,6 +76,9 @@ XPathSequence _fnStringJoin(
   return XPathSequence.single(XPathString(result));
 }
 
+Object _defaultSubstringLength(XPathContext context) =>
+    const XPathNumber(double.infinity);
+
 /// https://www.w3.org/TR/xpath-functions-31/#func-substring
 const fnSubstring = XPathFunctionDefinition(
   namespace: 'fn',
@@ -85,7 +88,11 @@ const fnSubstring = XPathFunctionDefinition(
     XPathArgumentDefinition(name: 'start', type: XPathNumber),
   ],
   optionalArguments: [
-    XPathArgumentDefinition(name: 'length', type: XPathNumber),
+    XPathArgumentDefinition(
+      name: 'length',
+      type: XPathNumber,
+      defaultValue: _defaultSubstringLength,
+    ),
   ],
   function: _fnSubstring,
 );
@@ -100,7 +107,10 @@ XPathSequence _fnSubstring(
   final s = start.toDouble();
   if (!s.isFinite) return const XPathSequence.single(XPathString.empty);
   final startIdx = s.round() - 1;
-  final len = length?.toDouble() ?? double.infinity;
+  // If length is the empty sequence, return zero-length string.
+  if (length == null) return const XPathSequence.single(XPathString.empty);
+
+  final len = length.toDouble();
   if (len.isNaN || len <= 0) {
     return const XPathSequence.single(XPathString.empty);
   }
@@ -109,6 +119,9 @@ XPathSequence _fnSubstring(
   final j = endIdx.clamp(i, str.length);
   return XPathSequence.single(XPathString(str.substring(i, j)));
 }
+
+Object _defaultString(XPathContext context) =>
+    XPathString(context.node.toXPathString());
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-string-length
 const fnStringLength = XPathFunctionDefinition(
@@ -119,16 +132,14 @@ const fnStringLength = XPathFunctionDefinition(
       name: 'arg',
       type: XPathString,
       cardinality: XPathArgumentCardinality.zeroOrOne,
+      defaultValue: _defaultString,
     ),
   ],
   function: _fnStringLength,
 );
 
-XPathSequence _fnStringLength(XPathContext context, [Object? arg = _missing]) {
-  if (identical(arg, _missing)) {
-    return XPathSequence.single(context.value.toXPathString().length);
-  }
-  final value = arg == null ? XPathString.empty : arg as XPathString;
+XPathSequence _fnStringLength(XPathContext context, [XPathString? arg]) {
+  final value = arg ?? XPathString.empty;
   return XPathSequence.single(value.length);
 }
 
@@ -141,21 +152,14 @@ const fnNormalizeSpace = XPathFunctionDefinition(
       name: 'arg',
       type: XPathString,
       cardinality: XPathArgumentCardinality.zeroOrOne,
+      defaultValue: _defaultString,
     ),
   ],
   function: _fnNormalizeSpace,
 );
 
-XPathSequence _fnNormalizeSpace(
-  XPathContext context, [
-  Object? arg = _missing,
-]) {
-  if (identical(arg, _missing)) {
-    final value = context.value.toXPathString();
-    final result = value.trim().replaceAll(RegExp(r'\s+'), ' ');
-    return XPathSequence.single(XPathString(result));
-  }
-  final value = arg == null ? XPathString.empty : arg as XPathString;
+XPathSequence _fnNormalizeSpace(XPathContext context, [XPathString? arg]) {
+  final value = arg ?? XPathString.empty;
   final result = value.trim().replaceAll(RegExp(r'\s+'), ' ');
   return XPathSequence.single(XPathString(result));
 }
@@ -504,8 +508,6 @@ XPathSequence _fnReplace(
     XPathString(i.replaceAll(regExp, replacement.toString())),
   );
 }
-
-const _missing = Object();
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-codepoints-to-string
 const fnCodepointsToString = XPathFunctionDefinition(

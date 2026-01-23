@@ -1,5 +1,6 @@
 import '../evaluation/context.dart';
 import '../evaluation/definition.dart';
+import '../types/atomic.dart';
 import '../types/function.dart';
 import '../types/map.dart';
 import '../types/sequence.dart';
@@ -23,11 +24,13 @@ XPathSequence _opSameKey(
   final k1 = k1Seq.toAtomicValue();
   final k2 = k2Seq.toAtomicValue();
   // TODO: Handle timezone, etc.
-  if (k1 is num && k1.isNaN && k2 is num && k2.isNaN) {
+  if (k1 is num && (k1 as num).isNaN && k2 is num && (k2 as num).isNaN) {
     return XPathSequence.trueSequence;
   }
   return XPathSequence.single(k1 == k2);
 }
+
+Object _defaultMapMergeOptions(XPathContext context) => const XPathMap({});
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-merge
 const mapMerge = XPathFunctionDefinition(
@@ -45,6 +48,7 @@ const mapMerge = XPathFunctionDefinition(
       name: 'options',
       type: XPathMap,
       cardinality: XPathArgumentCardinality.zeroOrOne,
+      defaultValue: _defaultMapMergeOptions,
     ),
   ],
   function: _mapMerge,
@@ -53,7 +57,7 @@ const mapMerge = XPathFunctionDefinition(
 XPathSequence _mapMerge(
   XPathContext context,
   XPathSequence maps, [
-  Object? options = _missing,
+  XPathMap? options,
 ]) {
   // arguments[1] is options, currently ignored (TODO)
   final result = <Object?, Object?>{};
@@ -241,5 +245,3 @@ XPathSequence _mapForEach(
   }
   return XPathSequence(result);
 }
-
-const _missing = Object();

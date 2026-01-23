@@ -11,6 +11,8 @@ import '../types/node.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
 
+Object _defaultNode(XPathContext context) => context.node.toXPathNode();
+
 /// https://www.w3.org/TR/xpath-functions-31/#func-name
 const fnName = XPathFunctionDefinition(
   namespace: 'fn',
@@ -21,15 +23,14 @@ const fnName = XPathFunctionDefinition(
       name: 'arg',
       type: XPathNode,
       cardinality: XPathArgumentCardinality.zeroOrOne,
+      defaultValue: _defaultNode,
     ),
   ],
   function: _fnName,
 );
 
-XPathSequence _fnName(XPathContext context, [Object? arg = _missing]) {
-  final node = identical(arg, _missing)
-      ? context.node.toXPathNode()
-      : arg as XPathNode?;
+XPathSequence _fnName(XPathContext context, [XPathNode? arg]) {
+  final node = arg;
   if (node is XmlHasName) {
     return XPathSequence.single((node as XmlHasName).qualifiedName);
   }
@@ -46,15 +47,14 @@ const fnLocalName = XPathFunctionDefinition(
       name: 'arg',
       type: XPathNode,
       cardinality: XPathArgumentCardinality.zeroOrOne,
+      defaultValue: _defaultNode,
     ),
   ],
   function: _fnLocalName,
 );
 
-XPathSequence _fnLocalName(XPathContext context, [Object? arg = _missing]) {
-  final node = identical(arg, _missing)
-      ? context.node.toXPathNode()
-      : arg as XPathNode?;
+XPathSequence _fnLocalName(XPathContext context, [XPathNode? arg]) {
+  final node = arg;
   if (node is XmlHasName) {
     return XPathSequence.single(XPathString((node as XmlHasName).localName));
   }
@@ -71,15 +71,14 @@ const fnNamespaceUri = XPathFunctionDefinition(
       name: 'arg',
       type: XPathNode,
       cardinality: XPathArgumentCardinality.zeroOrOne,
+      defaultValue: _defaultNode,
     ),
   ],
   function: _fnNamespaceUri,
 );
 
-XPathSequence _fnNamespaceUri(XPathContext context, [Object? arg = _missing]) {
-  final node = identical(arg, _missing)
-      ? context.node.toXPathNode()
-      : arg as XPathNode?;
+XPathSequence _fnNamespaceUri(XPathContext context, [XPathNode? arg]) {
+  final node = arg;
   if (node is XmlHasName) {
     return XPathSequence.single(
       XPathString((node as XmlHasName).namespaceUri ?? ''),
@@ -98,15 +97,14 @@ const fnRoot = XPathFunctionDefinition(
       name: 'arg',
       type: XPathNode,
       cardinality: XPathArgumentCardinality.zeroOrOne,
+      defaultValue: _defaultNode,
     ),
   ],
   function: _fnRoot,
 );
 
-XPathSequence _fnRoot(XPathContext context, [Object? arg = _missing]) {
-  final node = identical(arg, _missing)
-      ? context.node.toXPathNode()
-      : arg as XPathNode?;
+XPathSequence _fnRoot(XPathContext context, [XPathNode? arg]) {
+  final node = arg;
   if (node != null) {
     return XPathSequence.single(node.root);
   }
@@ -123,15 +121,14 @@ const fnHasChildren = XPathFunctionDefinition(
       name: 'node',
       type: XPathNode,
       cardinality: XPathArgumentCardinality.zeroOrOne,
+      defaultValue: _defaultNode,
     ),
   ],
   function: _fnHasChildren,
 );
 
-XPathSequence _fnHasChildren(XPathContext context, [Object? node = _missing]) {
-  final arg = identical(node, _missing)
-      ? context.node.toXPathNode()
-      : node as XPathNode?;
+XPathSequence _fnHasChildren(XPathContext context, [XPathNode? node]) {
+  final arg = node;
   if (arg is XmlHasChildren) {
     return XPathSequence.single((arg as XmlHasChildren).children.isNotEmpty);
   }
@@ -206,15 +203,14 @@ const fnPath = XPathFunctionDefinition(
       name: 'arg',
       type: XPathNode,
       cardinality: XPathArgumentCardinality.zeroOrOne,
+      defaultValue: _defaultNode,
     ),
   ],
   function: _fnPath,
 );
 
-XPathSequence _fnPath(XPathContext context, [Object? arg = _missing]) {
-  final node = identical(arg, _missing)
-      ? context.node.toXPathNode()
-      : arg as XPathNode?;
+XPathSequence _fnPath(XPathContext context, [XPathNode? arg]) {
+  final node = arg;
   if (node != null) {
     return XPathSequence.single(XPathString((node as XmlNode).xpathGenerate()));
   }
@@ -313,5 +309,3 @@ XPathSequence _nodeSetOperation(
   result.sort((a, b) => a.compareNodePosition(b));
   return XPathSequence(result);
 }
-
-const _missing = Object();

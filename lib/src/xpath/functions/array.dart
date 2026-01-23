@@ -4,6 +4,7 @@ import '../evaluation/context.dart';
 import '../evaluation/definition.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types/array.dart';
+import '../types/atomic.dart';
 import '../types/boolean.dart';
 import '../types/function.dart';
 import '../types/number.dart';
@@ -122,12 +123,10 @@ XPathSequence _arraySubarray(
   XPathContext context,
   XPathArray array,
   XPathNumber start, [
-  Object? length = _missing,
+  XPathNumber? length,
 ]) {
   final startPos = start.toInt();
-  final lenVal = identical(length, _missing) || length == null
-      ? array.length - startPos + 1
-      : (length as XPathNumber).toInt();
+  final lenVal = length == null ? array.length - startPos + 1 : length.toInt();
 
   if (startPos < 1 || startPos > array.length + 1) {
     throw XPathEvaluationException('array:subarray: Start out of bounds');
@@ -420,14 +419,12 @@ const arraySort = XPathFunctionDefinition(
 XPathSequence _arraySort(
   XPathContext context,
   XPathArray array, [
-  Object? collation = _missing,
-  Object? key = _missing,
+  XPathString? collation,
+  XPathFunction? key,
 ]) {
   // ignore: unused_local_variable
-  final coll = identical(collation, _missing)
-      ? null
-      : collation as XPathString?;
-  final keyFunc = identical(key, _missing) ? null : key as XPathFunction?;
+  final coll = collation; // ignored
+  final keyFunc = key;
 
   final list = List.of(array);
   list.sort((a, b) {
@@ -436,7 +433,7 @@ XPathSequence _arraySort(
       final keyB = keyFunc(context, [b.toXPathSequence()]).toAtomicValue();
       if (keyA is Comparable && keyB is Comparable) {
         try {
-          return keyA.compareTo(keyB);
+          return (keyA as Comparable).compareTo(keyB);
         } catch (_) {}
       }
       return keyA.toString().compareTo(keyB.toString());
@@ -445,7 +442,7 @@ XPathSequence _arraySort(
     final valB = b.toAtomicValue();
     if (valA is Comparable && valB is Comparable) {
       try {
-        return valA.compareTo(valB);
+        return (valA as Comparable).compareTo(valB);
       } catch (_) {}
     }
     return valA.toString().compareTo(valB.toString());
@@ -499,5 +496,3 @@ XPathSequence _arrayFlatten(XPathContext context, XPathSequence input) {
   }
   return XPathSequence(result);
 }
-
-const _missing = Object();

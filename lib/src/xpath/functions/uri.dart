@@ -4,6 +4,8 @@ import '../exceptions/evaluation_exception.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
 
+Object _defaultResolveUriBase(XPathContext context) => const XPathString('');
+
 /// https://www.w3.org/TR/xpath-functions-31/#func-resolve-uri
 const fnResolveUri = XPathFunctionDefinition(
   namespace: 'fn',
@@ -20,6 +22,7 @@ const fnResolveUri = XPathFunctionDefinition(
       name: 'base',
       type: XPathString,
       cardinality: XPathArgumentCardinality.zeroOrOne,
+      defaultValue: _defaultResolveUriBase,
     ),
   ],
   function: _fnResolveUri,
@@ -28,17 +31,25 @@ const fnResolveUri = XPathFunctionDefinition(
 XPathSequence _fnResolveUri(
   XPathContext context,
   XPathString? relative, [
-  Object? base = _missing,
+  XPathString? base,
 ]) {
   if (relative == null) return XPathSequence.empty;
-  if (identical(base, _missing)) {
-    // TODO: Use base-uri from static context if available
+  // If base was provided as empty sequence, return empty.
+  // Note: If base was omitted, defaultValue was used, so base is not null.
+  // Wait, if _defaultResolveUriBase returns '', base is ''.
+  // But if passed '()' -> base is null.
+  // Spec: If base is empty sequence, return empty.
+  if (base == null) return XPathSequence.empty;
+
+  final baseStr = base.toString();
+  if (baseStr.isEmpty) {
+    // If base is empty string (from default value?), return relative?
+    // Current logic: return relative.
     return XPathSequence.single(XPathString(relative));
   }
-  final baseStr = (base as XPathString?) ?? '';
   try {
     return XPathSequence.single(
-      XPathString(Uri.parse(baseStr).resolve(relative).toString()),
+      XPathString(Uri.parse(baseStr).resolve(relative.toString()).toString()),
     );
   } catch (e) {
     throw XPathEvaluationException('Invalid URI: $e');
@@ -102,5 +113,3 @@ XPathSequence _fnEscapeHtmlUri(XPathContext context, XPathString? uri) {
   // Simple implementation using Uri.encodeFull which is similar to what's required
   return XPathSequence.single(XPathString(Uri.encodeFull(val)));
 }
-
-const _missing = Object();

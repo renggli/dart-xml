@@ -27,8 +27,8 @@ const fnParseJson = XPathFunctionDefinition(
 
 XPathSequence _fnParseJson(
   XPathContext context, [
-  Object? jsonText = _missing,
-  Object? options = _missing,
+  XPathString? jsonText,
+  XPathMap? options,
 ]) {
   throw UnimplementedError('fn:parse-json');
 }
@@ -56,8 +56,8 @@ const fnJsonDoc = XPathFunctionDefinition(
 
 XPathSequence _fnJsonDoc(
   XPathContext context, [
-  Object? href = _missing,
-  Object? options = _missing,
+  XPathString? href,
+  XPathMap? options,
 ]) {
   throw UnimplementedError('fn:json-doc');
 }
@@ -85,8 +85,8 @@ const fnJsonToXml = XPathFunctionDefinition(
 
 XPathSequence _fnJsonToXml(
   XPathContext context, [
-  Object? jsonText = _missing,
-  Object? options = _missing,
+  XPathSequence? jsonText,
+  XPathMap? options,
 ]) {
   throw UnimplementedError('fn:json-to-xml');
 }
@@ -114,10 +114,8 @@ const fnXmlToJson = XPathFunctionDefinition(
 
 XPathSequence _fnXmlToJson(
   XPathContext context, [
-  Object? input = _missing,
-  Object? options = _missing,
+  XPathSequence? input,
+  XPathMap? options,
 ]) {
   throw UnimplementedError('fn:xml-to-json');
 }
-
-const _missing = Object();

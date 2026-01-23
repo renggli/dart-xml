@@ -330,11 +330,11 @@ const fnRound = XPathFunctionDefinition(
 XPathSequence _fnRound(
   XPathContext context,
   XPathNumber? arg, [
-  Object? precision = _missing,
+  XPathNumber? precision,
 ]) {
   if (arg == null) return XPathSequence.empty;
   if (arg.isNaN || arg.isInfinite) return XPathSequence.single(arg);
-  final p = precision is XPathNumber ? precision.toInt() : 0;
+  final p = precision?.toInt() ?? 0;
   if (p == 0) return XPathSequence.single(arg.round());
   final factor = math.pow(10, p);
   return XPathSequence.single((arg * factor).round() / factor);
@@ -364,11 +364,11 @@ const fnRoundHalfToEven = XPathFunctionDefinition(
 XPathSequence _fnRoundHalfToEven(
   XPathContext context,
   XPathNumber? arg, [
-  Object? precision = _missing,
+  XPathNumber? precision,
 ]) {
   if (arg == null) return XPathSequence.empty;
   if (arg.isNaN || arg.isInfinite) return XPathSequence.single(arg);
-  final p = precision is XPathNumber ? precision.toInt() : 0;
+  final p = precision?.toInt() ?? 0;
   final factor = math.pow(10, p);
   final value = arg * factor;
   final rounded = value.roundToDouble();
@@ -378,7 +378,8 @@ XPathSequence _fnRoundHalfToEven(
   return XPathSequence.single(result / factor);
 }
 
-const _missing = Object();
+Object _defaultContextValue(XPathContext context) =>
+    XPathSequence.single(context.value);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-number
 const fnNumber = XPathFunctionDefinition(
@@ -389,21 +390,17 @@ const fnNumber = XPathFunctionDefinition(
       name: 'arg',
       type: XPathSequence,
       cardinality: XPathArgumentCardinality.zeroOrOne,
+      defaultValue: _defaultContextValue,
     ), // Manually handle to check for empty
   ],
   function: _fnNumber,
 );
 
-XPathSequence _fnNumber(XPathContext context, [Object? arg = _missing]) {
-  if (identical(arg, _missing)) {
-    return XPathSequence.single(context.value.toXPathNumber());
-  }
-  if (arg == null) {
+XPathSequence _fnNumber(XPathContext context, [XPathSequence? arg]) {
+  if (arg == null || arg.isEmpty) {
     return const XPathSequence.single(double.nan); // Empty sequence
   }
-  final sequence = arg as XPathSequence;
-  if (sequence.isEmpty) return const XPathSequence.single(double.nan);
-  return XPathSequence.single(sequence.toXPathNumber());
+  return XPathSequence.single(arg.toXPathNumber());
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-pi

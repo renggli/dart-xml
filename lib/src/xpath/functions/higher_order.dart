@@ -1,6 +1,7 @@
 import '../evaluation/context.dart';
 import '../evaluation/definition.dart';
 import '../types/array.dart';
+import '../types/atomic.dart';
 import '../types/boolean.dart';
 import '../types/function.dart';
 import '../types/map.dart';
@@ -199,14 +200,12 @@ const fnSort = XPathFunctionDefinition(
 XPathSequence _fnSort(
   XPathContext context,
   XPathSequence input, [
-  Object? collation = _missing,
-  Object? key = _missing,
+  XPathString? collation,
+  XPathFunction? key,
 ]) {
   // ignore: unused_local_variable
-  final coll = identical(collation, _missing)
-      ? null
-      : collation as XPathString?;
-  final keyFunc = identical(key, _missing) ? null : key as XPathFunction?;
+  final coll = collation; // ignored for now
+  final keyFunc = key;
 
   final list = input.toList();
   list.sort((a, b) {
@@ -215,7 +214,7 @@ XPathSequence _fnSort(
       final keyB = keyFunc(context, [XPathSequence.single(b)]).toAtomicValue();
       if (keyA is Comparable && keyB is Comparable) {
         try {
-          return keyA.compareTo(keyB);
+          return (keyA as Comparable).compareTo(keyB);
         } catch (_) {}
       }
       return keyA.toString().compareTo(keyB.toString());
@@ -260,8 +259,8 @@ const fnFunctionLookup = XPathFunctionDefinition(
 
 XPathSequence _fnFunctionLookup(
   XPathContext context, [
-  Object? name = _missing,
-  Object? arity = _missing,
+  XPathSequence? name,
+  XPathSequence? arity,
 ]) {
   throw UnimplementedError('fn:function-lookup');
 }
@@ -276,10 +275,7 @@ const fnFunctionName = XPathFunctionDefinition(
   function: _fnFunctionName,
 );
 
-XPathSequence _fnFunctionName(
-  XPathContext context, [
-  Object? function = _missing,
-]) {
+XPathSequence _fnFunctionName(XPathContext context, [XPathFunction? function]) {
   throw UnimplementedError('fn:function-name');
 }
 
@@ -295,7 +291,7 @@ const fnFunctionArity = XPathFunctionDefinition(
 
 XPathSequence _fnFunctionArity(
   XPathContext context, [
-  Object? function = _missing,
+  XPathFunction? function,
 ]) {
   throw UnimplementedError('fn:function-arity');
 }
@@ -319,8 +315,8 @@ const fnLoadXqueryModule = XPathFunctionDefinition(
 
 XPathSequence _fnLoadXqueryModule(
   XPathContext context, [
-  Object? moduleUri = _missing,
-  Object? options = _missing,
+  XPathString? moduleUri,
+  XPathMap? options,
 ]) {
   throw UnimplementedError('fn:load-xquery-module');
 }
@@ -333,8 +329,6 @@ const fnTransform = XPathFunctionDefinition(
   function: _fnTransform,
 );
 
-XPathSequence _fnTransform(XPathContext context, [Object? options = _missing]) {
+XPathSequence _fnTransform(XPathContext context, [XPathMap? options]) {
   throw UnimplementedError('fn:transform');
 }
-
-const _missing = Object();
