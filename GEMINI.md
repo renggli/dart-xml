@@ -3,8 +3,14 @@
 ## General Instructions
 
 - When generating new Dart code, strictly follow the style conventions defined in [Effective Dart](https://dart.dev/effective-dart).
-- Ensure that all new public types, functions, and variables have docstring comments (`///`). The first line should be a single-sentence summary. Include examples for public APIs.
 - Systematically prefer using `const` constructors and literals whenever possible to optimize runtime performance.
+
+## Comments, Documentation and Examples
+  
+- Use triple-slash (`///`) doc comments for all public members.
+- Use square brackets (`[Name]`) to link to other members within doc comments. Use markdown sparingly.
+- Start with a concise, single-sentence summary. If more detail is required, follow with a blank line and a deeper explanation (e.g., edge cases, parameters, error handling, ...).
+- Include code examples for non-trivial public APIs. Ensure examples are well-formatted, accurate, and relevant. Veryify that examples compile and produce the advertised output.
 
 ## Coding Style and Conventions
 

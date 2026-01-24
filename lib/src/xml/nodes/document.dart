@@ -66,7 +66,7 @@ class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
   /// ```dart
   /// var xml = '<?xml version="1.0">'
   ///           '<shelf></shelf>';
-  /// print(XmlDocument.parse(xml).doctypeElement);
+  /// print(XmlDocument.parse(xml).declaration);
   /// ```
   XmlDeclaration? get declaration {
     for (final node in children) {

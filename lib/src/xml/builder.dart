@@ -18,6 +18,18 @@ import 'utils/name.dart';
 import 'utils/namespace.dart' as ns;
 
 /// A builder to create XML trees with code.
+///
+/// For example, to create a simple XML document:
+///
+/// ```dart
+/// final builder = XmlBuilder();
+/// builder.declaration(encoding: 'UTF-8');
+/// builder.element('root', nest: () {
+///   builder.attribute('lang', 'en');
+///   builder.text('Hello World');
+/// });
+/// final document = builder.buildDocument();
+/// ```
 class XmlBuilder {
   /// Construct a new [XmlBuilder].
   ///
@@ -282,6 +294,14 @@ class XmlBuilder {
   /// Binds a namespace [prefix] to the provided [uri]. The [prefix] can be
   /// omitted to declare a default namespace. Throws an [ArgumentError] if
   /// the [prefix] is invalid or conflicts with an existing declaration.
+  ///
+  /// For example, to bind the `xsd` prefix:
+  ///
+  /// ```dart
+  /// builder.element('schema', nest: () {
+  ///   builder.namespace('http://www.w3.org/2001/XMLSchema', 'xsd');
+  /// });
+  /// ```
   void namespace(String uri, [String? prefix]) {
     if (prefix == ns.xmlns || prefix == ns.xml) {
       throw ArgumentError('The "$prefix" prefix cannot be bound.');
@@ -309,10 +329,22 @@ class XmlBuilder {
 
   /// Builds and returns the resulting [XmlDocument]; resets the builder to its
   /// initial empty state.
+  ///
+  /// For example:
+  ///
+  /// ```dart
+  /// final document = builder.buildDocument();
+  /// ```
   XmlDocument buildDocument() => _build((builder) => builder.buildDocument());
 
   /// Builds and returns the resulting [XmlDocumentFragment]; resets the builder
   /// to its initial empty state.
+  ///
+  /// For example:
+  ///
+  /// ```dart
+  /// final fragment = builder.buildFragment();
+  /// ```
   XmlDocumentFragment buildFragment() =>
       _build((builder) => builder.buildFragment());
 
