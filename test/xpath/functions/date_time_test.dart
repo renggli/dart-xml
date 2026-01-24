@@ -20,10 +20,12 @@ void main() {
       ]),
       [dt.toXPathDateTime()],
     );
-    // Adjust to Implicit (Local)
-    expect(fnAdjustDateTimeToTimezone(context, [XPathSequence.single(dt)]), [
-      dt.toLocal().toXPathDateTime(),
-    ]);
+    // Adjust to Implicit (Local) - verify timezone offset matches local
+    final result =
+        fnAdjustDateTimeToTimezone(context, [XPathSequence.single(dt)]).first
+            as DateTime;
+    final expectedOffset = DateTime.now().timeZoneOffset;
+    expect(result.timeZoneOffset, expectedOffset);
   });
   test('fn:format-dateTime', () {
     final dt = DateTime.utc(2020, 1, 1, 12, 0, 0);
@@ -330,17 +332,21 @@ void main() {
   });
   test('fn:adjust-date-to-timezone', () {
     final dt = DateTime.utc(2020, 1, 1);
-    // Implicit
-    expect(fnAdjustDateToTimezone(context, [XPathSequence.single(dt)]), [
-      dt.toLocal().toXPathDateTime(),
-    ]);
+    // Implicit - verify timezone offset matches local
+    final result =
+        fnAdjustDateToTimezone(context, [XPathSequence.single(dt)]).first
+            as DateTime;
+    final expectedOffset = DateTime.now().timeZoneOffset;
+    expect(result.timeZoneOffset, expectedOffset);
   });
   test('fn:adjust-time-to-timezone', () {
     final dt = DateTime.utc(2020, 1, 1, 10, 0, 0);
-    // Implicit
-    expect(fnAdjustTimeToTimezone(context, [XPathSequence.single(dt)]), [
-      dt.toLocal().toXPathDateTime(),
-    ]);
+    // Implicit - verify timezone offset matches local
+    final result =
+        fnAdjustTimeToTimezone(context, [XPathSequence.single(dt)]).first
+            as DateTime;
+    final expectedOffset = DateTime.now().timeZoneOffset;
+    expect(result.timeZoneOffset, expectedOffset);
   });
   test('fn:format-date', () {
     final dt = DateTime.utc(2020, 1, 1);

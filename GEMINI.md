@@ -10,7 +10,7 @@
 - Use triple-slash (`///`) doc comments for all public members.
 - Use square brackets (`[Name]`) to link to other members within doc comments. Use markdown sparingly.
 - Start with a concise, single-sentence summary. If more detail is required, follow with a blank line and a deeper explanation (e.g., edge cases, parameters, error handling, ...).
-- Include code examples for non-trivial public APIs. Ensure examples are well-formatted, accurate, and relevant. Veryify that examples compile and produce the advertised output.
+- Include code examples for non-trivial public APIs. Ensure examples are well-formatted, accurate, and relevant. Verify that examples compile and produce the advertised output.
 
 ## Coding Style and Conventions
 
