@@ -1,17 +1,18 @@
 import '../exceptions/evaluation_exception.dart';
 import 'sequence.dart';
+import 'string.dart';
 
-extension type const XPathDateTime(DateTime _) implements DateTime {}
+typedef XPathDateTime = DateTime;
 
 extension XPathDateTimeExtension on Object {
   XPathDateTime toXPathDateTime() {
     final self = this;
-    if (self is DateTime) {
-      return XPathDateTime(self);
-    } else if (self is String) {
+    if (self is XPathDateTime) {
+      return self;
+    } else if (self is XPathString) {
       final parsed = DateTime.tryParse(self);
       if (parsed != null) {
-        return XPathDateTime(parsed);
+        return parsed;
       }
     } else if (self is XPathSequence) {
       final item = self.singleOrNull;

@@ -9,9 +9,8 @@ import '../evaluation/definition.dart';
 import '../generator.dart';
 import '../types/node.dart';
 import '../types/sequence.dart';
-import '../types/string.dart';
 
-Object _defaultNode(XPathContext context) => context.node.toXPathNode();
+XPathNode _defaultNode(XPathContext context) => context.item.toXPathNode();
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-name
 const fnName = XPathFunctionDefinition(
@@ -34,7 +33,7 @@ XPathSequence _fnName(XPathContext context, [XPathNode? arg]) {
   if (node is XmlHasName) {
     return XPathSequence.single((node as XmlHasName).qualifiedName);
   }
-  return const XPathSequence.single(XPathString.empty);
+  return XPathSequence.emptyString;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-local-name
@@ -56,9 +55,9 @@ const fnLocalName = XPathFunctionDefinition(
 XPathSequence _fnLocalName(XPathContext context, [XPathNode? arg]) {
   final node = arg;
   if (node is XmlHasName) {
-    return XPathSequence.single(XPathString((node as XmlHasName).localName));
+    return XPathSequence.single((node as XmlHasName).localName);
   }
-  return const XPathSequence.single(XPathString.empty);
+  return XPathSequence.emptyString;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-namespace-uri
@@ -80,11 +79,9 @@ const fnNamespaceUri = XPathFunctionDefinition(
 XPathSequence _fnNamespaceUri(XPathContext context, [XPathNode? arg]) {
   final node = arg;
   if (node is XmlHasName) {
-    return XPathSequence.single(
-      XPathString((node as XmlHasName).namespaceUri ?? ''),
-    );
+    return XPathSequence.single((node as XmlHasName).namespaceUri ?? '');
   }
-  return const XPathSequence.single(XPathString.empty);
+  return XPathSequence.emptyString;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-root
@@ -212,7 +209,7 @@ const fnPath = XPathFunctionDefinition(
 XPathSequence _fnPath(XPathContext context, [XPathNode? arg]) {
   final node = arg;
   if (node != null) {
-    return XPathSequence.single(XPathString((node as XmlNode).xpathGenerate()));
+    return XPathSequence.single(node.xpathGenerate());
   }
   return XPathSequence.empty;
 }

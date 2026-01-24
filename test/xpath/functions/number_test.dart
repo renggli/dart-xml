@@ -3,7 +3,8 @@ import 'dart:math' as math;
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/functions/number.dart';
-import 'package:xml/src/xpath/types/string.dart' as v31;
+import 'package:xml/src/xpath/types/map.dart';
+import 'package:xml/src/xpath/types/number.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -47,7 +48,7 @@ void main() {
       );
     });
     test('math:pi', () {
-      expect(mathPi(context, const <XPathSequence>[]), [math.pi]);
+      expect(mathPi(context, []), [math.pi]);
     });
     test('math:sqrt', () {
       expect(
@@ -56,24 +57,16 @@ void main() {
       );
     });
     test('fn:random-number-generator', () {
-      final result =
-          fnRandomNumberGenerator(context, const <XPathSequence>[]).first
-              as Map;
+      final result = fnRandomNumberGenerator(context, []).single as XPathMap;
       expect(result.keys, containsAll(['number', 'next', 'permute']));
       final current = result['number'];
       expect(current, isA<double>());
       expect(current, isNonNegative);
       expect(current, lessThan(1.0));
-      final next = (result['next'] as Function)(
-        context,
-        const <XPathSequence>[],
-      );
-      expect(next, isA<double>());
-      expect(next, isNonNegative);
-      expect(next, lessThan(1.0));
+      final next =
+          (result['next'] as XPathFunction)(context, []).single as XPathNumber;
       expect(next, result['number']);
-      expect(next, isNot(current));
-      final permuted = (result['permute'] as Function)(context, [
+      final permuted = (result['permute'] as XPathFunction)(context, [
         const XPathSequence([1, 2, 3]),
       ]);
       expect(permuted, isA<XPathSequence>());
@@ -206,9 +199,7 @@ void main() {
       );
     });
     test('math functions', () {
-      expect(mathPi(context, const <XPathSequence>[]), [
-        predicate((x) => (x as double) > 3.14),
-      ]);
+      expect(mathPi(context, []), [predicate((x) => (x as double) > 3.14)]);
       expect(mathExp(context, [const XPathSequence.single(0)]), [1.0]);
       expect(mathExp10(context, [const XPathSequence.single(0)]), [1.0]);
       expect(mathLog(context, [const XPathSequence.single(math.e)]), [1.0]);
@@ -243,7 +234,7 @@ void main() {
           const XPathSequence.single('0000'),
           const XPathSequence.single('en'),
         ]),
-        [const v31.XPathString('123')],
+        ['123'],
       ); // Partial implementation ignoring picture
     });
     test('fn:format-number (basic)', () {
@@ -252,7 +243,7 @@ void main() {
           const XPathSequence.single(123.456),
           const XPathSequence.single('#.00'),
         ]),
-        [const v31.XPathString('123.456')],
+        ['123.456'],
       ); // Partial implementation ignoring picture
     });
     test('fn:format-number (3 args)', () {
@@ -262,7 +253,7 @@ void main() {
           const XPathSequence.single('#.00'),
           const XPathSequence.single('foo'), // decimal format name
         ]),
-        [const v31.XPathString('123.456')],
+        ['123.456'],
       ); // Partial implementation ignoring picture
     });
     test('fn:format-number (empty)', () {

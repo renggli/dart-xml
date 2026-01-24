@@ -85,7 +85,7 @@ XPathSequence _fnPrefixFromQName(XPathContext context, XPathSequence? arg) {
   if (item is XmlName) {
     return item.prefix == null
         ? XPathSequence.empty
-        : XPathSequence.single(XPathString(item.prefix!));
+        : XPathSequence.single(item.prefix!);
   }
   return XPathSequence.empty;
 }
@@ -108,7 +108,7 @@ XPathSequence _fnLocalNameFromQName(XPathContext context, XPathSequence? arg) {
   if (arg == null || arg.isEmpty) return XPathSequence.empty;
   final item = arg.first;
   if (item is XmlName) {
-    return XPathSequence.single(XPathString(item.local));
+    return XPathSequence.single(item.local);
   }
   return XPathSequence.empty;
 }
@@ -136,7 +136,7 @@ XPathSequence _fnNamespaceUriFromQName(
   if (item is XmlName) {
     return item.namespaceUri == null
         ? XPathSequence.empty
-        : XPathSequence.single(XPathString(item.namespaceUri!));
+        : XPathSequence.single(item.namespaceUri!);
   }
   return XPathSequence.empty;
 }

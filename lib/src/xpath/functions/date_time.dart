@@ -852,8 +852,7 @@ XPathSequence _fnTimezoneFromTime(XPathContext context, XPathDateTime? arg) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-adjust-dateTime-to-timezone
-Object _defaultTimezone(XPathContext context) =>
-    XPathDuration(DateTime.now().timeZoneOffset);
+Object _defaultTimezone(XPathContext context) => DateTime.now().timeZoneOffset;
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-adjust-dateTime-to-timezone
 const fnAdjustDateTimeToTimezone = XPathFunctionDefinition(
@@ -990,7 +989,7 @@ XPathSequence _fnFormatDateTime(
   XPathString? calendar,
   XPathString? place,
 ]) => value != null
-    ? XPathSequence.single(XPathString(value.toIso8601String()))
+    ? XPathSequence.single(value.toIso8601String())
     : XPathSequence.empty;
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-format-date

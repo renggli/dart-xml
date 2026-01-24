@@ -16,19 +16,13 @@ void main() {
   final context = XPathContext(node);
 
   test('defaults', () {
-    expect(context.node, same(node));
+    expect(context.item, same(node));
     expect(context.position, 1);
     expect(context.last, 1);
     expect(context.variables, isEmpty);
     expect(context.functions, isEmpty);
     expect(context.documents, isEmpty);
     expect(context.onTraceCallback, isNull);
-  });
-  test('value', () {
-    final value = context.value;
-    expect(value, const TypeMatcher<XPathSequence>());
-    expect(value.length, 1);
-    expect(value.first, same(node));
   });
   test('getVariable', () {
     final context = XPathContext(node, variables: {'var': variable});
@@ -47,7 +41,7 @@ void main() {
       documents: {'doc': document},
       onTraceCallback: trace,
     );
-    expect(copy.node, same(node));
+    expect(copy.item, same(node));
     expect(copy.position, 1);
     expect(copy.last, 1);
     expect(copy.variables, {'var': variable});
@@ -57,7 +51,7 @@ void main() {
   });
   test('copy with defaults', () {
     final copy = context.copy();
-    expect(copy.node, same(context.node));
+    expect(copy.item, same(context.item));
     expect(copy.position, context.position);
     expect(copy.last, context.last);
     expect(copy.variables, same(context.variables));

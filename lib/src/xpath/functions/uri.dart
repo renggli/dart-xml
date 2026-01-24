@@ -4,7 +4,7 @@ import '../exceptions/evaluation_exception.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
 
-Object _defaultResolveUriBase(XPathContext context) => const XPathString('');
+XPathString _defaultResolveUriBase(XPathContext context) => '';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-resolve-uri
 const fnResolveUri = XPathFunctionDefinition(
@@ -45,11 +45,11 @@ XPathSequence _fnResolveUri(
   if (baseStr.isEmpty) {
     // If base is empty string (from default value?), return relative?
     // Current logic: return relative.
-    return XPathSequence.single(XPathString(relative));
+    return XPathSequence.single(relative);
   }
   try {
     return XPathSequence.single(
-      XPathString(Uri.parse(baseStr).resolve(relative.toString()).toString()),
+      Uri.parse(baseStr).resolve(relative.toString()).toString(),
     );
   } catch (e) {
     throw XPathEvaluationException('Invalid URI: $e');
@@ -72,7 +72,7 @@ const fnEncodeForUri = XPathFunctionDefinition(
 
 XPathSequence _fnEncodeForUri(XPathContext context, XPathString? uriPart) {
   final part = uriPart ?? '';
-  return XPathSequence.single(XPathString(Uri.encodeComponent(part)));
+  return XPathSequence.single(Uri.encodeComponent(part));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-iri-to-uri
@@ -91,7 +91,7 @@ const fnIriToUri = XPathFunctionDefinition(
 
 XPathSequence _fnIriToUri(XPathContext context, XPathString? iri) {
   final val = iri ?? '';
-  return XPathSequence.single(XPathString(Uri.encodeFull(val)));
+  return XPathSequence.single(Uri.encodeFull(val));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-escape-html-uri
@@ -111,5 +111,5 @@ const fnEscapeHtmlUri = XPathFunctionDefinition(
 XPathSequence _fnEscapeHtmlUri(XPathContext context, XPathString? uri) {
   final val = uri ?? '';
   // Simple implementation using Uri.encodeFull which is similar to what's required
-  return XPathSequence.single(XPathString(Uri.encodeFull(val)));
+  return XPathSequence.single(Uri.encodeFull(val));
 }

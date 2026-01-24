@@ -6,44 +6,41 @@ import '../../xml/nodes/node.dart';
 import '../../xml/nodes/text.dart';
 import '../exceptions/evaluation_exception.dart';
 import 'binary.dart';
+import 'boolean.dart';
 import 'sequence.dart';
 
-extension type const XPathString(String _) implements String {
-  static const empty = XPathString('');
-}
+typedef XPathString = String;
 
 extension XPathStringExtension on Object {
   XPathString toXPathString() {
     final self = this;
-    if (self is String) {
-      return XPathString(self);
-    } else if (self is bool) {
-      return XPathString(self ? 'true' : 'false');
+    if (self is XPathString) {
+      return self;
+    } else if (self is XPathBoolean) {
+      return self ? 'true' : 'false';
     } else if (self is num) {
-      if (self.isNaN) return const XPathString('NaN');
-      if (self == double.infinity) return const XPathString('INF');
-      if (self == double.negativeInfinity) return const XPathString('-INF');
-      if (self == 0.0 || self == -0.0) return const XPathString('0');
+      if (self.isNaN) return 'NaN';
+      if (self == double.infinity) return 'INF';
+      if (self == double.negativeInfinity) return '-INF';
+      if (self == 0.0 || self == -0.0) return '0';
       final string = self.toString();
-      return XPathString(
-        string.endsWith('.0') ? string.substring(0, string.length - 2) : string,
-      );
+      return string.endsWith('.0')
+          ? string.substring(0, string.length - 2)
+          : string;
     } else if (self is XPathHexBinary) {
-      return XPathString(
-        self
-            .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
-            .join()
-            .toUpperCase(),
-      );
+      return self
+          .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
+          .join()
+          .toUpperCase();
     } else if (self is XPathBase64Binary) {
-      return XPathString(base64Encode(self));
+      return base64Encode(self);
     } else if (self is XmlNode) {
       final buffer = StringBuffer();
       _stringForNodeOn(self, buffer);
-      return XPathString(buffer.toString());
+      return buffer.toString();
     } else if (self is XPathSequence) {
       final iterator = self.iterator;
-      if (!iterator.moveNext()) return XPathString.empty;
+      if (!iterator.moveNext()) return '';
       final item = iterator.current;
       if (!iterator.moveNext()) return item.toXPathString();
     }

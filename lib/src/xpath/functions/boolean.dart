@@ -82,7 +82,7 @@ XPathSequence _fnLang(
   XPathString? testlang, [
   XPathNode? node,
 ]) {
-  final item = node ?? XPathNode(context.node);
+  final item = node ?? context.item.toXPathNode();
   final lang = [item, ...item.ancestors]
       .whereType<XmlElement>()
       .map((node) => node.getAttribute('xml:lang'))

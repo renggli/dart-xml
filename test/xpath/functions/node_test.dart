@@ -1,7 +1,6 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/functions/node.dart';
-import 'package:xml/src/xpath/types/string.dart' as v31;
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -52,15 +51,11 @@ void main() {
     });
     test('fn:name', () {
       final a = document.findAllElements('a').first;
-      expect(fnName(context, [XPathSequence.single(a)]), [
-        const v31.XPathString('a'),
-      ]);
+      expect(fnName(context, [XPathSequence.single(a)]), ['a']);
     });
     test('fn:local-name', () {
       final a = document.findAllElements('a').first;
-      expect(fnLocalName(context, [XPathSequence.single(a)]), [
-        const v31.XPathString('a'),
-      ]);
+      expect(fnLocalName(context, [XPathSequence.single(a)]), ['a']);
     });
     test('fn:root', () {
       final a = document.findAllElements('a').first;
@@ -86,9 +81,7 @@ void main() {
     });
     test('fn:path', () {
       final a = document.findAllElements('a').first;
-      expect(fnPath(context, [XPathSequence.single(a)]), [
-        const v31.XPathString('/r/a'),
-      ]);
+      expect(fnPath(context, [XPathSequence.single(a)]), ['/r/a']);
     });
   });
   group('integration', () {

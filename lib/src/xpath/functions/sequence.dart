@@ -1,7 +1,7 @@
 import '../evaluation/context.dart';
 import '../evaluation/definition.dart';
 import '../exceptions/evaluation_exception.dart';
-import '../types/atomic.dart';
+import '../types/item.dart';
 import '../types/number.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
@@ -164,8 +164,7 @@ const fnReverse = XPathFunctionDefinition(
 XPathSequence _fnReverse(XPathContext context, XPathSequence arg) =>
     XPathSequence(arg.toList().reversed);
 
-Object _defaultSubsequenceLength(XPathContext context) =>
-    const XPathNumber(double.infinity);
+XPathNumber _defaultSubsequenceLength(XPathContext context) => double.infinity;
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-subsequence
 const fnSubsequence = XPathFunctionDefinition(
@@ -544,7 +543,7 @@ XPathSequence _fnMin(
   return XPathSequence.single(minVal!);
 }
 
-Object _defaultSumZero(XPathContext context) => const XPathNumber(0);
+XPathNumber _defaultSumZero(XPathContext context) => 0;
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-sum
 const fnSum = XPathFunctionDefinition(
@@ -560,7 +559,7 @@ const fnSum = XPathFunctionDefinition(
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'zero',
-      type: XPathAtomicValue,
+      type: XPathItem,
       cardinality: XPathArgumentCardinality.zeroOrOne, // optional
       defaultValue: _defaultSumZero,
     ),
@@ -571,7 +570,7 @@ const fnSum = XPathFunctionDefinition(
 XPathSequence _fnSum(
   XPathContext context,
   XPathSequence arg, [
-  XPathAtomicValue? zero,
+  XPathItem? zero,
 ]) {
   if (arg.isEmpty) {
     return zero?.toXPathSequence() ?? XPathSequence.empty;
@@ -781,7 +780,7 @@ const fnUriCollection = XPathFunctionDefinition(
 XPathSequence _fnUriCollection(XPathContext context, [XPathString? arg]) {
   final argVal = arg;
   if (argVal == null) {
-    return XPathSequence(context.documents.keys.map(XPathString.new));
+    return XPathSequence(context.documents.keys);
   }
   return XPathSequence.empty;
 }

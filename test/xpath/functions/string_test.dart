@@ -1,7 +1,6 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/functions/string.dart';
-import 'package:xml/src/xpath/types/string.dart' as v31;
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -15,7 +14,7 @@ void main() {
   group('string', () {
     test('fn:collation-key', () {
       expect(fnCollationKey(context, [const XPathSequence.single('abc')]), [
-        const v31.XPathString('abc'),
+        'abc',
       ]);
     });
     test('fn:concat', () {
@@ -24,7 +23,7 @@ void main() {
           const XPathSequence.single('a'),
           const XPathSequence.single('b'),
         ]),
-        [const v31.XPathString('ab')],
+        ['ab'],
       );
       expect(
         fnConcat(context, [
@@ -41,7 +40,7 @@ void main() {
           const XPathSequence(['a', 'b']),
           const XPathSequence.single(','),
         ]),
-        [const v31.XPathString('a,b')],
+        ['a,b'],
       );
       expect(
         fnStringJoin(context, [
@@ -271,34 +270,30 @@ void main() {
     });
     test('fn:analyze-string', () {
       expect(
-        () => fnAnalyzeString(context, const <XPathSequence>[]),
+        () => fnAnalyzeString(context, []),
         throwsA(isA<XPathEvaluationException>()),
       );
     });
 
     test('fn:string-join (empty)', () {
-      expect(fnStringJoin(context, [XPathSequence.empty]), [
-        const v31.XPathString(''),
-      ]);
+      expect(fnStringJoin(context, [XPathSequence.empty]), ['']);
       expect(
         fnStringJoin(context, [
           XPathSequence.empty,
           const XPathSequence.single(','),
         ]),
-        [const v31.XPathString('')],
+        [''],
       );
     });
     test('fn:substring (start/length)', () {
       const s = XPathSequence.single('12345');
       expect(fnSubstring(context, [s, const XPathSequence.single(1.5)]), [
-        const v31.XPathString('2345'),
+        '2345',
       ]);
       expect(fnSubstring(context, [s, const XPathSequence.single(0)]), [
-        const v31.XPathString('12345'),
+        '12345',
       ]);
-      expect(fnSubstring(context, [s, const XPathSequence.single(6)]), [
-        const v31.XPathString(''),
-      ]);
+      expect(fnSubstring(context, [s, const XPathSequence.single(6)]), ['']);
 
       expect(
         fnSubstring(context, [
@@ -306,7 +301,7 @@ void main() {
           const XPathSequence.single(1),
           const XPathSequence.single(0),
         ]),
-        [const v31.XPathString('')],
+        [''],
       );
     });
 
@@ -319,9 +314,7 @@ void main() {
     test('fn:normalize-space (context item)', () {
       final textNode = XmlText('  hello  ');
       final contextWithNode = XPathContext(textNode);
-      expect(fnNormalizeSpace(contextWithNode, []), [
-        const v31.XPathString('hello'),
-      ]);
+      expect(fnNormalizeSpace(contextWithNode, []), ['hello']);
     });
 
     test('fn:tokenize (flags)', () {
@@ -331,11 +324,7 @@ void main() {
           const XPathSequence.single('.'),
           const XPathSequence.single('q'), // quote pattern
         ]),
-        [
-          const v31.XPathString('a'),
-          const v31.XPathString('b'),
-          const v31.XPathString('c'),
-        ],
+        ['a', 'b', 'c'],
       );
 
       expect(
@@ -344,7 +333,7 @@ void main() {
           const XPathSequence.single('a'),
           const XPathSequence.single('i'), // case insensitive
         ]),
-        [const v31.XPathString(''), const v31.XPathString('.b.c')],
+        ['', '.b.c'],
       );
     });
 
@@ -356,7 +345,7 @@ void main() {
           const XPathSequence.single('-'),
           const XPathSequence.single('q'),
         ]),
-        [const v31.XPathString('a-b')],
+        ['a-b'],
       );
 
       expect(
@@ -366,7 +355,7 @@ void main() {
           const XPathSequence.single('x'),
           const XPathSequence.single('i'),
         ]),
-        [const v31.XPathString('x.B')],
+        ['x.B'],
       );
 
       // Invalid flag

@@ -1,14 +1,15 @@
 import '../exceptions/evaluation_exception.dart';
 import 'sequence.dart';
+import 'string.dart';
 
-extension type const XPathDuration(Duration _) implements Duration {}
+typedef XPathDuration = Duration;
 
 extension XPathDurationExtension on Object {
   XPathDuration toXPathDuration() {
     final self = this;
     if (self is Duration) {
-      return XPathDuration(self);
-    } else if (self is String) {
+      return self;
+    } else if (self is XPathString) {
       throw UnimplementedError('Duration from string');
     } else if (self is XPathSequence) {
       final item = self.singleOrNull;

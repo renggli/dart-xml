@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:collection/collection.dart';
 import '../evaluation/context.dart';
 import '../evaluation/definition.dart';
+import '../types/item.dart';
 import '../types/number.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
@@ -212,7 +213,7 @@ XPathSequence _fnFormatInteger(
   if (value == null) return XPathSequence.empty;
   // Basic implementation ignoring picture string intricacies
   // TODO: Add proper picture string parsing support
-  return XPathSequence.single(XPathString(value.toInt().toString()));
+  return XPathSequence.single(value.toInt().toString());
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-format-number
@@ -246,7 +247,7 @@ XPathSequence _fnFormatNumber(
   if (value == null) return XPathSequence.empty;
   // Basic implementation
   // TODO: Add proper picture string parsing support
-  return XPathSequence.single(XPathString(value.toString()));
+  return XPathSequence.single(value.toString());
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-abs
@@ -378,8 +379,8 @@ XPathSequence _fnRoundHalfToEven(
   return XPathSequence.single(result / factor);
 }
 
-Object _defaultContextValue(XPathContext context) =>
-    XPathSequence.single(context.value);
+XPathSequence _defaultContextValue(XPathContext context) =>
+    context.item.toXPathSequence();
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-number
 const fnNumber = XPathFunctionDefinition(
@@ -663,7 +664,7 @@ const fnRandomNumberGenerator = XPathFunctionDefinition(
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'seed',
-      type: XPathSequence,
+      type: XPathItem,
       cardinality: XPathArgumentCardinality.zeroOrOne,
     ),
   ],
@@ -672,14 +673,13 @@ const fnRandomNumberGenerator = XPathFunctionDefinition(
 
 XPathSequence _fnRandomNumberGenerator(
   XPathContext context, [
-  XPathSequence? seed,
+  XPathItem? seed,
 ]) {
-  final seedCode = seed != null && seed.isNotEmpty ? seed.first.hashCode : null;
-  final random = math.Random(seedCode);
+  final random = math.Random(seed?.hashCode);
   final generator = <String, Object>{};
   generator['number'] = random.nextDouble();
   generator['next'] = (XPathContext context, List<XPathSequence> args) =>
-      generator['number'] = random.nextDouble();
+      XPathSequence.single(generator['number'] = random.nextDouble());
   generator['permute'] = (XPathContext context, List<XPathSequence> args) =>
       XPathSequence(args[0].shuffled(random));
   return XPathSequence.single(generator);

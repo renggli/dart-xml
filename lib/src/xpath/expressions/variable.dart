@@ -7,7 +7,7 @@ class ContextItemExpression implements XPathExpression {
   const ContextItemExpression();
 
   @override
-  XPathSequence call(XPathContext context) => context.value;
+  XPathSequence call(XPathContext context) => context.item.toXPathSequence();
 }
 
 class VariableExpression implements XPathExpression {

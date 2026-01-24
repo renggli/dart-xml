@@ -1,7 +1,4 @@
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/types/boolean.dart';
-import 'package:xml/src/xpath/types/number.dart';
-import 'package:xml/src/xpath/types/string.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -55,19 +52,14 @@ void main() {
       xml,
       '\$a',
       ['hello'],
-      variables: {'a': const XPathString('hello').toXPathSequence()},
+      variables: {'a': 'hello'.toXPathSequence()},
     );
-    expectEvaluate(
-      xml,
-      '\$a',
-      [123],
-      variables: {'a': const XPathNumber(123).toXPathSequence()},
-    );
+    expectEvaluate(xml, '\$a', [123], variables: {'a': 123.toXPathSequence()});
     expectEvaluate(
       xml,
       '\$a',
       [false],
-      variables: {'a': const XPathBoolean(false).toXPathSequence()},
+      variables: {'a': false.toXPathSequence()},
     );
     expect(
       () => expectEvaluate(xml, '\$unknown', anything),
@@ -81,7 +73,7 @@ void main() {
       ['ok'],
       functions: {
         'custom': (context, arguments) {
-          expect(context.node, same(xml));
+          expect(context.item, same(xml));
           expect(context.position, 1);
           expect(context.last, 1);
           expect(arguments, [
@@ -89,7 +81,7 @@ void main() {
             [42],
             [true],
           ]);
-          return const XPathSequence.single(XPathString('ok'));
+          return const XPathSequence.single('ok');
         },
       },
     );

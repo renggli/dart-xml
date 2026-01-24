@@ -1,7 +1,6 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/functions/qname.dart';
-import 'package:xml/src/xpath/types/string.dart' as v31;
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -28,7 +27,7 @@ void main() {
     expect(
       fnResolveQName(context, [
         const XPathSequence.single('p:local'),
-        const XPathSequence.single(v31.XPathString('element')),
+        const XPathSequence.single('element'),
       ]).first,
       isA<XmlName>(),
     );

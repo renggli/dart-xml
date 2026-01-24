@@ -1,9 +1,7 @@
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../exceptions/evaluation_exception.dart';
-import '../types/array.dart';
-import '../types/atomic.dart';
-import '../types/map.dart';
+import '../types/item.dart';
 import '../types/sequence.dart';
 
 class MapConstructor implements XPathExpression {
@@ -13,7 +11,7 @@ class MapConstructor implements XPathExpression {
 
   @override
   XPathSequence call(XPathContext context) {
-    final map = <Object, Object>{};
+    final map = <XPathItem, XPathItem>{};
     for (final entry in entries) {
       final key = XPathEvaluationException.extractExactlyOne(
         'map:constructor',
@@ -22,7 +20,7 @@ class MapConstructor implements XPathExpression {
       );
       map[key] = entry.value(context).toAtomicValue();
     }
-    return XPathSequence.single(XPathMap(map));
+    return XPathSequence.single(map);
   }
 }
 
@@ -33,12 +31,10 @@ class SquareArrayConstructor implements XPathExpression {
 
   @override
   XPathSequence call(XPathContext context) => XPathSequence.single(
-    XPathArray(
-      members.map((member) {
-        final val = member(context);
-        return val.length == 1 ? val.first : val;
-      }).toList(),
-    ),
+    members.map((member) {
+      final val = member(context);
+      return val.length == 1 ? val.first : val;
+    }).toList(),
   );
 }
 
@@ -49,10 +45,8 @@ class CurlyArrayConstructor implements XPathExpression {
 
   @override
   XPathSequence call(XPathContext context) => XPathSequence.single(
-    XPathArray(
-      expression(context)
-          .expand((member) => member is XPathSequence ? member : [member])
-          .toList(),
-    ),
+    expression(
+      context,
+    ).expand((member) => member is XPathSequence ? member : [member]).toList(),
   );
 }

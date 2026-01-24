@@ -1,6 +1,5 @@
 import 'package:meta/meta.dart';
 
-import '../../xml/nodes/node.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../types/boolean.dart';
@@ -29,18 +28,16 @@ class PredicateExpression implements XPathExpression {
 
   @override
   XPathSequence call(XPathContext context) {
-    final nodes = expression(context).toList();
+    final items = expression(context).toList();
     final inner = context.copy();
-    inner.last = nodes.length;
+    inner.last = items.length;
     final matched = <Object>[];
-    for (var i = 0; i < nodes.length; i++) {
-      final node = nodes[i];
-      if (node is XmlNode) {
-        inner.node = node;
-      }
+    for (var i = 0; i < items.length; i++) {
+      final item = items[i];
+      inner.item = item;
       inner.position = i + 1;
       if (predicate.matches(inner)) {
-        matched.add(node);
+        matched.add(item);
       }
     }
     return XPathSequence(matched);

@@ -338,10 +338,10 @@ void main() {
       ]);
     });
     test('fn:collection', () {
-      expect(fnCollection(context, const <XPathSequence>[]), isEmpty);
+      expect(fnCollection(context, []), isEmpty);
     });
     test('fn:uri-collection', () {
-      expect(fnUriCollection(context, const <XPathSequence>[]), isEmpty);
+      expect(fnUriCollection(context, []), isEmpty);
     });
     test('fn:unparsed-text', () {
       expect(
@@ -373,7 +373,7 @@ void main() {
     });
     test('fn:available-environment-variables', () {
       expect(
-        () => fnAvailableEnvironmentVariables(context, const <XPathSequence>[]),
+        () => fnAvailableEnvironmentVariables(context, []),
         throwsA(isA<UnimplementedError>()),
       );
     });

@@ -1,8 +1,6 @@
 import '../evaluation/context.dart';
 import '../evaluation/definition.dart';
-import '../types/date_time.dart';
 import '../types/sequence.dart';
-import '../types/string.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-position
 const fnPosition = XPathFunctionDefinition(
@@ -32,7 +30,7 @@ const fnCurrentDateTime = XPathFunctionDefinition(
 );
 
 XPathSequence _fnCurrentDateTime(XPathContext context) =>
-    XPathSequence.single(XPathDateTime(DateTime.now()));
+    XPathSequence.single(DateTime.now());
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-current-date
 const fnCurrentDate = XPathFunctionDefinition(
@@ -44,7 +42,7 @@ const fnCurrentDate = XPathFunctionDefinition(
 XPathSequence _fnCurrentDate(XPathContext context) {
   final dateTime = DateTime.now();
   return XPathSequence.single(
-    XPathDateTime(DateTime(dateTime.year, dateTime.month, dateTime.day)),
+    DateTime(dateTime.year, dateTime.month, dateTime.day),
   );
 }
 
@@ -58,17 +56,15 @@ const fnCurrentTime = XPathFunctionDefinition(
 XPathSequence _fnCurrentTime(XPathContext context) {
   final dateTime = DateTime.now();
   return XPathSequence.single(
-    XPathDateTime(
-      DateTime(
-        0,
-        0,
-        0,
-        dateTime.hour,
-        dateTime.minute,
-        dateTime.second,
-        dateTime.millisecond,
-        dateTime.microsecond,
-      ),
+    DateTime(
+      0,
+      0,
+      0,
+      dateTime.hour,
+      dateTime.minute,
+      dateTime.second,
+      dateTime.millisecond,
+      dateTime.microsecond,
     ),
   );
 }
@@ -92,7 +88,7 @@ const fnDefaultCollation = XPathFunctionDefinition(
 
 XPathSequence _fnDefaultCollation(XPathContext context) =>
     const XPathSequence.single(
-      XPathString('http://www.w3.org/2005/xpath-functions/collation/codepoint'),
+      'http://www.w3.org/2005/xpath-functions/collation/codepoint',
     );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-default-language
@@ -103,7 +99,7 @@ const fnDefaultLanguage = XPathFunctionDefinition(
 );
 
 XPathSequence _fnDefaultLanguage(XPathContext context) =>
-    const XPathSequence.single(XPathString('en'));
+    const XPathSequence.single('en');
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-static-base-uri
 const fnStaticBaseUri = XPathFunctionDefinition(

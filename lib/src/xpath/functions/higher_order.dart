@@ -1,9 +1,9 @@
 import '../evaluation/context.dart';
 import '../evaluation/definition.dart';
 import '../types/array.dart';
-import '../types/atomic.dart';
 import '../types/boolean.dart';
 import '../types/function.dart';
+import '../types/item.dart';
 import '../types/map.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
@@ -214,7 +214,7 @@ XPathSequence _fnSort(
       final keyB = keyFunc(context, [XPathSequence.single(b)]).toAtomicValue();
       if (keyA is Comparable && keyB is Comparable) {
         try {
-          return (keyA as Comparable).compareTo(keyB);
+          return keyA.compareTo(keyB);
         } catch (_) {}
       }
       return keyA.toString().compareTo(keyB.toString());

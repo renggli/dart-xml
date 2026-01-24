@@ -77,10 +77,10 @@ void main() {
       );
     });
     test('fn:true', () {
-      expect(fnTrue(context, const <XPathSequence>[]), [true]);
+      expect(fnTrue(context, []), [true]);
     });
     test('fn:false', () {
-      expect(fnFalse(context, const <XPathSequence>[]), [false]);
+      expect(fnFalse(context, []), [false]);
     });
     test('fn:lang', () {
       final doc = XmlDocument.parse('<r xml:lang="en"><c/></r>');

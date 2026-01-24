@@ -3,6 +3,7 @@ import '../../xml/extensions/parent.dart';
 import '../../xml/nodes/node.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
+import '../types/node.dart';
 import '../types/sequence.dart';
 import 'axis.dart';
 import 'node_test.dart';
@@ -163,17 +164,18 @@ class PathExpression implements XPathExpression {
 
   @override
   XPathSequence call(XPathContext context) {
+    final contextNode = context.item.toXPathNode();
     if (steps.isEmpty) {
-      return XPathSequence.single(context.node.root);
+      return XPathSequence.single(contextNode.root);
     }
     final inner = context.copy();
     if (isOrderPreserved) {
-      var nodes = <Object>[if (isAbsolute) context.node.root else context.node];
+      var nodes = <Object>[if (isAbsolute) contextNode.root else contextNode];
       for (final step in steps) {
         final innerNodes = <Object>[];
         for (final node in nodes) {
           if (node is XmlNode) {
-            inner.node = node;
+            inner.item = node;
             innerNodes.addAll(step(inner));
           }
         }
@@ -181,12 +183,12 @@ class PathExpression implements XPathExpression {
       }
       return XPathSequence(nodes);
     } else {
-      var nodes = <Object>{if (isAbsolute) context.node.root else context.node};
+      var nodes = <Object>{if (isAbsolute) contextNode.root else contextNode};
       for (final step in steps) {
         final innerNodes = <Object>{};
         for (final node in nodes) {
           if (node is XmlNode) {
-            inner.node = node;
+            inner.item = node;
             innerNodes.addAll(step(inner));
           }
         }

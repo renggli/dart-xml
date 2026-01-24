@@ -10,7 +10,7 @@ import '../types/node.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
 
-Object _defaultNode(XPathContext context) => context.node.toXPathNode();
+XPathNode _defaultNode(XPathContext context) => context.item.toXPathNode();
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-node-name
 const fnNodeName = XPathFunctionDefinition(
@@ -32,9 +32,7 @@ XPathSequence _fnNodeName(XPathContext context, [XPathNode? node]) {
   if (n is XmlHasName) {
     return XPathSequence.single((n as XmlHasName).name);
   } else if (n is XmlProcessing) {
-    return XPathSequence.single(
-      XmlName.fromString((n as XmlProcessing).target),
-    );
+    return XPathSequence.single(XmlName.fromString(n.target));
   }
   return XPathSequence.empty;
 }
@@ -62,8 +60,8 @@ XPathSequence _fnNilled(XPathContext context, [XPathNode? node]) {
   return XPathSequence.empty;
 }
 
-Object _defaultString(XPathContext context) =>
-    XPathSequence.single(context.node.toXPathString());
+XPathSequence _defaultString(XPathContext context) =>
+    XPathSequence.single(context.item.toXPathString());
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-string
 const fnString = XPathFunctionDefinition(
@@ -81,11 +79,12 @@ const fnString = XPathFunctionDefinition(
 );
 
 XPathSequence _fnString(XPathContext context, [XPathSequence? arg]) {
-  if (arg == null) return const XPathSequence.single(XPathString.empty);
+  if (arg == null) return XPathSequence.emptyString;
   return XPathSequence.single(arg.toXPathString());
 }
 
-Object _defaultData(XPathContext context) => XPathSequence.single(context.node);
+XPathSequence _defaultData(XPathContext context) =>
+    context.item.toXPathSequence();
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-data
 const fnData = XPathFunctionDefinition(
@@ -136,14 +135,12 @@ XPathSequence _fnBaseUri(XPathContext context, [XPathNode? node]) {
   final n = node;
   // 1. Look for xml:base on the node or its ancestors
 
-  for (XmlNode? current = n; current != null; current = current.parent) {
+  for (var current = n; current != null; current = current.parent) {
     if (current is XmlElement) {
       final xmlBase = current.getAttribute('xml:base');
       if (xmlBase != null) {
         try {
-          return XPathSequence.single(
-            XPathString(Uri.parse(xmlBase).toString()),
-          );
+          return XPathSequence.single(Uri.parse(xmlBase).toString());
         } catch (_) {
           // If invalid URI, ignore
         }

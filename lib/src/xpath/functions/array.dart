@@ -4,9 +4,9 @@ import '../evaluation/context.dart';
 import '../evaluation/definition.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types/array.dart';
-import '../types/atomic.dart';
 import '../types/boolean.dart';
 import '../types/function.dart';
+import '../types/item.dart';
 import '../types/number.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
@@ -287,7 +287,7 @@ XPathSequence _arrayForEach(
   for (final member in array) {
     result.add(action(context, [member.toXPathSequence()]));
   }
-  return XPathSequence.single(XPathArray(result));
+  return XPathSequence.single(result);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-filter
@@ -312,7 +312,7 @@ XPathSequence _arrayFilter(
       result.add(member);
     }
   }
-  return XPathSequence.single(XPathArray(result));
+  return XPathSequence.single(result);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-fold-left
@@ -393,7 +393,7 @@ XPathSequence _arrayForEachPair(
       ]),
     );
   }
-  return XPathSequence.single(XPathArray(result));
+  return XPathSequence.single(result);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-sort
@@ -433,7 +433,7 @@ XPathSequence _arraySort(
       final keyB = keyFunc(context, [b.toXPathSequence()]).toAtomicValue();
       if (keyA is Comparable && keyB is Comparable) {
         try {
-          return (keyA as Comparable).compareTo(keyB);
+          return keyA.compareTo(keyB);
         } catch (_) {}
       }
       return keyA.toString().compareTo(keyB.toString());
@@ -442,12 +442,12 @@ XPathSequence _arraySort(
     final valB = b.toAtomicValue();
     if (valA is Comparable && valB is Comparable) {
       try {
-        return (valA as Comparable).compareTo(valB);
+        return valA.compareTo(valB);
       } catch (_) {}
     }
     return valA.toString().compareTo(valB.toString());
   });
-  return XPathSequence.single(XPathArray(list));
+  return XPathSequence.single(list);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-flatten

@@ -1,9 +1,7 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/exceptions/evaluation_exception.dart';
-import 'package:xml/src/xpath/types/array.dart';
 import 'package:xml/src/xpath/types/function.dart';
-import 'package:xml/src/xpath/types/map.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/xml.dart';
 
@@ -19,10 +17,10 @@ void main() {
 
     final function = myFunction.toXPathFunction();
     expect(function, myFunction);
-    expect(function(context, const <XPathSequence>[]), ['ok']);
+    expect(function(context, []), ['ok']);
   });
   test('cast from XPathArray (array as function)', () {
-    const array = XPathArray(['a', 'b', 'c']);
+    const array = ['a', 'b', 'c'];
     final function = array.toXPathFunction();
     final result1 = function(context, [const XPathSequence.single(1)]);
     expect(result1, ['a']);
@@ -34,7 +32,7 @@ void main() {
     );
   });
   test('cast from XPathMap (map as function)', () {
-    const map = XPathMap({'key1': 'val1', 'key2': 'val2'});
+    const map = {'key1': 'val1', 'key2': 'val2'};
     final function = map.toXPathFunction();
     final result1 = function(context, [const XPathSequence.single('key1')]);
     expect(result1, ['val1']);
@@ -49,7 +47,7 @@ void main() {
 
     final sequence = XPathSequence.single(myFunction);
     final function = sequence.toXPathFunction();
-    expect(function(context, const <XPathSequence>[]), ['sequence-ok']);
+    expect(function(context, []), ['sequence-ok']);
   });
   test('cast from unsupported type', () {
     expect(

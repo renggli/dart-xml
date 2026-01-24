@@ -1,8 +1,7 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/functions/higher_order.dart';
-import 'package:xml/src/xpath/types/map.dart';
-import 'package:xml/src/xpath/types/string.dart' as v31;
+import 'package:xml/src/xpath/types/string.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -145,7 +144,7 @@ void main() {
   });
   test('fn:transform', () {
     expect(
-      () => fnTransform(context, [const XPathSequence.single(XPathMap({}))]),
+      () => fnTransform(context, [XPathSequence.emptyMap]),
       throwsA(isA<UnimplementedError>()),
     );
   });

@@ -1,7 +1,9 @@
 import 'package:collection/collection.dart' show DelegatingIterable;
 
+import 'item.dart';
+
 /// An XPath 3.1 sequence.
-abstract interface class XPathSequence implements Iterable<Object> {
+abstract interface class XPathSequence implements Iterable<XPathItem> {
   /// The empty sequence.
   static const empty = _XPathEmptySequence();
 
@@ -11,15 +13,24 @@ abstract interface class XPathSequence implements Iterable<Object> {
   /// The false sequence.
   static const falseSequence = _XPathSingleSequence(false);
 
+  /// The empty string.
+  static const emptyString = _XPathSingleSequence('');
+
+  /// The empty array.
+  static const emptyArray = _XPathSingleSequence(<XPathItem>[]);
+
+  /// The empty map.
+  static const emptyMap = _XPathSingleSequence(<XPathItem, XPathItem>{});
+
   /// Creates a sequence from a single [value].
-  const factory XPathSequence.single(Object value) = _XPathSingleSequence;
+  const factory XPathSequence.single(XPathItem value) = _XPathSingleSequence;
 
   /// Creates a sequence from an [Iterable].
-  const factory XPathSequence(Iterable<Object> iterable) =
+  const factory XPathSequence(Iterable<XPathItem> iterable) =
       _XPathDefaultSequence;
 
   /// Creates a sequence from a cached [Iterable].
-  factory XPathSequence.cached(Iterable<Object> iterable) =>
+  factory XPathSequence.cached(Iterable<XPathItem> iterable) =>
       _XPathCachedSequence(iterable);
 
   /// Creates a sequence from an integer range.
@@ -30,7 +41,7 @@ abstract interface class XPathSequence implements Iterable<Object> {
       : empty;
 }
 
-extension XPathSequenceExtension on Object {
+extension XPathSequenceExtension on XPathItem {
   XPathSequence toXPathSequence() {
     final self = this;
     return self is XPathSequence ? self : XPathSequence.single(self);
@@ -38,7 +49,7 @@ extension XPathSequenceExtension on Object {
 }
 
 /// The empty sequence.
-class _XPathEmptySequence extends Iterable<Object> implements XPathSequence {
+class _XPathEmptySequence extends Iterable<XPathItem> implements XPathSequence {
   const _XPathEmptySequence();
 
   @override
@@ -48,14 +59,15 @@ class _XPathEmptySequence extends Iterable<Object> implements XPathSequence {
   bool get isEmpty => true;
 
   @override
-  Iterator<Object> get iterator => const <Object>[].iterator;
+  Iterator<XPathItem> get iterator => const <XPathItem>[].iterator;
 }
 
 /// A sequence with a single value.
-class _XPathSingleSequence extends Iterable<Object> implements XPathSequence {
+class _XPathSingleSequence extends Iterable<XPathItem>
+    implements XPathSequence {
   const _XPathSingleSequence(this._value);
 
-  final Object _value;
+  final XPathItem _value;
 
   @override
   int get length => 1;
@@ -64,24 +76,24 @@ class _XPathSingleSequence extends Iterable<Object> implements XPathSequence {
   bool get isEmpty => false;
 
   @override
-  Iterator<Object> get iterator => _XPathSingleIterator(_value);
+  Iterator<XPathItem> get iterator => _XPathSingleIterator(_value);
 }
 
-class _XPathSingleIterator implements Iterator<Object> {
+class _XPathSingleIterator implements Iterator<XPathItem> {
   _XPathSingleIterator(this._value);
 
-  final Object _value;
+  final XPathItem _value;
   int _index = -1;
 
   @override
-  Object get current => _value;
+  XPathItem get current => _value;
 
   @override
   bool moveNext() => ++_index < 1;
 }
 
 /// The default sequence imlementation wrapping an [Iterable].
-class _XPathDefaultSequence extends DelegatingIterable<Object>
+class _XPathDefaultSequence extends DelegatingIterable<XPathItem>
     implements XPathSequence {
   const _XPathDefaultSequence(super.base);
 
@@ -90,25 +102,27 @@ class _XPathDefaultSequence extends DelegatingIterable<Object>
 }
 
 /// An optimized sequence that stores the results of the first iteration.
-class _XPathCachedSequence extends Iterable<Object> implements XPathSequence {
-  _XPathCachedSequence(Iterable<Object> source) : _iterator = source.iterator;
+class _XPathCachedSequence extends Iterable<XPathItem>
+    implements XPathSequence {
+  _XPathCachedSequence(Iterable<XPathItem> source)
+    : _iterator = source.iterator;
 
-  final Iterator<Object> _iterator;
-  final List<Object> _results = [];
+  final Iterator<XPathItem> _iterator;
+  final List<XPathItem> _results = [];
 
   @override
-  Iterator<Object> get iterator => _XPathCachedIterator(_iterator, _results);
+  Iterator<XPathItem> get iterator => _XPathCachedIterator(_iterator, _results);
 }
 
-class _XPathCachedIterator implements Iterator<Object> {
+class _XPathCachedIterator implements Iterator<XPathItem> {
   _XPathCachedIterator(this._iterator, this._results);
 
-  final Iterator<Object> _iterator;
-  final List<Object> _results;
+  final Iterator<XPathItem> _iterator;
+  final List<XPathItem> _results;
   int _index = -1;
 
   @override
-  Object get current => _results[_index];
+  XPathItem get current => _results[_index];
 
   @override
   bool moveNext() {

@@ -1,8 +1,9 @@
 import 'package:meta/meta.dart';
 
-import '../../xml/nodes/node.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart' show XPathExpression;
+import '../types/item.dart';
+import '../types/node.dart';
 import 'axis.dart';
 import 'node_test.dart';
 import 'predicate.dart';
@@ -21,8 +22,8 @@ class Step {
 
   /// Apply this step to the given context, returning the resulting nodes in document order.
   Iterable<Object> call(XPathContext context) {
-    var result = <XmlNode>[];
-    for (final node in axis.find(context.node)) {
+    var result = <XPathItem>[];
+    for (final node in axis.find(context.item.toXPathNode())) {
       if (nodeTest.matches(node)) {
         result.add(node);
       }
@@ -32,12 +33,12 @@ class Step {
       final inner = context.copy();
       for (final predicate in predicates) {
         inner.last = result.length;
-        final matched = <XmlNode>[];
+        final matched = <XPathItem>[];
         for (var i = 0; i < result.length; i++) {
-          inner.node = result[isReverseIndexed ? result.length - i - 1 : i];
+          inner.item = result[isReverseIndexed ? result.length - i - 1 : i];
           inner.position = i + 1;
           if (predicate.matches(inner)) {
-            matched.add(inner.node);
+            matched.add(inner.item);
           }
         }
         result = matched;

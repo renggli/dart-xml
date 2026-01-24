@@ -1,11 +1,12 @@
 import '../../xml/nodes/node.dart';
+import '../types/item.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
 
 /// Runtime execution context to evaluate XPath expressions.
 class XPathContext {
   XPathContext(
-    this.node, {
+    this.item, {
     this.position = 1,
     this.last = 1,
     this.variables = const {},
@@ -15,16 +16,13 @@ class XPathContext {
   });
 
   /// Mutable context node.
-  XmlNode node;
+  XPathItem item;
 
   /// Mutable context position.
-  int position = 1;
+  int position;
 
   /// Mutable context size.
-  int last = 1;
-
-  /// The current node as an [XPathSequence].
-  XPathSequence get value => XPathSequence.single(node);
+  int last;
 
   /// Looks up an XPath variable with the given [name].
   XPathSequence? getVariable(String name) => variables[name];
@@ -51,7 +49,7 @@ class XPathContext {
     Map<String, XmlNode>? documents,
     XPathTraceCallback? onTraceCallback,
   }) => XPathContext(
-    node,
+    item,
     position: position,
     last: last,
     variables: variables ?? this.variables,

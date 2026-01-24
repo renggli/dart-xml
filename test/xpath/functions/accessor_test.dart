@@ -1,7 +1,6 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/functions/accessor.dart';
-import 'package:xml/src/xpath/types/string.dart' as v31;
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -30,12 +29,10 @@ void main() {
     expect(fnNilled(context, [XPathSequence.empty]), isEmpty);
   });
   test('fn:string', () {
-    expect(fnString(context, [const XPathSequence.single('foo')]), [
-      const v31.XPathString('foo'),
-    ]);
-    expect(fnString(context, [XPathSequence.empty]), [v31.XPathString.empty]);
+    expect(fnString(context, [const XPathSequence.single('foo')]), ['foo']);
+    expect(fnString(context, [XPathSequence.empty]), ['']);
     expect(fnString(XPathContext(document.findAllElements('a').first), []), [
-      const v31.XPathString('1'),
+      '1',
     ]);
   });
   test('fn:data', () {

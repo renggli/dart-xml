@@ -2,7 +2,6 @@ import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/functions/date_time.dart';
 import 'package:xml/src/xpath/types/date_time.dart';
-import 'package:xml/src/xpath/types/string.dart' as v31;
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -35,7 +34,7 @@ void main() {
         const XPathSequence.single('[Y]-[M]-[D]'),
       ]),
       // Basic implementation returns ISO string
-      [v31.XPathString(dt.toIso8601String())],
+      [dt.toIso8601String()],
     );
   });
   test('fn:year-from-date', () {
@@ -355,7 +354,7 @@ void main() {
         XPathSequence.single(dt),
         const XPathSequence.single('[Y]'),
       ]),
-      [v31.XPathString(dt.toIso8601String())],
+      [dt.toIso8601String()],
     );
   });
   test('fn:format-time', () {
@@ -365,7 +364,7 @@ void main() {
         XPathSequence.single(dt),
         const XPathSequence.single('[H]:[m]'),
       ]),
-      [v31.XPathString(dt.toIso8601String())],
+      [dt.toIso8601String()],
     );
   });
   test('fn:format-dateTime (empty)', () {

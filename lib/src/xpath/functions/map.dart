@@ -1,7 +1,7 @@
 import '../evaluation/context.dart';
 import '../evaluation/definition.dart';
-import '../types/atomic.dart';
 import '../types/function.dart';
+import '../types/item.dart';
 import '../types/map.dart';
 import '../types/sequence.dart';
 
@@ -24,13 +24,13 @@ XPathSequence _opSameKey(
   final k1 = k1Seq.toAtomicValue();
   final k2 = k2Seq.toAtomicValue();
   // TODO: Handle timezone, etc.
-  if (k1 is num && (k1 as num).isNaN && k2 is num && (k2 as num).isNaN) {
+  if (k1 is num && k1.isNaN && k2 is num && k2.isNaN) {
     return XPathSequence.trueSequence;
   }
   return XPathSequence.single(k1 == k2);
 }
 
-Object _defaultMapMergeOptions(XPathContext context) => const XPathMap({});
+XPathMap _defaultMapMergeOptions(XPathContext context) => const {};
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-merge
 const mapMerge = XPathFunctionDefinition(

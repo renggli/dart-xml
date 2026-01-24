@@ -1,15 +1,14 @@
 import '../exceptions/evaluation_exception.dart';
+import 'item.dart';
 import 'sequence.dart';
 
-extension type const XPathArray(List<Object> _) implements List<Object> {}
+typedef XPathArray = List<XPathItem>;
 
 extension XPathArrayExtension on Object {
   XPathArray toXPathArray() {
     final self = this;
-    if (self is List<Object>) {
-      return XPathArray(self);
-    } else if (self is List) {
-      return XPathArray(self.cast<Object>());
+    if (self is XPathArray) {
+      return self;
     } else if (self is XPathSequence) {
       final item = self.singleOrNull;
       if (item != null) return item.toXPathArray();

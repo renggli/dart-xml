@@ -613,7 +613,7 @@ class XPathParser {
       ref0(eventParser.attributeValueDoubleQuote),
       ref0(eventParser.attributeValueSingleQuote),
     ].toChoiceParser(),
-  ).map((tuple) => XPathSequence.single(XPathString(tuple.$1)));
+  ).map((tuple) => XPathSequence.single(tuple.$1));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-VarRef
   Parser<XPathExpression> varRef() => ref0(varName).map(VariableExpression.new);

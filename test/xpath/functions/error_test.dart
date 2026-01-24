@@ -1,7 +1,7 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/functions/error.dart';
-import 'package:xml/src/xpath/types/string.dart' as v31;
+import 'package:xml/src/xpath/types/string.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -13,7 +13,7 @@ final context = XPathContext(document);
 void main() {
   test('fn:error', () {
     expect(
-      () => fnError(context, const <XPathSequence>[]),
+      () => fnError(context, []),
       throwsA(isXPathEvaluationException(message: '')),
     );
     expect(
@@ -47,7 +47,7 @@ void main() {
   test('fn:trace (with handler)', () {
     const value = XPathSequence.single('value');
     const label = XPathSequence.single('label');
-    final traceLog = <(XPathSequence, v31.XPathString?)>[];
+    final traceLog = <(XPathSequence, XPathString?)>[];
     final traceContext = context.copy(
       onTraceCallback: (value, label) => traceLog.add((value, label)),
     );
