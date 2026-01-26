@@ -1,5 +1,6 @@
 *.iml
 .DS_Store
+.qt3tests/
 .dart_tool/
 .idea/
 .packages

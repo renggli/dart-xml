@@ -2,15 +2,10 @@
 library;
 
 import 'package:meta/meta.dart' show experimental;
-import 'package:petitparser/core.dart' show Failure;
 
 import 'src/xml/nodes/node.dart';
-import 'src/xml/utils/cache.dart';
 import 'src/xpath/evaluation/context.dart';
-import 'src/xpath/evaluation/expression.dart';
 import 'src/xpath/evaluation/functions.dart';
-import 'src/xpath/exceptions/parser_exception.dart';
-import 'src/xpath/parser.dart';
 import 'src/xpath/types/sequence.dart';
 
 export 'src/xpath/evaluation/functions.dart' show XPathFunction;
@@ -42,23 +37,9 @@ extension XPathExtension on XmlNode {
     String expression, {
     Map<String, XPathSequence> variables = const {},
     Map<String, Object> functions = const {},
-  }) {
-    final allFunctions = {...standardFunctions, ...functions};
-    return _cache[expression](
-      XPathContext(this, variables: variables, functions: allFunctions),
-    );
-  }
+  }) => XPathContext(
+    this,
+    variables: variables,
+    functions: {...standardFunctions, ...functions},
+  ).evaluate(expression);
 }
-
-final _parser = const XPathParser().build();
-final _cache = XmlCache<String, XPathExpression>((expression) {
-  final result = _parser.parse(expression);
-  if (result is Failure) {
-    throw XPathParserException(
-      result.message,
-      buffer: expression,
-      position: result.position,
-    );
-  }
-  return result.value;
-}, 25);
