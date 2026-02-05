@@ -5,31 +5,6 @@ import '../types/item.dart';
 import '../types/map.dart';
 import '../types/sequence.dart';
 
-/// https://www.w3.org/TR/xpath-functions-31/#func-same-key
-const opSameKey = XPathFunctionDefinition(
-  namespace: 'op',
-  name: 'same-key',
-  requiredArguments: [
-    XPathArgumentDefinition(name: 'k1', type: XPathSequence),
-    XPathArgumentDefinition(name: 'k2', type: XPathSequence),
-  ],
-  function: _opSameKey,
-);
-
-XPathSequence _opSameKey(
-  XPathContext context,
-  XPathSequence k1Seq,
-  XPathSequence k2Seq,
-) {
-  final k1 = k1Seq.toAtomicValue();
-  final k2 = k2Seq.toAtomicValue();
-  // TODO: Handle timezone, etc.
-  if (k1 is num && k1.isNaN && k2 is num && k2.isNaN) {
-    return XPathSequence.trueSequence;
-  }
-  return XPathSequence.single(k1 == k2);
-}
-
 XPathMap _defaultMapMergeOptions(XPathContext context) => const {};
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-merge

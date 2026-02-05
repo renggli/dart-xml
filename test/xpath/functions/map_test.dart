@@ -1,6 +1,7 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/functions/map.dart';
+
 import 'package:xml/src/xpath/types/string.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
@@ -9,29 +10,6 @@ final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
 final context = XPathContext(document);
 
 void main() {
-  test('op:same-key', () {
-    expect(
-      opSameKey(context, [
-        const XPathSequence.single('a'),
-        const XPathSequence.single('a'),
-      ]),
-      XPathSequence.trueSequence,
-    );
-    expect(
-      opSameKey(context, [
-        const XPathSequence.single(double.nan),
-        const XPathSequence.single(double.nan),
-      ]),
-      XPathSequence.trueSequence,
-    );
-    expect(
-      opSameKey(context, [
-        const XPathSequence.single('a'),
-        const XPathSequence.single('b'),
-      ]),
-      XPathSequence.falseSequence,
-    );
-  });
   test('map:merge', () {
     final map1 = {'a': 1, 'b': 2};
     final map2 = {'b': 3, 'c': 4};

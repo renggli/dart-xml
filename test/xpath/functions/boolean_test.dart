@@ -1,6 +1,7 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/functions/boolean.dart';
+
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -11,54 +12,6 @@ final context = XPathContext(document);
 
 void main() {
   group('boolean', () {
-    test('op:boolean-equal', () {
-      expect(
-        opBooleanEqual(context, [
-          XPathSequence.trueSequence,
-          XPathSequence.trueSequence,
-        ]),
-        [true],
-      );
-      expect(
-        opBooleanEqual(context, [
-          XPathSequence.trueSequence,
-          XPathSequence.falseSequence,
-        ]),
-        [false],
-      );
-    });
-    test('op:boolean-less-than', () {
-      expect(
-        opBooleanLessThan(context, [
-          XPathSequence.falseSequence,
-          XPathSequence.trueSequence,
-        ]),
-        [true],
-      );
-      expect(
-        opBooleanLessThan(context, [
-          XPathSequence.trueSequence,
-          XPathSequence.trueSequence,
-        ]),
-        [false],
-      );
-    });
-    test('op:boolean-greater-than', () {
-      expect(
-        opBooleanGreaterThan(context, [
-          XPathSequence.trueSequence,
-          XPathSequence.falseSequence,
-        ]),
-        [true],
-      );
-      expect(
-        opBooleanGreaterThan(context, [
-          XPathSequence.falseSequence,
-          XPathSequence.trueSequence,
-        ]),
-        [false],
-      );
-    });
     test('fn:boolean', () {
       expect(
         fnBoolean(context, [const XPathSequence.single(true)]),
@@ -148,48 +101,6 @@ void main() {
         final start = xml.findAllElements('para').first;
         expectEvaluate(start, 'lang("en")', [false]);
       }
-    });
-    test('<', () {
-      expectEvaluate(xml, '1 < 2', [isTrue]);
-      expectEvaluate(xml, '2 < 2', [isFalse]);
-      expectEvaluate(xml, '2 < 1', [isFalse]);
-    });
-    test('<=', () {
-      expectEvaluate(xml, '1 <= 2', [isTrue]);
-      expectEvaluate(xml, '2 <= 2', [isTrue]);
-      expectEvaluate(xml, '2 <= 1', [isFalse]);
-    });
-    test('>', () {
-      expectEvaluate(xml, '1 > 2', [isFalse]);
-      expectEvaluate(xml, '2 > 2', [isFalse]);
-      expectEvaluate(xml, '2 > 1', [isTrue]);
-    });
-    test('>=', () {
-      expectEvaluate(xml, '1 >= 2', [isFalse]);
-      expectEvaluate(xml, '2 >= 2', [isTrue]);
-      expectEvaluate(xml, '2 >= 1', [isTrue]);
-    });
-    test('=', () {
-      expectEvaluate(xml, '1 = 2', [isFalse]);
-      expectEvaluate(xml, '2 = 2', [isTrue]);
-      expectEvaluate(xml, '2 = 1', [isFalse]);
-    });
-    test('!=', () {
-      expectEvaluate(xml, '1 != 2', [isTrue]);
-      expectEvaluate(xml, '2 != 2', [isFalse]);
-      expectEvaluate(xml, '2 != 1', [isTrue]);
-    });
-    test('and', () {
-      expectEvaluate(xml, 'true() and true()', [isTrue]);
-      expectEvaluate(xml, 'true() and false()', [isFalse]);
-      expectEvaluate(xml, 'false() and true()', [isFalse]);
-      expectEvaluate(xml, 'false() and false()', [isFalse]);
-    });
-    test('or', () {
-      expectEvaluate(xml, 'true() or true()', [isTrue]);
-      expectEvaluate(xml, 'true() or false()', [isTrue]);
-      expectEvaluate(xml, 'false() or true()', [isTrue]);
-      expectEvaluate(xml, 'false() or false()', [isFalse]);
     });
   });
 }

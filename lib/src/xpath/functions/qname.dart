@@ -141,38 +141,6 @@ XPathSequence _fnNamespaceUriFromQName(
   return XPathSequence.empty;
 }
 
-/// https://www.w3.org/TR/xpath-functions-31/#func-QName-equal
-const opQNameEqual = XPathFunctionDefinition(
-  namespace: 'op',
-  name: 'QName-equal',
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg1',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-    XPathArgumentDefinition(
-      name: 'arg2',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-  ],
-  function: _opQNameEqual,
-);
-
-XPathSequence _opQNameEqual(
-  XPathContext context,
-  XPathSequence? arg1,
-  XPathSequence? arg2,
-) {
-  if (arg1 == null || arg2 == null || arg1.isEmpty || arg2.isEmpty) {
-    return XPathSequence.empty;
-  }
-  final val1 = arg1.first;
-  final val2 = arg2.first;
-  return XPathSequence.single(val1 == val2);
-}
-
 /// https://www.w3.org/TR/xpath-functions-31/#func-namespace-uri-for-prefix
 const fnNamespaceUriForPrefix = XPathFunctionDefinition(
   namespace: 'fn',

@@ -1,5 +1,5 @@
 import '../../xml/extensions/ancestors.dart';
-import '../../xml/extensions/comparison.dart';
+
 import '../../xml/extensions/parent.dart';
 import '../../xml/mixins/has_children.dart';
 import '../../xml/mixins/has_name.dart';
@@ -212,97 +212,4 @@ XPathSequence _fnPath(XPathContext context, [XPathNode? arg]) {
     return XPathSequence.single(node.xpathGenerate());
   }
   return XPathSequence.empty;
-}
-
-/// https://www.w3.org/TR/xpath-31/#combining_seq
-const opUnion = XPathFunctionDefinition(
-  namespace: 'op',
-  name: 'union',
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg1',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
-    ),
-    XPathArgumentDefinition(
-      name: 'arg2',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
-    ),
-  ],
-  function: _opUnion,
-);
-
-XPathSequence _opUnion(
-  XPathContext context,
-  XPathSequence arg1,
-  XPathSequence arg2,
-) => _nodeSetOperation(arg1, arg2, (a, b) => a.union(b));
-
-/// https://www.w3.org/TR/xpath-31/#combining_seq
-const opIntersect = XPathFunctionDefinition(
-  namespace: 'op',
-  name: 'intersect',
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg1',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
-    ),
-    XPathArgumentDefinition(
-      name: 'arg2',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
-    ),
-  ],
-  function: _opIntersect,
-);
-
-XPathSequence _opIntersect(
-  XPathContext context,
-  XPathSequence arg1,
-  XPathSequence arg2,
-) => _nodeSetOperation(arg1, arg2, (a, b) => a.intersection(b));
-
-/// https://www.w3.org/TR/xpath-31/#combining_seq
-const opExcept = XPathFunctionDefinition(
-  namespace: 'op',
-  name: 'except',
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg1',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
-    ),
-    XPathArgumentDefinition(
-      name: 'arg2',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
-    ),
-  ],
-  function: _opExcept,
-);
-
-XPathSequence _opExcept(
-  XPathContext context,
-  XPathSequence arg1,
-  XPathSequence arg2,
-) => _nodeSetOperation(arg1, arg2, (a, b) => a.difference(b));
-
-XPathSequence _nodeSetOperation(
-  XPathSequence arg1Seq,
-  XPathSequence arg2Seq,
-  Set<XmlNode> Function(Set<XmlNode>, Set<XmlNode>) operation,
-) {
-  final arg1 = arg1Seq
-      .map((item) => item.toXPathNode())
-      .whereType<XmlNode>()
-      .toSet();
-  final arg2 = arg2Seq
-      .map((item) => item.toXPathNode())
-      .whereType<XmlNode>()
-      .toSet();
-  final result = operation(arg1, arg2).toList();
-  result.sort((a, b) => a.compareNodePosition(b));
-  return XPathSequence(result);
 }

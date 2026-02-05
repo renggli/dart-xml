@@ -1,6 +1,5 @@
 import '../functions/accessor.dart' as accessor;
 import '../functions/array.dart' as array;
-import '../functions/binary.dart' as binary;
 import '../functions/boolean.dart' as boolean;
 import '../functions/constructors.dart' as constructors;
 import '../functions/context.dart' as context_func;
@@ -11,7 +10,6 @@ import '../functions/higher_order.dart' as higher_order;
 import '../functions/json.dart' as json;
 import '../functions/map.dart' as map;
 import '../functions/node.dart' as node;
-import '../functions/notation.dart' as notation;
 import '../functions/number.dart' as number;
 import '../functions/qname.dart' as qname;
 import '../functions/sequence.dart' as sequence;
@@ -52,35 +50,12 @@ final Map<String, XPathFunction> standardFunctions = {
   'Q{$xpathArrayNamespace}sort': array.arraySort.call,
   'Q{$xpathArrayNamespace}flatten': array.arrayFlatten.call,
 
-  // Binary (op namespace is usually internal or specific, we treat it as fn or direct key.
-  // However, op: functions are usually not called directly by users but via operators.
-  // We keep them as is or map them to fn if they are exposed as fn.
-  // Actually, many "op:" functions are internal. The test suite uses "fn" or no prefix.
-  // The spec says e.g. "op:hexBinary-equal". These are NOT in the fn namespace.
-  // Users cannot call "op:..." directly unless "op" is bound.
-  // For the purpose of standard library, we might not need to export "op:" ones in this map
-  // if they are only used by StaticFunctionExpression via object reference.
-  // But removing them breaks backward compatibility if someone was relying on string lookup.
-  // Let's assume standard functions exposed to users are fn/map/math/array/xs.
-  // We will leave "op:..." keys as string literals for now or map them to fn?
-  // No, op: is not fn. We'll leave them as just string keys for legacy lookup or internal use.
-  // Wait, "true" and "false" are fn:true.
-  'op:hexBinary-equal': binary.opHexBinaryEqual.call,
-  'op:hexBinary-less-than': binary.opHexBinaryLessThan.call,
-  'op:hexBinary-greater-than': binary.opHexBinaryGreaterThan.call,
-  'op:base64Binary-equal': binary.opBase64BinaryEqual.call,
-  'op:base64Binary-less-than': binary.opBase64BinaryLessThan.call,
-  'op:base64Binary-greater-than': binary.opBase64BinaryGreaterThan.call,
-
   // Boolean
   'Q{$xpathFnNamespace}true': boolean.fnTrue.call,
   'Q{$xpathFnNamespace}false': boolean.fnFalse.call,
   'Q{$xpathFnNamespace}boolean': boolean.fnBoolean.call,
   'Q{$xpathFnNamespace}not': boolean.fnNot.call,
   'Q{$xpathFnNamespace}lang': boolean.fnLang.call,
-  'op:boolean-equal': boolean.opBooleanEqual.call,
-  'op:boolean-less-than': boolean.opBooleanLessThan.call,
-  'op:boolean-greater-than': boolean.opBooleanGreaterThan.call,
 
   // Context
   'Q{$xpathFnNamespace}position': context_func.fnPosition.call,
@@ -124,36 +99,6 @@ final Map<String, XPathFunction> standardFunctions = {
   'Q{$xpathFnNamespace}format-time': date_time.fnFormatTime.call,
   'Q{$xpathFnNamespace}parse-ietf-date': date_time.fnParseIetfDate.call,
 
-  // Ops
-  'op:dateTime-equal': date_time.opDateTimeEqual.call,
-  'op:dateTime-less-than': date_time.opDateTimeLessThan.call,
-  'op:dateTime-greater-than': date_time.opDateTimeGreaterThan.call,
-  'op:date-equal': date_time.opDateEqual.call,
-  'op:date-less-than': date_time.opDateLessThan.call,
-  'op:date-greater-than': date_time.opDateGreaterThan.call,
-  'op:time-equal': date_time.opTimeEqual.call,
-  'op:time-less-than': date_time.opTimeLessThan.call,
-  'op:time-greater-than': date_time.opTimeGreaterThan.call,
-  'op:subtract-dateTimes': date_time.opSubtractDateTimes.call,
-  'op:subtract-dates': date_time.opSubtractDates.call,
-  'op:subtract-times': date_time.opSubtractTimes.call,
-  'op:add-yearMonthDuration-to-dateTime':
-      date_time.opAddDurationToDateTime.call,
-  'op:add-dayTimeDuration-to-dateTime': date_time.opAddDurationToDateTime.call,
-  'op:subtract-yearMonthDuration-from-dateTime':
-      date_time.opSubtractDurationFromDateTime.call,
-  'op:subtract-dayTimeDuration-from-dateTime':
-      date_time.opSubtractDurationFromDateTime.call,
-  'op:add-yearMonthDuration-to-date': date_time.opAddDurationToDateTime.call,
-  'op:add-dayTimeDuration-to-date': date_time.opAddDurationToDateTime.call,
-  'op:subtract-yearMonthDuration-from-date':
-      date_time.opSubtractDurationFromDateTime.call,
-  'op:subtract-dayTimeDuration-from-date':
-      date_time.opSubtractDurationFromDateTime.call,
-  'op:add-dayTimeDuration-to-time': date_time.opAddDurationToDateTime.call,
-  'op:subtract-dayTimeDuration-from-time':
-      date_time.opSubtractDurationFromDateTime.call,
-
   // Duration
   'Q{$xpathFnNamespace}years-from-duration': duration.fnYearsFromDuration.call,
   'Q{$xpathFnNamespace}months-from-duration':
@@ -164,25 +109,6 @@ final Map<String, XPathFunction> standardFunctions = {
       duration.fnMinutesFromDuration.call,
   'Q{$xpathFnNamespace}seconds-from-duration':
       duration.fnSecondsFromDuration.call,
-
-  'op:yearMonthDuration-less-than': duration.opYearMonthDurationLessThan.call,
-  'op:yearMonthDuration-greater-than':
-      duration.opYearMonthDurationGreaterThan.call,
-  'op:dayTimeDuration-less-than': duration.opDayTimeDurationLessThan.call,
-  'op:dayTimeDuration-greater-than': duration.opDayTimeDurationGreaterThan.call,
-  'op:duration-equal': duration.opDurationEqual.call,
-  'op:add-yearMonthDurations': duration.opAddYearMonthDurations.call,
-  'op:subtract-yearMonthDurations': duration.opSubtractYearMonthDurations.call,
-  'op:multiply-yearMonthDuration': duration.opMultiplyYearMonthDuration.call,
-  'op:divide-yearMonthDuration': duration.opDivideYearMonthDuration.call,
-  'op:divide-yearMonthDuration-by-yearMonthDuration':
-      duration.opDivideYearMonthDurationByYearMonthDuration.call,
-  'op:add-dayTimeDurations': duration.opAddDayTimeDurations.call,
-  'op:subtract-dayTimeDurations': duration.opSubtractDayTimeDurations.call,
-  'op:multiply-dayTimeDuration': duration.opMultiplyDayTimeDuration.call,
-  'op:divide-dayTimeDuration': duration.opDivideDayTimeDuration.call,
-  'op:divide-dayTimeDuration-by-dayTimeDuration':
-      duration.opDivideDayTimeDurationByDayTimeDuration.call,
 
   // Error
   'Q{$xpathFnNamespace}error': error.fnError.call,
@@ -210,7 +136,6 @@ final Map<String, XPathFunction> standardFunctions = {
   'Q{$xpathFnNamespace}xml-to-json': json.fnXmlToJson.call,
 
   // Maps
-  'op:same-key': map.opSameKey.call,
   'Q{$xpathMapNamespace}merge': map.mapMerge.call,
   'Q{$xpathMapNamespace}size': map.mapSize.call,
   'Q{$xpathMapNamespace}keys': map.mapKeys.call,
@@ -231,25 +156,8 @@ final Map<String, XPathFunction> standardFunctions = {
   'Q{$xpathFnNamespace}has-children': node.fnHasChildren.call,
   'Q{$xpathFnNamespace}innermost': node.fnInnermost.call,
   'Q{$xpathFnNamespace}outermost': node.fnOutermost.call,
-  'op:union': node.opUnion.call,
-  'op:intersect': node.opIntersect.call,
-  'op:except': node.opExcept.call,
 
-  // Notation
-  'op:NOTATION-equal': notation.opNotationEqual.call,
-
-  // Number
-  'op:numeric-add': number.opNumericAdd.call,
-  'op:numeric-subtract': number.opNumericSubtract.call,
-  'op:numeric-multiply': number.opNumericMultiply.call,
-  'op:numeric-divide': number.opNumericDivide.call,
-  'op:numeric-integer-divide': number.opNumericIntegerDivide.call,
-  'op:numeric-mod': number.opNumericMod.call,
-  'op:numeric-unary-plus': number.opNumericUnaryPlus.call,
-  'op:numeric-unary-minus': number.opNumericUnaryMinus.call,
-  'op:numeric-equal': number.opNumericEqual.call,
-  'op:numeric-less-than': number.opNumericLessThan.call,
-  'op:numeric-greater-than': number.opNumericGreaterThan.call,
+  // Numeric functions
   'Q{$xpathFnNamespace}abs': number.fnAbs.call,
   'Q{$xpathFnNamespace}ceiling': number.fnCeiling.call,
   'Q{$xpathFnNamespace}floor': number.fnFloor.call,
@@ -278,7 +186,7 @@ final Map<String, XPathFunction> standardFunctions = {
   // QName
   'Q{$xpathFnNamespace}resolve-QName': qname.fnResolveQName.call,
   'Q{$xpathFnNamespace}QName': qname.fnQName.call,
-  'op:QName-equal': qname.opQNameEqual.call,
+
   'Q{$xpathFnNamespace}prefix-from-QName': qname.fnPrefixFromQName.call,
   'Q{$xpathFnNamespace}local-name-from-QName': qname.fnLocalNameFromQName.call,
   'Q{$xpathFnNamespace}namespace-uri-from-QName':
