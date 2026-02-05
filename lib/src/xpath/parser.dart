@@ -20,6 +20,7 @@ import 'expressions/variable.dart';
 import 'functions/general.dart' as general;
 import 'functions/node.dart' as nodes;
 import 'functions/number.dart' as number;
+import 'functions/value_comparison.dart' as value_comparison;
 import 'types/sequence.dart';
 import 'types/string.dart';
 
@@ -340,13 +341,13 @@ class XPathParser {
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ValueComp
   Parser<XPathFunction> valueComp() => [
-    token('eq'),
-    token('ne'),
-    token('lt'),
-    token('le'),
-    token('gt'),
-    token('ge'),
-  ].toChoiceParser().map((op) => _unimplemented('ValueComp', op));
+    token('eq').map((_) => value_comparison.opValueEqual),
+    token('ne').map((_) => value_comparison.opValueNotEqual),
+    token('lt').map((_) => value_comparison.opValueLessThan),
+    token('le').map((_) => value_comparison.opValueLessThanOrEqual),
+    token('gt').map((_) => value_comparison.opValueGreaterThan),
+    token('ge').map((_) => value_comparison.opValueGreaterThanOrEqual),
+  ].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-30/#prod-xpath30-NodeComp
   Parser<XPathFunction> nodeComp() => [

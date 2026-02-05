@@ -15,6 +15,8 @@ extension XPathBooleanExtension on Object {
     } else if (self is XPathNumber) {
       return self != 0 && !self.isNaN;
     } else if (self is XPathString) {
+      if (self == 'true') return true;
+      if (self == 'false') return false;
       return self.isNotEmpty;
     } else if (self is XPathNode) {
       return true;

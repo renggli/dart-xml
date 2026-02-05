@@ -18,6 +18,14 @@ class XPathContext {
     this.variables = const {},
     this.functions = const {},
     this.documents = const {},
+    this.namespaces = const {
+      'xml': 'http://www.w3.org/XML/1998/namespace',
+      'fn': 'http://www.w3.org/2005/xpath-functions',
+      'math': 'http://www.w3.org/2005/xpath-functions/math',
+      'map': 'http://www.w3.org/2005/xpath-functions/map',
+      'array': 'http://www.w3.org/2005/xpath-functions/array',
+      'xs': 'http://www.w3.org/2001/XMLSchema',
+    },
     this.onTraceCallback,
   });
 
@@ -34,7 +42,31 @@ class XPathContext {
   XPathSequence? getVariable(String name) => variables[name];
 
   /// Looks up a XPath function with the given [name].
-  Object? getFunction(String name) => functions[name];
+  Object? getFunction(String name) {
+    if (name.startsWith('Q{')) {
+      final end = name.indexOf('}');
+      if (end != -1) return functions[name];
+    }
+    final index = name.indexOf(':');
+    if (index != -1) {
+      final prefix = name.substring(0, index);
+      final local = name.substring(index + 1);
+      final uri = namespaces[prefix];
+      if (uri != null) {
+        final key = 'Q{$uri}$local';
+        if (functions.containsKey(key)) return functions[key];
+      }
+      if (functions.containsKey(name)) return functions[name];
+    } else {
+      // Default function namespace logic could go here, for now assuming fn:
+      const defaultUri = 'http://www.w3.org/2005/xpath-functions';
+      final key = 'Q{$defaultUri}$name';
+      if (functions.containsKey(key)) return functions[key];
+      // Fallback for unprefixed legacy keys (if any)
+      if (functions.containsKey(name)) return functions[name];
+    }
+    return null;
+  }
 
   /// User-defined variables.
   final Map<String, XPathSequence> variables;
@@ -45,6 +77,9 @@ class XPathContext {
   /// Available documents.
   final Map<String, XmlNode> documents;
 
+  /// Available namespaces.
+  final Map<String, String> namespaces;
+
   /// Callback to trace evaluation.
   final XPathTraceCallback? onTraceCallback;
 
@@ -53,6 +88,7 @@ class XPathContext {
     Map<String, XPathSequence>? variables,
     Map<String, Object>? functions,
     Map<String, XmlNode>? documents,
+    Map<String, String>? namespaces,
     XPathTraceCallback? onTraceCallback,
   }) => XPathContext(
     item,
@@ -61,6 +97,7 @@ class XPathContext {
     variables: variables ?? this.variables,
     functions: functions ?? this.functions,
     documents: documents ?? this.documents,
+    namespaces: namespaces ?? this.namespaces,
     onTraceCallback: onTraceCallback ?? this.onTraceCallback,
   );
 
