@@ -1,8 +1,21 @@
+import '../evaluation/definition.dart';
 import '../exceptions/evaluation_exception.dart';
 import 'item.dart';
 import 'sequence.dart';
 
+const xsMap = XPathMapType();
+
 typedef XPathMap = Map<XPathItem, XPathItem>;
+
+class XPathMapType extends XPathItemType {
+  const XPathMapType();
+
+  @override
+  bool matches(Object item) => item is XPathMap;
+
+  @override
+  XPathSequence cast(Object item) => item.toXPathMap().toXPathSequence();
+}
 
 extension XPathMapExtension on Object {
   XPathMap toXPathMap() {

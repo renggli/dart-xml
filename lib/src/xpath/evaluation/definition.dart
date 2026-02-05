@@ -1,4 +1,5 @@
 import '../exceptions/evaluation_exception.dart';
+import '../expressions/node_test.dart';
 import '../types/array.dart';
 import '../types/binary.dart';
 import '../types/boolean.dart';
@@ -13,6 +14,90 @@ import '../types/string.dart';
 import 'context.dart';
 
 export 'package:petitparser/petitparser.dart' show unbounded;
+
+/// Definition of an XPath type.
+abstract class XPathTypeDefinition {
+  const XPathTypeDefinition();
+
+  /// Returns `true` if the [sequence] matches this type.
+  bool matches(XPathSequence sequence);
+}
+
+/// A sequence type.
+class XPathSequenceType extends XPathTypeDefinition {
+  const XPathSequenceType(
+    this.itemType, {
+    this.cardinality = XPathArgumentCardinality.exactlyOne,
+  });
+
+  final XPathItemType itemType;
+
+  final XPathArgumentCardinality cardinality;
+
+  @override
+  bool matches(XPathSequence sequence) {
+    if (sequence.isEmpty) {
+      return cardinality == XPathArgumentCardinality.zeroOrOne ||
+          cardinality == XPathArgumentCardinality.zeroOrMore;
+    }
+    if (sequence.length > 1) {
+      if (cardinality == XPathArgumentCardinality.exactlyOne ||
+          cardinality == XPathArgumentCardinality.zeroOrOne) {
+        return false;
+      }
+    }
+    for (final item in sequence) {
+      if (!itemType.matches(item)) {
+        return false;
+      }
+    }
+    return true;
+  }
+}
+
+/// An item type.
+abstract class XPathItemType {
+  const XPathItemType();
+
+  /// Returns `true` if the [item] matches this type.
+  bool matches(Object item);
+
+  /// Casts the [item] to this type.
+  XPathSequence cast(Object item) {
+    if (matches(item)) return XPathSequence.single(item);
+    throw XPathEvaluationException('Cannot cast $item to $this');
+  }
+}
+
+/// An empty sequence type.
+class XPathEmptySequenceType extends XPathSequenceType {
+  const XPathEmptySequenceType()
+    : super(
+        const XPathAnyItemType(),
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      );
+
+  @override
+  bool matches(XPathSequence sequence) => sequence.isEmpty;
+}
+
+/// An item type that matches anything.
+class XPathAnyItemType extends XPathItemType {
+  const XPathAnyItemType();
+
+  @override
+  bool matches(Object item) => true;
+}
+
+/// An item type that matches a specific node.
+class XPathNodeTestItemType extends XPathItemType {
+  const XPathNodeTestItemType(this.nodeTest);
+
+  final NodeTest nodeTest;
+
+  @override
+  bool matches(Object item) => item is XPathNode && nodeTest.matches(item);
+}
 
 /// Definition of an XPath function.
 class XPathFunctionDefinition {

@@ -3,16 +3,41 @@ import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 
+import '../evaluation/definition.dart';
 import '../exceptions/evaluation_exception.dart';
 import 'sequence.dart';
 import 'string.dart';
+
+const xsBase64Binary = XPathBase64BinaryType();
+const xsHexBinary = XPathHexBinaryType();
 
 class XPathBase64Binary extends DelegatingList<int> {
   XPathBase64Binary(Uint8List super.base);
 }
 
+class XPathBase64BinaryType extends XPathItemType {
+  const XPathBase64BinaryType();
+
+  @override
+  bool matches(Object item) => item is XPathBase64Binary;
+
+  @override
+  XPathSequence cast(Object item) =>
+      item.toXPathBase64Binary().toXPathSequence();
+}
+
 class XPathHexBinary extends DelegatingList<int> {
   XPathHexBinary(Uint8List super.base);
+}
+
+class XPathHexBinaryType extends XPathItemType {
+  const XPathHexBinaryType();
+
+  @override
+  bool matches(Object item) => item is XPathHexBinary;
+
+  @override
+  XPathSequence cast(Object item) => item.toXPathHexBinary().toXPathSequence();
 }
 
 extension XPathBinaryExtension on Object {

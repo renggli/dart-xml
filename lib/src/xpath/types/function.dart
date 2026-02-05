@@ -1,4 +1,5 @@
 import '../evaluation/context.dart';
+import '../evaluation/definition.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../functions/array.dart';
 import '../functions/map.dart';
@@ -6,8 +7,20 @@ import 'array.dart';
 import 'map.dart';
 import 'sequence.dart';
 
+const xsFunction = XPathFunctionType();
+
 typedef XPathFunction =
     XPathSequence Function(XPathContext context, List<XPathSequence> arguments);
+
+class XPathFunctionType extends XPathItemType {
+  const XPathFunctionType();
+
+  @override
+  bool matches(Object item) => item is XPathFunction;
+
+  @override
+  XPathSequence cast(Object item) => item.toXPathFunction().toXPathSequence();
+}
 
 extension XPathFunctionExtension on Object {
   XPathFunction toXPathFunction() {

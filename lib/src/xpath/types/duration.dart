@@ -1,8 +1,21 @@
+import '../evaluation/definition.dart';
 import '../exceptions/evaluation_exception.dart';
 import 'sequence.dart';
 import 'string.dart';
 
+const xsDuration = XPathDurationType();
+
 typedef XPathDuration = Duration;
+
+class XPathDurationType extends XPathItemType {
+  const XPathDurationType();
+
+  @override
+  bool matches(Object item) => item is XPathDuration;
+
+  @override
+  XPathSequence cast(Object item) => item.toXPathDuration().toXPathSequence();
+}
 
 extension XPathDurationExtension on Object {
   XPathDuration toXPathDuration() {

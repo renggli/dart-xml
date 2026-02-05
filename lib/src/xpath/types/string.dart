@@ -4,12 +4,25 @@ import '../../xml/nodes/document.dart';
 import '../../xml/nodes/element.dart';
 import '../../xml/nodes/node.dart';
 import '../../xml/nodes/text.dart';
+import '../evaluation/definition.dart';
 import '../exceptions/evaluation_exception.dart';
 import 'binary.dart';
 import 'boolean.dart';
 import 'sequence.dart';
 
+const xsString = XPathStringType();
+
 typedef XPathString = String;
+
+class XPathStringType extends XPathItemType {
+  const XPathStringType();
+
+  @override
+  bool matches(Object item) => item is XPathString;
+
+  @override
+  XPathSequence cast(Object item) => item.toXPathString().toXPathSequence();
+}
 
 extension XPathStringExtension on Object {
   XPathString toXPathString() {

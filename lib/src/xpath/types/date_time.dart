@@ -1,8 +1,21 @@
+import '../evaluation/definition.dart';
 import '../exceptions/evaluation_exception.dart';
 import 'sequence.dart';
 import 'string.dart';
 
+const xsDateTime = XPathDateTimeType();
+
 typedef XPathDateTime = DateTime;
+
+class XPathDateTimeType extends XPathItemType {
+  const XPathDateTimeType();
+
+  @override
+  bool matches(Object item) => item is XPathDateTime;
+
+  @override
+  XPathSequence cast(Object item) => item.toXPathDateTime().toXPathSequence();
+}
 
 extension XPathDateTimeExtension on Object {
   XPathDateTime toXPathDateTime() {

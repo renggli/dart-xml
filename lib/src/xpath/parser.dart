@@ -3,8 +3,10 @@ import 'package:petitparser/parser.dart';
 
 import '../xml/entities/null_mapping.dart';
 import '../xml_events/parser.dart';
+import 'evaluation/definition.dart';
 import 'evaluation/expression.dart';
 import 'evaluation/operators.dart';
+import 'evaluation/types.dart';
 import 'expressions/axis.dart';
 import 'expressions/constructors.dart';
 import 'expressions/function.dart';
@@ -17,11 +19,14 @@ import 'expressions/sequence.dart';
 import 'expressions/statement.dart';
 import 'expressions/step.dart';
 import 'expressions/string_concat.dart';
+import 'expressions/types.dart';
 import 'expressions/variable.dart';
 import 'operators/arithmetic.dart' as arithmetic;
 import 'operators/comparison.dart' as comparison;
 import 'operators/general.dart' as general;
 import 'operators/node.dart' as nodes;
+import 'types/array.dart';
+import 'types/map.dart';
 import 'types/sequence.dart';
 import 'types/string.dart';
 
@@ -279,19 +284,26 @@ class XPathParser {
       });
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-InstanceofExpr
-  Parser<XPathExpression> instanceofExpr() => ref0(treatExpr)
-      .plusSeparated(token('instance of'))
-      .map(
-        (list) => list.elements.length == 1
-            ? list.elements.first
-            : _unimplemented('InstanceofExpr'),
+  Parser<XPathExpression> instanceofExpr() =>
+      seq2(
+        ref0(treatExpr),
+        seq2(token('instance of'), ref0(sequenceType)).optional(),
+      ).map(
+        (tuple) => tuple.$2 == null
+            ? tuple.$1
+            : InstanceofExpression(tuple.$1, tuple.$2!.$2),
       );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-TreatExpr
-  Parser<XPathExpression> treatExpr() => seq2(
-    ref0(castableExpr),
-    seq2(token('treat as'), ref0(sequenceType)).optional(),
-  ).map((tuple) => tuple.$2 == null ? tuple.$1 : _unimplemented('TreatExpr'));
+  Parser<XPathExpression> treatExpr() =>
+      seq2(
+        ref0(castableExpr),
+        seq2(token('treat as'), ref0(sequenceType)).optional(),
+      ).map(
+        (tuple) => tuple.$2 == null
+            ? tuple.$1
+            : TreatExpression(tuple.$1, tuple.$2!.$2),
+      );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-CastableExpr
   Parser<XPathExpression> castableExpr() =>
@@ -299,14 +311,21 @@ class XPathParser {
         ref0(castExpr),
         seq2(token('castable as'), ref0(singleType)).optional(),
       ).map(
-        (tuple) => tuple.$2 == null ? tuple.$1 : _unimplemented('CastableExpr'),
+        (tuple) => tuple.$2 == null
+            ? tuple.$1
+            : CastableExpression(tuple.$1, tuple.$2!.$2),
       );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-CastExpr
-  Parser<XPathExpression> castExpr() => seq2(
-    ref0(arrowExpr),
-    seq2(token('cast as'), ref0(singleType)).optional(),
-  ).map((tuple) => tuple.$2 == null ? tuple.$1 : _unimplemented('CastExpr'));
+  Parser<XPathExpression> castExpr() =>
+      seq2(
+        ref0(arrowExpr),
+        seq2(token('cast as'), ref0(singleType)).optional(),
+      ).map(
+        (tuple) => tuple.$2 == null
+            ? tuple.$1
+            : CastExpression(tuple.$1, tuple.$2!.$2),
+      );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ArrowExpr
   Parser<XPathExpression> arrowExpr() => seq2(
@@ -734,7 +753,132 @@ class XPathParser {
   // https://www.w3.org/TR/xpath-30/#prod-xpath30-TypeDeclaration
   Parser<void> typeDeclaration() => seq2(token('as'), ref0(sequenceType));
 
+  // https://www.w3.org/TR/xpath-31/#doc-xpath31-ArrayTest
+  Parser<XPathItemType> arrayTest() =>
+      [ref0(anyArrayTest), ref0(typedArrayTest)].toChoiceParser();
+
+  // https://www.w3.org/TR/xpath-31/#doc-xpath31-AnyArrayTest
+  Parser<XPathItemType> anyArrayTest() => seq3(
+    token('array'),
+    token('('),
+    token('*'),
+  ).skip(after: token(')')).constant(xsArray);
+
+  // https://www.w3.org/TR/xpath-31/#doc-xpath31-TypedArrayTest
+  Parser<XPathItemType> typedArrayTest() => seq4(
+    token('array'),
+    token('('),
+    ref0(sequenceType),
+    token(')'),
+  ).constant(xsArray); // For now treat typed arrays as generic arrays
+
+  // https://www.w3.org/TR/xpath-31/#doc-xpath31-ParenthesizedItemType
+  Parser<XPathItemType> parenthesizedItemType() =>
+      ref0(itemType).skip(before: token('('), after: token(')'));
+
+  // https://www.w3.org/TR/xpath-31/#doc-xpath31-SingleType
+  Parser<XPathSequenceType> singleType() =>
+      seq2(ref0(atomicOrUnionType), token('?').optional()).map2(
+        (type, opt) => XPathSequenceType(
+          type,
+          cardinality: opt == null
+              ? XPathArgumentCardinality.exactlyOne
+              : XPathArgumentCardinality.zeroOrOne,
+        ),
+      );
+
+  // https://www.w3.org/TR/xpath-31/#doc-xpath31-TypeName
+  Parser<String> typeName() => ref0(eqName);
+
+  // https://www.w3.org/TR/xpath-31/#doc-xpath31-EQName
+  Parser<String> eqName() =>
+      [ref0(qName), ref0(uriQualifiedName)].toChoiceParser();
+
+  // https://www.w3.org/TR/xpath-31/#doc-xpath31-QName
+  Parser<String> qName() => ref0(qualifiedName);
+
+  // https://www.w3.org/TR/xpath-31/#doc-xpath31-URIQualifiedName
+  Parser<String> uriQualifiedName() => seq2(
+    ref0(bracedUriLiteral),
+    ref0(ncName),
+  ).map2((uri, name) => 'Q{$uri}$name');
+
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-SequenceType
+  Parser<XPathSequenceType> sequenceType() => [
+    token('empty-sequence()').constant(const XPathEmptySequenceType()),
+    seq2(ref0(itemType), ref0(occurrenceIndicator).optional()).map2(
+      (type, occurrence) => XPathSequenceType(
+        type,
+        cardinality: occurrence ?? XPathArgumentCardinality.exactlyOne,
+      ),
+    ),
+  ].toChoiceParser();
+
+  // https://www.w3.org/TR/xpath-31/#doc-xpath31-OccurrenceIndicator
+  Parser<XPathArgumentCardinality> occurrenceIndicator() => [
+    token('?').constant(XPathArgumentCardinality.zeroOrOne),
+    token('*').constant(XPathArgumentCardinality.zeroOrMore),
+    token('+').constant(XPathArgumentCardinality.oneOrMore),
+  ].toChoiceParser();
+
+  // https://www.w3.org/TR/xpath-31/#doc-xpath31-ItemType
+  Parser<XPathItemType> itemType() => [
+    ref0(kindTest).map(XPathNodeTestItemType.new),
+    token('item()').constant(const XPathAnyItemType()),
+    ref0(functionTest),
+    ref0(mapTest),
+    ref0(arrayTest),
+    ref0(atomicOrUnionType),
+    ref0(parenthesizedItemType),
+  ].toChoiceParser();
+
+  // https://www.w3.org/TR/xpath-31/#doc-xpath31-AtomicOrUnionType
+  Parser<XPathItemType> atomicOrUnionType() =>
+      ref0(eqName).map((name) => types[name] ?? xsString);
+
+  // https://www.w3.org/TR/xpath-31/#doc-xpath31-FunctionTest
+  Parser<XPathItemType> functionTest() =>
+      [ref0(anyFunctionTest), ref0(typedFunctionTest)].toChoiceParser();
+
+  // https://www.w3.org/TR/xpath-31/#doc-xpath31-AnyFunctionTest
+  Parser<XPathItemType> anyFunctionTest() => seq3(
+    token('function'),
+    token('('),
+    token('*'),
+  ).skip(after: token(')')).constant(xsFunction);
+
+  // https://www.w3.org/TR/xpath-31/#doc-xpath31-TypedFunctionTest
+  Parser<XPathItemType> typedFunctionTest() => seq4(
+    token('function'),
+    token('('),
+    ref0(sequenceType).starSeparated(token(',')),
+    token(')'),
+  ).seq(seq2(token('as'), ref0(sequenceType))).constant(xsFunction);
+
+  // https://www.w3.org/TR/xpath-31/#doc-xpath31-MapTest
+  Parser<XPathItemType> mapTest() =>
+      [ref0(anyMapTest), ref0(typedMapTest)].toChoiceParser();
+
+  // https://www.w3.org/TR/xpath-31/#doc-xpath31-AnyMapTest
+  Parser<XPathItemType> anyMapTest() => seq3(
+    token('map'),
+    token('('),
+    token('*'),
+  ).skip(after: token(')')).constant(xsMap);
+
+  // https://www.w3.org/TR/xpath-31/#doc-xpath31-TypedMapTest
+  Parser<XPathItemType> typedMapTest() => seq4(
+    token('map'),
+    token('('),
+    seq3(
+      ref0(atomicOrUnionType),
+      token(','),
+      ref0(sequenceType),
+    ), // Key type, comma, value type
+    token(')'),
+  ).constant(xsMap);
+
+  // https://www.w3.org/TR/xpath-31/#doc-xpath31-FunctionBody
   Parser<void> functionBody() => ref0(enclosedExpr);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-EnclosedExpr
@@ -872,66 +1016,6 @@ class XPathParser {
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ElementName
   Parser<String> elementName() => ref0(eqName);
-
-  // https://www.w3.org/TR/xpath-31/#doc-xpath31-TypeName
-  Parser<String> typeName() => ref0(eqName);
-
-  // https://www.w3.org/TR/xpath-31/#doc-xpath31-FunctionTest
-  Parser<void> functionTest() =>
-      [ref0(anyFunctionTest), ref0(typedFunctionTest)].toChoiceParser();
-
-  // https://www.w3.org/TR/xpath-31/#doc-xpath31-AnyFunctionTest
-  Parser<void> anyFunctionTest() => token('function(*)');
-
-  // https://www.w3.org/TR/xpath-31/#doc-xpath31-TypedFunctionTest
-  Parser<void> typedFunctionTest() => seq4(
-    token('function('),
-    ref0(sequenceType).plusSeparated(token(',')).optional(),
-    token(')'),
-    seq2(token('as'), ref0(sequenceType)),
-  );
-
-  // https://www.w3.org/TR/xpath-31/#doc-xpath31-ParenthesizedItemType
-  Parser<void> parenthesizedItemType() =>
-      seq3(token('('), ref0(itemType), token(')'));
-
-  // https://www.w3.org/TR/xpath-31/#doc-xpath31-EQName
-  Parser<String> eqName() =>
-      [ref0(qName), ref0(uriQualifiedName)].toChoiceParser();
-
-  // https://www.w3.org/TR/xpath-31/#doc-xpath31-QName
-  Parser<String> qName() => ref0(qualifiedName);
-
-  // https://www.w3.org/TR/xpath-31/#doc-xpath31-URIQualifiedName
-  Parser<String> uriQualifiedName() => seq2(
-    ref0(bracedUriLiteral),
-    ref0(ncName),
-  ).map2((uri, name) => 'Q{$uri}$name');
-
-  // https://www.w3.org/TR/xpath-31/#doc-xpath31-SequenceType
-  Parser<void> sequenceType() => [
-    token('empty-sequence()'),
-    seq2(ref0(itemType), ref0(occurrenceIndicator).optional()),
-  ].toChoiceParser();
-
-  // https://www.w3.org/TR/xpath-31/#doc-xpath31-OccurrenceIndicator
-  Parser<String> occurrenceIndicator() =>
-      [token('?'), token('*'), token('+')].toChoiceParser();
-
-  // https://www.w3.org/TR/xpath-31/#doc-xpath31-ItemType
-  Parser<void> itemType() => [
-    ref0(kindTest),
-    token('item()'),
-    ref0(functionTest),
-    ref0(atomicOrUnionType),
-    ref0(parenthesizedItemType),
-  ].toChoiceParser();
-
-  // https://www.w3.org/TR/xpath-31/#doc-xpath31-AtomicOrUnionType
-  Parser<String> atomicOrUnionType() => ref0(eqName);
-
-  // https://www.w3.org/TR/xpath-31/#doc-xpath31-SingleType
-  Parser<void> singleType() => seq2(ref0(typeName), token('?').optional());
 
   // Helper
   Parser<String> ncName() => trim(ref0(eventParser.nonColonizedNameToken));

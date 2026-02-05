@@ -175,10 +175,6 @@ void main() {
     // implemented. These tests are supposed to throw an `UnimplementedError`,
     // and not succeed or give a parse failure.
     final cases = {
-      '1 instance of xs:integer': 'InstanceofExpr',
-      '1 treat as xs:integer': 'TreatExpr',
-      '1 castable as xs:integer': 'CastableExpr',
-      '1 cast as xs:integer': 'CastExpr',
       '1 => upper-case()': 'ArrowExpr',
       '1 is 2': 'NodeComp (is)',
       '1 << 2': 'NodeComp (<<)',
