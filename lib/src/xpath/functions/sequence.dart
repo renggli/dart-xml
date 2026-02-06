@@ -1,20 +1,22 @@
 import 'package:collection/collection.dart';
 
+import '../definitions/cardinality.dart';
+import '../definitions/functions.dart';
 import '../evaluation/context.dart';
-import '../evaluation/types.dart';
 import '../exceptions/evaluation_exception.dart';
+import '../types/any.dart';
+import '../types/number.dart';
+import '../types/sequence.dart';
+import '../types/string.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-empty
 const fnEmpty = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'empty',
+  name: 'fn:empty',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   function: _fnEmpty,
@@ -25,15 +27,12 @@ XPathSequence _fnEmpty(XPathContext context, XPathSequence arg) =>
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-exists
 const fnExists = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'exists',
+  name: 'fn:exists',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   function: _fnExists,
@@ -44,15 +43,12 @@ XPathSequence _fnExists(XPathContext context, XPathSequence arg) =>
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-head
 const fnHead = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'head',
+  name: 'fn:head',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   function: _fnHead,
@@ -60,20 +56,17 @@ const fnHead = XPathFunctionDefinition(
 
 XPathSequence _fnHead(XPathContext context, XPathSequence arg) {
   if (arg.isEmpty) return XPathSequence.empty;
-  return arg.first.toXPathSequence();
+  return XPathSequence.single(arg.first);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-tail
 const fnTail = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'tail',
+  name: 'fn:tail',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   function: _fnTail,
@@ -86,23 +79,18 @@ XPathSequence _fnTail(XPathContext context, XPathSequence arg) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-insert-before
 const fnInsertBefore = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'insert-before',
+  name: 'fn:insert-before',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'target',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
     XPathArgumentDefinition(name: 'position', type: xsNumeric),
     XPathArgumentDefinition(
       name: 'inserts',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   function: _fnInsertBefore,
@@ -143,15 +131,12 @@ Iterable<Object> _fnInsertBeforeSync(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-remove
 const fnRemove = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'remove',
+  name: 'fn:remove',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'target',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
     XPathArgumentDefinition(name: 'position', type: xsNumeric),
   ],
@@ -177,15 +162,12 @@ Iterable<Object> _fnRemoveSync(XPathSequence target, num position) sync* {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-reverse
 const fnReverse = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'reverse',
+  name: 'fn:reverse',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   function: _fnReverse,
@@ -196,15 +178,12 @@ XPathSequence _fnReverse(XPathContext context, XPathSequence arg) =>
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-format-integer
 const fnFormatInteger = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'format-integer',
+  name: 'fn:format-integer',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
-      type: XPathSequenceType(
-        xsNumeric,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsNumeric,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
     XPathArgumentDefinition(name: 'picture', type: xsString),
   ],
@@ -227,15 +206,12 @@ XPathSequence _fnFormatInteger(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-format-number
 const fnFormatNumber = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'format-number',
+  name: 'fn:format-number',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
-      type: XPathSequenceType(
-        xsNumeric,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsNumeric,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
     XPathArgumentDefinition(name: 'picture', type: xsString),
   ],
@@ -258,30 +234,27 @@ XPathSequence _fnFormatNumber(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-subsequence
 const fnSubsequence = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'subsequence',
+  name: 'fn:subsequence',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'sourceSeq',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
-    XPathArgumentDefinition(name: 'startingLoc', type: xsNumeric),
+    XPathArgumentDefinition(name: 'startingLoc', type: xsInteger),
   ],
-  optionalArguments: [XPathArgumentDefinition(name: 'length', type: xsNumeric)],
+  optionalArguments: [XPathArgumentDefinition(name: 'length', type: xsInteger)],
   function: _fnSubsequence,
 );
 
 XPathSequence _fnSubsequence(
   XPathContext context,
   XPathSequence sourceSeq,
-  num startingLoc, [
-  num? length,
+  int startingLoc, [
+  int? length,
 ]) {
-  final start = startingLoc.round();
-  final len = length?.round();
+  final start = startingLoc;
+  final len = length;
   if (len != null) {
     final end = start + len;
     return XPathSequence(
@@ -300,15 +273,12 @@ XPathSequence _fnSubsequence(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-unordered
 const fnUnordered = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'unordered',
+  name: 'fn:unordered',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'sourceSeq',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   function: _fnUnordered,
@@ -319,15 +289,12 @@ XPathSequence _fnUnordered(XPathContext context, XPathSequence sourceSeq) =>
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-distinct-values
 const fnDistinctValues = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'distinct-values',
+  name: 'fn:distinct-values',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   optionalArguments: [
@@ -344,15 +311,12 @@ XPathSequence _fnDistinctValues(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-index-of
 const fnIndexOf = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'index-of',
+  name: 'fn:index-of',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'seq',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
     XPathArgumentDefinition(name: 'search', type: xsAny),
   ],
@@ -378,22 +342,17 @@ XPathSequence _fnIndexOf(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-deep-equal
 const fnDeepEqual = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'deep-equal',
+  name: 'fn:deep-equal',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'parameter1',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
     XPathArgumentDefinition(
       name: 'parameter2',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   optionalArguments: [
@@ -424,15 +383,12 @@ XPathSequence _fnDeepEqual(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-zero-or-one
 const fnZeroOrOne = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'zero-or-one',
+  name: 'fn:zero-or-one',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   function: _fnZeroOrOne,
@@ -447,15 +403,12 @@ XPathSequence _fnZeroOrOne(XPathContext context, XPathSequence arg) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-one-or-more
 const fnOneOrMore = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'one-or-more',
+  name: 'fn:one-or-more',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   function: _fnOneOrMore,
@@ -470,15 +423,12 @@ XPathSequence _fnOneOrMore(XPathContext context, XPathSequence arg) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-exactly-one
 const fnExactlyOne = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'exactly-one',
+  name: 'fn:exactly-one',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   function: _fnExactlyOne,
@@ -493,15 +443,12 @@ XPathSequence _fnExactlyOne(XPathContext context, XPathSequence arg) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-count
 const fnCount = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'count',
+  name: 'fn:count',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   function: _fnCount,
@@ -512,15 +459,12 @@ XPathSequence _fnCount(XPathContext context, XPathSequence arg) =>
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-avg
 const fnAvg = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'avg',
+  name: 'fn:avg',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsNumeric,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsNumeric,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   function: _fnAvg,
@@ -534,15 +478,12 @@ XPathSequence _fnAvg(XPathContext context, XPathSequence arg) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-max
 const fnMax = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'max',
+  name: 'fn:max',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   optionalArguments: [
@@ -557,22 +498,17 @@ XPathSequence _fnMax(
   String? collation,
 ]) {
   if (arg.isEmpty) return XPathSequence.empty;
-  return XPathSequence.single(
-    arg.map((item) => item.toXPathNumber()).cast<num>().max,
-  );
+  return XPathSequence.single(arg.map(xsNumeric.cast).max);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-min
 const fnMin = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'min',
+  name: 'fn:min',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   optionalArguments: [
@@ -587,22 +523,17 @@ XPathSequence _fnMin(
   String? collation,
 ]) {
   if (arg.isEmpty) return XPathSequence.empty;
-  return XPathSequence.single(
-    arg.map((item) => item.toXPathNumber()).cast<num>().min,
-  );
+  return XPathSequence.single(arg.map(xsNumeric.cast).min);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-sum
 const fnSum = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'sum',
+  name: 'fn:sum',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   optionalArguments: [XPathArgumentDefinition(name: 'zero', type: xsAny)],
@@ -610,8 +541,6 @@ const fnSum = XPathFunctionDefinition(
 );
 
 XPathSequence _fnSum(XPathContext context, XPathSequence arg, [Object? zero]) {
-  if (arg.isEmpty) return (zero ?? 0).toXPathSequence();
-  return XPathSequence.single(
-    arg.map((item) => item.toXPathNumber()).cast<num>().sum,
-  );
+  if (arg.isEmpty) return XPathSequence.single(zero ?? 0);
+  return XPathSequence.single(arg.map(xsNumeric.cast).sum);
 }

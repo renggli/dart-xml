@@ -1,22 +1,29 @@
-import '../evaluation/definition.dart';
+import '../definitions/types.dart';
 import '../exceptions/evaluation_exception.dart';
+import 'sequence.dart';
 
 /// The XPath array type.
-const xsArray = XPathTypeDefinition('array(*)', matches: _matches, cast: _cast);
+const xsArray = _XPathArrayType();
 
-bool _matches(Object item) => item is List<Object>;
+typedef XPathArray = List<Object>;
 
-XPathSequence _cast(Object item) => item.toXPathArray().toXPathSequence();
+class _XPathArrayType extends XPathType<XPathArray> {
+  const _XPathArrayType();
 
-extension XPathArrayExtension on Object {
-  List<Object> toXPathArray() {
-    final self = this;
-    if (self is List<Object>) {
-      return self;
-    } else if (self is XPathSequence) {
-      final item = self.singleOrNull;
-      if (item != null) return item.toXPathArray();
+  @override
+  String get name => 'array(*)';
+
+  @override
+  bool matches(Object value) => value is XPathArray;
+
+  @override
+  XPathArray cast(Object value) {
+    if (value is XPathArray) {
+      return value;
+    } else if (value is XPathSequence) {
+      final item = value.singleOrNull;
+      if (item != null) cast(item);
     }
-    throw XPathEvaluationException.unsupportedCast(self, 'array');
+    throw XPathEvaluationException.unsupportedCast(this, value);
   }
 }

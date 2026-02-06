@@ -1,26 +1,30 @@
-import '../../../xml.dart';
-
+import '../../xml/nodes/attribute.dart';
+import '../../xml/nodes/element.dart';
+import '../../xml/nodes/node.dart';
+import '../../xml/nodes/processing.dart';
+import '../definitions/cardinality.dart';
+import '../definitions/functions.dart';
 import '../evaluation/context.dart';
-import '../evaluation/types.dart';
+import '../types/any.dart';
+import '../types/node.dart';
+import '../types/sequence.dart';
+import '../types/string.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-node-name
 const fnNodeName = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'node-name',
+  name: 'fn:node-name',
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsNode,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsNode,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   function: _fnNodeName,
 );
 
 XPathSequence _fnNodeName(XPathContext context, [XmlNode? arg]) {
-  final node = arg ?? context.item.toXPathNode();
+  final node = arg ?? xsNode.cast(context.item);
   if (node is XmlElement) return XPathSequence.single(node.name);
   if (node is XmlAttribute) return XPathSequence.single(node.name);
   if (node is XmlProcessing) return XPathSequence.single(node.target);
@@ -29,22 +33,19 @@ XPathSequence _fnNodeName(XPathContext context, [XmlNode? arg]) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-nilled
 const fnNilled = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'nilled',
+  name: 'fn:nilled',
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsNode,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsNode,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   function: _fnNilled,
 );
 
 XPathSequence _fnNilled(XPathContext context, [XmlNode? arg]) {
-  final node = arg ?? context.item.toXPathNode();
+  final node = arg ?? xsNode.cast(context.item);
   if (node is XmlElement) {
     // TODO: Implement proper nilled check based on xsi:nil attribute
     return XPathSequence.falseSequence;
@@ -54,109 +55,97 @@ XPathSequence _fnNilled(XPathContext context, [XmlNode? arg]) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-string
 const fnString = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'string',
+  name: 'fn:string',
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsSequence,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   function: _fnString,
 );
 
-XPathSequence _fnString(XPathContext context, [Object? arg]) {
-  final item = arg ?? context.item;
-  return XPathSequence.single(item.toXPathString());
+XPathSequence _fnString(XPathContext context, [XPathSequence? arg]) {
+  if (arg == null) return XPathSequence.single(xsString.cast(context.item));
+  if (arg.isEmpty) return XPathSequence.emptyString;
+  return XPathSequence.single(xsString.cast(arg));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-data
 const fnData = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'data',
+  name: 'fn:data',
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   function: _fnData,
 );
 
-XPathSequence _fnData(XPathContext context, [Object? arg]) {
-  if (arg == null) return XPathSequence.empty;
-  final items = arg is XPathSequence ? arg : arg.toXPathSequence();
+XPathSequence _fnData(XPathContext context, [XPathSequence? arg]) {
+  if (arg == null) return _fnData(context, xsSequence.cast(context.item));
   return XPathSequence(
-    items.expand<Object>((item) {
-      if (item is XmlNode) return [item.toXPathString()];
-      if (item is Iterable && item is! Map) return item.cast<Object>();
-      return [item];
+    arg.expand<Object>((item) {
+      if (item is XmlNode) return [xsString.cast(item)];
+      return xsSequence.cast(item);
     }),
   );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-base-uri
 const fnBaseUri = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'base-uri',
+  name: 'fn:base-uri',
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsNode,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsNode,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   function: _fnBaseUri,
 );
 
-XPathSequence _fnBaseUri(XPathContext context, [XmlNode? arg]) {
-  // TODO: Add support for xml:base and tracking source URI
-  return XPathSequence.empty;
-}
+// TODO: Add support for xml:base and tracking source URI
+XPathSequence _fnBaseUri(XPathContext context, [XmlNode? arg]) =>
+    XPathSequence.empty;
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-document-uri
 const fnDocumentUri = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'document-uri',
+  name: 'fn:document-uri',
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsNode,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsNode,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   function: _fnDocumentUri,
 );
 
-XPathSequence _fnDocumentUri(XPathContext context, [XmlNode? arg]) {
-  // TODO: Add support for tracking source document URI
-  return XPathSequence.empty;
-}
+// TODO: Add support for tracking source document URI
+XPathSequence _fnDocumentUri(XPathContext context, [XmlNode? arg]) =>
+    XPathSequence.empty;
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-serialize
 const fnSerialize = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'serialize',
+  name: 'fn:serialize',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
-  optionalArguments: [XPathArgumentDefinition(name: 'params', type: xsAny)],
+  optionalArguments: [
+    XPathArgumentDefinition(
+      name: 'params',
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrOne,
+    ),
+  ],
   function: _fnSerialize,
 );
 
@@ -164,46 +153,36 @@ XPathSequence _fnSerialize(
   XPathContext context,
   XPathSequence arg, [
   Object? params,
-]) {
-  throw UnimplementedError('fn:serialize');
-}
+]) => throw UnimplementedError('fn:serialize');
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-parse-xml
 const fnParseXml = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'parse-xml',
+  name: 'fn:parse-xml',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   function: _fnParseXml,
 );
 
-XPathSequence _fnParseXml(XPathContext context, String? arg) {
-  throw UnimplementedError('fn:parse-xml');
-}
+XPathSequence _fnParseXml(XPathContext context, String? arg) =>
+    throw UnimplementedError('fn:parse-xml');
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-parse-xml-fragment
 const fnParseXmlFragment = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'parse-xml-fragment',
+  name: 'fn:parse-xml-fragment',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   function: _fnParseXmlFragment,
 );
 
-XPathSequence _fnParseXmlFragment(XPathContext context, String? arg) {
-  throw UnimplementedError('fn:parse-xml-fragment');
-}
+XPathSequence _fnParseXmlFragment(XPathContext context, String? arg) =>
+    throw UnimplementedError('fn:parse-xml-fragment');

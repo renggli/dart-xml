@@ -1,6 +1,5 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/exceptions/evaluation_exception.dart';
-import 'package:xml/src/xpath/types/duration.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
 
 void main() {

@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../types/boolean.dart';
+import '../types/number.dart';
 import '../types/sequence.dart';
 
 @immutable
@@ -15,8 +16,8 @@ class Predicate {
     final value = expression(context);
     final item = value.singleOrNull;
     return item is num
-        ? context.position == item.round()
-        : value.toXPathBoolean();
+        ? xsInteger.cast(item) == context.position
+        : xsBoolean.cast(value);
   }
 }
 

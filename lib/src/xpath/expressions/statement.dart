@@ -76,7 +76,7 @@ class SomeExpression implements XPathExpression {
         }
         return false;
       } else {
-        return body(currentContext).toXPathBoolean();
+        return xsBoolean.cast(body(currentContext));
       }
     }
 
@@ -111,7 +111,7 @@ class EveryExpression implements XPathExpression {
         }
         return true;
       } else {
-        return body(currentContext).toXPathBoolean();
+        return xsBoolean.cast(body(currentContext));
       }
     }
 
@@ -129,8 +129,7 @@ class IfExpression implements XPathExpression {
   final XPathExpression falseExpression;
 
   @override
-  XPathSequence call(XPathContext context) =>
-      condition(context).toXPathBoolean()
+  XPathSequence call(XPathContext context) => xsBoolean.cast(condition(context))
       ? trueExpression(context)
       : falseExpression(context);
 }

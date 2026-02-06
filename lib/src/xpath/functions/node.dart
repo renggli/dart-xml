@@ -1,26 +1,33 @@
-import '../../../xml.dart';
-
+import '../../xml/extensions/ancestors.dart';
+import '../../xml/extensions/descendants.dart';
+import '../../xml/extensions/parent.dart';
+import '../../xml/nodes/attribute.dart';
+import '../../xml/nodes/document.dart';
+import '../../xml/nodes/element.dart';
+import '../../xml/nodes/node.dart';
+import '../../xml/nodes/processing.dart';
+import '../definitions/cardinality.dart';
+import '../definitions/functions.dart';
 import '../evaluation/context.dart';
-import '../evaluation/types.dart';
+import '../types/node.dart';
+import '../types/sequence.dart';
+import '../types/string.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-name
 const fnName = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'name',
+  name: 'fn:name',
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsNode,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsNode,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   function: _fnName,
 );
 
 XPathSequence _fnName(XPathContext context, [XmlNode? arg]) {
-  final node = arg ?? context.item.toXPathNode();
+  final node = arg ?? xsNode.cast(context.item);
   if (node is XmlElement) {
     return XPathSequence.single(node.name.toString());
   } else if (node is XmlAttribute) {
@@ -33,22 +40,19 @@ XPathSequence _fnName(XPathContext context, [XmlNode? arg]) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-local-name
 const fnLocalName = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'local-name',
+  name: 'fn:local-name',
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsNode,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsNode,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   function: _fnLocalName,
 );
 
 XPathSequence _fnLocalName(XPathContext context, [XmlNode? arg]) {
-  final node = arg ?? context.item.toXPathNode();
+  final node = arg ?? xsNode.cast(context.item);
   if (node is XmlElement) {
     return XPathSequence.single(node.name.local);
   } else if (node is XmlAttribute) {
@@ -61,22 +65,19 @@ XPathSequence _fnLocalName(XPathContext context, [XmlNode? arg]) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-namespace-uri
 const fnNamespaceUri = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'namespace-uri',
+  name: 'fn:namespace-uri',
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsNode,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsNode,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   function: _fnNamespaceUri,
 );
 
 XPathSequence _fnNamespaceUri(XPathContext context, [XmlNode? arg]) {
-  final node = arg ?? context.item.toXPathNode();
+  final node = arg ?? xsNode.cast(context.item);
   if (node is XmlElement) {
     return XPathSequence.single(node.name.namespaceUri ?? '');
   } else if (node is XmlAttribute) {
@@ -87,15 +88,12 @@ XPathSequence _fnNamespaceUri(XPathContext context, [XmlNode? arg]) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-id
 const fnId = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'id',
+  name: 'fn:id',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   optionalArguments: [XPathArgumentDefinition(name: 'node', type: xsNode)],
@@ -108,15 +106,12 @@ XPathSequence _fnId(XPathContext context, XPathSequence arg, [XmlNode? node]) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-element-with-id
 const fnElementWithId = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'element-with-id',
+  name: 'fn:element-with-id',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   optionalArguments: [XPathArgumentDefinition(name: 'node', type: xsNode)],
@@ -133,15 +128,12 @@ XPathSequence _fnElementWithId(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-idref
 const fnIdref = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'idref',
+  name: 'fn:idref',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   optionalArguments: [XPathArgumentDefinition(name: 'node', type: xsNode)],
@@ -158,15 +150,12 @@ XPathSequence _fnIdref(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-generate-id
 const fnGenerateId = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'generate-id',
+  name: 'fn:generate-id',
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsNode,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsNode,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   function: _fnGenerateId,
@@ -178,60 +167,48 @@ XPathSequence _fnGenerateId(XPathContext context, [XmlNode? arg]) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-root
 const fnRoot = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'root',
+  name: 'fn:root',
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsNode,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsNode,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   function: _fnRoot,
 );
 
 XPathSequence _fnRoot(XPathContext context, [XmlNode? arg]) {
-  var node = arg ?? context.item.toXPathNode();
-  while (node.parent != null) {
-    node = node.parent!;
-  }
-  return XPathSequence.single(node);
+  final node = arg ?? xsNode.cast(context.item);
+  return XPathSequence.single(node.root);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-has-children
 const fnHasChildren = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'has-children',
+  name: 'fn:has-children',
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'node',
-      type: XPathSequenceType(
-        xsNode,
-        cardinality: XPathArgumentCardinality.exactlyOne,
-      ),
+      type: xsNode,
+      cardinality: XPathCardinality.exactlyOne,
     ),
   ],
   function: _fnHasChildren,
 );
 
-XPathSequence _fnHasChildren(XPathContext context, [XmlNode? node]) {
-  final target = node ?? context.item.toXPathNode();
-  return XPathSequence.single(target.children.isNotEmpty);
+XPathSequence _fnHasChildren(XPathContext context, [XmlNode? arg]) {
+  final node = arg ?? xsNode.cast(context.item);
+  return XPathSequence.single(node.children.isNotEmpty);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-innermost
 const fnInnermost = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'innermost',
+  name: 'fn:innermost',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'nodes',
-      type: XPathSequenceType(
-        xsNode,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsNode,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   function: _fnInnermost,
@@ -252,15 +229,12 @@ XPathSequence _fnInnermost(XPathContext context, XPathSequence nodes) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-outermost
 const fnOutermost = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'outermost',
+  name: 'fn:outermost',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'nodes',
-      type: XPathSequenceType(
-        xsNode,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsNode,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   function: _fnOutermost,
@@ -281,22 +255,19 @@ XPathSequence _fnOutermost(XPathContext context, XPathSequence nodes) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-path
 const fnPath = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'path',
+  name: 'fn:path',
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsNode,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsNode,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   function: _fnPath,
 );
 
 XPathSequence _fnPath(XPathContext context, [XmlNode? arg]) {
-  final node = arg ?? context.item.toXPathNode();
+  final node = arg ?? xsNode.cast(context.item);
   // Basic implementation
   final components = <String>[];
   XmlNode? current = node;

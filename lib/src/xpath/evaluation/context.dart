@@ -2,10 +2,12 @@ import 'package:petitparser/core.dart' show Failure;
 
 import '../../xml/nodes/node.dart';
 import '../../xml/utils/cache.dart';
+import '../exceptions/evaluation_exception.dart';
 import '../exceptions/parser_exception.dart';
 import '../parser.dart';
+import '../types/function.dart';
+import '../types/sequence.dart';
 import 'expression.dart';
-import 'types.dart';
 
 /// Runtime execution context to evaluate XPath expressions.
 class XPathContext {
@@ -16,19 +18,12 @@ class XPathContext {
     this.variables = const {},
     this.functions = const {},
     this.documents = const {},
-    this.namespaces = const {
-      'xml': 'http://www.w3.org/XML/1998/namespace',
-      'fn': 'http://www.w3.org/2005/xpath-functions',
-      'math': 'http://www.w3.org/2005/xpath-functions/math',
-      'map': 'http://www.w3.org/2005/xpath-functions/map',
-      'array': 'http://www.w3.org/2005/xpath-functions/array',
-      'xs': 'http://www.w3.org/2001/XMLSchema',
-    },
+    this.namespaces = const {},
     this.onTraceCallback,
   });
 
   /// Mutable context node.
-  XPathItem item;
+  Object item;
 
   /// Mutable context position.
   int position;
@@ -36,41 +31,11 @@ class XPathContext {
   /// Mutable context size.
   int last;
 
-  /// Looks up an XPath variable with the given [name].
-  XPathSequence? getVariable(String name) => variables[name];
-
-  /// Looks up a XPath function with the given [name].
-  Object? getFunction(String name) {
-    if (name.startsWith('Q{')) {
-      final end = name.indexOf('}');
-      if (end != -1) return functions[name];
-    }
-    final index = name.indexOf(':');
-    if (index != -1) {
-      final prefix = name.substring(0, index);
-      final local = name.substring(index + 1);
-      final uri = namespaces[prefix];
-      if (uri != null) {
-        final key = 'Q{$uri}$local';
-        if (functions.containsKey(key)) return functions[key];
-      }
-      if (functions.containsKey(name)) return functions[name];
-    } else {
-      // Default function namespace logic could go here, for now assuming fn:
-      const defaultUri = 'http://www.w3.org/2005/xpath-functions';
-      final key = 'Q{$defaultUri}$name';
-      if (functions.containsKey(key)) return functions[key];
-      // Fallback for unprefixed legacy keys (if any)
-      if (functions.containsKey(name)) return functions[name];
-    }
-    return null;
-  }
-
   /// User-defined variables.
-  final Map<String, XPathSequence> variables;
+  final Map<String, Object> variables;
 
   /// User-defined functions.
-  final Map<String, Object> functions;
+  final Map<String, XPathFunction> functions;
 
   /// Available documents.
   final Map<String, XmlNode> documents;
@@ -81,10 +46,24 @@ class XPathContext {
   /// Callback to trace evaluation.
   final XPathTraceCallback? onTraceCallback;
 
+  /// Looks up an XPath variable with the given [name].
+  Object getVariable(String name) {
+    final variable = variables[name];
+    if (variable != null) return variable;
+    throw XPathEvaluationException('Unknown variable: $name');
+  }
+
+  /// Looks up a XPath function with the given [name].
+  XPathFunction getFunction(String name) {
+    final function = functions[name];
+    if (function != null) return function;
+    throw XPathEvaluationException('Unknown function: $name');
+  }
+
   /// Creates a copy of the current context.
   XPathContext copy({
-    Map<String, XPathSequence>? variables,
-    Map<String, Object>? functions,
+    Map<String, Object>? variables,
+    Map<String, XPathFunction>? functions,
     Map<String, XmlNode>? documents,
     Map<String, String>? namespaces,
     XPathTraceCallback? onTraceCallback,
@@ -104,8 +83,7 @@ class XPathContext {
 }
 
 /// Function type for tracing evaluation.
-typedef XPathTraceCallback =
-    void Function(XPathSequence value, XPathString? label);
+typedef XPathTraceCallback = void Function(XPathSequence value, String? label);
 
 final _parser = const XPathParser().build();
 final _cache = XmlCache<String, XPathExpression>((expression) {

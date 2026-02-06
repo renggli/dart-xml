@@ -6,7 +6,7 @@ import '../types/sequence.dart';
 XPathSequence opDateTimeEqual(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   return XPathSequence.single(
-    left.toXPathDateTime().compareTo(right.toXPathDateTime()) == 0,
+    xsDateTime.cast(left).compareTo(xsDateTime.cast(right)) == 0,
   );
 }
 
@@ -14,7 +14,7 @@ XPathSequence opDateTimeEqual(XPathSequence left, XPathSequence right) {
 XPathSequence opDateTimeLessThan(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   return XPathSequence.single(
-    left.toXPathDateTime().compareTo(right.toXPathDateTime()) < 0,
+    xsDateTime.cast(left).compareTo(xsDateTime.cast(right)) < 0,
   );
 }
 
@@ -22,7 +22,7 @@ XPathSequence opDateTimeLessThan(XPathSequence left, XPathSequence right) {
 XPathSequence opDateTimeGreaterThan(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   return XPathSequence.single(
-    left.toXPathDateTime().compareTo(right.toXPathDateTime()) > 0,
+    xsDateTime.cast(left).compareTo(xsDateTime.cast(right)) > 0,
   );
 }
 
@@ -74,10 +74,7 @@ XPathSequence opGDayEqual(XPathSequence left, XPathSequence right) =>
 XPathSequence opSubtractDateTimes(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   return XPathSequence.single(
-    left
-        .toXPathDateTime()
-        .difference(right.toXPathDateTime())
-        .toXPathDuration(),
+    xsDateTime.cast(left).difference(xsDateTime.cast(right)),
   );
 }
 
@@ -93,7 +90,7 @@ XPathSequence opSubtractTimes(XPathSequence left, XPathSequence right) =>
 XPathSequence opAddDurationToDateTime(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   return XPathSequence.single(
-    left.toXPathDateTime().add(right.toXPathDuration()).toXPathDateTime(),
+    xsDateTime.cast(left).add(xsDuration.cast(right)),
   );
 }
 
@@ -104,7 +101,7 @@ XPathSequence opSubtractDurationFromDateTime(
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   return XPathSequence.single(
-    left.toXPathDateTime().subtract(right.toXPathDuration()).toXPathDateTime(),
+    xsDateTime.cast(left).subtract(xsDuration.cast(right)),
   );
 }
 

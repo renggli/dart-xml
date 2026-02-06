@@ -1,26 +1,25 @@
+import '../definitions/cardinality.dart';
+import '../definitions/functions.dart';
 import '../evaluation/context.dart';
-import '../evaluation/types.dart';
 import '../exceptions/evaluation_exception.dart';
+import '../types/any.dart';
+import '../types/sequence.dart';
+import '../types/string.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-error
 const fnError = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'error',
+  name: 'fn:error',
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'code',
-      type: XPathSequenceType(
-        xsString, // xs:QName technically
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
     XPathArgumentDefinition(name: 'description', type: xsString),
     XPathArgumentDefinition(
       name: 'error-object',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   function: _fnError,
@@ -33,23 +32,18 @@ XPathSequence _fnError(
   XPathSequence? errorObject,
 ]) {
   throw XPathEvaluationException(
-    description ?? 'XPath error',
-    code: code,
-    object: errorObject,
+    [code, description, errorObject?.toString()].whereType<String>().join(' '),
   );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-trace
 const fnTrace = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'trace',
+  name: 'fn:trace',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   optionalArguments: [XPathArgumentDefinition(name: 'label', type: xsString)],
@@ -61,7 +55,7 @@ XPathSequence _fnTrace(
   XPathSequence value, [
   String? label,
 ]) {
-  // ignore: avoid_print
-  print('${label ?? "trace"}: $value');
+  final trace = context.onTraceCallback;
+  if (trace != null) trace(value, label);
   return value;
 }

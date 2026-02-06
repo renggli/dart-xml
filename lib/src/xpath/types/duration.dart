@@ -1,29 +1,30 @@
-import '../evaluation/definition.dart';
+import '../definitions/types.dart';
 import '../exceptions/evaluation_exception.dart';
+import 'sequence.dart';
 
 /// The XPath duration type.
-const xsDuration = XPathTypeDefinition(
-  'xs:duration',
-  matches: _matches,
-  cast: _cast,
-);
+const xsDuration = _XPathDurationType();
 
-bool _matches(Object item) => item is Duration;
+class _XPathDurationType extends XPathType<Duration> {
+  const _XPathDurationType();
 
-XPathSequence _cast(Object item) => item.toXPathDuration().toXPathSequence();
+  @override
+  String get name => 'xs:duration';
 
-extension XPathDurationExtension on Object {
-  Duration toXPathDuration() {
-    final self = this;
-    if (self is Duration) {
-      return self;
-    } else if (self is String) {
+  @override
+  bool matches(Object value) => value is Duration;
+
+  @override
+  Duration cast(Object value) {
+    if (value is Duration) {
+      return value;
+    } else if (value is String) {
       // TODO: Implement duration parsing from string
-      throw UnimplementedError('Duration from string "$self"');
-    } else if (self is XPathSequence) {
-      final item = self.singleOrNull;
-      if (item != null) return item.toXPathDuration();
+      throw UnimplementedError('Duration from string "$value"');
+    } else if (value is XPathSequence) {
+      final item = value.singleOrNull;
+      if (item != null) return cast(item);
     }
-    throw XPathEvaluationException.unsupportedCast(self, 'duration');
+    throw XPathEvaluationException.unsupportedCast(this, value);
   }
 }

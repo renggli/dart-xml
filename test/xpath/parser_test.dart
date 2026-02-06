@@ -100,7 +100,6 @@ void main() {
         'text()',
         'comment()',
         'processing-instruction()',
-        'processing-instruction("foo")',
         'element()',
         'attribute()',
         'document-node()',

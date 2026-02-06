@@ -2,10 +2,7 @@ import 'dart:io';
 
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/evaluation/functions.dart';
-import 'package:xml/src/xpath/types/boolean.dart';
 import 'package:xml/src/xpath/types/node.dart';
-import 'package:xml/src/xpath/types/number.dart';
-import 'package:xml/src/xpath/types/string.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 

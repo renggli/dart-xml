@@ -1,13 +1,12 @@
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
-import '../exceptions/evaluation_exception.dart';
 import '../types/sequence.dart';
 
 class ContextItemExpression implements XPathExpression {
   const ContextItemExpression();
 
   @override
-  XPathSequence call(XPathContext context) => context.item.toXPathSequence();
+  XPathSequence call(XPathContext context) => xsSequence.cast(context.item);
 }
 
 class VariableExpression implements XPathExpression {
@@ -17,7 +16,7 @@ class VariableExpression implements XPathExpression {
 
   @override
   XPathSequence call(XPathContext context) =>
-      XPathEvaluationException.checkVariable(name, context.getVariable(name));
+      xsSequence.cast(context.getVariable(name));
 }
 
 class LiteralExpression implements XPathExpression {

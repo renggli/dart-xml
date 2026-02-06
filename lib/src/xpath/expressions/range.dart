@@ -18,8 +18,8 @@ class RangeExpression implements XPathExpression {
       return XPathSequence.empty;
     }
 
-    final start = startSeq.toXPathNumber().toInt();
-    final end = endSeq.toXPathNumber().toInt();
+    final start = xsInteger.cast(startSeq.singleOrNull!);
+    final end = xsInteger.cast(endSeq.singleOrNull!);
 
     if (start > end) {
       return XPathSequence.empty;

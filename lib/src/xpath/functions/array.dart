@@ -1,54 +1,57 @@
+import '../definitions/cardinality.dart';
+import '../definitions/functions.dart';
 import '../evaluation/context.dart';
-import '../evaluation/types.dart';
 import '../exceptions/evaluation_exception.dart';
+import '../types/any.dart';
+import '../types/array.dart';
+import '../types/boolean.dart';
+import '../types/function.dart';
+import '../types/number.dart';
+import '../types/sequence.dart';
+import '../types/string.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-size
 const fnArraySize = XPathFunctionDefinition(
-  namespace: 'array',
-  name: 'size',
+  name: 'array:size',
   requiredArguments: [XPathArgumentDefinition(name: 'array', type: xsArray)],
   function: _fnArraySize,
 );
 
-XPathSequence _fnArraySize(XPathContext context, List<Object> array) =>
+XPathSequence _fnArraySize(XPathContext context, XPathArray array) =>
     XPathSequence.single(array.length);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-get
 const fnArrayGet = XPathFunctionDefinition(
-  namespace: 'array',
-  name: 'get',
+  name: 'array:get',
   requiredArguments: [
     XPathArgumentDefinition(name: 'array', type: xsArray),
-    XPathArgumentDefinition(name: 'position', type: xsNumeric),
+    XPathArgumentDefinition(name: 'position', type: xsInteger),
   ],
   function: _fnArrayGet,
 );
 
 XPathSequence _fnArrayGet(
   XPathContext context,
-  List<Object> array,
-  num position,
+  XPathArray array,
+  int position,
 ) {
-  final index = position.toInt() - 1;
+  final index = position - 1;
   if (index < 0 || index >= array.length) {
     throw XPathEvaluationException('Array index out of bounds: $position');
   }
-  return array[index].toXPathSequence();
+  return XPathSequence.single(array[index]);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-put
 const fnArrayPut = XPathFunctionDefinition(
-  namespace: 'array',
-  name: 'put',
+  name: 'array:put',
   requiredArguments: [
     XPathArgumentDefinition(name: 'array', type: xsArray),
-    XPathArgumentDefinition(name: 'position', type: xsNumeric),
+    XPathArgumentDefinition(name: 'position', type: xsInteger),
     XPathArgumentDefinition(
       name: 'member',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   function: _fnArrayPut,
@@ -56,31 +59,28 @@ const fnArrayPut = XPathFunctionDefinition(
 
 XPathSequence _fnArrayPut(
   XPathContext context,
-  List<Object> array,
-  num position,
+  XPathArray array,
+  int position,
   XPathSequence member,
 ) {
-  final index = position.toInt() - 1;
+  final index = position - 1;
   if (index < 0 || index >= array.length) {
     throw XPathEvaluationException('Array index out of bounds: $position');
   }
-  final result = List<Object>.from(array);
-  result[index] = member.length == 1 ? member.first : member;
+  final result = XPathArray.from(array);
+  result[index] = member.toAtomicValue();
   return XPathSequence.single(result);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-append
 const fnArrayAppend = XPathFunctionDefinition(
-  namespace: 'array',
-  name: 'append',
+  name: 'array:append',
   requiredArguments: [
     XPathArgumentDefinition(name: 'array', type: xsArray),
     XPathArgumentDefinition(
       name: 'member',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   function: _fnArrayAppend,
@@ -88,33 +88,29 @@ const fnArrayAppend = XPathFunctionDefinition(
 
 XPathSequence _fnArrayAppend(
   XPathContext context,
-  List<Object> array,
+  XPathArray array,
   XPathSequence member,
-) => XPathSequence.single([
-  ...array,
-  member.length == 1 ? member.first : member,
-]);
+) => XPathSequence.single([...array, member.toAtomicValue()]);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-subarray
 const fnArraySubarray = XPathFunctionDefinition(
-  namespace: 'array',
-  name: 'subarray',
+  name: 'array:subarray',
   requiredArguments: [
     XPathArgumentDefinition(name: 'array', type: xsArray),
-    XPathArgumentDefinition(name: 'start', type: xsNumeric),
+    XPathArgumentDefinition(name: 'start', type: xsInteger),
   ],
-  optionalArguments: [XPathArgumentDefinition(name: 'length', type: xsNumeric)],
+  optionalArguments: [XPathArgumentDefinition(name: 'length', type: xsInteger)],
   function: _fnArraySubarray,
 );
 
 XPathSequence _fnArraySubarray(
   XPathContext context,
-  List<Object> array,
-  num start, [
-  num? length,
+  XPathArray array,
+  int start, [
+  int? length,
 ]) {
-  final s = start.toInt() - 1;
-  final l = length?.toInt() ?? (array.length - s);
+  final s = start - 1;
+  final l = length ?? (array.length - s);
   if (s < 0 || s > array.length || l < 0 || s + l > array.length) {
     throw XPathEvaluationException('Invalid subarray range: $start, $length');
   }
@@ -123,16 +119,13 @@ XPathSequence _fnArraySubarray(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-remove
 const fnArrayRemove = XPathFunctionDefinition(
-  namespace: 'array',
-  name: 'remove',
+  name: 'array:remove',
   requiredArguments: [
     XPathArgumentDefinition(name: 'array', type: xsArray),
     XPathArgumentDefinition(
       name: 'positions',
-      type: XPathSequenceType(
-        xsNumeric,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsInteger,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   function: _fnArrayRemove,
@@ -140,10 +133,15 @@ const fnArrayRemove = XPathFunctionDefinition(
 
 XPathSequence _fnArrayRemove(
   XPathContext context,
-  List<Object> array,
-  List<num> positions,
+  XPathArray array,
+  XPathSequence positions,
 ) {
-  final indices = positions.map((p) => p.toInt() - 1).toSet();
+  final indices = positions.map((p) => (p as int) - 1).toSet();
+  for (final index in indices) {
+    if (index < 0 || index >= array.length) {
+      throw XPathEvaluationException('Array index out of bounds: ${index + 1}');
+    }
+  }
   final result = <Object>[];
   for (var i = 0; i < array.length; i++) {
     if (!indices.contains(i)) {
@@ -155,17 +153,14 @@ XPathSequence _fnArrayRemove(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-insert-before
 const fnArrayInsertBefore = XPathFunctionDefinition(
-  namespace: 'array',
-  name: 'insert-before',
+  name: 'array:insert-before',
   requiredArguments: [
     XPathArgumentDefinition(name: 'array', type: xsArray),
-    XPathArgumentDefinition(name: 'position', type: xsNumeric),
+    XPathArgumentDefinition(name: 'position', type: xsInteger),
     XPathArgumentDefinition(
       name: 'member',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   function: _fnArrayInsertBefore,
@@ -173,43 +168,41 @@ const fnArrayInsertBefore = XPathFunctionDefinition(
 
 XPathSequence _fnArrayInsertBefore(
   XPathContext context,
-  List<Object> array,
-  num position,
+  XPathArray array,
+  int position,
   XPathSequence member,
 ) {
   final index = position.toInt() - 1;
   if (index < 0 || index > array.length) {
     throw XPathEvaluationException('Array index out of bounds: $position');
   }
-  final result = List<Object>.from(array);
-  result.insert(index, member.length == 1 ? member.first : member);
+  final result = XPathArray.from(array);
+  result.insert(index, member.toAtomicValue());
   return XPathSequence.single(result);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-head
 const fnArrayHead = XPathFunctionDefinition(
-  namespace: 'array',
-  name: 'head',
+  name: 'array:head',
   requiredArguments: [XPathArgumentDefinition(name: 'array', type: xsArray)],
   function: _fnArrayHead,
 );
 
-XPathSequence _fnArrayHead(XPathContext context, List<Object> array) {
+XPathSequence _fnArrayHead(XPathContext context, XPathArray array) {
   if (array.isEmpty) {
     throw XPathEvaluationException('Empty array');
   }
-  return array.first.toXPathSequence();
+  return XPathSequence.single(array.first);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-tail
 const fnArrayTail = XPathFunctionDefinition(
-  namespace: 'array',
-  name: 'tail',
+  name: 'array:tail',
   requiredArguments: [XPathArgumentDefinition(name: 'array', type: xsArray)],
   function: _fnArrayTail,
 );
 
-XPathSequence _fnArrayTail(XPathContext context, List<Object> array) {
+XPathSequence _fnArrayTail(XPathContext context, XPathArray array) {
   if (array.isEmpty) {
     throw XPathEvaluationException('Empty array');
   }
@@ -218,26 +211,22 @@ XPathSequence _fnArrayTail(XPathContext context, List<Object> array) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-reverse
 const fnArrayReverse = XPathFunctionDefinition(
-  namespace: 'array',
-  name: 'reverse',
+  name: 'array:reverse',
   requiredArguments: [XPathArgumentDefinition(name: 'array', type: xsArray)],
   function: _fnArrayReverse,
 );
 
-XPathSequence _fnArrayReverse(XPathContext context, List<Object> array) =>
+XPathSequence _fnArrayReverse(XPathContext context, XPathArray array) =>
     XPathSequence.single(array.reversed.toList());
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-join
 const fnArrayJoin = XPathFunctionDefinition(
-  namespace: 'array',
-  name: 'join',
+  name: 'array:join',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arrays',
-      type: XPathSequenceType(
-        xsArray,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsArray,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   function: _fnArrayJoin,
@@ -246,7 +235,7 @@ const fnArrayJoin = XPathFunctionDefinition(
 XPathSequence _fnArrayJoin(XPathContext context, XPathSequence arrays) {
   final result = <Object>[];
   for (final item in arrays) {
-    if (item is List<Object>) {
+    if (item is XPathArray) {
       result.addAll(item);
     } else {
       result.add(item);
@@ -257,15 +246,12 @@ XPathSequence _fnArrayJoin(XPathContext context, XPathSequence arrays) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-flatten
 const fnArrayFlatten = XPathFunctionDefinition(
-  namespace: 'array',
-  name: 'flatten',
+  name: 'array:flatten',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   function: _fnArrayFlatten,
@@ -279,7 +265,7 @@ Iterable<Object> _fnArrayFlattenSync(
   XPathSequence input,
 ) sync* {
   for (final item in input) {
-    if (item is List<Object>) {
+    if (item is XPathArray) {
       yield* _fnArrayFlattenSync(context, XPathSequence(item));
     } else {
       yield item;
@@ -289,8 +275,7 @@ Iterable<Object> _fnArrayFlattenSync(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-for-each
 const fnArrayForEach = XPathFunctionDefinition(
-  namespace: 'array',
-  name: 'for-each',
+  name: 'array:for-each',
   requiredArguments: [
     XPathArgumentDefinition(name: 'array', type: xsArray),
     XPathArgumentDefinition(name: 'action', type: xsFunction),
@@ -300,21 +285,20 @@ const fnArrayForEach = XPathFunctionDefinition(
 
 XPathSequence _fnArrayForEach(
   XPathContext context,
-  List<Object> array,
-  Function action,
+  XPathArray array,
+  XPathFunction action,
 ) {
   final result = <Object>[];
   for (final item in array) {
-    final seq = action(context, [item.toXPathSequence()]) as XPathSequence;
-    result.add(seq.length == 1 ? seq.first : seq);
+    final value = action(context, [xsSequence.cast(item)]);
+    result.add(value.length == 1 ? value.first : value);
   }
   return XPathSequence.single(result);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-filter
 const fnArrayFilter = XPathFunctionDefinition(
-  namespace: 'array',
-  name: 'filter',
+  name: 'array:filter',
   requiredArguments: [
     XPathArgumentDefinition(name: 'array', type: xsArray),
     XPathArgumentDefinition(name: 'predicate', type: xsFunction),
@@ -324,13 +308,13 @@ const fnArrayFilter = XPathFunctionDefinition(
 
 XPathSequence _fnArrayFilter(
   XPathContext context,
-  List<Object> array,
-  Function predicate,
+  XPathArray array,
+  XPathFunction predicate,
 ) {
   final result = <Object>[];
   for (final item in array) {
-    final res = predicate(context, [XPathSequence.single(item)]) as Object;
-    if (res.toXPathBoolean()) {
+    final value = predicate(context, [xsSequence.cast(item)]);
+    if (xsBoolean.cast(value)) {
       result.add(item);
     }
   }
@@ -339,8 +323,7 @@ XPathSequence _fnArrayFilter(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-fold-left
 const fnArrayFoldLeft = XPathFunctionDefinition(
-  namespace: 'array',
-  name: 'fold-left',
+  name: 'array:fold-left',
   requiredArguments: [
     XPathArgumentDefinition(name: 'array', type: xsArray),
     XPathArgumentDefinition(name: 'zero', type: xsAny),
@@ -351,22 +334,20 @@ const fnArrayFoldLeft = XPathFunctionDefinition(
 
 XPathSequence _fnArrayFoldLeft(
   XPathContext context,
-  List<Object> array,
+  XPathArray array,
   Object zero,
-  Function action,
+  XPathFunction action,
 ) {
-  var result = zero.toXPathSequence();
+  var result = xsSequence.cast(zero);
   for (final item in array) {
-    result =
-        action(context, [result, XPathSequence.single(item)]) as XPathSequence;
+    result = action(context, [result, XPathSequence.single(item)]);
   }
   return result;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-fold-right
 const fnArrayFoldRight = XPathFunctionDefinition(
-  namespace: 'array',
-  name: 'fold-right',
+  name: 'array:fold-right',
   requiredArguments: [
     XPathArgumentDefinition(name: 'array', type: xsArray),
     XPathArgumentDefinition(name: 'zero', type: xsAny),
@@ -377,23 +358,20 @@ const fnArrayFoldRight = XPathFunctionDefinition(
 
 XPathSequence _fnArrayFoldRight(
   XPathContext context,
-  List<Object> array,
+  XPathArray array,
   Object zero,
-  Function action,
+  XPathFunction action,
 ) {
-  var result = zero.toXPathSequence();
+  var result = xsSequence.cast(zero);
   for (var i = array.length - 1; i >= 0; i--) {
-    result =
-        action(context, [XPathSequence.single(array[i]), result])
-            as XPathSequence;
+    result = action(context, [XPathSequence.single(array[i]), result]);
   }
   return result;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-for-each-pair
 const fnArrayForEachPair = XPathFunctionDefinition(
-  namespace: 'array',
-  name: 'for-each-pair',
+  name: 'array:for-each-pair',
   requiredArguments: [
     XPathArgumentDefinition(name: 'array1', type: xsArray),
     XPathArgumentDefinition(name: 'array2', type: xsArray),
@@ -404,28 +382,25 @@ const fnArrayForEachPair = XPathFunctionDefinition(
 
 XPathSequence _fnArrayForEachPair(
   XPathContext context,
-  List<Object> array1,
-  List<Object> array2,
-  Function action,
+  XPathArray array1,
+  XPathArray array2,
+  XPathFunction action,
 ) {
   final result = <Object>[];
   final len = array1.length < array2.length ? array1.length : array2.length;
   for (var i = 0; i < len; i++) {
-    result.add(
-      action(context, [
-            array1[i].toXPathSequence(),
-            array2[i].toXPathSequence(),
-          ])
-          as Object,
-    );
+    final value = action(context, [
+      xsSequence.cast(array1[i]),
+      xsSequence.cast(array2[i]),
+    ]);
+    result.add(value);
   }
   return XPathSequence.single(result);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-sort
 const fnArraySort = XPathFunctionDefinition(
-  namespace: 'array',
-  name: 'sort',
+  name: 'array:sort',
   requiredArguments: [XPathArgumentDefinition(name: 'array', type: xsArray)],
   optionalArguments: [
     XPathArgumentDefinition(name: 'collation', type: xsString),
@@ -436,11 +411,11 @@ const fnArraySort = XPathFunctionDefinition(
 
 XPathSequence _fnArraySort(
   XPathContext context,
-  List<Object> array, [
+  XPathArray array, [
   String? collation,
-  Function? key,
+  XPathFunction? key,
 ]) {
-  final result = List<Object>.from(array);
+  final result = XPathArray.from(array);
   result.sort((a, b) {
     final ka = key != null
         ? (key(context, [XPathSequence.single(a)]) as Object)

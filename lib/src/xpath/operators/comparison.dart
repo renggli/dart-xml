@@ -1,5 +1,7 @@
-import '../evaluation/types.dart';
+import '../../xml/nodes/node.dart';
 import '../exceptions/evaluation_exception.dart';
+import '../types/sequence.dart';
+import '../types/string.dart';
 
 /// https://www.w3.org/TR/xpath-31/#id-value-comparisons
 XPathSequence opValueEqual(XPathSequence left, XPathSequence right) {
@@ -48,8 +50,8 @@ Object? _atomizeSingle(XPathSequence seq) {
 }
 
 Iterable<Object> _atomize(XPathSequence seq) => seq.expand((item) {
-  if (item is XPathNode) {
-    return [item.toXPathString()];
+  if (item is XmlNode) {
+    return [xsString.cast(item)];
   } else {
     return [item];
   }

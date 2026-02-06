@@ -164,7 +164,7 @@ class PathExpression implements XPathExpression {
 
   @override
   XPathSequence call(XPathContext context) {
-    final contextNode = context.item.toXPathNode();
+    final contextNode = xsNode.cast(context.item);
     if (steps.isEmpty) {
       return XPathSequence.single(contextNode.root);
     }

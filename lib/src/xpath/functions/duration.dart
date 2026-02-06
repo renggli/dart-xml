@@ -1,17 +1,17 @@
+import '../definitions/cardinality.dart';
+import '../definitions/functions.dart';
 import '../evaluation/context.dart';
-import '../evaluation/types.dart';
+import '../types/duration.dart';
+import '../types/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-years-from-duration
 const fnYearsFromDuration = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'years-from-duration',
+  name: 'fn:years-from-duration',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsDuration,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsDuration,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   function: _fnYearsFromDuration,
@@ -24,15 +24,12 @@ XPathSequence _fnYearsFromDuration(XPathContext context, Duration? arg) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-months-from-duration
 const fnMonthsFromDuration = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'months-from-duration',
+  name: 'fn:months-from-duration',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsDuration,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsDuration,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   function: _fnMonthsFromDuration,
@@ -45,15 +42,12 @@ XPathSequence _fnMonthsFromDuration(XPathContext context, Duration? arg) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-days-from-duration
 const fnDaysFromDuration = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'days-from-duration',
+  name: 'fn:days-from-duration',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsDuration,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsDuration,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   function: _fnDaysFromDuration,
@@ -66,15 +60,12 @@ XPathSequence _fnDaysFromDuration(XPathContext context, Duration? arg) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hours-from-duration
 const fnHoursFromDuration = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'hours-from-duration',
+  name: 'fn:hours-from-duration',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsDuration,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsDuration,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   function: _fnHoursFromDuration,
@@ -87,15 +78,12 @@ XPathSequence _fnHoursFromDuration(XPathContext context, Duration? arg) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-minutes-from-duration
 const fnMinutesFromDuration = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'minutes-from-duration',
+  name: 'fn:minutes-from-duration',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsDuration,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsDuration,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   function: _fnMinutesFromDuration,
@@ -108,15 +96,12 @@ XPathSequence _fnMinutesFromDuration(XPathContext context, Duration? arg) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-seconds-from-duration
 const fnSecondsFromDuration = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'seconds-from-duration',
+  name: 'fn:seconds-from-duration',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsDuration,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsDuration,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   function: _fnSecondsFromDuration,

@@ -11,7 +11,7 @@ void expectXPath(
   String expression,
   Iterable<dynamic> matchers, {
   AxisDirection axisDirection = AxisDirection.none,
-  Map<String, XPathSequence> variables = const {},
+  Map<String, Object> variables = const {},
   Map<String, XPathFunction> functions = const {},
 }) {
   expect(
@@ -43,7 +43,7 @@ void expectEvaluate(
   XmlNode? node,
   String expression,
   dynamic matcher, {
-  Map<String, XPathSequence> variables = const {},
+  Map<String, Object> variables = const {},
   Map<String, XPathFunction> functions = const {},
 }) => expect(
   node!.xpathEvaluate(expression, variables: variables, functions: functions),

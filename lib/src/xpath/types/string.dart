@@ -4,54 +4,53 @@ import '../../xml/nodes/document.dart';
 import '../../xml/nodes/element.dart';
 import '../../xml/nodes/node.dart';
 import '../../xml/nodes/text.dart';
-import '../evaluation/definition.dart';
+import '../definitions/types.dart';
 import '../exceptions/evaluation_exception.dart';
+import 'sequence.dart';
 
 /// The XPath string type.
-const xsString = XPathTypeDefinition(
-  'xs:string',
-  matches: _matches,
-  cast: _cast,
-);
+const xsString = _XPathStringType();
 
-bool _matches(Object item) => item is String;
+class _XPathStringType extends XPathType<String> {
+  const _XPathStringType();
 
-XPathSequence _cast(Object item) => item.toXPathString().toXPathSequence();
+  @override
+  String get name => 'xs:string';
 
-extension XPathStringExtension on Object {
-  String toXPathString() {
-    final self = this;
-    if (self is String) {
-      return self;
-    } else if (self is bool) {
-      return self ? 'true' : 'false';
-    } else if (self is num) {
-      if (self.isNaN) return 'NaN';
-      if (self == double.infinity) return 'INF';
-      if (self == double.negativeInfinity) return '-INF';
-      if (self == 0.0 || self == -0.0) return '0';
-      final string = self.toString();
+  @override
+  bool matches(Object value) => value is String;
+
+  @override
+  String cast(Object value) {
+    if (value is String) {
+      return value;
+    } else if (value is bool) {
+      return value ? 'true' : 'false';
+    } else if (value is num) {
+      if (value.isNaN) return 'NaN';
+      if (value == double.infinity) return 'INF';
+      if (value == double.negativeInfinity) return '-INF';
+      if (value == 0.0 || value == -0.0) return '0';
+      final string = value.toString();
       return string.endsWith('.0')
           ? string.substring(0, string.length - 2)
           : string;
-    } else if (self is Uint8List) {
-      // This covers both base64 and hex binary cases if we use Uint8List
-      // For now, let's assume it's hex as a default or handle individually if we have types
-      return self
+    } else if (value is Uint8List) {
+      return value
           .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
           .join()
           .toUpperCase();
-    } else if (self is XmlNode) {
+    } else if (value is XmlNode) {
       final buffer = StringBuffer();
-      _stringForNodeOn(self, buffer);
+      _stringForNodeOn(value, buffer);
       return buffer.toString();
-    } else if (self is XPathSequence) {
-      final iterator = self.iterator;
+    } else if (value is XPathSequence) {
+      final iterator = value.iterator;
       if (!iterator.moveNext()) return '';
       final item = iterator.current;
-      if (!iterator.moveNext()) return item.toXPathString();
+      if (!iterator.moveNext()) return cast(item);
     }
-    throw XPathEvaluationException.unsupportedCast(self, 'string');
+    throw XPathEvaluationException.unsupportedCast(this, value);
   }
 }
 

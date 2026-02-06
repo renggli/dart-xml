@@ -1,7 +1,6 @@
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../exceptions/evaluation_exception.dart';
-import '../types/item.dart';
 import '../types/sequence.dart';
 
 class MapConstructor implements XPathExpression {
@@ -13,13 +12,12 @@ class MapConstructor implements XPathExpression {
   XPathSequence call(XPathContext context) {
     final map = <Object, Object>{};
     for (final entry in entries) {
-      final keySeq = entry.key(context);
-      if (keySeq.length != 1) {
+      final key = entry.key(context).toAtomicValue();
+      if (key is XPathSequence) {
         throw XPathEvaluationException(
-          'map:constructor key must be exactly one item, but got $keySeq',
+          'map:constructor key must be exactly one item, but got $key',
         );
       }
-      final key = keySeq.toAtomicValue();
       map[key] = entry.value(context).toAtomicValue();
     }
     return XPathSequence.single(map);
@@ -33,10 +31,7 @@ class SquareArrayConstructor implements XPathExpression {
 
   @override
   XPathSequence call(XPathContext context) => XPathSequence.single(
-    members.map((member) {
-      final val = member(context);
-      return val.length == 1 ? val.first : val;
-    }).toList(),
+    members.map((member) => member(context).toAtomicValue()).toList(),
   );
 }
 

@@ -1,21 +1,23 @@
 import 'dart:convert';
 
-import '../../../xml.dart';
+import '../../xml/nodes/node.dart';
+import '../definitions/cardinality.dart';
+import '../definitions/functions.dart';
 import '../evaluation/context.dart';
-import '../evaluation/types.dart';
 import '../exceptions/evaluation_exception.dart';
+import '../types/map.dart';
+import '../types/node.dart';
+import '../types/sequence.dart';
+import '../types/string.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-parse-json
 const fnParseJson = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'parse-json',
+  name: 'fn:parse-json',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'json-text',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   optionalArguments: [XPathArgumentDefinition(name: 'options', type: xsMap)],
@@ -39,15 +41,12 @@ XPathSequence _fnParseJson(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-json-doc
 const fnJsonDoc = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'json-doc',
+  name: 'fn:json-doc',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'href',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   optionalArguments: [XPathArgumentDefinition(name: 'options', type: xsMap)],
@@ -66,15 +65,12 @@ XPathSequence _fnJsonDoc(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-json-to-xml
 const fnJsonToXml = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'json-to-xml',
+  name: 'fn:json-to-xml',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'json-text',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   optionalArguments: [XPathArgumentDefinition(name: 'options', type: xsMap)],
@@ -93,15 +89,12 @@ XPathSequence _fnJsonToXml(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-xml-to-json
 const fnXmlToJson = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'xml-to-json',
+  name: 'fn:xml-to-json',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'input',
-      type: XPathSequenceType(
-        xsNode,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsNode,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   optionalArguments: [XPathArgumentDefinition(name: 'options', type: xsMap)],

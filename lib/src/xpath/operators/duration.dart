@@ -6,8 +6,8 @@ import '../types/sequence.dart';
 /// https://www.w3.org/TR/xpath-functions-31/#func-duration-equal
 XPathSequence opDurationEqual(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  final d1 = left.toXPathDuration();
-  final d2 = right.toXPathDuration();
+  final d1 = xsDuration.cast(left);
+  final d2 = xsDuration.cast(right);
   return XPathSequence.single(d1.compareTo(d2) == 0);
 }
 
@@ -18,7 +18,7 @@ XPathSequence opYearMonthDurationLessThan(
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   return XPathSequence.single(
-    left.toXPathDuration().compareTo(right.toXPathDuration()) < 0,
+    xsDuration.cast(left).compareTo(xsDuration.cast(right)) < 0,
   );
 }
 
@@ -29,7 +29,7 @@ XPathSequence opYearMonthDurationGreaterThan(
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   return XPathSequence.single(
-    left.toXPathDuration().compareTo(right.toXPathDuration()) > 0,
+    xsDuration.cast(left).compareTo(xsDuration.cast(right)) > 0,
   );
 }
 
@@ -40,7 +40,7 @@ XPathSequence opDayTimeDurationLessThan(
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   return XPathSequence.single(
-    left.toXPathDuration().compareTo(right.toXPathDuration()) < 0,
+    xsDuration.cast(left).compareTo(xsDuration.cast(right)) < 0,
   );
 }
 
@@ -51,15 +51,13 @@ XPathSequence opDayTimeDurationGreaterThan(
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   return XPathSequence.single(
-    left.toXPathDuration().compareTo(right.toXPathDuration()) > 0,
+    xsDuration.cast(left).compareTo(xsDuration.cast(right)) > 0,
   );
 }
 
 XPathSequence opAddDurations(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  return XPathSequence.single(
-    (left.toXPathDuration() + right.toXPathDuration()).toXPathDuration(),
-  );
+  return XPathSequence.single(xsDuration.cast(left) + xsDuration.cast(right));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-add-yearMonthDurations
@@ -74,9 +72,7 @@ XPathSequence opAddDayTimeDurations(XPathSequence left, XPathSequence right) =>
 
 XPathSequence opSubtractDurations(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  return XPathSequence.single(
-    (left.toXPathDuration() - right.toXPathDuration()).toXPathDuration(),
-  );
+  return XPathSequence.single(xsDuration.cast(left) - xsDuration.cast(right));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-subtract-yearMonthDurations
@@ -93,9 +89,7 @@ XPathSequence opSubtractDayTimeDurations(
 
 XPathSequence opMultiplyDuration(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  return XPathSequence.single(
-    (left.toXPathDuration() * right.toXPathNumber()).toXPathDuration(),
-  );
+  return XPathSequence.single(xsDuration.cast(left) * xsNumeric.cast(right));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-multiply-yearMonthDuration
@@ -113,7 +107,7 @@ XPathSequence opMultiplyDayTimeDuration(
 XPathSequence opDivideDuration(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   return XPathSequence.single(
-    (left.toXPathDuration() ~/ right.toXPathNumber().toInt()).toXPathDuration(),
+    xsDuration.cast(left) ~/ xsNumeric.cast(right).round(),
   );
 }
 
@@ -134,8 +128,8 @@ XPathSequence opDivideDurationByDuration(
   XPathSequence right,
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  final d1 = left.toXPathDuration();
-  final d2 = right.toXPathDuration();
+  final d1 = xsDuration.cast(left);
+  final d2 = xsDuration.cast(right);
   if (d2.inMicroseconds == 0) {
     throw XPathEvaluationException('Division by zero');
   }

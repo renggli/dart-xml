@@ -7,10 +7,20 @@ import '../../xml/nodes/document.dart';
 import '../../xml/nodes/element.dart';
 import '../../xml/nodes/node.dart';
 import '../../xml/nodes/processing.dart';
+import '../definitions/types.dart';
 
 @immutable
 sealed class NodeTest {
   bool matches(XmlNode node);
+}
+
+class NodeTypeTest implements NodeTest {
+  NodeTypeTest(this.type);
+
+  final XPathType type;
+
+  @override
+  bool matches(XmlNode node) => type.matches(node);
 }
 
 /// `node()` matches any node.

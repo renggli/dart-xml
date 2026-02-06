@@ -1,19 +1,20 @@
+import '../definitions/cardinality.dart';
+import '../definitions/functions.dart';
 import '../evaluation/context.dart';
-import '../evaluation/types.dart';
 import '../exceptions/evaluation_exception.dart';
+import '../types/any.dart';
+import '../types/number.dart';
+import '../types/sequence.dart';
 import '../types/string.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-codepoints-to-string
 const fnCodepointsToString = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'codepoints-to-string',
+  name: 'fn:codepoints-to-string',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsNumeric,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsInteger,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   function: _fnCodepointsToString,
@@ -21,7 +22,7 @@ const fnCodepointsToString = XPathFunctionDefinition(
 
 XPathSequence _fnCodepointsToString(XPathContext context, XPathSequence arg) {
   try {
-    final string = String.fromCharCodes(arg.cast<num>().map((e) => e.toInt()));
+    final string = String.fromCharCodes(arg.cast<int>());
     return XPathSequence.single(string);
   } catch (e) {
     throw XPathEvaluationException('Invalid character code: $e');
@@ -30,15 +31,12 @@ XPathSequence _fnCodepointsToString(XPathContext context, XPathSequence arg) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-string-to-codepoints
 const fnStringToCodepoints = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'string-to-codepoints',
+  name: 'fn:string-to-codepoints',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   function: _fnStringToCodepoints,
@@ -51,22 +49,17 @@ XPathSequence _fnStringToCodepoints(XPathContext context, String? arg) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-compare
 const fnCompare = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'compare',
+  name: 'fn:compare',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'comparand1',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
     XPathArgumentDefinition(
       name: 'comparand2',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   optionalArguments: [
@@ -87,22 +80,17 @@ XPathSequence _fnCompare(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-codepoint-equal
 const fnCodepointEqual = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'codepoint-equal',
+  name: 'fn:codepoint-equal',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'comparand1',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
     XPathArgumentDefinition(
       name: 'comparand2',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   function: _fnCodepointEqual,
@@ -119,8 +107,7 @@ XPathSequence _fnCodepointEqual(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-concat
 const fnConcat = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'concat',
+  name: 'fn:concat',
   requiredArguments: [
     XPathArgumentDefinition(name: 'arg1', type: xsAny),
     XPathArgumentDefinition(name: 'arg2', type: xsAny),
@@ -136,25 +123,22 @@ XPathSequence _fnConcat(
   List<Object> args = const [],
 ]) {
   final result = StringBuffer();
-  result.write(arg1.toXPathString());
-  result.write(arg2.toXPathString());
+  result.write(xsString.cast(arg1));
+  result.write(xsString.cast(arg2));
   for (final arg in args) {
-    result.write(arg.toXPathString());
+    result.write(xsString.cast(arg));
   }
   return XPathSequence.single(result.toString());
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-string-join
 const fnStringJoin = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'string-join',
+  name: 'fn:string-join',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   optionalArguments: [
@@ -166,40 +150,34 @@ const fnStringJoin = XPathFunctionDefinition(
 XPathSequence _fnStringJoin(
   XPathContext context,
   XPathSequence arg, [
-  String? separator,
-]) {
-  final strings = arg.map((e) => e.toXPathString());
-  return XPathSequence.single(strings.join(separator ?? ''));
-}
+  String separator = '',
+]) => XPathSequence.single(arg.map(xsString.cast).join(separator));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-substring
 const fnSubstring = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'substring',
+  name: 'fn:substring',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'sourceString',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
-    XPathArgumentDefinition(name: 'startingLoc', type: xsNumeric),
+    XPathArgumentDefinition(name: 'startingLoc', type: xsInteger),
   ],
-  optionalArguments: [XPathArgumentDefinition(name: 'length', type: xsNumeric)],
+  optionalArguments: [XPathArgumentDefinition(name: 'length', type: xsInteger)],
   function: _fnSubstring,
 );
 
 XPathSequence _fnSubstring(
   XPathContext context,
   String? sourceString,
-  num startingLoc, [
-  num? length,
+  int startingLoc, [
+  int? length,
 ]) {
   if (sourceString == null) return XPathSequence.emptyString;
-  final start = startingLoc.round() - 1;
+  final start = startingLoc - 1;
   if (length != null) {
-    final end = start + length.round();
+    final end = start + length;
     final s = start < 0 ? 0 : start;
     final e = end > sourceString.length ? sourceString.length : end;
     if (s >= e) return XPathSequence.emptyString;
@@ -212,60 +190,48 @@ XPathSequence _fnSubstring(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-string-length
 const fnStringLength = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'string-length',
+  name: 'fn:string-length',
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsSequence,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   function: _fnStringLength,
 );
 
-XPathSequence _fnStringLength(XPathContext context, [Object? arg]) {
-  if (arg == null)
-    return XPathSequence.single(context.item.toXPathString().length);
-  final seq = arg.toXPathSequence();
-  if (seq.isEmpty) return const XPathSequence.single(0);
-  return XPathSequence.single(seq.toXPathString().length);
+XPathSequence _fnStringLength(XPathContext context, [XPathSequence? arg]) {
+  final string = arg != null ? xsString.cast(arg) : xsString.cast(context.item);
+  return XPathSequence.single(string.length);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-normalize-space
 const fnNormalizeSpace = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'normalize-space',
+  name: 'fn:normalize-space',
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   function: _fnNormalizeSpace,
 );
 
-XPathSequence _fnNormalizeSpace(XPathContext context, [String? arg]) {
-  final s = arg ?? context.item.toXPathString();
-  return XPathSequence.single(s.trim().replaceAll(RegExp(r'\s+'), ' '));
+XPathSequence _fnNormalizeSpace(XPathContext context, [Object? arg]) {
+  final string = arg != null ? xsString.cast(arg) : xsString.cast(context.item);
+  return XPathSequence.single(string.trim().replaceAll(RegExp(r'\s+'), ' '));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-normalize-unicode
 const fnNormalizeUnicode = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'normalize-unicode',
+  name: 'fn:normalize-unicode',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   optionalArguments: [
@@ -286,15 +252,12 @@ XPathSequence _fnNormalizeUnicode(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-upper-case
 const fnUpperCase = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'upper-case',
+  name: 'fn:upper-case',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   function: _fnUpperCase,
@@ -307,15 +270,12 @@ XPathSequence _fnUpperCase(XPathContext context, String? arg) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-lower-case
 const fnLowerCase = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'lower-case',
+  name: 'fn:lower-case',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   function: _fnLowerCase,
@@ -328,15 +288,12 @@ XPathSequence _fnLowerCase(XPathContext context, String? arg) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-translate
 const fnTranslate = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'translate',
+  name: 'fn:translate',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
     XPathArgumentDefinition(name: 'mapString', type: xsString),
     XPathArgumentDefinition(name: 'transString', type: xsString),
@@ -375,22 +332,17 @@ XPathSequence _fnTranslate(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-contains
 const fnContains = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'contains',
+  name: 'fn:contains',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg1',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
     XPathArgumentDefinition(
       name: 'arg2',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   optionalArguments: [
@@ -412,22 +364,17 @@ XPathSequence _fnContains(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-starts-with
 const fnStartsWith = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'starts-with',
+  name: 'fn:starts-with',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg1',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
     XPathArgumentDefinition(
       name: 'arg2',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   optionalArguments: [
@@ -449,22 +396,17 @@ XPathSequence _fnStartsWith(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-ends-with
 const fnEndsWith = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'ends-with',
+  name: 'fn:ends-with',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg1',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
     XPathArgumentDefinition(
       name: 'arg2',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   optionalArguments: [
@@ -486,22 +428,17 @@ XPathSequence _fnEndsWith(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-substring-before
 const fnSubstringBefore = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'substring-before',
+  name: 'fn:substring-before',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg1',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
     XPathArgumentDefinition(
       name: 'arg2',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   optionalArguments: [
@@ -524,22 +461,17 @@ XPathSequence _fnSubstringBefore(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-substring-after
 const fnSubstringAfter = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'substring-after',
+  name: 'fn:substring-after',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg1',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
     XPathArgumentDefinition(
       name: 'arg2',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   optionalArguments: [
@@ -562,15 +494,12 @@ XPathSequence _fnSubstringAfter(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-matches
 const fnMatches = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'matches',
+  name: 'fn:matches',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'input',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
     XPathArgumentDefinition(name: 'pattern', type: xsString),
   ],
@@ -592,15 +521,12 @@ XPathSequence _fnMatches(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-replace
 const fnReplace = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'replace',
+  name: 'fn:replace',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'input',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
     XPathArgumentDefinition(name: 'pattern', type: xsString),
     XPathArgumentDefinition(name: 'replacement', type: xsString),
@@ -624,15 +550,12 @@ XPathSequence _fnReplace(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-tokenize
 const fnTokenize = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'tokenize',
+  name: 'fn:tokenize',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'input',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   optionalArguments: [
@@ -659,15 +582,12 @@ XPathSequence _fnTokenize(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-analyze-string
 const fnAnalyzeString = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'analyze-string',
+  name: 'fn:analyze-string',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'input',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
     XPathArgumentDefinition(name: 'pattern', type: xsString),
   ],
@@ -675,6 +595,7 @@ const fnAnalyzeString = XPathFunctionDefinition(
   function: _fnAnalyzeString,
 );
 
+// TODO: Implement analyze-string according to spec
 XPathSequence _fnAnalyzeString(
   XPathContext context,
   String? input,
@@ -682,14 +603,12 @@ XPathSequence _fnAnalyzeString(
   String? flags,
 ]) {
   if (input == null) return XPathSequence.empty;
-  // TODO: Implement analyze-string according to spec
   return XPathSequence.empty;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-collation-key
 const fnCollationKey = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'collation-key',
+  name: 'fn:collation-key',
   requiredArguments: [
     XPathArgumentDefinition(name: 'relative', type: xsString),
   ],
@@ -699,26 +618,21 @@ const fnCollationKey = XPathFunctionDefinition(
   function: _fnCollationKey,
 );
 
+// TODO: Proper collation key generation
 XPathSequence _fnCollationKey(
   XPathContext context,
   String relative, [
   String? collation,
-]) {
-  // TODO: Proper collation key generation
-  return XPathSequence.single(relative);
-}
+]) => XPathSequence.single(relative);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-contains-token
 const fnContainsToken = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'contains-token',
+  name: 'fn:contains-token',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'input',
-      type: XPathSequenceType(
-        xsString,
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      ),
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
     XPathArgumentDefinition(name: 'token', type: xsString),
   ],

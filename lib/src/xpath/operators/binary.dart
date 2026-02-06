@@ -4,33 +4,32 @@ import '../types/sequence.dart';
 /// https://www.w3.org/TR/xpath-functions-31/#func-hexBinary-equal
 XPathSequence opHexBinaryEqual(XPathSequence left, XPathSequence right) =>
     XPathSequence.single(
-      _compareBinary(left.toXPathHexBinary(), right.toXPathHexBinary()) == 0,
+      _compareBinary(xsHexBinary.cast(left), xsHexBinary.cast(right)) == 0,
     );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hexBinary-less-than
 XPathSequence opHexBinaryLessThan(XPathSequence left, XPathSequence right) =>
     XPathSequence.single(
-      _compareBinary(left.toXPathHexBinary(), right.toXPathHexBinary()) < 0,
+      _compareBinary(xsHexBinary.cast(left), xsHexBinary.cast(right)) < 0,
     );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hexBinary-greater-than
 XPathSequence opHexBinaryGreaterThan(XPathSequence left, XPathSequence right) =>
     XPathSequence.single(
-      _compareBinary(left.toXPathHexBinary(), right.toXPathHexBinary()) > 0,
+      _compareBinary(xsHexBinary.cast(left), xsHexBinary.cast(right)) > 0,
     );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-base64Binary-equal
 XPathSequence opBase64BinaryEqual(XPathSequence left, XPathSequence right) =>
     XPathSequence.single(
-      _compareBinary(left.toXPathBase64Binary(), right.toXPathBase64Binary()) ==
+      _compareBinary(xsBase64Binary.cast(left), xsBase64Binary.cast(right)) ==
           0,
     );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-base64Binary-less-than
 XPathSequence opBase64BinaryLessThan(XPathSequence left, XPathSequence right) =>
     XPathSequence.single(
-      _compareBinary(left.toXPathBase64Binary(), right.toXPathBase64Binary()) <
-          0,
+      _compareBinary(xsBase64Binary.cast(left), xsBase64Binary.cast(right)) < 0,
     );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-base64Binary-greater-than
@@ -38,7 +37,7 @@ XPathSequence opBase64BinaryGreaterThan(
   XPathSequence left,
   XPathSequence right,
 ) => XPathSequence.single(
-  _compareBinary(left.toXPathBase64Binary(), right.toXPathBase64Binary()) > 0,
+  _compareBinary(xsBase64Binary.cast(left), xsBase64Binary.cast(right)) > 0,
 );
 
 int _compareBinary(List<int> a, List<int> b) {

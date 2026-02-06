@@ -1,12 +1,15 @@
-import '../evaluation/types.dart';
+import '../../xml/nodes/node.dart';
+import '../types/boolean.dart';
+import '../types/sequence.dart';
+import '../types/string.dart';
 
 /// https://www.w3.org/TR/xpath-31/#id-logical-expressions
 XPathSequence opAnd(XPathSequence left, XPathSequence right) =>
-    XPathSequence.single(left.toXPathBoolean() && right.toXPathBoolean());
+    XPathSequence.single(xsBoolean.cast(left) && xsBoolean.cast(right));
 
 /// https://www.w3.org/TR/xpath-31/#id-logical-expressions
 XPathSequence opOr(XPathSequence left, XPathSequence right) =>
-    XPathSequence.single(left.toXPathBoolean() || right.toXPathBoolean());
+    XPathSequence.single(xsBoolean.cast(left) || xsBoolean.cast(right));
 
 /// https://www.w3.org/TR/xpath-31/#id-general-comparisons
 XPathSequence opGeneralEqual(XPathSequence left, XPathSequence right) =>
@@ -60,8 +63,8 @@ XPathSequence _compareGeneral(
 }
 
 Iterable<Object> _atomize(XPathSequence seq) => seq.expand((item) {
-  if (item is XPathNode) {
-    return [item.toXPathString()];
+  if (item is XmlNode) {
+    return [xsString.cast(item)];
   } else {
     return [item];
   }

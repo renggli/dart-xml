@@ -1,21 +1,24 @@
+import '../definitions/cardinality.dart';
+import '../definitions/functions.dart';
 import '../evaluation/context.dart';
-import '../evaluation/types.dart';
+import '../types/any.dart';
+import '../types/function.dart';
+import '../types/map.dart';
+import '../types/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-size
 const fnMapSize = XPathFunctionDefinition(
-  namespace: 'map',
-  name: 'size',
+  name: 'map:size',
   requiredArguments: [XPathArgumentDefinition(name: 'map', type: xsMap)],
   function: _fnMapSize,
 );
 
-XPathSequence _fnMapSize(XPathContext context, Map<Object, Object> map) =>
+XPathSequence _fnMapSize(XPathContext context, XPathMap map) =>
     XPathSequence.single(map.length);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-get
 const fnMapGet = XPathFunctionDefinition(
-  namespace: 'map',
-  name: 'get',
+  name: 'map:get',
   requiredArguments: [
     XPathArgumentDefinition(name: 'map', type: xsMap),
     XPathArgumentDefinition(name: 'key', type: xsAny),
@@ -23,29 +26,22 @@ const fnMapGet = XPathFunctionDefinition(
   function: _fnMapGet,
 );
 
-XPathSequence _fnMapGet(
-  XPathContext context,
-  Map<Object, Object> map,
-  Object key,
-) {
+XPathSequence _fnMapGet(XPathContext context, XPathMap map, Object key) {
   final value = map[key];
   if (value == null) return XPathSequence.empty;
-  return value.toXPathSequence();
+  return xsSequence.cast(value);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-put
 const fnMapPut = XPathFunctionDefinition(
-  namespace: 'map',
-  name: 'put',
+  name: 'map:put',
   requiredArguments: [
     XPathArgumentDefinition(name: 'map', type: xsMap),
     XPathArgumentDefinition(name: 'key', type: xsAny),
     XPathArgumentDefinition(
       name: 'value',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   function: _fnMapPut,
@@ -53,18 +49,14 @@ const fnMapPut = XPathFunctionDefinition(
 
 XPathSequence _fnMapPut(
   XPathContext context,
-  Map<Object, Object> map,
+  XPathMap map,
   Object key,
   XPathSequence value,
-) => XPathSequence.single({
-  ...map,
-  key: value.length == 1 ? value.first : value,
-});
+) => XPathSequence.single({...map, key: value.toAtomicValue()});
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-contains
 const fnMapContains = XPathFunctionDefinition(
-  namespace: 'map',
-  name: 'contains',
+  name: 'map:contains',
   requiredArguments: [
     XPathArgumentDefinition(name: 'map', type: xsMap),
     XPathArgumentDefinition(name: 'key', type: xsAny),
@@ -72,24 +64,18 @@ const fnMapContains = XPathFunctionDefinition(
   function: _fnMapContains,
 );
 
-XPathSequence _fnMapContains(
-  XPathContext context,
-  Map<Object, Object> map,
-  Object key,
-) => XPathSequence.single(map.containsKey(key));
+XPathSequence _fnMapContains(XPathContext context, XPathMap map, Object key) =>
+    XPathSequence.single(map.containsKey(key));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-remove
 const fnMapRemove = XPathFunctionDefinition(
-  namespace: 'map',
-  name: 'remove',
+  name: 'map:remove',
   requiredArguments: [
     XPathArgumentDefinition(name: 'map', type: xsMap),
     XPathArgumentDefinition(
       name: 'keys',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsSequence,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   function: _fnMapRemove,
@@ -97,10 +83,10 @@ const fnMapRemove = XPathFunctionDefinition(
 
 XPathSequence _fnMapRemove(
   XPathContext context,
-  Map<Object, Object> map,
+  XPathMap map,
   XPathSequence keys,
 ) {
-  final result = Map<Object, Object>.from(map);
+  final result = XPathMap.from(map);
   for (final key in keys) {
     result.remove(key);
   }
@@ -109,26 +95,22 @@ XPathSequence _fnMapRemove(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-keys
 const fnMapKeys = XPathFunctionDefinition(
-  namespace: 'map',
-  name: 'keys',
+  name: 'map:keys',
   requiredArguments: [XPathArgumentDefinition(name: 'map', type: xsMap)],
   function: _fnMapKeys,
 );
 
-XPathSequence _fnMapKeys(XPathContext context, Map<Object, Object> map) =>
+XPathSequence _fnMapKeys(XPathContext context, XPathMap map) =>
     XPathSequence(map.keys);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-merge
 const fnMapMerge = XPathFunctionDefinition(
-  namespace: 'map',
-  name: 'merge',
+  name: 'map:merge',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'maps',
-      type: XPathSequenceType(
-        xsMap,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsMap,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   optionalArguments: [XPathArgumentDefinition(name: 'options', type: xsMap)],
@@ -138,11 +120,11 @@ const fnMapMerge = XPathFunctionDefinition(
 XPathSequence _fnMapMerge(
   XPathContext context,
   XPathSequence maps, [
-  Map<Object, Object>? options,
+  XPathMap? options,
 ]) {
   final result = <Object, Object>{};
   for (final item in maps) {
-    if (item is Map<Object, Object>) {
+    if (item is XPathMap) {
       result.addAll(item);
     }
   }
@@ -151,8 +133,7 @@ XPathSequence _fnMapMerge(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-for-each
 const fnMapForEach = XPathFunctionDefinition(
-  namespace: 'map',
-  name: 'for-each',
+  name: 'map:for-each',
   requiredArguments: [
     XPathArgumentDefinition(name: 'map', type: xsMap),
     XPathArgumentDefinition(name: 'action', type: xsFunction),
@@ -162,41 +143,31 @@ const fnMapForEach = XPathFunctionDefinition(
 
 XPathSequence _fnMapForEach(
   XPathContext context,
-  Map<Object, Object> map,
-  Function action,
+  XPathMap map,
+  XPathFunction action,
 ) => XPathSequence(_fnMapForEachSync(context, map, action));
 
 Iterable<Object> _fnMapForEachSync(
   XPathContext context,
-  Map<Object, Object> map,
-  Function action,
+  XPathMap map,
+  XPathFunction action,
 ) sync* {
   for (final entry in map.entries) {
-    final result =
-        action(context, [
-              entry.key.toXPathSequence(),
-              entry.value.toXPathSequence(),
-            ])
-            as Object?;
-    if (result is XPathSequence) {
-      yield* result;
-    } else if (result != null) {
-      yield result;
-    }
+    yield* action(context, [
+      xsSequence.cast(entry.key),
+      xsSequence.cast(entry.value),
+    ]);
   }
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-find
 const fnMapFind = XPathFunctionDefinition(
-  namespace: 'map',
-  name: 'find',
+  name: 'map:find',
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'input',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
     XPathArgumentDefinition(name: 'key', type: xsAny),
   ],
@@ -215,11 +186,18 @@ Iterable<Object> _fnMapFindSync(
   Object key,
 ) sync* {
   for (final item in input) {
-    if (item is Map<Object, Object>) {
-      if (item.containsKey(key)) {
-        yield item[key] as Object;
+    if (item is Map) {
+      if (item.containsKey(
+        key is XPathSequence && key.length == 1 ? key.first : key,
+      )) {
+        yield item[key is XPathSequence && key.length == 1 ? key.first : key]
+            as Object;
       }
-      yield* _fnMapFindSync(context, XPathSequence(item.values), key);
+      yield* _fnMapFindSync(
+        context,
+        XPathSequence(item.values.cast<Object>()),
+        key,
+      );
     } else if (item is List<Object>) {
       yield* _fnMapFindSync(context, XPathSequence(item), key);
     }
@@ -228,16 +206,13 @@ Iterable<Object> _fnMapFindSync(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-entry
 const fnMapEntry = XPathFunctionDefinition(
-  namespace: 'map',
-  name: 'entry',
+  name: 'map:entry',
   requiredArguments: [
     XPathArgumentDefinition(name: 'key', type: xsAny),
     XPathArgumentDefinition(
       name: 'value',
-      type: XPathSequenceType(
-        xsAny,
-        cardinality: XPathArgumentCardinality.zeroOrMore,
-      ),
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   function: _fnMapEntry,
@@ -247,4 +222,4 @@ XPathSequence _fnMapEntry(
   XPathContext context,
   Object key,
   XPathSequence value,
-) => XPathSequence.single({key: value.length == 1 ? value.first : value});
+) => XPathSequence.single({key: value.toAtomicValue()});

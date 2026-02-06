@@ -1,47 +1,102 @@
 import '../../xml/nodes/node.dart';
-import '../evaluation/definition.dart';
+import '../definitions/types.dart';
 import '../exceptions/evaluation_exception.dart';
+import 'sequence.dart';
 import 'string.dart';
 
 /// The XPath numeric type.
-const xsNumber = XPathTypeDefinition(
-  'xs:numeric',
-  matches: _matches,
-  cast: _cast,
-);
+const xsNumeric = _XPathNumericType();
 
-/// Alias for [xsNumber].
-const xsNumeric = xsNumber;
+class _XPathNumericType extends XPathType<num> {
+  const _XPathNumericType();
 
-bool _matches(Object item) => item is num;
+  @override
+  String get name => 'xs:numeric';
 
-XPathSequence _cast(Object item) =>
-    item.toXPathNumber(strict: true).toXPathSequence();
+  @override
+  bool matches(Object value) => value is num;
 
-extension XPathNumberExtension on Object {
-  num toXPathNumber({bool strict = false}) {
-    final self = this;
-    if (self is num) {
-      return self;
-    } else if (self is bool) {
-      return self ? 1 : 0;
-    } else if (self is String) {
-      if (self == 'INF') return double.infinity;
-      if (self == '-INF') return double.negativeInfinity;
-      final result = num.tryParse(self);
-      if (result == null) {
-        if (strict) {
-          throw XPathEvaluationException.unsupportedCast(self, 'number');
-        }
-        return double.nan;
-      }
+  @override
+  num cast(Object value) {
+    if (value is num) {
+      return value;
+    } else if (value is bool) {
+      return value ? 1 : 0;
+    } else if (value is String) {
+      if (value == 'INF') return double.infinity;
+      if (value == '-INF') return double.negativeInfinity;
+      final result = num.tryParse(value);
+      if (result == null) return double.nan;
       return result;
-    } else if (self is XmlNode) {
-      return self.toXPathString().toXPathNumber(strict: strict);
-    } else if (self is XPathSequence) {
-      final item = self.singleOrNull;
-      if (item != null) return item.toXPathNumber(strict: strict);
+    } else if (value is XmlNode) {
+      return cast(xsString.cast(value));
+    } else if (value is XPathSequence) {
+      final item = value.singleOrNull;
+      if (item != null) return cast(item);
     }
-    throw XPathEvaluationException.unsupportedCast(self, 'number');
+    throw XPathEvaluationException.unsupportedCast(this, value);
+  }
+}
+
+/// The XPath integer type.
+const xsInteger = _XPathIntegerType();
+
+class _XPathIntegerType extends XPathType<int> {
+  const _XPathIntegerType();
+
+  @override
+  String get name => 'xs:integer';
+
+  @override
+  bool matches(Object value) => value is int;
+
+  @override
+  int cast(Object value) {
+    if (value is int) {
+      return value;
+    } else if (value is num) {
+      return value.round();
+    } else if (value is bool) {
+      return value ? 1 : 0;
+    } else if (value is String) {
+      final result = int.tryParse(value);
+      if (result != null) return result;
+    } else if (value is XmlNode) {
+      return cast(xsString.cast(value));
+    }
+    throw XPathEvaluationException.unsupportedCast(this, value);
+  }
+}
+
+/// The XPath double type.
+const xsDouble = _XPathDoubleType();
+
+class _XPathDoubleType extends XPathType<double> {
+  const _XPathDoubleType();
+
+  @override
+  String get name => 'xs:double';
+
+  @override
+  bool matches(Object value) => value is double;
+
+  @override
+  double cast(Object value) {
+    if (value is double) {
+      return value;
+    } else if (value is num) {
+      return value.toDouble();
+    } else if (value is bool) {
+      return value ? 1 : 0;
+    } else if (value is String) {
+      if (value == 'INF') return double.infinity;
+      if (value == '-INF') return double.negativeInfinity;
+      final result = double.tryParse(value);
+      if (result == null) return double.nan;
+      return result;
+    } else if (value is XmlNode) {
+      return cast(xsString.cast(value));
+    }
+    throw XPathEvaluationException.unsupportedCast(this, value);
   }
 }

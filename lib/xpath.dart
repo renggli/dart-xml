@@ -6,13 +6,13 @@ import 'package:meta/meta.dart' show experimental;
 import 'src/xml/nodes/node.dart';
 import 'src/xpath/evaluation/context.dart';
 import 'src/xpath/evaluation/functions.dart';
+import 'src/xpath/types/function.dart';
 import 'src/xpath/types/sequence.dart';
 
-export 'src/xpath/evaluation/functions.dart' show XPathFunction;
 export 'src/xpath/exceptions/evaluation_exception.dart';
 export 'src/xpath/exceptions/parser_exception.dart';
 export 'src/xpath/generator.dart' show XPathGenerator;
-export 'src/xpath/types/sequence.dart';
+export 'src/xpath/types/function.dart' show XPathFunction;
 
 extension XPathExtension on XmlNode {
   /// Returns an iterable over the nodes matching the provided XPath
@@ -20,7 +20,7 @@ extension XPathExtension on XmlNode {
   @experimental
   Iterable<XmlNode> xpath(
     String expression, {
-    Map<String, XPathSequence> variables = const {},
+    Map<String, Object> variables = const {},
     Map<String, XPathFunction> functions = const {},
   }) => xpathEvaluate(
     expression,
@@ -35,7 +35,7 @@ extension XPathExtension on XmlNode {
   @experimental
   XPathSequence xpathEvaluate(
     String expression, {
-    Map<String, XPathSequence> variables = const {},
+    Map<String, Object> variables = const {},
     Map<String, XPathFunction> functions = const {},
   }) => XPathContext(
     this,

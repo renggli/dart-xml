@@ -1,6 +1,5 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
-import 'package:xml/src/xpath/evaluation/types.dart';
 import 'package:xml/src/xpath/functions/map.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
