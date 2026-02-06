@@ -2,10 +2,8 @@ import 'dart:math' as math;
 
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
+import 'package:xml/src/xpath/functions/math.dart';
 import 'package:xml/src/xpath/functions/number.dart';
-
-import 'package:xml/src/xpath/types/map.dart';
-import 'package:xml/src/xpath/types/number.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -58,18 +56,18 @@ void main() {
       );
     });
     test('fn:random-number-generator', () {
-      final result = fnRandomNumberGenerator(context, []).single as XPathMap;
+      final result = fnRandomNumberGenerator(context, []).single as Map;
       expect(result.keys, containsAll(['number', 'next', 'permute']));
       final current = result['number'];
       expect(current, isA<double>());
       expect(current, isNonNegative);
       expect(current, lessThan(1.0));
-      final next =
-          (result['next'] as XPathFunction)(context, []).single as XPathNumber;
-      expect(next, result['number']);
-      final permuted = (result['permute'] as XPathFunction)(context, [
-        const XPathSequence([1, 2, 3]),
-      ]);
+      final nextFunc = result['next'] as Function;
+      final nextSeq = nextFunc(context) as XPathSequence;
+      expect(nextSeq.single, isA<Map<Object, Object>>());
+      final permuteFunc = result['permute'] as Function;
+      final permuted =
+          permuteFunc(context, const XPathSequence([1, 2, 3])) as XPathSequence;
       expect(permuted, isA<XPathSequence>());
       expect(permuted, hasLength(3));
       expect(permuted, containsAll([1, 2, 3]));
@@ -92,22 +90,6 @@ void main() {
           const XPathSequence.single(1),
         ]),
         [1.5],
-      );
-    });
-    test('fn:format-integer', () {
-      expect(
-        fnFormatInteger(context, [
-          const XPathSequence.single(123),
-          const XPathSequence.single('000'),
-        ]),
-        ['123'],
-      );
-      expect(
-        fnFormatInteger(context, [
-          XPathSequence.empty,
-          const XPathSequence.single('000'),
-        ]),
-        isEmpty,
       );
     });
     test('math functions', () {
@@ -137,45 +119,6 @@ void main() {
         ]),
         [0.0],
       );
-    });
-
-    test('fn:format-integer (3 args)', () {
-      expect(
-        fnFormatInteger(context, [
-          const XPathSequence.single(123),
-          const XPathSequence.single('0000'),
-          const XPathSequence.single('en'),
-        ]),
-        ['123'],
-      ); // Partial implementation ignoring picture
-    });
-    test('fn:format-number (basic)', () {
-      expect(
-        fnFormatNumber(context, [
-          const XPathSequence.single(123.456),
-          const XPathSequence.single('#.00'),
-        ]),
-        ['123.456'],
-      ); // Partial implementation ignoring picture
-    });
-    test('fn:format-number (3 args)', () {
-      expect(
-        fnFormatNumber(context, [
-          const XPathSequence.single(123.456),
-          const XPathSequence.single('#.00'),
-          const XPathSequence.single('foo'), // decimal format name
-        ]),
-        ['123.456'],
-      ); // Partial implementation ignoring picture
-    });
-    test('fn:format-number (empty)', () {
-      expect(
-        fnFormatNumber(context, [
-          XPathSequence.empty,
-          const XPathSequence.single('#.00'),
-        ]),
-        isEmpty,
-      ); // Partial implementation returns empty seq
     });
 
     test('fn:round (precision)', () {

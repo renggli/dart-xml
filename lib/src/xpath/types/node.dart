@@ -1,24 +1,16 @@
 import '../../xml/nodes/node.dart';
 import '../evaluation/definition.dart';
 import '../exceptions/evaluation_exception.dart';
-import 'sequence.dart';
 
-const xsNode = XPathNodeType();
+/// The XPath node type.
+const xsNode = XPathTypeDefinition('xs:node', matches: _matches, cast: _cast);
 
-typedef XPathNode = XmlNode;
+bool _matches(Object item) => item is XmlNode;
 
-class XPathNodeType extends XPathItemType {
-  const XPathNodeType();
-
-  @override
-  bool matches(Object item) => item is XPathNode;
-
-  @override
-  XPathSequence cast(Object item) => item.toXPathNode().toXPathSequence();
-}
+XPathSequence _cast(Object item) => item.toXPathNode().toXPathSequence();
 
 extension XPathNodeExtension on Object {
-  XPathNode toXPathNode() {
+  XmlNode toXPathNode() {
     final self = this;
     if (self is XmlNode) {
       return self;
@@ -26,6 +18,6 @@ extension XPathNodeExtension on Object {
       final item = self.singleOrNull;
       if (item is XmlNode) return item;
     }
-    XPathEvaluationException.unsupportedCast(self, 'node');
+    throw XPathEvaluationException.unsupportedCast(self, 'node');
   }
 }

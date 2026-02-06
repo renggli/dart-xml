@@ -6,12 +6,12 @@ import '../../xml/extensions/descendants.dart';
 import '../../xml/extensions/following.dart';
 import '../../xml/extensions/preceding.dart';
 import '../../xml/extensions/sibling.dart';
-import '../types/node.dart';
+import '../../xml/nodes/node.dart';
 
 @immutable
 sealed class Axis {
   /// Return all nodes selected by this axis in document order.
-  Iterable<XPathNode> find(XPathNode node);
+  Iterable<XmlNode> find(XmlNode node);
 }
 
 /// Marker interface for axes that are indexed in reverse document order. This
@@ -24,14 +24,14 @@ class AncestorAxis implements Axis, ReverseAxis {
   const AncestorAxis();
 
   @override
-  Iterable<XPathNode> find(XPathNode node) => node.ancestors.toList().reversed;
+  Iterable<XmlNode> find(XmlNode node) => node.ancestors.toList().reversed;
 }
 
 class AncestorOrSelfAxis implements Axis, ReverseAxis {
   const AncestorOrSelfAxis();
 
   @override
-  Iterable<XPathNode> find(XPathNode node) =>
+  Iterable<XmlNode> find(XmlNode node) =>
       node.ancestors.toList().reversed.followedBy([node]);
 }
 
@@ -39,30 +39,33 @@ class AttributeAxis implements Axis {
   const AttributeAxis();
 
   @override
-  Iterable<XPathNode> find(XPathNode node) => node.attributes;
+  Iterable<XmlNode> find(XmlNode node) => node.attributes;
 }
 
 class ChildAxis implements Axis {
   const ChildAxis();
 
   @override
-  Iterable<XPathNode> find(XPathNode node) => node.children;
+  Iterable<XmlNode> find(XmlNode node) => node.children;
 }
 
 class DescendantAxis implements Axis {
   const DescendantAxis();
 
   @override
-  Iterable<XPathNode> find(XPathNode node) =>
-      node.descendants.where((each) => each.nodeType != XmlNodeType.ATTRIBUTE);
+  Iterable<XmlNode> find(XmlNode node) => node.descendants.where(
+    (XmlNode each) => each.nodeType != XmlNodeType.ATTRIBUTE,
+  );
 }
 
 class DescendantOrSelfAxis implements Axis {
   const DescendantOrSelfAxis();
 
   @override
-  Iterable<XPathNode> find(XPathNode node) => [node].followedBy(
-    node.descendants.where((each) => each.nodeType != XmlNodeType.ATTRIBUTE),
+  Iterable<XmlNode> find(XmlNode node) => [node].followedBy(
+    node.descendants.where(
+      (XmlNode each) => each.nodeType != XmlNodeType.ATTRIBUTE,
+    ),
   );
 }
 
@@ -70,15 +73,16 @@ class FollowingAxis implements Axis {
   const FollowingAxis();
 
   @override
-  Iterable<XPathNode> find(XPathNode node) =>
-      node.following.where((each) => each.nodeType != XmlNodeType.ATTRIBUTE);
+  Iterable<XmlNode> find(XmlNode node) => node.following.where(
+    (XmlNode each) => each.nodeType != XmlNodeType.ATTRIBUTE,
+  );
 }
 
 class FollowingSiblingAxis implements Axis {
   const FollowingSiblingAxis();
 
   @override
-  Iterable<XPathNode> find(XPathNode node) {
+  Iterable<XmlNode> find(XmlNode node) {
     final siblings = node.siblings;
     final index = siblings.indexOf(node);
     return siblings.getRange(index + 1, siblings.length);
@@ -89,7 +93,7 @@ class ParentAxis implements Axis, ReverseAxis {
   const ParentAxis();
 
   @override
-  Iterable<XPathNode> find(XPathNode node) {
+  Iterable<XmlNode> find(XmlNode node) {
     final parent = node.parent;
     return parent == null ? [] : [parent];
   }
@@ -99,10 +103,10 @@ class PrecedingAxis implements Axis, ReverseAxis {
   const PrecedingAxis();
 
   @override
-  Iterable<XPathNode> find(XPathNode node) {
+  Iterable<XmlNode> find(XmlNode node) {
     final ancestors = node.ancestors.toSet();
     return node.preceding.where(
-      (each) =>
+      (XmlNode each) =>
           !ancestors.contains(each) && each.nodeType != XmlNodeType.ATTRIBUTE,
     );
   }
@@ -112,7 +116,7 @@ class PrecedingSiblingAxis implements Axis, ReverseAxis {
   const PrecedingSiblingAxis();
 
   @override
-  Iterable<XPathNode> find(XPathNode node) {
+  Iterable<XmlNode> find(XmlNode node) {
     final siblings = node.siblings;
     final index = siblings.indexOf(node);
     return siblings.getRange(0, index);
@@ -123,5 +127,5 @@ class SelfAxis implements Axis {
   const SelfAxis();
 
   @override
-  Iterable<XPathNode> find(XPathNode node) => [node];
+  Iterable<XmlNode> find(XmlNode node) => [node];
 }

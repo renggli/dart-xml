@@ -1,6 +1,5 @@
 import '../evaluation/context.dart';
 import '../evaluation/definition.dart';
-import '../types/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-position
 const fnPosition = XPathFunctionDefinition(

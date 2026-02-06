@@ -1,28 +1,23 @@
 import '../evaluation/definition.dart';
 import '../exceptions/evaluation_exception.dart';
-import 'sequence.dart';
-import 'string.dart';
 
-const xsDateTime = XPathDateTimeType();
+/// The XPath dateTime type.
+const xsDateTime = XPathTypeDefinition(
+  'xs:dateTime',
+  matches: _matches,
+  cast: _cast,
+);
 
-typedef XPathDateTime = DateTime;
+bool _matches(Object item) => item is DateTime;
 
-class XPathDateTimeType extends XPathItemType {
-  const XPathDateTimeType();
-
-  @override
-  bool matches(Object item) => item is XPathDateTime;
-
-  @override
-  XPathSequence cast(Object item) => item.toXPathDateTime().toXPathSequence();
-}
+XPathSequence _cast(Object item) => item.toXPathDateTime().toXPathSequence();
 
 extension XPathDateTimeExtension on Object {
-  XPathDateTime toXPathDateTime() {
+  DateTime toXPathDateTime() {
     final self = this;
-    if (self is XPathDateTime) {
+    if (self is DateTime) {
       return self;
-    } else if (self is XPathString) {
+    } else if (self is String) {
       final parsed = DateTime.tryParse(self);
       if (parsed != null) {
         return parsed;
@@ -31,6 +26,6 @@ extension XPathDateTimeExtension on Object {
       final item = self.singleOrNull;
       if (item != null) return item.toXPathDateTime();
     }
-    XPathEvaluationException.unsupportedCast(self, 'dateTime');
+    throw XPathEvaluationException.unsupportedCast(self, 'dateTime');
   }
 }

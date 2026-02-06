@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart:typed_data';
 
 import '../../xml/nodes/document.dart';
 import '../../xml/nodes/element.dart';
@@ -6,30 +6,24 @@ import '../../xml/nodes/node.dart';
 import '../../xml/nodes/text.dart';
 import '../evaluation/definition.dart';
 import '../exceptions/evaluation_exception.dart';
-import 'binary.dart';
-import 'boolean.dart';
-import 'sequence.dart';
 
-const xsString = XPathStringType();
+/// The XPath string type.
+const xsString = XPathTypeDefinition(
+  'xs:string',
+  matches: _matches,
+  cast: _cast,
+);
 
-typedef XPathString = String;
+bool _matches(Object item) => item is String;
 
-class XPathStringType extends XPathItemType {
-  const XPathStringType();
-
-  @override
-  bool matches(Object item) => item is XPathString;
-
-  @override
-  XPathSequence cast(Object item) => item.toXPathString().toXPathSequence();
-}
+XPathSequence _cast(Object item) => item.toXPathString().toXPathSequence();
 
 extension XPathStringExtension on Object {
-  XPathString toXPathString() {
+  String toXPathString() {
     final self = this;
-    if (self is XPathString) {
+    if (self is String) {
       return self;
-    } else if (self is XPathBoolean) {
+    } else if (self is bool) {
       return self ? 'true' : 'false';
     } else if (self is num) {
       if (self.isNaN) return 'NaN';
@@ -40,13 +34,13 @@ extension XPathStringExtension on Object {
       return string.endsWith('.0')
           ? string.substring(0, string.length - 2)
           : string;
-    } else if (self is XPathHexBinary) {
+    } else if (self is Uint8List) {
+      // This covers both base64 and hex binary cases if we use Uint8List
+      // For now, let's assume it's hex as a default or handle individually if we have types
       return self
           .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
           .join()
           .toUpperCase();
-    } else if (self is XPathBase64Binary) {
-      return base64Encode(self);
     } else if (self is XmlNode) {
       final buffer = StringBuffer();
       _stringForNodeOn(self, buffer);
@@ -57,7 +51,7 @@ extension XPathStringExtension on Object {
       final item = iterator.current;
       if (!iterator.moveNext()) return item.toXPathString();
     }
-    XPathEvaluationException.unsupportedCast(self, 'string');
+    throw XPathEvaluationException.unsupportedCast(self, 'string');
   }
 }
 

@@ -1,5 +1,6 @@
 import 'sequence.dart';
 
+/// An XPath item.
 typedef XPathItem = Object;
 
 extension XPathItemExtension on Object {

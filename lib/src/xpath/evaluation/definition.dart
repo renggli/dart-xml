@@ -1,41 +1,119 @@
+import 'package:collection/collection.dart' show DelegatingIterable;
+import '../../xml/nodes/node.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../expressions/node_test.dart';
-import '../types/array.dart';
-import '../types/binary.dart';
-import '../types/boolean.dart';
-import '../types/date_time.dart';
-import '../types/duration.dart';
-import '../types/function.dart';
-import '../types/map.dart';
-import '../types/node.dart';
-import '../types/number.dart';
-import '../types/sequence.dart';
-import '../types/string.dart';
 import 'context.dart';
 
 export 'package:petitparser/petitparser.dart' show unbounded;
 
 /// Definition of an XPath type.
-abstract class XPathTypeDefinition {
-  const XPathTypeDefinition();
+abstract class XPathType {
+  const XPathType();
 
-  /// Returns `true` if the [sequence] matches this type.
-  bool matches(XPathSequence sequence);
+  /// Returns `true` if the [item] matches this type.
+  bool matches(Object item);
+
+  /// Casts the [item] to this type.
+  XPathSequence cast(Object item);
 }
 
-/// A sequence type.
-class XPathSequenceType extends XPathTypeDefinition {
+/// A basic XPath type for single items.
+class XPathTypeDefinition extends XPathType {
+  const XPathTypeDefinition(
+    this.name, {
+    required bool Function(Object item) matches,
+    required XPathSequence Function(Object item) cast,
+  }) : _matches = matches,
+       _cast = cast;
+
+  /// The name of the type.
+  final String name;
+
+  final bool Function(Object item) _matches;
+
+  final XPathSequence Function(Object item) _cast;
+
+  @override
+  bool matches(Object item) => _matches(item);
+
+  @override
+  XPathSequence cast(Object item) => _cast(item);
+
+  @override
+  String toString() => name;
+}
+
+/// An item type that matches anything (`item()`).
+class XPathAnyItemType extends XPathType {
+  const XPathAnyItemType();
+
+  @override
+  bool matches(Object item) => true;
+
+  @override
+  XPathSequence cast(Object item) => item.toXPathSequence();
+
+  @override
+  String toString() => 'item()';
+}
+
+/// The XPath any type.
+const xsAny = XPathAnyItemType();
+
+/// An item type that matches a node test.
+class XPathNodeTestItemType extends XPathType {
+  const XPathNodeTestItemType(this.nodeTest);
+
+  final NodeTest nodeTest;
+
+  @override
+  bool matches(Object item) => item is XmlNode && nodeTest.matches(item);
+
+  @override
+  XPathSequence cast(Object item) {
+    if (matches(item)) return item.toXPathSequence();
+    throw XPathEvaluationException('Cannot cast $item to node test');
+  }
+
+  @override
+  String toString() => nodeTest.toString();
+}
+
+/// A type that matches only the empty sequence.
+class XPathEmptySequenceType extends XPathType {
+  const XPathEmptySequenceType();
+
+  @override
+  bool matches(Object item) =>
+      item is XPathSequence && item.isEmpty ||
+      (item is! XPathSequence && false); // Should only be checked against sequences
+
+  @override
+  XPathSequence cast(Object item) {
+    if (matches(item)) return XPathSequence.empty;
+    throw XPathEvaluationException('Cannot cast $item to empty-sequence()');
+  }
+
+  @override
+  String toString() => 'empty-sequence()';
+}
+
+/// A sequence type with a specific cardinality.
+class XPathSequenceType extends XPathType {
   const XPathSequenceType(
     this.itemType, {
     this.cardinality = XPathArgumentCardinality.exactlyOne,
   });
 
-  final XPathItemType itemType;
+  /// The type of the items in the sequence.
+  final XPathType itemType;
 
+  /// The cardinality of the sequence.
   final XPathArgumentCardinality cardinality;
 
   @override
-  bool matches(XPathSequence sequence) {
+  bool matches(Object item) {
+    final sequence = item.toXPathSequence();
     if (sequence.isEmpty) {
       return cardinality == XPathArgumentCardinality.zeroOrOne ||
           cardinality == XPathArgumentCardinality.zeroOrMore;
@@ -46,57 +124,156 @@ class XPathSequenceType extends XPathTypeDefinition {
         return false;
       }
     }
-    for (final item in sequence) {
-      if (!itemType.matches(item)) {
+    for (final element in sequence) {
+      if (!itemType.matches(element)) {
         return false;
       }
     }
     return true;
   }
+
+  @override
+  XPathSequence cast(Object item) {
+    if (matches(item)) return item.toXPathSequence();
+    final sequence = item.toXPathSequence();
+    return XPathSequence(sequence.expand((element) => itemType.cast(element)));
+  }
+
+  @override
+  String toString() => '$itemType${cardinality.suffix}';
 }
 
-/// An item type.
-abstract class XPathItemType {
-  const XPathItemType();
+/// An XPath 3.1 sequence.
+abstract interface class XPathSequence implements Iterable<Object> {
+  /// The empty sequence.
+  static const empty = _XPathEmptySequence();
 
-  /// Returns `true` if the [item] matches this type.
-  bool matches(Object item);
+  /// The true sequence.
+  static const trueSequence = _XPathSingleSequence(true);
 
-  /// Casts the [item] to this type.
-  XPathSequence cast(Object item) {
-    if (matches(item)) return XPathSequence.single(item);
-    throw XPathEvaluationException('Cannot cast $item to $this');
+  /// The false sequence.
+  static const falseSequence = _XPathSingleSequence(false);
+
+  /// The empty string.
+  static const emptyString = _XPathSingleSequence('');
+
+  /// The empty array.
+  static const emptyArray = _XPathSingleSequence(<Object>[]);
+
+  /// The empty map.
+  static const emptyMap = _XPathSingleSequence(<Object, Object>{});
+
+  /// Creates a sequence from a single [value].
+  const factory XPathSequence.single(Object value) = _XPathSingleSequence;
+
+  /// Creates a sequence from an [Iterable].
+  const factory XPathSequence(Iterable<Object> iterable) =
+      _XPathDefaultSequence;
+
+  /// Creates a sequence from a cached [Iterable].
+  factory XPathSequence.cached(Iterable<Object> iterable) =
+      _XPathCachedSequence;
+
+  /// Creates a sequence from an integer range.
+  factory XPathSequence.range(int start, int stop) => start < stop
+      ? XPathSequence(Iterable.generate(stop - start + 1, (i) => start + i))
+      : start == stop
+      ? XPathSequence.single(start)
+      : empty;
+}
+
+extension XPathSequenceExtension on Object {
+  XPathSequence toXPathSequence() {
+    final self = this;
+    return self is XPathSequence ? self : XPathSequence.single(self);
   }
 }
 
-/// An empty sequence type.
-class XPathEmptySequenceType extends XPathSequenceType {
-  const XPathEmptySequenceType()
-    : super(
-        const XPathAnyItemType(),
-        cardinality: XPathArgumentCardinality.zeroOrOne,
-      );
+/// The empty sequence.
+class _XPathEmptySequence extends Iterable<Object> implements XPathSequence {
+  const _XPathEmptySequence();
 
   @override
-  bool matches(XPathSequence sequence) => sequence.isEmpty;
+  int get length => 0;
+
+  @override
+  bool get isEmpty => true;
+
+  @override
+  Iterator<Object> get iterator => const <Object>[].iterator;
 }
 
-/// An item type that matches anything.
-class XPathAnyItemType extends XPathItemType {
-  const XPathAnyItemType();
+/// A sequence with a single value.
+class _XPathSingleSequence extends Iterable<Object> implements XPathSequence {
+  const _XPathSingleSequence(this._value);
+
+  final Object _value;
 
   @override
-  bool matches(Object item) => true;
+  int get length => 1;
+
+  @override
+  bool get isEmpty => false;
+
+  @override
+  Iterator<Object> get iterator => _XPathSingleIterator(_value);
 }
 
-/// An item type that matches a specific node.
-class XPathNodeTestItemType extends XPathItemType {
-  const XPathNodeTestItemType(this.nodeTest);
+class _XPathSingleIterator implements Iterator<Object> {
+  _XPathSingleIterator(this._value);
 
-  final NodeTest nodeTest;
+  final Object _value;
+  int _index = -1;
 
   @override
-  bool matches(Object item) => item is XPathNode && nodeTest.matches(item);
+  Object get current => _value;
+
+  @override
+  bool moveNext() => ++_index < 1;
+}
+
+/// The default sequence imlementation wrapping an [Iterable].
+class _XPathDefaultSequence extends DelegatingIterable<Object>
+    implements XPathSequence {
+  const _XPathDefaultSequence(super.base);
+
+  @override
+  String toString() => Iterable.iterableToShortString(this);
+}
+
+/// An optimized sequence that stores the results of the first iteration.
+class _XPathCachedSequence extends Iterable<Object> implements XPathSequence {
+  _XPathCachedSequence(Iterable<Object> source) : _iterator = source.iterator;
+
+  final Iterator<Object> _iterator;
+  final List<Object> _results = [];
+
+  @override
+  Iterator<Object> get iterator => _XPathCachedIterator(_iterator, _results);
+}
+
+class _XPathCachedIterator implements Iterator<Object> {
+  _XPathCachedIterator(this._iterator, this._results);
+
+  final Iterator<Object> _iterator;
+  final List<Object> _results;
+  int _index = -1;
+
+  @override
+  Object get current => _results[_index];
+
+  @override
+  bool moveNext() {
+    _index++;
+    if (_index < _results.length) {
+      return true;
+    }
+    if (_iterator.moveNext()) {
+      _results.add(_iterator.current);
+      return true;
+    }
+    return false;
+  }
 }
 
 /// Definition of an XPath function.
@@ -153,9 +330,9 @@ class XPathFunctionDefinition {
     }
     // Process variadic arguments.
     if (variadicArgument != null) {
-      final rest = <Object?>[];
+      final rest = <Object>[];
       while (index < arguments.length) {
-        rest.add(variadicArgument!.convert(this, arguments[index++]));
+        rest.add(variadicArgument!.convert(this, arguments[index++]) as Object);
       }
       positionalArguments.add(rest);
     } else if (index < arguments.length) {
@@ -175,7 +352,6 @@ class XPathArgumentDefinition {
   const XPathArgumentDefinition({
     required this.name,
     required this.type,
-    this.cardinality = XPathArgumentCardinality.exactlyOne,
     this.defaultValue,
   });
 
@@ -183,99 +359,35 @@ class XPathArgumentDefinition {
   final String name;
 
   /// The expected type of the argument.
-  final Type type;
-
-  /// The cardinality of the argument.
-  final XPathArgumentCardinality cardinality;
+  final XPathType type;
 
   /// The default value of the argument.
   final Object? Function(XPathContext context)? defaultValue;
 
   /// Process the argument.
   Object? convert(XPathFunctionDefinition definition, XPathSequence sequence) {
-    switch (cardinality) {
-      case XPathArgumentCardinality.exactlyOne:
-        return _convertExactlyOne(definition, sequence);
-      case XPathArgumentCardinality.zeroOrOne:
-        return _convertZeroOrOne(definition, sequence);
-      case XPathArgumentCardinality.oneOrMore:
-        return _convertOneOrMore(definition, sequence);
-      case XPathArgumentCardinality.zeroOrMore:
-        return sequence;
-    }
-  }
-
-  /// Converts an argument that has exactly one item.
-  Object _convertExactlyOne(
-    XPathFunctionDefinition definition,
-    XPathSequence sequence,
-  ) {
-    final iterator = sequence.iterator;
-    if (iterator.moveNext()) {
-      final item = iterator.current;
-      if (!iterator.moveNext()) return _convertItem(item);
-    }
-    throw XPathEvaluationException(
-      'Function "${definition.namespace}:${definition.name}" argument "$name" '
-      'expects exactly-one item, but got $sequence',
-    );
-  }
-
-  /// Converts an argument that has zero or one item.
-  Object? _convertZeroOrOne(
-    XPathFunctionDefinition definition,
-    XPathSequence sequence,
-  ) {
-    final iterator = sequence.iterator;
-    if (!iterator.moveNext()) return null;
-    final item = iterator.current;
-    if (!iterator.moveNext()) return _convertItem(item);
-    throw XPathEvaluationException(
-      'Function "${definition.namespace}:${definition.name}" argument "$name" '
-      'expects zero-or-one items, but got $sequence',
-    );
-  }
-
-  XPathSequence _convertOneOrMore(
-    XPathFunctionDefinition definition,
-    XPathSequence sequence,
-  ) {
-    if (sequence.isNotEmpty) return sequence;
-    throw XPathEvaluationException(
-      'Function "${definition.namespace}:${definition.name}" argument "$name" '
-      'expects one-or-more items, but got $sequence',
-    );
-  }
-
-  /// Converts the given value to the expected type.
-  Object _convertItem(Object value) {
-    switch (type) {
-      case const (XPathSequence):
-        return value is XPathSequence ? value : XPathSequence.single(value);
-      case const (XPathBoolean):
-        return value.toXPathBoolean();
-      case const (XPathBase64Binary):
-        return value.toXPathBase64Binary();
-      case const (XPathHexBinary):
-        return value.toXPathHexBinary();
-      case const (XPathDateTime):
-        return value.toXPathDateTime();
-      case const (XPathDuration):
-        return value.toXPathDuration();
-      case const (XPathFunction):
-        return value.toXPathFunction();
-      case const (XPathNode):
-        return value.toXPathNode();
-      case const (XPathNumber):
-        return value.toXPathNumber();
-      case const (XPathString):
-        return value.toXPathString();
-      case const (XPathArray):
-        return value.toXPathArray();
-      case const (XPathMap):
-        return value.toXPathMap();
-      default:
-        return value;
+    try {
+      final result = type.cast(sequence);
+      if (type is XPathSequenceType) {
+        final sequenceType = type as XPathSequenceType;
+        if (sequenceType.cardinality == XPathArgumentCardinality.exactlyOne) {
+          return result.first;
+        } else if (sequenceType.cardinality ==
+            XPathArgumentCardinality.zeroOrOne) {
+          return result.isEmpty ? null : result.first;
+        }
+      } else if (type is! XPathAnyItemType &&
+          type is! XPathEmptySequenceType &&
+          type is! XPathNodeTestItemType) {
+        // Basic TypeDefinitions also return single values.
+        return result.first;
+      }
+      return result;
+    } on XPathEvaluationException catch (error) {
+      throw XPathEvaluationException(
+        'Function "${definition.namespace}:${definition.name}" argument "$name" '
+        'expects $type, but got $sequence: ${error.message}',
+      );
     }
   }
 }
@@ -283,14 +395,19 @@ class XPathArgumentDefinition {
 /// The cardinality of the argument.
 enum XPathArgumentCardinality {
   /// The argument must have exactly one value.
-  exactlyOne,
+  exactlyOne(''),
 
   /// The argument must have zero or one value `?`.
-  zeroOrOne,
+  zeroOrOne('?'),
 
   /// The argument must have one or more values `+`.
-  oneOrMore,
+  oneOrMore('+'),
 
   /// The argument can have any number of values `*`.
-  zeroOrMore,
+  zeroOrMore('*');
+
+  const XPathArgumentCardinality(this.suffix);
+
+  /// The suffix of the cardinality.
+  final String suffix;
 }

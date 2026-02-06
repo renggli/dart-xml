@@ -1,12 +1,30 @@
-import 'package:petitparser/petitparser.dart' show unbounded;
-
 import '../../xml/exceptions/exception.dart';
+import '../../xml/exceptions/format_exception.dart';
 import '../evaluation/functions.dart';
+import '../evaluation/types.dart';
 import '../types/sequence.dart';
 
 /// Exception thrown when calling an XPath functions fails.
-class XPathEvaluationException extends XmlException {
-  XPathEvaluationException(super.message);
+class XPathEvaluationException extends XmlException with XmlFormatException {
+  XPathEvaluationException(
+    super.message, {
+    this.code,
+    this.object,
+    this.buffer,
+    this.position,
+  });
+
+  @override
+  final String? buffer;
+
+  @override
+  final int? position;
+
+  /// The error code (typically a QName).
+  final String? code;
+
+  /// The error object.
+  final XPathSequence? object;
 
   /// Checks the number of arguments passed to a XPath function.
   static void checkArgumentCount(
@@ -96,5 +114,14 @@ class XPathEvaluationException extends XmlException {
       throw XPathEvaluationException('Invalid map key: $key');
 
   @override
-  String toString() => 'XPathEvaluationException: $message';
+  String toString() {
+    final buffer = StringBuffer('XPathEvaluationException: $message');
+    if (code != null) {
+      buffer.write(' (Code: $code)');
+    }
+    if (object != null) {
+      buffer.write(' (Object: $object)');
+    }
+    return buffer.toString();
+  }
 }

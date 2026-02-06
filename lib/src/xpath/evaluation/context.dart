@@ -4,10 +4,8 @@ import '../../xml/nodes/node.dart';
 import '../../xml/utils/cache.dart';
 import '../exceptions/parser_exception.dart';
 import '../parser.dart';
-import '../types/item.dart';
-import '../types/sequence.dart';
-import '../types/string.dart';
 import 'expression.dart';
+import 'types.dart';
 
 /// Runtime execution context to evaluate XPath expressions.
 class XPathContext {

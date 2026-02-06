@@ -1,8 +1,7 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xml/nodes/document.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
-import 'package:xml/src/xpath/types/sequence.dart';
-import 'package:xml/src/xpath/types/string.dart';
+import 'package:xml/src/xpath/evaluation/types.dart';
 
 final document = XmlDocument.parse('<root><node/></root>');
 final node = document.rootElement;

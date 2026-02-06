@@ -1,7 +1,5 @@
 import '../evaluation/context.dart';
-import '../evaluation/definition.dart';
-import '../types/duration.dart';
-import '../types/sequence.dart';
+import '../evaluation/types.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-years-from-duration
 const fnYearsFromDuration = XPathFunctionDefinition(
@@ -10,14 +8,16 @@ const fnYearsFromDuration = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathDuration,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDuration,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnYearsFromDuration,
 );
 
-XPathSequence _fnYearsFromDuration(XPathContext context, XPathDuration? arg) {
+XPathSequence _fnYearsFromDuration(XPathContext context, Duration? arg) {
   if (arg == null) return XPathSequence.empty;
   return const XPathSequence.single(0); // Not supported in Dart
 }
@@ -29,14 +29,16 @@ const fnMonthsFromDuration = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathDuration,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDuration,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnMonthsFromDuration,
 );
 
-XPathSequence _fnMonthsFromDuration(XPathContext context, XPathDuration? arg) {
+XPathSequence _fnMonthsFromDuration(XPathContext context, Duration? arg) {
   if (arg == null) return XPathSequence.empty;
   return const XPathSequence.single(0); // Not supported in Dart
 }
@@ -48,14 +50,16 @@ const fnDaysFromDuration = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathDuration,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDuration,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnDaysFromDuration,
 );
 
-XPathSequence _fnDaysFromDuration(XPathContext context, XPathDuration? arg) {
+XPathSequence _fnDaysFromDuration(XPathContext context, Duration? arg) {
   if (arg == null) return XPathSequence.empty;
   return XPathSequence.single(arg.inDays);
 }
@@ -67,14 +71,16 @@ const fnHoursFromDuration = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathDuration,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDuration,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnHoursFromDuration,
 );
 
-XPathSequence _fnHoursFromDuration(XPathContext context, XPathDuration? arg) {
+XPathSequence _fnHoursFromDuration(XPathContext context, Duration? arg) {
   if (arg == null) return XPathSequence.empty;
   return XPathSequence.single(arg.inHours % 24);
 }
@@ -86,14 +92,16 @@ const fnMinutesFromDuration = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathDuration,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDuration,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnMinutesFromDuration,
 );
 
-XPathSequence _fnMinutesFromDuration(XPathContext context, XPathDuration? arg) {
+XPathSequence _fnMinutesFromDuration(XPathContext context, Duration? arg) {
   if (arg == null) return XPathSequence.empty;
   return XPathSequence.single(arg.inMinutes % 60);
 }
@@ -105,14 +113,16 @@ const fnSecondsFromDuration = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathDuration,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDuration,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnSecondsFromDuration,
 );
 
-XPathSequence _fnSecondsFromDuration(XPathContext context, XPathDuration? arg) {
+XPathSequence _fnSecondsFromDuration(XPathContext context, Duration? arg) {
   if (arg == null) return XPathSequence.empty;
   return XPathSequence.single(
     arg.inSeconds % 60 + (arg.inMicroseconds % 1000000) / 1000000.0,

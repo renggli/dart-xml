@@ -1,7 +1,4 @@
-import '../types/boolean.dart';
-import '../types/node.dart';
-import '../types/sequence.dart';
-import '../types/string.dart';
+import '../evaluation/types.dart';
 
 /// https://www.w3.org/TR/xpath-31/#id-logical-expressions
 XPathSequence opAnd(XPathSequence left, XPathSequence right) =>

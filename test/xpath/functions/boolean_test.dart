@@ -1,7 +1,6 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/functions/boolean.dart';
-
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -39,6 +38,7 @@ void main() {
       final doc = XmlDocument.parse('<r xml:lang="en"><c/></r>');
       final c = doc.rootElement.children.whereType<XmlElement>().first;
       final newContext = XPathContext(c);
+      // fn:lang is in node.dart
       expect(fnLang(newContext, [const XPathSequence.single('en')]), [true]);
       expect(fnLang(newContext, [const XPathSequence.single('fr')]), [false]);
       expect(fnLang(newContext, [const XPathSequence.single('EN-US')]), [

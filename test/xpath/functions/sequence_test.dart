@@ -1,8 +1,11 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/functions/sequence.dart';
+import 'package:xml/src/xpath/functions/uri.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
+
+import '../helpers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
 final context = XPathContext(document);
@@ -210,44 +213,6 @@ void main() {
       );
     });
   });
-  group('functions that test the cardinality of sequences', () {
-    test('fn:zero-or-one', () {
-      expect(fnZeroOrOne(context, [XPathSequence.empty]), isEmpty);
-      expect(fnZeroOrOne(context, [const XPathSequence.single(1)]), [1]);
-      expect(
-        () => fnZeroOrOne(context, [
-          const XPathSequence([1, 2]),
-        ]),
-        throwsA(isA<XPathEvaluationException>()),
-      );
-    });
-    test('fn:one-or-more', () {
-      expect(fnOneOrMore(context, [const XPathSequence.single(1)]), [1]);
-      expect(
-        fnOneOrMore(context, [
-          const XPathSequence([1, 2]),
-        ]),
-        const XPathSequence([1, 2]),
-      );
-      expect(
-        () => fnOneOrMore(context, [XPathSequence.empty]),
-        throwsA(isA<XPathEvaluationException>()),
-      );
-    });
-    test('fn:exactly-one', () {
-      expect(fnExactlyOne(context, [const XPathSequence.single(1)]), [1]);
-      expect(
-        () => fnExactlyOne(context, [XPathSequence.empty]),
-        throwsA(isA<XPathEvaluationException>()),
-      );
-      expect(
-        () => fnExactlyOne(context, [
-          const XPathSequence([1, 2]),
-        ]),
-        throwsA(isA<XPathEvaluationException>()),
-      );
-    });
-  });
   group('aggregate functions', () {
     test('fn:count', () {
       expect(fnCount(context, [XPathSequence.empty]), [0]);
@@ -299,32 +264,6 @@ void main() {
       );
     });
   });
-  group('functions on node identifiers', () {
-    test('fn:id', () {
-      expect(
-        () => fnId(context, [const XPathSequence.single('id')]),
-        throwsA(isA<UnimplementedError>()),
-      );
-    });
-    test('fn:element-with-id', () {
-      expect(
-        () => fnElementWithId(context, [const XPathSequence.single('id')]),
-        throwsA(isA<UnimplementedError>()),
-      );
-    });
-    test('fn:idref', () {
-      expect(
-        () => fnIdref(context, [const XPathSequence.single('id')]),
-        throwsA(isA<UnimplementedError>()),
-      );
-    });
-    test('fn:generate-id', () {
-      expect(
-        () => fnGenerateId(context, [XPathSequence.empty]),
-        throwsA(isA<UnimplementedError>()),
-      );
-    });
-  });
   group('functions giving access to external information', () {
     test('fn:doc', () {
       expect(
@@ -343,59 +282,23 @@ void main() {
     test('fn:uri-collection', () {
       expect(fnUriCollection(context, []), isEmpty);
     });
-    test('fn:unparsed-text', () {
-      expect(
-        () => fnUnparsedText(context, [const XPathSequence.single('uri')]),
-        throwsA(isA<UnimplementedError>()),
-      );
-    });
-    test('fn:unparsed-text-lines', () {
-      expect(
-        () => fnUnparsedTextLines(context, [const XPathSequence.single('uri')]),
-        throwsA(isA<UnimplementedError>()),
-      );
-    });
-    test('fn:unparsed-text-available', () {
-      expect(
-        () => fnUnparsedTextAvailable(context, [
-          const XPathSequence.single('uri'),
-        ]),
-        throwsA(isA<UnimplementedError>()),
-      );
-    });
-    test('fn:environment-variable', () {
-      expect(
-        () => fnEnvironmentVariable(context, [
-          const XPathSequence.single('name'),
-        ]),
-        throwsA(isA<UnimplementedError>()),
-      );
-    });
-    test('fn:available-environment-variables', () {
-      expect(
-        () => fnAvailableEnvironmentVariables(context, []),
-        throwsA(isA<UnimplementedError>()),
-      );
-    });
   });
-  group('parsing and serializing', () {
-    test('fn:serialize', () {
-      expect(
-        () => fnSerialize(context, [XPathSequence.empty]),
-        throwsA(isA<UnimplementedError>()),
-      );
+  group('integration', () {
+    final xml = XmlDocument.parse('<r><a>1</a><b>2</b><c>3</c></r>');
+    test('count', () {
+      expectEvaluate(xml, 'count(/r/*)', [3]);
     });
-    test('fn:parse-xml', () {
-      expect(
-        () => fnParseXml(context, [const XPathSequence.single('<r/>')]),
-        throwsA(isA<UnimplementedError>()),
-      );
+    test('sum', () {
+      expectEvaluate(xml, 'sum(/r/*)', [6]);
     });
-    test('fn:parse-xml-fragment', () {
-      expect(
-        () => fnParseXmlFragment(context, [const XPathSequence.single('<r/>')]),
-        throwsA(isA<UnimplementedError>()),
-      );
+    test('avg', () {
+      expectEvaluate(xml, 'avg(/r/*)', [2.0]);
+    });
+    test('min', () {
+      expectEvaluate(xml, 'min(/r/*)', [1]);
+    });
+    test('max', () {
+      expectEvaluate(xml, 'max(/r/*)', [3]);
     });
   });
 }

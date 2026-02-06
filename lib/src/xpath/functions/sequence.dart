@@ -1,10 +1,8 @@
+import 'package:collection/collection.dart';
+
 import '../evaluation/context.dart';
-import '../evaluation/definition.dart';
+import '../evaluation/types.dart';
 import '../exceptions/evaluation_exception.dart';
-import '../types/item.dart';
-import '../types/number.dart';
-import '../types/sequence.dart';
-import '../types/string.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-empty
 const fnEmpty = XPathFunctionDefinition(
@@ -13,15 +11,17 @@ const fnEmpty = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
+      type: XPathSequenceType(
+        xsAny,
+        cardinality: XPathArgumentCardinality.zeroOrMore,
+      ),
     ),
   ],
   function: _fnEmpty,
 );
 
 XPathSequence _fnEmpty(XPathContext context, XPathSequence arg) =>
-    arg.isEmpty ? XPathSequence.trueSequence : XPathSequence.falseSequence;
+    XPathSequence.single(arg.isEmpty);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-exists
 const fnExists = XPathFunctionDefinition(
@@ -30,15 +30,17 @@ const fnExists = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
+      type: XPathSequenceType(
+        xsAny,
+        cardinality: XPathArgumentCardinality.zeroOrMore,
+      ),
     ),
   ],
   function: _fnExists,
 );
 
 XPathSequence _fnExists(XPathContext context, XPathSequence arg) =>
-    arg.isNotEmpty ? XPathSequence.trueSequence : XPathSequence.falseSequence;
+    XPathSequence.single(arg.isNotEmpty);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-head
 const fnHead = XPathFunctionDefinition(
@@ -47,15 +49,19 @@ const fnHead = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
+      type: XPathSequenceType(
+        xsAny,
+        cardinality: XPathArgumentCardinality.zeroOrMore,
+      ),
     ),
   ],
   function: _fnHead,
 );
 
-XPathSequence _fnHead(XPathContext context, XPathSequence arg) =>
-    arg.isEmpty ? XPathSequence.empty : XPathSequence.single(arg.first);
+XPathSequence _fnHead(XPathContext context, XPathSequence arg) {
+  if (arg.isEmpty) return XPathSequence.empty;
+  return arg.first.toXPathSequence();
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-tail
 const fnTail = XPathFunctionDefinition(
@@ -64,15 +70,19 @@ const fnTail = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
+      type: XPathSequenceType(
+        xsAny,
+        cardinality: XPathArgumentCardinality.zeroOrMore,
+      ),
     ),
   ],
   function: _fnTail,
 );
 
-XPathSequence _fnTail(XPathContext context, XPathSequence arg) =>
-    arg.isEmpty ? XPathSequence.empty : XPathSequence(arg.skip(1));
+XPathSequence _fnTail(XPathContext context, XPathSequence arg) {
+  if (arg.isEmpty) return XPathSequence.empty;
+  return XPathSequence(arg.skip(1));
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-insert-before
 const fnInsertBefore = XPathFunctionDefinition(
@@ -81,14 +91,18 @@ const fnInsertBefore = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'target',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
+      type: XPathSequenceType(
+        xsAny,
+        cardinality: XPathArgumentCardinality.zeroOrMore,
+      ),
     ),
-    XPathArgumentDefinition(name: 'position', type: XPathNumber),
+    XPathArgumentDefinition(name: 'position', type: xsNumeric),
     XPathArgumentDefinition(
       name: 'inserts',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
+      type: XPathSequenceType(
+        xsAny,
+        cardinality: XPathArgumentCardinality.zeroOrMore,
+      ),
     ),
   ],
   function: _fnInsertBefore,
@@ -97,24 +111,34 @@ const fnInsertBefore = XPathFunctionDefinition(
 XPathSequence _fnInsertBefore(
   XPathContext context,
   XPathSequence target,
-  XPathNumber position,
+  num position,
   XPathSequence inserts,
-) {
-  var pos = position.toInt();
-  if (pos < 1) {
-    pos = 1;
-  } else if (pos > target.length) {
-    pos = target.length + 1;
+) => XPathSequence(_fnInsertBeforeSync(target, position, inserts));
+
+Iterable<Object> _fnInsertBeforeSync(
+  XPathSequence target,
+  num position,
+  XPathSequence inserts,
+) sync* {
+  var index = 1;
+  final pos = position.toInt();
+  if (pos <= 0) {
+    yield* inserts;
+    yield* target;
+    return;
   }
-  return XPathSequence(() sync* {
-    var i = 1;
-    for (final item in target) {
-      if (i == pos) yield* inserts;
-      yield item;
-      i++;
+  var inserted = false;
+  for (final item in target) {
+    if (index == pos) {
+      yield* inserts;
+      inserted = true;
     }
-    if (i == pos) yield* inserts;
-  }());
+    yield item;
+    index++;
+  }
+  if (!inserted) {
+    yield* inserts;
+  }
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-remove
@@ -124,10 +148,12 @@ const fnRemove = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'target',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
+      type: XPathSequenceType(
+        xsAny,
+        cardinality: XPathArgumentCardinality.zeroOrMore,
+      ),
     ),
-    XPathArgumentDefinition(name: 'position', type: XPathNumber),
+    XPathArgumentDefinition(name: 'position', type: xsNumeric),
   ],
   function: _fnRemove,
 );
@@ -135,16 +161,18 @@ const fnRemove = XPathFunctionDefinition(
 XPathSequence _fnRemove(
   XPathContext context,
   XPathSequence target,
-  XPathNumber position,
-) {
+  num position,
+) => XPathSequence(_fnRemoveSync(target, position));
+
+Iterable<Object> _fnRemoveSync(XPathSequence target, num position) sync* {
+  var index = 1;
   final pos = position.toInt();
-  return XPathSequence(() sync* {
-    var i = 1;
-    for (final item in target) {
-      if (i != pos) yield item;
-      i++;
+  for (final item in target) {
+    if (index != pos) {
+      yield item;
     }
-  }());
+    index++;
+  }
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-reverse
@@ -154,8 +182,10 @@ const fnReverse = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
+      type: XPathSequenceType(
+        xsAny,
+        cardinality: XPathArgumentCardinality.zeroOrMore,
+      ),
     ),
   ],
   function: _fnReverse,
@@ -164,7 +194,67 @@ const fnReverse = XPathFunctionDefinition(
 XPathSequence _fnReverse(XPathContext context, XPathSequence arg) =>
     XPathSequence(arg.toList().reversed);
 
-XPathNumber _defaultSubsequenceLength(XPathContext context) => double.infinity;
+/// https://www.w3.org/TR/xpath-functions-31/#func-format-integer
+const fnFormatInteger = XPathFunctionDefinition(
+  namespace: 'fn',
+  name: 'format-integer',
+  requiredArguments: [
+    XPathArgumentDefinition(
+      name: 'value',
+      type: XPathSequenceType(
+        xsNumeric,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
+    ),
+    XPathArgumentDefinition(name: 'picture', type: xsString),
+  ],
+  optionalArguments: [
+    XPathArgumentDefinition(name: 'language', type: xsString),
+  ],
+  function: _fnFormatInteger,
+);
+
+XPathSequence _fnFormatInteger(
+  XPathContext context,
+  num? value,
+  String picture, [
+  String? language,
+]) {
+  if (value == null) return XPathSequence.empty;
+  // TODO: Proper implementation
+  return XPathSequence.single(value.toString());
+}
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-format-number
+const fnFormatNumber = XPathFunctionDefinition(
+  namespace: 'fn',
+  name: 'format-number',
+  requiredArguments: [
+    XPathArgumentDefinition(
+      name: 'value',
+      type: XPathSequenceType(
+        xsNumeric,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
+    ),
+    XPathArgumentDefinition(name: 'picture', type: xsString),
+  ],
+  optionalArguments: [
+    XPathArgumentDefinition(name: 'decimal-format-name', type: xsString),
+  ],
+  function: _fnFormatNumber,
+);
+
+XPathSequence _fnFormatNumber(
+  XPathContext context,
+  num? value,
+  String picture, [
+  String? decimalFormatName,
+]) {
+  if (value == null) return XPathSequence.empty;
+  // TODO: Proper implementation
+  return XPathSequence.single(value.toString());
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-subsequence
 const fnSubsequence = XPathFunctionDefinition(
@@ -173,52 +263,39 @@ const fnSubsequence = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'sourceSeq',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
+      type: XPathSequenceType(
+        xsAny,
+        cardinality: XPathArgumentCardinality.zeroOrMore,
+      ),
     ),
-    XPathArgumentDefinition(name: 'startingLoc', type: XPathNumber),
+    XPathArgumentDefinition(name: 'startingLoc', type: xsNumeric),
   ],
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'length',
-      type: XPathNumber,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-      defaultValue: _defaultSubsequenceLength,
-    ),
-  ],
+  optionalArguments: [XPathArgumentDefinition(name: 'length', type: xsNumeric)],
   function: _fnSubsequence,
 );
 
 XPathSequence _fnSubsequence(
   XPathContext context,
   XPathSequence sourceSeq,
-  XPathNumber startingLoc, [
-  XPathNumber? length,
+  num startingLoc, [
+  num? length,
 ]) {
-  final startingLocVal = startingLoc.toDouble();
-  final startingIdx = startingLocVal.round();
-  if (length == null) {
-    // If length provided as empty sequence, return empty sequence.
-    // Note: If omitted, defaults to infinity.
-    // Wait, need to check if defaultValue logic worked.
-    // Yes, defaultValue injects Infinity. So if null, it was explicitly empty.
-    return XPathSequence.empty;
+  final start = startingLoc.round();
+  final len = length?.round();
+  if (len != null) {
+    final end = start + len;
+    return XPathSequence(
+      sourceSeq.toList().whereIndexed((int index, Object item) {
+        final pos = index + 1;
+        return pos >= start && pos < end;
+      }),
+    );
   }
-  final lengthVal = length.toDouble();
-  // If infinity (omitted) -> consume till end.
-  // If numeric (provided) -> consume length.
-  final endingIdx = lengthVal.isInfinite
-      ? 0
-      : (startingLocVal + lengthVal).round();
-  return XPathSequence(() sync* {
-    var i = 1;
-    for (final item in sourceSeq) {
-      if (i >= startingIdx && (lengthVal.isInfinite || i < endingIdx)) {
-        yield item;
-      }
-      i++;
-    }
-  }());
+  return XPathSequence(
+    sourceSeq.toList().whereIndexed(
+      (int index, Object item) => index + 1 >= start,
+    ),
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-unordered
@@ -228,8 +305,10 @@ const fnUnordered = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'sourceSeq',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
+      type: XPathSequenceType(
+        xsAny,
+        cardinality: XPathArgumentCardinality.zeroOrMore,
+      ),
     ),
   ],
   function: _fnUnordered,
@@ -245,25 +324,22 @@ const fnDistinctValues = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
+      type: XPathSequenceType(
+        xsAny,
+        cardinality: XPathArgumentCardinality.zeroOrMore,
+      ),
     ),
   ],
   optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'collation',
-      type: XPathString,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
+    XPathArgumentDefinition(name: 'collation', type: xsString),
   ],
   function: _fnDistinctValues,
 );
 
-// Argument 2: collation (ignored for now via TODO)
 XPathSequence _fnDistinctValues(
   XPathContext context,
   XPathSequence arg, [
-  XPathString? collation,
+  String? collation,
 ]) => XPathSequence(arg.toSet());
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-index-of
@@ -273,17 +349,15 @@ const fnIndexOf = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'seq',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
+      type: XPathSequenceType(
+        xsAny,
+        cardinality: XPathArgumentCardinality.zeroOrMore,
+      ),
     ),
-    XPathArgumentDefinition(name: 'search', type: XPathSequence),
+    XPathArgumentDefinition(name: 'search', type: xsAny),
   ],
   optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'collation',
-      type: XPathString,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
+    XPathArgumentDefinition(name: 'collation', type: xsString),
   ],
   function: _fnIndexOf,
 );
@@ -291,29 +365,16 @@ const fnIndexOf = XPathFunctionDefinition(
 XPathSequence _fnIndexOf(
   XPathContext context,
   XPathSequence seq,
-  XPathSequence search, [
-  XPathString? collation,
-]) {
-  // Argument 3: collation (ignored for now via TODO)
-  // Search item is exactly one? 'search' argument definition minValues: 1.
-  // But strictly `index-of` takes `$search as xs:anyAtomicType`.
-  // If we say `type: XPathValue` (generic single item)?
-  // Or `type: XPathSequence` and extract single?
-  // Original impl extracted exactly one.
-  // We'll assume search is single item sequence or we take first?
-  // Spec: `$search as xs:anyAtomicType`. Atomization applies.
-  // We'll extract first item if sequence passed.
-  final searchItem = search.isNotEmpty
-      ? search.first
-      : throw XPathEvaluationException('Search item cannot be empty');
-  return XPathSequence(() sync* {
-    var i = 1;
-    for (final item in seq) {
-      if (item == searchItem) yield i;
-      i++;
-    }
-  }());
-}
+  Object search, [
+  String? collation,
+]) => XPathSequence(
+  seq
+      .toList()
+      .asMap()
+      .entries
+      .where((e) => e.value == search)
+      .map((e) => e.key + 1),
+);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-deep-equal
 const fnDeepEqual = XPathFunctionDefinition(
@@ -322,21 +383,21 @@ const fnDeepEqual = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'parameter1',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
+      type: XPathSequenceType(
+        xsAny,
+        cardinality: XPathArgumentCardinality.zeroOrMore,
+      ),
     ),
     XPathArgumentDefinition(
       name: 'parameter2',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
+      type: XPathSequenceType(
+        xsAny,
+        cardinality: XPathArgumentCardinality.zeroOrMore,
+      ),
     ),
   ],
   optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'collation',
-      type: XPathString,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
+    XPathArgumentDefinition(name: 'collation', type: xsString),
   ],
   function: _fnDeepEqual,
 );
@@ -345,16 +406,18 @@ XPathSequence _fnDeepEqual(
   XPathContext context,
   XPathSequence parameter1,
   XPathSequence parameter2, [
-  XPathString? collation,
+  String? collation,
 ]) {
-  // Argument 3: collation (ignored for now via TODO)
   if (parameter1.length != parameter2.length) {
     return XPathSequence.falseSequence;
   }
   final it1 = parameter1.iterator;
   final it2 = parameter2.iterator;
   while (it1.moveNext() && it2.moveNext()) {
-    if (it1.current != it2.current) return XPathSequence.falseSequence;
+    if (it1.current != it2.current) {
+      // TODO: Proper deep comparison for nodes, maps, etc.
+      return XPathSequence.falseSequence;
+    }
   }
   return XPathSequence.trueSequence;
 }
@@ -366,8 +429,10 @@ const fnZeroOrOne = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
+      type: XPathSequenceType(
+        xsAny,
+        cardinality: XPathArgumentCardinality.zeroOrMore,
+      ),
     ),
   ],
   function: _fnZeroOrOne,
@@ -375,9 +440,7 @@ const fnZeroOrOne = XPathFunctionDefinition(
 
 XPathSequence _fnZeroOrOne(XPathContext context, XPathSequence arg) {
   if (arg.length > 1) {
-    throw XPathEvaluationException(
-      'fn:zero-or-one called with a sequence of more than one item',
-    );
+    throw XPathEvaluationException('Sequence has more than one item');
   }
   return arg;
 }
@@ -389,8 +452,10 @@ const fnOneOrMore = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
+      type: XPathSequenceType(
+        xsAny,
+        cardinality: XPathArgumentCardinality.zeroOrMore,
+      ),
     ),
   ],
   function: _fnOneOrMore,
@@ -398,9 +463,7 @@ const fnOneOrMore = XPathFunctionDefinition(
 
 XPathSequence _fnOneOrMore(XPathContext context, XPathSequence arg) {
   if (arg.isEmpty) {
-    throw XPathEvaluationException(
-      'fn:one-or-more called with an empty sequence',
-    );
+    throw XPathEvaluationException('Sequence is empty');
   }
   return arg;
 }
@@ -412,8 +475,10 @@ const fnExactlyOne = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
+      type: XPathSequenceType(
+        xsAny,
+        cardinality: XPathArgumentCardinality.zeroOrMore,
+      ),
     ),
   ],
   function: _fnExactlyOne,
@@ -421,9 +486,7 @@ const fnExactlyOne = XPathFunctionDefinition(
 
 XPathSequence _fnExactlyOne(XPathContext context, XPathSequence arg) {
   if (arg.length != 1) {
-    throw XPathEvaluationException(
-      'fn:exactly-one called with a sequence that does not contain exactly one item',
-    );
+    throw XPathEvaluationException('Sequence does not have exactly one item');
   }
   return arg;
 }
@@ -435,8 +498,10 @@ const fnCount = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
+      type: XPathSequenceType(
+        xsAny,
+        cardinality: XPathArgumentCardinality.zeroOrMore,
+      ),
     ),
   ],
   function: _fnCount,
@@ -452,8 +517,10 @@ const fnAvg = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
+      type: XPathSequenceType(
+        xsNumeric,
+        cardinality: XPathArgumentCardinality.zeroOrMore,
+      ),
     ),
   ],
   function: _fnAvg,
@@ -461,13 +528,8 @@ const fnAvg = XPathFunctionDefinition(
 
 XPathSequence _fnAvg(XPathContext context, XPathSequence arg) {
   if (arg.isEmpty) return XPathSequence.empty;
-  var sum = 0.0;
-  var count = 0;
-  for (final item in arg) {
-    sum += item.toXPathNumber().toDouble();
-    count++;
-  }
-  return XPathSequence.single(sum / count);
+  final nums = arg.cast<num>();
+  return XPathSequence.single(nums.sum / nums.length);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-max
@@ -477,16 +539,14 @@ const fnMax = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
+      type: XPathSequenceType(
+        xsAny,
+        cardinality: XPathArgumentCardinality.zeroOrMore,
+      ),
     ),
   ],
   optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'collation',
-      type: XPathString,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
+    XPathArgumentDefinition(name: 'collation', type: xsString),
   ],
   function: _fnMax,
 );
@@ -494,18 +554,12 @@ const fnMax = XPathFunctionDefinition(
 XPathSequence _fnMax(
   XPathContext context,
   XPathSequence arg, [
-  XPathString? collation,
+  String? collation,
 ]) {
   if (arg.isEmpty) return XPathSequence.empty;
-  num? maxVal;
-  for (final item in arg) {
-    // Basic support for numeric comparisons for now, as in original
-    // If items are not numbers, this cast might fail unless we convert.
-    // Original code: `item as num`. Implicitly assumes numbers for now or compatible.
-    final value = item as num;
-    if (maxVal == null || value > maxVal) maxVal = value;
-  }
-  return XPathSequence.single(maxVal!);
+  return XPathSequence.single(
+    arg.map((item) => item.toXPathNumber()).cast<num>().max,
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-min
@@ -515,16 +569,14 @@ const fnMin = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
+      type: XPathSequenceType(
+        xsAny,
+        cardinality: XPathArgumentCardinality.zeroOrMore,
+      ),
     ),
   ],
   optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'collation',
-      type: XPathString,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
+    XPathArgumentDefinition(name: 'collation', type: xsString),
   ],
   function: _fnMin,
 );
@@ -532,18 +584,13 @@ const fnMin = XPathFunctionDefinition(
 XPathSequence _fnMin(
   XPathContext context,
   XPathSequence arg, [
-  XPathString? collation,
+  String? collation,
 ]) {
   if (arg.isEmpty) return XPathSequence.empty;
-  num? minVal;
-  for (final item in arg) {
-    final value = item as num;
-    if (minVal == null || value < minVal) minVal = value;
-  }
-  return XPathSequence.single(minVal!);
+  return XPathSequence.single(
+    arg.map((item) => item.toXPathNumber()).cast<num>().min,
+  );
 }
-
-XPathNumber _defaultSumZero(XPathContext context) => 0;
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-sum
 const fnSum = XPathFunctionDefinition(
@@ -552,385 +599,19 @@ const fnSum = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
+      type: XPathSequenceType(
+        xsAny,
+        cardinality: XPathArgumentCardinality.zeroOrMore,
+      ),
     ),
   ],
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'zero',
-      type: XPathItem,
-      cardinality: XPathArgumentCardinality.zeroOrOne, // optional
-      defaultValue: _defaultSumZero,
-    ),
-  ],
+  optionalArguments: [XPathArgumentDefinition(name: 'zero', type: xsAny)],
   function: _fnSum,
 );
 
-XPathSequence _fnSum(
-  XPathContext context,
-  XPathSequence arg, [
-  XPathItem? zero,
-]) {
-  if (arg.isEmpty) {
-    return zero?.toXPathSequence() ?? XPathSequence.empty;
-  }
-  var sum = 0.0;
-  for (final item in arg) {
-    sum += item.toXPathNumber().toDouble();
-  }
-  return XPathSequence.single(sum);
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-id
-const fnId = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'id',
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
-    ),
-  ],
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'node',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-  ],
-  function: _fnId,
-);
-
-XPathSequence _fnId(
-  XPathContext context, [
-  XPathSequence? arg,
-  XPathSequence? node,
-]) {
-  throw UnimplementedError('fn:id is not yet implemented');
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-element-with-id
-const fnElementWithId = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'element-with-id',
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
-    ),
-  ],
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'node',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-  ],
-  function: _fnElementWithId,
-);
-
-XPathSequence _fnElementWithId(
-  XPathContext context, [
-  XPathSequence? arg,
-  XPathSequence? node,
-]) {
-  throw UnimplementedError('fn:element-with-id is not yet implemented');
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-idref
-const fnIdref = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'idref',
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
-    ),
-  ],
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'node',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-  ],
-  function: _fnIdref,
-);
-
-XPathSequence _fnIdref(
-  XPathContext context, [
-  XPathSequence? arg,
-  XPathSequence? node,
-]) {
-  throw UnimplementedError('fn:idref is not yet implemented');
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-generate-id
-const fnGenerateId = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'generate-id',
-  requiredArguments: [],
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'node',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-  ],
-  function: _fnGenerateId,
-);
-
-XPathSequence _fnGenerateId(XPathContext context, [XPathSequence? node]) {
-  throw UnimplementedError('fn:generate-id is not yet implemented');
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-doc
-const fnDoc = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'doc',
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'href',
-      type: XPathString,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-  ],
-  function: _fnDoc,
-);
-
-XPathSequence _fnDoc(XPathContext context, XPathString? href) {
-  if (href == null) return XPathSequence.empty;
-  final doc = context.documents[href];
-  if (doc == null) {
-    throw XPathEvaluationException('Document not found: $href');
-  }
-  return XPathSequence.single(doc);
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-doc-available
-const fnDocAvailable = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'doc-available',
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'href',
-      type: XPathString,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-  ],
-  function: _fnDocAvailable,
-);
-
-XPathSequence _fnDocAvailable(XPathContext context, XPathString? href) {
-  if (href == null) return XPathSequence.falseSequence;
-  return context.documents.containsKey(href)
-      ? XPathSequence.trueSequence
-      : XPathSequence.falseSequence;
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-collection
-const fnCollection = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'collection',
-  requiredArguments: [],
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: XPathString,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-  ],
-  function: _fnCollection,
-);
-
-XPathSequence _fnCollection(XPathContext context, [XPathString? arg]) {
-  final argVal = arg;
-  // Argument logic: if no arg provided (0 args), arg is null (implied).
-  // Implicit behavior: "evaluating fn:collection with no argument is... equivalent to ... fn:collection(fn:default-collection())".
-  // But standard says: "If the argument is omitted..."
-  // If argument is empty sequence (null), also returns sequence of docs?
-  // "If $arg is the empty sequence, the function behaves as if it had been called without an argument."
-  // So null arg => default collection.
-  if (argVal == null) {
-    return XPathSequence(context.documents.values);
-  }
-  final doc = context.documents[argVal];
-  return doc != null ? XPathSequence.single(doc) : XPathSequence.empty;
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-uri-collection
-const fnUriCollection = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'uri-collection',
-  requiredArguments: [],
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: XPathString,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-  ],
-  function: _fnUriCollection,
-);
-
-XPathSequence _fnUriCollection(XPathContext context, [XPathString? arg]) {
-  final argVal = arg;
-  if (argVal == null) {
-    return XPathSequence(context.documents.keys);
-  }
-  return XPathSequence.empty;
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-unparsed-text
-const fnUnparsedText = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'unparsed-text',
-  requiredArguments: [XPathArgumentDefinition(name: 'href', type: XPathString)],
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'encoding',
-      type: XPathString,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-  ],
-  function: _fnUnparsedText,
-);
-
-XPathSequence _fnUnparsedText(
-  XPathContext context, [
-  XPathString? href,
-  XPathString? encoding,
-]) {
-  throw UnimplementedError('fn:unparsed-text is not yet implemented');
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-unparsed-text-lines
-const fnUnparsedTextLines = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'unparsed-text-lines',
-  requiredArguments: [XPathArgumentDefinition(name: 'href', type: XPathString)],
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'encoding',
-      type: XPathString,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-  ],
-  function: _fnUnparsedTextLines,
-);
-
-XPathSequence _fnUnparsedTextLines(
-  XPathContext context, [
-  XPathString? href,
-  XPathString? encoding,
-]) {
-  throw UnimplementedError('fn:unparsed-text-lines is not yet implemented');
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-unparsed-text-available
-const fnUnparsedTextAvailable = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'unparsed-text-available',
-  requiredArguments: [XPathArgumentDefinition(name: 'href', type: XPathString)],
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'encoding',
-      type: XPathString,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-  ],
-  function: _fnUnparsedTextAvailable,
-);
-
-XPathSequence _fnUnparsedTextAvailable(
-  XPathContext context, [
-  XPathString? href,
-  XPathString? encoding,
-]) {
-  throw UnimplementedError('fn:unparsed-text-available is not yet implemented');
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-environment-variable
-const fnEnvironmentVariable = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'environment-variable',
-  requiredArguments: [XPathArgumentDefinition(name: 'name', type: XPathString)],
-  function: _fnEnvironmentVariable,
-);
-
-XPathSequence _fnEnvironmentVariable(
-  XPathContext context, [
-  XPathString? name,
-]) {
-  throw UnimplementedError('fn:environment-variable is not yet implemented');
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-available-environment-variables
-const fnAvailableEnvironmentVariables = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'available-environment-variables',
-  function: _fnAvailableEnvironmentVariables,
-);
-
-XPathSequence _fnAvailableEnvironmentVariables(XPathContext context) {
-  throw UnimplementedError(
-    'fn:available-environment-variables is not yet implemented',
+XPathSequence _fnSum(XPathContext context, XPathSequence arg, [Object? zero]) {
+  if (arg.isEmpty) return (zero ?? 0).toXPathSequence();
+  return XPathSequence.single(
+    arg.map((item) => item.toXPathNumber()).cast<num>().sum,
   );
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-parse-xml
-const fnParseXml = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'parse-xml',
-  requiredArguments: [XPathArgumentDefinition(name: 'arg', type: XPathString)],
-  function: _fnParseXml,
-);
-
-XPathSequence _fnParseXml(XPathContext context, [XPathString? arg]) {
-  throw UnimplementedError('fn:parse-xml is not yet implemented');
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-parse-xml-fragment
-const fnParseXmlFragment = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'parse-xml-fragment',
-  requiredArguments: [XPathArgumentDefinition(name: 'arg', type: XPathString)],
-  function: _fnParseXmlFragment,
-);
-
-XPathSequence _fnParseXmlFragment(XPathContext context, XPathString arg) {
-  throw UnimplementedError('fn:parse-xml-fragment is not yet implemented');
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-serialize
-const fnSerialize = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'serialize',
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
-    ),
-  ],
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'params',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-  ],
-  function: _fnSerialize,
-);
-
-XPathSequence _fnSerialize(
-  XPathContext context,
-  XPathSequence arg, [
-  XPathSequence? params,
-]) {
-  throw UnimplementedError('fn:serialize is not yet implemented');
 }

@@ -3,14 +3,13 @@ import '../evaluation/definition.dart';
 import '../evaluation/expression.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types/boolean.dart';
-import '../types/sequence.dart';
 
 /// Checks if [sequence] is an instance of [sequenceType].
 class InstanceofExpression extends XPathExpression {
   InstanceofExpression(this.sequence, this.sequenceType);
 
   final XPathExpression sequence;
-  final XPathSequenceType sequenceType;
+  final XPathType sequenceType;
 
   @override
   XPathSequence call(XPathContext context) {
@@ -24,7 +23,7 @@ class CastExpression extends XPathExpression {
   CastExpression(this.sequence, this.singleType);
 
   final XPathExpression sequence;
-  final XPathSequenceType singleType;
+  final XPathType singleType;
 
   @override
   XPathSequence call(XPathContext context) {
@@ -38,7 +37,7 @@ class CastableExpression extends XPathExpression {
   CastableExpression(this.sequence, this.singleType);
 
   final XPathExpression sequence;
-  final XPathSequenceType singleType;
+  final XPathType singleType;
 
   @override
   XPathSequence call(XPathContext context) {
@@ -57,7 +56,7 @@ class TreatExpression extends XPathExpression {
   TreatExpression(this.sequence, this.sequenceType);
 
   final XPathExpression sequence;
-  final XPathSequenceType sequenceType;
+  final XPathType sequenceType;
 
   @override
   XPathSequence call(XPathContext context) {
@@ -69,18 +68,21 @@ class TreatExpression extends XPathExpression {
   }
 }
 
-XPathSequence _cast(XPathSequence sequence, XPathSequenceType type) {
-  if (type.cardinality == XPathArgumentCardinality.zeroOrOne &&
+XPathSequence _cast(XPathSequence sequence, XPathType type) {
+  if (type is XPathSequenceType &&
+      type.cardinality == XPathArgumentCardinality.zeroOrOne &&
       sequence.isEmpty) {
     return XPathSequence.empty;
   }
+  // For other types, or if sequence is not empty, we typically need a single item for 'cast as'
+  // But XPath 3.1 allows some sequence casts maybe?
+  // Actually, 'cast as' is usually for atomic types.
   final item = sequence.singleOrNull;
   if (item == null) {
+    if (type.matches(sequence)) return sequence;
     throw XPathEvaluationException(
-      'Expected exactly one item, but got $sequence',
+      'Expected exactly one item for cast, but got $sequence',
     );
   }
-  return _castItem(item, type.itemType);
+  return type.cast(item);
 }
-
-XPathSequence _castItem(Object item, XPathItemType type) => type.cast(item);

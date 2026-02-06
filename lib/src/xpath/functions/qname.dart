@@ -1,8 +1,8 @@
-import '../../xml/utils/name.dart';
+import '../../../xml.dart';
+
 import '../evaluation/context.dart';
-import '../evaluation/definition.dart';
-import '../types/sequence.dart';
-import '../types/string.dart';
+import '../evaluation/types.dart';
+import '../exceptions/evaluation_exception.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-resolve-QName
 const fnResolveQName = XPathFunctionDefinition(
@@ -11,22 +11,27 @@ const fnResolveQName = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'qname',
-      type: XPathString,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsString,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
-    XPathArgumentDefinition(name: 'element', type: XPathSequence),
+    XPathArgumentDefinition(name: 'element', type: xsNode),
   ],
   function: _fnResolveQName,
 );
 
 XPathSequence _fnResolveQName(
   XPathContext context,
-  XPathString? qname,
-  XPathSequence element,
+  String? qname,
+  XmlNode element,
 ) {
-  if (qname == null || element.isEmpty) return XPathSequence.empty;
-  // TODO: Implement proper QName resolution using element's in-scope namespaces.
-  return XPathSequence.single(XmlName.fromString(qname));
+  if (qname == null) return XPathSequence.empty;
+  if (element is! XmlElement) {
+    throw XPathEvaluationException('Argument "element" must be an element');
+  }
+  // TODO: Proper QName resolution
+  return XPathSequence.single(qname);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-QName
@@ -35,22 +40,26 @@ const fnQName = XPathFunctionDefinition(
   name: 'QName',
   requiredArguments: [
     XPathArgumentDefinition(
-      name: 'paramUri',
-      type: XPathString,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      name: 'paramURI',
+      type: XPathSequenceType(
+        xsString,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
-    XPathArgumentDefinition(name: 'paramQName', type: XPathString),
+    XPathArgumentDefinition(name: 'paramQName', type: xsString),
   ],
   function: _fnQName,
 );
 
-// TODO: XmlName in PetitXml currently does not store the namespace URI explicitly
-// when detached, so uriOpt is ignored here. This is a limitation.
 XPathSequence _fnQName(
   XPathContext context,
-  XPathString? paramUri,
-  XPathString paramQName,
-) => XPathSequence.single(XmlName.fromString(paramQName));
+  String? paramURI,
+  String paramQName,
+) {
+  final uri = paramURI ?? '';
+  if (uri.isEmpty) return XPathSequence.single(paramQName);
+  return XPathSequence.single('{$uri}$paramQName');
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-prefix-from-QName
 const fnPrefixFromQName = XPathFunctionDefinition(
@@ -59,35 +68,20 @@ const fnPrefixFromQName = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsString, // xs:QName
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnPrefixFromQName,
 );
 
-XPathSequence _fnPrefixFromQName(XPathContext context, XPathSequence? arg) {
-  if (arg == null || arg.isEmpty) return XPathSequence.empty;
-  // Assuming arg is an XmlName (passed as sequence single item usually, but wait)
-  // Arguments to these are xs:QName.
-  // In our mapping, QName is handled via XmlName? Or String?
-  // Previous implementation: `if (arg is! XmlName) return empty`.
-  // `arg` was extracted as `extractZeroOrOne` -> returns `Object?`.
-  // If it's a `QName`, it's represented as `XmlName` in PetitXml?
-  // `qname.dart`: "If arguments are not QNames... assume they are compatible".
-  // `XPathSequence` might contain `XmlName` directly?
-  // Yes `XmlName` is NOT an `XPathNode`. But maybe `XPathValue`?
-  // `const Map<String, Object> standardFunctions` doesn't define types.
-  // `XPathSequence` items can be `XmlName`?
-  // If I check `lib/src/xpath/types/sequence.dart`...
-  // Usually QName values are strings or XmlNames.
-  final item = arg.first;
-  if (item is XmlName) {
-    return item.prefix == null
-        ? XPathSequence.empty
-        : XPathSequence.single(item.prefix!);
-  }
-  return XPathSequence.empty;
+XPathSequence _fnPrefixFromQName(XPathContext context, String? arg) {
+  if (arg == null) return XPathSequence.empty;
+  final index = arg.indexOf(':');
+  if (index == -1) return XPathSequence.empty;
+  return XPathSequence.single(arg.substring(0, index));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-local-name-from-QName
@@ -97,20 +91,20 @@ const fnLocalNameFromQName = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsString, // xs:QName
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnLocalNameFromQName,
 );
 
-XPathSequence _fnLocalNameFromQName(XPathContext context, XPathSequence? arg) {
-  if (arg == null || arg.isEmpty) return XPathSequence.empty;
-  final item = arg.first;
-  if (item is XmlName) {
-    return XPathSequence.single(item.local);
-  }
-  return XPathSequence.empty;
+XPathSequence _fnLocalNameFromQName(XPathContext context, String? arg) {
+  if (arg == null) return XPathSequence.empty;
+  final index = arg.indexOf(':');
+  if (index == -1) return XPathSequence.single(arg);
+  return XPathSequence.single(arg.substring(index + 1));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-namespace-uri-from-QName
@@ -120,24 +114,18 @@ const fnNamespaceUriFromQName = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsString, // xs:QName
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnNamespaceUriFromQName,
 );
 
-XPathSequence _fnNamespaceUriFromQName(
-  XPathContext context,
-  XPathSequence? arg,
-) {
-  if (arg == null || arg.isEmpty) return XPathSequence.empty;
-  final item = arg.first;
-  if (item is XmlName) {
-    return item.namespaceUri == null
-        ? XPathSequence.empty
-        : XPathSequence.single(item.namespaceUri!);
-  }
+XPathSequence _fnNamespaceUriFromQName(XPathContext context, String? arg) {
+  if (arg == null) return XPathSequence.empty;
+  // TODO: Proper QName handling to extract URI
   return XPathSequence.empty;
 }
 
@@ -148,29 +136,40 @@ const fnNamespaceUriForPrefix = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'prefix',
-      type: XPathString,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsString,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
-    XPathArgumentDefinition(name: 'element', type: XPathSequence),
+    XPathArgumentDefinition(name: 'element', type: xsNode),
   ],
   function: _fnNamespaceUriForPrefix,
 );
 
 XPathSequence _fnNamespaceUriForPrefix(
   XPathContext context,
-  XPathString? prefix,
-  XPathSequence element,
-) => throw UnimplementedError('fn:namespace-uri-for-prefix');
+  String? prefix,
+  XmlNode element,
+) {
+  if (element is! XmlElement) {
+    throw XPathEvaluationException('Argument "element" must be an element');
+  }
+  // TODO: Proper prefix to URI resolution
+  return XPathSequence.empty;
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-in-scope-prefixes
 const fnInScopePrefixes = XPathFunctionDefinition(
   namespace: 'fn',
   name: 'in-scope-prefixes',
-  requiredArguments: [
-    XPathArgumentDefinition(name: 'element', type: XPathSequence),
-  ],
+  requiredArguments: [XPathArgumentDefinition(name: 'element', type: xsNode)],
   function: _fnInScopePrefixes,
 );
 
-XPathSequence _fnInScopePrefixes(XPathContext context, XPathSequence element) =>
-    throw UnimplementedError('fn:in-scope-prefixes');
+XPathSequence _fnInScopePrefixes(XPathContext context, XmlNode element) {
+  if (element is! XmlElement) {
+    throw XPathEvaluationException('Argument "element" must be an element');
+  }
+  // TODO: Proper in-scope prefixes resolution
+  return XPathSequence.empty;
+}

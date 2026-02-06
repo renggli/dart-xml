@@ -11,13 +11,15 @@ class MapConstructor implements XPathExpression {
 
   @override
   XPathSequence call(XPathContext context) {
-    final map = <XPathItem, XPathItem>{};
+    final map = <Object, Object>{};
     for (final entry in entries) {
-      final key = XPathEvaluationException.extractExactlyOne(
-        'map:constructor',
-        'key',
-        entry.key(context),
-      );
+      final keySeq = entry.key(context);
+      if (keySeq.length != 1) {
+        throw XPathEvaluationException(
+          'map:constructor key must be exactly one item, but got $keySeq',
+        );
+      }
+      final key = keySeq.toAtomicValue();
       map[key] = entry.value(context).toAtomicValue();
     }
     return XPathSequence.single(map);

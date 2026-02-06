@@ -1,78 +1,29 @@
-import 'dart:math' as math;
+import 'dart:math';
+
 import 'package:collection/collection.dart';
+
 import '../evaluation/context.dart';
-import '../evaluation/definition.dart';
-import '../types/item.dart';
-import '../types/number.dart';
-import '../types/sequence.dart';
-import '../types/string.dart';
+import '../evaluation/types.dart';
 
-/// https://www.w3.org/TR/xpath-functions-31/#func-format-integer
-const fnFormatInteger = XPathFunctionDefinition(
+/// https://www.w3.org/TR/xpath-functions-31/#func-number
+const fnNumber = XPathFunctionDefinition(
   namespace: 'fn',
-  name: 'format-integer',
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: XPathNumber,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-    XPathArgumentDefinition(name: 'picture', type: XPathString),
-  ],
+  name: 'number',
   optionalArguments: [
     XPathArgumentDefinition(
-      name: 'language',
-      type: XPathString,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      name: 'arg',
+      type: XPathSequenceType(
+        xsAny,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
-  function: _fnFormatInteger,
+  function: _fnNumber,
 );
 
-XPathSequence _fnFormatInteger(
-  XPathContext context,
-  XPathNumber? value,
-  XPathString picture, [
-  XPathString? language,
-]) {
-  if (value == null) return XPathSequence.empty;
-  // Basic implementation ignoring picture string intricacies
-  // TODO: Add proper picture string parsing support
-  return XPathSequence.single(value.toInt().toString());
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-format-number
-const fnFormatNumber = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'format-number',
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: XPathNumber,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-    XPathArgumentDefinition(name: 'picture', type: XPathString),
-  ],
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'decimal-format-name',
-      type: XPathString,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-  ],
-  function: _fnFormatNumber,
-);
-
-XPathSequence _fnFormatNumber(
-  XPathContext context,
-  XPathNumber? value,
-  XPathString picture, [
-  XPathString? decimalFormatName,
-]) {
-  if (value == null) return XPathSequence.empty;
-  // Basic implementation
-  // TODO: Add proper picture string parsing support
-  return XPathSequence.single(value.toString());
+XPathSequence _fnNumber(XPathContext context, [Object? arg]) {
+  final item = arg ?? context.item;
+  return item.toXPathNumber().toXPathSequence();
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-abs
@@ -82,14 +33,16 @@ const fnAbs = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathNumber,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsNumeric,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnAbs,
 );
 
-XPathSequence _fnAbs(XPathContext context, XPathNumber? arg) {
+XPathSequence _fnAbs(XPathContext context, num? arg) {
   if (arg == null) return XPathSequence.empty;
   return XPathSequence.single(arg.abs());
 }
@@ -101,16 +54,18 @@ const fnCeiling = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathNumber,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsNumeric,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnCeiling,
 );
 
-XPathSequence _fnCeiling(XPathContext context, XPathNumber? arg) {
+XPathSequence _fnCeiling(XPathContext context, num? arg) {
   if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(arg.ceil());
+  return XPathSequence.single(arg.ceilToDouble());
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-floor
@@ -120,16 +75,18 @@ const fnFloor = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathNumber,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsNumeric,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnFloor,
 );
 
-XPathSequence _fnFloor(XPathContext context, XPathNumber? arg) {
+XPathSequence _fnFloor(XPathContext context, num? arg) {
   if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(arg.floor());
+  return XPathSequence.single(arg.floorToDouble());
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-round
@@ -139,30 +96,22 @@ const fnRound = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathNumber,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsNumeric,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'precision',
-      type: XPathNumber,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
+    XPathArgumentDefinition(name: 'precision', type: xsNumeric),
   ],
   function: _fnRound,
 );
 
-XPathSequence _fnRound(
-  XPathContext context,
-  XPathNumber? arg, [
-  XPathNumber? precision,
-]) {
+XPathSequence _fnRound(XPathContext context, num? arg, [num? precision]) {
   if (arg == null) return XPathSequence.empty;
-  if (arg.isNaN || arg.isInfinite) return XPathSequence.single(arg);
   final p = precision?.toInt() ?? 0;
-  if (p == 0) return XPathSequence.single(arg.round());
-  final factor = math.pow(10, p);
+  final factor = pow(10, p);
   return XPathSequence.single((arg * factor).round() / factor);
 }
 
@@ -173,339 +122,51 @@ const fnRoundHalfToEven = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathNumber,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsNumeric,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'precision',
-      type: XPathNumber,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
+    XPathArgumentDefinition(name: 'precision', type: xsNumeric),
   ],
   function: _fnRoundHalfToEven,
 );
 
 XPathSequence _fnRoundHalfToEven(
   XPathContext context,
-  XPathNumber? arg, [
-  XPathNumber? precision,
+  num? arg, [
+  num? precision,
 ]) {
   if (arg == null) return XPathSequence.empty;
-  if (arg.isNaN || arg.isInfinite) return XPathSequence.single(arg);
+  // TODO: Proper round-half-to-even implementation
   final p = precision?.toInt() ?? 0;
-  final factor = math.pow(10, p);
+  final factor = pow(10, p);
   final value = arg * factor;
-  final rounded = value.roundToDouble();
-  final result = ((value - rounded).abs() == 0.5 && rounded % 2 != 0)
-      ? rounded - (rounded > value ? 1.0 : -1.0)
-      : rounded;
-  return XPathSequence.single(result / factor);
+  final floor = value.floor();
+  final diff = value - floor;
+  final rounded = diff == 0.5
+      ? (floor % 2 == 0 ? floor : floor + 1)
+      : value.round();
+  return XPathSequence.single(rounded / factor);
 }
-
-XPathSequence _defaultContextValue(XPathContext context) =>
-    context.item.toXPathSequence();
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-number
-const fnNumber = XPathFunctionDefinition(
-  namespace: 'fn',
-  name: 'number',
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-      defaultValue: _defaultContextValue,
-    ), // Manually handle to check for empty
-  ],
-  function: _fnNumber,
-);
-
-XPathSequence _fnNumber(XPathContext context, [XPathSequence? arg]) {
-  if (arg == null || arg.isEmpty) {
-    return const XPathSequence.single(double.nan); // Empty sequence
-  }
-  return XPathSequence.single(arg.toXPathNumber());
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-math-pi
-const mathPi = XPathFunctionDefinition(
-  namespace: 'math',
-  name: 'pi',
-  function: _mathPi,
-);
-
-XPathSequence _mathPi(XPathContext context) =>
-    const XPathSequence.single(math.pi);
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-math-exp
-const mathExp = XPathFunctionDefinition(
-  namespace: 'math',
-  name: 'exp',
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: XPathNumber,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-  ],
-  function: _mathExp,
-);
-
-XPathSequence _mathExp(XPathContext context, XPathNumber? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(math.exp(arg));
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-math-exp10
-const mathExp10 = XPathFunctionDefinition(
-  namespace: 'math',
-  name: 'exp10',
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: XPathNumber,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-  ],
-  function: _mathExp10,
-);
-
-XPathSequence _mathExp10(XPathContext context, XPathNumber? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(math.pow(10, arg));
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-math-log
-const mathLog = XPathFunctionDefinition(
-  namespace: 'math',
-  name: 'log',
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: XPathNumber,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-  ],
-  function: _mathLog,
-);
-
-XPathSequence _mathLog(XPathContext context, XPathNumber? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(math.log(arg));
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-math-log10
-const mathLog10 = XPathFunctionDefinition(
-  namespace: 'math',
-  name: 'log10',
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: XPathNumber,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-  ],
-  function: _mathLog10,
-);
-
-XPathSequence _mathLog10(XPathContext context, XPathNumber? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(math.log(arg) / math.ln10);
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-math-pow
-const mathPow = XPathFunctionDefinition(
-  namespace: 'math',
-  name: 'pow',
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'x',
-      type: XPathNumber,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-    XPathArgumentDefinition(name: 'y', type: XPathNumber),
-  ],
-  function: _mathPow,
-);
-
-XPathSequence _mathPow(XPathContext context, XPathNumber? x, XPathNumber y) {
-  if (x == null) return XPathSequence.empty;
-  return XPathSequence.single(math.pow(x, y));
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-math-sqrt
-const mathSqrt = XPathFunctionDefinition(
-  namespace: 'math',
-  name: 'sqrt',
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: XPathNumber,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-  ],
-  function: _mathSqrt,
-);
-
-XPathSequence _mathSqrt(XPathContext context, XPathNumber? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(math.sqrt(arg));
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-math-sin
-const mathSin = XPathFunctionDefinition(
-  namespace: 'math',
-  name: 'sin',
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: XPathNumber,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-  ],
-  function: _mathSin,
-);
-
-XPathSequence _mathSin(XPathContext context, XPathNumber? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(math.sin(arg));
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-math-cos
-const mathCos = XPathFunctionDefinition(
-  namespace: 'math',
-  name: 'cos',
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: XPathNumber,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-  ],
-  function: _mathCos,
-);
-
-XPathSequence _mathCos(XPathContext context, XPathNumber? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(math.cos(arg));
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-math-tan
-const mathTan = XPathFunctionDefinition(
-  namespace: 'math',
-  name: 'tan',
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: XPathNumber,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-  ],
-  function: _mathTan,
-);
-
-XPathSequence _mathTan(XPathContext context, XPathNumber? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(math.tan(arg));
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-math-asin
-const mathAsin = XPathFunctionDefinition(
-  namespace: 'math',
-  name: 'asin',
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: XPathNumber,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-  ],
-  function: _mathAsin,
-);
-
-XPathSequence _mathAsin(XPathContext context, XPathNumber? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(math.asin(arg));
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-math-acos
-const mathAcos = XPathFunctionDefinition(
-  namespace: 'math',
-  name: 'acos',
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: XPathNumber,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-  ],
-  function: _mathAcos,
-);
-
-XPathSequence _mathAcos(XPathContext context, XPathNumber? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(math.acos(arg));
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-math-atan
-const mathAtan = XPathFunctionDefinition(
-  namespace: 'math',
-  name: 'atan',
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: XPathNumber,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-  ],
-  function: _mathAtan,
-);
-
-XPathSequence _mathAtan(XPathContext context, XPathNumber? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(math.atan(arg));
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-math-atan2
-const mathAtan2 = XPathFunctionDefinition(
-  namespace: 'math',
-  name: 'atan2',
-  requiredArguments: [
-    XPathArgumentDefinition(name: 'y', type: XPathNumber),
-    XPathArgumentDefinition(name: 'x', type: XPathNumber),
-  ],
-  function: _mathAtan2,
-);
-
-XPathSequence _mathAtan2(XPathContext context, XPathNumber y, XPathNumber x) =>
-    XPathSequence.single(math.atan2(y, x));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-random-number-generator
 const fnRandomNumberGenerator = XPathFunctionDefinition(
   namespace: 'fn',
   name: 'random-number-generator',
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'seed',
-      type: XPathItem,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
-    ),
-  ],
+  optionalArguments: [XPathArgumentDefinition(name: 'seed', type: xsAny)],
   function: _fnRandomNumberGenerator,
 );
 
-XPathSequence _fnRandomNumberGenerator(
-  XPathContext context, [
-  XPathItem? seed,
-]) {
-  final random = math.Random(seed?.hashCode);
-  final generator = <String, Object>{};
-  generator['number'] = random.nextDouble();
-  generator['next'] = (XPathContext context, List<XPathSequence> args) =>
-      XPathSequence.single(generator['number'] = random.nextDouble());
-  generator['permute'] = (XPathContext context, List<XPathSequence> args) =>
-      XPathSequence(args[0].shuffled(random));
-  return XPathSequence.single(generator);
+XPathSequence _fnRandomNumberGenerator(XPathContext context, [Object? seed]) {
+  final random = Random(seed?.hashCode);
+  return XPathSequence.single({
+    'number': random.nextDouble(),
+    'next': (XPathContext context) =>
+        _fnRandomNumberGenerator(context, random.nextInt(1 << 32)),
+    'permute': (XPathContext context, XPathSequence seq) =>
+        XPathSequence(seq.toList().shuffled(random)),
+  });
 }

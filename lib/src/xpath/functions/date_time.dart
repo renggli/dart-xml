@@ -1,10 +1,5 @@
 import '../evaluation/context.dart';
-import '../evaluation/definition.dart';
-import '../exceptions/evaluation_exception.dart';
-import '../types/date_time.dart';
-import '../types/duration.dart';
-import '../types/sequence.dart';
-import '../types/string.dart';
+import '../evaluation/types.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-dateTime
 const fnDateTime = XPathFunctionDefinition(
@@ -13,13 +8,17 @@ const fnDateTime = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg1',
-      type: XPathDateTime,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDateTime,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
     XPathArgumentDefinition(
       name: 'arg2',
-      type: XPathDateTime,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDateTime,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnDateTime,
@@ -27,8 +26,8 @@ const fnDateTime = XPathFunctionDefinition(
 
 XPathSequence _fnDateTime(
   XPathContext context,
-  XPathDateTime? arg1,
-  XPathDateTime? arg2,
+  DateTime? arg1,
+  DateTime? arg2,
 ) {
   if (arg1 == null || arg2 == null) return XPathSequence.empty;
   return XPathSequence.single(
@@ -41,7 +40,7 @@ XPathSequence _fnDateTime(
       arg2.second,
       arg2.millisecond,
       arg2.microsecond,
-    ).toXPathDateTime(),
+    ),
   );
 }
 
@@ -52,14 +51,16 @@ const fnYearFromDateTime = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathDateTime,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDateTime,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnYearFromDateTime,
 );
 
-XPathSequence _fnYearFromDateTime(XPathContext context, XPathDateTime? arg) {
+XPathSequence _fnYearFromDateTime(XPathContext context, DateTime? arg) {
   if (arg == null) return XPathSequence.empty;
   return XPathSequence.single(arg.year);
 }
@@ -71,14 +72,16 @@ const fnMonthFromDateTime = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathDateTime,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDateTime,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnMonthFromDateTime,
 );
 
-XPathSequence _fnMonthFromDateTime(XPathContext context, XPathDateTime? arg) {
+XPathSequence _fnMonthFromDateTime(XPathContext context, DateTime? arg) {
   if (arg == null) return XPathSequence.empty;
   return XPathSequence.single(arg.month);
 }
@@ -90,14 +93,16 @@ const fnDayFromDateTime = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathDateTime,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDateTime,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnDayFromDateTime,
 );
 
-XPathSequence _fnDayFromDateTime(XPathContext context, XPathDateTime? arg) {
+XPathSequence _fnDayFromDateTime(XPathContext context, DateTime? arg) {
   if (arg == null) return XPathSequence.empty;
   return XPathSequence.single(arg.day);
 }
@@ -109,14 +114,16 @@ const fnHoursFromDateTime = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathDateTime,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDateTime,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnHoursFromDateTime,
 );
 
-XPathSequence _fnHoursFromDateTime(XPathContext context, XPathDateTime? arg) {
+XPathSequence _fnHoursFromDateTime(XPathContext context, DateTime? arg) {
   if (arg == null) return XPathSequence.empty;
   return XPathSequence.single(arg.hour);
 }
@@ -128,14 +135,16 @@ const fnMinutesFromDateTime = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathDateTime,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDateTime,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnMinutesFromDateTime,
 );
 
-XPathSequence _fnMinutesFromDateTime(XPathContext context, XPathDateTime? arg) {
+XPathSequence _fnMinutesFromDateTime(XPathContext context, DateTime? arg) {
   if (arg == null) return XPathSequence.empty;
   return XPathSequence.single(arg.minute);
 }
@@ -147,14 +156,16 @@ const fnSecondsFromDateTime = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathDateTime,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDateTime,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnSecondsFromDateTime,
 );
 
-XPathSequence _fnSecondsFromDateTime(XPathContext context, XPathDateTime? arg) {
+XPathSequence _fnSecondsFromDateTime(XPathContext context, DateTime? arg) {
   if (arg == null) return XPathSequence.empty;
   return XPathSequence.single(
     arg.second + arg.millisecond / 1000.0 + arg.microsecond / 1000000.0,
@@ -168,19 +179,18 @@ const fnTimezoneFromDateTime = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathDateTime,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDateTime,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnTimezoneFromDateTime,
 );
 
-XPathSequence _fnTimezoneFromDateTime(
-  XPathContext context,
-  XPathDateTime? arg,
-) {
+XPathSequence _fnTimezoneFromDateTime(XPathContext context, DateTime? arg) {
   if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(arg.timeZoneOffset.toXPathDuration());
+  return XPathSequence.single(arg.timeZoneOffset);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-year-from-date
@@ -190,14 +200,16 @@ const fnYearFromDate = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathDateTime,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDateTime,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnYearFromDate,
 );
 
-XPathSequence _fnYearFromDate(XPathContext context, XPathDateTime? arg) {
+XPathSequence _fnYearFromDate(XPathContext context, DateTime? arg) {
   if (arg == null) return XPathSequence.empty;
   return XPathSequence.single(arg.year);
 }
@@ -209,14 +221,16 @@ const fnMonthFromDate = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathDateTime,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDateTime,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnMonthFromDate,
 );
 
-XPathSequence _fnMonthFromDate(XPathContext context, XPathDateTime? arg) {
+XPathSequence _fnMonthFromDate(XPathContext context, DateTime? arg) {
   if (arg == null) return XPathSequence.empty;
   return XPathSequence.single(arg.month);
 }
@@ -228,14 +242,16 @@ const fnDayFromDate = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathDateTime,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDateTime,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnDayFromDate,
 );
 
-XPathSequence _fnDayFromDate(XPathContext context, XPathDateTime? arg) {
+XPathSequence _fnDayFromDate(XPathContext context, DateTime? arg) {
   if (arg == null) return XPathSequence.empty;
   return XPathSequence.single(arg.day);
 }
@@ -247,16 +263,18 @@ const fnTimezoneFromDate = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathDateTime,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDateTime,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnTimezoneFromDate,
 );
 
-XPathSequence _fnTimezoneFromDate(XPathContext context, XPathDateTime? arg) {
+XPathSequence _fnTimezoneFromDate(XPathContext context, DateTime? arg) {
   if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(arg.timeZoneOffset.toXPathDuration());
+  return XPathSequence.single(arg.timeZoneOffset);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hours-from-time
@@ -266,14 +284,16 @@ const fnHoursFromTime = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathDateTime,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDateTime,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnHoursFromTime,
 );
 
-XPathSequence _fnHoursFromTime(XPathContext context, XPathDateTime? arg) {
+XPathSequence _fnHoursFromTime(XPathContext context, DateTime? arg) {
   if (arg == null) return XPathSequence.empty;
   return XPathSequence.single(arg.hour);
 }
@@ -285,14 +305,16 @@ const fnMinutesFromTime = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathDateTime,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDateTime,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnMinutesFromTime,
 );
 
-XPathSequence _fnMinutesFromTime(XPathContext context, XPathDateTime? arg) {
+XPathSequence _fnMinutesFromTime(XPathContext context, DateTime? arg) {
   if (arg == null) return XPathSequence.empty;
   return XPathSequence.single(arg.minute);
 }
@@ -304,14 +326,16 @@ const fnSecondsFromTime = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathDateTime,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDateTime,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnSecondsFromTime,
 );
 
-XPathSequence _fnSecondsFromTime(XPathContext context, XPathDateTime? arg) {
+XPathSequence _fnSecondsFromTime(XPathContext context, DateTime? arg) {
   if (arg == null) return XPathSequence.empty;
   return XPathSequence.single(
     arg.second + arg.millisecond / 1000.0 + arg.microsecond / 1000000.0,
@@ -325,16 +349,18 @@ const fnTimezoneFromTime = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathDateTime,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDateTime,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnTimezoneFromTime,
 );
 
-XPathSequence _fnTimezoneFromTime(XPathContext context, XPathDateTime? arg) {
+XPathSequence _fnTimezoneFromTime(XPathContext context, DateTime? arg) {
   if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(arg.timeZoneOffset.toXPathDuration());
+  return XPathSequence.single(arg.timeZoneOffset);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-adjust-dateTime-to-timezone
@@ -347,15 +373,19 @@ const fnAdjustDateTimeToTimezone = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathDateTime,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDateTime,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'timezone',
-      type: XPathDuration,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDuration,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
       defaultValue: _defaultTimezone,
     ),
   ],
@@ -364,8 +394,8 @@ const fnAdjustDateTimeToTimezone = XPathFunctionDefinition(
 
 XPathSequence _fnAdjustDateTimeToTimezone(
   XPathContext context,
-  XPathDateTime? arg, [
-  XPathDuration? timezone,
+  DateTime? arg, [
+  Duration? timezone,
 ]) {
   if (arg == null) return XPathSequence.empty;
   if (timezone == null) {
@@ -377,15 +407,15 @@ XPathSequence _fnAdjustDateTimeToTimezone(
 
   // Adjust to specific timezone.
   if (timezone.inMicroseconds == 0) {
-    return XPathSequence.single(arg.toUtc().toXPathDateTime());
+    return XPathSequence.single(arg.toUtc());
   }
 
   final localOffset = DateTime.now().timeZoneOffset;
   if (timezone.inMicroseconds == localOffset.inMicroseconds) {
-    return XPathSequence.single(arg.toLocal().toXPathDateTime());
+    return XPathSequence.single(arg.toLocal());
   }
 
-  throw XPathEvaluationException(
+  throw UnimplementedError(
     'Implementation restriction: specific timezones not supported by Dart DateTime',
   );
 }
@@ -397,15 +427,19 @@ const fnAdjustDateToTimezone = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathDateTime,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDateTime,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'timezone',
-      type: XPathDuration,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDuration,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
       defaultValue: _defaultTimezone,
     ),
   ],
@@ -419,15 +453,19 @@ const fnAdjustTimeToTimezone = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathDateTime,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDateTime,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'timezone',
-      type: XPathDuration,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDuration,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
       defaultValue: _defaultTimezone,
     ),
   ],
@@ -441,26 +479,37 @@ const fnFormatDateTime = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
-      type: XPathDateTime,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDateTime,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
-    XPathArgumentDefinition(name: 'picture', type: XPathString),
+    XPathArgumentDefinition(
+      name: 'picture',
+      type: XPathSequenceType(xsString),
+    ),
   ],
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'language',
-      type: XPathString,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsString,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
     XPathArgumentDefinition(
       name: 'calendar',
-      type: XPathString,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsString,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
     XPathArgumentDefinition(
       name: 'place',
-      type: XPathString,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsString,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnFormatDateTime,
@@ -469,11 +518,11 @@ const fnFormatDateTime = XPathFunctionDefinition(
 // Basic implementation: ignore picture and other arguments
 XPathSequence _fnFormatDateTime(
   XPathContext context,
-  XPathDateTime? value,
-  XPathString picture, [
-  XPathString? language,
-  XPathString? calendar,
-  XPathString? place,
+  DateTime? value,
+  String picture, [
+  String? language,
+  String? calendar,
+  String? place,
 ]) => value != null
     ? XPathSequence.single(value.toIso8601String())
     : XPathSequence.empty;
@@ -485,26 +534,37 @@ const fnFormatDate = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
-      type: XPathDateTime,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDateTime,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
-    XPathArgumentDefinition(name: 'picture', type: XPathString),
+    XPathArgumentDefinition(
+      name: 'picture',
+      type: XPathSequenceType(xsString),
+    ),
   ],
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'language',
-      type: XPathString,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsString,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
     XPathArgumentDefinition(
       name: 'calendar',
-      type: XPathString,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsString,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
     XPathArgumentDefinition(
       name: 'place',
-      type: XPathString,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsString,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnFormatDateTime,
@@ -517,26 +577,37 @@ const fnFormatTime = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
-      type: XPathDateTime,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsDateTime,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
-    XPathArgumentDefinition(name: 'picture', type: XPathString),
+    XPathArgumentDefinition(
+      name: 'picture',
+      type: XPathSequenceType(xsString),
+    ),
   ],
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'language',
-      type: XPathString,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsString,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
     XPathArgumentDefinition(
       name: 'calendar',
-      type: XPathString,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsString,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
     XPathArgumentDefinition(
       name: 'place',
-      type: XPathString,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsString,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnFormatDateTime,
@@ -549,12 +620,14 @@ const fnParseIetfDate = XPathFunctionDefinition(
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'value',
-      type: XPathString,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsString,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
   function: _fnParseIetfDate,
 );
 
-XPathSequence _fnParseIetfDate(XPathContext context, [XPathString? value]) =>
+XPathSequence _fnParseIetfDate(XPathContext context, [String? value]) =>
     throw UnimplementedError('fn:parse-ietf-date');

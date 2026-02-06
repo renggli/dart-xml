@@ -1,15 +1,12 @@
 import '../../xml/extensions/ancestors.dart';
 import '../../xml/nodes/element.dart';
+import '../../xml/nodes/node.dart';
 import '../evaluation/context.dart';
 import '../evaluation/definition.dart';
 import '../types/boolean.dart';
 import '../types/node.dart';
-import '../types/sequence.dart';
 import '../types/string.dart';
 
-/// https://www.w3.org/TR/xpath-functions-31/#func-boolean
-/// https://www.w3.org/TR/xpath-functions-31/#func-boolean
-/// https://www.w3.org/TR/xpath-functions-31/#func-boolean
 /// https://www.w3.org/TR/xpath-functions-31/#func-boolean
 const fnBoolean = XPathFunctionDefinition(
   namespace: 'fn',
@@ -17,8 +14,10 @@ const fnBoolean = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
+      type: XPathSequenceType(
+        xsAny,
+        cardinality: XPathArgumentCardinality.zeroOrMore,
+      ),
     ),
   ],
   function: _fnBoolean,
@@ -34,8 +33,10 @@ const fnNot = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: XPathSequence,
-      cardinality: XPathArgumentCardinality.zeroOrMore,
+      type: XPathSequenceType(
+        xsAny,
+        cardinality: XPathArgumentCardinality.zeroOrMore,
+      ),
     ),
   ],
   function: _fnNot,
@@ -69,19 +70,17 @@ const fnLang = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'testlang',
-      type: XPathString,
-      cardinality: XPathArgumentCardinality.zeroOrOne,
+      type: XPathSequenceType(
+        xsString,
+        cardinality: XPathArgumentCardinality.zeroOrOne,
+      ),
     ),
   ],
-  optionalArguments: [XPathArgumentDefinition(name: 'node', type: XPathNode)],
+  optionalArguments: [XPathArgumentDefinition(name: 'node', type: xsNode)],
   function: _fnLang,
 );
 
-XPathSequence _fnLang(
-  XPathContext context,
-  XPathString? testlang, [
-  XPathNode? node,
-]) {
+XPathSequence _fnLang(XPathContext context, String? testlang, [XmlNode? node]) {
   final item = node ?? context.item.toXPathNode();
   final lang = [item, ...item.ancestors]
       .whereType<XmlElement>()
