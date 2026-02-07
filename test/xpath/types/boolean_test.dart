@@ -1,37 +1,55 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/exceptions/evaluation_exception.dart';
+import 'package:xml/src/xpath/types/boolean.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/xml.dart';
 
 void main() {
-  final document = XmlDocument.parse('<r><a>1</a><b>2<c>3</c></b></r>');
-  final node = document.findAllElements('a').single;
-
-  test('cast from boolean', () {
-    expect(true.toXPathBoolean(), true);
-    expect(false.toXPathBoolean(), false);
-  });
-  test('cast from number', () {
-    expect(1.toXPathBoolean(), true);
-    expect(0.toXPathBoolean(), false);
-    expect(double.nan.toXPathBoolean(), false);
-  });
-  test('cast from string', () {
-    expect('abc'.toXPathBoolean(), true);
-    expect(''.toXPathBoolean(), false);
-  });
-  test('cast from node', () {
-    expect(node.toXPathBoolean(), true);
-  });
-  test('cast from sequence', () {
-    expect(XPathSequence.empty.toXPathBoolean(), false);
-    expect(XPathSequence.single(node).toXPathBoolean(), true);
-    expect(XPathSequence([node, document]).toXPathBoolean(), true);
-    expect(const XPathSequence([1]).toXPathBoolean(), true);
-    expect(const XPathSequence([0]).toXPathBoolean(), false);
-    expect(
-      () => const XPathSequence([1, 2]).toXPathBoolean(),
-      throwsA(isA<XPathEvaluationException>()),
-    );
+  group('xsBoolean', () {
+    test('name', () {
+      expect(xsBoolean.name, 'xs:boolean');
+    });
+    test('matches', () {
+      expect(xsBoolean.matches(true), isTrue);
+      expect(xsBoolean.matches(false), isTrue);
+      expect(xsBoolean.matches(1), isFalse);
+      expect(xsBoolean.matches('true'), isFalse);
+    });
+    group('cast', () {
+      test('from boolean', () {
+        expect(xsBoolean.cast(true), true);
+        expect(xsBoolean.cast(false), false);
+      });
+      test('from number', () {
+        expect(xsBoolean.cast(1), true);
+        expect(xsBoolean.cast(0), false);
+        expect(xsBoolean.cast(double.nan), false);
+      });
+      test('from string', () {
+        expect(xsBoolean.cast('abc'), true);
+        expect(xsBoolean.cast(''), false);
+        expect(xsBoolean.cast('true'), true);
+        expect(xsBoolean.cast('false'), false);
+        expect(xsBoolean.cast('1'), true);
+        expect(xsBoolean.cast('0'), false);
+      });
+      test('from node', () {
+        final node = XmlElement(XmlName('a'));
+        expect(xsBoolean.cast(node), true);
+      });
+      test('from sequence', () {
+        final node = XmlElement(XmlName('a'));
+        final document = XmlDocument([node]);
+        expect(xsBoolean.cast(XPathSequence.empty), false);
+        expect(xsBoolean.cast(XPathSequence.single(node)), true);
+        expect(xsBoolean.cast(XPathSequence([node, document])), true);
+        expect(xsBoolean.cast(const XPathSequence([1])), true);
+        expect(xsBoolean.cast(const XPathSequence([0])), false);
+        expect(
+          () => xsBoolean.cast(const XPathSequence([1, 2])),
+          throwsA(isA<XPathEvaluationException>()),
+        );
+      });
+    });
   });
 }

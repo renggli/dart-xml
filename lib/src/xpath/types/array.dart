@@ -1,4 +1,4 @@
-import '../definitions/types.dart';
+import '../definitions/type.dart';
 import '../exceptions/evaluation_exception.dart';
 import 'sequence.dart';
 
@@ -20,9 +20,11 @@ class _XPathArrayType extends XPathType<XPathArray> {
   XPathArray cast(Object value) {
     if (value is XPathArray) {
       return value;
+    } else if (value is List) {
+      return value.cast<Object>().map((e) => XPathSequence([e])).toList();
     } else if (value is XPathSequence) {
       final item = value.singleOrNull;
-      if (item != null) cast(item);
+      if (item != null) return cast(item);
     }
     throw XPathEvaluationException.unsupportedCast(this, value);
   }

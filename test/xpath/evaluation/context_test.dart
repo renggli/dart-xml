@@ -1,7 +1,7 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xml/nodes/document.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
-import 'package:xml/src/xpath/evaluation/types.dart';
+import 'package:xml/src/xpath/types/sequence.dart';
 
 final document = XmlDocument.parse('<root><node/></root>');
 final node = document.rootElement;
@@ -9,7 +9,7 @@ final node = document.rootElement;
 const variable = XPathSequence.single('value');
 XPathSequence function(XPathContext context, List<XPathSequence> args) =>
     XPathSequence.empty;
-void trace(XPathSequence value, XPathString? label) {}
+void trace(XPathSequence value, String? label) {}
 
 void main() {
   final context = XPathContext(node);

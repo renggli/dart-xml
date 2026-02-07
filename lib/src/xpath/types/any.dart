@@ -1,13 +1,13 @@
-import '../definitions/types.dart';
+import '../definitions/type.dart';
 
 /// The XPath any value type.
-const xsAny = _XPathAnyvalueType();
+const xsAny = _XPathAnyType();
 
-class _XPathAnyvalueType extends XPathType<Object> {
-  const _XPathAnyvalueType();
+class _XPathAnyType extends XPathType<Object> {
+  const _XPathAnyType();
 
   @override
-  String get name => 'value()';
+  String get name => 'item()';
 
   @override
   bool matches(Object value) => true;

@@ -1,4 +1,4 @@
-import '../definitions/types.dart';
+import '../definitions/type.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../exceptions/evaluation_exception.dart';

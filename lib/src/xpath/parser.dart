@@ -4,7 +4,7 @@ import 'package:petitparser/parser.dart';
 import '../xml/entities/null_mapping.dart';
 import '../xml_events/parser.dart';
 import 'definitions/cardinality.dart';
-import 'definitions/types.dart';
+import 'definitions/type.dart';
 import 'evaluation/expression.dart';
 import 'evaluation/operators.dart';
 import 'evaluation/types.dart';
@@ -943,8 +943,9 @@ class XPathParser {
         [ref0(ncName), ref0(stringLiteral)].toChoiceParser().optional(),
         token(')'),
       ).map4(
-        (_, _, arg, _) =>
-            arg == null ? xsProcessingInstruction : _unimplemented('PITest'),
+        (_, _, arg, _) => arg == null
+            ? xsProcessingInstruction
+            : XPathProcessingInstructionType(arg),
       );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-AttributeTest

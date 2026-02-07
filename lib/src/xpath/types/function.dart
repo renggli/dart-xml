@@ -1,4 +1,4 @@
-import '../definitions/types.dart';
+import '../definitions/type.dart';
 import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
 import 'array.dart';
@@ -48,7 +48,8 @@ class _XPathFunctionType extends XPathType<XPathFunction> {
           );
         }
         final key = arguments[0].toAtomicValue();
-        return xsSequence.cast(value[key]!);
+        final result = value[key];
+        return result != null ? xsSequence.cast(result) : XPathSequence.empty;
       };
     } else if (value is XPathSequence) {
       final item = value.singleOrNull;

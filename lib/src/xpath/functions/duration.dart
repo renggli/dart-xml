@@ -1,5 +1,5 @@
 import '../definitions/cardinality.dart';
-import '../definitions/functions.dart';
+import '../definitions/function.dart';
 import '../evaluation/context.dart';
 import '../types/duration.dart';
 import '../types/sequence.dart';

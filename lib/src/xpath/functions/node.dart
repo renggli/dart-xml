@@ -7,7 +7,7 @@ import '../../xml/nodes/element.dart';
 import '../../xml/nodes/node.dart';
 import '../../xml/nodes/processing.dart';
 import '../definitions/cardinality.dart';
-import '../definitions/functions.dart';
+import '../definitions/function.dart';
 import '../evaluation/context.dart';
 import '../types/node.dart';
 import '../types/sequence.dart';

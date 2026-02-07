@@ -31,7 +31,7 @@ void main() {
           isA<XPathEvaluationException>().having(
             (e) => e.message,
             'message',
-            'Undeclared variable "var"',
+            'Unknown variable: var',
           ),
         ),
       );

@@ -1,5 +1,5 @@
 import '../../xml/nodes/node.dart';
-import '../definitions/types.dart';
+import '../definitions/type.dart';
 import '../exceptions/evaluation_exception.dart';
 import 'sequence.dart';
 import 'string.dart';
@@ -55,6 +55,9 @@ class _XPathIntegerType extends XPathType<int> {
     if (value is int) {
       return value;
     } else if (value is num) {
+      if (value.isInfinite || value.isNaN) {
+        throw XPathEvaluationException('Invalid value: $value');
+      }
       return value.round();
     } else if (value is bool) {
       return value ? 1 : 0;
@@ -63,6 +66,9 @@ class _XPathIntegerType extends XPathType<int> {
       if (result != null) return result;
     } else if (value is XmlNode) {
       return cast(xsString.cast(value));
+    } else if (value is XPathSequence) {
+      final item = value.singleOrNull;
+      if (item != null) return cast(item);
     }
     throw XPathEvaluationException.unsupportedCast(this, value);
   }
@@ -96,6 +102,9 @@ class _XPathDoubleType extends XPathType<double> {
       return result;
     } else if (value is XmlNode) {
       return cast(xsString.cast(value));
+    } else if (value is XPathSequence) {
+      final item = value.singleOrNull;
+      if (item != null) return cast(item);
     }
     throw XPathEvaluationException.unsupportedCast(this, value);
   }

@@ -1,5 +1,5 @@
 import '../../xml/exceptions/exception.dart';
-import '../definitions/types.dart';
+import '../definitions/type.dart';
 import '../types/sequence.dart';
 
 /// Exception thrown when calling an XPath functions fails.

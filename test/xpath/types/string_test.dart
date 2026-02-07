@@ -1,46 +1,64 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/exceptions/evaluation_exception.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
+import 'package:xml/src/xpath/types/string.dart';
 import 'package:xml/xml.dart';
 
 void main() {
   final document = XmlDocument.parse('<r><a>1</a><b>2<c>3</c></b></r>');
 
-  test('cast from string', () {
-    expect('abc'.toXPathString(), 'abc');
-    expect(''.toXPathString(), '');
-  });
-  test('cast from boolean', () {
-    expect(true.toXPathString(), 'true');
-    expect(false.toXPathString(), 'false');
-  });
-  test('cast from number', () {
-    expect(123.toXPathString(), '123');
-    expect(123.45.toXPathString(), '123.45');
-    expect(123.0.toXPathString(), '123');
-    expect(0.toXPathString(), '0');
-    expect(0.0.toXPathString(), '0');
-    expect((-0.0).toXPathString(), '0');
-    expect(double.nan.toXPathString(), 'NaN');
-    expect(double.infinity.toXPathString(), 'INF');
-    expect(double.negativeInfinity.toXPathString(), '-INF');
-  });
-  test('cast from node', () {
-    expect(document.toXPathString(), '123');
-    expect(document.rootElement.toXPathString(), '123');
-    expect(document.findAllElements('b').first.toXPathString(), '23');
-    expect(XmlText('foo').toXPathString(), 'foo');
-    expect(XmlCDATA('bar').toXPathString(), 'bar');
-    expect(XmlComment('baz').toXPathString(), 'baz');
-    expect(XmlProcessing('target', 'qux').toXPathString(), 'qux');
-  });
-  test('cast from sequence', () {
-    expect(XPathSequence.empty.toXPathString(), '');
-    expect(const XPathSequence.single('abc').toXPathString(), 'abc');
-    expect(const XPathSequence.single(123).toXPathString(), '123');
-    expect(
-      () => const XPathSequence(['a', 'b']).toXPathString(),
-      throwsA(isA<XPathEvaluationException>()),
-    );
+  group('xsString', () {
+    test('name', () {
+      expect(xsString.name, 'xs:string');
+    });
+    test('matches', () {
+      expect(xsString.matches('abc'), isTrue);
+      expect(xsString.matches(123), isFalse);
+    });
+    group('cast', () {
+      test('from string', () {
+        expect(xsString.cast('abc'), 'abc');
+        expect(xsString.cast(''), '');
+      });
+      test('from boolean', () {
+        expect(xsString.cast(true), 'true');
+        expect(xsString.cast(false), 'false');
+      });
+      test('from number', () {
+        expect(xsString.cast(123), '123');
+        expect(xsString.cast(123.45), '123.45');
+        expect(xsString.cast(123.0), '123');
+        expect(xsString.cast(0), '0');
+        expect(xsString.cast(0.0), '0');
+        expect(xsString.cast(-0.0), '0');
+        expect(xsString.cast(double.nan), 'NaN');
+        expect(xsString.cast(double.infinity), 'INF');
+        expect(xsString.cast(double.negativeInfinity), '-INF');
+      });
+      test('from node', () {
+        expect(xsString.cast(document), '123');
+        expect(xsString.cast(document.rootElement), '123');
+        expect(xsString.cast(document.findAllElements('b').first), '23');
+        expect(xsString.cast(XmlText('foo')), 'foo');
+        expect(xsString.cast(XmlCDATA('bar')), 'bar');
+        expect(xsString.cast(XmlComment('baz')), 'baz');
+        expect(xsString.cast(XmlProcessing('target', 'qux')), 'qux');
+      });
+      test('from sequence', () {
+        expect(xsString.cast(XPathSequence.empty), '');
+        expect(xsString.cast(const XPathSequence.single('abc')), 'abc');
+        expect(xsString.cast(const XPathSequence.single(123)), '123');
+        expect(
+          () => xsString.cast(const XPathSequence(['a', 'b'])),
+          throwsA(isA<XPathEvaluationException>()),
+        );
+      });
+      test('from unsupported', () {
+        expect(
+          () => xsString.cast(Object()),
+          throwsA(isA<XPathEvaluationException>()),
+        );
+      });
+    });
   });
 }

@@ -7,7 +7,7 @@ Adhere to the official XPath 3.1 stnadard at all times:
 
 ## Overal Design
 
-The core goals of this design are **efficiency**, **compactness**, and **readability**. To achieve this, we avoid heavy wrapping objects and runtime interpreters where possible. Instead, we leverage Dart's strong type system, modern features (extension types, mixins), and core libraries.
+The core goals of this design are **efficiency**, **compactness**, and **readability**. To achieve this, we avoid heavy wrapper objects and runtime interpreters where possible. Instead, we leverage Dart's strong type system, modern features, and core libraries.
 
 - **Zero-Wrapper**: Map XPath Data Model types map directly to native Dart types.
 - **Lazy Sequences**: Use Dart's `Iterable` for all sequences to ensure laziness and low memory footprint.
@@ -17,116 +17,137 @@ The core goals of this design are **efficiency**, **compactness**, and **readabi
 
 Instead of wrapping every integer, string, and node, we use Dart's native types. This allows the XPath engine to interact seamlessly with existing Dart objects.
 
-Sequences are implemented as an `XPathSequence`, a thin wrapper around a Dart [Iterable].
-The impelementation is defined in [sequence.dart](types/sequence.dart).
+Types are implemented as subclasses of [XPathType](definitions/type.dart). Types can check if a Dart Object is of their type with [XPathType.matches], and they can convert themselves to any other XPath type with [XPathType.cast].
+
+Sequences are implemented as an `XPathSequence`, a thin wrapper around a Dart [Iterable]. The impelementation is defined in [sequence.dart](types/sequence.dart).
 
 All other XPath types directly map to corresponding Dart types.
 
-| XPath Type | Dart Type | Dart Alias | Dart Cast |
-| --- | --- | --- | --- |
-| `item()` | `Object` | `XPathItem` | `.toXPathItem()` |
-| `sequence` | `XPathSequence<Object>` | `XPathSequence` | `.toXPathSequence()` |
-| `empty-sequence` | `XPathSequence.empty()` | `XPathSequence` | `.toXPathSequence()` |
+| XPath Type | Dart Type | Type Implementation
+| --- | --- | ---
+| `item()` | `xsAny` | `Object`
+| `sequence` | `xsSequence` or `XPathSequenceType` | `XPathSequence`
+| `empty-sequence` | `xsEmptySequence` | `XPathSequence`
 
 ### Nodes
 
-XML nodes are represented by the [XmlNode](../../xml/nodes/node.dart) class and its subtypes:
+XML nodes are represented by the [XmlNode](../../xml/nodes/node.dart) class and its subtypes.
 
-| XPath Type | Dart Type | Dart Alias | Dart Cast |
-| --- | --- | --- | --- |
-| `attribute` | `XmlAttribute` | `XPathNode` | `.toXPathNode()` |
-| `comment` | `XmlComment` | `XPathNode` | `.toXPathNode()` |
-| `document` | `XmlDocument` | `XPathNode` | `.toXPathNode()` |
-| `element` | `XmlElement` | `XPathNode` | `.toXPathNode()` |
-| `node` | `XmlNode` | `XPathNode` | `.toXPathNode()` |
-| `processing-instruction` | `XmlProcessing` | `XPathNode` | `.toXPathNode()` |
-| `text` | `XmlText` and `XmlCDATA` | `XPathNode` | `.toXPathNode()` |
+| XPath Type | Dart Type | Implementation
+| --- | --- | ---
+| `attribute` | `XmlAttribute` | `xsAttribute`
+| `comment` | `XmlComment` | `xsComment`
+| `document` | `XmlDocument` | `xsDocument`
+| `element` | `XmlElement` | `xsElement`
+| `node` | `XmlNode` | `xsNode`
+| `processing-instruction` | `XmlProcessingInstruction` | `xsProcessingInstruction`
+| `text` | `XmlText` and `XmlCDATA` | `xsText`
 
 ### Functions
 
-| XPath Type | Dart Type | Dart Alias | Dart Cast |
-| --- | --- | --- | --- |
-| `function(*)` | `Function` | `XPathFunction` | `.toXPathFunction()` |
-| `array(*)` | `List<Object>` | `XPathArray` | `.toXPathArray()` and `.toXPathFunction()` |
-| `map(*)` | `Map<Object, Object>` | `XPathMap` | `.toXPathMap()` and `.toXPathFunction()` |
+| XPath Type | Dart Type | Implementation
+| --- | --- | ---
+| `function(*)` | `XPathFunction` | `xsFunction`
+| `array(*)` | `XPathArray` | `xsArray`
+| `map(*)` | `XPathMap` | `xsMap`
 
 ### Dates, Times and Durations
 
 Date and time values are represented by the Dart `DateTime` class.
 Duration values are represented by the Dart `Duration`.
 
-| XPath Type | Dart Type | Dart Alias | Dart Cast |
-| --- | --- | --- | --- |
-| `xs:date` | `DateTime` | `XPathDateTime` | `.toXPathDateTime()` |
-| `xs:dateTime` | `DateTime` | `XPathDateTime` | `.toXPathDateTime()` |
-| `xs:dateTimeStamp` | `DateTime` | `XPathDateTime` | `.toXPathDateTime()` |
-| `xs:dayTimeDuration` | `Duration` | `XPathDuration` | `.toXPathDuration()` |
-| `xs:duration` | `Duration` | `XPathDuration` | `.toXPathDuration()` |
-| `xs:gDay` | `DateTime` | `XPathDateTime` | `.toXPathDateTime()` |
-| `xs:gMonth` | `DateTime` | `XPathDateTime` | `.toXPathDateTime()` |
-| `xs:gMonthDay` | `DateTime` | `XPathDateTime` | `.toXPathDateTime()` |
-| `xs:gYear` | `DateTime` | `XPathDateTime` | `.toXPathDateTime()` |
-| `xs:gYearMonth` | `DateTime` | `XPathDateTime` | `.toXPathDateTime()` |
-| `xs:time` | `DateTime` | `XPathDateTime` | `.toXPathDateTime()` |
-| `xs:yearMonthDuration` | `Duration` | `XPathDuration` | `.toXPathDuration()` |
+| XPath Type | Dart Type | Implementation
+| --- | --- | ---
+| `xs:date` | `DateTime` | `xsDateTime`
+| `xs:dateTime` | `DateTime` | `xsDateTime`
+| `xs:dateTimeStamp` | `DateTime` | `xsDateTime`
+| `xs:dayTimeDuration` | `DateTime` | `xsDateTime`
+| `xs:duration` | `Duration` | `xsDuration`
+| `xs:gDay` | `DateTime` | `xsDateTime`
+| `xs:gMonth` | `DateTime` | `xsDateTime`
+| `xs:gMonthDay` | `DateTime` | `xsDateTime`
+| `xs:gYear` | `DateTime` | `xsDateTime`
+| `xs:gYearMonth` | `DateTime` | `xsDateTime`
+| `xs:time` | `DateTime` | `xsDateTime`
+| `xs:yearMonthDuration` | `Duration` | `xsDuration`
 
 ### Numerics
 
 Numeric values are represented by the Dart `num` class and its subtypes.
-Helpers are defined in [number.dart](number.dart).
 
-| XPath Type | Dart Type | Dart Alias | Dart Cast |
-| --- | --- | --- | --- |
-| `xs:byte` | `int` | `XPathNumber` | `.toXPathNumber()` |
-| `xs:decimal` | `int` | `XPathNumber` | `.toXPathNumber()` |
-| `xs:double` | `double` | `XPathNumber` | `.toXPathNumber()` |
-| `xs:float` | `double` | `XPathNumber` | `.toXPathNumber()` |
-| `xs:int` | `int` | `XPathNumber` | `.toXPathNumber()` |
-| `xs:integer` | `int` | `XPathNumber` | `.toXPathNumber()` |
-| `xs:long` | `int` | `XPathNumber` | `.toXPathNumber()` |
-| `xs:negativeInteger` | `int` | `XPathNumber` | `.toXPathNumber()` |
-| `xs:nonNegativeInteger` | `int` | `XPathNumber` | `.toXPathNumber()` |
-| `xs:nonPositiveInteger` | `int` | `XPathNumber` | `.toXPathNumber()` |
-| `xs:positiveInteger` | `int` | `XPathNumber` | `.toXPathNumber()` |
-| `xs:short` | `int` | `XPathNumber` | `.toXPathNumber()` |
-| `xs:unsignedByte` | `int` | `XPathNumber` | `.toXPathNumber()` |
-| `xs:unsignedInt` | `int` | `XPathNumber` | `.toXPathNumber()` |
-| `xs:unsignedLong` | `int` | `XPathNumber` | `.toXPathNumber()` |
-| `xs:unsignedShort` | `int` | `XPathNumber` | `.toXPathNumber()` |
+| XPath Type | Dart Type | Implementation
+| --- | --- | ---
+| `xs:byte` | `int` | `xsNumeric`
+| `xs:decimal` | `int` | `xsInteger`
+| `xs:double` | `double` | `xsNumeric`
+| `xs:float` | `double` | `xsNumeric`
+| `xs:int` | `int` | `xsInteger`
+| `xs:integer` | `int` | `xsInteger`
+| `xs:long` | `int` | `xsInteger`
+| `xs:negativeInteger` | `int` | `xsInteger`
+| `xs:nonNegativeInteger` | `int` | `xsInteger`
+| `xs:nonPositiveInteger` | `int` | `xsInteger`
+| `xs:positiveInteger` | `int` | `xsInteger`
+| `xs:short` | `int` | `xsInteger`
+| `xs:unsignedByte` | `int` | `xsInteger`
+| `xs:unsignedInt` | `int` | `xsInteger`
+| `xs:unsignedLong` | `int` | `xsInteger`
+| `xs:unsignedShort` | `int` | `xsInteger`
 
 ### Strings
 
 String values are represented by the Dart `String` class.
-Helpers are defined in [string.dart](string.dart).
 
-| XPath Type | Dart Type | Dart Alias | Dart Cast |
-| --- | --- | --- | --- |
-| `xs:string` | `String` | `XPathString` | `.toXPathString()` |
-| `xs:normalizedString` | `String` | `XPathString` | `.toXPathString()` |
-| `xs:token` | `String` | `XPathString` | `.toXPathString()` |
-| `xs:language` | `String` | `XPathString` | `.toXPathString()` |
-| `xs:NMTOKEN` | `String` | `XPathString` | `.toXPathString()` |
-| `xs:Name` | `String` | `XPathString` | `.toXPathString()` |
-| `xs:NCName` | `String` | `XPathString` | `.toXPathString()` |
-| `xs:ID` | `String` | `XPathString` | `.toXPathString()` |
-| `xs:IDREF` | `String` | `XPathString` | `.toXPathString()` |
-| `xs:ENTITY` | `String` | `XPathString` | `.toXPathString()` |
+| XPath Type | Dart Type | Implementation
+| --- | --- | ---
+| `xs:string` | `String` | `xsString`
+| `xs:normalizedString` | `String` | `xsString`
+| `xs:token` | `String` | `xsString`
+| `xs:language` | `String` | `xsString`
+| `xs:NMTOKEN` | `String` | `xsString`
+| `xs:Name` | `String` | `xsString`
+| `xs:NCName` | `String` | `xsString`
+| `xs:ID` | `String` | `xsString`
+| `xs:IDREF` | `String` | `xsString`
+| `xs:ENTITY` | `String` | `xsString`
 
 ### Booleans
 
 Boolean values are represented by the Dart `bool` class.
-Helpers are defined in [boolean.dart](boolean.dart).
 
-| XPath Type | Dart Type | Dart Alias | Dart Cast |
-| --- | --- | --- | --- |
-| `xs:boolean` | `bool` | `XPathBoolean` | `.toXPathBoolean()` |
+| XPath Type | Dart Type | Implementation
+| --- | --- | ---
+| `xs:boolean` | `bool` | `xsBoolean`
 
 ### Others
 
-| XPath Type | Dart Type | Dart Alias | Dart Cast |
-| --- | --- | --- | --- |
-| `xs:base64Binary` | `Uint8List` | `XPathBase64Binary` | `.toXPathBase64Binary()` |
-| `xs:hexBinary` | `Uint8List` | `XPathHexBinary` | `.toXPathHexBinary()` |
-| `xs:anyURI` | `String` | `XPathString` | `.toXPathString()` |
-| `xs:QName` | `String` | `XPathString` | `.toXPathString()` |
-| `xs:NOTATION` | `String` | `XPathString` | `.toXPathString()` |
+| XPath Type | Dart Type | Implementation
+| --- | --- | ---
+| `xs:base64Binary` | `Uint8List` | `xsBase64Binary`
+| `xs:hexBinary` | `Uint8List` | `xsHexBinary`
+| `xs:anyURI` | `String` | `xsString`
+| `xs:QName` | `String` | `xsQName`
+| `xs:NOTATION` | `String` | `xsString`
+
+## Functions & Operators
+
+All **XPath functions** are implemented in the [functions](functions) directory. A function definition follows the pattern:
+
+1. A comment with a link to the standard describing the function.
+2. A const `XPathFunctionDefinition` describing the function signature referring to the implementation function below.
+     - Arguments with the cardinalty `XPathCardinality.exactlyOne` (default) has the corresponding native type.
+     - Arguments with the cardinalty `XPathCardinality.zeroOrOne` has the corresponding type nullable.
+     - Arguments with the cardinalty `XPathCardinality.zeroOrMore` or `XPathCardinality.oneOrMore` have type `XPathSequence`.
+3. The private function implementation following these principles:
+     - The first argument is always `XPathContext context`.
+     - The following arguments are the arguments as described in the definition.
+     - The argument types must be the corresponding native types, optional arguments are nullable.
+     - The return type is always `XPathSequence`.
+     - The function body should not do any type validation or argument unpacking. This must be done through the configuration in `XPathFunctionDefinition`.
+
+All **XPath operators** are implemented as functions in the [operators](operators) directory. An operator definition follows the pattern:
+
+1. A comment with a link to the standard describing the operator.
+2. The operator implementation following these principles
+     - The arguments are always of the type `XPathSequence`.
+     - The return type is always `XPathSequence`.

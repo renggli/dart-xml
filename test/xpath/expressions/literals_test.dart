@@ -1,4 +1,5 @@
 import 'package:test/test.dart';
+import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -52,14 +53,19 @@ void main() {
       xml,
       '\$a',
       ['hello'],
-      variables: {'a': 'hello'.toXPathSequence()},
+      variables: {'a': const XPathSequence.single('hello')},
     );
-    expectEvaluate(xml, '\$a', [123], variables: {'a': 123.toXPathSequence()});
+    expectEvaluate(
+      xml,
+      '\$a',
+      [123],
+      variables: {'a': const XPathSequence.single(123)},
+    );
     expectEvaluate(
       xml,
       '\$a',
       [false],
-      variables: {'a': false.toXPathSequence()},
+      variables: {'a': const XPathSequence.single(false)},
     );
     expect(
       () => expectEvaluate(xml, '\$unknown', anything),

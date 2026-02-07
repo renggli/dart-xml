@@ -1,10 +1,7 @@
-import 'dart:convert';
-
 import '../../xml/nodes/node.dart';
 import '../definitions/cardinality.dart';
-import '../definitions/functions.dart';
+import '../definitions/function.dart';
 import '../evaluation/context.dart';
-import '../exceptions/evaluation_exception.dart';
 import '../types/map.dart';
 import '../types/node.dart';
 import '../types/sequence.dart';
@@ -25,18 +22,11 @@ const fnParseJson = XPathFunctionDefinition(
 );
 
 XPathSequence _fnParseJson(
-  XPathContext context,
-  String? jsonText, [
+  XPathContext context, [
+  String? jsonText,
   Map<Object, Object>? options,
 ]) {
-  if (jsonText == null) return XPathSequence.empty;
-  try {
-    final result = json.decode(jsonText);
-    if (result == null) return XPathSequence.empty;
-    return XPathSequence.single(result as Object);
-  } catch (e) {
-    throw XPathEvaluationException('Invalid JSON: $e');
-  }
+  throw UnimplementedError('fn:parse-json');
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-json-doc
@@ -58,9 +48,7 @@ XPathSequence _fnJsonDoc(
   String? href, [
   Map<Object, Object>? options,
 ]) {
-  if (href == null) return XPathSequence.empty;
-  // TODO: Implement URI resolution and fetching
-  return XPathSequence.empty;
+  throw UnimplementedError('fn:json-doc');
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-json-to-xml
@@ -82,9 +70,7 @@ XPathSequence _fnJsonToXml(
   String? jsonText, [
   Map<Object, Object>? options,
 ]) {
-  if (jsonText == null) return XPathSequence.empty;
-  // TODO: Implement JSON to XML conversion
-  return XPathSequence.empty;
+  throw UnimplementedError('fn:json-to-xml');
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-xml-to-json
@@ -106,7 +92,5 @@ XPathSequence _fnXmlToJson(
   XmlNode? input, [
   Map<Object, Object>? options,
 ]) {
-  if (input == null) return XPathSequence.empty;
-  // TODO: Implement XML to JSON conversion
-  return XPathSequence.empty;
+  throw UnimplementedError('fn:xml-to-json');
 }

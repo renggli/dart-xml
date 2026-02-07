@@ -1,6 +1,6 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/definitions/cardinality.dart';
-import 'package:xml/src/xpath/definitions/functions.dart';
+import 'package:xml/src/xpath/definitions/function.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/types/any.dart';
 import 'package:xml/src/xpath/types/sequence.dart';

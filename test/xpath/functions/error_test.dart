@@ -1,7 +1,7 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
-import 'package:xml/src/xpath/evaluation/types.dart';
 import 'package:xml/src/xpath/functions/error.dart';
+import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/xml.dart';
 
 import '../../utils/matchers.dart';
@@ -46,7 +46,7 @@ void main() {
   test('fn:trace (with handler)', () {
     const value = XPathSequence.single('value');
     const label = XPathSequence.single('label');
-    final traceLog = <(XPathSequence, XPathString?)>[];
+    final traceLog = <(XPathSequence, String?)>[];
     final traceContext = context.copy(
       onTraceCallback: (value, label) => traceLog.add((value, label)),
     );

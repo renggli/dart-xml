@@ -1,4 +1,4 @@
-import '../definitions/functions.dart';
+import '../definitions/function.dart';
 import '../evaluation/context.dart';
 import '../types/sequence.dart';
 

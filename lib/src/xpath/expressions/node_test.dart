@@ -7,7 +7,7 @@ import '../../xml/nodes/document.dart';
 import '../../xml/nodes/element.dart';
 import '../../xml/nodes/node.dart';
 import '../../xml/nodes/processing.dart';
-import '../definitions/types.dart';
+import '../definitions/type.dart';
 
 @immutable
 sealed class NodeTest {

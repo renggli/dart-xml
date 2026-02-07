@@ -1,5 +1,5 @@
 import '../definitions/cardinality.dart';
-import '../definitions/functions.dart';
+import '../definitions/function.dart';
 import '../evaluation/context.dart';
 import '../types/any.dart';
 import '../types/function.dart';
@@ -74,7 +74,7 @@ const fnMapRemove = XPathFunctionDefinition(
     XPathArgumentDefinition(name: 'map', type: xsMap),
     XPathArgumentDefinition(
       name: 'keys',
-      type: xsSequence,
+      type: xsAny,
       cardinality: XPathCardinality.zeroOrMore,
     ),
   ],

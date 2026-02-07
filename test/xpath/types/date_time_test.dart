@@ -1,32 +1,44 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/exceptions/evaluation_exception.dart';
+import 'package:xml/src/xpath/types/date_time.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
 
 void main() {
-  test('cast from date time', () {
-    final dateTime = DateTime.now();
-    expect(dateTime.toXPathDateTime(), dateTime);
-  });
-  test('cast from string', () {
-    final dateTime = DateTime.parse('2021-01-01T00:00:00.000');
-    expect('2021-01-01T00:00:00.000'.toXPathDateTime(), dateTime);
-    expect(
-      () => 'invalid'.toXPathDateTime(),
-      throwsA(isA<XPathEvaluationException>()),
-    );
-  });
-  test('cast from sequence', () {
-    final dateTime = DateTime.now();
-    expect(XPathSequence.single(dateTime).toXPathDateTime(), dateTime);
-    expect(
-      () => XPathSequence.empty.toXPathDateTime(),
-      throwsA(isA<XPathEvaluationException>()),
-    );
-  });
-  test('cast from other', () {
-    expect(
-      () => 123.toXPathDateTime(),
-      throwsA(isA<XPathEvaluationException>()),
-    );
+  group('xsDateTime', () {
+    test('name', () {
+      expect(xsDateTime.name, 'xs:dateTime');
+    });
+    test('matches', () {
+      expect(xsDateTime.matches(DateTime.now()), isTrue);
+      expect(xsDateTime.matches('2021-01-01'), isFalse);
+    });
+    group('cast', () {
+      test('from DateTime', () {
+        final dateTime = DateTime.now();
+        expect(xsDateTime.cast(dateTime), same(dateTime));
+      });
+      test('from String', () {
+        final dateTime = DateTime.parse('2021-01-01T00:00:00.000');
+        expect(xsDateTime.cast('2021-01-01T00:00:00.000'), dateTime);
+        expect(
+          () => xsDateTime.cast('invalid'),
+          throwsA(isA<XPathEvaluationException>()),
+        );
+      });
+      test('from XPathSequence', () {
+        final dateTime = DateTime.now();
+        expect(xsDateTime.cast(XPathSequence.single(dateTime)), dateTime);
+        expect(
+          () => xsDateTime.cast(XPathSequence.empty),
+          throwsA(isA<XPathEvaluationException>()),
+        );
+      });
+      test('from other', () {
+        expect(
+          () => xsDateTime.cast(123),
+          throwsA(isA<XPathEvaluationException>()),
+        );
+      });
+    });
   });
 }

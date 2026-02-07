@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 
-import '../definitions/types.dart';
+import '../definitions/type.dart';
 import '../exceptions/evaluation_exception.dart';
 import 'sequence.dart';
 
@@ -29,7 +29,7 @@ class _XPathBase64BinaryType extends XPathType<XPathBase64Binary> {
       return XPathBase64Binary(base64Decode(value));
     } else if (value is XPathSequence) {
       final item = value.singleOrNull;
-      if (item != null) cast(item);
+      if (item != null) return cast(item);
     }
     throw XPathEvaluationException.unsupportedCast(this, value);
   }
@@ -58,11 +58,21 @@ class _XPathHexBinaryType extends XPathType<XPathHexBinary> {
     } else if (value is List<int>) {
       return XPathHexBinary(Uint8List.fromList(value));
     } else if (value is String) {
+      if (value.length % 2 != 0) {
+        throw XPathEvaluationException(
+          'Invalid hexBinary length: ${value.length}',
+        );
+      }
       final bytes = Uint8List(value.length ~/ 2);
       for (var i = 0; i < value.length; i += 2) {
-        bytes[i ~/ 2] = int.parse(value.substring(i, i + 2), radix: 16);
+        final digit1 = int.parse(value[i], radix: 16);
+        final digit2 = int.parse(value[i + 1], radix: 16);
+        bytes[i ~/ 2] = (digit1 << 4) + digit2;
       }
       return XPathHexBinary(bytes);
+    } else if (value is XPathSequence) {
+      final item = value.singleOrNull;
+      if (item != null) return cast(item);
     }
     throw XPathEvaluationException.unsupportedCast(this, value);
   }

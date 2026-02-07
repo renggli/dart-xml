@@ -4,7 +4,7 @@ import '../../xml/nodes/document.dart';
 import '../../xml/nodes/element.dart';
 import '../../xml/nodes/node.dart';
 import '../../xml/nodes/text.dart';
-import '../definitions/types.dart';
+import '../definitions/type.dart';
 import '../exceptions/evaluation_exception.dart';
 import 'sequence.dart';
 

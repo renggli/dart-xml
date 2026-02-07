@@ -1,6 +1,7 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/functions/array.dart';
+import 'package:xml/src/xpath/types/string.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -222,8 +223,11 @@ void main() {
     });
     test('array:for-each', () {
       final array = [1, 2, 3];
-      XPathSequence double(XPathContext context, XPathSequence arg) =>
-          XPathSequence.single((arg.first as num) * 2);
+      XPathSequence double(XPathContext context, List<XPathSequence> args) {
+        final arg = args[0];
+        return XPathSequence.single((arg.first as num) * 2);
+      }
+
       final result =
           fnArrayForEach(context, [
                 XPathSequence.single(array),
@@ -231,14 +235,17 @@ void main() {
               ]).first
               as List;
       expect(
-        result.map((e) => (e as Object).toXPathSequence().first).toList(),
+        result.map((e) => XPathSequence.single(e as Object).first).toList(),
         [2, 4, 6],
       );
     });
     test('array:filter', () {
       final array = [1, 2, 3, 4];
-      XPathSequence isEven(XPathContext context, XPathSequence arg) =>
-          XPathSequence.single((arg.first as num) % 2 == 0);
+      XPathSequence isEven(XPathContext context, List<XPathSequence> args) {
+        final arg = args[0];
+        return XPathSequence.single((arg.first as num) % 2 == 0);
+      }
+
       final result =
           fnArrayFilter(context, [
                 XPathSequence.single(array),
@@ -246,17 +253,18 @@ void main() {
               ]).first
               as List;
       expect(
-        result.map((e) => (e as Object).toXPathSequence().first).toList(),
+        result.map((e) => XPathSequence.single(e as Object).first).toList(),
         [2, 4],
       );
     });
     test('array:fold-left', () {
       final array = [1, 2, 3, 4, 5];
-      XPathSequence add(
-        XPathContext context,
-        XPathSequence acc,
-        XPathSequence item,
-      ) => XPathSequence.single((acc.first as num) + (item.first as num));
+      XPathSequence add(XPathContext context, List<XPathSequence> args) {
+        final acc = args[0];
+        final item = args[1];
+        return XPathSequence.single((acc.first as num) + (item.first as num));
+      }
+
       expect(
         fnArrayFoldLeft(context, [
           XPathSequence.single(array),
@@ -268,11 +276,12 @@ void main() {
     });
     test('array:fold-right', () {
       final array = [1, 2, 3, 4, 5];
-      XPathSequence sub(
-        XPathContext context,
-        XPathSequence item,
-        XPathSequence acc,
-      ) => XPathSequence.single((item.first as num) - (acc.first as num));
+      XPathSequence sub(XPathContext context, List<XPathSequence> args) {
+        final item = args[0];
+        final acc = args[1];
+        return XPathSequence.single((item.first as num) - (acc.first as num));
+      }
+
       expect(
         fnArrayFoldRight(context, [
           XPathSequence.single(array),
@@ -285,11 +294,12 @@ void main() {
     test('array:for-each-pair', () {
       final array1 = ['a', 'b', 'c'];
       final array2 = ['1', '2', '3'];
-      XPathSequence concat(
-        XPathContext context,
-        XPathSequence a,
-        XPathSequence b,
-      ) => XPathSequence.single(a.toXPathString() + b.toXPathString());
+      XPathSequence concat(XPathContext context, List<XPathSequence> args) {
+        final a = args[0];
+        final b = args[1];
+        return XPathSequence.single(xsString.cast(a) + xsString.cast(b));
+      }
+
       final result =
           fnArrayForEachPair(context, [
                 XPathSequence.single(array1),
@@ -298,9 +308,7 @@ void main() {
               ]).first
               as List;
       expect(
-        result
-            .map((e) => (e as Object).toXPathSequence().first.toString())
-            .toList(),
+        result.map((e) => (e as XPathSequence).first.toString()).toList(),
         ['a1', 'b2', 'c3'],
       );
     });
@@ -309,13 +317,16 @@ void main() {
       final result =
           fnArraySort(context, [XPathSequence.single(array)]).first as List;
       expect(
-        result.map((e) => (e as Object).toXPathSequence().first).toList(),
+        result.map((e) => XPathSequence.single(e as Object).first).toList(),
         [1, 2, 3],
       );
       // Sort with key
       final array2 = ['apple', 'be', 'cat'];
-      XPathSequence length(XPathContext context, XPathSequence arg) =>
-          XPathSequence.single(arg.toXPathString().length);
+      XPathSequence length(XPathContext context, List<XPathSequence> args) {
+        final arg = args[0];
+        return XPathSequence.single(xsString.cast(arg).length);
+      }
+
       final result2 =
           fnArraySort(context, [
                 XPathSequence.single(array2),
@@ -324,7 +335,7 @@ void main() {
               ]).first
               as List;
       expect(
-        result2.map((e) => (e as Object).toXPathSequence().first).toList(),
+        result2.map((e) => XPathSequence.single(e as Object).first).toList(),
         ['be', 'cat', 'apple'],
       );
     });

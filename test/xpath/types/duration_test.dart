@@ -1,27 +1,44 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/exceptions/evaluation_exception.dart';
+import 'package:xml/src/xpath/types/duration.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
 
 void main() {
-  test('cast from duration', () {
-    const duration = Duration(seconds: 1);
-    expect(duration.toXPathDuration(), duration);
-  });
-  test('cast from string', () {
-    expect(() => 'P1Y'.toXPathDuration(), throwsA(isA<UnimplementedError>()));
-  });
-  test('cast from sequence', () {
-    const duration = Duration(seconds: 1);
-    expect(const XPathSequence.single(duration).toXPathDuration(), duration);
-    expect(
-      () => XPathSequence.empty.toXPathDuration(),
-      throwsA(isA<XPathEvaluationException>()),
-    );
-  });
-  test('cast from other', () {
-    expect(
-      () => 123.toXPathDuration(),
-      throwsA(isA<XPathEvaluationException>()),
-    );
+  group('xsDuration', () {
+    test('name', () {
+      expect(xsDuration.name, 'xs:duration');
+    });
+    test('matches', () {
+      const duration = Duration(seconds: 1);
+      expect(xsDuration.matches(duration), isTrue);
+      expect(xsDuration.matches('P1Y'), isFalse);
+    });
+    group('cast', () {
+      test('from Duration', () {
+        const duration = Duration(seconds: 1);
+        expect(xsDuration.cast(duration), duration);
+      });
+      test('from String', () {
+        // TODO: Update when string parsing is implemented
+        expect(
+          () => xsDuration.cast('P1Y'),
+          throwsA(isA<UnimplementedError>()),
+        );
+      });
+      test('from XPathSequence', () {
+        const duration = Duration(seconds: 1);
+        expect(xsDuration.cast(const XPathSequence.single(duration)), duration);
+        expect(
+          () => xsDuration.cast(XPathSequence.empty),
+          throwsA(isA<XPathEvaluationException>()),
+        );
+      });
+      test('from other', () {
+        expect(
+          () => xsDuration.cast(123),
+          throwsA(isA<XPathEvaluationException>()),
+        );
+      });
+    });
   });
 }

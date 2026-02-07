@@ -1,11 +1,13 @@
 import '../definitions/cardinality.dart';
-import '../definitions/functions.dart';
+import '../definitions/function.dart';
 import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types/any.dart';
 import '../types/number.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
+
+// import 'package:xml/src/xpath/types/string.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-codepoints-to-string
 const fnCodepointsToString = XPathFunctionDefinition(
@@ -514,9 +516,12 @@ XPathSequence _fnMatches(
   String? flags,
 ]) {
   if (input == null) return XPathSequence.falseSequence;
-  // TODO: Proper XPath regex flags
-  final regex = RegExp(pattern);
-  return XPathSequence.single(regex.hasMatch(input));
+  try {
+    final regex = _compileRegex(pattern, flags);
+    return XPathSequence.single(regex.hasMatch(input));
+  } catch (e) {
+    throw XPathEvaluationException('Invalid regex: $e');
+  }
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-replace
@@ -543,9 +548,12 @@ XPathSequence _fnReplace(
   String? flags,
 ]) {
   if (input == null) return XPathSequence.emptyString;
-  // TODO: Proper XPath regex flags and replacement references ($1, etc.)
-  final regex = RegExp(pattern);
-  return XPathSequence.single(input.replaceAll(regex, replacement));
+  try {
+    final regex = _compileRegex(pattern, flags);
+    return XPathSequence.single(input.replaceAll(regex, replacement));
+  } catch (e) {
+    throw XPathEvaluationException('Invalid regex: $e');
+  }
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-tokenize
@@ -575,9 +583,12 @@ XPathSequence _fnTokenize(
   if (pattern == null) {
     return XPathSequence(input.trim().split(RegExp(r'\s+')));
   }
-  // TODO: Proper XPath regex flags
-  final regex = RegExp(pattern);
-  return XPathSequence(input.split(regex));
+  try {
+    final regex = _compileRegex(pattern, flags);
+    return XPathSequence(input.split(regex));
+  } catch (e) {
+    throw XPathEvaluationException('Invalid regex: $e');
+  }
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-analyze-string
@@ -651,4 +662,43 @@ XPathSequence _fnContainsToken(
   if (input == null) return XPathSequence.falseSequence;
   final tokens = input.trim().split(RegExp(r'\s+'));
   return XPathSequence.single(tokens.contains(token.trim()));
+}
+
+RegExp _compileRegex(String pattern, String? flags) {
+  var isMultiLine = false;
+  var isCaseSensitive = true;
+  var isDotAll = false;
+  var isLiteral = false;
+
+  if (flags != null) {
+    for (var i = 0; i < flags.length; i++) {
+      final flag = flags[i];
+      if (flag == 'm') {
+        isMultiLine = true;
+      } else if (flag == 'i') {
+        isCaseSensitive = false;
+      } else if (flag == 's') {
+        isDotAll = true;
+      } else if (flag == 'q') {
+        isLiteral = true;
+      } else if (flag != 'x') {
+        throw XPathEvaluationException('Invalid regex flag: $flag');
+      }
+    }
+  }
+
+  if (isLiteral) {
+    return RegExp(
+      RegExp.escape(pattern),
+      multiLine: isMultiLine,
+      caseSensitive: isCaseSensitive,
+      dotAll: isDotAll,
+    );
+  }
+  return RegExp(
+    pattern,
+    multiLine: isMultiLine,
+    caseSensitive: isCaseSensitive,
+    dotAll: isDotAll,
+  );
 }

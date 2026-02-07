@@ -1,6 +1,7 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/functions/map.dart';
+import 'package:xml/src/xpath/types/string.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -119,11 +120,12 @@ void main() {
   });
   test('map:for-each', () {
     final map = {'a': 1, 'b': 2};
-    XPathSequence concat(
-      XPathContext context,
-      XPathSequence key,
-      XPathSequence value,
-    ) => XPathSequence.single(key.toXPathString() + value.toXPathString());
+    XPathSequence concat(XPathContext context, List<XPathSequence> args) {
+      final key = args[0];
+      final value = args[1];
+      return XPathSequence.single(xsString.cast(key) + xsString.cast(value));
+    }
+
     expect(
       fnMapForEach(context, [
         XPathSequence.single(map),

@@ -3,7 +3,7 @@ import '../../xml/nodes/element.dart';
 import '../../xml/nodes/node.dart';
 import '../../xml/utils/name.dart';
 import '../definitions/cardinality.dart';
-import '../definitions/functions.dart';
+import '../definitions/function.dart';
 import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types/node.dart';

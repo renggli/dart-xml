@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import '../definitions/cardinality.dart';
-import '../definitions/functions.dart';
+import '../definitions/function.dart';
 import '../evaluation/context.dart';
 import '../types/number.dart';
 import '../types/sequence.dart';

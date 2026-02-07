@@ -1,5 +1,5 @@
 import '../../xml/utils/name.dart';
-import '../definitions/types.dart';
+import '../definitions/type.dart';
 import '../exceptions/evaluation_exception.dart';
 import 'sequence.dart';
 

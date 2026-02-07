@@ -1,4 +1,4 @@
-import '../definitions/types.dart';
+import '../definitions/type.dart';
 import '../types/array.dart';
 import '../types/binary.dart';
 import '../types/boolean.dart';

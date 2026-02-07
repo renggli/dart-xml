@@ -1,7 +1,8 @@
-import '../definitions/functions.dart';
+import '../definitions/function.dart';
 import '../functions/accessor.dart' as accessor;
 import '../functions/array.dart' as array;
 import '../functions/boolean.dart' as boolean;
+import '../functions/constructors.dart' as constructors;
 import '../functions/context.dart' as context_func;
 import '../functions/date_time.dart' as date_time;
 import '../functions/duration.dart' as duration;
@@ -20,7 +21,11 @@ import '../types/function.dart';
 
 /// The standard XPath functions.
 final Map<String, XPathFunction> standardFunctions = {
-  for (var definition in _definitions) definition.name: definition.call,
+  for (final definition in _definitions) ...{
+    definition.name: definition.call,
+    if (definition.name.startsWith('fn:'))
+      definition.name.substring(3): definition.call,
+  },
 };
 
 const _definitions = <XPathFunctionDefinition>[
@@ -253,5 +258,10 @@ const _definitions = <XPathFunctionDefinition>[
   uri.fnIriToUri,
   uri.fnEscapeHtmlUri,
 
-  // TODO: Add constructors
+  // Constructors
+  constructors.xsStringConstructor,
+  constructors.xsBooleanConstructor,
+  constructors.xsIntegerConstructor,
+  constructors.xsDecimalConstructor,
+  constructors.xsDoubleConstructor,
 ];

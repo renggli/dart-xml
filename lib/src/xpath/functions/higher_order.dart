@@ -1,5 +1,5 @@
 import '../definitions/cardinality.dart';
-import '../definitions/functions.dart';
+import '../definitions/function.dart';
 import '../evaluation/context.dart';
 import '../types/any.dart';
 import '../types/array.dart';
@@ -228,7 +228,11 @@ const fnSort = XPathFunctionDefinition(
     ),
   ],
   optionalArguments: [
-    XPathArgumentDefinition(name: 'collation', type: xsString),
+    XPathArgumentDefinition(
+      name: 'collation',
+      type: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
+    ),
     XPathArgumentDefinition(name: 'key', type: xsFunction),
   ],
   function: _fnSort,

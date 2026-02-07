@@ -4,6 +4,7 @@
 
 - When generating new Dart code, strictly follow the style conventions defined in [Effective Dart](https://dart.dev/effective-dart).
 - Systematically prefer using `const` constructors and literals whenever possible to optimize runtime performance.
+- Prefer using the Dart MCP tool instead of running commands manually.
 
 ## Comments, Documentation and Examples
   

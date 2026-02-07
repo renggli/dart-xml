@@ -1,10 +1,8 @@
-import 'package:meta/meta.dart';
-
 import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types/sequence.dart';
 import 'cardinality.dart';
-import 'types.dart';
+import 'type.dart';
 
 export 'package:petitparser/petitparser.dart' show unbounded;
 
@@ -22,13 +20,13 @@ class XPathFunctionDefinition {
   final String name;
 
   /// The required argument definitions.
-  final List<XPathArgumentDefinition<Object>> requiredArguments;
+  final List<XPathArgumentDefinition> requiredArguments;
 
   /// The optional argument definitions.
-  final List<XPathArgumentDefinition<Object>> optionalArguments;
+  final List<XPathArgumentDefinition> optionalArguments;
 
   /// The variadic argument definition (if any).
-  final XPathArgumentDefinition<Object>? variadicArgument;
+  final XPathArgumentDefinition? variadicArgument;
 
   /// The implementation of the function.
   final Function function;
@@ -84,8 +82,7 @@ class XPathFunctionDefinition {
 }
 
 /// Definition of an XPath function argument.
-@optionalTypeArgs
-class XPathArgumentDefinition<T> {
+class XPathArgumentDefinition {
   const XPathArgumentDefinition({
     required this.name,
     required this.type,
@@ -97,13 +94,13 @@ class XPathArgumentDefinition<T> {
   final String name;
 
   /// The expected type of the argument.
-  final XPathType<T> type;
+  final XPathType<Object> type;
 
   /// The cardinality of the argument.
   final XPathCardinality cardinality;
 
   /// The default value of the argument.
-  final T Function(XPathContext context)? defaultValue;
+  final Object? Function(XPathContext context)? defaultValue;
 
   /// Process the argument.
   Object? convert(XPathFunctionDefinition definition, XPathSequence sequence) {
@@ -145,12 +142,12 @@ class XPathArgumentDefinition<T> {
             'argument "$name", but got none.',
           );
         }
-        return sequence.map(type.cast);
+        return XPathSequence(sequence.map(type.cast));
       case XPathCardinality.zeroOrMore:
-        return sequence.map(type.cast);
+        return XPathSequence(sequence.map(type.cast));
     }
   }
 
   @override
-  String toString() => '\$$name as ${type.name}${cardinality}';
+  String toString() => '\$$name as ${type.name}$cardinality';
 }

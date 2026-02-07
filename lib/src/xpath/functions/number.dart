@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 
 import '../definitions/cardinality.dart';
-import '../definitions/functions.dart';
+import '../definitions/function.dart';
 import '../evaluation/context.dart';
 import '../types/any.dart';
 import '../types/number.dart';
@@ -24,7 +24,7 @@ const fnNumber = XPathFunctionDefinition(
 
 XPathSequence _fnNumber(XPathContext context, [XPathSequence? arg]) {
   if (arg == null) return XPathSequence.single(xsNumeric.cast(context.item));
-  if (arg.isEmpty) return XPathSequence.emptyString;
+  if (arg.isEmpty) return const XPathSequence.single(double.nan);
   return XPathSequence.single(xsNumeric.cast(arg));
 }
 

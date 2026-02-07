@@ -2,7 +2,10 @@ import 'dart:io';
 
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/evaluation/functions.dart';
+import 'package:xml/src/xpath/types/boolean.dart';
 import 'package:xml/src/xpath/types/node.dart';
+import 'package:xml/src/xpath/types/number.dart';
+import 'package:xml/src/xpath/types/string.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -247,9 +250,9 @@ void verifyResult(XmlElement element, Object result) {
     case 'assert':
       final evaluation = XPathContext(
         XPathSequence.empty,
-        variables: {'result': result.toXPathSequence()},
+        variables: {'result': result},
       ).evaluate(element.innerText);
-      if (!evaluation.toXPathBoolean()) {
+      if (xsBoolean.cast(evaluation)) {
         throw TestFailure(
           'Expected true for ${element.innerText} with result=$result, '
           'but got $evaluation',
@@ -257,7 +260,7 @@ void verifyResult(XmlElement element, Object result) {
       }
     case 'assert-eq':
     case 'assert-deep-eq':
-      if (result.toXPathString() != element.innerText) {
+      if (xsString.cast(result) != element.innerText) {
         throw TestFailure('Expected ${element.innerText}, but got $result');
       }
     case 'assert-empty':
@@ -265,24 +268,24 @@ void verifyResult(XmlElement element, Object result) {
         throw TestFailure('Expected empty, but got $result');
       }
     case 'assert-true':
-      if (result.toXPathBoolean() != true) {
+      if (xsBoolean.cast(result) != true) {
         throw TestFailure('Expected true, but got $result');
       }
     case 'assert-false':
-      if (result.toXPathBoolean() != false) {
+      if (xsBoolean.cast(result) != false) {
         throw TestFailure('Expected false, but got $result');
       }
     case 'assert-string-value':
-      if (result.toXPathString() != element.innerText) {
+      if (xsString.cast(result) != element.innerText) {
         throw TestFailure('Expected ${element.innerText}, but got $result');
       }
     case 'assert-number-value':
-      if (result.toXPathNumber() != double.parse(element.innerText)) {
+      if (xsNumeric.cast(result) != double.parse(element.innerText)) {
         throw TestFailure('Expected ${element.innerText}, but got $result');
       }
     case 'assert-xml':
       final xml = XmlDocument.parse(element.innerText);
-      if (result.toXPathNode().toXmlString(pretty: true) !=
+      if (xsNode.cast(result).toXmlString(pretty: true) !=
           xml.rootElement.toXmlString(pretty: true)) {
         throw TestFailure('Expected $xml, but got $result');
       }

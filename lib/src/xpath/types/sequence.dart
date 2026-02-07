@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart' show DelegatingIterable;
 
 import '../definitions/cardinality.dart';
-import '../definitions/types.dart';
+import '../definitions/type.dart';
 import '../exceptions/evaluation_exception.dart';
 import 'any.dart';
 
@@ -43,35 +43,25 @@ class XPathSequenceType extends XPathType<XPathSequence> {
   String get name => '$type$cardinality';
 
   @override
-  bool matches(Object value) {
-    if (value is XPathSequence) {
-      if (value.isEmpty) {
-        return cardinality == XPathCardinality.zeroOrOne ||
-            cardinality == XPathCardinality.zeroOrMore;
-      }
-      if (value.length > 1) {
-        if (cardinality == XPathCardinality.exactlyOne ||
-            cardinality == XPathCardinality.zeroOrOne) {
-          return false;
-        }
-      }
-      for (final element in value) {
-        if (!type.matches(element)) {
-          return false;
-        }
-      }
-      return true;
-    }
-    return true;
-  }
+  bool matches(Object value) =>
+      value is XPathSequence &&
+      value.hasCardinality(cardinality) &&
+      (type == xsAny || value.every(type.matches));
 
   @override
   XPathSequence cast(Object value) {
     if (value is XPathSequence) {
-      if (matches(value)) return value;
+      if (value.hasCardinality(cardinality)) {
+        if (type == xsAny) return value;
+        return XPathSequence.cached(
+          value.map((each) => type.cast(each) as Object),
+        );
+      }
       throw XPathEvaluationException.unsupportedCast(this, value);
     }
-    return XPathSequence.single(type.cast(value) as Object);
+    return XPathSequence.single(
+      type == xsAny ? value : type.cast(value) as Object,
+    );
   }
 }
 
@@ -113,6 +103,22 @@ abstract mixin class XPathSequence implements Iterable<Object> {
       ? XPathSequence.single(start)
       : empty;
 
+  /// Checks the cardinality of the sequence.
+  bool hasCardinality(XPathCardinality cardinality) {
+    if (XPathCardinality.zeroOrMore == cardinality) return true;
+    final iterator = this.iterator;
+    if (iterator.moveNext()) {
+      if (XPathCardinality.oneOrMore == cardinality) return true;
+      if (!iterator.moveNext()) {
+        return XPathCardinality.exactlyOne == cardinality ||
+            XPathCardinality.zeroOrOne == cardinality;
+      }
+    } else {
+      return XPathCardinality.zeroOrOne == cardinality;
+    }
+    return false;
+  }
+
   /// Converts the sequence to an atomic value if it contains a single value.
   Object toAtomicValue() {
     final iter = iterator;
@@ -137,6 +143,11 @@ class _XPathEmptySequence extends Iterable<Object> with XPathSequence {
   Iterator<Object> get iterator => const <Object>[].iterator;
 
   @override
+  bool hasCardinality(XPathCardinality cardinality) =>
+      XPathCardinality.zeroOrMore == cardinality ||
+      XPathCardinality.zeroOrOne == cardinality;
+
+  @override
   Object toAtomicValue() => this;
 }
 
@@ -154,6 +165,9 @@ class _XPathSingleSequence extends Iterable<Object> with XPathSequence {
 
   @override
   Iterator<Object> get iterator => _XPathSingleIterator(_value);
+
+  @override
+  bool hasCardinality(XPathCardinality cardinality) => true;
 
   @override
   Object toAtomicValue() => _value;

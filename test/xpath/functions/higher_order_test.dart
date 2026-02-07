@@ -1,7 +1,8 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
-import 'package:xml/src/xpath/evaluation/types.dart';
 import 'package:xml/src/xpath/functions/higher_order.dart';
+import 'package:xml/src/xpath/types/sequence.dart';
+import 'package:xml/src/xpath/types/string.dart';
 import 'package:xml/xml.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
@@ -27,31 +28,38 @@ void main() {
         fnSort(context, [
           const XPathSequence(['apple', 'be', 'cat']),
           XPathSequence.empty, // collation
-          XPathSequence.single(
-            (XPathContext context, XPathSequence arg) =>
-                XPathSequence.single(arg.toXPathString().length),
-          ),
+          XPathSequence.single((
+            XPathContext context,
+            List<XPathSequence> args,
+          ) {
+            final arg = args[0];
+            return XPathSequence.single(xsString.cast(arg).length);
+          }),
         ]),
         const XPathSequence(['be', 'cat', 'apple']),
       );
     });
     test('fn:apply', () {
-      XPathSequence add(
-        XPathContext context,
-        XPathSequence a,
-        XPathSequence b,
-      ) => XPathSequence.single((a.first as num) + (b.first as num));
+      XPathSequence add(XPathContext context, List<XPathSequence> args) {
+        final a = args[0];
+        final b = args[1];
+        return XPathSequence.single((a.first as num) + (b.first as num));
+      }
+
       expect(
         fnApply(context, [
           XPathSequence.single(add),
-          const XPathSequence([1, 2]),
+          const XPathSequence.single([1, 2]),
         ]),
         [3],
       );
     });
     test('fn:for-each', () {
-      XPathSequence double(XPathContext context, XPathSequence arg) =>
-          XPathSequence.single((arg.first as num) * 2);
+      XPathSequence double(XPathContext context, List<XPathSequence> args) {
+        final arg = args[0];
+        return XPathSequence.single((arg.first as num) * 2);
+      }
+
       expect(
         fnForEach(context, [
           const XPathSequence([1, 2, 3]),
@@ -61,8 +69,11 @@ void main() {
       );
     });
     test('fn:filter', () {
-      XPathSequence isEven(XPathContext context, XPathSequence arg) =>
-          XPathSequence.single((arg.first as num) % 2 == 0);
+      XPathSequence isEven(XPathContext context, List<XPathSequence> args) {
+        final arg = args[0];
+        return XPathSequence.single((arg.first as num) % 2 == 0);
+      }
+
       expect(
         fnFilter(context, [
           const XPathSequence([1, 2, 3, 4]),
@@ -72,11 +83,12 @@ void main() {
       );
     });
     test('fn:fold-left', () {
-      XPathSequence add(
-        XPathContext context,
-        XPathSequence acc,
-        XPathSequence item,
-      ) => XPathSequence.single((acc.first as num) + (item.first as num));
+      XPathSequence add(XPathContext context, List<XPathSequence> args) {
+        final acc = args[0];
+        final item = args[1];
+        return XPathSequence.single((acc.first as num) + (item.first as num));
+      }
+
       expect(
         fnFoldLeft(context, [
           const XPathSequence([1, 2, 3, 4, 5]),
@@ -87,11 +99,12 @@ void main() {
       );
     });
     test('fn:fold-right', () {
-      XPathSequence sub(
-        XPathContext context,
-        XPathSequence item,
-        XPathSequence acc,
-      ) => XPathSequence.single((item.first as num) - (acc.first as num));
+      XPathSequence sub(XPathContext context, List<XPathSequence> args) {
+        final item = args[0];
+        final acc = args[1];
+        return XPathSequence.single((item.first as num) - (acc.first as num));
+      }
+
       // (1 - (2 - (3 - (4 - (5 - 0))))) = 1 - (2 - (3 - (4 - 5))) = 1 - (2 - (3 - (-1))) = 1 - (2 - 4) = 1 - (-2) = 3
       expect(
         fnFoldRight(context, [
@@ -103,11 +116,12 @@ void main() {
       );
     });
     test('fn:for-each-pair', () {
-      XPathSequence concat(
-        XPathContext context,
-        XPathSequence a,
-        XPathSequence b,
-      ) => XPathSequence.single(a.toXPathString() + b.toXPathString());
+      XPathSequence concat(XPathContext context, List<XPathSequence> args) {
+        final a = args[0];
+        final b = args[1];
+        return XPathSequence.single(xsString.cast(a) + xsString.cast(b));
+      }
+
       expect(
         fnForEachPair(context, [
           const XPathSequence(['a', 'b', 'c']),
@@ -130,7 +144,8 @@ void main() {
       expect(
         fnFunctionName(context, [
           XPathSequence.single(
-            (XPathContext context, XPathSequence arg) => XPathSequence.empty,
+            (XPathContext context, List<XPathSequence> args) =>
+                XPathSequence.empty,
           ),
         ]),
         isEmpty,
@@ -140,7 +155,8 @@ void main() {
       expect(
         fnFunctionArity(context, [
           XPathSequence.single(
-            (XPathContext context, XPathSequence arg) => XPathSequence.empty,
+            (XPathContext context, List<XPathSequence> args) =>
+                XPathSequence.empty,
           ),
         ]),
         [0],
