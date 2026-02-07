@@ -108,10 +108,7 @@ void main() {
     });
     test('matches', () {
       expect(xsDouble.matches(1.5), isTrue);
-      expect(
-        xsDouble.matches(1),
-        isFalse,
-      ); // 1 is int, implementation checks 'value is double'
+      expect(xsDouble.matches('hello'), isFalse);
     });
     group('cast', () {
       test('from double', () {

@@ -264,4 +264,6 @@ const _definitions = <XPathFunctionDefinition>[
   constructors.xsIntegerConstructor,
   constructors.xsDecimalConstructor,
   constructors.xsDoubleConstructor,
+  constructors.xsFloatConstructor,
+  constructors.xsNumericConstructor,
 ];

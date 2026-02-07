@@ -48,6 +48,22 @@ class _XPathIntegerType extends XPathType<int> {
   String get name => 'xs:integer';
 
   @override
+  Iterable<String> get aliases => const [
+    'xs:byte',
+    'xs:decimal',
+    'xs:int',
+    'xs:long',
+    'xs:negativeInteger',
+    'xs:nonNegativeInteger',
+    'xs:nonPositiveInteger',
+    'xs:short',
+    'xs:unsignedByte',
+    'xs:unsignedInt',
+    'xs:unsignedLong',
+    'xs:unsignedShort',
+  ];
+
+  @override
   bool matches(Object value) => value is int;
 
   @override
@@ -82,6 +98,9 @@ class _XPathDoubleType extends XPathType<double> {
 
   @override
   String get name => 'xs:double';
+
+  @override
+  Iterable<String> get aliases => const ['xs:float'];
 
   @override
   bool matches(Object value) => value is double;

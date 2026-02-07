@@ -117,6 +117,7 @@ void main() {
         'foo()',
         'bar(1)',
         'xx:zork(1, 2)',
+        'foo(1, ?)',
         // inline functions
         'function() as xs:integer+ { 2, 3, 5, 7, 11, 13 }',
         'function(\$a as xs:double, \$b as xs:double) as xs:double { \$a * \$b }',
@@ -197,7 +198,6 @@ void main() {
       '\$docs ! (//employee)': 'SimpleMapExpr',
       'namespace::foo': 'NamespaceAxis',
       '[4, 5, 6]?2': 'Lookup',
-      'foo(1, ?)': 'ArgumentPlaceholder',
       '\$map[?name="Mike"]': 'UnaryLookup',
       'namespace-node()': 'NamespaceNodeTest',
       'attribute(*)': 'AttributeTest',

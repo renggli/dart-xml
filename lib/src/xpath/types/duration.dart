@@ -12,6 +12,12 @@ class _XPathDurationType extends XPathType<Duration> {
   String get name => 'xs:duration';
 
   @override
+  Iterable<String> get aliases => const [
+    'xs:dayTimeDuration',
+    'xs:yearMonthDuration',
+  ];
+
+  @override
   bool matches(Object value) => value is Duration;
 
   @override

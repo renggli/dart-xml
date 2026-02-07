@@ -13,7 +13,10 @@ import '../types/string.dart';
 
 /// The standard XPath types.
 final Map<String, XPathType<Object>> types = {
-  for (var type in _types) type.name: type,
+  for (var type in _types) ...{
+    type.name: type,
+    for (var alias in type.aliases) alias: type,
+  },
 };
 
 const _types = <XPathType<Object>>[
@@ -28,6 +31,7 @@ const _types = <XPathType<Object>>[
   xsHexBinary,
   xsInteger,
   xsMap,
+  xsNumeric,
   xsQName,
   xsSequence,
   xsString,

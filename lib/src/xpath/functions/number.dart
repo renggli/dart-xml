@@ -150,11 +150,11 @@ const fnRandomNumberGenerator = XPathFunctionDefinition(
 
 XPathSequence _fnRandomNumberGenerator(XPathContext context, [Object? seed]) {
   final random = Random(seed?.hashCode);
-  return XPathSequence.single({
-    'number': random.nextDouble(),
-    'next': (XPathContext context, List<XPathSequence> args) =>
-        _fnRandomNumberGenerator(context, random.nextInt(1 << 32)),
-    'permute': (XPathContext context, List<XPathSequence> args) =>
-        XPathSequence(args.single.toList().shuffled(random)),
-  });
+  final object = <String, Object>{};
+  object['number'] = random.nextDouble();
+  object['next'] = (XPathContext context, List<XPathSequence> args) =>
+      XPathSequence.single({...object, 'number': random.nextDouble()});
+  object['permute'] = (XPathContext context, List<XPathSequence> args) =>
+      XPathSequence(args.single.toList().shuffled(random));
+  return XPathSequence.single(object);
 }

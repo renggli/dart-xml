@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:collection/collection.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/evaluation/functions.dart';
 import 'package:xml/src/xpath/types/boolean.dart';
@@ -185,8 +186,6 @@ class TestCase {
     verifyResult(result, evaluation, context);
   }
 
-  // ... (TestEnvironment, TestResult, TestFailure classes omitted/unchanged)
-
   TestEnvironment _getEnvironment() {
     final ref =
         element.findElements('environment').singleOrNull?.getAttribute('ref') ??
@@ -315,7 +314,29 @@ void verifyResult(XmlElement element, Object result, XPathContext context) {
       }
       throw errors.first;
     case 'assert-type':
+      final evaluation = XPathContext(
+        XPathSequence.empty,
+        variables: {'result': result},
+        functions: standardFunctions,
+      ).evaluate('\$result instance of ${element.innerText}');
+      if (xsBoolean.cast(evaluation) != true) {
+        throw TestFailure(
+          'Expected true for ${element.innerText} with result=$result, '
+          'to be of type ${element.innerText}',
+        );
+      }
     case 'assert-permutation':
+      final expected = XPathContext(
+        XPathSequence.empty,
+      ).evaluate(element.innerText).toSet();
+      if (result is XPathSequence) {
+        if (const SetEquality<Object>().equals(result.toSet(), expected)) {
+          return;
+        }
+      }
+      throw TestFailure(
+        'Expected $result to be a permutation of ${element.innerText}',
+      );
     default:
       throw StateError('Unknown result type: $element');
   }

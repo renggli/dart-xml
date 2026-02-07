@@ -61,7 +61,7 @@ Duration values are represented by the Dart `Duration`.
 | `xs:date` | `DateTime` | `xsDateTime`
 | `xs:dateTime` | `DateTime` | `xsDateTime`
 | `xs:dateTimeStamp` | `DateTime` | `xsDateTime`
-| `xs:dayTimeDuration` | `DateTime` | `xsDateTime`
+| `xs:dayTimeDuration` | `Duration` | `xsDuration`
 | `xs:duration` | `Duration` | `xsDuration`
 | `xs:gDay` | `DateTime` | `xsDateTime`
 | `xs:gMonth` | `DateTime` | `xsDateTime`
@@ -77,10 +77,11 @@ Numeric values are represented by the Dart `num` class and its subtypes.
 
 | XPath Type | Dart Type | Implementation
 | --- | --- | ---
-| `xs:byte` | `int` | `xsNumeric`
+| `xs:numeric` | `num` | `xsNumeric`
+| `xs:byte` | `int` | `xsInteger`
 | `xs:decimal` | `int` | `xsInteger`
-| `xs:double` | `double` | `xsNumeric`
-| `xs:float` | `double` | `xsNumeric`
+| `xs:double` | `double` | `xsDouble`
+| `xs:float` | `double` | `xsDouble`
 | `xs:int` | `int` | `xsInteger`
 | `xs:integer` | `int` | `xsInteger`
 | `xs:long` | `int` | `xsInteger`
@@ -123,10 +124,10 @@ Boolean values are represented by the Dart `bool` class.
 
 | XPath Type | Dart Type | Implementation
 | --- | --- | ---
-| `xs:base64Binary` | `Uint8List` | `xsBase64Binary`
-| `xs:hexBinary` | `Uint8List` | `xsHexBinary`
+| `xs:base64Binary` | `XPathBase64Binary` | `xsBase64Binary`
+| `xs:hexBinary` | `XPathHexBinary` | `xsHexBinary`
 | `xs:anyURI` | `String` | `xsString`
-| `xs:QName` | `String` | `xsQName`
+| `xs:QName` | `XmlName` | `xsQName`
 | `xs:NOTATION` | `String` | `xsString`
 
 ## Functions & Operators

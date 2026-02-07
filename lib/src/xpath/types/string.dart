@@ -18,6 +18,22 @@ class _XPathStringType extends XPathType<String> {
   String get name => 'xs:string';
 
   @override
+  Iterable<String> get aliases => const [
+    'xs:normalizedString',
+    'xs:token',
+    'xs:language',
+    'xs:NMTOKEN',
+    'xs:Name',
+    'xs:NCName',
+    'xs:ID',
+    'xs:IDREF',
+    'xs:ENTITY',
+    'xs:anyURI',
+    'xs:QName',
+    'xs:NOTATION',
+  ];
+
+  @override
   bool matches(Object value) => value is String;
 
   @override

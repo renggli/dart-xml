@@ -1,12 +1,12 @@
 import 'package:test/test.dart';
-import 'package:xml/src/xml/nodes/element.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/expressions/function.dart';
 import 'package:xml/src/xpath/expressions/variable.dart';
 import 'package:xml/src/xpath/types/function.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
-
+import 'package:xml/xml.dart';
 import '../../utils/matchers.dart';
+import '../helpers.dart';
 
 final context = XPathContext(XmlElement.tag('root'));
 const arg1 = XPathSequence.single('First');
@@ -113,6 +113,23 @@ void main() {
           ),
         ).first,
         2,
+      );
+    });
+  });
+
+  group('Partial Application', () {
+    test('parser support', () {
+      expectEvaluate(XmlDocument(), 'math:pow(?, 2)(3)', [9.0]);
+      expectEvaluate(XmlDocument(), 'math:pow(2, ?)(3)', [8.0]);
+    });
+    test('multiple placeholders', () {
+      expectEvaluate(XmlDocument(), 'concat(?, "-", ?)(1, 2)', ['1-2']);
+    });
+    test('fold-left integration', () {
+      expectEvaluate(
+        XmlDocument(),
+        'fold-left(("a", "b", "c"), "", concat(?, ?, "-suffix"))',
+        ['a-suffixb-suffixc-suffix'],
       );
     });
   });

@@ -2,6 +2,7 @@ import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 
 import 'package:xml/src/xpath/functions/number.dart';
+import 'package:xml/src/xpath/types/map.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -45,22 +46,28 @@ void main() {
   });
 
   test('fn:random-number-generator', () {
-    final result = fnRandomNumberGenerator(context, []).single as Map;
-    expect(result.keys, containsAll(['number', 'next', 'permute']));
-    final current = result['number'];
-    expect(current, isA<double>());
-    expect(current, isNonNegative);
-    expect(current, lessThan(1.0));
-    final nextFunc = result['next'] as XPathFunction;
-    final nextSeq = nextFunc(context, []);
-    expect(nextSeq.single, isA<Map<Object, Object>>());
-    final permuteFunc = result['permute'] as XPathFunction;
-    final permuted = permuteFunc(context, [
+    final first = fnRandomNumberGenerator(context, []).single as XPathMap;
+    expect(first.keys, containsAll(['number', 'next', 'permute']));
+    final firstValue = first['number'];
+    expect(firstValue, isA<double>());
+    expect(firstValue, isNonNegative);
+    expect(firstValue, lessThan(1.0));
+
+    final second =
+        (first['next'] as XPathFunction)(context, []).single as XPathMap;
+    expect(second.keys, containsAll(['number', 'next', 'permute']));
+    final secondValue = second['number'];
+    expect(secondValue, isA<double>());
+    expect(secondValue, isNonNegative);
+    expect(secondValue, lessThan(1.0));
+    expect(secondValue, isNot(firstValue));
+
+    final firstPermutation = (first['permute'] as XPathFunction)(context, [
       const XPathSequence([1, 2, 3]),
     ]);
-    expect(permuted, isA<XPathSequence>());
-    expect(permuted, hasLength(3));
-    expect(permuted, containsAll([1, 2, 3]));
+    expect(firstPermutation, isA<XPathSequence>());
+    expect(firstPermutation, hasLength(3));
+    expect(firstPermutation, containsAll([1, 2, 3]));
   });
   test('fn:ceiling', () {
     expect(fnCeiling(context, [const XPathSequence.single(1.5)]), [2]);
@@ -179,6 +186,17 @@ void main() {
     });
     test('round', () {
       expectEvaluate(xml, 'round(1.2)', [1]);
+    });
+    test('xs:float', () {
+      expectEvaluate(xml, 'xs:float("1.5")', [1.5]);
+      expectEvaluate(xml, 'xs:float("NaN")', [isNaN]);
+      expectEvaluate(xml, 'xs:float("INF")', [double.infinity]);
+      expectEvaluate(xml, 'xs:float("-INF")', [double.negativeInfinity]);
+    });
+
+    test('xs:numeric', () {
+      expectEvaluate(xml, 'xs:numeric("1.5")', [1.5]);
+      expectEvaluate(xml, 'xs:numeric("42")', [42]);
     });
   });
 }

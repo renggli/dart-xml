@@ -568,6 +568,8 @@ class XPathParser {
         for (final postfix in postfixes) {
           if (postfix is Predicate) {
             result = PredicateExpression(result, postfix);
+          } else if (postfix is List<XPathExpression>) {
+            result = FunctionCallExpression(result, postfix);
           } else {
             return _unimplemented('Postfix', postfix);
           }
@@ -687,7 +689,7 @@ class XPathParser {
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ArgumentPlaceholder
   Parser<XPathExpression> argumentPlaceholder() =>
-      token('?').map((_) => _unimplemented('ArgumentPlaceholder'));
+      token('?').constant(const ArgumentPlaceholderExpression());
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-FunctionItemExpr
   Parser<XPathExpression> functionItemExpr() =>

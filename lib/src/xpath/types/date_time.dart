@@ -12,6 +12,18 @@ class _XPathDateTimeType extends XPathType<DateTime> {
   String get name => 'xs:dateTime';
 
   @override
+  Iterable<String> get aliases => const [
+    'xs:date',
+    'xs:dateTimeStamp',
+    'xs:gDay',
+    'xs:gMonth',
+    'xs:gMonthDay',
+    'xs:gYear',
+    'xs:gYearMonth',
+    'xs:time',
+  ];
+
+  @override
   bool matches(Object value) => value is DateTime;
 
   @override

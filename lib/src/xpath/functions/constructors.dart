@@ -90,3 +90,35 @@ const xsDoubleConstructor = XPathFunctionDefinition(
 
 XPathSequence _xsDoubleConstructor(XPathContext context, Object value) =>
     XPathSequence.single(xsDouble.cast(value));
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-float
+const xsFloatConstructor = XPathFunctionDefinition(
+  name: 'xs:float',
+  requiredArguments: [
+    XPathArgumentDefinition(
+      name: 'value',
+      type: xsAny,
+      cardinality: XPathCardinality.exactlyOne,
+    ),
+  ],
+  function: _xsFloatConstructor,
+);
+
+XPathSequence _xsFloatConstructor(XPathContext context, Object value) =>
+    XPathSequence.single(xsDouble.cast(value));
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-numeric
+const xsNumericConstructor = XPathFunctionDefinition(
+  name: 'xs:numeric',
+  requiredArguments: [
+    XPathArgumentDefinition(
+      name: 'value',
+      type: xsAny,
+      cardinality: XPathCardinality.exactlyOne,
+    ),
+  ],
+  function: _xsNumericConstructor,
+);
+
+XPathSequence _xsNumericConstructor(XPathContext context, Object value) =>
+    XPathSequence.single(xsNumeric.cast(value));
