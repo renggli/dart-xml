@@ -13,13 +13,12 @@ const githubRepository = 'https://github.com/w3c/qt3tests.git';
 final catalogFile = File('.qt3tests/catalog.xml').absolute;
 
 // These tests are skipped because they are extremely slow.
-const skippedTests = {
+const skippedTests = <String>{
   'cbcl-subsequence-010',
   'cbcl-subsequence-011',
   'cbcl-subsequence-012',
   'cbcl-subsequence-013',
   'cbcl-subsequence-014',
-  'cbcl-codepoints-to-string-021',
 };
 
 void main() {
@@ -183,8 +182,10 @@ class TestCase {
     } catch (exception) {
       evaluation = exception;
     }
-    verifyResult(result, evaluation);
+    verifyResult(result, evaluation, context);
   }
+
+  // ... (TestEnvironment, TestResult, TestFailure classes omitted/unchanged)
 
   TestEnvironment _getEnvironment() {
     final ref =
@@ -241,7 +242,7 @@ class TestFailure extends StateError {
   TestFailure(super.message);
 }
 
-void verifyResult(XmlElement element, Object result) {
+void verifyResult(XmlElement element, Object result, XPathContext context) {
   switch (element.localName) {
     case 'error':
       if (result is! Error) {
@@ -251,17 +252,23 @@ void verifyResult(XmlElement element, Object result) {
       final evaluation = XPathContext(
         XPathSequence.empty,
         variables: {'result': result},
+        functions: standardFunctions,
       ).evaluate(element.innerText);
-      if (xsBoolean.cast(evaluation)) {
+      if (xsBoolean.cast(evaluation) != true) {
         throw TestFailure(
           'Expected true for ${element.innerText} with result=$result, '
           'but got $evaluation',
         );
       }
     case 'assert-eq':
+      final expected = context.evaluate(element.innerText);
+      if (result.toString() != expected.toString()) {
+        throw TestFailure('Expected $expected, but got $result');
+      }
     case 'assert-deep-eq':
-      if (xsString.cast(result) != element.innerText) {
-        throw TestFailure('Expected ${element.innerText}, but got $result');
+      final expected = context.evaluate(element.innerText);
+      if (result.toString() != expected.toString()) {
+        throw TestFailure('Expected $expected, but got $result');
       }
     case 'assert-empty':
       if (result is! XPathSequence || result.isNotEmpty) {
@@ -276,7 +283,10 @@ void verifyResult(XmlElement element, Object result) {
         throw TestFailure('Expected false, but got $result');
       }
     case 'assert-string-value':
-      if (xsString.cast(result) != element.innerText) {
+      final string = result is XPathSequence
+          ? result.map(xsString.cast).join(' ')
+          : xsString.cast(result);
+      if (string != element.innerText) {
         throw TestFailure('Expected ${element.innerText}, but got $result');
       }
     case 'assert-number-value':
@@ -291,13 +301,13 @@ void verifyResult(XmlElement element, Object result) {
       }
     case 'all-of':
       for (final child in element.childElements) {
-        verifyResult(child, result);
+        verifyResult(child, result, context);
       }
     case 'any-of':
       final errors = <Object>[];
       for (final child in element.childElements) {
         try {
-          verifyResult(child, result);
+          verifyResult(child, result, context);
           return;
         } catch (error) {
           errors.add(error);

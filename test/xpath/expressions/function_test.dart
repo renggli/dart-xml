@@ -1,53 +1,118 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xml/nodes/element.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
-import 'package:xml/src/xpath/evaluation/expression.dart';
 import 'package:xml/src/xpath/expressions/function.dart';
+import 'package:xml/src/xpath/expressions/variable.dart';
+import 'package:xml/src/xpath/types/function.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
 
 import '../../utils/matchers.dart';
 
-class MockExpression extends XPathExpression {
-  MockExpression(this.value);
-  final XPathSequence value;
-  @override
-  XPathSequence call(XPathContext context) => value;
+final context = XPathContext(XmlElement.tag('root'));
+const arg1 = XPathSequence.single('First');
+const arg2 = XPathSequence.single('Second');
+const result = XPathSequence.single('Confirmed');
+
+XPathSequence function(XPathContext context, List<XPathSequence> args) {
+  expect(args, [arg1, arg2]);
+  return result;
 }
 
 void main() {
   group('StaticFunctionExpression', () {
     test('evaluate', () {
-      XPathSequence function(XPathContext context, List<XPathSequence> args) =>
-          XPathSequence.single(args.length);
-      final expr = StaticFunctionExpression(function, [
-        MockExpression(XPathSequence.empty),
-        MockExpression(XPathSequence.empty),
+      const expr = StaticFunctionExpression(function, [
+        LiteralExpression(arg1),
+        LiteralExpression(arg2),
       ]);
-      final context = XPathContext(XmlElement.tag('root'));
-      expect(expr(context).first, 2);
+      expect(expr(context), result);
     });
   });
-
   group('DynamicFunctionExpression', () {
     test('evaluate existing function', () {
-      XPathSequence function(XPathContext context, List<XPathSequence> args) =>
-          XPathSequence.single(args.length);
-      final expr = DynamicFunctionExpression('fun', [
-        MockExpression(XPathSequence.empty),
+      const expr = DynamicFunctionExpression('fun', [
+        LiteralExpression(arg1),
+        LiteralExpression(arg2),
       ]);
-      final context = XPathContext(
-        XmlElement.tag('root'),
-        functions: {'fun': function},
-      );
-      expect(expr(context).first, 1);
+      expect(expr(context.copy(functions: {'fun': function})), result);
     });
-
     test('evaluate missing function', () {
-      const expression = DynamicFunctionExpression('fun', []);
-      final context = XPathContext(XmlElement.tag('root'));
+      const expr = DynamicFunctionExpression('fun', []);
       expect(
-        () => expression(context),
+        () => expr(context),
         throwsA(isXPathEvaluationException(message: 'Unknown function: fun')),
+      );
+    });
+  });
+  group('InlineFunctionExpression', () {
+    test('no arguments', () {
+      const expr = InlineFunctionExpression([], LiteralExpression(result));
+      final function = expr(context).first as XPathFunction;
+      expect(function(context, []), result);
+    });
+    test('with arguments', () {
+      const expr = InlineFunctionExpression(['a'], VariableExpression('a'));
+      final function = expr(context).first as XPathFunction;
+      expect(function(context, [result]), result);
+    });
+    test('closure', () {
+      const expr = InlineFunctionExpression(
+        [],
+        DynamicFunctionExpression('foo', []),
+      );
+      final closureContext = context.copy(
+        functions: {'foo': (context, args) => result},
+      );
+      final function = expr(closureContext).first as XPathFunction;
+      expect(function(context, []), result);
+    });
+  });
+  group('NamedFunctionExpression', () {
+    test('evaluate', () {
+      const expr = NamedFunctionExpression('foo');
+      final function =
+          expr(
+                context.copy(functions: {'foo': (context, args) => result}),
+              ).first
+              as XPathFunction;
+      expect(function(context, []), result);
+    });
+  });
+  group('ArrowExpression', () {
+    test('evaluate with name', () {
+      const expr = ArrowExpression(
+        LiteralExpression(XPathSequence.single(1)),
+        'foo',
+        [],
+      );
+      expect(
+        expr(
+          context.copy(
+            functions: {
+              'foo': (context, args) =>
+                  XPathSequence.single((args[0].first as int) + 1),
+            },
+          ),
+        ).first,
+        2,
+      );
+    });
+    test('evaluate with expression', () {
+      const expr = ArrowExpression(
+        LiteralExpression(XPathSequence.single(1)),
+        NamedFunctionExpression('foo'),
+        [],
+      );
+      expect(
+        expr(
+          context.copy(
+            functions: {
+              'foo': (context, args) =>
+                  XPathSequence.single((args[0].first as int) + 1),
+            },
+          ),
+        ).first,
+        2,
       );
     });
   });

@@ -112,6 +112,23 @@ void main() {
         'a intersect b',
         'a except b',
       ],
+      'functions': [
+        // function calls
+        'foo()',
+        'bar(1)',
+        'xx:zork(1, 2)',
+        // inline functions
+        'function() as xs:integer+ { 2, 3, 5, 7, 11, 13 }',
+        'function(\$a as xs:double, \$b as xs:double) as xs:double { \$a * \$b }',
+        'function(\$a) { \$a }',
+        // arrow functions
+        '\$string => upper-case()',
+        '"hello" => upper-case() => normalize-unicode() => tokenize("s+")',
+        // function references
+        'fn:abs#1',
+        'fn:concat#5',
+        'local:myfunc#2',
+      ],
     };
     for (final MapEntry(key: name, value: expressions) in cases.entries) {
       group(name, () {
@@ -174,7 +191,6 @@ void main() {
     // implemented. These tests are supposed to throw an `UnimplementedError`,
     // and not succeed or give a parse failure.
     final cases = {
-      '1 => upper-case()': 'ArrowExpr',
       '1 is 2': 'NodeComp (is)',
       '1 << 2': 'NodeComp (<<)',
       '1 >> 2': 'NodeComp (>>)',
@@ -183,8 +199,6 @@ void main() {
       '[4, 5, 6]?2': 'Lookup',
       'foo(1, ?)': 'ArgumentPlaceholder',
       '\$map[?name="Mike"]': 'UnaryLookup',
-      'foo#1': 'NamedFunctionRef',
-      'function() as xs:integer { 2 }': 'InlineFunctionExpr',
       'namespace-node()': 'NamespaceNodeTest',
       'attribute(*)': 'AttributeTest',
       'schema-attribute(foo)': 'SchemaAttributeTest',

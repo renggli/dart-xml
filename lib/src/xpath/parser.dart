@@ -330,16 +330,25 @@ class XPathParser {
       );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ArrowExpr
-  Parser<XPathExpression> arrowExpr() => seq2(
-    ref0(unaryExpr),
-    seq2(
-      token('=>'),
-      seq2(ref0(arrowFunctionSpecifier), ref0(argumentList)),
-    ).star(),
-  ).map2((expr, arrows) => arrows.isEmpty ? expr : _unimplemented('ArrowExpr'));
+  Parser<XPathExpression> arrowExpr() =>
+      seq2(
+        ref0(unaryExpr),
+        seq2(
+          token('=>'),
+          seq2(ref0(arrowFunctionSpecifier), ref0(argumentList)),
+        ).star(),
+      ).map2((expr, arrows) {
+        var result = expr;
+        for (final arrow in arrows) {
+          final specifier = arrow.$2.$1;
+          final arguments = arrow.$2.$2;
+          result = ArrowExpression(result, specifier, arguments);
+        }
+        return result;
+      });
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ArrowFunctionSpecifier
-  Parser<void> arrowFunctionSpecifier() =>
+  Parser<Object> arrowFunctionSpecifier() =>
       [ref0(eqName), ref0(varRef), ref0(parenthesizedExpr)].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-UnaryExpr
@@ -734,22 +743,30 @@ class XPathParser {
     ref0(eqName),
     token('#'),
     ref0(integerLiteral),
-  ).map((_) => _unimplemented('NamedFunctionRef'));
+  ).map3((name, _, arity) => NamedFunctionExpression(name));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-InlineFunctionExpr
-  Parser<XPathExpression> inlineFunctionExpr() => seq4(
-    token('function'),
-    seq3(token('('), ref0(paramList).optional(), token(')')),
-    ref0(typeDeclaration).optional(),
-    ref0(functionBody),
-  ).map((_) => _unimplemented('InlineFunctionExpr'));
+  Parser<XPathExpression> inlineFunctionExpr() =>
+      seq4(
+        token('function'),
+        seq3(token('('), ref0(paramList).optional(), token(')')),
+        ref0(typeDeclaration).optional(),
+        ref0(functionBody),
+      ).map4(
+        (_, params, type, body) =>
+            InlineFunctionExpression(params.$2 ?? const [], body),
+      );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ParamList
-  Parser<void> paramList() => ref0(param).plusSeparated(token(','));
+  Parser<List<String>> paramList() =>
+      ref0(param).plusSeparated(token(',')).map((list) => list.elements);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-Param
-  Parser<void> param() =>
-      seq3(token('\$'), ref0(eqName), ref0(typeDeclaration).optional());
+  Parser<String> param() => seq3(
+    token('\$'),
+    ref0(eqName),
+    ref0(typeDeclaration).optional(),
+  ).map3((_, name, _) => name);
 
   // https://www.w3.org/TR/xpath-30/#prod-xpath30-TypeDeclaration
   Parser<XPathType<Object>> typeDeclaration() =>
@@ -882,10 +899,11 @@ class XPathParser {
   ).constant(xsMap);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-FunctionBody
-  Parser<void> functionBody() => ref0(enclosedExpr);
+  Parser<XPathExpression> functionBody() => ref0(enclosedExpr);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-EnclosedExpr
-  Parser<void> enclosedExpr() => seq3(token('{'), ref0(expr), token('}'));
+  Parser<XPathExpression> enclosedExpr() =>
+      seq3(token('{'), ref0(expr), token('}')).map3((_, expr, _) => expr);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-KindTest
   Parser<XPathType<Object>> kindTest() => [
