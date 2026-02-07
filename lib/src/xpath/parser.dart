@@ -806,7 +806,7 @@ class XPathParser {
   ).map2((uri, name) => 'Q{$uri}$name');
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-SequenceType
-  Parser<XPathType<Object>> sequenceType() => [
+  Parser<XPathType<Object>> sequenceType() => <Parser<XPathType<Object>>>[
     token('empty-sequence()').constant(xsEmptySequence),
     seq2(ref0(itemType), ref0(occurrenceIndicator).optional()).map2(
       (type, occurrence) => XPathSequenceType(

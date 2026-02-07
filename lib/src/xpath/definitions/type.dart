@@ -2,7 +2,7 @@ import 'package:meta/meta.dart';
 
 /// An XPath type with its Dart representation [T].
 @optionalTypeArgs
-abstract class XPathType<T> {
+abstract class XPathType<T extends Object> {
   const XPathType();
 
   /// The type name.

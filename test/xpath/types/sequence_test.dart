@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/definitions/cardinality.dart';
+import 'package:xml/src/xpath/types/any.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/src/xpath/types/string.dart';
 
@@ -55,7 +56,7 @@ void main() {
       expect(sequence.toString(), '(123)');
     });
     test('multiple (empty)', () {
-      const sequence = XPathSequence([]);
+      const sequence = XPathSequence<Object>([]);
       expect(sequence, isEmpty);
       expect(sequence, hasLength(0));
       expect(sequence.toAtomicValue(), same(sequence));
@@ -166,38 +167,46 @@ void main() {
     group('cardinality', () {
       test('zero-or-more', () {
         const type = XPathSequenceType(
+          type: xsAny,
           cardinality: XPathCardinality.zeroOrMore,
         );
-        expect(type.matches(const XPathSequence([])), isTrue);
-        expect(type.matches(const XPathSequence([1])), isTrue);
-        expect(type.matches(const XPathSequence([1, 2])), isTrue);
+        expect(type.matches(const XPathSequence<int>([])), isTrue);
+        expect(type.matches(const XPathSequence<int>([1])), isTrue);
+        expect(type.matches(const XPathSequence<int>([1, 2])), isTrue);
       });
       test('zero-or-one', () {
-        const type = XPathSequenceType(cardinality: XPathCardinality.zeroOrOne);
-        expect(type.matches(const XPathSequence([])), isTrue);
-        expect(type.matches(const XPathSequence([1])), isTrue);
-        expect(type.matches(const XPathSequence([1, 2])), isFalse);
+        const type = XPathSequenceType(
+          type: xsAny,
+          cardinality: XPathCardinality.zeroOrOne,
+        );
+        expect(type.matches(const XPathSequence<int>([])), isTrue);
+        expect(type.matches(const XPathSequence<int>([1])), isTrue);
+        expect(type.matches(const XPathSequence<int>([1, 2])), isFalse);
       });
       test('one-or-more', () {
-        const type = XPathSequenceType(cardinality: XPathCardinality.oneOrMore);
-        expect(type.matches(const XPathSequence([])), isFalse);
-        expect(type.matches(const XPathSequence([1])), isTrue);
-        expect(type.matches(const XPathSequence([1, 2])), isTrue);
+        const type = XPathSequenceType(
+          type: xsAny,
+          cardinality: XPathCardinality.oneOrMore,
+        );
+        expect(type.matches(const XPathSequence<int>([])), isFalse);
+        expect(type.matches(const XPathSequence<int>([1])), isTrue);
+        expect(type.matches(const XPathSequence<int>([1, 2])), isTrue);
       });
       test('exactly-one', () {
         const type = XPathSequenceType(
+          type: xsAny,
           cardinality: XPathCardinality.exactlyOne,
         );
-        expect(type.matches(const XPathSequence([])), isFalse);
-        expect(type.matches(const XPathSequence([1])), isTrue);
-        expect(type.matches(const XPathSequence([1, 2])), isFalse);
+        expect(type.matches(const XPathSequence<int>([])), isFalse);
+        expect(type.matches(const XPathSequence<int>([1])), isTrue);
+        expect(type.matches(const XPathSequence<int>([1, 2])), isFalse);
       });
     });
     group('cast', () {
       test('from sequence', () {
-        expect(xsSequence.cast(XPathSequence.empty), same(XPathSequence.empty));
+        expect(xsSequence.cast(XPathSequence.empty), XPathSequence.empty);
         const seq = XPathSequence.single(1);
-        expect(xsSequence.cast(seq), same(seq));
+        expect(xsSequence.cast(seq), seq);
       });
       test('with type', () {
         const type = XPathSequenceType(type: xsString);

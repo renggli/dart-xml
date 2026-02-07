@@ -2,7 +2,6 @@ import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 
 import 'package:xml/src/xpath/functions/number.dart';
-import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -52,12 +51,13 @@ void main() {
     expect(current, isA<double>());
     expect(current, isNonNegative);
     expect(current, lessThan(1.0));
-    final nextFunc = result['next'] as Function;
-    final nextSeq = nextFunc(context) as XPathSequence;
+    final nextFunc = result['next'] as XPathFunction;
+    final nextSeq = nextFunc(context, []);
     expect(nextSeq.single, isA<Map<Object, Object>>());
-    final permuteFunc = result['permute'] as Function;
-    final permuted =
-        permuteFunc(context, const XPathSequence([1, 2, 3])) as XPathSequence;
+    final permuteFunc = result['permute'] as XPathFunction;
+    final permuted = permuteFunc(context, [
+      const XPathSequence([1, 2, 3]),
+    ]);
     expect(permuted, isA<XPathSequence>());
     expect(permuted, hasLength(3));
     expect(permuted, containsAll([1, 2, 3]));

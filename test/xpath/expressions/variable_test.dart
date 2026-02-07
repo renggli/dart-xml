@@ -12,7 +12,7 @@ void main() {
     final node = XmlElement.tag('root');
     final context = XPathContext(node);
     const expr = ContextItemExpression();
-    expect(expr(context).first, same(node));
+    expect(expr(context).first, node);
   });
   group('VariableExpression', () {
     test('evaluate existing variable', () {
@@ -22,7 +22,7 @@ void main() {
         variables: {'var': value},
       );
       const expr = VariableExpression('var');
-      expect(expr(context), same(value));
+      expect(expr(context), value);
     });
     test('evaluate missing variable', () {
       final context = XPathContext(XmlElement.tag('root'));
@@ -37,6 +37,6 @@ void main() {
     const value = XPathSequence.single('a');
     const expr = LiteralExpression(value);
     final context = XPathContext(XmlElement.tag('root'));
-    expect(expr(context), same(value));
+    expect(expr(context), value);
   });
 }

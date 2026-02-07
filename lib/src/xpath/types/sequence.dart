@@ -4,11 +4,13 @@ import '../definitions/cardinality.dart';
 import '../definitions/type.dart';
 import '../exceptions/evaluation_exception.dart';
 import 'any.dart';
+import 'array.dart';
+import 'map.dart';
 
 /// The XPath empty sequence type.
 const xsEmptySequence = _XPathEmptySequenceType();
 
-class _XPathEmptySequenceType extends XPathType<XPathSequence> {
+class _XPathEmptySequenceType extends XPathType<XPathSequence<Never>> {
   const _XPathEmptySequenceType();
 
   @override
@@ -18,23 +20,23 @@ class _XPathEmptySequenceType extends XPathType<XPathSequence> {
   bool matches(Object value) => value is XPathSequence && value.isEmpty;
 
   @override
-  XPathSequence cast(Object value) {
+  XPathSequence<Never> cast(Object value) {
     if (matches(value)) return XPathSequence.empty;
     throw XPathEvaluationException.unsupportedCast(this, value);
   }
 }
 
 /// The XPath sequence type.
-const xsSequence = XPathSequenceType();
+const xsSequence = XPathSequenceType(type: xsAny);
 
-class XPathSequenceType extends XPathType<XPathSequence> {
+class XPathSequenceType<T extends Object> extends XPathType<XPathSequence<T>> {
   const XPathSequenceType({
-    this.type = xsAny,
+    required this.type,
     this.cardinality = XPathCardinality.zeroOrMore,
   });
 
   /// The type of the values in the sequence.
-  final XPathType type;
+  final XPathType<T> type;
 
   /// The cardinality of the sequence.
   final XPathCardinality cardinality;
@@ -44,60 +46,52 @@ class XPathSequenceType extends XPathType<XPathSequence> {
 
   @override
   bool matches(Object value) =>
-      value is XPathSequence &&
+      value is XPathSequence<T> &&
       value.hasCardinality(cardinality) &&
-      (type == xsAny || value.every(type.matches));
+      (identical(type, xsAny) || value.every(type.matches));
 
   @override
-  XPathSequence cast(Object value) {
+  XPathSequence<T> cast(Object value) {
     if (value is XPathSequence) {
       if (value.hasCardinality(cardinality)) {
-        if (type == xsAny) return value;
-        return XPathSequence.cached(
-          value.map((each) => type.cast(each) as Object),
-        );
+        return XPathSequence.cached(value.map(type.cast));
       }
       throw XPathEvaluationException.unsupportedCast(this, value);
     }
-    return XPathSequence.single(
-      type == xsAny ? value : type.cast(value) as Object,
-    );
+    return XPathSequence.single(type.cast(value));
   }
 }
 
 /// An XPath 3.1 sequence.
-abstract mixin class XPathSequence implements Iterable<Object> {
+abstract mixin class XPathSequence<T extends Object> implements Iterable<T> {
   /// The empty sequence.
   static const empty = _XPathEmptySequence();
 
   /// The true sequence.
-  static const trueSequence = _XPathSingleSequence(true);
+  static const trueSequence = _XPathSingleSequence<bool>(true);
 
   /// The false sequence.
-  static const falseSequence = _XPathSingleSequence(false);
+  static const falseSequence = _XPathSingleSequence<bool>(false);
 
   /// The empty string.
-  static const emptyString = _XPathSingleSequence('');
+  static const emptyString = _XPathSingleSequence<String>('');
 
   /// The empty array.
-  static const emptyArray = _XPathSingleSequence(<Object>[]);
+  static const emptyArray = _XPathSingleSequence<XPathArray>([]);
 
   /// The empty map.
-  static const emptyMap = _XPathSingleSequence(<Object, Object>{});
+  static const emptyMap = _XPathSingleSequence<XPathMap>({});
 
   /// Creates a sequence from a single [value].
-  const factory XPathSequence.single(Object value) = _XPathSingleSequence;
+  const factory XPathSequence.single(T value) = _XPathSingleSequence;
 
   /// Creates a sequence from an [Iterable].
-  const factory XPathSequence(Iterable<Object> iterable) =
-      _XPathDefaultSequence;
+  const factory XPathSequence(Iterable<T> iterable) = _XPathDefaultSequence;
 
-  /// Creates a sequence from a cached [Iterable].
-  factory XPathSequence.cached(Iterable<Object> iterable) =
-      _XPathCachedSequence;
+  factory XPathSequence.cached(Iterable<T> iterable) = _XPathCachedSequence;
 
   /// Creates a sequence from an integer range.
-  factory XPathSequence.range(int start, int stop) => start < stop
+  static XPathSequence<int> range(int start, int stop) => start < stop
       ? XPathSequence(Iterable.generate(stop - start + 1, (i) => start + i))
       : start == stop
       ? XPathSequence.single(start)
@@ -130,7 +124,7 @@ abstract mixin class XPathSequence implements Iterable<Object> {
 }
 
 /// The empty sequence.
-class _XPathEmptySequence extends Iterable<Object> with XPathSequence {
+class _XPathEmptySequence extends Iterable<Never> with XPathSequence<Never> {
   const _XPathEmptySequence();
 
   @override
@@ -140,7 +134,7 @@ class _XPathEmptySequence extends Iterable<Object> with XPathSequence {
   bool get isEmpty => true;
 
   @override
-  Iterator<Object> get iterator => const <Object>[].iterator;
+  Iterator<Never> get iterator => const <Never>[].iterator;
 
   @override
   bool hasCardinality(XPathCardinality cardinality) =>
@@ -148,14 +142,15 @@ class _XPathEmptySequence extends Iterable<Object> with XPathSequence {
       XPathCardinality.zeroOrOne == cardinality;
 
   @override
-  Object toAtomicValue() => this;
+  _XPathEmptySequence toAtomicValue() => this;
 }
 
 /// A sequence with a single value.
-class _XPathSingleSequence extends Iterable<Object> with XPathSequence {
+class _XPathSingleSequence<T extends Object> extends Iterable<T>
+    with XPathSequence<T> {
   const _XPathSingleSequence(this._value);
 
-  final Object _value;
+  final T _value;
 
   @override
   int get length => 1;
@@ -164,31 +159,31 @@ class _XPathSingleSequence extends Iterable<Object> with XPathSequence {
   bool get isEmpty => false;
 
   @override
-  Iterator<Object> get iterator => _XPathSingleIterator(_value);
+  Iterator<T> get iterator => _XPathSingleIterator(_value);
 
   @override
   bool hasCardinality(XPathCardinality cardinality) => true;
 
   @override
-  Object toAtomicValue() => _value;
+  T toAtomicValue() => _value;
 }
 
-class _XPathSingleIterator implements Iterator<Object> {
+class _XPathSingleIterator<T> implements Iterator<T> {
   _XPathSingleIterator(this._value);
 
-  final Object _value;
+  final T _value;
   int _index = -1;
 
   @override
-  Object get current => _value;
+  T get current => _value;
 
   @override
   bool moveNext() => ++_index < 1;
 }
 
 /// The default sequence imlementation wrapping an [Iterable].
-class _XPathDefaultSequence extends DelegatingIterable<Object>
-    with XPathSequence {
+class _XPathDefaultSequence<T extends Object> extends DelegatingIterable<T>
+    with XPathSequence<T> {
   const _XPathDefaultSequence(super.base);
 
   @override
@@ -196,25 +191,26 @@ class _XPathDefaultSequence extends DelegatingIterable<Object>
 }
 
 /// An optimized sequence that stores the results of the first iteration.
-class _XPathCachedSequence extends Iterable<Object> with XPathSequence {
-  _XPathCachedSequence(Iterable<Object> source) : _iterator = source.iterator;
+class _XPathCachedSequence<T extends Object> extends Iterable<T>
+    with XPathSequence<T> {
+  _XPathCachedSequence(Iterable<T> source) : _iterator = source.iterator;
 
-  final Iterator<Object> _iterator;
-  final List<Object> _results = [];
+  final Iterator<T> _iterator;
+  final List<T> _results = [];
 
   @override
-  Iterator<Object> get iterator => _XPathCachedIterator(_iterator, _results);
+  Iterator<T> get iterator => _XPathCachedIterator(_iterator, _results);
 }
 
-class _XPathCachedIterator implements Iterator<Object> {
+class _XPathCachedIterator<T extends Object> implements Iterator<T> {
   _XPathCachedIterator(this._iterator, this._results);
 
-  final Iterator<Object> _iterator;
-  final List<Object> _results;
+  final Iterator<T> _iterator;
+  final List<T> _results;
   int _index = -1;
 
   @override
-  Object get current => _results[_index];
+  T get current => _results[_index];
 
   @override
   bool moveNext() {

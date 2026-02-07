@@ -152,9 +152,9 @@ XPathSequence _fnRandomNumberGenerator(XPathContext context, [Object? seed]) {
   final random = Random(seed?.hashCode);
   return XPathSequence.single({
     'number': random.nextDouble(),
-    'next': (XPathContext context) =>
+    'next': (XPathContext context, List<XPathSequence> args) =>
         _fnRandomNumberGenerator(context, random.nextInt(1 << 32)),
-    'permute': (XPathContext context, XPathSequence seq) =>
-        XPathSequence(seq.toList().shuffled(random)),
+    'permute': (XPathContext context, List<XPathSequence> args) =>
+        XPathSequence(args.single.toList().shuffled(random)),
   });
 }

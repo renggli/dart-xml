@@ -242,16 +242,12 @@ XPathSequence _fnSort(
   XPathContext context,
   XPathSequence seq, [
   String? collation,
-  Function? key,
+  XPathFunction? key,
 ]) {
   final list = seq.toList();
   list.sort((a, b) {
-    final ka = key != null
-        ? (key(context, [XPathSequence.single(a)]) as Object)
-        : a;
-    final kb = key != null
-        ? (key(context, [XPathSequence.single(b)]) as Object)
-        : b;
+    final ka = key != null ? key(context, [XPathSequence.single(a)]) : a;
+    final kb = key != null ? key(context, [XPathSequence.single(b)]) : b;
     return ka.toString().compareTo(kb.toString());
   });
   return XPathSequence(list);
