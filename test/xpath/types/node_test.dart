@@ -1,8 +1,9 @@
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/exceptions/evaluation_exception.dart';
 import 'package:xml/src/xpath/types/node.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/xml.dart';
+
+import '../../utils/matchers.dart';
 
 void main() {
   final document = XmlDocument.parse(
@@ -31,10 +32,21 @@ void main() {
     test('cast', () {
       expect(xsNode.cast(root), root);
       expect(xsNode.cast(XPathSequence.single(root)), root);
-      expect(() => xsNode.cast(123), throwsA(isA<XPathEvaluationException>()));
+      expect(
+        () => xsNode.cast(123),
+        throwsA(
+          isXPathEvaluationException(
+            message: 'Unsupported cast from 123 to node',
+          ),
+        ),
+      );
       expect(
         () => xsNode.cast(XPathSequence.empty),
-        throwsA(isA<XPathEvaluationException>()),
+        throwsA(
+          isXPathEvaluationException(
+            message: 'Unsupported cast from () to node',
+          ),
+        ),
       );
     });
   });
@@ -51,7 +63,12 @@ void main() {
       expect(xsDocument.cast(document), document);
       expect(
         () => xsDocument.cast(root),
-        throwsA(isA<XPathEvaluationException>()),
+        throwsA(
+          isXPathEvaluationException(
+            message:
+                'Unsupported cast from <r a="1"><a>1</a><b>2<c>3</c></b><!--c--><?p?></r> to document',
+          ),
+        ),
       );
     });
   });
@@ -68,7 +85,12 @@ void main() {
       expect(xsElement.cast(root), root);
       expect(
         () => xsElement.cast(document),
-        throwsA(isA<XPathEvaluationException>()),
+        throwsA(
+          isXPathEvaluationException(
+            message:
+                'Unsupported cast from <r a="1"><a>1</a><b>2<c>3</c></b><!--c--><?p?></r> to element',
+          ),
+        ),
       );
     });
   });
@@ -85,7 +107,12 @@ void main() {
       expect(xsAttribute.cast(attribute), attribute);
       expect(
         () => xsAttribute.cast(root),
-        throwsA(isA<XPathEvaluationException>()),
+        throwsA(
+          isXPathEvaluationException(
+            message:
+                'Unsupported cast from <r a="1"><a>1</a><b>2<c>3</c></b><!--c--><?p?></r> to attribute',
+          ),
+        ),
       );
     });
   });
@@ -100,7 +127,15 @@ void main() {
     });
     test('cast', () {
       expect(xsText.cast(text1), text1);
-      expect(() => xsText.cast(root), throwsA(isA<XPathEvaluationException>()));
+      expect(
+        () => xsText.cast(root),
+        throwsA(
+          isXPathEvaluationException(
+            message:
+                'Unsupported cast from <r a="1"><a>1</a><b>2<c>3</c></b><!--c--><?p?></r> to text',
+          ),
+        ),
+      );
     });
   });
 
@@ -116,7 +151,12 @@ void main() {
       expect(xsComment.cast(comment), comment);
       expect(
         () => xsComment.cast(root),
-        throwsA(isA<XPathEvaluationException>()),
+        throwsA(
+          isXPathEvaluationException(
+            message:
+                'Unsupported cast from <r a="1"><a>1</a><b>2<c>3</c></b><!--c--><?p?></r> to comment',
+          ),
+        ),
       );
     });
   });
@@ -133,7 +173,12 @@ void main() {
       expect(xsProcessingInstruction.cast(processing), processing);
       expect(
         () => xsProcessingInstruction.cast(root),
-        throwsA(isA<XPathEvaluationException>()),
+        throwsA(
+          isXPathEvaluationException(
+            message:
+                'Unsupported cast from <r a="1"><a>1</a><b>2<c>3</c></b><!--c--><?p?></r> to processing-instruction',
+          ),
+        ),
       );
     });
   });

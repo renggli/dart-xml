@@ -1,8 +1,9 @@
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/exceptions/evaluation_exception.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/src/xpath/types/string.dart';
 import 'package:xml/xml.dart';
+
+import '../../utils/matchers.dart';
 
 void main() {
   final document = XmlDocument.parse('<r><a>1</a><b>2<c>3</c></b></r>');
@@ -50,13 +51,22 @@ void main() {
         expect(xsString.cast(const XPathSequence.single(123)), '123');
         expect(
           () => xsString.cast(const XPathSequence(['a', 'b'])),
-          throwsA(isA<XPathEvaluationException>()),
+          throwsA(
+            isXPathEvaluationException(
+              message: 'Unsupported cast from (a, b) to xs:string',
+            ),
+          ),
         );
       });
       test('from unsupported', () {
         expect(
           () => xsString.cast(Object()),
-          throwsA(isA<XPathEvaluationException>()),
+          throwsA(
+            isXPathEvaluationException(
+              message:
+                  "Unsupported cast from Instance of 'Object' to xs:string",
+            ),
+          ),
         );
       });
     });

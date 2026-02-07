@@ -2,9 +2,10 @@ import 'package:test/test.dart';
 import 'package:xml/src/xml/nodes/element.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/evaluation/expression.dart';
-import 'package:xml/src/xpath/exceptions/evaluation_exception.dart';
 import 'package:xml/src/xpath/expressions/function.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
+
+import '../../utils/matchers.dart';
 
 class MockExpression extends XPathExpression {
   MockExpression(this.value);
@@ -46,13 +47,7 @@ void main() {
       final context = XPathContext(XmlElement.tag('root'));
       expect(
         () => expression(context),
-        throwsA(
-          isA<XPathEvaluationException>().having(
-            (e) => e.message,
-            'message',
-            'Unknown function: fun',
-          ),
-        ),
+        throwsA(isXPathEvaluationException(message: 'Unknown function: fun')),
       );
     });
   });

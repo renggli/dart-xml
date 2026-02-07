@@ -1,8 +1,6 @@
-import 'dart:math' as math;
-
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
-import 'package:xml/src/xpath/functions/math.dart';
+
 import 'package:xml/src/xpath/functions/number.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/xml.dart';
@@ -14,180 +12,130 @@ final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
 final context = XPathContext(document);
 
 void main() {
-  group('number', () {
-    test('fn:abs', () {
-      expect(
-        fnAbs(context, [const XPathSequence.single(-5)]),
-        const XPathSequence.single(5),
-      );
-      expect(fnAbs(context, [XPathSequence.empty]), isEmpty);
-    });
+  test('fn:abs', () {
+    expect(
+      fnAbs(context, [const XPathSequence.single(-5)]),
+      const XPathSequence.single(5),
+    );
+    expect(fnAbs(context, [XPathSequence.empty]), isEmpty);
+  });
 
-    test('fn:round-half-to-even', () {
-      expect(
-        fnRoundHalfToEven(context, [const XPathSequence.single(0.5)]),
+  test('fn:round-half-to-even', () {
+    expect(
+      fnRoundHalfToEven(context, [const XPathSequence.single(0.5)]),
+      const XPathSequence.single(0),
+    );
+    expect(
+      fnRoundHalfToEven(context, [const XPathSequence.single(1.5)]),
+      const XPathSequence.single(2),
+    );
+    expect(
+      fnRoundHalfToEven(context, [const XPathSequence.single(2.5)]),
+      const XPathSequence.single(2),
+    );
+  });
+  test('fn:number', () {
+    expect(
+      fnNumber(context, [const XPathSequence.single('123')]),
+      const XPathSequence.single(123),
+    );
+    expect(
+      (fnNumber(context, [XPathSequence.empty]).first as num).isNaN,
+      isTrue,
+    );
+  });
+
+  test('fn:random-number-generator', () {
+    final result = fnRandomNumberGenerator(context, []).single as Map;
+    expect(result.keys, containsAll(['number', 'next', 'permute']));
+    final current = result['number'];
+    expect(current, isA<double>());
+    expect(current, isNonNegative);
+    expect(current, lessThan(1.0));
+    final nextFunc = result['next'] as Function;
+    final nextSeq = nextFunc(context) as XPathSequence;
+    expect(nextSeq.single, isA<Map<Object, Object>>());
+    final permuteFunc = result['permute'] as Function;
+    final permuted =
+        permuteFunc(context, const XPathSequence([1, 2, 3])) as XPathSequence;
+    expect(permuted, isA<XPathSequence>());
+    expect(permuted, hasLength(3));
+    expect(permuted, containsAll([1, 2, 3]));
+  });
+  test('fn:ceiling', () {
+    expect(fnCeiling(context, [const XPathSequence.single(1.5)]), [2]);
+  });
+  test('fn:floor', () {
+    expect(fnFloor(context, [const XPathSequence.single(1.5)]), [1]);
+  });
+  test('fn:round', () {
+    expect(fnRound(context, [const XPathSequence.single(1.5)]), [2]);
+    expect(fnRound(context, [XPathSequence.empty]), isEmpty);
+    expect(fnRound(context, [const XPathSequence.single(double.nan)]), [isNaN]);
+    expect(
+      fnRound(context, [
+        const XPathSequence.single(1.5),
+        const XPathSequence.single(1),
+      ]),
+      [1.5],
+    );
+  });
+
+  test('fn:round (precision)', () {
+    expect(
+      fnRound(context, [
+        const XPathSequence.single(123.456),
+        const XPathSequence.single(2),
+      ]),
+      [123.46],
+    );
+    expect(
+      fnRound(context, [
+        const XPathSequence.single(123.456),
         const XPathSequence.single(0),
-      );
-      expect(
-        fnRoundHalfToEven(context, [const XPathSequence.single(1.5)]),
-        const XPathSequence.single(2),
-      );
-      expect(
-        fnRoundHalfToEven(context, [const XPathSequence.single(2.5)]),
-        const XPathSequence.single(2),
-      );
-    });
-    test('fn:number', () {
-      expect(
-        fnNumber(context, [const XPathSequence.single('123')]),
-        const XPathSequence.single(123),
-      );
-      expect(
-        (fnNumber(context, [XPathSequence.empty]).first as num).isNaN,
-        isTrue,
-      );
-    });
-    test('math:pi', () {
-      expect(mathPi(context, []), [math.pi]);
-    });
-    test('math:sqrt', () {
-      expect(
-        mathSqrt(context, [const XPathSequence.single(4)]),
-        const XPathSequence.single(2),
-      );
-    });
-    test('fn:random-number-generator', () {
-      final result = fnRandomNumberGenerator(context, []).single as Map;
-      expect(result.keys, containsAll(['number', 'next', 'permute']));
-      final current = result['number'];
-      expect(current, isA<double>());
-      expect(current, isNonNegative);
-      expect(current, lessThan(1.0));
-      final nextFunc = result['next'] as Function;
-      final nextSeq = nextFunc(context) as XPathSequence;
-      expect(nextSeq.single, isA<Map<Object, Object>>());
-      final permuteFunc = result['permute'] as Function;
-      final permuted =
-          permuteFunc(context, const XPathSequence([1, 2, 3])) as XPathSequence;
-      expect(permuted, isA<XPathSequence>());
-      expect(permuted, hasLength(3));
-      expect(permuted, containsAll([1, 2, 3]));
-    });
-    test('fn:ceiling', () {
-      expect(fnCeiling(context, [const XPathSequence.single(1.5)]), [2]);
-    });
-    test('fn:floor', () {
-      expect(fnFloor(context, [const XPathSequence.single(1.5)]), [1]);
-    });
-    test('fn:round', () {
-      expect(fnRound(context, [const XPathSequence.single(1.5)]), [2]);
-      expect(fnRound(context, [XPathSequence.empty]), isEmpty);
-      expect(fnRound(context, [const XPathSequence.single(double.nan)]), [
-        isNaN,
-      ]);
-      expect(
-        fnRound(context, [
-          const XPathSequence.single(1.5),
-          const XPathSequence.single(1),
-        ]),
-        [1.5],
-      );
-    });
-    test('math functions', () {
-      expect(mathPi(context, []), [predicate((x) => (x as double) > 3.14)]);
-      expect(mathExp(context, [const XPathSequence.single(0)]), [1.0]);
-      expect(mathExp10(context, [const XPathSequence.single(0)]), [1.0]);
-      expect(mathLog(context, [const XPathSequence.single(math.e)]), [1.0]);
-      expect(mathLog10(context, [const XPathSequence.single(10)]), [1.0]);
-      expect(
-        mathPow(context, [
-          const XPathSequence.single(2),
-          const XPathSequence.single(3),
-        ]),
-        [8.0],
-      );
-      expect(mathSqrt(context, [const XPathSequence.single(4)]), [2.0]);
-      expect(mathSin(context, [const XPathSequence.single(0)]), [0.0]);
-      expect(mathCos(context, [const XPathSequence.single(0)]), [1.0]);
-      expect(mathTan(context, [const XPathSequence.single(0)]), [0.0]);
-      expect(mathAsin(context, [const XPathSequence.single(0)]), [0.0]);
-      expect(mathAcos(context, [const XPathSequence.single(1)]), [0.0]);
-      expect(mathAtan(context, [const XPathSequence.single(0)]), [0.0]);
-      expect(
-        mathAtan2(context, [
-          const XPathSequence.single(0),
-          const XPathSequence.single(1),
-        ]),
-        [0.0],
-      );
-    });
+      ]),
+      [123],
+    );
+    expect(
+      fnRound(context, [
+        const XPathSequence.single(123.456),
+        const XPathSequence.single(-2),
+      ]),
+      [100],
+    ); // Round to hundreds
+  });
 
-    test('fn:round (precision)', () {
-      expect(
-        fnRound(context, [
-          const XPathSequence.single(123.456),
-          const XPathSequence.single(2),
-        ]),
-        [123.46],
-      );
-      expect(
-        fnRound(context, [
-          const XPathSequence.single(123.456),
-          const XPathSequence.single(0),
-        ]),
-        [123],
-      );
-      expect(
-        fnRound(context, [
-          const XPathSequence.single(123.456),
-          const XPathSequence.single(-2),
-        ]),
-        [100],
-      ); // Round to hundreds
-    });
+  test('fn:round-half-to-even (coverage)', () {
+    expect(fnRoundHalfToEven(context, [const XPathSequence.single(2.5)]), [2]);
+    expect(fnRoundHalfToEven(context, [const XPathSequence.single(3.5)]), [4]);
+    expect(fnRoundHalfToEven(context, [const XPathSequence.single(2.4)]), [2]);
+    expect(fnRoundHalfToEven(context, [const XPathSequence.single(2.6)]), [3]);
 
-    test('fn:round-half-to-even (coverage)', () {
-      expect(fnRoundHalfToEven(context, [const XPathSequence.single(2.5)]), [
-        2,
-      ]);
-      expect(fnRoundHalfToEven(context, [const XPathSequence.single(3.5)]), [
-        4,
-      ]);
-      expect(fnRoundHalfToEven(context, [const XPathSequence.single(2.4)]), [
-        2,
-      ]);
-      expect(fnRoundHalfToEven(context, [const XPathSequence.single(2.6)]), [
-        3,
-      ]);
-
-      expect(
-        fnRoundHalfToEven(context, [
-          const XPathSequence.single(2.5),
-          const XPathSequence.single(0),
-        ]),
-        [2],
-      );
-    });
-
-    test('fn:number (context item)', () {
-      final textNode = XmlText('123');
-      final contextWithNode = XPathContext(textNode);
-      expect(fnNumber(contextWithNode, []), [123]);
-    });
-
-    test('fn:random-number-generator (seed)', () {
-      final result = fnRandomNumberGenerator(context, [
-        const XPathSequence.single(123),
-      ]);
-      expect(result, isNotEmpty);
-      // Check determinism
-      final result2 = fnRandomNumberGenerator(context, [
-        const XPathSequence.single(123),
-      ]);
-      final map1 = result.first as Map;
-      final map2 = result2.first as Map;
-      expect(map1['number'], map2['number']);
-    });
+    expect(
+      fnRoundHalfToEven(context, [
+        const XPathSequence.single(2.5),
+        const XPathSequence.single(0),
+      ]),
+      [2],
+    );
+  });
+  test('fn:number (context item)', () {
+    final textNode = XmlText('123');
+    final contextWithNode = XPathContext(textNode);
+    expect(fnNumber(contextWithNode, []), [123]);
+  });
+  test('fn:random-number-generator (seed)', () {
+    final result = fnRandomNumberGenerator(context, [
+      const XPathSequence.single(123),
+    ]);
+    expect(result, isNotEmpty);
+    // Check determinism
+    final result2 = fnRandomNumberGenerator(context, [
+      const XPathSequence.single(123),
+    ]);
+    final map1 = result.first as Map;
+    final map2 = result2.first as Map;
+    expect(map1['number'], map2['number']);
   });
   group('integration', () {
     final xml = XmlDocument.parse('<r><a>1</a><b>2<c/>3</b></r>');

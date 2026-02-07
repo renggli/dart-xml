@@ -23,12 +23,14 @@ const fnCodepointsToString = XPathFunctionDefinition(
 );
 
 XPathSequence _fnCodepointsToString(XPathContext context, XPathSequence arg) {
-  try {
-    final string = String.fromCharCodes(arg.cast<int>());
-    return XPathSequence.single(string);
-  } catch (e) {
-    throw XPathEvaluationException('Invalid character code: $e');
-  }
+  final string = String.fromCharCodes(
+    arg.cast<int>().map(
+      (char) => 0x00000 <= char && char <= 0x10FFFF
+          ? char
+          : throw XPathEvaluationException('Invalid character code: $char'),
+    ),
+  );
+  return XPathSequence.single(string);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-string-to-codepoints
@@ -164,30 +166,41 @@ const fnSubstring = XPathFunctionDefinition(
       type: xsString,
       cardinality: XPathCardinality.zeroOrOne,
     ),
-    XPathArgumentDefinition(name: 'startingLoc', type: xsInteger),
+    XPathArgumentDefinition(name: 'startingLoc', type: xsDouble),
   ],
-  optionalArguments: [XPathArgumentDefinition(name: 'length', type: xsInteger)],
+  optionalArguments: [XPathArgumentDefinition(name: 'length', type: xsDouble)],
   function: _fnSubstring,
 );
 
 XPathSequence _fnSubstring(
   XPathContext context,
   String? sourceString,
-  int startingLoc, [
-  int? length,
+  double startingLoc, [
+  double? length,
 ]) {
   if (sourceString == null) return XPathSequence.emptyString;
-  final start = startingLoc - 1;
-  if (length != null) {
-    final end = start + length;
-    final s = start < 0 ? 0 : start;
-    final e = end > sourceString.length ? sourceString.length : end;
-    if (s >= e) return XPathSequence.emptyString;
-    return XPathSequence.single(sourceString.substring(s, e));
-  }
-  final s = start < 0 ? 0 : start;
-  if (s >= sourceString.length) return XPathSequence.emptyString;
-  return XPathSequence.single(sourceString.substring(s));
+  if (startingLoc.isNaN) return XPathSequence.emptyString;
+  if (length != null && length.isNaN) return XPathSequence.emptyString;
+
+  if (startingLoc.isInfinite) return XPathSequence.emptyString;
+  final start = startingLoc.round();
+  final end = (length != null && length.isFinite)
+      ? start + length.round()
+      : double.infinity;
+
+  var s = start - 1;
+  // If length is infinite (or effectively infinite), we take substring to end of string.
+  // We don't need to calculate 'e' as integer if it's infinite.
+  var e = (length != null && length.isFinite)
+      ? end.round() - 1
+      : sourceString.length;
+
+  // Clamp to string bounds
+  if (s < 0) s = 0;
+  if (e > sourceString.length) e = sourceString.length;
+  if (s >= e) return XPathSequence.emptyString;
+
+  return XPathSequence.single(sourceString.substring(s, e));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-string-length
@@ -516,12 +529,8 @@ XPathSequence _fnMatches(
   String? flags,
 ]) {
   if (input == null) return XPathSequence.falseSequence;
-  try {
-    final regex = _compileRegex(pattern, flags);
-    return XPathSequence.single(regex.hasMatch(input));
-  } catch (e) {
-    throw XPathEvaluationException('Invalid regex: $e');
-  }
+  final regex = _compileRegex(pattern, flags);
+  return XPathSequence.single(regex.hasMatch(input));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-replace
@@ -548,12 +557,8 @@ XPathSequence _fnReplace(
   String? flags,
 ]) {
   if (input == null) return XPathSequence.emptyString;
-  try {
-    final regex = _compileRegex(pattern, flags);
-    return XPathSequence.single(input.replaceAll(regex, replacement));
-  } catch (e) {
-    throw XPathEvaluationException('Invalid regex: $e');
-  }
+  final regex = _compileRegex(pattern, flags);
+  return XPathSequence.single(input.replaceAll(regex, replacement));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-tokenize
@@ -583,12 +588,8 @@ XPathSequence _fnTokenize(
   if (pattern == null) {
     return XPathSequence(input.trim().split(RegExp(r'\s+')));
   }
-  try {
-    final regex = _compileRegex(pattern, flags);
-    return XPathSequence(input.split(regex));
-  } catch (e) {
-    throw XPathEvaluationException('Invalid regex: $e');
-  }
+  final regex = _compileRegex(pattern, flags);
+  return XPathSequence(input.split(regex));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-analyze-string
@@ -613,8 +614,7 @@ XPathSequence _fnAnalyzeString(
   String pattern, [
   String? flags,
 ]) {
-  if (input == null) return XPathSequence.empty;
-  return XPathSequence.empty;
+  throw XPathEvaluationException('Not implemented: fn:analyze-string');
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-collation-key
@@ -669,7 +669,6 @@ RegExp _compileRegex(String pattern, String? flags) {
   var isCaseSensitive = true;
   var isDotAll = false;
   var isLiteral = false;
-
   if (flags != null) {
     for (var i = 0; i < flags.length; i++) {
       final flag = flags[i];
@@ -686,19 +685,14 @@ RegExp _compileRegex(String pattern, String? flags) {
       }
     }
   }
-
-  if (isLiteral) {
+  try {
     return RegExp(
-      RegExp.escape(pattern),
+      isLiteral ? RegExp.escape(pattern) : pattern,
       multiLine: isMultiLine,
       caseSensitive: isCaseSensitive,
       dotAll: isDotAll,
     );
+  } on FormatException catch (error) {
+    throw XPathEvaluationException('Invalid regex: ${error.message}');
   }
-  return RegExp(
-    pattern,
-    multiLine: isMultiLine,
-    caseSensitive: isCaseSensitive,
-    dotAll: isDotAll,
-  );
 }

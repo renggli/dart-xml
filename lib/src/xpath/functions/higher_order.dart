@@ -85,7 +85,7 @@ const fnFoldLeft = XPathFunctionDefinition(
     ),
     XPathArgumentDefinition(
       name: 'zero',
-      type: xsSequence,
+      type: xsAny,
       cardinality: XPathCardinality.zeroOrMore,
     ),
     XPathArgumentDefinition(name: 'action', type: xsFunction),
@@ -117,7 +117,7 @@ const fnFoldRight = XPathFunctionDefinition(
     ),
     XPathArgumentDefinition(
       name: 'zero',
-      type: xsSequence,
+      type: xsAny,
       cardinality: XPathCardinality.zeroOrMore,
     ),
     XPathArgumentDefinition(name: 'action', type: xsFunction),
@@ -267,8 +267,9 @@ const fnFunctionLookup = XPathFunctionDefinition(
   function: _fnFunctionLookup,
 );
 
-XPathSequence _fnFunctionLookup(XPathContext context, String name, num arity) =>
-    XPathSequence.empty;
+XPathSequence _fnFunctionLookup(XPathContext context, String name, num arity) {
+  throw UnimplementedError('fn:function-lookup');
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-load-xquery-module
 const fnLoadXqueryModule = XPathFunctionDefinition(

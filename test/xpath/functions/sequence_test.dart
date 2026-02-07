@@ -5,6 +5,7 @@ import 'package:xml/src/xpath/functions/uri.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
+import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
@@ -268,7 +269,7 @@ void main() {
     test('fn:doc', () {
       expect(
         () => fnDoc(context, [const XPathSequence.single('uri')]),
-        throwsA(isA<XPathEvaluationException>()),
+        throwsA(isXPathEvaluationException(message: 'Document not found: uri')),
       );
     });
     test('fn:doc-available', () {

@@ -1,7 +1,8 @@
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/exceptions/evaluation_exception.dart';
 import 'package:xml/src/xpath/types/date_time.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
+
+import '../../utils/matchers.dart';
 
 void main() {
   group('xsDateTime', () {
@@ -22,7 +23,11 @@ void main() {
         expect(xsDateTime.cast('2021-01-01T00:00:00.000'), dateTime);
         expect(
           () => xsDateTime.cast('invalid'),
-          throwsA(isA<XPathEvaluationException>()),
+          throwsA(
+            isXPathEvaluationException(
+              message: 'Unsupported cast from invalid to xs:dateTime',
+            ),
+          ),
         );
       });
       test('from XPathSequence', () {
@@ -30,13 +35,21 @@ void main() {
         expect(xsDateTime.cast(XPathSequence.single(dateTime)), dateTime);
         expect(
           () => xsDateTime.cast(XPathSequence.empty),
-          throwsA(isA<XPathEvaluationException>()),
+          throwsA(
+            isXPathEvaluationException(
+              message: 'Unsupported cast from () to xs:dateTime',
+            ),
+          ),
         );
       });
       test('from other', () {
         expect(
           () => xsDateTime.cast(123),
-          throwsA(isA<XPathEvaluationException>()),
+          throwsA(
+            isXPathEvaluationException(
+              message: 'Unsupported cast from 123 to xs:dateTime',
+            ),
+          ),
         );
       });
     });

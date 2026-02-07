@@ -1,8 +1,9 @@
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/exceptions/evaluation_exception.dart';
 import 'package:xml/src/xpath/types/boolean.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/xml.dart';
+
+import '../../utils/matchers.dart';
 
 void main() {
   group('xsBoolean', () {
@@ -47,7 +48,11 @@ void main() {
         expect(xsBoolean.cast(const XPathSequence([0])), false);
         expect(
           () => xsBoolean.cast(const XPathSequence([1, 2])),
-          throwsA(isA<XPathEvaluationException>()),
+          throwsA(
+            isXPathEvaluationException(
+              message: 'Unsupported cast from (1, 2) to xs:boolean',
+            ),
+          ),
         );
       });
     });

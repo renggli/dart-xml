@@ -1,8 +1,9 @@
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/exceptions/evaluation_exception.dart';
 import 'package:xml/src/xpath/types/number.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/xml.dart';
+
+import '../../utils/matchers.dart';
 
 void main() {
   final document = XmlDocument.parse('<r><a>1</a><b>2<c>3</c></b></r>');
@@ -39,12 +40,20 @@ void main() {
       test('from sequence', () {
         expect(
           () => xsNumeric.cast(XPathSequence.empty),
-          throwsA(isA<XPathEvaluationException>()),
+          throwsA(
+            isXPathEvaluationException(
+              message: 'Unsupported cast from () to xs:numeric',
+            ),
+          ),
         );
         expect(xsNumeric.cast(const XPathSequence.single(123)), 123);
         expect(
           () => xsNumeric.cast(const XPathSequence([123, 456])),
-          throwsA(isA<XPathEvaluationException>()),
+          throwsA(
+            isXPathEvaluationException(
+              message: 'Unsupported cast from (123, 456) to xs:numeric',
+            ),
+          ),
         );
       });
     });
@@ -83,7 +92,11 @@ void main() {
         // It doesn't seem to parse doubles from strings and round them.
         expect(
           () => xsInteger.cast('123.45'),
-          throwsA(isA<XPathEvaluationException>()),
+          throwsA(
+            isXPathEvaluationException(
+              message: 'Unsupported cast from 123.45 to xs:integer',
+            ),
+          ),
         );
       });
     });

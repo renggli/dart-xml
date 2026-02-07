@@ -1,7 +1,10 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xml/nodes/document.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
+
 import 'package:xml/src/xpath/types/sequence.dart';
+
+import '../../utils/matchers.dart';
 
 final document = XmlDocument.parse('<root><node/></root>');
 final node = document.rootElement;
@@ -26,12 +29,18 @@ void main() {
   test('getVariable', () {
     final context = XPathContext(node, variables: {'var': variable});
     expect(context.getVariable('var'), same(variable));
-    expect(context.getVariable('other'), isNull);
+    expect(
+      () => context.getVariable('other'),
+      throwsA(isXPathEvaluationException(message: 'Unknown variable: other')),
+    );
   });
   test('getFunction', () {
     final context = XPathContext(node, functions: {'fun': function});
     expect(context.getFunction('fun'), same(function));
-    expect(context.getFunction('other'), isNull);
+    expect(
+      () => context.getFunction('other'),
+      throwsA(isXPathEvaluationException(message: 'Unknown function: other')),
+    );
   });
   test('copy', () {
     final copy = context.copy(

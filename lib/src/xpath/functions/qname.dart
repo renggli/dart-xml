@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 import '../../xml/nodes/element.dart';
-import '../../xml/nodes/node.dart';
+
 import '../../xml/utils/name.dart';
 import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
@@ -20,7 +20,7 @@ const fnResolveQName = XPathFunctionDefinition(
       type: xsString,
       cardinality: XPathCardinality.zeroOrOne,
     ),
-    XPathArgumentDefinition(name: 'element', type: xsNode),
+    XPathArgumentDefinition(name: 'element', type: xsElement),
   ],
   function: _fnResolveQName,
 );
@@ -28,12 +28,9 @@ const fnResolveQName = XPathFunctionDefinition(
 XPathSequence _fnResolveQName(
   XPathContext context,
   String? qname,
-  XmlNode element,
+  XmlElement element,
 ) {
   if (qname == null) return XPathSequence.empty;
-  if (element is! XmlElement) {
-    throw XPathEvaluationException('Argument "element" must be an element');
-  }
   final parts = qname.split(':');
   var prefix = '';
   var local = parts[0];
@@ -149,7 +146,7 @@ const fnNamespaceUriForPrefix = XPathFunctionDefinition(
       type: xsString,
       cardinality: XPathCardinality.zeroOrOne,
     ),
-    XPathArgumentDefinition(name: 'element', type: xsNode),
+    XPathArgumentDefinition(name: 'element', type: xsElement),
   ],
   function: _fnNamespaceUriForPrefix,
 );
@@ -157,11 +154,8 @@ const fnNamespaceUriForPrefix = XPathFunctionDefinition(
 XPathSequence _fnNamespaceUriForPrefix(
   XPathContext context,
   String? prefix,
-  XmlNode element,
+  XmlElement element,
 ) {
-  if (element is! XmlElement) {
-    throw XPathEvaluationException('Argument "element" must be an element');
-  }
   final uri = _lookupNamespaceUri(element, prefix ?? '');
   if (uri == null || uri.isEmpty) return XPathSequence.empty;
   return XPathSequence.single(uri);
@@ -170,14 +164,13 @@ XPathSequence _fnNamespaceUriForPrefix(
 /// https://www.w3.org/TR/xpath-functions-31/#func-in-scope-prefixes
 const fnInScopePrefixes = XPathFunctionDefinition(
   name: 'fn:in-scope-prefixes',
-  requiredArguments: [XPathArgumentDefinition(name: 'element', type: xsNode)],
+  requiredArguments: [
+    XPathArgumentDefinition(name: 'element', type: xsElement),
+  ],
   function: _fnInScopePrefixes,
 );
 
-XPathSequence _fnInScopePrefixes(XPathContext context, XmlNode element) {
-  if (element is! XmlElement) {
-    throw XPathEvaluationException('Argument "element" must be an element');
-  }
+XPathSequence _fnInScopePrefixes(XPathContext context, XmlElement element) {
   final prefixes = <String>{};
   var current = element;
   while (true) {

@@ -6,6 +6,7 @@ import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
 import '../types/any.dart';
+import '../types/array.dart';
 import '../types/node.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
@@ -90,7 +91,8 @@ XPathSequence _fnData(XPathContext context, [XPathSequence? arg]) {
   return XPathSequence(
     arg.expand<Object>((item) {
       if (item is XmlNode) return [xsString.cast(item)];
-      return xsSequence.cast(item);
+      if (item is XPathArray) return item;
+      return [item];
     }),
   );
 }

@@ -366,9 +366,7 @@ XPathSequence _fnAdjustDateTimeToTimezone(
     return XPathSequence.single(arg.toLocal());
   }
 
-  throw UnimplementedError(
-    'Implementation restriction: specific timezones not supported by Dart DateTime',
-  );
+  throw UnsupportedError('Specific timezones not supported.');
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-adjust-date-to-timezone

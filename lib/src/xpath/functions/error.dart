@@ -31,9 +31,17 @@ XPathSequence _fnError(
   String? description,
   XPathSequence? errorObject,
 ]) {
-  throw XPathEvaluationException(
-    [code, description, errorObject?.toString()].whereType<String>().join(' '),
-  );
+  final buffer = StringBuffer();
+  if (code != null) buffer.write(code);
+  if (description != null) {
+    if (buffer.isNotEmpty) buffer.write(': ');
+    buffer.write(description);
+  }
+  if (errorObject != null) {
+    if (buffer.isNotEmpty) buffer.write(' ');
+    buffer.write(errorObject);
+  }
+  throw XPathEvaluationException(buffer.toString());
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-trace

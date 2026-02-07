@@ -4,6 +4,8 @@ import 'package:xml/src/xpath/functions/uri.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
+import '../../utils/matchers.dart';
+
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
 final context = XPathContext(document);
 
@@ -21,7 +23,11 @@ void main() {
         const XPathSequence.single('foo'),
         const XPathSequence.single('::invalid::'),
       ]),
-      throwsA(isA<XPathEvaluationException>()),
+      throwsA(
+        isXPathEvaluationException(
+          message: 'Invalid URI: Invalid empty scheme',
+        ),
+      ),
     );
   });
   test('fn:encode-for-uri', () {

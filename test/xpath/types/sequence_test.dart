@@ -1,8 +1,9 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/definitions/cardinality.dart';
-import 'package:xml/src/xpath/exceptions/evaluation_exception.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/src/xpath/types/string.dart';
+
+import '../../utils/matchers.dart';
 
 void main() {
   group('XPathSequence', () {
@@ -143,7 +144,11 @@ void main() {
       expect(xsEmptySequence.cast(XPathSequence.empty), XPathSequence.empty);
       expect(
         () => xsEmptySequence.cast(XPathSequence.trueSequence),
-        throwsA(isA<XPathEvaluationException>()),
+        throwsA(
+          isXPathEvaluationException(
+            message: 'Unsupported cast from (true) to empty-sequence()',
+          ),
+        ),
       );
     });
   });

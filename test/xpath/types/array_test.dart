@@ -1,7 +1,8 @@
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/exceptions/evaluation_exception.dart';
 import 'package:xml/src/xpath/types/array.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
+
+import '../../utils/matchers.dart';
 
 void main() {
   group('xsArray', () {
@@ -24,13 +25,21 @@ void main() {
       test('from sequence (empty)', () {
         expect(
           () => xsArray.cast(XPathSequence.empty),
-          throwsA(isA<XPathEvaluationException>()),
+          throwsA(
+            isXPathEvaluationException(
+              message: 'Unsupported cast from () to array(*)',
+            ),
+          ),
         );
       });
       test('from other', () {
         expect(
           () => xsArray.cast(123),
-          throwsA(isA<XPathEvaluationException>()),
+          throwsA(
+            isXPathEvaluationException(
+              message: 'Unsupported cast from 123 to array(*)',
+            ),
+          ),
         );
       });
     });

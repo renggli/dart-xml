@@ -5,6 +5,8 @@ import 'package:xml/src/xpath/types/string.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
+import '../../utils/matchers.dart';
+
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
 final context = XPathContext(document);
 
@@ -28,14 +30,18 @@ void main() {
           XPathSequence.single(array),
           const XPathSequence.single(3),
         ]),
-        throwsA(isA<XPathEvaluationException>()),
+        throwsA(
+          isXPathEvaluationException(message: 'Array index out of bounds: 3'),
+        ),
       );
       expect(
         () => fnArrayGet(context, [
           XPathSequence.single(array),
           const XPathSequence.single(0),
         ]),
-        throwsA(isA<XPathEvaluationException>()),
+        throwsA(
+          isXPathEvaluationException(message: 'Array index out of bounds: 0'),
+        ),
       );
     });
     test('array:put', () {
@@ -54,7 +60,9 @@ void main() {
           const XPathSequence.single(3),
           const XPathSequence.single('c'),
         ]),
-        throwsA(isA<XPathEvaluationException>()),
+        throwsA(
+          isXPathEvaluationException(message: 'Array index out of bounds: 3'),
+        ),
       );
     });
     test('array:append', () {
@@ -89,7 +97,11 @@ void main() {
           XPathSequence.single(array),
           const XPathSequence.single(0),
         ]),
-        throwsA(isA<XPathEvaluationException>()),
+        throwsA(
+          isXPathEvaluationException(
+            message: 'Invalid subarray range: 0, null',
+          ),
+        ),
       );
       expect(
         fnArraySubarray(context, [
@@ -104,7 +116,9 @@ void main() {
           const XPathSequence.single(4),
           const XPathSequence.single(2),
         ]),
-        throwsA(isA<XPathEvaluationException>()),
+        throwsA(
+          isXPathEvaluationException(message: 'Invalid subarray range: 4, 2'),
+        ),
       );
     });
     test('array:remove', () {
@@ -128,7 +142,9 @@ void main() {
           XPathSequence.single(array),
           const XPathSequence.single(4),
         ]),
-        throwsA(isA<XPathEvaluationException>()),
+        throwsA(
+          isXPathEvaluationException(message: 'Array index out of bounds: 4'),
+        ),
       );
     });
     test('array:insert-before', () {
@@ -147,7 +163,9 @@ void main() {
           const XPathSequence.single(4),
           const XPathSequence.single('d'),
         ]),
-        throwsA(isA<XPathEvaluationException>()),
+        throwsA(
+          isXPathEvaluationException(message: 'Array index out of bounds: 4'),
+        ),
       );
     });
     test('array:head', () {
@@ -161,7 +179,7 @@ void main() {
       );
       expect(
         () => fnArrayHead(context, [const XPathSequence.single([])]),
-        throwsA(isA<XPathEvaluationException>()),
+        throwsA(isXPathEvaluationException(message: 'Empty array')),
       );
     });
     test('array:tail', () {
@@ -175,7 +193,7 @@ void main() {
       );
       expect(
         () => fnArrayTail(context, [const XPathSequence.single([])]),
-        throwsA(isA<XPathEvaluationException>()),
+        throwsA(isXPathEvaluationException(message: 'Empty array')),
       );
     });
     test('array:reverse', () {

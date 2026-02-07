@@ -1,3 +1,5 @@
+import 'dart:core';
+
 import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
@@ -25,13 +27,17 @@ XPathSequence _fnResolveUri(
   String? base,
 ]) {
   if (relative == null) return XPathSequence.empty;
-  final uri = Uri.parse(relative);
-  if (uri.isAbsolute) return XPathSequence.single(relative);
-  if (base == null) {
-    // TODO: Use base URI from static context
-    return XPathSequence.single(relative);
+  try {
+    final uri = Uri.parse(relative);
+    if (uri.isAbsolute) return XPathSequence.single(relative);
+    if (base == null) {
+      // TODO: Use base URI from static context
+      return XPathSequence.single(relative);
+    }
+    return XPathSequence.single(Uri.parse(base).resolve(relative).toString());
+  } on FormatException catch (error) {
+    throw XPathEvaluationException('Invalid URI: ${error.message}');
   }
-  return XPathSequence.single(Uri.parse(base).resolve(relative).toString());
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-doc

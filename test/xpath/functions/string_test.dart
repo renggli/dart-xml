@@ -213,7 +213,9 @@ void main() {
       );
       expect(
         () => fnCodepointsToString(context, [const XPathSequence.single(-1)]),
-        throwsA(isA<XPathEvaluationException>()),
+        throwsA(
+          isXPathEvaluationException(message: 'Invalid character code: -1'),
+        ),
       );
     });
     test('fn:string-to-codepoints', () {
@@ -270,8 +272,15 @@ void main() {
     });
     test('fn:analyze-string', () {
       expect(
-        () => fnAnalyzeString(context, []),
-        throwsA(isA<XPathEvaluationException>()),
+        () => fnAnalyzeString(context, [
+          const XPathSequence.single(''),
+          const XPathSequence.single(''),
+        ]),
+        throwsA(
+          isXPathEvaluationException(
+            message: 'Not implemented: fn:analyze-string',
+          ),
+        ),
       );
     });
 
@@ -366,7 +375,7 @@ void main() {
           const XPathSequence.single('b'),
           const XPathSequence.single('Z'),
         ]),
-        throwsA(isA<XPathEvaluationException>()),
+        throwsA(isXPathEvaluationException(message: 'Invalid regex flag: Z')),
       );
     });
 

@@ -5,6 +5,8 @@ import 'package:xml/src/xpath/types/string.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
+import '../../utils/matchers.dart';
+
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
 final context = XPathContext(document);
 
@@ -21,7 +23,11 @@ void main() {
     );
     expect(
       () => fnMapMerge(context, [const XPathSequence.single(123)]),
-      throwsA(isA<XPathEvaluationException>()),
+      throwsA(
+        isXPathEvaluationException(
+          message: 'Unsupported cast from 123 to map(*)',
+        ),
+      ),
     );
   });
   test('map:size', () {

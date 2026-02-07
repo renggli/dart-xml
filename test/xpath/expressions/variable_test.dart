@@ -1,9 +1,11 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xml/nodes/element.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
-import 'package:xml/src/xpath/exceptions/evaluation_exception.dart';
+
 import 'package:xml/src/xpath/expressions/variable.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
+
+import '../../utils/matchers.dart';
 
 void main() {
   test('ContextItemExpression', () {
@@ -27,13 +29,7 @@ void main() {
       const expr = VariableExpression('var');
       expect(
         () => expr(context),
-        throwsA(
-          isA<XPathEvaluationException>().having(
-            (e) => e.message,
-            'message',
-            'Unknown variable: var',
-          ),
-        ),
+        throwsA(isXPathEvaluationException(message: 'Unknown variable: var')),
       );
     });
   });

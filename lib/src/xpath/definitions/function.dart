@@ -1,5 +1,6 @@
 import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
+import '../types/any.dart';
 import '../types/sequence.dart';
 import 'cardinality.dart';
 import 'type.dart';
@@ -142,9 +143,13 @@ class XPathArgumentDefinition {
             'argument "$name", but got none.',
           );
         }
-        return XPathSequence(sequence.map(type.cast));
+        return type == xsAny
+            ? sequence
+            : XPathSequence(sequence.map(type.cast));
       case XPathCardinality.zeroOrMore:
-        return XPathSequence(sequence.map(type.cast));
+        return type == xsAny
+            ? sequence
+            : XPathSequence(sequence.map(type.cast));
     }
   }
 

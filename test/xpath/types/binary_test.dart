@@ -1,9 +1,10 @@
 import 'dart:typed_data';
 
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/exceptions/evaluation_exception.dart';
 import 'package:xml/src/xpath/types/binary.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
+
+import '../../utils/matchers.dart';
 
 void main() {
   group('xsBase64Binary', () {
@@ -45,7 +46,11 @@ void main() {
       test('from unrelated type', () {
         expect(
           () => xsBase64Binary.cast(123),
-          throwsA(isA<XPathEvaluationException>()),
+          throwsA(
+            isXPathEvaluationException(
+              message: 'Unsupported cast from 123 to xs:base64Binary',
+            ),
+          ),
         );
       });
     });
@@ -89,7 +94,11 @@ void main() {
       test('from unrelated type', () {
         expect(
           () => xsHexBinary.cast(123),
-          throwsA(isA<XPathEvaluationException>()),
+          throwsA(
+            isXPathEvaluationException(
+              message: 'Unsupported cast from 123 to xs:hexBinary',
+            ),
+          ),
         );
       });
     });

@@ -1,7 +1,8 @@
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/exceptions/evaluation_exception.dart';
 import 'package:xml/src/xpath/types/map.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
+
+import '../../utils/matchers.dart';
 
 void main() {
   group('xsMap', () {
@@ -22,11 +23,22 @@ void main() {
         expect(xsMap.cast(XPathSequence.single(map)), same(map));
         expect(
           () => xsMap.cast(XPathSequence.empty),
-          throwsA(isA<XPathEvaluationException>()),
+          throwsA(
+            isXPathEvaluationException(
+              message: 'Unsupported cast from () to map(*)',
+            ),
+          ),
         );
       });
       test('from other', () {
-        expect(() => xsMap.cast(123), throwsA(isA<XPathEvaluationException>()));
+        expect(
+          () => xsMap.cast(123),
+          throwsA(
+            isXPathEvaluationException(
+              message: 'Unsupported cast from 123 to map(*)',
+            ),
+          ),
+        );
       });
     });
   });

@@ -10,41 +10,37 @@ final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
 final context = XPathContext(document);
 
 void main() {
-  group('boolean', () {
-    test('fn:boolean', () {
-      expect(
-        fnBoolean(context, [const XPathSequence.single(true)]),
-        XPathSequence.trueSequence,
-      );
-      expect(
-        fnBoolean(context, [XPathSequence.empty]),
-        XPathSequence.falseSequence,
-      );
-      expect(fnBoolean(context, [const XPathSequence.single(1)]), [true]);
-    });
-    test('fn:not', () {
-      expect(
-        fnNot(context, [const XPathSequence.single(true)]),
-        XPathSequence.falseSequence,
-      );
-    });
-    test('fn:true', () {
-      expect(fnTrue(context, []), [true]);
-    });
-    test('fn:false', () {
-      expect(fnFalse(context, []), [false]);
-    });
-    test('fn:lang', () {
-      final doc = XmlDocument.parse('<r xml:lang="en"><c/></r>');
-      final c = doc.rootElement.children.whereType<XmlElement>().first;
-      final newContext = XPathContext(c);
-      // fn:lang is in node.dart
-      expect(fnLang(newContext, [const XPathSequence.single('en')]), [true]);
-      expect(fnLang(newContext, [const XPathSequence.single('fr')]), [false]);
-      expect(fnLang(newContext, [const XPathSequence.single('EN-US')]), [
-        false,
-      ]);
-    });
+  test('fn:boolean', () {
+    expect(
+      fnBoolean(context, [const XPathSequence.single(true)]),
+      XPathSequence.trueSequence,
+    );
+    expect(
+      fnBoolean(context, [XPathSequence.empty]),
+      XPathSequence.falseSequence,
+    );
+    expect(fnBoolean(context, [const XPathSequence.single(1)]), [true]);
+  });
+  test('fn:not', () {
+    expect(
+      fnNot(context, [const XPathSequence.single(true)]),
+      XPathSequence.falseSequence,
+    );
+  });
+  test('fn:true', () {
+    expect(fnTrue(context, []), [true]);
+  });
+  test('fn:false', () {
+    expect(fnFalse(context, []), [false]);
+  });
+  test('fn:lang', () {
+    final doc = XmlDocument.parse('<r xml:lang="en"><c/></r>');
+    final c = doc.rootElement.children.whereType<XmlElement>().first;
+    final newContext = XPathContext(c);
+    // fn:lang is in node.dart
+    expect(fnLang(newContext, [const XPathSequence.single('en')]), [true]);
+    expect(fnLang(newContext, [const XPathSequence.single('fr')]), [false]);
+    expect(fnLang(newContext, [const XPathSequence.single('EN-US')]), [false]);
   });
   group('integration', () {
     final xml = XmlDocument.parse('<r><a>1</a><b>2<c/>3</b></r>');

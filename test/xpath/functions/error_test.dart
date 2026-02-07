@@ -50,8 +50,8 @@ void main() {
     final traceContext = context.copy(
       onTraceCallback: (value, label) => traceLog.add((value, label)),
     );
-    expect(fnTrace(traceContext, [value]), ['value']);
-    expect(fnTrace(traceContext, [value, label]), ['value']);
+    expect(fnTrace(traceContext, [value]), same(value));
+    expect(fnTrace(traceContext, [value, label]), same(value));
     expect(traceLog, [(value, null), (value, label.single)]);
   });
 }

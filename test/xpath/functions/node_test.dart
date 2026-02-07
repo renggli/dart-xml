@@ -12,41 +12,39 @@ final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
 final context = XPathContext(document);
 
 void main() {
-  group('node', () {
-    test('fn:name', () {
-      final a = document.findAllElements('a').first;
-      expect(fnName(context, [XPathSequence.single(a)]), ['a']);
-    });
-    test('fn:local-name', () {
-      final a = document.findAllElements('a').first;
-      expect(fnLocalName(context, [XPathSequence.single(a)]), ['a']);
-    });
-    test('fn:root', () {
-      final a = document.findAllElements('a').first;
-      expect(fnRoot(context, [XPathSequence.single(a)]), [document]);
-    });
-    test('fn:innermost', () {
-      final a = document.findAllElements('a').first;
-      expect(
-        fnInnermost(context, [
-          XPathSequence([document, a]),
-        ]),
-        [a],
-      );
-    });
-    test('fn:outermost', () {
-      final a = document.findAllElements('a').first;
-      expect(
-        fnOutermost(context, [
-          XPathSequence([document, a]),
-        ]),
-        [document],
-      );
-    });
-    test('fn:path', () {
-      final a = document.findAllElements('a').first;
-      expect(fnPath(context, [XPathSequence.single(a)]), ['/r/a']);
-    });
+  test('fn:name', () {
+    final a = document.findAllElements('a').first;
+    expect(fnName(context, [XPathSequence.single(a)]), ['a']);
+  });
+  test('fn:local-name', () {
+    final a = document.findAllElements('a').first;
+    expect(fnLocalName(context, [XPathSequence.single(a)]), ['a']);
+  });
+  test('fn:root', () {
+    final a = document.findAllElements('a').first;
+    expect(fnRoot(context, [XPathSequence.single(a)]), [document]);
+  });
+  test('fn:innermost', () {
+    final a = document.findAllElements('a').first;
+    expect(
+      fnInnermost(context, [
+        XPathSequence([document, a]),
+      ]),
+      [a],
+    );
+  });
+  test('fn:outermost', () {
+    final a = document.findAllElements('a').first;
+    expect(
+      fnOutermost(context, [
+        XPathSequence([document, a]),
+      ]),
+      [document],
+    );
+  });
+  test('fn:path', () {
+    final a = document.findAllElements('a').first;
+    expect(fnPath(context, [XPathSequence.single(a)]), ['/r/a']);
   });
   group('integration', () {
     final xml = XmlDocument.parse('<r><a>1</a><b>2<c/>3</b></r>');

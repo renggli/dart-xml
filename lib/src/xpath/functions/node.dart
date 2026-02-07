@@ -280,8 +280,12 @@ XPathSequence _fnPath(XPathContext context, [XmlNode? arg]) {
           .whereType<XmlElement>()
           .where((XmlElement e) => e.name.local == name)
           .toList();
-      final index = preceding != null ? preceding.indexOf(current) : 0;
-      components.add('$name[${index + 1}]');
+      if (preceding != null && preceding.length > 1) {
+        final index = preceding.indexOf(current);
+        components.add('$name[${index + 1}]');
+      } else {
+        components.add(name);
+      }
     } else if (current is XmlAttribute) {
       components.add('@${current.name.local}');
     }

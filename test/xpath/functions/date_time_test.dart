@@ -1,8 +1,6 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/functions/date_time.dart';
-import 'package:xml/src/xpath/types/date_time.dart';
-
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -18,7 +16,7 @@ void main() {
         XPathSequence.single(dt),
         const XPathSequence.single(Duration()),
       ]),
-      [xsDateTime.cast(dt).toString()],
+      [dt],
     );
     // Adjust to Implicit (Local) - verify timezone offset matches local
     final result =
@@ -141,7 +139,7 @@ void main() {
         XPathSequence.single(dt),
         XPathSequence.empty, // Empty timezone sequence
       ]),
-      [xsDateTime.cast(dt).toString()],
+      [dt],
     );
   });
   test('fn:adjust-date-to-timezone', () {
@@ -227,7 +225,7 @@ void main() {
         XPathSequence.single(now),
         XPathSequence.single(weirdOffset),
       ]),
-      throwsA(isA<XPathEvaluationException>()),
+      throwsA(isA<UnsupportedError>()),
     );
   });
 

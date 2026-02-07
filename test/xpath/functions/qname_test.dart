@@ -6,7 +6,9 @@ import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
-final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
+import '../../utils/matchers.dart';
+
+final document = XmlDocument.parse('<r xmlns:p="uri"><a>1</a><b>2</b></r>');
 final context = XPathContext(document);
 
 void main() {
@@ -16,14 +18,19 @@ void main() {
         XPathSequence.empty,
         XPathSequence.single(document),
       ]),
-      throwsA(isA<UnimplementedError>()),
+      throwsA(
+        isXPathEvaluationException(
+          message:
+              'Unsupported cast from <r xmlns:p="uri"><a>1</a><b>2</b></r> to element',
+        ),
+      ),
     );
   });
   test('fn:resolve-QName', () {
     expect(
       fnResolveQName(context, [
         const XPathSequence.single('p:local'),
-        const XPathSequence.single('element'),
+        XPathSequence.single(document.rootElement),
       ]).first,
       isA<XmlName>(),
     );
@@ -57,7 +64,12 @@ void main() {
   test('fn:in-scope-prefixes', () {
     expect(
       () => fnInScopePrefixes(context, [XPathSequence.single(document)]),
-      throwsA(isA<UnimplementedError>()),
+      throwsA(
+        isXPathEvaluationException(
+          message:
+              'Unsupported cast from <r xmlns:p="uri"><a>1</a><b>2</b></r> to element',
+        ),
+      ),
     );
   });
 }

@@ -12,8 +12,11 @@ class InstanceofExpression extends XPathExpression {
   final XPathType<Object> type;
 
   @override
-  XPathSequence call(XPathContext context) =>
-      XPathSequence.single(type.matches(expression(context).toAtomicValue()));
+  XPathSequence call(XPathContext context) {
+    final value = expression(context);
+    final result = type.matches(value);
+    return XPathSequence.single(result);
+  }
 }
 
 /// Casts [expression] to [type].
@@ -25,7 +28,7 @@ class CastExpression extends XPathExpression {
 
   @override
   XPathSequence call(XPathContext context) =>
-      xsSequence.cast(type.cast(expression(context).toAtomicValue()));
+      xsSequence.cast(type.cast(expression(context)));
 }
 
 /// Checks if [expression] is castable to [type].
@@ -55,8 +58,8 @@ class TreatExpression extends XPathExpression {
 
   @override
   XPathSequence call(XPathContext context) {
-    final result = expression(context).toAtomicValue();
-    if (type.matches(result)) return xsSequence.cast(result);
+    final result = expression(context);
+    if (type.matches(result)) return result;
     throw XPathEvaluationException('Expected $type, but got $result');
   }
 }

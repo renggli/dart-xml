@@ -1,7 +1,8 @@
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/exceptions/evaluation_exception.dart';
 import 'package:xml/src/xpath/types/duration.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
+
+import '../../utils/matchers.dart';
 
 void main() {
   group('xsDuration', () {
@@ -30,13 +31,21 @@ void main() {
         expect(xsDuration.cast(const XPathSequence.single(duration)), duration);
         expect(
           () => xsDuration.cast(XPathSequence.empty),
-          throwsA(isA<XPathEvaluationException>()),
+          throwsA(
+            isXPathEvaluationException(
+              message: 'Unsupported cast from () to xs:duration',
+            ),
+          ),
         );
       });
       test('from other', () {
         expect(
           () => xsDuration.cast(123),
-          throwsA(isA<XPathEvaluationException>()),
+          throwsA(
+            isXPathEvaluationException(
+              message: 'Unsupported cast from 123 to xs:duration',
+            ),
+          ),
         );
       });
     });
