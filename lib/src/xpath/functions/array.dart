@@ -2,6 +2,7 @@ import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
+import '../operators/comparison.dart';
 import '../types/any.dart';
 import '../types/array.dart';
 import '../types/boolean.dart';
@@ -265,8 +266,8 @@ Iterable<Object> _fnArrayFlattenSync(
   XPathSequence input,
 ) sync* {
   for (final item in input) {
-    if (item is XPathArray) {
-      yield* _fnArrayFlattenSync(context, XPathSequence(item));
+    if (item is Iterable) {
+      yield* _fnArrayFlattenSync(context, XPathSequence(item.cast()));
     } else {
       yield item;
     }
@@ -422,12 +423,12 @@ XPathSequence _fnArraySort(
   final result = XPathArray.from(array);
   result.sort((a, b) {
     final ka = key != null
-        ? (key(context, [XPathSequence.single(a)]) as Object)
+        ? key(context, [XPathSequence.single(a)]).toAtomicValue()
         : a;
     final kb = key != null
-        ? (key(context, [XPathSequence.single(b)]) as Object)
+        ? key(context, [XPathSequence.single(b)]).toAtomicValue()
         : b;
-    return ka.toString().compareTo(kb.toString());
+    return compare(ka, kb);
   });
   return XPathSequence.single(result);
 }

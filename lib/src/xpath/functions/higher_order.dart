@@ -1,6 +1,7 @@
 import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
+import '../operators/comparison.dart';
 import '../types/any.dart';
 import '../types/array.dart';
 import '../types/boolean.dart';
@@ -246,9 +247,13 @@ XPathSequence _fnSort(
 ]) {
   final list = seq.toList();
   list.sort((a, b) {
-    final ka = key != null ? key(context, [XPathSequence.single(a)]) : a;
-    final kb = key != null ? key(context, [XPathSequence.single(b)]) : b;
-    return ka.toString().compareTo(kb.toString());
+    final ka = key != null
+        ? key(context, [XPathSequence.single(a)]).toAtomicValue()
+        : a;
+    final kb = key != null
+        ? key(context, [XPathSequence.single(b)]).toAtomicValue()
+        : b;
+    return compare(ka, kb);
   });
   return XPathSequence(list);
 }

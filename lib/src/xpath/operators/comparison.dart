@@ -1,5 +1,7 @@
 import '../../xml/nodes/node.dart';
 import '../exceptions/evaluation_exception.dart';
+import '../types/boolean.dart';
+import '../types/number.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
 
@@ -73,5 +75,24 @@ XPathSequence _compareValue(
     return XPathSequence.single(stringComparator(item1, item2));
   } else {
     throw XPathEvaluationException('Cannot compare $item1 and $item2');
+  }
+}
+
+/// Compares two XPath values.
+int compare(Object a, Object b) {
+  if (xsNumeric.matches(a) && xsNumeric.matches(b)) {
+    return xsNumeric.cast(a).compareTo(xsNumeric.cast(b));
+  } else if (xsString.matches(a) && xsString.matches(b)) {
+    return xsString.cast(a).compareTo(xsString.cast(b));
+  } else if (xsBoolean.matches(a) && xsBoolean.matches(b)) {
+    final ba = xsBoolean.cast(a);
+    final bb = xsBoolean.cast(b);
+    return ba == bb
+        ? 0
+        : ba
+        ? 1
+        : -1;
+  } else {
+    return a.toString().compareTo(b.toString());
   }
 }

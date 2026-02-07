@@ -238,6 +238,17 @@ void main() {
         4,
         5,
       ]);
+      final nestedSeq = [
+        1,
+        const XPathSequence([2, 3]),
+        [4],
+      ];
+      expect(fnArrayFlatten(context, [XPathSequence(nestedSeq)]).toList(), [
+        1,
+        2,
+        3,
+        4,
+      ]);
     });
     test('array:for-each', () {
       final array = [1, 2, 3];

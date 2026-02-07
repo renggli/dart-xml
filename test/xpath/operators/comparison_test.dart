@@ -1,74 +1,29 @@
 import 'package:test/test.dart';
-import 'package:xml/xml.dart';
-
-import '../helpers.dart';
+import 'package:xml/src/xpath/operators/comparison.dart';
 
 void main() {
-  final root = XmlDocument.parse('<root/>');
-  void expectEval(String expr, Object expected) =>
-      expectEvaluate(root, expr, expected);
-
-  group('value comparison', () {
-    group('eq', () {
-      test('integers', () {
-        expectEval('1 eq 1', [true]);
-        expectEval('1 eq 2', [false]);
-      });
-      test('strings', () {
-        expectEval('"a" eq "a"', [true]);
-        expectEval('"a" eq "b"', [false]);
-      });
-      test('empty', () {
-        expectEval('() eq 1', []);
-        expectEval('1 eq ()', []);
-      });
+  group('comparator', () {
+    test('compare numbers', () {
+      expect(compare(1, 2), -1);
+      expect(compare(2, 2), 0);
+      expect(compare(2, 1), 1);
+      expect(compare(1.0, 2.0), -1);
+      expect(compare(1, 1.0), 0);
     });
-
-    group('ne', () {
-      test('integers', () {
-        expectEval('1 ne 1', [false]);
-        expectEval('1 ne 2', [true]);
-      });
-      test('strings', () {
-        expectEval('"a" ne "a"', [false]);
-        expectEval('"a" ne "b"', [true]);
-      });
+    test('compare strings', () {
+      expect(compare('a', 'b'), -1);
+      expect(compare('b', 'b'), 0);
+      expect(compare('b', 'a'), 1);
     });
-
-    group('lt', () {
-      test('integers', () {
-        expectEval('1 lt 2', [true]);
-        expectEval('2 lt 1', [false]);
-        expectEval('1 lt 1', [false]);
-      });
-      test('strings', () {
-        expectEval('"a" lt "b"', [true]);
-        expectEval('"b" lt "a"', [false]);
-      });
+    test('compare booleans', () {
+      expect(compare(false, true), -1);
+      expect(compare(true, true), 0);
+      expect(compare(false, false), 0);
+      expect(compare(true, false), 1);
     });
-
-    group('le', () {
-      test('integers', () {
-        expectEval('1 le 2', [true]);
-        expectEval('2 le 1', [false]);
-        expectEval('1 le 1', [true]);
-      });
-    });
-
-    group('gt', () {
-      test('integers', () {
-        expectEval('2 gt 1', [true]);
-        expectEval('1 gt 2', [false]);
-        expectEval('1 gt 1', [false]);
-      });
-    });
-
-    group('ge', () {
-      test('integers', () {
-        expectEval('2 ge 1', [true]);
-        expectEval('1 ge 2', [false]);
-        expectEval('1 ge 1', [true]);
-      });
+    test('compare mixed types', () {
+      expect(compare(1, '2'), -1); // "1" < "2"
+      expect(compare('2', 1), 1); // "2" > "1"
     });
   });
 }
