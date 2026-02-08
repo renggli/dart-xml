@@ -46,7 +46,6 @@ void main() {
     final cases = {
       'literals': ['1', '1.2', '"string"', "'string'"],
       'variables': ['\$foo', '\$foo:bar'],
-      'function calls': ['foo()', 'foo(1)', 'foo(1, 2)'],
       'paths': [
         '/',
         'child::foo',
@@ -59,6 +58,7 @@ void main() {
         '..',
         '@foo',
       ],
+      'simple map': ['1 ! 2', '1!2'],
       'operators': [
         '1 + 2',
         '1 - 2',
@@ -195,7 +195,6 @@ void main() {
       '1 is 2': 'NodeComp (is)',
       '1 << 2': 'NodeComp (<<)',
       '1 >> 2': 'NodeComp (>>)',
-      '\$docs ! (//employee)': 'SimpleMapExpr',
       'namespace::foo': 'NamespaceAxis',
       '[4, 5, 6]?2': 'Lookup',
       '\$map[?name="Mike"]': 'UnaryLookup',

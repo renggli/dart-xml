@@ -17,6 +17,7 @@ import 'expressions/path.dart';
 import 'expressions/predicate.dart';
 import 'expressions/range.dart';
 import 'expressions/sequence.dart';
+import 'expressions/simple_map.dart';
 import 'expressions/statement.dart';
 import 'expressions/step.dart';
 import 'expressions/types.dart';
@@ -405,7 +406,7 @@ class XPathParser {
       .map(
         (list) => list.elements.length == 1
             ? list.elements.first
-            : _unimplemented('SimpleMapExpr'),
+            : SimpleMapExpression(list.elements),
       );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-PathExpr
