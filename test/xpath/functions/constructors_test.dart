@@ -51,6 +51,49 @@ void main() {
     });
   });
 
+  group('xs:integer aliases', () {
+    test('xs:byte', () => expectEval('xs:byte("123")', [123]));
+    test('xs:int', () => expectEval('xs:int("123")', [123]));
+    test('xs:long', () => expectEval('xs:long("123")', [123]));
+    test(
+      'xs:negativeInteger',
+      () => expectEval('xs:negativeInteger("-123")', [-123]),
+    );
+    test(
+      'xs:nonNegativeInteger',
+      () => expectEval('xs:nonNegativeInteger("123")', [123]),
+    );
+    test(
+      'xs:nonPositiveInteger',
+      () => expectEval('xs:nonPositiveInteger("-123")', [-123]),
+    );
+    test(
+      'xs:positiveInteger',
+      () => expectEval('xs:positiveInteger("123")', [123]),
+    );
+    test('xs:short', () => expectEval('xs:short("123")', [123]));
+    test('xs:unsignedByte', () => expectEval('xs:unsignedByte("123")', [123]));
+    test('xs:unsignedInt', () => expectEval('xs:unsignedInt("123")', [123]));
+    test('xs:unsignedLong', () => expectEval('xs:unsignedLong("123")', [123]));
+    test(
+      'xs:unsignedShort',
+      () => expectEval('xs:unsignedShort("123")', [123]),
+    );
+  });
+
+  group('xs:dateTime and friends', () {
+    test(
+      'xs:date',
+      () => expectEval('xs:date("2020-01-01")', [DateTime(2020, 1, 1)]),
+    );
+    test(
+      'xs:dateTime',
+      () => expectEval('xs:dateTime("2020-01-01T12:00:00")', [
+        DateTime(2020, 1, 1, 12, 0, 0),
+      ]),
+    );
+  });
+
   group('namespace resolution', () {
     test('fn prefix', () {
       expectEval('fn:string("test")', ['test']);
