@@ -248,11 +248,17 @@ class TestFailure extends StateError {
 }
 
 void verifyResult(XmlElement element, Object result, XPathContext context) {
+  // First verify for an error.
+  if (element.localName == 'error') {
+    if (result is! Error && result is! Exception) {
+      throw TestFailure('Expected error, but got $result');
+    }
+    return;
+  }
+  // If we don't have a sequence at this point, this must be an error.
+  if (result is! XPathSequence) throw result;
+  // Execute the different assertion types.
   switch (element.localName) {
-    case 'error':
-      if (result is! Exception && result is! Error) {
-        throw TestFailure('Expected error, but got $result');
-      }
     case 'assert':
       final evaluation = XPathContext(
         XPathSequence.empty,
@@ -276,7 +282,7 @@ void verifyResult(XmlElement element, Object result, XPathContext context) {
         throw TestFailure('Expected $expected, but got $result');
       }
     case 'assert-empty':
-      if (result is! XPathSequence || result.isNotEmpty) {
+      if (result.isNotEmpty) {
         throw TestFailure('Expected empty, but got $result');
       }
     case 'assert-true':
@@ -288,9 +294,7 @@ void verifyResult(XmlElement element, Object result, XPathContext context) {
         throw TestFailure('Expected false, but got $result');
       }
     case 'assert-string-value':
-      final string = result is XPathSequence
-          ? result.map(xsString.cast).join(' ')
-          : xsString.cast(result);
+      final string = result.map(xsString.cast).join(' ');
       if (string != element.innerText) {
         throw TestFailure('Expected ${element.innerText}, but got $result');
       }
@@ -334,15 +338,22 @@ void verifyResult(XmlElement element, Object result, XPathContext context) {
     case 'assert-permutation':
       final expected = XPathContext(
         XPathSequence.empty,
-      ).evaluate(element.innerText).toSet();
-      if (result is XPathSequence) {
-        if (const SetEquality<Object>().equals(result.toSet(), expected)) {
-          return;
-        }
+      ).evaluate(element.innerText);
+      if (const SetEquality<Object>().equals(
+        result.toSet(),
+        expected.toSet(),
+      )) {
+        return;
       }
       throw TestFailure(
         'Expected $result to be a permutation of ${element.innerText}',
       );
+    case 'assert-count':
+      final actual = result.length;
+      final expected = int.parse(element.innerText);
+      if (actual != expected) {
+        throw TestFailure('Expected $expected items, but got $actual $result');
+      }
     default:
       throw StateError('Unknown result type: $element');
   }
