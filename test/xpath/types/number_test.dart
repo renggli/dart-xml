@@ -73,7 +73,8 @@ void main() {
       });
       test('from double', () {
         expect(xsInteger.cast(123.45), 123); // rounds
-        expect(xsInteger.cast(123.6), 124);
+        expect(xsInteger.cast(123.6), 123);
+        expect(xsInteger.cast(-123.6), -123);
       });
       test('from boolean', () {
         expect(xsInteger.cast(true), 1);

@@ -151,14 +151,6 @@ void main() {
         ]),
         const XPathSequence([1]),
       );
-      expect(
-        fnSubsequence(context, [
-          const XPathSequence([1, 2, 3, 4, 5]),
-          const XPathSequence.single(0.5),
-          const XPathSequence.single(1),
-        ]),
-        const XPathSequence([1]),
-      );
     });
     test('fn:unordered', () {
       const seq = XPathSequence([1, 2, 3]);

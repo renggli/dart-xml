@@ -20,6 +20,8 @@ class _XPathNumericType extends XPathType<num> {
   num cast(Object value) {
     if (value is num) {
       return value;
+    } else if (value is Duration) {
+      return value.inMicroseconds;
     } else if (value is bool) {
       return value ? 1 : 0;
     } else if (value is String) {
@@ -74,7 +76,9 @@ class _XPathIntegerType extends XPathType<int> {
       if (value.isInfinite || value.isNaN) {
         throw XPathEvaluationException('Invalid value: $value');
       }
-      return value.round();
+      return value.toInt();
+    } else if (value is Duration) {
+      return value.inMicroseconds;
     } else if (value is bool) {
       return value ? 1 : 0;
     } else if (value is String) {
@@ -111,6 +115,8 @@ class _XPathDoubleType extends XPathType<double> {
       return value;
     } else if (value is num) {
       return value.toDouble();
+    } else if (value is Duration) {
+      return value.inMicroseconds.toDouble();
     } else if (value is bool) {
       return value ? 1 : 0;
     } else if (value is String) {
