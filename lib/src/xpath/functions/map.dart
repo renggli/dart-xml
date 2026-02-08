@@ -27,9 +27,8 @@ const fnMapGet = XPathFunctionDefinition(
 );
 
 XPathSequence _fnMapGet(XPathContext context, XPathMap map, Object key) {
-  final value = map[key];
-  if (value == null) return XPathSequence.empty;
-  return xsSequence.cast(value);
+  final value = map[key] ?? XPathSequence.empty;
+  return value.toXPathSequence();
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-put
@@ -178,7 +177,7 @@ XPathSequence _fnMapFind(
   XPathContext context,
   XPathSequence input,
   Object key,
-) => XPathSequence(_fnMapFindSync(context, input, key));
+) => XPathSequence(_fnMapFindSync(context, input, key.toAtomicValue()));
 
 Iterable<Object> _fnMapFindSync(
   XPathContext context,
@@ -187,11 +186,8 @@ Iterable<Object> _fnMapFindSync(
 ) sync* {
   for (final item in input) {
     if (item is Map) {
-      if (item.containsKey(
-        key is XPathSequence && key.length == 1 ? key.first : key,
-      )) {
-        yield item[key is XPathSequence && key.length == 1 ? key.first : key]
-            as Object;
+      if (item.containsKey(key)) {
+        yield item[key] as Object;
       }
       yield* _fnMapFindSync(
         context,

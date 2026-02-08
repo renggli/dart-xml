@@ -113,3 +113,7 @@ Matcher isXPathEvaluationException({dynamic message = isNotEmpty}) =>
     isA<XPathEvaluationException>()
         .having((value) => value.message, 'message', message)
         .having((value) => value.toString(), 'toString', isNotEmpty);
+
+/// Returns a [Matcher] that asserts on an [XPathSequence].
+Matcher isXPathSequence(dynamic matcher) =>
+    allOf(isA<XPathSequence>(), matcher);

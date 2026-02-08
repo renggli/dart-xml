@@ -257,16 +257,13 @@ void main() {
         return XPathSequence.single((arg.first as num) * 2);
       }
 
-      final result =
-          fnArrayForEach(context, [
-                XPathSequence.single(array),
-                XPathSequence.single(double),
-              ]).first
-              as List;
-      expect(
-        result.map((e) => XPathSequence.single(e as Object).first).toList(),
+      final result = fnArrayForEach(context, [
+        XPathSequence.single(array),
+        XPathSequence.single(double),
+      ]);
+      expect(result, [
         [2, 4, 6],
-      );
+      ]);
     });
     test('array:filter', () {
       final array = [1, 2, 3, 4];
@@ -329,17 +326,14 @@ void main() {
         return XPathSequence.single(xsString.cast(a) + xsString.cast(b));
       }
 
-      final result =
-          fnArrayForEachPair(context, [
-                XPathSequence.single(array1),
-                XPathSequence.single(array2),
-                XPathSequence.single(concat),
-              ]).first
-              as List;
-      expect(
-        result.map((e) => (e as XPathSequence).first.toString()).toList(),
+      final result = fnArrayForEachPair(context, [
+        XPathSequence.single(array1),
+        XPathSequence.single(array2),
+        XPathSequence.single(concat),
+      ]);
+      expect(result, [
         ['a1', 'b2', 'c3'],
-      );
+      ]);
     });
     test('array:sort', () {
       final array = [3, 1, 2];

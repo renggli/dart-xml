@@ -112,14 +112,26 @@ abstract mixin class XPathSequence<T extends Object> implements Iterable<T> {
     }
     return false;
   }
+}
 
-  /// Converts the sequence to an atomic value if it contains a single value.
+extension XPathSequenceExtension on Object {
+  /// Unwraps this object if it is an [XPathSequence] with a single value.
   Object toAtomicValue() {
-    final iter = iterator;
-    if (!iter.moveNext()) return this;
-    final value = iter.current;
-    if (!iter.moveNext()) return value;
-    return this;
+    final self = this;
+    if (self is XPathSequence) {
+      final iter = self.iterator;
+      if (!iter.moveNext()) return self;
+      final value = iter.current;
+      if (!iter.moveNext()) return value;
+    }
+    return self;
+  }
+
+  /// Wraps this object in an [XPathSequence] if it is not already in one.
+  XPathSequence toXPathSequence() {
+    final self = this;
+    if (self is XPathSequence) return self;
+    return XPathSequence.single(self);
   }
 }
 
@@ -140,9 +152,6 @@ class _XPathEmptySequence extends Iterable<Never> with XPathSequence<Never> {
   bool hasCardinality(XPathCardinality cardinality) =>
       XPathCardinality.zeroOrMore == cardinality ||
       XPathCardinality.zeroOrOne == cardinality;
-
-  @override
-  _XPathEmptySequence toAtomicValue() => this;
 }
 
 /// A sequence with a single value.
@@ -163,9 +172,6 @@ class _XPathSingleSequence<T extends Object> extends Iterable<T>
 
   @override
   bool hasCardinality(XPathCardinality cardinality) => true;
-
-  @override
-  T toAtomicValue() => _value;
 }
 
 class _XPathSingleIterator<T> implements Iterator<T> {

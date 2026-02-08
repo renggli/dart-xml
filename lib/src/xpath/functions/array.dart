@@ -40,7 +40,7 @@ XPathSequence _fnArrayGet(
   if (index < 0 || index >= array.length) {
     throw XPathEvaluationException('Array index out of bounds: $position');
   }
-  return XPathSequence.single(array[index]);
+  return array[index].toXPathSequence();
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-put
@@ -193,7 +193,7 @@ XPathSequence _fnArrayHead(XPathContext context, XPathArray array) {
   if (array.isEmpty) {
     throw XPathEvaluationException('Empty array');
   }
-  return XPathSequence.single(array.first);
+  return array.first.toXPathSequence();
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-tail
@@ -292,7 +292,7 @@ XPathSequence _fnArrayForEach(
   final result = <Object>[];
   for (final item in array) {
     final value = action(context, [xsSequence.cast(item)]);
-    result.add(value.length == 1 ? value.first : value);
+    result.add(value.toAtomicValue());
   }
   return XPathSequence.single(result);
 }
@@ -394,7 +394,7 @@ XPathSequence _fnArrayForEachPair(
       xsSequence.cast(array1[i]),
       xsSequence.cast(array2[i]),
     ]);
-    result.add(value);
+    result.add(value.toAtomicValue());
   }
   return XPathSequence.single(result);
 }

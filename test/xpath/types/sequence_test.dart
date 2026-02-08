@@ -12,7 +12,9 @@ void main() {
       const sequence = XPathSequence.empty;
       expect(sequence, isEmpty);
       expect(sequence, hasLength(0));
+      expect(sequence, isXPathSequence(isEmpty));
       expect(sequence.toAtomicValue(), same(sequence));
+      expect(sequence.toXPathSequence(), same(sequence));
       expect(sequence.hasCardinality(XPathCardinality.zeroOrMore), isTrue);
       expect(sequence.hasCardinality(XPathCardinality.zeroOrOne), isTrue);
       expect(sequence.hasCardinality(XPathCardinality.oneOrMore), isFalse);
@@ -23,8 +25,9 @@ void main() {
       const sequence = XPathSequence.trueSequence;
       expect(sequence, isNotEmpty);
       expect(sequence, hasLength(1));
-      expect(sequence.single, isTrue);
+      expect(sequence, isXPathSequence([true]));
       expect(sequence.toAtomicValue(), isTrue);
+      expect(sequence.toXPathSequence(), same(sequence));
       expect(sequence.hasCardinality(XPathCardinality.zeroOrMore), isTrue);
       expect(sequence.hasCardinality(XPathCardinality.zeroOrOne), isTrue);
       expect(sequence.hasCardinality(XPathCardinality.oneOrMore), isTrue);
@@ -35,8 +38,9 @@ void main() {
       const sequence = XPathSequence.falseSequence;
       expect(sequence, isNotEmpty);
       expect(sequence, hasLength(1));
-      expect(sequence.single, isFalse);
+      expect(sequence, isXPathSequence([false]));
       expect(sequence.toAtomicValue(), isFalse);
+      expect(sequence.toXPathSequence(), same(sequence));
       expect(sequence.hasCardinality(XPathCardinality.zeroOrMore), isTrue);
       expect(sequence.hasCardinality(XPathCardinality.zeroOrOne), isTrue);
       expect(sequence.hasCardinality(XPathCardinality.oneOrMore), isTrue);
@@ -47,8 +51,9 @@ void main() {
       const sequence = XPathSequence.single(123);
       expect(sequence, isNotEmpty);
       expect(sequence, hasLength(1));
-      expect(sequence.single, 123);
+      expect(sequence, isXPathSequence([123]));
       expect(sequence.toAtomicValue(), 123);
+      expect(sequence.toXPathSequence(), same(sequence));
       expect(sequence.hasCardinality(XPathCardinality.zeroOrMore), isTrue);
       expect(sequence.hasCardinality(XPathCardinality.zeroOrOne), isTrue);
       expect(sequence.hasCardinality(XPathCardinality.oneOrMore), isTrue);
@@ -59,7 +64,9 @@ void main() {
       const sequence = XPathSequence<Object>([]);
       expect(sequence, isEmpty);
       expect(sequence, hasLength(0));
+      expect(sequence, isXPathSequence(isEmpty));
       expect(sequence.toAtomicValue(), same(sequence));
+      expect(sequence.toXPathSequence(), same(sequence));
       expect(sequence.hasCardinality(XPathCardinality.zeroOrMore), isTrue);
       expect(sequence.hasCardinality(XPathCardinality.zeroOrOne), isTrue);
       expect(sequence.hasCardinality(XPathCardinality.oneOrMore), isFalse);
@@ -70,8 +77,9 @@ void main() {
       const sequence = XPathSequence([123]);
       expect(sequence, isNotEmpty);
       expect(sequence, hasLength(1));
-      expect(sequence, [123]);
+      expect(sequence, isXPathSequence([123]));
       expect(sequence.toAtomicValue(), 123);
+      expect(sequence.toXPathSequence(), same(sequence));
       expect(sequence.hasCardinality(XPathCardinality.zeroOrMore), isTrue);
       expect(sequence.hasCardinality(XPathCardinality.zeroOrOne), isTrue);
       expect(sequence.hasCardinality(XPathCardinality.oneOrMore), isTrue);
@@ -82,8 +90,9 @@ void main() {
       const sequence = XPathSequence([1, 2, 3]);
       expect(sequence, isNotEmpty);
       expect(sequence, hasLength(3));
-      expect(sequence, [1, 2, 3]);
+      expect(sequence, isXPathSequence([1, 2, 3]));
       expect(sequence.toAtomicValue(), same(sequence));
+      expect(sequence.toXPathSequence(), same(sequence));
       expect(sequence.hasCardinality(XPathCardinality.zeroOrMore), isTrue);
       expect(sequence.hasCardinality(XPathCardinality.zeroOrOne), isFalse);
       expect(sequence.hasCardinality(XPathCardinality.oneOrMore), isTrue);
@@ -97,37 +106,34 @@ void main() {
         return i + 1;
       });
       final sequence = XPathSequence.cached(iterable);
-
       expect(sequence, isNotEmpty);
       expect(sequence, hasLength(3));
-      expect(sequence, [1, 2, 3]);
+      expect(sequence, isXPathSequence([1, 2, 3]));
       expect(sequence.toString(), '(1, 2, 3)');
-      expect(iteratorCount, 3); // Iterated once
-
-      // Iterate again
-      expect(sequence, [1, 2, 3]);
-      expect(iteratorCount, 3); // Should not have iterated again
-
+      expect(iteratorCount, 3, reason: 'iterated once');
+      expect(sequence, isXPathSequence([1, 2, 3]));
+      expect(iteratorCount, 3, reason: 'no more iteration');
       expect(sequence.toString(), '(1, 2, 3)');
     });
     test('range', () {
       final sequence = XPathSequence.range(1, 3);
       expect(sequence, isNotEmpty);
       expect(sequence, hasLength(3));
-      expect(sequence, [1, 2, 3]);
+      expect(sequence, isXPathSequence([1, 2, 3]));
       expect(sequence.toString(), '(1, 2, 3)');
     });
     test('range (singular)', () {
       final sequence = XPathSequence.range(3, 3);
       expect(sequence, isNotEmpty);
       expect(sequence, hasLength(1));
-      expect(sequence.single, 3);
+      expect(sequence, isXPathSequence([3]));
       expect(sequence.toString(), '(3)');
     });
     test('range (empty)', () {
       final sequence = XPathSequence.range(3, 1);
       expect(sequence, isEmpty);
       expect(sequence, hasLength(0));
+      expect(sequence, isXPathSequence(isEmpty));
       expect(sequence.toString(), '()');
     });
   });
@@ -213,6 +219,35 @@ void main() {
         const sequence = XPathSequence([1, 2, 3]);
         expect(type.cast(sequence), const ['1', '2', '3']);
       });
+    });
+  });
+  group('extensions', () {
+    test('toAtomicValue', () {
+      expect(42.toAtomicValue(), 42);
+      expect([42].toAtomicValue(), [42]);
+      expect(const XPathSequence.single(42).toAtomicValue(), 42);
+      for (final sequence in const [
+        XPathSequence.empty,
+        XPathSequence([4, 2]),
+      ]) {
+        expect(sequence.toAtomicValue(), same(sequence));
+      }
+    });
+    test('toXPathSequence', () {
+      expect(42.toXPathSequence(), isXPathSequence([42]));
+      expect(
+        [42].toXPathSequence(),
+        isXPathSequence([
+          [42],
+        ]),
+      );
+      for (final sequence in const [
+        XPathSequence.empty,
+        XPathSequence([42]),
+        XPathSequence([4, 2]),
+      ]) {
+        expect(sequence.toXPathSequence(), same(sequence));
+      }
     });
   });
 }
