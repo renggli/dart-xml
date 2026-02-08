@@ -1,3 +1,9 @@
+/// Runner of the official XPath and XQpery W3C test-suite.
+///
+/// This test-suite is not meant to replace unit-tests. It is purely used to
+/// identify gaps and discrepancies of the library with the standard.
+library;
+
 import 'dart:io';
 
 import 'package:collection/collection.dart';
