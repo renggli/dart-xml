@@ -11,6 +11,7 @@ export 'package:petitparser/petitparser.dart' show unbounded;
 class XPathFunctionDefinition {
   const XPathFunctionDefinition({
     required this.name,
+    this.aliases = const [],
     this.requiredArguments = const [],
     this.optionalArguments = const [],
     this.variadicArgument,
@@ -19,6 +20,9 @@ class XPathFunctionDefinition {
 
   /// The name of the function.
   final String name;
+
+  /// The aliases of the function.
+  final List<String> aliases;
 
   /// The required argument definitions.
   final List<XPathArgumentDefinition> requiredArguments;

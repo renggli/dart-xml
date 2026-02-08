@@ -14,6 +14,7 @@ import '../types/string.dart';
 /// https://www.w3.org/TR/xpath-functions-31/#func-node-name
 const fnNodeName = XPathFunctionDefinition(
   name: 'fn:node-name',
+  aliases: ['node-name'],
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -35,6 +36,7 @@ XPathSequence _fnNodeName(XPathContext context, [XmlNode? arg]) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-nilled
 const fnNilled = XPathFunctionDefinition(
   name: 'fn:nilled',
+  aliases: ['nilled'],
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -57,6 +59,7 @@ XPathSequence _fnNilled(XPathContext context, [XmlNode? arg]) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-string
 const fnString = XPathFunctionDefinition(
   name: 'fn:string',
+  aliases: ['string'],
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -76,6 +79,7 @@ XPathSequence _fnString(XPathContext context, [XPathSequence? arg]) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-data
 const fnData = XPathFunctionDefinition(
   name: 'fn:data',
+  aliases: ['data'],
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -100,6 +104,7 @@ XPathSequence _fnData(XPathContext context, [XPathSequence? arg]) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-base-uri
 const fnBaseUri = XPathFunctionDefinition(
   name: 'fn:base-uri',
+  aliases: ['base-uri'],
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -117,6 +122,7 @@ XPathSequence _fnBaseUri(XPathContext context, [XmlNode? arg]) =>
 /// https://www.w3.org/TR/xpath-functions-31/#func-document-uri
 const fnDocumentUri = XPathFunctionDefinition(
   name: 'fn:document-uri',
+  aliases: ['document-uri'],
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -134,6 +140,7 @@ XPathSequence _fnDocumentUri(XPathContext context, [XmlNode? arg]) =>
 /// https://www.w3.org/TR/xpath-functions-31/#func-serialize
 const fnSerialize = XPathFunctionDefinition(
   name: 'fn:serialize',
+  aliases: ['serialize'],
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -160,6 +167,7 @@ XPathSequence _fnSerialize(
 /// https://www.w3.org/TR/xpath-functions-31/#func-parse-xml
 const fnParseXml = XPathFunctionDefinition(
   name: 'fn:parse-xml',
+  aliases: ['parse-xml'],
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -176,6 +184,7 @@ XPathSequence _fnParseXml(XPathContext context, String? arg) =>
 /// https://www.w3.org/TR/xpath-functions-31/#func-parse-xml-fragment
 const fnParseXmlFragment = XPathFunctionDefinition(
   name: 'fn:parse-xml-fragment',
+  aliases: ['parse-xml-fragment'],
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',

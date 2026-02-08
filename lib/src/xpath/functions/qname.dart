@@ -14,6 +14,7 @@ import '../types/string.dart';
 /// https://www.w3.org/TR/xpath-functions-31/#func-resolve-QName
 const fnResolveQName = XPathFunctionDefinition(
   name: 'fn:resolve-QName',
+  aliases: ['resolve-QName'],
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'qname',
@@ -50,6 +51,7 @@ XPathSequence _fnResolveQName(
 /// https://www.w3.org/TR/xpath-functions-31/#func-QName
 const fnQName = XPathFunctionDefinition(
   name: 'fn:QName',
+  aliases: ['QName'],
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'paramURI',
@@ -82,6 +84,7 @@ XPathSequence _fnQName(
 /// https://www.w3.org/TR/xpath-functions-31/#func-prefix-from-QName
 const fnPrefixFromQName = XPathFunctionDefinition(
   name: 'fn:prefix-from-QName',
+  aliases: ['prefix-from-QName'],
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -102,6 +105,7 @@ XPathSequence _fnPrefixFromQName(XPathContext context, XmlName? arg) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-local-name-from-QName
 const fnLocalNameFromQName = XPathFunctionDefinition(
   name: 'fn:local-name-from-QName',
+  aliases: ['local-name-from-QName'],
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -120,6 +124,7 @@ XPathSequence _fnLocalNameFromQName(XPathContext context, XmlName? arg) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-namespace-uri-from-QName
 const fnNamespaceUriFromQName = XPathFunctionDefinition(
   name: 'fn:namespace-uri-from-QName',
+  aliases: ['namespace-uri-from-QName'],
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -140,6 +145,7 @@ XPathSequence _fnNamespaceUriFromQName(XPathContext context, XmlName? arg) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-namespace-uri-for-prefix
 const fnNamespaceUriForPrefix = XPathFunctionDefinition(
   name: 'fn:namespace-uri-for-prefix',
+  aliases: ['namespace-uri-for-prefix'],
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'prefix',
@@ -164,6 +170,7 @@ XPathSequence _fnNamespaceUriForPrefix(
 /// https://www.w3.org/TR/xpath-functions-31/#func-in-scope-prefixes
 const fnInScopePrefixes = XPathFunctionDefinition(
   name: 'fn:in-scope-prefixes',
+  aliases: ['in-scope-prefixes'],
   requiredArguments: [
     XPathArgumentDefinition(name: 'element', type: xsElement),
   ],

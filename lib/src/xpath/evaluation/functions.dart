@@ -19,16 +19,17 @@ import '../functions/string.dart' as string;
 import '../functions/uri.dart' as uri;
 import '../types/function.dart';
 
-/// The standard XPath functions.
+/// The standard functions.
 final Map<String, XPathFunction> standardFunctions = {
-  for (final definition in _definitions) ...{
-    definition.name: definition.call,
-    if (definition.name.startsWith('fn:'))
-      definition.name.substring(3): definition.call,
+  for (final functionDefinition in standardFunctionDefinitions) ...{
+    functionDefinition.name: functionDefinition.call,
+    for (var alias in functionDefinition.aliases)
+      alias: functionDefinition.call,
   },
 };
 
-const _definitions = <XPathFunctionDefinition>[
+/// Internal list of standard function definitions.
+const standardFunctionDefinitions = <XPathFunctionDefinition>[
   // Accessors
   accessor.fnNodeName,
   accessor.fnNilled,

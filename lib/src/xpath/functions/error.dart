@@ -9,6 +9,7 @@ import '../types/string.dart';
 /// https://www.w3.org/TR/xpath-functions-31/#func-error
 const fnError = XPathFunctionDefinition(
   name: 'fn:error',
+  aliases: ['error'],
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'code',
@@ -47,6 +48,7 @@ XPathSequence _fnError(
 /// https://www.w3.org/TR/xpath-functions-31/#func-trace
 const fnTrace = XPathFunctionDefinition(
   name: 'fn:trace',
+  aliases: ['trace'],
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',

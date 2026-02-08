@@ -8,7 +8,7 @@ abstract class XPathType<T extends Object> {
   /// The type name.
   String get name;
 
-  /// Some type names have aliases.
+  /// The aliases of the type.
   Iterable<String> get aliases => const [];
 
   /// Returns `true` if the [value] matches this type.

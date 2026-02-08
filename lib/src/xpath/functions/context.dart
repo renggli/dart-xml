@@ -5,6 +5,7 @@ import '../types/sequence.dart';
 /// https://www.w3.org/TR/xpath-functions-31/#func-position
 const fnPosition = XPathFunctionDefinition(
   name: 'fn:position',
+  aliases: ['position'],
   function: _fnPosition,
 );
 
@@ -12,7 +13,11 @@ XPathSequence _fnPosition(XPathContext context) =>
     XPathSequence.single(context.position);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-last
-const fnLast = XPathFunctionDefinition(name: 'fn:last', function: _fnLast);
+const fnLast = XPathFunctionDefinition(
+  name: 'fn:last',
+  aliases: ['last'],
+  function: _fnLast,
+);
 
 XPathSequence _fnLast(XPathContext context) =>
     XPathSequence.single(context.last);
@@ -20,6 +25,7 @@ XPathSequence _fnLast(XPathContext context) =>
 /// https://www.w3.org/TR/xpath-functions-31/#func-current-dateTime
 const fnCurrentDateTime = XPathFunctionDefinition(
   name: 'fn:current-dateTime',
+  aliases: ['current-dateTime'],
   function: _fnCurrentDateTime,
 );
 
@@ -29,6 +35,7 @@ XPathSequence _fnCurrentDateTime(XPathContext context) =>
 /// https://www.w3.org/TR/xpath-functions-31/#func-current-date
 const fnCurrentDate = XPathFunctionDefinition(
   name: 'fn:current-date',
+  aliases: ['current-date'],
   function: _fnCurrentDate,
 );
 
@@ -42,6 +49,7 @@ XPathSequence _fnCurrentDate(XPathContext context) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-current-time
 const fnCurrentTime = XPathFunctionDefinition(
   name: 'fn:current-time',
+  aliases: ['current-time'],
   function: _fnCurrentTime,
 );
 
@@ -64,6 +72,7 @@ XPathSequence _fnCurrentTime(XPathContext context) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-implicit-timezone
 const fnImplicitTimezone = XPathFunctionDefinition(
   name: 'fn:implicit-timezone',
+  aliases: ['implicit-timezone'],
   function: _fnImplicitTimezone,
 );
 
@@ -73,6 +82,7 @@ XPathSequence _fnImplicitTimezone(XPathContext context) =>
 /// https://www.w3.org/TR/xpath-functions-31/#func-default-collation
 const fnDefaultCollation = XPathFunctionDefinition(
   name: 'fn:default-collation',
+  aliases: ['default-collation'],
   function: _fnDefaultCollation,
 );
 
@@ -84,6 +94,7 @@ XPathSequence _fnDefaultCollation(XPathContext context) =>
 /// https://www.w3.org/TR/xpath-functions-31/#func-default-language
 const fnDefaultLanguage = XPathFunctionDefinition(
   name: 'fn:default-language',
+  aliases: ['default-language'],
   function: _fnDefaultLanguage,
 );
 
@@ -93,6 +104,7 @@ XPathSequence _fnDefaultLanguage(XPathContext context) =>
 /// https://www.w3.org/TR/xpath-functions-31/#func-static-base-uri
 const fnStaticBaseUri = XPathFunctionDefinition(
   name: 'fn:static-base-uri',
+  aliases: ['static-base-uri'],
   function: _fnStaticBaseUri,
 );
 

@@ -13,6 +13,7 @@ import '../types/string.dart';
 /// https://www.w3.org/TR/xpath-functions-31/#func-boolean
 const fnBoolean = XPathFunctionDefinition(
   name: 'fn:boolean',
+  aliases: ['boolean'],
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -29,6 +30,7 @@ XPathSequence _fnBoolean(XPathContext context, XPathSequence arg) =>
 /// https://www.w3.org/TR/xpath-functions-31/#func-not
 const fnNot = XPathFunctionDefinition(
   name: 'fn:not',
+  aliases: ['not'],
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -43,18 +45,27 @@ XPathSequence _fnNot(XPathContext context, XPathSequence arg) =>
     XPathSequence.single(!xsBoolean.cast(arg));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-true
-const fnTrue = XPathFunctionDefinition(name: 'fn:true', function: _fnTrue);
+const fnTrue = XPathFunctionDefinition(
+  name: 'fn:true',
+  aliases: ['true'],
+  function: _fnTrue,
+);
 
 XPathSequence _fnTrue(XPathContext context) => XPathSequence.trueSequence;
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-false
-const fnFalse = XPathFunctionDefinition(name: 'fn:false', function: _fnFalse);
+const fnFalse = XPathFunctionDefinition(
+  name: 'fn:false',
+  aliases: ['false'],
+  function: _fnFalse,
+);
 
 XPathSequence _fnFalse(XPathContext context) => XPathSequence.falseSequence;
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-lang
 const fnLang = XPathFunctionDefinition(
   name: 'fn:lang',
+  aliases: ['lang'],
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'testlang',

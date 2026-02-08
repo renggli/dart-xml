@@ -855,9 +855,9 @@ class XPathParser {
   ].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-AtomicOrUnionType
-  Parser<XPathType<Object>> atomicOrUnionType() => ref0(
-    eqName,
-  ).map((name) => types[name] ?? _unimplemented('AtomicOrUnionType', name));
+  Parser<XPathType<Object>> atomicOrUnionType() => ref0(eqName).map(
+    (name) => standardTypes[name] ?? _unimplemented('AtomicOrUnionType', name),
+  );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-FunctionTest
   Parser<XPathType<Object>> functionTest() =>

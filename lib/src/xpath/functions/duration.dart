@@ -7,6 +7,7 @@ import '../types/sequence.dart';
 /// https://www.w3.org/TR/xpath-functions-31/#func-years-from-duration
 const fnYearsFromDuration = XPathFunctionDefinition(
   name: 'fn:years-from-duration',
+  aliases: ['years-from-duration'],
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -25,6 +26,7 @@ XPathSequence _fnYearsFromDuration(XPathContext context, Duration? arg) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-months-from-duration
 const fnMonthsFromDuration = XPathFunctionDefinition(
   name: 'fn:months-from-duration',
+  aliases: ['months-from-duration'],
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -43,6 +45,7 @@ XPathSequence _fnMonthsFromDuration(XPathContext context, Duration? arg) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-days-from-duration
 const fnDaysFromDuration = XPathFunctionDefinition(
   name: 'fn:days-from-duration',
+  aliases: ['days-from-duration'],
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -61,6 +64,7 @@ XPathSequence _fnDaysFromDuration(XPathContext context, Duration? arg) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-hours-from-duration
 const fnHoursFromDuration = XPathFunctionDefinition(
   name: 'fn:hours-from-duration',
+  aliases: ['hours-from-duration'],
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -79,6 +83,7 @@ XPathSequence _fnHoursFromDuration(XPathContext context, Duration? arg) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-minutes-from-duration
 const fnMinutesFromDuration = XPathFunctionDefinition(
   name: 'fn:minutes-from-duration',
+  aliases: ['minutes-from-duration'],
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -97,6 +102,7 @@ XPathSequence _fnMinutesFromDuration(XPathContext context, Duration? arg) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-seconds-from-duration
 const fnSecondsFromDuration = XPathFunctionDefinition(
   name: 'fn:seconds-from-duration',
+  aliases: ['seconds-from-duration'],
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',

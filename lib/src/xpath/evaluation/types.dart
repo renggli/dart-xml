@@ -11,15 +11,16 @@ import '../types/qname.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
 
-/// The standard XPath types.
-final Map<String, XPathType<Object>> types = {
-  for (var type in _types) ...{
+/// The standard types.
+final Map<String, XPathType<Object>> standardTypes = {
+  for (var type in basicTypes) ...{
     type.name: type,
     for (var alias in type.aliases) alias: type,
   },
 };
 
-const _types = <XPathType<Object>>[
+/// Internal list of basic types.
+const basicTypes = <XPathType<Object>>[
   xsArray,
   xsBase64Binary,
   xsBoolean,

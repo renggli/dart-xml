@@ -12,6 +12,7 @@ import '../types/sequence.dart';
 /// https://www.w3.org/TR/xpath-functions-31/#func-number
 const fnNumber = XPathFunctionDefinition(
   name: 'fn:number',
+  aliases: ['number'],
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -31,6 +32,7 @@ XPathSequence _fnNumber(XPathContext context, [XPathSequence? arg]) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-abs
 const fnAbs = XPathFunctionDefinition(
   name: 'fn:abs',
+  aliases: ['abs'],
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -49,6 +51,7 @@ XPathSequence _fnAbs(XPathContext context, num? arg) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-ceiling
 const fnCeiling = XPathFunctionDefinition(
   name: 'fn:ceiling',
+  aliases: ['ceiling'],
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -67,6 +70,7 @@ XPathSequence _fnCeiling(XPathContext context, num? arg) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-floor
 const fnFloor = XPathFunctionDefinition(
   name: 'fn:floor',
+  aliases: ['floor'],
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -85,6 +89,7 @@ XPathSequence _fnFloor(XPathContext context, num? arg) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-round
 const fnRound = XPathFunctionDefinition(
   name: 'fn:round',
+  aliases: ['round'],
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -109,6 +114,7 @@ XPathSequence _fnRound(XPathContext context, num? arg, [int? precision]) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-round-half-to-even
 const fnRoundHalfToEven = XPathFunctionDefinition(
   name: 'fn:round-half-to-even',
+  aliases: ['round-half-to-even'],
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -144,6 +150,7 @@ XPathSequence _fnRoundHalfToEven(
 /// https://www.w3.org/TR/xpath-functions-31/#func-random-number-generator
 const fnRandomNumberGenerator = XPathFunctionDefinition(
   name: 'fn:random-number-generator',
+  aliases: ['random-number-generator'],
   optionalArguments: [XPathArgumentDefinition(name: 'seed', type: xsAny)],
   function: _fnRandomNumberGenerator,
 );

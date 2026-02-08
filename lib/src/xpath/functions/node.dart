@@ -16,6 +16,7 @@ import '../types/string.dart';
 /// https://www.w3.org/TR/xpath-functions-31/#func-name
 const fnName = XPathFunctionDefinition(
   name: 'fn:name',
+  aliases: ['name'],
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -41,6 +42,7 @@ XPathSequence _fnName(XPathContext context, [XmlNode? arg]) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-local-name
 const fnLocalName = XPathFunctionDefinition(
   name: 'fn:local-name',
+  aliases: ['local-name'],
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -66,6 +68,7 @@ XPathSequence _fnLocalName(XPathContext context, [XmlNode? arg]) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-namespace-uri
 const fnNamespaceUri = XPathFunctionDefinition(
   name: 'fn:namespace-uri',
+  aliases: ['namespace-uri'],
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -89,6 +92,7 @@ XPathSequence _fnNamespaceUri(XPathContext context, [XmlNode? arg]) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-id
 const fnId = XPathFunctionDefinition(
   name: 'fn:id',
+  aliases: ['id'],
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -107,6 +111,7 @@ XPathSequence _fnId(XPathContext context, XPathSequence arg, [XmlNode? node]) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-element-with-id
 const fnElementWithId = XPathFunctionDefinition(
   name: 'fn:element-with-id',
+  aliases: ['element-with-id'],
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -129,6 +134,7 @@ XPathSequence _fnElementWithId(
 /// https://www.w3.org/TR/xpath-functions-31/#func-idref
 const fnIdref = XPathFunctionDefinition(
   name: 'fn:idref',
+  aliases: ['idref'],
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -151,6 +157,7 @@ XPathSequence _fnIdref(
 /// https://www.w3.org/TR/xpath-functions-31/#func-generate-id
 const fnGenerateId = XPathFunctionDefinition(
   name: 'fn:generate-id',
+  aliases: ['generate-id'],
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -168,6 +175,7 @@ XPathSequence _fnGenerateId(XPathContext context, [XmlNode? arg]) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-root
 const fnRoot = XPathFunctionDefinition(
   name: 'fn:root',
+  aliases: ['root'],
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -186,6 +194,7 @@ XPathSequence _fnRoot(XPathContext context, [XmlNode? arg]) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-has-children
 const fnHasChildren = XPathFunctionDefinition(
   name: 'fn:has-children',
+  aliases: ['has-children'],
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'node',
@@ -204,6 +213,7 @@ XPathSequence _fnHasChildren(XPathContext context, [XmlNode? arg]) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-innermost
 const fnInnermost = XPathFunctionDefinition(
   name: 'fn:innermost',
+  aliases: ['innermost'],
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'nodes',
@@ -230,6 +240,7 @@ XPathSequence _fnInnermost(XPathContext context, XPathSequence nodes) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-outermost
 const fnOutermost = XPathFunctionDefinition(
   name: 'fn:outermost',
+  aliases: ['outermost'],
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'nodes',
@@ -256,6 +267,7 @@ XPathSequence _fnOutermost(XPathContext context, XPathSequence nodes) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-path
 const fnPath = XPathFunctionDefinition(
   name: 'fn:path',
+  aliases: ['path'],
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'arg',
