@@ -250,7 +250,7 @@ class TestFailure extends StateError {
 void verifyResult(XmlElement element, Object result, XPathContext context) {
   switch (element.localName) {
     case 'error':
-      if (result is! Error) {
+      if (result is! Exception && result is! Error) {
         throw TestFailure('Expected error, but got $result');
       }
     case 'assert':

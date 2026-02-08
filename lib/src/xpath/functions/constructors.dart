@@ -2,9 +2,12 @@ import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
 import '../types/any.dart';
+import '../types/binary.dart';
 import '../types/boolean.dart';
 import '../types/date_time.dart';
+import '../types/duration.dart';
 import '../types/number.dart';
+import '../types/qname.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
 
@@ -398,4 +401,133 @@ const xsTimeConstructor = XPathFunctionDefinition(
     ),
   ],
   function: _xsDateTimeConstructor,
+);
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-duration
+const xsDurationConstructor = XPathFunctionDefinition(
+  name: 'xs:duration',
+  requiredArguments: [
+    XPathArgumentDefinition(
+      name: 'value',
+      type: xsAny,
+      cardinality: XPathCardinality.exactlyOne,
+    ),
+  ],
+  function: _xsDurationConstructor,
+);
+
+XPathSequence _xsDurationConstructor(XPathContext context, Object value) =>
+    XPathSequence.single(xsDuration.cast(value));
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-yearMonthDuration
+const xsYearMonthDurationConstructor = XPathFunctionDefinition(
+  name: 'xs:yearMonthDuration',
+  requiredArguments: [
+    XPathArgumentDefinition(
+      name: 'value',
+      type: xsAny,
+      cardinality: XPathCardinality.exactlyOne,
+    ),
+  ],
+  function: _xsDurationConstructor,
+);
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-dayTimeDuration
+const xsDayTimeDurationConstructor = XPathFunctionDefinition(
+  name: 'xs:dayTimeDuration',
+  requiredArguments: [
+    XPathArgumentDefinition(
+      name: 'value',
+      type: xsAny,
+      cardinality: XPathCardinality.exactlyOne,
+    ),
+  ],
+  function: _xsDurationConstructor,
+);
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-hexBinary
+const xsHexBinaryConstructor = XPathFunctionDefinition(
+  name: 'xs:hexBinary',
+  requiredArguments: [
+    XPathArgumentDefinition(
+      name: 'value',
+      type: xsAny,
+      cardinality: XPathCardinality.exactlyOne,
+    ),
+  ],
+  function: _xsHexBinaryConstructor,
+);
+
+XPathSequence _xsHexBinaryConstructor(XPathContext context, Object value) =>
+    XPathSequence.single(xsHexBinary.cast(value));
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-base64Binary
+const xsBase64BinaryConstructor = XPathFunctionDefinition(
+  name: 'xs:base64Binary',
+  requiredArguments: [
+    XPathArgumentDefinition(
+      name: 'value',
+      type: xsAny,
+      cardinality: XPathCardinality.exactlyOne,
+    ),
+  ],
+  function: _xsBase64BinaryConstructor,
+);
+
+XPathSequence _xsBase64BinaryConstructor(XPathContext context, Object value) =>
+    XPathSequence.single(xsBase64Binary.cast(value));
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-anyURI
+const xsAnyURIConstructor = XPathFunctionDefinition(
+  name: 'xs:anyURI',
+  optionalArguments: [
+    XPathArgumentDefinition(
+      name: 'value',
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrOne,
+    ),
+  ],
+  function: _xsStringConstructor,
+);
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-QName
+const xsQNameConstructor = XPathFunctionDefinition(
+  name: 'xs:QName',
+  requiredArguments: [
+    XPathArgumentDefinition(
+      name: 'value',
+      type: xsAny,
+      cardinality: XPathCardinality.exactlyOne,
+    ),
+  ],
+  function: _xsQNameConstructor,
+);
+
+XPathSequence _xsQNameConstructor(XPathContext context, Object value) =>
+    XPathSequence.single(xsQName.cast(value));
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-NOTATION
+const xsNOTATIONConstructor = XPathFunctionDefinition(
+  name: 'xs:NOTATION',
+  requiredArguments: [
+    XPathArgumentDefinition(
+      name: 'value',
+      type: xsAny,
+      cardinality: XPathCardinality.exactlyOne,
+    ),
+  ],
+  function: _xsStringConstructor, // NOTATION is implemented as string?
+);
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-untypedAtomic
+const xsUntypedAtomicConstructor = XPathFunctionDefinition(
+  name: 'xs:untypedAtomic',
+  requiredArguments: [
+    XPathArgumentDefinition(
+      name: 'value',
+      type: xsAny,
+      cardinality: XPathCardinality.exactlyOne,
+    ),
+  ],
+  function: _xsStringConstructor, // untypedAtomic is likely string compatible
 );

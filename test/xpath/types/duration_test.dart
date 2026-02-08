@@ -20,11 +20,7 @@ void main() {
         expect(xsDuration.cast(duration), duration);
       });
       test('from String', () {
-        // TODO: Update when string parsing is implemented
-        expect(
-          () => xsDuration.cast('P1Y'),
-          throwsA(isA<UnimplementedError>()),
-        );
+        expect(xsDuration.cast('P1Y'), const Duration(days: 365));
       });
       test('from XPathSequence', () {
         const duration = Duration(seconds: 1);

@@ -287,4 +287,13 @@ const _definitions = <XPathFunctionDefinition>[
   constructors.xsGYearConstructor,
   constructors.xsGYearMonthConstructor,
   constructors.xsTimeConstructor,
+  constructors.xsDurationConstructor,
+  constructors.xsDayTimeDurationConstructor,
+  constructors.xsYearMonthDurationConstructor,
+  constructors.xsHexBinaryConstructor,
+  constructors.xsBase64BinaryConstructor,
+  constructors.xsAnyURIConstructor,
+  constructors.xsQNameConstructor,
+  constructors.xsNOTATIONConstructor,
+  constructors.xsUntypedAtomicConstructor,
 ];

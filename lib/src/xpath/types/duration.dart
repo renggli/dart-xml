@@ -25,8 +25,24 @@ class _XPathDurationType extends XPathType<Duration> {
     if (value is Duration) {
       return value;
     } else if (value is String) {
-      // TODO: Implement duration parsing from string
-      throw UnimplementedError('Duration from string "$value"');
+      final match = _durationRegExp.firstMatch(value);
+      if (match == null) {
+        throw XPathEvaluationException('Invalid duration format: $value');
+      }
+      final negative = match.group(1) == '-';
+      final years = int.tryParse(match.group(2) ?? '0') ?? 0;
+      final months = int.tryParse(match.group(3) ?? '0') ?? 0;
+      final days = int.tryParse(match.group(4) ?? '0') ?? 0;
+      final hours = int.tryParse(match.group(5) ?? '0') ?? 0;
+      final minutes = int.tryParse(match.group(6) ?? '0') ?? 0;
+      final seconds = double.tryParse(match.group(7) ?? '0.0') ?? 0.0;
+      final duration = Duration(
+        days: years * 365 + months * 30 + days,
+        hours: hours,
+        minutes: minutes,
+        microseconds: (seconds * 1000000).round(),
+      );
+      return negative ? -duration : duration;
     } else if (value is XPathSequence) {
       final item = value.singleOrNull;
       if (item != null) return cast(item);
@@ -34,3 +50,7 @@ class _XPathDurationType extends XPathType<Duration> {
     throw XPathEvaluationException.unsupportedCast(this, value);
   }
 }
+
+final _durationRegExp = RegExp(
+  r'^(-)?P(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$',
+);

@@ -94,6 +94,62 @@ void main() {
     );
   });
 
+  group('xs:duration and friends', () {
+    test(
+      'xs:duration',
+      () => expectEval('xs:duration("P1Y2M3DT4H5M6.7S")', [
+        const Duration(
+          days: 365 + 60 + 3,
+          hours: 4,
+          minutes: 5,
+          microseconds: 6700000,
+        ),
+      ]),
+    );
+    test(
+      'xs:dayTimeDuration',
+      () => expectEval('xs:dayTimeDuration("P3DT4H5M6.7S")', [
+        const Duration(days: 3, hours: 4, minutes: 5, microseconds: 6700000),
+      ]),
+    );
+    test(
+      'xs:yearMonthDuration',
+      () => expectEval('xs:yearMonthDuration("P1Y2M")', [
+        const Duration(days: 365 + 60),
+      ]),
+    );
+  });
+
+  group('xs:hexBinary and xs:base64Binary', () {
+    test(
+      'xs:hexBinary',
+      () => expectEval('xs:hexBinary("FF00")', [
+        predicate((object) => object.toString() == '[255, 0]'),
+      ]),
+    );
+    test(
+      'xs:base64Binary',
+      () => expectEval('xs:base64Binary("AP8=")', [
+        predicate((object) => object.toString() == '[0, 255]'),
+      ]),
+    );
+  });
+
+  group('other constructors', () {
+    test(
+      'xs:anyURI',
+      () => expectEval('xs:anyURI("http://google.com")', ['http://google.com']),
+    );
+    test('xs:QName', () {
+      expectEval('xs:QName("foo:bar")', [
+        predicate((object) => object.toString() == 'foo:bar'),
+      ]);
+    });
+    test('xs:untypedAtomic', () {
+      expectEval('xs:untypedAtomic("test")', ['test']);
+    });
+  });
+
   group('namespace resolution', () {
     test('fn prefix', () {
       expectEval('fn:string("test")', ['test']);
