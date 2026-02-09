@@ -77,14 +77,15 @@ void main() {
     );
   });
   test('map:find', () {
-    // Stub implementation alias to map:get
     final map = {'a': 1};
     expect(
       fnMapFind(context, [
         XPathSequence.single(map),
         const XPathSequence.single('a'),
       ]),
-      [1],
+      [
+        [1],
+      ],
     );
   });
   test('map:put', () {

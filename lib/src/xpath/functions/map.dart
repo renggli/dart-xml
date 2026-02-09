@@ -177,25 +177,25 @@ XPathSequence _fnMapFind(
   XPathContext context,
   XPathSequence input,
   Object key,
-) => XPathSequence(_fnMapFindSync(context, input, key.toAtomicValue()));
+) {
+  final result = <Object>[];
+  _fnMapFindRecurse(input, key, result);
+  return XPathSequence.single(result);
+}
 
-Iterable<Object> _fnMapFindSync(
-  XPathContext context,
-  XPathSequence input,
+void _fnMapFindRecurse(
+  XPathSequence sequence,
   Object key,
-) sync* {
-  for (final item in input) {
+  List<Object> result,
+) {
+  for (final item in sequence) {
     if (item is Map) {
       if (item.containsKey(key)) {
-        yield item[key] as Object;
+        result.add(item[key] as Object);
       }
-      yield* _fnMapFindSync(
-        context,
-        XPathSequence(item.values.cast<Object>()),
-        key,
-      );
+      _fnMapFindRecurse(XPathSequence(item.values.cast<Object>()), key, result);
     } else if (item is List<Object>) {
-      yield* _fnMapFindSync(context, XPathSequence(item), key);
+      _fnMapFindRecurse(XPathSequence(item), key, result);
     }
   }
 }

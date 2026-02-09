@@ -1,7 +1,14 @@
+import 'dart:convert' as convert;
+
+import '../../xml/builder.dart';
+import '../../xml/extensions/string.dart';
+import '../../xml/nodes/document.dart';
+import '../../xml/nodes/element.dart';
 import '../../xml/nodes/node.dart';
 import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
+import '../exceptions/evaluation_exception.dart';
 import '../types/map.dart';
 import '../types/node.dart';
 import '../types/sequence.dart';
@@ -27,7 +34,37 @@ XPathSequence _fnParseJson(
   String? jsonText,
   Map<Object, Object>? options,
 ]) {
-  throw UnimplementedError('fn:parse-json');
+  if (jsonText == null) return XPathSequence.empty;
+  try {
+    final result = convert.json.decode(jsonText);
+    return _jsonToXPath(result);
+  } on FormatException catch (error) {
+    throw XPathEvaluationException('Invalid JSON: ${error.message}');
+  }
+}
+
+XPathSequence _jsonToXPath(Object? json) {
+  if (json == null) {
+    return XPathSequence.empty;
+  } else if (json is bool) {
+    return json ? XPathSequence.trueSequence : XPathSequence.falseSequence;
+  } else if (json is num) {
+    return XPathSequence.single(json.toDouble());
+  } else if (json is String) {
+    return XPathSequence.single(json);
+  } else if (json is List) {
+    return XPathSequence.single(
+      json.map((element) => _jsonToXPath(element).toAtomicValue()).toList(),
+    );
+  } else if (json is Map) {
+    return XPathSequence.single(
+      json.map(
+        (key, value) => MapEntry(key, _jsonToXPath(value).toAtomicValue()),
+      ),
+    );
+  } else {
+    throw StateError('Unknown JSON type: $json');
+  }
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-json-doc
@@ -50,6 +87,8 @@ XPathSequence _fnJsonDoc(
   String? href, [
   Map<Object, Object>? options,
 ]) {
+  if (href == null) return XPathSequence.empty;
+  // TODO: Implement fetching from URI
   throw UnimplementedError('fn:json-doc');
 }
 
@@ -73,7 +112,79 @@ XPathSequence _fnJsonToXml(
   String? jsonText, [
   Map<Object, Object>? options,
 ]) {
-  throw UnimplementedError('fn:json-to-xml');
+  if (jsonText == null) return XPathSequence.empty;
+  try {
+    final json = convert.json.decode(jsonText);
+    final builder = XmlBuilder();
+    builder.processing('xml', 'version="1.0"');
+    _jsonToXml(builder, json, namespaces: {_ns: null});
+    return XPathSequence.single(builder.buildDocument());
+  } on FormatException catch (error) {
+    throw XPathEvaluationException('Invalid JSON: ${error.message}');
+  }
+}
+
+void _jsonToXml(
+  XmlBuilder builder,
+  Object? json, {
+  Map<String, String> attributes = const {},
+  Map<String, String?> namespaces = const {},
+}) {
+  if (json == null) {
+    builder.element('null', attributes: attributes, namespaces: namespaces);
+  } else if (json is bool) {
+    builder.element(
+      'boolean',
+      attributes: attributes,
+      namespaces: namespaces,
+      nest: () {
+        builder.text(json.toString());
+      },
+    );
+  } else if (json is num) {
+    builder.element(
+      'number',
+      attributes: attributes,
+      namespaces: namespaces,
+      nest: () {
+        builder.text(json.toString());
+      },
+    );
+  } else if (json is String) {
+    builder.element(
+      'string',
+      attributes: attributes,
+      namespaces: namespaces,
+      nest: () {
+        builder.text(json);
+      },
+    );
+  } else if (json is List) {
+    builder.element(
+      'array',
+      attributes: attributes,
+      namespaces: namespaces,
+      nest: () {
+        for (final item in json) {
+          _jsonToXml(builder, item);
+        }
+      },
+    );
+  } else if (json is Map) {
+    builder.element(
+      'map',
+      attributes: attributes,
+      namespaces: namespaces,
+      nest: () {
+        for (final MapEntry(key: String key, value: Object? value)
+            in json.entries) {
+          _jsonToXml(builder, value, attributes: {'key': key});
+        }
+      },
+    );
+  } else {
+    throw StateError('Unknown JSON type: $json');
+  }
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-xml-to-json
@@ -96,5 +207,53 @@ XPathSequence _fnXmlToJson(
   XmlNode? input, [
   Map<Object, Object>? options,
 ]) {
-  throw UnimplementedError('fn:xml-to-json');
+  if (input == null) return XPathSequence.empty;
+  final json = _xmlToJson(input);
+  return XPathSequence.single(convert.json.encode(json));
 }
+
+Object? _xmlToJson(XmlNode node) {
+  if (node is XmlElement) {
+    if (node.name.namespaceUri != _ns) {
+      return null;
+    }
+    if (node.localName == 'map') {
+      final result = <String, Object?>{};
+      for (final child in node.children) {
+        if (child is XmlElement && child.name.namespaceUri == _ns) {
+          final key = child.getAttribute('key');
+          if (key != null) {
+            result[key] = _xmlToJson(child);
+          }
+        }
+      }
+      return result;
+    } else if (node.localName == 'array') {
+      final result = <Object?>[];
+      for (final child in node.children) {
+        if (child is XmlElement && child.name.namespaceUri == _ns) {
+          result.add(_xmlToJson(child));
+        }
+      }
+      return result;
+    } else if (node.localName == 'string') {
+      return node.innerText;
+    } else if (node.localName == 'number') {
+      return num.parse(node.innerText);
+    } else if (node.localName == 'boolean') {
+      return node.innerText == 'true';
+    } else if (node.localName == 'null') {
+      return null;
+    }
+  } else if (node is XmlDocument) {
+    final child = node.rootElement;
+    final result = _xmlToJson(child);
+    if (result != null ||
+        (child.name.namespaceUri == _ns && child.localName == 'null')) {
+      return result;
+    }
+  }
+  return null;
+}
+
+const _ns = 'http://www.w3.org/2005/xpath-functions';

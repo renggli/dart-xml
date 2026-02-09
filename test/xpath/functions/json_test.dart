@@ -8,28 +8,101 @@ final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
 final context = XPathContext(document);
 
 void main() {
-  test('fn:parse-json', () {
-    expect(
-      () => fnParseJson(context, [XPathSequence.empty]),
-      throwsA(isA<UnimplementedError>()),
-    );
+  group('fn:parse-json', () {
+    test('null', () {
+      expect(
+        fnParseJson(context, [const XPathSequence.single('null')]),
+        XPathSequence.empty,
+      );
+    });
+    test('boolean', () {
+      expect(fnParseJson(context, [const XPathSequence.single('true')]), [
+        true,
+      ]);
+      expect(fnParseJson(context, [const XPathSequence.single('false')]), [
+        false,
+      ]);
+    });
+    test('number', () {
+      expect(fnParseJson(context, [const XPathSequence.single('123')]), [
+        123.0,
+      ]);
+      expect(fnParseJson(context, [const XPathSequence.single('12.34')]), [
+        12.34,
+      ]);
+    });
+    test('string', () {
+      expect(fnParseJson(context, [const XPathSequence.single('"abc"')]), [
+        'abc',
+      ]);
+    });
+    test('array', () {
+      final result = fnParseJson(context, [
+        const XPathSequence.single('[1, 2]'),
+      ]);
+      expect(result.length, 1);
+      final array = result.first as List;
+      expect(array, [1.0, 2.0]);
+    });
+    test('map', () {
+      final result = fnParseJson(context, [
+        const XPathSequence.single('{"a": 1}'),
+      ]);
+      expect(result.length, 1);
+      final map = result.first as Map;
+      expect(map, {'a': 1.0});
+    });
+    test('invalid', () {
+      expect(
+        () => fnParseJson(context, [const XPathSequence.single('{')]),
+        throwsA(isA<Exception>()),
+      );
+    });
   });
+
   test('fn:json-doc', () {
     expect(
       () => fnJsonDoc(context, [const XPathSequence.single('url')]),
       throwsA(isA<UnimplementedError>()),
     );
   });
-  test('fn:json-to-xml', () {
-    expect(
-      () => fnJsonToXml(context, [XPathSequence.empty]),
-      throwsA(isA<UnimplementedError>()),
-    );
+
+  group('fn:json-to-xml', () {
+    test('basic', () {
+      const input = '{"a": 1, "b": [null, true, 2, "c"]}';
+      final result = fnJsonToXml(context, [const XPathSequence.single(input)]);
+      final node = result.first as XmlDocument;
+      expect(
+        node.toXmlString(),
+        '<?xml version="1.0"?>'
+        '<map xmlns="http://www.w3.org/2005/xpath-functions">'
+        '<number key="a">1</number>'
+        '<array key="b">'
+        '<null/>'
+        '<boolean>true</boolean>'
+        '<number>2</number>'
+        '<string>c</string>'
+        '</array>'
+        '</map>',
+      );
+    });
   });
-  test('fn:xml-to-json', () {
-    expect(
-      () => fnXmlToJson(context, [XPathSequence.empty]),
-      throwsA(isA<UnimplementedError>()),
-    );
+  group('fn:xml-to-json', () {
+    test('basic', () {
+      const input =
+          '<?xml version="1.0"?>'
+          '<map xmlns="http://www.w3.org/2005/xpath-functions">'
+          '<number key="a">1</number>'
+          '<array key="b">'
+          '<null/>'
+          '<boolean>true</boolean>'
+          '<number>2</number>'
+          '<string>c</string>'
+          '</array>'
+          '</map>';
+      final document = XmlDocument.parse(input);
+      final result = fnXmlToJson(context, [XPathSequence.single(document)]);
+      expect(result.first, '{"a":1,"b":[null,true,2,"c"]}');
+    });
   });
 }
