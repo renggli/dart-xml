@@ -16,7 +16,7 @@ void main() {
         const XPathSequence.single('foo'),
         const XPathSequence.single('http://example.com/'),
       ]),
-      ['http://example.com/foo'],
+      isXPathSequence(['http://example.com/foo']),
     );
     expect(
       () => fnResolveUri(context, [
@@ -31,14 +31,21 @@ void main() {
     );
   });
   test('fn:encode-for-uri', () {
-    expect(fnEncodeForUri(context, [const XPathSequence.single(' ')]), ['%20']);
+    expect(
+      fnEncodeForUri(context, [const XPathSequence.single(' ')]),
+      isXPathSequence(['%20']),
+    );
   });
   test('fn:iri-to-uri', () {
-    expect(fnIriToUri(context, [const XPathSequence.single(' ')]), ['%20']);
+    expect(
+      fnIriToUri(context, [const XPathSequence.single(' ')]),
+      isXPathSequence(['%20']),
+    );
   });
   test('fn:escape-html-uri', () {
-    expect(fnEscapeHtmlUri(context, [const XPathSequence.single(' ')]), [
-      '%20',
-    ]);
+    expect(
+      fnEscapeHtmlUri(context, [const XPathSequence.single(' ')]),
+      isXPathSequence(['%20']),
+    );
   });
 }

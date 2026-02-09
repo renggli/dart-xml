@@ -17,9 +17,11 @@ void main() {
     expect(
       fnMapMerge(context, [
         XPathSequence([map1, map2]),
-      ]).first,
+      ]),
       // duplicate keys: last wins by default? logic says result.addAll which overwrites.
-      {'a': 1, 'b': 3, 'c': 4},
+      isXPathSequence([
+        {'a': 1, 'b': 3, 'c': 4},
+      ]),
     );
     expect(
       () => fnMapMerge(context, [const XPathSequence.single(123)]),
@@ -32,14 +34,17 @@ void main() {
   });
   test('map:size', () {
     final map = {'a': 1, 'b': 2};
-    expect(fnMapSize(context, [XPathSequence.single(map)]), [2]);
+    expect(
+      fnMapSize(context, [XPathSequence.single(map)]),
+      isXPathSequence([2]),
+    );
   });
   test('map:keys', () {
     final map = {'a': 1, 'b': 2};
     // Keys matching is order-dependent? Map keys order is iteration order.
     expect(
-      fnMapKeys(context, [XPathSequence.single(map)]).toList(),
-      containsAll(['a', 'b']),
+      fnMapKeys(context, [XPathSequence.single(map)]),
+      isXPathSequence(containsAll(['a', 'b'])),
     );
   });
   test('map:contains', () {
@@ -49,14 +54,14 @@ void main() {
         XPathSequence.single(map),
         const XPathSequence.single('a'),
       ]),
-      [true],
+      isXPathSequence([true]),
     );
     expect(
       fnMapContains(context, [
         XPathSequence.single(map),
         const XPathSequence.single('b'),
       ]),
-      [false],
+      isXPathSequence([false]),
     );
   });
   test('map:get', () {
@@ -66,14 +71,14 @@ void main() {
         XPathSequence.single(map),
         const XPathSequence.single('a'),
       ]),
-      [1],
+      isXPathSequence([1]),
     );
     expect(
       fnMapGet(context, [
         XPathSequence.single(map),
         const XPathSequence.single('b'),
       ]),
-      isEmpty,
+      isXPathSequence(isEmpty),
     );
   });
   test('map:find', () {
@@ -95,8 +100,10 @@ void main() {
         XPathSequence.single(map),
         const XPathSequence.single('b'),
         const XPathSequence.single(2),
-      ]).first,
-      {'a': 1, 'b': 2},
+      ]),
+      isXPathSequence([
+        {'a': 1, 'b': 2},
+      ]),
     );
   });
   test('map:entry', () {
@@ -104,8 +111,10 @@ void main() {
       fnMapEntry(context, [
         const XPathSequence.single('a'),
         const XPathSequence.single(1),
-      ]).first,
-      {'a': 1},
+      ]),
+      isXPathSequence([
+        {'a': 1},
+      ]),
     );
   });
   test('map:remove', () {
@@ -114,15 +123,17 @@ void main() {
       fnMapRemove(context, [
         XPathSequence.single(map),
         const XPathSequence.single('a'),
-      ]).first,
-      {'b': 2},
+      ]),
+      isXPathSequence([
+        {'b': 2},
+      ]),
     );
     expect(
       fnMapRemove(context, [
         XPathSequence.single(map),
         const XPathSequence(['a', 'b']),
-      ]).first,
-      const <Object, Object>{},
+      ]),
+      isXPathSequence([isEmpty]),
     );
   });
   test('map:for-each', () {
@@ -137,8 +148,8 @@ void main() {
       fnMapForEach(context, [
         XPathSequence.single(map),
         XPathSequence.single(concat),
-      ]).toList(),
-      containsAll(['a1', 'b2']),
+      ]),
+      isXPathSequence(containsAll(['a1', 'b2'])),
     );
   });
 }

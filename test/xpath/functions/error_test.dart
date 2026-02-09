@@ -40,8 +40,8 @@ void main() {
   test('fn:trace (without handler)', () {
     const value = XPathSequence.single('value');
     const label = XPathSequence.single('label');
-    expect(fnTrace(context, [value]), ['value']);
-    expect(fnTrace(context, [value, label]), ['value']);
+    expect(fnTrace(context, [value]), isXPathSequence(['value']));
+    expect(fnTrace(context, [value, label]), isXPathSequence(['value']));
   });
   test('fn:trace (with handler)', () {
     const value = XPathSequence.single('value');

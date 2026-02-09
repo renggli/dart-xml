@@ -5,6 +5,8 @@ import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/src/xpath/types/string.dart';
 import 'package:xml/xml.dart';
 
+import '../../utils/matchers.dart';
+
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
 final context = XPathContext(document);
 
@@ -14,13 +16,13 @@ void main() {
       fnSort(context, [
         const XPathSequence([3, 1, 2]),
       ]),
-      const XPathSequence([1, 2, 3]),
+      isXPathSequence(const XPathSequence([1, 2, 3])),
     );
     expect(
       fnSort(context, [
         const XPathSequence(['b', 'a', 'c']),
       ]),
-      const XPathSequence(['a', 'b', 'c']),
+      isXPathSequence(const XPathSequence(['a', 'b', 'c'])),
     );
     // Sort with key
     expect(
@@ -32,7 +34,7 @@ void main() {
           return XPathSequence.single(xsString.cast(arg).length);
         }),
       ]),
-      const XPathSequence(['be', 'cat', 'apple']),
+      isXPathSequence(const XPathSequence(['be', 'cat', 'apple'])),
     );
   });
   test('fn:apply', () {
@@ -47,7 +49,7 @@ void main() {
         XPathSequence.single(add),
         const XPathSequence.single([1, 2]),
       ]),
-      [3],
+      isXPathSequence([3]),
     );
   });
   test('fn:for-each', () {
@@ -61,7 +63,7 @@ void main() {
         const XPathSequence([1, 2, 3]),
         XPathSequence.single(double),
       ]),
-      [2, 4, 6],
+      isXPathSequence([2, 4, 6]),
     );
   });
   test('fn:filter', () {
@@ -75,7 +77,7 @@ void main() {
         const XPathSequence([1, 2, 3, 4]),
         XPathSequence.single(isEven),
       ]),
-      [2, 4],
+      isXPathSequence([2, 4]),
     );
   });
   test('fn:fold-left', () {
@@ -91,7 +93,7 @@ void main() {
         const XPathSequence.single(0),
         XPathSequence.single(add),
       ]),
-      [15],
+      isXPathSequence([15]),
     );
   });
   test('fn:fold-right', () {
@@ -107,7 +109,7 @@ void main() {
         const XPathSequence.single(0),
         XPathSequence.single(sub),
       ]),
-      [3],
+      isXPathSequence([3]),
     );
   });
   test('fn:for-each-pair', () {
@@ -123,7 +125,7 @@ void main() {
         const XPathSequence(['1', '2', '3']),
         XPathSequence.single(concat),
       ]),
-      ['a1', 'b2', 'c3'],
+      isXPathSequence(['a1', 'b2', 'c3']),
     );
   });
   test('fn:function-lookup', () {
@@ -143,7 +145,7 @@ void main() {
               XPathSequence.empty,
         ),
       ]),
-      isEmpty,
+      isXPathSequence(isEmpty),
     );
   });
   test('fn:function-arity', () {
@@ -154,7 +156,7 @@ void main() {
               XPathSequence.empty,
         ),
       ]),
-      [0],
+      isXPathSequence([0]),
     );
   });
   test('fn:load-xquery-module', () {

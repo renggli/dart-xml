@@ -1,11 +1,11 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
-
 import 'package:xml/src/xpath/functions/number.dart';
 import 'package:xml/src/xpath/types/map.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
+import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
@@ -15,29 +15,29 @@ void main() {
   test('fn:abs', () {
     expect(
       fnAbs(context, [const XPathSequence.single(-5)]),
-      const XPathSequence.single(5),
+      isXPathSequence([5]),
     );
-    expect(fnAbs(context, [XPathSequence.empty]), isEmpty);
+    expect(fnAbs(context, [XPathSequence.empty]), isXPathSequence(isEmpty));
   });
 
   test('fn:round-half-to-even', () {
     expect(
       fnRoundHalfToEven(context, [const XPathSequence.single(0.5)]),
-      const XPathSequence.single(0),
+      isXPathSequence([0]),
     );
     expect(
       fnRoundHalfToEven(context, [const XPathSequence.single(1.5)]),
-      const XPathSequence.single(2),
+      isXPathSequence([2]),
     );
     expect(
       fnRoundHalfToEven(context, [const XPathSequence.single(2.5)]),
-      const XPathSequence.single(2),
+      isXPathSequence([2]),
     );
   });
   test('fn:number', () {
     expect(
       fnNumber(context, [const XPathSequence.single('123')]),
-      const XPathSequence.single(123),
+      isXPathSequence([123]),
     );
     expect(
       (fnNumber(context, [XPathSequence.empty]).first as num).isNaN,
@@ -70,21 +70,33 @@ void main() {
     expect(firstPermutation, containsAll([1, 2, 3]));
   });
   test('fn:ceiling', () {
-    expect(fnCeiling(context, [const XPathSequence.single(1.5)]), [2]);
+    expect(
+      fnCeiling(context, [const XPathSequence.single(1.5)]),
+      isXPathSequence([2]),
+    );
   });
   test('fn:floor', () {
-    expect(fnFloor(context, [const XPathSequence.single(1.5)]), [1]);
+    expect(
+      fnFloor(context, [const XPathSequence.single(1.5)]),
+      isXPathSequence([1]),
+    );
   });
   test('fn:round', () {
-    expect(fnRound(context, [const XPathSequence.single(1.5)]), [2]);
-    expect(fnRound(context, [XPathSequence.empty]), isEmpty);
-    expect(fnRound(context, [const XPathSequence.single(double.nan)]), [isNaN]);
+    expect(
+      fnRound(context, [const XPathSequence.single(1.5)]),
+      isXPathSequence([2]),
+    );
+    expect(fnRound(context, [XPathSequence.empty]), isXPathSequence(isEmpty));
+    expect(
+      fnRound(context, [const XPathSequence.single(double.nan)]),
+      isXPathSequence([isNaN]),
+    );
     expect(
       fnRound(context, [
         const XPathSequence.single(1.5),
         const XPathSequence.single(1),
       ]),
-      [1.5],
+      isXPathSequence([1.5]),
     );
   });
 
@@ -94,42 +106,54 @@ void main() {
         const XPathSequence.single(123.456),
         const XPathSequence.single(2),
       ]),
-      [123.46],
+      isXPathSequence([123.46]),
     );
     expect(
       fnRound(context, [
         const XPathSequence.single(123.456),
         const XPathSequence.single(0),
       ]),
-      [123],
+      isXPathSequence([123]),
     );
     expect(
       fnRound(context, [
         const XPathSequence.single(123.456),
         const XPathSequence.single(-2),
       ]),
-      [100],
+      isXPathSequence([100]),
     ); // Round to hundreds
   });
 
   test('fn:round-half-to-even (coverage)', () {
-    expect(fnRoundHalfToEven(context, [const XPathSequence.single(2.5)]), [2]);
-    expect(fnRoundHalfToEven(context, [const XPathSequence.single(3.5)]), [4]);
-    expect(fnRoundHalfToEven(context, [const XPathSequence.single(2.4)]), [2]);
-    expect(fnRoundHalfToEven(context, [const XPathSequence.single(2.6)]), [3]);
+    expect(
+      fnRoundHalfToEven(context, [const XPathSequence.single(2.5)]),
+      isXPathSequence([2]),
+    );
+    expect(
+      fnRoundHalfToEven(context, [const XPathSequence.single(3.5)]),
+      isXPathSequence([4]),
+    );
+    expect(
+      fnRoundHalfToEven(context, [const XPathSequence.single(2.4)]),
+      isXPathSequence([2]),
+    );
+    expect(
+      fnRoundHalfToEven(context, [const XPathSequence.single(2.6)]),
+      isXPathSequence([3]),
+    );
 
     expect(
       fnRoundHalfToEven(context, [
         const XPathSequence.single(2.5),
         const XPathSequence.single(0),
       ]),
-      [2],
+      isXPathSequence([2]),
     );
   });
   test('fn:number (context item)', () {
     final textNode = XmlText('123');
     final contextWithNode = XPathContext(textNode);
-    expect(fnNumber(contextWithNode, []), [123]);
+    expect(fnNumber(contextWithNode, []), isXPathSequence([123]));
   });
   test('fn:random-number-generator (seed)', () {
     final result = fnRandomNumberGenerator(context, [
@@ -147,56 +171,64 @@ void main() {
   group('integration', () {
     final xml = XmlDocument.parse('<r><a>1</a><b>2<c/>3</b></r>');
     test('number(nodes)', () {
-      expectEvaluate(xml, 'number()', [123]);
-      expectEvaluate(xml, 'number(/r/b)', [23]);
+      expectEvaluate(xml, 'number()', isXPathSequence([123]));
+      expectEvaluate(xml, 'number(/r/b)', isXPathSequence([23]));
     });
     test('number(string)', () {
-      expectEvaluate(xml, 'number("")', [isNaN]);
-      expectEvaluate(xml, 'number("x")', [isNaN]);
-      expectEvaluate(xml, 'number("1")', [1]);
-      expectEvaluate(xml, 'number("1.2")', [1.2]);
-      expectEvaluate(xml, 'number("-1")', [-1]);
-      expectEvaluate(xml, 'number("-1.2")', [-1.2]);
+      expectEvaluate(xml, 'number("")', isXPathSequence([isNaN]));
+      expectEvaluate(xml, 'number("x")', isXPathSequence([isNaN]));
+      expectEvaluate(xml, 'number("1")', isXPathSequence([1]));
+      expectEvaluate(xml, 'number("1.2")', isXPathSequence([1.2]));
+      expectEvaluate(xml, 'number("-1")', isXPathSequence([-1]));
+      expectEvaluate(xml, 'number("-1.2")', isXPathSequence([-1.2]));
     });
     test('number(number)', () {
-      expectEvaluate(xml, 'number(0)', [0]);
-      expectEvaluate(xml, 'number(-1)', [-1]);
-      expectEvaluate(xml, 'number(-1.2)', [-1.2]);
+      expectEvaluate(xml, 'number(0)', isXPathSequence([0]));
+      expectEvaluate(xml, 'number(-1)', isXPathSequence([-1]));
+      expectEvaluate(xml, 'number(-1.2)', isXPathSequence([-1.2]));
     });
     test('number(boolean)', () {
-      expectEvaluate(xml, 'number(true())', [1]);
-      expectEvaluate(xml, 'number(false())', [0]);
+      expectEvaluate(xml, 'number(true())', isXPathSequence([1]));
+      expectEvaluate(xml, 'number(false())', isXPathSequence([0]));
     });
     test('sum', () {
-      expectEvaluate(xml, 'sum(//text())', [6]);
+      expectEvaluate(xml, 'sum(//text())', isXPathSequence([6]));
       final attr = XmlDocument.parse('<r><e a="36"/><e a="6"/></r>');
-      expectEvaluate(attr, 'sum(/r/e/@a)', [42]);
+      expectEvaluate(attr, 'sum(/r/e/@a)', isXPathSequence([42]));
     });
     test('floor', () {
-      expectEvaluate(xml, 'floor(-1.5)', [-2]);
-      expectEvaluate(xml, 'floor(1.5)', [1]);
+      expectEvaluate(xml, 'floor(-1.5)', isXPathSequence([-2]));
+      expectEvaluate(xml, 'floor(1.5)', isXPathSequence([1]));
     });
     test('abs', () {
-      expectEvaluate(xml, 'abs(-2)', [2]);
-      expectEvaluate(xml, 'abs(3)', [3]);
+      expectEvaluate(xml, 'abs(-2)', isXPathSequence([2]));
+      expectEvaluate(xml, 'abs(3)', isXPathSequence([3]));
     });
     test('ceiling', () {
-      expectEvaluate(xml, 'ceiling(-1.5)', [-1]);
-      expectEvaluate(xml, 'ceiling(1.5)', [2]);
+      expectEvaluate(xml, 'ceiling(-1.5)', isXPathSequence([-1]));
+      expectEvaluate(xml, 'ceiling(1.5)', isXPathSequence([2]));
     });
     test('round', () {
-      expectEvaluate(xml, 'round(1.2)', [1]);
+      expectEvaluate(xml, 'round(1.2)', isXPathSequence([1]));
     });
     test('xs:float', () {
-      expectEvaluate(xml, 'xs:float("1.5")', [1.5]);
-      expectEvaluate(xml, 'xs:float("NaN")', [isNaN]);
-      expectEvaluate(xml, 'xs:float("INF")', [double.infinity]);
-      expectEvaluate(xml, 'xs:float("-INF")', [double.negativeInfinity]);
+      expectEvaluate(xml, 'xs:float("1.5")', isXPathSequence([1.5]));
+      expectEvaluate(xml, 'xs:float("NaN")', isXPathSequence([isNaN]));
+      expectEvaluate(
+        xml,
+        'xs:float("INF")',
+        isXPathSequence([double.infinity]),
+      );
+      expectEvaluate(
+        xml,
+        'xs:float("-INF")',
+        isXPathSequence([double.negativeInfinity]),
+      );
     });
 
     test('xs:numeric', () {
-      expectEvaluate(xml, 'xs:numeric("1.5")', [1.5]);
-      expectEvaluate(xml, 'xs:numeric("42")', [42]);
+      expectEvaluate(xml, 'xs:numeric("1.5")', isXPathSequence([1.5]));
+      expectEvaluate(xml, 'xs:numeric("42")', isXPathSequence([42]));
     });
   });
 }

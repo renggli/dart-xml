@@ -6,6 +6,7 @@ import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
+import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
@@ -14,15 +15,21 @@ final context = XPathContext(document);
 void main() {
   test('fn:name', () {
     final a = document.findAllElements('a').first;
-    expect(fnName(context, [XPathSequence.single(a)]), ['a']);
+    expect(fnName(context, [XPathSequence.single(a)]), isXPathSequence(['a']));
   });
   test('fn:local-name', () {
     final a = document.findAllElements('a').first;
-    expect(fnLocalName(context, [XPathSequence.single(a)]), ['a']);
+    expect(
+      fnLocalName(context, [XPathSequence.single(a)]),
+      isXPathSequence(['a']),
+    );
   });
   test('fn:root', () {
     final a = document.findAllElements('a').first;
-    expect(fnRoot(context, [XPathSequence.single(a)]), [document]);
+    expect(
+      fnRoot(context, [XPathSequence.single(a)]),
+      isXPathSequence([document]),
+    );
   });
   test('fn:innermost', () {
     final a = document.findAllElements('a').first;
@@ -30,7 +37,7 @@ void main() {
       fnInnermost(context, [
         XPathSequence([document, a]),
       ]),
-      [a],
+      isXPathSequence([a]),
     );
   });
   test('fn:outermost', () {
@@ -39,56 +46,83 @@ void main() {
       fnOutermost(context, [
         XPathSequence([document, a]),
       ]),
-      [document],
+      isXPathSequence([document]),
     );
   });
   test('fn:path', () {
     final a = document.findAllElements('a').first;
-    expect(fnPath(context, [XPathSequence.single(a)]), ['/r/a']);
+    expect(
+      fnPath(context, [XPathSequence.single(a)]),
+      isXPathSequence(['/r/a']),
+    );
   });
   group('integration', () {
     final xml = XmlDocument.parse('<r><a>1</a><b>2<c/>3</b></r>');
     test('last()', () {
-      expectEvaluate(xml, 'last()', [1]);
-      expectEvaluate(xml, '/r/*[last()]', [xml.rootElement.children.last]);
+      expectEvaluate(xml, 'last()', isXPathSequence([1]));
+      expectEvaluate(
+        xml,
+        '/r/*[last()]',
+        isXPathSequence([xml.rootElement.children.last]),
+      );
     });
     test('position()', () {
-      expectEvaluate(xml, 'position()', [1]);
-      expectEvaluate(xml, '/r/*[position()]', xml.rootElement.children);
+      expectEvaluate(xml, 'position()', isXPathSequence([1]));
+      expectEvaluate(
+        xml,
+        '/r/*[position()]',
+        isXPathSequence(xml.rootElement.children),
+      );
     });
     test('count(node-set)', () {
-      expectEvaluate(xml, 'count(/*)', [1]);
-      expectEvaluate(xml, 'count(/r/*)', [2]);
-      expectEvaluate(xml, 'count(/r/b/*)', [1]);
-      expectEvaluate(xml, 'count(/r/b/absent)', [0]);
+      expectEvaluate(xml, 'count(/*)', isXPathSequence([1]));
+      expectEvaluate(xml, 'count(/r/*)', isXPathSequence([2]));
+      expectEvaluate(xml, 'count(/r/b/*)', isXPathSequence([1]));
+      expectEvaluate(xml, 'count(/r/b/absent)', isXPathSequence([0]));
     });
     test('local-name(node-set?)', () {
-      expectEvaluate(xml, 'local-name(/r/a)', ['a']);
-      expectEvaluate(xml, '/r/*[local-name()="a"]', xml.findAllElements('a'));
+      expectEvaluate(xml, 'local-name(/r/a)', isXPathSequence(['a']));
+      expectEvaluate(
+        xml,
+        '/r/*[local-name()="a"]',
+        isXPathSequence(xml.findAllElements('a')),
+      );
     });
     test('namespace-uri(node-set?)', () {
-      expectEvaluate(xml, 'namespace-uri(/r/a)', ['']);
+      expectEvaluate(xml, 'namespace-uri(/r/a)', isXPathSequence(['']));
       expectEvaluate(
         xml,
         '/r/*[namespace-uri()=""]',
-        xml.rootElement.findElements('*'),
+        isXPathSequence(xml.rootElement.findElements('*')),
       );
     });
     test('name(node-set?)', () {
-      expectEvaluate(xml, 'name(/r/a)', ['a']);
-      expectEvaluate(xml, '/r/*[name()="a"]', xml.findAllElements('a'));
+      expectEvaluate(xml, 'name(/r/a)', isXPathSequence(['a']));
+      expectEvaluate(
+        xml,
+        '/r/*[name()="a"]',
+        isXPathSequence(xml.findAllElements('a')),
+      );
     });
 
     test('predicate', () {
       final xml = XmlDocument.parse('<r><a/><b/><c/></r>');
       final children = xml.rootElement.children;
-      expectEvaluate(xml, '(/r/*)[1]', [children[0]]);
-      expectEvaluate(xml, '(/r/*)[last()]', [children[2]]);
-      expectEvaluate(xml, '(/r/*)[position()]', children);
-      expectEvaluate(xml, '(/r/*)[false()]', isEmpty);
-      expectEvaluate(xml, '(/r/*)[true()]', children);
-      expectEvaluate(xml, '(/r/*)[position()<=2][last()]', [children[1]]);
-      expectEvaluate(xml, '(/r/c/preceding-sibling::*)[last()]', [children[1]]);
+      expectEvaluate(xml, '(/r/*)[1]', isXPathSequence([children[0]]));
+      expectEvaluate(xml, '(/r/*)[last()]', isXPathSequence([children[2]]));
+      expectEvaluate(xml, '(/r/*)[position()]', isXPathSequence(children));
+      expectEvaluate(xml, '(/r/*)[false()]', isXPathSequence(isEmpty));
+      expectEvaluate(xml, '(/r/*)[true()]', isXPathSequence(children));
+      expectEvaluate(
+        xml,
+        '(/r/*)[position()<=2][last()]',
+        isXPathSequence([children[1]]),
+      );
+      expectEvaluate(
+        xml,
+        '(/r/c/preceding-sibling::*)[last()]',
+        isXPathSequence([children[1]]),
+      );
     });
   });
 }

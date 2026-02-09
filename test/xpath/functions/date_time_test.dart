@@ -4,6 +4,8 @@ import 'package:xml/src/xpath/functions/date_time.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
+import '../../utils/matchers.dart';
+
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
 final context = XPathContext(document);
 
@@ -16,7 +18,7 @@ void main() {
         XPathSequence.single(dt),
         const XPathSequence.single(Duration()),
       ]),
-      [dt],
+      isXPathSequence([dt]),
     );
     // Adjust to Implicit (Local) - verify timezone offset matches local
     final result =
@@ -33,13 +35,13 @@ void main() {
         const XPathSequence.single('[Y]-[M]-[D]'),
       ]),
       // Basic implementation returns ISO string
-      [dt.toIso8601String()],
+      isXPathSequence([dt.toIso8601String()]),
     );
   });
   test('fn:year-from-date', () {
     expect(
       fnYearFromDate(context, [XPathSequence.single(DateTime(2023, 10, 26))]),
-      [2023],
+      isXPathSequence([2023]),
     );
   });
 
@@ -54,66 +56,102 @@ void main() {
   });
   test('fn:month-from-dateTime', () {
     final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
-    expect(fnMonthFromDateTime(context, [XPathSequence.single(dt1)]), [10]);
+    expect(
+      fnMonthFromDateTime(context, [XPathSequence.single(dt1)]),
+      isXPathSequence([10]),
+    );
   });
   test('fn:day-from-dateTime', () {
     final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
-    expect(fnDayFromDateTime(context, [XPathSequence.single(dt1)]), [26]);
+    expect(
+      fnDayFromDateTime(context, [XPathSequence.single(dt1)]),
+      isXPathSequence([26]),
+    );
   });
   test('fn:hours-from-dateTime', () {
     final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
-    expect(fnHoursFromDateTime(context, [XPathSequence.single(dt1)]), [12]);
+    expect(
+      fnHoursFromDateTime(context, [XPathSequence.single(dt1)]),
+      isXPathSequence([12]),
+    );
   });
   test('fn:minutes-from-dateTime', () {
     final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
-    expect(fnMinutesFromDateTime(context, [XPathSequence.single(dt1)]), [30]);
+    expect(
+      fnMinutesFromDateTime(context, [XPathSequence.single(dt1)]),
+      isXPathSequence([30]),
+    );
   });
   test('fn:seconds-from-dateTime', () {
     final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
-    expect(fnSecondsFromDateTime(context, [XPathSequence.single(dt1)]), [45.0]);
+    expect(
+      fnSecondsFromDateTime(context, [XPathSequence.single(dt1)]),
+      isXPathSequence([45.0]),
+    );
   });
 
   test('fn:timezone-from-dateTime', () {
     final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
-    expect(fnTimezoneFromDateTime(context, [XPathSequence.single(dt1)]), [
-      Duration.zero,
-    ]);
+    expect(
+      fnTimezoneFromDateTime(context, [XPathSequence.single(dt1)]),
+      isXPathSequence([Duration.zero]),
+    );
   });
   test('fn:year-from-date', () {
     final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
-    expect(fnYearFromDate(context, [XPathSequence.single(dt1)]), [2023]);
+    expect(
+      fnYearFromDate(context, [XPathSequence.single(dt1)]),
+      isXPathSequence([2023]),
+    );
   });
   test('fn:month-from-date', () {
     final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
-    expect(fnMonthFromDate(context, [XPathSequence.single(dt1)]), [10]);
+    expect(
+      fnMonthFromDate(context, [XPathSequence.single(dt1)]),
+      isXPathSequence([10]),
+    );
   });
   test('fn:day-from-date', () {
     final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
-    expect(fnDayFromDate(context, [XPathSequence.single(dt1)]), [26]);
+    expect(
+      fnDayFromDate(context, [XPathSequence.single(dt1)]),
+      isXPathSequence([26]),
+    );
   });
   test('fn:timezone-from-date', () {
     final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
-    expect(fnTimezoneFromDate(context, [XPathSequence.single(dt1)]), [
-      Duration.zero,
-    ]);
+    expect(
+      fnTimezoneFromDate(context, [XPathSequence.single(dt1)]),
+      isXPathSequence([Duration.zero]),
+    );
   });
   test('fn:hours-from-time', () {
     final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
-    expect(fnHoursFromTime(context, [XPathSequence.single(dt1)]), [12]);
+    expect(
+      fnHoursFromTime(context, [XPathSequence.single(dt1)]),
+      isXPathSequence([12]),
+    );
   });
   test('fn:minutes-from-time', () {
     final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
-    expect(fnMinutesFromTime(context, [XPathSequence.single(dt1)]), [30]);
+    expect(
+      fnMinutesFromTime(context, [XPathSequence.single(dt1)]),
+      isXPathSequence([30]),
+    );
   });
   test('fn:seconds-from-time', () {
     final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
-    expect(fnSecondsFromTime(context, [XPathSequence.single(dt1)]), [45.0]);
+    expect(
+      fnSecondsFromTime(context, [XPathSequence.single(dt1)]),
+      isXPathSequence([45.0]),
+    );
   });
   test('fn:timezone-from-time', () {
     final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
-    expect(fnTimezoneFromTime(context, [XPathSequence.single(dt1)]), [
-      Duration.zero,
-    ]);
+    expect(
+      fnTimezoneFromTime(context, [XPathSequence.single(dt1)]),
+      isXPathSequence([Duration.zero]),
+    );
   });
 
   test('fn:dateTime (empty)', () {
@@ -122,14 +160,14 @@ void main() {
         XPathSequence.empty,
         XPathSequence.single(DateTime.now()),
       ]),
-      isEmpty,
+      isXPathSequence(isEmpty),
     );
     expect(
       fnDateTime(context, [
         XPathSequence.single(DateTime.now()),
         XPathSequence.empty,
       ]),
-      isEmpty,
+      isXPathSequence(isEmpty),
     );
   });
   test('fn:adjust-dateTime-to-timezone (empty timezone)', () {
@@ -139,7 +177,7 @@ void main() {
         XPathSequence.single(dt),
         XPathSequence.empty, // Empty timezone sequence
       ]),
-      [dt],
+      isXPathSequence([dt]),
     );
   });
   test('fn:adjust-date-to-timezone', () {
@@ -167,7 +205,7 @@ void main() {
         XPathSequence.single(dt),
         const XPathSequence.single('[Y]'),
       ]),
-      [dt.toIso8601String()],
+      isXPathSequence([dt.toIso8601String()]),
     );
   });
   test('fn:format-time', () {
@@ -177,7 +215,7 @@ void main() {
         XPathSequence.single(dt),
         const XPathSequence.single('[H]:[m]'),
       ]),
-      [dt.toIso8601String()],
+      isXPathSequence([dt.toIso8601String()]),
     );
   });
   test('fn:format-dateTime (empty)', () {
@@ -186,28 +224,73 @@ void main() {
         XPathSequence.empty,
         const XPathSequence.single('[Y]'),
       ]),
-      isEmpty,
+      isXPathSequence(isEmpty),
     );
   });
   // Component extraction empty tests
   test('components (empty)', () {
-    expect(fnYearFromDateTime(context, [XPathSequence.empty]), isEmpty);
-    expect(fnMonthFromDateTime(context, [XPathSequence.empty]), isEmpty);
-    expect(fnDayFromDateTime(context, [XPathSequence.empty]), isEmpty);
-    expect(fnHoursFromDateTime(context, [XPathSequence.empty]), isEmpty);
-    expect(fnMinutesFromDateTime(context, [XPathSequence.empty]), isEmpty);
-    expect(fnSecondsFromDateTime(context, [XPathSequence.empty]), isEmpty);
-    expect(fnTimezoneFromDateTime(context, [XPathSequence.empty]), isEmpty);
+    expect(
+      fnYearFromDateTime(context, [XPathSequence.empty]),
+      isXPathSequence(isEmpty),
+    );
+    expect(
+      fnMonthFromDateTime(context, [XPathSequence.empty]),
+      isXPathSequence(isEmpty),
+    );
+    expect(
+      fnDayFromDateTime(context, [XPathSequence.empty]),
+      isXPathSequence(isEmpty),
+    );
+    expect(
+      fnHoursFromDateTime(context, [XPathSequence.empty]),
+      isXPathSequence(isEmpty),
+    );
+    expect(
+      fnMinutesFromDateTime(context, [XPathSequence.empty]),
+      isXPathSequence(isEmpty),
+    );
+    expect(
+      fnSecondsFromDateTime(context, [XPathSequence.empty]),
+      isXPathSequence(isEmpty),
+    );
+    expect(
+      fnTimezoneFromDateTime(context, [XPathSequence.empty]),
+      isXPathSequence(isEmpty),
+    );
 
-    expect(fnYearFromDate(context, [XPathSequence.empty]), isEmpty);
-    expect(fnMonthFromDate(context, [XPathSequence.empty]), isEmpty);
-    expect(fnDayFromDate(context, [XPathSequence.empty]), isEmpty);
-    expect(fnTimezoneFromDate(context, [XPathSequence.empty]), isEmpty);
+    expect(
+      fnYearFromDate(context, [XPathSequence.empty]),
+      isXPathSequence(isEmpty),
+    );
+    expect(
+      fnMonthFromDate(context, [XPathSequence.empty]),
+      isXPathSequence(isEmpty),
+    );
+    expect(
+      fnDayFromDate(context, [XPathSequence.empty]),
+      isXPathSequence(isEmpty),
+    );
+    expect(
+      fnTimezoneFromDate(context, [XPathSequence.empty]),
+      isXPathSequence(isEmpty),
+    );
 
-    expect(fnHoursFromTime(context, [XPathSequence.empty]), isEmpty);
-    expect(fnMinutesFromTime(context, [XPathSequence.empty]), isEmpty);
-    expect(fnSecondsFromTime(context, [XPathSequence.empty]), isEmpty);
-    expect(fnTimezoneFromTime(context, [XPathSequence.empty]), isEmpty);
+    expect(
+      fnHoursFromTime(context, [XPathSequence.empty]),
+      isXPathSequence(isEmpty),
+    );
+    expect(
+      fnMinutesFromTime(context, [XPathSequence.empty]),
+      isXPathSequence(isEmpty),
+    );
+    expect(
+      fnSecondsFromTime(context, [XPathSequence.empty]),
+      isXPathSequence(isEmpty),
+    );
+    expect(
+      fnTimezoneFromTime(context, [XPathSequence.empty]),
+      isXPathSequence(isEmpty),
+    );
   });
 
   test('fn:adjust-dateTime-to-timezone (unsupported)', () {

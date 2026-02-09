@@ -2,6 +2,7 @@ import '../../xml/nodes/attribute.dart';
 import '../../xml/nodes/element.dart';
 import '../../xml/nodes/node.dart';
 import '../../xml/nodes/processing.dart';
+import '../../xml/utils/name.dart';
 import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
@@ -29,7 +30,9 @@ XPathSequence _fnNodeName(XPathContext context, [XmlNode? arg]) {
   final node = arg ?? xsNode.cast(context.item);
   if (node is XmlElement) return XPathSequence.single(node.name);
   if (node is XmlAttribute) return XPathSequence.single(node.name);
-  if (node is XmlProcessing) return XPathSequence.single(node.target);
+  if (node is XmlProcessing) {
+    return XPathSequence.single(XmlName.fromString(node.target));
+  }
   return XPathSequence.empty;
 }
 

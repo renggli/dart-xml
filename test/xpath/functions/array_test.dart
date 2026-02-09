@@ -14,7 +14,10 @@ void main() {
   group('array functions', () {
     test('array:size', () {
       final array = ['a', 'b', 'c'];
-      expect(fnArraySize(context, [XPathSequence.single(array)]), [3]);
+      expect(
+        fnArraySize(context, [XPathSequence.single(array)]),
+        isXPathSequence([3]),
+      );
     });
     test('array:get', () {
       final array = ['a', 'b'];
@@ -23,7 +26,7 @@ void main() {
           XPathSequence.single(array),
           const XPathSequence.single(1),
         ]),
-        ['a'],
+        isXPathSequence(['a']),
       );
       expect(
         () => fnArrayGet(context, [
@@ -51,8 +54,10 @@ void main() {
           XPathSequence.single(array),
           const XPathSequence.single(1),
           const XPathSequence.single('c'),
-        ]).first,
-        ['c', 'b'],
+        ]),
+        isXPathSequence([
+          ['c', 'b'],
+        ]),
       );
       expect(
         () => fnArrayPut(context, [
@@ -71,8 +76,10 @@ void main() {
         fnArrayAppend(context, [
           XPathSequence.single(array),
           const XPathSequence.single('b'),
-        ]).first,
-        ['a', 'b'],
+        ]),
+        isXPathSequence([
+          ['a', 'b'],
+        ]),
       );
     });
     test('array:subarray', () {
@@ -81,16 +88,20 @@ void main() {
         fnArraySubarray(context, [
           XPathSequence.single(array),
           const XPathSequence.single(2),
-        ]).first,
-        ['b', 'c', 'd'],
+        ]),
+        isXPathSequence([
+          ['b', 'c', 'd'],
+        ]),
       );
       expect(
         fnArraySubarray(context, [
           XPathSequence.single(array),
           const XPathSequence.single(2),
           const XPathSequence.single(2),
-        ]).first,
-        ['b', 'c'],
+        ]),
+        isXPathSequence([
+          ['b', 'c'],
+        ]),
       );
       expect(
         () => fnArraySubarray(context, [
@@ -107,8 +118,8 @@ void main() {
         fnArraySubarray(context, [
           XPathSequence.single(array),
           const XPathSequence.single(5),
-        ]).first,
-        isEmpty,
+        ]),
+        isXPathSequence([isEmpty]),
       );
       expect(
         () => fnArraySubarray(context, [
@@ -127,15 +138,19 @@ void main() {
         fnArrayRemove(context, [
           XPathSequence.single(array),
           const XPathSequence.single(2),
-        ]).first,
-        ['a', 'c'],
+        ]),
+        isXPathSequence([
+          ['a', 'c'],
+        ]),
       );
       expect(
         fnArrayRemove(context, [
           XPathSequence.single(array),
           const XPathSequence([1, 3]),
-        ]).first,
-        ['b'],
+        ]),
+        isXPathSequence([
+          ['b'],
+        ]),
       );
       expect(
         () => fnArrayRemove(context, [
@@ -154,8 +169,10 @@ void main() {
           XPathSequence.single(array),
           const XPathSequence.single(2),
           const XPathSequence.single('b'),
-        ]).first,
-        ['a', 'b', 'c'],
+        ]),
+        isXPathSequence([
+          ['a', 'b', 'c'],
+        ]),
       );
       expect(
         () => fnArrayInsertBefore(context, [
@@ -175,7 +192,7 @@ void main() {
             ['a', 'b'],
           ]),
         ]),
-        ['a'],
+        isXPathSequence(['a']),
       );
       expect(
         () => fnArrayHead(context, [const XPathSequence.single([])]),
@@ -188,8 +205,10 @@ void main() {
           const XPathSequence([
             ['a', 'b', 'c'],
           ]),
-        ]).first,
-        ['b', 'c'],
+        ]),
+        isXPathSequence([
+          ['b', 'c'],
+        ]),
       );
       expect(
         () => fnArrayTail(context, [const XPathSequence.single([])]),
@@ -202,16 +221,20 @@ void main() {
           const XPathSequence([
             ['a', 'b', 'c'],
           ]),
-        ]).first,
-        ['c', 'b', 'a'],
+        ]),
+        isXPathSequence([
+          ['c', 'b', 'a'],
+        ]),
       );
     });
     test('array:join', () {
       expect(
         fnArrayJoin(context, [
           const XPathSequence.single([1, 2]),
-        ]).first,
-        [1, 2],
+        ]),
+        isXPathSequence([
+          [1, 2],
+        ]),
       );
       expect(
         fnArrayJoin(context, [
@@ -219,8 +242,10 @@ void main() {
             [1, 2],
             [3, 4, 5],
           ]),
-        ]).first,
-        [1, 2, 3, 4, 5],
+        ]),
+        isXPathSequence([
+          [1, 2, 3, 4, 5],
+        ]),
       );
     });
     test('array:flatten', () {
@@ -231,32 +256,24 @@ void main() {
           [4, 5],
         ],
       ];
-      expect(fnArrayFlatten(context, [XPathSequence(input)]).toList(), [
-        1,
-        2,
-        3,
-        4,
-        5,
-      ]);
+      expect(
+        fnArrayFlatten(context, [XPathSequence(input)]),
+        isXPathSequence([1, 2, 3, 4, 5]),
+      );
       final nestedSeq = [
         1,
         const XPathSequence([2, 3]),
         [4],
       ];
-      expect(fnArrayFlatten(context, [XPathSequence(nestedSeq)]).toList(), [
-        1,
-        2,
-        3,
-        4,
-      ]);
+      expect(
+        fnArrayFlatten(context, [XPathSequence(nestedSeq)]),
+        isXPathSequence([1, 2, 3, 4]),
+      );
     });
     test('array:for-each', () {
       final array = [1, 2, 3];
-      XPathSequence double(XPathContext context, List<XPathSequence> args) {
-        final arg = args[0];
-        return XPathSequence.single((arg.first as num) * 2);
-      }
-
+      XPathSequence double(XPathContext context, List<XPathSequence> args) =>
+          XPathSequence.single((args.single.single as num) * 2);
       final result = fnArrayForEach(context, [
         XPathSequence.single(array),
         XPathSequence.single(double),
@@ -267,65 +284,54 @@ void main() {
     });
     test('array:filter', () {
       final array = [1, 2, 3, 4];
-      XPathSequence isEven(XPathContext context, List<XPathSequence> args) {
-        final arg = args[0];
-        return XPathSequence.single((arg.first as num) % 2 == 0);
-      }
-
-      final result =
-          fnArrayFilter(context, [
-                XPathSequence.single(array),
-                XPathSequence.single(isEven),
-              ]).first
-              as List;
+      XPathSequence isEven(XPathContext context, List<XPathSequence> args) =>
+          XPathSequence.single((args.single.single as num) % 2 == 0);
+      final result = fnArrayFilter(context, [
+        XPathSequence.single(array),
+        XPathSequence.single(isEven),
+      ]);
       expect(
-        result.map((e) => XPathSequence.single(e as Object).first).toList(),
-        [2, 4],
+        result,
+        isXPathSequence([
+          [2, 4],
+        ]),
       );
     });
     test('array:fold-left', () {
       final array = [1, 2, 3, 4, 5];
-      XPathSequence add(XPathContext context, List<XPathSequence> args) {
-        final acc = args[0];
-        final item = args[1];
-        return XPathSequence.single((acc.first as num) + (item.first as num));
-      }
-
+      XPathSequence add(XPathContext context, List<XPathSequence> args) =>
+          XPathSequence.single(
+            (args[0].single as num) + (args[1].single as num),
+          );
       expect(
         fnArrayFoldLeft(context, [
           XPathSequence.single(array),
           const XPathSequence.single(0),
           XPathSequence.single(add),
         ]),
-        [15],
+        isXPathSequence([15]),
       );
     });
     test('array:fold-right', () {
       final array = [1, 2, 3, 4, 5];
-      XPathSequence sub(XPathContext context, List<XPathSequence> args) {
-        final item = args[0];
-        final acc = args[1];
-        return XPathSequence.single((item.first as num) - (acc.first as num));
-      }
-
+      XPathSequence sub(XPathContext context, List<XPathSequence> args) =>
+          XPathSequence.single(
+            (args[0].single as num) - (args[1].single as num),
+          );
       expect(
         fnArrayFoldRight(context, [
           XPathSequence.single(array),
           const XPathSequence.single(0),
           XPathSequence.single(sub),
         ]),
-        [3],
+        isXPathSequence([3]),
       );
     });
     test('array:for-each-pair', () {
       final array1 = ['a', 'b', 'c'];
       final array2 = ['1', '2', '3'];
-      XPathSequence concat(XPathContext context, List<XPathSequence> args) {
-        final a = args[0];
-        final b = args[1];
-        return XPathSequence.single(xsString.cast(a) + xsString.cast(b));
-      }
-
+      XPathSequence concat(XPathContext context, List<XPathSequence> args) =>
+          XPathSequence.single('${args[0].single}${args[1].single}');
       final result = fnArrayForEachPair(context, [
         XPathSequence.single(array1),
         XPathSequence.single(array2),
@@ -337,29 +343,31 @@ void main() {
     });
     test('array:sort', () {
       final array = [3, 1, 2];
-      final result =
-          fnArraySort(context, [XPathSequence.single(array)]).first as List;
+      final result = fnArraySort(context, [XPathSequence.single(array)]);
       expect(
-        result.map((e) => XPathSequence.single(e as Object).first).toList(),
-        [1, 2, 3],
+        result,
+        isXPathSequence({
+          [1, 2, 3],
+        }),
       );
-      // Sort with key
-      final array2 = ['apple', 'be', 'cat'];
+    });
+    test('array:sort (with key)', () {
+      final array = ['apple', 'be', 'cat'];
       XPathSequence length(XPathContext context, List<XPathSequence> args) {
         final arg = args[0];
         return XPathSequence.single(xsString.cast(arg).length);
       }
 
-      final result2 =
-          fnArraySort(context, [
-                XPathSequence.single(array2),
-                XPathSequence.empty, // collation
-                XPathSequence.single(length),
-              ]).first
-              as List;
+      final result = fnArraySort(context, [
+        XPathSequence.single(array),
+        XPathSequence.empty, // collation
+        XPathSequence.single(length),
+      ]);
       expect(
-        result2.map((e) => XPathSequence.single(e as Object).first).toList(),
-        ['be', 'cat', 'apple'],
+        result,
+        isXPathSequence([
+          ['be', 'cat', 'apple'],
+        ]),
       );
     });
   });
