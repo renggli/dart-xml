@@ -64,7 +64,7 @@ const fnCeiling = XPathFunctionDefinition(
 
 XPathSequence _fnCeiling(XPathContext context, num? arg) {
   if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(arg.ceilToDouble());
+  return XPathSequence.single(arg.ceil());
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-floor
@@ -83,7 +83,7 @@ const fnFloor = XPathFunctionDefinition(
 
 XPathSequence _fnFloor(XPathContext context, num? arg) {
   if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(arg.floorToDouble());
+  return XPathSequence.single(arg.floor());
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-round

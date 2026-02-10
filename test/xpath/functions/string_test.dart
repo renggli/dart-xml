@@ -269,14 +269,14 @@ void main() {
     });
     test('fn:tokenize', () {
       expect(
-        fnTokenize(context, [const XPathSequence.single('a b c')]).toList(),
+        fnTokenize(context, [const XPathSequence.single('a b c')]),
         isXPathSequence(['a', 'b', 'c']),
       );
       expect(
         fnTokenize(context, [
           const XPathSequence.single('abracadabra'),
           const XPathSequence.single('(ab)|(a)'),
-        ]).toList(),
+        ]),
         isXPathSequence(['', 'r', 'c', 'd', 'r', '']),
       );
     });

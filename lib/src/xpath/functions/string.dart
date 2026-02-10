@@ -607,10 +607,10 @@ XPathSequence _fnTokenize(
 ]) {
   if (input == null) return XPathSequence.empty;
   if (pattern == null) {
-    return XPathSequence(input.trim().split(RegExp(r'\s+')));
+    return XPathSequence<String>(input.trim().split(_compileRegex(r'\s+', '')));
   }
   final regex = _compileRegex(pattern, flags);
-  return XPathSequence(input.split(regex));
+  return XPathSequence<String>(input.split(regex));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-analyze-string
