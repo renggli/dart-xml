@@ -105,7 +105,9 @@ class TestCatalog {
 
   void run(TestResult result) {
     for (final testSet in testSets) {
-      testSet.run(result);
+      if (isSupported(testSet.document.rootElement)) {
+        testSet.run(result);
+      }
     }
   }
 }
@@ -126,6 +128,7 @@ class TestSet {
   );
   late final Iterable<TestCase> testCases = document.rootElement
       .findAllElements('test-case')
+      .where(isSupported)
       .map((element) => TestCase(catalog, this, element));
 
   void run(TestResult result) {
@@ -357,4 +360,21 @@ void verifyResult(XmlElement element, Object result, XPathContext context) {
     default:
       throw StateError('Unknown result type: $element');
   }
+}
+
+/// We only support XPath tests.
+bool isSupported(XmlElement element) {
+  for (final dependency in element.findElements('dependency')) {
+    if (dependency.getAttribute('type') == 'spec') {
+      final value = dependency.getAttribute('value') ?? '';
+      final specs = value.split(' ');
+      if (specs.any((spec) => spec.startsWith('XP'))) {
+        return true; // XPath tests are supported.
+      }
+      if (specs.any((spec) => spec.startsWith('XQ'))) {
+        return false; // XQuery tests are not supported.
+      }
+    }
+  }
+  return true;
 }
