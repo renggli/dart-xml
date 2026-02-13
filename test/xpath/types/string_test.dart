@@ -58,6 +58,26 @@ void main() {
           ),
         );
       });
+      test('from duration', () {
+        expect(xsString.cast(const Duration(days: 1, hours: 2)), 'P1DT2H');
+        expect(xsString.cast(const Duration(hours: 2)), 'PT2H');
+        expect(xsString.cast(const Duration(minutes: 30)), 'PT30M');
+        expect(
+          xsString.cast(const Duration(seconds: 45, milliseconds: 500)),
+          'PT45.5S',
+        );
+        expect(xsString.cast(-const Duration(days: 1)), '-P1D');
+      });
+      test('from dateTime', () {
+        expect(
+          xsString.cast(DateTime.utc(2023, 10, 15, 14, 30, 0)),
+          '2023-10-15T14:30:00.000Z',
+        );
+        expect(
+          xsString.cast(DateTime.utc(2023, 1, 1, 0, 0, 0)),
+          '2023-01-01T00:00:00.000Z',
+        );
+      });
       test('from unsupported', () {
         expect(
           () => xsString.cast(Object()),

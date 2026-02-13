@@ -56,6 +56,26 @@ class _XPathStringType extends XPathType<String> {
           .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
           .join()
           .toUpperCase();
+    } else if (value is Duration) {
+      if (value.inMicroseconds == 0) return 'PT0S';
+      final buffer = StringBuffer(value.isNegative ? '-P' : 'P');
+      final duration = value.abs();
+      final days = duration.inDays;
+      if (days > 0) buffer.write('${days}D');
+      final hours = duration.inHours.remainder(24);
+      final minutes = duration.inMinutes.remainder(60);
+      final seconds =
+          duration.inMicroseconds.remainder(1000000) / 1000000 +
+          duration.inSeconds.remainder(60);
+      if (hours > 0 || minutes > 0 || seconds > 0) {
+        buffer.write('T');
+        if (hours > 0) buffer.write('${hours}H');
+        if (minutes > 0) buffer.write('${minutes}M');
+        if (seconds > 0) buffer.write('${seconds}S');
+      }
+      return buffer.toString();
+    } else if (value is DateTime) {
+      return value.toIso8601String();
     } else if (value is XmlNode) {
       final buffer = StringBuffer();
       _stringForNodeOn(value, buffer);
