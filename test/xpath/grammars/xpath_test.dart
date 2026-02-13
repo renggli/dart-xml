@@ -1,15 +1,15 @@
 import 'package:petitparser/reflection.dart';
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/expression.dart';
-import 'package:xml/src/xpath/parser.dart';
+import 'package:xml/src/xpath/grammars/xpath.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
-import '../utils/matchers.dart';
-import 'helpers.dart';
+import '../../utils/matchers.dart';
+import '../helpers.dart';
 
 void main() {
-  final parser = const XPathParser().build();
+  final parser = const XPathGrammar().build();
   final xml = XmlDocument.parse('<?xml version="1.0"?><r><a/></r>');
   test('linter', () {
     final issues = linter(parser);

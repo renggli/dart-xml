@@ -1,13 +1,8 @@
-import 'package:petitparser/core.dart' show Failure;
-
 import '../../xml/nodes/node.dart';
-import '../../xml/utils/cache.dart';
 import '../exceptions/evaluation_exception.dart';
-import '../exceptions/parser_exception.dart';
-import '../parser.dart';
+import '../grammars/parser.dart';
 import '../types/function.dart';
 import '../types/sequence.dart';
-import 'expression.dart';
 
 /// Runtime execution context to evaluate XPath expressions.
 class XPathContext {
@@ -79,21 +74,9 @@ class XPathContext {
   );
 
   /// Evaluates the given XPath [expression].
-  XPathSequence evaluate(String expression) => _cache[expression](this);
+  XPathSequence evaluate(String expression) =>
+      parseExpression(expression)(this);
 }
 
 /// Function type for tracing evaluation.
 typedef XPathTraceCallback = void Function(XPathSequence value, String? label);
-
-final _parser = const XPathParser().build();
-final _cache = XmlCache<String, XPathExpression>((expression) {
-  final result = _parser.parse(expression);
-  if (result is Failure) {
-    throw XPathParserException(
-      result.message,
-      buffer: expression,
-      position: result.position,
-    );
-  }
-  return result.value;
-}, 25);

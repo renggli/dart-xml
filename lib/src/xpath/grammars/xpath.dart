@@ -1,46 +1,46 @@
 import 'package:petitparser/definition.dart';
 import 'package:petitparser/parser.dart';
 
-import '../xml/entities/null_mapping.dart';
-import '../xml_events/parser.dart';
-import 'definitions/cardinality.dart';
-import 'definitions/type.dart';
-import 'evaluation/expression.dart';
-import 'evaluation/operators.dart';
-import 'evaluation/types.dart';
-import 'expressions/axis.dart';
-import 'expressions/constructors.dart';
-import 'expressions/function.dart';
-import 'expressions/node_test.dart';
-import 'expressions/operators.dart';
-import 'expressions/path.dart';
-import 'expressions/predicate.dart';
-import 'expressions/range.dart';
-import 'expressions/sequence.dart';
-import 'expressions/simple_map.dart';
-import 'expressions/statement.dart';
-import 'expressions/step.dart';
-import 'expressions/types.dart';
-import 'expressions/variable.dart';
-import 'operators/arithmetic.dart' as arithmetic;
-import 'operators/comparison.dart' as comparison;
-import 'operators/general.dart' as general;
-import 'operators/node.dart' as nodes;
-import 'types/any.dart';
-import 'types/array.dart';
-import 'types/function.dart';
-import 'types/map.dart';
-import 'types/node.dart';
-import 'types/sequence.dart';
+import '../../xml/entities/null_mapping.dart';
+import '../../xml_events/parser.dart';
+import '../definitions/cardinality.dart';
+import '../definitions/type.dart';
+import '../evaluation/expression.dart';
+import '../evaluation/operators.dart';
+import '../evaluation/types.dart';
+import '../expressions/axis.dart';
+import '../expressions/constructors.dart';
+import '../expressions/function.dart';
+import '../expressions/node_test.dart';
+import '../expressions/operators.dart';
+import '../expressions/path.dart';
+import '../expressions/predicate.dart';
+import '../expressions/range.dart';
+import '../expressions/sequence.dart';
+import '../expressions/simple_map.dart';
+import '../expressions/statement.dart';
+import '../expressions/step.dart';
+import '../expressions/types.dart';
+import '../expressions/variable.dart';
+import '../operators/arithmetic.dart' as arithmetic;
+import '../operators/comparison.dart' as comparison;
+import '../operators/general.dart' as general;
+import '../operators/node.dart' as nodes;
+import '../types/any.dart';
+import '../types/array.dart';
+import '../types/function.dart';
+import '../types/map.dart';
+import '../types/node.dart';
+import '../types/sequence.dart';
 
-// XPath 3.1 Grammar: https://www.w3.org/TR/xpath-31
-class XPathParser {
-  const XPathParser();
+// XPath 3.1 Grammar: https://www.w3.org/TR/xpath-31/
+class XPathGrammar {
+  const XPathGrammar();
 
-  Parser<XPathExpression> build() => resolve(ref0(xpath));
+  Parser<XPathExpression> build() => resolve(ref0(xpath)).end();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-XPath
-  Parser<XPathExpression> xpath() => ref0(expr).end();
+  Parser<XPathExpression> xpath() => ref0(expr);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-Expr
   Parser<XPathExpression> expr() => ref0(exprSingle)
@@ -656,8 +656,8 @@ class XPathParser {
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-StringLiteral
   Parser<String> stringLiteral() => trim(
     [
-      ref0(eventParser.attributeValueDoubleQuote),
-      ref0(eventParser.attributeValueSingleQuote),
+      ref0(xmlGrammar.attributeValueDoubleQuote),
+      ref0(xmlGrammar.attributeValueSingleQuote),
     ].toChoiceParser(),
   ).map((tuple) => tuple.$1);
 
@@ -1035,16 +1035,20 @@ class XPathParser {
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ElementName
   Parser<String> elementName() => ref0(eqName);
 
-  // Helper
-  Parser<String> ncName() => trim(ref0(eventParser.nonColonizedNameToken));
-  Parser<String> qualifiedName() => trim(ref0(eventParser.qualifiedNameToken));
+  // Different types of names.
+  Parser<String> ncName() => trim(ref0(xmlGrammar.nonColonizedNameToken));
+  Parser<String> qualifiedName() => trim(ref0(xmlGrammar.qualifiedNameToken));
   Parser<String> bracedUriLiteral() => trim(
     seq3('Q{'.toParser(), pattern('^{}').starString(), '}'.toParser()),
   ).map3((_, uri, _) => uri);
 
+  // Consumes a token.
   Parser<String> token(String token) => ref1(trim, token.toParser());
+
+  // Trims whitespace/comments.
   Parser<T> trim<T>(Parser<T> parser) => parser.trim(ref0(whitespace));
 
+  // Consumes whitespace and comments.
   Parser<void> whitespace() => [ref0(_space), ref0(_comment)].toChoiceParser();
   Parser<void> _space() => pattern('\u{9}\u{A}\u{D}\u{20}');
   Parser<void> _comment() => seq3(
@@ -1052,13 +1056,13 @@ class XPathParser {
     [ref0(_comment), ':)'.toParser().neg()].toChoiceParser().star(),
     ':)'.toParser(),
   );
-
-  static const eventParser = XmlEventParser(XmlNullEntityMapping());
 }
 
 Never _unimplemented(String feature, [dynamic arg]) => throw UnimplementedError(
   '$feature${arg != null ? ' ($arg)' : ''} not yet implemented',
 );
+
+const xmlGrammar = XmlEventParser(XmlNullEntityMapping());
 
 const _reservedFunctionNames = {
   'attribute',
