@@ -10,9 +10,9 @@
 
 Dart XML is a lightweight library for parsing, traversing, querying, transforming and building XML documents.
 
-This library provides a [DOM-based](#Reading-and-Writing) object model for accessing and manipulating XML documents, as
-well as an [event-based](#Event-driven) (comparable to SAX) for incremental reading and processing of XML streams.
-Furthermore, it supports a large subset of [XPath](#XPath) to simplify the querying of large documents.
+This library provides a [DOM-based](#reading-and-writing) object model for accessing and manipulating XML documents, as
+well as an [event-based](#event-driven) (comparable to SAX) for incremental reading and processing of XML streams.
+Furthermore, it supports a large subset of [XPath](#xpath) to simplify the querying of large documents.
 
 This library is open source, stable and well tested. Development happens
 on [GitHub](https://github.com/renggli/dart-xml). Feel free to report issues or create a pull-request there. General
@@ -339,7 +339,7 @@ Furthermore, there are [numerous packages](https://pub.dev/packages?q=dependency
 - ☑ Reading documents using an event based API (SAX).
 - ☑ Decodes and encodes commonly used character entities.
 - ☑ Querying, traversing, and mutating API using Dart principles.
-- ☑ Querying the DOM using a subset of XPath.
+- ☑ Querying the DOM using XPath 3.1.
 - ☑ Building XML trees using a builder API.
 
 ### Limitations
@@ -348,12 +348,13 @@ Furthermore, there are [numerous packages](https://pub.dev/packages?q=dependency
 - ☐ Doesn't validate schema declarations.
 - ☐ Doesn't parse, apply or enforce the DTD.
 - ☐ Doesn't support XSL or XSLT.
+- ☐ Doesn't support XQuery.
 
 ### Standards
 
 - [Extensible Markup Language (XML) 1.0](https://www.w3.org/TR/xml/)
 - [Namespaces in XML 1.0](https://www.w3.org/TR/xml-names/)
-- [XPath 1.0](https://www.w3.org/TR/1999/REC-xpath-19991116/)
+- [XPath 3.1](https://www.w3.org/TR/xpath-31/)
 - [W3C DOM4](https://www.w3.org/TR/domcore/)
 
 ### History
