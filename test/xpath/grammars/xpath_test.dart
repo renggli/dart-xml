@@ -118,6 +118,7 @@ void main() {
         'bar(1)',
         'xx:zork(1, 2)',
         'foo(1, ?)',
+        'Q{http://www.w3.org/2005/xpath-functions}abs(-1)',
         // inline functions
         'function() as xs:integer+ { 2, 3, 5, 7, 11, 13 }',
         'function(\$a as xs:double, \$b as xs:double) as xs:double { \$a * \$b }',
@@ -129,6 +130,7 @@ void main() {
         'fn:abs#1',
         'fn:concat#5',
         'local:myfunc#2',
+        'Q{http://www.w3.org/2005/xpath-functions}node-name#0',
       ],
     };
     for (final MapEntry(key: name, value: expressions) in cases.entries) {

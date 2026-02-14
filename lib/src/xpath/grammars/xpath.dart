@@ -814,7 +814,7 @@ class XPathGrammar {
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-EQName
   Parser<String> eqName() =>
-      [ref0(qName), ref0(uriQualifiedName)].toChoiceParser();
+      [ref0(uriQualifiedName), ref0(qName)].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-QName
   Parser<String> qName() => ref0(qualifiedName);
