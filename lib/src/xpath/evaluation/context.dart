@@ -89,15 +89,6 @@ String? _resolveEqName(String name) {
   if (end < 0) return null;
   final uri = name.substring(2, end);
   final localName = name.substring(end + 1);
-  final prefix = _namespaceUriToPrefix[uri];
+  final prefix = standardPrefixes[uri];
   return prefix != null ? '$prefix:$localName' : null;
 }
-
-const _namespaceUriToPrefix = {
-  xpathFnNamespace: 'fn',
-  xpathMathNamespace: 'math',
-  xpathMapNamespace: 'map',
-  xpathArrayNamespace: 'array',
-  xpathXsNamespace: 'xs',
-  xpathLocalNamespace: 'local',
-};
