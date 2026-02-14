@@ -196,14 +196,25 @@ class TestCase {
   }
 
   TestEnvironment _getEnvironment() {
-    final ref =
-        element.findElements('environment').singleOrNull?.getAttribute('ref') ??
-        'empty';
-    final environment = catalog.environments[ref] ?? testSet.environments[ref];
-    if (environment == null) {
-      throw StateError('Environment "$ref" not found');
+    final envElement = element.findElements('environment').singleOrNull;
+    final ref = envElement?.getAttribute('ref');
+    if (ref != null) {
+      final environment =
+          catalog.environments[ref] ?? testSet.environments[ref];
+      if (environment == null) {
+        throw StateError('Environment "$ref" not found');
+      }
+      return environment;
     }
-    return environment;
+    if (envElement != null) {
+      return TestEnvironment(testSet.file.parent, envElement);
+    }
+    final empty =
+        catalog.environments['empty'] ?? testSet.environments['empty'];
+    if (empty == null) {
+      throw StateError('Environment "empty" not found');
+    }
+    return empty;
   }
 
   String? _getTest() => element.findElements('test').singleOrNull?.innerText;
@@ -218,12 +229,18 @@ class TestEnvironment {
   final Directory directory;
   final XmlElement element;
 
-  late final String name = element.getAttribute('name')!;
+  late final String name = element.getAttribute('name') ?? '<inline>';
 
   late final XmlDocument? source = _getSource();
 
-  XPathContext get context =>
-      XPathContext(source ?? XPathSequence.empty, functions: standardFunctions);
+  XPathContext get context {
+    final ctx = XPathContext(
+      source ?? XPathSequence.empty,
+      functions: standardFunctions,
+      variables: _getParams(),
+    );
+    return ctx;
+  }
 
   XmlDocument? _getSource() {
     final file = element
@@ -234,6 +251,22 @@ class TestEnvironment {
     return XmlDocument.parse(
       File('${directory.path}/$file').readAsStringSync(),
     );
+  }
+
+  Map<String, Object> _getParams() {
+    final params = <String, Object>{};
+    final evalContext = XPathContext(
+      source ?? XPathSequence.empty,
+      functions: standardFunctions,
+    );
+    for (final param in element.findElements('param')) {
+      final name = param.getAttribute('name');
+      final select = param.getAttribute('select');
+      if (name != null && select != null) {
+        params[name] = evalContext.evaluate(select);
+      }
+    }
+    return params;
   }
 }
 
