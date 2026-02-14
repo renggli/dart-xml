@@ -1,10 +1,14 @@
 import 'package:collection/collection.dart';
 
+import '../../../xml.dart';
+import '../../xml/nodes/node.dart';
 import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
+import '../operators/comparison.dart';
 import '../types/any.dart';
+import '../types/duration.dart';
 import '../types/number.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
@@ -490,9 +494,15 @@ const fnAvg = XPathFunctionDefinition(
 );
 
 XPathSequence _fnAvg(XPathContext context, XPathSequence arg) {
-  if (arg.isEmpty) return XPathSequence.empty;
-  final nums = arg.cast<num>();
-  return XPathSequence.single(nums.sum / nums.length);
+  final iterator = arg.iterator;
+  if (!iterator.moveNext()) return XPathSequence.empty;
+  var sum = xsNumeric.cast(iterator.current);
+  var count = 1;
+  while (iterator.moveNext()) {
+    sum += xsNumeric.cast(iterator.current);
+    count++;
+  }
+  return XPathSequence.single(sum / count);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-max
@@ -517,8 +527,20 @@ XPathSequence _fnMax(
   XPathSequence arg, [
   String? collation,
 ]) {
-  if (arg.isEmpty) return XPathSequence.empty;
-  return XPathSequence.single(arg.map(xsNumeric.cast).max);
+  final iterator = arg
+      .map((item) => item is XmlNode ? xsNumeric.cast(item) : item)
+      .iterator;
+  if (!iterator.moveNext()) return XPathSequence.empty;
+  var max = iterator.current;
+  if (max is num && max.isNaN) return XPathSequence.nan;
+  while (iterator.moveNext()) {
+    final item = iterator.current;
+    if (item is num && item.isNaN) return XPathSequence.nan;
+    if (compare(item, max) > 0) {
+      max = item;
+    }
+  }
+  return XPathSequence.single(max);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-min
@@ -543,8 +565,20 @@ XPathSequence _fnMin(
   XPathSequence arg, [
   String? collation,
 ]) {
-  if (arg.isEmpty) return XPathSequence.empty;
-  return XPathSequence.single(arg.map(xsNumeric.cast).min);
+  final iterator = arg
+      .map((item) => item is XmlNode ? xsNumeric.cast(item) : item)
+      .iterator;
+  if (!iterator.moveNext()) return XPathSequence.empty;
+  var min = iterator.current;
+  if (min is num && min.isNaN) return XPathSequence.nan;
+  while (iterator.moveNext()) {
+    final item = iterator.current;
+    if (item is num && item.isNaN) return XPathSequence.nan;
+    if (compare(item, min) < 0) {
+      min = item;
+    }
+  }
+  return XPathSequence.single(min);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-sum
@@ -563,6 +597,20 @@ const fnSum = XPathFunctionDefinition(
 );
 
 XPathSequence _fnSum(XPathContext context, XPathSequence arg, [Object? zero]) {
-  if (arg.isEmpty) return XPathSequence.single(zero ?? 0);
-  return XPathSequence.single(arg.map(xsNumeric.cast).sum);
+  final iterator = arg.iterator;
+  if (!iterator.moveNext()) return XPathSequence.single(zero ?? 0);
+  final first = iterator.current;
+  if (xsDuration.matches(first)) {
+    var sum = xsDuration.cast(first);
+    while (iterator.moveNext()) {
+      sum += xsDuration.cast(iterator.current);
+    }
+    return XPathSequence.single(sum);
+  } else {
+    var sum = xsNumeric.cast(first);
+    while (iterator.moveNext()) {
+      sum += xsNumeric.cast(iterator.current);
+    }
+    return XPathSequence.single(sum);
+  }
 }

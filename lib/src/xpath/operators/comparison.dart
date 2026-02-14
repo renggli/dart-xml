@@ -1,6 +1,8 @@
 import '../../xml/nodes/node.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types/boolean.dart';
+import '../types/date_time.dart';
+import '../types/duration.dart';
 import '../types/number.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
@@ -92,6 +94,10 @@ int compare(Object a, Object b) {
         : ba
         ? 1
         : -1;
+  } else if (xsDateTime.matches(a) && xsDateTime.matches(b)) {
+    return xsDateTime.cast(a).compareTo(xsDateTime.cast(b));
+  } else if (xsDuration.matches(a) && xsDuration.matches(b)) {
+    return xsDuration.cast(a).compareTo(xsDuration.cast(b));
   } else {
     return a.toString().compareTo(b.toString());
   }

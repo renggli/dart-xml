@@ -76,6 +76,9 @@ abstract mixin class XPathSequence<T extends Object> implements Iterable<T> {
   /// The empty string.
   static const emptyString = _XPathSingleSequence<String>('');
 
+  /// The NaN sequence.
+  static const nan = _XPathSingleSequence<double>(double.nan);
+
   /// The empty array.
   static const emptyArray = _XPathSingleSequence<XPathArray>([]);
 

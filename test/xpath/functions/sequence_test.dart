@@ -244,6 +244,44 @@ void main() {
         ]),
         isXPathSequence([3]),
       );
+      expect(
+        fnMax(context, [
+          XPathSequence([
+            DateTime(2022, 1, 1),
+            DateTime(2022, 1, 3),
+            DateTime(2022, 1, 2),
+          ]),
+        ]),
+        isXPathSequence([DateTime(2022, 1, 3)]),
+      );
+      expect(
+        fnMax(context, [
+          const XPathSequence(['a', 'c', 'b']),
+        ]),
+        isXPathSequence(['c']),
+      );
+      expect(
+        fnMax(context, [
+          const XPathSequence([
+            Duration(days: 1),
+            Duration(days: 3),
+            Duration(days: 2),
+          ]),
+        ]),
+        isXPathSequence([const Duration(days: 3)]),
+      );
+      expect(
+        fnMax(context, [
+          const XPathSequence([double.nan, 1.0, 2.0]),
+        ]),
+        isXPathSequence([isNaN]),
+      );
+      expect(
+        fnMax(context, [
+          const XPathSequence([1.0, double.nan, 2.0]),
+        ]),
+        isXPathSequence([isNaN]),
+      );
       expect(fnMax(context, [XPathSequence.empty]), isXPathSequence(isEmpty));
     });
     test('fn:min', () {
@@ -252,6 +290,44 @@ void main() {
           const XPathSequence([3, 1, 2]),
         ]),
         isXPathSequence([1]),
+      );
+      expect(
+        fnMin(context, [
+          XPathSequence([
+            DateTime(2022, 1, 3),
+            DateTime(2022, 1, 1),
+            DateTime(2022, 1, 2),
+          ]),
+        ]),
+        isXPathSequence([DateTime(2022, 1, 1)]),
+      );
+      expect(
+        fnMin(context, [
+          const XPathSequence(['c', 'a', 'b']),
+        ]),
+        isXPathSequence(['a']),
+      );
+      expect(
+        fnMin(context, [
+          const XPathSequence([
+            Duration(days: 3),
+            Duration(days: 1),
+            Duration(days: 2),
+          ]),
+        ]),
+        isXPathSequence([const Duration(days: 1)]),
+      );
+      expect(
+        fnMin(context, [
+          const XPathSequence([double.nan, 1.0, 2.0]),
+        ]),
+        isXPathSequence([isNaN]),
+      );
+      expect(
+        fnMin(context, [
+          const XPathSequence([1.0, double.nan, 2.0]),
+        ]),
+        isXPathSequence([isNaN]),
       );
       expect(fnMin(context, [XPathSequence.empty]), isXPathSequence(isEmpty));
     });
@@ -266,6 +342,16 @@ void main() {
           const XPathSequence([1, 2, 3]),
         ]),
         isXPathSequence([6.0]),
+      );
+      expect(
+        fnSum(context, [
+          const XPathSequence([
+            Duration(days: 1),
+            Duration(days: 2),
+            Duration(days: 3),
+          ]),
+        ]),
+        isXPathSequence([const Duration(days: 6)]),
       );
     });
   });
