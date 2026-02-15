@@ -696,7 +696,7 @@ void main() {
       expect(() => document.removeAttribute('attr'), throwsUnsupportedError);
       expect(
         () => document.attributes.add(
-          XmlAttribute(const XmlName('attr'), 'value'),
+          XmlAttribute(const XmlName.qualified('attr'), 'value'),
         ),
         throwsUnsupportedError,
       );

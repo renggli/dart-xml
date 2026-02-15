@@ -6,23 +6,23 @@ import '../utils/examples.dart';
 
 void main() {
   test('attribute', () {
-    final node = XmlAttribute(const XmlName('foo'), 'bar');
+    final node = XmlAttribute(const XmlName.qualified('foo'), 'bar');
     expect(node.xpathGenerate(), '@foo');
   });
   test('element', () {
-    final node = XmlElement(const XmlName('foo'));
+    final node = XmlElement(const XmlName.qualified('foo'));
     expect(node.xpathGenerate(), 'foo');
   });
   test('element with parent', () {
-    final node = XmlElement(const XmlName('foo'));
-    final parent = XmlElement(const XmlName('bar'));
+    final node = XmlElement(const XmlName.qualified('foo'));
+    final parent = XmlElement(const XmlName.qualified('bar'));
     parent.children.add(node);
     expect(node.xpathGenerate(), 'bar/foo');
   });
   test('element with siblings', () {
-    final node1 = XmlElement(const XmlName('foo'));
-    final node2 = XmlElement(const XmlName('foo'));
-    final parent = XmlElement(const XmlName('bar'));
+    final node1 = XmlElement(const XmlName.qualified('foo'));
+    final node2 = XmlElement(const XmlName.qualified('foo'));
+    final parent = XmlElement(const XmlName.qualified('bar'));
     parent.children.addAll([node1, node2]);
     expect(node1.xpathGenerate(), 'bar/foo[1]');
     expect(node2.xpathGenerate(), 'bar/foo[2]');

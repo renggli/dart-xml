@@ -319,14 +319,14 @@ void assertIteratorInvariants(XmlNode xml) {
 void assertComparatorInvariants(XmlNode xml) {
   const unique = 'unique-2404879675441';
   final uniqueNodes = [
-    XmlAttribute(const XmlName(unique), unique),
+    XmlAttribute(const XmlName.qualified(unique), unique),
     XmlCDATA(unique),
     XmlComment(unique),
-    XmlDeclaration([XmlAttribute(const XmlName(unique), unique)]),
+    XmlDeclaration([XmlAttribute(const XmlName.qualified(unique), unique)]),
     XmlDoctype(unique),
-    XmlDocument([XmlElement(const XmlName(unique))]),
-    XmlDocumentFragment([XmlElement(const XmlName(unique))]),
-    XmlElement(const XmlName(unique)),
+    XmlDocument([XmlElement(const XmlName.qualified(unique))]),
+    XmlDocumentFragment([XmlElement(const XmlName.qualified(unique))]),
+    XmlElement(const XmlName.qualified(unique)),
     XmlProcessing(unique, unique),
     XmlText(unique),
   ];

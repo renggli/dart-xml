@@ -16,7 +16,6 @@ import '../nodes/processing.dart';
 import '../nodes/text.dart';
 import '../utils/name.dart';
 import '../utils/namespace.dart' as ns;
-import '../utils/namespace.dart' show xmlns;
 import 'namespace.dart';
 import 'node.dart';
 
@@ -332,13 +331,7 @@ class XmlBuilder {
         _namespacePrefixes[prefix]?.lastOrNull?.uri == uri) {
       return;
     }
-    final attribute = XmlAttribute(
-      XmlName(
-        prefix != null ? '$xmlns:$prefix' : ns.xmlns,
-        namespaceUri: ns.xmlnsUri,
-      ),
-      uri ?? '',
-    );
+    final attribute = XmlAttribute(XmlName.namespace(name: prefix), uri ?? '');
     final nodeDefinition = _nodes.last;
     if (nodeDefinition.attributes.containsKey(attribute.qualifiedName)) {
       throw ArgumentError('The namespace "${prefix ?? uri}" is already bound.');
@@ -434,12 +427,13 @@ class XmlBuilder {
     }
     if (definition != null) {
       definition.isUsed = true;
-      return XmlName(
-        definition.prefix == null ? name : '${definition.prefix}:$name',
+      return XmlName.parts(
+        name,
+        namespacePrefix: definition.prefix,
         namespaceUri: definition.uri,
       );
     }
-    return XmlName(name);
+    return XmlName.qualified(name);
   }
 
   // Internal method to add children to the current element.

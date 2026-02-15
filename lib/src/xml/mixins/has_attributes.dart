@@ -140,7 +140,7 @@ mixin XmlHasAttributes implements XmlAttributesBase, XmlNode {
       if (value != null) {
         attributes.add(
           XmlAttribute(
-            XmlName(name, namespaceUri: namespaceUri ?? namespace),
+            XmlName.parts(name, namespaceUri: namespaceUri ?? namespace),
             value,
           ),
         );

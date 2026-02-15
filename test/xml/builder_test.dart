@@ -171,7 +171,7 @@ void main() {
   });
   test('nested node (element)', () {
     final builder = XmlBuilder();
-    final nested = XmlElement(const XmlName('nested'));
+    final nested = XmlElement(const XmlName.qualified('nested'));
     builder.element('element', nest: nested);
     final xml = builder.buildDocument();
     expect(xml.children[0].children[0].toXmlString(), nested.toXmlString());
@@ -183,7 +183,7 @@ void main() {
   });
   test('nested node (element, repeated)', () {
     final builder = XmlBuilder();
-    final nested = XmlElement(const XmlName('nested'));
+    final nested = XmlElement(const XmlName.qualified('nested'));
     builder.element('element', nest: [nested, nested]);
     final xml = builder.buildDocument();
     expect(xml.children[0].children[0].toXmlString(), nested.toXmlString());
@@ -233,7 +233,7 @@ void main() {
   });
   test('nested node (attribute)', () {
     final builder = XmlBuilder();
-    final nested = XmlAttribute(const XmlName('foo'), 'bar');
+    final nested = XmlAttribute(const XmlName.qualified('foo'), 'bar');
     builder.element('element', nest: nested);
     final xml = builder.buildDocument();
     expect(xml.children[0].attributes[0].toXmlString(), nested.toXmlString());

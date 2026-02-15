@@ -44,7 +44,9 @@ XPathSequence _fnResolveQName(
   if (uri == null) {
     throw XPathEvaluationException('Prefix "$prefix" not found');
   }
-  return XPathSequence.single(XmlName('$prefix:$local', namespaceUri: uri));
+  return XPathSequence.single(
+    XmlName.parts(local, namespacePrefix: prefix, namespaceUri: uri),
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-QName
@@ -77,7 +79,9 @@ XPathSequence _fnQName(
   } else if (parts.length > 2) {
     throw XPathEvaluationException('Invalid QName syntax: $paramQName');
   }
-  return XPathSequence.single(XmlName('$prefix:$local', namespaceUri: uri));
+  return XPathSequence.single(
+    XmlName.parts(local, namespacePrefix: prefix, namespaceUri: uri),
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-prefix-from-QName

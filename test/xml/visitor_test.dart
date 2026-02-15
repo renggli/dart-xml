@@ -8,9 +8,9 @@ void main() {
         'element',
         children: [
           XmlText(''),
-          XmlElement(const XmlName('element1')),
+          XmlElement(const XmlName.qualified('element1')),
           XmlText(''),
-          XmlElement(const XmlName('element2')),
+          XmlElement(const XmlName.qualified('element2')),
           XmlText(''),
         ],
       );
@@ -112,19 +112,19 @@ void main() {
         XmlText(''),
         XmlText('aaa'),
         XmlText(''),
-        XmlElement(const XmlName('element1')),
+        XmlElement(const XmlName.qualified('element1')),
         XmlText(''),
         XmlText('bbb'),
         XmlText(''),
         XmlText('ccc'),
         XmlText(''),
-        XmlElement(const XmlName('element2')),
+        XmlElement(const XmlName.qualified('element2')),
         XmlText(''),
         XmlText('ddd'),
         XmlText(''),
       ]);
       fragment.normalize();
-      final element = XmlElement(const XmlName('element'));
+      final element = XmlElement(const XmlName.qualified('element'));
       element.children.add(fragment);
       expect(element.children.length, 5);
       expect(
@@ -397,12 +397,14 @@ void main() {
         final element = XmlElement.tag(
           'base',
           children: [
-            XmlElement(const XmlName('simple')),
+            XmlElement(const XmlName.qualified('simple')),
             XmlElement.tag(
               'with-attributes',
-              attributes: [XmlAttribute(const XmlName('attr'), 'val')],
+              attributes: [
+                XmlAttribute(const XmlName.qualified('attr'), 'val'),
+              ],
             ),
-            XmlElement(const XmlName('do-not-add')),
+            XmlElement(const XmlName.qualified('do-not-add')),
           ],
         );
 

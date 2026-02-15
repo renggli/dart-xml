@@ -45,21 +45,21 @@ void main() {
     );
   });
   test('fn:prefix-from-QName', () {
-    const qname = XmlName('p:local');
+    const qname = XmlName.qualified('p:local');
     expect(
       fnPrefixFromQName(context, [const XPathSequence.single(qname)]),
       isXPathSequence(['p']),
     );
   });
   test('fn:local-name-from-qname', () {
-    const qname = XmlName('p:local');
+    const qname = XmlName.qualified('p:local');
     expect(
       fnLocalNameFromQName(context, [const XPathSequence.single(qname)]),
       isXPathSequence(['local']),
     );
   });
   test('fn:namespace-uri-from-QName', () {
-    const qname = XmlName('p:local');
+    const qname = XmlName.qualified('p:local');
     expect(
       fnNamespaceUriFromQName(context, [const XPathSequence.single(qname)]),
       isXPathSequence(isEmpty),
