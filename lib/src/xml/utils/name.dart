@@ -12,7 +12,7 @@ class XmlName with XmlHasVisitor, XmlHasWriter {
   const XmlName(this.qualified, {this.namespaceUri});
 
   /// Create a [XmlName] by parsing the provided `qualified` name.
-  @Deprecated('Use the const constructor instead.')
+  @Deprecated('Use the `XmlName` const constructor instead.')
   factory XmlName.fromString(String qualified) = XmlName;
 
   /// The fully qualified name, including the namespace prefix.

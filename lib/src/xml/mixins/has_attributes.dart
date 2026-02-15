@@ -131,7 +131,7 @@ mixin XmlHasAttributes implements XmlAttributesBase, XmlNode {
     String name,
     String? value, {
     String? namespaceUri,
-    @Deprecated('Use namespaceUri instead') String? namespace,
+    @Deprecated('Use `namespaceUri` instead') String? namespace,
   }) {
     final index = attributes.indexWhere(
       createNameLookup(name, namespaceUri: namespaceUri ?? namespace),

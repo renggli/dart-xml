@@ -210,7 +210,8 @@ class XmlBuilder {
     bool isSelfClosing = true,
     Object? nest,
     @Deprecated('Use `namespaceUri` instead') String? namespace,
-    @Deprecated('Use `namespaceUris` instead') Map<String, String?>? namespaces,
+    @Deprecated('Use `namespaceUris` instead (prefix to uri)')
+    Map<String, String?>? namespaces,
   }) {
     final nodeDefinition = NodeDefinition();
     _nodes.add(nodeDefinition);
