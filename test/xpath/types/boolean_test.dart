@@ -35,11 +35,11 @@ void main() {
         expect(xsBoolean.cast('0'), false);
       });
       test('from node', () {
-        final node = XmlElement(XmlName('a'));
+        final node = XmlElement(const XmlName('a'));
         expect(xsBoolean.cast(node), true);
       });
       test('from sequence', () {
-        final node = XmlElement(XmlName('a'));
+        final node = XmlElement(const XmlName('a'));
         final document = XmlDocument([node]);
         expect(xsBoolean.cast(XPathSequence.empty), false);
         expect(xsBoolean.cast(XPathSequence.single(node)), true);

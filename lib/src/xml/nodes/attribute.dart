@@ -13,9 +13,7 @@ class XmlAttribute extends XmlNode with XmlHasName, XmlHasParent<XmlNode> {
     this.name,
     this.value, [
     this.attributeType = XmlAttributeType.DOUBLE_QUOTE,
-  ]) {
-    name.attachParent(this);
-  }
+  ]);
 
   @override
   final XmlName name;
@@ -31,7 +29,7 @@ class XmlAttribute extends XmlNode with XmlHasName, XmlHasParent<XmlNode> {
   XmlNodeType get nodeType => XmlNodeType.ATTRIBUTE;
 
   @override
-  XmlAttribute copy() => XmlAttribute(name.copy(), value, attributeType);
+  XmlAttribute copy() => XmlAttribute(name, value, attributeType);
 
   @override
   void accept(XmlVisitor visitor) => visitor.visitAttribute(this);

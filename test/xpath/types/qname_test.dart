@@ -11,13 +11,13 @@ void main() {
       expect(xsQName.name, 'xs:QName()');
     });
     test('matches', () {
-      expect(xsQName.matches(XmlName('foo')), isTrue);
+      expect(xsQName.matches(const XmlName('foo')), isTrue);
       expect(xsQName.matches('foo'), isFalse);
       expect(xsQName.matches(123), isFalse);
     });
     group('cast', () {
       test('from XmlName', () {
-        final name = XmlName('foo');
+        const name = XmlName('foo');
         expect(xsQName.cast(name), same(name));
       });
       test('from String', () {
@@ -25,9 +25,9 @@ void main() {
         expect(xsQName.cast('prefix:local').qualified, 'prefix:local');
       });
       test('from XPathSequence (single)', () {
-        final name = XmlName('foo');
-        expect(xsQName.cast(XPathSequence([name])), same(name));
-        expect(xsQName.cast(XPathSequence([name])).qualified, 'foo');
+        const name = XmlName('foo');
+        expect(xsQName.cast(const XPathSequence([name])), same(name));
+        expect(xsQName.cast(const XPathSequence([name])).qualified, 'foo');
       });
       test('from XPathSequence (empty)', () {
         expect(
@@ -41,7 +41,7 @@ void main() {
       });
       test('from XPathSequence (multiple)', () {
         expect(
-          () => xsQName.cast(XPathSequence([XmlName('a'), XmlName('b')])),
+          () => xsQName.cast(const XPathSequence([XmlName('a'), XmlName('b')])),
           throwsA(
             isXPathEvaluationException(
               message: 'Unsupported cast from (a, b) to xs:QName()',

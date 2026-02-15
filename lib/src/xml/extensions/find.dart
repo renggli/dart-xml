@@ -14,13 +14,17 @@ extension XmlFindExtension on XmlNode {
   /// For example:
   /// - `element.findElements('xsd:name')` finds all direct child elements with
   ///   the fully qualified tag name `xsd:name`.
-  /// - `element.findElements('name', namespace: '*')` finds all direct child
+  /// - `element.findElements('name', namespaceUri: '*')` finds all direct child
   ///   elements with the local tag name `name` no matter their namespace.
-  /// - `element.findElements('*', namespace: 'http://www.w3.org/2001/XMLSchema')`
+  /// - `element.findElements('*', namespaceUri: 'http://www.w3.org/2001/XMLSchema')`
   ///   finds all direct child elements within the provided namespace URI.
   ///
-  Iterable<XmlElement> findElements(String name, {String? namespace}) =>
-      filterElements(children, name, namespace);
+  Iterable<XmlElement> findElements(
+    String name, {
+    String? namespaceUri,
+    @Deprecated('Use `namespaceUri` instead') String? namespace,
+  }) =>
+      _filterElements(children, name, namespaceUri: namespaceUri ?? namespace);
 
   /// Return a lazy [Iterable] of the _recursive_ child elements in document
   /// order with the specified tag `name`.
@@ -32,20 +36,27 @@ extension XmlFindExtension on XmlNode {
   /// For example:
   /// - `document.findAllElements('xsd:name')` finds all elements with the fully
   ///   qualified tag name `xsd:name`.
-  /// - `document.findAllElements('name', namespace: '*')` finds all elements
+  /// - `document.findAllElements('name', namespaceUri: '*')` finds all elements
   ///   with the local tag name `name` no matter their namespace.
-  /// - `document.findAllElements('*', namespace: 'http://www.w3.org/2001/XMLSchema')`
+  /// - `document.findAllElements('*', namespaceUri: 'http://www.w3.org/2001/XMLSchema')`
   ///   finds all elements with the given namespace URI.
   ///
-  Iterable<XmlElement> findAllElements(String name, {String? namespace}) =>
-      filterElements(descendants, name, namespace);
+  Iterable<XmlElement> findAllElements(
+    String name, {
+    String? namespaceUri,
+    @Deprecated('Use `namespaceUri` instead') String? namespace,
+  }) => _filterElements(
+    descendants,
+    name,
+    namespaceUri: namespaceUri ?? namespace,
+  );
 }
 
-Iterable<XmlElement> filterElements(
+Iterable<XmlElement> _filterElements(
   Iterable<XmlNode> iterable,
-  String name,
-  String? namespace,
-) {
-  final matcher = createNameMatcher(name, namespace);
+  String name, {
+  String? namespaceUri,
+}) {
+  final matcher = createNameMatcher(name, namespaceUri: namespaceUri);
   return iterable.whereType<XmlElement>().where(matcher);
 }

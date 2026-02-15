@@ -13,19 +13,23 @@ mixin XmlChildrenBase {
 
   /// Return the first child element with the given `name`, or `null`.
   ///
-  /// Both `name` and `namespace` can be a specific [String]; or `'*'` to match
-  /// anything. If no `namespace` is provided, the _fully qualified_ name is
-  /// compared; otherwise only the _local name_ is considered.
+  /// Both `name` and `namespaceUri` can be a specific [String]; or `'*'` to
+  /// match anything. If no `namespace` is provided, the _fully qualified_ name
+  /// is compared; otherwise only the _local name_ is considered.
   ///
   /// For example:
   /// - `element.getElement('xsd:name')` returns the first element with the
   ///   fully qualified tag name `xsd:name`.
-  /// - `element.getElement('name', namespace: '*')` returns the first element
-  ///   with the local tag name `name` no matter the namespace.
-  /// - `element.getElement('*', namespace: 'http://www.w3.org/2001/XMLSchema')`
+  /// - `element.getElement('name', namespaceUri: '*')` returns the first
+  ///   element with the local tag name `name` no matter the namespace.
+  /// - `element.getElement('*', namespaceUri: 'http://www.w3.org/2001/XMLSchema')`
   ///   returns the first element within the provided namespace URI.
   ///
-  XmlElement? getElement(String name, {String? namespace}) => null;
+  XmlElement? getElement(
+    String name, {
+    @Deprecated('Use `namespaceUri` instead') String? namespace,
+    String? namespaceUri,
+  }) => null;
 
   /// Return the first child of this node, or `null` if there are no children.
   XmlNode? get firstChild => null;
@@ -49,8 +53,15 @@ mixin XmlHasChildren<T extends XmlNode> implements XmlChildrenBase {
   Iterable<XmlElement> get childElements => children.whereType<XmlElement>();
 
   @override
-  XmlElement? getElement(String name, {String? namespace}) {
-    final tester = createNameMatcher(name, namespace);
+  XmlElement? getElement(
+    String name, {
+    @Deprecated('Use `namespaceUri` instead') String? namespace,
+    String? namespaceUri,
+  }) {
+    final tester = createNameMatcher(
+      name,
+      namespaceUri: namespaceUri ?? namespace,
+    );
     for (final node in children) {
       if (node is XmlElement && tester(node)) {
         return node;

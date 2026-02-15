@@ -4,6 +4,7 @@ library;
 
 import 'src/xml/entities/default_mapping.dart';
 import 'src/xml/entities/entity_mapping.dart';
+import 'src/xml/exceptions/namespace_exception.dart';
 import 'src/xml/exceptions/parser_exception.dart';
 import 'src/xml/exceptions/tag_exception.dart';
 import 'src/xml_events/event.dart';
@@ -52,6 +53,10 @@ export 'src/xml_events/visitor.dart' show XmlEventVisitor;
 /// throws an [XmlTagException] if there is a mismatch or tags are not closed.
 /// Again, in case of an error iteration can be resumed with the next event.
 ///
+/// If [validateNamespace] is `true`, the parser validates the declaration and
+/// use of namespaces and throws a [XmlNamespaceException] if there is a
+/// problem.
+///
 /// If [validateDocument] is `true`, the parser validates that the root elements
 /// of the input follow the requirements of an XML document. This means the
 /// document consists of an optional declaration, an optional doctype, and a
@@ -63,8 +68,10 @@ export 'src/xml_events/visitor.dart' show XmlEventVisitor;
 ///   Note that this can come at a high memory cost, if the events are retained.
 /// - If [withLocation] is `true`, each event is annotated with the starting
 ///   and stopping position (exclusive) of the event in the input buffer.
+/// - If [withNamespace] is `true`, the namespace of the element is resolved
+///   and added to the event.
 /// - If [withParent] is `true`, each event is annotated with its logical
-///   parent event; this enables lookup of namespace URIs and other traversals.
+///   parent event.
 ///
 /// Iteration is lazy, meaning that none of the `input` is parsed and none of
 /// the events are created unless requested. This technique is also called
@@ -85,16 +92,20 @@ Iterable<XmlEvent> parseEvents(
   String input, {
   XmlEntityMapping? entityMapping,
   bool validateNesting = false,
+  bool validateNamespace = false,
   bool validateDocument = false,
   bool withBuffer = false,
   bool withLocation = false,
+  bool withNamespace = false,
   bool withParent = false,
 }) => XmlEventIterable(
   input,
   entityMapping: entityMapping ?? defaultEntityMapping,
   validateNesting: validateNesting,
+  validateNamespace: validateNamespace,
   validateDocument: validateDocument,
   withBuffer: withBuffer,
   withLocation: withLocation,
+  withNamespace: withNamespace,
   withParent: withParent,
 );

@@ -1,52 +1,49 @@
 import 'package:meta/meta.dart';
 
-import '../mixins/has_parent.dart';
 import '../mixins/has_visitor.dart';
 import '../mixins/has_writer.dart';
-import '../nodes/node.dart';
 import '../visitors/visitor.dart';
-import 'prefix_name.dart';
-import 'simple_name.dart';
 import 'token.dart';
 
 /// XML entity name.
-abstract class XmlName extends Object
-    with XmlHasVisitor, XmlHasWriter, XmlHasParent<XmlNode> {
-  /// Creates a qualified [XmlName] from a `local` name and an optional
-  /// `prefix`.
-  factory XmlName(String local, [String? prefix]) =>
-      prefix == null || prefix.isEmpty
-      ? XmlSimpleName(local)
-      : XmlPrefixName(prefix, local, '$prefix${XmlToken.namespace}$local');
+@immutable
+class XmlName with XmlHasVisitor, XmlHasWriter {
+  /// Creates a qualified [XmlName].
+  const XmlName(this.qualified, {this.namespaceUri});
 
   /// Create a [XmlName] by parsing the provided `qualified` name.
-  factory XmlName.fromString(String qualified) {
+  @Deprecated('Use the const constructor instead.')
+  factory XmlName.fromString(String qualified) = XmlName;
+
+  /// The fully qualified name, including the namespace prefix.
+  final String qualified;
+
+  /// The namespace prefix, or `null`.
+  String? get prefix {
     final index = qualified.indexOf(XmlToken.namespace);
-    if (index > 0) {
-      final prefix = qualified.substring(0, index);
-      final local = qualified.substring(index + 1);
-      return XmlPrefixName(prefix, local, qualified);
-    } else {
-      return XmlSimpleName(qualified);
-    }
+    return index > 0 ? qualified.substring(0, index) : null;
   }
 
-  @internal
-  XmlName.internal();
+  /// The local name, excluding the namespace prefix.
+  String get local {
+    final index = qualified.indexOf(XmlToken.namespace);
+    return index > 0 ? qualified.substring(index + 1) : qualified;
+  }
 
-  /// Return the namespace prefix, or `null`.
-  String? get prefix;
+  /// The namespace URI, or `null`.
+  final String? namespaceUri;
 
-  /// Return the local name, excluding the namespace prefix.
-  String get local;
+  @override
+  String toString() => qualified;
 
-  /// Return the fully qualified name, including the namespace prefix.
-  String get qualified;
+  @override
+  bool operator ==(Object other) =>
+      other is XmlName &&
+      other.qualified == qualified &&
+      other.namespaceUri == namespaceUri;
 
-  /// Return the namespace URI, or `null`.
-  String? get namespaceUri;
-
-  XmlName copy();
+  @override
+  int get hashCode => Object.hash(qualified, namespaceUri);
 
   @override
   void accept(XmlVisitor visitor) => visitor.visitName(this);

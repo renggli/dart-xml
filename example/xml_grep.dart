@@ -45,7 +45,7 @@ void main(List<String> arguments) {
 
   for (final file in files) {
     final document = XmlDocument.parse(file.readAsStringSync());
-    final elements = document.findAllElements(tag, namespace: namespace);
+    final elements = document.findAllElements(tag, namespaceUri: namespace);
     for (final element in elements) {
       stdout.writeln(element.toXmlString(pretty: pretty));
     }

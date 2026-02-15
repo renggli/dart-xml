@@ -1,9 +1,9 @@
 import '../../xml/enums/attribute_type.dart';
+import '../annotations/has_name.dart';
 import '../annotations/has_parent.dart';
-import 'named.dart';
 
 /// Immutable attributes of XML events.
-class XmlEventAttribute with XmlNamed, XmlHasParent {
+class XmlEventAttribute with XmlHasName, XmlHasParent {
   XmlEventAttribute(this.name, this.value, this.attributeType);
 
   @override

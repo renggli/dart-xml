@@ -1,4 +1,3 @@
-import 'package:meta/meta.dart';
 import '../../xml/nodes/element.dart';
 
 import '../../xml/utils/name.dart';
@@ -45,7 +44,7 @@ XPathSequence _fnResolveQName(
   if (uri == null) {
     throw XPathEvaluationException('Prefix "$prefix" not found');
   }
-  return XPathSequence.single(_XPathQName(local, prefix, uri));
+  return XPathSequence.single(XmlName('$prefix:$local', namespaceUri: uri));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-QName
@@ -78,7 +77,7 @@ XPathSequence _fnQName(
   } else if (parts.length > 2) {
     throw XPathEvaluationException('Invalid QName syntax: $paramQName');
   }
-  return XPathSequence.single(_XPathQName(local, prefix, uri));
+  return XPathSequence.single(XmlName('$prefix:$local', namespaceUri: uri));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-prefix-from-QName
@@ -216,24 +215,4 @@ String? _lookupNamespaceUri(XmlElement element, String prefix) {
     current = current.parent as XmlElement;
   }
   return null;
-}
-
-class _XPathQName extends XmlName {
-  _XPathQName(this.local, this.prefix, this.namespaceUri) : super.internal();
-
-  @override
-  final String local;
-
-  @override
-  final String? prefix;
-
-  @override
-  final String? namespaceUri;
-
-  @override
-  String get qualified =>
-      prefix == null || prefix!.isEmpty ? local : '$prefix:$local';
-
-  @override
-  XmlName copy() => _XPathQName(local, prefix, namespaceUri);
 }

@@ -31,7 +31,7 @@ XPathSequence _fnNodeName(XPathContext context, [XmlNode? arg]) {
   if (node is XmlElement) return XPathSequence.single(node.name);
   if (node is XmlAttribute) return XPathSequence.single(node.name);
   if (node is XmlProcessing) {
-    return XPathSequence.single(XmlName.fromString(node.target));
+    return XPathSequence.single(XmlName(node.target));
   }
   return XPathSequence.empty;
 }

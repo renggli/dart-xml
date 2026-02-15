@@ -103,7 +103,6 @@ class _XmlNodeDecoderSink
     );
     element.isSelfClosing = element.children.isNotEmpty;
     parent = element.parentElement;
-
     if (parent == null) {
       commit(element, event.parent);
     }
@@ -117,6 +116,7 @@ class _XmlNodeDecoderSink
   void visitStartElementEvent(XmlStartElementEvent event) {
     final element = XmlElement.tag(
       event.name,
+      namespaceUri: event.namespaceUri,
       attributes: convertAttributes(event.attributes),
     );
     if (event.isSelfClosing) {
@@ -143,21 +143,6 @@ class _XmlNodeDecoderSink
 
   void commit(XmlNode node, XmlEvent? event) {
     if (parent == null) {
-      // If we have information about a parent event, create hidden
-      // [XmlElement] nodes to make sure namespace resolution works
-      // as expected.
-      for (
-        var outerElement = node, outerEvent = event?.parent;
-        outerEvent != null;
-        outerEvent = outerEvent.parent
-      ) {
-        outerElement = XmlElement.tag(
-          outerEvent.name,
-          attributes: convertAttributes(outerEvent.attributes),
-          children: [outerElement],
-          isSelfClosing: outerEvent.isSelfClosing,
-        );
-      }
       sink.add(<XmlNode>[node]);
     } else {
       parent!.children.add(node);
@@ -168,7 +153,7 @@ class _XmlNodeDecoderSink
     Iterable<XmlEventAttribute> attributes,
   ) => attributes.map(
     (attribute) => XmlAttribute(
-      XmlName.fromString(attribute.name),
+      XmlName(attribute.name, namespaceUri: attribute.namespaceUri),
       attribute.value,
       attribute.attributeType,
     ),

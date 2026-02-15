@@ -2,7 +2,7 @@
 /// building XML documents.
 library;
 
-export 'src/xml/builder.dart' show XmlBuilder;
+export 'src/xml/builder/builder.dart' show XmlBuilder;
 export 'src/xml/entities/default_mapping.dart'
     show XmlDefaultEntityMapping, defaultEntityMapping;
 export 'src/xml/entities/entity_mapping.dart' show XmlEntityMapping;
@@ -11,6 +11,7 @@ export 'src/xml/enums/attribute_type.dart' show XmlAttributeType;
 export 'src/xml/enums/node_type.dart' show XmlNodeType;
 export 'src/xml/exceptions/exception.dart' show XmlException;
 export 'src/xml/exceptions/format_exception.dart' show XmlFormatException;
+export 'src/xml/exceptions/namespace_exception.dart' show XmlNamespaceException;
 export 'src/xml/exceptions/parent_exception.dart' show XmlParentException;
 export 'src/xml/exceptions/parser_exception.dart' show XmlParserException;
 export 'src/xml/exceptions/tag_exception.dart' show XmlTagException;

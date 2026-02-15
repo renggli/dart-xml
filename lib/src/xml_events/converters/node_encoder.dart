@@ -55,16 +55,23 @@ class _XmlNodeEncoderSink
   @override
   void visitElement(XmlElement node) {
     final isSelfClosing = node.isSelfClosing && node.children.isEmpty;
-    sink.add([
-      XmlStartElementEvent(
-        node.name.qualified,
-        convertAttributes(node.attributes),
-        isSelfClosing,
-      ),
-    ]);
+    final startEvent = XmlStartElementEvent(
+      node.qualifiedName,
+      convertAttributes(node.attributes),
+      isSelfClosing,
+    );
+    final namespaceUri = node.namespaceUri;
+    if (namespaceUri != null) {
+      startEvent.attachNamespace(namespaceUri);
+    }
+    sink.add([startEvent]);
     if (!isSelfClosing) {
       node.children.forEach(visit);
-      sink.add([XmlEndElementEvent(node.name.qualified)]);
+      final endEvent = XmlEndElementEvent(node.qualifiedName);
+      if (namespaceUri != null) {
+        endEvent.attachNamespace(namespaceUri);
+      }
+      sink.add([endEvent]);
     }
   }
 
@@ -93,12 +100,17 @@ class _XmlNodeEncoderSink
   List<XmlEventAttribute> convertAttributes(
     XmlNodeList<XmlAttribute> attributes,
   ) => attributes
-      .map(
-        (attribute) => XmlEventAttribute(
-          attribute.name.qualified,
+      .map((attribute) {
+        final eventAttribute = XmlEventAttribute(
+          attribute.qualifiedName,
           attribute.value,
           attribute.attributeType,
-        ),
-      )
+        );
+        final namespaceUri = attribute.namespaceUri;
+        if (namespaceUri != null) {
+          eventAttribute.attachNamespace(namespaceUri);
+        }
+        return eventAttribute;
+      })
       .toList(growable: false);
 }

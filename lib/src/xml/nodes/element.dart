@@ -23,7 +23,6 @@ class XmlElement extends XmlNode
     Iterable<XmlNode> children = const [],
     this.isSelfClosing = true,
   ]) {
-    name.attachParent(this);
     this.attributes.initialize(this, attributeNodeTypes);
     this.attributes.addAll(attributes);
     this.children.initialize(this, childrenNodeTypes);
@@ -34,11 +33,12 @@ class XmlElement extends XmlNode
   /// [attributes] and [children].
   XmlElement.tag(
     String qualifiedName, {
+    String? namespaceUri,
     Iterable<XmlAttribute> attributes = const [],
     Iterable<XmlNode> children = const [],
     bool isSelfClosing = true,
   }) : this(
-         XmlName.fromString(qualifiedName),
+         XmlName(qualifiedName, namespaceUri: namespaceUri),
          attributes,
          children,
          isSelfClosing,
@@ -55,7 +55,7 @@ class XmlElement extends XmlNode
 
   @override
   XmlElement copy() => XmlElement(
-    name.copy(),
+    name,
     attributes.map((each) => each.copy()),
     children.map((each) => each.copy()),
     isSelfClosing,

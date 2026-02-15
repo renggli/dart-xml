@@ -1,10 +1,10 @@
 import '../../xml/enums/node_type.dart';
+import '../annotations/has_name.dart';
 import '../event.dart';
-import '../utils/named.dart';
 import '../visitor.dart';
 
 /// Event of an closing XML element node.
-class XmlEndElementEvent extends XmlEvent with XmlNamed {
+class XmlEndElementEvent extends XmlEvent with XmlHasName {
   XmlEndElementEvent(this.name);
 
   @override

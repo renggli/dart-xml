@@ -63,7 +63,7 @@ class XmlTransformer {
     node.isSelfClosing,
   );
 
-  XmlName visitName(XmlName name) => XmlName.fromString(name.qualified);
+  XmlName visitName(XmlName name) => name;
 
   XmlProcessing visitProcessing(XmlProcessing node) =>
       XmlProcessing(node.target, node.value);

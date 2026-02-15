@@ -91,6 +91,21 @@ Matcher isXmlTagException({
     .having((value) => value.column, 'column', column)
     .having((value) => value.toString(), 'toString', isNotEmpty);
 
+/// Returns a [Matcher] that assert on a [XmlNamespaceException].
+Matcher isXmlNamespaceException({
+  dynamic message = isNotEmpty,
+  dynamic buffer = anything,
+  dynamic position = anything,
+  dynamic line = anything,
+  dynamic column = anything,
+}) => isA<XmlNamespaceException>()
+    .having((value) => value.message, 'message', message)
+    .having((value) => value.buffer, 'buffer', buffer)
+    .having((value) => value.position, 'position', position)
+    .having((value) => value.line, 'line', line)
+    .having((value) => value.column, 'column', column)
+    .having((value) => value.toString(), 'toString', isNotEmpty);
+
 /// Returns a [Matcher] that assert on a [XPathParserException].
 Matcher isXPathParserException({
   dynamic message = isNotEmpty,

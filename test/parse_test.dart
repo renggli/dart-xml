@@ -444,11 +444,21 @@ void main() {
         );
         expect(
           () => XmlDocument.parse('<bar>'),
-          throwsA(isXmlTagException(message: 'Missing </bar>', position: 5)),
+          throwsA(
+            isXmlTagException(
+              message: 'Missing closing tag </bar>',
+              position: 5,
+            ),
+          ),
         );
         expect(
           () => XmlDocument.parse('</bar>'),
-          throwsA(isXmlTagException(message: 'Unexpected </bar>', position: 0)),
+          throwsA(
+            isXmlTagException(
+              message: 'Unexpected closing tag </bar>',
+              position: 0,
+            ),
+          ),
         );
       });
       test('element', () {
@@ -640,11 +650,21 @@ void main() {
         );
         expect(
           () => XmlDocumentFragment.parse('<bar>'),
-          throwsA(isXmlTagException(message: 'Missing </bar>', position: 5)),
+          throwsA(
+            isXmlTagException(
+              message: 'Missing closing tag </bar>',
+              position: 5,
+            ),
+          ),
         );
         expect(
           () => XmlDocumentFragment.parse('</bar>'),
-          throwsA(isXmlTagException(message: 'Unexpected </bar>', position: 0)),
+          throwsA(
+            isXmlTagException(
+              message: 'Unexpected closing tag </bar>',
+              position: 0,
+            ),
+          ),
         );
       });
       test('element', () {

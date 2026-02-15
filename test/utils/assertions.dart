@@ -195,7 +195,6 @@ void assertNameInvariants(XmlNode xml) {
 }
 
 void assertNamedInvariant(XmlHasName named) {
-  expect(named, same(named.name.parent));
   expect(named.qualifiedName, named.name.qualified);
   expect(named.localName, named.name.local);
   expect(named.namespacePrefix, named.name.prefix);
@@ -320,14 +319,14 @@ void assertIteratorInvariants(XmlNode xml) {
 void assertComparatorInvariants(XmlNode xml) {
   const unique = 'unique-2404879675441';
   final uniqueNodes = [
-    XmlAttribute(XmlName(unique), unique),
+    XmlAttribute(const XmlName(unique), unique),
     XmlCDATA(unique),
     XmlComment(unique),
-    XmlDeclaration([XmlAttribute(XmlName(unique), unique)]),
+    XmlDeclaration([XmlAttribute(const XmlName(unique), unique)]),
     XmlDoctype(unique),
-    XmlDocument([XmlElement(XmlName(unique))]),
-    XmlDocumentFragment([XmlElement(XmlName(unique))]),
-    XmlElement(XmlName(unique)),
+    XmlDocument([XmlElement(const XmlName(unique))]),
+    XmlDocumentFragment([XmlElement(const XmlName(unique))]),
+    XmlElement(const XmlName(unique)),
     XmlProcessing(unique, unique),
     XmlText(unique),
   ];
@@ -544,13 +543,12 @@ void assertStreamEventInvariants(String input, XmlNode node) {
     XmlNodeType.PROCESSING,
     XmlNodeType.TEXT,
   };
-  final parsedEvents = XmlEventDecoder().convert(input);
-  final parentEvents = const XmlWithParentEvents().convert(parsedEvents);
+  final parsedEvents = XmlEventDecoder(withNamespace: true).convert(input);
   final nodes = node.descendants
       .where((node) => includedTypes.contains(node.nodeType))
       .toList(growable: true);
   final stack = <XmlStartElementEvent>[];
-  for (final event in parentEvents) {
+  for (final event in parsedEvents) {
     if (event is XmlStartElementEvent) {
       final expected = nodes.removeAt(0) as XmlElement;
       expect(event.nodeType, expected.nodeType);
@@ -631,7 +629,7 @@ void assertStreamEventInvariants(String input, XmlNode node) {
 }
 
 void assertStreamNodeInvariants(String input, XmlNode node) {
-  final events = XmlEventCodec().decode(input);
+  final events = XmlEventCodec(withNamespace: true).decode(input);
   final nodes = const XmlNodeCodec().decode(events);
   expect(nodes.length, node.children.length);
   expect(

@@ -1,7 +1,7 @@
 import 'package:test/test.dart';
 import 'package:xml/xml.dart';
 
-import 'utils/matchers.dart';
+import '../utils/matchers.dart';
 
 void main() {
   group('XmlParentException', () {
@@ -119,7 +119,7 @@ void main() {
       expect(
         exception,
         isXmlTagException(
-          message: 'Unexpected </bar>',
+          message: 'Unexpected closing tag </bar>',
           expectedName: isNull,
           actualName: 'bar',
           buffer: '</bar>',
@@ -138,7 +138,7 @@ void main() {
       expect(
         exception,
         isXmlTagException(
-          message: 'Missing </foo>',
+          message: 'Missing closing tag </foo>',
           expectedName: 'foo',
           actualName: isNull,
           buffer: '<foo>',

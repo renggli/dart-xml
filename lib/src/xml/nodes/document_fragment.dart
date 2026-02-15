@@ -1,5 +1,5 @@
 import '../../../xml_events.dart' show XmlNodeDecoder, XmlNodeType, parseEvents;
-import '../builder.dart';
+import '../builder/builder.dart';
 import '../entities/entity_mapping.dart';
 import '../exceptions/parser_exception.dart';
 import '../mixins/has_children.dart';
@@ -21,6 +21,7 @@ class XmlDocumentFragment extends XmlNode with XmlHasChildren<XmlNode> {
       input,
       entityMapping: entityMapping,
       validateNesting: true,
+      withNamespace: true,
     );
     return XmlDocumentFragment(const XmlNodeDecoder().convertIterable(events));
   }

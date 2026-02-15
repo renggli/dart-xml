@@ -1,10 +1,8 @@
-// ignore_for_file: deprecated_member_use_from_same_package, unnecessary_lambdas
-
 import 'package:test/test.dart';
 import 'package:xml/xml_events.dart';
 
-import 'utils/examples.dart';
-import 'utils/matchers.dart';
+import '../utils/examples.dart';
+import '../utils/matchers.dart';
 
 void assertComplete(Iterator<XmlEvent> iterator) {
   for (var i = 0; i < 2; i++) {
@@ -250,7 +248,7 @@ void main() {
       test('unexpected end tag', () {
         final iterator = parseEvents('</foo>', validateNesting: true).iterator;
         expect(
-          () => iterator.moveNext(),
+          iterator.moveNext,
           throwsA(isXmlTagException(actualName: 'foo', position: 0)),
         );
         expect(iterator.current, XmlEndElementEvent('foo'));
@@ -261,7 +259,7 @@ void main() {
         expect(iterator.moveNext(), isTrue);
         expect(iterator.current, XmlStartElementEvent('foo', [], false));
         expect(
-          () => iterator.moveNext(),
+          iterator.moveNext,
           throwsA(isXmlTagException(expectedName: 'foo', position: 5)),
         );
         assertComplete(iterator);
@@ -274,7 +272,7 @@ void main() {
         expect(iterator.moveNext(), isTrue);
         expect(iterator.current, XmlStartElementEvent('foo', [], false));
         expect(
-          () => iterator.moveNext(),
+          iterator.moveNext,
           throwsA(
             isXmlTagException(
               expectedName: 'foo',
@@ -297,6 +295,7 @@ void main() {
         expect(event.start, isNull);
         expect(event.stop, isNull);
         expect(event.parent, isNull);
+        // ignore: deprecated_member_use_from_same_package
         expect(event.parentEvent, isNull);
       }
     });
@@ -318,6 +317,7 @@ void main() {
       final stack = <XmlStartElementEvent>[];
       for (final event in parseEvents(shiporderXsd, withParent: true)) {
         expect(event.parent, stack.isNotEmpty ? stack.last : isNull);
+        // ignore: deprecated_member_use_from_same_package
         expect(event.parentEvent, stack.isNotEmpty ? stack.last : isNull);
         if (event is XmlStartElementEvent && !event.isSelfClosing) {
           stack.add(event);

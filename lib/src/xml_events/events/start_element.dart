@@ -1,13 +1,13 @@
 import 'package:collection/collection.dart' show ListEquality;
 
 import '../../xml/enums/node_type.dart';
+import '../annotations/has_name.dart';
 import '../event.dart';
 import '../utils/event_attribute.dart';
-import '../utils/named.dart';
 import '../visitor.dart';
 
 /// Event of an XML start element node.
-class XmlStartElementEvent extends XmlEvent with XmlNamed {
+class XmlStartElementEvent extends XmlEvent with XmlHasName {
   XmlStartElementEvent(this.name, this.attributes, this.isSelfClosing);
 
   @override

@@ -93,9 +93,8 @@ Future<void> lookupIp(args.ArgResults results, [String query = '']) async {
     // This approach uses less memory and is emitting results incrementally;
     // thought the implementation is more involved.
     await stream
-        .toXmlEvents()
+        .toXmlEvents(withParent: true)
         .normalizeEvents()
-        .withParentEvents()
         .selectSubtreeEvents((event) => event.parent?.name == 'query')
         .forEachEvent(
           onText: (event) => textHandler(event, event.value),

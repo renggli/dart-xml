@@ -1,21 +1,24 @@
-import 'dtd/external_id.dart';
-import 'entities/entity_mapping.dart';
-import 'enums/attribute_type.dart';
-import 'exceptions/parser_exception.dart';
-import 'nodes/attribute.dart';
-import 'nodes/cdata.dart';
-import 'nodes/comment.dart';
-import 'nodes/data.dart';
-import 'nodes/declaration.dart';
-import 'nodes/doctype.dart';
-import 'nodes/document.dart';
-import 'nodes/document_fragment.dart';
-import 'nodes/element.dart';
-import 'nodes/node.dart';
-import 'nodes/processing.dart';
-import 'nodes/text.dart';
-import 'utils/name.dart';
-import 'utils/namespace.dart' as ns;
+import '../dtd/external_id.dart';
+import '../entities/entity_mapping.dart';
+import '../enums/attribute_type.dart';
+import '../exceptions/parser_exception.dart';
+import '../nodes/attribute.dart';
+import '../nodes/cdata.dart';
+import '../nodes/comment.dart';
+import '../nodes/data.dart';
+import '../nodes/declaration.dart';
+import '../nodes/doctype.dart';
+import '../nodes/document.dart';
+import '../nodes/document_fragment.dart';
+import '../nodes/element.dart';
+import '../nodes/node.dart';
+import '../nodes/processing.dart';
+import '../nodes/text.dart';
+import '../utils/name.dart';
+import '../utils/namespace.dart' as ns;
+import '../utils/namespace.dart' show xmlns;
+import 'namespace.dart';
+import 'node.dart';
 
 /// A builder to create XML trees with code.
 ///
@@ -39,6 +42,15 @@ class XmlBuilder {
     _reset();
   }
 
+  // The stack of node definitions.
+  final _nodes = <NodeDefinition>[];
+
+  // The namespace definitions by prefix.
+  final _namespacePrefixes = <String?, List<NamespaceDefinition>>{};
+
+  // The namespece definitions by URI.
+  final _namespaceUris = <String?, List<NamespaceDefinition>>{};
+
   /// If [optimizeNamespaces] is true, the builder will perform some
   /// namespace optimization.
   ///
@@ -49,9 +61,6 @@ class XmlBuilder {
   ///    one of the ancestors of the element will not be included again.
   final bool optimizeNamespaces;
 
-  /// The current node stack of this builder.
-  final List<NodeBuilder> _stack = [];
-
   /// Adds a [XmlText] node with the provided [text].
   ///
   /// For example, to generate the text `Hello World` one would write:
@@ -60,7 +69,7 @@ class XmlBuilder {
   /// builder.text('Hello World');
   /// ```
   void text(Object text) {
-    final children = _stack.last.children;
+    final children = _nodes.last.children;
     if (children.isNotEmpty) {
       final lastChild = children.last;
       if (lastChild is XmlText) {
@@ -81,7 +90,7 @@ class XmlBuilder {
   /// builder.cdata('Hello World');
   /// ```
   void cdata(Object text) {
-    _stack.last.children.add(XmlCDATA(text.toString()));
+    _nodes.last.children.add(XmlCDATA(text.toString()));
   }
 
   /// Adds a [XmlDeclaration] node.
@@ -101,7 +110,7 @@ class XmlBuilder {
       ..version = version
       ..encoding = encoding;
     attributes.forEach(declaration.setAttribute);
-    _stack.last.children.add(declaration);
+    _nodes.last.children.add(declaration);
   }
 
   /// Adds a [XmlDoctype] node.
@@ -133,7 +142,7 @@ class XmlBuilder {
         : publicId == null && systemId != null
         ? DtdExternalId.system(systemId, XmlAttributeType.DOUBLE_QUOTE)
         : null;
-    _stack.last.children.add(XmlDoctype(name, externalId, internalSubset));
+    _nodes.last.children.add(XmlDoctype(name, externalId, internalSubset));
   }
 
   /// Adds a [XmlProcessing] node with the provided [target] and [text].
@@ -145,7 +154,7 @@ class XmlBuilder {
   /// builder.processing('xml-stylesheet', 'href="/style.css"');
   /// ```
   void processing(String target, Object text) {
-    _stack.last.children.add(XmlProcessing(target, text.toString()));
+    _nodes.last.children.add(XmlProcessing(target, text.toString()));
   }
 
   /// Adds a [XmlComment] node with the provided [text].
@@ -157,24 +166,24 @@ class XmlBuilder {
   /// builder.comment('Hello World');
   /// ```
   void comment(Object text) {
-    _stack.last.children.add(XmlComment(text.toString()));
+    _nodes.last.children.add(XmlComment(text.toString()));
   }
 
   /// Adds a [XmlElement] node with the provided tag [name].
   ///
-  /// If a [namespace] URI is provided, the prefix is looked up, verified and
-  /// combined with the given tag [name].
+  /// For the namespace either a [namespacePrefix] or a [namespaceUri] can be
+  /// provided, but not both.
   ///
-  /// If a map of [namespaces] is provided the uri-prefix pairs are added to the
-  /// element declaration, see also [XmlBuilder.namespace].
+  /// If a map of [namespaceUris] is provided the prefix-uri pairs are added to
+  /// the element declaration, see [XmlBuilder.namespaceUri] for details.
   ///
   /// If a map of [attributes] is provided the name-value pairs are added to the
-  /// element declaration, see also [XmlBuilder.attribute].
+  /// element declaration, see [XmlBuilder.attribute] for details.
   ///
   /// Finally, [nest] is used to further customize the element and to add its
   /// children. Typically this is a [Function] that defines elements using the
   /// same builder object. For convenience `nest` can also be a valid [XmlNode],
-  /// a string or another common object that will be converted to a string and
+  /// a string, or another common object that will be converted to a string and
   /// added as a text node.
   ///
   /// For example, to generate an XML element with the tag _message_ and the
@@ -194,43 +203,54 @@ class XmlBuilder {
   /// ```
   void element(
     String name, {
-    String? namespace,
-    Map<String, String?> namespaces = const {},
+    String? namespaceUri,
+    String? namespacePrefix,
+    Map<String?, String?> namespaceUris = const {},
     Map<String, String> attributes = const {},
     bool isSelfClosing = true,
     Object? nest,
+    @Deprecated('Use `namespaceUri` instead') String? namespace,
+    @Deprecated('Use `namespaceUris` instead') Map<String, String?>? namespaces,
   }) {
-    final element = NodeBuilder();
-    _stack.add(element);
+    final nodeDefinition = NodeDefinition();
+    _nodes.add(nodeDefinition);
     try {
-      namespaces.forEach(this.namespace);
+      namespaceUris.forEach(this.namespaceUri);
+      if (namespaceUris.isEmpty && namespaces != null) {
+        // ignore: deprecated_member_use_from_same_package
+        namespaces.forEach(this.namespace);
+      }
       attributes.forEach(attribute);
       if (nest != null) {
         _insert(nest);
       }
-      element.name = _buildName(name, namespace);
-      element.isSelfClosing = isSelfClosing;
-      if (optimizeNamespaces) {
-        // Remove unused namespaces: The reason we first add them and then remove
-        // them again is to keep the order in which they have been added.
-        final toRemove = element.namespaces.values
-            .where((meta) => !meta.used)
-            .map((meta) => meta.name.qualified)
-            .toSet();
-        element.attributes.removeWhere(
-          (attribute) => toRemove.contains(attribute.name.qualified),
-        );
+      nodeDefinition.name = _buildName(
+        name,
+        prefix: namespacePrefix,
+        uri: namespaceUri ?? namespace,
+      );
+      nodeDefinition.isSelfClosing = isSelfClosing;
+      for (final namespaceDefinition in nodeDefinition.namespaceDefinitions) {
+        // Remove unused namespace definitions.
+        if (optimizeNamespaces && !namespaceDefinition.isUsed) {
+          nodeDefinition.attributes.remove(
+            namespaceDefinition.attribute.name.qualified,
+          );
+        }
+        // Cleanup the namespace lookup caches.
+        _namespacePrefixes[namespaceDefinition.prefix]?.removeLast();
+        _namespaceUris[namespaceDefinition.uri]?.removeLast();
       }
     } finally {
-      _stack.removeLast();
+      _nodes.removeLast();
     }
-    _stack.last.children.add(element.buildElement());
+    _nodes.last.children.add(nodeDefinition.buildElement());
   }
 
   /// Adds a [XmlAttribute] node with the provided [name] and [value].
   ///
-  /// If a [namespace] URI is provided, the prefix is looked up, verified
-  /// and combined with the given attribute [name].
+  /// For the namespace either a previously defined [namespacePrefix] or
+  /// [namespaceUri] can be provided, but not both.
   ///
   /// To generate an element with the tag _message_ and the
   /// attribute _lang="en"_ one would write:
@@ -243,31 +263,26 @@ class XmlBuilder {
   void attribute(
     String name,
     Object? value, {
-    String? namespace,
+    String? namespaceUri,
+    String? namespacePrefix,
     XmlAttributeType? attributeType,
+    @Deprecated('Use `namespaceUri` instead') String? namespace,
   }) {
-    final attributes = _stack.last.attributes;
-    final attributeName = _buildName(name, namespace);
-    final attributeIndex = attributes.indexWhere(
-      (attribute) =>
-          attribute.localName == attributeName.local &&
-          attribute.namespacePrefix == attributeName.prefix,
+    final attributeName = _buildName(
+      name,
+      prefix: namespacePrefix,
+      uri: namespaceUri ?? namespace,
     );
-    if (attributeIndex < 0) {
-      if (value != null) {
-        final attribute = XmlAttribute(
-          _buildName(name, namespace),
-          value.toString(),
-          attributeType ?? XmlAttributeType.DOUBLE_QUOTE,
-        );
-        attributes.add(attribute);
-      }
+    final attributeNode = XmlAttribute(
+      attributeName,
+      value.toString(),
+      attributeType ?? XmlAttributeType.DOUBLE_QUOTE,
+    );
+    final attributes = _nodes.last.attributes;
+    if (value != null) {
+      attributes[attributeName.qualified] = attributeNode;
     } else {
-      if (value != null) {
-        attributes[attributeIndex].value = value.toString();
-      } else {
-        attributes.removeAt(attributeIndex);
-      }
+      attributes.remove(attributeName.qualified);
     }
   }
 
@@ -288,7 +303,54 @@ class XmlBuilder {
       input,
       entityMapping: entityMapping,
     );
-    _stack.last.children.add(fragment);
+    _nodes.last.children.add(fragment);
+  }
+
+  /// Binds a namespace [prefix] to the provided [uri].
+  ///
+  /// The [prefix] can be `null` to declare a default namespace. The [uri]
+  /// can be `null` to undeclare a namespace. Throws an [ArgumentError] if
+  /// the [prefix] is invalid or conflicts with an existing declaration.
+  ///
+  /// For example, to bind the `xsd` prefix:
+  ///
+  /// ```dart
+  /// builder.element('schema', nest: () {
+  ///   builder.namespaceUri('xsd', 'http://www.w3.org/2001/XMLSchema');
+  /// });
+  /// ```
+  void namespaceUri(String? prefix, String? uri) {
+    assert(
+      prefix == null || !prefix.contains('://'),
+      '$prefix contains a URL, which is most likely a bug',
+    );
+    if (prefix == ns.xmlns || prefix == ns.xml) {
+      throw ArgumentError('The "$prefix" prefix cannot be bound.');
+    }
+    if (optimizeNamespaces &&
+        _namespacePrefixes[prefix]?.lastOrNull?.uri == uri) {
+      return;
+    }
+    final attribute = XmlAttribute(
+      XmlName(
+        prefix != null ? '$xmlns:$prefix' : ns.xmlns,
+        namespaceUri: ns.xmlnsUri,
+      ),
+      uri ?? '',
+    );
+    final nodeDefinition = _nodes.last;
+    if (nodeDefinition.attributes.containsKey(attribute.qualifiedName)) {
+      throw ArgumentError('The namespace "${prefix ?? uri}" is already bound.');
+    }
+    nodeDefinition.attributes[attribute.qualifiedName] = attribute;
+    final definition = NamespaceDefinition(
+      attribute: attribute,
+      prefix: prefix,
+      uri: uri,
+    );
+    nodeDefinition.namespaceDefinitions.add(definition);
+    _namespacePrefixes.putIfAbsent(prefix, () => []).add(definition);
+    _namespaceUris.putIfAbsent(uri, () => []).add(definition);
   }
 
   /// Binds a namespace [prefix] to the provided [uri]. The [prefix] can be
@@ -302,29 +364,9 @@ class XmlBuilder {
   ///   builder.namespace('http://www.w3.org/2001/XMLSchema', 'xsd');
   /// });
   /// ```
+  @Deprecated('Use `namespaceUri` instead')
   void namespace(String uri, [String? prefix]) {
-    if (prefix == ns.xmlns || prefix == ns.xml) {
-      throw ArgumentError('The "$prefix" prefix cannot be bound.');
-    }
-    if (optimizeNamespaces &&
-        _stack.any(
-          (builder) =>
-              builder.namespaces.containsKey(uri) &&
-              builder.namespaces[uri]!.prefix == prefix,
-        )) {
-      // Namespace prefix already correctly specified in an ancestor.
-      return;
-    }
-    if (_stack.last.namespaces.values.any((meta) => meta.prefix == prefix)) {
-      throw ArgumentError(
-        'The "$prefix" prefix conflicts with existing binding.',
-      );
-    }
-    final meta = NamespaceData(prefix, false);
-    _stack.last.attributes.add(
-      XmlAttribute(meta.name, uri, XmlAttributeType.DOUBLE_QUOTE),
-    );
-    _stack.last.namespaces[uri] = meta;
+    namespaceUri(prefix, uri);
   }
 
   /// Builds and returns the resulting [XmlDocument]; resets the builder to its
@@ -349,12 +391,12 @@ class XmlBuilder {
       _build((builder) => builder.buildFragment());
 
   // Internal method to build the final result and reset the builder.
-  T _build<T extends XmlNode>(T Function(NodeBuilder builder) builder) {
-    if (_stack.length != 1) {
+  T _build<T extends XmlNode>(T Function(NodeDefinition definition) callback) {
+    if (_nodes.length != 1) {
       throw StateError('Unable to build an incomplete DOM element.');
     }
     try {
-      return builder(_stack.last);
+      return callback(_nodes.last);
     } finally {
       _reset();
     }
@@ -362,30 +404,41 @@ class XmlBuilder {
 
   // Internal method to reset the node stack.
   void _reset() {
-    _stack.clear();
-    final node = NodeBuilder();
-    node.namespaces[ns.xmlUri] = NamespaceData.xmlData;
-    _stack.add(node);
+    _nodes.clear();
+    _namespacePrefixes.clear();
+    _namespaceUris.clear();
+    _nodes.add(NodeDefinition());
   }
 
   // Internal method to build a name.
-  XmlName _buildName(String name, String? uri) {
-    if (uri != null && uri.isNotEmpty) {
-      final namespaceData = _lookup(uri);
-      namespaceData.used = true;
-      return XmlName(name, namespaceData.prefix);
-    } else {
-      return XmlName.fromString(name);
+  XmlName _buildName(String name, {String? prefix, String? uri}) {
+    if (prefix != null && uri != null) {
+      throw ArgumentError(
+        'Both prefix and uri were specified: $prefix and $uri',
+      );
     }
-  }
-
-  // Internal method to lookup an namespace prefix.
-  NamespaceData _lookup(String uri) {
-    final builder = _stack.lastWhere(
-      (builder) => builder.namespaces.containsKey(uri),
-      orElse: () => throw ArgumentError('Undefined namespace: $uri'),
-    );
-    return builder.namespaces[uri]!;
+    NamespaceDefinition? definition;
+    if (prefix != null) {
+      definition = _namespacePrefixes[prefix]?.lastOrNull;
+      if (definition == null) {
+        throw ArgumentError('Undefined namespace prefix: $prefix');
+      }
+    } else if (uri != null) {
+      definition = _namespaceUris[uri]?.lastOrNull;
+      if (definition == null) {
+        throw ArgumentError('Undefined namespace URI: $uri');
+      }
+    } else {
+      definition = _namespacePrefixes[null]?.lastOrNull;
+    }
+    if (definition != null) {
+      definition.isUsed = true;
+      return XmlName(
+        definition.prefix == null ? name : '${definition.prefix}:$name',
+        namespaceUri: definition.uri,
+      );
+    }
+    return XmlName(name);
   }
 
   // Internal method to add children to the current element.
@@ -404,10 +457,10 @@ class XmlBuilder {
             text(value.value);
           // Attributes must be copied and added to the attributes list.
           case XmlAttribute():
-            _stack.last.attributes.add(value.copy());
+            _nodes.last.attributes[value.qualifiedName] = value.copy();
           // Children nodes must be copied and added to the children list.
           case XmlElement() || XmlData() || XmlDeclaration():
-            _stack.last.children.add(value.copy());
+            _nodes.last.children.add(value.copy());
           // Document fragments must be copied and unwrapped.
           case XmlDocumentFragment():
             value.children.map((element) => element.copy()).forEach(_insert);
@@ -420,38 +473,6 @@ class XmlBuilder {
         text(value.toString());
     }
   }
-}
-
-class NamespaceData {
-  NamespaceData(this.prefix, [this.used = false]);
-
-  final String? prefix;
-  bool used;
-
-  XmlName get name => prefix == null || prefix!.isEmpty
-      ? XmlName(ns.xmlns)
-      : XmlName(prefix!, ns.xmlns);
-
-  static final NamespaceData xmlData = NamespaceData(ns.xml, true);
-}
-
-class NodeBuilder {
-  final Map<String, NamespaceData> namespaces = {};
-
-  final List<XmlAttribute> attributes = [];
-
-  final List<XmlNode> children = [];
-
-  bool isSelfClosing = true;
-
-  late final XmlName name;
-
-  XmlElement buildElement() =>
-      XmlElement(name, attributes, children, isSelfClosing);
-
-  XmlDocument buildDocument() => XmlDocument(children);
-
-  XmlDocumentFragment buildFragment() => XmlDocumentFragment(children);
 }
 
 typedef Callback = void Function();

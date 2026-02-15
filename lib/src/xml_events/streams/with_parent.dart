@@ -21,6 +21,10 @@ extension XmlWithParentEventsExtension on Stream<List<XmlEvent>> {
   /// [XmlEndElementEvent] are parented to their corresponding
   /// [XmlStartElementEvent]. Throws an [XmlTagException] is the nesting
   /// is invalid.
+  @Deprecated(
+    'Use `parseEvents(String input, withParent: true)` '
+    'or `Stream<String>.toXmlEvents(withParent: true)` instead.',
+  )
   Stream<List<XmlEvent>> withParentEvents() =>
       transform(const XmlWithParentEvents());
 }

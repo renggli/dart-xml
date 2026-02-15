@@ -20,7 +20,7 @@ class _XPathQNameType extends XPathType<Object> {
     if (value is XmlName) {
       return value;
     } else if (value is String) {
-      return XmlName.fromString(value);
+      return XmlName(value);
     } else if (value is XPathSequence) {
       final item = value.singleOrNull;
       if (item != null) return cast(item);

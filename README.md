@@ -254,7 +254,7 @@ parseEvents(bookshelfXml)
     .forEach(print);
 ```
 
-The function `parseEvents` supports various other options, see [its documentation](https://pub.dev/documentation/xml/latest/xml_events/parseEvents.html) for further examples.
+The function `parseEvents` supports various other options, see [the documentation](https://pub.dev/documentation/xml/latest/xml_events/parseEvents.html) for further examples.
 
 This approach requires the whole input to be available at the beginning and does not work if the data itself is only available asynchronous, such as coming from a slow network connection. A more flexible, but also more complicated API is provided with [Dart Streams](https://dart.dev/tutorials/language/streams).
 
@@ -268,12 +268,12 @@ For more control the underlying `Codec` and `Converter` implementations can be u
 
 ![Stream Codec and Converter](https://raw.githubusercontent.com/renggli/dart-xml/HEAD/doc/stream-codec.png)
 
-Various other transformations are provided to simplify processing complex streams:
+`Stream<String>.toXmlEvents()`, `XmlEventDecoder()`, and `XmlEventCodec()` are highly configurable in how they process and validate the input, see [the documentation](https://pub.dev/documentation/xml/latest/xml_events/XmlEventDecoder/XmlEventDecoder.html) for more information.
+
+Various more ad-hoc transformations are provided to simplify processing complex streams:
 
 - Normalizes a sequence of `XmlEvent` objects by removing empty and combining adjacent text events. \
   `Stream<List<XmlEvent>> normalizeEvents()` on `Stream<List<XmlEvent>>`
-- Annotates `XmlEvent` objects with their parent events that is thereafter accessible through `XmlParented.parentEvent`. Validates the nesting and throws an exception if it is invalid. \
-  `Stream<List<XmlEvent>> withParentEvents()` on `Stream<List<XmlEvent>>`
 - From a sequence of `XmlEvent` objects filter the event sequences that form sub-trees for which a predicate returns `true`. \
   `Stream<List<XmlEvent>> selectSubtreeEvents(Predicate<XmlStartElementEvent>)` on `Stream<List<XmlEvent>>`
 - Flattens a chunked stream of objects to a stream of objects. \

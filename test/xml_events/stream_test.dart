@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use_from_same_package
-
 import 'dart:async';
 import 'dart:math' show Random, min;
 
@@ -8,9 +6,9 @@ import 'package:test/test.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xml_events.dart';
 
-import 'utils/assertions.dart';
-import 'utils/examples.dart';
-import 'utils/matchers.dart';
+import '../utils/assertions.dart';
+import '../utils/examples.dart';
+import '../utils/matchers.dart';
 
 @isTestGroup
 void chunkedTests<T>(
@@ -60,12 +58,18 @@ void main() {
         setUp(() {
           document = XmlDocument.parse(entry.value);
           source = document.toXmlString();
-          events = parseEvents(source).toList(growable: false);
+          events = parseEvents(
+            source,
+            withNamespace: true,
+          ).toList(growable: false);
         });
         chunkedTests<String>('string -> events', () => source, stringChunker, (
           stream,
         ) {
-          final actual = stream.toXmlEvents().normalizeEvents().flatten();
+          final actual = stream
+              .toXmlEvents(withNamespace: true)
+              .normalizeEvents()
+              .flatten();
           expect(actual, emitsInOrder([...events, emitsDone]));
         });
         chunkedTests<List<XmlEvent>>(
@@ -107,7 +111,7 @@ void main() {
           stringChunker,
           (stream) {
             final actual = stream
-                .toXmlEvents()
+                .toXmlEvents(withNamespace: true)
                 .normalizeEvents()
                 .toXmlString()
                 .join();
@@ -121,7 +125,7 @@ void main() {
           (stream) {
             final actual = stream
                 .toXmlString()
-                .toXmlEvents()
+                .toXmlEvents(withNamespace: true)
                 .normalizeEvents()
                 .flatten()
                 .toList();
@@ -171,10 +175,10 @@ void main() {
                   .flatten()
                   .toList();
               final expected = document
-                  .findAllElements('element', namespace: '*')
+                  .findAllElements('element', namespaceUri: '*')
                   .where(
                     (element) => !element.ancestors.whereType<XmlElement>().any(
-                      (parent) => parent.name.local == 'element',
+                      (parent) => parent.qualifiedName == 'xsd:element',
                     ),
                   )
                   .toList();
@@ -185,10 +189,6 @@ void main() {
                   return true;
                 }, 'not matching'),
               );
-              actual
-                  .expand((node) => [node, ...node.descendants])
-                  .whereType<XmlHasName>()
-                  .forEach((node) => expect(node.name.namespaceUri, isNull));
             },
           );
           chunkedTests<List<XmlEvent>>(
@@ -197,13 +197,14 @@ void main() {
             listChunker,
             (stream) async {
               final actual = await stream
+                  // ignore: deprecated_member_use_from_same_package
                   .withParentEvents()
                   .selectSubtreeEvents((event) => event.name == 'xsd:element')
                   .toXmlNodes()
                   .flatten()
                   .toList();
               final expected = document
-                  .findAllElements('element', namespace: '*')
+                  .findAllElements('element', namespaceUri: '*')
                   .where(
                     (element) => !element.ancestors.whereType<XmlElement>().any(
                       (parent) => parent.name.local == 'element',
@@ -373,6 +374,7 @@ void main() {
           listChunker,
           (stream) async {
             final stacks = await stream
+                // ignore: deprecated_member_use_from_same_package
                 .withParentEvents()
                 .normalizeEvents()
                 .flatten()
@@ -546,7 +548,7 @@ void main() {
           () => decoder.convert([XmlEndElementEvent('foo')]),
           throwsA(
             isXmlTagException(
-              message: 'Unexpected </foo>',
+              message: 'Unexpected closing tag </foo>',
               expectedName: isNull,
               actualName: 'foo',
             ),
@@ -558,25 +560,11 @@ void main() {
           () => decoder.convert([XmlStartElementEvent('foo', [], false)]),
           throwsA(
             isXmlTagException(
-              message: 'Missing </foo>',
+              message: 'Missing closing tag </foo>',
               expectedName: 'foo',
               actualName: isNull,
             ),
           ),
-        );
-      });
-      test('hidden parents', () {
-        final grandparent = XmlStartElementEvent('grandparent', [], false);
-        final parent = XmlStartElementEvent('parent', [], false)
-          ..attachParent(grandparent);
-        final child = XmlStartElementEvent('child', [], true)
-          ..attachParent(parent);
-        final node = decoder.convert([child]).single;
-        expect(node.hasParent, isTrue);
-        expect(node.parent?.hasParent, isTrue);
-        expect(
-          node.parent?.parent?.toXmlString(),
-          '<grandparent><parent><child/></parent></grandparent>',
         );
       });
     });
@@ -653,6 +641,7 @@ void main() {
       ];
       final output = await Stream.fromIterable([
         input,
+        // ignore: deprecated_member_use_from_same_package
       ]).withParentEvents().flatten().toList();
       expect(output, input, reason: 'equality is unaffected');
       for (var i = 0; i < input.length; i++) {
@@ -673,6 +662,7 @@ void main() {
       ];
       final output = await Stream.fromIterable([
         input,
+        // ignore: deprecated_member_use_from_same_package
       ]).withParentEvents().flatten().toList();
       expect(output, input, reason: 'equality is unaffected');
       for (var i = 1; i < input.length; i++) {
@@ -691,6 +681,7 @@ void main() {
       ];
       final output = await Stream.fromIterable([
         input,
+        // ignore: deprecated_member_use_from_same_package
       ]).withParentEvents().flatten().toList();
       expect(output, input, reason: 'equality is unaffected');
       expect(output[0], same(input[0]), reason: 'root element is identical');
@@ -707,6 +698,7 @@ void main() {
         [XmlEndElementEvent('close')],
         [XmlTextEvent('after')],
       ];
+      // ignore: deprecated_member_use_from_same_package
       final stream = Stream.fromIterable(input).withParentEvents().flatten();
       expect(
         stream,
@@ -722,12 +714,13 @@ void main() {
       final input = <List<XmlEvent>>[
         [XmlStartElementEvent('open', [], false)],
       ];
+      // ignore: deprecated_member_use_from_same_package
       final stream = Stream.fromIterable(input).withParentEvents().flatten();
       expect(
         stream,
         emitsInOrder([
           input[0][0],
-          emitsError(isXmlTagException(message: 'Missing </open>')),
+          emitsError(isXmlTagException(message: 'Missing closing tag </open>')),
         ]),
       );
     });
@@ -736,10 +729,13 @@ void main() {
         [XmlEndElementEvent('close')],
         [XmlTextEvent('after')],
       ];
+      // ignore: deprecated_member_use_from_same_package
       final stream = Stream.fromIterable(input).withParentEvents().flatten();
       expect(
         stream,
-        emitsError(isXmlTagException(message: 'Unexpected </close>')),
+        emitsError(
+          isXmlTagException(message: 'Unexpected closing tag </close>'),
+        ),
       );
     });
     test('after normalization', () {
@@ -777,7 +773,8 @@ void main() {
       const input = '<html xmlns="$url"><body lang="en"/></html>';
       final events = await Stream.fromIterable([
         input,
-      ]).toXmlEvents().withParentEvents().flatten().toList();
+        // ignore: deprecated_member_use_from_same_package
+      ]).toXmlEvents(withNamespace: true).withParentEvents().flatten().toList();
       for (final event in events) {
         if (event is XmlStartElementEvent) {
           expect(event.namespaceUri, url);
@@ -797,7 +794,8 @@ void main() {
           '</xhtml:html>';
       final events = await Stream.fromIterable([
         input,
-      ]).toXmlEvents().withParentEvents().flatten().toList();
+        // ignore: deprecated_member_use_from_same_package
+      ]).toXmlEvents(withNamespace: true).withParentEvents().flatten().toList();
       for (final event in events) {
         if (event is XmlStartElementEvent) {
           expect(event.namespaceUri, url);

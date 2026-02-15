@@ -1,10 +1,21 @@
 # Changelog
 
-## 6.7.0 (unpublished)
+## 7.0.0 (unpublished)
 
-- Significantly improve XPath evaluation [performance](https://github.com/renggli/dart-xml/issues/194#issuecomment-3311509567) for large documents.
-- Add missing XPath name tests (namespace prefix, namespace URI, local name, and wildcards) and node tests (`attribute()`, `document-node()` and `element()`).
-- Fix issues with XPath [axis parsing](https://github.com/renggli/dart-xml/issues/193), [reverse axis access](https://github.com/renggli/dart-xml/issues/194), and [predicate expressions](https://github.com/renggli/dart-xml/issues/194).
+- Better namespace support across all parts of the library:
+  - Namespaces of `XmlDocument.parse` and `XmlDocumentFragment.parse` are now resolved at parse-time and constant when manipulating the DOM (this aligns with other XML libraries and removes surprising behavior when moving nodes around).
+  - Deprecate all `namespace` arguments and replace them with the more intention revealing `namespaceUri` and `namespacePrefix`.
+  - Lower-level parser and event APIs can now enable and disable the validation and resolution of namespaces with `validateNamespaces` and `withNamespaces`. This is a BREAKING CHANGE to existing code using these lower-level APIs, as namespaces are no longer available by default.
+  - Introduced `XmlNamespaceException` for error reporting of invalid namespaces.
+  - `XmlName` is now immutable and the complexity with different states is gone.
+- Improved performance and usability of `XmlBuilder`:
+  - Significantly improve the performance of `XmlBuilder` as all namespace lookups are now in constant time.
+  - Deprecated `namespace(Stirng uri, String? prefix)` and `namespaces(Map<String, String?> uriToPrefix)` accessors that have an unusually awkward API. Replaced with `namespaceUri(String? prefix, String? uri)` and `namespaceUris(Map<String, String> prefixToUri)` with a clear prefix-uri order.
+  - Deprecated `String? namespace` arguments when definition elements and attributes. Replaced with more flexible `String namespacePrefix` and `String namespaceUri`.
+- XPath 3.1 support:
+  - Add missing XPath name tests (namespace prefix, namespace URI, local name, and wildcards) and node tests (`attribute()`, `document-node()` and `element()`).
+  - Significantly improve XPath evaluation [performance](https://github.com/renggli/dart-xml/issues/194#issuecomment-3311509567) for large documents (thanks to [laishere](https://github.com/laishere)).
+  - Fix issues with XPath [axis parsing](https://github.com/renggli/dart-xml/issues/193), [reverse axis access](https://github.com/renggli/dart-xml/issues/194), and [predicate expressions](https://github.com/renggli/dart-xml/issues/194) (thanks to [laishere](https://github.com/laishere)).
 
 ## 6.6.1
 

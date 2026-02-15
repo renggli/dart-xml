@@ -1,6 +1,6 @@
 import 'dart:convert' as convert;
 
-import '../../xml/builder.dart';
+import '../../xml/builder/builder.dart';
 import '../../xml/extensions/string.dart';
 import '../../xml/nodes/document.dart';
 import '../../xml/nodes/element.dart';
@@ -117,7 +117,7 @@ XPathSequence _fnJsonToXml(
     final json = convert.json.decode(jsonText);
     final builder = XmlBuilder();
     builder.processing('xml', 'version="1.0"');
-    _jsonToXml(builder, json, namespaces: {_ns: null});
+    _jsonToXml(builder, json, namespaceUris: {null: _ns});
     return XPathSequence.single(builder.buildDocument());
   } on FormatException catch (error) {
     throw XPathEvaluationException('Invalid JSON: ${error.message}');
@@ -128,15 +128,19 @@ void _jsonToXml(
   XmlBuilder builder,
   Object? json, {
   Map<String, String> attributes = const {},
-  Map<String, String?> namespaces = const {},
+  Map<String?, String> namespaceUris = const {},
 }) {
   if (json == null) {
-    builder.element('null', attributes: attributes, namespaces: namespaces);
+    builder.element(
+      'null',
+      attributes: attributes,
+      namespaceUris: namespaceUris,
+    );
   } else if (json is bool) {
     builder.element(
       'boolean',
       attributes: attributes,
-      namespaces: namespaces,
+      namespaceUris: namespaceUris,
       nest: () {
         builder.text(json.toString());
       },
@@ -145,7 +149,7 @@ void _jsonToXml(
     builder.element(
       'number',
       attributes: attributes,
-      namespaces: namespaces,
+      namespaceUris: namespaceUris,
       nest: () {
         builder.text(json.toString());
       },
@@ -154,7 +158,7 @@ void _jsonToXml(
     builder.element(
       'string',
       attributes: attributes,
-      namespaces: namespaces,
+      namespaceUris: namespaceUris,
       nest: () {
         builder.text(json);
       },
@@ -163,7 +167,7 @@ void _jsonToXml(
     builder.element(
       'array',
       attributes: attributes,
-      namespaces: namespaces,
+      namespaceUris: namespaceUris,
       nest: () {
         for (final item in json) {
           _jsonToXml(builder, item);
@@ -174,7 +178,7 @@ void _jsonToXml(
     builder.element(
       'map',
       attributes: attributes,
-      namespaces: namespaces,
+      namespaceUris: namespaceUris,
       nest: () {
         for (final MapEntry(key: String key, value: Object? value)
             in json.entries) {

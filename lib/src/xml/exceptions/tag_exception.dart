@@ -33,7 +33,7 @@ class XmlTagException extends XmlException with XmlFormatException {
     String? buffer,
     int? position,
   }) => XmlTagException(
-    'Unexpected </$actualName>',
+    'Unexpected closing tag </$actualName>',
     actualName: actualName,
     buffer: buffer,
     position: position,
@@ -45,7 +45,7 @@ class XmlTagException extends XmlException with XmlFormatException {
     String? buffer,
     int? position,
   }) => XmlTagException(
-    'Missing </$expectedName>',
+    'Missing closing tag </$expectedName>',
     expectedName: expectedName,
     buffer: buffer,
     position: position,

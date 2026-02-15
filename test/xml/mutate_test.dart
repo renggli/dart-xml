@@ -2,8 +2,8 @@ import 'package:meta/meta.dart';
 import 'package:test/test.dart';
 import 'package:xml/xml.dart';
 
-import 'utils/assertions.dart';
-import 'utils/matchers.dart';
+import '../utils/assertions.dart';
+import '../utils/matchers.dart';
 
 @isTest
 void mutatingTest<T extends XmlNode>(
@@ -137,7 +137,8 @@ void main() {
     mutatingTest<XmlElement>(
       'element (attributes)',
       '<element/>',
-      (node) => node.attributes.add(XmlAttribute(XmlName('attr'), 'value')),
+      (node) =>
+          node.attributes.add(XmlAttribute(const XmlName('attr'), 'value')),
       '<element attr="value"/>',
     );
     mutatingTest<XmlElement>(
@@ -165,7 +166,7 @@ void main() {
       (node) {
         final fragment = XmlDocumentFragment([
           XmlText('Hello'),
-          XmlElement(XmlName('element2')),
+          XmlElement(const XmlName('element2')),
           XmlComment('comment'),
         ]);
         node.children.add(fragment);
@@ -176,14 +177,16 @@ void main() {
       'element (repeated fragment children)',
       '<element1/>',
       (node) {
-        final fragment = XmlDocumentFragment([XmlElement(XmlName('element2'))]);
+        final fragment = XmlDocumentFragment([
+          XmlElement(const XmlName('element2')),
+        ]);
         node.children
           ..add(fragment)
           ..add(fragment);
       },
       '<element1><element2/><element2/></element1>',
     );
-    final wrong = XmlAttribute(XmlName('invalid'), 'invalid');
+    final wrong = XmlAttribute(const XmlName('invalid'), 'invalid');
     throwingTest<XmlDocument>(
       'element (attribute children)',
       '<element/>',
@@ -206,8 +209,9 @@ void main() {
     mutatingTest<XmlElement>(
       'element (attributes)',
       '<element/>',
-      (node) =>
-          node.attributes.addAll([XmlAttribute(XmlName('attr'), 'value')]),
+      (node) => node.attributes.addAll([
+        XmlAttribute(const XmlName('attr'), 'value'),
+      ]),
       '<element attr="value"/>',
     );
     mutatingTest<XmlElement>(
@@ -235,7 +239,7 @@ void main() {
       (node) {
         final fragment = XmlDocumentFragment([
           XmlText('Hello'),
-          XmlElement(XmlName('element2')),
+          XmlElement(const XmlName('element2')),
           XmlComment('comment'),
         ]);
         node.children.addAll([fragment]);
@@ -246,12 +250,14 @@ void main() {
       'element (repeated fragment children)',
       '<element1/>',
       (node) {
-        final fragment = XmlDocumentFragment([XmlElement(XmlName('element2'))]);
+        final fragment = XmlDocumentFragment([
+          XmlElement(const XmlName('element2')),
+        ]);
         node.children.addAll([fragment, fragment]);
       },
       '<element1><element2/><element2/></element1>',
     );
-    final wrong = XmlAttribute(XmlName('invalid'), 'invalid');
+    final wrong = XmlAttribute(const XmlName('invalid'), 'invalid');
     throwingTest<XmlDocument>(
       'element (attribute children)',
       '<element/>',
@@ -389,8 +395,10 @@ void main() {
     mutatingTest<XmlElement>(
       'element (attributes)',
       '<element attr1="value1"/>',
-      (node) =>
-          node.attributes.insert(1, XmlAttribute(XmlName('attr2'), 'value2')),
+      (node) => node.attributes.insert(
+        1,
+        XmlAttribute(const XmlName('attr2'), 'value2'),
+      ),
       '<element attr1="value1" attr2="value2"/>',
     );
     mutatingTest<XmlElement>(
@@ -420,7 +428,7 @@ void main() {
       (node) {
         final fragment = XmlDocumentFragment([
           XmlText('Hello'),
-          XmlElement(XmlName('element3')),
+          XmlElement(const XmlName('element3')),
           XmlComment('comment'),
         ]);
         node.children.insert(1, fragment);
@@ -431,7 +439,9 @@ void main() {
       'element (repeated fragment children)',
       '<element1><element2/></element1>',
       (node) {
-        final fragment = XmlDocumentFragment([XmlElement(XmlName('element3'))]);
+        final fragment = XmlDocumentFragment([
+          XmlElement(const XmlName('element3')),
+        ]);
         node.children
           ..insert(0, fragment)
           ..insert(2, fragment);
@@ -441,8 +451,10 @@ void main() {
     throwingTest<XmlElement>(
       'element (attribute range error)',
       '<element attr1="value1"/>',
-      (node) =>
-          node.attributes.insert(2, XmlAttribute(XmlName('attr2'), 'value2')),
+      (node) => node.attributes.insert(
+        2,
+        XmlAttribute(const XmlName('attr2'), 'value2'),
+      ),
       throwsRangeError,
     );
     throwingTest<XmlElement>(
@@ -451,7 +463,7 @@ void main() {
       (node) => node.children.insert(2, XmlText(' World')),
       throwsRangeError,
     );
-    final wrong = XmlAttribute(XmlName('invalid'), 'invalid');
+    final wrong = XmlAttribute(const XmlName('invalid'), 'invalid');
     throwingTest<XmlDocument>(
       'element (attribute children)',
       '<element/>',
@@ -475,7 +487,7 @@ void main() {
       'element (attributes)',
       '<element attr1="value1"/>',
       (node) => node.attributes.insertAll(1, [
-        XmlAttribute(XmlName('attr2'), 'value2'),
+        XmlAttribute(const XmlName('attr2'), 'value2'),
       ]),
       '<element attr1="value1" attr2="value2"/>',
     );
@@ -505,7 +517,7 @@ void main() {
       (node) {
         final fragment = XmlDocumentFragment([
           XmlText('Hello'),
-          XmlElement(XmlName('element3')),
+          XmlElement(const XmlName('element3')),
           XmlComment('comment'),
         ]);
         node.children.insertAll(1, [fragment]);
@@ -516,7 +528,9 @@ void main() {
       'element (repeated fragment children)',
       '<element1><element2/></element1>',
       (node) {
-        final fragment = XmlDocumentFragment([XmlElement(XmlName('element3'))]);
+        final fragment = XmlDocumentFragment([
+          XmlElement(const XmlName('element3')),
+        ]);
         node.children.insertAll(0, [fragment, fragment]);
       },
       '<element1><element3/><element3/><element2/></element1>',
@@ -525,7 +539,7 @@ void main() {
       'element (attribute range error)',
       '<element attr1="value1"/>',
       (node) => node.attributes.insertAll(2, [
-        XmlAttribute(XmlName('attr2'), 'value2'),
+        XmlAttribute(const XmlName('attr2'), 'value2'),
       ]),
       throwsRangeError,
     );
@@ -535,7 +549,7 @@ void main() {
       (node) => node.children.insertAll(2, [XmlText(' World')]),
       throwsRangeError,
     );
-    final wrong = XmlAttribute(XmlName('invalid'), 'invalid');
+    final wrong = XmlAttribute(const XmlName('invalid'), 'invalid');
     throwingTest<XmlDocument>(
       'element (attribute children)',
       '<element/>',
@@ -558,7 +572,8 @@ void main() {
     mutatingTest<XmlElement>(
       'element (attributes)',
       '<element attr1="value1"/>',
-      (node) => node.attributes[0] = XmlAttribute(XmlName('attr2'), 'value2'),
+      (node) =>
+          node.attributes[0] = XmlAttribute(const XmlName('attr2'), 'value2'),
       '<element attr2="value2"/>',
     );
     mutatingTest<XmlElement>(
@@ -570,7 +585,8 @@ void main() {
     throwingTest<XmlElement>(
       'element (attribute range error)',
       '<element attr1="value1"/>',
-      (node) => node.attributes[2] = XmlAttribute(XmlName('attr2'), 'value2'),
+      (node) =>
+          node.attributes[2] = XmlAttribute(const XmlName('attr2'), 'value2'),
       throwsRangeError,
     );
     throwingTest<XmlElement>(
@@ -579,7 +595,7 @@ void main() {
       (node) => node.children[2] = XmlText(' World'),
       throwsRangeError,
     );
-    final wrong = XmlAttribute(XmlName('invalid'), 'invalid');
+    final wrong = XmlAttribute(const XmlName('invalid'), 'invalid');
     throwingTest<XmlDocument>(
       'element (attribute children)',
       '<element1><element2/></element1>',
@@ -627,7 +643,7 @@ void main() {
       'element (attribute children)',
       '<element>Hello World</element>',
       (node) {
-        final wrong = XmlAttribute(XmlName('invalid'), 'invalid');
+        final wrong = XmlAttribute(const XmlName('invalid'), 'invalid');
         node.children.remove(wrong);
       },
       '<element>Hello World</element>',
@@ -764,7 +780,7 @@ void main() {
       'element (attributes)',
       '<element attr1="value1" attr2="value2"/>',
       (node) => node.attributes.setRange(0, 1, [
-        XmlAttribute(XmlName('attr3'), 'value3'),
+        XmlAttribute(const XmlName('attr3'), 'value3'),
       ]),
       '<element attr3="value3" attr2="value2"/>',
     );
@@ -772,25 +788,26 @@ void main() {
       'element (attribute range error)',
       '<element attr1="value1" attr2="value2"/>',
       (node) => node.attributes.setRange(0, 3, [
-        XmlAttribute(XmlName('attr3'), 'value3'),
-        XmlAttribute(XmlName('attr4'), 'value4'),
-        XmlAttribute(XmlName('attr5'), 'value5'),
+        XmlAttribute(const XmlName('attr3'), 'value3'),
+        XmlAttribute(const XmlName('attr4'), 'value4'),
+        XmlAttribute(const XmlName('attr5'), 'value5'),
       ]),
       throwsRangeError,
     );
     mutatingTest<XmlElement>(
       'element (children)',
       '<element1><element2/><element3/></element1>',
-      (node) => node.children.setRange(1, 2, [XmlElement(XmlName('element4'))]),
+      (node) =>
+          node.children.setRange(1, 2, [XmlElement(const XmlName('element4'))]),
       '<element1><element2/><element4/></element1>',
     );
     throwingTest<XmlElement>(
       'element (children range error)',
       '<element1><element2/><element3/></element1>',
       (node) => node.children.setRange(0, 3, [
-        XmlElement(XmlName('element4')),
-        XmlElement(XmlName('element5')),
-        XmlElement(XmlName('element6')),
+        XmlElement(const XmlName('element4')),
+        XmlElement(const XmlName('element5')),
+        XmlElement(const XmlName('element6')),
       ]),
       throwsRangeError,
     );
@@ -805,14 +822,14 @@ void main() {
     mutatingTest<XmlElement>(
       'element text with node',
       '<element>child</element>',
-      (node) => node.firstChild!.replace(XmlElement(XmlName('child'))),
+      (node) => node.firstChild!.replace(XmlElement(const XmlName('child'))),
       '<element><child/></element>',
     );
     mutatingTest<XmlElement>(
       'element attribute with attribute',
       '<element attr1="value1"/>',
       (node) => node.attributes.first.replace(
-        XmlAttribute(XmlName('attr2'), 'value2'),
+        XmlAttribute(const XmlName('attr2'), 'value2'),
       ),
       '<element attr2="value2"/>',
     );
@@ -834,8 +851,8 @@ void main() {
       '<element><child/></element>',
       (node) => node.firstChild!.replace(
         XmlDocumentFragment([
-          XmlElement(XmlName('child1')),
-          XmlElement(XmlName('child2')),
+          XmlElement(const XmlName('child1')),
+          XmlElement(const XmlName('child2')),
         ]),
       ),
       '<element><child1/><child2/></element>',
@@ -845,8 +862,8 @@ void main() {
       '<element>before<child/>after</element>',
       (node) => node.children[1].replace(
         XmlDocumentFragment([
-          XmlElement(XmlName('child1')),
-          XmlElement(XmlName('child2')),
+          XmlElement(const XmlName('child1')),
+          XmlElement(const XmlName('child2')),
         ]),
       ),
       '<element>before<child1/><child2/>after</element>',
@@ -857,7 +874,7 @@ void main() {
       'element (attributes)',
       '<element attr1="value1" attr2="value2"/>',
       (node) => node.attributes.replaceRange(0, 1, [
-        XmlAttribute(XmlName('attr3'), 'value3'),
+        XmlAttribute(const XmlName('attr3'), 'value3'),
       ]),
       '<element attr3="value3" attr2="value2"/>',
     );
@@ -865,26 +882,27 @@ void main() {
       'element (attribute range error)',
       '<element attr1="value1" attr2="value2"/>',
       (node) => node.attributes.replaceRange(0, 3, [
-        XmlAttribute(XmlName('attr3'), 'value3'),
-        XmlAttribute(XmlName('attr4'), 'value4'),
-        XmlAttribute(XmlName('attr5'), 'value5'),
+        XmlAttribute(const XmlName('attr3'), 'value3'),
+        XmlAttribute(const XmlName('attr4'), 'value4'),
+        XmlAttribute(const XmlName('attr5'), 'value5'),
       ]),
       throwsRangeError,
     );
     mutatingTest<XmlElement>(
       'element (children)',
       '<element1><element2/><element3/></element1>',
-      (node) =>
-          node.children.replaceRange(1, 2, [XmlElement(XmlName('element4'))]),
+      (node) => node.children.replaceRange(1, 2, [
+        XmlElement(const XmlName('element4')),
+      ]),
       '<element1><element2/><element4/></element1>',
     );
     throwingTest<XmlElement>(
       'element (children range error)',
       '<element1><element2/><element3/></element1>',
       (node) => node.children.replaceRange(0, 3, [
-        XmlElement(XmlName('element4')),
-        XmlElement(XmlName('element5')),
-        XmlElement(XmlName('element6')),
+        XmlElement(const XmlName('element4')),
+        XmlElement(const XmlName('element5')),
+        XmlElement(const XmlName('element6')),
       ]),
       throwsRangeError,
     );
