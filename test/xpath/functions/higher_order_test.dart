@@ -1,9 +1,10 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
+import 'package:xml/src/xpath/evaluation/functions.dart';
 import 'package:xml/src/xpath/functions/higher_order.dart';
-import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/src/xpath/types/string.dart';
 import 'package:xml/xml.dart';
+import 'package:xml/xpath.dart';
 
 import '../../utils/matchers.dart';
 
@@ -128,14 +129,39 @@ void main() {
       isXPathSequence(['a1', 'b2', 'c3']),
     );
   });
-  test('fn:function-lookup', () {
-    expect(
-      () => fnFunctionLookup(context, [
-        const XPathSequence.single('name'),
+  group('fn:function-lookup', () {
+    test('known function by prefixed name', () {
+      final lookupContext = context.copy(functions: standardFunctions);
+      final result = fnFunctionLookup(lookupContext, [
+        const XPathSequence.single('fn:abs'),
         const XPathSequence.single(1),
-      ]),
-      throwsA(isA<UnimplementedError>()),
-    );
+      ]);
+      expect(result.length, 1);
+      expect(result.first, isA<XPathFunction>());
+    });
+    test('known function by short name', () {
+      final lookupContext = context.copy(functions: standardFunctions);
+      final result = fnFunctionLookup(lookupContext, [
+        const XPathSequence.single('abs'),
+        const XPathSequence.single(1),
+      ]);
+      expect(result.length, 1);
+      expect(result.first, isA<XPathFunction>());
+    });
+    test('unknown function returns empty', () {
+      final lookupContext = context.copy(functions: standardFunctions);
+      final result = fnFunctionLookup(lookupContext, [
+        const XPathSequence.single('nonexistent'),
+        const XPathSequence.single(1),
+      ]);
+      expect(result, isEmpty);
+    });
+    test('integration via xpathEvaluate', () {
+      expect(
+        document.xpathEvaluate('function-lookup("fn:abs", 1)(-42)'),
+        isXPathSequence([42]),
+      );
+    });
   });
   test('fn:function-name', () {
     expect(

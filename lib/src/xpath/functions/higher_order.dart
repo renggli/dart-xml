@@ -1,6 +1,7 @@
 import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
+import '../exceptions/evaluation_exception.dart';
 import '../operators/comparison.dart';
 import '../types/any.dart';
 import '../types/array.dart';
@@ -279,7 +280,11 @@ const fnFunctionLookup = XPathFunctionDefinition(
 );
 
 XPathSequence _fnFunctionLookup(XPathContext context, String name, num arity) {
-  throw UnimplementedError('fn:function-lookup');
+  try {
+    return XPathSequence.single(context.getFunction(name));
+  } on XPathEvaluationException {
+    return XPathSequence.empty;
+  }
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-load-xquery-module

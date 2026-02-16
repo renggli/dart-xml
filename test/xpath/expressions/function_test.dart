@@ -1,10 +1,12 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
+import 'package:xml/src/xpath/evaluation/functions.dart';
 import 'package:xml/src/xpath/expressions/function.dart';
 import 'package:xml/src/xpath/expressions/variable.dart';
 import 'package:xml/src/xpath/types/function.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/xml.dart';
+
 import '../../utils/matchers.dart';
 import '../helpers.dart';
 
@@ -76,6 +78,16 @@ void main() {
               ).first
               as XPathFunction;
       expect(function(context, []), result);
+    });
+    test('evaluate with standard functions', () {
+      const expr = NamedFunctionExpression('fn:abs');
+      final function =
+          expr(context.copy(functions: standardFunctions)).first
+              as XPathFunction;
+      expect(
+        function(context, [const XPathSequence.single(-42)]),
+        isXPathSequence([42]),
+      );
     });
   });
   group('ArrowExpression', () {
