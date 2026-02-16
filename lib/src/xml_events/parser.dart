@@ -265,7 +265,7 @@ class XmlEventParser {
 
   Parser<String> qualifiedNameToken() => seq2(
     ref0(nonColonizedNameToken),
-    seq2(char(':'), ref0(nonColonizedNameToken)).optional(),
+    seq2(char(XmlToken.namespace), ref0(nonColonizedNameToken)).optional(),
   ).flatten(message: 'qualified name expected');
 
   Parser<String> nonColonizedNameToken() => seq2(
@@ -273,11 +273,15 @@ class XmlEventParser {
     ref0(nonColonizedChar).star(),
   ).flatten(message: 'non-colonized name expected');
 
-  Parser<String> nonColonizedStartChar() =>
-      pattern(XmlToken.nameStartChars.replaceFirst(':', ''), unicode: true);
+  Parser<String> nonColonizedStartChar() => pattern(
+    XmlToken.nameStartChars.replaceFirst(XmlToken.namespace, ''),
+    unicode: true,
+  );
 
-  Parser<String> nonColonizedChar() =>
-      pattern(XmlToken.nameChars.replaceFirst(':', ''), unicode: true);
+  Parser<String> nonColonizedChar() => pattern(
+    XmlToken.nameChars.replaceFirst(XmlToken.namespace, ''),
+    unicode: true,
+  );
 
   Parser<String> nameToken() => seq2(
     ref0(nameStartChar),
