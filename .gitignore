@@ -1,4 +1,5 @@
 *.iml
+.*.md
 .DS_Store
 .qt3tests/
 .dart_tool/

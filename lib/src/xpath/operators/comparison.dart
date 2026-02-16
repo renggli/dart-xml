@@ -25,22 +25,21 @@ XPathSequence opValueNotEqual(XPathSequence left, XPathSequence right) {
 
 /// https://www.w3.org/TR/xpath-31/#id-value-comparisons
 XPathSequence opValueLessThan(XPathSequence left, XPathSequence right) =>
-    _compareValue(left, right, (a, b) => a < b, (a, b) => a.compareTo(b) < 0);
+    _compareValue(left, right, (c) => c < 0);
 
 /// https://www.w3.org/TR/xpath-31/#id-value-comparisons
 XPathSequence opValueLessThanOrEqual(XPathSequence left, XPathSequence right) =>
-    _compareValue(left, right, (a, b) => a <= b, (a, b) => a.compareTo(b) <= 0);
+    _compareValue(left, right, (c) => c <= 0);
 
 /// https://www.w3.org/TR/xpath-31/#id-value-comparisons
 XPathSequence opValueGreaterThan(XPathSequence left, XPathSequence right) =>
-    _compareValue(left, right, (a, b) => a > b, (a, b) => a.compareTo(b) > 0);
+    _compareValue(left, right, (c) => c > 0);
 
 /// https://www.w3.org/TR/xpath-31/#id-value-comparisons
 XPathSequence opValueGreaterThanOrEqual(
   XPathSequence left,
   XPathSequence right,
-) =>
-    _compareValue(left, right, (a, b) => a >= b, (a, b) => a.compareTo(b) >= 0);
+) => _compareValue(left, right, (c) => c >= 0);
 
 Object? _atomizeSingle(XPathSequence seq) {
   final data = _atomize(seq);
@@ -64,20 +63,12 @@ Iterable<Object> _atomize(XPathSequence seq) => seq.expand((item) {
 XPathSequence _compareValue(
   XPathSequence left,
   XPathSequence right,
-  bool Function(num, num) numComparator,
-  bool Function(String, String) stringComparator,
+  bool Function(int) test,
 ) {
   final item1 = _atomizeSingle(left);
   final item2 = _atomizeSingle(right);
   if (item1 == null || item2 == null) return XPathSequence.empty;
-
-  if (item1 is num && item2 is num) {
-    return XPathSequence.single(numComparator(item1, item2));
-  } else if (item1 is String && item2 is String) {
-    return XPathSequence.single(stringComparator(item1, item2));
-  } else {
-    throw XPathEvaluationException('Cannot compare $item1 and $item2');
-  }
+  return XPathSequence.single(test(compare(item1, item2)));
 }
 
 /// Compares two XPath values.
