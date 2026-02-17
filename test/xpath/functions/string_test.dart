@@ -428,6 +428,101 @@ void main() {
         isXPathSequence([true]),
       );
     });
+    test('regex \\i and \\I escapes', () {
+      // \i matches XML name start characters (letters, _, :)
+      expect(
+        fnMatches(context, [
+          const XPathSequence.single('a'),
+          const XPathSequence.single(r'^\i$'),
+        ]),
+        isXPathSequence([true]),
+      );
+      expect(
+        fnMatches(context, [
+          const XPathSequence.single('_'),
+          const XPathSequence.single(r'^\i$'),
+        ]),
+        isXPathSequence([true]),
+      );
+      expect(
+        fnMatches(context, [
+          const XPathSequence.single('1'),
+          const XPathSequence.single(r'^\i$'),
+        ]),
+        isXPathSequence([false]),
+      );
+      // \I matches non-name-start characters
+      expect(
+        fnMatches(context, [
+          const XPathSequence.single('1'),
+          const XPathSequence.single(r'^\I$'),
+        ]),
+        isXPathSequence([true]),
+      );
+      expect(
+        fnMatches(context, [
+          const XPathSequence.single('a'),
+          const XPathSequence.single(r'^\I$'),
+        ]),
+        isXPathSequence([false]),
+      );
+    });
+    test('regex \\c and \\C escapes', () {
+      // \c matches XML name characters (letters, digits, ., -, _, :)
+      expect(
+        fnMatches(context, [
+          const XPathSequence.single('a'),
+          const XPathSequence.single(r'^\c$'),
+        ]),
+        isXPathSequence([true]),
+      );
+      expect(
+        fnMatches(context, [
+          const XPathSequence.single('1'),
+          const XPathSequence.single(r'^\c$'),
+        ]),
+        isXPathSequence([true]),
+      );
+      expect(
+        fnMatches(context, [
+          const XPathSequence.single('-'),
+          const XPathSequence.single(r'^\c$'),
+        ]),
+        isXPathSequence([true]),
+      );
+      expect(
+        fnMatches(context, [
+          const XPathSequence.single(' '),
+          const XPathSequence.single(r'^\c$'),
+        ]),
+        isXPathSequence([false]),
+      );
+      // \C matches non-name characters
+      expect(
+        fnMatches(context, [
+          const XPathSequence.single(' '),
+          const XPathSequence.single(r'^\C$'),
+        ]),
+        isXPathSequence([true]),
+      );
+    });
+    test('character class subtraction', () {
+      // [a-z-[aeiou]] matches consonants only
+      expect(
+        fnMatches(context, [
+          const XPathSequence.single('b'),
+          const XPathSequence.single(r'^[a-z-[aeiou]]$'),
+        ]),
+        isXPathSequence([true]),
+      );
+      expect(
+        fnMatches(context, [
+          const XPathSequence.single('a'),
+          const XPathSequence.single(r'^[a-z-[aeiou]]$'),
+        ]),
+        isXPathSequence([false]),
+      );
+    });
   });
   group('integration', () {
     final xml = XmlDocument.parse('<r><a>1</a><b>2<c/>3</b></r>');

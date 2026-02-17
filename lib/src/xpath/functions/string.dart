@@ -1,3 +1,4 @@
+import '../../xml/utils/cache.dart';
 import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
@@ -6,8 +7,6 @@ import '../types/any.dart';
 import '../types/number.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
-
-// import 'package:xml/src/xpath/types/string.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-codepoints-to-string
 const fnCodepointsToString = XPathFunctionDefinition(
@@ -245,7 +244,7 @@ const fnNormalizeSpace = XPathFunctionDefinition(
 
 XPathSequence _fnNormalizeSpace(XPathContext context, [Object? arg]) {
   final string = arg != null ? xsString.cast(arg) : xsString.cast(context.item);
-  return XPathSequence.single(string.trim().replaceAll(RegExp(r'\s+'), ' '));
+  return XPathSequence.single(string.trim().replaceAll(_whitespaceRegExp, ' '));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-normalize-unicode
@@ -548,7 +547,7 @@ XPathSequence _fnMatches(
   String? flags,
 ]) {
   if (input == null) return XPathSequence.falseSequence;
-  final regex = _compileRegex(pattern, flags);
+  final regex = _regexpCache[(pattern: pattern, flags: flags)];
   return XPathSequence.single(regex.hasMatch(input));
 }
 
@@ -577,7 +576,7 @@ XPathSequence _fnReplace(
   String? flags,
 ]) {
   if (input == null) return XPathSequence.emptyString;
-  final regex = _compileRegex(pattern, flags);
+  final regex = _regexpCache[(pattern: pattern, flags: flags)];
   return XPathSequence.single(input.replaceAll(regex, replacement));
 }
 
@@ -607,9 +606,9 @@ XPathSequence _fnTokenize(
 ]) {
   if (input == null) return XPathSequence.empty;
   if (pattern == null) {
-    return XPathSequence<String>(input.trim().split(_compileRegex(r'\s+', '')));
+    return XPathSequence<String>(input.trim().split(_whitespaceRegExp));
   }
-  final regex = _compileRegex(pattern, flags);
+  final regex = _regexpCache[(pattern: pattern, flags: flags)];
   return XPathSequence<String>(input.split(regex));
 }
 
@@ -684,9 +683,16 @@ XPathSequence _fnContainsToken(
   String? collation,
 ]) {
   if (input == null) return XPathSequence.falseSequence;
-  final tokens = input.trim().split(RegExp(r'\s+'));
+  final tokens = input.trim().split(_whitespaceRegExp);
   return XPathSequence.single(tokens.contains(token.trim()));
 }
+
+final _whitespaceRegExp = RegExp(r'\s+');
+
+final _regexpCache = XmlCache<({String pattern, String? flags}), RegExp>(
+  (args) => _compileRegex(args.pattern, args.flags),
+  25,
+);
 
 RegExp _compileRegex(String pattern, String? flags) {
   var isMultiLine = false;
@@ -711,12 +717,42 @@ RegExp _compileRegex(String pattern, String? flags) {
   }
   try {
     return RegExp(
-      isLiteral ? RegExp.escape(pattern) : pattern,
+      isLiteral ? RegExp.escape(pattern) : _translateXPathRegex(pattern),
       multiLine: isMultiLine,
       caseSensitive: isCaseSensitive,
       dotAll: isDotAll,
+      unicode: true,
     );
   } on FormatException catch (error) {
     throw XPathEvaluationException('Invalid regex: ${error.message}');
   }
+}
+
+// Regex matching character class subtraction: `[X-[Y]]`.
+final _charClassSubtraction = RegExp(
+  r'\[(\^?)' // opening `[` with optional negation
+  r'((?:[^\]\\]|\\.)*)' // base class content
+  r'-\[(\^?)' // subtraction `-[` with optional negation
+  r'((?:[^\]\\]|\\.)*)' // subtracted class content
+  r'\]\]', // closing `]]`
+);
+
+// Translates XPath/XML-Schema regex constructs to Dart-compatible regex.
+//
+// Handles:
+// - `\i` / `\I`: XML name start character class (and its negation)
+// - `\c` / `\C`: XML name character class (and its negation)
+// - Character class subtraction: `[X-[Y]]` → `(?:(?![Y])[X])`
+String _translateXPathRegex(String pattern) {
+  // Character class subtraction: [X-[Y]] → (?:(?![Y])[X])
+  pattern = pattern.replaceAllMapped(
+    _charClassSubtraction,
+    (m) => '(?:(?![${m[3]}${m[4]}])[${m[1]}${m[2]}])',
+  );
+  // XML character class escapes.
+  return pattern
+      .replaceAll(r'\i', r'[\p{L}_:]')
+      .replaceAll(r'\I', r'[^\p{L}_:]')
+      .replaceAll(r'\c', r'[\p{L}\p{N}.\-_:\p{M}]')
+      .replaceAll(r'\C', r'[^\p{L}\p{N}.\-_:\p{M}]');
 }
