@@ -140,5 +140,69 @@ void main() {
       expectEvaluate(xml, '(2 + 3) * 4', [20]);
       expectEvaluate(xml, '2 * (3 + 4)', [14]);
     });
+    test('dateTime + duration', () {
+      expectEvaluate(
+        xml,
+        'xs:dateTime("2000-01-01T00:00:00") + xs:dayTimeDuration("P1D")',
+        [DateTime(2000, 1, 2)],
+      );
+    });
+    test('duration + dateTime', () {
+      expectEvaluate(
+        xml,
+        'xs:dayTimeDuration("P1D") + xs:dateTime("2000-01-01T00:00:00")',
+        [DateTime(2000, 1, 2)],
+      );
+    });
+    test('dateTime - duration', () {
+      expectEvaluate(
+        xml,
+        'xs:dateTime("2000-01-02T00:00:00") - xs:dayTimeDuration("P1D")',
+        [DateTime(2000)],
+      );
+    });
+    test('dateTime - dateTime', () {
+      expectEvaluate(
+        xml,
+        'xs:dateTime("2000-01-02T00:00:00") - xs:dateTime("2000-01-01T00:00:00")',
+        [const Duration(days: 1)],
+      );
+    });
+    test('duration + duration', () {
+      expectEvaluate(
+        xml,
+        'xs:dayTimeDuration("P1D") + xs:dayTimeDuration("P2D")',
+        [const Duration(days: 3)],
+      );
+    });
+    test('duration - duration', () {
+      expectEvaluate(
+        xml,
+        'xs:dayTimeDuration("P3D") - xs:dayTimeDuration("P1D")',
+        [const Duration(days: 2)],
+      );
+    });
+    test('duration * number', () {
+      expectEvaluate(xml, 'xs:dayTimeDuration("P1D") * 3', [
+        const Duration(days: 3),
+      ]);
+    });
+    test('number * duration', () {
+      expectEvaluate(xml, '3 * xs:dayTimeDuration("P1D")', [
+        const Duration(days: 3),
+      ]);
+    });
+    test('duration div number', () {
+      expectEvaluate(xml, 'xs:dayTimeDuration("P6D") div 2', [
+        const Duration(days: 3),
+      ]);
+    });
+    test('duration div duration', () {
+      expectEvaluate(
+        xml,
+        'xs:dayTimeDuration("P6D") div xs:dayTimeDuration("P2D")',
+        [3.0],
+      );
+    });
   });
 }

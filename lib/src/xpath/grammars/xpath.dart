@@ -197,14 +197,10 @@ class XPathGrammar {
           final op = list.separators[i - 1];
           final right = list.elements[i];
           if (op == '+') {
-            result = BinaryOperatorExpression(
-              arithmetic.opNumericAdd,
-              result,
-              right,
-            );
+            result = BinaryOperatorExpression(arithmetic.opAdd, result, right);
           } else {
             result = BinaryOperatorExpression(
-              arithmetic.opNumericSubtract,
+              arithmetic.opSubtract,
               result,
               right,
             );
@@ -230,13 +226,13 @@ class XPathGrammar {
           final right = list.elements[i];
           if (op == '*') {
             result = BinaryOperatorExpression(
-              arithmetic.opNumericMultiply,
+              arithmetic.opMultiply,
               result,
               right,
             );
           } else if (op == 'div') {
             result = BinaryOperatorExpression(
-              arithmetic.opNumericDivide,
+              arithmetic.opDivide,
               result,
               right,
             );
