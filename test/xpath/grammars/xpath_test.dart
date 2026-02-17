@@ -194,9 +194,6 @@ void main() {
     // implemented. These tests are supposed to throw an `UnimplementedError`,
     // and not succeed or give a parse failure.
     final cases = {
-      '1 is 2': 'NodeComp (is)',
-      '1 << 2': 'NodeComp (<<)',
-      '1 >> 2': 'NodeComp (>>)',
       'namespace::foo': 'NamespaceAxis',
       '[4, 5, 6]?2': 'Lookup',
       '\$map[?name="Mike"]': 'UnaryLookup',

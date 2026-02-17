@@ -1,10 +1,10 @@
 import 'package:test/test.dart';
-
 import 'package:xml/src/xpath/operators/node.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
+import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 void main() {
@@ -31,6 +31,47 @@ void main() {
       final a = doc.findAllElements('a').single;
       final b = doc.findAllElements('b').single;
       expect(opExcept(XPathSequence([a, b]), XPathSequence.single(a)), [b]);
+    });
+    test('op:node-is', () {
+      final doc = XmlDocument.parse('<r><a/><b/></r>');
+      final a = doc.findAllElements('a').single;
+      final b = doc.findAllElements('b').single;
+      expect(
+        opNodeIs(XPathSequence.single(a), XPathSequence.single(a)),
+        isXPathSequence([true]),
+      );
+      expect(
+        opNodeIs(XPathSequence.single(a), XPathSequence.single(b)),
+        isXPathSequence([false]),
+      );
+      // Empty sequence returns empty.
+      expect(opNodeIs(XPathSequence.empty, XPathSequence.single(a)), isEmpty);
+    });
+    test('op:node-precedes', () {
+      final doc = XmlDocument.parse('<r><a/><b/></r>');
+      final a = doc.findAllElements('a').single;
+      final b = doc.findAllElements('b').single;
+      expect(
+        opNodePrecedes(XPathSequence.single(a), XPathSequence.single(b)),
+        isXPathSequence([true]),
+      );
+      expect(
+        opNodePrecedes(XPathSequence.single(b), XPathSequence.single(a)),
+        isXPathSequence([false]),
+      );
+    });
+    test('op:node-follows', () {
+      final doc = XmlDocument.parse('<r><a/><b/></r>');
+      final a = doc.findAllElements('a').single;
+      final b = doc.findAllElements('b').single;
+      expect(
+        opNodeFollows(XPathSequence.single(b), XPathSequence.single(a)),
+        isXPathSequence([true]),
+      );
+      expect(
+        opNodeFollows(XPathSequence.single(a), XPathSequence.single(b)),
+        isXPathSequence([false]),
+      );
     });
   });
   group('integration', () {
@@ -67,6 +108,22 @@ void main() {
       expectEvaluate(xml, '(r/a) | (r/a)', [children[0]]);
       expectEvaluate(xml, '(r/a) | (r/c)', [children[0], children[2]]);
       expectEvaluate(xml, '(r/c) | (r/a)', [children[0], children[2]]);
+    });
+    test('is', () {
+      final xml = XmlDocument.parse('<r><a/><b/></r>');
+      expectEvaluate(xml, 'r/a is r/a', [true]);
+      expectEvaluate(xml, 'r/a is r/b', [false]);
+      expectEvaluate(xml, '() is r/a', isEmpty);
+    });
+    test('<<', () {
+      final xml = XmlDocument.parse('<r><a/><b/></r>');
+      expectEvaluate(xml, 'r/a << r/b', [true]);
+      expectEvaluate(xml, 'r/b << r/a', [false]);
+    });
+    test('>>', () {
+      final xml = XmlDocument.parse('<r><a/><b/></r>');
+      expectEvaluate(xml, 'r/b >> r/a', [true]);
+      expectEvaluate(xml, 'r/a >> r/b', [false]);
     });
   });
 }

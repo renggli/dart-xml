@@ -395,10 +395,10 @@ class XPathGrammar {
 
   // https://www.w3.org/TR/xpath-30/#prod-xpath30-NodeComp
   Parser<XPathBinaryOperator> nodeComp() => [
-    token('is'),
-    token('<<'),
-    token('>>'),
-  ].toChoiceParser().map((op) => _unimplemented('NodeComp', op));
+    token('is').constant(nodes.opNodeIs),
+    token('<<').constant(nodes.opNodePrecedes),
+    token('>>').constant(nodes.opNodeFollows),
+  ].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-SimpleMapExpr
   Parser<XPathExpression> simpleMapExpr() => ref0(pathExpr)

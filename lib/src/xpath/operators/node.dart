@@ -26,3 +26,32 @@ XPathSequence _nodeSetOperation(
   result.sort((a, b) => a.compareNodePosition(b));
   return XPathSequence(result);
 }
+
+/// https://www.w3.org/TR/xpath-31/#id-node-comparisons
+XPathSequence opNodeIs(XPathSequence left, XPathSequence right) {
+  final node1 = _singleNodeOrNull(left);
+  final node2 = _singleNodeOrNull(right);
+  if (node1 == null || node2 == null) return XPathSequence.empty;
+  return XPathSequence.single(identical(node1, node2));
+}
+
+/// https://www.w3.org/TR/xpath-31/#id-node-comparisons
+XPathSequence opNodePrecedes(XPathSequence left, XPathSequence right) {
+  final node1 = _singleNodeOrNull(left);
+  final node2 = _singleNodeOrNull(right);
+  if (node1 == null || node2 == null) return XPathSequence.empty;
+  return XPathSequence.single(node1.compareNodePosition(node2) < 0);
+}
+
+/// https://www.w3.org/TR/xpath-31/#id-node-comparisons
+XPathSequence opNodeFollows(XPathSequence left, XPathSequence right) {
+  final node1 = _singleNodeOrNull(left);
+  final node2 = _singleNodeOrNull(right);
+  if (node1 == null || node2 == null) return XPathSequence.empty;
+  return XPathSequence.single(node1.compareNodePosition(node2) > 0);
+}
+
+XmlNode? _singleNodeOrNull(XPathSequence seq) {
+  if (seq.isEmpty) return null;
+  return xsNode.cast(seq.single);
+}
