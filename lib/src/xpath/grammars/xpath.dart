@@ -11,6 +11,7 @@ import '../evaluation/types.dart';
 import '../expressions/axis.dart';
 import '../expressions/constructors.dart';
 import '../expressions/function.dart';
+import '../expressions/lookup.dart';
 import '../expressions/node_test.dart';
 import '../expressions/operators.dart';
 import '../expressions/path.dart';
@@ -567,24 +568,26 @@ class XPathGrammar {
             result = PredicateExpression(result, postfix);
           } else if (postfix is List<XPathExpression>) {
             result = FunctionCallExpression(result, postfix);
-          } else {
-            return _unimplemented('Postfix', postfix);
+          } else if (postfix is _LookupKey) {
+            result = LookupExpression(result, postfix.key);
           }
         }
         return result;
       });
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-Lookup
-  Parser<XPathExpression> lookup() =>
-      seq2(token('?'), ref0(keySpecifier)).map((_) => _unimplemented('Lookup'));
+  Parser<_LookupKey> lookup() =>
+      seq2(token('?'), ref0(keySpecifier)).map2((_, key) => _LookupKey(key));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-KeySpecifier
-  Parser<void> keySpecifier() => [
-    ref0(ncName),
-    ref0(integerLiteral),
+  Parser<XPathExpression?> keySpecifier() => [
+    ref0(ncName).map((name) => LiteralExpression(XPathSequence.single(name))),
+    ref0(
+      integerLiteral,
+    ).map((value) => LiteralExpression(XPathSequence.single(value))),
     ref0(parenthesizedExpr),
-    token('*'),
-  ].toChoiceParser();
+    token('*').constant(null),
+  ].toChoiceParser().cast<XPathExpression?>();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ArgumentList
   Parser<List<XPathExpression>> argumentList() => ref0(argument)
@@ -735,7 +738,7 @@ class XPathGrammar {
   Parser<XPathExpression> unaryLookup() => seq2(
     token('?'),
     ref0(keySpecifier),
-  ).map((_) => _unimplemented('UnaryLookup'));
+  ).map2((_, key) => UnaryLookupExpression(key));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-NamedFunctionRef
   Parser<XPathExpression> namedFunctionRef() => seq3(
@@ -1079,3 +1082,11 @@ const _reservedFunctionNames = {
   'text',
   'typeswitch',
 };
+
+/// A helper wrapping a key specifier for the lookup postfix.
+class _LookupKey {
+  const _LookupKey(this.key);
+
+  /// The key specifier expression, or `null` for wildcard (`?*`).
+  final XPathExpression? key;
+}

@@ -195,8 +195,6 @@ void main() {
     // and not succeed or give a parse failure.
     final cases = {
       'namespace::foo': 'NamespaceAxis',
-      '[4, 5, 6]?2': 'Lookup',
-      '\$map[?name="Mike"]': 'UnaryLookup',
       'namespace-node()': 'NamespaceNodeTest',
       'attribute(*)': 'AttributeTest',
       'schema-attribute(foo)': 'SchemaAttributeTest',
