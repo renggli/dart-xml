@@ -38,6 +38,15 @@ class _XPathDurationType extends XPathType<Duration> {
     if (match == null) {
       throw XPathEvaluationException.unsupportedCast(this, value);
     }
+    // Reject empty durations where no components are present (e.g. "P" or "PT").
+    if (match.group(2) == null &&
+        match.group(3) == null &&
+        match.group(4) == null &&
+        match.group(5) == null &&
+        match.group(6) == null &&
+        match.group(7) == null) {
+      throw XPathEvaluationException.unsupportedCast(this, value);
+    }
     final negative = match.group(1) == '-';
     final years = int.tryParse(match.group(2) ?? '0') ?? 0;
     final months = int.tryParse(match.group(3) ?? '0') ?? 0;

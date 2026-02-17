@@ -47,23 +47,54 @@ class _XPathDateTimeType extends XPathType<DateTime> {
     final dateMatch = _dateRegExp.firstMatch(value);
     if (dateMatch != null) {
       final year = dateMatch.group(1)!;
-      final month = dateMatch.group(2)!;
-      final day = dateMatch.group(3)!;
+      final month = int.parse(dateMatch.group(2)!);
+      final day = int.parse(dateMatch.group(3)!);
       final timezone = dateMatch.group(4) ?? '';
-      return DateTime.parse('$year-$month-${day}T00:00:00$timezone');
+      _validateDate(month, day);
+      return DateTime.parse(
+        '$year-${_pad(month)}-${_pad(day)}T00:00:00$timezone',
+      );
     }
     // Handle xs:time format: HH:MM:SS with optional timezone
     // Examples: 00:00:00Z, 13:20:00+05:00, 12:01:01.123
     final timeMatch = _timeRegExp.firstMatch(value);
     if (timeMatch != null) {
-      final hour = timeMatch.group(1)!;
-      final minute = timeMatch.group(2)!;
-      final second = timeMatch.group(3)!;
+      final hour = int.parse(timeMatch.group(1)!);
+      final minute = int.parse(timeMatch.group(2)!);
+      final secondStr = timeMatch.group(3)!;
+      final second = double.parse(secondStr);
       final timezone = timeMatch.group(4) ?? '';
-      return DateTime.parse('1970-01-01T$hour:$minute:$second$timezone');
+      _validateTime(hour, minute, second);
+      return DateTime.parse(
+        '1970-01-01T${_pad(hour)}:${_pad(minute)}:'
+        '$secondStr$timezone',
+      );
     }
     throw XPathEvaluationException.unsupportedCast(this, value);
   }
+
+  void _validateDate(int month, int day) {
+    if (month < 1 || month > 12) {
+      throw XPathEvaluationException('Invalid month: $month');
+    }
+    if (day < 1 || day > 31) {
+      throw XPathEvaluationException('Invalid day: $day');
+    }
+  }
+
+  void _validateTime(int hour, int minute, double second) {
+    if (hour > 23) {
+      throw XPathEvaluationException('Invalid hour: $hour');
+    }
+    if (minute > 59) {
+      throw XPathEvaluationException('Invalid minute: $minute');
+    }
+    if (second >= 60) {
+      throw XPathEvaluationException('Invalid second: $second');
+    }
+  }
+
+  String _pad(int value) => value.toString().padLeft(2, '0');
 }
 
 final _dateRegExp = RegExp(r'^(-?\d{4,})-(\d{2})-(\d{2})(Z|[+-]\d{2}:\d{2})?$');

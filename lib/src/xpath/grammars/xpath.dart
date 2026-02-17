@@ -568,7 +568,7 @@ class XPathGrammar {
             result = PredicateExpression(result, postfix);
           } else if (postfix is List<XPathExpression>) {
             result = FunctionCallExpression(result, postfix);
-          } else if (postfix is _LookupKey) {
+          } else if (postfix is LookupKey) {
             result = LookupExpression(result, postfix.key);
           }
         }
@@ -576,8 +576,8 @@ class XPathGrammar {
       });
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-Lookup
-  Parser<_LookupKey> lookup() =>
-      seq2(token('?'), ref0(keySpecifier)).map2((_, key) => _LookupKey(key));
+  Parser<LookupKey> lookup() =>
+      seq2(token('?'), ref0(keySpecifier)).map2((_, key) => LookupKey(key));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-KeySpecifier
   Parser<XPathExpression?> keySpecifier() => [
@@ -1082,11 +1082,3 @@ const _reservedFunctionNames = {
   'text',
   'typeswitch',
 };
-
-/// A helper wrapping a key specifier for the lookup postfix.
-class _LookupKey {
-  const _LookupKey(this.key);
-
-  /// The key specifier expression, or `null` for wildcard (`?*`).
-  final XPathExpression? key;
-}

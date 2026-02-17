@@ -50,6 +50,14 @@ class UnaryLookupExpression implements XPathExpression {
   }
 }
 
+/// A helper wrapping a key specifier for the lookup postfix.
+class LookupKey {
+  const LookupKey(this.key);
+
+  /// The key specifier expression, or `null` for wildcard (`?*`).
+  final XPathExpression? key;
+}
+
 Iterable<Object> _lookupWildcard(Object item) {
   if (item is XPathMap) {
     return item.values;

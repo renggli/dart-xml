@@ -5,6 +5,7 @@ import 'package:collection/collection.dart';
 import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
+import '../exceptions/evaluation_exception.dart';
 import '../types/any.dart';
 import '../types/number.dart';
 import '../types/sequence.dart';
@@ -24,9 +25,13 @@ const fnNumber = XPathFunctionDefinition(
 );
 
 XPathSequence _fnNumber(XPathContext context, [XPathSequence? arg]) {
-  if (arg == null) return XPathSequence.single(xsNumeric.cast(context.item));
-  if (arg.isEmpty) return const XPathSequence.single(double.nan);
-  return XPathSequence.single(xsNumeric.cast(arg));
+  try {
+    if (arg == null) return XPathSequence.single(xsNumeric.cast(context.item));
+    if (arg.isEmpty) return const XPathSequence.single(double.nan);
+    return XPathSequence.single(xsNumeric.cast(arg));
+  } on XPathEvaluationException {
+    return const XPathSequence.single(double.nan);
+  }
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-abs
