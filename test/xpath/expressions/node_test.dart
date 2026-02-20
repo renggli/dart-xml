@@ -52,9 +52,39 @@ void main() {
     ]);
     expectXPath(document, 'self::*', []);
   });
+  test('element()', () {
+    expectXPath(current, 'element()', [
+      '<e1 a="1"/>',
+      '<e2 b="2"/>',
+      '<ns1:e3/>',
+      '<ns2:e3/>',
+    ]);
+  });
+  test('element(*)', () {
+    expectXPath(current, 'element(*)', [
+      '<e1 a="1"/>',
+      '<e2 b="2"/>',
+      '<ns1:e3/>',
+      '<ns2:e3/>',
+    ]);
+  });
+  test('element(e1)', () {
+    expectXPath(current, 'element(e1)', ['<e1 a="1"/>']);
+  });
+  test('element(ns2:e3)', () {
+    expectXPath(current, 'element(ns2:e3)', ['<ns2:e3/>']);
+  });
   test('attribute()', () {
     expectXPath(current, 'attribute()', []);
     expectXPath(current, '*/@attribute()', ['a="1"', 'b="2"']);
+  });
+  test('attribute(*)', () {
+    expectXPath(current, 'attribute(*)', []);
+    expectXPath(current, '*/@attribute(*)', ['a="1"', 'b="2"']);
+  });
+  test('attribute(a)', () {
+    expectXPath(current, 'attribute(a)', []);
+    expectXPath(current, '*/@attribute(a)', ['a="1"']);
   });
   test('comment()', () {
     expectXPath(current, 'comment()', ['<!--comment-->']);
@@ -70,6 +100,17 @@ void main() {
       '<ns1:e3/>',
       '<ns2:e3/>',
     ]);
+  });
+  test('element(*)', () {
+    expectXPath(current, 'element(*)', [
+      '<e1 a="1"/>',
+      '<e2 b="2"/>',
+      '<ns1:e3/>',
+      '<ns2:e3/>',
+    ]);
+  });
+  test('element(e1)', () {
+    expectXPath(current, 'element(e1)', ['<e1 a="1"/>']);
   });
   test('node()', () {
     expectXPath(current, 'node()', current.children);

@@ -4,16 +4,16 @@ import '../evaluation/context.dart';
 import '../evaluation/expression.dart' show XPathExpression;
 import '../types/node.dart';
 import 'axis.dart';
-import 'node_test.dart';
+import 'node.dart';
 import 'predicate.dart';
 
 @immutable
 class Step {
   const Step(
-    this.axis, [
-    this.nodeTest = const NodeTypeNodeTest(),
+    this.axis, {
+    this.nodeTest = const NodeTypeTest(),
     this.predicates = const [],
-  ]);
+  });
 
   final Axis axis;
   final NodeTest nodeTest;
@@ -56,7 +56,7 @@ class ExpressionStep implements Step {
   Axis get axis => const SelfAxis();
 
   @override
-  NodeTest get nodeTest => const NodeTypeNodeTest();
+  NodeTest get nodeTest => const NodeTypeTest();
 
   @override
   List<Predicate> get predicates => const [];

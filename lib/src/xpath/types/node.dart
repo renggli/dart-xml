@@ -9,6 +9,7 @@ import '../../xml/nodes/processing.dart';
 import '../../xml/nodes/text.dart';
 import '../definitions/type.dart';
 import '../exceptions/evaluation_exception.dart';
+import '../expressions/node.dart';
 import 'sequence.dart';
 
 /// The XPath node type.
@@ -72,4 +73,14 @@ class _XPathTextType extends _XPathNodeType<XmlData> {
 
   @override
   bool matches(Object value) => value is XmlText || value is XmlCDATA;
+}
+
+/// Dynamic type wrapper for the `NodeTest` expressions.
+class NodeTestType extends _XPathNodeType<XmlNode> {
+  const NodeTestType(this.nodeTest, [String name = 'node-test']) : super(name);
+
+  final NodeTest nodeTest;
+
+  @override
+  bool matches(Object value) => value is XmlNode && nodeTest.matches(value);
 }

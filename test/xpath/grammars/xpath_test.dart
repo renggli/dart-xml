@@ -101,7 +101,11 @@ void main() {
         'comment()',
         'processing-instruction()',
         'element()',
+        'element(*)',
         'attribute()',
+        'attribute(*)',
+        'schema-element(foo)',
+        'schema-attribute(foo)',
         'document-node()',
       ],
       'map': ['map { "a": 1, "b": 2 }'],
@@ -196,10 +200,6 @@ void main() {
     final cases = {
       'namespace::foo': 'NamespaceAxis',
       'namespace-node()': 'NamespaceNodeTest',
-      'attribute(*)': 'AttributeTest',
-      'schema-attribute(foo)': 'SchemaAttributeTest',
-      'element(*)': 'ElementTest',
-      'schema-element(foo)': 'SchemaElementTest',
     };
     for (final MapEntry(key: expression, value: name) in cases.entries) {
       test(expression, () {

@@ -6,7 +6,7 @@ import '../evaluation/expression.dart';
 import '../types/node.dart';
 import '../types/sequence.dart';
 import 'axis.dart';
-import 'node_test.dart';
+import 'node.dart';
 import 'step.dart';
 
 class PathExpression implements XPathExpression {
@@ -24,7 +24,7 @@ class PathExpression implements XPathExpression {
       Step? merged;
       final last = optimizedSteps.last;
       if (last.axis is DescendantOrSelfAxis &&
-          last.nodeTest is NodeTypeNodeTest &&
+          last.nodeTest is NodeTypeTest &&
           last.predicates.isEmpty &&
           step.predicates.isEmpty) {
         // Try to merge the '//' step with the next step:
@@ -36,15 +36,15 @@ class PathExpression implements XPathExpression {
           case ChildAxis():
             merged = Step(
               const DescendantAxis(),
-              step.nodeTest,
-              step.predicates,
+              nodeTest: step.nodeTest,
+              predicates: step.predicates,
             );
           // self::x => descendant-or-self::x
           case SelfAxis():
             merged = Step(
               const DescendantOrSelfAxis(),
-              step.nodeTest,
-              step.predicates,
+              nodeTest: step.nodeTest,
+              predicates: step.predicates,
             );
           // descendant::x => descendant::x
           case DescendantAxis():

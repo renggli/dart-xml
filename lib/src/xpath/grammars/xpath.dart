@@ -12,7 +12,8 @@ import '../expressions/axis.dart';
 import '../expressions/constructors.dart';
 import '../expressions/function.dart';
 import '../expressions/lookup.dart';
-import '../expressions/node_test.dart';
+import '../expressions/name.dart';
+import '../expressions/node.dart';
 import '../expressions/operators.dart';
 import '../expressions/path.dart';
 import '../expressions/predicate.dart';
@@ -453,19 +454,22 @@ class XPathGrammar {
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-AxisStep
   Parser<Step> axisStep() => [
-    seq2(
-      ref0(reverseStep),
-      ref0(predicateList),
-    ).map2((step, preds) => Step(step.axis, step.nodeTest, preds)),
-    seq2(
-      ref0(forwardStep),
-      ref0(predicateList),
-    ).map2((step, preds) => Step(step.axis, step.nodeTest, preds)),
+    seq2(ref0(reverseStep), ref0(predicateList)).map2(
+      (step, preds) =>
+          Step(step.axis, nodeTest: step.nodeTest, predicates: preds),
+    ),
+    seq2(ref0(forwardStep), ref0(predicateList)).map2(
+      (step, preds) =>
+          Step(step.axis, nodeTest: step.nodeTest, predicates: preds),
+    ),
   ].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ForwardStep
   Parser<Step> forwardStep() => [
-    seq2(ref0(forwardAxis), ref0(nodeTest)).map2(Step.new),
+    seq2(
+      ref0(forwardAxis),
+      ref0(nodeTest),
+    ).map2((axis, test) => Step(axis, nodeTest: test)),
     ref0(abbrevForwardStep),
   ].toChoiceParser();
 
@@ -483,17 +487,18 @@ class XPathGrammar {
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-AbbrevForwardStep
   Parser<Step> abbrevForwardStep() =>
-      seq2(token('@').optional(), ref0(nodeTest)).map2((attr, test) {
-        if (attr != null) {
-          return Step(const AttributeAxis(), test);
-        } else {
-          return Step(const ChildAxis(), test);
-        }
-      });
+      seq2(token('@').optional(), ref0(nodeTest)).map2(
+        (attr, test) => attr == null
+            ? Step(const ChildAxis(), nodeTest: test)
+            : Step(const AttributeAxis(), nodeTest: test),
+      );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ReverseStep
   Parser<Step> reverseStep() => [
-    seq2(ref0(reverseAxis), ref0(nodeTest)).map2(Step.new),
+    seq2(
+      ref0(reverseAxis),
+      ref0(nodeTest),
+    ).map2((axis, test) => Step(axis, nodeTest: test)),
     ref0(abbrevReverseStep),
   ].toChoiceParser();
 
@@ -508,48 +513,44 @@ class XPathGrammar {
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-AbbrevReverseStep
   Parser<Step> abbrevReverseStep() =>
-      token('..').constant(const Step(ParentAxis(), NodeTypeNodeTest()));
+      token('..').constant(const Step(ParentAxis()));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-NodeTest
   Parser<NodeTest> nodeTest() => [
-    ref0(kindTest).map(NodeTypeTest.new),
-    seq2(ref0(nameTest), token('(').not()).map2((n, _) => n),
+    ref0(kindTest),
+    seq2(
+      ref0(nameTest),
+      token('(').not(),
+    ).map2((name, _) => name ?? const NodeTypeTest()),
   ].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-NameTest
-  Parser<NodeTest> nameTest() => [
+  Parser<NameTest?> nameTest() => [
     ref0(wildcard),
-    ref0(uriQualifiedName).map((name) {
-      final start = name.indexOf('{');
-      final end = name.indexOf('}');
-      return NamespaceUriAndLocalNameNodeTest(
-        name.substring(start + 1, end),
-        name.substring(end + 1),
-      );
-    }),
-    ref0(qName).map(QualifiedNameNodeTest.new),
+    ref0(uriQualifiedName).map(_eqNameToNodeTest),
+    ref0(qName).map(QualifiedNameTest.new),
   ].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-Wildcard
-  Parser<NodeTest> wildcard() => [
+  Parser<NameTest?> wildcard() => [
     // *:NCName
     seq3(
       token('*'),
       token(':'),
       ref0(ncName),
-    ).map3((_, _, name) => LocalNameNodeTest(name)),
+    ).map3((_, _, name) => LocalNameTest(name)),
     // braccedURILiteral*
     seq2(
       ref0(bracedUriLiteral),
       token('*'),
-    ).map2((uri, _) => NamespaceUriNodeTest(uri)),
+    ).map2((uri, _) => NamespaceUriTest(uri)),
     // NCName:*
     seq3(
       ref0(ncName),
       token(':'),
       token('*'),
-    ).map3((prefix, _, _) => NamespacePrefixNameNodeTest(prefix)),
-    token('*').constant(const NameNodeTest()),
+    ).map3((prefix, _, _) => NamespacePrefixNameTest(prefix)),
+    token('*').constant(const NodeNameTest()),
   ].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-PostfixExpr
@@ -843,8 +844,8 @@ class XPathGrammar {
   ].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ItemType
-  Parser<XPathType<Object>> itemType() => [
-    ref0(kindTest),
+  Parser<XPathType<Object>> itemType() => <Parser<XPathType<Object>>>[
+    ref0(kindTest).map(NodeTestType.new),
     token('item()').constant(xsAny),
     ref0(functionTest),
     ref0(mapTest),
@@ -908,7 +909,7 @@ class XPathGrammar {
       seq3(token('{'), ref0(expr), token('}')).map3((_, expr, _) => expr);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-KindTest
-  Parser<XPathType<Object>> kindTest() => [
+  Parser<NodeTest> kindTest() => [
     ref0(documentTest),
     ref0(elementTest),
     ref0(attributeTest),
@@ -922,11 +923,14 @@ class XPathGrammar {
   ].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-AnyKindTest
-  Parser<XPathType<Object>> anyKindTest() =>
-      seq3(token('node'), token('('), token(')')).constant(xsNode);
+  Parser<NodeTest> anyKindTest() => seq3(
+    token('node'),
+    token('('),
+    token(')'),
+  ).constant(const NodeTypeTest());
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-DocumentTest
-  Parser<XPathType<Object>> documentTest() =>
+  Parser<NodeTest> documentTest() =>
       seq4(
         token('document-node'),
         token('('),
@@ -935,41 +939,45 @@ class XPathGrammar {
           ref0(schemaElementTest),
         ].toChoiceParser().optional(),
         token(')'),
-      ).map4(
-        (_, _, arg, _) =>
-            arg == null ? xsDocument : _unimplemented('DocumentTest'),
-      );
+      ).map4((_, _, arg, _) {
+        if (arg == null) return const DocumentTypeTest();
+        if (arg is ElementTypeTest) {
+          return DocumentTypeTest(rootElementTest: arg);
+        }
+        _unimplemented('DocumentTest with SchemaElementTest', arg);
+      });
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-TextTest
-  Parser<XPathType<Object>> textTest() =>
-      seq3(token('text'), token('('), token(')')).constant(xsText);
+  Parser<NodeTest> textTest() => seq3(
+    token('text'),
+    token('('),
+    token(')'),
+  ).constant(const TextTypeTest());
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-CommentTest
-  Parser<XPathType<Object>> commentTest() =>
-      seq3(token('comment'), token('('), token(')')).constant(xsComment);
+  Parser<NodeTest> commentTest() => seq3(
+    token('comment'),
+    token('('),
+    token(')'),
+  ).constant(const CommentTypeTest());
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-NamespaceNodeTest
-  Parser<XPathType<Object>> namespaceNodeTest() => seq3(
+  Parser<NodeTest> namespaceNodeTest() => seq3(
     token('namespace-node'),
     token('('),
     token(')'),
   ).map((_) => _unimplemented('NamespaceNodeTest'));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-PITest
-  Parser<XPathType<Object>> piTest() =>
-      seq4(
-        token('processing-instruction'),
-        token('('),
-        [ref0(ncName), ref0(stringLiteral)].toChoiceParser().optional(),
-        token(')'),
-      ).map4(
-        (_, _, arg, _) => arg == null
-            ? xsProcessingInstruction
-            : XPathProcessingInstructionType(arg),
-      );
+  Parser<NodeTest> piTest() => seq4(
+    token('processing-instruction'),
+    token('('),
+    [ref0(ncName), ref0(stringLiteral)].toChoiceParser().optional(),
+    token(')'),
+  ).map4((_, _, target, _) => ProcessingTypeTest(target: target));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-AttributeTest
-  Parser<XPathType<Object>> attributeTest() =>
+  Parser<NodeTest> attributeTest() =>
       seq4(
         token('attribute'),
         token('('),
@@ -978,28 +986,32 @@ class XPathGrammar {
           seq2(token(','), ref0(typeName)).optional(),
         ).optional(),
         token(')'),
-      ).map4(
-        (_, _, arg, _) =>
-            arg == null ? xsAttribute : _unimplemented('AttributeTest'),
-      );
+      ).map4((_, _, arg, _) {
+        if (arg == null) return const AttributeTypeTest();
+        if (arg.$2 == null) return AttributeTypeTest(nameTest: arg.$1);
+        _unimplemented('AttributeTest with TypeName', arg.$2);
+      });
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-AttribNameOrWildcard
-  Parser<void> attribNameOrWildcard() =>
-      [ref0(attributeName), token('*')].toChoiceParser();
+  Parser<NameTest?> attribNameOrWildcard() => <Parser<NameTest?>>[
+    ref0(attributeName).map(_eqNameToNodeTest),
+    token('*').constant(null),
+  ].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-SchemaAttributeTest
-  Parser<XPathType<Object>> schemaAttributeTest() => seq4(
+  Parser<NodeTest> schemaAttributeTest() => seq4(
     token('schema-attribute'),
     token('('),
     ref0(attributeDeclaration),
     token(')'),
-  ).map4((_, _, arg, _) => _unimplemented('SchemaAttributeTest'));
+  ).constant(const SchemaAttributeTypeTest());
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-AttributeDeclaration
-  Parser<void> attributeDeclaration() => ref0(attributeName);
+  Parser<NameTest> attributeDeclaration() =>
+      ref0(attributeName).map(_eqNameToNodeTest);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ElementTest
-  Parser<XPathType<Object>> elementTest() =>
+  Parser<NodeTest> elementTest() =>
       seq4(
         token('element'),
         token('('),
@@ -1008,25 +1020,29 @@ class XPathGrammar {
           seq2(token(','), ref0(typeName)).optional(),
         ).optional(),
         token(')'),
-      ).map4(
-        (_, _, arg, _) =>
-            arg == null ? xsElement : _unimplemented('ElementTest'),
-      );
+      ).map4((_, _, arg, _) {
+        if (arg == null) return const ElementTypeTest();
+        if (arg.$2 == null) return ElementTypeTest(nameTest: arg.$1);
+        _unimplemented('ElementTest with TypeName', arg.$2);
+      });
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ElementNameOrWildcard
-  Parser<void> elementNameOrWildcard() =>
-      [ref0(elementName), token('*')].toChoiceParser();
+  Parser<NameTest?> elementNameOrWildcard() => <Parser<NameTest?>>[
+    ref0(elementName).map(_eqNameToNodeTest),
+    token('*').constant(null),
+  ].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-SchemaElementTest
-  Parser<XPathType<Object>> schemaElementTest() => seq4(
+  Parser<NodeTest> schemaElementTest() => seq4(
     token('schema-element'),
     token('('),
     ref0(elementDeclaration),
     token(')'),
-  ).map4((_, _, arg, _) => _unimplemented('SchemaElementTest'));
+  ).constant(const SchemaElementTypeTest());
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ElementDeclaration
-  Parser<void> elementDeclaration() => ref0(elementName);
+  Parser<NameTest> elementDeclaration() =>
+      ref0(elementName).map(_eqNameToNodeTest);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-AttributeName
   Parser<String> attributeName() => ref0(eqName);
@@ -1060,6 +1076,18 @@ class XPathGrammar {
 Never _unimplemented(String feature, [dynamic arg]) => throw UnimplementedError(
   '$feature${arg != null ? ' ($arg)' : ''} not yet implemented',
 );
+
+NameTest _eqNameToNodeTest(String name) {
+  if (name.startsWith('Q{')) {
+    final start = name.indexOf('{');
+    final end = name.indexOf('}');
+    return NamespaceUriAndLocalNameTest(
+      name.substring(start + 1, end).trim(),
+      name.substring(end + 1).trim(),
+    );
+  }
+  return QualifiedNameTest(name);
+}
 
 const xmlGrammar = XmlEventParser(XmlNullEntityMapping());
 

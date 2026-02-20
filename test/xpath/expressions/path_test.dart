@@ -1,6 +1,7 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/expressions/axis.dart';
-import 'package:xml/src/xpath/expressions/node_test.dart';
+import 'package:xml/src/xpath/expressions/name.dart';
+import 'package:xml/src/xpath/expressions/node.dart';
 import 'package:xml/src/xpath/expressions/path.dart';
 import 'package:xml/src/xpath/expressions/predicate.dart';
 import 'package:xml/src/xpath/expressions/step.dart';
@@ -14,27 +15,27 @@ void main() {
         // Applies optimization.
         final path = PathExpression([
           const Step(DescendantOrSelfAxis()),
-          Step(stepAxis, const QualifiedNameNodeTest('x')),
+          Step(stepAxis, nodeTest: const QualifiedNameTest('x')),
         ], isAbsolute: true);
         expect(path.steps, hasLength(1));
         final actualStep = path.steps.single;
         expect(actualStep.axis.runtimeType, newAxis.runtimeType);
-        expect(actualStep.nodeTest, const QualifiedNameNodeTest('x'));
+        expect(actualStep.nodeTest, const QualifiedNameTest('x'));
         expect(actualStep.predicates, isEmpty);
       }
       {
         // Incompatible initial step.
         final path = PathExpression([
           const Step(SelfAxis()),
-          Step(stepAxis, const QualifiedNameNodeTest('x')),
+          Step(stepAxis, nodeTest: const QualifiedNameTest('x')),
         ], isAbsolute: true);
         expect(path.steps, hasLength(2));
       }
       {
         // Incompatible node test.
         final path = PathExpression([
-          const Step(DescendantOrSelfAxis(), CommentTypeNodeTest()),
-          Step(stepAxis, const QualifiedNameNodeTest('x')),
+          const Step(DescendantOrSelfAxis(), nodeTest: CommentTypeTest()),
+          Step(stepAxis, nodeTest: const QualifiedNameTest('x')),
         ], isAbsolute: true);
         expect(path.steps, hasLength(2));
       }
@@ -42,9 +43,13 @@ void main() {
         // Incompatible predicate.
         final path = PathExpression([
           const Step(DescendantOrSelfAxis()),
-          Step(stepAxis, const QualifiedNameNodeTest('x'), const [
-            Predicate(LiteralExpression(XPathSequence.single(1))),
-          ]),
+          Step(
+            stepAxis,
+            nodeTest: const QualifiedNameTest('x'),
+            predicates: const [
+              Predicate(LiteralExpression(XPathSequence.single(1))),
+            ],
+          ),
         ], isAbsolute: true);
         expect(path.steps, hasLength(2));
       }
@@ -83,7 +88,7 @@ void main() {
           Step(AncestorOrSelfAxis()),
           Step(SelfAxis()),
           Step(SelfAxis()),
-          Step(AttributeAxis(), QualifiedNameNodeTest('id')),
+          Step(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
         ], isAbsolute: true).isOrderPreserved,
         isTrue,
       );
@@ -106,7 +111,7 @@ void main() {
             Step(DescendantAxis()),
             Step(SelfAxis()),
             Step(SelfAxis()),
-            Step(AttributeAxis(), QualifiedNameNodeTest('id')),
+            Step(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
           ], isAbsolute: false).isOrderPreserved,
           isTrue,
         );
@@ -116,7 +121,7 @@ void main() {
             Step(ChildAxis()),
             Step(SelfAxis()),
             Step(SelfAxis()),
-            Step(AttributeAxis(), QualifiedNameNodeTest('id')),
+            Step(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
           ], isAbsolute: false).isOrderPreserved,
           isTrue,
         );
@@ -128,7 +133,7 @@ void main() {
             Step(DescendantOrSelfAxis()),
             Step(SelfAxis()),
             Step(SelfAxis()),
-            Step(AttributeAxis(), QualifiedNameNodeTest('id')),
+            Step(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
           ], isAbsolute: false).isOrderPreserved,
           isTrue,
         );
@@ -140,7 +145,7 @@ void main() {
             Step(ParentAxis()),
             Step(SelfAxis()),
             Step(SelfAxis()),
-            Step(AttributeAxis(), QualifiedNameNodeTest('id')),
+            Step(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
           ], isAbsolute: false).isOrderPreserved,
           isFalse,
         );
