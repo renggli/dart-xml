@@ -308,14 +308,12 @@ void verifyResult(XmlElement element, Object result, XPathContext context) {
         );
       }
     case 'assert-eq':
-      final expected = context.evaluate(element.innerText);
-      if (result.toString() != expected.toString()) {
-        throw TestFailure('Expected $expected, but got $result');
-      }
     case 'assert-deep-eq':
       final expected = context.evaluate(element.innerText);
-      if (result.toString() != expected.toString()) {
-        throw TestFailure('Expected $expected, but got $result');
+      final resultString = formatSequence(result);
+      final expectedString = formatSequence(expected);
+      if (resultString != expectedString) {
+        throw TestFailure('Expected $expectedString, but got $resultString');
       }
     case 'assert-empty':
       if (result.isNotEmpty) {
@@ -411,3 +409,13 @@ bool isSupported(XmlElement element) {
   }
   return true;
 }
+
+/// Helper to textualize a sequence for comparison.
+String formatSequence(XPathSequence sequence) =>
+    '(${sequence.map((item) {
+      try {
+        return xsString.cast(item);
+      } catch (_) {
+        return item.toString();
+      }
+    }).join(', ')})';
