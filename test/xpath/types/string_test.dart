@@ -1,4 +1,7 @@
+import 'dart:typed_data';
+
 import 'package:test/test.dart';
+import 'package:xml/src/xpath/types/binary.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/src/xpath/types/string.dart';
 import 'package:xml/xml.dart';
@@ -77,6 +80,20 @@ void main() {
           xsString.cast(DateTime.utc(2023, 1, 1, 0, 0, 0)),
           '2023-01-01T00:00:00.000Z',
         );
+      });
+      test('from binary', () {
+        expect(
+          xsString.cast(XPathBase64Binary(Uint8List.fromList([1, 2, 3, 4, 5]))),
+          'AQIDBAU=',
+        );
+        expect(
+          xsString.cast(XPathHexBinary(Uint8List.fromList([1, 2, 3, 4, 5]))),
+          '0102030405',
+        );
+      });
+      test('from qname', () {
+        expect(xsString.cast(const XmlName.qualified('foo:bar')), 'foo:bar');
+        expect(xsString.cast(const XmlName('baz')), 'baz');
       });
       test('from unsupported', () {
         expect(

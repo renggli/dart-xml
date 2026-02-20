@@ -1,11 +1,14 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import '../../xml/nodes/document.dart';
 import '../../xml/nodes/element.dart';
 import '../../xml/nodes/node.dart';
 import '../../xml/nodes/text.dart';
+import '../../xml/utils/name.dart';
 import '../definitions/type.dart';
 import '../exceptions/evaluation_exception.dart';
+import 'binary.dart';
 import 'sequence.dart';
 
 /// The XPath string type.
@@ -51,11 +54,14 @@ class _XPathStringType extends XPathType<String> {
       return string.endsWith('.0')
           ? string.substring(0, string.length - 2)
           : string;
-    } else if (value is Uint8List) {
+    } else if (value is XPathBase64Binary) {
+      return base64Encode(value);
+    } else if (value is XPathHexBinary) {
       return value
           .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
           .join()
           .toUpperCase();
+    } else if (value is Uint8List) {
     } else if (value is Duration) {
       if (value.inMicroseconds == 0) return 'PT0S';
       final buffer = StringBuffer(value.isNegative ? '-P' : 'P');
@@ -76,6 +82,8 @@ class _XPathStringType extends XPathType<String> {
       return buffer.toString();
     } else if (value is DateTime) {
       return value.toIso8601String();
+    } else if (value is XmlName) {
+      return value.qualified;
     } else if (value is XmlNode) {
       final buffer = StringBuffer();
       _stringForNodeOn(value, buffer);
