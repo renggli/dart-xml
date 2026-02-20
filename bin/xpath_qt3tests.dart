@@ -188,7 +188,8 @@ class TestCase {
     }
     late final Object evaluation;
     try {
-      evaluation = context.evaluate(test);
+      // Force evaluation of lazy sequences.
+      evaluation = XPathSequence(context.evaluate(test).toList());
     } catch (exception) {
       evaluation = exception;
     }
@@ -284,15 +285,34 @@ class TestFailure extends StateError {
 }
 
 void verifyResult(XmlElement element, Object result, XPathContext context) {
-  // First verify for an error.
-  if (element.localName == 'error') {
-    if (result is! Error && result is! Exception) {
-      throw TestFailure('Expected error, but got $result');
-    }
-    return;
+  // First handle the primitive operations.
+  switch (element.localName) {
+    case 'error':
+      if (result is! Error && result is! Exception) {
+        throw TestFailure('Expected error, but got $result');
+      }
+      return;
+    case 'all-of':
+      for (final child in element.childElements) {
+        verifyResult(child, result, context);
+      }
+      return;
+    case 'any-of':
+      final errors = <Object>[];
+      for (final child in element.childElements) {
+        try {
+          verifyResult(child, result, context);
+          return;
+        } catch (error) {
+          errors.add(error);
+        }
+      }
+      throw errors.first;
   }
+
   // If we don't have a sequence at this point, this must be an error.
   if (result is! XPathSequence) throw result;
+
   // Execute the different assertion types.
   switch (element.localName) {
     case 'assert':
@@ -342,21 +362,6 @@ void verifyResult(XmlElement element, Object result, XPathContext context) {
           xml.rootElement.toXmlString(pretty: true)) {
         throw TestFailure('Expected $xml, but got $result');
       }
-    case 'all-of':
-      for (final child in element.childElements) {
-        verifyResult(child, result, context);
-      }
-    case 'any-of':
-      final errors = <Object>[];
-      for (final child in element.childElements) {
-        try {
-          verifyResult(child, result, context);
-          return;
-        } catch (error) {
-          errors.add(error);
-        }
-      }
-      throw errors.first;
     case 'assert-type':
       final evaluation = XPathContext(
         XPathSequence.empty,
