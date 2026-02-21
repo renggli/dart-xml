@@ -98,6 +98,21 @@ void main() {
       ]),
       isXPathSequence([1.5]),
     );
+    expect(
+      fnRound(context, [const XPathSequence.single(-1.5)]),
+      isXPathSequence([
+        -1,
+      ]), // XPath rounds towards positive infinity, so -1.5 rounds to -1
+    );
+    expect(
+      fnRound(context, [const XPathSequence.single(-0.5)]),
+      isXPathSequence([-0.0]), // Returns negative zero if applicable
+    );
+    expect(
+      // Integer -0.5 is not possible but wait, let's provide double
+      fnRound(context, [const XPathSequence.single(-2.5)]),
+      isXPathSequence([-2]),
+    );
   });
 
   test('fn:round (precision)', () {

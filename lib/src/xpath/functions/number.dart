@@ -113,7 +113,19 @@ XPathSequence _fnRound(XPathContext context, num? arg, [int? precision]) {
   if (arg.isNaN || arg.isInfinite) return XPathSequence.single(arg);
   final p = precision ?? 0;
   final factor = pow(10, p);
-  return XPathSequence.single((arg * factor).round() / factor);
+  final value = arg * factor;
+  final floor = value.floor();
+  final diff = value - floor;
+  num rounded;
+  if (diff == 0.5) {
+    rounded = floor + 1;
+  } else {
+    rounded = value.round();
+  }
+  if (rounded == 0 && arg.isNegative && arg is double) {
+    return XPathSequence.single(-0.0 / factor);
+  }
+  return XPathSequence.single(rounded / factor);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-round-half-to-even
