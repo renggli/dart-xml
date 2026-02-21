@@ -176,8 +176,10 @@ const fnGenerateId = XPathFunctionDefinition(
 
 XPathSequence _fnGenerateId(XPathContext context, [XmlNode? node]) {
   if (node == null) return XPathSequence.emptyString;
-  // Fall back to UnimplementedError for now, test checks exception type.
-  throw UnimplementedError('fn:generate-id');
+  final id = identityHashCode(
+    node,
+  ).toRadixString(16).toUpperCase().padLeft(8, '0');
+  return XPathSequence.single('autoId$id');
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-root

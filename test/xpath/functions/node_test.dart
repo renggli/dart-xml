@@ -56,6 +56,13 @@ void main() {
       isXPathSequence(['/r/a']),
     );
   });
+  test('fn:generate-id', () {
+    final ids = document.descendants
+        .map((node) => fnGenerateId(context, [XPathSequence.single(node)]))
+        .map((sequence) => sequence.single)
+        .toList();
+    expect(ids, unorderedEquals(ids.toSet()));
+  });
   group('integration', () {
     final xml = XmlDocument.parse('<r><a>1</a><b>2<c/>3</b></r>');
     test('last()', () {
