@@ -117,7 +117,11 @@ class ArrowExpression implements XPathExpression {
       return context.getFunction(specifier as String)(context, argumentSeqs);
     } else if (specifier is XPathExpression) {
       final functionSeq = (specifier as XPathExpression)(context);
-      if (functionSeq.length != 1) {
+      if (functionSeq.isEmpty) {
+        throw XPathEvaluationException(
+          'Expected a single function item, but got an empty sequence',
+        );
+      } else if (functionSeq.length > 1) {
         throw XPathEvaluationException(
           'Expected a single function item, but got ${functionSeq.length} items',
         );
@@ -183,7 +187,11 @@ class FunctionCallExpression implements XPathExpression {
 
   XPathSequence _call(XPathContext context, List<XPathSequence> arguments) {
     final functionSeq = function(context);
-    if (functionSeq.length != 1) {
+    if (functionSeq.isEmpty) {
+      throw XPathEvaluationException(
+        'Expected a single function item, but got an empty sequence',
+      );
+    } else if (functionSeq.length > 1) {
       throw XPathEvaluationException(
         'Expected a single function item, but got ${functionSeq.length} items',
       );

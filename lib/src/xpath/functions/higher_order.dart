@@ -1,3 +1,4 @@
+import '../../xml/utils/name.dart';
 import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
@@ -8,6 +9,7 @@ import '../types/array.dart';
 import '../types/boolean.dart';
 import '../types/function.dart';
 import '../types/number.dart';
+import '../types/qname.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
 
@@ -273,15 +275,15 @@ const fnFunctionLookup = XPathFunctionDefinition(
   name: 'fn:function-lookup',
   aliases: ['function-lookup'],
   requiredArguments: [
-    XPathArgumentDefinition(name: 'name', type: xsString), // Technically QName
+    XPathArgumentDefinition(name: 'name', type: xsQName),
     XPathArgumentDefinition(name: 'arity', type: xsInteger),
   ],
   function: _fnFunctionLookup,
 );
 
-XPathSequence _fnFunctionLookup(XPathContext context, String name, num arity) {
+XPathSequence _fnFunctionLookup(XPathContext context, XmlName name, num arity) {
   try {
-    return XPathSequence.single(context.getFunction(name));
+    return XPathSequence.single(context.getFunction(name.uriQualified));
   } on XPathEvaluationException {
     return XPathSequence.empty;
   }

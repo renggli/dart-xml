@@ -59,6 +59,13 @@ class XmlName with XmlHasVisitor, XmlHasWriter {
     return index > 0 ? qualified.substring(index + 1) : qualified;
   }
 
+  /// The Extended QName (EQName) in the form `Q{uri}local`, or the [qualified]
+  /// name if the namespace URI is not defined or empty.
+  String get uriQualified {
+    final uri = namespaceUri;
+    return uri != null && uri.isNotEmpty ? 'Q{$uri}$local' : qualified;
+  }
+
   @override
   String toString() => qualified;
 

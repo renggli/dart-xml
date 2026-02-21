@@ -127,6 +127,69 @@ void main() {
         2,
       );
     });
+    test('evaluate with empty expression', () {
+      const expr = ArrowExpression(
+        LiteralExpression(XPathSequence.single(1)),
+        LiteralExpression(XPathSequence.empty),
+        [],
+      );
+      expect(
+        () => expr(context),
+        throwsA(
+          isXPathEvaluationException(
+            message:
+                'Expected a single function item, but got an empty sequence',
+          ),
+        ),
+      );
+    });
+    test('evaluate with non-function expression', () {
+      const expr = ArrowExpression(
+        LiteralExpression(XPathSequence.single(1)),
+        LiteralExpression(XPathSequence.single(123)),
+        [],
+      );
+      expect(
+        () => expr(context),
+        throwsA(
+          isXPathEvaluationException(
+            message: 'Expected a function item, but got int',
+          ),
+        ),
+      );
+    });
+  });
+
+  group('FunctionCallExpression', () {
+    test('evaluate with empty sequence', () {
+      const expr = FunctionCallExpression(
+        LiteralExpression(XPathSequence.empty),
+        [],
+      );
+      expect(
+        () => expr(context),
+        throwsA(
+          isXPathEvaluationException(
+            message:
+                'Expected a single function item, but got an empty sequence',
+          ),
+        ),
+      );
+    });
+    test('evaluate with non-function sequence', () {
+      const expr = FunctionCallExpression(
+        LiteralExpression(XPathSequence.single('text')),
+        [],
+      );
+      expect(
+        () => expr(context),
+        throwsA(
+          isXPathEvaluationException(
+            message: 'Expected a function item, but got String',
+          ),
+        ),
+      );
+    });
   });
 
   group('Partial Application', () {

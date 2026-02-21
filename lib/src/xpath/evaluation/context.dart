@@ -89,6 +89,6 @@ String? _resolveEqName(String name) {
   if (end < 0) return null;
   final uri = name.substring(2, end);
   final localName = name.substring(end + 1);
-  final prefix = standardPrefixes[uri];
+  final prefix = standardNamespaces[uri];
   return prefix != null ? '$prefix:$localName' : null;
 }
