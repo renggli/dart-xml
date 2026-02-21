@@ -25,9 +25,10 @@ class _XPathNumericType extends XPathType<num> {
     } else if (value is bool) {
       return value ? 1 : 0;
     } else if (value is String) {
-      if (value == 'INF') return double.infinity;
-      if (value == '-INF') return double.negativeInfinity;
-      final result = num.tryParse(value);
+      final trimmed = value.trim();
+      if (trimmed == 'INF') return double.infinity;
+      if (trimmed == '-INF') return double.negativeInfinity;
+      final result = num.tryParse(trimmed);
       if (result != null) return result;
     } else if (value is XmlNode) {
       return cast(xsString.cast(value));
@@ -114,7 +115,8 @@ class _XPathIntegerType extends XPathType<int> {
     } else if (value is bool) {
       return value ? 1 : 0;
     } else if (value is String) {
-      final result = int.tryParse(value);
+      final trimmed = value.trim();
+      final result = int.tryParse(trimmed);
       if (result != null) return result;
     } else if (value is XmlNode) {
       return cast(xsString.cast(value));
@@ -181,9 +183,10 @@ class _XPathDoubleType extends XPathType<double> {
     } else if (value is bool) {
       return value ? 1 : 0;
     } else if (value is String) {
-      if (value == 'INF') return double.infinity;
-      if (value == '-INF') return double.negativeInfinity;
-      final result = double.tryParse(value);
+      final trimmed = value.trim();
+      if (trimmed == 'INF') return double.infinity;
+      if (trimmed == '-INF') return double.negativeInfinity;
+      final result = double.tryParse(trimmed);
       if (result != null) return result;
     } else if (value is XmlNode) {
       return cast(xsString.cast(value));

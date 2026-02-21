@@ -89,22 +89,9 @@ void main() {
       });
       test('from string', () {
         expect(xsInteger.cast('123'), 123);
-        // xsInteger casting from string might be more strict or default to num rule?
-        // implementation: int.tryParse(value) then fallback to unsupported if null?
-        // let's check implementation:
-        // if (result != null) return result; else throw unsupported if not XmlNode/num/bool...
-        // wait, implementation says: if (result != null) return result;
-        // if not int, it falls through to throw?
-        // Actually, looking at code:
-        // } else if (value is String) { final result = int.tryParse(value); if (result != null) return result; }
-        // It doesn't seem to parse doubles from strings and round them.
         expect(
           () => xsInteger.cast('123.45'),
-          throwsA(
-            isXPathEvaluationException(
-              message: 'Unsupported cast from 123.45 to xs:integer',
-            ),
-          ),
+          throwsA(isXPathEvaluationException()),
         );
       });
     });

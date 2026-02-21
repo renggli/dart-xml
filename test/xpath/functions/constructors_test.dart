@@ -35,8 +35,27 @@ void main() {
   });
 
   group('xs:integer', () {
-    test('integer', () {
+    test('integer string', () {
       expectEval('xs:integer("123")', isXPathSequence([123]));
+      expectEval('xs:integer("  -456  ")', isXPathSequence([-456]));
+    });
+    test('invalid integer lexical value', () {
+      expect(
+        () => expectEval('xs:integer("12.34")', []),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+      expect(
+        () => expectEval('xs:integer("INF")', []),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+      expect(
+        () => expectEval('xs:integer("- 1")', []),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+    });
+    test('float/decimal cast to integer', () {
+      expectEval('xs:integer(12.94)', isXPathSequence([12]));
+      expectEval('xs:integer(-12.94)', isXPathSequence([-12]));
     });
     test('decimal', () {
       expectEval('xs:decimal("12.34")', isXPathSequence([12.34]));
