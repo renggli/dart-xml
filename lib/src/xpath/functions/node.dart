@@ -13,6 +13,8 @@ import '../types/node.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
 
+Object? _defaultToContextItem(XPathContext context) => context.item;
+
 /// https://www.w3.org/TR/xpath-functions-31/#func-name
 const fnName = XPathFunctionDefinition(
   name: 'fn:name',
@@ -22,13 +24,14 @@ const fnName = XPathFunctionDefinition(
       name: 'arg',
       type: xsNode,
       cardinality: XPathCardinality.zeroOrOne,
+      defaultValue: _defaultToContextItem,
     ),
   ],
   function: _fnName,
 );
 
-XPathSequence _fnName(XPathContext context, [XmlNode? arg]) {
-  final node = arg ?? xsNode.cast(context.item);
+XPathSequence _fnName(XPathContext context, [XmlNode? node]) {
+  if (node == null) return XPathSequence.emptyString;
   if (node is XmlElement) {
     return XPathSequence.single(node.name.toString());
   } else if (node is XmlAttribute) {
@@ -48,13 +51,14 @@ const fnLocalName = XPathFunctionDefinition(
       name: 'arg',
       type: xsNode,
       cardinality: XPathCardinality.zeroOrOne,
+      defaultValue: _defaultToContextItem,
     ),
   ],
   function: _fnLocalName,
 );
 
-XPathSequence _fnLocalName(XPathContext context, [XmlNode? arg]) {
-  final node = arg ?? xsNode.cast(context.item);
+XPathSequence _fnLocalName(XPathContext context, [XmlNode? node]) {
+  if (node == null) return XPathSequence.emptyString;
   if (node is XmlElement) {
     return XPathSequence.single(node.name.local);
   } else if (node is XmlAttribute) {
@@ -74,13 +78,14 @@ const fnNamespaceUri = XPathFunctionDefinition(
       name: 'arg',
       type: xsNode,
       cardinality: XPathCardinality.zeroOrOne,
+      defaultValue: _defaultToContextItem,
     ),
   ],
   function: _fnNamespaceUri,
 );
 
-XPathSequence _fnNamespaceUri(XPathContext context, [XmlNode? arg]) {
-  final node = arg ?? xsNode.cast(context.item);
+XPathSequence _fnNamespaceUri(XPathContext context, [XmlNode? node]) {
+  if (node == null) return XPathSequence.emptyString;
   if (node is XmlElement) {
     return XPathSequence.single(node.name.namespaceUri ?? '');
   } else if (node is XmlAttribute) {
@@ -163,12 +168,15 @@ const fnGenerateId = XPathFunctionDefinition(
       name: 'arg',
       type: xsNode,
       cardinality: XPathCardinality.zeroOrOne,
+      defaultValue: _defaultToContextItem,
     ),
   ],
   function: _fnGenerateId,
 );
 
-XPathSequence _fnGenerateId(XPathContext context, [XmlNode? arg]) {
+XPathSequence _fnGenerateId(XPathContext context, [XmlNode? node]) {
+  if (node == null) return XPathSequence.emptyString;
+  // Fall back to UnimplementedError for now, test checks exception type.
   throw UnimplementedError('fn:generate-id');
 }
 
@@ -181,13 +189,14 @@ const fnRoot = XPathFunctionDefinition(
       name: 'arg',
       type: xsNode,
       cardinality: XPathCardinality.zeroOrOne,
+      defaultValue: _defaultToContextItem,
     ),
   ],
   function: _fnRoot,
 );
 
-XPathSequence _fnRoot(XPathContext context, [XmlNode? arg]) {
-  final node = arg ?? xsNode.cast(context.item);
+XPathSequence _fnRoot(XPathContext context, [XmlNode? node]) {
+  if (node == null) return XPathSequence.empty;
   return XPathSequence.single(node.root);
 }
 
@@ -199,14 +208,15 @@ const fnHasChildren = XPathFunctionDefinition(
     XPathArgumentDefinition(
       name: 'node',
       type: xsNode,
-      cardinality: XPathCardinality.exactlyOne,
+      cardinality: XPathCardinality.zeroOrOne,
+      defaultValue: _defaultToContextItem,
     ),
   ],
   function: _fnHasChildren,
 );
 
-XPathSequence _fnHasChildren(XPathContext context, [XmlNode? arg]) {
-  final node = arg ?? xsNode.cast(context.item);
+XPathSequence _fnHasChildren(XPathContext context, [XmlNode? node]) {
+  if (node == null) return XPathSequence.falseSequence;
   return XPathSequence.single(node.children.isNotEmpty);
 }
 
@@ -273,13 +283,14 @@ const fnPath = XPathFunctionDefinition(
       name: 'arg',
       type: xsNode,
       cardinality: XPathCardinality.zeroOrOne,
+      defaultValue: _defaultToContextItem,
     ),
   ],
   function: _fnPath,
 );
 
-XPathSequence _fnPath(XPathContext context, [XmlNode? arg]) {
-  final node = arg ?? xsNode.cast(context.item);
+XPathSequence _fnPath(XPathContext context, [XmlNode? node]) {
+  if (node == null) return XPathSequence.emptyString;
   // Basic implementation
   final components = <String>[];
   XmlNode? current = node;

@@ -12,6 +12,8 @@ import '../types/node.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
 
+Object? _defaultToContextItem(XPathContext context) => context.item;
+
 /// https://www.w3.org/TR/xpath-functions-31/#func-node-name
 const fnNodeName = XPathFunctionDefinition(
   name: 'fn:node-name',
@@ -21,13 +23,14 @@ const fnNodeName = XPathFunctionDefinition(
       name: 'arg',
       type: xsNode,
       cardinality: XPathCardinality.zeroOrOne,
+      defaultValue: _defaultToContextItem,
     ),
   ],
   function: _fnNodeName,
 );
 
-XPathSequence _fnNodeName(XPathContext context, [XmlNode? arg]) {
-  final node = arg ?? xsNode.cast(context.item);
+XPathSequence _fnNodeName(XPathContext context, [XmlNode? node]) {
+  if (node == null) return XPathSequence.empty;
   if (node is XmlElement) return XPathSequence.single(node.name);
   if (node is XmlAttribute) return XPathSequence.single(node.name);
   if (node is XmlProcessing) {
@@ -45,13 +48,14 @@ const fnNilled = XPathFunctionDefinition(
       name: 'arg',
       type: xsNode,
       cardinality: XPathCardinality.zeroOrOne,
+      defaultValue: _defaultToContextItem,
     ),
   ],
   function: _fnNilled,
 );
 
-XPathSequence _fnNilled(XPathContext context, [XmlNode? arg]) {
-  final node = arg ?? xsNode.cast(context.item);
+XPathSequence _fnNilled(XPathContext context, [XmlNode? node]) {
+  if (node == null) return XPathSequence.empty;
   if (node is XmlElement) {
     // TODO: Implement proper nilled check based on xsi:nil attribute
     return XPathSequence.falseSequence;
@@ -113,6 +117,7 @@ const fnBaseUri = XPathFunctionDefinition(
       name: 'arg',
       type: xsNode,
       cardinality: XPathCardinality.zeroOrOne,
+      defaultValue: _defaultToContextItem,
     ),
   ],
   function: _fnBaseUri,
@@ -131,6 +136,7 @@ const fnDocumentUri = XPathFunctionDefinition(
       name: 'arg',
       type: xsNode,
       cardinality: XPathCardinality.zeroOrOne,
+      defaultValue: _defaultToContextItem,
     ),
   ],
   function: _fnDocumentUri,
