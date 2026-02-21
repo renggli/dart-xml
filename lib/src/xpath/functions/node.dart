@@ -9,11 +9,10 @@ import '../../xml/nodes/processing.dart';
 import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
+import '../exceptions/evaluation_exception.dart';
 import '../types/node.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
-
-Object? _defaultToContextItem(XPathContext context) => context.item;
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-name
 const fnName = XPathFunctionDefinition(
@@ -105,12 +104,30 @@ const fnId = XPathFunctionDefinition(
       cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
-  optionalArguments: [XPathArgumentDefinition(name: 'node', type: xsNode)],
+  optionalArguments: [
+    XPathArgumentDefinition(
+      name: 'node',
+      type: xsNode,
+      cardinality: XPathCardinality.zeroOrOne,
+      defaultValue: _defaultToContextItem,
+    ),
+  ],
   function: _fnId,
 );
 
 XPathSequence _fnId(XPathContext context, XPathSequence arg, [XmlNode? node]) {
-  throw UnimplementedError('fn:id');
+  final ids = _parseIdStrings(arg);
+  if (ids.isEmpty) return XPathSequence.empty;
+  final root = node?.root;
+  if (root == null) throw XPathEvaluationException('Invalid document');
+  return XPathSequence(
+    root.descendantElements.where(
+      (element) => element.attributes.any(
+        (attribute) =>
+            _isIdAttribute(attribute) && ids.contains(attribute.value.trim()),
+      ),
+    ),
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-element-with-id
@@ -124,7 +141,14 @@ const fnElementWithId = XPathFunctionDefinition(
       cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
-  optionalArguments: [XPathArgumentDefinition(name: 'node', type: xsNode)],
+  optionalArguments: [
+    XPathArgumentDefinition(
+      name: 'node',
+      type: xsNode,
+      cardinality: XPathCardinality.zeroOrOne,
+      defaultValue: _defaultToContextItem,
+    ),
+  ],
   function: _fnElementWithId,
 );
 
@@ -133,7 +157,19 @@ XPathSequence _fnElementWithId(
   XPathSequence arg, [
   XmlNode? node,
 ]) {
-  throw UnimplementedError('fn:element-with-id');
+  final ids = _parseIdStrings(arg);
+  if (ids.isEmpty) return XPathSequence.empty;
+  final root = node?.root;
+  if (root == null) throw XPathEvaluationException('Invalid document');
+  final seen = <String>{};
+  return XPathSequence(
+    root.descendantElements.where(
+      (element) => element.attributes.where(_isIdAttribute).any((attribute) {
+        final value = attribute.value.trim();
+        return ids.contains(value) && seen.add(value);
+      }),
+    ),
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-idref
@@ -147,7 +183,14 @@ const fnIdref = XPathFunctionDefinition(
       cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
-  optionalArguments: [XPathArgumentDefinition(name: 'node', type: xsNode)],
+  optionalArguments: [
+    XPathArgumentDefinition(
+      name: 'node',
+      type: xsNode,
+      cardinality: XPathCardinality.zeroOrOne,
+      defaultValue: _defaultToContextItem,
+    ),
+  ],
   function: _fnIdref,
 );
 
@@ -156,7 +199,19 @@ XPathSequence _fnIdref(
   XPathSequence arg, [
   XmlNode? node,
 ]) {
-  throw UnimplementedError('fn:idref');
+  final ids = _parseIdStrings(arg);
+  if (ids.isEmpty) return XPathSequence.empty;
+  final root = node?.root;
+  if (root == null) throw XPathEvaluationException('Invalid document');
+  return XPathSequence(
+    root.descendantElements.expand(
+      (element) => element.attributes.where(
+        (attribute) =>
+            _isIdrefAttribute(attribute) &&
+            attribute.value.trim().split(_whitespace).any(ids.contains),
+      ),
+    ),
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-generate-id
@@ -318,3 +373,23 @@ XPathSequence _fnPath(XPathContext context, [XmlNode? node]) {
   }
   return XPathSequence.single(components.reversed.join('/'));
 }
+
+final _whitespace = RegExp(r'\s+');
+
+XmlNode _defaultToContextItem(XPathContext context) =>
+    xsNode.cast(context.item);
+
+Set<String> _parseIdStrings(XPathSequence arg) => arg
+    .map(xsString.cast)
+    .expand((each) => each.split(_whitespace))
+    .where((each) => each.isNotEmpty)
+    .toSet();
+
+bool _isIdAttribute(XmlAttribute attr) =>
+    attr.name.local == 'id' || attr.name.qualified == 'xml:id';
+
+bool _isIdrefAttribute(XmlAttribute attr) =>
+    attr.name.local == 'idref' ||
+    attr.name.local == 'idrefs' ||
+    attr.name.qualified == 'xml:idref' ||
+    attr.name.qualified == 'xml:idrefs';

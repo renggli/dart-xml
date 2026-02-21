@@ -335,9 +335,6 @@ XPathSequence _fnTimezoneFromTime(XPathContext context, DateTime? arg) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-adjust-dateTime-to-timezone
-Object _defaultTimezone(XPathContext context) => DateTime.now().timeZoneOffset;
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-adjust-dateTime-to-timezone
 const fnAdjustDateTimeToTimezone = XPathFunctionDefinition(
   name: 'fn:adjust-dateTime-to-timezone',
   aliases: ['adjust-dateTime-to-timezone'],
@@ -354,7 +351,7 @@ const fnAdjustDateTimeToTimezone = XPathFunctionDefinition(
       type: xsDuration,
       cardinality: XPathCardinality.zeroOrOne,
 
-      defaultValue: _defaultTimezone,
+      defaultValue: _defaultToTimezone,
     ),
   ],
   function: _fnAdjustDateTimeToTimezone,
@@ -403,7 +400,7 @@ const fnAdjustDateToTimezone = XPathFunctionDefinition(
       type: xsDuration,
       cardinality: XPathCardinality.zeroOrOne,
 
-      defaultValue: _defaultTimezone,
+      defaultValue: _defaultToTimezone,
     ),
   ],
   function: _fnAdjustDateTimeToTimezone,
@@ -426,7 +423,7 @@ const fnAdjustTimeToTimezone = XPathFunctionDefinition(
       type: xsDuration,
       cardinality: XPathCardinality.zeroOrOne,
 
-      defaultValue: _defaultTimezone,
+      defaultValue: _defaultToTimezone,
     ),
   ],
   function: _fnAdjustDateTimeToTimezone,
@@ -556,3 +553,6 @@ const fnParseIetfDate = XPathFunctionDefinition(
 
 XPathSequence _fnParseIetfDate(XPathContext context, [String? value]) =>
     throw UnimplementedError('fn:parse-ietf-date');
+
+Object _defaultToTimezone(XPathContext context) =>
+    DateTime.now().timeZoneOffset;

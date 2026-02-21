@@ -131,5 +131,71 @@ void main() {
         isXPathSequence([children[1]]),
       );
     });
+
+    test('fn:id', () {
+      final xml = XmlDocument.parse(
+        '<r><a id="1" xml:id="2"/><b id="3"/><c xml:id="5"/><d xml:id="4"/></r>',
+      );
+      final a = xml.findAllElements('a').single;
+      final b = xml.findAllElements('b').single;
+      final c = xml.findAllElements('c').single;
+      final d = xml.findAllElements('d').single;
+
+      expectEvaluate(xml, 'id("1")', isXPathSequence([a]));
+      expectEvaluate(xml, 'id("2")', isXPathSequence([a]));
+      expectEvaluate(xml, 'id("3")', isXPathSequence([b]));
+      expectEvaluate(xml, 'id("4")', isXPathSequence([d]));
+      expectEvaluate(xml, 'id("5")', isXPathSequence([c]));
+      expectEvaluate(xml, 'id("1 3")', isXPathSequence([a, b]));
+      expectEvaluate(xml, 'id(("1", "5"))', isXPathSequence([a, c]));
+      expectEvaluate(xml, 'id("unknown")', isXPathSequence(<XmlNode>[]));
+    });
+
+    test('fn:element-with-id', () {
+      final xml = XmlDocument.parse(
+        '<r><a id="1" xml:id="2"/><b id="3"/><c xml:id="5"/><d xml:id="4"/></r>',
+      );
+      final a = xml.findAllElements('a').single;
+      final b = xml.findAllElements('b').single;
+      final d = xml.findAllElements('d').single;
+
+      expectEvaluate(xml, 'element-with-id("1")', isXPathSequence([a]));
+      expectEvaluate(xml, 'element-with-id("2")', isXPathSequence([a]));
+      expectEvaluate(xml, 'element-with-id("3")', isXPathSequence([b]));
+      expectEvaluate(xml, 'element-with-id("4")', isXPathSequence([d]));
+      expectEvaluate(xml, 'element-with-id("1 3")', isXPathSequence([a, b]));
+      expectEvaluate(
+        xml,
+        'element-with-id(("1", "3"))',
+        isXPathSequence([a, b]),
+      );
+    });
+
+    test('fn:idref', () {
+      final xml = XmlDocument.parse(
+        '<r><a idref="1" xml:idref="2"/><b idrefs="3"/><c idref="1 2"/><d xml:idrefs="4"/></r>',
+      );
+
+      final aIdref = xml.findAllElements('a').single.attributes[0];
+      final aXmlidref = xml.findAllElements('a').single.attributes[1];
+      final bIdrefs = xml.findAllElements('b').single.attributes[0];
+      final cIdref = xml.findAllElements('c').single.attributes[0];
+      final dXmlidrefs = xml.findAllElements('d').single.attributes[0];
+
+      expectEvaluate(xml, 'idref("1")', isXPathSequence([aIdref, cIdref]));
+      expectEvaluate(xml, 'idref("2")', isXPathSequence([aXmlidref, cIdref]));
+      expectEvaluate(xml, 'idref("3")', isXPathSequence([bIdrefs]));
+      expectEvaluate(xml, 'idref("4")', isXPathSequence([dXmlidrefs]));
+      expectEvaluate(
+        xml,
+        'idref("1 3")',
+        isXPathSequence([aIdref, bIdrefs, cIdref]),
+      );
+      expectEvaluate(
+        xml,
+        'idref(("1", "3"))',
+        isXPathSequence([aIdref, bIdrefs, cIdref]),
+      );
+    });
   });
 }

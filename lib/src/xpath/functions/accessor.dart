@@ -12,8 +12,6 @@ import '../types/node.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
 
-Object? _defaultToContextItem(XPathContext context) => context.item;
-
 /// https://www.w3.org/TR/xpath-functions-31/#func-node-name
 const fnNodeName = XPathFunctionDefinition(
   name: 'fn:node-name',
@@ -206,3 +204,6 @@ const fnParseXmlFragment = XPathFunctionDefinition(
 
 XPathSequence _fnParseXmlFragment(XPathContext context, String? arg) =>
     throw UnimplementedError('fn:parse-xml-fragment');
+
+XmlNode _defaultToContextItem(XPathContext context) =>
+    xsNode.cast(context.item);
