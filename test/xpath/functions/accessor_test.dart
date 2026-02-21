@@ -86,4 +86,49 @@ void main() {
       isXPathSequence(isEmpty),
     );
   });
+  test('fn:serialize', () {
+    expect(
+      fnSerialize(context, [
+        XPathSequence([
+          document.findAllElements('a').first,
+          'text',
+          document.findAllElements('b').first,
+        ]),
+      ]),
+      isXPathSequence(['<a>1</a>text<b>2</b>']),
+    );
+    expect(fnSerialize(context, [XPathSequence.empty]), isXPathSequence(['']));
+  });
+  test('fn:parse-xml', () {
+    expect(
+      fnParseXml(context, [const XPathSequence.single('<r><a>1</a></r>')]),
+      isXPathSequence([isA<XmlDocument>()]),
+    );
+    expect(
+      fnParseXml(context, [XPathSequence.empty]),
+      isXPathSequence(isEmpty),
+    );
+    expect(
+      () => fnParseXml(context, [const XPathSequence.single('<r>unclosed')]),
+      throwsA(isA<XmlException>()),
+    );
+  });
+  test('fn:parse-xml-fragment', () {
+    expect(
+      fnParseXmlFragment(context, [
+        const XPathSequence.single('<a>1</a><b>2</b>'),
+      ]),
+      isXPathSequence([isA<XmlDocumentFragment>()]),
+    );
+    expect(
+      fnParseXmlFragment(context, [XPathSequence.empty]),
+      isXPathSequence(isEmpty),
+    );
+    expect(
+      () => fnParseXmlFragment(context, [
+        const XPathSequence.single('<r>unclosed'),
+      ]),
+      throwsA(isA<XmlException>()),
+    );
+  });
 }

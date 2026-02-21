@@ -1,4 +1,6 @@
 import '../../xml/nodes/attribute.dart';
+import '../../xml/nodes/document.dart';
+import '../../xml/nodes/document_fragment.dart';
 import '../../xml/nodes/element.dart';
 import '../../xml/nodes/node.dart';
 import '../../xml/nodes/processing.dart';
@@ -169,7 +171,13 @@ XPathSequence _fnSerialize(
   XPathContext context,
   XPathSequence arg, [
   Object? params,
-]) => throw UnimplementedError('fn:serialize');
+]) {
+  // TODO: Add support for serialization parameters
+  final result = arg
+      .map((item) => item is XmlNode ? item.toXmlString() : xsString.cast(item))
+      .join();
+  return XPathSequence.single(result);
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-parse-xml
 const fnParseXml = XPathFunctionDefinition(
@@ -185,8 +193,10 @@ const fnParseXml = XPathFunctionDefinition(
   function: _fnParseXml,
 );
 
-XPathSequence _fnParseXml(XPathContext context, String? arg) =>
-    throw UnimplementedError('fn:parse-xml');
+XPathSequence _fnParseXml(XPathContext context, String? arg) {
+  if (arg == null) return XPathSequence.empty;
+  return XPathSequence.single(XmlDocument.parse(arg));
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-parse-xml-fragment
 const fnParseXmlFragment = XPathFunctionDefinition(
@@ -202,8 +212,10 @@ const fnParseXmlFragment = XPathFunctionDefinition(
   function: _fnParseXmlFragment,
 );
 
-XPathSequence _fnParseXmlFragment(XPathContext context, String? arg) =>
-    throw UnimplementedError('fn:parse-xml-fragment');
-
 XmlNode _defaultToContextItem(XPathContext context) =>
     xsNode.cast(context.item);
+
+XPathSequence _fnParseXmlFragment(XPathContext context, String? arg) {
+  if (arg == null) return XPathSequence.empty;
+  return XPathSequence.single(XmlDocumentFragment.parse(arg));
+}
