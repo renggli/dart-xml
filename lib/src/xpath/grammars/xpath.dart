@@ -410,36 +410,32 @@ class XPathGrammar {
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-PathExpr
   Parser<XPathExpression> pathExpr() => [
     seq2(token('//'), ref0(relativePathExpr)).map2(
-      (s, e) => PathExpression([
-        const Step(DescendantOrSelfAxis()),
-        ...e,
+      (_, expr) => PathExpression([
+        const StepExpression(DescendantOrSelfAxis()),
+        ...expr,
       ], isAbsolute: true),
     ),
-    seq2(token('/'), ref0(relativePathExpr).optional()).map2((s, e) {
-      if (e == null) {
-        // Root node
-        // Assuming empty relative path implies returning root
-        return PathExpression([], isAbsolute: true);
-      }
-      return PathExpression(e, isAbsolute: true);
-    }),
-    ref0(relativePathExpr).map((e) {
-      if (e.length == 1 && e.first is ExpressionStep) {
-        return (e.first as ExpressionStep).expression;
-      }
-      return PathExpression(e, isAbsolute: false);
-    }),
+    seq2(token('/'), ref0(relativePathExpr).optional()).map2(
+      (_, expr) => expr == null
+          ? PathExpression([], isAbsolute: true)
+          : PathExpression(expr, isAbsolute: true),
+    ),
+    ref0(relativePathExpr).map(
+      (expr) => expr.length == 1
+          ? expr.first
+          : PathExpression(expr, isAbsolute: false),
+    ),
   ].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-RelativePathExpr
-  Parser<List<Step>> relativePathExpr() => ref0(stepExpr)
+  Parser<List<XPathExpression>> relativePathExpr() => ref0(stepExpr)
       .plusSeparated([token('//'), token('/')].toChoiceParser())
       .map((list) {
         final steps = [list.elements.first];
         for (var i = 1; i < list.elements.length; i++) {
           final sep = list.separators[i - 1];
           if (sep == '//') {
-            steps.add(const Step(DescendantOrSelfAxis()));
+            steps.add(const StepExpression(DescendantOrSelfAxis()));
           }
           steps.add(list.elements[i]);
         }
@@ -447,73 +443,72 @@ class XPathGrammar {
       });
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-StepExpr
-  Parser<Step> stepExpr() => [
-    ref0(postfixExpr).map(ExpressionStep.new),
-    ref0(axisStep),
-  ].toChoiceParser();
+  Parser<XPathExpression> stepExpr() =>
+      [ref0(postfixExpr), ref0(axisStep)].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-AxisStep
-  Parser<Step> axisStep() => [
+  Parser<StepExpression> axisStep() => [
     seq2(ref0(reverseStep), ref0(predicateList)).map2(
       (step, preds) =>
-          Step(step.axis, nodeTest: step.nodeTest, predicates: preds),
+          StepExpression(step.axis, nodeTest: step.nodeTest, predicates: preds),
     ),
     seq2(ref0(forwardStep), ref0(predicateList)).map2(
       (step, preds) =>
-          Step(step.axis, nodeTest: step.nodeTest, predicates: preds),
+          StepExpression(step.axis, nodeTest: step.nodeTest, predicates: preds),
     ),
   ].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ForwardStep
-  Parser<Step> forwardStep() => [
-    seq2(
-      ref0(forwardAxis),
-      ref0(nodeTest),
-    ).map2((axis, test) => Step(axis, nodeTest: test)),
-    ref0(abbrevForwardStep),
-  ].toChoiceParser();
+  Parser<StepExpression> forwardStep() =>
+      [ref0(forwardAxis), ref0(abbrevForwardStep)].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ForwardAxis
-  Parser<Axis> forwardAxis() => [
-    token('child::').constant(const ChildAxis()),
-    token('descendant::').constant(const DescendantAxis()),
-    token('attribute::').constant(const AttributeAxis()),
-    token('self::').constant(const SelfAxis()),
-    token('descendant-or-self::').constant(const DescendantOrSelfAxis()),
-    token('following-sibling::').constant(const FollowingSiblingAxis()),
-    token('following::').constant(const FollowingAxis()),
-    token('namespace::').map((_) => _unimplemented('NamespaceAxis')),
-  ].toChoiceParser();
+  Parser<StepExpression> forwardAxis() => seq2(
+    [
+      token('child::').constant(const ChildAxis()),
+      token('descendant::').constant(const DescendantAxis()),
+      token('attribute::').constant(const AttributeAxis()),
+      token('self::').constant(const SelfAxis()),
+      token('descendant-or-self::').constant(const DescendantOrSelfAxis()),
+      token('following-sibling::').constant(const FollowingSiblingAxis()),
+      token('following::').constant(const FollowingAxis()),
+      token('namespace::').map((_) => _unimplemented('NamespaceAxis')),
+    ].toChoiceParser().cast<Axis>(),
+    ref0(nodeTest),
+  ).map2((axis, test) => StepExpression(axis, nodeTest: test));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-AbbrevForwardStep
-  Parser<Step> abbrevForwardStep() =>
-      seq2(token('@').optional(), ref0(nodeTest)).map2(
-        (attr, test) => attr == null
-            ? Step(const ChildAxis(), nodeTest: test)
-            : Step(const AttributeAxis(), nodeTest: test),
-      );
-
-  // https://www.w3.org/TR/xpath-31/#doc-xpath31-ReverseStep
-  Parser<Step> reverseStep() => [
-    seq2(
-      ref0(reverseAxis),
-      ref0(nodeTest),
-    ).map2((axis, test) => Step(axis, nodeTest: test)),
-    ref0(abbrevReverseStep),
+  Parser<StepExpression> abbrevForwardStep() => [
+    seq2(token('@').optional(), ref0(nodeTest)).map2(
+      (attr, test) =>
+          attr != null ||
+              test is AttributeTypeTest ||
+              test is SchemaAttributeTypeTest
+          ? StepExpression(const AttributeAxis(), nodeTest: test)
+          : StepExpression(const ChildAxis(), nodeTest: test),
+    ),
   ].toChoiceParser();
 
+  // https://www.w3.org/TR/xpath-31/#doc-xpath31-ReverseStep
+  Parser<StepExpression> reverseStep() =>
+      [ref0(reverseAxis), ref0(abbrevReverseStep)].toChoiceParser();
+
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ReverseAxis
-  Parser<Axis> reverseAxis() => [
-    token('parent::').constant(const ParentAxis()),
-    token('ancestor::').constant(const AncestorAxis()),
-    token('preceding-sibling::').constant(const PrecedingSiblingAxis()),
-    token('preceding::').constant(const PrecedingAxis()),
-    token('ancestor-or-self::').constant(const AncestorOrSelfAxis()),
-  ].toChoiceParser().cast<Axis>();
+  Parser<StepExpression> reverseAxis() => seq2(
+    [
+      token('parent::').constant(const ParentAxis()),
+      token('ancestor::').constant(const AncestorAxis()),
+      token('preceding-sibling::').constant(const PrecedingSiblingAxis()),
+      token('preceding::').constant(const PrecedingAxis()),
+      token('ancestor-or-self::').constant(const AncestorOrSelfAxis()),
+    ].toChoiceParser().cast<Axis>(),
+    ref0(nodeTest),
+  ).map2((axis, test) => StepExpression(axis, nodeTest: test));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-AbbrevReverseStep
-  Parser<Step> abbrevReverseStep() =>
-      token('..').constant(const Step(ParentAxis()));
+  Parser<StepExpression> abbrevReverseStep() => [
+    token('..').constant(const StepExpression(ParentAxis())),
+  ].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-NodeTest
   Parser<NodeTest> nodeTest() => [

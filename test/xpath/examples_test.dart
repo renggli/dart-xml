@@ -304,4 +304,32 @@ void main() {
       );
     });
   });
+  group('regressions', () {
+    test('elements and attributes', () {
+      final document = XmlDocument.parse(
+        '<a b="1"><c d="2"><e f="3"/></c></a>',
+      );
+      expectXPath(
+        document,
+        '//element()',
+        document.descendants.whereType<XmlElement>(),
+      );
+      expectXPath(
+        document,
+        '//(element())',
+        document.descendants.whereType<XmlElement>(),
+      );
+      expectXPath(
+        document,
+        '//attribute()',
+        document.descendants.whereType<XmlAttribute>(),
+      );
+      expectXPath(
+        document,
+        '//(attribute())',
+        document.descendants.whereType<XmlAttribute>(),
+      );
+      expectXPath(document, '//(element()|attribute())', document.descendants);
+    });
+  });
 }

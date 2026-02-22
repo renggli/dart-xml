@@ -75,11 +75,17 @@ void main() {
     expectXPath(current, 'element(ns2:e3)', ['<ns2:e3/>']);
   });
   test('attribute()', () {
-    expectXPath(current, 'attribute()', []);
+    expectXPath(current, 'attribute()', [
+      'xmlns:ns1="uri1"',
+      'xmlns:ns2="uri2"',
+    ]);
     expectXPath(current, '*/@attribute()', ['a="1"', 'b="2"']);
   });
   test('attribute(*)', () {
-    expectXPath(current, 'attribute(*)', []);
+    expectXPath(current, 'attribute(*)', [
+      'xmlns:ns1="uri1"',
+      'xmlns:ns2="uri2"',
+    ]);
     expectXPath(current, '*/@attribute(*)', ['a="1"', 'b="2"']);
   });
   test('attribute(a)', () {

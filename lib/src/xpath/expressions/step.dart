@@ -1,15 +1,20 @@
 import 'package:meta/meta.dart';
 
+import '../../xml/nodes/node.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart' show XPathExpression;
 import '../types/node.dart';
+import '../types/sequence.dart';
 import 'axis.dart';
 import 'node.dart';
 import 'predicate.dart';
 
+/// A step in a path expression.
+///
+/// Returns the resulting nodes in document order.
 @immutable
-class Step {
-  const Step(
+class StepExpression implements XPathExpression {
+  const StepExpression(
     this.axis, {
     this.nodeTest = const NodeTypeTest(),
     this.predicates = const [],
@@ -19,9 +24,9 @@ class Step {
   final NodeTest nodeTest;
   final List<Predicate> predicates;
 
-  /// Apply this step to the given context, returning the resulting nodes in document order.
-  Iterable<Object> call(XPathContext context) {
-    var result = <Object>[];
+  @override
+  XPathSequence call(XPathContext context) {
+    var result = <XmlNode>[];
     for (final node in axis.find(xsNode.cast(context.item))) {
       if (nodeTest.matches(node)) {
         result.add(node);
@@ -32,35 +37,18 @@ class Step {
       final inner = context.copy();
       for (final predicate in predicates) {
         inner.last = result.length;
-        final matched = <Object>[];
+        final matched = <XmlNode>[];
         for (var i = 0; i < result.length; i++) {
-          inner.item = result[isReverseIndexed ? result.length - i - 1 : i];
+          final node = inner.item =
+              result[isReverseIndexed ? result.length - i - 1 : i];
           inner.position = i + 1;
           if (predicate.matches(inner)) {
-            matched.add(inner.item);
+            matched.add(node);
           }
         }
         result = matched;
       }
     }
-    return result;
+    return XPathSequence(result);
   }
-}
-
-class ExpressionStep implements Step {
-  const ExpressionStep(this.expression);
-
-  final XPathExpression expression;
-
-  @override
-  Axis get axis => const SelfAxis();
-
-  @override
-  NodeTest get nodeTest => const NodeTypeTest();
-
-  @override
-  List<Predicate> get predicates => const [];
-
-  @override
-  Iterable<Object> call(XPathContext context) => expression(context);
 }
