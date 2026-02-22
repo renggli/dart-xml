@@ -1,4 +1,7 @@
+import 'package:collection/collection.dart';
+
 import '../../xml/extensions/comparison.dart';
+import '../../xml/extensions/descendants.dart';
 import '../../xml/extensions/parent.dart';
 import '../../xml/nodes/node.dart';
 import '../evaluation/context.dart';
@@ -194,14 +197,34 @@ class PathExpression implements XPathExpression {
         }
         nodes = innerNodes;
       }
-      final result = nodes.toList();
-      result.sort((a, b) {
-        if (a is XmlNode && b is XmlNode) {
-          return a.compareNodePosition(b);
-        }
-        return 0;
-      });
-      return XPathSequence(result);
+      return XPathSequence(_sortAndDeduplicate(nodes, contextNode.root));
     }
+  }
+
+  static List<Object> _sortAndDeduplicate(Iterable<Object> iter, XmlNode root) {
+    final nodes = <XmlNode>{};
+    final others = <Object>{};
+    for (final item in iter) {
+      if (item is XmlNode) {
+        nodes.add(item);
+      } else {
+        others.add(item);
+      }
+    }
+    final result = <Object>[];
+    if (nodes.length <= 50) {
+      result.addAll(nodes.sorted((a, b) => a.compareNodePosition(b)));
+    } else {
+      if (nodes.remove(root)) result.add(root);
+      for (final node in root.descendants) {
+        if (nodes.isEmpty) break;
+        if (nodes.remove(node)) result.add(node);
+      }
+      if (nodes.isNotEmpty) {
+        result.addAll(nodes.sorted((a, b) => a.compareNodePosition(b)));
+      }
+    }
+    result.addAll(others);
+    return result;
   }
 }

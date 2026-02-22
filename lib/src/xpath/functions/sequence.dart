@@ -1,5 +1,3 @@
-import 'package:collection/collection.dart';
-
 import '../../../xml.dart';
 import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
@@ -244,34 +242,68 @@ const fnSubsequence = XPathFunctionDefinition(
       type: xsAny,
       cardinality: XPathCardinality.zeroOrMore,
     ),
-    XPathArgumentDefinition(name: 'startingLoc', type: xsInteger),
+    XPathArgumentDefinition(name: 'startingLoc', type: xsDouble),
   ],
-  optionalArguments: [XPathArgumentDefinition(name: 'length', type: xsInteger)],
+  optionalArguments: [XPathArgumentDefinition(name: 'length', type: xsDouble)],
   function: _fnSubsequence,
 );
 
 XPathSequence _fnSubsequence(
   XPathContext context,
   XPathSequence sourceSeq,
-  int startingLoc, [
-  int? length,
+  double startingLoc, [
+  double? length,
 ]) {
-  final start = startingLoc;
-  final len = length;
-  if (len != null) {
-    final end = start + len;
-    return XPathSequence(
-      sourceSeq.toList().whereIndexed((int index, Object item) {
-        final pos = index + 1;
-        return pos >= start && pos < end;
-      }),
-    );
+  if (startingLoc.isNaN || (length != null && length.isNaN)) {
+    return XPathSequence.empty;
   }
-  return XPathSequence(
-    sourceSeq.toList().whereIndexed(
-      (int index, Object item) => index + 1 >= start,
-    ),
-  );
+
+  final startRound = startingLoc.isInfinite
+      ? startingLoc
+      : startingLoc.roundToDouble();
+
+  final lengthRound = length == null
+      ? null
+      : (length.isInfinite ? length : length.roundToDouble());
+
+  final endRound = lengthRound != null
+      ? startRound + lengthRound
+      : double.infinity;
+
+  if (endRound.isNaN ||
+      endRound <= 1.0 ||
+      (startRound.isInfinite && startRound > 0)) {
+    return XPathSequence.empty;
+  }
+
+  var skipCount = 0;
+  if (startRound > 1.0) {
+    if (startRound > 9007199254740992.0) {
+      return XPathSequence.empty;
+    }
+    skipCount = (startRound - 1.0).toInt();
+  }
+
+  int? takeCount;
+  if (endRound != double.infinity) {
+    if (endRound > 9007199254740992.0) {
+      takeCount = null;
+    } else {
+      final take = (endRound - 1.0).toInt() - skipCount;
+      if (take <= 0) return XPathSequence.empty;
+      takeCount = take;
+    }
+  }
+
+  Iterable<Object> iter = sourceSeq;
+  if (skipCount > 0) {
+    iter = iter.skip(skipCount);
+  }
+  if (takeCount != null) {
+    iter = iter.take(takeCount);
+  }
+
+  return XPathSequence(iter);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-unordered

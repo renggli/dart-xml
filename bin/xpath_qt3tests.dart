@@ -15,17 +15,14 @@ import 'package:xml/src/xpath/types/string.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
+/// URL of the official XPath and XQpery W3C test-suite.
 const githubRepository = 'https://github.com/w3c/qt3tests.git';
+
+/// Path to the local catalog file.
 final catalogFile = File('.qt3tests/catalog.xml').absolute;
 
-// These tests are skipped because they are extremely slow.
-const skippedTests = <String>{
-  'cbcl-subsequence-010',
-  'cbcl-subsequence-011',
-  'cbcl-subsequence-012',
-  'cbcl-subsequence-013',
-  'cbcl-subsequence-014',
-};
+/// Test names that are skipped.
+const skippedTests = <String>{};
 
 void main() {
   downloadAndUpdateTestData();
@@ -156,20 +153,27 @@ class TestCase {
       result.skipped++;
       return;
     }
+    final stopwatch = Stopwatch()..start();
     try {
       _test();
-      stdout.writeln(': OK');
+      stopwatch.stop();
+      stdout.writeln(': OK ${formatStopwatch(stopwatch)}');
       result.successes++;
     } on TestFailure catch (error) {
-      stdout.writeln(': FAILURE - ${error.message}');
+      stopwatch.stop();
+      stdout.writeln(
+        ': FAILURE ${formatStopwatch(stopwatch)} - ${formatMessage(error.message)}',
+      );
       result.failures++;
     } catch (error) {
       final message = error is StateError
           ? error.message
           : error is UnsupportedError
-          ? error.message
+          ? (error.message ?? 'Unsupported')
           : error.toString();
-      stdout.writeln(': ERROR - $message');
+      stdout.writeln(
+        ': ERROR ${formatStopwatch(stopwatch)} - ${formatMessage(message)}',
+      );
       result.errors++;
     }
   }
@@ -412,3 +416,13 @@ String formatSequence(XPathSequence sequence) =>
         return item.toString();
       }
     }).join(', ')})';
+
+/// Helper to format a stopwatch duration.
+String formatStopwatch(Stopwatch stopwatch) =>
+    '[${(stopwatch.elapsed.inMicroseconds / 1000).toStringAsFixed(3)}ms]';
+
+/// Helper to format a error message.
+String formatMessage(String message) {
+  final normalize = message.trim().replaceAll(RegExp(r'\s+'), ' ');
+  return normalize.length > 80 ? '${normalize.substring(0, 75)}...' : normalize;
+}
