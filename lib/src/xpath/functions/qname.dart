@@ -45,7 +45,7 @@ XPathSequence _fnResolveQName(
     throw XPathEvaluationException('Prefix "$prefix" not found');
   }
   return XPathSequence.single(
-    XmlName.parts(local, namespacePrefix: prefix, namespaceUri: uri),
+    XmlName.parts(local, prefix: prefix, namespaceUri: uri),
   );
 }
 
@@ -80,7 +80,7 @@ XPathSequence _fnQName(
     throw XPathEvaluationException('Invalid QName syntax: $paramQName');
   }
   return XPathSequence.single(
-    XmlName.parts(local, namespacePrefix: prefix, namespaceUri: uri),
+    XmlName.parts(local, prefix: prefix, namespaceUri: uri),
   );
 }
 

@@ -429,7 +429,7 @@ class XmlBuilder {
       definition.isUsed = true;
       return XmlName.parts(
         name,
-        namespacePrefix: definition.prefix,
+        prefix: definition.prefix,
         namespaceUri: definition.uri,
       );
     }

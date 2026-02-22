@@ -33,6 +33,25 @@ Matcher isXmlNode(dynamic matcher) => switch (matcher) {
   _ => throw ArgumentError.value(matcher, 'matcher', 'Invalid type'),
 };
 
+/// Returns a [Matcher] that assert on a [XmlName].
+Matcher isXmlName({
+  dynamic qualified = isNotEmpty,
+  dynamic prefix = isNull,
+  dynamic local = isNotEmpty,
+  dynamic namespaceUri = isNull,
+  dynamic extendedQualified = isNotEmpty,
+}) => isA<XmlName>()
+    .having((value) => value.qualified, 'qualified', qualified)
+    .having((value) => value.prefix, 'prefix', prefix)
+    .having((value) => value.local, 'local', local)
+    .having((value) => value.namespaceUri, 'namespaceUri', namespaceUri)
+    .having(
+      (value) => value.extendedQualified,
+      'extendedQualified',
+      extendedQualified,
+    )
+    .having((value) => value.toString(), 'toString', qualified);
+
 /// Returns a [Matcher] that assert on a [XmlParentException].
 Matcher isXmlParentException({
   dynamic message = isNotEmpty,

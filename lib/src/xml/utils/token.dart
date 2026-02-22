@@ -32,6 +32,8 @@ class XmlToken {
   static const closeProcessing = '?>';
   static const entityStart = '&';
   static const entityEnd = ';';
+  static const openQualifiedUrl = 'Q{';
+  static const closeQualifiedUrl = '}';
 
   // https://en.wikipedia.org/wiki/QName
   static const nameStartChars =
