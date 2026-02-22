@@ -1,6 +1,6 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
-import 'package:xml/src/xpath/evaluation/functions.dart';
+import 'package:xml/src/xpath/evaluation/namespaces.dart';
 import 'package:xml/src/xpath/expressions/function.dart';
 import 'package:xml/src/xpath/expressions/variable.dart';
 import 'package:xml/src/xpath/types/function.dart';
@@ -10,7 +10,7 @@ import 'package:xml/xml.dart';
 import '../../utils/matchers.dart';
 import '../helpers.dart';
 
-final context = XPathContext(XmlElement.tag('root'));
+final context = XPathContext.canonical(XmlElement.tag('root'));
 const arg1 = XPathSequence.single('First');
 const arg2 = XPathSequence.single('Second');
 const result = XPathSequence.single('Confirmed');
@@ -36,7 +36,17 @@ void main() {
         LiteralExpression(arg1),
         LiteralExpression(arg2),
       ]);
-      expect(expr(context.copy(functions: {'fun': function})), result);
+      expect(
+        expr(
+          context.copy(
+            functions: {
+              const XmlName.parts('fun', namespaceUri: xpathFnNamespace):
+                  function,
+            },
+          ),
+        ),
+        result,
+      );
     });
     test('evaluate missing function', () {
       const expr = DynamicFunctionExpression('fun', []);
@@ -63,7 +73,13 @@ void main() {
         DynamicFunctionExpression('foo', []),
       );
       final closureContext = context.copy(
-        functions: {'foo': (context, args) => result},
+        functions: {
+          const XmlName.parts(
+            'foo',
+            namespaceUri: xpathFnNamespace,
+          ): (context, args) =>
+              result,
+        },
       );
       final function = expr(closureContext).first as XPathFunction;
       expect(function(context, []), result);
@@ -74,16 +90,22 @@ void main() {
       const expr = NamedFunctionExpression('foo');
       final function =
           expr(
-                context.copy(functions: {'foo': (context, args) => result}),
+                context.copy(
+                  functions: {
+                    const XmlName.parts(
+                      'foo',
+                      namespaceUri: xpathFnNamespace,
+                    ): (context, args) =>
+                        result,
+                  },
+                ),
               ).first
               as XPathFunction;
       expect(function(context, []), result);
     });
     test('evaluate with standard functions', () {
       const expr = NamedFunctionExpression('fn:abs');
-      final function =
-          expr(context.copy(functions: standardFunctions)).first
-              as XPathFunction;
+      final function = expr(context).first as XPathFunction;
       expect(
         function(context, [const XPathSequence.single(-42)]),
         isXPathSequence([42]),
@@ -101,7 +123,10 @@ void main() {
         expr(
           context.copy(
             functions: {
-              'foo': (context, args) =>
+              const XmlName.parts(
+                'foo',
+                namespaceUri: xpathFnNamespace,
+              ): (context, args) =>
                   XPathSequence.single((args[0].first as int) + 1),
             },
           ),
@@ -119,7 +144,10 @@ void main() {
         expr(
           context.copy(
             functions: {
-              'foo': (context, args) =>
+              const XmlName.parts(
+                'foo',
+                namespaceUri: xpathFnNamespace,
+              ): (context, args) =>
                   XPathSequence.single((args[0].first as int) + 1),
             },
           ),

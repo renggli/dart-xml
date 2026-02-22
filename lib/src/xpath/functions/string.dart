@@ -1,4 +1,5 @@
 import '../../xml/utils/cache.dart';
+import '../../xml/utils/name.dart';
 import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
@@ -10,8 +11,7 @@ import '../types/string.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-codepoints-to-string
 const fnCodepointsToString = XPathFunctionDefinition(
-  name: 'fn:codepoints-to-string',
-  aliases: ['codepoints-to-string'],
+  name: XmlName.qualified('fn:codepoints-to-string'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -35,8 +35,7 @@ XPathSequence _fnCodepointsToString(XPathContext context, XPathSequence arg) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-string-to-codepoints
 const fnStringToCodepoints = XPathFunctionDefinition(
-  name: 'fn:string-to-codepoints',
-  aliases: ['string-to-codepoints'],
+  name: XmlName.qualified('fn:string-to-codepoints'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -54,8 +53,7 @@ XPathSequence _fnStringToCodepoints(XPathContext context, String? arg) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-compare
 const fnCompare = XPathFunctionDefinition(
-  name: 'fn:compare',
-  aliases: ['compare'],
+  name: XmlName.qualified('fn:compare'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'comparand1',
@@ -86,8 +84,7 @@ XPathSequence _fnCompare(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-codepoint-equal
 const fnCodepointEqual = XPathFunctionDefinition(
-  name: 'fn:codepoint-equal',
-  aliases: ['codepoint-equal'],
+  name: XmlName.qualified('fn:codepoint-equal'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'comparand1',
@@ -114,8 +111,7 @@ XPathSequence _fnCodepointEqual(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-concat
 const fnConcat = XPathFunctionDefinition(
-  name: 'fn:concat',
-  aliases: ['concat'],
+  name: XmlName.qualified('fn:concat'),
   requiredArguments: [
     XPathArgumentDefinition(name: 'arg1', type: xsAny),
     XPathArgumentDefinition(name: 'arg2', type: xsAny),
@@ -141,8 +137,7 @@ XPathSequence _fnConcat(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-string-join
 const fnStringJoin = XPathFunctionDefinition(
-  name: 'fn:string-join',
-  aliases: ['string-join'],
+  name: XmlName.qualified('fn:string-join'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -164,8 +159,7 @@ XPathSequence _fnStringJoin(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-substring
 const fnSubstring = XPathFunctionDefinition(
-  name: 'fn:substring',
-  aliases: ['substring'],
+  name: XmlName.qualified('fn:substring'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'sourceString',
@@ -211,8 +205,7 @@ XPathSequence _fnSubstring(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-string-length
 const fnStringLength = XPathFunctionDefinition(
-  name: 'fn:string-length',
-  aliases: ['string-length'],
+  name: XmlName.qualified('fn:string-length'),
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -230,8 +223,7 @@ XPathSequence _fnStringLength(XPathContext context, [XPathSequence? arg]) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-normalize-space
 const fnNormalizeSpace = XPathFunctionDefinition(
-  name: 'fn:normalize-space',
-  aliases: ['normalize-space'],
+  name: XmlName.qualified('fn:normalize-space'),
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -249,8 +241,7 @@ XPathSequence _fnNormalizeSpace(XPathContext context, [Object? arg]) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-normalize-unicode
 const fnNormalizeUnicode = XPathFunctionDefinition(
-  name: 'fn:normalize-unicode',
-  aliases: ['normalize-unicode'],
+  name: XmlName.qualified('fn:normalize-unicode'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -276,8 +267,7 @@ XPathSequence _fnNormalizeUnicode(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-upper-case
 const fnUpperCase = XPathFunctionDefinition(
-  name: 'fn:upper-case',
-  aliases: ['upper-case'],
+  name: XmlName.qualified('fn:upper-case'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -295,8 +285,7 @@ XPathSequence _fnUpperCase(XPathContext context, String? arg) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-lower-case
 const fnLowerCase = XPathFunctionDefinition(
-  name: 'fn:lower-case',
-  aliases: ['lower-case'],
+  name: XmlName.qualified('fn:lower-case'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -314,8 +303,7 @@ XPathSequence _fnLowerCase(XPathContext context, String? arg) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-translate
 const fnTranslate = XPathFunctionDefinition(
-  name: 'fn:translate',
-  aliases: ['translate'],
+  name: XmlName.qualified('fn:translate'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -359,8 +347,7 @@ XPathSequence _fnTranslate(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-contains
 const fnContains = XPathFunctionDefinition(
-  name: 'fn:contains',
-  aliases: ['contains'],
+  name: XmlName.qualified('fn:contains'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg1',
@@ -392,8 +379,7 @@ XPathSequence _fnContains(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-starts-with
 const fnStartsWith = XPathFunctionDefinition(
-  name: 'fn:starts-with',
-  aliases: ['starts-with'],
+  name: XmlName.qualified('fn:starts-with'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg1',
@@ -425,8 +411,7 @@ XPathSequence _fnStartsWith(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-ends-with
 const fnEndsWith = XPathFunctionDefinition(
-  name: 'fn:ends-with',
-  aliases: ['ends-with'],
+  name: XmlName.qualified('fn:ends-with'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg1',
@@ -458,8 +443,7 @@ XPathSequence _fnEndsWith(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-substring-before
 const fnSubstringBefore = XPathFunctionDefinition(
-  name: 'fn:substring-before',
-  aliases: ['substring-before'],
+  name: XmlName.qualified('fn:substring-before'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg1',
@@ -492,8 +476,7 @@ XPathSequence _fnSubstringBefore(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-substring-after
 const fnSubstringAfter = XPathFunctionDefinition(
-  name: 'fn:substring-after',
-  aliases: ['substring-after'],
+  name: XmlName.qualified('fn:substring-after'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg1',
@@ -526,8 +509,7 @@ XPathSequence _fnSubstringAfter(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-matches
 const fnMatches = XPathFunctionDefinition(
-  name: 'fn:matches',
-  aliases: ['matches'],
+  name: XmlName.qualified('fn:matches'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'input',
@@ -553,8 +535,7 @@ XPathSequence _fnMatches(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-replace
 const fnReplace = XPathFunctionDefinition(
-  name: 'fn:replace',
-  aliases: ['replace'],
+  name: XmlName.qualified('fn:replace'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'input',
@@ -582,8 +563,7 @@ XPathSequence _fnReplace(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-tokenize
 const fnTokenize = XPathFunctionDefinition(
-  name: 'fn:tokenize',
-  aliases: ['tokenize'],
+  name: XmlName.qualified('fn:tokenize'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'input',
@@ -614,8 +594,7 @@ XPathSequence _fnTokenize(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-analyze-string
 const fnAnalyzeString = XPathFunctionDefinition(
-  name: 'fn:analyze-string',
-  aliases: ['analyze-string'],
+  name: XmlName.qualified('fn:analyze-string'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'input',
@@ -640,8 +619,7 @@ XPathSequence _fnAnalyzeString(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-collation-key
 const fnCollationKey = XPathFunctionDefinition(
-  name: 'fn:collation-key',
-  aliases: ['collation-key'],
+  name: XmlName.qualified('fn:collation-key'),
   requiredArguments: [
     XPathArgumentDefinition(name: 'relative', type: xsString),
   ],
@@ -660,8 +638,7 @@ XPathSequence _fnCollationKey(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-contains-token
 const fnContainsToken = XPathFunctionDefinition(
-  name: 'fn:contains-token',
-  aliases: ['contains-token'],
+  name: XmlName.qualified('fn:contains-token'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'input',

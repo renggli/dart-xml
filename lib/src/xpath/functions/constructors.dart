@@ -1,3 +1,4 @@
+import '../../xml/utils/name.dart';
 import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
@@ -13,7 +14,7 @@ import '../types/string.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-string
 const xsStringConstructor = XPathFunctionDefinition(
-  name: 'xs:string',
+  name: XmlName.qualified('xs:string'),
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -31,7 +32,7 @@ XPathSequence _xsStringConstructor(XPathContext context, [Object? value]) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-boolean
 const xsBooleanConstructor = XPathFunctionDefinition(
-  name: 'xs:boolean',
+  name: XmlName.qualified('xs:boolean'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -49,7 +50,7 @@ XPathSequence _xsBooleanConstructor(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-integer
 const xsIntegerConstructor = XPathFunctionDefinition(
-  name: 'xs:integer',
+  name: XmlName.qualified('xs:integer'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -65,7 +66,7 @@ XPathSequence _xsIntegerConstructor(XPathContext context, Object value) =>
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-decimal
 const xsDecimalConstructor = XPathFunctionDefinition(
-  name: 'xs:decimal',
+  name: XmlName.qualified('xs:decimal'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -81,7 +82,7 @@ XPathSequence _xsDecimalConstructor(XPathContext context, Object value) =>
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-double
 const xsDoubleConstructor = XPathFunctionDefinition(
-  name: 'xs:double',
+  name: XmlName.qualified('xs:double'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -97,7 +98,7 @@ XPathSequence _xsDoubleConstructor(XPathContext context, Object value) =>
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-float
 const xsFloatConstructor = XPathFunctionDefinition(
-  name: 'xs:float',
+  name: XmlName.qualified('xs:float'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -113,7 +114,7 @@ XPathSequence _xsFloatConstructor(XPathContext context, Object value) =>
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-numeric
 const xsNumericConstructor = XPathFunctionDefinition(
-  name: 'xs:numeric',
+  name: XmlName.qualified('xs:numeric'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -129,7 +130,7 @@ XPathSequence _xsNumericConstructor(XPathContext context, Object value) =>
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-integer
 const xsByteConstructor = XPathFunctionDefinition(
-  name: 'xs:byte',
+  name: XmlName.qualified('xs:byte'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -142,7 +143,7 @@ const xsByteConstructor = XPathFunctionDefinition(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-integer
 const xsIntConstructor = XPathFunctionDefinition(
-  name: 'xs:int',
+  name: XmlName.qualified('xs:int'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -155,7 +156,7 @@ const xsIntConstructor = XPathFunctionDefinition(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-integer
 const xsLongConstructor = XPathFunctionDefinition(
-  name: 'xs:long',
+  name: XmlName.qualified('xs:long'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -168,7 +169,7 @@ const xsLongConstructor = XPathFunctionDefinition(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-integer
 const xsNegativeIntegerConstructor = XPathFunctionDefinition(
-  name: 'xs:negativeInteger',
+  name: XmlName.qualified('xs:negativeInteger'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -181,7 +182,7 @@ const xsNegativeIntegerConstructor = XPathFunctionDefinition(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-integer
 const xsNonNegativeIntegerConstructor = XPathFunctionDefinition(
-  name: 'xs:nonNegativeInteger',
+  name: XmlName.qualified('xs:nonNegativeInteger'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -194,7 +195,7 @@ const xsNonNegativeIntegerConstructor = XPathFunctionDefinition(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-integer
 const xsNonPositiveIntegerConstructor = XPathFunctionDefinition(
-  name: 'xs:nonPositiveInteger',
+  name: XmlName.qualified('xs:nonPositiveInteger'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -207,7 +208,7 @@ const xsNonPositiveIntegerConstructor = XPathFunctionDefinition(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-integer
 const xsPositiveIntegerConstructor = XPathFunctionDefinition(
-  name: 'xs:positiveInteger',
+  name: XmlName.qualified('xs:positiveInteger'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -220,7 +221,7 @@ const xsPositiveIntegerConstructor = XPathFunctionDefinition(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-integer
 const xsShortConstructor = XPathFunctionDefinition(
-  name: 'xs:short',
+  name: XmlName.qualified('xs:short'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -233,7 +234,7 @@ const xsShortConstructor = XPathFunctionDefinition(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-integer
 const xsUnsignedByteConstructor = XPathFunctionDefinition(
-  name: 'xs:unsignedByte',
+  name: XmlName.qualified('xs:unsignedByte'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -246,7 +247,7 @@ const xsUnsignedByteConstructor = XPathFunctionDefinition(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-integer
 const xsUnsignedIntConstructor = XPathFunctionDefinition(
-  name: 'xs:unsignedInt',
+  name: XmlName.qualified('xs:unsignedInt'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -259,7 +260,7 @@ const xsUnsignedIntConstructor = XPathFunctionDefinition(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-integer
 const xsUnsignedLongConstructor = XPathFunctionDefinition(
-  name: 'xs:unsignedLong',
+  name: XmlName.qualified('xs:unsignedLong'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -272,7 +273,7 @@ const xsUnsignedLongConstructor = XPathFunctionDefinition(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-integer
 const xsUnsignedShortConstructor = XPathFunctionDefinition(
-  name: 'xs:unsignedShort',
+  name: XmlName.qualified('xs:unsignedShort'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -285,7 +286,7 @@ const xsUnsignedShortConstructor = XPathFunctionDefinition(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-date
 const xsDateConstructor = XPathFunctionDefinition(
-  name: 'xs:date',
+  name: XmlName.qualified('xs:date'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -301,7 +302,7 @@ XPathSequence _xsDateTimeConstructor(XPathContext context, Object value) =>
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-dateTime
 const xsDateTimeConstructor = XPathFunctionDefinition(
-  name: 'xs:dateTime',
+  name: XmlName.qualified('xs:dateTime'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -314,7 +315,7 @@ const xsDateTimeConstructor = XPathFunctionDefinition(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-dateTimeStamp
 const xsDateTimeStampConstructor = XPathFunctionDefinition(
-  name: 'xs:dateTimeStamp',
+  name: XmlName.qualified('xs:dateTimeStamp'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -327,7 +328,7 @@ const xsDateTimeStampConstructor = XPathFunctionDefinition(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-gDay
 const xsGDayConstructor = XPathFunctionDefinition(
-  name: 'xs:gDay',
+  name: XmlName.qualified('xs:gDay'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -340,7 +341,7 @@ const xsGDayConstructor = XPathFunctionDefinition(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-gMonth
 const xsGMonthConstructor = XPathFunctionDefinition(
-  name: 'xs:gMonth',
+  name: XmlName.qualified('xs:gMonth'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -353,7 +354,7 @@ const xsGMonthConstructor = XPathFunctionDefinition(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-gMonthDay
 const xsGMonthDayConstructor = XPathFunctionDefinition(
-  name: 'xs:gMonthDay',
+  name: XmlName.qualified('xs:gMonthDay'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -366,7 +367,7 @@ const xsGMonthDayConstructor = XPathFunctionDefinition(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-gYear
 const xsGYearConstructor = XPathFunctionDefinition(
-  name: 'xs:gYear',
+  name: XmlName.qualified('xs:gYear'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -379,7 +380,7 @@ const xsGYearConstructor = XPathFunctionDefinition(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-gYearMonth
 const xsGYearMonthConstructor = XPathFunctionDefinition(
-  name: 'xs:gYearMonth',
+  name: XmlName.qualified('xs:gYearMonth'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -392,7 +393,7 @@ const xsGYearMonthConstructor = XPathFunctionDefinition(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-time
 const xsTimeConstructor = XPathFunctionDefinition(
-  name: 'xs:time',
+  name: XmlName.qualified('xs:time'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -405,7 +406,7 @@ const xsTimeConstructor = XPathFunctionDefinition(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-duration
 const xsDurationConstructor = XPathFunctionDefinition(
-  name: 'xs:duration',
+  name: XmlName.qualified('xs:duration'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -421,7 +422,7 @@ XPathSequence _xsDurationConstructor(XPathContext context, Object value) =>
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-yearMonthDuration
 const xsYearMonthDurationConstructor = XPathFunctionDefinition(
-  name: 'xs:yearMonthDuration',
+  name: XmlName.qualified('xs:yearMonthDuration'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -434,7 +435,7 @@ const xsYearMonthDurationConstructor = XPathFunctionDefinition(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-dayTimeDuration
 const xsDayTimeDurationConstructor = XPathFunctionDefinition(
-  name: 'xs:dayTimeDuration',
+  name: XmlName.qualified('xs:dayTimeDuration'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -447,7 +448,7 @@ const xsDayTimeDurationConstructor = XPathFunctionDefinition(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hexBinary
 const xsHexBinaryConstructor = XPathFunctionDefinition(
-  name: 'xs:hexBinary',
+  name: XmlName.qualified('xs:hexBinary'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -463,7 +464,7 @@ XPathSequence _xsHexBinaryConstructor(XPathContext context, Object value) =>
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-base64Binary
 const xsBase64BinaryConstructor = XPathFunctionDefinition(
-  name: 'xs:base64Binary',
+  name: XmlName.qualified('xs:base64Binary'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -479,7 +480,7 @@ XPathSequence _xsBase64BinaryConstructor(XPathContext context, Object value) =>
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-anyURI
 const xsAnyURIConstructor = XPathFunctionDefinition(
-  name: 'xs:anyURI',
+  name: XmlName.qualified('xs:anyURI'),
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -492,7 +493,7 @@ const xsAnyURIConstructor = XPathFunctionDefinition(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-QName
 const xsQNameConstructor = XPathFunctionDefinition(
-  name: 'xs:QName',
+  name: XmlName.qualified('xs:QName'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -508,7 +509,7 @@ XPathSequence _xsQNameConstructor(XPathContext context, Object value) =>
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-NOTATION
 const xsNOTATIONConstructor = XPathFunctionDefinition(
-  name: 'xs:NOTATION',
+  name: XmlName.qualified('xs:NOTATION'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
@@ -521,7 +522,7 @@ const xsNOTATIONConstructor = XPathFunctionDefinition(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-untypedAtomic
 const xsUntypedAtomicConstructor = XPathFunctionDefinition(
-  name: 'xs:untypedAtomic',
+  name: XmlName.qualified('xs:untypedAtomic'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',

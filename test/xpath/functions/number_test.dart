@@ -9,7 +9,7 @@ import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
-final context = XPathContext(document);
+final context = XPathContext.empty(document);
 
 void main() {
   test('fn:abs', () {
@@ -167,7 +167,7 @@ void main() {
   });
   test('fn:number (context item)', () {
     final textNode = XmlText('123');
-    final contextWithNode = XPathContext(textNode);
+    final contextWithNode = XPathContext.empty(textNode);
     expect(fnNumber(contextWithNode, []), isXPathSequence([123]));
   });
   test('fn:random-number-generator (seed)', () {

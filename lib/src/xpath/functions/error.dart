@@ -1,3 +1,4 @@
+import '../../xml/utils/name.dart';
 import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
@@ -8,8 +9,7 @@ import '../types/string.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-error
 const fnError = XPathFunctionDefinition(
-  name: 'fn:error',
-  aliases: ['error'],
+  name: XmlName.qualified('fn:error'),
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'code',
@@ -47,8 +47,7 @@ XPathSequence _fnError(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-trace
 const fnTrace = XPathFunctionDefinition(
-  name: 'fn:trace',
-  aliases: ['trace'],
+  name: XmlName.qualified('fn:trace'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',

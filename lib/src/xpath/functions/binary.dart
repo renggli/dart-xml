@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import '../../xml/utils/name.dart';
 import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
@@ -9,7 +10,7 @@ import '../types/string.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-base64Binary-from-string
 const fnBase64BinaryFromString = XPathFunctionDefinition(
-  name: 'xs:base64Binary',
+  name: XmlName.qualified('xs:base64Binary'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -27,7 +28,7 @@ XPathSequence _fnBase64BinaryFromString(XPathContext context, String? arg) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hexBinary-from-string
 const fnHexBinaryFromString = XPathFunctionDefinition(
-  name: 'xs:hexBinary',
+  name: XmlName.qualified('xs:hexBinary'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',

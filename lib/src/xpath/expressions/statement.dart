@@ -19,10 +19,7 @@ class ForExpression implements XPathExpression {
         final sequence = binding.expression(currentContext);
         for (final item in sequence) {
           final nextContext = currentContext.copy(
-            variables: {
-              ...currentContext.variables,
-              binding.name: XPathSequence.single(item),
-            },
+            variables: {binding.name: XPathSequence.single(item)},
           );
           yield* loop(index + 1, nextContext);
         }
@@ -43,9 +40,9 @@ class LetExpression implements XPathExpression {
 
   @override
   XPathSequence call(XPathContext context) {
-    final inner = context.copy(variables: {...context.variables});
+    var inner = context;
     for (final binding in bindings) {
-      inner.variables[binding.name] = binding.expression(inner);
+      inner = inner.copy(variables: {binding.name: binding.expression(inner)});
     }
     return body(inner);
   }
@@ -65,10 +62,7 @@ class SomeExpression implements XPathExpression {
         final sequence = binding.expression(currentContext);
         for (final item in sequence) {
           final nextContext = currentContext.copy(
-            variables: {
-              ...currentContext.variables,
-              binding.name: XPathSequence.single(item),
-            },
+            variables: {binding.name: XPathSequence.single(item)},
           );
           if (loop(index + 1, nextContext)) {
             return true;
@@ -100,10 +94,7 @@ class EveryExpression implements XPathExpression {
         final sequence = binding.expression(currentContext);
         for (final item in sequence) {
           final nextContext = currentContext.copy(
-            variables: {
-              ...currentContext.variables,
-              binding.name: XPathSequence.single(item),
-            },
+            variables: {binding.name: XPathSequence.single(item)},
           );
           if (!loop(index + 1, nextContext)) {
             return false;

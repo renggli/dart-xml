@@ -5,6 +5,7 @@ import '../../xml/extensions/string.dart';
 import '../../xml/nodes/document.dart';
 import '../../xml/nodes/element.dart';
 import '../../xml/nodes/node.dart';
+import '../../xml/utils/name.dart';
 import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
@@ -16,8 +17,7 @@ import '../types/string.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-parse-json
 const fnParseJson = XPathFunctionDefinition(
-  name: 'fn:parse-json',
-  aliases: ['parse-json'],
+  name: XmlName.qualified('fn:parse-json'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'json-text',
@@ -69,8 +69,7 @@ XPathSequence _jsonToXPath(Object? json) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-json-doc
 const fnJsonDoc = XPathFunctionDefinition(
-  name: 'fn:json-doc',
-  aliases: ['json-doc'],
+  name: XmlName.qualified('fn:json-doc'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'href',
@@ -94,8 +93,7 @@ XPathSequence _fnJsonDoc(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-json-to-xml
 const fnJsonToXml = XPathFunctionDefinition(
-  name: 'fn:json-to-xml',
-  aliases: ['json-to-xml'],
+  name: XmlName.qualified('fn:json-to-xml'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'json-text',
@@ -193,8 +191,7 @@ void _jsonToXml(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-xml-to-json
 const fnXmlToJson = XPathFunctionDefinition(
-  name: 'fn:xml-to-json',
-  aliases: ['xml-to-json'],
+  name: XmlName.qualified('fn:xml-to-json'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'input',

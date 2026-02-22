@@ -1,41 +1,30 @@
 import 'package:test/test.dart';
+import 'package:xml/src/xml/utils/name.dart';
 import 'package:xml/src/xpath/evaluation/functions.dart';
+import 'package:xml/src/xpath/evaluation/namespaces.dart';
 
 void main() {
   group('functions', () {
     test('functions have unique names', () {
-      final names = <String>{};
+      final names = <XmlName>{};
       for (final definition in standardFunctionDefinitions) {
         expect(
           names.add(definition.name),
           isTrue,
           reason: 'Function name "${definition.name}" is not unique',
         );
-        for (final alias in definition.aliases) {
-          expect(
-            names.add(alias),
-            isTrue,
-            reason:
-                'Function alias "$alias" of "${definition.name}" is not unique',
-          );
-        }
       }
     });
-    test('functions contains all functions and their aliases', () {
+    test('functions contains all functions', () {
       for (final definition in standardFunctionDefinitions) {
-        expect(
-          standardFunctions[definition.name],
-          definition.call,
-          reason: 'Function "${definition.name}" is missing',
+        final name = definition.name.withNamespaceUri(
+          xpathNamespaceUris[definition.name.prefix],
         );
-        for (final alias in definition.aliases) {
-          expect(
-            standardFunctions[alias],
-            definition.call,
-            reason:
-                'Function alias "$alias" of "${definition.name}" is missing',
-          );
-        }
+        expect(
+          standardFunctions[name],
+          definition.call,
+          reason: 'Function "$name" is missing',
+        );
       }
     });
   });

@@ -1,3 +1,4 @@
+import '../../xml/utils/name.dart';
 import '../definitions/function.dart';
 import '../functions/accessor.dart' as accessor;
 import '../functions/array.dart' as array;
@@ -18,14 +19,14 @@ import '../functions/sequence.dart' as sequence;
 import '../functions/string.dart' as string;
 import '../functions/uri.dart' as uri;
 import '../types/function.dart';
+import 'namespaces.dart';
 
 /// The standard functions.
-final Map<String, XPathFunction> standardFunctions = {
-  for (final functionDefinition in standardFunctionDefinitions) ...{
-    functionDefinition.name: functionDefinition.call,
-    for (var alias in functionDefinition.aliases)
-      alias: functionDefinition.call,
-  },
+final Map<XmlName, XPathFunction> standardFunctions = {
+  for (final definition in standardFunctionDefinitions)
+    definition.name.withNamespaceUri(
+      xpathNamespaceUris[definition.name.prefix],
+    ): definition.call,
 };
 
 /// Internal list of standard function definitions.

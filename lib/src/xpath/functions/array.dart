@@ -1,3 +1,4 @@
+import '../../xml/utils/name.dart';
 import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
@@ -13,7 +14,7 @@ import '../types/string.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-size
 const fnArraySize = XPathFunctionDefinition(
-  name: 'array:size',
+  name: XmlName.qualified('array:size'),
   requiredArguments: [XPathArgumentDefinition(name: 'array', type: xsArray)],
   function: _fnArraySize,
 );
@@ -23,7 +24,7 @@ XPathSequence _fnArraySize(XPathContext context, XPathArray array) =>
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-get
 const fnArrayGet = XPathFunctionDefinition(
-  name: 'array:get',
+  name: XmlName.qualified('array:get'),
   requiredArguments: [
     XPathArgumentDefinition(name: 'array', type: xsArray),
     XPathArgumentDefinition(name: 'position', type: xsInteger),
@@ -45,7 +46,7 @@ XPathSequence _fnArrayGet(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-put
 const fnArrayPut = XPathFunctionDefinition(
-  name: 'array:put',
+  name: XmlName.qualified('array:put'),
   requiredArguments: [
     XPathArgumentDefinition(name: 'array', type: xsArray),
     XPathArgumentDefinition(name: 'position', type: xsInteger),
@@ -75,7 +76,7 @@ XPathSequence _fnArrayPut(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-append
 const fnArrayAppend = XPathFunctionDefinition(
-  name: 'array:append',
+  name: XmlName.qualified('array:append'),
   requiredArguments: [
     XPathArgumentDefinition(name: 'array', type: xsArray),
     XPathArgumentDefinition(
@@ -95,7 +96,7 @@ XPathSequence _fnArrayAppend(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-subarray
 const fnArraySubarray = XPathFunctionDefinition(
-  name: 'array:subarray',
+  name: XmlName.qualified('array:subarray'),
   requiredArguments: [
     XPathArgumentDefinition(name: 'array', type: xsArray),
     XPathArgumentDefinition(name: 'start', type: xsInteger),
@@ -120,7 +121,7 @@ XPathSequence _fnArraySubarray(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-remove
 const fnArrayRemove = XPathFunctionDefinition(
-  name: 'array:remove',
+  name: XmlName.qualified('array:remove'),
   requiredArguments: [
     XPathArgumentDefinition(name: 'array', type: xsArray),
     XPathArgumentDefinition(
@@ -154,7 +155,7 @@ XPathSequence _fnArrayRemove(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-insert-before
 const fnArrayInsertBefore = XPathFunctionDefinition(
-  name: 'array:insert-before',
+  name: XmlName.qualified('array:insert-before'),
   requiredArguments: [
     XPathArgumentDefinition(name: 'array', type: xsArray),
     XPathArgumentDefinition(name: 'position', type: xsInteger),
@@ -184,7 +185,7 @@ XPathSequence _fnArrayInsertBefore(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-head
 const fnArrayHead = XPathFunctionDefinition(
-  name: 'array:head',
+  name: XmlName.qualified('array:head'),
   requiredArguments: [XPathArgumentDefinition(name: 'array', type: xsArray)],
   function: _fnArrayHead,
 );
@@ -198,7 +199,7 @@ XPathSequence _fnArrayHead(XPathContext context, XPathArray array) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-tail
 const fnArrayTail = XPathFunctionDefinition(
-  name: 'array:tail',
+  name: XmlName.qualified('array:tail'),
   requiredArguments: [XPathArgumentDefinition(name: 'array', type: xsArray)],
   function: _fnArrayTail,
 );
@@ -212,7 +213,7 @@ XPathSequence _fnArrayTail(XPathContext context, XPathArray array) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-reverse
 const fnArrayReverse = XPathFunctionDefinition(
-  name: 'array:reverse',
+  name: XmlName.qualified('array:reverse'),
   requiredArguments: [XPathArgumentDefinition(name: 'array', type: xsArray)],
   function: _fnArrayReverse,
 );
@@ -222,7 +223,7 @@ XPathSequence _fnArrayReverse(XPathContext context, XPathArray array) =>
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-join
 const fnArrayJoin = XPathFunctionDefinition(
-  name: 'array:join',
+  name: XmlName.qualified('array:join'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arrays',
@@ -247,7 +248,7 @@ XPathSequence _fnArrayJoin(XPathContext context, XPathSequence arrays) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-flatten
 const fnArrayFlatten = XPathFunctionDefinition(
-  name: 'array:flatten',
+  name: XmlName.qualified('array:flatten'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -276,7 +277,7 @@ Iterable<Object> _fnArrayFlattenSync(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-for-each
 const fnArrayForEach = XPathFunctionDefinition(
-  name: 'array:for-each',
+  name: XmlName.qualified('array:for-each'),
   requiredArguments: [
     XPathArgumentDefinition(name: 'array', type: xsArray),
     XPathArgumentDefinition(name: 'action', type: xsFunction),
@@ -299,7 +300,7 @@ XPathSequence _fnArrayForEach(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-filter
 const fnArrayFilter = XPathFunctionDefinition(
-  name: 'array:filter',
+  name: XmlName.qualified('array:filter'),
   requiredArguments: [
     XPathArgumentDefinition(name: 'array', type: xsArray),
     XPathArgumentDefinition(name: 'predicate', type: xsFunction),
@@ -324,7 +325,7 @@ XPathSequence _fnArrayFilter(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-fold-left
 const fnArrayFoldLeft = XPathFunctionDefinition(
-  name: 'array:fold-left',
+  name: XmlName.qualified('array:fold-left'),
   requiredArguments: [
     XPathArgumentDefinition(name: 'array', type: xsArray),
     XPathArgumentDefinition(name: 'zero', type: xsAny),
@@ -348,7 +349,7 @@ XPathSequence _fnArrayFoldLeft(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-fold-right
 const fnArrayFoldRight = XPathFunctionDefinition(
-  name: 'array:fold-right',
+  name: XmlName.qualified('array:fold-right'),
   requiredArguments: [
     XPathArgumentDefinition(name: 'array', type: xsArray),
     XPathArgumentDefinition(name: 'zero', type: xsAny),
@@ -372,7 +373,7 @@ XPathSequence _fnArrayFoldRight(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-for-each-pair
 const fnArrayForEachPair = XPathFunctionDefinition(
-  name: 'array:for-each-pair',
+  name: XmlName.qualified('array:for-each-pair'),
   requiredArguments: [
     XPathArgumentDefinition(name: 'array1', type: xsArray),
     XPathArgumentDefinition(name: 'array2', type: xsArray),
@@ -401,7 +402,7 @@ XPathSequence _fnArrayForEachPair(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-sort
 const fnArraySort = XPathFunctionDefinition(
-  name: 'array:sort',
+  name: XmlName.qualified('array:sort'),
   requiredArguments: [XPathArgumentDefinition(name: 'array', type: xsArray)],
   optionalArguments: [
     XPathArgumentDefinition(

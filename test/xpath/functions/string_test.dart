@@ -8,7 +8,7 @@ import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
-final context = XPathContext(document);
+final context = XPathContext.empty(document);
 
 void main() {
   group('string', () {
@@ -334,13 +334,13 @@ void main() {
 
     test('fn:string-length (context item)', () {
       final textNode = XmlText('hello');
-      final contextWithNode = XPathContext(textNode);
+      final contextWithNode = XPathContext.empty(textNode);
       expect(fnStringLength(contextWithNode, []), isXPathSequence([5]));
     });
 
     test('fn:normalize-space (context item)', () {
       final textNode = XmlText('  hello  ');
-      final contextWithNode = XPathContext(textNode);
+      final contextWithNode = XPathContext.empty(textNode);
       expect(fnNormalizeSpace(contextWithNode, []), isXPathSequence(['hello']));
     });
 

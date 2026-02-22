@@ -2,10 +2,17 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Run all Tests",
+      "name": "Run Unit Tests",
       "type": "dart",
       "request": "launch",
       "program": "test"
+    },
+    {
+      "name": "Run QT3 Tests",
+      "type": "dart",
+      "request": "launch",
+      "program": "bin/xpath_qt3tests.dart",
+      "console": "terminal",
     },
     {
       "name": "Run XML Benchmarks",
@@ -13,6 +20,10 @@
       "request": "launch",
       "program": "bin/xml_benchmark.dart",
       "console": "terminal",
+      "enableAsserts": false,
+      "args": [
+        "--no-xml",
+      ],
     },
     {
       "name": "Run XPath Benchmarks",
@@ -20,6 +31,10 @@
       "request": "launch",
       "program": "bin/xpath_benchmark.dart",
       "console": "terminal",
+      "enableAsserts": false,
+      "args": [
+        "--no-xml"
+      ],
     },
   ]
 }

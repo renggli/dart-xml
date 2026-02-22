@@ -8,7 +8,6 @@ import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
-import 'package:xml/src/xpath/evaluation/functions.dart';
 import 'package:xml/src/xpath/types/boolean.dart';
 import 'package:xml/src/xpath/types/node.dart';
 import 'package:xml/src/xpath/types/number.dart';
@@ -234,14 +233,9 @@ class TestEnvironment {
 
   late final XmlDocument? source = _getSource();
 
-  XPathContext get context {
-    final ctx = XPathContext(
-      source ?? XPathSequence.empty,
-      functions: standardFunctions,
-      variables: _getParams(),
-    );
-    return ctx;
-  }
+  XPathContext get context => XPathContext.canonical(
+    source ?? XPathSequence.empty,
+  ).copy(variables: _getParams());
 
   XmlDocument? _getSource() {
     final file = element
@@ -256,15 +250,13 @@ class TestEnvironment {
 
   Map<String, Object> _getParams() {
     final params = <String, Object>{};
-    final evalContext = XPathContext(
-      source ?? XPathSequence.empty,
-      functions: standardFunctions,
-    );
     for (final param in element.findElements('param')) {
       final name = param.getAttribute('name');
       final select = param.getAttribute('select');
       if (name != null && select != null) {
-        params[name] = evalContext.evaluate(select);
+        params[name] = XPathContext.canonical(
+          source ?? XPathSequence.empty,
+        ).evaluate(select);
       }
     }
     return params;
@@ -316,11 +308,9 @@ void verifyResult(XmlElement element, Object result, XPathContext context) {
   // Execute the different assertion types.
   switch (element.localName) {
     case 'assert':
-      final evaluation = XPathContext(
+      final evaluation = XPathContext.canonical(
         XPathSequence.empty,
-        variables: {'result': result},
-        functions: standardFunctions,
-      ).evaluate(element.innerText);
+      ).copy(variables: {'result': result}).evaluate(element.innerText);
       if (xsBoolean.cast(evaluation) != true) {
         throw TestFailure(
           'Expected true for ${element.innerText} with result=$result, '
@@ -363,11 +353,9 @@ void verifyResult(XmlElement element, Object result, XPathContext context) {
         throw TestFailure('Expected $xml, but got $result');
       }
     case 'assert-type':
-      final evaluation = XPathContext(
-        XPathSequence.empty,
-        variables: {'result': result},
-        functions: standardFunctions,
-      ).evaluate('\$result instance of ${element.innerText}');
+      final evaluation = XPathContext.canonical(XPathSequence.empty)
+          .copy(variables: {'result': result})
+          .evaluate('\$result instance of ${element.innerText}');
       if (xsBoolean.cast(evaluation) != true) {
         throw TestFailure(
           'Expected true for ${element.innerText} with result=$result, '
@@ -375,7 +363,7 @@ void verifyResult(XmlElement element, Object result, XPathContext context) {
         );
       }
     case 'assert-permutation':
-      final expected = XPathContext(
+      final expected = XPathContext.canonical(
         XPathSequence.empty,
       ).evaluate(element.innerText);
       if (const SetEquality<Object>().equals(
