@@ -1,3 +1,4 @@
+import '../../xml/utils/name.dart';
 import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
@@ -8,7 +9,7 @@ import '../types/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-size
 const fnMapSize = XPathFunctionDefinition(
-  name: 'map:size',
+  name: XmlName.qualified('map:size'),
   requiredArguments: [XPathArgumentDefinition(name: 'map', type: xsMap)],
   function: _fnMapSize,
 );
@@ -18,7 +19,7 @@ XPathSequence _fnMapSize(XPathContext context, XPathMap map) =>
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-get
 const fnMapGet = XPathFunctionDefinition(
-  name: 'map:get',
+  name: XmlName.qualified('map:get'),
   requiredArguments: [
     XPathArgumentDefinition(name: 'map', type: xsMap),
     XPathArgumentDefinition(name: 'key', type: xsAny),
@@ -33,7 +34,7 @@ XPathSequence _fnMapGet(XPathContext context, XPathMap map, Object key) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-put
 const fnMapPut = XPathFunctionDefinition(
-  name: 'map:put',
+  name: XmlName.qualified('map:put'),
   requiredArguments: [
     XPathArgumentDefinition(name: 'map', type: xsMap),
     XPathArgumentDefinition(name: 'key', type: xsAny),
@@ -55,7 +56,7 @@ XPathSequence _fnMapPut(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-contains
 const fnMapContains = XPathFunctionDefinition(
-  name: 'map:contains',
+  name: XmlName.qualified('map:contains'),
   requiredArguments: [
     XPathArgumentDefinition(name: 'map', type: xsMap),
     XPathArgumentDefinition(name: 'key', type: xsAny),
@@ -68,7 +69,7 @@ XPathSequence _fnMapContains(XPathContext context, XPathMap map, Object key) =>
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-remove
 const fnMapRemove = XPathFunctionDefinition(
-  name: 'map:remove',
+  name: XmlName.qualified('map:remove'),
   requiredArguments: [
     XPathArgumentDefinition(name: 'map', type: xsMap),
     XPathArgumentDefinition(
@@ -94,7 +95,7 @@ XPathSequence _fnMapRemove(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-keys
 const fnMapKeys = XPathFunctionDefinition(
-  name: 'map:keys',
+  name: XmlName.qualified('map:keys'),
   requiredArguments: [XPathArgumentDefinition(name: 'map', type: xsMap)],
   function: _fnMapKeys,
 );
@@ -104,7 +105,7 @@ XPathSequence _fnMapKeys(XPathContext context, XPathMap map) =>
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-merge
 const fnMapMerge = XPathFunctionDefinition(
-  name: 'map:merge',
+  name: XmlName.qualified('map:merge'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'maps',
@@ -132,7 +133,7 @@ XPathSequence _fnMapMerge(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-for-each
 const fnMapForEach = XPathFunctionDefinition(
-  name: 'map:for-each',
+  name: XmlName.qualified('map:for-each'),
   requiredArguments: [
     XPathArgumentDefinition(name: 'map', type: xsMap),
     XPathArgumentDefinition(name: 'action', type: xsFunction),
@@ -161,7 +162,7 @@ Iterable<Object> _fnMapForEachSync(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-find
 const fnMapFind = XPathFunctionDefinition(
-  name: 'map:find',
+  name: XmlName.qualified('map:find'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'input',
@@ -202,7 +203,7 @@ void _fnMapFindRecurse(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-entry
 const fnMapEntry = XPathFunctionDefinition(
-  name: 'map:entry',
+  name: XmlName.qualified('map:entry'),
   requiredArguments: [
     XPathArgumentDefinition(name: 'key', type: xsAny),
     XPathArgumentDefinition(

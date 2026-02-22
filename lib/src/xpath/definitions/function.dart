@@ -1,3 +1,4 @@
+import '../../xml/utils/name.dart';
 import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types/any.dart';
@@ -11,7 +12,6 @@ export 'package:petitparser/petitparser.dart' show unbounded;
 class XPathFunctionDefinition {
   const XPathFunctionDefinition({
     required this.name,
-    this.aliases = const [],
     this.requiredArguments = const [],
     this.optionalArguments = const [],
     this.variadicArgument,
@@ -19,10 +19,7 @@ class XPathFunctionDefinition {
   });
 
   /// The name of the function.
-  final String name;
-
-  /// The aliases of the function.
-  final List<String> aliases;
+  final XmlName name;
 
   /// The required argument definitions.
   final List<XPathArgumentDefinition> requiredArguments;
@@ -81,7 +78,7 @@ class XPathFunctionDefinition {
 
   @override
   String toString() =>
-      '$name(${requiredArguments.join(', ')}, '
+      '${name.qualified}(${requiredArguments.join(', ')}, '
       '${optionalArguments.join(', ')}, '
       '${variadicArgument != null ? '...' : ''})';
 }
@@ -114,14 +111,14 @@ class XPathArgumentDefinition {
         final iterable = sequence.iterator;
         if (!iterable.moveNext()) {
           throw XPathEvaluationException(
-            'Function "${definition.name}" expects exactly one value for '
+            'Function "${definition.name.qualified}" expects exactly one value for '
             'argument "$name", but got none.',
           );
         }
         final value = iterable.current;
         if (iterable.moveNext()) {
           throw XPathEvaluationException(
-            'Function "${definition.name}" expects exactly one value for '
+            'Function "${definition.name.qualified}" expects exactly one value for '
             'argument "$name", but got more than one.',
           );
         }
@@ -134,7 +131,7 @@ class XPathArgumentDefinition {
         final value = iterable.current;
         if (iterable.moveNext()) {
           throw XPathEvaluationException(
-            'Function "${definition.name}" expects zero or one value for '
+            'Function "${definition.name.qualified}" expects zero or one value for '
             'argument "$name", but got more than one.',
           );
         }
@@ -143,7 +140,7 @@ class XPathArgumentDefinition {
         final iterable = sequence.iterator;
         if (!iterable.moveNext()) {
           throw XPathEvaluationException(
-            'Function "${definition.name}" expects one or more values for '
+            'Function "${definition.name.qualified}" expects one or more values for '
             'argument "$name", but got none.',
           );
         }

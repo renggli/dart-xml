@@ -9,7 +9,7 @@ import 'package:xml/xml.dart';
 
 import '../../utils/matchers.dart';
 
-final context = XPathContext(XmlDocument());
+final context = XPathContext.empty(XmlDocument());
 
 void main() {
   test('xs:base64Binary', () {

@@ -1,22 +1,37 @@
 import '../../xml/nodes/node.dart';
+import '../../xml/utils/name.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../grammars/parser.dart';
 import '../types/function.dart';
 import '../types/sequence.dart';
+import 'functions.dart';
 import 'namespaces.dart';
 
 /// Runtime execution context to evaluate XPath expressions.
 class XPathContext {
-  XPathContext(
+  /// Creates an empty XPath context.
+  XPathContext.empty(
     this.item, {
     this.position = 1,
     this.last = 1,
     this.variables = const {},
     this.functions = const {},
+    this.namespaceUri,
+    this.namespaceUris = const {},
     this.documents = const {},
-    this.namespaces = const {},
     this.onTraceCallback,
   });
+
+  /// Creates a canonical XPath context on [item].
+  XPathContext.canonical(this.item)
+    : position = 1,
+      last = 1,
+      variables = const {},
+      functions = standardFunctions,
+      namespaceUri = xpathFnNamespace,
+      namespaceUris = xpathNamespaceUris,
+      documents = const {},
+      onTraceCallback = null;
 
   /// Mutable context node.
   Object item;
@@ -30,14 +45,17 @@ class XPathContext {
   /// User-defined variables.
   final Map<String, Object> variables;
 
-  /// User-defined functions.
-  final Map<String, XPathFunction> functions;
+  /// Available function definitions.
+  final Map<XmlName, XPathFunction> functions;
+
+  /// Default namespace URI for function lookups.
+  final String? namespaceUri;
+
+  /// Namespace mapping from prefix to URIs.
+  final Map<String, String> namespaceUris;
 
   /// Available documents.
   final Map<String, XmlNode> documents;
-
-  /// Available namespaces.
-  final Map<String, String> namespaces;
 
   /// Callback to trace evaluation.
   final XPathTraceCallback? onTraceCallback;
@@ -50,27 +68,38 @@ class XPathContext {
   }
 
   /// Looks up a XPath function with the given [name].
-  XPathFunction getFunction(String name) {
-    final function = functions[name] ?? functions[_resolveEqName(name)];
+  XPathFunction getFunction(XmlName name) {
+    final function = functions[name];
     if (function != null) return function;
     throw XPathEvaluationException('Unknown function: $name');
   }
 
-  /// Creates a copy of the current context.
+  /// Looks up a XPath function with the given [name].
+  XPathFunction getFunctionByString(String name) => getFunction(
+    XmlName.parse(
+      name,
+      namespaceUri: namespaceUri,
+      namespaceUris: namespaceUris,
+    ),
+  );
+
+  /// Creates a copy of this context.
   XPathContext copy({
     Map<String, Object>? variables,
-    Map<String, XPathFunction>? functions,
+    Map<XmlName, XPathFunction>? functions,
+    String? namespaceUri,
+    Map<String, String>? namespaceUris,
     Map<String, XmlNode>? documents,
-    Map<String, String>? namespaces,
     XPathTraceCallback? onTraceCallback,
-  }) => XPathContext(
+  }) => XPathContext.empty(
     item,
     position: position,
     last: last,
-    variables: variables ?? this.variables,
-    functions: functions ?? this.functions,
-    documents: documents ?? this.documents,
-    namespaces: namespaces ?? this.namespaces,
+    variables: _extend(this.variables, variables),
+    functions: _extend(this.functions, functions),
+    documents: _extend(this.documents, documents),
+    namespaceUri: namespaceUri ?? this.namespaceUri,
+    namespaceUris: _extend(this.namespaceUris, namespaceUris),
     onTraceCallback: onTraceCallback ?? this.onTraceCallback,
   );
 
@@ -82,13 +111,8 @@ class XPathContext {
 /// Function type for tracing evaluation.
 typedef XPathTraceCallback = void Function(XPathSequence value, String? label);
 
-/// Resolves a `Q{uri}local-name` EQName to its `prefix:local-name` form.
-String? _resolveEqName(String name) {
-  if (!name.startsWith('Q{')) return null;
-  final end = name.indexOf('}');
-  if (end < 0) return null;
-  final uri = name.substring(2, end);
-  final localName = name.substring(end + 1);
-  final prefix = standardNamespaces[uri];
-  return prefix != null ? '$prefix:$localName' : null;
+Map<K, V> _extend<K, V>(Map<K, V> original, Map<K, V>? other) {
+  if (other == null || other.isEmpty) return original;
+  if (original.isEmpty) return other;
+  return {...original, ...other};
 }

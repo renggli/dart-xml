@@ -1,5 +1,6 @@
 import 'dart:core';
 
+import '../../xml/utils/name.dart';
 import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
@@ -9,8 +10,7 @@ import '../types/string.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-resolve-uri
 const fnResolveUri = XPathFunctionDefinition(
-  name: 'fn:resolve-uri',
-  aliases: ['resolve-uri'],
+  name: XmlName.qualified('fn:resolve-uri'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'relative',
@@ -43,8 +43,7 @@ XPathSequence _fnResolveUri(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-doc
 const fnDoc = XPathFunctionDefinition(
-  name: 'fn:doc',
-  aliases: ['doc'],
+  name: XmlName.qualified('fn:doc'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'uri',
@@ -63,8 +62,7 @@ XPathSequence _fnDoc(XPathContext context, String? uri) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-doc-available
 const fnDocAvailable = XPathFunctionDefinition(
-  name: 'fn:doc-available',
-  aliases: ['doc-available'],
+  name: XmlName.qualified('fn:doc-available'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'uri',
@@ -80,8 +78,7 @@ XPathSequence _fnDocAvailable(XPathContext context, String? uri) =>
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-collection
 const fnCollection = XPathFunctionDefinition(
-  name: 'fn:collection',
-  aliases: ['collection'],
+  name: XmlName.qualified('fn:collection'),
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'uri',
@@ -97,8 +94,7 @@ XPathSequence _fnCollection(XPathContext context, [String? uri]) =>
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-uri-collection
 const fnUriCollection = XPathFunctionDefinition(
-  name: 'fn:uri-collection',
-  aliases: ['uri-collection'],
+  name: XmlName.qualified('fn:uri-collection'),
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'uri',
@@ -114,8 +110,7 @@ XPathSequence _fnUriCollection(XPathContext context, [String? uri]) =>
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-unparsed-text
 const fnUnparsedText = XPathFunctionDefinition(
-  name: 'fn:unparsed-text',
-  aliases: ['unparsed-text'],
+  name: XmlName.qualified('fn:unparsed-text'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'href',
@@ -132,8 +127,7 @@ XPathSequence _fnUnparsedText(XPathContext context, String? href) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-unparsed-text-lines
 const fnUnparsedTextLines = XPathFunctionDefinition(
-  name: 'fn:unparsed-text-lines',
-  aliases: ['unparsed-text-lines'],
+  name: XmlName.qualified('fn:unparsed-text-lines'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'href',
@@ -150,8 +144,7 @@ XPathSequence _fnUnparsedTextLines(XPathContext context, String? href) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-unparsed-text-available
 const fnUnparsedTextAvailable = XPathFunctionDefinition(
-  name: 'fn:unparsed-text-available',
-  aliases: ['unparsed-text-available'],
+  name: XmlName.qualified('fn:unparsed-text-available'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'href',
@@ -168,8 +161,7 @@ XPathSequence _fnUnparsedTextAvailable(XPathContext context, String? href) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-environment-variable
 const fnEnvironmentVariable = XPathFunctionDefinition(
-  name: 'fn:environment-variable',
-  aliases: ['environment-variable'],
+  name: XmlName.qualified('fn:environment-variable'),
   requiredArguments: [XPathArgumentDefinition(name: 'name', type: xsString)],
   function: _fnEnvironmentVariable,
 );
@@ -180,8 +172,7 @@ XPathSequence _fnEnvironmentVariable(XPathContext context, String name) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-available-environment-variables
 const fnAvailableEnvironmentVariables = XPathFunctionDefinition(
-  name: 'fn:available-environment-variables',
-  aliases: ['available-environment-variables'],
+  name: XmlName.qualified('fn:available-environment-variables'),
   function: _fnAvailableEnvironmentVariables,
 );
 
@@ -191,8 +182,7 @@ XPathSequence _fnAvailableEnvironmentVariables(XPathContext context) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-encode-for-uri
 const fnEncodeForUri = XPathFunctionDefinition(
-  name: 'fn:encode-for-uri',
-  aliases: ['encode-for-uri'],
+  name: XmlName.qualified('fn:encode-for-uri'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'uri-part',
@@ -210,8 +200,7 @@ XPathSequence _fnEncodeForUri(XPathContext context, String? uriPart) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-iri-to-uri
 const fnIriToUri = XPathFunctionDefinition(
-  name: 'fn:iri-to-uri',
-  aliases: ['iri-to-uri'],
+  name: XmlName.qualified('fn:iri-to-uri'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'iri',
@@ -229,8 +218,7 @@ XPathSequence _fnIriToUri(XPathContext context, String? iri) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-escape-html-uri
 const fnEscapeHtmlUri = XPathFunctionDefinition(
-  name: 'fn:escape-html-uri',
-  aliases: ['escape-html-uri'],
+  name: XmlName.qualified('fn:escape-html-uri'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'uri',

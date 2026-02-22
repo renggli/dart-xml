@@ -1,4 +1,5 @@
 import 'package:test/test.dart';
+import 'package:xml/src/xpath/evaluation/namespaces.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
@@ -78,7 +79,10 @@ void main() {
       'custom("hello", 42, true())',
       ['ok'],
       functions: {
-        'custom': (context, arguments) {
+        const XmlName.parts(
+          'custom',
+          namespaceUri: xpathFnNamespace,
+        ): (context, arguments) {
           expect(context.item, same(xml));
           expect(context.position, 1);
           expect(context.last, 1);

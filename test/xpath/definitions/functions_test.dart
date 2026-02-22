@@ -10,10 +10,10 @@ import 'package:xml/xml.dart';
 import '../../utils/matchers.dart';
 
 final document = XmlDocument.parse('<r/>');
-final context = XPathContext(document);
+final context = XPathContext.canonical(document);
 
 const function = XPathFunctionDefinition(
-  name: 'foo',
+  name: XmlName.parts('foo'),
   requiredArguments: [XPathArgumentDefinition(name: 'req', type: xsString)],
   optionalArguments: [
     XPathArgumentDefinition(
@@ -140,7 +140,7 @@ void main() {
   });
   group('XPathFunctionDefinition', () {
     test('accessors', () {
-      expect(function.name, 'foo');
+      expect(function.name, const XmlName.parts('foo'));
       expect(function.requiredArguments, hasLength(1));
       expect(function.optionalArguments, hasLength(1));
       expect(function.variadicArgument, isNotNull);
@@ -178,7 +178,7 @@ void main() {
     });
     test('call (too many arguments)', () {
       final noArgumentFunction = XPathFunctionDefinition(
-        name: 'f',
+        name: const XmlName.parts('f'),
         requiredArguments: const [],
         function: (context) => XPathSequence.empty,
       );

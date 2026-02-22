@@ -7,12 +7,12 @@ import 'package:xml/xpath.dart';
 import '../../utils/matchers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
-final context = XPathContext(document);
+final context = XPathContext.empty(document);
 
 void main() {
   test('fn:node-name', () {
     final a = document.findAllElements('a').first;
-    expect(fnNodeName(XPathContext(a), []), isXPathSequence([a.name]));
+    expect(fnNodeName(XPathContext.empty(a), []), isXPathSequence([a.name]));
     expect(
       fnNodeName(context, [XPathSequence.single(a)]),
       isXPathSequence([a.name]),
@@ -49,7 +49,7 @@ void main() {
     );
     expect(fnString(context, [XPathSequence.empty]), isXPathSequence(['']));
     expect(
-      fnString(XPathContext(document.findAllElements('a').first), []),
+      fnString(XPathContext.empty(document.findAllElements('a').first), []),
       isXPathSequence(['1']),
     );
   });

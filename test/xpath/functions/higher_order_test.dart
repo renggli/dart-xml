@@ -1,6 +1,5 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
-import 'package:xml/src/xpath/evaluation/functions.dart';
 import 'package:xml/src/xpath/functions/higher_order.dart';
 import 'package:xml/src/xpath/types/string.dart';
 import 'package:xml/xml.dart';
@@ -9,7 +8,7 @@ import 'package:xml/xpath.dart';
 import '../../utils/matchers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
-final context = XPathContext(document);
+final context = XPathContext.canonical(document);
 
 void main() {
   test('fn:sort', () {
@@ -131,26 +130,21 @@ void main() {
   });
   group('fn:function-lookup', () {
     test('known function by prefixed name', () {
-      final lookupContext = context.copy(functions: standardFunctions);
-      final result = fnFunctionLookup(lookupContext, [
+      final result = fnFunctionLookup(context, [
         const XPathSequence.single('fn:abs'),
         const XPathSequence.single(1),
       ]);
-      expect(result.length, 1);
-      expect(result.first, isA<XPathFunction>());
+      expect(result, isXPathSequence([isA<XPathFunction>()]));
     });
     test('known function by short name', () {
-      final lookupContext = context.copy(functions: standardFunctions);
-      final result = fnFunctionLookup(lookupContext, [
+      final result = fnFunctionLookup(context, [
         const XPathSequence.single('abs'),
         const XPathSequence.single(1),
       ]);
-      expect(result.length, 1);
-      expect(result.first, isA<XPathFunction>());
+      expect(result, isXPathSequence([isA<XPathFunction>()]));
     });
     test('unknown function returns empty', () {
-      final lookupContext = context.copy(functions: standardFunctions);
-      final result = fnFunctionLookup(lookupContext, [
+      final result = fnFunctionLookup(context, [
         const XPathSequence.single('nonexistent'),
         const XPathSequence.single(1),
       ]);

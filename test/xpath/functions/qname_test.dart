@@ -9,7 +9,7 @@ import 'package:xml/xpath.dart';
 import '../../utils/matchers.dart';
 
 final document = XmlDocument.parse('<r xmlns:p="uri"><a>1</a><b>2</b></r>');
-final context = XPathContext(document);
+final context = XPathContext.empty(document);
 
 void main() {
   test('fn:namespace-uri-for-prefix', () {

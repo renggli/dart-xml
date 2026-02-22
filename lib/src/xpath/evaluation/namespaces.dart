@@ -11,21 +11,11 @@ const xpathXsNamespace = 'http://www.w3.org/2001/XMLSchema';
 const xpathLocalNamespace = 'http://www.w3.org/2005/xquery-local-functions';
 
 /// Standard XPath namespace prefixes.
-const standardPrefixes = {
+const xpathNamespaceUris = {
   'fn': xpathFnNamespace,
   'math': xpathMathNamespace,
   'map': xpathMapNamespace,
   'array': xpathArrayNamespace,
   'xs': xpathXsNamespace,
   'local': xpathLocalNamespace,
-};
-
-/// Standard XPath namespaces.
-const standardNamespaces = {
-  xpathFnNamespace: 'fn',
-  xpathMathNamespace: 'math',
-  xpathMapNamespace: 'map',
-  xpathArrayNamespace: 'array',
-  xpathXsNamespace: 'xs',
-  xpathLocalNamespace: 'local',
 };

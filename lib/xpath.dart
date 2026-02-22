@@ -4,8 +4,8 @@ library;
 import 'package:meta/meta.dart' show experimental;
 
 import 'src/xml/nodes/node.dart';
+import 'src/xml/utils/name.dart';
 import 'src/xpath/evaluation/context.dart';
-import 'src/xpath/evaluation/functions.dart';
 import 'src/xpath/types/function.dart';
 import 'src/xpath/types/sequence.dart';
 
@@ -21,8 +21,8 @@ extension XPathExtension on XmlNode {
   @experimental
   Iterable<XmlNode> xpath(
     String expression, {
-    Map<String, Object> variables = const {},
-    Map<String, XPathFunction> functions = const {},
+    Map<String, Object>? variables,
+    Map<XmlName, XPathFunction>? functions,
   }) => xpathEvaluate(
     expression,
     variables: variables,
@@ -36,11 +36,9 @@ extension XPathExtension on XmlNode {
   @experimental
   XPathSequence xpathEvaluate(
     String expression, {
-    Map<String, Object> variables = const {},
-    Map<String, XPathFunction> functions = const {},
-  }) => XPathContext(
+    Map<String, Object>? variables,
+    Map<XmlName, XPathFunction>? functions,
+  }) => XPathContext.canonical(
     this,
-    variables: variables,
-    functions: {...standardFunctions, ...functions},
-  ).evaluate(expression);
+  ).copy(variables: variables, functions: functions).evaluate(expression);
 }

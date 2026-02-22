@@ -49,9 +49,7 @@ class XmlName with XmlHasVisitor, XmlHasWriter {
       final index = name.indexOf(XmlToken.namespace);
       if (index > 0) {
         final prefix = name.substring(0, index);
-        if (namespaceUris.containsKey(prefix)) {
-          uri = namespaceUris[prefix];
-        }
+        uri = namespaceUris[prefix];
       }
     }
     // Handle the default namespace.
@@ -101,6 +99,10 @@ class XmlName with XmlHasVisitor, XmlHasWriter {
   String get extendedQualified => namespaceUri != null
       ? '${XmlToken.openQualifiedUrl}$namespaceUri${XmlToken.closeQualifiedUrl}$local'
       : qualified;
+
+  /// Returns a new [XmlName] with the given [namespaceUri].
+  XmlName withNamespaceUri(String? namespaceUri) =>
+      XmlName.qualified(qualified, namespaceUri: namespaceUri);
 
   @override
   String toString() => qualified;

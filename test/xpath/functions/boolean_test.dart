@@ -8,7 +8,7 @@ import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
-final context = XPathContext(document);
+final context = XPathContext.empty(document);
 
 void main() {
   test('fn:boolean', () {
@@ -40,7 +40,7 @@ void main() {
   test('fn:lang', () {
     final doc = XmlDocument.parse('<r xml:lang="en"><c/></r>');
     final c = doc.rootElement.children.whereType<XmlElement>().first;
-    final newContext = XPathContext(c);
+    final newContext = XPathContext.empty(c);
     // fn:lang is in node.dart
     expect(
       fnLang(newContext, [const XPathSequence.single('en')]),

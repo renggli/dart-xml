@@ -1,3 +1,4 @@
+import '../../xml/utils/name.dart';
 import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
@@ -6,8 +7,7 @@ import '../types/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-years-from-duration
 const fnYearsFromDuration = XPathFunctionDefinition(
-  name: 'fn:years-from-duration',
-  aliases: ['years-from-duration'],
+  name: XmlName.qualified('fn:years-from-duration'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -25,8 +25,7 @@ XPathSequence _fnYearsFromDuration(XPathContext context, Duration? arg) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-months-from-duration
 const fnMonthsFromDuration = XPathFunctionDefinition(
-  name: 'fn:months-from-duration',
-  aliases: ['months-from-duration'],
+  name: XmlName.qualified('fn:months-from-duration'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -44,8 +43,7 @@ XPathSequence _fnMonthsFromDuration(XPathContext context, Duration? arg) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-days-from-duration
 const fnDaysFromDuration = XPathFunctionDefinition(
-  name: 'fn:days-from-duration',
-  aliases: ['days-from-duration'],
+  name: XmlName.qualified('fn:days-from-duration'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -63,8 +61,7 @@ XPathSequence _fnDaysFromDuration(XPathContext context, Duration? arg) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hours-from-duration
 const fnHoursFromDuration = XPathFunctionDefinition(
-  name: 'fn:hours-from-duration',
-  aliases: ['hours-from-duration'],
+  name: XmlName.qualified('fn:hours-from-duration'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -82,8 +79,7 @@ XPathSequence _fnHoursFromDuration(XPathContext context, Duration? arg) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-minutes-from-duration
 const fnMinutesFromDuration = XPathFunctionDefinition(
-  name: 'fn:minutes-from-duration',
-  aliases: ['minutes-from-duration'],
+  name: XmlName.qualified('fn:minutes-from-duration'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
@@ -101,8 +97,7 @@ XPathSequence _fnMinutesFromDuration(XPathContext context, Duration? arg) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-seconds-from-duration
 const fnSecondsFromDuration = XPathFunctionDefinition(
-  name: 'fn:seconds-from-duration',
-  aliases: ['seconds-from-duration'],
+  name: XmlName.qualified('fn:seconds-from-duration'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',

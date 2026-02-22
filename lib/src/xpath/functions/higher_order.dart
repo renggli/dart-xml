@@ -15,8 +15,7 @@ import '../types/string.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-for-each
 const fnForEach = XPathFunctionDefinition(
-  name: 'fn:for-each',
-  aliases: ['for-each'],
+  name: XmlName.qualified('fn:for-each'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'seq',
@@ -46,8 +45,7 @@ Iterable<Object> _fnForEachSync(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-filter
 const fnFilter = XPathFunctionDefinition(
-  name: 'fn:filter',
-  aliases: ['filter'],
+  name: XmlName.qualified('fn:filter'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'seq',
@@ -82,8 +80,7 @@ Iterable<Object> _fnFilterSync(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-fold-left
 const fnFoldLeft = XPathFunctionDefinition(
-  name: 'fn:fold-left',
-  aliases: ['fold-left'],
+  name: XmlName.qualified('fn:fold-left'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'seq',
@@ -115,8 +112,7 @@ XPathSequence _fnFoldLeft(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-fold-right
 const fnFoldRight = XPathFunctionDefinition(
-  name: 'fn:fold-right',
-  aliases: ['fold-right'],
+  name: XmlName.qualified('fn:fold-right'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'seq',
@@ -149,8 +145,7 @@ XPathSequence _fnFoldRight(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-for-each-pair
 const fnForEachPair = XPathFunctionDefinition(
-  name: 'fn:for-each-pair',
-  aliases: ['for-each-pair'],
+  name: XmlName.qualified('fn:for-each-pair'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'seq1',
@@ -192,8 +187,7 @@ Iterable<Object> _fnForEachPairSync(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-apply
 const fnApply = XPathFunctionDefinition(
-  name: 'fn:apply',
-  aliases: ['apply'],
+  name: XmlName.qualified('fn:apply'),
   requiredArguments: [
     XPathArgumentDefinition(name: 'function', type: xsFunction),
     XPathArgumentDefinition(name: 'array', type: xsArray),
@@ -209,8 +203,7 @@ XPathSequence _fnApply(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-function-name
 const fnFunctionName = XPathFunctionDefinition(
-  name: 'fn:function-name',
-  aliases: ['function-name'],
+  name: XmlName.qualified('fn:function-name'),
   requiredArguments: [XPathArgumentDefinition(name: 'func', type: xsFunction)],
   function: _fnFunctionName,
 );
@@ -220,8 +213,7 @@ XPathSequence _fnFunctionName(XPathContext context, Function func) =>
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-function-arity
 const fnFunctionArity = XPathFunctionDefinition(
-  name: 'fn:function-arity',
-  aliases: ['function-arity'],
+  name: XmlName.qualified('fn:function-arity'),
   requiredArguments: [XPathArgumentDefinition(name: 'func', type: xsFunction)],
   function: _fnFunctionArity,
 );
@@ -231,8 +223,7 @@ XPathSequence _fnFunctionArity(XPathContext context, Function func) =>
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-sort
 const fnSort = XPathFunctionDefinition(
-  name: 'fn:sort',
-  aliases: ['sort'],
+  name: XmlName.qualified('fn:sort'),
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'seq',
@@ -272,8 +263,7 @@ XPathSequence _fnSort(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-function-lookup
 const fnFunctionLookup = XPathFunctionDefinition(
-  name: 'fn:function-lookup',
-  aliases: ['function-lookup'],
+  name: XmlName.qualified('fn:function-lookup'),
   requiredArguments: [
     XPathArgumentDefinition(name: 'name', type: xsQName),
     XPathArgumentDefinition(name: 'arity', type: xsInteger),
@@ -283,7 +273,9 @@ const fnFunctionLookup = XPathFunctionDefinition(
 
 XPathSequence _fnFunctionLookup(XPathContext context, XmlName name, num arity) {
   try {
-    return XPathSequence.single(context.getFunction(name.extendedQualified));
+    return XPathSequence.single(
+      context.getFunctionByString(name.extendedQualified),
+    );
   } on XPathEvaluationException {
     return XPathSequence.empty;
   }
@@ -291,8 +283,7 @@ XPathSequence _fnFunctionLookup(XPathContext context, XmlName name, num arity) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-load-xquery-module
 const fnLoadXqueryModule = XPathFunctionDefinition(
-  name: 'fn:load-xquery-module',
-  aliases: ['load-xquery-module'],
+  name: XmlName.qualified('fn:load-xquery-module'),
   requiredArguments: [XPathArgumentDefinition(name: 'uri', type: xsString)],
   function: _fnLoadXqueryModule,
 );
@@ -303,8 +294,7 @@ XPathSequence _fnLoadXqueryModule(XPathContext context, String uri) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-transform
 const fnTransform = XPathFunctionDefinition(
-  name: 'fn:transform',
-  aliases: ['transform'],
+  name: XmlName.qualified('fn:transform'),
   requiredArguments: [XPathArgumentDefinition(name: 'options', type: xsAny)],
   function: _fnTransform,
 );

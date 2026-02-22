@@ -7,7 +7,7 @@ import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/xml.dart';
 import '../../utils/matchers.dart';
 
-final context = XPathContext(XmlDocument());
+final context = XPathContext.empty(XmlDocument());
 void main() {
   test('math:pi', () {
     expect(mathPi(context, []), isXPathSequence([math.pi]));

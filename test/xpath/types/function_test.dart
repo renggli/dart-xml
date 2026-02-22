@@ -8,7 +8,7 @@ import '../../utils/matchers.dart';
 
 void main() {
   final document = XmlDocument.parse('<r/>');
-  final context = XPathContext(document);
+  final context = XPathContext.empty(document);
 
   group('xsFunction', () {
     test('name', () {
