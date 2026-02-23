@@ -1,15 +1,14 @@
 import '../../xml/nodes/node.dart';
-import '../types/boolean.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
 
 /// https://www.w3.org/TR/xpath-31/#id-logical-expressions
 XPathSequence opAnd(XPathSequence left, XPathSequence right) =>
-    XPathSequence.single(xsBoolean.cast(left) && xsBoolean.cast(right));
+    XPathSequence.single(left.ebv && right.ebv);
 
 /// https://www.w3.org/TR/xpath-31/#id-logical-expressions
 XPathSequence opOr(XPathSequence left, XPathSequence right) =>
-    XPathSequence.single(xsBoolean.cast(left) || xsBoolean.cast(right));
+    XPathSequence.single(left.ebv || right.ebv);
 
 /// https://www.w3.org/TR/xpath-31/#id-general-comparisons
 XPathSequence opGeneralEqual(XPathSequence left, XPathSequence right) =>

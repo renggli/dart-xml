@@ -26,6 +26,7 @@ const basicTypes = <XPathType<Object>>[
   xsBoolean,
   xsByte,
   xsDateTime,
+  xsDecimal,
   xsDouble,
   xsDuration,
   xsEmptySequence,

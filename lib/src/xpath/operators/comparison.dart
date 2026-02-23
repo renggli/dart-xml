@@ -78,8 +78,8 @@ int compare(Object a, Object b) {
   } else if (xsString.matches(a) && xsString.matches(b)) {
     return xsString.cast(a).compareTo(xsString.cast(b));
   } else if (xsBoolean.matches(a) && xsBoolean.matches(b)) {
-    final ba = xsBoolean.cast(a);
-    final bb = xsBoolean.cast(b);
+    final ba = a as bool;
+    final bb = b as bool;
     return ba == bb
         ? 0
         : ba

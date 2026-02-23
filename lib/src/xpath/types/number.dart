@@ -28,8 +28,45 @@ class _XPathNumericType extends XPathType<num> {
       final trimmed = value.trim();
       if (trimmed == 'INF') return double.infinity;
       if (trimmed == '-INF') return double.negativeInfinity;
-      final result = num.tryParse(trimmed);
-      if (result != null) return result;
+      if (trimmed == 'NaN') return double.nan;
+      if (_doublePattern.hasMatch(trimmed)) {
+        return num.parse(trimmed);
+      }
+    } else if (value is XmlNode) {
+      return cast(xsString.cast(value));
+    } else if (value is XPathSequence) {
+      final item = value.singleOrNull;
+      if (item != null) return cast(item);
+    }
+    throw XPathEvaluationException.unsupportedCast(this, value);
+  }
+}
+
+/// The XPath decimal type.
+const xsDecimal = _XPathDecimalType();
+
+class _XPathDecimalType extends XPathType<num> {
+  const _XPathDecimalType();
+
+  @override
+  String get name => 'xs:decimal';
+
+  @override
+  bool matches(Object value) => value is num;
+
+  @override
+  num cast(Object value) {
+    if (value is num && value.isFinite) {
+      return value;
+    } else if (value is Duration) {
+      return value.inMicroseconds;
+    } else if (value is bool) {
+      return value ? 1 : 0;
+    } else if (value is String) {
+      final trimmed = value.trim();
+      if (_decimalPattern.hasMatch(trimmed)) {
+        return num.parse(trimmed);
+      }
     } else if (value is XmlNode) {
       return cast(xsString.cast(value));
     } else if (value is XPathSequence) {
@@ -96,19 +133,13 @@ class _XPathIntegerType extends XPathType<int> {
   String get name => 'xs:integer';
 
   @override
-  Iterable<String> get aliases => const ['xs:decimal'];
-
-  @override
   bool matches(Object value) => value is int;
 
   @override
   int cast(Object value) {
     if (value is int) {
       return value;
-    } else if (value is num) {
-      if (value.isInfinite || value.isNaN) {
-        throw XPathEvaluationException('Invalid value: $value');
-      }
+    } else if (value is num && value.isFinite) {
       return value.toInt();
     } else if (value is Duration) {
       return value.inMicroseconds;
@@ -116,8 +147,9 @@ class _XPathIntegerType extends XPathType<int> {
       return value ? 1 : 0;
     } else if (value is String) {
       final trimmed = value.trim();
-      final result = int.tryParse(trimmed);
-      if (result != null) return result;
+      if (_integerPattern.hasMatch(trimmed)) {
+        return int.parse(trimmed);
+      }
     } else if (value is XmlNode) {
       return cast(xsString.cast(value));
     } else if (value is XPathSequence) {
@@ -186,8 +218,10 @@ class _XPathDoubleType extends XPathType<double> {
       final trimmed = value.trim();
       if (trimmed == 'INF') return double.infinity;
       if (trimmed == '-INF') return double.negativeInfinity;
-      final result = double.tryParse(trimmed);
-      if (result != null) return result;
+      if (trimmed == 'NaN') return double.nan;
+      if (_doublePattern.hasMatch(trimmed)) {
+        return double.parse(trimmed);
+      }
     } else if (value is XmlNode) {
       return cast(xsString.cast(value));
     } else if (value is XPathSequence) {
@@ -197,3 +231,7 @@ class _XPathDoubleType extends XPathType<double> {
     throw XPathEvaluationException.unsupportedCast(this, value);
   }
 }
+
+final _doublePattern = RegExp(r'^(\+|-)?\d+(\.\d*)?(\.\d+)?([eE][+-]?\d+)?$');
+final _decimalPattern = RegExp(r'^(\+|-)?(\d+(\.\d*)?|\.\d+)$');
+final _integerPattern = RegExp(r'^(\+|-)?\d+$');

@@ -1,4 +1,3 @@
-import '../../xml/nodes/node.dart';
 import '../definitions/type.dart';
 import '../exceptions/evaluation_exception.dart';
 import 'sequence.dart';
@@ -25,15 +24,9 @@ class _XPathBooleanType extends XPathType<bool> {
       final trimmed = value.trim();
       if (trimmed == 'true' || trimmed == '1') return true;
       if (trimmed == 'false' || trimmed == '0') return false;
-      return value.isNotEmpty;
-    } else if (value is XmlNode) {
-      return true;
     } else if (value is XPathSequence) {
-      final iterator = value.iterator;
-      if (!iterator.moveNext()) return false;
-      final item = iterator.current;
-      if (item is XmlNode) return true;
-      if (!iterator.moveNext()) return cast(item);
+      final atomic = value.toAtomicValue();
+      if (atomic is! XPathSequence) return cast(atomic);
     }
     throw XPathEvaluationException.unsupportedCast(this, value);
   }

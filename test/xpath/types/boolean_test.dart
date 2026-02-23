@@ -27,8 +27,11 @@ void main() {
         expect(xsBoolean.cast(double.nan), false);
       });
       test('from string', () {
-        expect(xsBoolean.cast('abc'), true);
-        expect(xsBoolean.cast(''), false);
+        expect(
+          () => xsBoolean.cast('abc'),
+          throwsA(isXPathEvaluationException()),
+        );
+        expect(() => xsBoolean.cast(''), throwsA(isXPathEvaluationException()));
         expect(xsBoolean.cast('true'), true);
         expect(xsBoolean.cast('false'), false);
         expect(xsBoolean.cast('1'), true);
@@ -36,14 +39,26 @@ void main() {
       });
       test('from node', () {
         final node = XmlElement(const XmlName.qualified('a'));
-        expect(xsBoolean.cast(node), true);
+        expect(
+          () => xsBoolean.cast(node),
+          throwsA(isXPathEvaluationException()),
+        );
       });
       test('from sequence', () {
         final node = XmlElement(const XmlName.qualified('a'));
         final document = XmlDocument([node]);
-        expect(xsBoolean.cast(XPathSequence.empty), false);
-        expect(xsBoolean.cast(XPathSequence.single(node)), true);
-        expect(xsBoolean.cast(XPathSequence([node, document])), true);
+        expect(
+          () => xsBoolean.cast(XPathSequence.empty),
+          throwsA(isXPathEvaluationException()),
+        );
+        expect(
+          () => xsBoolean.cast(XPathSequence.single(node)),
+          throwsA(isXPathEvaluationException()),
+        );
+        expect(
+          () => xsBoolean.cast(XPathSequence([node, document])),
+          throwsA(isXPathEvaluationException()),
+        );
         expect(xsBoolean.cast(const XPathSequence([1])), true);
         expect(xsBoolean.cast(const XPathSequence([0])), false);
         expect(

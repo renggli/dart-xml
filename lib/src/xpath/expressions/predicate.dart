@@ -2,7 +2,6 @@ import 'package:meta/meta.dart';
 
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
-import '../types/boolean.dart';
 import '../types/number.dart';
 import '../types/sequence.dart';
 
@@ -15,9 +14,7 @@ class Predicate {
   bool matches(XPathContext context) {
     final value = expression(context);
     final item = value.singleOrNull;
-    return item is num
-        ? xsInteger.cast(item) == context.position
-        : xsBoolean.cast(value);
+    return item is num ? xsInteger.cast(item) == context.position : value.ebv;
   }
 }
 

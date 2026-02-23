@@ -6,7 +6,6 @@ import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
 import '../types/any.dart';
-import '../types/boolean.dart';
 import '../types/node.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
@@ -25,7 +24,7 @@ const fnBoolean = XPathFunctionDefinition(
 );
 
 XPathSequence _fnBoolean(XPathContext context, XPathSequence arg) =>
-    XPathSequence.single(xsBoolean.cast(arg));
+    XPathSequence.single(arg.ebv);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-not
 const fnNot = XPathFunctionDefinition(
@@ -41,7 +40,7 @@ const fnNot = XPathFunctionDefinition(
 );
 
 XPathSequence _fnNot(XPathContext context, XPathSequence arg) =>
-    XPathSequence.single(!xsBoolean.cast(arg));
+    XPathSequence.single(!arg.ebv);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-true
 const fnTrue = XPathFunctionDefinition(

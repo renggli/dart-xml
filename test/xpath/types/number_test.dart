@@ -66,6 +66,49 @@ void main() {
     });
   });
 
+  group('xsDecimal', () {
+    test('name', () {
+      expect(xsDecimal.name, 'xs:decimal');
+    });
+    test('matches', () {
+      expect(xsDecimal.matches(1), isTrue);
+      expect(xsDecimal.matches(1.5), isTrue);
+      expect(xsDecimal.matches('1.5'), isFalse);
+    });
+    group('cast', () {
+      test('from number', () {
+        expect(xsDecimal.cast(123), 123);
+        expect(xsDecimal.cast(123.45), 123.45);
+      });
+      test('from boolean', () {
+        expect(xsDecimal.cast(true), 1);
+        expect(xsDecimal.cast(false), 0);
+      });
+      test('from string', () {
+        expect(xsDecimal.cast('123'), 123);
+        expect(xsDecimal.cast('123.45'), 123.45);
+        expect(xsDecimal.cast('.45'), 0.45);
+        expect(xsDecimal.cast('123.'), 123.0);
+        expect(
+          () => xsDecimal.cast('1.2e3'),
+          throwsA(isXPathEvaluationException()),
+        );
+        expect(
+          () => xsDecimal.cast('INF'),
+          throwsA(isXPathEvaluationException()),
+        );
+        expect(
+          () => xsDecimal.cast('NaN'),
+          throwsA(isXPathEvaluationException()),
+        );
+        expect(
+          () => xsDecimal.cast('abc'),
+          throwsA(isXPathEvaluationException()),
+        );
+      });
+    });
+  });
+
   group('xsInteger', () {
     test('name', () {
       expect(xsInteger.name, 'xs:integer');

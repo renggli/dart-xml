@@ -6,7 +6,6 @@ import '../exceptions/evaluation_exception.dart';
 import '../operators/comparison.dart';
 import '../types/any.dart';
 import '../types/array.dart';
-import '../types/boolean.dart';
 import '../types/function.dart';
 import '../types/number.dart';
 import '../types/sequence.dart';
@@ -316,9 +315,7 @@ XPathSequence _fnArrayFilter(
   final result = <Object>[];
   for (final item in array) {
     final value = predicate(context, [xsSequence.cast(item)]);
-    if (xsBoolean.cast(value)) {
-      result.add(item);
-    }
+    if (value.ebv) result.add(item);
   }
   return XPathSequence.single(result);
 }

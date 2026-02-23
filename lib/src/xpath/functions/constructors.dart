@@ -33,20 +33,20 @@ XPathSequence _xsStringConstructor(XPathContext context, [Object? value]) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-boolean
 const xsBooleanConstructor = XPathFunctionDefinition(
   name: XmlName.qualified('xs:boolean'),
-  requiredArguments: [
+  optionalArguments: [
     XPathArgumentDefinition(
       name: 'value',
-      type: xsSequence,
-      cardinality: XPathCardinality.zeroOrMore,
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   function: _xsBooleanConstructor,
 );
 
-XPathSequence _xsBooleanConstructor(
-  XPathContext context,
-  XPathSequence value,
-) => XPathSequence.single(xsBoolean.cast(value));
+XPathSequence _xsBooleanConstructor(XPathContext context, [Object? value]) {
+  if (value == null) return XPathSequence.empty;
+  return XPathSequence.single(xsBoolean.cast(value));
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-integer
 const xsIntegerConstructor = XPathFunctionDefinition(
@@ -78,7 +78,7 @@ const xsDecimalConstructor = XPathFunctionDefinition(
 );
 
 XPathSequence _xsDecimalConstructor(XPathContext context, Object value) =>
-    XPathSequence.single(xsNumeric.cast(value));
+    XPathSequence.single(xsDecimal.cast(value));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-double
 const xsDoubleConstructor = XPathFunctionDefinition(
@@ -138,8 +138,11 @@ const xsByteConstructor = XPathFunctionDefinition(
       cardinality: XPathCardinality.exactlyOne,
     ),
   ],
-  function: _xsIntegerConstructor,
+  function: _xsByteConstructor,
 );
+
+XPathSequence _xsByteConstructor(XPathContext context, Object value) =>
+    XPathSequence.single(xsByte.cast(value));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-integer
 const xsIntConstructor = XPathFunctionDefinition(
@@ -151,8 +154,11 @@ const xsIntConstructor = XPathFunctionDefinition(
       cardinality: XPathCardinality.exactlyOne,
     ),
   ],
-  function: _xsIntegerConstructor,
+  function: _xsIntConstructor,
 );
+
+XPathSequence _xsIntConstructor(XPathContext context, Object value) =>
+    XPathSequence.single(xsInt.cast(value));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-integer
 const xsLongConstructor = XPathFunctionDefinition(
@@ -164,8 +170,11 @@ const xsLongConstructor = XPathFunctionDefinition(
       cardinality: XPathCardinality.exactlyOne,
     ),
   ],
-  function: _xsIntegerConstructor,
+  function: _xsLongConstructor,
 );
+
+XPathSequence _xsLongConstructor(XPathContext context, Object value) =>
+    XPathSequence.single(xsLong.cast(value));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-integer
 const xsNegativeIntegerConstructor = XPathFunctionDefinition(
@@ -177,8 +186,13 @@ const xsNegativeIntegerConstructor = XPathFunctionDefinition(
       cardinality: XPathCardinality.exactlyOne,
     ),
   ],
-  function: _xsIntegerConstructor,
+  function: _xsNegativeIntegerConstructor,
 );
+
+XPathSequence _xsNegativeIntegerConstructor(
+  XPathContext context,
+  Object value,
+) => XPathSequence.single(xsNegativeInteger.cast(value));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-integer
 const xsNonNegativeIntegerConstructor = XPathFunctionDefinition(
@@ -190,8 +204,13 @@ const xsNonNegativeIntegerConstructor = XPathFunctionDefinition(
       cardinality: XPathCardinality.exactlyOne,
     ),
   ],
-  function: _xsIntegerConstructor,
+  function: _xsNonNegativeIntegerConstructor,
 );
+
+XPathSequence _xsNonNegativeIntegerConstructor(
+  XPathContext context,
+  Object value,
+) => XPathSequence.single(xsNonNegativeInteger.cast(value));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-integer
 const xsNonPositiveIntegerConstructor = XPathFunctionDefinition(
@@ -203,8 +222,13 @@ const xsNonPositiveIntegerConstructor = XPathFunctionDefinition(
       cardinality: XPathCardinality.exactlyOne,
     ),
   ],
-  function: _xsIntegerConstructor,
+  function: _xsNonPositiveIntegerConstructor,
 );
+
+XPathSequence _xsNonPositiveIntegerConstructor(
+  XPathContext context,
+  Object value,
+) => XPathSequence.single(xsNonPositiveInteger.cast(value));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-integer
 const xsPositiveIntegerConstructor = XPathFunctionDefinition(
@@ -216,8 +240,13 @@ const xsPositiveIntegerConstructor = XPathFunctionDefinition(
       cardinality: XPathCardinality.exactlyOne,
     ),
   ],
-  function: _xsIntegerConstructor,
+  function: _xsPositiveIntegerConstructor,
 );
+
+XPathSequence _xsPositiveIntegerConstructor(
+  XPathContext context,
+  Object value,
+) => XPathSequence.single(xsPositiveInteger.cast(value));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-integer
 const xsShortConstructor = XPathFunctionDefinition(
@@ -229,8 +258,11 @@ const xsShortConstructor = XPathFunctionDefinition(
       cardinality: XPathCardinality.exactlyOne,
     ),
   ],
-  function: _xsIntegerConstructor,
+  function: _xsShortConstructor,
 );
+
+XPathSequence _xsShortConstructor(XPathContext context, Object value) =>
+    XPathSequence.single(xsShort.cast(value));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-integer
 const xsUnsignedByteConstructor = XPathFunctionDefinition(
@@ -242,8 +274,11 @@ const xsUnsignedByteConstructor = XPathFunctionDefinition(
       cardinality: XPathCardinality.exactlyOne,
     ),
   ],
-  function: _xsIntegerConstructor,
+  function: _xsUnsignedByteConstructor,
 );
+
+XPathSequence _xsUnsignedByteConstructor(XPathContext context, Object value) =>
+    XPathSequence.single(xsUnsignedByte.cast(value));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-integer
 const xsUnsignedIntConstructor = XPathFunctionDefinition(
@@ -255,8 +290,11 @@ const xsUnsignedIntConstructor = XPathFunctionDefinition(
       cardinality: XPathCardinality.exactlyOne,
     ),
   ],
-  function: _xsIntegerConstructor,
+  function: _xsUnsignedIntConstructor,
 );
+
+XPathSequence _xsUnsignedIntConstructor(XPathContext context, Object value) =>
+    XPathSequence.single(xsUnsignedInt.cast(value));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-integer
 const xsUnsignedLongConstructor = XPathFunctionDefinition(
@@ -268,8 +306,11 @@ const xsUnsignedLongConstructor = XPathFunctionDefinition(
       cardinality: XPathCardinality.exactlyOne,
     ),
   ],
-  function: _xsIntegerConstructor,
+  function: _xsUnsignedLongConstructor,
 );
+
+XPathSequence _xsUnsignedLongConstructor(XPathContext context, Object value) =>
+    XPathSequence.single(xsUnsignedLong.cast(value));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-integer
 const xsUnsignedShortConstructor = XPathFunctionDefinition(
@@ -281,8 +322,11 @@ const xsUnsignedShortConstructor = XPathFunctionDefinition(
       cardinality: XPathCardinality.exactlyOne,
     ),
   ],
-  function: _xsIntegerConstructor,
+  function: _xsUnsignedShortConstructor,
 );
+
+XPathSequence _xsUnsignedShortConstructor(XPathContext context, Object value) =>
+    XPathSequence.single(xsUnsignedShort.cast(value));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-date
 const xsDateConstructor = XPathFunctionDefinition(

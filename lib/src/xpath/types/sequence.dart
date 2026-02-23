@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart' show DelegatingIterable;
+import '../../xml/nodes/node.dart';
 
 import '../definitions/cardinality.dart';
 import '../definitions/type.dart';
@@ -62,7 +63,7 @@ class XPathSequenceType<T extends Object> extends XPathType<XPathSequence<T>> {
   }
 }
 
-/// An XPath 3.1 sequence.
+/// An XPath sequence.
 abstract mixin class XPathSequence<T extends Object> implements Iterable<T> {
   /// The empty sequence.
   static const empty = _XPathEmptySequence();
@@ -91,6 +92,7 @@ abstract mixin class XPathSequence<T extends Object> implements Iterable<T> {
   /// Creates a sequence from an [Iterable].
   const factory XPathSequence(Iterable<T> iterable) = _XPathDefaultSequence;
 
+  /// Creates a sequence from an [Iterable] that is cached on first iteration.
   factory XPathSequence.cached(Iterable<T> iterable) = _XPathCachedSequence;
 
   /// Creates a sequence from an integer range.
@@ -114,6 +116,23 @@ abstract mixin class XPathSequence<T extends Object> implements Iterable<T> {
       return XPathCardinality.zeroOrOne == cardinality;
     }
     return false;
+  }
+
+  /// Computes the Effective Boolean Value (EBV) of the sequence.
+  bool get ebv {
+    final iterator = this.iterator;
+    if (!iterator.moveNext()) return false;
+    final item = iterator.current;
+    if (item is XmlNode) return true;
+    if (!iterator.moveNext()) {
+      if (item is bool) return item;
+      if (item is num) return item != 0 && !item.isNaN;
+      if (item is String) return item.isNotEmpty;
+      throw XPathEvaluationException(
+        'Invalid type for EBV: ${item.runtimeType}',
+      );
+    }
+    throw XPathEvaluationException('Invalid EBV for sequence of length > 1');
   }
 }
 
@@ -205,30 +224,30 @@ class _XPathCachedSequence<T extends Object> extends Iterable<T>
   _XPathCachedSequence(Iterable<T> source) : _iterator = source.iterator;
 
   final Iterator<T> _iterator;
-  final List<T> _results = [];
+  final List<T> _values = [];
 
   @override
-  Iterator<T> get iterator => _XPathCachedIterator(_iterator, _results);
+  Iterator<T> get iterator => _XPathCachedIterator(_iterator, _values);
 }
 
 class _XPathCachedIterator<T extends Object> implements Iterator<T> {
-  _XPathCachedIterator(this._iterator, this._results);
+  _XPathCachedIterator(this._iterator, this._values);
 
   final Iterator<T> _iterator;
-  final List<T> _results;
+  final List<T> _values;
   int _index = -1;
 
   @override
-  T get current => _results[_index];
+  T get current => _values[_index];
 
   @override
   bool moveNext() {
     _index++;
-    if (_index < _results.length) {
+    if (_index < _values.length) {
       return true;
     }
     if (_iterator.moveNext()) {
-      _results.add(_iterator.current);
+      _values.add(_iterator.current);
       return true;
     }
     return false;

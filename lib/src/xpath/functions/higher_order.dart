@@ -6,7 +6,6 @@ import '../exceptions/evaluation_exception.dart';
 import '../operators/comparison.dart';
 import '../types/any.dart';
 import '../types/array.dart';
-import '../types/boolean.dart';
 import '../types/function.dart';
 import '../types/number.dart';
 import '../types/qname.dart';
@@ -69,12 +68,8 @@ Iterable<Object> _fnFilterSync(
   XPathFunction predicate,
 ) sync* {
   for (final item in seq) {
-    final result = xsBoolean.cast(
-      predicate(context, [XPathSequence.single(item)]),
-    );
-    if (result) {
-      yield item;
-    }
+    final result = predicate(context, [XPathSequence.single(item)]);
+    if (result.ebv) yield item;
   }
 }
 

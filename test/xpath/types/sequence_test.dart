@@ -3,6 +3,7 @@ import 'package:xml/src/xpath/definitions/cardinality.dart';
 import 'package:xml/src/xpath/types/any.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/src/xpath/types/string.dart';
+import 'package:xml/xml.dart';
 
 import '../../utils/matchers.dart';
 
@@ -248,6 +249,24 @@ void main() {
       ]) {
         expect(sequence.toXPathSequence(), same(sequence));
       }
+    });
+    test('ebv', () {
+      expect(XPathSequence.empty.ebv, isFalse);
+      expect(const XPathSequence.single(true).ebv, isTrue);
+      expect(const XPathSequence.single(false).ebv, isFalse);
+      expect(const XPathSequence.single('').ebv, isFalse);
+      expect(const XPathSequence.single('a').ebv, isTrue);
+      expect(const XPathSequence.single(0).ebv, isFalse);
+      expect(const XPathSequence.single(1).ebv, isTrue);
+      expect(const XPathSequence.single(double.nan).ebv, isFalse);
+
+      final node = XmlElement(const XmlName.qualified('a'));
+      expect(XPathSequence.single(node).ebv, isTrue);
+      expect(XPathSequence([node, node]).ebv, isTrue);
+      expect(
+        () => const XPathSequence([1, 2]).ebv,
+        throwsA(isXPathEvaluationException()),
+      );
     });
   });
 }
