@@ -101,6 +101,11 @@ void main() {
       document.rootElement,
     ], axisDirection: AxisDirection.forward);
   });
+  test('namespace::*', () {
+    expectXPath(current, 'namespace::*', [
+      'xmlns:xml="http://www.w3.org/XML/1998/namespace"',
+    ], axisDirection: AxisDirection.forward);
+  });
   test('preceding::*', () {
     expectXPath(current, 'preceding::*', [
       '<a0/>',

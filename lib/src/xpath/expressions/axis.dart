@@ -89,6 +89,13 @@ class FollowingSiblingAxis implements Axis {
   }
 }
 
+class NamespaceAxis implements Axis {
+  const NamespaceAxis();
+
+  @override
+  Iterable<XmlNode> find(XmlNode node) => node.namespaces;
+}
+
 class ParentAxis implements Axis, ReverseAxis {
   const ParentAxis();
 

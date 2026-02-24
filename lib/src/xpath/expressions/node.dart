@@ -3,6 +3,7 @@ import '../../xml/nodes/cdata.dart';
 import '../../xml/nodes/comment.dart';
 import '../../xml/nodes/document.dart';
 import '../../xml/nodes/element.dart';
+import '../../xml/nodes/namespace.dart';
 import '../../xml/nodes/node.dart';
 import '../../xml/nodes/processing.dart';
 import '../../xml/nodes/text.dart';
@@ -37,6 +38,14 @@ class CommentTypeTest extends NodeTest {
 
   @override
   bool matches(XmlNode node) => node is XmlComment;
+}
+
+/// `namespace-node()` matches any namespace node.
+class NamespaceNodeTypeTest extends NodeTest {
+  const NamespaceNodeTypeTest();
+
+  @override
+  bool matches(XmlNode node) => node is XmlNamespace;
 }
 
 /// `element()` matches any element node.

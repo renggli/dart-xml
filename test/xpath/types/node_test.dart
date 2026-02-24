@@ -15,6 +15,7 @@ void main() {
   final text1 = elementA.firstChild!;
   final comment = root.children.whereType<XmlComment>().single;
   final processing = root.children.whereType<XmlProcessing>().single;
+  final namespace = XmlNamespace('ns1', 'uri1');
 
   group('xsNode', () {
     test('name', () {
@@ -27,6 +28,7 @@ void main() {
       expect(xsNode.matches(text1), isTrue);
       expect(xsNode.matches(comment), isTrue);
       expect(xsNode.matches(processing), isTrue);
+      expect(xsNode.matches(namespace), isTrue);
       expect(xsNode.matches('foo'), isFalse);
     });
     test('cast', () {
@@ -177,6 +179,28 @@ void main() {
           isXPathEvaluationException(
             message:
                 'Unsupported cast from <r a="1"><a>1</a><b>2<c>3</c></b><!--c--><?p?></r> to processing-instruction',
+          ),
+        ),
+      );
+    });
+  });
+
+  group('xsNamespace', () {
+    test('name', () {
+      expect(xsNamespace.name, 'namespace');
+    });
+    test('matches', () {
+      expect(xsNamespace.matches(namespace), isTrue);
+      expect(xsNamespace.matches(root), isFalse);
+    });
+    test('cast', () {
+      expect(xsNamespace.cast(namespace), namespace);
+      expect(
+        () => xsNamespace.cast(root),
+        throwsA(
+          isXPathEvaluationException(
+            message:
+                'Unsupported cast from <r a="1"><a>1</a><b>2<c>3</c></b><!--c--><?p?></r> to namespace',
           ),
         ),
       );

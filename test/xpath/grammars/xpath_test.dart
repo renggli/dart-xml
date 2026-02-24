@@ -90,6 +90,7 @@ void main() {
         'descendant-or-self::foo',
         'following::foo',
         'following-sibling::foo',
+        'namespace::foo',
         'parent::foo',
         'preceding::foo',
         'preceding-sibling::foo',
@@ -104,6 +105,7 @@ void main() {
         'element(*)',
         'attribute()',
         'attribute(*)',
+        'namespace-node()',
         'schema-element(foo)',
         'schema-attribute(foo)',
         'document-node()',
@@ -191,29 +193,6 @@ void main() {
           ),
         ),
       );
-    }
-  });
-  group('unimplemented', () {
-    // These tests are supposed that otherwise valid expressions are not yet
-    // implemented. These tests are supposed to throw an `UnimplementedError`,
-    // and not succeed or give a parse failure.
-    final cases = {
-      'namespace::foo': 'NamespaceAxis',
-      'namespace-node()': 'NamespaceNodeTest',
-    };
-    for (final MapEntry(key: expression, value: name) in cases.entries) {
-      test(expression, () {
-        expect(
-          () => xml.xpathEvaluate(expression),
-          throwsA(
-            isA<UnimplementedError>().having(
-              (e) => e.message,
-              'message',
-              '$name not yet implemented',
-            ),
-          ),
-        );
-      });
     }
   });
 }

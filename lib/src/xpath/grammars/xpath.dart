@@ -471,7 +471,7 @@ class XPathGrammar {
       token('descendant-or-self::').constant(const DescendantOrSelfAxis()),
       token('following-sibling::').constant(const FollowingSiblingAxis()),
       token('following::').constant(const FollowingAxis()),
-      token('namespace::').map((_) => _unimplemented('NamespaceAxis')),
+      token('namespace::').constant(const NamespaceAxis()),
     ].toChoiceParser().cast<Axis>(),
     ref0(nodeTest),
   ).map2((axis, test) => StepExpression(axis, nodeTest: test));
@@ -923,6 +923,13 @@ class XPathGrammar {
     token(')'),
   ).constant(const NodeTypeTest());
 
+  // https://www.w3.org/TR/xpath-31/#doc-xpath31-NamespaceNodeTest
+  Parser<NodeTest> namespaceNodeTest() => seq3(
+    token('namespace-node'),
+    token('('),
+    token(')'),
+  ).constant(const NamespaceNodeTypeTest());
+
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-DocumentTest
   Parser<NodeTest> documentTest() =>
       seq4(
@@ -954,13 +961,6 @@ class XPathGrammar {
     token('('),
     token(')'),
   ).constant(const CommentTypeTest());
-
-  // https://www.w3.org/TR/xpath-31/#doc-xpath31-NamespaceNodeTest
-  Parser<NodeTest> namespaceNodeTest() => seq3(
-    token('namespace-node'),
-    token('('),
-    token(')'),
-  ).map((_) => _unimplemented('NamespaceNodeTest'));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-PITest
   Parser<NodeTest> piTest() => seq4(

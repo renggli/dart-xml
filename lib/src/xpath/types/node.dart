@@ -4,6 +4,7 @@ import '../../xml/nodes/comment.dart';
 import '../../xml/nodes/data.dart';
 import '../../xml/nodes/document.dart';
 import '../../xml/nodes/element.dart';
+import '../../xml/nodes/namespace.dart';
 import '../../xml/nodes/node.dart';
 import '../../xml/nodes/processing.dart';
 import '../../xml/nodes/text.dart';
@@ -64,6 +65,9 @@ class XPathProcessingInstructionType extends _XPathNodeType<XmlProcessing> {
 
 /// The XPath element node type.
 const xsElement = _XPathNodeType<XmlElement>('element');
+
+/// The XPath namespace node type.
+const xsNamespace = _XPathNodeType<XmlNamespace>('namespace');
 
 /// The XPath text node type.
 const xsText = _XPathTextType();

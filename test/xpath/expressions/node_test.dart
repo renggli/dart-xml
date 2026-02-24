@@ -99,6 +99,13 @@ void main() {
     expectXPath(current, 'document-node()', []);
     expectXPath(current, 'ancestor-or-self::document-node()', [document]);
   });
+  test('namespace-node()', () {
+    expectXPath(current, 'namespace::namespace-node()', [
+      'xmlns:ns1="uri1"',
+      'xmlns:ns2="uri2"',
+      'xmlns:xml="http://www.w3.org/XML/1998/namespace"',
+    ]);
+  });
   test('element()', () {
     expectXPath(current, 'element()', [
       '<e1 a="1"/>',
