@@ -242,10 +242,11 @@ class TestEnvironment {
   ).copy(variables: _getParams());
 
   XmlDocument? _getSource() {
-    final file = element
-        .findElements('source')
-        .singleOrNull
-        ?.getAttribute('file');
+    final sources = element.findElements('source');
+    final source =
+        sources.where((e) => e.getAttribute('role') == '.').singleOrNull ??
+        sources.singleOrNull;
+    final file = source?.getAttribute('file');
     if (file == null) return null;
     return XmlDocument.parse(
       File('${directory.path}/$file').readAsStringSync(),

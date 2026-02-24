@@ -16,7 +16,7 @@ void main() {
         final path = PathExpression([
           const StepExpression(DescendantOrSelfAxis()),
           StepExpression(stepAxis, nodeTest: const QualifiedNameTest('x')),
-        ], isAbsolute: true);
+        ]);
         expect(path.steps, hasLength(1));
         final actualStep = path.steps.single as StepExpression;
         expect(actualStep.axis.runtimeType, newAxis.runtimeType);
@@ -28,7 +28,7 @@ void main() {
         final path = PathExpression([
           const StepExpression(SelfAxis()),
           StepExpression(stepAxis, nodeTest: const QualifiedNameTest('x')),
-        ], isAbsolute: true);
+        ]);
         expect(path.steps, hasLength(2));
       }
       {
@@ -39,7 +39,7 @@ void main() {
             nodeTest: CommentTypeTest(),
           ),
           StepExpression(stepAxis, nodeTest: const QualifiedNameTest('x')),
-        ], isAbsolute: true);
+        ]);
         expect(path.steps, hasLength(2));
       }
       {
@@ -53,7 +53,7 @@ void main() {
               Predicate(LiteralExpression(XPathSequence.single(1))),
             ],
           ),
-        ], isAbsolute: true);
+        ]);
         expect(path.steps, hasLength(2));
       }
     }
@@ -83,7 +83,7 @@ void main() {
       expect(
         PathExpression(const [
           StepExpression(AncestorOrSelfAxis()),
-        ], isAbsolute: true).isOrderPreserved,
+        ]).isOrderPreserved,
         isTrue,
       );
       expect(
@@ -92,14 +92,14 @@ void main() {
           StepExpression(SelfAxis()),
           StepExpression(SelfAxis()),
           StepExpression(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
-        ], isAbsolute: true).isOrderPreserved,
+        ]).isOrderPreserved,
         isTrue,
       );
       expect(
         PathExpression(const [
           StepExpression(AncestorOrSelfAxis()),
           StepExpression(DescendantAxis()),
-        ], isAbsolute: true).isOrderPreserved,
+        ]).isOrderPreserved,
         isFalse,
       );
     });
@@ -115,7 +115,7 @@ void main() {
             StepExpression(SelfAxis()),
             StepExpression(SelfAxis()),
             StepExpression(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
-          ], isAbsolute: false).isOrderPreserved,
+          ]).isOrderPreserved,
           isTrue,
         );
         expect(
@@ -125,7 +125,7 @@ void main() {
             StepExpression(SelfAxis()),
             StepExpression(SelfAxis()),
             StepExpression(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
-          ], isAbsolute: false).isOrderPreserved,
+          ]).isOrderPreserved,
           isTrue,
         );
         expect(
@@ -137,7 +137,7 @@ void main() {
             StepExpression(SelfAxis()),
             StepExpression(SelfAxis()),
             StepExpression(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
-          ], isAbsolute: false).isOrderPreserved,
+          ]).isOrderPreserved,
           isTrue,
         );
         expect(
@@ -149,7 +149,7 @@ void main() {
             StepExpression(SelfAxis()),
             StepExpression(SelfAxis()),
             StepExpression(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
-          ], isAbsolute: false).isOrderPreserved,
+          ]).isOrderPreserved,
           isFalse,
         );
       },

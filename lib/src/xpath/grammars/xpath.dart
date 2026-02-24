@@ -411,20 +411,19 @@ class XPathGrammar {
   Parser<XPathExpression> pathExpr() => [
     seq2(token('//'), ref0(relativePathExpr)).map2(
       (_, expr) => PathExpression([
+        const RootNodeExpression(),
         const StepExpression(DescendantOrSelfAxis()),
         ...expr,
-      ], isAbsolute: true),
+      ]),
     ),
     seq2(token('/'), ref0(relativePathExpr).optional()).map2(
       (_, expr) => expr == null
-          ? PathExpression([], isAbsolute: true)
-          : PathExpression(expr, isAbsolute: true),
+          ? const RootNodeExpression()
+          : PathExpression([const RootNodeExpression(), ...expr]),
     ),
-    ref0(relativePathExpr).map(
-      (expr) => expr.length == 1
-          ? expr.first
-          : PathExpression(expr, isAbsolute: false),
-    ),
+    ref0(
+      relativePathExpr,
+    ).map((expr) => expr.length == 1 ? expr.first : PathExpression(expr)),
   ].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-RelativePathExpr

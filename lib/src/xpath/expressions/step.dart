@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 
+import '../../xml/extensions/parent.dart';
 import '../../xml/nodes/node.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart' show XPathExpression;
@@ -9,9 +10,7 @@ import 'axis.dart';
 import 'node.dart';
 import 'predicate.dart';
 
-/// A step in a path expression.
-///
-/// Returns the resulting nodes in document order.
+/// A step in a path expression returning nodes in document order.
 @immutable
 class StepExpression implements XPathExpression {
   const StepExpression(
@@ -51,4 +50,12 @@ class StepExpression implements XPathExpression {
     }
     return XPathSequence(result);
   }
+}
+
+class RootNodeExpression implements XPathExpression {
+  const RootNodeExpression();
+
+  @override
+  XPathSequence call(XPathContext context) =>
+      XPathSequence.single(xsNode.cast(context.item).root);
 }
