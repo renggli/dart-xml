@@ -269,4 +269,87 @@ void main() {
     expect(node.getAttributeNode('attr', namespace: 'uri'), isNull);
     expect(node.toString(), '<data xmlns="uri"/>');
   });
+  test('in-scope namespaces (explicit prefixes)', () {
+    final document = XmlDocument.parse(
+      '<root xmlns:a="urn:a"><child xmlns:b="urn:b"/></root>',
+    );
+    final root = document.rootElement;
+    final child = root.firstElementChild!;
+    final rootNamespaces = root.namespaces.toList();
+    expect(rootNamespaces, hasLength(2));
+    expect(
+      rootNamespaces.any(
+        (n) =>
+            n.prefix == 'xml' &&
+            n.uri == 'http://www.w3.org/XML/1998/namespace',
+      ),
+      isTrue,
+    );
+    expect(
+      rootNamespaces.any((n) => n.prefix == 'a' && n.uri == 'urn:a'),
+      isTrue,
+    );
+    final childNamespaces = child.namespaces.toList();
+    expect(childNamespaces, hasLength(3));
+    expect(
+      childNamespaces.any((n) => n.prefix == 'a' && n.uri == 'urn:a'),
+      isTrue,
+    );
+    expect(
+      childNamespaces.any((n) => n.prefix == 'b' && n.uri == 'urn:b'),
+      isTrue,
+    );
+    expect(childNamespaces.any((n) => n.prefix == 'xml'), isTrue);
+  });
+  test('in-scope namespaces (default namespace)', () {
+    final document = XmlDocument.parse(
+      '<root xmlns="urn:root"><child/></root>',
+    );
+    final root = document.rootElement;
+    final child = root.firstElementChild!;
+    expect(
+      root.namespaces.any((n) => n.prefix == '' && n.uri == 'urn:root'),
+      isTrue,
+    );
+    expect(
+      child.namespaces.any((n) => n.prefix == '' && n.uri == 'urn:root'),
+      isTrue,
+    );
+  });
+  test('in-scope namespaces (shadowing prefix)', () {
+    final document = XmlDocument.parse(
+      '<root xmlns:p="urn:a"><child xmlns:p="urn:b"/></root>',
+    );
+    final root = document.rootElement;
+    final child = root.firstElementChild!;
+    expect(
+      root.namespaces.any((n) => n.prefix == 'p' && n.uri == 'urn:a'),
+      isTrue,
+    );
+    expect(
+      root.namespaces.any((n) => n.prefix == 'p' && n.uri == 'urn:b'),
+      isFalse,
+    );
+
+    expect(
+      child.namespaces.any((n) => n.prefix == 'p' && n.uri == 'urn:a'),
+      isFalse,
+    );
+    expect(
+      child.namespaces.any((n) => n.prefix == 'p' && n.uri == 'urn:b'),
+      isTrue,
+    );
+  });
+  test('in-scope namespaces (un-declaring default namespace in xml 1.1)', () {
+    final document = XmlDocument.parse(
+      '<root xmlns="urn:root"><child xmlns=""/></root>',
+    );
+    final root = document.rootElement;
+    final child = root.firstElementChild!;
+    expect(
+      root.namespaces.any((n) => n.prefix == '' && n.uri == 'urn:root'),
+      isTrue,
+    );
+    expect(child.namespaces.any((n) => n.prefix == ''), isFalse);
+  });
 }

@@ -1,5 +1,6 @@
 import '../entities/default_mapping.dart';
 import '../entities/entity_mapping.dart';
+import '../enums/attribute_type.dart';
 import '../mixins/has_attributes.dart';
 import '../mixins/has_visitor.dart';
 import '../nodes/attribute.dart';
@@ -10,9 +11,11 @@ import '../nodes/doctype.dart';
 import '../nodes/document.dart';
 import '../nodes/document_fragment.dart';
 import '../nodes/element.dart';
+import '../nodes/namespace.dart';
 import '../nodes/processing.dart';
 import '../nodes/text.dart';
 import '../utils/name.dart';
+import '../utils/namespace.dart' as ns;
 import '../utils/token.dart';
 import 'visitor.dart';
 
@@ -104,6 +107,22 @@ class XmlWriter with XmlVisitor {
   @override
   void visitName(XmlName name) {
     buffer.write(name.qualified);
+  }
+
+  @override
+  void visitNamespace(XmlNamespace node) {
+    buffer.write(ns.xmlns);
+    if (node.prefix.isNotEmpty) {
+      buffer.write(XmlToken.namespace);
+      buffer.write(node.prefix);
+    }
+    buffer.write(XmlToken.equals);
+    buffer.write(
+      entityMapping.encodeAttributeValueWithQuotes(
+        node.uri,
+        XmlAttributeType.DOUBLE_QUOTE,
+      ),
+    );
   }
 
   @override

@@ -7,6 +7,7 @@ import '../nodes/doctype.dart';
 import '../nodes/document.dart';
 import '../nodes/document_fragment.dart';
 import '../nodes/element.dart';
+import '../nodes/namespace.dart';
 import '../nodes/processing.dart';
 import '../nodes/text.dart';
 import '../utils/name.dart';
@@ -48,4 +49,7 @@ mixin XmlVisitor {
 
   /// Visit an [XmlText] node.
   void visitText(XmlText node) {}
+
+  /// Visit an [XmlNamespace] node.
+  void visitNamespace(XmlNamespace node) {}
 }

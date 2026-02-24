@@ -423,5 +423,19 @@ void main() {
         );
       });
     });
+    group('namespaces', () {
+      test('default', () {
+        final namespace = XmlNamespace('prefix', 'http://uri.com');
+        expect(namespace.toXmlString(), 'xmlns:prefix="http://uri.com"');
+      });
+      test('empty prefix', () {
+        final namespace = XmlNamespace('', 'http://uri.com');
+        expect(namespace.toXmlString(), 'xmlns="http://uri.com"');
+      });
+      test('namespace prefix', () {
+        final namespace = XmlNamespace('xmlns', 'http://uri.com');
+        expect(namespace.toXmlString(), 'xmlns:xmlns="http://uri.com"');
+      });
+    });
   });
 }

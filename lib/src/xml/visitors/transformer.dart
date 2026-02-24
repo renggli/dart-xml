@@ -7,6 +7,7 @@ import '../nodes/doctype.dart';
 import '../nodes/document.dart';
 import '../nodes/document_fragment.dart';
 import '../nodes/element.dart';
+import '../nodes/namespace.dart';
 import '../nodes/processing.dart';
 import '../nodes/text.dart';
 import '../utils/name.dart';
@@ -32,6 +33,7 @@ class XmlTransformer {
     XmlDocumentFragment() => visitDocumentFragment(node) as T,
     XmlElement() => visitElement(node) as T,
     XmlName() => visitName(node) as T,
+    XmlNamespace() => visitNamespace(node) as T,
     XmlProcessing() => visitProcessing(node) as T,
     XmlText() => visitText(node) as T,
     _ => visitOther(node) as T,
@@ -46,6 +48,9 @@ class XmlTransformer {
 
   XmlDeclaration visitDeclaration(XmlDeclaration node) =>
       XmlDeclaration(node.attributes.map(visit));
+
+  XmlNamespace visitNamespace(XmlNamespace node) =>
+      XmlNamespace(node.prefix, node.uri);
 
   XmlDoctype visitDoctype(XmlDoctype node) =>
       XmlDoctype(node.name, node.externalId, node.internalSubset);

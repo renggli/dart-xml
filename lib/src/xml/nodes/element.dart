@@ -2,6 +2,7 @@ import '../enums/node_type.dart';
 import '../mixins/has_attributes.dart';
 import '../mixins/has_children.dart';
 import '../mixins/has_name.dart';
+import '../mixins/has_namespaces.dart';
 import '../mixins/has_parent.dart';
 import '../utils/name.dart';
 import '../visitors/visitor.dart';
@@ -13,6 +14,7 @@ class XmlElement extends XmlNode
     with
         XmlHasName,
         XmlHasParent<XmlNode>,
+        XmlHasNamespaces,
         XmlHasAttributes,
         XmlHasChildren<XmlNode> {
   /// Creates an element node with the provided [name], [attributes], and

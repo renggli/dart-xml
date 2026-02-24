@@ -29,6 +29,9 @@ enum XmlNodeType {
   /// An entity declaration like ` <!ENTITY...>`.
   ENTITY,
 
+  /// A namespace node.
+  NAMESPACE,
+
   /// A notation declaration like `<!NOTATION...>`.
   NOTATION,
 

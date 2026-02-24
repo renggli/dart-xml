@@ -1,6 +1,7 @@
 import '../enums/node_type.dart';
 import '../mixins/has_attributes.dart';
 import '../mixins/has_children.dart';
+import '../mixins/has_namespaces.dart';
 import '../mixins/has_parent.dart';
 import '../mixins/has_value.dart';
 import '../mixins/has_visitor.dart';
@@ -13,6 +14,7 @@ abstract class XmlNode extends Object
         XmlChildrenBase,
         XmlHasVisitor,
         XmlHasWriter,
+        XmlNamespacesBase,
         XmlParentBase,
         XmlValueBase {
   /// Return the node type of this node.
