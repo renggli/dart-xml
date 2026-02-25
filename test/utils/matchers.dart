@@ -19,13 +19,9 @@ final isAssertionError = hasAssertionsEnabled()
 
 /// Returns a [Matcher] that asserts on a [XmlNode] with a string serialization
 /// or a structurally equivalent node.
-Matcher isXmlNode(dynamic matcher) => switch (matcher) {
-  String() => isA<XmlNode>().having(
-    (each) => each.outerXml,
-    'outerXml',
-    matcher,
-  ),
-  XmlNode() => isA<XmlNode>().having(
+Matcher isXmlNode<T extends XmlNode>(dynamic matcher) => switch (matcher) {
+  String() => isA<T>().having((each) => each.outerXml, 'outerXml', matcher),
+  XmlNode() => isA<T>().having(
     (each) => each.isEqualNode(matcher),
     'node',
     isTrue,

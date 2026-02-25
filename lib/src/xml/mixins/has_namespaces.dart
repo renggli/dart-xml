@@ -1,3 +1,4 @@
+import '../extensions/parent.dart';
 import '../nodes/element.dart';
 import '../nodes/namespace.dart';
 import '../nodes/node.dart';
@@ -20,19 +21,20 @@ mixin XmlHasNamespaces implements XmlNamespacesBase, XmlNode {
           if (attribute.name.prefix == ns.xmlns) {
             if (prefixes.add(attribute.name.local) &&
                 attribute.value.isNotEmpty) {
-              yield XmlNamespace(attribute.name.local, attribute.value);
+              yield XmlNamespace(attribute.name.local, attribute.value)
+                ..attachParent(current);
             }
           } else if (attribute.name.local == ns.xmlns &&
               attribute.name.prefix == null) {
             if (prefixes.add('') && attribute.value.isNotEmpty) {
-              yield XmlNamespace('', attribute.value);
+              yield XmlNamespace('', attribute.value)..attachParent(current);
             }
           }
         }
       }
     }
     if (prefixes.add(ns.xml)) {
-      yield XmlNamespace(ns.xml, ns.xmlUri);
+      yield XmlNamespace(ns.xml, ns.xmlUri)..attachParent(root);
     }
   }
 }

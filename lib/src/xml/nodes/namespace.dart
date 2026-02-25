@@ -1,11 +1,12 @@
 import '../enums/node_type.dart';
 import '../mixins/has_name.dart';
+import '../mixins/has_parent.dart';
 import '../utils/name.dart';
 import '../visitors/visitor.dart';
 import 'node.dart';
 
 /// XML namespace node.
-class XmlNamespace extends XmlNode with XmlHasName {
+class XmlNamespace extends XmlNode with XmlHasName, XmlHasParent {
   /// Create a namespace node with `prefix` and `uri`.
   XmlNamespace(this.prefix, this.uri);
 
