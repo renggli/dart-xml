@@ -13,18 +13,14 @@ class RangeExpression implements XPathExpression {
   XPathSequence call(XPathContext context) {
     final startSeq = startExpression(context);
     final endSeq = endExpression(context);
-
     if (startSeq.isEmpty || endSeq.isEmpty) {
       return XPathSequence.empty;
     }
-
     final start = xsInteger.cast(startSeq.singleOrNull!);
     final end = xsInteger.cast(endSeq.singleOrNull!);
-
     if (start > end) {
       return XPathSequence.empty;
     }
-
     return XPathSequence.range(start, end);
   }
 }

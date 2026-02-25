@@ -3,6 +3,7 @@ import '../evaluation/expression.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types/array.dart';
 import '../types/map.dart';
+import '../types/number.dart';
 import '../types/sequence.dart';
 
 /// A postfix lookup expression (`expr?key`).
@@ -75,7 +76,7 @@ Iterable<Object> _lookupKey(Object item, Object key) {
     if (value == null) return const [];
     return [value];
   } else if (item is XPathArray) {
-    final index = (key as int) - 1;
+    final index = xsInteger.cast(key) - 1;
     if (index < 0 || index >= item.length) {
       throw XPathEvaluationException('Array index out of bounds: ${index + 1}');
     }

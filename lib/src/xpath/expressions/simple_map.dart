@@ -13,7 +13,6 @@ class SimpleMapExpression implements XPathExpression {
     for (var i = 1; i < expressions.length; i++) {
       final expression = expressions[i];
       if (result.isEmpty) {
-        // If the left operand is empty, the result is empty.
         continue;
       }
       final inputList = result.toList();

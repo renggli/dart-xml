@@ -30,22 +30,18 @@ XPathSequence _fnResolveQName(
   XmlElement element,
 ) {
   if (qname == null) return XPathSequence.empty;
-  final parts = qname.split(':');
-  var prefix = '';
-  var local = parts[0];
-  if (parts.length == 2) {
-    prefix = parts[0];
-    local = parts[1];
-  } else if (parts.length > 2) {
-    throw XPathEvaluationException('Invalid QName syntax: $qname');
+  final name = XmlName.parse(qname);
+  if (name.namespaceUri == null) {
+    final prefix = name.prefix ?? '';
+    final uri = element.namespaces
+        .where((ns) => ns.prefix == prefix)
+        .firstOrNull
+        ?.uri;
+    if (uri != null) {
+      return XPathSequence.single(name.withNamespaceUri(uri));
+    }
   }
-  final uri = _lookupNamespaceUri(element, prefix);
-  if (uri == null) {
-    throw XPathEvaluationException('Prefix "$prefix" not found');
-  }
-  return XPathSequence.single(
-    XmlName.parts(local, prefix: prefix, namespaceUri: uri),
-  );
+  throw XPathEvaluationException('Invalid qualified name: $qname');
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-QName
@@ -66,21 +62,7 @@ XPathSequence _fnQName(
   XPathContext context,
   String? paramURI,
   String paramQName,
-) {
-  final uri = paramURI ?? '';
-  final parts = paramQName.split(':');
-  var prefix = '';
-  var local = parts[0];
-  if (parts.length == 2) {
-    prefix = parts[0];
-    local = parts[1];
-  } else if (parts.length > 2) {
-    throw XPathEvaluationException('Invalid QName syntax: $paramQName');
-  }
-  return XPathSequence.single(
-    XmlName.parts(local, prefix: prefix, namespaceUri: uri),
-  );
-}
+) => XPathSequence.single(XmlName.parse(paramQName, namespaceUri: paramURI));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-prefix-from-QName
 const fnPrefixFromQName = XPathFunctionDefinition(
@@ -134,8 +116,7 @@ const fnNamespaceUriFromQName = XPathFunctionDefinition(
 );
 
 XPathSequence _fnNamespaceUriFromQName(XPathContext context, XmlName? arg) {
-  if (arg == null) return XPathSequence.empty;
-  final uri = arg.namespaceUri;
+  final uri = arg?.namespaceUri;
   if (uri == null) return XPathSequence.empty;
   return XPathSequence.single(uri);
 }
@@ -159,7 +140,8 @@ XPathSequence _fnNamespaceUriForPrefix(
   String? prefix,
   XmlElement element,
 ) {
-  final uri = _lookupNamespaceUri(element, prefix ?? '');
+  final p = prefix ?? '';
+  final uri = element.namespaces.where((ns) => ns.prefix == p).firstOrNull?.uri;
   if (uri == null || uri.isEmpty) return XPathSequence.empty;
   return XPathSequence.single(uri);
 }
@@ -173,43 +155,5 @@ const fnInScopePrefixes = XPathFunctionDefinition(
   function: _fnInScopePrefixes,
 );
 
-XPathSequence _fnInScopePrefixes(XPathContext context, XmlElement element) {
-  final prefixes = <String>{};
-  var current = element;
-  while (true) {
-    for (final attribute in current.attributes) {
-      if (attribute.name.prefix == 'xmlns') {
-        prefixes.add(attribute.name.local);
-      } else if (attribute.name.prefix == null &&
-          attribute.name.local == 'xmlns') {
-        if (attribute.value.isNotEmpty) {
-          prefixes.add('');
-        }
-      }
-    }
-    if (current.parent is! XmlElement) break;
-    current = current.parent as XmlElement;
-  }
-  prefixes.add('xml');
-  return XPathSequence(prefixes.map((p) => p));
-}
-
-String? _lookupNamespaceUri(XmlElement element, String prefix) {
-  if (prefix == 'xml') return 'http://www.w3.org/XML/1998/namespace';
-  var current = element;
-  while (true) {
-    for (final attribute in current.attributes) {
-      if (attribute.name.prefix == 'xmlns' && attribute.name.local == prefix) {
-        return attribute.value;
-      }
-      if (attribute.name.prefix == null &&
-          attribute.name.local == 'xmlns' &&
-          prefix.isEmpty) {
-        return attribute.value;
-      }
-    }
-    if (current.parent is! XmlElement) break;
-    current = current.parent as XmlElement;
-  }
-  return null;
-}
+XPathSequence _fnInScopePrefixes(XPathContext context, XmlElement element) =>
+    XPathSequence(element.namespaces.map((ns) => ns.prefix));
