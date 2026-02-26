@@ -8,7 +8,7 @@ import '../../utils/matchers.dart';
 void main() {
   group('xsQName', () {
     test('name', () {
-      expect(xsQName.name, 'xs:QName()');
+      expect(xsQName.name, 'xs:QName');
     });
     test('matches', () {
       expect(xsQName.matches(const XmlName.qualified('foo')), isTrue);
@@ -34,7 +34,7 @@ void main() {
           () => xsQName.cast(XPathSequence.empty),
           throwsA(
             isXPathEvaluationException(
-              message: 'Unsupported cast from () to xs:QName()',
+              message: 'Unsupported cast from () to xs:QName',
             ),
           ),
         );
@@ -49,7 +49,7 @@ void main() {
           ),
           throwsA(
             isXPathEvaluationException(
-              message: 'Unsupported cast from (a, b) to xs:QName()',
+              message: 'Unsupported cast from (a, b) to xs:QName',
             ),
           ),
         );
@@ -59,7 +59,7 @@ void main() {
           () => xsQName.cast(123),
           throwsA(
             isXPathEvaluationException(
-              message: 'Unsupported cast from 123 to xs:QName()',
+              message: 'Unsupported cast from 123 to xs:QName',
             ),
           ),
         );

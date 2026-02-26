@@ -26,13 +26,15 @@ class _XPathStringType extends XPathType<String> {
     'xs:token',
     'xs:language',
     'xs:NMTOKEN',
+    'xs:NMTOKENS',
     'xs:Name',
     'xs:NCName',
     'xs:ID',
     'xs:IDREF',
+    'xs:IDREFS',
     'xs:ENTITY',
+    'xs:ENTITIES',
     'xs:anyURI',
-    'xs:QName',
     'xs:NOTATION',
   ];
 

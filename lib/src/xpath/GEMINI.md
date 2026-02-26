@@ -25,9 +25,9 @@ All other XPath types directly map to corresponding Dart types.
 
 | XPath Type | Dart Type | Type Implementation
 | --- | --- | ---
-| `item()` | `xsAny` | `Object`
-| `sequence` | `xsSequence` or `XPathSequenceType` | `XPathSequence`
-| `empty-sequence` | `xsEmptySequence` | `XPathSequence`
+| `item()` | `Object` | `xsAny`
+| `sequence` | `XPathSequence` | `xsSequence`
+| `empty-sequence` | `XPathSequence` | `xsEmptySequence`
 
 ### Nodes
 
@@ -40,7 +40,8 @@ XML nodes are represented by the [XmlNode](../../xml/nodes/node.dart) class and 
 | `document` | `XmlDocument` | `xsDocument`
 | `element` | `XmlElement` | `xsElement`
 | `node` | `XmlNode` | `xsNode`
-| `processing-instruction` | `XmlProcessingInstruction` | `xsProcessingInstruction`
+| `namespace` | `XmlNamespace` | `xsNamespace`
+| `processing-instruction` | `XmlProcessing` | `xsProcessingInstruction`
 | `text` | `XmlText` and `XmlCDATA` | `xsText`
 
 ### Functions
@@ -78,22 +79,22 @@ Numeric values are represented by the Dart `num` class and its subtypes.
 | XPath Type | Dart Type | Implementation
 | --- | --- | ---
 | `xs:numeric` | `num` | `xsNumeric`
-| `xs:byte` | `int` | `xsInteger`
-| `xs:decimal` | `int` | `xsInteger`
+| `xs:byte` | `int` | `xsByte`
+| `xs:decimal` | `num` | `xsDecimal`
 | `xs:double` | `double` | `xsDouble`
 | `xs:float` | `double` | `xsDouble`
-| `xs:int` | `int` | `xsInteger`
+| `xs:int` | `int` | `xsInt`
 | `xs:integer` | `int` | `xsInteger`
-| `xs:long` | `int` | `xsInteger`
-| `xs:negativeInteger` | `int` | `xsInteger`
-| `xs:nonNegativeInteger` | `int` | `xsInteger`
-| `xs:nonPositiveInteger` | `int` | `xsInteger`
-| `xs:positiveInteger` | `int` | `xsInteger`
-| `xs:short` | `int` | `xsInteger`
-| `xs:unsignedByte` | `int` | `xsInteger`
-| `xs:unsignedInt` | `int` | `xsInteger`
-| `xs:unsignedLong` | `int` | `xsInteger`
-| `xs:unsignedShort` | `int` | `xsInteger`
+| `xs:long` | `int` | `xsLong`
+| `xs:negativeInteger` | `int` | `xsNegativeInteger`
+| `xs:nonNegativeInteger` | `int` | `xsNonNegativeInteger`
+| `xs:nonPositiveInteger` | `int` | `xsNonPositiveInteger`
+| `xs:positiveInteger` | `int` | `xsPositiveInteger`
+| `xs:short` | `int` | `xsShort`
+| `xs:unsignedByte` | `int` | `xsUnsignedByte`
+| `xs:unsignedInt` | `int` | `xsUnsignedInt`
+| `xs:unsignedLong` | `int` | `xsUnsignedLong`
+| `xs:unsignedShort` | `int` | `xsUnsignedShort`
 
 ### Strings
 
@@ -128,6 +129,8 @@ Boolean values are represented by the Dart `bool` class.
 | `xs:hexBinary` | `XPathHexBinary` | `xsHexBinary`
 | `xs:anyURI` | `String` | `xsString`
 | `xs:QName` | `XmlName` | `xsQName`
+| `xs:untyped` | `Object` | `xsAny`
+| `xs:untypedAtomic` | `Object` | `xsAny`
 | `xs:NOTATION` | `String` | `xsString`
 
 ## Functions & Operators

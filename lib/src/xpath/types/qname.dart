@@ -10,7 +10,7 @@ class _XPathQNameType extends XPathType<Object> {
   const _XPathQNameType();
 
   @override
-  String get name => 'xs:QName()';
+  String get name => 'xs:QName';
 
   @override
   bool matches(Object value) => value is XmlName;
