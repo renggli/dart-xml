@@ -235,36 +235,65 @@ class TestEnvironment {
 
   late final String name = element.getAttribute('name') ?? '<inline>';
 
-  late final XmlDocument? source = _getSource();
+  late final XmlNode? source = _getSource();
+
+  late final Map<String, XmlNode> documents = _getDocuments();
+
+  late final Map<String, Object> variables = _getVariables();
 
   XPathContext get context => XPathContext.canonical(
     source ?? XPathSequence.empty,
-  ).copy(variables: _getParams());
+  ).copy(documents: documents, variables: variables);
 
-  XmlDocument? _getSource() {
+  Map<String, XmlNode> _getDocuments() {
+    final results = <String, XmlNode>{};
+    for (final element in element.findElements('source')) {
+      final file = element.getAttribute('file');
+      if (file == null) continue;
+      final uri = element.getAttribute('uri');
+      final node = XmlDocument.parse(
+        File('${directory.path}/$file').readAsStringSync(),
+      );
+      results[file] = node;
+      if (uri != null) {
+        results[uri] = node;
+      }
+    }
+    return results;
+  }
+
+  XmlNode? _getSource() {
     final sources = element.findElements('source');
     final source =
         sources.where((e) => e.getAttribute('role') == '.').singleOrNull ??
         sources.singleOrNull;
     final file = source?.getAttribute('file');
-    if (file == null) return null;
-    return XmlDocument.parse(
-      File('${directory.path}/$file').readAsStringSync(),
-    );
+    return documents[file];
   }
 
-  Map<String, Object> _getParams() {
-    final params = <String, Object>{};
+  Map<String, Object> _getVariables() {
+    final variables = <String, Object>{};
     for (final param in element.findElements('param')) {
       final name = param.getAttribute('name');
       final select = param.getAttribute('select');
+      final sourceContext = param.getAttribute('source');
       if (name != null && select != null) {
-        params[name] = XPathContext.canonical(
-          source ?? XPathSequence.empty,
-        ).evaluate(select);
+        // Try to evaluate the param with respect to a specific document source.
+        final item = documents[sourceContext] ?? source ?? XPathSequence.empty;
+        variables[name] = XPathContext.canonical(item).evaluate(select);
       }
     }
-    return params;
+    for (final source in element.findElements('source')) {
+      final role = source.getAttribute('role');
+      final file = source.getAttribute('file');
+      if (role != null && role.startsWith(r'$') && file != null) {
+        final node = documents[file];
+        if (node != null) {
+          variables[role.substring(1)] = node;
+        }
+      }
+    }
+    return variables;
   }
 }
 
