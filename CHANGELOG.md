@@ -8,14 +8,21 @@
   - Lower-level parser and event APIs can now enable and disable the validation and resolution of namespaces with `validateNamespaces` and `withNamespaces`. This is a BREAKING CHANGE to existing code using these lower-level APIs, as namespaces are no longer available by default.
   - Introduced `XmlNamespaceException` for error reporting of invalid namespaces.
   - `XmlName` is now immutable and the complexity with different states is gone.
+  - Added `XmlNamespace` node type and `XmlHasNamespaces` mixin to support reading in-scope namespaces on nodes.
 - Improved performance and usability of `XmlBuilder`:
   - Significantly improve the performance of `XmlBuilder` as all namespace lookups are now in constant time.
-  - Deprecated `namespace(Stirng uri, String? prefix)` and `namespaces(Map<String, String?> uriToPrefix)` accessors that have an unusually awkward API. Replaced with `namespaceUri(String? prefix, String? uri)` and `namespaceUris(Map<String, String> prefixToUri)` with a clear prefix-uri order.
+  - Deprecated `namespace(String uri, String? prefix)` and `namespaces(Map<String, String?> uriToPrefix)` accessors that have an unusually awkward API. Replaced with `namespaceUri(String? prefix, String? uri)` and `namespaceUris(Map<String, String> prefixToUri)` with a clear prefix-uri order.
   - Deprecated `String? namespace` arguments when definition elements and attributes. Replaced with more flexible `String namespacePrefix` and `String namespaceUri`.
-- XPath 3.1 support:
+- Comprehensive XPath 3.1 support:
+  - Complete execution model supporting sequences of items (nodes, atomic values, functions, maps, and arrays).
+  - New expressions and operators: String concatenation (`||`), range (`to`), quantified (`some`/`every`), loops (`for`), simple map (`!`), lookup (`?`), and node comparison (`is`, `<<`, `>>`).
+  - Support for Higher-Order Functions: Inline, named, and arrow functions, inclusive of partial function application and dynamic binding with `fn:function-lookup`.
+  - Native support for XPath Data Model (XDM) maps and arrays, including associated JSON and sequence functions.
+  - Added support for EQName parsing (`Q{uri}name`).
   - Add missing XPath name tests (namespace prefix, namespace URI, local name, and wildcards) and node tests (`attribute()`, `document-node()` and `element()`).
   - Significantly improve XPath evaluation [performance](https://github.com/renggli/dart-xml/issues/194#issuecomment-3311509567) for large documents (thanks to [laishere](https://github.com/laishere)).
   - Fix issues with XPath [axis parsing](https://github.com/renggli/dart-xml/issues/193), [reverse axis access](https://github.com/renggli/dart-xml/issues/194), and [predicate expressions](https://github.com/renggli/dart-xml/issues/194) (thanks to [laishere](https://github.com/laishere)).
+- Update to PetitParser 7.0.2.
 
 ## 6.6.1
 
