@@ -1,4 +1,4 @@
-/// Dart XPath adds support of XPath 1.0 expressions to the XML library.
+/// Dart XPath adds support of XPath 3.1 expressions to the XML library.
 library;
 
 import 'package:meta/meta.dart' show experimental;

@@ -231,5 +231,33 @@ void main() {
         'Learning XML',
       );
     });
+    test('stream select subtree with parents and namespaces', () async {
+      const shiporderXsd = '''<?xml version="1.0" encoding="UTF-8"?>
+      <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+        <xs:element name="shiporder">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="orderperson" type="xs:string"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:schema>''';
+
+      final list = <String>[];
+      await Stream.fromIterable([shiporderXsd])
+          .toXmlEvents(withNamespace: true, withParent: true)
+          .normalizeEvents()
+          .selectSubtreeEvents(
+            (event) =>
+                event.localName == 'element' &&
+                event.namespaceUri == 'http://www.w3.org/2001/XMLSchema',
+          )
+          .toXmlNodes()
+          .expand((nodes) => nodes)
+          .forEach((node) => list.add(node.toXmlString(pretty: true)));
+
+      expect(list, isNotEmpty);
+      expect(list.first, contains('orderperson'));
+    });
   });
 }

@@ -12,7 +12,7 @@ Dart XML is a lightweight library for parsing, traversing, querying, transformin
 
 This library provides a [DOM-based](#reading-and-writing) object model for accessing and manipulating XML documents, as
 well as an [event-based](#event-driven) (comparable to SAX) for incremental reading and processing of XML streams.
-Furthermore, it supports a large subset of [XPath](#xpath) to simplify the querying of large documents.
+Furthermore, it supports querying the DOM using [XPath 3.1](#xpath) to simplify the querying of large documents.
 
 This library is open source, stable and well tested. Development happens
 on [GitHub](https://github.com/renggli/dart-xml). Feel free to report issues or create a pull-request there. General
@@ -142,9 +142,7 @@ in the bookshelf.
 
 #### XPath
 
-To simplify accessing and extracting specific parts of a DOM document, this library supports the most commonly used
-subset of [XPath 1.0](https://www.w3.org/TR/1999/REC-xpath-19991116/) expressions; a full XPath engine is outside the
-scope of this library.
+To simplify accessing and extracting specific parts of a DOM document, this library supports [XPath 3.1](https://www.w3.org/TR/xpath-31/) expressions.
 
 To get started import the XPath library:
 
@@ -209,7 +207,7 @@ The `element` method supports optional named arguments:
 
 - The most common is the `nest:` argument which is used to insert contents into the element. In most cases this will be a function that calls more methods on the builder to define attributes, declare namespaces and add child elements. However, the argument can also be a string or an arbitrary Dart object that is converted to a string and added as a text node.
 - While attributes can be defined from within the element, for simplicity there is also an argument `attributes:` that takes a map to define simple name-value pairs.
-- Furthermore, we can provide a URI as the namespace of the element using `namespace:` and declare new namespace prefixes using `namespaces:`. For details see the documentation of the method.
+- Furthermore, we can provide a URI as the namespace of the element using `namespaceUri:` and declare new namespace prefixes using `namespaceUris:`. For details see the documentation of the method.
 
 The builder pattern allows you to easily extract repeated parts into specific methods. In the example above, one could put the part writing a book into a separate method as follows:
 
@@ -310,13 +308,12 @@ await file.openRead()
     .forEach((node) => print(node.innerText));
 ```
 
-A common challenge when processing XML event streams is the lack of hierarchical information, thus it is very hard to figure out parent dependencies such as looking up a namespace URI. The `.withParentEvents()` transformation validates the hierarchy and annotates the events with their parent event. This enables features (such as `parentEvent` and the `namespaceUri` accessor) and makes mapping and selecting events considerably simpler. For example:
+A common challenge when processing XML event streams is the lack of hierarchical information, thus it is hard to figure out parent dependencies such as looking up a namespace URI. Enabling `withParent: true` and `withNamespace: true` when decoding the stream validates the hierarchy and annotates the events with their parent event. This enables features (such as `parentEvent` and the `namespaceUri` accessor) and makes mapping and selecting events considerably simpler. For example:
 
 ```dart
 await Stream.fromIterable([shiporderXsd])
-    .toXmlEvents()
+    .toXmlEvents(withNamespace: true, withParent: true)
     .normalizeEvents()
-    .withParentEvents()
     .selectSubtreeEvents((event) =>
         event.localName == 'element' &&
         event.namespaceUri == 'http://www.w3.org/2001/XMLSchema')
@@ -354,7 +351,8 @@ Furthermore, there are [numerous packages](https://pub.dev/packages?q=dependency
 
 - [Extensible Markup Language (XML) 1.0](https://www.w3.org/TR/xml/)
 - [Namespaces in XML 1.0](https://www.w3.org/TR/xml-names/)
-- [XPath 3.1](https://www.w3.org/TR/xpath-31/)
+- [XPath 3.1 Language](https://www.w3.org/TR/xpath-31/)
+- [XPath Functions and Operators 3.1](https://www.w3.org/TR/xpath-functions-31/)
 - [W3C DOM4](https://www.w3.org/TR/domcore/)
 
 ### History
