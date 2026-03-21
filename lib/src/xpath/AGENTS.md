@@ -1,6 +1,6 @@
 # XPath
 
-Adhere to the official XPath 3.1 stnadard at all times:
+Adhere to the official XPath 3.1 standard at all times:
 
 - XML Path Language (XPath) 3.1: <https://www.w3.org/TR/xpath-31/>
 - XPath Functions and Operators 3.1: <https://www.w3.org/TR/xpath-functions-31/>
@@ -12,22 +12,38 @@ The core goals of this design are **efficiency**, **compactness**, and **readabi
 - **Zero-Wrapper**: Map XPath Data Model types map directly to native Dart types.
 - **Lazy Sequences**: Use Dart's `Iterable` for all sequences to ensure laziness and low memory footprint.
 - **Functional AST**: Expression nodes are executable functors, reducing the need for a separate interpreter pass for evaluation.
+- **Exceptions**: Use Dart's exception system and human readable error messages to report errors.
 
 ## Data Model
 
 Instead of wrapping every integer, string, and node, we use Dart's native types. This allows the XPath engine to interact seamlessly with existing Dart objects.
 
-Types are implemented as subclasses of [XPathType](definitions/type.dart). Types can check if a Dart Object is of their type with [XPathType.matches], and they can convert themselves to any other XPath type with [XPathType.cast].
+Type descriptions are implemented as subclasses of [XPathType](definitions/type.dart). Types can check if a Dart Object is of their type with [XPathType.matches]. Types can convert any other object to their type with [XPathType.cast].
+
+### Sequences
 
 Sequences are implemented as an `XPathSequence`, a thin wrapper around a Dart [Iterable]. The impelementation is defined in [sequence.dart](types/sequence.dart).
 
-All other XPath types directly map to corresponding Dart types.
-
 | XPath Type | Dart Type | Type Implementation
 | --- | --- | ---
-| `item()` | `Object` | `xsAny`
 | `sequence` | `XPathSequence` | `xsSequence`
 | `empty-sequence` | `XPathSequence` | `xsEmptySequence`
+
+There are various optimized implementations for specific use-cases. Use the most appropriate implementation for a given use-case.
+
+| XPathSequence | Description
+| --- | ---
+| `XPathSequence.empty` | The empty sequence.
+| `XPathSequence.trueSequence` | The sequence with a single `true` value.
+| `XPathSequence.falseSequence` | The sequence with a single `false` value.
+| `XPathSequence.emptyString` | The sequence with an empty string.
+| `XPathSequence.nan` | The sequence with a NaN value.
+| `XPathSequence.emptyArray` | The sequence with an empty array.
+| `XPathSequence.emptyMap` | The sequence with an empty map.
+| `const XPathSequence.single(value)` | The sequence with a single value.
+| `const XPathSequence(iterable)` | The sequence of an iterable.
+| `XPathSequence.cached(iterable)` | The sequence of an iterable that is at most evaluated once and then cached.
+| `XPathSequence.range(start, stop)` | The sequence of integers from start to stop.
 
 ### Nodes
 
@@ -107,11 +123,14 @@ String values are represented by the Dart `String` class.
 | `xs:token` | `String` | `xsString`
 | `xs:language` | `String` | `xsString`
 | `xs:NMTOKEN` | `String` | `xsString`
+| `xs:NMTOKENS` | `String` | `xsString`
 | `xs:Name` | `String` | `xsString`
 | `xs:NCName` | `String` | `xsString`
 | `xs:ID` | `String` | `xsString`
 | `xs:IDREF` | `String` | `xsString`
+| `xs:IDREFS` | `String` | `xsString`
 | `xs:ENTITY` | `String` | `xsString`
+| `xs:ENTITIES` | `String` | `xsString`
 
 ### Booleans
 
@@ -125,6 +144,7 @@ Boolean values are represented by the Dart `bool` class.
 
 | XPath Type | Dart Type | Implementation
 | --- | --- | ---
+| `item()` | `Object` | `xsAny`
 | `xs:base64Binary` | `XPathBase64Binary` | `xsBase64Binary`
 | `xs:hexBinary` | `XPathHexBinary` | `xsHexBinary`
 | `xs:anyURI` | `String` | `xsString`
