@@ -1,7 +1,8 @@
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/xml.dart';
+import 'package:xml/xpath.dart';
 
+import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 void main() {
@@ -14,6 +15,17 @@ void main() {
       expectEvaluate(xml, 'map { "a": 1, "b": 2 }', [
         {'a': 1, 'b': 2},
       ]);
+    });
+    test('invalid key', () {
+      expect(
+        () => xml.xpathEvaluate('map { (1, 2): "value" }'),
+        throwsA(
+          isXPathEvaluationException(
+            message:
+                'map:constructor key must be exactly one item, but got (1, 2)',
+          ),
+        ),
+      );
     });
   });
   group('array', () {

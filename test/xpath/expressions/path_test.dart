@@ -1,4 +1,5 @@
 import 'package:test/test.dart';
+import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/expressions/axis.dart';
 import 'package:xml/src/xpath/expressions/name.dart';
 import 'package:xml/src/xpath/expressions/node.dart';
@@ -7,6 +8,9 @@ import 'package:xml/src/xpath/expressions/predicate.dart';
 import 'package:xml/src/xpath/expressions/step.dart';
 import 'package:xml/src/xpath/expressions/variable.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
+import 'package:xml/xml.dart';
+
+import '../../utils/matchers.dart';
 
 void main() {
   group('step optimization', () {
@@ -154,5 +158,78 @@ void main() {
         );
       },
     );
+  });
+
+  group('evaluation edge cases', () {
+    final context = XPathContext.canonical(XmlDocument.parse('<root/>'));
+    test('empty steps throw ArgumentError', () {
+      expect(() => PathExpression([]), throwsArgumentError);
+    });
+    test(
+      'non-node items on path step without order preserved throws Exception',
+      () {
+        final path = PathExpression([
+          const LiteralExpression(XPathSequence.single('text')),
+          const StepExpression(ChildAxis()),
+        ]);
+        expect(path.isOrderPreserved, isFalse);
+        expect(
+          () => path(context),
+          throwsA(
+            isXPathEvaluationException(
+              message:
+                  'Path operator / requires sequence of nodes, but got text',
+            ),
+          ),
+        );
+      },
+    );
+    test('sort and deduplicate with non-nodes', () {
+      final xml = XmlDocument.parse('<root><a><b/></a></root>');
+      final path = PathExpression([
+        const StepExpression(AncestorAxis()),
+        const LiteralExpression(XPathSequence.single(1)),
+      ]);
+      expect(path.isOrderPreserved, isFalse);
+      final evalContext = XPathContext.canonical(
+        xml.rootElement.children.first,
+      );
+      expect(path(evalContext), equals([1]));
+    });
+    test('sort and deduplicate with large node sets', () {
+      final xml = XmlDocument.parse(
+        '<root>${List.generate(60, (i) => '<a><b/></a>').join('')}</root>',
+      );
+      final path = PathExpression([
+        const StepExpression(AncestorAxis()),
+        const StepExpression(ChildAxis()),
+      ]);
+      expect(path.isOrderPreserved, isFalse);
+      // Evaluate starting at a 'b' node
+      final evalContext = XPathContext.canonical(
+        xml.findAllElements('b').first,
+      );
+      final result = path(evalContext);
+      expect(result, hasLength(62));
+    });
+    test('sort and deduplicate with nodes from multiple documents', () {
+      final xml1 = XmlDocument.parse(
+        '<root>${List.generate(55, (i) => '<a><b/></a>').join('')}</root>',
+      );
+      final xml2 = XmlDocument.parse('<root2><a/><b/></root2>');
+      final path = PathExpression([
+        LiteralExpression(
+          XPathSequence([
+            ...xml1.findAllElements('b'),
+            ...xml2.rootElement.children,
+          ]),
+        ),
+        const StepExpression(SelfAxis()),
+      ]);
+      expect(path.isOrderPreserved, isFalse);
+      final result = path(context);
+      // Expected to find 55 elements from xml1 + 2 elements from xml2 = 57
+      expect(result, hasLength(57));
+    });
   });
 }

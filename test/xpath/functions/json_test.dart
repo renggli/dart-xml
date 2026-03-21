@@ -65,12 +65,27 @@ void main() {
         throwsA(isA<Exception>()),
       );
     });
+    test('empty', () {
+      expect(
+        fnParseJson(context, [XPathSequence.empty]),
+        isXPathSequence(isEmpty),
+      );
+    });
   });
-  test('fn:json-doc', () {
-    expect(
-      () => fnJsonDoc(context, [const XPathSequence.single('url')]),
-      throwsA(isA<UnimplementedError>()),
-    );
+  group('fn:json-doc', () {
+    test('unimplemented', () {
+      expect(
+        () => fnJsonDoc(context, [const XPathSequence.single('url')]),
+        throwsA(isA<UnimplementedError>()),
+      );
+    });
+
+    test('returns empty for empty sequence', () {
+      expect(
+        fnJsonDoc(context, [XPathSequence.empty]),
+        isXPathSequence(isEmpty),
+      );
+    });
   });
   group('fn:json-to-xml', () {
     test('basic', () {
@@ -90,6 +105,18 @@ void main() {
         '</map>',
       );
     });
+    test('empty', () {
+      expect(
+        fnJsonToXml(context, [XPathSequence.empty]),
+        isXPathSequence(isEmpty),
+      );
+    });
+    test('invalid', () {
+      expect(
+        () => fnJsonToXml(context, [const XPathSequence.single('{')]),
+        throwsA(isXPathEvaluationException()),
+      );
+    });
   });
   group('fn:xml-to-json', () {
     test('basic', () {
@@ -107,6 +134,12 @@ void main() {
       final document = XmlDocument.parse(input);
       final result = fnXmlToJson(context, [XPathSequence.single(document)]);
       expect(result.single, '{"a":1,"b":[null,true,2,"c"]}');
+    });
+    test('empty', () {
+      expect(
+        fnXmlToJson(context, [XPathSequence.empty]),
+        isXPathSequence(isEmpty),
+      );
     });
   });
 }

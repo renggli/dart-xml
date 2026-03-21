@@ -375,10 +375,10 @@ Set<String> _parseIdStrings(XPathSequence arg) => arg
     .toSet();
 
 bool _isIdAttribute(XmlAttribute attr) =>
-    attr.name.local == 'id' || attr.name.qualified == 'xml:id';
+    attr.name.qualified == 'id' || attr.name.qualified == 'xml:id';
 
 bool _isIdrefAttribute(XmlAttribute attr) =>
-    attr.name.local == 'idref' ||
-    attr.name.local == 'idrefs' ||
+    attr.name.qualified == 'idref' ||
+    attr.name.qualified == 'idrefs' ||
     attr.name.qualified == 'xml:idref' ||
     attr.name.qualified == 'xml:idrefs';

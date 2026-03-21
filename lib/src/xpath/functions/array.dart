@@ -236,11 +236,7 @@ const fnArrayJoin = XPathFunctionDefinition(
 XPathSequence _fnArrayJoin(XPathContext context, XPathSequence arrays) {
   final result = <Object>[];
   for (final item in arrays) {
-    if (item is XPathArray) {
-      result.addAll(item);
-    } else {
-      result.add(item);
-    }
+    result.addAll(item as XPathArray);
   }
   return XPathSequence.single(result);
 }

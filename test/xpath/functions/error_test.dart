@@ -10,48 +10,63 @@ final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
 final context = XPathContext.empty(document);
 
 void main() {
-  test('fn:error', () {
-    expect(
-      () => fnError(context, []),
-      throwsA(isXPathEvaluationException(message: '')),
-    );
-    expect(
-      () => fnError(context, [const XPathSequence.single('code')]),
-      throwsA(isXPathEvaluationException(message: 'code')),
-    );
-    expect(
-      () => fnError(context, [
-        const XPathSequence.single('code'),
-        const XPathSequence.single('description'),
-      ]),
-      throwsA(isXPathEvaluationException(message: 'code: description')),
-    );
-    expect(
-      () => fnError(context, [
-        const XPathSequence.single('code'),
-        const XPathSequence.single('description'),
-        const XPathSequence([1, 2, 3]),
-      ]),
-      throwsA(
-        isXPathEvaluationException(message: 'code: description (1, 2, 3)'),
-      ),
-    );
+  group('fn:error', () {
+    test('throws with no arguments', () {
+      expect(
+        () => fnError(context, []),
+        throwsA(isXPathEvaluationException(message: '')),
+      );
+    });
+
+    test('throws with code', () {
+      expect(
+        () => fnError(context, [const XPathSequence.single('code')]),
+        throwsA(isXPathEvaluationException(message: 'code')),
+      );
+    });
+
+    test('throws with code and description', () {
+      expect(
+        () => fnError(context, [
+          const XPathSequence.single('code'),
+          const XPathSequence.single('description'),
+        ]),
+        throwsA(isXPathEvaluationException(message: 'code: description')),
+      );
+    });
+
+    test('throws with code, description, and value', () {
+      expect(
+        () => fnError(context, [
+          const XPathSequence.single('code'),
+          const XPathSequence.single('description'),
+          const XPathSequence([1, 2, 3]),
+        ]),
+        throwsA(
+          isXPathEvaluationException(message: 'code: description (1, 2, 3)'),
+        ),
+      );
+    });
   });
-  test('fn:trace (without handler)', () {
-    const value = XPathSequence.single('value');
-    const label = XPathSequence.single('label');
-    expect(fnTrace(context, [value]), isXPathSequence(['value']));
-    expect(fnTrace(context, [value, label]), isXPathSequence(['value']));
-  });
-  test('fn:trace (with handler)', () {
-    const value = XPathSequence.single('value');
-    const label = XPathSequence.single('label');
-    final traceLog = <(XPathSequence, String?)>[];
-    final traceContext = context.copy(
-      onTraceCallback: (value, label) => traceLog.add((value, label)),
-    );
-    expect(fnTrace(traceContext, [value]), same(value));
-    expect(fnTrace(traceContext, [value, label]), same(value));
-    expect(traceLog, [(value, null), (value, label.single)]);
+
+  group('fn:trace', () {
+    test('without handler returns value', () {
+      const value = XPathSequence.single('value');
+      const label = XPathSequence.single('label');
+      expect(fnTrace(context, [value]), isXPathSequence(['value']));
+      expect(fnTrace(context, [value, label]), isXPathSequence(['value']));
+    });
+
+    test('with handler logs and returns value', () {
+      const value = XPathSequence.single('value');
+      const label = XPathSequence.single('label');
+      final traceLog = <(XPathSequence, String?)>[];
+      final traceContext = context.copy(
+        onTraceCallback: (value, label) => traceLog.add((value, label)),
+      );
+      expect(fnTrace(traceContext, [value]), same(value));
+      expect(fnTrace(traceContext, [value, label]), same(value));
+      expect(traceLog, [(value, null), (value, label.single)]);
+    });
   });
 }

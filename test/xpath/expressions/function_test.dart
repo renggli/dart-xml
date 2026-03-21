@@ -55,6 +55,68 @@ void main() {
         throwsA(isXPathEvaluationException(message: 'Unknown function: fun')),
       );
     });
+    test('partial application expects more arguments', () {
+      const expr = DynamicFunctionExpression('fun', [
+        ArgumentPlaceholderExpression(),
+        LiteralExpression(arg2),
+      ]);
+      final functionSeq = expr(
+        context.copy(
+          functions: {
+            const XmlName.parts('fun', namespaceUri: xpathFnNamespace):
+                function,
+          },
+        ),
+      );
+      final functionItem = functionSeq.first as XPathFunction;
+      expect(
+        () => functionItem(context, []),
+        throwsA(
+          isXPathEvaluationException(
+            message: 'Partial function application expects more arguments',
+          ),
+        ),
+      );
+    });
+    test('partial application expects fewer arguments', () {
+      const expr = DynamicFunctionExpression('fun', [
+        ArgumentPlaceholderExpression(),
+        LiteralExpression(arg2),
+      ]);
+      final functionSeq = expr(
+        context.copy(
+          functions: {
+            const XmlName.parts('fun', namespaceUri: xpathFnNamespace):
+                function,
+          },
+        ),
+      );
+      final functionItem = functionSeq.first as XPathFunction;
+      expect(
+        () => functionItem(context, [arg1, arg2]),
+        throwsA(
+          isXPathEvaluationException(
+            message: 'Partial function application expects fewer arguments',
+          ),
+        ),
+      );
+    });
+    test('partial application success', () {
+      const expr = DynamicFunctionExpression('fun', [
+        ArgumentPlaceholderExpression(),
+        LiteralExpression(arg2),
+      ]);
+      final functionSeq = expr(
+        context.copy(
+          functions: {
+            const XmlName.parts('fun', namespaceUri: xpathFnNamespace):
+                function,
+          },
+        ),
+      );
+      final functionItem = functionSeq.first as XPathFunction;
+      expect(functionItem(context, [arg1]), result);
+    });
   });
   group('InlineFunctionExpression', () {
     test('no arguments', () {
@@ -83,6 +145,18 @@ void main() {
       );
       final function = expr(closureContext).first as XPathFunction;
       expect(function(context, []), result);
+    });
+    test('invalid number of arguments', () {
+      const expr = InlineFunctionExpression(['a'], VariableExpression('a'));
+      final function = expr(context).first as XPathFunction;
+      expect(
+        () => function(context, []),
+        throwsA(
+          isXPathEvaluationException(
+            message: 'Expected 1 arguments, but got 0',
+          ),
+        ),
+      );
     });
   });
   group('NamedFunctionExpression', () {
@@ -186,6 +260,38 @@ void main() {
         ),
       );
     });
+    test('evaluate with multiple items expression', () {
+      const expr = ArrowExpression(
+        LiteralExpression(XPathSequence.single(1)),
+        LiteralExpression(XPathSequence([function, function])),
+        [],
+      );
+      expect(
+        () => expr(context),
+        throwsA(
+          isXPathEvaluationException(
+            message: 'Expected a single function item, but got 2 items',
+          ),
+        ),
+      );
+    });
+    test('evaluate with invalid specifier', () {
+      const expr = ArrowExpression(
+        LiteralExpression(XPathSequence.single(1)),
+        123,
+        [],
+      );
+      expect(
+        () => expr(context),
+        throwsA(
+          isA<StateError>().having(
+            (e) => e.message,
+            'message',
+            'Invalid arrow function specifier: 123',
+          ),
+        ),
+      );
+    });
   });
 
   group('FunctionCallExpression', () {
@@ -218,6 +324,61 @@ void main() {
         ),
       );
     });
+    test('evaluate with multiple items sequence', () {
+      const expr = FunctionCallExpression(
+        LiteralExpression(XPathSequence([function, function])),
+        [],
+      );
+      expect(
+        () => expr(context),
+        throwsA(
+          isXPathEvaluationException(
+            message: 'Expected a single function item, but got 2 items',
+          ),
+        ),
+      );
+    });
+    test('partial application expects more arguments', () {
+      const expr = FunctionCallExpression(
+        LiteralExpression(XPathSequence.single(function)),
+        [ArgumentPlaceholderExpression(), LiteralExpression(arg2)],
+      );
+      final functionSeq = expr(context);
+      final resultFunction = functionSeq.first as XPathFunction;
+      expect(
+        () => resultFunction(context, []),
+        throwsA(
+          isXPathEvaluationException(
+            message: 'Partial function application expects more arguments',
+          ),
+        ),
+      );
+    });
+    test('partial application expects fewer arguments', () {
+      const expr = FunctionCallExpression(
+        LiteralExpression(XPathSequence.single(function)),
+        [ArgumentPlaceholderExpression(), LiteralExpression(arg2)],
+      );
+      final functionSeq = expr(context);
+      final resultFunction = functionSeq.first as XPathFunction;
+      expect(
+        () => resultFunction(context, [arg1, arg2]),
+        throwsA(
+          isXPathEvaluationException(
+            message: 'Partial function application expects fewer arguments',
+          ),
+        ),
+      );
+    });
+    test('partial application success', () {
+      const expr = FunctionCallExpression(
+        LiteralExpression(XPathSequence.single(function)),
+        [ArgumentPlaceholderExpression(), LiteralExpression(arg2)],
+      );
+      final functionSeq = expr(context);
+      final resultFunction = functionSeq.first as XPathFunction;
+      expect(resultFunction(context, [arg1]), result);
+    });
   });
 
   group('Partial Application', () {
@@ -233,6 +394,22 @@ void main() {
         XmlDocument(),
         'fold-left(("a", "b", "c"), "", concat(?, ?, "-suffix"))',
         ['a-suffixb-suffixc-suffix'],
+      );
+    });
+  });
+
+  group('ArgumentPlaceholderExpression', () {
+    test('evaluate throws StateError', () {
+      const expr = ArgumentPlaceholderExpression();
+      expect(
+        () => expr(context),
+        throwsA(
+          isA<StateError>().having(
+            (e) => e.message,
+            'message',
+            'Argument placeholder cannot be evaluated',
+          ),
+        ),
       );
     });
   });

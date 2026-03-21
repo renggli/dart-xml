@@ -13,97 +13,44 @@ final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
 final context = XPathContext.empty(document);
 
 void main() {
-  test('fn:name', () {
-    final a = document.findAllElements('a').first;
-    expect(fnName(context, [XPathSequence.single(a)]), isXPathSequence(['a']));
-  });
-  test('fn:local-name', () {
-    final a = document.findAllElements('a').first;
-    expect(
-      fnLocalName(context, [XPathSequence.single(a)]),
-      isXPathSequence(['a']),
-    );
-  });
-  test('fn:root', () {
-    final a = document.findAllElements('a').first;
-    expect(
-      fnRoot(context, [XPathSequence.single(a)]),
-      isXPathSequence([document]),
-    );
-  });
-  test('fn:innermost', () {
-    final a = document.findAllElements('a').first;
-    expect(
-      fnInnermost(context, [
-        XPathSequence([document, a]),
-      ]),
-      isXPathSequence([a]),
-    );
-  });
-  test('fn:outermost', () {
-    final a = document.findAllElements('a').first;
-    expect(
-      fnOutermost(context, [
-        XPathSequence([document, a]),
-      ]),
-      isXPathSequence([document]),
-    );
-  });
-  test('fn:path', () {
-    final a = document.findAllElements('a').first;
-    expect(
-      fnPath(context, [XPathSequence.single(a)]),
-      isXPathSequence(['/r/a']),
-    );
-  });
-  test('fn:generate-id', () {
-    final ids = document.descendants
-        .map((node) => fnGenerateId(context, [XPathSequence.single(node)]))
-        .map((sequence) => sequence.single)
-        .toList();
-    expect(ids, unorderedEquals(ids.toSet()));
-  });
-  group('integration', () {
-    final xml = XmlDocument.parse('<r><a>1</a><b>2<c/>3</b></r>');
-    test('last()', () {
-      expectEvaluate(xml, 'last()', isXPathSequence([1]));
-      expectEvaluate(
-        xml,
-        '/r/*[last()]',
-        isXPathSequence([xml.rootElement.children.last]),
+  group('fn:name', () {
+    test('returns name of element', () {
+      final a = document.findAllElements('a').first;
+      expect(
+        fnName(context, [XPathSequence.single(a)]),
+        isXPathSequence(['a']),
       );
     });
-    test('position()', () {
-      expectEvaluate(xml, 'position()', isXPathSequence([1]));
-      expectEvaluate(
-        xml,
-        '/r/*[position()]',
-        isXPathSequence(xml.rootElement.children),
+
+    test('returns target of processing instruction', () {
+      final pi = XmlProcessing('target', 'data');
+      expect(
+        fnName(context, [XPathSequence.single(pi)]),
+        isXPathSequence(['target']),
       );
     });
-    test('count(node-set)', () {
-      expectEvaluate(xml, 'count(/*)', isXPathSequence([1]));
-      expectEvaluate(xml, 'count(/r/*)', isXPathSequence([2]));
-      expectEvaluate(xml, 'count(/r/b/*)', isXPathSequence([1]));
-      expectEvaluate(xml, 'count(/r/b/absent)', isXPathSequence([0]));
-    });
-    test('local-name(node-set?)', () {
-      expectEvaluate(xml, 'local-name(/r/a)', isXPathSequence(['a']));
-      expectEvaluate(
-        xml,
-        '/r/*[local-name()="a"]',
-        isXPathSequence(xml.findAllElements('a')),
+
+    test('returns name of attribute', () {
+      final attr = XmlAttribute(const XmlName('a'), '1');
+      expect(
+        fnName(context, [XPathSequence.single(attr)]),
+        isXPathSequence(['a']),
       );
     });
-    test('namespace-uri(node-set?)', () {
-      expectEvaluate(xml, 'namespace-uri(/r/a)', isXPathSequence(['']));
-      expectEvaluate(
-        xml,
-        '/r/*[namespace-uri()=""]',
-        isXPathSequence(xml.rootElement.findElements('*')),
+
+    test('returns empty string for document', () {
+      expect(
+        fnName(context, [XPathSequence.single(document)]),
+        isXPathSequence(['']),
       );
     });
-    test('name(node-set?)', () {
+
+    test('returns empty string for empty sequence', () {
+      expect(fnName(context, [XPathSequence.empty]), isXPathSequence(['']));
+    });
+
+    test('integration via xpathEvaluate', () {
+      final xml = XmlDocument.parse('<r><a>1</a><b>2<c/>3</b></r>');
       expectEvaluate(xml, 'name(/r/a)', isXPathSequence(['a']));
       expectEvaluate(
         xml,
@@ -111,28 +58,210 @@ void main() {
         isXPathSequence(xml.findAllElements('a')),
       );
     });
+  });
 
-    test('predicate', () {
-      final xml = XmlDocument.parse('<r><a/><b/><c/></r>');
-      final children = xml.rootElement.children;
-      expectEvaluate(xml, '(/r/*)[1]', isXPathSequence([children[0]]));
-      expectEvaluate(xml, '(/r/*)[last()]', isXPathSequence([children[2]]));
-      expectEvaluate(xml, '(/r/*)[position()]', isXPathSequence(children));
-      expectEvaluate(xml, '(/r/*)[false()]', isXPathSequence(isEmpty));
-      expectEvaluate(xml, '(/r/*)[true()]', isXPathSequence(children));
-      expectEvaluate(
-        xml,
-        '(/r/*)[position()<=2][last()]',
-        isXPathSequence([children[1]]),
-      );
-      expectEvaluate(
-        xml,
-        '(/r/c/preceding-sibling::*)[last()]',
-        isXPathSequence([children[1]]),
+  group('fn:local-name', () {
+    test('returns local name of element', () {
+      final a = document.findAllElements('a').first;
+      expect(
+        fnLocalName(context, [XPathSequence.single(a)]),
+        isXPathSequence(['a']),
       );
     });
 
-    test('fn:id', () {
+    test('returns target of processing instruction', () {
+      final pi = XmlProcessing('target', 'data');
+      expect(
+        fnLocalName(context, [XPathSequence.single(pi)]),
+        isXPathSequence(['target']),
+      );
+    });
+
+    test('returns local name of attribute', () {
+      final attr = XmlAttribute(const XmlName('a'), '1');
+      expect(
+        fnLocalName(context, [XPathSequence.single(attr)]),
+        isXPathSequence(['a']),
+      );
+    });
+
+    test('returns empty string for empty sequence', () {
+      expect(
+        fnLocalName(context, [XPathSequence.empty]),
+        isXPathSequence(['']),
+      );
+    });
+
+    test('integration via xpathEvaluate', () {
+      final xml = XmlDocument.parse('<r><a>1</a><b>2<c/>3</b></r>');
+      expectEvaluate(xml, 'local-name(/r/a)', isXPathSequence(['a']));
+      expectEvaluate(
+        xml,
+        '/r/*[local-name()="a"]',
+        isXPathSequence(xml.findAllElements('a')),
+      );
+    });
+  });
+
+  group('fn:namespace-uri', () {
+    test('returns namespace uri of element', () {
+      final a = document.findAllElements('a').first;
+      expect(
+        fnNamespaceUri(context, [XPathSequence.single(a)]),
+        isXPathSequence(['']),
+      );
+    });
+
+    test('returns namespace uri of attribute', () {
+      final attr = XmlAttribute(const XmlName('a'), '1');
+      expect(
+        fnNamespaceUri(context, [XPathSequence.single(attr)]),
+        isXPathSequence(['']),
+      );
+    });
+
+    test('returns empty string for empty sequence', () {
+      expect(
+        fnNamespaceUri(context, [XPathSequence.empty]),
+        isXPathSequence(['']),
+      );
+    });
+
+    test('integration via xpathEvaluate', () {
+      final xml = XmlDocument.parse('<r><a>1</a><b>2<c/>3</b></r>');
+      expectEvaluate(xml, 'namespace-uri(/r/a)', isXPathSequence(['']));
+      expectEvaluate(
+        xml,
+        '/r/*[namespace-uri()=""]',
+        isXPathSequence(xml.rootElement.findElements('*')),
+      );
+    });
+  });
+
+  group('fn:root', () {
+    test('returns root node', () {
+      final a = document.findAllElements('a').first;
+      expect(
+        fnRoot(context, [XPathSequence.single(a)]),
+        isXPathSequence([document]),
+      );
+    });
+
+    test('returns empty sequence for empty sequence', () {
+      expect(fnRoot(context, [XPathSequence.empty]), isXPathSequence(isEmpty));
+    });
+  });
+
+  group('fn:innermost', () {
+    test('returns innermost nodes', () {
+      final a = document.findAllElements('a').first;
+      expect(
+        fnInnermost(context, [
+          XPathSequence([document, a]),
+        ]),
+        isXPathSequence([a]),
+      );
+    });
+  });
+
+  group('fn:outermost', () {
+    test('returns outermost nodes', () {
+      final a = document.findAllElements('a').first;
+      expect(
+        fnOutermost(context, [
+          XPathSequence([document, a]),
+        ]),
+        isXPathSequence([document]),
+      );
+    });
+  });
+
+  group('fn:path', () {
+    test('returns path of element', () {
+      final a = document.findAllElements('a').first;
+      expect(
+        fnPath(context, [XPathSequence.single(a)]),
+        isXPathSequence(['/r/a']),
+      );
+    });
+
+    test('returns empty string for empty sequence', () {
+      expect(fnPath(context, [XPathSequence.empty]), isXPathSequence(['']));
+    });
+
+    test('handles multiple elements with same name', () {
+      final doc2 = XmlDocument.parse('<r><a>1</a><a>2</a></r>');
+      final a2 = doc2.findAllElements('a').last;
+      expect(
+        fnPath(context, [XPathSequence.single(a2)]),
+        isXPathSequence(['/r/a[2]']),
+      );
+    });
+
+    test('handles attribute node', () {
+      final doc3 = XmlDocument.parse('<r a="1"/>');
+      final attr = doc3.rootElement.attributes.first;
+      expect(
+        fnPath(context, [XPathSequence.single(attr)]),
+        isXPathSequence(['/r/@a']),
+      );
+    });
+  });
+
+  group('fn:generate-id', () {
+    test('generates unique ids', () {
+      final ids = document.descendants
+          .map((node) => fnGenerateId(context, [XPathSequence.single(node)]))
+          .map((sequence) => sequence.single)
+          .toList();
+      expect(ids, unorderedEquals(ids.toSet()));
+    });
+
+    test('returns empty string for empty sequence', () {
+      expect(
+        fnGenerateId(context, [XPathSequence.empty]),
+        isXPathSequence(['']),
+      );
+    });
+  });
+
+  group('fn:has-children', () {
+    test('returns true if has children', () {
+      final a = document.findAllElements('a').first; // has 1 text child
+      expect(
+        fnHasChildren(context, [XPathSequence.single(a)]),
+        isXPathSequence([true]),
+      );
+    });
+
+    test('returns false if empty element', () {
+      final emptyEl = XmlElement(const XmlName('e'));
+      expect(
+        fnHasChildren(context, [XPathSequence.single(emptyEl)]),
+        isXPathSequence([false]),
+      );
+    });
+
+    test('returns false for empty sequence', () {
+      expect(
+        fnHasChildren(context, [XPathSequence.empty]),
+        isXPathSequence([false]),
+      );
+    });
+  });
+
+  group('fn:id', () {
+    test('throws for invalid document', () {
+      expect(
+        () => fnId(context, [
+          const XPathSequence.single('a'),
+          XPathSequence.empty,
+        ]),
+        throwsA(isXPathEvaluationException(message: 'Invalid document')),
+      );
+    });
+
+    test('integration via xpathEvaluate', () {
       final xml = XmlDocument.parse(
         '<r><a id="1" xml:id="2"/><b id="3"/><c xml:id="5"/><d xml:id="4"/></r>',
       );
@@ -150,8 +279,20 @@ void main() {
       expectEvaluate(xml, 'id(("1", "5"))', isXPathSequence([a, c]));
       expectEvaluate(xml, 'id("unknown")', isXPathSequence(<XmlNode>[]));
     });
+  });
 
-    test('fn:element-with-id', () {
+  group('fn:element-with-id', () {
+    test('throws for invalid document', () {
+      expect(
+        () => fnElementWithId(context, [
+          const XPathSequence.single('a'),
+          XPathSequence.empty,
+        ]),
+        throwsA(isXPathEvaluationException(message: 'Invalid document')),
+      );
+    });
+
+    test('integration via xpathEvaluate', () {
       final xml = XmlDocument.parse(
         '<r><a id="1" xml:id="2"/><b id="3"/><c xml:id="5"/><d xml:id="4"/></r>',
       );
@@ -170,8 +311,20 @@ void main() {
         isXPathSequence([a, b]),
       );
     });
+  });
 
-    test('fn:idref', () {
+  group('fn:idref', () {
+    test('throws for invalid document', () {
+      expect(
+        () => fnIdref(context, [
+          const XPathSequence.single('a'),
+          XPathSequence.empty,
+        ]),
+        throwsA(isXPathEvaluationException(message: 'Invalid document')),
+      );
+    });
+
+    test('integration via xpathEvaluate', () {
       final xml = XmlDocument.parse(
         '<r><a idref="1" xml:idref="2"/><b idrefs="3"/><c idref="1 2"/><d xml:idrefs="4"/></r>',
       );
@@ -195,6 +348,55 @@ void main() {
         xml,
         'idref(("1", "3"))',
         isXPathSequence([aIdref, bIdrefs, cIdref]),
+      );
+    });
+  });
+
+  group('integration', () {
+    final xml = XmlDocument.parse('<r><a>1</a><b>2<c/>3</b></r>');
+
+    test('last()', () {
+      expectEvaluate(xml, 'last()', isXPathSequence([1]));
+      expectEvaluate(
+        xml,
+        '/r/*[last()]',
+        isXPathSequence([xml.rootElement.children.last]),
+      );
+    });
+
+    test('position()', () {
+      expectEvaluate(xml, 'position()', isXPathSequence([1]));
+      expectEvaluate(
+        xml,
+        '/r/*[position()]',
+        isXPathSequence(xml.rootElement.children),
+      );
+    });
+
+    test('count()', () {
+      expectEvaluate(xml, 'count(/*)', isXPathSequence([1]));
+      expectEvaluate(xml, 'count(/r/*)', isXPathSequence([2]));
+      expectEvaluate(xml, 'count(/r/b/*)', isXPathSequence([1]));
+      expectEvaluate(xml, 'count(/r/b/absent)', isXPathSequence([0]));
+    });
+
+    test('predicate', () {
+      final xml = XmlDocument.parse('<r><a/><b/><c/></r>');
+      final children = xml.rootElement.children;
+      expectEvaluate(xml, '(/r/*)[1]', isXPathSequence([children[0]]));
+      expectEvaluate(xml, '(/r/*)[last()]', isXPathSequence([children[2]]));
+      expectEvaluate(xml, '(/r/*)[position()]', isXPathSequence(children));
+      expectEvaluate(xml, '(/r/*)[false()]', isXPathSequence(isEmpty));
+      expectEvaluate(xml, '(/r/*)[true()]', isXPathSequence(children));
+      expectEvaluate(
+        xml,
+        '(/r/*)[position()<=2][last()]',
+        isXPathSequence([children[1]]),
+      );
+      expectEvaluate(
+        xml,
+        '(/r/c/preceding-sibling::*)[last()]',
+        isXPathSequence([children[1]]),
       );
     });
   });

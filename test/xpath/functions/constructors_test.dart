@@ -13,6 +13,9 @@ void main() {
     test('string', () {
       expectEval('xs:string("hello")', isXPathSequence(['hello']));
     });
+    test('no arguments', () {
+      expectEval('xs:string()', isXPathSequence(['']));
+    });
     test('boolean', () {
       expectEval('xs:string(true())', isXPathSequence(['true']));
       expectEval('xs:string(false())', isXPathSequence(['false']));
@@ -28,6 +31,9 @@ void main() {
       expectEval('xs:boolean("true")', isXPathSequence([true]));
       expectEval('xs:boolean(1)', isXPathSequence([true]));
     });
+    test('no arguments', () {
+      expectEval('xs:boolean()', isXPathSequence(isEmpty));
+    });
     test('false', () {
       expectEval('xs:boolean("false")', isXPathSequence([false]));
       expectEval('xs:boolean(0)', isXPathSequence([false]));
@@ -39,6 +45,7 @@ void main() {
       expectEval('xs:integer("123")', isXPathSequence([123]));
       expectEval('xs:integer("  -456  ")', isXPathSequence([-456]));
     });
+
     test('invalid integer lexical value', () {
       expect(
         () => expectEval('xs:integer("12.34")', []),
@@ -53,19 +60,28 @@ void main() {
         throwsA(isA<XPathEvaluationException>()),
       );
     });
+
     test('float/decimal cast to integer', () {
       expectEval('xs:integer(12.94)', isXPathSequence([12]));
       expectEval('xs:integer(-12.94)', isXPathSequence([-12]));
     });
-    test('decimal', () {
+  });
+
+  group('xs:decimal', () {
+    test('decimal string', () {
       expectEval('xs:decimal("12.34")', isXPathSequence([12.34]));
     });
-    test('double', () {
+  });
+
+  group('xs:double', () {
+    test('double string', () {
       expectEval('xs:double("1.23e2")', isXPathSequence([123.0]));
     });
+
     test('INF', () {
       expectEval('xs:double("INF")', isXPathSequence([double.infinity]));
     });
+
     test('minus INF', () {
       expectEval(
         'xs:double("-INF")',
@@ -74,59 +90,92 @@ void main() {
     });
   });
 
-  group('xs:integer aliases', () {
-    test('xs:byte', () => expectEval('xs:byte("123")', isXPathSequence([123])));
-    test('xs:int', () => expectEval('xs:int("123")', isXPathSequence([123])));
-    test('xs:long', () => expectEval('xs:long("123")', isXPathSequence([123])));
+  group('xs:byte', () {
+    test('cast', () => expectEval('xs:byte("123")', isXPathSequence([123])));
+  });
+
+  group('xs:int', () {
+    test('cast', () => expectEval('xs:int("123")', isXPathSequence([123])));
+  });
+
+  group('xs:long', () {
+    test('cast', () => expectEval('xs:long("123")', isXPathSequence([123])));
+  });
+
+  group('xs:negativeInteger', () {
     test(
-      'xs:negativeInteger',
+      'cast',
       () => expectEval('xs:negativeInteger("-123")', isXPathSequence([-123])),
     );
+  });
+
+  group('xs:nonNegativeInteger', () {
     test(
-      'xs:nonNegativeInteger',
+      'cast',
       () => expectEval('xs:nonNegativeInteger("123")', isXPathSequence([123])),
     );
+  });
+
+  group('xs:nonPositiveInteger', () {
     test(
-      'xs:nonPositiveInteger',
+      'cast',
       () =>
           expectEval('xs:nonPositiveInteger("-123")', isXPathSequence([-123])),
     );
+  });
+
+  group('xs:positiveInteger', () {
     test(
-      'xs:positiveInteger',
+      'cast',
       () => expectEval('xs:positiveInteger("123")', isXPathSequence([123])),
     );
+  });
+
+  group('xs:short', () {
+    test('cast', () => expectEval('xs:short("123")', isXPathSequence([123])));
+  });
+
+  group('xs:unsignedByte', () {
     test(
-      'xs:short',
-      () => expectEval('xs:short("123")', isXPathSequence([123])),
-    );
-    test(
-      'xs:unsignedByte',
+      'cast',
       () => expectEval('xs:unsignedByte("123")', isXPathSequence([123])),
     );
+  });
+
+  group('xs:unsignedInt', () {
     test(
-      'xs:unsignedInt',
+      'cast',
       () => expectEval('xs:unsignedInt("123")', isXPathSequence([123])),
     );
+  });
+
+  group('xs:unsignedLong', () {
     test(
-      'xs:unsignedLong',
+      'cast',
       () => expectEval('xs:unsignedLong("123")', isXPathSequence([123])),
     );
+  });
+
+  group('xs:unsignedShort', () {
     test(
-      'xs:unsignedShort',
+      'cast',
       () => expectEval('xs:unsignedShort("123")', isXPathSequence([123])),
     );
   });
 
-  group('xs:dateTime and friends', () {
+  group('xs:date', () {
     test(
-      'xs:date',
+      'cast',
       () => expectEval(
         'xs:date("2020-01-01")',
         isXPathSequence([DateTime(2020, 1, 1)]),
       ),
     );
+  });
+
+  group('xs:dateTime', () {
     test(
-      'xs:dateTime',
+      'cast',
       () => expectEval(
         'xs:dateTime("2020-01-01T12:00:00")',
         isXPathSequence([DateTime(2020, 1, 1, 12, 0, 0)]),
@@ -134,9 +183,9 @@ void main() {
     );
   });
 
-  group('xs:duration and friends', () {
+  group('xs:duration', () {
     test(
-      'xs:duration',
+      'cast',
       () => expectEval(
         'xs:duration("P1Y2M3DT4H5M6.7S")',
         isXPathSequence([
@@ -149,8 +198,11 @@ void main() {
         ]),
       ),
     );
+  });
+
+  group('xs:dayTimeDuration', () {
     test(
-      'xs:dayTimeDuration',
+      'cast',
       () => expectEval(
         'xs:dayTimeDuration("P3DT4H5M6.7S")',
         isXPathSequence([
@@ -158,8 +210,11 @@ void main() {
         ]),
       ),
     );
+  });
+
+  group('xs:yearMonthDuration', () {
     test(
-      'xs:yearMonthDuration',
+      'cast',
       () => expectEval(
         'xs:yearMonthDuration("P1Y2M")',
         isXPathSequence([const Duration(days: 365 + 60)]),
@@ -167,9 +222,9 @@ void main() {
     );
   });
 
-  group('xs:hexBinary and xs:base64Binary', () {
+  group('xs:hexBinary', () {
     test(
-      'xs:hexBinary',
+      'cast',
       () => expectEval(
         'xs:hexBinary("FF00")',
         isXPathSequence([
@@ -177,8 +232,11 @@ void main() {
         ]),
       ),
     );
+  });
+
+  group('xs:base64Binary', () {
     test(
-      'xs:base64Binary',
+      'cast',
       () => expectEval(
         'xs:base64Binary("AP8=")',
         isXPathSequence([
@@ -188,15 +246,18 @@ void main() {
     );
   });
 
-  group('other constructors', () {
+  group('xs:anyURI', () {
     test(
-      'xs:anyURI',
+      'cast',
       () => expectEval(
         'xs:anyURI("http://google.com")',
         isXPathSequence(['http://google.com']),
       ),
     );
-    test('xs:QName', () {
+  });
+
+  group('xs:QName', () {
+    test('cast', () {
       expectEval(
         'xs:QName("foo:bar")',
         isXPathSequence([
@@ -204,7 +265,10 @@ void main() {
         ]),
       );
     });
-    test('xs:untypedAtomic', () {
+  });
+
+  group('xs:untypedAtomic', () {
+    test('cast', () {
       expectEval('xs:untypedAtomic("test")', isXPathSequence(['test']));
     });
   });

@@ -1,4 +1,5 @@
 import 'package:test/test.dart';
+import 'package:xml/src/xpath/expressions/node.dart';
 import 'package:xml/xml.dart';
 
 import '../helpers.dart';
@@ -140,5 +141,13 @@ void main() {
   });
   test('text()', () {
     expectXPath(current, 'text()', ['text', '<![CDATA[data]]>']);
+  });
+  test('schema-element() is unimplemented', () {
+    const test = SchemaElementTypeTest();
+    expect(() => test.matches(current), throwsUnimplementedError);
+  });
+  test('schema-attribute() is unimplemented', () {
+    const test = SchemaAttributeTypeTest();
+    expect(() => test.matches(current), throwsUnimplementedError);
   });
 }
