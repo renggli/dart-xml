@@ -567,6 +567,17 @@ void main() {
         isXPathSequence(['']),
       );
     });
+
+    test('throws for invalid regex pattern', () {
+      expect(
+        () => fnReplace(context, [
+          const XPathSequence.single('a'),
+          const XPathSequence.single('['),
+          const XPathSequence.single('b'),
+        ]),
+        throwsA(isXPathEvaluationException()),
+      );
+    });
   });
 
   group('fn:codepoints-to-string', () {

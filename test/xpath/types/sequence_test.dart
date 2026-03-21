@@ -220,6 +220,16 @@ void main() {
         const sequence = XPathSequence([1, 2, 3]);
         expect(type.cast(sequence), const ['1', '2', '3']);
       });
+      test('unsupported cardinality', () {
+        const type = XPathSequenceType(
+          type: xsAny,
+          cardinality: XPathCardinality.exactlyOne,
+        );
+        expect(
+          () => type.cast(const XPathSequence([1, 2])),
+          throwsA(isXPathEvaluationException()),
+        );
+      });
     });
   });
   group('extensions', () {
@@ -265,6 +275,10 @@ void main() {
       expect(XPathSequence([node, node]).ebv, isTrue);
       expect(
         () => const XPathSequence([1, 2]).ebv,
+        throwsA(isXPathEvaluationException()),
+      );
+      expect(
+        () => const XPathSequence.single(Duration(seconds: 1)).ebv,
         throwsA(isXPathEvaluationException()),
       );
     });

@@ -95,9 +95,7 @@ void main() {
         expect(
           () => xsHexBinary.cast('123'),
           throwsA(
-            isXPathEvaluationException(
-              message: 'Invalid hexBinary length: 3',
-            ),
+            isXPathEvaluationException(message: 'Invalid hexBinary length: 3'),
           ),
         );
       });

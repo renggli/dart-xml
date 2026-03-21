@@ -84,6 +84,19 @@ void main() {
         expect(xsDecimal.cast(true), 1);
         expect(xsDecimal.cast(false), 0);
       });
+      test('from Duration', () {
+        expect(xsDecimal.cast(const Duration(seconds: 1)), 1000000);
+      });
+      test('from node', () {
+        expect(xsDecimal.cast(node), 1);
+      });
+      test('from sequence', () {
+        expect(xsDecimal.cast(const XPathSequence.single(123)), 123);
+        expect(
+          () => xsDecimal.cast(XPathSequence.empty),
+          throwsA(isXPathEvaluationException()),
+        );
+      });
       test('from string', () {
         expect(xsDecimal.cast('123'), 123);
         expect(xsDecimal.cast('123.45'), 123.45);
@@ -137,6 +150,9 @@ void main() {
           throwsA(isXPathEvaluationException()),
         );
       });
+      test('from node', () {
+        expect(xsInteger.cast(node), 1);
+      });
     });
   });
 
@@ -172,11 +188,21 @@ void main() {
           ),
         );
       });
+      test('from node', () {
+        expect(xsDouble.cast(node), 1.0);
+      });
+      test('from sequence', () {
+        expect(xsDouble.cast(const XPathSequence.single(1.5)), 1.5);
+      });
     });
   });
 
   group('xsByte', () {
     test('name', () => expect(xsByte.name, 'xs:byte'));
+    test('matches', () {
+      expect(xsByte.matches(123), isTrue);
+      expect(xsByte.matches(1.5), isFalse);
+    });
     test('cast valid', () {
       expect(xsByte.cast(-128), -128);
       expect(xsByte.cast(0), 0);

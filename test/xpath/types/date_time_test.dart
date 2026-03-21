@@ -1,6 +1,7 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/types/date_time.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
+import 'package:xml/xml.dart';
 
 import '../../utils/matchers.dart';
 
@@ -30,6 +31,15 @@ void main() {
           ),
         );
       });
+      test('from XmlNode', () {
+        final node = XmlElement(const XmlName.qualified('a'), [], [
+          XmlText('2021-01-01T00:00:00.000'),
+        ]);
+        expect(
+          xsDateTime.cast(node),
+          DateTime.parse('2021-01-01T00:00:00.000'),
+        );
+      });
       test('from XPathSequence', () {
         final dateTime = DateTime.now();
         expect(xsDateTime.cast(XPathSequence.single(dateTime)), dateTime);
@@ -40,6 +50,16 @@ void main() {
               message: 'Unsupported cast from () to xs:dateTime',
             ),
           ),
+        );
+      });
+      test('from invalid month/day throws', () {
+        expect(
+          () => xsDateTime.cast('--13-01'),
+          throwsA(isXPathEvaluationException(message: 'Invalid month: 13')),
+        );
+        expect(
+          () => xsDateTime.cast('--12-32'),
+          throwsA(isXPathEvaluationException(message: 'Invalid day: 32')),
         );
       });
       test('from other', () {

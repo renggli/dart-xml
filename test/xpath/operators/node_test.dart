@@ -8,132 +8,149 @@ import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 void main() {
-  group('node', () {
-    test('op:union', () {
-      final doc = XmlDocument.parse('<r><a/><b/></r>');
-      final a = doc.findAllElements('a').single;
-      final b = doc.findAllElements('b').single;
+  final doc = XmlDocument.parse('<r><a/><b/><c/></r>');
+  final aNode = doc.findAllElements('a').single;
+  final bNode = doc.findAllElements('b').single;
+  final children = doc.rootElement.children;
+
+  group('opUnion', () {
+    test('union', () {
       expect(
-        opUnion(XPathSequence.single(a), XPathSequence.single(b)),
-        XPathSequence([a, b]),
-      );
-      // Test document order preservation/enforcement
-      expect(opUnion(XPathSequence.single(b), XPathSequence.single(a)), [a, b]);
-    });
-    test('op:intersect', () {
-      final doc = XmlDocument.parse('<r><a/><b/></r>');
-      final a = doc.findAllElements('a').single;
-      final b = doc.findAllElements('b').single;
-      expect(opIntersect(XPathSequence([a, b]), XPathSequence.single(a)), [a]);
-    });
-    test('op:except', () {
-      final doc = XmlDocument.parse('<r><a/><b/></r>');
-      final a = doc.findAllElements('a').single;
-      final b = doc.findAllElements('b').single;
-      expect(opExcept(XPathSequence([a, b]), XPathSequence.single(a)), [b]);
-    });
-    test('op:node-is', () {
-      final doc = XmlDocument.parse('<r><a/><b/></r>');
-      final a = doc.findAllElements('a').single;
-      final b = doc.findAllElements('b').single;
-      expect(
-        opNodeIs(XPathSequence.single(a), XPathSequence.single(a)),
-        isXPathSequence([true]),
-      );
-      expect(
-        opNodeIs(XPathSequence.single(a), XPathSequence.single(b)),
-        isXPathSequence([false]),
-      );
-      // Empty sequence returns empty.
-      expect(opNodeIs(XPathSequence.empty, XPathSequence.single(a)), isEmpty);
-    });
-    test('op:node-precedes', () {
-      final doc = XmlDocument.parse('<r><a/><b/></r>');
-      final a = doc.findAllElements('a').single;
-      final b = doc.findAllElements('b').single;
-      expect(
-        opNodePrecedes(XPathSequence.single(a), XPathSequence.single(b)),
-        isXPathSequence([true]),
-      );
-      expect(
-        opNodePrecedes(XPathSequence.single(b), XPathSequence.single(a)),
-        isXPathSequence([false]),
-      );
-      // Empty sequence returns empty.
-      expect(
-        opNodePrecedes(XPathSequence.empty, XPathSequence.single(a)),
-        isEmpty,
+        opUnion(XPathSequence.single(aNode), XPathSequence.single(bNode)),
+        XPathSequence([aNode, bNode]),
       );
     });
-    test('op:node-follows', () {
-      final doc = XmlDocument.parse('<r><a/><b/></r>');
-      final a = doc.findAllElements('a').single;
-      final b = doc.findAllElements('b').single;
+    test('preserve document order', () {
       expect(
-        opNodeFollows(XPathSequence.single(b), XPathSequence.single(a)),
-        isXPathSequence([true]),
+        opUnion(XPathSequence.single(bNode), XPathSequence.single(aNode)),
+        [aNode, bNode],
       );
-      expect(
-        opNodeFollows(XPathSequence.single(a), XPathSequence.single(b)),
-        isXPathSequence([false]),
-      );
-      // Empty sequence returns empty.
-      expect(
-        opNodeFollows(XPathSequence.empty, XPathSequence.single(a)),
-        isEmpty,
-      );
+    });
+    test('integration union', () {
+      expectEvaluate(doc, '(r/*) union (r/*)', children);
+      expectEvaluate(doc, '(r/a) union (r/a)', [children[0]]);
+      expectEvaluate(doc, '(r/a) union (r/c)', [children[0], children[2]]);
+      expectEvaluate(doc, '(r/c) union (r/a)', [children[0], children[2]]);
+    });
+    test('integration | operator', () {
+      expectEvaluate(doc, '(r/*) | (r/*)', children);
+      expectEvaluate(doc, '(r/a) | (r/a)', [children[0]]);
+      expectEvaluate(doc, '(r/a) | (r/c)', [children[0], children[2]]);
+      expectEvaluate(doc, '(r/c) | (r/a)', [children[0], children[2]]);
     });
   });
-  group('integration', () {
-    test('intersect(node-set, node-set)', () {
-      final xml = XmlDocument.parse('<r><a/><b/><c/></r>');
-      final children = xml.rootElement.children;
-      expectEvaluate(xml, '(r/*) intersect (r/*)', children);
-      expectEvaluate(xml, '(r/*) intersect (r/b)', [children[1]]);
-      expectEvaluate(xml, '(r/b) intersect (r/*)', [children[1]]);
-      expectEvaluate(xml, '(r/b) intersect (r/b)', [children[1]]);
-      expectEvaluate(xml, '(r/a) intersect (r/c)', isEmpty);
+
+  group('opIntersect', () {
+    test('intersect', () {
+      expect(
+        opIntersect(XPathSequence([aNode, bNode]), XPathSequence.single(aNode)),
+        [aNode],
+      );
     });
-    test('except(node-set, node-set)', () {
-      final xml = XmlDocument.parse('<r><a/><b/><c/></r>');
-      final children = xml.rootElement.children;
-      expectEvaluate(xml, '(r/*) except (r/*)', isEmpty);
-      expectEvaluate(xml, '(r/*) except (r/b)', [children[0], children[2]]);
-      expectEvaluate(xml, '(r/b) except (r/*)', isEmpty);
-      expectEvaluate(xml, '(r/b) except (r/b)', isEmpty);
-      expectEvaluate(xml, '(r/a) except (r/c)', [children[0]]);
+    test('integration intersect', () {
+      expectEvaluate(doc, '(r/*) intersect (r/*)', children);
+      expectEvaluate(doc, '(r/*) intersect (r/b)', [children[1]]);
+      expectEvaluate(doc, '(r/b) intersect (r/*)', [children[1]]);
+      expectEvaluate(doc, '(r/b) intersect (r/b)', [children[1]]);
+      expectEvaluate(doc, '(r/a) intersect (r/c)', isEmpty);
     });
-    test('union(node-set, node-set)', () {
-      final xml = XmlDocument.parse('<r><a/><b/><c/></r>');
-      final children = xml.rootElement.children;
-      expectEvaluate(xml, '(r/*) union (r/*)', children);
-      expectEvaluate(xml, '(r/a) union (r/a)', [children[0]]);
-      expectEvaluate(xml, '(r/a) union (r/c)', [children[0], children[2]]);
-      expectEvaluate(xml, '(r/c) union (r/a)', [children[0], children[2]]);
+  });
+
+  group('opExcept', () {
+    test('except', () {
+      expect(
+        opExcept(XPathSequence([aNode, bNode]), XPathSequence.single(aNode)),
+        [bNode],
+      );
     });
-    test('|(node-set, node-set)', () {
-      final xml = XmlDocument.parse('<r><a/><b/><c/></r>');
-      final children = xml.rootElement.children;
-      expectEvaluate(xml, '(r/*) | (r/*)', children);
-      expectEvaluate(xml, '(r/a) | (r/a)', [children[0]]);
-      expectEvaluate(xml, '(r/a) | (r/c)', [children[0], children[2]]);
-      expectEvaluate(xml, '(r/c) | (r/a)', [children[0], children[2]]);
+    test('integration except', () {
+      expectEvaluate(doc, '(r/*) except (r/*)', isEmpty);
+      expectEvaluate(doc, '(r/*) except (r/b)', [children[0], children[2]]);
+      expectEvaluate(doc, '(r/b) except (r/*)', isEmpty);
+      expectEvaluate(doc, '(r/b) except (r/b)', isEmpty);
+      expectEvaluate(doc, '(r/a) except (r/c)', [children[0]]);
     });
-    test('is', () {
-      final xml = XmlDocument.parse('<r><a/><b/></r>');
-      expectEvaluate(xml, 'r/a is r/a', [true]);
-      expectEvaluate(xml, 'r/a is r/b', [false]);
-      expectEvaluate(xml, '() is r/a', isEmpty);
+  });
+
+  group('opNodeIs', () {
+    test('same node', () {
+      expect(
+        opNodeIs(XPathSequence.single(aNode), XPathSequence.single(aNode)),
+        isXPathSequence([true]),
+      );
     });
-    test('<<', () {
-      final xml = XmlDocument.parse('<r><a/><b/></r>');
-      expectEvaluate(xml, 'r/a << r/b', [true]);
-      expectEvaluate(xml, 'r/b << r/a', [false]);
+    test('different node', () {
+      expect(
+        opNodeIs(XPathSequence.single(aNode), XPathSequence.single(bNode)),
+        isXPathSequence([false]),
+      );
     });
-    test('>>', () {
-      final xml = XmlDocument.parse('<r><a/><b/></r>');
-      expectEvaluate(xml, 'r/b >> r/a', [true]);
-      expectEvaluate(xml, 'r/a >> r/b', [false]);
+    test('empty sequence returns empty', () {
+      expect(
+        opNodeIs(XPathSequence.empty, XPathSequence.single(aNode)),
+        isEmpty,
+      );
+    });
+    test('integration is', () {
+      expectEvaluate(doc, 'r/a is r/a', [true]);
+      expectEvaluate(doc, 'r/a is r/b', [false]);
+      expectEvaluate(doc, '() is r/a', isEmpty);
+    });
+  });
+
+  group('opNodePrecedes', () {
+    test('precedes', () {
+      expect(
+        opNodePrecedes(
+          XPathSequence.single(aNode),
+          XPathSequence.single(bNode),
+        ),
+        isXPathSequence([true]),
+      );
+    });
+    test('does not precede', () {
+      expect(
+        opNodePrecedes(
+          XPathSequence.single(bNode),
+          XPathSequence.single(aNode),
+        ),
+        isXPathSequence([false]),
+      );
+    });
+    test('empty sequence returns empty', () {
+      expect(
+        opNodePrecedes(XPathSequence.empty, XPathSequence.single(aNode)),
+        isEmpty,
+      );
+    });
+    test('integration <<', () {
+      expectEvaluate(doc, 'r/a << r/b', [true]);
+      expectEvaluate(doc, 'r/b << r/a', [false]);
+    });
+  });
+
+  group('opNodeFollows', () {
+    test('follows', () {
+      expect(
+        opNodeFollows(XPathSequence.single(bNode), XPathSequence.single(aNode)),
+        isXPathSequence([true]),
+      );
+    });
+    test('does not follow', () {
+      expect(
+        opNodeFollows(XPathSequence.single(aNode), XPathSequence.single(bNode)),
+        isXPathSequence([false]),
+      );
+    });
+    test('empty sequence returns empty', () {
+      expect(
+        opNodeFollows(XPathSequence.empty, XPathSequence.single(aNode)),
+        isEmpty,
+      );
+    });
+    test('integration >>', () {
+      expectEvaluate(doc, 'r/b >> r/a', [true]);
+      expectEvaluate(doc, 'r/a >> r/b', [false]);
     });
   });
 }

@@ -1,4 +1,5 @@
 import 'package:test/test.dart';
+import 'package:xml/src/xpath/expressions/node.dart';
 import 'package:xml/src/xpath/types/node.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/xml.dart';
@@ -204,6 +205,14 @@ void main() {
           ),
         ),
       );
+    });
+  });
+
+  group('NodeTestType', () {
+    const type = NodeTestType(NodeTypeTest());
+    test('matches', () {
+      expect(type.matches(root), isTrue);
+      expect(type.matches('foo'), isFalse);
     });
   });
 }

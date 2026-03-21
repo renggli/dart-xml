@@ -58,12 +58,16 @@ void main() {
         '..',
         '@foo',
       ],
+      'wildcards': ['*:foo', 'foo:*', '*', 'Q{http://example.com}*'],
       'simple map': ['1 ! 2', '1!2'],
+      'string concat': ['"abc" || "def"'],
+      'range': ['1 to 10'],
       'operators': [
         '1 + 2',
         '1 - 2',
         '1 * 2',
         '1 div 2',
+        '1 idiv 2',
         '1 mod 2',
         '1 = 2',
         '1 != 2',
@@ -72,8 +76,10 @@ void main() {
         '1 > 2',
         '1 >= 2',
       ],
+      'unary': ['+1', '-1', '--1'],
       'logical': ['1 and 2', '1 or 2'],
       'conditionals': ['if (1) then 2 else 3'],
+      'let expression': ['let \$x := 1 return \$x'],
       'for expression': ['for \$i in (1, 2) return \$i'],
       'quantified expression': [
         'some \$i in (1, 2) satisfies \$i > 0',
@@ -81,6 +87,13 @@ void main() {
       ],
       'sequence': ['1, 2, 3', '()'],
       'predicate': ['foo[1]', 'foo[1][2]'],
+      'postfix lookup': ['\$map?key', '\$map?1', '\$map?*', '?key', '?1', '?*'],
+      'type expressions': [
+        '1 instance of xs:integer',
+        '1 treat as item()',
+        '1 castable as xs:boolean',
+        '1 cast as xs:boolean',
+      ],
       'axis': [
         'ancestor::foo',
         'ancestor-or-self::foo',
@@ -109,7 +122,9 @@ void main() {
         'schema-element(foo)',
         'schema-attribute(foo)',
         'document-node()',
+        'document-node(element(foo))',
       ],
+
       'map': ['map { "a": 1, "b": 2 }'],
       'array': ['[1, 2, 3]', 'array { 1, 2, 3 }'],
       'union/intersect/except': [
@@ -150,10 +165,28 @@ void main() {
       });
     }
   });
+
+  group('unimplemented', () {
+    final expressions = [
+      '1 instance of xs:unknownType',
+      'document-node(schema-element(foo))',
+      'attribute(foo, xs:integer)',
+      'element(foo, xs:integer)',
+    ];
+    for (final expression in expressions) {
+      test(expression, () {
+        expect(
+          () => parser.parse(expression),
+          throwsA(isA<UnimplementedError>()),
+        );
+      });
+    }
+  });
+
   group('errors', () {
     // The exact error message and position might change as the grammar evolves.
     // These tests are supposed to verify that invalid input is rejected, not
-    // necessarily their message and position.
+    // necessarily their exact message or position.
     final cases = {
       '': ('qualified name expected', 0),
       ':': ('qualified name expected', 0),

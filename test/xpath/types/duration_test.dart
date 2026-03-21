@@ -34,6 +34,27 @@ void main() {
           ),
         );
       });
+      test('from negative duration', () {
+        expect(xsDuration.cast('-P1D'), const Duration(days: -1));
+      });
+      test('from invalid duration throws', () {
+        expect(
+          () => xsDuration.cast('abc'),
+          throwsA(
+            isXPathEvaluationException(
+              message: 'Unsupported cast from abc to xs:duration',
+            ),
+          ),
+        );
+        expect(
+          () => xsDuration.cast('P'),
+          throwsA(
+            isXPathEvaluationException(
+              message: 'Unsupported cast from P to xs:duration',
+            ),
+          ),
+        );
+      });
       test('from other', () {
         expect(
           () => xsDuration.cast(123),
