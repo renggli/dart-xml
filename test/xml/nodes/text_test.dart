@@ -16,6 +16,7 @@ void main() {
     expect(node.document, same(document));
     expect(node.depth, 2);
     expect(node.attributes, isEmpty);
+    expect(node.namespaces, isEmpty);
     expect(node.children, isEmpty);
     expect(node.nodeType, XmlNodeType.TEXT);
     expect(node.toString(), 'Am I or are the other crazy?');

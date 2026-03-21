@@ -13,6 +13,7 @@ void main() {
     expect(node.document, isNull);
     expect(node.depth, 0);
     expect(node.attributes, isEmpty);
+    expect(node.namespaces, isEmpty);
     expect(node.children, hasLength(2));
     expect(node.value, isNull);
     // ignore: deprecated_member_use_from_same_package
@@ -29,6 +30,7 @@ void main() {
     expect(node.document, isNull);
     expect(node.depth, 0);
     expect(node.attributes, isEmpty);
+    expect(node.namespaces, isEmpty);
     expect(node.children, isEmpty);
     expect(node.value, isNull);
     // ignore: deprecated_member_use_from_same_package

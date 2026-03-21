@@ -28,6 +28,7 @@ void assertDocumentTreeInvariants(XmlNode xml) {
   assertBackwardInvariants(xml);
   assertNameInvariants(xml);
   assertAttributeInvariants(xml);
+  assertNamespaceInvariants(xml);
   assertChildrenInvariants(xml);
   assertTextInvariants(xml);
   assertIteratorInvariants(xml);
@@ -55,6 +56,7 @@ void assertFragmentTreeInvariants(XmlNode xml) {
   assertBackwardInvariants(xml);
   assertNameInvariants(xml);
   assertAttributeInvariants(xml);
+  assertNamespaceInvariants(xml);
   assertChildrenInvariants(xml);
   assertTextInvariants(xml);
   assertIteratorInvariants(xml);
@@ -229,6 +231,23 @@ void assertAttributeInvariants(XmlNode xml) {
   }
 }
 
+void assertNamespaceInvariants(XmlNode xml) {
+  for (final node in [xml, ...xml.descendants]) {
+    for (final namespace in node.namespaces) {
+      expect(namespace.nodeType, XmlNodeType.NAMESPACE);
+      expect(namespace.parent, isNotNull);
+      expect(namespace.prefix, isA<String>());
+      expect(namespace.uri, isA<String>());
+      expect(namespace.name.qualified, namespace.prefix);
+      expect(namespace.value, namespace.uri);
+      expect(namespace.namespaces, isEmpty);
+      expect(namespace.attributes, isEmpty);
+      expect(namespace.children, isEmpty);
+      expect(namespace.document, same(node.document));
+    }
+  }
+}
+
 void assertChildrenInvariants(XmlNode xml) {
   for (final node in [xml, ...xml.descendants]) {
     if (node.children.isEmpty) {
@@ -270,6 +289,7 @@ void assertTextInvariants(XmlNode xml) {
         node is XmlCDATA ||
         node is XmlComment ||
         node is XmlDeclaration ||
+        node is XmlNamespace ||
         node is XmlProcessing ||
         node is XmlText) {
       expect(node.value, isA<String>(), reason: 'Values cannot be empty.');
@@ -327,6 +347,7 @@ void assertComparatorInvariants(XmlNode xml) {
     XmlDocument([XmlElement(const XmlName.qualified(unique))]),
     XmlDocumentFragment([XmlElement(const XmlName.qualified(unique))]),
     XmlElement(const XmlName.qualified(unique)),
+    XmlNamespace(unique, unique),
     XmlProcessing(unique, unique),
     XmlText(unique),
   ];
@@ -380,6 +401,9 @@ void assertVisitorInvariants(XmlNode xml) {
     visitor.visit(node);
     if (node is XmlHasName) {
       visitor.visit((node as XmlHasName).name);
+    }
+    for (final namespace in node.namespaces) {
+      visitor.visit(namespace);
     }
   }
 }

@@ -665,6 +665,31 @@ void main() {
       throwsArgumentError,
     );
   });
+  test('both prefix and uri', () {
+    final builder = XmlBuilder();
+    expect(
+      () => builder.element(
+        'element',
+        namespacePrefix: 'foo',
+        namespaceUri: 'http://foo.com/',
+      ),
+      throwsArgumentError,
+    );
+    builder.element(
+      'element',
+      nest: () {
+        expect(
+          () => builder.attribute(
+            'attr',
+            'value',
+            namespacePrefix: 'foo',
+            namespaceUri: 'http://foo.com/',
+          ),
+          throwsArgumentError,
+        );
+      },
+    );
+  });
   test('undefined namespace (deprecated)', () {
     final builder = XmlBuilder();
     expect(
@@ -694,6 +719,13 @@ void main() {
     expect(actual, expected);
     assertDocumentTreeInvariants(xml);
   });
+  test('invalid namespace prefix (URL)', () {
+    final builder = XmlBuilder();
+    expect(
+      () => builder.namespaceUri('http://foo.com/', 'uri'),
+      throwsA(isA<AssertionError>()),
+    );
+  }, skip: !hasAssertionsEnabled());
   test('invalid namespace (deprecated)', () {
     final builder = XmlBuilder();
     builder.element(

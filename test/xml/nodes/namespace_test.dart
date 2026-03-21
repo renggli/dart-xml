@@ -64,6 +64,17 @@ void main() {
     expect(node.nodeType, XmlNodeType.NAMESPACE);
     expect(node.toString(), 'xmlns:xml="http://www.w3.org/XML/1998/namespace"');
   });
+  test('copy', () {
+    final document = XmlDocument.parse('<root xmlns:a="urn:a"/>');
+    final node = document.rootElement.namespaces.first;
+    final copy = node.copy();
+    expect(copy.name.qualified, node.name.qualified);
+    expect(copy.name.prefix, node.name.prefix);
+    expect(copy.name.local, node.name.local);
+    expect(copy.value, node.value);
+    expect(copy.parent, isNull);
+    expect(copy, isNot(same(node)));
+  });
   test('in-scope namespaces (explicit prefixes)', () {
     final document = XmlDocument.parse(
       '<root xmlns:a="urn:a"><child xmlns:b="urn:b"/></root>',

@@ -18,6 +18,7 @@ void main() {
     expect(node.document, same(document));
     expect(node.depth, 2);
     expect(node.attributes, isEmpty);
+    expect(node.namespaces, isEmpty);
     expect(node.children, isEmpty);
     expect(node.nodeType, XmlNodeType.CDATA);
     expect(
@@ -37,6 +38,7 @@ void main() {
     expect(node.document, same(document));
     expect(node.depth, 2);
     expect(node.attributes, isEmpty);
+    expect(node.namespaces, isEmpty);
     expect(node.children, isEmpty);
     expect(node.nodeType, XmlNodeType.CDATA);
     expect(node.toString(), '<![CDATA[]]>');

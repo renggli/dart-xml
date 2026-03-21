@@ -167,6 +167,8 @@ void main() {
       assertComplete(iterator);
       expect(event.nodeType, XmlNodeType.TEXT);
       expect(event.value, 'Hello World!');
+      // ignore: deprecated_member_use_from_same_package
+      expect(event.text, 'Hello World!');
       final other = XmlTextEvent(event.value);
       expect(event, other);
       expect(event.hashCode, other.hashCode);
