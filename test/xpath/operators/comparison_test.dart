@@ -1,6 +1,7 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/operators/comparison.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
+import 'package:xml/xml.dart';
 
 import '../../utils/matchers.dart';
 
@@ -89,10 +90,70 @@ void main() {
         isXPathSequence([true]),
       );
     });
+    test('compare value equal and not-equal', () {
+      expect(
+        opValueEqual(
+          const XPathSequence.single(1),
+          const XPathSequence.single(1),
+        ),
+        isXPathSequence([true]),
+      );
+      expect(
+        opValueEqual(
+          const XPathSequence.single(1),
+          const XPathSequence.single(2),
+        ),
+        isXPathSequence([false]),
+      );
+      expect(
+        opValueNotEqual(
+          const XPathSequence.single(1),
+          const XPathSequence.single(2),
+        ),
+        isXPathSequence([true]),
+      );
+      expect(
+        opValueNotEqual(
+          const XPathSequence.single(1),
+          const XPathSequence.single(1),
+        ),
+        isXPathSequence([false]),
+      );
+    });
+    test('atomize node', () {
+      final node = XmlElement(const XmlName('a'), [], [XmlText('foo')]);
+      expect(
+        opValueEqual(
+          XPathSequence.single(node),
+          const XPathSequence.single('foo'),
+        ),
+        isXPathSequence([true]),
+      );
+    });
     test('empty sequence returns empty', () {
       expect(
         opValueLessThan(XPathSequence.empty, const XPathSequence.single(1)),
         isXPathSequence(isEmpty),
+      );
+      expect(
+        opValueEqual(XPathSequence.empty, const XPathSequence.single(1)),
+        isXPathSequence(isEmpty),
+      );
+      expect(
+        opValueNotEqual(XPathSequence.empty, const XPathSequence.single(1)),
+        isXPathSequence(isEmpty),
+      );
+    });
+    test('sequence with more than one item throws', () {
+      const multiple = XPathSequence([1, 2]);
+      const single = XPathSequence.single(1);
+      expect(
+        () => opValueEqual(multiple, single),
+        throwsA(
+          isXPathEvaluationException(
+            message: 'Sequence contains more than one item: (1, 2)',
+          ),
+        ),
       );
     });
   });

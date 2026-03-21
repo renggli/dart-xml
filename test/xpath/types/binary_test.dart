@@ -91,6 +91,16 @@ void main() {
         );
         expect(binary, [1]);
       });
+      test('from String with odd length throws', () {
+        expect(
+          () => xsHexBinary.cast('123'),
+          throwsA(
+            isXPathEvaluationException(
+              message: 'Invalid hexBinary length: 3',
+            ),
+          ),
+        );
+      });
       test('from unrelated type', () {
         expect(
           () => xsHexBinary.cast(123),

@@ -59,6 +59,11 @@ void main() {
         opNodePrecedes(XPathSequence.single(b), XPathSequence.single(a)),
         isXPathSequence([false]),
       );
+      // Empty sequence returns empty.
+      expect(
+        opNodePrecedes(XPathSequence.empty, XPathSequence.single(a)),
+        isEmpty,
+      );
     });
     test('op:node-follows', () {
       final doc = XmlDocument.parse('<r><a/><b/></r>');
@@ -71,6 +76,11 @@ void main() {
       expect(
         opNodeFollows(XPathSequence.single(a), XPathSequence.single(b)),
         isXPathSequence([false]),
+      );
+      // Empty sequence returns empty.
+      expect(
+        opNodeFollows(XPathSequence.empty, XPathSequence.single(a)),
+        isEmpty,
       );
     });
   });

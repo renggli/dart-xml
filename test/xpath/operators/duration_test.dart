@@ -4,6 +4,8 @@ import 'package:xml/src/xpath/operators/duration.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/xpath.dart';
 
+import '../../utils/matchers.dart';
+
 void main() {
   test('op:duration-equal', () {
     const d1 = Duration(days: 1);
@@ -176,6 +178,16 @@ void main() {
         const XPathSequence.single(d1),
       ),
       [2.0],
+    );
+  });
+  test('op:divide-duration-by-duration-zero throws', () {
+    const d1 = Duration(days: 1);
+    expect(
+      () => opDivideDurationByDuration(
+        const XPathSequence.single(d1),
+        const XPathSequence.single(Duration.zero),
+      ),
+      throwsA(isXPathEvaluationException(message: 'Division by zero')),
     );
   });
 }

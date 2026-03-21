@@ -182,6 +182,86 @@ void main() {
       ),
       XPathSequence.trueSequence,
     );
+    // opAddYearMonthDurationToDateTime
+    expect(
+      opAddYearMonthDurationToDateTime(
+        XPathSequence.single(DateTime.utc(2020)),
+        const XPathSequence.single(Duration(days: 1)),
+      ),
+      isNotNull,
+    );
+    // opAddDayTimeDurationToDateTime
+    expect(
+      opAddDayTimeDurationToDateTime(
+        XPathSequence.single(DateTime.utc(2020)),
+        const XPathSequence.single(Duration(days: 1)),
+      ),
+      isNotNull,
+    );
+    // opSubtractYearMonthDurationFromDateTime
+    expect(
+      opSubtractYearMonthDurationFromDateTime(
+        XPathSequence.single(DateTime.utc(2020)),
+        const XPathSequence.single(Duration(days: 1)),
+      ),
+      isNotNull,
+    );
+    // opSubtractDayTimeDurationFromDateTime
+    expect(
+      opSubtractDayTimeDurationFromDateTime(
+        XPathSequence.single(DateTime.utc(2020)),
+        const XPathSequence.single(Duration(days: 1)),
+      ),
+      isNotNull,
+    );
+    // opAddYearMonthDurationToDate
+    expect(
+      opAddYearMonthDurationToDate(
+        XPathSequence.single(DateTime.utc(2020)),
+        const XPathSequence.single(Duration(days: 1)),
+      ),
+      isNotNull,
+    );
+    // opAddDayTimeDurationToDate
+    expect(
+      opAddDayTimeDurationToDate(
+        XPathSequence.single(DateTime.utc(2020)),
+        const XPathSequence.single(Duration(days: 1)),
+      ),
+      isNotNull,
+    );
+    // opSubtractYearMonthDurationFromDate
+    expect(
+      opSubtractYearMonthDurationFromDate(
+        XPathSequence.single(DateTime.utc(2020)),
+        const XPathSequence.single(Duration(days: 1)),
+      ),
+      isNotNull,
+    );
+    // opSubtractDayTimeDurationFromDate
+    expect(
+      opSubtractDayTimeDurationFromDate(
+        XPathSequence.single(DateTime.utc(2020)),
+        const XPathSequence.single(Duration(days: 1)),
+      ),
+      isNotNull,
+    );
+    // opAddDayTimeDurationToTime
+    expect(
+      opAddDayTimeDurationToTime(
+        XPathSequence.single(DateTime.utc(2020)),
+        const XPathSequence.single(Duration(days: 1)),
+      ),
+      isNotNull,
+    );
+    // opSubtractDayTimeDurationFromTime
+    expect(
+      opSubtractDayTimeDurationFromTime(
+        XPathSequence.single(DateTime.utc(2020)),
+        const XPathSequence.single(Duration(days: 1)),
+      ),
+      isNotNull,
+    );
   });
 
   test('subtraction (empty)', () {
