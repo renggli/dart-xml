@@ -185,7 +185,7 @@ void main() {
           ..add(fragment)
           ..add(fragment);
       },
-      '<element1><element2/><element2/></element1>',
+      '<element1><element2/></element1>',
     );
     final wrong = XmlAttribute(const XmlName.qualified('invalid'), 'invalid');
     throwingTest<XmlDocument>(
@@ -256,7 +256,7 @@ void main() {
         ]);
         node.children.addAll([fragment, fragment]);
       },
-      '<element1><element2/><element2/></element1>',
+      '<element1><element2/></element1>',
     );
     final wrong = XmlAttribute(const XmlName.qualified('invalid'), 'invalid');
     throwingTest<XmlDocument>(
@@ -447,7 +447,7 @@ void main() {
           ..insert(0, fragment)
           ..insert(2, fragment);
       },
-      '<element1><element3/><element2/><element3/></element1>',
+      '<element1><element3/><element2/></element1>',
     );
     throwingTest<XmlElement>(
       'element (attribute range error)',
@@ -534,7 +534,7 @@ void main() {
         ]);
         node.children.insertAll(0, [fragment, fragment]);
       },
-      '<element1><element3/><element3/><element2/></element1>',
+      '<element1><element3/><element2/></element1>',
     );
     throwingTest<XmlElement>(
       'element (attribute range error)',

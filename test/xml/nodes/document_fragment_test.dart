@@ -46,4 +46,12 @@ void main() {
     assertFragmentInvariants(node);
     expect(node.innerXml, '<one/><two/>');
   });
+  test('empties on insertion', () {
+    final fragment = XmlDocumentFragment.parse('<one/><two/>');
+    expect(fragment.children, hasLength(2));
+    final element = XmlElement(const XmlName('root'));
+    element.children.add(fragment);
+    expect(fragment.children, isEmpty);
+    expect(element.children, hasLength(2));
+  });
 }

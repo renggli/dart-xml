@@ -9,6 +9,7 @@
   - Introduced `XmlNamespaceException` for error reporting of invalid namespaces.
   - `XmlName` is now immutable and the complexity with different states is gone.
   - Added `XmlNamespace` node type and `XmlHasNamespaces` mixin to support reading in-scope namespaces on nodes.
+- Correctly move children out of `XmlDocumentFragment` when inserting it into another node, rather than cloning them. This aligns with standard DOM behavior and improves performance.
 - Improved performance and usability of `XmlBuilder`:
   - Significantly improve the performance of `XmlBuilder` as all namespace lookups are now in constant time.
   - Deprecated `namespace(String uri, String? prefix)` and `namespaces(Map<String, String?> uriToPrefix)` accessors that have an unusually awkward API. Replaced with `namespaceUri(String? prefix, String? uri)` and `namespaceUris(Map<String, String> prefixToUri)` with a clear prefix-uri order.
