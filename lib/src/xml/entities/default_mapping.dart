@@ -53,8 +53,8 @@ class XmlDefaultEntityMapping extends XmlEntityMapping {
     switch (type) {
       case XmlAttributeType.SINGLE_QUOTE:
         return input.replaceAllMapped(
-          _singeQuoteAttributePattern,
-          _singeQuoteAttributeReplace,
+          _singleQuoteAttributePattern,
+          _singleQuoteAttributeReplace,
         );
       case XmlAttributeType.DOUBLE_QUOTE:
         return input.replaceAllMapped(
@@ -85,11 +85,11 @@ String _textReplace(Match match) {
 
 // Encode XML attribute values (single quotes).
 
-final _singeQuoteAttributePattern = RegExp(
+final _singleQuoteAttributePattern = RegExp(
   r"['&<\n\r\t" + _highlyDiscouragedCharClass + r']',
 );
 
-String _singeQuoteAttributeReplace(Match match) {
+String _singleQuoteAttributeReplace(Match match) {
   final toEscape = match.group(0)!;
   switch (toEscape) {
     case "'":

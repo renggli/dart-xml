@@ -28,12 +28,12 @@ mixin XmlEventVisitor {
   /// Visit an [XmlEndElementEvent] event.
   void visitEndElementEvent(XmlEndElementEvent event) {}
 
-  /// Visit an [XmlCommentEvent] event.
+  /// Visit an [XmlProcessingEvent] event.
   void visitProcessingEvent(XmlProcessingEvent event) {}
 
-  /// Visit an [XmlCommentEvent] event.
+  /// Visit an [XmlStartElementEvent] event.
   void visitStartElementEvent(XmlStartElementEvent event) {}
 
-  /// Visit an [XmlCommentEvent] event.
+  /// Visit an [XmlTextEvent] event.
   void visitTextEvent(XmlTextEvent event) {}
 }

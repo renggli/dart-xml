@@ -6,7 +6,7 @@ abstract class XmlData extends XmlNode with XmlHasParent<XmlNode> {
   /// Create a data section with `value`.
   XmlData(this.value);
 
-  // The textual value of this node.
+  /// The textual value of this node.
   @override
   String value;
 

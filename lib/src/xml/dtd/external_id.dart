@@ -51,6 +51,6 @@ class DtdExternalId {
   @override
   bool operator ==(Object other) =>
       other is DtdExternalId &&
-      other.publicId == other.publicId &&
-      other.systemId == other.systemId;
+      publicId == other.publicId &&
+      systemId == other.systemId;
 }
