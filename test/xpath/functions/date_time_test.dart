@@ -27,8 +27,7 @@ void main() {
       final result =
           fnAdjustDateTimeToTimezone(context, [XPathSequence.single(dt)]).first
               as DateTime;
-      final expectedOffset = DateTime.now().timeZoneOffset;
-      expect(result.timeZoneOffset, expectedOffset);
+      expect(result.timeZoneOffset, dt.toLocal().timeZoneOffset);
     });
 
     test('returns empty for empty sequence', () {
@@ -74,8 +73,7 @@ void main() {
       final result =
           fnAdjustDateToTimezone(context, [XPathSequence.single(dt)]).first
               as DateTime;
-      final expectedOffset = DateTime.now().timeZoneOffset;
-      expect(result.timeZoneOffset, expectedOffset);
+      expect(result.timeZoneOffset, dt.toLocal().timeZoneOffset);
     });
   });
 
@@ -85,8 +83,7 @@ void main() {
       final result =
           fnAdjustTimeToTimezone(context, [XPathSequence.single(dt)]).first
               as DateTime;
-      final expectedOffset = DateTime.now().timeZoneOffset;
-      expect(result.timeZoneOffset, expectedOffset);
+      expect(result.timeZoneOffset, dt.toLocal().timeZoneOffset);
     });
   });
 
