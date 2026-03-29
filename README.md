@@ -338,10 +338,10 @@ Furthermore, there are [numerous packages](https://pub.dev/packages?q=dependency
 - ☑ Querying, traversing, and mutating API using Dart principles.
 - ☑ Querying the DOM using XPath 3.1.
 - ☑ Building XML trees using a builder API.
+- ☑ Validates namespace declarations.
 
 ### Limitations
 
-- ☐ Doesn't validate namespace declarations.
 - ☐ Doesn't validate schema declarations.
 - ☐ Doesn't parse, apply or enforce the DTD.
 - ☐ Doesn't support XSL or XSLT.
