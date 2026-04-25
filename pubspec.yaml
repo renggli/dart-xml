@@ -1,5 +1,5 @@
 name: xml
-version: 7.0.0
+version: 7.0.1
 
 description: Full-featured XML for Dart — DOM parsing, SAX streaming, XPath 3 querying, and a fluent builder API.
 repository: https://github.com/renggli/dart-xml
