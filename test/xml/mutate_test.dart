@@ -199,11 +199,11 @@ void main() {
         ),
       ),
     );
-    throwingTest<XmlDocument>(
-      'element (parent error)',
+    mutatingTest<XmlDocument>(
+      'element (parent move)',
       '<element1><element2/></element1>',
       (node) => node.children.add(node.firstChild!),
-      throwsA(isXmlParentException()),
+      '<element1><element2/></element1>',
     );
   });
   group('addAll', () {
@@ -270,11 +270,11 @@ void main() {
         ),
       ),
     );
-    throwingTest<XmlDocument>(
-      'element (parent error)',
+    mutatingTest<XmlDocument>(
+      'element (parent move)',
       '<element1><element2/></element1>',
       (node) => node.children.addAll([node.firstChild!]),
-      throwsA(isXmlParentException()),
+      '<element1><element2/></element1>',
     );
   });
   group('innerText', () {
@@ -476,11 +476,11 @@ void main() {
         ),
       ),
     );
-    throwingTest<XmlDocument>(
-      'element (parent error)',
+    mutatingTest<XmlDocument>(
+      'element (parent move)',
       '<element1><element2/></element1>',
       (node) => node.children.insert(0, node.firstChild!),
-      throwsA(isXmlParentException()),
+      '<element1><element2/></element1>',
     );
   });
   group('insertAll', () {
@@ -562,11 +562,11 @@ void main() {
         ),
       ),
     );
-    throwingTest<XmlDocument>(
-      'element (parent error)',
+    mutatingTest<XmlDocument>(
+      'element (parent move)',
       '<element1><element2/></element1>',
       (node) => node.children.insertAll(0, [node.firstChild!]),
-      throwsA(isXmlParentException()),
+      '<element1><element2/></element1>',
     );
   });
   group('[]=', () {
@@ -612,11 +612,11 @@ void main() {
         ),
       ),
     );
-    throwingTest<XmlDocument>(
-      'element (parent error)',
+    mutatingTest<XmlDocument>(
+      'element (parent move, same index)',
       '<element1><element2/></element1>',
       (node) => node.children[0] = node.firstChild!,
-      throwsA(isXmlParentException()),
+      '<element1><element2/></element1>',
     );
   });
   group('remove', () {

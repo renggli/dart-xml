@@ -2,201 +2,323 @@ import 'package:collection/collection.dart' show DelegatingList;
 import 'package:meta/meta.dart';
 
 import '../enums/node_type.dart';
-import '../exceptions/parent_exception.dart';
 import '../exceptions/type_exception.dart';
+import '../nodes/attribute.dart';
+import '../nodes/document_fragment.dart';
 import '../nodes/node.dart';
 
-/// Mutable list of XmlNodes, manages the parenting of the nodes.
+/// Mutable list of [XmlNode]s that manages parent relationships according to
+/// DOM semantics:
+///
+/// - Nodes added to this list are automatically detached from their previous
+///   parent (whether in this list or another), rather than throwing.
+/// - [XmlDocumentFragment] nodes are transparently expanded into their
+///   children before insertion.
+/// - Each mutating operation is atomic: the entire input is validated before
+///   any structural change is made.
 class XmlNodeList<E extends XmlNode> extends DelegatingList<E> {
-  XmlNodeList() : super(<E>[]);
-
+  final List<E> _inner;
   late final XmlNode _parent;
   late final Set<XmlNodeType> _nodeTypes;
 
-  /// Internal initializer of the node list with parent and supported
-  /// node types.
+  // Construction
+
+  factory XmlNodeList() => XmlNodeList._(<E>[]);
+  XmlNodeList._(this._inner) : super(_inner);
+
   @internal
   void initialize(XmlNode parent, Set<XmlNodeType> nodeTypes) {
     _parent = parent;
     _nodeTypes = nodeTypes;
   }
 
-  @override
-  void operator []=(int index, E value) {
-    RangeError.checkValidIndex(index, this);
-    if (value.nodeType == XmlNodeType.DOCUMENT_FRAGMENT) {
-      replaceRange(index, index + 1, _expandFragment(value));
-    } else {
-      XmlNodeTypeException.checkValidType(value, _nodeTypes);
-      XmlParentException.checkNoParent(value);
-      this[index].detachParent(_parent);
-      super[index] = value;
-      value.attachParent(_parent);
-    }
-  }
+  // Unsupported operations
 
   @override
   set length(int length) =>
       throw UnsupportedError('Unsupported length change of node list');
 
   @override
+  void fillRange(int start, int end, [E? fillValue]) =>
+      throw UnsupportedError('Unsupported range filling of node list');
+
+  @override
+  void setAll(int index, Iterable<E> iterable) =>
+      throw UnsupportedError('Unsupported setAll on node list');
+
+  // Insertion operations
+
+  @override
   void add(E value) {
-    if (value.nodeType == XmlNodeType.DOCUMENT_FRAGMENT) {
-      addAll(_expandFragment(value));
-    } else {
-      XmlNodeTypeException.checkValidType(value, _nodeTypes);
-      XmlParentException.checkNoParent(value);
-      super.add(value);
-      value.attachParent(_parent);
-    }
+    final operation = _XmlNodeListOperation<E>(this);
+    operation.expand(value);
+    operation.commitAppend();
   }
 
   @override
   void addAll(Iterable<E> iterable) {
-    final expanded = _expandNodes(iterable);
-    super.addAll(expanded);
-    for (final node in expanded) {
-      node.attachParent(_parent);
-    }
+    final operation = _XmlNodeListOperation<E>(this);
+    operation.expandAll(iterable);
+    operation.commitAppend();
   }
+
+  @override
+  void insert(int index, E element) {
+    RangeError.checkValueInInterval(index, 0, length, 'index');
+    final operation = _XmlNodeListOperation<E>(this);
+    operation.expand(element);
+    operation.commitInsert(index);
+  }
+
+  @override
+  void insertAll(int index, Iterable<E> iterable) {
+    RangeError.checkValueInInterval(index, 0, length, 'index');
+    final operation = _XmlNodeListOperation<E>(this);
+    operation.expandAll(iterable);
+    operation.commitInsert(index);
+  }
+
+  @override
+  void operator []=(int index, E value) {
+    RangeError.checkValidIndex(index, this);
+    final operation = _XmlNodeListOperation<E>(this);
+    operation.expand(value);
+    operation.commitReplaceRange(index, index + 1);
+  }
+
+  // Replacement operations
+
+  @override
+  void replaceRange(int start, int end, Iterable<E> iterable) {
+    RangeError.checkValidRange(start, end, length);
+    final operation = _XmlNodeListOperation<E>(this);
+    operation.expandAll(iterable);
+    operation.commitReplaceRange(start, end);
+  }
+
+  @override
+  void setRange(int start, int end, Iterable<E> iterable, [int skipCount = 0]) {
+    RangeError.checkValidRange(start, end, length);
+    final operation = _XmlNodeListOperation<E>(this);
+    operation.expandAll(iterable.skip(skipCount));
+    operation.commitReplaceRange(start, end);
+  }
+
+  // Removal operations
 
   @override
   bool remove(Object? value) {
-    final removed = super.remove(value);
-    if (removed && value is E) {
-      value.detachParent(_parent);
-    }
-    return removed;
+    final index = value is E ? indexOf(value) : -1;
+    if (index < 0) return false;
+    removeAt(index);
+    return true;
   }
 
   @override
-  void removeWhere(bool Function(E element) test) {
-    super.removeWhere((node) {
-      final remove = test(node);
-      if (remove) {
-        node.detachParent(_parent);
-      }
-      return remove;
-    });
-  }
-
-  @override
-  void retainWhere(bool Function(E node) test) {
-    super.retainWhere((node) {
-      final retain = test(node);
-      if (!retain) {
-        node.detachParent(_parent);
-      }
-      return retain;
-    });
-  }
-
-  @override
-  void clear() {
-    for (final node in this) {
-      node.detachParent(_parent);
-    }
-    super.clear();
+  E removeAt(int index) {
+    RangeError.checkValidIndex(index, this);
+    final node = _inner[index];
+    node.detachParent(_parent);
+    _inner.removeAt(index);
+    return node;
   }
 
   @override
   E removeLast() {
-    final node = super.removeLast();
-    node.detachParent(_parent);
-    return node;
+    if (isEmpty) throw RangeError.index(0, this, 'index', null, 0);
+    return removeAt(length - 1);
   }
 
   @override
   void removeRange(int start, int end) {
     RangeError.checkValidRange(start, end, length);
     for (var i = start; i < end; i++) {
-      this[i].detachParent(_parent);
+      _inner[i].detachParent(_parent);
     }
-    super.removeRange(start, end);
+    _inner.removeRange(start, end);
   }
 
   @override
-  void fillRange(int start, int end, [E? fillValue]) =>
-      throw UnsupportedError('Unsupported range filling of node list');
-
-  @override
-  void setRange(int start, int end, Iterable<E> iterable, [int skipCount = 0]) {
-    RangeError.checkValidRange(start, end, length);
-    final expanded = _expandNodes(iterable);
-    for (var i = start; i < end; i++) {
-      this[i].detachParent(_parent);
-    }
-    super.setRange(start, end, expanded, skipCount);
-    for (var i = start; i < end; i++) {
-      this[i].attachParent(_parent);
-    }
+  void removeWhere(bool Function(E element) test) {
+    _inner.removeWhere((node) {
+      if (!test(node)) return false;
+      node.detachParent(_parent);
+      return true;
+    });
   }
 
   @override
-  void replaceRange(int start, int end, Iterable<E> iterable) {
-    RangeError.checkValidRange(start, end, length);
-    final expanded = _expandNodes(iterable);
-    for (var i = start; i < end; i++) {
-      this[i].detachParent(_parent);
-    }
-    super.replaceRange(start, end, expanded);
-    for (final node in expanded) {
-      node.attachParent(_parent);
-    }
+  void retainWhere(bool Function(E node) test) {
+    _inner.removeWhere((node) {
+      if (test(node)) return false;
+      node.detachParent(_parent);
+      return true;
+    });
   }
 
   @override
-  void setAll(int index, Iterable<E> iterable) => throw UnimplementedError();
+  void clear() => removeRange(0, length);
+}
 
-  @override
-  void insert(int index, E element) {
-    if (element.nodeType == XmlNodeType.DOCUMENT_FRAGMENT) {
-      insertAll(index, _expandFragment(element));
+/// Collects, validates, and atomically commits a set of changes to an
+/// [XmlNodeList].
+///
+/// Workflow:
+/// 1. Call [expand] or [expandAll] with the input nodes (resolves
+///    [XmlDocumentFragment]s and deduplicates nodes).
+/// 2. Call one of the `commit*` methods to validate, detach from old parents,
+///    apply the structural change, and re-attach to the new parent — all or
+///    nothing.
+class _XmlNodeListOperation<E extends XmlNode> {
+  /// Creates an operation for the given [target].
+  _XmlNodeListOperation(this.target);
+
+  /// The set of seen nodes during expansion to deduplicate them.
+  final seen = <XmlNode>{};
+
+  /// The sequence of expanded and deduplicated nodes to be inserted.
+  final List<E> source = [];
+
+  /// The target list to insert the nodes into.
+  final XmlNodeList<E> target;
+
+  /// Maps every node currently in [target] to its original index.
+  /// Built lazily only if same-list moves are detected.
+  late final Map<E, int> originalIndex = {
+    for (var i = 0; i < target._inner.length; i++) target._inner[i]: i,
+  };
+
+  /// Expands [node] into [source], resolving [XmlDocumentFragment]s and
+  /// deduplicating: each unique node is recorded only on first encounter.
+  void expand(E node) {
+    if (node is XmlDocumentFragment) {
+      for (final child in node.children) {
+        expand(child as E);
+      }
     } else {
-      XmlNodeTypeException.checkValidType(element, _nodeTypes);
-      XmlParentException.checkNoParent(element);
-      super.insert(index, element);
-      element.attachParent(_parent);
+      if (seen.add(node)) source.add(node);
     }
   }
 
-  @override
-  void insertAll(int index, Iterable<E> iterable) {
-    final expanded = _expandNodes(iterable);
-    super.insertAll(index, expanded);
-    for (final node in expanded) {
-      node.attachParent(_parent);
+  /// Expands [nodes] into [source], resolving [XmlDocumentFragment]s and
+  /// deduplicating: each unique node is recorded only on first encounter.
+  void expandAll(Iterable<E> nodes) {
+    for (final node in nodes) {
+      expand(node);
     }
   }
 
-  @override
-  E removeAt(int index) {
-    RangeError.checkValidIndex(index, this);
-    this[index].detachParent(_parent);
-    return super.removeAt(index);
-  }
-
-  Iterable<E> _expandFragment(E fragment) {
-    final expanded = <E>[];
-    for (final node in fragment.children) {
-      XmlNodeTypeException.checkValidType(node, _nodeTypes);
-      expanded.add(node as E);
+  /// Validates every node in [source] against [XmlNodeList._nodeTypes].
+  void _validate() {
+    for (final node in source) {
+      XmlNodeTypeException.checkValidType(node, target._nodeTypes);
     }
-    fragment.children.clear();
-    return expanded;
   }
 
-  Iterable<E> _expandNodes(Iterable<E> iterable) {
-    final expanded = <E>[];
-    for (final node in iterable) {
-      if (node.nodeType == XmlNodeType.DOCUMENT_FRAGMENT) {
-        expanded.addAll(_expandFragment(node));
-      } else {
-        XmlNodeTypeException.checkValidType(node, _nodeTypes);
-        XmlParentException.checkNoParent(node);
-        expanded.add(node);
+  /// Removes all nodes in [source] that currently live in [target], processing
+  /// them in descending index order so earlier removals do not invalidate later
+  /// indices.
+  ///
+  /// Returns the count of removed nodes whose original index was strictly less
+  /// than [beforeIndex]; the caller uses this to adjust its target position.
+  int _removeSameListNodes({int beforeIndex = -1}) {
+    if (!source.any((node) => node.parent == target._parent)) return 0;
+
+    var adjustment = 0;
+    final indices = <int>[];
+    for (final node in source) {
+      if (node.parent == target._parent) {
+        indices.add(originalIndex[node]!);
       }
     }
-    return expanded;
+    indices.sort((a, b) => b.compareTo(a));
+    for (final i in indices) {
+      if (i < beforeIndex) adjustment++;
+      target._inner[i].detachParent(target._parent);
+      target._inner.removeAt(i);
+    }
+    return adjustment;
+  }
+
+  /// Removes nodes in [source] that currently live in a different list.
+  void _removeOtherParentNodes() {
+    for (final node in source) {
+      if (node.parent != target._parent) {
+        final parent = node.parent;
+        if (parent != null) {
+          _detachFromCurrentParent(parent, node);
+        }
+      }
+    }
+  }
+
+  /// Removes [node] from whichever [XmlNodeList] currently owns it via the
+  /// public API, keeping parent relationships consistent.
+  static void _detachFromCurrentParent(XmlNode parent, XmlNode node) {
+    if (node is XmlAttribute) {
+      parent.attributes.remove(node);
+    } else {
+      parent.children.remove(node);
+    }
+  }
+
+  /// Attaches all expanded nodes to the owning parent node.
+  void _attachAll() {
+    for (final node in source) {
+      node.attachParent(target._parent);
+    }
+  }
+
+  /// Validates and appends all nodes to the end of [target].
+  void commitAppend() {
+    _validate();
+    _removeSameListNodes();
+    _removeOtherParentNodes();
+    target._inner.addAll(source);
+    _attachAll();
+  }
+
+  /// Validates and inserts all nodes at [index].
+  void commitInsert(int index) {
+    _validate();
+    final adjustment = _removeSameListNodes(beforeIndex: index);
+    _removeOtherParentNodes();
+    target._inner.insertAll(index - adjustment, source);
+    _attachAll();
+  }
+
+  /// Validates and replaces [target]`[start..end]` with [source].
+  ///
+  /// Same-list nodes **outside** `[start, end)` are removed first and adjust
+  /// the range bounds. Same-list nodes **inside** the range are treated as
+  /// part of the replaced content: they are detached by the range-clear step
+  /// and then re-attached if they are also in [source].
+  void commitReplaceRange(int start, int end) {
+    _validate();
+    var startAdjust = 0;
+    final outsideIndices = <int>[];
+    if (source.any((node) => node.parent == target._parent)) {
+      for (final node in source) {
+        if (node.parent == target._parent) {
+          if (originalIndex[node] case final i? when i < start || i >= end) {
+            outsideIndices.add(i);
+            if (i < start) startAdjust++;
+          }
+        }
+      }
+    }
+    outsideIndices.sort((a, b) => b.compareTo(a));
+    for (final i in outsideIndices) {
+      target._inner[i].detachParent(target._parent);
+      target._inner.removeAt(i);
+    }
+    _removeOtherParentNodes();
+    final adjStart = start - startAdjust;
+    final adjEnd = end - startAdjust;
+    for (var i = adjStart; i < adjEnd; i++) {
+      target._inner[i].detachParent(target._parent);
+    }
+    target._inner.replaceRange(adjStart, adjEnd, source);
+    _attachAll();
   }
 }

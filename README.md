@@ -80,7 +80,7 @@ Accessors allow accessing nodes in the XML tree:
 - `attributes` returns the attributes of the node.
 - `children` returns the direct children of the node.
 
-Both lists are mutable and support all common `List` methods, such as `add(XmlNode)`, `addAll(Iterable<XmlNode>)`, `insert(int, XmlNode)`, and `insertAll(int, Iterable<XmlNode>)`. Trying to add a `null` value or an unsupported node type throws an `XmlNodeTypeError` error. Nodes that are already part of a tree _are not_ automatically moved, you need to first create a copy as otherwise an `XmlParentError` is thrown. `XmlDocumentFragment` nodes are automatically expanded and copies of their children are added.
+Both lists are mutable and support all common `List` methods, such as `add(XmlNode)`, `addAll(Iterable<XmlNode>)`, `insert(int, XmlNode)`, and `insertAll(int, Iterable<XmlNode>)`. Trying to add a `null` value or an unsupported node type throws an `XmlNodeTypeException` error. Nodes that are already part of a tree _are_ automatically moved from their previous parent to the new location. `XmlDocumentFragment` nodes are automatically expanded and their children are added to the list.
 
 There are methods to traverse the XML tree along different axes:
 

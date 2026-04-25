@@ -2,7 +2,6 @@ import 'package:test/test.dart';
 import 'package:xml/xml.dart';
 
 import '../../utils/assertions.dart';
-import '../../utils/matchers.dart';
 
 void main() {
   test('basic', () {
@@ -105,17 +104,17 @@ void main() {
     expect(inner.parentElement, same(outer));
     expect(inner.toString(), '<inner/>');
   });
-  test('constructor error', () {
+  test('move constructor', () {
     final document = XmlDocument.parse('<element attr="value1">text</element>');
     final node = document.rootElement;
-    expect(
-      () => XmlElement.tag('data', attributes: node.attributes),
-      throwsA(isXmlParentException()),
-    );
-    expect(
-      () => XmlElement.tag('data', children: node.children),
-      throwsA(isXmlParentException()),
-    );
+    final attr = node.attributes.first;
+    final child = node.children.first;
+    final data = XmlElement.tag('data', attributes: node.attributes);
+    expect(data.attributes, contains(attr));
+    expect(node.attributes, isEmpty); // moved out
+    final data2 = XmlElement.tag('data2', children: node.children);
+    expect(data2.children, contains(child));
+    expect(node.children, isEmpty); // moved out
   });
   test('add attribute', () {
     final document = XmlDocument.parse('<data/>');
