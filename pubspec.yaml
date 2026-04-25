@@ -1,13 +1,17 @@
 name: xml
 version: 7.0.0
 
-description: A lightweight library for parsing, traversing, querying, transforming and building XML documents.
-homepage: https://github.com/renggli/dart-xml
+description: Full-featured XML for Dart — DOM parsing, SAX streaming, XPath 3 querying, and a fluent builder API.
+repository: https://github.com/renggli/dart-xml
+screenshots:
+  - description: 'XML for Dart'
+    path: xml.png
 topics:
   - xml
-  - xpath
+  - dom
   - sax
-  - parser
+  - xpath
+  - builder
 
 environment:
   sdk: ^3.11.0

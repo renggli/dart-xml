@@ -1,6 +1,6 @@
 # Changelog
 
-## 7.0.0 (unpublished)
+## 7.0.0
 
 - Better namespace support across all parts of the library:
   - Namespaces of `XmlDocument.parse` and `XmlDocumentFragment.parse` are now resolved at parse-time and constant when manipulating the DOM (this aligns with other XML libraries and removes surprising behavior when moving nodes around).
