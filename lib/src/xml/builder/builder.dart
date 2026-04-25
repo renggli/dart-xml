@@ -103,11 +103,13 @@ class XmlBuilder {
   void declaration({
     String version = '1.0',
     String? encoding,
+    bool? standalone,
     Map<String, String> attributes = const {},
   }) {
     final declaration = XmlDeclaration()
       ..version = version
-      ..encoding = encoding;
+      ..encoding = encoding
+      ..standalone = standalone;
     attributes.forEach(declaration.setAttribute);
     _nodes.last.children.add(declaration);
   }

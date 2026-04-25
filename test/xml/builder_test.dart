@@ -1079,12 +1079,15 @@ void main() {
     builder.declaration(
       version: '0.5',
       encoding: 'ASCII',
+      standalone: true,
       attributes: {'foo': 'bar'},
     );
     builder.element('data');
     final xml = builder.buildDocument();
     final actual = xml.toString();
-    const expected = '<?xml version="0.5" encoding="ASCII" foo="bar"?><data/>';
+    const expected =
+        '<?xml version="0.5" encoding="ASCII" standalone="yes" foo="bar"?>'
+        '<data/>';
     expect(actual, expected);
     assertDocumentTreeInvariants(xml);
   });

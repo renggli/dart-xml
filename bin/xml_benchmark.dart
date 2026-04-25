@@ -27,6 +27,54 @@ String characterData() {
   return builder.buildDocument().toString();
 }
 
+void buildRecursive(XmlBuilder builder, XmlNode node) {
+  if (node is XmlElement) {
+    builder.element(
+      node.localName,
+      namespaceUri: node.namespaceUri,
+      nest: () {
+        for (final attribute in node.attributes) {
+          builder.attribute(
+            attribute.localName,
+            attribute.value,
+            namespaceUri: attribute.namespaceUri,
+          );
+        }
+        for (final child in node.children) {
+          buildRecursive(builder, child);
+        }
+      },
+    );
+  } else if (node is XmlText) {
+    builder.text(node.text);
+  } else if (node is XmlCDATA) {
+    builder.cdata(node.text);
+  } else if (node is XmlComment) {
+    builder.comment(node.text);
+  } else if (node is XmlProcessing) {
+    builder.processing(node.target, node.value);
+  } else if (node is XmlDoctype) {
+    builder.doctype(
+      node.name,
+      publicId: node.externalId?.publicId,
+      systemId: node.externalId?.systemId,
+      internalSubset: node.internalSubset,
+    );
+  } else if (node is XmlDeclaration) {
+    builder.declaration(
+      version: node.version ?? '1.0',
+      encoding: node.encoding,
+      standalone: node.standalone,
+      attributes: {
+        for (final attribute in node.attributes)
+          attribute.localName: attribute.value,
+      },
+    );
+  } else {
+    throw UnsupportedError('Unsupported node type: ${node.runtimeType}');
+  }
+}
+
 final Map<String, String> benchmarks = {
   'atom': atomXml,
   'books': booksXml,
@@ -53,6 +101,14 @@ void main(List<String> args) {
         final serializePretty = benchmark(
           () => document.toXmlString(pretty: true),
         );
+        final copy = benchmark(() => document.copy());
+        final builder = benchmark(() {
+          final builder = XmlBuilder();
+          for (final node in document.children) {
+            buildRecursive(builder, node);
+          }
+          builder.buildDocument();
+        });
         return createBenchmark(entry.key, [
           createMeasure('parser', parser),
           createMeasure('streamEvents', streamEvents, parser),
@@ -60,6 +116,8 @@ void main(List<String> args) {
           createMeasure('iterator', iterator, parser),
           createMeasure('serialize', serialize),
           createMeasure('serializePretty', serializePretty, serialize),
+          createMeasure('copy', copy),
+          createMeasure('builder', builder, copy),
         ]);
       }),
     ),
