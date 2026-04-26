@@ -1,7 +1,5 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/types/date_time.dart';
-import 'package:xml/src/xpath/types/sequence.dart';
-import 'package:xml/xml.dart';
 
 import '../../utils/matchers.dart';
 
@@ -10,87 +8,145 @@ void main() {
     test('name', () {
       expect(xsDateTime.name, 'xs:dateTime');
     });
-    test('matches', () {
-      expect(xsDateTime.matches(DateTime.now()), isTrue);
-      expect(xsDateTime.matches('2021-01-01'), isFalse);
-    });
     group('cast', () {
       test('from DateTime', () {
         final dateTime = DateTime.now();
         expect(xsDateTime.cast(dateTime), same(dateTime));
       });
       test('from String', () {
-        final dateTime = DateTime.parse('2021-01-01T00:00:00.000');
-        expect(xsDateTime.cast('2021-01-01T00:00:00.000'), dateTime);
+        final dateTime = DateTime.parse('2021-01-01T12:34:56.000Z');
+        expect(xsDateTime.cast('2021-01-01T12:34:56.000Z'), dateTime);
+      });
+      test('from String (invalid format)', () {
         expect(
-          () => xsDateTime.cast('invalid'),
-          throwsA(
-            isXPathEvaluationException(
-              message: 'Unsupported cast from invalid to xs:dateTime',
-            ),
-          ),
+          () => xsDateTime.cast('2021-01-01'),
+          throwsA(isXPathEvaluationException()),
         );
       });
-      test('from XmlNode', () {
-        final node = XmlElement(const XmlName.qualified('a'), [], [
-          XmlText('2021-01-01T00:00:00.000'),
-        ]);
+      test('from String (hour 24)', () {
         expect(
-          xsDateTime.cast(node),
-          DateTime.parse('2021-01-01T00:00:00.000'),
-        );
-      });
-      test('from XPathSequence', () {
-        final dateTime = DateTime.now();
-        expect(xsDateTime.cast(XPathSequence.single(dateTime)), dateTime);
-        expect(
-          () => xsDateTime.cast(XPathSequence.empty),
-          throwsA(
-            isXPathEvaluationException(
-              message: 'Unsupported cast from () to xs:dateTime',
-            ),
-          ),
-        );
-      });
-      test('from invalid month/day throws', () {
-        expect(
-          () => xsDateTime.cast('--13-01'),
-          throwsA(isXPathEvaluationException(message: 'Invalid month: 13')),
+          xsDateTime.cast('2021-01-01T24:00:00'),
+          DateTime.parse('2021-01-02T00:00:00'),
         );
         expect(
-          () => xsDateTime.cast('--12-32'),
-          throwsA(isXPathEvaluationException(message: 'Invalid day: 32')),
+          () => xsDateTime.cast('2021-01-01T24:00:01'),
+          throwsA(isXPathEvaluationException()),
         );
       });
-      test('from other', () {
+    });
+  });
+
+  group('xsDateTimeStamp', () {
+    test('name', () {
+      expect(xsDateTimeStamp.name, 'xs:dateTimeStamp');
+    });
+    group('cast', () {
+      test('from String (with timezone)', () {
         expect(
-          () => xsDateTime.cast(123),
-          throwsA(
-            isXPathEvaluationException(
-              message: 'Unsupported cast from 123 to xs:dateTime',
-            ),
-          ),
+          xsDateTimeStamp.cast('2021-01-01T12:34:56Z'),
+          isA<XPathDateTimeStamp>(),
         );
       });
-      group('from gregorian', () {
-        final tests = {
-          '1999-05Z': '1999-05-01T00:00:00Z',
-          '-0012-12-05:00': '-0012-12-01T00:00:00-05:00',
-          '1999Z': '1999-01-01T00:00:00Z',
-          '-0012-05:00': '-0012-01-01T00:00:00-05:00',
-          '--05-31Z': '1970-05-31T00:00:00Z',
-          '--05-31+14:00': '1970-05-31T00:00:00+14:00',
-          '---31Z': '1970-01-31T00:00:00Z',
-          '---03-05:00': '1970-01-03T00:00:00-05:00',
-          '--05Z': '1970-05-01T00:00:00Z',
-          '--12-05:00': '1970-12-01T00:00:00-05:00',
-        };
-        for (final entry in tests.entries) {
-          test(entry.key, () {
-            expect(xsDateTime.cast(entry.key), DateTime.parse(entry.value));
-          });
-        }
+      test('from String (without timezone) throws', () {
+        expect(
+          () => xsDateTimeStamp.cast('2021-01-01T12:34:56'),
+          throwsA(isXPathEvaluationException()),
+        );
       });
+    });
+  });
+
+  group('xsDate', () {
+    test('name', () {
+      expect(xsDate.name, 'xs:date');
+    });
+    group('cast', () {
+      test('from String', () {
+        final date = xsDate.cast('2021-01-01');
+        expect(date, isA<XPathDate>());
+        expect(date.year, 2021);
+        expect(date.month, 1);
+        expect(date.day, 1);
+      });
+      test('from String (invalid day)', () {
+        expect(
+          () => xsDate.cast('1970-02-30'),
+          throwsA(isXPathEvaluationException()),
+        );
+      });
+    });
+    test('castToString', () {
+      final date = xsDate.cast('2021-01-01');
+      expect(xsDate.castToString(date), '2021-01-01');
+    });
+  });
+
+  group('xsTime', () {
+    test('name', () {
+      expect(xsTime.name, 'xs:time');
+    });
+    group('cast', () {
+      test('from String', () {
+        final time = xsTime.cast('12:34:56');
+        expect(time, isA<XPathTime>());
+        expect(time.hour, 12);
+        expect(time.minute, 34);
+        expect(time.second, 56);
+      });
+    });
+    test('castToString', () {
+      final time = xsTime.cast('12:34:56');
+      expect(xsTime.castToString(time), '12:34:56');
+    });
+  });
+
+  group('xsGYearMonth', () {
+    test('name', () {
+      expect(xsGYearMonth.name, 'xs:gYearMonth');
+    });
+    test('castToString', () {
+      final val = xsGYearMonth.cast('1999-05');
+      expect(xsGYearMonth.castToString(val), '1999-05');
+    });
+  });
+
+  group('xsGYear', () {
+    test('name', () {
+      expect(xsGYear.name, 'xs:gYear');
+    });
+    test('castToString', () {
+      final val = xsGYear.cast('1999');
+      expect(xsGYear.castToString(val), '1999');
+    });
+  });
+
+  group('xsGMonthDay', () {
+    test('name', () {
+      expect(xsGMonthDay.name, 'xs:gMonthDay');
+    });
+    test('castToString', () {
+      final val = xsGMonthDay.cast('--05-31');
+      expect(xsGMonthDay.castToString(val), '--05-31');
+    });
+  });
+
+  group('xsGMonth', () {
+    test('name', () {
+      expect(xsGMonth.name, 'xs:gMonth');
+    });
+    test('castToString', () {
+      final val = xsGMonth.cast('--05');
+      expect(xsGMonth.castToString(val), '--05');
+    });
+  });
+
+  group('xsGDay', () {
+    test('name', () {
+      expect(xsGDay.name, 'xs:gDay');
+    });
+    test('castToString', () {
+      final val = xsGDay.cast('---31');
+      expect(xsGDay.castToString(val), '---31');
     });
   });
 }

@@ -334,15 +334,12 @@ const xsDateConstructor = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
-      type: xsAny,
+      type: xsDate,
       cardinality: XPathCardinality.exactlyOne,
     ),
   ],
-  function: _xsDateTimeConstructor,
+  function: _xsSingleValueConstructor,
 );
-
-XPathSequence _xsDateTimeConstructor(XPathContext context, Object value) =>
-    XPathSequence.single(xsDateTime.cast(value));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-dateTime
 const xsDateTimeConstructor = XPathFunctionDefinition(
@@ -350,11 +347,11 @@ const xsDateTimeConstructor = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
-      type: xsAny,
+      type: xsDateTime,
       cardinality: XPathCardinality.exactlyOne,
     ),
   ],
-  function: _xsDateTimeConstructor,
+  function: _xsSingleValueConstructor,
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-dateTimeStamp
@@ -363,11 +360,11 @@ const xsDateTimeStampConstructor = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
-      type: xsAny,
+      type: xsDateTimeStamp,
       cardinality: XPathCardinality.exactlyOne,
     ),
   ],
-  function: _xsDateTimeConstructor,
+  function: _xsSingleValueConstructor,
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-gDay
@@ -376,11 +373,11 @@ const xsGDayConstructor = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
-      type: xsAny,
+      type: xsGDay,
       cardinality: XPathCardinality.exactlyOne,
     ),
   ],
-  function: _xsDateTimeConstructor,
+  function: _xsSingleValueConstructor,
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-gMonth
@@ -389,11 +386,11 @@ const xsGMonthConstructor = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
-      type: xsAny,
+      type: xsGMonth,
       cardinality: XPathCardinality.exactlyOne,
     ),
   ],
-  function: _xsDateTimeConstructor,
+  function: _xsSingleValueConstructor,
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-gMonthDay
@@ -402,11 +399,11 @@ const xsGMonthDayConstructor = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
-      type: xsAny,
+      type: xsGMonthDay,
       cardinality: XPathCardinality.exactlyOne,
     ),
   ],
-  function: _xsDateTimeConstructor,
+  function: _xsSingleValueConstructor,
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-gYear
@@ -415,11 +412,11 @@ const xsGYearConstructor = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
-      type: xsAny,
+      type: xsGYear,
       cardinality: XPathCardinality.exactlyOne,
     ),
   ],
-  function: _xsDateTimeConstructor,
+  function: _xsSingleValueConstructor,
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-gYearMonth
@@ -428,11 +425,11 @@ const xsGYearMonthConstructor = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
-      type: xsAny,
+      type: xsGYearMonth,
       cardinality: XPathCardinality.exactlyOne,
     ),
   ],
-  function: _xsDateTimeConstructor,
+  function: _xsSingleValueConstructor,
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-time
@@ -441,12 +438,15 @@ const xsTimeConstructor = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
-      type: xsAny,
+      type: xsTime,
       cardinality: XPathCardinality.exactlyOne,
     ),
   ],
-  function: _xsDateTimeConstructor,
+  function: _xsSingleValueConstructor,
 );
+
+XPathSequence _xsSingleValueConstructor(XPathContext context, Object value) =>
+    XPathSequence.single(value);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-duration
 const xsDurationConstructor = XPathFunctionDefinition(

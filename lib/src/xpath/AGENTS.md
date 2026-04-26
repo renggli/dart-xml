@@ -75,17 +75,17 @@ Duration values are represented by the Dart `Duration`.
 
 | XPath Type | Dart Type | Implementation
 | --- | --- | ---
-| `xs:date` | `DateTime` | `xsDateTime`
+| `xs:date` | `XPathDate` | `xsDate`
 | `xs:dateTime` | `DateTime` | `xsDateTime`
-| `xs:dateTimeStamp` | `DateTime` | `xsDateTime`
+| `xs:dateTimeStamp` | `XPathDateTimeStamp` | `xsDateTimeStamp`
 | `xs:dayTimeDuration` | `XPathDayTimeDuration` | `xsDayTimeDuration`
 | `xs:duration` | `Duration` | `xsDuration`
-| `xs:gDay` | `DateTime` | `xsDateTime`
-| `xs:gMonth` | `DateTime` | `xsDateTime`
-| `xs:gMonthDay` | `DateTime` | `xsDateTime`
-| `xs:gYear` | `DateTime` | `xsDateTime`
-| `xs:gYearMonth` | `DateTime` | `xsDateTime`
-| `xs:time` | `DateTime` | `xsDateTime`
+| `xs:gDay` | `XPathGDay` | `xsGDay`
+| `xs:gMonth` | `XPathGMonth` | `xsGMonth`
+| `xs:gMonthDay` | `XPathGMonthDay` | `xsGMonthDay`
+| `xs:gYear` | `XPathGYear` | `xsGYear`
+| `xs:gYearMonth` | `XPathGYearMonth` | `xsGYearMonth`
+| `xs:time` | `XPathTime` | `xsTime`
 | `xs:yearMonthDuration` | `XPathYearMonthDuration` | `xsYearMonthDuration`
 
 ### Numerics

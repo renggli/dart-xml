@@ -59,6 +59,22 @@ class _XPathStringType extends XPathType<String> {
       return xsDayTimeDuration.castToString(value);
     } else if (value is Duration) {
       return xsDuration.castToString(value);
+    } else if (value is XPathDateTimeStamp) {
+      return xsDateTimeStamp.castToString(value);
+    } else if (value is XPathDate) {
+      return xsDate.castToString(value);
+    } else if (value is XPathTime) {
+      return xsTime.castToString(value);
+    } else if (value is XPathGYearMonth) {
+      return xsGYearMonth.castToString(value);
+    } else if (value is XPathGYear) {
+      return xsGYear.castToString(value);
+    } else if (value is XPathGMonthDay) {
+      return xsGMonthDay.castToString(value);
+    } else if (value is XPathGMonth) {
+      return xsGMonth.castToString(value);
+    } else if (value is XPathGDay) {
+      return xsGDay.castToString(value);
     } else if (value is DateTime) {
       return xsDateTime.castToString(value);
     } else if (value is XmlName) {
