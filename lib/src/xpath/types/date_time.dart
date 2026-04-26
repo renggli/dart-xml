@@ -72,6 +72,9 @@ class _XPathDateTimeType extends XPathType<DateTime> {
     }
     throw XPathEvaluationException.unsupportedCast(this, value);
   }
+
+  @override
+  String castToString(DateTime value) => value.toIso8601String();
 }
 
 extension on RegExpMatch {

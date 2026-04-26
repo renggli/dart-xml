@@ -6,7 +6,7 @@ import 'sequence.dart';
 /// The XPath QName type.
 const xsQName = _XPathQNameType();
 
-class _XPathQNameType extends XPathType<Object> {
+class _XPathQNameType extends XPathType<XmlName> {
   const _XPathQNameType();
 
   @override
@@ -27,4 +27,7 @@ class _XPathQNameType extends XPathType<Object> {
     }
     throw XPathEvaluationException.unsupportedCast(this, value);
   }
+
+  @override
+  String castToString(XmlName value) => value.qualified;
 }

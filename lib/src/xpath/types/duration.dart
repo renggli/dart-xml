@@ -60,6 +60,42 @@ class _XPathDurationType extends XPathType<Duration> {
     );
     return negative ? -duration : duration;
   }
+
+  @override
+  String castToString(Duration value) {
+    if (value.inMicroseconds == 0) return 'PT0S';
+    final buffer = StringBuffer(value.isNegative ? '-P' : 'P');
+    final duration = value.abs();
+    final totalDays = duration.inDays;
+    final months = totalDays ~/ 30;
+    final years = months ~/ 12;
+    final remainingMonths = months.remainder(12);
+    final days = totalDays.remainder(30);
+
+    if (years > 0) buffer.write('${years}Y');
+    if (remainingMonths > 0) buffer.write('${remainingMonths}M');
+    if (days > 0) buffer.write('${days}D');
+    final hours = duration.inHours.remainder(24);
+    final minutes = duration.inMinutes.remainder(60);
+    final seconds =
+        duration.inMicroseconds.remainder(1000000) / 1000000 +
+        duration.inSeconds.remainder(60);
+    if (hours > 0 || minutes > 0 || seconds > 0) {
+      buffer.write('T');
+      if (hours > 0) buffer.write('${hours}H');
+      if (minutes > 0) buffer.write('${minutes}M');
+      if (seconds > 0) {
+        final string = seconds.toString();
+        buffer.write(
+          string.endsWith('.0')
+              ? string.substring(0, string.length - 2)
+              : string,
+        );
+        buffer.write('S');
+      }
+    }
+    return buffer.toString();
+  }
 }
 
 /// The XPath dayTimeDuration type.
@@ -118,6 +154,35 @@ class _XPathDayTimeDurationType extends XPathType<XPathDayTimeDuration> {
       microseconds: (seconds * 1000000).round(),
     );
     return XPathDayTimeDuration(negative ? -duration : duration);
+  }
+
+  @override
+  String castToString(XPathDayTimeDuration value) {
+    if (value.inMicroseconds == 0) return 'PT0S';
+    final buffer = StringBuffer(value.isNegative ? '-P' : 'P');
+    final duration = value.abs();
+    final days = duration.inDays;
+    if (days > 0) buffer.write('${days}D');
+    final hours = duration.inHours.remainder(24);
+    final minutes = duration.inMinutes.remainder(60);
+    final seconds =
+        duration.inMicroseconds.remainder(1000000) / 1000000 +
+        duration.inSeconds.remainder(60);
+    if (hours > 0 || minutes > 0 || seconds > 0) {
+      buffer.write('T');
+      if (hours > 0) buffer.write('${hours}H');
+      if (minutes > 0) buffer.write('${minutes}M');
+      if (seconds > 0) {
+        final string = seconds.toString();
+        buffer.write(
+          string.endsWith('.0')
+              ? string.substring(0, string.length - 2)
+              : string,
+        );
+        buffer.write('S');
+      }
+    }
+    return buffer.toString();
   }
 }
 
@@ -181,6 +246,21 @@ class _XPathYearMonthDurationType extends XPathType<XPathYearMonthDuration> {
     final months = int.tryParse(match.group(3) ?? '0') ?? 0;
     final duration = Duration(days: years * 365 + months * 30);
     return XPathYearMonthDuration(negative ? -duration : duration);
+  }
+
+  @override
+  String castToString(XPathYearMonthDuration value) {
+    if (value.inMicroseconds == 0) return 'P0M';
+    final buffer = StringBuffer(value.isNegative ? '-P' : 'P');
+    final duration = value.abs();
+    final months = duration.inDays ~/ 30;
+    final years = months ~/ 12;
+    final remainingMonths = months.remainder(12);
+    if (years > 0) buffer.write('${years}Y');
+    if (remainingMonths > 0 || years == 0) {
+      buffer.write('${remainingMonths}M');
+    }
+    return buffer.toString();
   }
 }
 

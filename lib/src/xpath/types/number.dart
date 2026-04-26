@@ -40,6 +40,9 @@ class _XPathNumericType extends XPathType<num> {
     }
     throw XPathEvaluationException.unsupportedCast(this, value);
   }
+
+  @override
+  String castToString(num value) => _castNumberToString(value);
 }
 
 /// The XPath decimal type.
@@ -75,6 +78,9 @@ class _XPathDecimalType extends XPathType<num> {
     }
     throw XPathEvaluationException.unsupportedCast(this, value);
   }
+
+  @override
+  String castToString(num value) => _castNumberToString(value);
 }
 
 /// The XPath integer type.
@@ -158,6 +164,9 @@ class _XPathIntegerType extends XPathType<int> {
     }
     throw XPathEvaluationException.unsupportedCast(this, value);
   }
+
+  @override
+  String castToString(int value) => _castNumberToString(value);
 }
 
 /// An integer subtype with optional range constraints.
@@ -187,6 +196,9 @@ class _XPathRangeCheckedIntegerType extends XPathType<int> {
     }
     return result;
   }
+
+  @override
+  String castToString(int value) => _castNumberToString(value);
 }
 
 /// The XPath double type.
@@ -230,8 +242,22 @@ class _XPathDoubleType extends XPathType<double> {
     }
     throw XPathEvaluationException.unsupportedCast(this, value);
   }
+
+  @override
+  String castToString(double value) => _castNumberToString(value);
 }
 
 final _doublePattern = RegExp(r'^(\+|-)?\d+(\.\d*)?(\.\d+)?([eE][+-]?\d+)?$');
 final _decimalPattern = RegExp(r'^(\+|-)?(\d+(\.\d*)?|\.\d+)$');
 final _integerPattern = RegExp(r'^(\+|-)?\d+$');
+
+String _castNumberToString(num value) {
+  if (value.isNaN) return 'NaN';
+  if (value == double.infinity) return 'INF';
+  if (value == double.negativeInfinity) return '-INF';
+  if (value == 0.0 || value == -0.0) return '0';
+  final string = value.toString();
+  return string.endsWith('.0')
+      ? string.substring(0, string.length - 2)
+      : string;
+}

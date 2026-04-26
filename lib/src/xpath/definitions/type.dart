@@ -17,6 +17,9 @@ abstract class XPathType<T extends Object> {
   /// Casts the [value] to this type.
   T cast(Object value);
 
+  /// Casts the [value] to its XPath string representation.
+  String castToString(T value) => value.toString();
+
   @override
   String toString() => name;
 }

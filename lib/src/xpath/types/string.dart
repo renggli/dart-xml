@@ -1,15 +1,14 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
-import '../../xml/nodes/document.dart';
-import '../../xml/nodes/element.dart';
 import '../../xml/nodes/node.dart';
-import '../../xml/nodes/text.dart';
 import '../../xml/utils/name.dart';
 import '../definitions/type.dart';
 import '../exceptions/evaluation_exception.dart';
 import 'binary.dart';
+import 'boolean.dart';
+import 'date_time.dart';
 import 'duration.dart';
+import 'node.dart';
+import 'number.dart';
+import 'qname.dart';
 import 'sequence.dart';
 
 /// The XPath string type.
@@ -47,102 +46,25 @@ class _XPathStringType extends XPathType<String> {
     if (value is String) {
       return value;
     } else if (value is bool) {
-      return value ? 'true' : 'false';
+      return xsBoolean.castToString(value);
     } else if (value is num) {
-      if (value.isNaN) return 'NaN';
-      if (value == double.infinity) return 'INF';
-      if (value == double.negativeInfinity) return '-INF';
-      if (value == 0.0 || value == -0.0) return '0';
-      final string = value.toString();
-      return string.endsWith('.0')
-          ? string.substring(0, string.length - 2)
-          : string;
+      return xsNumeric.castToString(value);
     } else if (value is XPathBase64Binary) {
-      return base64Encode(value);
+      return xsBase64Binary.castToString(value);
     } else if (value is XPathHexBinary) {
-      return value
-          .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
-          .join()
-          .toUpperCase();
+      return xsHexBinary.castToString(value);
     } else if (value is XPathYearMonthDuration) {
-      if (value.inMicroseconds == 0) return 'P0M';
-      final buffer = StringBuffer(value.isNegative ? '-P' : 'P');
-      final duration = value.abs();
-      final months = duration.inDays ~/ 30;
-      final years = months ~/ 12;
-      final remainingMonths = months.remainder(12);
-      if (years > 0) buffer.write('${years}Y');
-      if (remainingMonths > 0 || years == 0) {
-        buffer.write('${remainingMonths}M');
-      }
-      return buffer.toString();
+      return xsYearMonthDuration.castToString(value);
     } else if (value is XPathDayTimeDuration) {
-      if (value.inMicroseconds == 0) return 'PT0S';
-      final buffer = StringBuffer(value.isNegative ? '-P' : 'P');
-      final duration = value.abs();
-      final days = duration.inDays;
-      if (days > 0) buffer.write('${days}D');
-      final hours = duration.inHours.remainder(24);
-      final minutes = duration.inMinutes.remainder(60);
-      final seconds =
-          duration.inMicroseconds.remainder(1000000) / 1000000 +
-          duration.inSeconds.remainder(60);
-      if (hours > 0 || minutes > 0 || seconds > 0) {
-        buffer.write('T');
-        if (hours > 0) buffer.write('${hours}H');
-        if (minutes > 0) buffer.write('${minutes}M');
-        if (seconds > 0) {
-          final string = seconds.toString();
-          buffer.write(
-            string.endsWith('.0')
-                ? string.substring(0, string.length - 2)
-                : string,
-          );
-          buffer.write('S');
-        }
-      }
-      return buffer.toString();
+      return xsDayTimeDuration.castToString(value);
     } else if (value is Duration) {
-      if (value.inMicroseconds == 0) return 'PT0S';
-      final buffer = StringBuffer(value.isNegative ? '-P' : 'P');
-      final duration = value.abs();
-      final totalDays = duration.inDays;
-      final months = totalDays ~/ 30;
-      final years = months ~/ 12;
-      final remainingMonths = months.remainder(12);
-      final days = totalDays.remainder(30);
-
-      if (years > 0) buffer.write('${years}Y');
-      if (remainingMonths > 0) buffer.write('${remainingMonths}M');
-      if (days > 0) buffer.write('${days}D');
-      final hours = duration.inHours.remainder(24);
-      final minutes = duration.inMinutes.remainder(60);
-      final seconds =
-          duration.inMicroseconds.remainder(1000000) / 1000000 +
-          duration.inSeconds.remainder(60);
-      if (hours > 0 || minutes > 0 || seconds > 0) {
-        buffer.write('T');
-        if (hours > 0) buffer.write('${hours}H');
-        if (minutes > 0) buffer.write('${minutes}M');
-        if (seconds > 0) {
-          final string = seconds.toString();
-          buffer.write(
-            string.endsWith('.0')
-                ? string.substring(0, string.length - 2)
-                : string,
-          );
-          buffer.write('S');
-        }
-      }
-      return buffer.toString();
+      return xsDuration.castToString(value);
     } else if (value is DateTime) {
-      return value.toIso8601String();
+      return xsDateTime.castToString(value);
     } else if (value is XmlName) {
-      return value.qualified;
+      return xsQName.castToString(value);
     } else if (value is XmlNode) {
-      final buffer = StringBuffer();
-      _stringForNodeOn(value, buffer);
-      return buffer.toString();
+      return xsNode.castToString(value);
     } else if (value is XPathSequence) {
       final iterator = value.iterator;
       if (!iterator.moveNext()) return '';
@@ -150,23 +72,5 @@ class _XPathStringType extends XPathType<String> {
       if (!iterator.moveNext()) return cast(item);
     }
     throw XPathEvaluationException.unsupportedCast(this, value);
-  }
-}
-
-void _stringForNodeOn(XmlNode node, StringBuffer buffer) {
-  if (node is XmlDocument) {
-    for (final child in node.children) {
-      if (child is XmlElement) {
-        _stringForNodeOn(child, buffer);
-      }
-    }
-  } else if (node is XmlElement) {
-    for (final child in node.children) {
-      _stringForNodeOn(child, buffer);
-    }
-  } else if (node is XmlText) {
-    buffer.write(node.value);
-  } else {
-    buffer.write(node.value ?? '');
   }
 }

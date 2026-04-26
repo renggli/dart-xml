@@ -33,6 +33,9 @@ class _XPathBase64BinaryType extends XPathType<XPathBase64Binary> {
     }
     throw XPathEvaluationException.unsupportedCast(this, value);
   }
+
+  @override
+  String castToString(XPathBase64Binary value) => base64Encode(value);
 }
 
 class XPathBase64Binary extends DelegatingList<int> {
@@ -76,6 +79,12 @@ class _XPathHexBinaryType extends XPathType<XPathHexBinary> {
     }
     throw XPathEvaluationException.unsupportedCast(this, value);
   }
+
+  @override
+  String castToString(XPathHexBinary value) => value
+      .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
+      .join()
+      .toUpperCase();
 }
 
 class XPathHexBinary extends DelegatingList<int> {

@@ -30,4 +30,7 @@ class _XPathBooleanType extends XPathType<bool> {
     }
     throw XPathEvaluationException.unsupportedCast(this, value);
   }
+
+  @override
+  String castToString(bool value) => value ? 'true' : 'false';
 }

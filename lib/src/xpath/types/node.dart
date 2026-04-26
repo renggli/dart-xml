@@ -35,6 +35,13 @@ class _XPathNodeType<T extends XmlNode> extends XPathType<T> {
     }
     throw XPathEvaluationException.unsupportedCast(this, value);
   }
+
+  @override
+  String castToString(T value) {
+    final buffer = StringBuffer();
+    _stringForNodeOn(value, buffer);
+    return buffer.toString();
+  }
 }
 
 /// The XPath attribute node type.
@@ -87,4 +94,22 @@ class NodeTestType extends _XPathNodeType<XmlNode> {
 
   @override
   bool matches(Object value) => value is XmlNode && nodeTest.matches(value);
+}
+
+void _stringForNodeOn(XmlNode node, StringBuffer buffer) {
+  if (node is XmlDocument) {
+    for (final child in node.children) {
+      if (child is XmlElement) {
+        _stringForNodeOn(child, buffer);
+      }
+    }
+  } else if (node is XmlElement) {
+    for (final child in node.children) {
+      _stringForNodeOn(child, buffer);
+    }
+  } else if (node is XmlText) {
+    buffer.write(node.value);
+  } else {
+    buffer.write(node.value ?? '');
+  }
 }
