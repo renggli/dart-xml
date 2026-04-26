@@ -9,6 +9,7 @@ import '../../xml/utils/name.dart';
 import '../definitions/type.dart';
 import '../exceptions/evaluation_exception.dart';
 import 'binary.dart';
+import 'duration.dart';
 import 'sequence.dart';
 
 /// The XPath string type.
@@ -63,8 +64,19 @@ class _XPathStringType extends XPathType<String> {
           .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
           .join()
           .toUpperCase();
-    } else if (value is Uint8List) {
-    } else if (value is Duration) {
+    } else if (value is XPathYearMonthDuration) {
+      if (value.inMicroseconds == 0) return 'P0M';
+      final buffer = StringBuffer(value.isNegative ? '-P' : 'P');
+      final duration = value.abs();
+      final months = duration.inDays ~/ 30;
+      final years = months ~/ 12;
+      final remainingMonths = months.remainder(12);
+      if (years > 0) buffer.write('${years}Y');
+      if (remainingMonths > 0 || years == 0) {
+        buffer.write('${remainingMonths}M');
+      }
+      return buffer.toString();
+    } else if (value is XPathDayTimeDuration) {
       if (value.inMicroseconds == 0) return 'PT0S';
       final buffer = StringBuffer(value.isNegative ? '-P' : 'P');
       final duration = value.abs();
@@ -79,7 +91,48 @@ class _XPathStringType extends XPathType<String> {
         buffer.write('T');
         if (hours > 0) buffer.write('${hours}H');
         if (minutes > 0) buffer.write('${minutes}M');
-        if (seconds > 0) buffer.write('${seconds}S');
+        if (seconds > 0) {
+          final string = seconds.toString();
+          buffer.write(
+            string.endsWith('.0')
+                ? string.substring(0, string.length - 2)
+                : string,
+          );
+          buffer.write('S');
+        }
+      }
+      return buffer.toString();
+    } else if (value is Duration) {
+      if (value.inMicroseconds == 0) return 'PT0S';
+      final buffer = StringBuffer(value.isNegative ? '-P' : 'P');
+      final duration = value.abs();
+      final totalDays = duration.inDays;
+      final months = totalDays ~/ 30;
+      final years = months ~/ 12;
+      final remainingMonths = months.remainder(12);
+      final days = totalDays.remainder(30);
+
+      if (years > 0) buffer.write('${years}Y');
+      if (remainingMonths > 0) buffer.write('${remainingMonths}M');
+      if (days > 0) buffer.write('${days}D');
+      final hours = duration.inHours.remainder(24);
+      final minutes = duration.inMinutes.remainder(60);
+      final seconds =
+          duration.inMicroseconds.remainder(1000000) / 1000000 +
+          duration.inSeconds.remainder(60);
+      if (hours > 0 || minutes > 0 || seconds > 0) {
+        buffer.write('T');
+        if (hours > 0) buffer.write('${hours}H');
+        if (minutes > 0) buffer.write('${minutes}M');
+        if (seconds > 0) {
+          final string = seconds.toString();
+          buffer.write(
+            string.endsWith('.0')
+                ? string.substring(0, string.length - 2)
+                : string,
+          );
+          buffer.write('S');
+        }
       }
       return buffer.toString();
     } else if (value is DateTime) {

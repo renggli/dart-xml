@@ -20,7 +20,9 @@ const fnYearsFromDuration = XPathFunctionDefinition(
 
 XPathSequence _fnYearsFromDuration(XPathContext context, Duration? arg) {
   if (arg == null) return XPathSequence.empty;
-  return const XPathSequence.single(0); // Not supported in Dart
+  final months = arg.abs().inDays ~/ 30;
+  final years = months ~/ 12;
+  return XPathSequence.single(arg.isNegative ? -years : years);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-months-from-duration
@@ -38,7 +40,11 @@ const fnMonthsFromDuration = XPathFunctionDefinition(
 
 XPathSequence _fnMonthsFromDuration(XPathContext context, Duration? arg) {
   if (arg == null) return XPathSequence.empty;
-  return const XPathSequence.single(0); // Not supported in Dart
+  final months = arg.abs().inDays ~/ 30;
+  final remainingMonths = months.remainder(12);
+  return XPathSequence.single(
+    arg.isNegative ? -remainingMonths : remainingMonths,
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-days-from-duration
@@ -56,7 +62,9 @@ const fnDaysFromDuration = XPathFunctionDefinition(
 
 XPathSequence _fnDaysFromDuration(XPathContext context, Duration? arg) {
   if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(arg.inDays);
+  final days = arg.abs().inDays;
+  final remainingDays = days % 30;
+  return XPathSequence.single(arg.isNegative ? -remainingDays : remainingDays);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hours-from-duration

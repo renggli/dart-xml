@@ -78,7 +78,7 @@ Duration values are represented by the Dart `Duration`.
 | `xs:date` | `DateTime` | `xsDateTime`
 | `xs:dateTime` | `DateTime` | `xsDateTime`
 | `xs:dateTimeStamp` | `DateTime` | `xsDateTime`
-| `xs:dayTimeDuration` | `Duration` | `xsDuration`
+| `xs:dayTimeDuration` | `XPathDayTimeDuration` | `xsDayTimeDuration`
 | `xs:duration` | `Duration` | `xsDuration`
 | `xs:gDay` | `DateTime` | `xsDateTime`
 | `xs:gMonth` | `DateTime` | `xsDateTime`
@@ -86,7 +86,7 @@ Duration values are represented by the Dart `Duration`.
 | `xs:gYear` | `DateTime` | `xsDateTime`
 | `xs:gYearMonth` | `DateTime` | `xsDateTime`
 | `xs:time` | `DateTime` | `xsDateTime`
-| `xs:yearMonthDuration` | `Duration` | `xsDuration`
+| `xs:yearMonthDuration` | `XPathYearMonthDuration` | `xsYearMonthDuration`
 
 ### Numerics
 

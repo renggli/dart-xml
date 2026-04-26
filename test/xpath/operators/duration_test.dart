@@ -34,8 +34,8 @@ void main() {
 
   group('opYearMonthDurationLessThan', () {
     test('less than', () {
-      const d1 = Duration(days: 1);
-      const d2 = Duration(days: 2);
+      const d1 = Duration(days: 30);
+      const d2 = Duration(days: 60);
       expect(
         opYearMonthDurationLessThan(
           const XPathSequence.single(d1),
@@ -48,8 +48,8 @@ void main() {
 
   group('opYearMonthDurationGreaterThan', () {
     test('greater than', () {
-      const d1 = Duration(days: 1);
-      const d2 = Duration(days: 2);
+      const d1 = Duration(days: 30);
+      const d2 = Duration(days: 60);
       expect(
         opYearMonthDurationGreaterThan(
           const XPathSequence.single(d2),
@@ -90,8 +90,8 @@ void main() {
 
   group('opAddYearMonthDurations', () {
     test('add', () {
-      const d1 = Duration(days: 1);
-      const d2 = Duration(days: 2);
+      const d1 = Duration(days: 30);
+      const d2 = Duration(days: 60);
       expect(
         opAddYearMonthDurations(
           const XPathSequence.single(d1),
@@ -104,8 +104,8 @@ void main() {
 
   group('opSubtractYearMonthDurations', () {
     test('subtract', () {
-      const d1 = Duration(days: 1);
-      const d2 = Duration(days: 2);
+      const d1 = Duration(days: 30);
+      const d2 = Duration(days: 60);
       expect(
         opSubtractYearMonthDurations(
           const XPathSequence.single(d2),
@@ -118,8 +118,8 @@ void main() {
 
   group('opMultiplyYearMonthDuration', () {
     test('multiply', () {
-      const d1 = Duration(days: 1);
-      const d2 = Duration(days: 2);
+      const d1 = Duration(days: 30);
+      const d2 = Duration(days: 60);
       expect(
         opMultiplyYearMonthDuration(
           const XPathSequence.single(d1),
@@ -132,8 +132,8 @@ void main() {
 
   group('opDivideYearMonthDuration', () {
     test('divide', () {
-      const d1 = Duration(days: 1);
-      const d2 = Duration(days: 2);
+      const d1 = Duration(days: 30);
+      const d2 = Duration(days: 60);
       expect(
         opDivideYearMonthDuration(
           const XPathSequence.single(d2),
@@ -146,8 +146,8 @@ void main() {
 
   group('opDivideYearMonthDurationByYearMonthDuration', () {
     test('divide', () {
-      const d1 = Duration(days: 1);
-      const d2 = Duration(days: 2);
+      const d1 = Duration(days: 30);
+      const d2 = Duration(days: 60);
       expect(
         opDivideYearMonthDurationByYearMonthDuration(
           const XPathSequence.single(d2),

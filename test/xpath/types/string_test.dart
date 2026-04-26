@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/types/binary.dart';
+import 'package:xml/src/xpath/types/duration.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/src/xpath/types/string.dart';
 import 'package:xml/xml.dart';
@@ -61,7 +62,7 @@ void main() {
           ),
         );
       });
-      test('from duration', () {
+      test('from duration (generic xs:duration)', () {
         expect(xsString.cast(const Duration(days: 1, hours: 2)), 'P1DT2H');
         expect(xsString.cast(const Duration(hours: 2)), 'PT2H');
         expect(xsString.cast(const Duration(minutes: 30)), 'PT30M');
@@ -69,7 +70,60 @@ void main() {
           xsString.cast(const Duration(seconds: 45, milliseconds: 500)),
           'PT45.5S',
         );
+        // Strips .0 from integer seconds
+        expect(xsString.cast(const Duration(seconds: 45)), 'PT45S');
+        // Reconstructs Y and M components
+        expect(xsString.cast(const Duration(days: 35)), 'P1M5D');
+        expect(xsString.cast(const Duration(days: 400)), 'P1Y1M10D');
         expect(xsString.cast(-const Duration(days: 1)), '-P1D');
+      });
+      test('from dayTimeDuration', () {
+        expect(
+          xsString.cast(
+            XPathDayTimeDuration(const Duration(days: 1, hours: 2)),
+          ),
+          'P1DT2H',
+        );
+        expect(
+          xsString.cast(XPathDayTimeDuration(const Duration(hours: 2))),
+          'PT2H',
+        );
+        // Strips .0 from integer seconds
+        expect(
+          xsString.cast(XPathDayTimeDuration(const Duration(seconds: 45))),
+          'PT45S',
+        );
+        // Does not reconstruct Y and M components
+        expect(
+          xsString.cast(XPathDayTimeDuration(const Duration(days: 35))),
+          'P35D',
+        );
+        expect(
+          xsString.cast(XPathDayTimeDuration(const Duration(days: 400))),
+          'P400D',
+        );
+        expect(
+          xsString.cast(XPathDayTimeDuration(-const Duration(days: 1))),
+          '-P1D',
+        );
+      });
+      test('from yearMonthDuration', () {
+        expect(
+          xsString.cast(XPathYearMonthDuration(const Duration(days: 365))),
+          'P1Y',
+        );
+        expect(
+          xsString.cast(XPathYearMonthDuration(const Duration(days: 30))),
+          'P1M',
+        );
+        expect(
+          xsString.cast(XPathYearMonthDuration(const Duration(days: 390))),
+          'P1Y1M',
+        );
+        expect(
+          xsString.cast(XPathYearMonthDuration(-const Duration(days: 30))),
+          '-P1M',
+        );
       });
       test('from dateTime', () {
         expect(

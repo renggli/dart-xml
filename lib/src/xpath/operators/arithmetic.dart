@@ -84,7 +84,11 @@ XPathSequence opAdd(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   final a = left.single;
   final b = right.single;
-  if (xsDuration.matches(a) && xsDuration.matches(b)) {
+  if (xsYearMonthDuration.matches(a) && xsYearMonthDuration.matches(b)) {
+    return opAddYearMonthDurations(left, right);
+  } else if (xsDayTimeDuration.matches(a) && xsDayTimeDuration.matches(b)) {
+    return opAddDayTimeDurations(left, right);
+  } else if (xsDuration.matches(a) && xsDuration.matches(b)) {
     return opAddDurations(left, right);
   } else if (xsDateTime.matches(a) && xsDuration.matches(b)) {
     return opAddDurationToDateTime(left, right);
@@ -101,7 +105,11 @@ XPathSequence opSubtract(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   final a = left.single;
   final b = right.single;
-  if (xsDuration.matches(a) && xsDuration.matches(b)) {
+  if (xsYearMonthDuration.matches(a) && xsYearMonthDuration.matches(b)) {
+    return opSubtractYearMonthDurations(left, right);
+  } else if (xsDayTimeDuration.matches(a) && xsDayTimeDuration.matches(b)) {
+    return opSubtractDayTimeDurations(left, right);
+  } else if (xsDuration.matches(a) && xsDuration.matches(b)) {
     return opSubtractDurations(left, right);
   } else if (xsDateTime.matches(a) && xsDuration.matches(b)) {
     return opSubtractDurationFromDateTime(left, right);
@@ -118,8 +126,16 @@ XPathSequence opMultiply(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   final a = left.single;
   final b = right.single;
-  if (xsDuration.matches(a) && xsNumeric.matches(b)) {
+  if (xsYearMonthDuration.matches(a) && xsNumeric.matches(b)) {
+    return opMultiplyYearMonthDuration(left, right);
+  } else if (xsDayTimeDuration.matches(a) && xsNumeric.matches(b)) {
+    return opMultiplyDayTimeDuration(left, right);
+  } else if (xsDuration.matches(a) && xsNumeric.matches(b)) {
     return opMultiplyDuration(left, right);
+  } else if (xsNumeric.matches(a) && xsYearMonthDuration.matches(b)) {
+    return opMultiplyYearMonthDuration(right, left);
+  } else if (xsNumeric.matches(a) && xsDayTimeDuration.matches(b)) {
+    return opMultiplyDayTimeDuration(right, left);
   } else if (xsNumeric.matches(a) && xsDuration.matches(b)) {
     return opMultiplyDuration(right, left);
   }
@@ -133,8 +149,16 @@ XPathSequence opDivide(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   final a = left.single;
   final b = right.single;
-  if (xsDuration.matches(a) && xsDuration.matches(b)) {
+  if (xsYearMonthDuration.matches(a) && xsYearMonthDuration.matches(b)) {
+    return opDivideYearMonthDurationByYearMonthDuration(left, right);
+  } else if (xsDayTimeDuration.matches(a) && xsDayTimeDuration.matches(b)) {
+    return opDivideDayTimeDurationByDayTimeDuration(left, right);
+  } else if (xsDuration.matches(a) && xsDuration.matches(b)) {
     return opDivideDurationByDuration(left, right);
+  } else if (xsYearMonthDuration.matches(a) && xsNumeric.matches(b)) {
+    return opDivideYearMonthDuration(left, right);
+  } else if (xsDayTimeDuration.matches(a) && xsNumeric.matches(b)) {
+    return opDivideDayTimeDuration(left, right);
   } else if (xsDuration.matches(a) && xsNumeric.matches(b)) {
     return opDivideDuration(left, right);
   }

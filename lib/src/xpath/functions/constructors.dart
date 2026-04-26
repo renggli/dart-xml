@@ -474,8 +474,13 @@ const xsYearMonthDurationConstructor = XPathFunctionDefinition(
       cardinality: XPathCardinality.exactlyOne,
     ),
   ],
-  function: _xsDurationConstructor,
+  function: _xsYearMonthDurationConstructor,
 );
+
+XPathSequence _xsYearMonthDurationConstructor(
+  XPathContext context,
+  Object value,
+) => XPathSequence.single(xsYearMonthDuration.cast(value));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-dayTimeDuration
 const xsDayTimeDurationConstructor = XPathFunctionDefinition(
@@ -487,8 +492,13 @@ const xsDayTimeDurationConstructor = XPathFunctionDefinition(
       cardinality: XPathCardinality.exactlyOne,
     ),
   ],
-  function: _xsDurationConstructor,
+  function: _xsDayTimeDurationConstructor,
 );
+
+XPathSequence _xsDayTimeDurationConstructor(
+  XPathContext context,
+  Object value,
+) => XPathSequence.single(xsDayTimeDuration.cast(value));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hexBinary
 const xsHexBinaryConstructor = XPathFunctionDefinition(

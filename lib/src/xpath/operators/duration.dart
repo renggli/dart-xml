@@ -61,14 +61,20 @@ XPathSequence opAddDurations(XPathSequence left, XPathSequence right) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-add-yearMonthDurations
-XPathSequence opAddYearMonthDurations(
-  XPathSequence left,
-  XPathSequence right,
-) => opAddDurations(left, right);
+XPathSequence opAddYearMonthDurations(XPathSequence left, XPathSequence right) {
+  if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
+  return XPathSequence.single(
+    xsYearMonthDuration.cast(left) + xsYearMonthDuration.cast(right),
+  );
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-add-dayTimeDurations
-XPathSequence opAddDayTimeDurations(XPathSequence left, XPathSequence right) =>
-    opAddDurations(left, right);
+XPathSequence opAddDayTimeDurations(XPathSequence left, XPathSequence right) {
+  if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
+  return XPathSequence.single(
+    xsDayTimeDuration.cast(left) + xsDayTimeDuration.cast(right),
+  );
+}
 
 XPathSequence opSubtractDurations(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
@@ -79,13 +85,23 @@ XPathSequence opSubtractDurations(XPathSequence left, XPathSequence right) {
 XPathSequence opSubtractYearMonthDurations(
   XPathSequence left,
   XPathSequence right,
-) => opSubtractDurations(left, right);
+) {
+  if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
+  return XPathSequence.single(
+    xsYearMonthDuration.cast(left) - xsYearMonthDuration.cast(right),
+  );
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-subtract-dayTimeDurations
 XPathSequence opSubtractDayTimeDurations(
   XPathSequence left,
   XPathSequence right,
-) => opSubtractDurations(left, right);
+) {
+  if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
+  return XPathSequence.single(
+    xsDayTimeDuration.cast(left) - xsDayTimeDuration.cast(right),
+  );
+}
 
 XPathSequence opMultiplyDuration(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
@@ -96,13 +112,23 @@ XPathSequence opMultiplyDuration(XPathSequence left, XPathSequence right) {
 XPathSequence opMultiplyYearMonthDuration(
   XPathSequence left,
   XPathSequence right,
-) => opMultiplyDuration(left, right);
+) {
+  if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
+  return XPathSequence.single(
+    xsYearMonthDuration.cast(left) * xsNumeric.cast(right),
+  );
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-multiply-dayTimeDuration
 XPathSequence opMultiplyDayTimeDuration(
   XPathSequence left,
   XPathSequence right,
-) => opMultiplyDuration(left, right);
+) {
+  if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
+  return XPathSequence.single(
+    xsDayTimeDuration.cast(left) * xsNumeric.cast(right),
+  );
+}
 
 XPathSequence opDivideDuration(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
@@ -115,13 +141,20 @@ XPathSequence opDivideDuration(XPathSequence left, XPathSequence right) {
 XPathSequence opDivideYearMonthDuration(
   XPathSequence left,
   XPathSequence right,
-) => opDivideDuration(left, right);
+) {
+  if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
+  return XPathSequence.single(
+    xsYearMonthDuration.cast(left) ~/ xsNumeric.cast(right).round(),
+  );
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-divide-dayTimeDuration
-XPathSequence opDivideDayTimeDuration(
-  XPathSequence left,
-  XPathSequence right,
-) => opDivideDuration(left, right);
+XPathSequence opDivideDayTimeDuration(XPathSequence left, XPathSequence right) {
+  if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
+  return XPathSequence.single(
+    xsDayTimeDuration.cast(left) ~/ xsNumeric.cast(right).round(),
+  );
+}
 
 XPathSequence opDivideDurationByDuration(
   XPathSequence left,

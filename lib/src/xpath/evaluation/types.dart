@@ -31,6 +31,7 @@ const basicTypes = <XPathType<Object>>[
   xsByte,
   xsComment,
   xsDateTime,
+  xsDayTimeDuration,
   xsDecimal,
   xsDocument,
   xsDouble,
@@ -60,4 +61,5 @@ const basicTypes = <XPathType<Object>>[
   xsUnsignedInt,
   xsUnsignedLong,
   xsUnsignedShort,
+  xsYearMonthDuration,
 ];
