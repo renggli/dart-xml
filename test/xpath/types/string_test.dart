@@ -63,6 +63,7 @@ void main() {
         );
       });
       test('from duration (generic xs:duration)', () {
+        // A plain Duration cast via xsString becomes a dayTimeDuration.
         expect(xsString.cast(const Duration(days: 1, hours: 2)), 'P1DT2H');
         expect(xsString.cast(const Duration(hours: 2)), 'PT2H');
         expect(xsString.cast(const Duration(minutes: 30)), 'PT30M');
@@ -72,9 +73,9 @@ void main() {
         );
         // Strips .0 from integer seconds
         expect(xsString.cast(const Duration(seconds: 45)), 'PT45S');
-        // Reconstructs Y and M components
-        expect(xsString.cast(const Duration(days: 35)), 'P1M5D');
-        expect(xsString.cast(const Duration(days: 400)), 'P1Y1M10D');
+        // Raw Duration with large day count stays as dayTimeDuration days
+        expect(xsString.cast(const Duration(days: 35)), 'P35D');
+        expect(xsString.cast(const Duration(days: 400)), 'P400D');
         expect(xsString.cast(-const Duration(days: 1)), '-P1D');
       });
       test('from dayTimeDuration', () {
@@ -109,30 +110,30 @@ void main() {
       });
       test('from yearMonthDuration', () {
         expect(
-          xsString.cast(XPathYearMonthDuration(const Duration(days: 365))),
+          xsString.cast(XPathYearMonthDuration(12)), // 1 year
           'P1Y',
         );
         expect(
-          xsString.cast(XPathYearMonthDuration(const Duration(days: 30))),
+          xsString.cast(XPathYearMonthDuration(1)), // 1 month
           'P1M',
         );
         expect(
-          xsString.cast(XPathYearMonthDuration(const Duration(days: 390))),
+          xsString.cast(XPathYearMonthDuration(13)), // 1 year 1 month
           'P1Y1M',
         );
         expect(
-          xsString.cast(XPathYearMonthDuration(-const Duration(days: 30))),
+          xsString.cast(XPathYearMonthDuration(-1)), // -1 month
           '-P1M',
         );
       });
       test('from dateTime', () {
         expect(
           xsString.cast(DateTime.utc(2023, 10, 15, 14, 30, 0)),
-          '2023-10-15T14:30:00.000Z',
+          '2023-10-15T14:30:00Z',
         );
         expect(
           xsString.cast(DateTime.utc(2023, 1, 1, 0, 0, 0)),
-          '2023-01-01T00:00:00.000Z',
+          '2023-01-01T00:00:00Z',
         );
       });
       test('from binary', () {

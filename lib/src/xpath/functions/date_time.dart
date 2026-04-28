@@ -31,6 +31,20 @@ XPathSequence _fnDateTime(
   DateTime? arg2,
 ) {
   if (arg1 == null || arg2 == null) return XPathSequence.empty;
+  if (arg1.isUtc && arg2.isUtc) {
+    return XPathSequence.single(
+      DateTime.utc(
+        arg1.year,
+        arg1.month,
+        arg1.day,
+        arg2.hour,
+        arg2.minute,
+        arg2.second,
+        arg2.millisecond,
+        arg2.microsecond,
+      ),
+    );
+  }
   return XPathSequence.single(
     DateTime(
       arg1.year,
@@ -170,7 +184,7 @@ const fnTimezoneFromDateTime = XPathFunctionDefinition(
 
 XPathSequence _fnTimezoneFromDateTime(XPathContext context, DateTime? arg) {
   if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(arg.timeZoneOffset);
+  return XPathSequence.single(XPathDayTimeDuration(arg.timeZoneOffset));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-year-from-date
@@ -242,7 +256,7 @@ const fnTimezoneFromDate = XPathFunctionDefinition(
 
 XPathSequence _fnTimezoneFromDate(XPathContext context, DateTime? arg) {
   if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(arg.timeZoneOffset);
+  return XPathSequence.single(XPathDayTimeDuration(arg.timeZoneOffset));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hours-from-time
@@ -316,7 +330,7 @@ const fnTimezoneFromTime = XPathFunctionDefinition(
 
 XPathSequence _fnTimezoneFromTime(XPathContext context, DateTime? arg) {
   if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(arg.timeZoneOffset);
+  return XPathSequence.single(XPathDayTimeDuration(arg.timeZoneOffset));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-adjust-dateTime-to-timezone
@@ -344,26 +358,15 @@ const fnAdjustDateTimeToTimezone = XPathFunctionDefinition(
 XPathSequence _fnAdjustDateTimeToTimezone(
   XPathContext context,
   DateTime? arg, [
-  Duration? timezone,
+  XPathDayTimeDuration? timezone,
 ]) {
   if (arg == null) return XPathSequence.empty;
-  if (timezone == null) {
-    // Empty sequence: return value without timezone (or as is).
-    // Spec: "If $timezone is the empty sequence, the result is ... without a timezone."
-    // Dart DateTime always has timezone.
-    return XPathSequence.single(arg);
-  }
-
-  // Adjust to specific timezone.
-  if (timezone.inMicroseconds == 0) {
-    return XPathSequence.single(arg.toUtc());
-  }
-
+  if (timezone == null) return XPathSequence.single(arg);
+  if (timezone.inMicroseconds == 0) return XPathSequence.single(arg.toUtc());
   final localOffset = DateTime.now().timeZoneOffset;
   if (timezone.inMicroseconds == localOffset.inMicroseconds) {
     return XPathSequence.single(arg.toLocal());
   }
-
   throw UnsupportedError('Specific timezones not supported.');
 }
 
@@ -402,9 +405,8 @@ const fnAdjustTimeToTimezone = XPathFunctionDefinition(
   optionalArguments: [
     XPathArgumentDefinition(
       name: 'timezone',
-      type: xsDuration,
+      type: xsDayTimeDuration,
       cardinality: XPathCardinality.zeroOrOne,
-
       defaultValue: _defaultToTimezone,
     ),
   ],
@@ -533,4 +535,4 @@ XPathSequence _fnParseIetfDate(XPathContext context, [String? value]) =>
     throw UnimplementedError('fn:parse-ietf-date');
 
 Object _defaultToTimezone(XPathContext context) =>
-    DateTime.now().timeZoneOffset;
+    XPathDayTimeDuration(DateTime.now().timeZoneOffset);

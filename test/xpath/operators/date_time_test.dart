@@ -1,160 +1,85 @@
 import 'package:test/test.dart';
 
 import 'package:xml/src/xpath/operators/date_time.dart';
+import 'package:xml/src/xpath/types/date_time.dart';
+import 'package:xml/src/xpath/types/duration.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
 
+XPathSequence seq(Object value) => XPathSequence.single(value);
+
 void main() {
+  // Reference values.
+  final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
+  final dt2 = DateTime.utc(2023, 10, 27, 12, 30, 45);
+  final dtd1 = XPathDayTimeDuration(const Duration(days: 1));
+  final ymd1 = XPathYearMonthDuration(1); // 1 month
+  final date1 = XPathDate(DateTime.utc(2020));
+  final time1 = XPathTime(DateTime(1970, 1, 1, 12, 0, 0));
+
   group('opDateTimeEqual', () {
     test('equal', () {
-      final dt1 = DateTime(2023, 1, 1);
-      final dt2 = DateTime(2023, 1, 1);
-      expect(
-        opDateTimeEqual(XPathSequence.single(dt1), XPathSequence.single(dt2)),
-        [true],
-      );
+      expect(opDateTimeEqual(seq(dt1), seq(dt1)), [true]);
     });
     test('not equal', () {
-      final dt1 = DateTime(2023, 1, 1);
-      final dt3 = DateTime(2023, 1, 2);
-      expect(
-        opDateTimeEqual(XPathSequence.single(dt1), XPathSequence.single(dt3)),
-        [false],
-      );
+      expect(opDateTimeEqual(seq(dt1), seq(dt2)), [false]);
     });
   });
 
   group('opDateTimeLessThan', () {
     test('less than', () {
-      final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
-      final dt2 = DateTime.utc(2023, 10, 27, 12, 30, 45);
-      expect(
-        opDateTimeLessThan(
-          XPathSequence.single(dt1),
-          XPathSequence.single(dt2),
-        ),
-        [true],
-      );
+      expect(opDateTimeLessThan(seq(dt1), seq(dt2)), [true]);
     });
     test('not less than', () {
-      final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
-      final dt2 = DateTime.utc(2023, 10, 27, 12, 30, 45);
-      expect(
-        opDateTimeLessThan(
-          XPathSequence.single(dt2),
-          XPathSequence.single(dt1),
-        ),
-        [false],
-      );
+      expect(opDateTimeLessThan(seq(dt2), seq(dt1)), [false]);
     });
   });
 
   group('opDateTimeGreaterThan', () {
     test('greater than', () {
-      final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
-      final dt2 = DateTime.utc(2023, 10, 27, 12, 30, 45);
-      expect(
-        opDateTimeGreaterThan(
-          XPathSequence.single(dt2),
-          XPathSequence.single(dt1),
-        ),
-        [true],
-      );
+      expect(opDateTimeGreaterThan(seq(dt2), seq(dt1)), [true]);
     });
   });
 
   group('opSubtractDateTimes', () {
     test('subtract', () {
-      final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
-      final dt2 = DateTime.utc(2023, 10, 27, 12, 30, 45);
       expect(
-        opSubtractDateTimes(
-          XPathSequence.single(dt2),
-          XPathSequence.single(dt1),
-        ).first,
-        const Duration(days: 1),
+        opSubtractDateTimes(seq(dt2), seq(dt1)).first,
+        XPathDayTimeDuration(const Duration(days: 1)),
       );
     });
     test('empty left', () {
-      expect(
-        opSubtractDateTimes(
-          XPathSequence.empty,
-          XPathSequence.single(DateTime.now()),
-        ),
-        isEmpty,
-      );
+      expect(opSubtractDateTimes(XPathSequence.empty, seq(dt1)), isEmpty);
     });
     test('empty right', () {
-      expect(
-        opSubtractDateTimes(
-          XPathSequence.single(DateTime.now()),
-          XPathSequence.empty,
-        ),
-        isEmpty,
-      );
+      expect(opSubtractDateTimes(seq(dt1), XPathSequence.empty), isEmpty);
     });
   });
 
   group('opAddDurationToDateTime', () {
-    test('add duration', () {
-      final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
-      final dt2 = DateTime.utc(2023, 10, 27, 12, 30, 45);
-      const dur = Duration(days: 1);
-      expect(
-        opAddDurationToDateTime(
-          XPathSequence.single(dt1),
-          const XPathSequence.single(dur),
-        ).first,
-        dt2,
-      );
+    test('add dayTime duration', () {
+      expect(opAddDurationToDateTime(seq(dt1), seq(dtd1)).first, dt2);
     });
     test('empty sequence left', () {
-      expect(
-        opAddDurationToDateTime(
-          XPathSequence.empty,
-          const XPathSequence.single(Duration()),
-        ),
-        isEmpty,
-      );
+      expect(opAddDurationToDateTime(XPathSequence.empty, seq(dtd1)), isEmpty);
     });
     test('empty sequence right', () {
-      expect(
-        opAddDurationToDateTime(
-          XPathSequence.single(DateTime.now()),
-          XPathSequence.empty,
-        ),
-        isEmpty,
-      );
+      expect(opAddDurationToDateTime(seq(dt1), XPathSequence.empty), isEmpty);
     });
   });
 
   group('opSubtractDurationFromDateTime', () {
-    test('subtract duration', () {
-      final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
-      final dt2 = DateTime.utc(2023, 10, 27, 12, 30, 45);
-      const dur = Duration(days: 1);
-      expect(
-        opSubtractDurationFromDateTime(
-          XPathSequence.single(dt2),
-          const XPathSequence.single(dur),
-        ).first,
-        dt1,
-      );
+    test('subtract dayTime duration', () {
+      expect(opSubtractDurationFromDateTime(seq(dt2), seq(dtd1)).first, dt1);
     });
     test('empty sequence left', () {
       expect(
-        opSubtractDurationFromDateTime(
-          XPathSequence.empty,
-          const XPathSequence.single(Duration()),
-        ),
+        opSubtractDurationFromDateTime(XPathSequence.empty, seq(dtd1)),
         isEmpty,
       );
     });
     test('empty sequence right', () {
       expect(
-        opSubtractDurationFromDateTime(
-          XPathSequence.single(DateTime.now()),
-          XPathSequence.empty,
-        ),
+        opSubtractDurationFromDateTime(seq(dt1), XPathSequence.empty),
         isEmpty,
       );
     });
@@ -162,13 +87,7 @@ void main() {
 
   group('opDateEqual', () {
     test('equal', () {
-      expect(
-        opDateEqual(
-          XPathSequence.single(DateTime(2020)),
-          XPathSequence.single(DateTime(2020)),
-        ),
-        XPathSequence.trueSequence,
-      );
+      expect(opDateEqual(seq(date1), seq(date1)), XPathSequence.trueSequence);
     });
   });
 
@@ -176,8 +95,8 @@ void main() {
     test('less than', () {
       expect(
         opDateLessThan(
-          XPathSequence.single(DateTime(2020)),
-          XPathSequence.single(DateTime(2021)),
+          seq(XPathDate(DateTime.utc(2020))),
+          seq(XPathDate(DateTime.utc(2021))),
         ),
         XPathSequence.trueSequence,
       );
@@ -188,8 +107,8 @@ void main() {
     test('greater than', () {
       expect(
         opDateGreaterThan(
-          XPathSequence.single(DateTime(2021)),
-          XPathSequence.single(DateTime(2020)),
+          seq(XPathDate(DateTime.utc(2021))),
+          seq(XPathDate(DateTime.utc(2020))),
         ),
         XPathSequence.trueSequence,
       );
@@ -198,13 +117,7 @@ void main() {
 
   group('opTimeEqual', () {
     test('equal', () {
-      expect(
-        opTimeEqual(
-          XPathSequence.single(DateTime(0, 1, 1, 10, 0, 0)),
-          XPathSequence.single(DateTime(0, 1, 1, 10, 0, 0)),
-        ),
-        XPathSequence.trueSequence,
-      );
+      expect(opTimeEqual(seq(time1), seq(time1)), XPathSequence.trueSequence);
     });
   });
 
@@ -212,8 +125,8 @@ void main() {
     test('less than', () {
       expect(
         opTimeLessThan(
-          XPathSequence.single(DateTime(2020)),
-          XPathSequence.single(DateTime(2021)),
+          seq(XPathTime(DateTime(1970, 1, 1, 10, 0, 0))),
+          seq(XPathTime(DateTime(1970, 1, 1, 11, 0, 0))),
         ),
         XPathSequence.trueSequence,
       );
@@ -224,8 +137,8 @@ void main() {
     test('greater than', () {
       expect(
         opTimeGreaterThan(
-          XPathSequence.single(DateTime(2021)),
-          XPathSequence.single(DateTime(2020)),
+          seq(XPathTime(DateTime(1970, 1, 1, 11, 0, 0))),
+          seq(XPathTime(DateTime(1970, 1, 1, 10, 0, 0))),
         ),
         XPathSequence.trueSequence,
       );
@@ -234,119 +147,68 @@ void main() {
 
   group('opSubtractDates', () {
     test('subtract', () {
-      expect(
-        opSubtractDates(
-          XPathSequence.single(DateTime(2021)),
-          XPathSequence.single(DateTime(2020)),
-        ),
-        isNotNull,
-      );
+      final d1 = XPathDate(DateTime.utc(2021));
+      final d2 = XPathDate(DateTime.utc(2020));
+      final result = opSubtractDates(seq(d1), seq(d2)).first;
+      expect(result, isA<XPathDayTimeDuration>());
     });
   });
 
   group('opSubtractTimes', () {
     test('subtract', () {
-      expect(
-        opSubtractTimes(
-          XPathSequence.single(DateTime(2021)),
-          XPathSequence.single(DateTime(2020)),
-        ),
-        isNotNull,
-      );
+      final t1 = XPathTime(DateTime(1970, 1, 1, 12, 0, 0));
+      final t2 = XPathTime(DateTime(1970, 1, 1, 10, 0, 0));
+      final result = opSubtractTimes(seq(t1), seq(t2)).first;
+      expect(result, isA<XPathDayTimeDuration>());
     });
   });
 
   group('opGYearMonthEqual', () {
     test('equal', () {
-      expect(
-        opGYearMonthEqual(
-          XPathSequence.single(DateTime(2021)),
-          XPathSequence.single(DateTime(2021)),
-        ),
-        XPathSequence.trueSequence,
-      );
+      expect(opGYearMonthEqual(seq(dt1), seq(dt1)), XPathSequence.trueSequence);
     });
   });
 
   group('opGYearEqual', () {
     test('equal', () {
-      expect(
-        opGYearEqual(
-          XPathSequence.single(DateTime(2021)),
-          XPathSequence.single(DateTime(2021)),
-        ),
-        XPathSequence.trueSequence,
-      );
+      expect(opGYearEqual(seq(dt1), seq(dt1)), XPathSequence.trueSequence);
     });
   });
 
   group('opGMonthDayEqual', () {
     test('equal', () {
-      expect(
-        opGMonthDayEqual(
-          XPathSequence.single(DateTime(2021)),
-          XPathSequence.single(DateTime(2021)),
-        ),
-        XPathSequence.trueSequence,
-      );
+      expect(opGMonthDayEqual(seq(dt1), seq(dt1)), XPathSequence.trueSequence);
     });
   });
 
   group('opGMonthEqual', () {
     test('equal', () {
-      expect(
-        opGMonthEqual(
-          XPathSequence.single(DateTime(2021)),
-          XPathSequence.single(DateTime(2021)),
-        ),
-        XPathSequence.trueSequence,
-      );
+      expect(opGMonthEqual(seq(dt1), seq(dt1)), XPathSequence.trueSequence);
     });
   });
 
   group('opGDayEqual', () {
     test('equal', () {
-      expect(
-        opGDayEqual(
-          XPathSequence.single(DateTime(2021)),
-          XPathSequence.single(DateTime(2021)),
-        ),
-        XPathSequence.trueSequence,
-      );
+      expect(opGDayEqual(seq(dt1), seq(dt1)), XPathSequence.trueSequence);
     });
   });
 
   group('opAddYearMonthDurationToDateTime', () {
     test('add duration', () {
-      expect(
-        opAddYearMonthDurationToDateTime(
-          XPathSequence.single(DateTime.utc(2020)),
-          const XPathSequence.single(Duration(days: 1)),
-        ),
-        isNotNull,
-      );
+      expect(opAddYearMonthDurationToDateTime(seq(dt1), seq(ymd1)), isNotNull);
     });
   });
 
   group('opAddDayTimeDurationToDateTime', () {
     test('add duration', () {
-      expect(
-        opAddDayTimeDurationToDateTime(
-          XPathSequence.single(DateTime.utc(2020)),
-          const XPathSequence.single(Duration(days: 1)),
-        ),
-        isNotNull,
-      );
+      expect(opAddDayTimeDurationToDateTime(seq(dt1), seq(dtd1)).first, dt2);
     });
   });
 
   group('opSubtractYearMonthDurationFromDateTime', () {
     test('subtract duration', () {
       expect(
-        opSubtractYearMonthDurationFromDateTime(
-          XPathSequence.single(DateTime.utc(2020)),
-          const XPathSequence.single(Duration(days: 1)),
-        ),
+        opSubtractYearMonthDurationFromDateTime(seq(dt1), seq(ymd1)),
         isNotNull,
       );
     });
@@ -355,84 +217,51 @@ void main() {
   group('opSubtractDayTimeDurationFromDateTime', () {
     test('subtract duration', () {
       expect(
-        opSubtractDayTimeDurationFromDateTime(
-          XPathSequence.single(DateTime.utc(2020)),
-          const XPathSequence.single(Duration(days: 1)),
-        ),
-        isNotNull,
+        opSubtractDayTimeDurationFromDateTime(seq(dt2), seq(dtd1)).first,
+        dt1,
       );
     });
   });
 
   group('opAddYearMonthDurationToDate', () {
-    test('add duration', () {
-      expect(
-        opAddYearMonthDurationToDate(
-          XPathSequence.single(DateTime.utc(2020)),
-          const XPathSequence.single(Duration(days: 1)),
-        ),
-        isNotNull,
-      );
+    test('add duration returns XPathDate', () {
+      final result = opAddYearMonthDurationToDate(seq(date1), seq(ymd1));
+      expect(result.first, isA<XPathDate>());
     });
   });
 
   group('opAddDayTimeDurationToDate', () {
-    test('add duration', () {
-      expect(
-        opAddDayTimeDurationToDate(
-          XPathSequence.single(DateTime.utc(2020)),
-          const XPathSequence.single(Duration(days: 1)),
-        ),
-        isNotNull,
-      );
+    test('add duration returns XPathDate', () {
+      final result = opAddDayTimeDurationToDate(seq(date1), seq(dtd1));
+      expect(result.first, isA<XPathDate>());
     });
   });
 
   group('opSubtractYearMonthDurationFromDate', () {
-    test('subtract duration', () {
-      expect(
-        opSubtractYearMonthDurationFromDate(
-          XPathSequence.single(DateTime.utc(2020)),
-          const XPathSequence.single(Duration(days: 1)),
-        ),
-        isNotNull,
-      );
+    test('subtract duration returns XPathDate', () {
+      final result = opSubtractYearMonthDurationFromDate(seq(date1), seq(ymd1));
+      expect(result.first, isA<XPathDate>());
     });
   });
 
   group('opSubtractDayTimeDurationFromDate', () {
-    test('subtract duration', () {
-      expect(
-        opSubtractDayTimeDurationFromDate(
-          XPathSequence.single(DateTime.utc(2020)),
-          const XPathSequence.single(Duration(days: 1)),
-        ),
-        isNotNull,
-      );
+    test('subtract duration returns XPathDate', () {
+      final result = opSubtractDayTimeDurationFromDate(seq(date1), seq(dtd1));
+      expect(result.first, isA<XPathDate>());
     });
   });
 
   group('opAddDayTimeDurationToTime', () {
-    test('add duration', () {
-      expect(
-        opAddDayTimeDurationToTime(
-          XPathSequence.single(DateTime.utc(2020)),
-          const XPathSequence.single(Duration(days: 1)),
-        ),
-        isNotNull,
-      );
+    test('add duration returns XPathTime', () {
+      final result = opAddDayTimeDurationToTime(seq(time1), seq(dtd1));
+      expect(result.first, isA<XPathTime>());
     });
   });
 
   group('opSubtractDayTimeDurationFromTime', () {
-    test('subtract duration', () {
-      expect(
-        opSubtractDayTimeDurationFromTime(
-          XPathSequence.single(DateTime.utc(2020)),
-          const XPathSequence.single(Duration(days: 1)),
-        ),
-        isNotNull,
-      );
+    test('subtract duration returns XPathTime', () {
+      final result = opSubtractDayTimeDurationFromTime(seq(time1), seq(dtd1));
+      expect(result.first, isA<XPathTime>());
     });
   });
 }

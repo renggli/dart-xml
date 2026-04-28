@@ -1,6 +1,7 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/functions/date_time.dart';
+import 'package:xml/src/xpath/types/duration.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -17,7 +18,7 @@ void main() {
       expect(
         fnAdjustDateTimeToTimezone(context, [
           XPathSequence.single(dt),
-          const XPathSequence.single(Duration()),
+          XPathSequence.single(XPathDayTimeDuration(Duration.zero)),
         ]),
         isXPathSequence([dt]),
       );
@@ -34,7 +35,7 @@ void main() {
       expect(
         fnAdjustDateTimeToTimezone(context, [
           XPathSequence.empty,
-          const XPathSequence.single(Duration()),
+          XPathSequence.single(XPathDayTimeDuration(Duration.zero)),
         ]),
         isXPathSequence(isEmpty),
       );
@@ -60,7 +61,7 @@ void main() {
       expect(
         () => fnAdjustDateTimeToTimezone(context, [
           XPathSequence.single(now),
-          XPathSequence.single(weirdOffset),
+          XPathSequence.single(XPathDayTimeDuration(weirdOffset)),
         ]),
         throwsA(isA<UnsupportedError>()),
       );
@@ -139,10 +140,11 @@ void main() {
 
   group('fn:dateTime', () {
     test('combines date and time', () {
+      // Both args are non-UTC, so result is local (not UTC).
       expect(
         fnDateTime(context, [
-          XPathSequence.single(DateTime.utc(2023, 10, 26)),
-          XPathSequence.single(DateTime.utc(0, 1, 1, 12, 30, 45)),
+          XPathSequence.single(DateTime(2023, 10, 26)),
+          XPathSequence.single(DateTime(1970, 1, 1, 12, 30, 45)),
         ]).first,
         DateTime(2023, 10, 26, 12, 30, 45),
       );
@@ -283,7 +285,7 @@ void main() {
         fnTimezoneFromDateTime(context, [
           XPathSequence.single(DateTime.utc(2023, 10, 26, 12, 30, 45)),
         ]),
-        isXPathSequence([Duration.zero]),
+        isXPathSequence([XPathDayTimeDuration(Duration.zero)]),
       );
     });
 
@@ -355,7 +357,7 @@ void main() {
         fnTimezoneFromDate(context, [
           XPathSequence.single(DateTime.utc(2023, 10, 26, 12, 30, 45)),
         ]),
-        isXPathSequence([Duration.zero]),
+        isXPathSequence([XPathDayTimeDuration(Duration.zero)]),
       );
     });
 
@@ -427,7 +429,7 @@ void main() {
         fnTimezoneFromTime(context, [
           XPathSequence.single(DateTime.utc(2023, 10, 26, 12, 30, 45)),
         ]),
-        isXPathSequence([Duration.zero]),
+        isXPathSequence([XPathDayTimeDuration(Duration.zero)]),
       );
     });
 

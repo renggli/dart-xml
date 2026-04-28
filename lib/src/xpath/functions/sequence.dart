@@ -609,12 +609,17 @@ XPathSequence _fnSum(XPathContext context, XPathSequence arg, [Object? zero]) {
   final iterator = arg.iterator;
   if (!iterator.moveNext()) return XPathSequence.single(zero ?? 0);
   final first = iterator.current;
-  if (xsDuration.matches(first)) {
-    var sum = xsDuration.cast(first);
+  if (first is XPathDuration) {
+    var sumMonths = first.months;
+    var sumDayTime = first.dayTime;
     while (iterator.moveNext()) {
-      sum += xsDuration.cast(iterator.current);
+      final d = xsDuration.cast(iterator.current);
+      sumMonths += d.months;
+      sumDayTime += d.dayTime;
     }
-    return XPathSequence.single(sum);
+    return XPathSequence.single(
+      XPathDuration(months: sumMonths, dayTime: sumDayTime),
+    );
   } else {
     var sum = xsNumeric.cast(first);
     while (iterator.moveNext()) {

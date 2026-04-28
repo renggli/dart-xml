@@ -18,11 +18,11 @@ const fnYearsFromDuration = XPathFunctionDefinition(
   function: _fnYearsFromDuration,
 );
 
-XPathSequence _fnYearsFromDuration(XPathContext context, Duration? arg) {
+XPathSequence _fnYearsFromDuration(XPathContext context, XPathDuration? arg) {
   if (arg == null) return XPathSequence.empty;
-  final months = arg.abs().inDays ~/ 30;
-  final years = months ~/ 12;
-  return XPathSequence.single(arg.isNegative ? -years : years);
+  final absMonths = arg.months.abs();
+  final years = absMonths ~/ 12;
+  return XPathSequence.single(arg.months < 0 ? -years : years);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-months-from-duration
@@ -38,13 +38,11 @@ const fnMonthsFromDuration = XPathFunctionDefinition(
   function: _fnMonthsFromDuration,
 );
 
-XPathSequence _fnMonthsFromDuration(XPathContext context, Duration? arg) {
+XPathSequence _fnMonthsFromDuration(XPathContext context, XPathDuration? arg) {
   if (arg == null) return XPathSequence.empty;
-  final months = arg.abs().inDays ~/ 30;
-  final remainingMonths = months.remainder(12);
-  return XPathSequence.single(
-    arg.isNegative ? -remainingMonths : remainingMonths,
-  );
+  final absMonths = arg.months.abs();
+  final remaining = absMonths.remainder(12);
+  return XPathSequence.single(arg.months < 0 ? -remaining : remaining);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-days-from-duration
@@ -60,11 +58,11 @@ const fnDaysFromDuration = XPathFunctionDefinition(
   function: _fnDaysFromDuration,
 );
 
-XPathSequence _fnDaysFromDuration(XPathContext context, Duration? arg) {
+XPathSequence _fnDaysFromDuration(XPathContext context, XPathDuration? arg) {
   if (arg == null) return XPathSequence.empty;
-  final days = arg.abs().inDays;
-  final remainingDays = days % 30;
-  return XPathSequence.single(arg.isNegative ? -remainingDays : remainingDays);
+  // days-from-duration only counts the day part of the dayTime component.
+  final days = arg.dayTime.abs().inDays;
+  return XPathSequence.single(arg.dayTime.isNegative ? -days : days);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hours-from-duration
@@ -80,9 +78,10 @@ const fnHoursFromDuration = XPathFunctionDefinition(
   function: _fnHoursFromDuration,
 );
 
-XPathSequence _fnHoursFromDuration(XPathContext context, Duration? arg) {
+XPathSequence _fnHoursFromDuration(XPathContext context, XPathDuration? arg) {
   if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(arg.inHours % 24);
+  final hours = arg.dayTime.abs().inHours.remainder(24);
+  return XPathSequence.single(arg.dayTime.isNegative ? -hours : hours);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-minutes-from-duration
@@ -98,9 +97,10 @@ const fnMinutesFromDuration = XPathFunctionDefinition(
   function: _fnMinutesFromDuration,
 );
 
-XPathSequence _fnMinutesFromDuration(XPathContext context, Duration? arg) {
+XPathSequence _fnMinutesFromDuration(XPathContext context, XPathDuration? arg) {
   if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(arg.inMinutes % 60);
+  final minutes = arg.dayTime.abs().inMinutes.remainder(60);
+  return XPathSequence.single(arg.dayTime.isNegative ? -minutes : minutes);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-seconds-from-duration
@@ -116,9 +116,14 @@ const fnSecondsFromDuration = XPathFunctionDefinition(
   function: _fnSecondsFromDuration,
 );
 
-XPathSequence _fnSecondsFromDuration(XPathContext context, Duration? arg) {
+XPathSequence _fnSecondsFromDuration(XPathContext context, XPathDuration? arg) {
   if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(
-    arg.inSeconds % 60 + (arg.inMicroseconds % 1000000) / 1000000.0,
+  final abs = arg.dayTime.abs();
+  final wholeSeconds = abs.inSeconds.remainder(60);
+  final microRemainder = abs.inMicroseconds.remainder(
+    Duration.microsecondsPerSecond,
   );
+  final seconds =
+      wholeSeconds + microRemainder / Duration.microsecondsPerSecond;
+  return XPathSequence.single(arg.dayTime.isNegative ? -seconds : seconds);
 }

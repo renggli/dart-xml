@@ -1,4 +1,5 @@
 import 'package:test/test.dart';
+import 'package:xml/src/xpath/types/duration.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -184,42 +185,74 @@ void main() {
   });
 
   group('xs:duration', () {
-    test(
-      'cast',
-      () => expectEval(
-        'xs:duration("P1Y2M3DT4H5M6.7S")',
-        isXPathSequence([
-          const Duration(
-            days: 365 + 60 + 3,
-            hours: 4,
-            minutes: 5,
-            microseconds: 6700000,
-          ),
-        ]),
-      ),
-    );
+    test('cast', () {
+      // P1Y2M3DT4H5M6.7S → months=14, dayTime=3D4H5M6.7S
+      final d = xsDuration.cast('P1Y2M3DT4H5M6.7S');
+      expectEval('xs:duration("P1Y2M3DT4H5M6.7S")', isXPathSequence([d]));
+    });
+    test('invalid cast throws', () {
+      expect(
+        () => expectEval('xs:duration("P")', []),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+      expect(
+        () => expectEval('xs:duration("1Y")', []),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+    });
   });
 
   group('xs:dayTimeDuration', () {
-    test(
-      'cast',
-      () => expectEval(
+    test('cast', () {
+      expectEval(
         'xs:dayTimeDuration("P3DT4H5M6.7S")',
         isXPathSequence([
-          const Duration(days: 3, hours: 4, minutes: 5, microseconds: 6700000),
+          XPathDayTimeDuration(
+            const Duration(
+              days: 3,
+              hours: 4,
+              minutes: 5,
+              microseconds: 6700000,
+            ),
+          ),
         ]),
-      ),
-    );
+      );
+    });
+    test('invalid cast throws', () {
+      expect(
+        () => expectEval('xs:dayTimeDuration("P1Y2M3D")', []),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+      expect(
+        () => expectEval('xs:dayTimeDuration("P3DT4H5M6.7S1")', []),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+    });
   });
 
   group('xs:yearMonthDuration', () {
-    test(
-      'cast',
-      () => expectEval(
+    test('cast', () {
+      expectEval(
         'xs:yearMonthDuration("P1Y2M")',
-        isXPathSequence([const Duration(days: 365 + 60)]),
-      ),
-    );
+        isXPathSequence([XPathYearMonthDuration(14)]), // 1*12 + 2 = 14 months
+      );
+    });
+    test('cast negative', () {
+      expectEval(
+        'xs:yearMonthDuration("-P1Y2M")',
+        isXPathSequence([XPathYearMonthDuration(-14)]),
+      );
+    });
+    test('invalid cast throws', () {
+      expect(
+        () => expectEval('xs:yearMonthDuration("P1Y2M3D")', []),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+      expect(
+        () => expectEval('xs:yearMonthDuration("invalid")', []),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+    });
   });
 
   group('xs:hexBinary', () {

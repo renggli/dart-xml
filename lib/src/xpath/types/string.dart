@@ -58,7 +58,7 @@ class _XPathStringType extends XPathType<String> {
     } else if (value is XPathDayTimeDuration) {
       return xsDayTimeDuration.castToString(value);
     } else if (value is Duration) {
-      return xsDuration.castToString(value);
+      return xsDuration.castToString(xsDayTimeDuration.cast(value));
     } else if (value is XPathDateTimeStamp) {
       return xsDateTimeStamp.castToString(value);
     } else if (value is XPathDate) {

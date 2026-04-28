@@ -50,7 +50,22 @@ class _XPathDateTimeType extends XPathType<DateTime> {
   }
 
   @override
-  String castToString(DateTime value) => value.toIso8601String();
+  String castToString(DateTime value) {
+    final buffer = StringBuffer();
+    _writeYear(buffer, value.year);
+    buffer.write('-');
+    _writePad2(buffer, value.month);
+    buffer.write('-');
+    _writePad2(buffer, value.day);
+    buffer.write('T');
+    _writePad2(buffer, value.hour);
+    buffer.write(':');
+    _writePad2(buffer, value.minute);
+    buffer.write(':');
+    _writeSeconds(buffer, value);
+    _writeTimezone(buffer, value);
+    return buffer.toString();
+  }
 
   static const _timezoneRegExpPart = r'(?<timezone>Z|[+-]\d{2}:\d{2})?';
   static final _dateTimeRegExp = RegExp(

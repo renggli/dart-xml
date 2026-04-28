@@ -2,6 +2,7 @@ import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/functions/sequence.dart';
 import 'package:xml/src/xpath/functions/uri.dart';
+import 'package:xml/src/xpath/types/duration.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -486,13 +487,13 @@ void main() {
     test('returns maximum for durations', () {
       expect(
         fnMax(context, [
-          const XPathSequence([
-            Duration(days: 1),
-            Duration(days: 3),
-            Duration(days: 2),
+          XPathSequence([
+            XPathDayTimeDuration(const Duration(days: 1)),
+            XPathDayTimeDuration(const Duration(days: 3)),
+            XPathDayTimeDuration(const Duration(days: 2)),
           ]),
         ]),
-        isXPathSequence([const Duration(days: 3)]),
+        isXPathSequence([XPathDayTimeDuration(const Duration(days: 3))]),
       );
     });
 
@@ -556,13 +557,13 @@ void main() {
     test('returns minimum for durations', () {
       expect(
         fnMin(context, [
-          const XPathSequence([
-            Duration(days: 3),
-            Duration(days: 1),
-            Duration(days: 2),
+          XPathSequence([
+            XPathDayTimeDuration(const Duration(days: 3)),
+            XPathDayTimeDuration(const Duration(days: 1)),
+            XPathDayTimeDuration(const Duration(days: 2)),
           ]),
         ]),
-        isXPathSequence([const Duration(days: 1)]),
+        isXPathSequence([XPathDayTimeDuration(const Duration(days: 1))]),
       );
     });
 
@@ -607,15 +608,16 @@ void main() {
     });
 
     test('returns sum of durations', () {
+      // fn:sum on xs:dayTimeDuration values returns xs:dayTimeDuration wrapped in XPathDuration.
+      final d1 = XPathDayTimeDuration(const Duration(days: 1));
+      final d2 = XPathDayTimeDuration(const Duration(days: 2));
+      final d3 = XPathDayTimeDuration(const Duration(days: 3));
+      const sum = XPathDuration(months: 0, dayTime: Duration(days: 6));
       expect(
         fnSum(context, [
-          const XPathSequence([
-            Duration(days: 1),
-            Duration(days: 2),
-            Duration(days: 3),
-          ]),
+          XPathSequence([d1, d2, d3]),
         ]),
-        isXPathSequence([const Duration(days: 6)]),
+        isXPathSequence([sum]),
       );
     });
 

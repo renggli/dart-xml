@@ -87,8 +87,14 @@ int compare(Object a, Object b) {
         : -1;
   } else if (xsDateTime.matches(a) && xsDateTime.matches(b)) {
     return xsDateTime.cast(a).compareTo(xsDateTime.cast(b));
-  } else if (xsDuration.matches(a) && xsDuration.matches(b)) {
-    return xsDuration.cast(a).compareTo(xsDuration.cast(b));
+  } else if (a is XPathYearMonthDuration && b is XPathYearMonthDuration) {
+    return a.totalMonths.compareTo(b.totalMonths);
+  } else if (a is XPathDayTimeDuration && b is XPathDayTimeDuration) {
+    return a.dayTime.compareTo(b.dayTime);
+  } else if (a is XPathDate && b is XPathDate) {
+    return a.compareTo(b);
+  } else if (a is XPathTime && b is XPathTime) {
+    return a.compareTo(b);
   } else {
     return a.toString().compareTo(b.toString());
   }
