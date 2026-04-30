@@ -303,4 +303,30 @@ void main() {
     final result = xml.xpath('//book[contains(@id, "106")]/title');
     expect(result.map((each) => each.innerText), ['Lover Birds']);
   });
+  test('https://github.com/renggli/dart-xml/issues/207', () {
+    final doc = XmlDocument.parse('<root><x xmlns="ns" id="_0"/></root>');
+    const url = 'https://github.com/renggli/dart-xml/issues/207';
+    expect(
+      doc.xpath("//*[local-name()='x' and '_0' = @*[local-name()='id']]"),
+      hasLength(1),
+    );
+    expect(
+      doc.xpath(
+        "//*[local-name()='x' and '_0'=@*[local-name()='id' and namespace-uri()='ns']]",
+      ),
+      hasLength(1),
+    );
+    expect(
+      doc.xpath(
+        "//*[local-name()='x' and '_0'=@*[local-name()='id' and not(namespace-uri()='$url')]]",
+      ),
+      hasLength(1),
+    );
+    expect(
+      doc.xpath(
+        "//*[local-name()='x' and '_0'=@*[local-name()='id' and namespace-uri()!='$url']]",
+      ),
+      hasLength(1),
+    );
+  });
 }

@@ -51,9 +51,7 @@ XPathSequence _compareGeneral(
     for (final item2 in seq2) {
       if (item1 is num && item2 is num) {
         if (comparator(item1, item2)) return XPathSequence.trueSequence;
-      }
-      if (item1.toString() == item2.toString() &&
-          comparator(item1.toString(), item2.toString())) {
+      } else if (comparator(item1.toString(), item2.toString())) {
         return XPathSequence.trueSequence;
       }
     }
