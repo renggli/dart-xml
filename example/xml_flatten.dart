@@ -7,9 +7,9 @@ import 'dart:io';
 import 'package:args/args.dart' as args;
 import 'package:xml/xml_events.dart';
 
-final formatRegExp = RegExp(r'%(.)');
+final _formatRegExp = RegExp(r'%(.)');
 
-final args.ArgParser argumentParser = args.ArgParser()
+final args.ArgParser _argumentParser = args.ArgParser()
   ..addOption(
     'format',
     abbr: 'f',
@@ -27,15 +27,15 @@ final args.ArgParser argumentParser = args.ArgParser()
     defaultsTo: true,
   );
 
-void printUsage() {
+void _printUsage() {
   stdout.writeln('Usage: xml_flatten [options] {files}');
   stdout.writeln();
-  stdout.writeln(argumentParser.usage);
+  stdout.writeln(_argumentParser.usage);
   exit(1);
 }
 
-String formatEvent(XmlEvent event, String format) => format.splitMapJoin(
-  formatRegExp,
+String _formatEvent(XmlEvent event, String format) => format.splitMapJoin(
+  _formatRegExp,
   onMatch: (match) {
     switch (match.group(1)) {
       case 's':
@@ -52,7 +52,7 @@ String formatEvent(XmlEvent event, String format) => format.splitMapJoin(
 
 Future<void> main(List<String> arguments) async {
   final files = <File>[];
-  final results = argumentParser.parse(arguments);
+  final results = _argumentParser.parse(arguments);
   final format = results['format'] as String;
   final normalize = results['normalize'] as bool;
 
@@ -66,7 +66,7 @@ Future<void> main(List<String> arguments) async {
     }
   }
   if (files.isEmpty) {
-    printUsage();
+    _printUsage();
   }
 
   for (final file in files) {
@@ -79,7 +79,7 @@ Future<void> main(List<String> arguments) async {
     }
     await stream
         .flatten()
-        .map((event) => formatEvent(event, format))
+        .map((event) => _formatEvent(event, format))
         .forEach(stdout.writeln);
   }
 }

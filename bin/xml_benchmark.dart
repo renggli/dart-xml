@@ -1,5 +1,3 @@
-// ignore_for_file: unnecessary_lambdas
-
 import 'package:xml/xml.dart';
 import 'package:xml/xml_events.dart';
 
@@ -97,11 +95,11 @@ void main(List<String> args) {
               const XmlNodeDecoder().convert(XmlEventDecoder().convert(source)),
         );
         final iterator = benchmark(() => parseEvents(source).toList());
-        final serialize = benchmark(() => document.toXmlString());
+        final serialize = benchmark(document.toXmlString);
         final serializePretty = benchmark(
           () => document.toXmlString(pretty: true),
         );
-        final copy = benchmark(() => document.copy());
+        final copy = benchmark(document.copy);
         final builder = benchmark(() {
           final builder = XmlBuilder();
           for (final node in document.children) {

@@ -6,29 +6,30 @@ import 'dart:io';
 import 'package:args/args.dart' as args;
 import 'package:xml/xml.dart';
 
-const entityMapping = XmlDefaultEntityMapping.xml();
+const _entityMapping = XmlDefaultEntityMapping.xml();
 
-const String ansiReset = '\u001b[0m';
-const String ansiRed = '\u001b[31m';
-const String ansiGreen = '\u001b[32m';
-const String ansiYellow = '\u001b[33m';
-const String ansiBlue = '\u001b[34m';
-const String ansiMagenta = '\u001b[35m';
-const String ansiCyan = '\u001b[36m';
+const String _ansiReset = '\u001b[0m';
+const String _ansiRed = '\u001b[31m';
+const String _ansiGreen = '\u001b[32m';
+const String _ansiYellow = '\u001b[33m';
+const String _ansiBlue = '\u001b[34m';
+const String _ansiMagenta = '\u001b[35m';
+const String _ansiCyan = '\u001b[36m';
 
-const String attributeStyle = ansiBlue;
-const String cdataStyle = ansiYellow;
-const String commentStyle = ansiGreen;
-const String declarationStyle = ansiCyan;
-const String doctypeStyle = ansiCyan;
-const String documentStyle = ansiReset;
-const String documentFragmentStyle = ansiCyan;
-const String elementStyle = ansiMagenta;
-const String nameStyle = ansiRed;
-const String processingStyle = ansiCyan;
-const String textStyle = ansiReset;
+const String _attributeStyle = _ansiBlue;
+const String _cdataStyle = _ansiYellow;
+const String _commentStyle = _ansiGreen;
+const String _declarationStyle = _ansiCyan;
+const String _doctypeStyle = _ansiCyan;
+const String _documentStyle = _ansiReset;
+const String _documentFragmentStyle = _ansiCyan;
+const String _elementStyle = _ansiMagenta;
+const String _nameStyle = _ansiRed;
+const String _processingStyle = _ansiCyan;
+const String _textStyle = _ansiReset;
+const String _namespaceStyle = _ansiRed;
 
-final args.ArgParser argumentParser = args.ArgParser()
+final args.ArgParser _argumentParser = args.ArgParser()
   ..addFlag(
     'color',
     abbr: 'c',
@@ -54,16 +55,16 @@ final args.ArgParser argumentParser = args.ArgParser()
     defaultsTo: true,
   );
 
-void printUsage() {
+void _printUsage() {
   stdout.writeln('Usage: xml_pp [options] {files}');
   stdout.writeln();
-  stdout.writeln(argumentParser.usage);
+  stdout.writeln(_argumentParser.usage);
   exit(1);
 }
 
 void main(List<String> arguments) {
   final files = <File>[];
-  final results = argumentParser.parse(arguments);
+  final results = _argumentParser.parse(arguments);
   final color = results['color'] as bool;
   final indent = results['indent'] as String;
   final newLine = results['newline'] as String;
@@ -79,7 +80,7 @@ void main(List<String> arguments) {
     }
   }
   if (files.isEmpty) {
-    printUsage();
+    _printUsage();
   }
 
   // Select the appropriate printing visitor. For simpler use-cases one would
@@ -88,19 +89,19 @@ void main(List<String> arguments) {
       ? (color
             ? XmlColoredPrettyWriter(
                 stdout,
-                entityMapping: entityMapping,
+                entityMapping: _entityMapping,
                 indent: indent,
                 newLine: newLine,
               )
             : XmlPrettyWriter(
                 stdout,
-                entityMapping: entityMapping,
+                entityMapping: _entityMapping,
                 indent: indent,
                 newLine: newLine,
               ))
       : (color
-            ? XmlColoredWriter(stdout, entityMapping: entityMapping)
-            : XmlWriter(stdout, entityMapping: entityMapping));
+            ? XmlColoredWriter(stdout, entityMapping: _entityMapping)
+            : XmlWriter(stdout, entityMapping: _entityMapping));
   for (final file in files) {
     visitor.visit(XmlDocument.parse(file.readAsStringSync()));
   }
@@ -116,7 +117,7 @@ mixin ColoredWriter {
     buffer.write(style);
     callback();
     styles.removeLast();
-    buffer.write(styles.isEmpty ? ansiReset : styles.last);
+    buffer.write(styles.isEmpty ? _ansiReset : styles.last);
   }
 }
 
@@ -128,45 +129,51 @@ class XmlColoredWriter extends XmlWriter with ColoredWriter {
 
   @override
   void visitAttribute(XmlAttribute node) =>
-      style(attributeStyle, () => super.visitAttribute(node));
+      style(_attributeStyle, () => super.visitAttribute(node));
 
   @override
   void visitCDATA(XmlCDATA node) =>
-      style(cdataStyle, () => super.visitCDATA(node));
+      style(_cdataStyle, () => super.visitCDATA(node));
 
   @override
   void visitComment(XmlComment node) =>
-      style(commentStyle, () => super.visitComment(node));
+      style(_commentStyle, () => super.visitComment(node));
 
   @override
   void visitDeclaration(XmlDeclaration node) =>
-      style(declarationStyle, () => super.visitDeclaration(node));
+      style(_declarationStyle, () => super.visitDeclaration(node));
 
   @override
   void visitDocument(XmlDocument node) =>
-      style(documentStyle, () => super.visitDocument(node));
+      style(_documentStyle, () => super.visitDocument(node));
 
   @override
   void visitDocumentFragment(XmlDocumentFragment node) =>
-      style(documentFragmentStyle, () => super.visitDocumentFragment(node));
+      style(_documentFragmentStyle, () => super.visitDocumentFragment(node));
 
   @override
   void visitDoctype(XmlDoctype node) =>
-      style(doctypeStyle, () => super.visitDoctype(node));
+      style(_doctypeStyle, () => super.visitDoctype(node));
 
   @override
   void visitElement(XmlElement node) =>
-      style(elementStyle, () => super.visitElement(node));
+      style(_elementStyle, () => super.visitElement(node));
 
   @override
-  void visitName(XmlName name) => style(nameStyle, () => super.visitName(name));
+  void visitName(XmlName name) =>
+      style(_nameStyle, () => super.visitName(name));
 
   @override
   void visitProcessing(XmlProcessing node) =>
-      style(processingStyle, () => super.visitProcessing(node));
+      style(_processingStyle, () => super.visitProcessing(node));
 
   @override
-  void visitText(XmlText node) => style(textStyle, () => super.visitText(node));
+  void visitText(XmlText node) =>
+      style(_textStyle, () => super.visitText(node));
+
+  @override
+  void visitNamespace(XmlNamespace node) =>
+      style(_namespaceStyle, () => super.visitNamespace(node));
 }
 
 class XmlColoredPrettyWriter extends XmlPrettyWriter with ColoredWriter {
@@ -181,43 +188,49 @@ class XmlColoredPrettyWriter extends XmlPrettyWriter with ColoredWriter {
 
   @override
   void visitAttribute(XmlAttribute node) =>
-      style(attributeStyle, () => super.visitAttribute(node));
+      style(_attributeStyle, () => super.visitAttribute(node));
 
   @override
   void visitCDATA(XmlCDATA node) =>
-      style(cdataStyle, () => super.visitCDATA(node));
+      style(_cdataStyle, () => super.visitCDATA(node));
 
   @override
   void visitComment(XmlComment node) =>
-      style(commentStyle, () => super.visitComment(node));
+      style(_commentStyle, () => super.visitComment(node));
 
   @override
   void visitDeclaration(XmlDeclaration node) =>
-      style(declarationStyle, () => super.visitDeclaration(node));
+      style(_declarationStyle, () => super.visitDeclaration(node));
 
   @override
   void visitDocument(XmlDocument node) =>
-      style(documentStyle, () => super.visitDocument(node));
+      style(_documentStyle, () => super.visitDocument(node));
 
   @override
   void visitDocumentFragment(XmlDocumentFragment node) =>
-      style(documentFragmentStyle, () => super.visitDocumentFragment(node));
+      style(_documentFragmentStyle, () => super.visitDocumentFragment(node));
 
   @override
   void visitDoctype(XmlDoctype node) =>
-      style(doctypeStyle, () => super.visitDoctype(node));
+      style(_doctypeStyle, () => super.visitDoctype(node));
 
   @override
   void visitElement(XmlElement node) =>
-      style(elementStyle, () => super.visitElement(node));
+      style(_elementStyle, () => super.visitElement(node));
 
   @override
-  void visitName(XmlName name) => style(nameStyle, () => super.visitName(name));
+  void visitName(XmlName name) =>
+      style(_nameStyle, () => super.visitName(name));
 
   @override
   void visitProcessing(XmlProcessing node) =>
-      style(processingStyle, () => super.visitProcessing(node));
+      style(_processingStyle, () => super.visitProcessing(node));
 
   @override
-  void visitText(XmlText node) => style(textStyle, () => super.visitText(node));
+  void visitText(XmlText node) =>
+      style(_textStyle, () => super.visitText(node));
+
+  @override
+  void visitNamespace(XmlNamespace node) =>
+      style(_namespaceStyle, () => super.visitNamespace(node));
 }

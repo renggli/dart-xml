@@ -8,9 +8,9 @@ import 'package:args/args.dart' as args;
 import 'package:xml/xml.dart';
 import 'package:xml/xml_events.dart';
 
-final httpClient = HttpClient();
+final _httpClient = HttpClient();
 
-final args.ArgParser argumentParser = args.ArgParser()
+final args.ArgParser _argumentParser = args.ArgParser()
   ..addFlag(
     'incremental',
     abbr: 'i',
@@ -62,14 +62,14 @@ final args.ArgParser argumentParser = args.ArgParser()
     help: 'Displays the help text',
   );
 
-void printUsage() {
+void _printUsage() {
   stdout.writeln('Usage: ip_lookup -s [query]');
   stdout.writeln();
-  stdout.writeln(argumentParser.usage);
+  stdout.writeln(_argumentParser.usage);
   exit(1);
 }
 
-Future<void> lookupIp(args.ArgResults results, [String query = '']) async {
+Future<void> _lookupIp(args.ArgResults results, [String query = '']) async {
   final incremental = results['incremental'] as bool;
   final fields = results['fields'] as List<String>;
   final lang = results['lang'] as String;
@@ -78,7 +78,7 @@ Future<void> lookupIp(args.ArgResults results, [String query = '']) async {
   final url = Uri.parse(
     'http://ip-api.com/xml/$query?fields=${fields.join(',')}&lang=$lang',
   );
-  final request = await httpClient.getUrl(url);
+  final request = await _httpClient.getUrl(url);
   final response = await request.close();
   final stream = response.transform(utf8.decoder);
 
@@ -115,17 +115,17 @@ Future<void> lookupIp(args.ArgResults results, [String query = '']) async {
 }
 
 Future<void> main(List<String> arguments) async {
-  final results = argumentParser.parse(arguments);
+  final results = _argumentParser.parse(arguments);
 
   if (results['help'] as bool) {
-    printUsage();
+    _printUsage();
   }
 
   if (results.rest.isEmpty) {
-    await lookupIp(results);
+    await _lookupIp(results);
   } else {
     for (final query in results.rest) {
-      await lookupIp(results, query);
+      await _lookupIp(results, query);
       stdout.writeln();
     }
   }

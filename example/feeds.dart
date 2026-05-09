@@ -94,37 +94,43 @@ class ReadCommand extends RssCommand {
     final documents = feeds
         .findAllElements('url')
         .map((element) => _get(Uri.parse(element.innerText.trim())));
-    await Stream.fromFutures(documents).listen((document) {
-      for (final item in document.findAllElements('item')) {
-        final title = item.findElements('title').firstOrNull?.innerText;
-        final link = item.findElements('link').firstOrNull?.innerText;
-        if (title != null && link != null) {
-          stdout.writeln('$title ($link)');
+    try {
+      await for (final document in Stream.fromFutures(documents)) {
+        for (final item in document.findAllElements('item')) {
+          final title = item.findElements('title').firstOrNull?.innerText;
+          final link = item.findElements('link').firstOrNull?.innerText;
+          if (title != null && link != null) {
+            stdout.writeln('$title ($link)');
+          }
         }
       }
-    }, onError: (dynamic error) => stderr.writeln(error)).asFuture<void>();
+    } catch (error) {
+      stderr.writeln(error);
+    }
   }
 
-  final httpClient = HttpClient();
+  final _httpClient = HttpClient();
 
   Future<XmlDocument> _get(Uri uri) async {
-    final request = await httpClient.getUrl(uri);
+    final request = await _httpClient.getUrl(uri);
     final response = await request.close();
     final input = await response.transform(utf8.decoder).join();
     return XmlDocument.parse(input);
   }
 }
 
-final runner = CommandRunner<void>('feeds', 'Manages and reads RSS feeds.')
+final _runner = CommandRunner<void>('feeds', 'Manages and reads RSS feeds.')
   ..addCommand(AddCommand())
   ..addCommand(RemoveCommand())
   ..addCommand(ListCommand())
   ..addCommand(ReadCommand());
 
 Future<void> main(List<String> arguments) async {
-  runner.argParser.addOption('feeds', help: 'path to current feeds');
-  await runner.run(arguments).catchError((Object error) {
+  _runner.argParser.addOption('feeds', help: 'path to current feeds');
+  try {
+    await _runner.run(arguments);
+  } on UsageException catch (error) {
     stdout.writeln(error);
     exit(1);
-  }, test: (error) => error is UsageException);
+  }
 }

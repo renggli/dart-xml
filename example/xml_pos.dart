@@ -8,7 +8,7 @@ import 'package:args/args.dart' as args;
 import 'package:petitparser/petitparser.dart';
 import 'package:xml/xml_events.dart';
 
-final args.ArgParser argumentParser = args.ArgParser()
+final args.ArgParser _argumentParser = args.ArgParser()
   ..addOption(
     'position',
     abbr: 'p',
@@ -23,16 +23,16 @@ final args.ArgParser argumentParser = args.ArgParser()
     defaultsTo: '60',
   );
 
-void printUsage() {
+void _printUsage() {
   stdout.writeln('Usage: xml_pos [options] {files}');
   stdout.writeln();
-  stdout.writeln(argumentParser.usage);
+  stdout.writeln(_argumentParser.usage);
   exit(1);
 }
 
 void main(List<String> arguments) {
   final files = <File>[];
-  final results = argumentParser.parse(arguments);
+  final results = _argumentParser.parse(arguments);
   final position = results['position'] as String;
   final limit = int.parse(results['limit'] as String);
 
@@ -46,7 +46,7 @@ void main(List<String> arguments) {
     }
   }
   if (files.isEmpty) {
-    printUsage();
+    _printUsage();
   }
 
   for (final file in files) {
@@ -56,14 +56,14 @@ void main(List<String> arguments) {
       withLocation: true,
     ).where((event) => event is! XmlTextEvent || event.value.trim().isNotEmpty);
     for (final event in events) {
-      final positionString = outputPosition(position, event).padLeft(10);
-      final tokenString = outputString(limit, event);
+      final positionString = _outputPosition(position, event).padLeft(10);
+      final tokenString = _outputString(limit, event);
       stdout.writeln('$positionString: $tokenString');
     }
   }
 }
 
-String outputPosition(String position, XmlEvent event) {
+String _outputPosition(String position, XmlEvent event) {
   switch (position) {
     case 'start':
       return '${event.start}';
@@ -83,7 +83,7 @@ String outputPosition(String position, XmlEvent event) {
   }
 }
 
-String outputString(int limit, XmlEvent event) {
+String _outputString(int limit, XmlEvent event) {
   final input = event.buffer!.substring(event.start!, event.stop);
   final index = input.indexOf('\n');
   final length = min(limit, index < 0 ? input.length : index);

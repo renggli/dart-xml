@@ -6,7 +6,7 @@ import 'dart:io';
 import 'package:args/args.dart' as args;
 import 'package:xml/xml.dart';
 
-final args.ArgParser argumentParser = args.ArgParser()
+final args.ArgParser _argumentParser = args.ArgParser()
   ..addOption('tag', abbr: 't', help: 'Filter by tag name.', defaultsTo: '*')
   ..addOption(
     'namespace',
@@ -16,16 +16,16 @@ final args.ArgParser argumentParser = args.ArgParser()
   )
   ..addFlag('pretty', abbr: 'p', help: 'Pretty print matching results.');
 
-void printUsage() {
+void _printUsage() {
   stdout.writeln('Usage: xml_grep [options] {files}');
   stdout.writeln();
-  stdout.writeln(argumentParser.usage);
+  stdout.writeln(_argumentParser.usage);
   exit(1);
 }
 
 void main(List<String> arguments) {
   final files = <File>[];
-  final results = argumentParser.parse(arguments);
+  final results = _argumentParser.parse(arguments);
   final tag = results['tag'] as String;
   final namespace = results['namespace'] as String;
   final pretty = results['pretty'] as bool;
@@ -40,7 +40,7 @@ void main(List<String> arguments) {
     }
   }
   if (files.isEmpty) {
-    printUsage();
+    _printUsage();
   }
 
   for (final file in files) {

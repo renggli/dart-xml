@@ -6,9 +6,9 @@ import 'dart:io';
 
 import 'package:xml/xml.dart';
 
-final HttpClient httpClient = HttpClient();
+final HttpClient _httpClient = HttpClient();
 
-void writeCell([Object? output]) {
+void _writeCell([Object? output]) {
   final contents = output?.toString() ?? '';
   stdout.write(contents.padLeft(14, ' '));
   stdout.write('  ');
@@ -22,22 +22,22 @@ Future<void> main(List<String> arguments) async {
   final currencies = arguments
       .map((argument) => argument.trim().toLowerCase())
       .toSet();
-  writeCell();
-  currencies.forEach(writeCell);
+  _writeCell();
+  currencies.forEach(_writeCell);
   stdout.writeln();
   for (final sourceCurrency in currencies) {
     final url = 'https://www.floatrates.com/daily/$sourceCurrency.xml';
-    final request = await httpClient.getUrl(Uri.parse(url));
+    final request = await _httpClient.getUrl(Uri.parse(url));
     final response = await request.close();
     final stream = response.transform(utf8.decoder);
     final contents = await stream.join();
     final document = XmlDocument.parse(contents);
-    writeCell(sourceCurrency);
+    _writeCell(sourceCurrency);
     for (final targetCurrency in currencies) {
       if (sourceCurrency == targetCurrency) {
-        writeCell();
+        _writeCell();
       } else {
-        writeCell(
+        _writeCell(
           document.rootElement
               .findElements('item')
               .where(
