@@ -241,9 +241,12 @@ class TestEnvironment {
 
   late final Map<String, Object> variables = _getVariables();
 
-  XPathContext get context => XPathContext.canonical(
-    source ?? XPathSequence.empty,
-  ).copy(documents: documents, variables: variables);
+  XPathContext get context =>
+      XPathContext.canonical(source ?? XPathSequence.empty).copy(
+        documents: documents,
+        variables: variables,
+        environment: Platform.environment,
+      );
 
   Map<String, XmlNode> _getDocuments() {
     final results = <String, XmlNode>{};

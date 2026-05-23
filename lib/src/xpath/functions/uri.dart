@@ -170,7 +170,9 @@ const fnEnvironmentVariable = XPathFunctionDefinition(
 );
 
 XPathSequence _fnEnvironmentVariable(XPathContext context, String name) {
-  throw UnimplementedError('fn:environment-variable');
+  final value = context.environment[name];
+  if (value != null) return XPathSequence.single(value);
+  return XPathSequence.empty;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-available-environment-variables
@@ -179,9 +181,8 @@ const fnAvailableEnvironmentVariables = XPathFunctionDefinition(
   function: _fnAvailableEnvironmentVariables,
 );
 
-XPathSequence _fnAvailableEnvironmentVariables(XPathContext context) {
-  throw UnimplementedError('fn:available-environment-variables');
-}
+XPathSequence _fnAvailableEnvironmentVariables(XPathContext context) =>
+    XPathSequence(context.environment.keys.toList());
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-encode-for-uri
 const fnEncodeForUri = XPathFunctionDefinition(

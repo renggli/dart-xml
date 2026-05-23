@@ -19,6 +19,7 @@ class XPathContext {
     this.namespaceUri,
     this.namespaceUris = const {},
     this.documents = const {},
+    this.environment = const {},
     this.onTraceCallback,
   });
 
@@ -31,6 +32,7 @@ class XPathContext {
       namespaceUri = xpathFnNamespace,
       namespaceUris = xpathNamespaceUris,
       documents = const {},
+      environment = const {},
       onTraceCallback = null;
 
   /// Mutable context node.
@@ -56,6 +58,9 @@ class XPathContext {
 
   /// Available documents.
   final Map<String, XmlNode> documents;
+
+  /// Available environment variables.
+  final Map<String, String> environment;
 
   /// Callback to trace evaluation.
   final XPathTraceCallback? onTraceCallback;
@@ -90,6 +95,7 @@ class XPathContext {
     String? namespaceUri,
     Map<String, String>? namespaceUris,
     Map<String, XmlNode>? documents,
+    Map<String, String>? environment,
     XPathTraceCallback? onTraceCallback,
   }) => XPathContext.empty(
     item,
@@ -98,6 +104,7 @@ class XPathContext {
     variables: _extend(this.variables, variables),
     functions: _extend(this.functions, functions),
     documents: _extend(this.documents, documents),
+    environment: _extend(this.environment, environment),
     namespaceUri: namespaceUri ?? this.namespaceUri,
     namespaceUris: _extend(this.namespaceUris, namespaceUris),
     onTraceCallback: onTraceCallback ?? this.onTraceCallback,
