@@ -638,6 +638,19 @@ void main() {
     test('returns empty for empty sequence', () {
       expect(fnDoc(context, [XPathSequence.empty]), isXPathSequence(isEmpty));
     });
+
+    test('returns document when registered', () {
+      final doc = XmlDocument.parse('<doc/>');
+      final contextWithDoc = context.copy(
+        documents: {'http://example.com/doc': doc},
+      );
+      expect(
+        fnDoc(contextWithDoc, [
+          const XPathSequence.single('http://example.com/doc'),
+        ]),
+        isXPathSequence([doc]),
+      );
+    });
   });
 
   group('fn:doc-available', () {
@@ -645,6 +658,26 @@ void main() {
       expect(
         fnDocAvailable(context, [const XPathSequence.single('uri')]),
         isXPathSequence([false]),
+      );
+    });
+
+    test('returns false for empty sequence', () {
+      expect(
+        fnDocAvailable(context, [XPathSequence.empty]),
+        isXPathSequence([false]),
+      );
+    });
+
+    test('returns true if available', () {
+      final doc = XmlDocument.parse('<doc/>');
+      final contextWithDoc = context.copy(
+        documents: {'http://example.com/doc': doc},
+      );
+      expect(
+        fnDocAvailable(contextWithDoc, [
+          const XPathSequence.single('http://example.com/doc'),
+        ]),
+        isXPathSequence([true]),
       );
     });
   });

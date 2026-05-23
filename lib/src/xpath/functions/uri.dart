@@ -56,7 +56,8 @@ const fnDoc = XPathFunctionDefinition(
 
 XPathSequence _fnDoc(XPathContext context, String? uri) {
   if (uri == null) return XPathSequence.empty;
-  // TODO: Implement URI resolution and document fetching
+  final document = context.documents[uri];
+  if (document != null) return XPathSequence.single(document);
   throw XPathEvaluationException('Document not found: $uri');
 }
 
@@ -73,8 +74,10 @@ const fnDocAvailable = XPathFunctionDefinition(
   function: _fnDocAvailable,
 );
 
-XPathSequence _fnDocAvailable(XPathContext context, String? uri) =>
-    const XPathSequence.single(false);
+XPathSequence _fnDocAvailable(XPathContext context, String? uri) {
+  if (uri == null) return const XPathSequence.single(false);
+  return XPathSequence.single(context.documents.containsKey(uri));
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-collection
 const fnCollection = XPathFunctionDefinition(
