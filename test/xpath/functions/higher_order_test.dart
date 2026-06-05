@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
+import 'package:xml/src/xpath/functions/accessor.dart';
 import 'package:xml/src/xpath/functions/higher_order.dart';
 import 'package:xml/src/xpath/types/string.dart';
 import 'package:xml/xml.dart';
@@ -62,6 +63,18 @@ void main() {
           const XPathSequence.single([1, 2]),
         ]),
         isXPathSequence([3]),
+      );
+    });
+
+    test('apply with nested array and data#1 (fn-apply-11)', () {
+      expect(
+        fnApply(context, [
+          XPathSequence.single(fnData.call),
+          const XPathSequence.single([
+            [1, 2, 3],
+          ]),
+        ]),
+        isXPathSequence([1, 2, 3]),
       );
     });
   });

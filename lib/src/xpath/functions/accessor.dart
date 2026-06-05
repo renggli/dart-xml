@@ -9,7 +9,6 @@ import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
 import '../types/any.dart';
-import '../types/array.dart';
 import '../types/node.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
@@ -95,13 +94,7 @@ const fnData = XPathFunctionDefinition(
 
 XPathSequence _fnData(XPathContext context, [XPathSequence? arg]) {
   if (arg == null) return _fnData(context, xsSequence.cast(context.item));
-  return XPathSequence(
-    arg.expand<Object>((item) {
-      if (item is XmlNode) return [xsString.cast(item)];
-      if (item is XPathArray) return item;
-      return [item];
-    }),
-  );
+  return XPathSequence(arg.atomize());
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-base-uri

@@ -1,4 +1,3 @@
-import '../../xml/nodes/node.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types/boolean.dart';
 import '../types/date_time.dart';
@@ -52,13 +51,7 @@ Object? _atomizeSingle(XPathSequence seq) {
   return data.first;
 }
 
-Iterable<Object> _atomize(XPathSequence seq) => seq.expand((item) {
-  if (item is XmlNode) {
-    return [xsString.cast(item)];
-  } else {
-    return [item];
-  }
-});
+Iterable<Object> _atomize(XPathSequence seq) => seq.atomize();
 
 XPathSequence _compareValue(
   XPathSequence left,

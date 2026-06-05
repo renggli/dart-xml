@@ -6,7 +6,9 @@ import '../definitions/type.dart';
 import '../exceptions/evaluation_exception.dart';
 import 'any.dart';
 import 'array.dart';
+import 'binary.dart';
 import 'map.dart';
+import 'node.dart';
 
 /// The XPath empty sequence type.
 const xsEmptySequence = _XPathEmptySequenceType();
@@ -253,3 +255,18 @@ class _XPathCachedIterator<T extends Object> implements Iterator<T> {
     return false;
   }
 }
+
+extension XPathSequenceAtomize on XPathSequence {
+  Iterable<Object> atomize() => expand(atomizeItem);
+}
+
+Iterable<Object> atomizeItem(Object item) => switch (item) {
+  XPathBase64Binary() || XPathHexBinary() => [item],
+  XPathArray() => item.expand(atomizeItem),
+  XPathSequence() => item.expand(atomizeItem),
+  XmlNode() => [xsNode.castToString(item)],
+  XPathMap() || Function() => throw XPathEvaluationException(
+    'Cannot atomize a map or function item',
+  ),
+  _ => [item],
+};

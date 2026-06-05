@@ -1,4 +1,5 @@
 import 'package:test/test.dart';
+import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/operators/comparison.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/xml.dart';
@@ -189,6 +190,60 @@ void main() {
       expect(
         opValueNotEqual(XPathSequence.empty, const XPathSequence.single(1)),
         isXPathSequence(isEmpty),
+      );
+    });
+  });
+
+  group('atomization of maps, arrays, and functions', () {
+    test('atomize array', () {
+      expect(
+        opValueEqual(
+          const XPathSequence.single([1]),
+          const XPathSequence.single(1),
+        ),
+        isXPathSequence([true]),
+      );
+    });
+
+    test('atomize nested array', () {
+      expect(
+        opValueEqual(
+          const XPathSequence.single([
+            [1],
+          ]),
+          const XPathSequence.single(1),
+        ),
+        isXPathSequence([true]),
+      );
+    });
+
+    test('atomizing map throws FOTY0013', () {
+      expect(
+        () => opValueEqual(
+          const XPathSequence.single(<Object, Object>{'a': 1}),
+          const XPathSequence.single(1),
+        ),
+        throwsA(
+          isXPathEvaluationException(
+            message: 'Cannot atomize a map or function item',
+          ),
+        ),
+      );
+    });
+
+    test('atomizing function throws FOTY0013', () {
+      XPathSequence dummy(XPathContext context, List<XPathSequence> args) =>
+          XPathSequence.empty;
+      expect(
+        () => opValueEqual(
+          XPathSequence.single(dummy),
+          const XPathSequence.single(1),
+        ),
+        throwsA(
+          isXPathEvaluationException(
+            message: 'Cannot atomize a map or function item',
+          ),
+        ),
       );
     });
   });
