@@ -306,6 +306,153 @@ void main() {
     });
   });
 
+  group('xs:normalizedString', () {
+    test('replace whitespace', () {
+      expectEval(
+        'xs:normalizedString(concat("hello", codepoints-to-string(9), "world", codepoints-to-string(10), "new", codepoints-to-string(13), "line"))',
+        isXPathSequence(['hello world new line']),
+      );
+    });
+    test('empty sequence', () {
+      expectEval('xs:normalizedString(())', isXPathSequence(isEmpty));
+    });
+  });
+
+  group('xs:token', () {
+    test('collapse whitespace', () {
+      expectEval(
+        'xs:token(concat(" ", codepoints-to-string(9), " hello ", codepoints-to-string(10), codepoints-to-string(13), " world ", codepoints-to-string(9), " "))',
+        isXPathSequence(['hello world']),
+      );
+    });
+    test('empty sequence', () {
+      expectEval('xs:token(())', isXPathSequence(isEmpty));
+    });
+  });
+
+  group('xs:language', () {
+    test('valid language', () {
+      expectEval('xs:language("en-US")', isXPathSequence(['en-US']));
+      expectEval(
+        'xs:language(concat("  ", codepoints-to-string(9), " en-US ", codepoints-to-string(10), " "))',
+        isXPathSequence(['en-US']),
+      );
+    });
+    test('invalid language', () {
+      expect(
+        () => expectEval('xs:language("invalid_123")', []),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+    });
+    test('empty sequence', () {
+      expectEval('xs:language(())', isXPathSequence(isEmpty));
+    });
+  });
+
+  group('xs:NMTOKEN', () {
+    test('valid NMTOKEN', () {
+      expectEval(
+        'xs:NMTOKEN("some-token.123")',
+        isXPathSequence(['some-token.123']),
+      );
+    });
+    test('invalid NMTOKEN', () {
+      expect(
+        () => expectEval('xs:NMTOKEN("invalid token")', []),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+    });
+    test('empty sequence', () {
+      expectEval('xs:NMTOKEN(())', isXPathSequence(isEmpty));
+    });
+  });
+
+  group('xs:Name', () {
+    test('valid Name', () {
+      expectEval(
+        'xs:Name("_valid-Name.123")',
+        isXPathSequence(['_valid-Name.123']),
+      );
+      expectEval('xs:Name("prefix:local")', isXPathSequence(['prefix:local']));
+    });
+    test('invalid Name', () {
+      expect(
+        () => expectEval('xs:Name("-invalid")', []),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+      expect(
+        () => expectEval('xs:Name("invalid name")', []),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+    });
+    test('empty sequence', () {
+      expectEval('xs:Name(())', isXPathSequence(isEmpty));
+    });
+  });
+
+  group('xs:NCName', () {
+    test('valid NCName', () {
+      expectEval(
+        'xs:NCName("_valid-NCName.123")',
+        isXPathSequence(['_valid-NCName.123']),
+      );
+    });
+    test('invalid NCName', () {
+      expect(
+        () => expectEval('xs:NCName("prefix:local")', []),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+    });
+    test('empty sequence', () {
+      expectEval('xs:NCName(())', isXPathSequence(isEmpty));
+    });
+  });
+
+  group('xs:ID', () {
+    test('valid ID', () {
+      expectEval('xs:ID("my-id")', isXPathSequence(['my-id']));
+    });
+    test('invalid ID', () {
+      expect(
+        () => expectEval('xs:ID("invalid:id")', []),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+    });
+    test('empty sequence', () {
+      expectEval('xs:ID(())', isXPathSequence(isEmpty));
+    });
+  });
+
+  group('xs:IDREF', () {
+    test('valid IDREF', () {
+      expectEval('xs:IDREF("my-idref")', isXPathSequence(['my-idref']));
+    });
+    test('invalid IDREF', () {
+      expect(
+        () => expectEval('xs:IDREF("invalid:idref")', []),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+    });
+    test('empty sequence', () {
+      expectEval('xs:IDREF(())', isXPathSequence(isEmpty));
+    });
+  });
+
+  group('xs:ENTITY', () {
+    test('valid ENTITY', () {
+      expectEval('xs:ENTITY("my-entity")', isXPathSequence(['my-entity']));
+    });
+    test('invalid ENTITY', () {
+      expect(
+        () => expectEval('xs:ENTITY("invalid:entity")', []),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+    });
+    test('empty sequence', () {
+      expectEval('xs:ENTITY(())', isXPathSequence(isEmpty));
+    });
+  });
+
   group('namespace resolution', () {
     test('fn prefix', () {
       expectEval('fn:string("test")', isXPathSequence(['test']));

@@ -298,4 +298,13 @@ const standardFunctionDefinitions = <XPathFunctionDefinition>[
   constructors.xsQNameConstructor,
   constructors.xsNOTATIONConstructor,
   constructors.xsUntypedAtomicConstructor,
+  constructors.xsNormalizedStringConstructor,
+  constructors.xsTokenConstructor,
+  constructors.xsLanguageConstructor,
+  constructors.xsNMTOKENConstructor,
+  constructors.xsNameConstructor,
+  constructors.xsNCNameConstructor,
+  constructors.xsIDConstructor,
+  constructors.xsIDREFConstructor,
+  constructors.xsENTITYConstructor,
 ];

@@ -1,7 +1,9 @@
 import '../../xml/utils/name.dart';
+import '../../xml/utils/token.dart';
 import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
+import '../exceptions/evaluation_exception.dart';
 import '../types/any.dart';
 import '../types/binary.dart';
 import '../types/boolean.dart';
@@ -585,4 +587,237 @@ const xsUntypedAtomicConstructor = XPathFunctionDefinition(
     ),
   ],
   function: _xsStringConstructor, // untypedAtomic is likely string compatible
+);
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-normalizedString
+const xsNormalizedStringConstructor = XPathFunctionDefinition(
+  name: XmlName.qualified('xs:normalizedString'),
+  optionalArguments: [
+    XPathArgumentDefinition(
+      name: 'value',
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrOne,
+    ),
+  ],
+  function: _xsNormalizedStringConstructor,
+);
+
+XPathSequence _xsNormalizedStringConstructor(
+  XPathContext context, [
+  Object? value,
+]) {
+  if (value == null) return XPathSequence.empty;
+  final stringValue = xsString.cast(value);
+  return XPathSequence.single(_normalizeString(stringValue));
+}
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-token
+const xsTokenConstructor = XPathFunctionDefinition(
+  name: XmlName.qualified('xs:token'),
+  optionalArguments: [
+    XPathArgumentDefinition(
+      name: 'value',
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrOne,
+    ),
+  ],
+  function: _xsTokenConstructor,
+);
+
+XPathSequence _xsTokenConstructor(XPathContext context, [Object? value]) {
+  if (value == null) return XPathSequence.empty;
+  final stringValue = xsString.cast(value);
+  return XPathSequence.single(_collapseWhitespace(stringValue));
+}
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-language
+const xsLanguageConstructor = XPathFunctionDefinition(
+  name: XmlName.qualified('xs:language'),
+  optionalArguments: [
+    XPathArgumentDefinition(
+      name: 'value',
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrOne,
+    ),
+  ],
+  function: _xsLanguageConstructor,
+);
+
+XPathSequence _xsLanguageConstructor(XPathContext context, [Object? value]) {
+  if (value == null) return XPathSequence.empty;
+  final stringValue = _collapseWhitespace(xsString.cast(value));
+  if (!_languageRegExp.hasMatch(stringValue)) {
+    throw XPathEvaluationException(
+      'Invalid lexical value for xs:language: "$stringValue"',
+    );
+  }
+  return XPathSequence.single(stringValue);
+}
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-NMTOKEN
+const xsNMTOKENConstructor = XPathFunctionDefinition(
+  name: XmlName.qualified('xs:NMTOKEN'),
+  optionalArguments: [
+    XPathArgumentDefinition(
+      name: 'value',
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrOne,
+    ),
+  ],
+  function: _xsNMTOKENConstructor,
+);
+
+XPathSequence _xsNMTOKENConstructor(XPathContext context, [Object? value]) {
+  if (value == null) return XPathSequence.empty;
+  final stringValue = _collapseWhitespace(xsString.cast(value));
+  if (!_nmTokenRegExp.hasMatch(stringValue)) {
+    throw XPathEvaluationException(
+      'Invalid lexical value for xs:NMTOKEN: "$stringValue"',
+    );
+  }
+  return XPathSequence.single(stringValue);
+}
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-Name
+const xsNameConstructor = XPathFunctionDefinition(
+  name: XmlName.qualified('xs:Name'),
+  optionalArguments: [
+    XPathArgumentDefinition(
+      name: 'value',
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrOne,
+    ),
+  ],
+  function: _xsNameConstructor,
+);
+
+XPathSequence _xsNameConstructor(XPathContext context, [Object? value]) {
+  if (value == null) return XPathSequence.empty;
+  final stringValue = _collapseWhitespace(xsString.cast(value));
+  if (!_nameRegExp.hasMatch(stringValue)) {
+    throw XPathEvaluationException(
+      'Invalid lexical value for xs:Name: "$stringValue"',
+    );
+  }
+  return XPathSequence.single(stringValue);
+}
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-NCName
+const xsNCNameConstructor = XPathFunctionDefinition(
+  name: XmlName.qualified('xs:NCName'),
+  optionalArguments: [
+    XPathArgumentDefinition(
+      name: 'value',
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrOne,
+    ),
+  ],
+  function: _xsNCNameConstructor,
+);
+
+XPathSequence _xsNCNameConstructor(XPathContext context, [Object? value]) {
+  if (value == null) return XPathSequence.empty;
+  final stringValue = _collapseWhitespace(xsString.cast(value));
+  if (!_ncNameRegExp.hasMatch(stringValue)) {
+    throw XPathEvaluationException(
+      'Invalid lexical value for xs:NCName: "$stringValue"',
+    );
+  }
+  return XPathSequence.single(stringValue);
+}
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-ID
+const xsIDConstructor = XPathFunctionDefinition(
+  name: XmlName.qualified('xs:ID'),
+  optionalArguments: [
+    XPathArgumentDefinition(
+      name: 'value',
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrOne,
+    ),
+  ],
+  function: _xsIDConstructor,
+);
+
+XPathSequence _xsIDConstructor(XPathContext context, [Object? value]) {
+  if (value == null) return XPathSequence.empty;
+  final stringValue = _collapseWhitespace(xsString.cast(value));
+  if (!_ncNameRegExp.hasMatch(stringValue)) {
+    throw XPathEvaluationException(
+      'Invalid lexical value for xs:ID: "$stringValue"',
+    );
+  }
+  return XPathSequence.single(stringValue);
+}
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-IDREF
+const xsIDREFConstructor = XPathFunctionDefinition(
+  name: XmlName.qualified('xs:IDREF'),
+  optionalArguments: [
+    XPathArgumentDefinition(
+      name: 'value',
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrOne,
+    ),
+  ],
+  function: _xsIDREFConstructor,
+);
+
+XPathSequence _xsIDREFConstructor(XPathContext context, [Object? value]) {
+  if (value == null) return XPathSequence.empty;
+  final stringValue = _collapseWhitespace(xsString.cast(value));
+  if (!_ncNameRegExp.hasMatch(stringValue)) {
+    throw XPathEvaluationException(
+      'Invalid lexical value for xs:IDREF: "$stringValue"',
+    );
+  }
+  return XPathSequence.single(stringValue);
+}
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-ENTITY
+const xsENTITYConstructor = XPathFunctionDefinition(
+  name: XmlName.qualified('xs:ENTITY'),
+  optionalArguments: [
+    XPathArgumentDefinition(
+      name: 'value',
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrOne,
+    ),
+  ],
+  function: _xsENTITYConstructor,
+);
+
+XPathSequence _xsENTITYConstructor(XPathContext context, [Object? value]) {
+  if (value == null) return XPathSequence.empty;
+  final stringValue = _collapseWhitespace(xsString.cast(value));
+  if (!_ncNameRegExp.hasMatch(stringValue)) {
+    throw XPathEvaluationException(
+      'Invalid lexical value for xs:ENTITY: "$stringValue"',
+    );
+  }
+  return XPathSequence.single(stringValue);
+}
+
+/// Helpers and patterns for string-derived XML Schema constructor validation.
+
+final _normalizeStringRegexp = RegExp(r'\s');
+String _normalizeString(String value) =>
+    value.replaceAll(_normalizeStringRegexp, ' ');
+
+final _collapseWhitespaceRegExp = RegExp(r'\s+');
+String _collapseWhitespace(String value) =>
+    value.trim().replaceAll(_collapseWhitespaceRegExp, ' ');
+
+final _ncNameStartCharPattern = XmlToken.nameStartChars.replaceFirst(':', '');
+final _ncNameCharPattern = XmlToken.nameChars.replaceFirst(':', '');
+
+final _languageRegExp = RegExp(r'^[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*$');
+final _nmTokenRegExp = RegExp('^[${XmlToken.nameChars}]+\$', unicode: true);
+final _nameRegExp = RegExp(
+  '^[${XmlToken.nameStartChars}][${XmlToken.nameChars}]*\$',
+  unicode: true,
+);
+final _ncNameRegExp = RegExp(
+  '^[$_ncNameStartCharPattern][$_ncNameCharPattern]*\$',
+  unicode: true,
 );
