@@ -23,6 +23,9 @@ class _XPathNodeType<T extends XmlNode> extends XPathType<T> {
   final String name;
 
   @override
+  bool get isAtomic => false;
+
+  @override
   bool matches(Object value) => value is T;
 
   @override

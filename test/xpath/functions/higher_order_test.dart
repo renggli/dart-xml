@@ -173,28 +173,28 @@ void main() {
   group('fn:function-lookup', () {
     test('known function by prefixed name', () {
       final result = fnFunctionLookup(context, [
-        const XPathSequence.single('fn:abs'),
+        const XPathSequence.single(XmlName.qualified('fn:abs')),
         const XPathSequence.single(1),
       ]);
       expect(result, isXPathSequence([isA<XPathFunction>()]));
     });
     test('known function by short name', () {
       final result = fnFunctionLookup(context, [
-        const XPathSequence.single('abs'),
+        const XPathSequence.single(XmlName.qualified('abs')),
         const XPathSequence.single(1),
       ]);
       expect(result, isXPathSequence([isA<XPathFunction>()]));
     });
     test('unknown function returns empty', () {
       final result = fnFunctionLookup(context, [
-        const XPathSequence.single('nonexistent'),
+        const XPathSequence.single(XmlName.qualified('nonexistent')),
         const XPathSequence.single(1),
       ]);
       expect(result, isEmpty);
     });
     test('integration via xpathEvaluate', () {
       expect(
-        document.xpathEvaluate('function-lookup("fn:abs", 1)(-42)'),
+        document.xpathEvaluate('function-lookup(xs:QName("fn:abs"), 1)(-42)'),
         isXPathSequence([42]),
       );
     });

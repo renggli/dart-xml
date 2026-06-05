@@ -88,7 +88,9 @@ class _XPathDateTimeStampType extends XPathType<XPathDateTimeStamp> {
   String get name => 'xs:dateTimeStamp';
 
   @override
-  bool matches(Object value) => value is XPathDateTimeStamp;
+  bool matches(Object value) =>
+      value is XPathDateTimeStamp ||
+      (value is DateTime && value is! _XPathDateTimeWrapper);
 
   @override
   XPathDateTimeStamp cast(Object value) {
@@ -125,6 +127,12 @@ class _XPathDateTimeStampType extends XPathType<XPathDateTimeStamp> {
 
 class XPathDateTimeStamp extends _XPathDateTimeWrapper {
   XPathDateTimeStamp(super.dateTime);
+
+  @override
+  XPathDateTimeStamp toUtc() => XPathDateTimeStamp(_dateTime.toUtc());
+
+  @override
+  XPathDateTimeStamp toLocal() => XPathDateTimeStamp(_dateTime.toLocal());
 }
 
 /// The XPath date type.
@@ -137,7 +145,9 @@ class _XPathDateType extends XPathType<XPathDate> {
   String get name => 'xs:date';
 
   @override
-  bool matches(Object value) => value is XPathDate;
+  bool matches(Object value) =>
+      value is XPathDate ||
+      (value is DateTime && value is! _XPathDateTimeWrapper);
 
   @override
   XPathDate cast(Object value) {
@@ -187,6 +197,12 @@ class _XPathDateType extends XPathType<XPathDate> {
 
 class XPathDate extends _XPathDateTimeWrapper {
   XPathDate(super.dateTime);
+
+  @override
+  XPathDate toUtc() => XPathDate(_dateTime.toUtc());
+
+  @override
+  XPathDate toLocal() => XPathDate(_dateTime.toLocal());
 }
 
 /// The XPath time type.
@@ -199,7 +215,9 @@ class _XPathTimeType extends XPathType<XPathTime> {
   String get name => 'xs:time';
 
   @override
-  bool matches(Object value) => value is XPathTime;
+  bool matches(Object value) =>
+      value is XPathTime ||
+      (value is DateTime && value is! _XPathDateTimeWrapper);
 
   @override
   XPathTime cast(Object value) {
@@ -249,6 +267,12 @@ class _XPathTimeType extends XPathType<XPathTime> {
 
 class XPathTime extends _XPathDateTimeWrapper {
   XPathTime(super.dateTime);
+
+  @override
+  XPathTime toUtc() => XPathTime(_dateTime.toUtc());
+
+  @override
+  XPathTime toLocal() => XPathTime(_dateTime.toLocal());
 }
 
 /// The XPath gYearMonth type.
@@ -261,7 +285,9 @@ class _XPathGYearMonthType extends XPathType<XPathGYearMonth> {
   String get name => 'xs:gYearMonth';
 
   @override
-  bool matches(Object value) => value is XPathGYearMonth;
+  bool matches(Object value) =>
+      value is XPathGYearMonth ||
+      (value is DateTime && value is! _XPathDateTimeWrapper);
 
   @override
   XPathGYearMonth cast(Object value) {
@@ -320,7 +346,9 @@ class _XPathGYearType extends XPathType<XPathGYear> {
   String get name => 'xs:gYear';
 
   @override
-  bool matches(Object value) => value is XPathGYear;
+  bool matches(Object value) =>
+      value is XPathGYear ||
+      (value is DateTime && value is! _XPathDateTimeWrapper);
 
   @override
   XPathGYear cast(Object value) {
@@ -376,7 +404,9 @@ class _XPathGMonthDayType extends XPathType<XPathGMonthDay> {
   String get name => 'xs:gMonthDay';
 
   @override
-  bool matches(Object value) => value is XPathGMonthDay;
+  bool matches(Object value) =>
+      value is XPathGMonthDay ||
+      (value is DateTime && value is! _XPathDateTimeWrapper);
 
   @override
   XPathGMonthDay cast(Object value) {
@@ -435,7 +465,9 @@ class _XPathGMonthType extends XPathType<XPathGMonth> {
   String get name => 'xs:gMonth';
 
   @override
-  bool matches(Object value) => value is XPathGMonth;
+  bool matches(Object value) =>
+      value is XPathGMonth ||
+      (value is DateTime && value is! _XPathDateTimeWrapper);
 
   @override
   XPathGMonth cast(Object value) {
@@ -491,7 +523,9 @@ class _XPathGDayType extends XPathType<XPathGDay> {
   String get name => 'xs:gDay';
 
   @override
-  bool matches(Object value) => value is XPathGDay;
+  bool matches(Object value) =>
+      value is XPathGDay ||
+      (value is DateTime && value is! _XPathDateTimeWrapper);
 
   @override
   XPathGDay cast(Object value) {

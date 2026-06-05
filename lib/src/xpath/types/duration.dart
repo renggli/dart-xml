@@ -12,10 +12,7 @@ class _XPathDurationType extends XPathType<XPathDuration> {
   String get name => 'xs:duration';
 
   @override
-  bool matches(Object value) =>
-      value is XPathDuration &&
-      value is! XPathYearMonthDuration &&
-      value is! XPathDayTimeDuration;
+  bool matches(Object value) => value is XPathDuration;
 
   @override
   XPathDuration cast(Object value) {

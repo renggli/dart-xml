@@ -1,5 +1,6 @@
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
+import '../exceptions/evaluation_exception.dart';
 import '../types/number.dart';
 import '../types/sequence.dart';
 
@@ -20,6 +21,9 @@ class RangeExpression implements XPathExpression {
     final end = xsInteger.cast(endSeq.singleOrNull!);
     if (start > end) {
       return XPathSequence.empty;
+    }
+    if (end - start > 10000000) {
+      throw XPathEvaluationException('Sequence size limit exceeded (XPDY0130)');
     }
     return XPathSequence.range(start, end);
   }

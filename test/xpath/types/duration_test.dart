@@ -10,13 +10,13 @@ void main() {
       expect(xsDuration.name, 'xs:duration');
     });
     test('matches', () {
-      // xs:duration matches XPathDuration but not its subtypes.
+      // xs:duration matches XPathDuration and its subtypes.
       const d = XPathDuration(months: 1, dayTime: Duration.zero);
       expect(xsDuration.matches(d), isTrue);
-      expect(xsDuration.matches(XPathYearMonthDuration(12)), isFalse);
+      expect(xsDuration.matches(XPathYearMonthDuration(12)), isTrue);
       expect(
         xsDuration.matches(XPathDayTimeDuration(const Duration(seconds: 1))),
-        isFalse,
+        isTrue,
       );
       expect(xsDuration.matches('P1Y'), isFalse);
     });

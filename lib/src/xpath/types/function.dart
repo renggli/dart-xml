@@ -19,6 +19,9 @@ class _XPathFunctionType extends XPathType<XPathFunction> {
   String get name => 'function(*)';
 
   @override
+  bool get isAtomic => false;
+
+  @override
   bool matches(Object value) => value is XPathFunction;
 
   @override

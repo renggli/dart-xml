@@ -20,6 +20,9 @@ class _XPathEmptySequenceType extends XPathType<XPathSequence<Never>> {
   String get name => 'empty-sequence()';
 
   @override
+  bool get isAtomic => false;
+
+  @override
   bool matches(Object value) => value is XPathSequence && value.isEmpty;
 
   @override
@@ -46,6 +49,9 @@ class XPathSequenceType<T extends Object> extends XPathType<XPathSequence<T>> {
 
   @override
   String get name => '$type$cardinality';
+
+  @override
+  bool get isAtomic => false;
 
   @override
   bool matches(Object value) =>

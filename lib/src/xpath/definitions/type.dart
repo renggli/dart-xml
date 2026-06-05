@@ -8,6 +8,9 @@ abstract class XPathType<T extends Object> {
   /// The type name.
   String get name;
 
+  /// Returns `true` if this is an atomic type.
+  bool get isAtomic => true;
+
   /// The aliases of the type.
   Iterable<String> get aliases => const [];
 

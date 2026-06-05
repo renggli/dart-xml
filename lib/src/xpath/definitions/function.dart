@@ -1,7 +1,12 @@
+import '../../xml/nodes/node.dart';
 import '../../xml/utils/name.dart';
 import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types/any.dart';
+import '../types/array.dart';
+import '../types/map.dart';
+import '../types/node.dart';
+import '../types/number.dart';
 import '../types/sequence.dart';
 import 'cardinality.dart';
 import 'type.dart';
@@ -106,51 +111,102 @@ class XPathArgumentDefinition {
 
   /// Process the argument.
   Object? convert(XPathFunctionDefinition definition, XPathSequence sequence) {
-    switch (cardinality) {
-      case XPathCardinality.exactlyOne:
-        final iterable = sequence.iterator;
-        if (!iterable.moveNext()) {
-          throw XPathEvaluationException(
-            'Function "${definition.name.qualified}" expects exactly one value for '
-            'argument "$name", but got none.',
-          );
-        }
-        final value = iterable.current;
-        if (iterable.moveNext()) {
-          throw XPathEvaluationException(
-            'Function "${definition.name.qualified}" expects exactly one value for '
-            'argument "$name", but got more than one.',
-          );
-        }
-        return type.cast(value);
-      case XPathCardinality.zeroOrOne:
-        final iterable = sequence.iterator;
-        if (!iterable.moveNext()) {
-          return null;
-        }
-        final value = iterable.current;
-        if (iterable.moveNext()) {
-          throw XPathEvaluationException(
-            'Function "${definition.name.qualified}" expects zero or one value for '
-            'argument "$name", but got more than one.',
-          );
-        }
-        return type.cast(value);
-      case XPathCardinality.oneOrMore:
-        final iterable = sequence.iterator;
-        if (!iterable.moveNext()) {
-          throw XPathEvaluationException(
-            'Function "${definition.name.qualified}" expects one or more values for '
-            'argument "$name", but got none.',
-          );
-        }
-        return type == xsAny
-            ? sequence
-            : XPathSequence(sequence.map(type.cast));
-      case XPathCardinality.zeroOrMore:
-        return type == xsAny
-            ? sequence
-            : XPathSequence(sequence.map(type.cast));
+    if (type is XPathSequenceType) {
+      if (sequence.hasCardinality(cardinality)) {
+        return sequence;
+      }
+      throw XPathEvaluationException(
+        'Function "${definition.name.qualified}" expects cardinality $cardinality for '
+        'argument "$name", but got sequence with incompatible cardinality.',
+      );
+    }
+
+    if (type == xsAny &&
+        (cardinality == XPathCardinality.oneOrMore ||
+            cardinality == XPathCardinality.zeroOrMore)) {
+      return sequence;
+    }
+
+    final convertedList = sequence
+        .expand((e) => _convertItem(definition, e, type))
+        .toList();
+
+    return switch (cardinality) {
+      XPathCardinality.exactlyOne => switch (convertedList) {
+        [final single] => single,
+        [] => throw XPathEvaluationException(
+          'Function "${definition.name.qualified}" expects exactly one value for '
+          'argument "$name", but got none.',
+        ),
+        _ => throw XPathEvaluationException(
+          'Function "${definition.name.qualified}" expects exactly one value for '
+          'argument "$name", but got more than one.',
+        ),
+      },
+      XPathCardinality.zeroOrOne => switch (convertedList) {
+        [] => null,
+        [final single] => single,
+        _ => throw XPathEvaluationException(
+          'Function "${definition.name.qualified}" expects zero or one value for '
+          'argument "$name", but got more than one.',
+        ),
+      },
+      XPathCardinality.oneOrMore => switch (convertedList) {
+        [] => throw XPathEvaluationException(
+          'Function "${definition.name.qualified}" expects one or more values for '
+          'argument "$name", but got none.',
+        ),
+        _ => XPathSequence(convertedList),
+      },
+      XPathCardinality.zeroOrMore => XPathSequence(convertedList),
+    };
+  }
+
+  Iterable<Object> _convertItem(
+    XPathFunctionDefinition definition,
+    Object item,
+    XPathType type,
+  ) {
+    if (!type.isAtomic) {
+      if (type.matches(item)) return [type.cast(item)];
+      throw XPathEvaluationException.unsupportedCast(type, item);
+    }
+
+    return switch (item) {
+      XPathSequence() => item.expand((e) => _convertItem(definition, e, type)),
+      XPathArray() => item.expand((e) => _convertItem(definition, e, type)),
+      XmlNode() => _convertXmlNode(definition, item, type),
+      XPathMap() || Function() => throw XPathEvaluationException(
+        'Cannot atomize a map or function item',
+      ),
+      _ when type.matches(item) => [type.cast(item)],
+      _ when definition.name.prefix == 'xs' => _tryCast(type, item),
+      _ when type == xsDouble && item is num => [type.cast(item)],
+      _ => throw XPathEvaluationException.unsupportedCast(type, item),
+    };
+  }
+
+  Iterable<Object> _convertXmlNode(
+    XPathFunctionDefinition definition,
+    XmlNode node,
+    XPathType type,
+  ) {
+    final val = xsNode.castToString(node);
+    try {
+      return [type.cast(val)];
+    } on XPathEvaluationException {
+      throw XPathEvaluationException(
+        'Function "${definition.name.qualified}" expects type $type for argument "$name", '
+        'but got XML node with incompatible value "$val".',
+      );
+    }
+  }
+
+  Iterable<Object> _tryCast(XPathType type, Object item) {
+    try {
+      return [type.cast(item)];
+    } on XPathEvaluationException {
+      throw XPathEvaluationException.unsupportedCast(type, item);
     }
   }
 

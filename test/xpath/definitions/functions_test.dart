@@ -3,6 +3,7 @@ import 'package:xml/src/xpath/definitions/cardinality.dart';
 import 'package:xml/src/xpath/definitions/function.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/types/any.dart';
+import 'package:xml/src/xpath/types/number.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/src/xpath/types/string.dart';
 import 'package:xml/xml.dart';
@@ -122,6 +123,54 @@ void main() {
         'b',
       ]);
       expect(def.convert(function, XPathSequence.empty), isEmpty);
+    });
+    test('strict coercion and promotions', () {
+      const integerArg = XPathArgumentDefinition(
+        name: 'arg',
+        type: xsInteger,
+        cardinality: XPathCardinality.exactlyOne,
+      );
+      const doubleArg = XPathArgumentDefinition(
+        name: 'arg',
+        type: xsDouble,
+        cardinality: XPathCardinality.exactlyOne,
+      );
+
+      // Subtype substitution matches:
+      expect(
+        integerArg.convert(function, const XPathSequence.single(123)),
+        123,
+      );
+      expect(
+        doubleArg.convert(function, const XPathSequence.single(1.23)),
+        1.23,
+      );
+
+      // Numeric promotion (int to double):
+      expect(
+        doubleArg.convert(function, const XPathSequence.single(123)),
+        123.0,
+      );
+
+      // Strict coercion (string/bool to numeric throws):
+      expect(
+        () => integerArg.convert(function, const XPathSequence.single('123')),
+        throwsA(isXPathEvaluationException()),
+      );
+      expect(
+        () => integerArg.convert(function, const XPathSequence.single(true)),
+        throwsA(isXPathEvaluationException()),
+      );
+
+      // Untyped atomic conversion (XML Node to numeric succeeds):
+      final xmlNode = XmlDocument.parse('<v>123</v>').rootElement;
+      expect(integerArg.convert(function, XPathSequence.single(xmlNode)), 123);
+
+      final badXmlNode = XmlDocument.parse('<v>abc</v>').rootElement;
+      expect(
+        () => integerArg.convert(function, XPathSequence.single(badXmlNode)),
+        throwsA(isXPathEvaluationException()),
+      );
     });
     test('toString', () {
       expect(

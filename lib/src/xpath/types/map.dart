@@ -14,7 +14,10 @@ class _XPathMapType extends XPathType<XPathMap> {
   String get name => 'map(*)';
 
   @override
-  bool matches(Object value) => value is XPathMap;
+  bool get isAtomic => false;
+
+  @override
+  bool matches(Object value) => value is Map;
 
   @override
   XPathMap cast(Object value) {

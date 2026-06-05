@@ -10,6 +10,9 @@ class _XPathAnyType extends XPathType<Object> {
   String get name => 'item()';
 
   @override
+  bool get isAtomic => false;
+
+  @override
   Iterable<String> get aliases => ['xs:untyped', 'xs:untypedAtomic'];
 
   @override

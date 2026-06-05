@@ -14,7 +14,10 @@ class _XPathArrayType extends XPathType<XPathArray> {
   String get name => 'array(*)';
 
   @override
-  bool matches(Object value) => value is XPathArray;
+  bool get isAtomic => false;
+
+  @override
+  bool matches(Object value) => value is List;
 
   @override
   XPathArray cast(Object value) {
