@@ -104,4 +104,8 @@ const fnStaticBaseUri = XPathFunctionDefinition(
   function: _fnStaticBaseUri,
 );
 
-XPathSequence _fnStaticBaseUri(XPathContext context) => XPathSequence.empty;
+XPathSequence _fnStaticBaseUri(XPathContext context) {
+  final base = context.baseUri;
+  if (base == null) return XPathSequence.empty;
+  return XPathSequence.single(base);
+}

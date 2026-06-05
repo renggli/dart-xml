@@ -20,6 +20,8 @@ class XPathContext {
     this.namespaceUris = const {},
     this.documents = const {},
     this.environment = const {},
+    this.baseUri,
+    this.unparsedTextLoader,
     this.onTraceCallback,
   });
 
@@ -33,6 +35,8 @@ class XPathContext {
       namespaceUris = xpathNamespaceUris,
       documents = const {},
       environment = const {},
+      baseUri = null,
+      unparsedTextLoader = null,
       onTraceCallback = null;
 
   /// Mutable context node.
@@ -61,6 +65,12 @@ class XPathContext {
 
   /// Available environment variables.
   final Map<String, String> environment;
+
+  /// Static base URI.
+  final String? baseUri;
+
+  /// Unparsed text loader.
+  final String? Function(String uri, String? encoding)? unparsedTextLoader;
 
   /// Callback to trace evaluation.
   final XPathTraceCallback? onTraceCallback;
@@ -96,6 +106,8 @@ class XPathContext {
     Map<String, String>? namespaceUris,
     Map<String, XmlNode>? documents,
     Map<String, String>? environment,
+    String? baseUri,
+    String? Function(String uri, String? encoding)? unparsedTextLoader,
     XPathTraceCallback? onTraceCallback,
   }) => XPathContext.empty(
     item,
@@ -107,6 +119,8 @@ class XPathContext {
     environment: _extend(this.environment, environment),
     namespaceUri: namespaceUri ?? this.namespaceUri,
     namespaceUris: _extend(this.namespaceUris, namespaceUris),
+    baseUri: baseUri ?? this.baseUri,
+    unparsedTextLoader: unparsedTextLoader ?? this.unparsedTextLoader,
     onTraceCallback: onTraceCallback ?? this.onTraceCallback,
   );
 

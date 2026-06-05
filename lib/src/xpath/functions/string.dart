@@ -218,7 +218,7 @@ const fnStringLength = XPathFunctionDefinition(
 
 XPathSequence _fnStringLength(XPathContext context, [XPathSequence? arg]) {
   final string = arg != null ? xsString.cast(arg) : xsString.cast(context.item);
-  return XPathSequence.single(string.length);
+  return XPathSequence.single(string.runes.length);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-normalize-space

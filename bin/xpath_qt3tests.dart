@@ -4,6 +4,7 @@
 /// identify gaps and discrepancies of the library with the standard.
 library;
 
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:collection/collection.dart';
@@ -241,12 +242,118 @@ class TestEnvironment {
 
   late final Map<String, Object> variables = _getVariables();
 
+  late final String? baseUri = _getBaseUri();
+
+  late final Map<String, TestResource> resources = _getResources();
+
   XPathContext get context =>
       XPathContext.canonical(source ?? XPathSequence.empty).copy(
         documents: documents,
         variables: variables,
         environment: Platform.environment,
+        baseUri: baseUri,
+        unparsedTextLoader: _unparsedTextLoader,
       );
+
+  String? _getBaseUri() {
+    final uri = element
+        .findElements('static-base-uri')
+        .singleOrNull
+        ?.getAttribute('uri');
+    if (uri == '#UNDEFINED') return null;
+    return uri;
+  }
+
+  Map<String, TestResource> _getResources() {
+    final results = <String, TestResource>{};
+    for (final el in element.findElements('resource')) {
+      final file = el.getAttribute('file');
+      if (file == null) continue;
+      final uri = el.getAttribute('uri');
+      final encoding = el.getAttribute('encoding');
+      final resource = TestResource(file, encoding);
+      if (uri != null) {
+        results[uri] = resource;
+      }
+      results[file] = resource;
+    }
+    return results;
+  }
+
+  String? _unparsedTextLoader(String uri, String? requestedEncoding) {
+    final resource = resources[uri];
+    if (resource == null) {
+      return null;
+    }
+    final file = File('${directory.path}/${resource.file}');
+    if (!file.existsSync()) {
+      return null;
+    }
+    final bytes = file.readAsBytesSync();
+
+    final encodingName = requestedEncoding ?? resource.encoding;
+    if (encodingName != null) {
+      final normalized = encodingName.toLowerCase().replaceAll(
+        RegExp(r'[^a-z0-9]'),
+        '',
+      );
+      if (normalized == 'utf8') {
+        return _decodeUtf8(bytes);
+      } else if (normalized == 'utf16' || normalized == 'utf16le') {
+        return _decodeUtf16(bytes, bigEndian: false);
+      } else if (normalized == 'utf16be') {
+        return _decodeUtf16(bytes, bigEndian: true);
+      } else if (normalized == 'iso88591' || normalized == 'latin1') {
+        return latin1.decode(bytes);
+      } else if (normalized == 'usascii' || normalized == 'ascii') {
+        return ascii.decode(bytes);
+      } else {
+        throw XPathEvaluationException('Unsupported encoding: $encodingName');
+      }
+    }
+
+    // Auto-detect using BOM or default to UTF-8
+    if (bytes.length >= 2) {
+      if (bytes[0] == 0xFE && bytes[1] == 0xFF) {
+        return _decodeUtf16(bytes, bigEndian: true);
+      } else if (bytes[0] == 0xFF && bytes[1] == 0xFE) {
+        return _decodeUtf16(bytes, bigEndian: false);
+      }
+    }
+    return _decodeUtf8(bytes);
+  }
+
+  String _decodeUtf8(List<int> bytes) {
+    if (bytes.length >= 3 &&
+        bytes[0] == 0xEF &&
+        bytes[1] == 0xBB &&
+        bytes[2] == 0xBF) {
+      return utf8.decode(bytes.sublist(3));
+    }
+    return utf8.decode(bytes);
+  }
+
+  String _decodeUtf16(List<int> bytes, {bool? bigEndian}) {
+    if (bytes.length < 2) return '';
+    var start = 0;
+    var isBe = bigEndian ?? true;
+    if (bytes[0] == 0xFE && bytes[1] == 0xFF) {
+      isBe = true;
+      start = 2;
+    } else if (bytes[0] == 0xFF && bytes[1] == 0xFE) {
+      isBe = false;
+      start = 2;
+    }
+
+    final codeUnits = <int>[];
+    for (var i = start; i < bytes.length - 1; i += 2) {
+      final b1 = bytes[i];
+      final b2 = bytes[i + 1];
+      final value = isBe ? (b1 << 8) | b2 : (b2 << 8) | b1;
+      codeUnits.add(value);
+    }
+    return String.fromCharCodes(codeUnits);
+  }
 
   Map<String, XmlNode> _getDocuments() {
     final results = <String, XmlNode>{};
@@ -458,4 +565,10 @@ String formatStopwatch(Stopwatch stopwatch) =>
 String formatMessage(String message) {
   final normalize = message.trim().replaceAll(RegExp(r'\s+'), ' ');
   return normalize.length > 80 ? '${normalize.substring(0, 75)}...' : normalize;
+}
+
+class TestResource {
+  TestResource(this.file, this.encoding);
+  final String file;
+  final String? encoding;
 }

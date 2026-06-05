@@ -31,11 +31,19 @@ XPathSequence _fnResolveUri(
   try {
     final uri = Uri.parse(relative);
     if (uri.isAbsolute) return XPathSequence.single(relative);
+    final String resolvedBase;
     if (base == null) {
-      // TODO: Use base URI from static context
-      return XPathSequence.single(relative);
+      final staticBase = context.baseUri;
+      if (staticBase == null) {
+        throw XPathEvaluationException('Static base URI is undefined');
+      }
+      resolvedBase = staticBase;
+    } else {
+      resolvedBase = base;
     }
-    return XPathSequence.single(Uri.parse(base).resolve(relative).toString());
+    return XPathSequence.single(
+      Uri.parse(resolvedBase).resolve(relative).toString(),
+    );
   } on FormatException catch (error) {
     throw XPathEvaluationException('Invalid URI: ${error.message}');
   }
@@ -121,11 +129,108 @@ const fnUnparsedText = XPathFunctionDefinition(
       cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
+  optionalArguments: [
+    XPathArgumentDefinition(name: 'encoding', type: xsString),
+  ],
   function: _fnUnparsedText,
 );
 
-XPathSequence _fnUnparsedText(XPathContext context, String? href) {
-  throw UnimplementedError('fn:unparsed-text');
+XPathSequence _fnUnparsedText(
+  XPathContext context,
+  String? href, [
+  String? encoding,
+]) {
+  if (href == null) return XPathSequence.empty;
+
+  // Resolve relative URI.
+  String resolved;
+  try {
+    final uri = Uri.parse(href);
+    if (uri.isAbsolute) {
+      resolved = href;
+    } else {
+      final base = context.baseUri;
+      if (base == null) {
+        throw XPathEvaluationException('Static base URI is undefined');
+      }
+      resolved = Uri.parse(base).resolve(href).toString();
+    }
+  } on FormatException catch (e) {
+    throw XPathEvaluationException('Invalid URI: $href (${e.message})');
+  }
+
+  // Check fragment identifier.
+  final parsedResolved = Uri.parse(resolved);
+  if (parsedResolved.hasFragment) {
+    throw XPathEvaluationException(
+      'URI contains a fragment identifier: $resolved',
+    );
+  }
+
+  // Validate encoding name.
+  if (encoding != null) {
+    _validateEncodingName(encoding);
+  }
+
+  final loader = context.unparsedTextLoader;
+  if (loader == null) {
+    throw XPathEvaluationException(
+      'No unparsed text loader available to load $resolved',
+    );
+  }
+
+  final String? loaded;
+  try {
+    loaded = loader(resolved, encoding);
+  } catch (e) {
+    if (e is XPathEvaluationException) rethrow;
+    throw XPathEvaluationException('Failed to load resource $resolved: $e');
+  }
+
+  if (loaded == null) {
+    throw XPathEvaluationException('Resource not found: $resolved');
+  }
+
+  // Validate XML characters in text.
+  _validateXmlCharacters(loaded);
+
+  return XPathSequence.single(loaded);
+}
+
+void _validateEncodingName(String encoding) {
+  final normalized = encoding.toLowerCase().replaceAll(
+    RegExp(r'[^a-z0-9]'),
+    '',
+  );
+  const supported = {
+    'utf8',
+    'utf16',
+    'utf16le',
+    'utf16be',
+    'iso88591',
+    'latin1',
+    'usascii',
+    'ascii',
+  };
+  if (!supported.contains(normalized)) {
+    throw XPathEvaluationException('Unsupported encoding: $encoding');
+  }
+}
+
+void _validateXmlCharacters(String text) {
+  for (final char in text.runes) {
+    if (char == 0x9 ||
+        char == 0xA ||
+        char == 0xD ||
+        (char >= 0x20 && char <= 0xD7FF) ||
+        (char >= 0xE000 && char <= 0xFFFD) ||
+        (char >= 0x10000 && char <= 0x10FFFF)) {
+      continue;
+    }
+    throw XPathEvaluationException(
+      'Invalid XML character: U+${char.toRadixString(16).toUpperCase()}',
+    );
+  }
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-unparsed-text-lines
@@ -138,11 +243,28 @@ const fnUnparsedTextLines = XPathFunctionDefinition(
       cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
+  optionalArguments: [
+    XPathArgumentDefinition(name: 'encoding', type: xsString),
+  ],
   function: _fnUnparsedTextLines,
 );
 
-XPathSequence _fnUnparsedTextLines(XPathContext context, String? href) {
-  throw UnimplementedError('fn:unparsed-text-lines');
+XPathSequence _fnUnparsedTextLines(
+  XPathContext context,
+  String? href, [
+  String? encoding,
+]) {
+  if (href == null) return XPathSequence.empty;
+  final textSequence = _fnUnparsedText(context, href, encoding);
+  if (textSequence.isEmpty) return XPathSequence.empty;
+  final text = textSequence.single as String;
+  if (text.isEmpty) return XPathSequence.empty;
+
+  final lines = text.split(RegExp(r'\r\n|\r|\n'));
+  if (lines.isNotEmpty && lines.last.isEmpty) {
+    lines.removeLast();
+  }
+  return XPathSequence(lines);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-unparsed-text-available
@@ -155,11 +277,24 @@ const fnUnparsedTextAvailable = XPathFunctionDefinition(
       cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
+  optionalArguments: [
+    XPathArgumentDefinition(name: 'encoding', type: xsString),
+  ],
   function: _fnUnparsedTextAvailable,
 );
 
-XPathSequence _fnUnparsedTextAvailable(XPathContext context, String? href) {
-  throw UnimplementedError('fn:unparsed-text-available');
+XPathSequence _fnUnparsedTextAvailable(
+  XPathContext context,
+  String? href, [
+  String? encoding,
+]) {
+  if (href == null) return const XPathSequence.single(false);
+  try {
+    _fnUnparsedText(context, href, encoding);
+    return const XPathSequence.single(true);
+  } catch (_) {
+    return const XPathSequence.single(false);
+  }
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-environment-variable
