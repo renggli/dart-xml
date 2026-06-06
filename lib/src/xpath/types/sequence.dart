@@ -133,12 +133,14 @@ abstract mixin class XPathSequence<T extends Object> implements Iterable<T> {
     final item = iterator.current;
     if (item is XmlNode) return true;
     if (!iterator.moveNext()) {
-      if (item is bool) return item;
-      if (item is num) return item != 0 && !item.isNaN;
-      if (item is String) return item.isNotEmpty;
-      throw XPathEvaluationException(
-        'Invalid type for EBV: ${item.runtimeType}',
-      );
+      return switch (item) {
+        bool() => item,
+        num() => item != 0 && !item.isNaN,
+        String() => item.isNotEmpty,
+        _ => throw XPathEvaluationException(
+          'Invalid type for EBV: ${item.runtimeType}',
+        ),
+      };
     }
     throw XPathEvaluationException('Invalid EBV for sequence of length > 1');
   }

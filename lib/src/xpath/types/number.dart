@@ -17,28 +17,24 @@ class _XPathNumericType extends XPathType<num> {
   bool matches(Object value) => value is num;
 
   @override
-  num cast(Object value) {
-    if (value is num) {
-      return value;
-    } else if (value is Duration) {
-      return value.inMicroseconds;
-    } else if (value is bool) {
-      return value ? 1 : 0;
-    } else if (value is String) {
-      final trimmed = value.trim();
-      if (trimmed == 'INF') return double.infinity;
-      if (trimmed == '-INF') return double.negativeInfinity;
-      if (trimmed == 'NaN') return double.nan;
-      if (_doublePattern.hasMatch(trimmed)) {
-        return num.parse(trimmed);
-      }
-    } else if (value is XmlNode) {
-      return cast(xsString.cast(value));
-    } else if (value is XPathSequence) {
-      final item = value.singleOrNull;
-      if (item != null) return cast(item);
+  num cast(Object value) => switch (value) {
+    num() => value,
+    Duration() => value.inMicroseconds,
+    bool() => value ? 1 : 0,
+    String() => _parseNumeric(value.trim()),
+    XmlNode() => cast(xsString.cast(value)),
+    XPathSequence(singleOrNull: final item?) => cast(item),
+    _ => throw XPathEvaluationException.unsupportedCast(this, value),
+  };
+
+  num _parseNumeric(String trimmed) {
+    if (trimmed == 'INF') return double.infinity;
+    if (trimmed == '-INF') return double.negativeInfinity;
+    if (trimmed == 'NaN') return double.nan;
+    if (_doublePattern.hasMatch(trimmed)) {
+      return num.parse(trimmed);
     }
-    throw XPathEvaluationException.unsupportedCast(this, value);
+    throw XPathEvaluationException.unsupportedCast(this, trimmed);
   }
 
   @override
@@ -58,25 +54,21 @@ class _XPathDecimalType extends XPathType<num> {
   bool matches(Object value) => value is num;
 
   @override
-  num cast(Object value) {
-    if (value is num && value.isFinite) {
-      return value;
-    } else if (value is Duration) {
-      return value.inMicroseconds;
-    } else if (value is bool) {
-      return value ? 1 : 0;
-    } else if (value is String) {
-      final trimmed = value.trim();
-      if (_decimalPattern.hasMatch(trimmed)) {
-        return num.parse(trimmed);
-      }
-    } else if (value is XmlNode) {
-      return cast(xsString.cast(value));
-    } else if (value is XPathSequence) {
-      final item = value.singleOrNull;
-      if (item != null) return cast(item);
+  num cast(Object value) => switch (value) {
+    num() when value.isFinite => value,
+    Duration() => value.inMicroseconds,
+    bool() => value ? 1 : 0,
+    String() => _parseDecimal(value.trim()),
+    XmlNode() => cast(xsString.cast(value)),
+    XPathSequence(singleOrNull: final item?) => cast(item),
+    _ => throw XPathEvaluationException.unsupportedCast(this, value),
+  };
+
+  num _parseDecimal(String trimmed) {
+    if (_decimalPattern.hasMatch(trimmed)) {
+      return num.parse(trimmed);
     }
-    throw XPathEvaluationException.unsupportedCast(this, value);
+    throw XPathEvaluationException.unsupportedCast(this, trimmed);
   }
 
   @override
@@ -142,27 +134,22 @@ class _XPathIntegerType extends XPathType<int> {
   bool matches(Object value) => value is int;
 
   @override
-  int cast(Object value) {
-    if (value is int) {
-      return value;
-    } else if (value is num && value.isFinite) {
-      return value.toInt();
-    } else if (value is Duration) {
-      return value.inMicroseconds;
-    } else if (value is bool) {
-      return value ? 1 : 0;
-    } else if (value is String) {
-      final trimmed = value.trim();
-      if (_integerPattern.hasMatch(trimmed)) {
-        return int.parse(trimmed);
-      }
-    } else if (value is XmlNode) {
-      return cast(xsString.cast(value));
-    } else if (value is XPathSequence) {
-      final item = value.singleOrNull;
-      if (item != null) return cast(item);
+  int cast(Object value) => switch (value) {
+    int() => value,
+    num() when value.isFinite => value.toInt(),
+    Duration() => value.inMicroseconds,
+    bool() => value ? 1 : 0,
+    String() => _parseInteger(value.trim()),
+    XmlNode() => cast(xsString.cast(value)),
+    XPathSequence(singleOrNull: final item?) => cast(item),
+    _ => throw XPathEvaluationException.unsupportedCast(this, value),
+  };
+
+  int _parseInteger(String trimmed) {
+    if (_integerPattern.hasMatch(trimmed)) {
+      return int.parse(trimmed);
     }
-    throw XPathEvaluationException.unsupportedCast(this, value);
+    throw XPathEvaluationException.unsupportedCast(this, trimmed);
   }
 
   @override
@@ -217,30 +204,25 @@ class _XPathDoubleType extends XPathType<double> {
   bool matches(Object value) => value is double;
 
   @override
-  double cast(Object value) {
-    if (value is double) {
-      return value;
-    } else if (value is num) {
-      return value.toDouble();
-    } else if (value is Duration) {
-      return value.inMicroseconds.toDouble();
-    } else if (value is bool) {
-      return value ? 1 : 0;
-    } else if (value is String) {
-      final trimmed = value.trim();
-      if (trimmed == 'INF') return double.infinity;
-      if (trimmed == '-INF') return double.negativeInfinity;
-      if (trimmed == 'NaN') return double.nan;
-      if (_doublePattern.hasMatch(trimmed)) {
-        return double.parse(trimmed);
-      }
-    } else if (value is XmlNode) {
-      return cast(xsString.cast(value));
-    } else if (value is XPathSequence) {
-      final item = value.singleOrNull;
-      if (item != null) return cast(item);
+  double cast(Object value) => switch (value) {
+    double() => value,
+    num() => value.toDouble(),
+    Duration() => value.inMicroseconds.toDouble(),
+    bool() => value ? 1 : 0,
+    String() => _parseDouble(value.trim()),
+    XmlNode() => cast(xsString.cast(value)),
+    XPathSequence(singleOrNull: final item?) => cast(item),
+    _ => throw XPathEvaluationException.unsupportedCast(this, value),
+  };
+
+  double _parseDouble(String trimmed) {
+    if (trimmed == 'INF') return double.infinity;
+    if (trimmed == '-INF') return double.negativeInfinity;
+    if (trimmed == 'NaN') return double.nan;
+    if (_doublePattern.hasMatch(trimmed)) {
+      return double.parse(trimmed);
     }
-    throw XPathEvaluationException.unsupportedCast(this, value);
+    throw XPathEvaluationException.unsupportedCast(this, trimmed);
   }
 
   @override

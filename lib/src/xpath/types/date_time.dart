@@ -19,19 +19,13 @@ class _XPathDateTimeType extends XPathType<DateTime> {
       value is XPathDateTimeStamp;
 
   @override
-  DateTime cast(Object value) {
-    if (value is DateTime) {
-      return value;
-    } else if (value is String) {
-      return _parseDateTime(value.trim());
-    } else if (value is XmlNode) {
-      return _parseDateTime(xsString.cast(value).trim());
-    } else if (value is XPathSequence) {
-      final item = value.singleOrNull;
-      if (item != null) return cast(item);
-    }
-    throw XPathEvaluationException.unsupportedCast(this, value);
-  }
+  DateTime cast(Object value) => switch (value) {
+    DateTime() => value,
+    String() => _parseDateTime(value.trim()),
+    XmlNode() => _parseDateTime(xsString.cast(value).trim()),
+    XPathSequence(singleOrNull: final item?) => cast(item),
+    _ => throw XPathEvaluationException.unsupportedCast(this, value),
+  };
 
   DateTime _parseDateTime(String value) {
     final match = _dateTimeRegExp.firstMatch(value);
@@ -93,32 +87,30 @@ class _XPathDateTimeStampType extends XPathType<XPathDateTimeStamp> {
       (value is DateTime && value is! _XPathDateTimeWrapper);
 
   @override
-  XPathDateTimeStamp cast(Object value) {
-    if (value is XPathDateTimeStamp) {
-      return value;
-    } else if (value is DateTime) {
-      if (value.isUtc) return XPathDateTimeStamp(value);
-    } else if (value is String) {
-      final trimmed = value.trim();
-      final match = _XPathDateTimeType._dateTimeRegExp.firstMatch(trimmed);
-      if (match != null && match.namedGroup('timezone') != null) {
-        return XPathDateTimeStamp(
-          _createDateTime(
-            year: match.namedGroup('year')!,
-            month: match.namedGroup('month')!,
-            day: match.namedGroup('day')!,
-            hour: match.namedGroup('hour')!,
-            minute: match.namedGroup('minute')!,
-            second: match.namedGroup('second')!,
-            timezone: match.namedGroup('timezone'),
-          ),
-        );
-      }
-    } else if (value is XPathSequence) {
-      final item = value.singleOrNull;
-      if (item != null) return cast(item);
+  XPathDateTimeStamp cast(Object value) => switch (value) {
+    XPathDateTimeStamp() => value,
+    DateTime() when value.isUtc => XPathDateTimeStamp(value),
+    String() => _parseDateTimeStamp(value.trim()),
+    XPathSequence(singleOrNull: final item?) => cast(item),
+    _ => throw XPathEvaluationException.unsupportedCast(this, value),
+  };
+
+  XPathDateTimeStamp _parseDateTimeStamp(String trimmed) {
+    final match = _XPathDateTimeType._dateTimeRegExp.firstMatch(trimmed);
+    if (match != null && match.namedGroup('timezone') != null) {
+      return XPathDateTimeStamp(
+        _createDateTime(
+          year: match.namedGroup('year')!,
+          month: match.namedGroup('month')!,
+          day: match.namedGroup('day')!,
+          hour: match.namedGroup('hour')!,
+          minute: match.namedGroup('minute')!,
+          second: match.namedGroup('second')!,
+          timezone: match.namedGroup('timezone'),
+        ),
+      );
     }
-    throw XPathEvaluationException.unsupportedCast(this, value);
+    throw XPathEvaluationException.unsupportedCast(this, trimmed);
   }
 
   @override
@@ -150,29 +142,27 @@ class _XPathDateType extends XPathType<XPathDate> {
       (value is DateTime && value is! _XPathDateTimeWrapper);
 
   @override
-  XPathDate cast(Object value) {
-    if (value is XPathDate) {
-      return value;
-    } else if (value is DateTime) {
-      return XPathDate(value);
-    } else if (value is String) {
-      final trimmed = value.trim();
-      final match = _dateRegExp.firstMatch(trimmed);
-      if (match != null) {
-        return XPathDate(
-          _createDateTime(
-            year: match.namedGroup('year')!,
-            month: match.namedGroup('month')!,
-            day: match.namedGroup('day')!,
-            timezone: match.namedGroup('timezone'),
-          ),
-        );
-      }
-    } else if (value is XPathSequence) {
-      final item = value.singleOrNull;
-      if (item != null) return cast(item);
+  XPathDate cast(Object value) => switch (value) {
+    XPathDate() => value,
+    DateTime() => XPathDate(value),
+    String() => _parseDate(value.trim()),
+    XPathSequence(singleOrNull: final item?) => cast(item),
+    _ => throw XPathEvaluationException.unsupportedCast(this, value),
+  };
+
+  XPathDate _parseDate(String trimmed) {
+    final match = _dateRegExp.firstMatch(trimmed);
+    if (match != null) {
+      return XPathDate(
+        _createDateTime(
+          year: match.namedGroup('year')!,
+          month: match.namedGroup('month')!,
+          day: match.namedGroup('day')!,
+          timezone: match.namedGroup('timezone'),
+        ),
+      );
     }
-    throw XPathEvaluationException.unsupportedCast(this, value);
+    throw XPathEvaluationException.unsupportedCast(this, trimmed);
   }
 
   @override
@@ -220,29 +210,27 @@ class _XPathTimeType extends XPathType<XPathTime> {
       (value is DateTime && value is! _XPathDateTimeWrapper);
 
   @override
-  XPathTime cast(Object value) {
-    if (value is XPathTime) {
-      return value;
-    } else if (value is DateTime) {
-      return XPathTime(value);
-    } else if (value is String) {
-      final trimmed = value.trim();
-      final match = _timeRegExp.firstMatch(trimmed);
-      if (match != null) {
-        return XPathTime(
-          _createDateTime(
-            hour: match.namedGroup('hour')!,
-            minute: match.namedGroup('minute')!,
-            second: match.namedGroup('second')!,
-            timezone: match.namedGroup('timezone'),
-          ),
-        );
-      }
-    } else if (value is XPathSequence) {
-      final item = value.singleOrNull;
-      if (item != null) return cast(item);
+  XPathTime cast(Object value) => switch (value) {
+    XPathTime() => value,
+    DateTime() => XPathTime(value),
+    String() => _parseTime(value.trim()),
+    XPathSequence(singleOrNull: final item?) => cast(item),
+    _ => throw XPathEvaluationException.unsupportedCast(this, value),
+  };
+
+  XPathTime _parseTime(String trimmed) {
+    final match = _timeRegExp.firstMatch(trimmed);
+    if (match != null) {
+      return XPathTime(
+        _createDateTime(
+          hour: match.namedGroup('hour')!,
+          minute: match.namedGroup('minute')!,
+          second: match.namedGroup('second')!,
+          timezone: match.namedGroup('timezone'),
+        ),
+      );
     }
-    throw XPathEvaluationException.unsupportedCast(this, value);
+    throw XPathEvaluationException.unsupportedCast(this, trimmed);
   }
 
   @override
@@ -290,28 +278,26 @@ class _XPathGYearMonthType extends XPathType<XPathGYearMonth> {
       (value is DateTime && value is! _XPathDateTimeWrapper);
 
   @override
-  XPathGYearMonth cast(Object value) {
-    if (value is XPathGYearMonth) {
-      return value;
-    } else if (value is DateTime) {
-      return XPathGYearMonth(value);
-    } else if (value is String) {
-      final trimmed = value.trim();
-      final match = _yearMonthRegExp.firstMatch(trimmed);
-      if (match != null) {
-        return XPathGYearMonth(
-          _createDateTime(
-            year: match.namedGroup('year')!,
-            month: match.namedGroup('month')!,
-            timezone: match.namedGroup('timezone'),
-          ),
-        );
-      }
-    } else if (value is XPathSequence) {
-      final item = value.singleOrNull;
-      if (item != null) return cast(item);
+  XPathGYearMonth cast(Object value) => switch (value) {
+    XPathGYearMonth() => value,
+    DateTime() => XPathGYearMonth(value),
+    String() => _parseGYearMonth(value.trim()),
+    XPathSequence(singleOrNull: final item?) => cast(item),
+    _ => throw XPathEvaluationException.unsupportedCast(this, value),
+  };
+
+  XPathGYearMonth _parseGYearMonth(String trimmed) {
+    final match = _yearMonthRegExp.firstMatch(trimmed);
+    if (match != null) {
+      return XPathGYearMonth(
+        _createDateTime(
+          year: match.namedGroup('year')!,
+          month: match.namedGroup('month')!,
+          timezone: match.namedGroup('timezone'),
+        ),
+      );
     }
-    throw XPathEvaluationException.unsupportedCast(this, value);
+    throw XPathEvaluationException.unsupportedCast(this, trimmed);
   }
 
   @override
@@ -351,27 +337,25 @@ class _XPathGYearType extends XPathType<XPathGYear> {
       (value is DateTime && value is! _XPathDateTimeWrapper);
 
   @override
-  XPathGYear cast(Object value) {
-    if (value is XPathGYear) {
-      return value;
-    } else if (value is DateTime) {
-      return XPathGYear(value);
-    } else if (value is String) {
-      final trimmed = value.trim();
-      final match = _yearRegExp.firstMatch(trimmed);
-      if (match != null) {
-        return XPathGYear(
-          _createDateTime(
-            year: match.namedGroup('year')!,
-            timezone: match.namedGroup('timezone'),
-          ),
-        );
-      }
-    } else if (value is XPathSequence) {
-      final item = value.singleOrNull;
-      if (item != null) return cast(item);
+  XPathGYear cast(Object value) => switch (value) {
+    XPathGYear() => value,
+    DateTime() => XPathGYear(value),
+    String() => _parseGYear(value.trim()),
+    XPathSequence(singleOrNull: final item?) => cast(item),
+    _ => throw XPathEvaluationException.unsupportedCast(this, value),
+  };
+
+  XPathGYear _parseGYear(String trimmed) {
+    final match = _yearRegExp.firstMatch(trimmed);
+    if (match != null) {
+      return XPathGYear(
+        _createDateTime(
+          year: match.namedGroup('year')!,
+          timezone: match.namedGroup('timezone'),
+        ),
+      );
     }
-    throw XPathEvaluationException.unsupportedCast(this, value);
+    throw XPathEvaluationException.unsupportedCast(this, trimmed);
   }
 
   @override
@@ -409,28 +393,26 @@ class _XPathGMonthDayType extends XPathType<XPathGMonthDay> {
       (value is DateTime && value is! _XPathDateTimeWrapper);
 
   @override
-  XPathGMonthDay cast(Object value) {
-    if (value is XPathGMonthDay) {
-      return value;
-    } else if (value is DateTime) {
-      return XPathGMonthDay(value);
-    } else if (value is String) {
-      final trimmed = value.trim();
-      final match = _monthDayRegExp.firstMatch(trimmed);
-      if (match != null) {
-        return XPathGMonthDay(
-          _createDateTime(
-            month: match.namedGroup('month')!,
-            day: match.namedGroup('day')!,
-            timezone: match.namedGroup('timezone'),
-          ),
-        );
-      }
-    } else if (value is XPathSequence) {
-      final item = value.singleOrNull;
-      if (item != null) return cast(item);
+  XPathGMonthDay cast(Object value) => switch (value) {
+    XPathGMonthDay() => value,
+    DateTime() => XPathGMonthDay(value),
+    String() => _parseGMonthDay(value.trim()),
+    XPathSequence(singleOrNull: final item?) => cast(item),
+    _ => throw XPathEvaluationException.unsupportedCast(this, value),
+  };
+
+  XPathGMonthDay _parseGMonthDay(String trimmed) {
+    final match = _monthDayRegExp.firstMatch(trimmed);
+    if (match != null) {
+      return XPathGMonthDay(
+        _createDateTime(
+          month: match.namedGroup('month')!,
+          day: match.namedGroup('day')!,
+          timezone: match.namedGroup('timezone'),
+        ),
+      );
     }
-    throw XPathEvaluationException.unsupportedCast(this, value);
+    throw XPathEvaluationException.unsupportedCast(this, trimmed);
   }
 
   @override
@@ -470,27 +452,25 @@ class _XPathGMonthType extends XPathType<XPathGMonth> {
       (value is DateTime && value is! _XPathDateTimeWrapper);
 
   @override
-  XPathGMonth cast(Object value) {
-    if (value is XPathGMonth) {
-      return value;
-    } else if (value is DateTime) {
-      return XPathGMonth(value);
-    } else if (value is String) {
-      final trimmed = value.trim();
-      final match = _monthRegExp.firstMatch(trimmed);
-      if (match != null) {
-        return XPathGMonth(
-          _createDateTime(
-            month: match.namedGroup('month')!,
-            timezone: match.namedGroup('timezone'),
-          ),
-        );
-      }
-    } else if (value is XPathSequence) {
-      final item = value.singleOrNull;
-      if (item != null) return cast(item);
+  XPathGMonth cast(Object value) => switch (value) {
+    XPathGMonth() => value,
+    DateTime() => XPathGMonth(value),
+    String() => _parseGMonth(value.trim()),
+    XPathSequence(singleOrNull: final item?) => cast(item),
+    _ => throw XPathEvaluationException.unsupportedCast(this, value),
+  };
+
+  XPathGMonth _parseGMonth(String trimmed) {
+    final match = _monthRegExp.firstMatch(trimmed);
+    if (match != null) {
+      return XPathGMonth(
+        _createDateTime(
+          month: match.namedGroup('month')!,
+          timezone: match.namedGroup('timezone'),
+        ),
+      );
     }
-    throw XPathEvaluationException.unsupportedCast(this, value);
+    throw XPathEvaluationException.unsupportedCast(this, trimmed);
   }
 
   @override
@@ -528,27 +508,25 @@ class _XPathGDayType extends XPathType<XPathGDay> {
       (value is DateTime && value is! _XPathDateTimeWrapper);
 
   @override
-  XPathGDay cast(Object value) {
-    if (value is XPathGDay) {
-      return value;
-    } else if (value is DateTime) {
-      return XPathGDay(value);
-    } else if (value is String) {
-      final trimmed = value.trim();
-      final match = _dayRegExp.firstMatch(trimmed);
-      if (match != null) {
-        return XPathGDay(
-          _createDateTime(
-            day: match.namedGroup('day')!,
-            timezone: match.namedGroup('timezone'),
-          ),
-        );
-      }
-    } else if (value is XPathSequence) {
-      final item = value.singleOrNull;
-      if (item != null) return cast(item);
+  XPathGDay cast(Object value) => switch (value) {
+    XPathGDay() => value,
+    DateTime() => XPathGDay(value),
+    String() => _parseGDay(value.trim()),
+    XPathSequence(singleOrNull: final item?) => cast(item),
+    _ => throw XPathEvaluationException.unsupportedCast(this, value),
+  };
+
+  XPathGDay _parseGDay(String trimmed) {
+    final match = _dayRegExp.firstMatch(trimmed);
+    if (match != null) {
+      return XPathGDay(
+        _createDateTime(
+          day: match.namedGroup('day')!,
+          timezone: match.namedGroup('timezone'),
+        ),
+      );
     }
-    throw XPathEvaluationException.unsupportedCast(this, value);
+    throw XPathEvaluationException.unsupportedCast(this, trimmed);
   }
 
   @override

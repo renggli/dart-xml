@@ -15,20 +15,24 @@ class _XPathBooleanType extends XPathType<bool> {
   bool matches(Object value) => value is bool;
 
   @override
-  bool cast(Object value) {
-    if (value is bool) {
-      return value;
-    } else if (value is num) {
-      return value != 0 && !value.isNaN;
-    } else if (value is String) {
-      final trimmed = value.trim();
-      if (trimmed == 'true' || trimmed == '1') return true;
-      if (trimmed == 'false' || trimmed == '0') return false;
-    } else if (value is XPathSequence) {
-      final atomic = value.toAtomicValue();
-      if (atomic is! XPathSequence) return cast(atomic);
-    }
-    throw XPathEvaluationException.unsupportedCast(this, value);
+  bool cast(Object value) => switch (value) {
+    bool() => value,
+    num() => value != 0 && !value.isNaN,
+    String() => _parseBoolean(value.trim()),
+    XPathSequence() => _castSequence(value),
+    _ => throw XPathEvaluationException.unsupportedCast(this, value),
+  };
+
+  bool _parseBoolean(String trimmed) {
+    if (trimmed == 'true' || trimmed == '1') return true;
+    if (trimmed == 'false' || trimmed == '0') return false;
+    throw XPathEvaluationException.unsupportedCast(this, trimmed);
+  }
+
+  bool _castSequence(XPathSequence sequence) {
+    final atomic = sequence.toAtomicValue();
+    if (atomic is! XPathSequence) return cast(atomic);
+    throw XPathEvaluationException.unsupportedCast(this, sequence);
   }
 
   @override

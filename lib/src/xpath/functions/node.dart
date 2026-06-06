@@ -31,14 +31,12 @@ const fnName = XPathFunctionDefinition(
 
 XPathSequence _fnName(XPathContext context, [XmlNode? node]) {
   if (node == null) return XPathSequence.emptyString;
-  if (node is XmlElement) {
-    return XPathSequence.single(node.name.toString());
-  } else if (node is XmlAttribute) {
-    return XPathSequence.single(node.name.toString());
-  } else if (node is XmlProcessing) {
-    return XPathSequence.single(node.target);
-  }
-  return XPathSequence.emptyString;
+  return switch (node) {
+    XmlElement() => XPathSequence.single(node.name.toString()),
+    XmlAttribute() => XPathSequence.single(node.name.toString()),
+    XmlProcessing() => XPathSequence.single(node.target),
+    _ => XPathSequence.emptyString,
+  };
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-local-name
@@ -57,14 +55,12 @@ const fnLocalName = XPathFunctionDefinition(
 
 XPathSequence _fnLocalName(XPathContext context, [XmlNode? node]) {
   if (node == null) return XPathSequence.emptyString;
-  if (node is XmlElement) {
-    return XPathSequence.single(node.name.local);
-  } else if (node is XmlAttribute) {
-    return XPathSequence.single(node.name.local);
-  } else if (node is XmlProcessing) {
-    return XPathSequence.single(node.target);
-  }
-  return XPathSequence.emptyString;
+  return switch (node) {
+    XmlElement() => XPathSequence.single(node.name.local),
+    XmlAttribute() => XPathSequence.single(node.name.local),
+    XmlProcessing() => XPathSequence.single(node.target),
+    _ => XPathSequence.emptyString,
+  };
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-namespace-uri
@@ -83,12 +79,11 @@ const fnNamespaceUri = XPathFunctionDefinition(
 
 XPathSequence _fnNamespaceUri(XPathContext context, [XmlNode? node]) {
   if (node == null) return XPathSequence.emptyString;
-  if (node is XmlElement) {
-    return XPathSequence.single(node.name.namespaceUri ?? '');
-  } else if (node is XmlAttribute) {
-    return XPathSequence.single(node.name.namespaceUri ?? '');
-  }
-  return XPathSequence.emptyString;
+  return switch (node) {
+    XmlElement() => XPathSequence.single(node.name.namespaceUri ?? ''),
+    XmlAttribute() => XPathSequence.single(node.name.namespaceUri ?? ''),
+    _ => XPathSequence.emptyString,
+  };
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-id
@@ -341,22 +336,23 @@ XPathSequence _fnPath(XPathContext context, [XmlNode? node]) {
   final components = <String>[];
   XmlNode? current = node;
   while (current != null) {
-    if (current is XmlDocument) {
-      components.add('');
-    } else if (current is XmlElement) {
-      final name = current.name.local;
-      final preceding = current.parent?.children
-          .whereType<XmlElement>()
-          .where((XmlElement e) => e.name.local == name)
-          .toList();
-      if (preceding != null && preceding.length > 1) {
-        final index = preceding.indexOf(current);
-        components.add('$name[${index + 1}]');
-      } else {
-        components.add(name);
-      }
-    } else if (current is XmlAttribute) {
-      components.add('@${current.name.local}');
+    switch (current) {
+      case XmlDocument():
+        components.add('');
+      case XmlElement():
+        final name = current.name.local;
+        final preceding = current.parent?.children
+            .whereType<XmlElement>()
+            .where((XmlElement e) => e.name.local == name)
+            .toList();
+        if (preceding != null && preceding.length > 1) {
+          final index = preceding.indexOf(current);
+          components.add('$name[${index + 1}]');
+        } else {
+          components.add(name);
+        }
+      case XmlAttribute():
+        components.add('@${current.name.local}');
     }
     current = current.parent;
   }

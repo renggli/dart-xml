@@ -20,15 +20,10 @@ class _XPathArrayType extends XPathType<XPathArray> {
   bool matches(Object value) => value is List;
 
   @override
-  XPathArray cast(Object value) {
-    if (value is XPathArray) {
-      return value;
-    } else if (value is List) {
-      return value.cast<Object>().map((e) => XPathSequence([e])).toList();
-    } else if (value is XPathSequence) {
-      final item = value.singleOrNull;
-      if (item != null) return cast(item);
-    }
-    throw XPathEvaluationException.unsupportedCast(this, value);
-  }
+  XPathArray cast(Object value) => switch (value) {
+    XPathArray() => value,
+    List() => value.cast<Object>().map((e) => XPathSequence([e])).toList(),
+    XPathSequence(singleOrNull: final item?) => cast(item),
+    _ => throw XPathEvaluationException.unsupportedCast(this, value),
+  };
 }

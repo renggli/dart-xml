@@ -16,17 +16,12 @@ class _XPathQNameType extends XPathType<XmlName> {
   bool matches(Object value) => value is XmlName;
 
   @override
-  XmlName cast(Object value) {
-    if (value is XmlName) {
-      return value;
-    } else if (value is String) {
-      return XmlName.qualified(value);
-    } else if (value is XPathSequence) {
-      final item = value.singleOrNull;
-      if (item != null) return cast(item);
-    }
-    throw XPathEvaluationException.unsupportedCast(this, value);
-  }
+  XmlName cast(Object value) => switch (value) {
+    XmlName() => value,
+    String() => XmlName.qualified(value),
+    XPathSequence(singleOrNull: final item?) => cast(item),
+    _ => throw XPathEvaluationException.unsupportedCast(this, value),
+  };
 
   @override
   String castToString(XmlName value) => value.qualified;

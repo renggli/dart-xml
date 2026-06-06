@@ -59,30 +59,31 @@ class LookupKey {
   final XPathExpression? key;
 }
 
-Iterable<Object> _lookupWildcard(Object item) {
-  if (item is XPathMap) {
-    return item.values;
-  } else if (item is XPathArray) {
-    return item;
-  }
-  throw XPathEvaluationException(
+Iterable<Object> _lookupWildcard(Object item) => switch (item) {
+  XPathMap() => item.values,
+  XPathArray() => item,
+  _ => throw XPathEvaluationException(
     'Lookup requires a map or array, but got ${item.runtimeType}',
-  );
+  ),
+};
+
+Iterable<Object> _lookupKey(Object item, Object key) => switch (item) {
+  XPathMap() => _lookupMapKey(item, key),
+  XPathArray() => _lookupArrayIndex(item, key),
+  _ => throw XPathEvaluationException(
+    'Lookup requires a map or array, but got ${item.runtimeType}',
+  ),
+};
+
+Iterable<Object> _lookupMapKey(XPathMap map, Object key) {
+  final value = map[key];
+  return value != null ? [value] : const [];
 }
 
-Iterable<Object> _lookupKey(Object item, Object key) {
-  if (item is XPathMap) {
-    final value = item[key];
-    if (value == null) return const [];
-    return [value];
-  } else if (item is XPathArray) {
-    final index = xsInteger.cast(key) - 1;
-    if (index < 0 || index >= item.length) {
-      throw XPathEvaluationException('Array index out of bounds: ${index + 1}');
-    }
-    return [item[index]];
+Iterable<Object> _lookupArrayIndex(XPathArray array, Object key) {
+  final index = xsInteger.cast(key) - 1;
+  if (index < 0 || index >= array.length) {
+    throw XPathEvaluationException('Array index out of bounds: ${index + 1}');
   }
-  throw XPathEvaluationException(
-    'Lookup requires a map or array, but got ${item.runtimeType}',
-  );
+  return [array[index]];
 }

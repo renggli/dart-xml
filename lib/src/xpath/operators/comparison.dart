@@ -1,10 +1,7 @@
 import '../exceptions/evaluation_exception.dart';
-import '../types/boolean.dart';
 import '../types/date_time.dart';
 import '../types/duration.dart';
-import '../types/number.dart';
 import '../types/sequence.dart';
-import '../types/string.dart';
 
 /// https://www.w3.org/TR/xpath-31/#id-value-comparisons
 XPathSequence opValueEqual(XPathSequence left, XPathSequence right) {
@@ -65,30 +62,23 @@ XPathSequence _compareValue(
 }
 
 /// Compares two XPath values.
-int compare(Object a, Object b) {
-  if (xsNumeric.matches(a) && xsNumeric.matches(b)) {
-    return xsNumeric.cast(a).compareTo(xsNumeric.cast(b));
-  } else if (xsString.matches(a) && xsString.matches(b)) {
-    return xsString.cast(a).compareTo(xsString.cast(b));
-  } else if (xsBoolean.matches(a) && xsBoolean.matches(b)) {
-    final ba = a as bool;
-    final bb = b as bool;
-    return ba == bb
+int compare(Object a, Object b) => switch ((a, b)) {
+  (final num na, final num nb) => na.compareTo(nb),
+  (final String sa, final String sb) => sa.compareTo(sb),
+  (final bool ba, final bool bb) =>
+    ba == bb
         ? 0
         : ba
         ? 1
-        : -1;
-  } else if (xsDateTime.matches(a) && xsDateTime.matches(b)) {
-    return xsDateTime.cast(a).compareTo(xsDateTime.cast(b));
-  } else if (a is XPathYearMonthDuration && b is XPathYearMonthDuration) {
-    return a.totalMonths.compareTo(b.totalMonths);
-  } else if (a is XPathDayTimeDuration && b is XPathDayTimeDuration) {
-    return a.dayTime.compareTo(b.dayTime);
-  } else if (a is XPathDate && b is XPathDate) {
-    return a.compareTo(b);
-  } else if (a is XPathTime && b is XPathTime) {
-    return a.compareTo(b);
-  } else {
-    return a.toString().compareTo(b.toString());
-  }
-}
+        : -1,
+  (final DateTime da, final DateTime db)
+      when xsDateTime.matches(da) && xsDateTime.matches(db) =>
+    da.compareTo(db),
+  (final XPathYearMonthDuration yma, final XPathYearMonthDuration ymb) =>
+    yma.totalMonths.compareTo(ymb.totalMonths),
+  (final XPathDayTimeDuration dta, final XPathDayTimeDuration dtb) =>
+    dta.dayTime.compareTo(dtb.dayTime),
+  (final XPathDate da, final XPathDate db) => da.compareTo(db),
+  (final XPathTime ta, final XPathTime tb) => ta.compareTo(tb),
+  _ => a.toString().compareTo(b.toString()),
+};

@@ -43,29 +43,21 @@ XPathSequence _fnParseJson(
   }
 }
 
-XPathSequence _jsonToXPath(Object? json) {
-  if (json == null) {
-    return XPathSequence.empty;
-  } else if (json is bool) {
-    return json ? XPathSequence.trueSequence : XPathSequence.falseSequence;
-  } else if (json is num) {
-    return XPathSequence.single(json.toDouble());
-  } else if (json is String) {
-    return XPathSequence.single(json);
-  } else if (json is List) {
-    return XPathSequence.single(
-      json.map((element) => _jsonToXPath(element).toAtomicValue()).toList(),
-    );
-  } else if (json is Map) {
-    return XPathSequence.single(
-      json.map(
-        (key, value) => MapEntry(key, _jsonToXPath(value).toAtomicValue()),
-      ),
-    );
-  } else {
-    throw StateError('Unknown JSON type: $json');
-  }
-}
+XPathSequence _jsonToXPath(Object? json) => switch (json) {
+  null => XPathSequence.empty,
+  bool() => json ? XPathSequence.trueSequence : XPathSequence.falseSequence,
+  num() => XPathSequence.single(json.toDouble()),
+  String() => XPathSequence.single(json),
+  List() => XPathSequence.single(
+    json.map((element) => _jsonToXPath(element).toAtomicValue()).toList(),
+  ),
+  Map() => XPathSequence.single(
+    json.map(
+      (key, value) => MapEntry(key, _jsonToXPath(value).toAtomicValue()),
+    ),
+  ),
+  _ => throw StateError('Unknown JSON type: $json'),
+};
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-json-doc
 const fnJsonDoc = XPathFunctionDefinition(
@@ -128,64 +120,65 @@ void _jsonToXml(
   Map<String, String> attributes = const {},
   Map<String?, String> namespaceUris = const {},
 }) {
-  if (json == null) {
-    builder.element(
-      'null',
-      attributes: attributes,
-      namespaceUris: namespaceUris,
-    );
-  } else if (json is bool) {
-    builder.element(
-      'boolean',
-      attributes: attributes,
-      namespaceUris: namespaceUris,
-      nest: () {
-        builder.text(json.toString());
-      },
-    );
-  } else if (json is num) {
-    builder.element(
-      'number',
-      attributes: attributes,
-      namespaceUris: namespaceUris,
-      nest: () {
-        builder.text(json.toString());
-      },
-    );
-  } else if (json is String) {
-    builder.element(
-      'string',
-      attributes: attributes,
-      namespaceUris: namespaceUris,
-      nest: () {
-        builder.text(json);
-      },
-    );
-  } else if (json is List) {
-    builder.element(
-      'array',
-      attributes: attributes,
-      namespaceUris: namespaceUris,
-      nest: () {
-        for (final item in json) {
-          _jsonToXml(builder, item);
-        }
-      },
-    );
-  } else if (json is Map) {
-    builder.element(
-      'map',
-      attributes: attributes,
-      namespaceUris: namespaceUris,
-      nest: () {
-        for (final MapEntry(key: String key, value: Object? value)
-            in json.entries) {
-          _jsonToXml(builder, value, attributes: {'key': key});
-        }
-      },
-    );
-  } else {
-    throw StateError('Unknown JSON type: $json');
+  switch (json) {
+    case null:
+      builder.element(
+        'null',
+        attributes: attributes,
+        namespaceUris: namespaceUris,
+      );
+    case bool():
+      builder.element(
+        'boolean',
+        attributes: attributes,
+        namespaceUris: namespaceUris,
+        nest: () {
+          builder.text(json.toString());
+        },
+      );
+    case num():
+      builder.element(
+        'number',
+        attributes: attributes,
+        namespaceUris: namespaceUris,
+        nest: () {
+          builder.text(json.toString());
+        },
+      );
+    case String():
+      builder.element(
+        'string',
+        attributes: attributes,
+        namespaceUris: namespaceUris,
+        nest: () {
+          builder.text(json);
+        },
+      );
+    case List():
+      builder.element(
+        'array',
+        attributes: attributes,
+        namespaceUris: namespaceUris,
+        nest: () {
+          for (final item in json) {
+            _jsonToXml(builder, item);
+          }
+        },
+      );
+    case Map():
+      builder.element(
+        'map',
+        attributes: attributes,
+        namespaceUris: namespaceUris,
+        nest: () {
+          for (final MapEntry(key: String key, value: Object? value)
+              in json.entries) {
+            _jsonToXml(builder, value, attributes: {'key': key});
+          }
+        },
+      );
+    case _:
+      throw StateError('Unknown JSON type: $json');
   }
 }
 
@@ -213,46 +206,49 @@ XPathSequence _fnXmlToJson(
   return XPathSequence.single(convert.json.encode(json));
 }
 
-Object? _xmlToJson(XmlNode node) {
-  if (node is XmlElement) {
-    if (node.name.namespaceUri != _ns) {
-      return null;
-    }
-    if (node.localName == 'map') {
-      final result = <String, Object?>{};
-      for (final child in node.children) {
-        if (child is XmlElement && child.name.namespaceUri == _ns) {
-          final key = child.getAttribute('key');
-          if (key != null) {
-            result[key] = _xmlToJson(child);
-          }
-        }
+Object? _xmlToJson(XmlNode node) => switch (node) {
+  XmlElement() when node.name.namespaceUri == _ns => switch (node.localName) {
+    'map' => _xmlMapToJson(node),
+    'array' => _xmlArrayToJson(node),
+    'string' => node.innerText,
+    'number' => num.parse(node.innerText),
+    'boolean' => node.innerText == 'true',
+    'null' => null,
+    _ => null,
+  },
+  XmlDocument() => _xmlDocumentToJson(node),
+  _ => null,
+};
+
+Map<String, Object?> _xmlMapToJson(XmlElement node) {
+  final result = <String, Object?>{};
+  for (final child in node.children) {
+    if (child is XmlElement && child.name.namespaceUri == _ns) {
+      final key = child.getAttribute('key');
+      if (key != null) {
+        result[key] = _xmlToJson(child);
       }
-      return result;
-    } else if (node.localName == 'array') {
-      final result = <Object?>[];
-      for (final child in node.children) {
-        if (child is XmlElement && child.name.namespaceUri == _ns) {
-          result.add(_xmlToJson(child));
-        }
-      }
-      return result;
-    } else if (node.localName == 'string') {
-      return node.innerText;
-    } else if (node.localName == 'number') {
-      return num.parse(node.innerText);
-    } else if (node.localName == 'boolean') {
-      return node.innerText == 'true';
-    } else if (node.localName == 'null') {
-      return null;
     }
-  } else if (node is XmlDocument) {
-    final child = node.rootElement;
-    final result = _xmlToJson(child);
-    if (result != null ||
-        (child.name.namespaceUri == _ns && child.localName == 'null')) {
-      return result;
+  }
+  return result;
+}
+
+List<Object?> _xmlArrayToJson(XmlElement node) {
+  final result = <Object?>[];
+  for (final child in node.children) {
+    if (child is XmlElement && child.name.namespaceUri == _ns) {
+      result.add(_xmlToJson(child));
     }
+  }
+  return result;
+}
+
+Object? _xmlDocumentToJson(XmlDocument node) {
+  final child = node.rootElement;
+  final result = _xmlToJson(child);
+  if (result != null ||
+      (child.name.namespaceUri == _ns && child.localName == 'null')) {
+    return result;
   }
   return null;
 }

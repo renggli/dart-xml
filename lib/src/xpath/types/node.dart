@@ -29,15 +29,11 @@ class _XPathNodeType<T extends XmlNode> extends XPathType<T> {
   bool matches(Object value) => value is T;
 
   @override
-  T cast(Object value) {
-    if (matches(value)) {
-      return value as T;
-    } else if (value is XPathSequence) {
-      final item = value.singleOrNull;
-      if (item != null) return cast(item);
-    }
-    throw XPathEvaluationException.unsupportedCast(this, value);
-  }
+  T cast(Object value) => switch (value) {
+    _ when matches(value) => value as T,
+    XPathSequence(singleOrNull: final item?) => cast(item),
+    _ => throw XPathEvaluationException.unsupportedCast(this, value),
+  };
 
   @override
   String castToString(T value) {
@@ -100,19 +96,20 @@ class NodeTestType extends _XPathNodeType<XmlNode> {
 }
 
 void _stringForNodeOn(XmlNode node, StringBuffer buffer) {
-  if (node is XmlDocument) {
-    for (final child in node.children) {
-      if (child is XmlElement) {
+  switch (node) {
+    case XmlDocument():
+      for (final child in node.children) {
+        if (child is XmlElement) {
+          _stringForNodeOn(child, buffer);
+        }
+      }
+    case XmlElement():
+      for (final child in node.children) {
         _stringForNodeOn(child, buffer);
       }
-    }
-  } else if (node is XmlElement) {
-    for (final child in node.children) {
-      _stringForNodeOn(child, buffer);
-    }
-  } else if (node is XmlText) {
-    buffer.write(node.value);
-  } else {
-    buffer.write(node.value ?? '');
+    case XmlText():
+      buffer.write(node.value);
+    case _:
+      buffer.write(node.value ?? '');
   }
 }

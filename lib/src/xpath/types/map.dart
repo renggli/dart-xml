@@ -20,13 +20,9 @@ class _XPathMapType extends XPathType<XPathMap> {
   bool matches(Object value) => value is Map;
 
   @override
-  XPathMap cast(Object value) {
-    if (value is XPathMap) {
-      return value;
-    } else if (value is XPathSequence) {
-      final item = value.singleOrNull;
-      if (item != null) return cast(item);
-    }
-    throw XPathEvaluationException.unsupportedCast(this, value);
-  }
+  XPathMap cast(Object value) => switch (value) {
+    XPathMap() => value,
+    XPathSequence(singleOrNull: final item?) => cast(item),
+    _ => throw XPathEvaluationException.unsupportedCast(this, value),
+  };
 }

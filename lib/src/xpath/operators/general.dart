@@ -59,10 +59,9 @@ XPathSequence _compareGeneral(
   return XPathSequence.falseSequence;
 }
 
-Iterable<Object> _atomize(XPathSequence seq) => seq.expand((item) {
-  if (item is XmlNode) {
-    return [xsString.cast(item)];
-  } else {
-    return [item];
-  }
-});
+Iterable<Object> _atomize(XPathSequence seq) => seq.expand(
+  (item) => switch (item) {
+    XmlNode() => [xsString.cast(item)],
+    _ => [item],
+  },
+);

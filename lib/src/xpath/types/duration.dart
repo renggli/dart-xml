@@ -15,15 +15,12 @@ class _XPathDurationType extends XPathType<XPathDuration> {
   bool matches(Object value) => value is XPathDuration;
 
   @override
-  XPathDuration cast(Object value) {
-    if (value is XPathDuration) return value;
-    if (value is String) return _parseDuration(value.trim());
-    if (value is XPathSequence) {
-      final item = value.singleOrNull;
-      if (item != null) return cast(item);
-    }
-    throw XPathEvaluationException.unsupportedCast(this, value);
-  }
+  XPathDuration cast(Object value) => switch (value) {
+    XPathDuration() => value,
+    String() => _parseDuration(value.trim()),
+    XPathSequence(singleOrNull: final item?) => cast(item),
+    _ => throw XPathEvaluationException.unsupportedCast(this, value),
+  };
 
   static final _durationRegExp = RegExp(
     r'^(-)?P(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$',
@@ -154,20 +151,15 @@ class _XPathDayTimeDurationType extends XPathType<XPathDayTimeDuration> {
   bool matches(Object value) => value is XPathDayTimeDuration;
 
   @override
-  XPathDayTimeDuration cast(Object value) {
-    if (value is XPathDayTimeDuration) return value;
-    if (value is XPathYearMonthDuration) {
-      return XPathDayTimeDuration(Duration.zero);
-    }
-    if (value is XPathDuration) return XPathDayTimeDuration(value.dayTime);
-    if (value is Duration) return XPathDayTimeDuration(value);
-    if (value is String) return _parseDayTimeDuration(value.trim());
-    if (value is XPathSequence) {
-      final item = value.singleOrNull;
-      if (item != null) return cast(item);
-    }
-    throw XPathEvaluationException.unsupportedCast(this, value);
-  }
+  XPathDayTimeDuration cast(Object value) => switch (value) {
+    XPathDayTimeDuration() => value,
+    XPathYearMonthDuration() => XPathDayTimeDuration(Duration.zero),
+    XPathDuration() => XPathDayTimeDuration(value.dayTime),
+    Duration() => XPathDayTimeDuration(value),
+    String() => _parseDayTimeDuration(value.trim()),
+    XPathSequence(singleOrNull: final item?) => cast(item),
+    _ => throw XPathEvaluationException.unsupportedCast(this, value),
+  };
 
   static final _dayTimeDurationRegExp = RegExp(
     r'^(-)?P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$',
@@ -267,11 +259,11 @@ class XPathDayTimeDuration extends XPathDuration implements Duration {
       dayTime.inMicroseconds >= other.inMicroseconds;
 
   @override
-  bool operator ==(Object other) {
-    if (other is XPathDayTimeDuration) return dayTime == other.dayTime;
-    if (other is Duration) return dayTime == other;
-    return false;
-  }
+  bool operator ==(Object other) => switch (other) {
+    XPathDayTimeDuration() => dayTime == other.dayTime,
+    Duration() => dayTime == other,
+    _ => false,
+  };
 
   @override
   int get hashCode => dayTime.hashCode;
@@ -297,17 +289,14 @@ class _XPathYearMonthDurationType extends XPathType<XPathYearMonthDuration> {
   bool matches(Object value) => value is XPathYearMonthDuration;
 
   @override
-  XPathYearMonthDuration cast(Object value) {
-    if (value is XPathYearMonthDuration) return value;
-    if (value is XPathDayTimeDuration) return XPathYearMonthDuration(0);
-    if (value is XPathDuration) return XPathYearMonthDuration(value.months);
-    if (value is String) return _parseYearMonthDuration(value.trim());
-    if (value is XPathSequence) {
-      final item = value.singleOrNull;
-      if (item != null) return cast(item);
-    }
-    throw XPathEvaluationException.unsupportedCast(this, value);
-  }
+  XPathYearMonthDuration cast(Object value) => switch (value) {
+    XPathYearMonthDuration() => value,
+    XPathDayTimeDuration() => XPathYearMonthDuration(0),
+    XPathDuration() => XPathYearMonthDuration(value.months),
+    String() => _parseYearMonthDuration(value.trim()),
+    XPathSequence(singleOrNull: final item?) => cast(item),
+    _ => throw XPathEvaluationException.unsupportedCast(this, value),
+  };
 
   static final _yearMonthDurationRegExp = RegExp(
     r'^(-)?P(?:(\d+)Y)?(?:(\d+)M)?$',

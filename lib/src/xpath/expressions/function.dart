@@ -113,32 +113,32 @@ class ArrowExpression implements XPathExpression {
   XPathSequence call(XPathContext context) {
     final inputSeq = input(context);
     final argumentSeqs = [inputSeq, ...arguments.map((expr) => expr(context))];
-    if (specifier is String) {
-      return context.getFunctionByString(specifier as String)(
-        context,
-        argumentSeqs,
-      );
-    } else if (specifier is XPathExpression) {
-      final functionSeq = (specifier as XPathExpression)(context);
-      if (functionSeq.isEmpty) {
-        throw XPathEvaluationException(
-          'Expected a single function item, but got an empty sequence',
-        );
-      } else if (functionSeq.length > 1) {
-        throw XPathEvaluationException(
-          'Expected a single function item, but got ${functionSeq.length} items',
-        );
-      }
-      final functionItem = functionSeq.first;
-      if (!xsFunction.matches(functionItem)) {
-        throw XPathEvaluationException(
-          'Expected a function item, but got ${functionItem.runtimeType}',
-        );
-      }
-      final callable = xsFunction.cast(functionItem);
-      return callable(context, argumentSeqs);
+    final spec = specifier;
+    switch (spec) {
+      case String():
+        return context.getFunctionByString(spec)(context, argumentSeqs);
+      case XPathExpression():
+        final functionSeq = spec(context);
+        if (functionSeq.isEmpty) {
+          throw XPathEvaluationException(
+            'Expected a single function item, but got an empty sequence',
+          );
+        } else if (functionSeq.length > 1) {
+          throw XPathEvaluationException(
+            'Expected a single function item, but got ${functionSeq.length} items',
+          );
+        }
+        final functionItem = functionSeq.first;
+        if (!xsFunction.matches(functionItem)) {
+          throw XPathEvaluationException(
+            'Expected a function item, but got ${functionItem.runtimeType}',
+          );
+        }
+        final callable = xsFunction.cast(functionItem);
+        return callable(context, argumentSeqs);
+      default:
+        throw StateError('Invalid arrow function specifier: $specifier');
     }
-    throw StateError('Invalid arrow function specifier: $specifier');
   }
 }
 
