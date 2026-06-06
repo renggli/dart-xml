@@ -1,19 +1,21 @@
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/functions/accessor.dart';
-import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
+
 import '../../utils/matchers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
-final context = XPathContext.empty(document);
+final context = const XPathConfiguration.raw().context(document);
 
 void main() {
   group('fn:node-name', () {
     test('returns name of element', () {
       final a = document.findAllElements('a').first;
-      expect(fnNodeName(XPathContext.empty(a), []), isXPathSequence([a.name]));
+      expect(
+        fnNodeName(const XPathConfiguration.raw().context(a), []),
+        isXPathSequence([a.name]),
+      );
       expect(
         fnNodeName(context, [XPathSequence.single(a)]),
         isXPathSequence([a.name]),
@@ -75,7 +77,12 @@ void main() {
 
     test('returns string value of context node', () {
       expect(
-        fnString(XPathContext.empty(document.findAllElements('a').first), []),
+        fnString(
+          const XPathConfiguration.raw().context(
+            document.findAllElements('a').first,
+          ),
+          [],
+        ),
         isXPathSequence(['1']),
       );
     });

@@ -269,7 +269,7 @@ const fnFunctionLookup = XPathFunctionDefinition(
 XPathSequence _fnFunctionLookup(XPathContext context, XmlName name, num arity) {
   try {
     return XPathSequence.single(
-      context.getFunctionByString(name.extendedQualified),
+      context.configuration.getFunctionByString(name.extendedQualified),
     );
   } on XPathEvaluationException {
     return XPathSequence.empty;

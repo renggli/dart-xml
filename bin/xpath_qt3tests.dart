@@ -246,14 +246,13 @@ class TestEnvironment {
 
   late final Map<String, TestResource> resources = _getResources();
 
-  XPathContext get context =>
-      XPathContext.canonical(source ?? XPathSequence.empty).copy(
-        documents: documents,
-        variables: variables,
-        environment: Platform.environment,
-        baseUri: baseUri,
-        unparsedTextLoader: _unparsedTextLoader,
-      );
+  XPathContext get context => XPathConfiguration(
+    documents: documents,
+    variables: variables,
+    environment: Platform.environment,
+    baseUri: baseUri,
+    unparsedTextLoader: _unparsedTextLoader,
+  ).context(source ?? XPathSequence.empty);
 
   String? _getBaseUri() {
     final uri = element
@@ -390,7 +389,9 @@ class TestEnvironment {
       if (name != null && select != null) {
         // Try to evaluate the param with respect to a specific document source.
         final item = documents[sourceContext] ?? source ?? XPathSequence.empty;
-        variables[name] = XPathContext.canonical(item).evaluate(select);
+        variables[name] = XPathConfiguration.standard()
+            .context(item)
+            .evaluate(select);
       }
     }
     for (final source in element.findElements('source')) {
@@ -452,9 +453,10 @@ void verifyResult(XmlElement element, Object result, XPathContext context) {
   // Execute the different assertion types.
   switch (element.localName) {
     case 'assert':
-      final evaluation = XPathContext.canonical(
-        XPathSequence.empty,
-      ).copy(variables: {'result': result}).evaluate(element.innerText);
+      final evaluation = XPathConfiguration.standard()
+          .copy(variables: {'result': result})
+          .context()
+          .evaluate(element.innerText);
       if (xsBoolean.cast(evaluation) != true) {
         throw TestFailure(
           'Expected true for ${element.innerText} with result=$result, '
@@ -497,8 +499,9 @@ void verifyResult(XmlElement element, Object result, XPathContext context) {
         throw TestFailure('Expected $xml, but got $result');
       }
     case 'assert-type':
-      final evaluation = XPathContext.canonical(XPathSequence.empty)
+      final evaluation = XPathConfiguration.standard()
           .copy(variables: {'result': result})
+          .context()
           .evaluate('\$result instance of ${element.innerText}');
       if (xsBoolean.cast(evaluation) != true) {
         throw TestFailure(
@@ -507,9 +510,9 @@ void verifyResult(XmlElement element, Object result, XPathContext context) {
         );
       }
     case 'assert-permutation':
-      final expected = XPathContext.canonical(
-        XPathSequence.empty,
-      ).evaluate(element.innerText);
+      final expected = XPathConfiguration.standard().context().evaluate(
+        element.innerText,
+      );
       if (const SetEquality<Object>().equals(
         result.toSet(),
         expected.toSet(),

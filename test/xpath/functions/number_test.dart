@@ -1,5 +1,4 @@
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/functions/number.dart';
 import 'package:xml/src/xpath/types/map.dart';
 import 'package:xml/xml.dart';
@@ -9,7 +8,7 @@ import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
-final context = XPathContext.empty(document);
+final context = const XPathConfiguration.raw().context(document);
 
 void main() {
   group('fn:abs', () {
@@ -98,7 +97,7 @@ void main() {
 
     test('uses context item if no arguments', () {
       final textNode = XmlText('123');
-      final contextWithNode = XPathContext.empty(textNode);
+      final contextWithNode = const XPathConfiguration.raw().context(textNode);
       expect(fnNumber(contextWithNode, []), isXPathSequence([123]));
     });
 

@@ -8,7 +8,7 @@ import 'package:xml/xpath.dart';
 import '../../utils/matchers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
-final context = XPathContext.empty(document);
+final context = const XPathConfiguration.raw().context(document);
 
 void main() {
   group('array:size', () {

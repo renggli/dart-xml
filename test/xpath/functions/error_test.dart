@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/evaluation/context.dart';
+import 'package:xml/src/xpath/evaluation/configuration.dart';
 import 'package:xml/src/xpath/functions/error.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/xml.dart';
@@ -7,7 +7,7 @@ import 'package:xml/xml.dart';
 import '../../utils/matchers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
-final context = XPathContext.empty(document);
+final context = const XPathConfiguration.raw().context(document);
 
 void main() {
   group('fn:error', () {
@@ -61,9 +61,13 @@ void main() {
       const value = XPathSequence.single('value');
       const label = XPathSequence.single('label');
       final traceLog = <(XPathSequence, String?)>[];
-      final traceContext = context.copy(
-        onTraceCallback: (value, label) => traceLog.add((value, label)),
-      );
+      final traceContext = context.configuration
+          .copy(
+            onTraceCallback: (XPathSequence value, String? label) =>
+                traceLog.add((value, label)),
+          )
+          .context(context.item)
+          .copy(variables: context.variables);
       expect(fnTrace(traceContext, [value]), same(value));
       expect(fnTrace(traceContext, [value, label]), same(value));
       expect(traceLog, [(value, null), (value, label.single)]);

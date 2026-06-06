@@ -64,7 +64,7 @@ XPathSequence _fnTrace(
   XPathSequence value, [
   String? label,
 ]) {
-  final trace = context.onTraceCallback;
+  final trace = context.configuration.onTraceCallback;
   if (trace != null) trace(value, label);
   return value;
 }

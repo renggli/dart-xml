@@ -33,7 +33,7 @@ XPathSequence _fnResolveUri(
     if (uri.isAbsolute) return XPathSequence.single(relative);
     final String resolvedBase;
     if (base == null) {
-      final staticBase = context.baseUri;
+      final staticBase = context.configuration.baseUri;
       if (staticBase == null) {
         throw XPathEvaluationException('Static base URI is undefined');
       }
@@ -64,7 +64,7 @@ const fnDoc = XPathFunctionDefinition(
 
 XPathSequence _fnDoc(XPathContext context, String? uri) {
   if (uri == null) return XPathSequence.empty;
-  final document = context.documents[uri];
+  final document = context.configuration.documents[uri];
   if (document != null) return XPathSequence.single(document);
   throw XPathEvaluationException('Document not found: $uri');
 }
@@ -84,7 +84,7 @@ const fnDocAvailable = XPathFunctionDefinition(
 
 XPathSequence _fnDocAvailable(XPathContext context, String? uri) {
   if (uri == null) return const XPathSequence.single(false);
-  return XPathSequence.single(context.documents.containsKey(uri));
+  return XPathSequence.single(context.configuration.documents.containsKey(uri));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-collection
@@ -149,7 +149,7 @@ XPathSequence _fnUnparsedText(
     if (uri.isAbsolute) {
       resolved = href;
     } else {
-      final base = context.baseUri;
+      final base = context.configuration.baseUri;
       if (base == null) {
         throw XPathEvaluationException('Static base URI is undefined');
       }
@@ -172,7 +172,7 @@ XPathSequence _fnUnparsedText(
     _validateEncodingName(encoding);
   }
 
-  final loader = context.unparsedTextLoader;
+  final loader = context.configuration.unparsedTextLoader;
   if (loader == null) {
     throw XPathEvaluationException(
       'No unparsed text loader available to load $resolved',
@@ -305,7 +305,7 @@ const fnEnvironmentVariable = XPathFunctionDefinition(
 );
 
 XPathSequence _fnEnvironmentVariable(XPathContext context, String name) {
-  final value = context.environment[name];
+  final value = context.configuration.environment[name];
   if (value != null) return XPathSequence.single(value);
   return XPathSequence.empty;
 }
@@ -317,7 +317,7 @@ const fnAvailableEnvironmentVariables = XPathFunctionDefinition(
 );
 
 XPathSequence _fnAvailableEnvironmentVariables(XPathContext context) =>
-    XPathSequence(context.environment.keys.toList());
+    XPathSequence(context.configuration.environment.keys.toList());
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-encode-for-uri
 const fnEncodeForUri = XPathFunctionDefinition(

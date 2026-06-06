@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/evaluation/context.dart';
+import 'package:xml/src/xpath/evaluation/configuration.dart';
 import 'package:xml/src/xpath/functions/boolean.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/xml.dart';
@@ -8,7 +8,7 @@ import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
-final context = XPathContext.empty(document);
+final context = const XPathConfiguration.raw().context(document);
 
 void main() {
   group('fn:boolean', () {
@@ -104,7 +104,7 @@ void main() {
     test('matches language', () {
       final doc = XmlDocument.parse('<r xml:lang="en"><c/></r>');
       final c = doc.rootElement.children.whereType<XmlElement>().first;
-      final newContext = XPathContext.empty(c);
+      final newContext = const XPathConfiguration.raw().context(c);
       expect(
         fnLang(newContext, [const XPathSequence.single('en')]),
         isXPathSequence([true]),

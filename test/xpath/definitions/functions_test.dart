@@ -1,6 +1,7 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/definitions/cardinality.dart';
 import 'package:xml/src/xpath/definitions/function.dart';
+import 'package:xml/src/xpath/evaluation/configuration.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/types/any.dart';
 import 'package:xml/src/xpath/types/number.dart';
@@ -11,7 +12,7 @@ import 'package:xml/xml.dart';
 import '../../utils/matchers.dart';
 
 final document = XmlDocument.parse('<r/>');
-final context = XPathContext.canonical(document);
+final context = XPathConfiguration().context(document);
 
 const function = XPathFunctionDefinition(
   name: XmlName.parts('foo'),

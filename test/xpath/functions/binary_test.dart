@@ -2,14 +2,14 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/evaluation/context.dart';
+import 'package:xml/src/xpath/evaluation/configuration.dart';
 import 'package:xml/src/xpath/functions/binary.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/xml.dart';
 
 import '../../utils/matchers.dart';
 
-final context = XPathContext.empty(XmlDocument());
+final context = const XPathConfiguration.raw().context(XmlDocument());
 
 void main() {
   group('xs:base64Binary', () {

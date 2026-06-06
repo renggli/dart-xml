@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/evaluation/context.dart';
+import 'package:xml/src/xpath/evaluation/configuration.dart';
 import 'package:xml/src/xpath/expressions/axis.dart';
 import 'package:xml/src/xpath/expressions/name.dart';
 import 'package:xml/src/xpath/expressions/node.dart';
@@ -161,7 +161,7 @@ void main() {
   });
 
   group('evaluation edge cases', () {
-    final context = XPathContext.canonical(XmlDocument.parse('<root/>'));
+    final context = XPathConfiguration().context(XmlDocument.parse('<root/>'));
     test('empty steps throw ArgumentError', () {
       expect(() => PathExpression([]), throwsArgumentError);
     });
@@ -191,7 +191,7 @@ void main() {
         const LiteralExpression(XPathSequence.single(1)),
       ]);
       expect(path.isOrderPreserved, isFalse);
-      final evalContext = XPathContext.canonical(
+      final evalContext = XPathConfiguration().context(
         xml.rootElement.children.first,
       );
       expect(path(evalContext), equals([1]));
@@ -206,7 +206,7 @@ void main() {
       ]);
       expect(path.isOrderPreserved, isFalse);
       // Evaluate starting at a 'b' node
-      final evalContext = XPathContext.canonical(
+      final evalContext = XPathConfiguration().context(
         xml.findAllElements('b').first,
       );
       final result = path(evalContext);

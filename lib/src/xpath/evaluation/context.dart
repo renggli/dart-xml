@@ -1,45 +1,26 @@
-import '../../xml/nodes/node.dart';
-import '../../xml/utils/name.dart';
+import 'package:meta/meta.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../grammars/parser.dart';
-import '../types/function.dart';
 import '../types/sequence.dart';
-import 'functions.dart';
-import 'namespaces.dart';
+import 'configuration.dart';
 
-/// Runtime execution context to evaluate XPath expressions.
+/// Dynamic execution context to evaluate XPath expressions.
 class XPathContext {
-  /// Creates an empty XPath context.
-  XPathContext.empty(
+  /// Creates a dynamic execution context.
+  @internal
+  XPathContext(
+    this.configuration,
     this.item, {
     this.position = 1,
     this.last = 1,
     this.variables = const {},
-    this.functions = const {},
-    this.namespaceUri,
-    this.namespaceUris = const {},
-    this.documents = const {},
-    this.environment = const {},
-    this.baseUri,
-    this.unparsedTextLoader,
-    this.onTraceCallback,
+    this.parentContext,
   });
 
-  /// Creates a canonical XPath context on [item].
-  XPathContext.canonical(this.item)
-    : position = 1,
-      last = 1,
-      variables = const {},
-      functions = standardFunctions,
-      namespaceUri = xpathFnNamespace,
-      namespaceUris = xpathNamespaceUris,
-      documents = const {},
-      environment = const {},
-      baseUri = null,
-      unparsedTextLoader = null,
-      onTraceCallback = null;
+  /// Configuraiton associated with the context.
+  final XPathConfiguration configuration;
 
-  /// Mutable context node.
+  /// Mutable context item.
   Object item;
 
   /// Mutable context position.
@@ -48,92 +29,44 @@ class XPathContext {
   /// Mutable context size.
   int last;
 
-  /// User-defined variables.
+  /// Variables defined in this scope.
   final Map<String, Object> variables;
 
-  /// Available function definitions.
-  final Map<XmlName, XPathFunction> functions;
-
-  /// Default namespace URI for function lookups.
-  final String? namespaceUri;
-
-  /// Namespace mapping from prefix to URIs.
-  final Map<String, String> namespaceUris;
-
-  /// Available documents.
-  final Map<String, XmlNode> documents;
-
-  /// Available environment variables.
-  final Map<String, String> environment;
-
-  /// Static base URI.
-  final String? baseUri;
-
-  /// Unparsed text loader.
-  final String? Function(String uri, String? encoding)? unparsedTextLoader;
-
-  /// Callback to trace evaluation.
-  final XPathTraceCallback? onTraceCallback;
+  /// Parent context used for variable lookup.
+  final XPathContext? parentContext;
 
   /// Looks up an XPath variable with the given [name].
   Object getVariable(String name) {
-    final variable = variables[name];
+    // Find the variable in the context chain.
+    XPathContext? context = this;
+    while (context != null) {
+      final variable = context.variables[name];
+      if (variable != null) return variable;
+      context = context.parentContext;
+    }
+    // If not found, check the static context.
+    final variable = configuration.variables[name];
     if (variable != null) return variable;
+    // If still not found, throw an exception.
     throw XPathEvaluationException('Unknown variable: $name');
   }
-
-  /// Looks up a XPath function with the given [name].
-  XPathFunction getFunction(XmlName name) {
-    final function = functions[name];
-    if (function != null) return function;
-    throw XPathEvaluationException('Unknown function: $name');
-  }
-
-  /// Looks up a XPath function with the given [name].
-  XPathFunction getFunctionByString(String name) => getFunction(
-    XmlName.parse(
-      name,
-      namespaceUri: namespaceUri,
-      namespaceUris: namespaceUris,
-    ),
-  );
-
-  /// Creates a copy of this context.
-  XPathContext copy({
-    Map<String, Object>? variables,
-    Map<XmlName, XPathFunction>? functions,
-    String? namespaceUri,
-    Map<String, String>? namespaceUris,
-    Map<String, XmlNode>? documents,
-    Map<String, String>? environment,
-    String? baseUri,
-    String? Function(String uri, String? encoding)? unparsedTextLoader,
-    XPathTraceCallback? onTraceCallback,
-  }) => XPathContext.empty(
-    item,
-    position: position,
-    last: last,
-    variables: _extend(this.variables, variables),
-    functions: _extend(this.functions, functions),
-    documents: _extend(this.documents, documents),
-    environment: _extend(this.environment, environment),
-    namespaceUri: namespaceUri ?? this.namespaceUri,
-    namespaceUris: _extend(this.namespaceUris, namespaceUris),
-    baseUri: baseUri ?? this.baseUri,
-    unparsedTextLoader: unparsedTextLoader ?? this.unparsedTextLoader,
-    onTraceCallback: onTraceCallback ?? this.onTraceCallback,
-  );
 
   /// Evaluates the given XPath [expression].
   XPathSequence evaluate(String expression) =>
       parseExpression(expression)(this);
-}
 
-/// Function type for tracing evaluation.
-typedef XPathTraceCallback = void Function(XPathSequence value, String? label);
-
-Map<K, V> _extend<K, V>(Map<K, V> original, Map<K, V>? other) {
-  if (other == null || other.isEmpty) return original;
-  if (original.isEmpty) return other;
-  return {...original, ...other};
+  /// Creates a modified copy of this context.
+  XPathContext copy({
+    Object? item,
+    int? position,
+    int? last,
+    Map<String, Object>? variables,
+  }) => XPathContext(
+    configuration,
+    item ?? this.item,
+    position: position ?? this.position,
+    last: last ?? this.last,
+    variables: variables ?? this.variables,
+    parentContext: this,
+  );
 }

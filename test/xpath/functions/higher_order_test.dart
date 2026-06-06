@@ -9,7 +9,7 @@ import 'package:xml/xpath.dart';
 import '../../utils/matchers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
-final context = XPathContext.canonical(document);
+final context = XPathConfiguration().context(document);
 
 void main() {
   group('fn:sort', () {

@@ -1,4 +1,5 @@
 import 'package:test/test.dart';
+import 'package:xml/src/xpath/evaluation/configuration.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/evaluation/namespaces.dart';
 import 'package:xml/src/xpath/expressions/function.dart';
@@ -10,7 +11,7 @@ import 'package:xml/xml.dart';
 import '../../utils/matchers.dart';
 import '../helpers.dart';
 
-final context = XPathContext.canonical(XmlElement.tag('root'));
+final context = XPathConfiguration().context(XmlElement.tag('root'));
 const arg1 = XPathSequence.single('First');
 const arg2 = XPathSequence.single('Second');
 const result = XPathSequence.single('Confirmed');
@@ -38,12 +39,15 @@ void main() {
       ]);
       expect(
         expr(
-          context.copy(
-            functions: {
-              const XmlName.parts('fun', namespaceUri: xpathFnNamespace):
-                  function,
-            },
-          ),
+          context.configuration
+              .copy(
+                functions: {
+                  const XmlName.parts('fun', namespaceUri: xpathFnNamespace):
+                      function,
+                },
+              )
+              .context(context.item)
+              .copy(variables: context.variables),
         ),
         result,
       );
@@ -61,12 +65,15 @@ void main() {
         LiteralExpression(arg2),
       ]);
       final functionSeq = expr(
-        context.copy(
-          functions: {
-            const XmlName.parts('fun', namespaceUri: xpathFnNamespace):
-                function,
-          },
-        ),
+        context.configuration
+            .copy(
+              functions: {
+                const XmlName.parts('fun', namespaceUri: xpathFnNamespace):
+                    function,
+              },
+            )
+            .context(context.item)
+            .copy(variables: context.variables),
       );
       final functionItem = functionSeq.first as XPathFunction;
       expect(
@@ -84,12 +91,15 @@ void main() {
         LiteralExpression(arg2),
       ]);
       final functionSeq = expr(
-        context.copy(
-          functions: {
-            const XmlName.parts('fun', namespaceUri: xpathFnNamespace):
-                function,
-          },
-        ),
+        context.configuration
+            .copy(
+              functions: {
+                const XmlName.parts('fun', namespaceUri: xpathFnNamespace):
+                    function,
+              },
+            )
+            .context(context.item)
+            .copy(variables: context.variables),
       );
       final functionItem = functionSeq.first as XPathFunction;
       expect(
@@ -107,12 +117,15 @@ void main() {
         LiteralExpression(arg2),
       ]);
       final functionSeq = expr(
-        context.copy(
-          functions: {
-            const XmlName.parts('fun', namespaceUri: xpathFnNamespace):
-                function,
-          },
-        ),
+        context.configuration
+            .copy(
+              functions: {
+                const XmlName.parts('fun', namespaceUri: xpathFnNamespace):
+                    function,
+              },
+            )
+            .context(context.item)
+            .copy(variables: context.variables),
       );
       final functionItem = functionSeq.first as XPathFunction;
       expect(functionItem(context, [arg1]), result);
@@ -134,15 +147,18 @@ void main() {
         [],
         DynamicFunctionExpression('foo', []),
       );
-      final closureContext = context.copy(
-        functions: {
-          const XmlName.parts(
-            'foo',
-            namespaceUri: xpathFnNamespace,
-          ): (context, args) =>
-              result,
-        },
-      );
+      final closureContext = context.configuration
+          .copy(
+            functions: {
+              const XmlName.parts(
+                'foo',
+                namespaceUri: xpathFnNamespace,
+              ): (context, args) =>
+                  result,
+            },
+          )
+          .context(context.item)
+          .copy(variables: context.variables);
       final function = expr(closureContext).first as XPathFunction;
       expect(function(context, []), result);
     });
@@ -164,15 +180,18 @@ void main() {
       const expr = NamedFunctionExpression('foo');
       final function =
           expr(
-                context.copy(
-                  functions: {
-                    const XmlName.parts(
-                      'foo',
-                      namespaceUri: xpathFnNamespace,
-                    ): (context, args) =>
-                        result,
-                  },
-                ),
+                context.configuration
+                    .copy(
+                      functions: {
+                        const XmlName.parts(
+                          'foo',
+                          namespaceUri: xpathFnNamespace,
+                        ): (context, args) =>
+                            result,
+                      },
+                    )
+                    .context(context.item)
+                    .copy(variables: context.variables),
               ).first
               as XPathFunction;
       expect(function(context, []), result);
@@ -195,15 +214,18 @@ void main() {
       );
       expect(
         expr(
-          context.copy(
-            functions: {
-              const XmlName.parts(
-                'foo',
-                namespaceUri: xpathFnNamespace,
-              ): (context, args) =>
-                  XPathSequence.single((args[0].first as int) + 1),
-            },
-          ),
+          context.configuration
+              .copy(
+                functions: {
+                  const XmlName.parts(
+                    'foo',
+                    namespaceUri: xpathFnNamespace,
+                  ): (context, args) =>
+                      XPathSequence.single((args[0].first as int) + 1),
+                },
+              )
+              .context(context.item)
+              .copy(variables: context.variables),
         ).first,
         2,
       );
@@ -216,15 +238,18 @@ void main() {
       );
       expect(
         expr(
-          context.copy(
-            functions: {
-              const XmlName.parts(
-                'foo',
-                namespaceUri: xpathFnNamespace,
-              ): (context, args) =>
-                  XPathSequence.single((args[0].first as int) + 1),
-            },
-          ),
+          context.configuration
+              .copy(
+                functions: {
+                  const XmlName.parts(
+                    'foo',
+                    namespaceUri: xpathFnNamespace,
+                  ): (context, args) =>
+                      XPathSequence.single((args[0].first as int) + 1),
+                },
+              )
+              .context(context.item)
+              .copy(variables: context.variables),
         ).first,
         2,
       );

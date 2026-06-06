@@ -27,7 +27,7 @@ class DynamicFunctionExpression implements XPathExpression {
     if (arguments.any(
       (argument) => argument is ArgumentPlaceholderExpression,
     )) {
-      final function = context.getFunctionByString(name);
+      final function = context.configuration.getFunctionByString(name);
       final evaluatedArguments = arguments
           .map<XPathExpression>(
             (argument) => argument is ArgumentPlaceholderExpression
@@ -61,7 +61,7 @@ class DynamicFunctionExpression implements XPathExpression {
         return function(nestedContext, combinedArguments);
       });
     }
-    return context.getFunctionByString(name)(
+    return context.configuration.getFunctionByString(name)(
       context,
       arguments.map((each) => each(context)).toList(),
     );
@@ -84,7 +84,7 @@ class InlineFunctionExpression implements XPathExpression {
         'Expected ${parameters.length} arguments, but got ${arguments.length}',
       );
     }
-    final localVariables = {...context.variables};
+    final localVariables = <String, Object>{};
     for (var i = 0; i < parameters.length; i++) {
       localVariables[parameters[i]] = arguments[i];
     }
@@ -99,7 +99,7 @@ class NamedFunctionExpression implements XPathExpression {
 
   @override
   XPathSequence call(XPathContext context) =>
-      XPathSequence.single(context.getFunctionByString(name));
+      XPathSequence.single(context.configuration.getFunctionByString(name));
 }
 
 class ArrowExpression implements XPathExpression {
@@ -116,7 +116,10 @@ class ArrowExpression implements XPathExpression {
     final spec = specifier;
     switch (spec) {
       case String():
-        return context.getFunctionByString(spec)(context, argumentSeqs);
+        return context.configuration.getFunctionByString(spec)(
+          context,
+          argumentSeqs,
+        );
       case XPathExpression():
         final functionSeq = spec(context);
         if (functionSeq.isEmpty) {

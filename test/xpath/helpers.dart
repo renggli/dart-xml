@@ -14,8 +14,12 @@ void expectXPath(
   Map<String, Object> variables = const {},
   Map<XmlName, XPathFunction> functions = const {},
 }) {
+  final configuration = XPathConfiguration(
+    variables: variables,
+    functions: functions,
+  );
   expect(
-    node!.xpath(expression, variables: variables, functions: functions),
+    node!.xpath(expression, configuration: configuration),
     orderedEquals(matchers.map(isXmlNode)),
     reason: expression,
   );
@@ -27,11 +31,7 @@ void expectXPath(
           ? matchers.elementAt(i)
           : matchers.elementAt(matchers.length - i - 1);
       expect(
-        node.xpath(
-          indexedExpression,
-          variables: variables,
-          functions: functions,
-        ),
+        node.xpath(indexedExpression, configuration: configuration),
         orderedEquals([isXmlNode(indexedMatcher)]),
         reason: indexedExpression,
       );
@@ -45,8 +45,14 @@ void expectEvaluate(
   dynamic matcher, {
   Map<String, Object> variables = const {},
   Map<XmlName, XPathFunction> functions = const {},
-}) => expect(
-  node!.xpathEvaluate(expression, variables: variables, functions: functions),
-  matcher,
-  reason: expression,
-);
+}) {
+  final configuration = XPathConfiguration(
+    variables: variables,
+    functions: functions,
+  );
+  expect(
+    node!.xpathEvaluate(expression, configuration: configuration),
+    matcher,
+    reason: expression,
+  );
+}

@@ -1,4 +1,5 @@
 import 'package:test/test.dart';
+import 'package:xml/src/xpath/evaluation/configuration.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/types/function.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
@@ -8,7 +9,7 @@ import '../../utils/matchers.dart';
 
 void main() {
   final document = XmlDocument.parse('<r/>');
-  final context = XPathContext.empty(document);
+  final context = const XPathConfiguration.raw().context(document);
 
   group('xsFunction', () {
     test('name', () {

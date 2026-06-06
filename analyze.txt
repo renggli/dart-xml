@@ -1,0 +1,34 @@
+Analyzing PetitXml...
+
+  error - test/xpath/functions/error_test.dart:65:9 - The named parameter 'staticContext' isn't defined. Try correcting the name to an existing named parameter's name, or defining a named parameter with the name 'staticContext'. - undefined_named_parameter
+  error - test/xpath/functions/sequence_test.dart:760:9 - The named parameter 'documents' isn't defined. Try correcting the name to an existing named parameter's name, or defining a named parameter with the name 'documents'. - undefined_named_parameter
+  error - test/xpath/functions/sequence_test.dart:789:9 - The named parameter 'documents' isn't defined. Try correcting the name to an existing named parameter's name, or defining a named parameter with the name 'documents'. - undefined_named_parameter
+  error - test/xpath/functions/uri_test.dart:12:5 - The named parameter 'environment' isn't defined. Try correcting the name to an existing named parameter's name, or defining a named parameter with the name 'environment'. - undefined_named_parameter
+  error - test/xpath/functions/uri_test.dart:59:7 - The named parameter 'baseUri' isn't defined. Try correcting the name to an existing named parameter's name, or defining a named parameter with the name 'baseUri'. - undefined_named_parameter
+  error - test/xpath/functions/uri_test.dart:60:7 - The named parameter 'unparsedTextLoader' isn't defined. Try correcting the name to an existing named parameter's name, or defining a named parameter with the name 'unparsedTextLoader'. - undefined_named_parameter
+  error - test/xpath/functions/uri_test.dart:143:7 - The named parameter 'unparsedTextLoader' isn't defined. Try correcting the name to an existing named parameter's name, or defining a named parameter with the name 'unparsedTextLoader'. - undefined_named_parameter
+  error - test/xpath/functions/uri_test.dart:176:7 - The named parameter 'unparsedTextLoader' isn't defined. Try correcting the name to an existing named parameter's name, or defining a named parameter with the name 'unparsedTextLoader'. - undefined_named_parameter
+warning - bin/xpath_qt3tests.dart:397:57 - Dead code. Try removing the code, or fixing the code before it so that it can be reached. - dead_code
+warning - bin/xpath_qt3tests.dart:397:60 - The left operand can't be null, so the right operand is never executed. Try removing the operator and the right operand. - dead_null_aware_expression
+warning - test/xpath/expressions/function_test.dart:4:8 - Unused import: 'package:xml/src/xpath/evaluation/static_context.dart'. Try removing the import directive. - unused_import
+warning - test/xpath/functions/uri_test.dart:60:28 - The type of 'uri' can't be inferred; a type must be explicitly provided. Try specifying the type of the parameter. - inference_failure_on_untyped_parameter
+warning - test/xpath/functions/uri_test.dart:60:33 - The type of 'encoding' can't be inferred; a type must be explicitly provided. Try specifying the type of the parameter. - inference_failure_on_untyped_parameter
+warning - test/xpath/functions/uri_test.dart:143:28 - The type of 'uri' can't be inferred; a type must be explicitly provided. Try specifying the type of the parameter. - inference_failure_on_untyped_parameter
+warning - test/xpath/functions/uri_test.dart:176:28 - The type of 'uri' can't be inferred; a type must be explicitly provided. Try specifying the type of the parameter. - inference_failure_on_untyped_parameter
+   info - lib/src/xpath/evaluation/context.dart:29:20 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors
+   info - test/xpath/evaluation/context_test.dart:97:29 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors
+   info - test/xpath/evaluation/context_test.dart:124:29 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors
+   info - test/xpath/functions/accessor_test.dart:5:1 - Sort directive sections alphabetically. Try sorting the directives. - directives_ordering
+   info - test/xpath/functions/array_test.dart:6:1 - Sort directive sections alphabetically. Try sorting the directives. - directives_ordering
+   info - test/xpath/functions/date_time_test.dart:6:1 - Sort directive sections alphabetically. Try sorting the directives. - directives_ordering
+   info - test/xpath/functions/duration_test.dart:6:1 - Sort directive sections alphabetically. Try sorting the directives. - directives_ordering
+   info - test/xpath/functions/higher_order_test.dart:7:1 - Sort directive sections alphabetically. Try sorting the directives. - directives_ordering
+   info - test/xpath/functions/map_test.dart:6:1 - Sort directive sections alphabetically. Try sorting the directives. - directives_ordering
+   info - test/xpath/functions/node_test.dart:6:1 - Sort directive sections alphabetically. Try sorting the directives. - directives_ordering
+   info - test/xpath/functions/number_test.dart:6:1 - Sort directive sections alphabetically. Try sorting the directives. - directives_ordering
+   info - test/xpath/functions/qname_test.dart:6:1 - Sort directive sections alphabetically. Try sorting the directives. - directives_ordering
+   info - test/xpath/functions/sequence_test.dart:7:1 - Sort directive sections alphabetically. Try sorting the directives. - directives_ordering
+   info - test/xpath/functions/string_test.dart:5:1 - Sort directive sections alphabetically. Try sorting the directives. - directives_ordering
+   info - test/xpath/functions/uri_test.dart:4:1 - Sort directive sections alphabetically. Try sorting the directives. - directives_ordering
+
+30 issues found.

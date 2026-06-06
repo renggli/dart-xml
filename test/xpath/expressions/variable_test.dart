@@ -1,29 +1,31 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xml/nodes/element.dart';
-import 'package:xml/src/xpath/evaluation/context.dart';
+import 'package:xml/src/xpath/evaluation/configuration.dart';
 import 'package:xml/src/xpath/expressions/variable.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
+
 import '../../utils/matchers.dart';
 
 void main() {
   test('ContextItemExpression', () {
     final node = XmlElement.tag('root');
-    final context = XPathContext.empty(node);
+    final context = const XPathConfiguration.raw().context(node);
     const expr = ContextItemExpression();
     expect(expr(context).first, node);
   });
   group('VariableExpression', () {
     test('evaluate existing variable', () {
       const value = XPathSequence.single('a');
-      final context = XPathContext.empty(
-        XmlElement.tag('root'),
-        variables: {'var': value},
-      );
+      final context = const XPathConfiguration.raw()
+          .context(XmlElement.tag('root'))
+          .copy(variables: const {'var': value});
       const expr = VariableExpression('var');
       expect(expr(context), value);
     });
     test('evaluate missing variable', () {
-      final context = XPathContext.empty(XmlElement.tag('root'));
+      final context = const XPathConfiguration.raw().context(
+        XmlElement.tag('root'),
+      );
       const expr = VariableExpression('var');
       expect(
         () => expr(context),
@@ -34,7 +36,9 @@ void main() {
   test('LiteralExpression', () {
     const value = XPathSequence.single('a');
     const expr = LiteralExpression(value);
-    final context = XPathContext.empty(XmlElement.tag('root'));
+    final context = const XPathConfiguration.raw().context(
+      XmlElement.tag('root'),
+    );
     expect(expr(context), value);
   });
 }

@@ -1,5 +1,4 @@
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/functions/string.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
@@ -8,7 +7,7 @@ import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
-final context = XPathContext.empty(document);
+final context = const XPathConfiguration.raw().context(document);
 
 void main() {
   group('fn:collation-key', () {
@@ -201,7 +200,7 @@ void main() {
 
     test('uses context item if no arguments', () {
       final textNode = XmlText('hello');
-      final contextWithNode = XPathContext.empty(textNode);
+      final contextWithNode = const XPathConfiguration.raw().context(textNode);
       expect(fnStringLength(contextWithNode, []), isXPathSequence([5]));
     });
 
@@ -223,7 +222,7 @@ void main() {
 
     test('uses context item if no arguments', () {
       final textNode = XmlText('  hello   ');
-      final contextWithNode = XPathContext.empty(textNode);
+      final contextWithNode = const XPathConfiguration.raw().context(textNode);
       expect(fnNormalizeSpace(contextWithNode, []), isXPathSequence(['hello']));
     });
 

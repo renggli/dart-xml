@@ -1,16 +1,16 @@
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/functions/uri.dart';
 import 'package:xml/xpath.dart';
 
 import '../../utils/matchers.dart';
 
 void main() {
-  final emptyContext = XPathContext.empty(XPathSequence.empty);
-  final populatedContext = XPathContext.empty(
+  final emptyContext = const XPathConfiguration.raw().context(
     XPathSequence.empty,
-    environment: {'TEST_VAR': 'hello', 'ANOTHER_VAR': 'world'},
   );
+  final populatedContext = const XPathConfiguration.raw(
+    environment: {'TEST_VAR': 'hello', 'ANOTHER_VAR': 'world'},
+  ).context(XPathSequence.empty);
 
   group('fn:environment-variable', () {
     test('returns empty sequence when variable is missing', () {
@@ -54,8 +54,7 @@ void main() {
   });
 
   group('fn:unparsed-text', () {
-    final textContext = XPathContext.empty(
-      XPathSequence.empty,
+    final textContext = XPathConfiguration.raw(
       baseUri: 'http://example.com/dir/',
       unparsedTextLoader: (uri, encoding) {
         if (uri == 'http://example.com/dir/hello.txt') {
@@ -72,7 +71,7 @@ void main() {
         }
         return null;
       },
-    );
+    ).context(XPathSequence.empty);
 
     test('returns unparsed text from absolute URI', () {
       expect(
@@ -138,8 +137,7 @@ void main() {
   });
 
   group('fn:unparsed-text-lines', () {
-    final multiLineContext = XPathContext.empty(
-      XPathSequence.empty,
+    final multiLineContext = XPathConfiguration.raw(
       unparsedTextLoader: (uri, encoding) {
         if (uri == 'http://example.com/lines.txt') {
           return 'line1\r\nline2\nline3\rline4\n';
@@ -149,7 +147,7 @@ void main() {
         }
         return null;
       },
-    );
+    ).context(XPathSequence.empty);
 
     test('splits text into lines correctly', () {
       expect(
@@ -171,8 +169,7 @@ void main() {
   });
 
   group('fn:unparsed-text-available', () {
-    final availableContext = XPathContext.empty(
-      XPathSequence.empty,
+    final availableContext = XPathConfiguration.raw(
       unparsedTextLoader: (uri, encoding) {
         if (uri == 'http://example.com/ok.txt') {
           return 'ok';
@@ -182,7 +179,7 @@ void main() {
         }
         return null;
       },
-    );
+    ).context(XPathSequence.empty);
 
     test('returns true when resource is available and valid', () {
       expect(

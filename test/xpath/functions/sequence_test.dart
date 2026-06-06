@@ -1,5 +1,4 @@
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/functions/sequence.dart';
 import 'package:xml/src/xpath/functions/uri.dart';
 import 'package:xml/src/xpath/types/duration.dart';
@@ -10,7 +9,7 @@ import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
-final context = XPathContext.empty(document);
+final context = const XPathConfiguration.raw().context(document);
 
 void main() {
   group('fn:empty', () {
@@ -756,9 +755,10 @@ void main() {
 
     test('returns document when registered', () {
       final doc = XmlDocument.parse('<doc/>');
-      final contextWithDoc = context.copy(
-        documents: {'http://example.com/doc': doc},
-      );
+      final contextWithDoc = context.configuration
+          .copy(documents: {'http://example.com/doc': doc})
+          .context(context.item)
+          .copy(variables: context.variables);
       expect(
         fnDoc(contextWithDoc, [
           const XPathSequence.single('http://example.com/doc'),
@@ -785,9 +785,10 @@ void main() {
 
     test('returns true if available', () {
       final doc = XmlDocument.parse('<doc/>');
-      final contextWithDoc = context.copy(
-        documents: {'http://example.com/doc': doc},
-      );
+      final contextWithDoc = context.configuration
+          .copy(documents: {'http://example.com/doc': doc})
+          .context(context.item)
+          .copy(variables: context.variables);
       expect(
         fnDocAvailable(contextWithDoc, [
           const XPathSequence.single('http://example.com/doc'),
