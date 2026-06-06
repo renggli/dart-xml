@@ -7,6 +7,7 @@ import '../operators/comparison.dart';
 import '../types/any.dart';
 import '../types/array.dart';
 import '../types/duration.dart';
+import '../types/function.dart';
 import '../types/map.dart';
 import '../types/node.dart';
 import '../types/number.dart';
@@ -406,7 +407,17 @@ const fnDeepEqual = XPathFunctionDefinition(
 );
 
 bool _deepEqual(Object? a, Object? b) {
-  if (identical(a, b)) return true;
+  if (a is Function ||
+      b is Function ||
+      a is XPathFunction ||
+      b is XPathFunction) {
+    throw XPathEvaluationException(
+      'Cannot compare function items with deep-equal',
+    );
+  }
+  if (identical(a, b) && a is! List && a is! Map && a is! XPathSequence) {
+    return true;
+  }
   if (a == null || b == null) return false;
 
   // Handle sequences
@@ -466,13 +477,6 @@ bool _deepEqual(Object? a, Object? b) {
       return a.name == b.name && a.value == b.value;
     }
     return a.value == b.value;
-  }
-
-  // Handle Function objects
-  if (a is Function || b is Function) {
-    throw XPathEvaluationException(
-      'Cannot compare function items with deep-equal',
-    );
   }
 
   // Handle atomic comparison
