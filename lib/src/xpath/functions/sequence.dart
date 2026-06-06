@@ -577,20 +577,12 @@ XPathSequence _fnAvg(XPathContext context, XPathSequence arg) {
         for (final item in items) {
           sumMonths += (item as XPathYearMonthDuration).totalMonths;
         }
-        if (sumMonths > 9223372036854775807 ||
-            sumMonths < -9223372036854775808) {
-          throw XPathEvaluationException('fn:avg: yearMonthDuration overflow');
-        }
         final avgMonths = _roundHalfToEven(sumMonths / count);
         return XPathSequence.single(XPathYearMonthDuration(avgMonths));
       } else {
         var sumMicroseconds = 0;
         for (final item in items) {
           sumMicroseconds += (item as XPathDayTimeDuration).inMicroseconds;
-        }
-        if (sumMicroseconds > 9223372036854775807 ||
-            sumMicroseconds < -9223372036854775808) {
-          throw XPathEvaluationException('fn:avg: dayTimeDuration overflow');
         }
         final avgMicroseconds = _roundHalfToEven(sumMicroseconds / count);
         return XPathSequence.single(
