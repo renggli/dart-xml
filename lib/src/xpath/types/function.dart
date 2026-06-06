@@ -22,14 +22,16 @@ class _XPathFunctionType extends XPathType<XPathFunction> {
   bool get isAtomic => false;
 
   @override
-  bool matches(Object value) => value is XPathFunction;
+  bool matches(Object value) =>
+      value is XPathFunction || value is Map || value is List;
 
   @override
   XPathFunction cast(Object value) {
     if (value is XPathFunction) {
       return value;
-    } else if (value is XPathArray) {
+    } else if (value is List) {
       // Arrays are functions
+      final array = xsArray.cast(value);
       return (context, List<XPathSequence> arguments) {
         if (arguments.length != 1) {
           throw XPathEvaluationException(
@@ -37,13 +39,14 @@ class _XPathFunctionType extends XPathType<XPathFunction> {
           );
         }
         final index = xsInteger.cast(arguments.single);
-        if (index < 1 || index > value.length) {
+        if (index < 1 || index > array.length) {
           throw XPathEvaluationException('Array index out of bounds: $index');
         }
-        return xsSequence.cast(value[index - 1]);
+        return xsSequence.cast(array[index - 1]);
       };
-    } else if (value is XPathMap) {
+    } else if (value is Map) {
       // Maps are functions
+      final map = xsMap.cast(value);
       return (context, arguments) {
         if (arguments.length != 1) {
           throw XPathEvaluationException(
@@ -51,7 +54,7 @@ class _XPathFunctionType extends XPathType<XPathFunction> {
           );
         }
         final key = arguments[0].toAtomicValue();
-        final result = value[key];
+        final result = map[key];
         return result != null ? xsSequence.cast(result) : XPathSequence.empty;
       };
     } else if (value is XPathSequence) {

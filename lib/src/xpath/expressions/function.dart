@@ -129,13 +129,14 @@ class ArrowExpression implements XPathExpression {
           'Expected a single function item, but got ${functionSeq.length} items',
         );
       }
-      final function = functionSeq.first;
-      if (function is! XPathFunction) {
+      final functionItem = functionSeq.first;
+      if (!xsFunction.matches(functionItem)) {
         throw XPathEvaluationException(
-          'Expected a function item, but got ${function.runtimeType}',
+          'Expected a function item, but got ${functionItem.runtimeType}',
         );
       }
-      return function(context, argumentSeqs);
+      final callable = xsFunction.cast(functionItem);
+      return callable(context, argumentSeqs);
     }
     throw StateError('Invalid arrow function specifier: $specifier');
   }
@@ -200,12 +201,13 @@ class FunctionCallExpression implements XPathExpression {
       );
     }
     final functionItem = functionSeq.first;
-    if (functionItem is! XPathFunction) {
+    if (!xsFunction.matches(functionItem)) {
       throw XPathEvaluationException(
         'Expected a function item, but got ${functionItem.runtimeType}',
       );
     }
-    return functionItem(context, arguments);
+    final callable = xsFunction.cast(functionItem);
+    return callable(context, arguments);
   }
 }
 

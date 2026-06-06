@@ -20,6 +20,10 @@ void main() {
         List<XPathSequence> arguments,
       ) => XPathSequence.empty;
       expect(xsFunction.matches(myFunction), isTrue);
+      expect(xsFunction.matches(<Object, Object>{}), isTrue);
+      expect(xsFunction.matches(<Object>[]), isTrue);
+      expect(xsFunction.matches({'key': 'value'}), isTrue);
+      expect(xsFunction.matches([1, 2, 3]), isTrue);
       expect(xsFunction.matches('foo'), isFalse);
     });
     group('cast', () {

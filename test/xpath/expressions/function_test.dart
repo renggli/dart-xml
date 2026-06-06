@@ -292,6 +292,24 @@ void main() {
         ),
       );
     });
+    test('evaluate with Map', () {
+      final map = {'key': 'value'};
+      final expr = ArrowExpression(
+        const LiteralExpression(XPathSequence.single('key')),
+        LiteralExpression(XPathSequence.single(map)),
+        [],
+      );
+      expect(expr(context), isXPathSequence(['value']));
+    });
+    test('evaluate with List', () {
+      final array = ['first', 'second'];
+      final expr = ArrowExpression(
+        const LiteralExpression(XPathSequence.single(1)),
+        LiteralExpression(XPathSequence.single(array)),
+        [],
+      );
+      expect(expr(context), isXPathSequence(['first']));
+    });
   });
 
   group('FunctionCallExpression', () {
@@ -378,6 +396,22 @@ void main() {
       final functionSeq = expr(context);
       final resultFunction = functionSeq.first as XPathFunction;
       expect(resultFunction(context, [arg1]), result);
+    });
+    test('evaluate with Map', () {
+      final map = {'key': 'value'};
+      final expr = FunctionCallExpression(
+        LiteralExpression(XPathSequence.single(map)),
+        [const LiteralExpression(XPathSequence.single('key'))],
+      );
+      expect(expr(context), isXPathSequence(['value']));
+    });
+    test('evaluate with List', () {
+      final array = ['first', 'second'];
+      final expr = FunctionCallExpression(
+        LiteralExpression(XPathSequence.single(array)),
+        [const LiteralExpression(XPathSequence.single(1))],
+      );
+      expect(expr(context), isXPathSequence(['first']));
     });
   });
 
