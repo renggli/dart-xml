@@ -15,7 +15,7 @@ import 'type.dart';
 export 'package:petitparser/petitparser.dart' show unbounded;
 
 /// Definition of an XPath function.
-class XPathFunctionDefinition implements XPathFunction {
+class XPathFunctionDefinition extends XPathFunction {
   const XPathFunctionDefinition({
     required this.name,
     this.requiredArguments = const [],
@@ -88,7 +88,7 @@ class XPathFunctionDefinition implements XPathFunction {
 
   @override
   String toString() =>
-      '${name.qualified}(${requiredArguments.join(', ')}, '
+      '${super.toString()}(${requiredArguments.join(', ')}, '
       '${optionalArguments.join(', ')}, '
       '${variadicArgument != null ? '...' : ''})';
 }

@@ -166,7 +166,7 @@ XPathSequence _applyPartialFunction(
   );
 }
 
-class _XPathInlineFunction implements XPathFunction {
+class _XPathInlineFunction extends XPathFunction {
   _XPathInlineFunction(this.expression, this.context, this.parameters);
 
   final XPathExpression expression;
@@ -174,7 +174,7 @@ class _XPathInlineFunction implements XPathFunction {
   final List<String> parameters;
 
   @override
-  XmlName get name => const XmlName.qualified('');
+  XmlName get name => const XmlName.qualified('dynamic-function');
 
   @override
   int get arity => parameters.length;
@@ -193,14 +193,14 @@ class _XPathInlineFunction implements XPathFunction {
   }
 }
 
-class _XPathPartialFunction implements XPathFunction {
+class _XPathPartialFunction extends XPathFunction {
   _XPathPartialFunction(this.evaluatedArguments, this.function, this.arity);
 
   final List<XPathExpression> evaluatedArguments;
   final XPathFunction function;
 
   @override
-  XmlName get name => const XmlName.qualified('');
+  XmlName get name => function.name;
 
   @override
   final int arity;

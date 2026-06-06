@@ -247,7 +247,7 @@ void main() {
     test('toString', () {
       expect(
         function.toString(),
-        'foo(\$req as xs:string, \$opt as xs:string?, ...)',
+        'foo#1(\$req as xs:string, \$opt as xs:string?, ...)',
       );
     });
   });

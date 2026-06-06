@@ -1,6 +1,7 @@
 import '../../xml/utils/name.dart';
 import '../definitions/type.dart';
 import '../evaluation/context.dart';
+import '../evaluation/namespaces.dart';
 import '../exceptions/evaluation_exception.dart';
 import 'array.dart';
 import 'map.dart';
@@ -30,15 +31,17 @@ class _XPathFunctionType extends XPathType<XPathFunction> {
   XPathFunction cast(Object value) => switch (value) {
     XPathFunction() => value,
     Function() => value.toXPathFunction(),
-    List() => XPathArrayFunction(xsArray.cast(value)),
-    Map() => XPathMapFunction(xsMap.cast(value)),
+    List() => _XPathArrayFunction(xsArray.cast(value)),
+    Map() => _XPathMapFunction(xsMap.cast(value)),
     XPathSequence(singleOrNull: final item?) => cast(item),
     _ => throw XPathEvaluationException.unsupportedCast(this, value),
   };
 }
 
-/// Interface of XPath functions.
+/// Abstract base class for functions in XPath.
 abstract class XPathFunction {
+  const XPathFunction();
+
   /// The name of the function.
   XmlName get name;
 
@@ -62,7 +65,7 @@ extension XPathWrappedFunctionExtension on Function {
 }
 
 /// A function that wraps a Dart function definition.
-class _XPathWrappedFunction implements XPathFunction {
+class _XPathWrappedFunction extends XPathFunction {
   _XPathWrappedFunction(this.name, this.arity, this.function);
 
   @override
@@ -79,13 +82,14 @@ class _XPathWrappedFunction implements XPathFunction {
 }
 
 /// A function wrapper for a casted XPathArray.
-class XPathArrayFunction implements XPathFunction {
-  XPathArrayFunction(this._array);
+class _XPathArrayFunction extends XPathFunction {
+  _XPathArrayFunction(this._array);
 
   final XPathArray _array;
 
   @override
-  XmlName get name => const XmlName.qualified('');
+  XmlName get name =>
+      const XmlName.qualified('get', namespaceUri: xpathArrayNamespace);
 
   @override
   int get arity => 1;
@@ -106,13 +110,14 @@ class XPathArrayFunction implements XPathFunction {
 }
 
 /// A function wrapper for a casted XPathMap.
-class XPathMapFunction implements XPathFunction {
-  XPathMapFunction(this._map);
+class _XPathMapFunction extends XPathFunction {
+  _XPathMapFunction(this._map);
 
   final XPathMap _map;
 
   @override
-  XmlName get name => const XmlName.qualified('');
+  XmlName get name =>
+      const XmlName.qualified('get', namespaceUri: xpathMapNamespace);
 
   @override
   int get arity => 1;
