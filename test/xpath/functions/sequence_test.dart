@@ -446,6 +446,76 @@ void main() {
       expect(fnAvg(context, [XPathSequence.empty]), isXPathSequence(isEmpty));
     });
 
+    test('returns average of yearMonthDurations', () {
+      final d1 = XPathYearMonthDuration(14); // P1Y2M
+      final d2 = XPathYearMonthDuration(10); // P10M
+      // Average: 12 months (P1Y)
+      expect(
+        fnAvg(context, [
+          XPathSequence([d1, d2]),
+        ]),
+        isXPathSequence([XPathYearMonthDuration(12)]),
+      );
+    });
+
+    test('returns average of dayTimeDurations with round-half-to-even', () {
+      final d1 = XPathDayTimeDuration(const Duration(days: 1)); // 24 hours
+      final d2 = XPathDayTimeDuration(const Duration(hours: 2)); // 2 hours
+      // Average: 13 hours
+      expect(
+        fnAvg(context, [
+          XPathSequence([d1, d2]),
+        ]),
+        isXPathSequence([XPathDayTimeDuration(const Duration(hours: 13))]),
+      );
+
+      // Testing round-half-to-even:
+      // 5 months / 2 = 2.5 months. Round half-to-even -> 2 months.
+      expect(
+        fnAvg(context, [
+          XPathSequence([XPathYearMonthDuration(5), XPathYearMonthDuration(0)]),
+        ]),
+        isXPathSequence([XPathYearMonthDuration(2)]),
+      );
+      // 7 months / 2 = 3.5 months. Round half-to-even -> 4 months.
+      expect(
+        fnAvg(context, [
+          XPathSequence([XPathYearMonthDuration(7), XPathYearMonthDuration(0)]),
+        ]),
+        isXPathSequence([XPathYearMonthDuration(4)]),
+      );
+    });
+
+    test('throws error for mixed sequence or invalid types', () {
+      expect(
+        () => fnAvg(context, [
+          XPathSequence([1, XPathDayTimeDuration(const Duration(days: 1))]),
+        ]),
+        throwsA(isXPathEvaluationException()),
+      );
+      expect(
+        () => fnAvg(context, [
+          XPathSequence([
+            XPathYearMonthDuration(1),
+            XPathDayTimeDuration(const Duration(days: 1)),
+          ]),
+        ]),
+        throwsA(isXPathEvaluationException()),
+      );
+      expect(
+        () => fnAvg(context, [const XPathSequence.single('not a number')]),
+        throwsA(isXPathEvaluationException()),
+      );
+      expect(
+        () => fnAvg(context, [
+          const XPathSequence.single(
+            XPathDuration(months: 1, dayTime: Duration(days: 1)),
+          ),
+        ]),
+        throwsA(isXPathEvaluationException()),
+      );
+    });
+
     test('integration via xpathEvaluate', () {
       final xml = XmlDocument.parse('<r><a>1</a><b>2</b><c>3</c></r>');
       expectEvaluate(xml, 'avg(/r/*)', isXPathSequence([2.0]));
@@ -600,6 +670,10 @@ void main() {
         isXPathSequence([42]),
       );
       expect(
+        fnSum(context, [XPathSequence.empty, XPathSequence.empty]),
+        isXPathSequence(isEmpty),
+      );
+      expect(
         fnSum(context, [
           const XPathSequence([1, 2, 3]),
         ]),
@@ -618,6 +692,47 @@ void main() {
           XPathSequence([d1, d2, d3]),
         ]),
         isXPathSequence([sum]),
+      );
+    });
+
+    test('returns sum of yearMonthDurations', () {
+      final d1 = XPathYearMonthDuration(12); // P1Y
+      final d2 = XPathYearMonthDuration(10); // P10M
+      expect(
+        fnSum(context, [
+          XPathSequence([d1, d2]),
+        ]),
+        isXPathSequence([XPathYearMonthDuration(22)]),
+      );
+    });
+
+    test('throws error for mixed sequence or invalid types', () {
+      expect(
+        () => fnSum(context, [
+          XPathSequence([1, XPathDayTimeDuration(const Duration(days: 1))]),
+        ]),
+        throwsA(isXPathEvaluationException()),
+      );
+      expect(
+        () => fnSum(context, [
+          XPathSequence([
+            XPathYearMonthDuration(1),
+            XPathDayTimeDuration(const Duration(days: 1)),
+          ]),
+        ]),
+        throwsA(isXPathEvaluationException()),
+      );
+      expect(
+        () => fnSum(context, [const XPathSequence.single('not a number')]),
+        throwsA(isXPathEvaluationException()),
+      );
+      expect(
+        () => fnSum(context, [
+          const XPathSequence.single(
+            XPathDuration(months: 1, dayTime: Duration(days: 1)),
+          ),
+        ]),
+        throwsA(isXPathEvaluationException()),
       );
     });
 

@@ -5,7 +5,10 @@ import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../operators/comparison.dart';
 import '../types/any.dart';
+import '../types/array.dart';
 import '../types/duration.dart';
+import '../types/map.dart';
+import '../types/node.dart';
 import '../types/number.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
@@ -498,23 +501,109 @@ const fnAvg = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'arg',
-      type: xsNumeric,
+      type: xsAny,
       cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
   function: _fnAvg,
 );
 
-XPathSequence _fnAvg(XPathContext context, XPathSequence arg) {
-  final iterator = arg.iterator;
-  if (!iterator.moveNext()) return XPathSequence.empty;
-  var sum = xsNumeric.cast(iterator.current);
-  var count = 1;
-  while (iterator.moveNext()) {
-    sum += xsNumeric.cast(iterator.current);
-    count++;
+Iterable<Object> _atomizeSumAvg(Object item) {
+  if (item is XPathArray) {
+    return item.expand(_atomizeSumAvg);
   }
-  return XPathSequence.single(sum / count);
+  if (item is XPathSequence) {
+    return item.expand(_atomizeSumAvg);
+  }
+  if (item is XmlNode) {
+    final valStr = xsNode.castToString(item);
+    try {
+      return [xsDouble.cast(valStr)];
+    } catch (_) {
+      throw XPathEvaluationException(
+        'Cannot cast untypedAtomic "$valStr" to double',
+      );
+    }
+  }
+  if (item is XPathMap || item is Function) {
+    throw XPathEvaluationException('Cannot atomize a map or function item');
+  }
+  return [item];
+}
+
+int _roundHalfToEven(double value) {
+  final floor = value.floor();
+  final diff = value - floor;
+  if (diff == 0.5) {
+    return floor.isEven ? floor : floor + 1;
+  }
+  return value.round();
+}
+
+XPathSequence _fnAvg(XPathContext context, XPathSequence arg) {
+  final items = arg.expand(_atomizeSumAvg).toList();
+  if (items.isEmpty) return XPathSequence.empty;
+
+  final allNumeric = items.every((e) => e is num);
+  final allDuration = items.every((e) => e is XPathDuration);
+
+  if (!allNumeric && !allDuration) {
+    throw XPathEvaluationException(
+      'fn:avg: mixed or unsupported argument types',
+    );
+  }
+
+  final count = items.length;
+
+  if (allNumeric) {
+    var sum = items.first as num;
+    for (var i = 1; i < items.length; i++) {
+      sum += items[i] as num;
+    }
+    return XPathSequence.single(sum / count);
+  } else {
+    final allYearMonth = items.every((e) => e is XPathYearMonthDuration);
+    final allDayTime = items.every((e) => e is XPathDayTimeDuration);
+
+    if (!allYearMonth && !allDayTime) {
+      throw XPathEvaluationException(
+        'fn:avg: mixed or unsupported duration types',
+      );
+    }
+
+    try {
+      if (allYearMonth) {
+        var sumMonths = 0;
+        for (final item in items) {
+          sumMonths += (item as XPathYearMonthDuration).totalMonths;
+        }
+        if (sumMonths > 9223372036854775807 ||
+            sumMonths < -9223372036854775808) {
+          throw XPathEvaluationException('fn:avg: yearMonthDuration overflow');
+        }
+        final avgMonths = _roundHalfToEven(sumMonths / count);
+        return XPathSequence.single(XPathYearMonthDuration(avgMonths));
+      } else {
+        var sumMicroseconds = 0;
+        for (final item in items) {
+          sumMicroseconds += (item as XPathDayTimeDuration).inMicroseconds;
+        }
+        if (sumMicroseconds > 9223372036854775807 ||
+            sumMicroseconds < -9223372036854775808) {
+          throw XPathEvaluationException('fn:avg: dayTimeDuration overflow');
+        }
+        final avgMicroseconds = _roundHalfToEven(sumMicroseconds / count);
+        return XPathSequence.single(
+          XPathDayTimeDuration(Duration(microseconds: avgMicroseconds)),
+        );
+      }
+    } catch (e) {
+      if (e is XPathEvaluationException) rethrow;
+      throw XPathEvaluationException(
+        'fn:avg: duration arithmetic overflow: $e',
+      );
+    }
+  }
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-max
@@ -601,30 +690,72 @@ const fnSum = XPathFunctionDefinition(
       cardinality: XPathCardinality.zeroOrMore,
     ),
   ],
-  optionalArguments: [XPathArgumentDefinition(name: 'zero', type: xsAny)],
+  optionalArguments: [
+    XPathArgumentDefinition(
+      name: 'zero',
+      type: xsAny,
+      cardinality: XPathCardinality.zeroOrMore,
+    ),
+  ],
   function: _fnSum,
 );
 
-XPathSequence _fnSum(XPathContext context, XPathSequence arg, [Object? zero]) {
-  final iterator = arg.iterator;
-  if (!iterator.moveNext()) return XPathSequence.single(zero ?? 0);
-  final first = iterator.current;
-  if (first is XPathDuration) {
-    var sumMonths = first.months;
-    var sumDayTime = first.dayTime;
-    while (iterator.moveNext()) {
-      final d = xsDuration.cast(iterator.current);
-      sumMonths += d.months;
-      sumDayTime += d.dayTime;
-    }
-    return XPathSequence.single(
-      XPathDuration(months: sumMonths, dayTime: sumDayTime),
+XPathSequence _fnSum(
+  XPathContext context,
+  XPathSequence arg, [
+  XPathSequence? zero,
+]) {
+  final items = arg.expand(_atomizeSumAvg).toList();
+  if (items.isEmpty) {
+    return zero ?? const XPathSequence.single(0);
+  }
+
+  final allNumeric = items.every((e) => e is num);
+  final allDuration = items.every((e) => e is XPathDuration);
+
+  if (!allNumeric && !allDuration) {
+    throw XPathEvaluationException(
+      'fn:sum: mixed or unsupported argument types',
     );
-  } else {
-    var sum = xsNumeric.cast(first);
-    while (iterator.moveNext()) {
-      sum += xsNumeric.cast(iterator.current);
+  }
+
+  if (allNumeric) {
+    var sum = items.first as num;
+    for (var i = 1; i < items.length; i++) {
+      sum += items[i] as num;
     }
     return XPathSequence.single(sum);
+  } else {
+    final allYearMonth = items.every((e) => e is XPathYearMonthDuration);
+    final allDayTime = items.every((e) => e is XPathDayTimeDuration);
+
+    if (!allYearMonth && !allDayTime) {
+      throw XPathEvaluationException(
+        'fn:sum: mixed or unsupported duration types',
+      );
+    }
+
+    try {
+      if (allYearMonth) {
+        var sumMonths = 0;
+        for (final item in items) {
+          sumMonths += (item as XPathYearMonthDuration).totalMonths;
+        }
+        return XPathSequence.single(XPathYearMonthDuration(sumMonths));
+      } else {
+        var sumMicroseconds = 0;
+        for (final item in items) {
+          sumMicroseconds += (item as XPathDayTimeDuration).inMicroseconds;
+        }
+        return XPathSequence.single(
+          XPathDayTimeDuration(Duration(microseconds: sumMicroseconds)),
+        );
+      }
+    } catch (e) {
+      if (e is XPathEvaluationException) rethrow;
+      throw XPathEvaluationException(
+        'fn:sum: duration arithmetic overflow: $e',
+      );
+    }
   }
 }
