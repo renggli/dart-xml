@@ -1,6 +1,7 @@
 import 'package:test/test.dart';
 import 'package:xml/xml.dart';
-
+import 'package:xml/xpath.dart';
+import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 void main() {
@@ -142,6 +143,12 @@ void main() {
   group('treat as', () {
     test('atomic types', () {
       expectEvaluate(xml, '1 treat as xs:integer', orderedEquals([1]));
+    });
+    test('failure', () {
+      expect(
+        () => xml.xpathEvaluate("'foo' treat as xs:integer"),
+        throwsA(isXPathEvaluationException(message: contains('Expected'))),
+      );
     });
   });
 }

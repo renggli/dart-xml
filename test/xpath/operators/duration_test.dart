@@ -104,6 +104,15 @@ void main() {
         [2.0],
       );
     });
+    test('divide by zero throws', () {
+      expect(
+        () => opDivideYearMonthDurationByYearMonthDuration(
+          seq(d1Ymd),
+          seq(XPathYearMonthDuration(0)),
+        ),
+        throwsA(isXPathEvaluationException(message: 'Division by zero')),
+      );
+    });
   });
 
   group('opAddDayTimeDurations', () {
@@ -151,6 +160,9 @@ void main() {
   });
 
   group('opDivideDurationByDuration', () {
+    test('divide', () {
+      expect(opDivideDurationByDuration(seq(d2Dtd), seq(d1Dtd)), [2.0]);
+    });
     test('divide by zero throws', () {
       expect(
         () => opDivideDurationByDuration(
@@ -159,6 +171,86 @@ void main() {
         ),
         throwsA(isXPathEvaluationException(message: 'Division by zero')),
       );
+    });
+  });
+
+  group('opAddDurations', () {
+    test('add', () {
+      final result =
+          opAddDurations(
+                seq(const XPathDuration(months: 1, dayTime: Duration(days: 1))),
+                seq(const XPathDuration(months: 2, dayTime: Duration(days: 3))),
+              ).first
+              as XPathDuration;
+      expect(result.months, 3);
+      expect(result.dayTime, const Duration(days: 4));
+    });
+  });
+
+  group('opSubtractDurations', () {
+    test('subtract', () {
+      final result =
+          opSubtractDurations(
+                seq(const XPathDuration(months: 3, dayTime: Duration(days: 4))),
+                seq(const XPathDuration(months: 1, dayTime: Duration(days: 1))),
+              ).first
+              as XPathDuration;
+      expect(result.months, 2);
+      expect(result.dayTime, const Duration(days: 3));
+    });
+  });
+
+  group('opMultiplyDuration', () {
+    test('multiply', () {
+      final result =
+          opMultiplyDuration(
+                seq(const XPathDuration(months: 2, dayTime: Duration(days: 1))),
+                seq(3),
+              ).first
+              as XPathDuration;
+      expect(result.months, 6);
+      expect(result.dayTime, const Duration(days: 3));
+    });
+  });
+
+  group('opDivideDuration', () {
+    test('divide', () {
+      final result =
+          opDivideDuration(
+                seq(const XPathDuration(months: 6, dayTime: Duration(days: 3))),
+                seq(3),
+              ).first
+              as XPathDuration;
+      expect(result.months, 2);
+      expect(result.dayTime, const Duration(days: 1));
+    });
+    test('divide by zero throws', () {
+      expect(
+        () => opDivideDuration(
+          seq(const XPathDuration(months: 1, dayTime: Duration(days: 1))),
+          seq(0),
+        ),
+        throwsA(isXPathEvaluationException(message: 'Division by zero')),
+      );
+    });
+  });
+
+  group('empty input returns empty', () {
+    test('opDurationEqual', () {
+      expect(opDurationEqual(XPathSequence.empty, seq(d1)), isEmpty);
+      expect(opDurationEqual(seq(d1), XPathSequence.empty), isEmpty);
+    });
+    test('opAddDurations', () {
+      expect(opAddDurations(XPathSequence.empty, seq(d1)), isEmpty);
+    });
+    test('opSubtractDurations', () {
+      expect(opSubtractDurations(XPathSequence.empty, seq(d1)), isEmpty);
+    });
+    test('opMultiplyDuration', () {
+      expect(opMultiplyDuration(XPathSequence.empty, seq(1)), isEmpty);
+    });
+    test('opDivideDuration', () {
+      expect(opDivideDuration(XPathSequence.empty, seq(1)), isEmpty);
     });
   });
 }

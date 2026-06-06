@@ -389,4 +389,25 @@ void main() {
       );
     });
   });
+
+  group('castToString', () {
+    test('NaN', () {
+      expect(xsNumeric.castToString(double.nan), 'NaN');
+    });
+    test('INF', () {
+      expect(xsNumeric.castToString(double.infinity), 'INF');
+    });
+    test('-INF', () {
+      expect(xsNumeric.castToString(double.negativeInfinity), '-INF');
+    });
+    test('zero', () {
+      expect(xsNumeric.castToString(0), '0');
+    });
+    test('integer strips trailing .0', () {
+      expect(xsNumeric.castToString(42.0), '42');
+    });
+    test('decimal preserves fraction', () {
+      expect(xsNumeric.castToString(1.5), '1.5');
+    });
+  });
 }

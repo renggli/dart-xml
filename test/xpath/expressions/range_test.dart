@@ -1,6 +1,7 @@
 import 'package:test/test.dart';
 import 'package:xml/xml.dart';
-
+import 'package:xml/xpath.dart';
+import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 void main() {
@@ -21,6 +22,16 @@ void main() {
     });
     test('double operand', () {
       expectEvaluate(xml, '1.0 to 3.0', [1, 2, 3]);
+    });
+    test('exceeds size limit', () {
+      expect(
+        () => xml.xpathEvaluate('1 to 10000002'),
+        throwsA(
+          isXPathEvaluationException(
+            message: contains('Sequence size limit exceeded'),
+          ),
+        ),
+      );
     });
   });
 }

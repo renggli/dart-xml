@@ -208,4 +208,210 @@ void main() {
       );
     });
   });
+
+  group('fn:resolve-uri', () {
+    final baseContext = const XPathConfiguration.raw(
+      baseUri: 'http://example.com/dir/',
+    ).context(XPathSequence.empty);
+    test('null relative returns empty', () {
+      expect(
+        fnResolveUri(baseContext, [XPathSequence.empty]),
+        isXPathSequence(isEmpty),
+      );
+    });
+    test('absolute URI returned as-is', () {
+      expect(
+        fnResolveUri(baseContext, [
+          const XPathSequence.single('http://other.com/page'),
+        ]),
+        isXPathSequence(['http://other.com/page']),
+      );
+    });
+    test('relative resolved against static base', () {
+      expect(
+        fnResolveUri(baseContext, [const XPathSequence.single('file.xml')]),
+        isXPathSequence(['http://example.com/dir/file.xml']),
+      );
+    });
+    test('relative resolved against explicit base', () {
+      expect(
+        fnResolveUri(baseContext, [
+          const XPathSequence.single('file.xml'),
+          const XPathSequence.single('http://other.com/base/'),
+        ]),
+        isXPathSequence(['http://other.com/base/file.xml']),
+      );
+    });
+    test('throws when static base undefined', () {
+      expect(
+        () => fnResolveUri(emptyContext, [
+          const XPathSequence.single('file.xml'),
+        ]),
+        throwsA(
+          isXPathEvaluationException(message: 'Static base URI is undefined'),
+        ),
+      );
+    });
+  });
+
+  group('fn:encode-for-uri', () {
+    test('encodes special characters', () {
+      expect(
+        fnEncodeForUri(emptyContext, [
+          const XPathSequence.single('hello world'),
+        ]),
+        isXPathSequence(['hello%20world']),
+      );
+    });
+    test('null returns empty string', () {
+      expect(
+        fnEncodeForUri(emptyContext, [XPathSequence.empty]),
+        isXPathSequence(['']),
+      );
+    });
+  });
+
+  group('fn:iri-to-uri', () {
+    test('encodes IRI', () {
+      expect(
+        fnIriToUri(emptyContext, [
+          const XPathSequence.single('http://example.com/a b'),
+        ]),
+        isXPathSequence(['http://example.com/a%20b']),
+      );
+    });
+    test('null returns empty string', () {
+      expect(
+        fnIriToUri(emptyContext, [XPathSequence.empty]),
+        isXPathSequence(['']),
+      );
+    });
+  });
+
+  group('fn:escape-html-uri', () {
+    test('escapes HTML URI', () {
+      expect(
+        fnEscapeHtmlUri(emptyContext, [
+          const XPathSequence.single('http://example.com/a b'),
+        ]),
+        isXPathSequence(['http://example.com/a%20b']),
+      );
+    });
+    test('null returns empty string', () {
+      expect(
+        fnEscapeHtmlUri(emptyContext, [XPathSequence.empty]),
+        isXPathSequence(['']),
+      );
+    });
+  });
+
+  group('fn:unparsed-text null href', () {
+    test('returns empty sequence', () {
+      expect(
+        fnUnparsedText(emptyContext, [XPathSequence.empty]),
+        isXPathSequence(isEmpty),
+      );
+    });
+  });
+
+  group('fn:unparsed-text-lines null href', () {
+    test('returns empty sequence', () {
+      expect(
+        fnUnparsedTextLines(emptyContext, [XPathSequence.empty]),
+        isXPathSequence(isEmpty),
+      );
+    });
+  });
+
+  group('fn:unparsed-text-available null href', () {
+    test('returns false', () {
+      expect(
+        fnUnparsedTextAvailable(emptyContext, [XPathSequence.empty]),
+        isXPathSequence([false]),
+      );
+    });
+  });
+
+  group('fn:unparsed-text loader exception', () {
+    final throwingContext = XPathConfiguration.raw(
+      unparsedTextLoader: (uri, encoding) {
+        throw StateError('loader failure');
+      },
+    ).context(XPathSequence.empty);
+    test('wraps non-XPathEvaluationException', () {
+      expect(
+        () => fnUnparsedText(throwingContext, [
+          const XPathSequence.single('http://example.com/any.txt'),
+        ]),
+        throwsA(
+          isXPathEvaluationException(
+            message: contains('Failed to load resource'),
+          ),
+        ),
+      );
+    });
+  });
+
+  group('fn:unparsed-text valid encoding', () {
+    final encodingContext = XPathConfiguration.raw(
+      unparsedTextLoader: (uri, encoding) => 'content',
+    ).context(XPathSequence.empty);
+    test('accepts utf-8 encoding', () {
+      expect(
+        fnUnparsedText(encodingContext, [
+          const XPathSequence.single('http://example.com/file.txt'),
+          const XPathSequence.single('utf-8'),
+        ]),
+        isXPathSequence(['content']),
+      );
+    });
+  });
+
+  group('fn:doc', () {
+    test('null uri returns empty', () {
+      expect(
+        fnDoc(emptyContext, [XPathSequence.empty]),
+        isXPathSequence(isEmpty),
+      );
+    });
+    test('missing document throws', () {
+      expect(
+        () => fnDoc(emptyContext, [
+          const XPathSequence.single('http://example.com/missing.xml'),
+        ]),
+        throwsA(
+          isXPathEvaluationException(message: contains('Document not found')),
+        ),
+      );
+    });
+  });
+
+  group('fn:doc-available', () {
+    test('null uri returns false', () {
+      expect(
+        fnDocAvailable(emptyContext, [XPathSequence.empty]),
+        isXPathSequence([false]),
+      );
+    });
+    test('missing document returns false', () {
+      expect(
+        fnDocAvailable(emptyContext, [
+          const XPathSequence.single('http://example.com/missing.xml'),
+        ]),
+        isXPathSequence([false]),
+      );
+    });
+  });
+
+  group('fn:collection', () {
+    test('returns empty sequence', () {
+      expect(fnCollection(emptyContext, []), isXPathSequence(isEmpty));
+    });
+  });
+
+  group('fn:uri-collection', () {
+    test('returns empty sequence', () {
+      expect(fnUriCollection(emptyContext, []), isXPathSequence(isEmpty));
+    });
+  });
 }

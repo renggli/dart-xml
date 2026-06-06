@@ -2,6 +2,7 @@ import 'package:test/test.dart';
 import 'package:xml/src/xpath/functions/sequence.dart';
 import 'package:xml/src/xpath/functions/uri.dart';
 import 'package:xml/src/xpath/types/duration.dart';
+import 'package:xml/src/xpath/types/number.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -392,7 +393,6 @@ void main() {
         isXPathSequence(XPathSequence.trueSequence),
       );
     });
-
     test('returns false for different items', () {
       expect(
         fnDeepEqual(context, [
@@ -402,7 +402,6 @@ void main() {
         isXPathSequence([false]),
       );
     });
-
     test('returns false for different length', () {
       expect(
         fnDeepEqual(context, [
@@ -410,6 +409,117 @@ void main() {
           const XPathSequence([1, 2, 3]),
         ]),
         isXPathSequence([false]),
+      );
+    });
+    test('lists and maps comparison', () {
+      expect(
+        fnDeepEqual(context, [
+          const XPathSequence.single([1, 2]),
+          const XPathSequence.single([1, 2]),
+        ]),
+        isXPathSequence([true]),
+      );
+      expect(
+        fnDeepEqual(context, [
+          const XPathSequence.single([1, 2]),
+          const XPathSequence.single([1, 3]),
+        ]),
+        isXPathSequence([false]),
+      );
+      expect(
+        fnDeepEqual(context, [
+          const XPathSequence.single([1, 2]),
+          const XPathSequence.single([1, 2, 3]),
+        ]),
+        isXPathSequence([false]),
+      );
+      expect(
+        fnDeepEqual(context, [
+          const XPathSequence.single({'a': 1}),
+          const XPathSequence.single({'a': 1}),
+        ]),
+        isXPathSequence([true]),
+      );
+      expect(
+        fnDeepEqual(context, [
+          const XPathSequence.single({'a': 1}),
+          const XPathSequence.single({'a': 2}),
+        ]),
+        isXPathSequence([false]),
+      );
+      expect(
+        fnDeepEqual(context, [
+          const XPathSequence.single({'a': 1}),
+          const XPathSequence.single({'b': 1}),
+        ]),
+        isXPathSequence([false]),
+      );
+      expect(
+        fnDeepEqual(context, [
+          const XPathSequence.single({'a': 1}),
+          const XPathSequence.single({'a': 1, 'b': 2}),
+        ]),
+        isXPathSequence([false]),
+      );
+    });
+    test('XmlNodes comparison', () {
+      final doc1 = XmlDocument.parse('<r a="1">text</r>');
+      final doc2 = XmlDocument.parse('<r a="1">text</r>');
+      final doc3 = XmlDocument.parse('<r a="2">text</r>');
+      final doc4 = XmlDocument.parse('<r a="1">other</r>');
+      final doc5 = XmlDocument.parse('<diff>text</diff>');
+      expect(
+        fnDeepEqual(context, [
+          XPathSequence.single(doc1.rootElement),
+          XPathSequence.single(doc2.rootElement),
+        ]),
+        isXPathSequence([true]),
+      );
+      expect(
+        fnDeepEqual(context, [
+          XPathSequence.single(doc1.rootElement),
+          XPathSequence.single(doc3.rootElement),
+        ]),
+        isXPathSequence([false]),
+      );
+      expect(
+        fnDeepEqual(context, [
+          XPathSequence.single(doc1.rootElement),
+          XPathSequence.single(doc4.rootElement),
+        ]),
+        isXPathSequence([false]),
+      );
+      expect(
+        fnDeepEqual(context, [
+          XPathSequence.single(doc1.rootElement),
+          XPathSequence.single(doc5.rootElement),
+        ]),
+        isXPathSequence([false]),
+      );
+      expect(
+        fnDeepEqual(context, [
+          XPathSequence.single(doc1.rootElement.attributes.first),
+          XPathSequence.single(doc2.rootElement.attributes.first),
+        ]),
+        isXPathSequence([true]),
+      );
+      expect(
+        fnDeepEqual(context, [
+          XPathSequence.single(doc1.rootElement.attributes.first),
+          XPathSequence.single(doc3.rootElement.attributes.first),
+        ]),
+        isXPathSequence([false]),
+      );
+    });
+    test('functions throw exception', () {
+      expect(
+        () => fnDeepEqual(context, [
+          XPathSequence.single(xsNumeric.cast),
+          XPathSequence.single(xsNumeric.cast),
+        ]),
+        throwsA(
+          isXPathEvaluationException(message: contains('Cannot compare')),
+        ),
       );
     });
   });
@@ -738,6 +848,36 @@ void main() {
     test('integration via xpathEvaluate', () {
       final xml = XmlDocument.parse('<r><a>1</a><b>2</b><c>3</c></r>');
       expectEvaluate(xml, 'sum(/r/*)', isXPathSequence([6]));
+    });
+    test('atomization of XmlNode, Map, Function', () {
+      final xmlNum = XmlDocument.parse('<r>42</r>');
+      final xmlNotNum = XmlDocument.parse('<r>not a number</r>');
+      expect(
+        fnSum(context, [XPathSequence.single(xmlNum.rootElement)]),
+        isXPathSequence([42.0]),
+      );
+      expect(
+        () => fnSum(context, [XPathSequence.single(xmlNotNum.rootElement)]),
+        throwsA(
+          isXPathEvaluationException(
+            message: contains('Cannot cast untypedAtomic'),
+          ),
+        ),
+      );
+      expect(
+        () => fnSum(context, [
+          const XPathSequence.single({'key': 'value'}),
+        ]),
+        throwsA(
+          isXPathEvaluationException(message: contains('Cannot atomize')),
+        ),
+      );
+      expect(
+        () => fnSum(context, [XPathSequence.single(xsNumeric.cast)]),
+        throwsA(
+          isXPathEvaluationException(message: contains('Cannot atomize')),
+        ),
+      );
     });
   });
 

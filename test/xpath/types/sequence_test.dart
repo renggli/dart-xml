@@ -143,6 +143,9 @@ void main() {
     test('name', () {
       expect(xsEmptySequence.name, 'empty-sequence()');
     });
+    test('isAtomic', () {
+      expect(xsEmptySequence.isAtomic, isFalse);
+    });
     test('matches', () {
       expect(xsEmptySequence.matches(XPathSequence.empty), isTrue);
       expect(xsEmptySequence.matches(XPathSequence.trueSequence), isFalse);
@@ -164,6 +167,9 @@ void main() {
   group('xsSequence', () {
     test('name', () {
       expect(xsSequence.name, 'item()*');
+    });
+    test('isAtomic', () {
+      expect(xsSequence.isAtomic, isFalse);
     });
     test('matches', () {
       expect(xsSequence.matches(XPathSequence.empty), isTrue);

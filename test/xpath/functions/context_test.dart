@@ -66,5 +66,14 @@ void main() {
     test('returns static base uri', () {
       expect(fnStaticBaseUri(context, []), isXPathSequence(isEmpty));
     });
+    test('returns configured base uri', () {
+      final contextWithBase = const XPathConfiguration.raw(
+        baseUri: 'http://example.com/',
+      ).context(document);
+      expect(
+        fnStaticBaseUri(contextWithBase, []),
+        isXPathSequence(['http://example.com/']),
+      );
+    });
   });
 }

@@ -7,7 +7,6 @@ import 'package:xml/src/xpath/expressions/variable.dart';
 import 'package:xml/src/xpath/types/function.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/xml.dart';
-
 import '../../utils/matchers.dart';
 import '../helpers.dart';
 
@@ -121,12 +120,52 @@ void main() {
       final functionItem = functionSeq.first as XPathFunction;
       expect(functionItem(context, [arg1]), result);
     });
+    test('partial application name and arity', () {
+      const expr = FunctionExpression('fun', [
+        ArgumentPlaceholderExpression(),
+        LiteralExpression(arg2),
+      ]);
+      final functionSeq = expr(
+        context.configuration
+            .copy(
+              functions: {
+                const XmlName.parts(
+                  'fun',
+                  namespaceUri: xpathFnNamespace,
+                ): function.toXPathFunction(
+                  name: const XmlName.parts(
+                    'fun',
+                    namespaceUri: xpathFnNamespace,
+                  ),
+                  arity: 2,
+                ),
+              },
+            )
+            .context(context.item)
+            .copy(variables: context.variables),
+      );
+      final fn = functionSeq.first as XPathFunction;
+      expect(
+        fn.name,
+        const XmlName.parts('fun', namespaceUri: xpathFnNamespace),
+      );
+      expect(fn.arity, 1);
+    });
   });
   group('InlineFunctionExpression', () {
     test('no arguments', () {
       const expr = InlineFunctionExpression(LiteralExpression(result), []);
       final function = expr(context).first as XPathFunction;
       expect(function(context, []), result);
+    });
+    test('name and arity', () {
+      const expr = InlineFunctionExpression(LiteralExpression(result), [
+        'a',
+        'b',
+      ]);
+      final fn = expr(context).first as XPathFunction;
+      expect(fn.name, const XmlName.qualified('dynamic-function'));
+      expect(fn.arity, 2);
     });
     test('with arguments', () {
       const expr = InlineFunctionExpression(VariableExpression('a'), ['a']);
