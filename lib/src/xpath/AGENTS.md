@@ -5,6 +5,8 @@ Adhere to the official XPath 3.1 standard at all times:
 - XML Path Language (XPath) 3.1: <https://www.w3.org/TR/xpath-31/>
 - XPath Functions and Operators 3.1: <https://www.w3.org/TR/xpath-functions-31/>
 
+The official QT3 test suite can be run with the command `dart run bin/xpath_qt3tests.dart`. Not all of the these over 22,000 integration tests are currently passing, but the goal is that they eventually should. New regressions in the QT3 test suite are not acceptable.
+
 ## Overal Design
 
 The core goals of this design are **efficiency**, **compactness**, and **readability**. To achieve this, we avoid heavy wrapper objects and runtime interpreters where possible. Instead, we leverage Dart's strong type system, modern features, and core libraries.
