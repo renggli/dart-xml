@@ -4,6 +4,7 @@ import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types/any.dart';
 import '../types/array.dart';
+import '../types/function.dart';
 import '../types/map.dart';
 import '../types/node.dart';
 import '../types/number.dart';
@@ -14,7 +15,7 @@ import 'type.dart';
 export 'package:petitparser/petitparser.dart' show unbounded;
 
 /// Definition of an XPath function.
-class XPathFunctionDefinition {
+class XPathFunctionDefinition implements XPathFunction {
   const XPathFunctionDefinition({
     required this.name,
     this.requiredArguments = const [],
@@ -23,7 +24,10 @@ class XPathFunctionDefinition {
     required this.function,
   });
 
-  /// The name of the function.
+  @override
+  int get arity => requiredArguments.length;
+
+  @override
   final XmlName name;
 
   /// The required argument definitions.
@@ -39,6 +43,7 @@ class XPathFunctionDefinition {
   final Function function;
 
   /// Calls the function with the given arguments.
+  @override
   XPathSequence call(XPathContext context, List<XPathSequence> arguments) {
     var index = 0;
     final positionalArguments = <Object?>[context];

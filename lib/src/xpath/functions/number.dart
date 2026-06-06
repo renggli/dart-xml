@@ -8,6 +8,7 @@ import '../definitions/function.dart';
 import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types/any.dart';
+import '../types/function.dart';
 import '../types/number.dart';
 import '../types/sequence.dart';
 
@@ -170,9 +171,13 @@ XPathSequence _fnRandomNumberGenerator(XPathContext context, [Object? seed]) {
   final random = Random(seed?.hashCode);
   final object = <String, Object>{};
   object['number'] = random.nextDouble();
-  object['next'] = (XPathContext context, List<XPathSequence> args) =>
-      XPathSequence.single({...object, 'number': random.nextDouble()});
-  object['permute'] = (XPathContext context, List<XPathSequence> args) =>
-      XPathSequence(args.single.toList().shuffled(random));
+  object['next'] =
+      ((XPathContext context, List<XPathSequence> args) => XPathSequence.single(
+        {...object, 'number': random.nextDouble()},
+      )).toXPathFunction(name: const XmlName.parts('next'), arity: 0);
+  object['permute'] =
+      ((XPathContext context, List<XPathSequence> args) => XPathSequence(
+        args.single.toList().shuffled(random),
+      )).toXPathFunction(name: const XmlName.parts('permute'), arity: 1);
   return XPathSequence.single(object);
 }

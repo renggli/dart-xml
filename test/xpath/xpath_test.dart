@@ -1,4 +1,5 @@
 import 'package:test/test.dart';
+import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -36,12 +37,15 @@ void main() {
       final results = document.xpath(
         r'/r/*[custom:is-c(.)]',
         functions: {
-          const XmlName.parts('is-c', namespaceUri: 'custom'): (context, args) {
+          const XmlName.parts(
+            'is-c',
+            namespaceUri: 'custom',
+          ): ((XPathContext context, List<XPathSequence> args) {
             final node = args[0].first as XmlNode;
             return XPathSequence.single(
               node is XmlElement && node.name.local == 'c',
             );
-          },
+          }).toXPathFunction(arity: 1),
         },
         configuration: XPathConfiguration(namespaceUris: {'custom': 'custom'}),
       );
@@ -89,10 +93,10 @@ void main() {
             const XmlName.parts(
               'double',
               namespaceUri: 'custom',
-            ): (context, args) {
+            ): ((XPathContext context, List<XPathSequence> args) {
               final val = args[0].first as num;
               return XPathSequence.single(val * 2);
-            },
+            }).toXPathFunction(arity: 1),
           },
           configuration: XPathConfiguration(
             namespaceUris: {'custom': 'custom'},

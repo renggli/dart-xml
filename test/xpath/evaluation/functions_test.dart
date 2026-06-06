@@ -22,7 +22,7 @@ void main() {
         );
         expect(
           standardFunctions[name],
-          definition.call,
+          definition,
           reason: 'Function "$name" is missing',
         );
       }

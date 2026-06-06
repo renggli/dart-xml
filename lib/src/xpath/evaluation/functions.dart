@@ -26,7 +26,7 @@ final Map<XmlName, XPathFunction> standardFunctions = {
   for (final definition in standardFunctionDefinitions)
     definition.name.withNamespaceUri(
       xpathNamespaceUris[definition.name.prefix],
-    ): definition.call,
+    ): definition,
 };
 
 /// Internal list of standard function definitions.

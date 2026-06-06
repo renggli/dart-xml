@@ -27,7 +27,7 @@ void main() {
       final result =
           fnAdjustDateTimeToTimezone(context, [XPathSequence.single(dt)]).first
               as DateTime;
-      expect(result.timeZoneOffset, dt.toLocal().timeZoneOffset);
+      expect(result.timeZoneOffset, DateTime.now().timeZoneOffset);
     });
 
     test('returns empty for empty sequence', () {
@@ -40,29 +40,24 @@ void main() {
       );
     });
 
-    test('adjusts to empty timezone (returns self)', () {
+    test('adjusts to empty timezone (returns timezone-less)', () {
       expect(
         fnAdjustDateTimeToTimezone(context, [
           XPathSequence.single(dt),
           XPathSequence.empty,
         ]),
-        isXPathSequence([dt]),
+        isXPathSequence([DateTime(2020, 1, 1, 10, 0, 0)]),
       );
     });
 
-    test('throws exception for unsupported weird offset', () {
+    test('throws exception for invalid offset', () {
       final now = DateTime.now();
-      final localOffset = now.timeZoneOffset;
-      var weirdOffset = const Duration(minutes: 42);
-      if (localOffset.inMinutes == 42) {
-        weirdOffset = const Duration(minutes: 43);
-      }
       expect(
         () => fnAdjustDateTimeToTimezone(context, [
           XPathSequence.single(now),
-          XPathSequence.single(XPathDayTimeDuration(weirdOffset)),
+          XPathSequence.single(XPathDayTimeDuration(const Duration(hours: 15))),
         ]),
-        throwsA(isA<UnsupportedError>()),
+        throwsA(isA<XPathEvaluationException>()),
       );
     });
   });
@@ -73,7 +68,7 @@ void main() {
       final result =
           fnAdjustDateToTimezone(context, [XPathSequence.single(dt)]).first
               as DateTime;
-      expect(result.timeZoneOffset, dt.toLocal().timeZoneOffset);
+      expect(result.timeZoneOffset, DateTime.now().timeZoneOffset);
     });
   });
 
@@ -83,7 +78,7 @@ void main() {
       final result =
           fnAdjustTimeToTimezone(context, [XPathSequence.single(dt)]).first
               as DateTime;
-      expect(result.timeZoneOffset, dt.toLocal().timeZoneOffset);
+      expect(result.timeZoneOffset, DateTime.now().timeZoneOffset);
     });
   });
 

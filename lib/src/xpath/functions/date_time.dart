@@ -2,6 +2,7 @@ import '../../xml/utils/name.dart';
 import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
+import '../exceptions/evaluation_exception.dart';
 import '../types/date_time.dart';
 import '../types/duration.dart';
 import '../types/sequence.dart';
@@ -69,13 +70,8 @@ const fnYearFromDateTime = XPathFunctionDefinition(
       cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
-  function: _fnYearFromDateTime,
+  function: _fnYear,
 );
-
-XPathSequence _fnYearFromDateTime(XPathContext context, DateTime? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(arg.year);
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-month-from-dateTime
 const fnMonthFromDateTime = XPathFunctionDefinition(
@@ -87,13 +83,8 @@ const fnMonthFromDateTime = XPathFunctionDefinition(
       cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
-  function: _fnMonthFromDateTime,
+  function: _fnMonth,
 );
-
-XPathSequence _fnMonthFromDateTime(XPathContext context, DateTime? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(arg.month);
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-day-from-dateTime
 const fnDayFromDateTime = XPathFunctionDefinition(
@@ -105,13 +96,8 @@ const fnDayFromDateTime = XPathFunctionDefinition(
       cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
-  function: _fnDayFromDateTime,
+  function: _fnDay,
 );
-
-XPathSequence _fnDayFromDateTime(XPathContext context, DateTime? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(arg.day);
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hours-from-dateTime
 const fnHoursFromDateTime = XPathFunctionDefinition(
@@ -123,13 +109,8 @@ const fnHoursFromDateTime = XPathFunctionDefinition(
       cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
-  function: _fnHoursFromDateTime,
+  function: _fnHours,
 );
-
-XPathSequence _fnHoursFromDateTime(XPathContext context, DateTime? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(arg.hour);
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-minutes-from-dateTime
 const fnMinutesFromDateTime = XPathFunctionDefinition(
@@ -141,13 +122,8 @@ const fnMinutesFromDateTime = XPathFunctionDefinition(
       cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
-  function: _fnMinutesFromDateTime,
+  function: _fnMinutes,
 );
-
-XPathSequence _fnMinutesFromDateTime(XPathContext context, DateTime? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(arg.minute);
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-seconds-from-dateTime
 const fnSecondsFromDateTime = XPathFunctionDefinition(
@@ -159,15 +135,8 @@ const fnSecondsFromDateTime = XPathFunctionDefinition(
       cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
-  function: _fnSecondsFromDateTime,
+  function: _fnSeconds,
 );
-
-XPathSequence _fnSecondsFromDateTime(XPathContext context, DateTime? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(
-    arg.second + arg.millisecond / 1000.0 + arg.microsecond / 1000000.0,
-  );
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-timezone-from-dateTime
 const fnTimezoneFromDateTime = XPathFunctionDefinition(
@@ -179,13 +148,8 @@ const fnTimezoneFromDateTime = XPathFunctionDefinition(
       cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
-  function: _fnTimezoneFromDateTime,
+  function: _fnTimezone,
 );
-
-XPathSequence _fnTimezoneFromDateTime(XPathContext context, DateTime? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(XPathDayTimeDuration(arg.timeZoneOffset));
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-year-from-date
 const fnYearFromDate = XPathFunctionDefinition(
@@ -197,13 +161,8 @@ const fnYearFromDate = XPathFunctionDefinition(
       cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
-  function: _fnYearFromDate,
+  function: _fnYear,
 );
-
-XPathSequence _fnYearFromDate(XPathContext context, DateTime? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(arg.year);
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-month-from-date
 const fnMonthFromDate = XPathFunctionDefinition(
@@ -215,13 +174,8 @@ const fnMonthFromDate = XPathFunctionDefinition(
       cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
-  function: _fnMonthFromDate,
+  function: _fnMonth,
 );
-
-XPathSequence _fnMonthFromDate(XPathContext context, DateTime? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(arg.month);
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-day-from-date
 const fnDayFromDate = XPathFunctionDefinition(
@@ -233,13 +187,8 @@ const fnDayFromDate = XPathFunctionDefinition(
       cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
-  function: _fnDayFromDate,
+  function: _fnDay,
 );
-
-XPathSequence _fnDayFromDate(XPathContext context, DateTime? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(arg.day);
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-timezone-from-date
 const fnTimezoneFromDate = XPathFunctionDefinition(
@@ -251,13 +200,8 @@ const fnTimezoneFromDate = XPathFunctionDefinition(
       cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
-  function: _fnTimezoneFromDate,
+  function: _fnTimezone,
 );
-
-XPathSequence _fnTimezoneFromDate(XPathContext context, DateTime? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(XPathDayTimeDuration(arg.timeZoneOffset));
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hours-from-time
 const fnHoursFromTime = XPathFunctionDefinition(
@@ -269,13 +213,8 @@ const fnHoursFromTime = XPathFunctionDefinition(
       cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
-  function: _fnHoursFromTime,
+  function: _fnHours,
 );
-
-XPathSequence _fnHoursFromTime(XPathContext context, DateTime? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(arg.hour);
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-minutes-from-time
 const fnMinutesFromTime = XPathFunctionDefinition(
@@ -287,13 +226,8 @@ const fnMinutesFromTime = XPathFunctionDefinition(
       cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
-  function: _fnMinutesFromTime,
+  function: _fnMinutes,
 );
-
-XPathSequence _fnMinutesFromTime(XPathContext context, DateTime? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(arg.minute);
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-seconds-from-time
 const fnSecondsFromTime = XPathFunctionDefinition(
@@ -305,15 +239,8 @@ const fnSecondsFromTime = XPathFunctionDefinition(
       cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
-  function: _fnSecondsFromTime,
+  function: _fnSeconds,
 );
-
-XPathSequence _fnSecondsFromTime(XPathContext context, DateTime? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(
-    arg.second + arg.millisecond / 1000.0 + arg.microsecond / 1000000.0,
-  );
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-timezone-from-time
 const fnTimezoneFromTime = XPathFunctionDefinition(
@@ -325,13 +252,33 @@ const fnTimezoneFromTime = XPathFunctionDefinition(
       cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
-  function: _fnTimezoneFromTime,
+  function: _fnTimezone,
 );
 
-XPathSequence _fnTimezoneFromTime(XPathContext context, DateTime? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(XPathDayTimeDuration(arg.timeZoneOffset));
-}
+XPathSequence _fnYear(XPathContext context, DateTime? arg) =>
+    arg != null ? XPathSequence.single(arg.year) : XPathSequence.empty;
+
+XPathSequence _fnMonth(XPathContext context, DateTime? arg) =>
+    arg != null ? XPathSequence.single(arg.month) : XPathSequence.empty;
+
+XPathSequence _fnDay(XPathContext context, DateTime? arg) =>
+    arg != null ? XPathSequence.single(arg.day) : XPathSequence.empty;
+
+XPathSequence _fnHours(XPathContext context, DateTime? arg) =>
+    arg != null ? XPathSequence.single(arg.hour) : XPathSequence.empty;
+
+XPathSequence _fnMinutes(XPathContext context, DateTime? arg) =>
+    arg != null ? XPathSequence.single(arg.minute) : XPathSequence.empty;
+
+XPathSequence _fnSeconds(XPathContext context, DateTime? arg) => arg != null
+    ? XPathSequence.single(
+        arg.second + arg.millisecond / 1000.0 + arg.microsecond / 1000000.0,
+      )
+    : XPathSequence.empty;
+
+XPathSequence _fnTimezone(XPathContext context, DateTime? arg) => arg != null
+    ? XPathSequence.single(XPathDayTimeDuration(arg.timeZoneOffset))
+    : XPathSequence.empty;
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-adjust-dateTime-to-timezone
 const fnAdjustDateTimeToTimezone = XPathFunctionDefinition(
@@ -356,13 +303,63 @@ const fnAdjustDateTimeToTimezone = XPathFunctionDefinition(
 
 DateTime? _adjustDateTimeHelper(DateTime? arg, XPathDayTimeDuration? timezone) {
   if (arg == null) return null;
-  if (timezone == null) return arg;
-  if (timezone.inMicroseconds == 0) return arg.toUtc();
-  final localOffset = DateTime.now().timeZoneOffset;
-  if (timezone.inMicroseconds == localOffset.inMicroseconds) {
-    return arg.toLocal();
+  if (timezone != null) {
+    if (timezone.inSeconds.abs() > 14 * 3600) {
+      throw XPathEvaluationException('Timezone offset out of range: $timezone');
+    }
+    if (timezone.inSeconds % 60 != 0) {
+      throw XPathEvaluationException(
+        'Timezone offset must be an integral number of minutes: $timezone',
+      );
+    }
   }
-  throw UnsupportedError('Specific timezones not supported.');
+  final Duration? targetOffset = timezone;
+
+  // Get the original offset (if any)
+  final originalOffset = arg is XPathDateTimeWrapper
+      ? arg.timezoneOffset
+      : (arg.isUtc ? Duration.zero : null);
+
+  final DateTime localComponents;
+  if (originalOffset == null || timezone == null) {
+    // If original had no timezone, or target timezone is null, local components are unchanged!
+    localComponents = arg;
+  } else {
+    // If original had a timezone and target is not null, preserve the UTC instant!
+    final utcInstant = arg is XPathDateTimeWrapper
+        ? arg.utcInstant
+        : arg.toUtc();
+    localComponents = utcInstant.add(targetOffset!);
+  }
+
+  // Format localComponents to UTC to be safe
+  final utcLocalComponents = DateTime.utc(
+    localComponents.year,
+    localComponents.month,
+    localComponents.day,
+    localComponents.hour,
+    localComponents.minute,
+    localComponents.second,
+    localComponents.millisecond,
+    localComponents.microsecond,
+  );
+
+  // Construct a new instance of the same type
+  return switch (arg) {
+    XPathDateTimeStamp() => XPathDateTimeStamp(
+      utcLocalComponents,
+      targetOffset,
+    ),
+    XPathDateTime() => XPathDateTime(utcLocalComponents, targetOffset),
+    XPathDate() => XPathDate(utcLocalComponents, targetOffset),
+    XPathTime() => XPathTime(utcLocalComponents, targetOffset),
+    XPathGYearMonth() => XPathGYearMonth(utcLocalComponents, targetOffset),
+    XPathGYear() => XPathGYear(utcLocalComponents, targetOffset),
+    XPathGMonthDay() => XPathGMonthDay(utcLocalComponents, targetOffset),
+    XPathGMonth() => XPathGMonth(utcLocalComponents, targetOffset),
+    XPathGDay() => XPathGDay(utcLocalComponents, targetOffset),
+    _ => XPathDateTime(utcLocalComponents, targetOffset),
+  };
 }
 
 XPathSequence _fnAdjustDateTimeToTimezone(

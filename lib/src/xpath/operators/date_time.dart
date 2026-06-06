@@ -176,6 +176,16 @@ int _daysInMonth(int year, int month) {
   return days[month];
 }
 
+DateTime _wrapDateTime(DateTime result, DateTime original) {
+  final offset = original is XPathDateTimeWrapper
+      ? original.timezoneOffset
+      : (original.isUtc ? Duration.zero : null);
+  return switch (original) {
+    XPathDateTimeStamp() => XPathDateTimeStamp(result, offset),
+    _ => XPathDateTime(result, offset),
+  };
+}
+
 /// https://www.w3.org/TR/xpath-functions-31/#func-add-duration-to-dateTime
 XPathSequence opAddDurationToDateTime(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
@@ -183,7 +193,7 @@ XPathSequence opAddDurationToDateTime(XPathSequence left, XPathSequence right) {
   final dur = xsDuration.cast(right);
   var result = _addMonthsToDateTime(dt, dur.months);
   result = result.add(dur.dayTime);
-  return XPathSequence.single(result);
+  return XPathSequence.single(_wrapDateTime(result, dt));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-subtract-duration-from-dateTime
@@ -196,7 +206,7 @@ XPathSequence opSubtractDurationFromDateTime(
   final dur = xsDuration.cast(right);
   var result = _addMonthsToDateTime(dt, -dur.months);
   result = result.subtract(dur.dayTime);
-  return XPathSequence.single(result);
+  return XPathSequence.single(_wrapDateTime(result, dt));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-add-yearMonthDuration-to-dateTime
@@ -207,7 +217,9 @@ XPathSequence opAddYearMonthDurationToDateTime(
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   final dt = xsDateTime.cast(left);
   final months = xsYearMonthDuration.cast(right).totalMonths;
-  return XPathSequence.single(_addMonthsToDateTime(dt, months));
+  return XPathSequence.single(
+    _wrapDateTime(_addMonthsToDateTime(dt, months), dt),
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-add-dayTimeDuration-to-dateTime
@@ -216,9 +228,9 @@ XPathSequence opAddDayTimeDurationToDateTime(
   XPathSequence right,
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  return XPathSequence.single(
-    xsDateTime.cast(left).add(xsDayTimeDuration.cast(right)),
-  );
+  final dt = xsDateTime.cast(left);
+  final result = dt.add(xsDayTimeDuration.cast(right));
+  return XPathSequence.single(_wrapDateTime(result, dt));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-subtract-yearMonthDuration-from-dateTime
@@ -229,7 +241,9 @@ XPathSequence opSubtractYearMonthDurationFromDateTime(
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   final dt = xsDateTime.cast(left);
   final months = xsYearMonthDuration.cast(right).totalMonths;
-  return XPathSequence.single(_addMonthsToDateTime(dt, -months));
+  return XPathSequence.single(
+    _wrapDateTime(_addMonthsToDateTime(dt, -months), dt),
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-subtract-dayTimeDuration-from-dateTime
@@ -238,9 +252,9 @@ XPathSequence opSubtractDayTimeDurationFromDateTime(
   XPathSequence right,
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  return XPathSequence.single(
-    xsDateTime.cast(left).subtract(xsDayTimeDuration.cast(right)),
-  );
+  final dt = xsDateTime.cast(left);
+  final result = dt.subtract(xsDayTimeDuration.cast(right));
+  return XPathSequence.single(_wrapDateTime(result, dt));
 }
 
 // ---------------------------------------------------------------------------

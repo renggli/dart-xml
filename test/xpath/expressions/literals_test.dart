@@ -1,6 +1,6 @@
 import 'package:test/test.dart';
+import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/evaluation/namespaces.dart';
-import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -82,7 +82,7 @@ void main() {
         const XmlName.parts(
           'custom',
           namespaceUri: xpathFnNamespace,
-        ): (context, arguments) {
+        ): ((XPathContext context, List<XPathSequence> arguments) {
           expect(context.item, same(xml));
           expect(context.position, 1);
           expect(context.last, 1);
@@ -92,7 +92,7 @@ void main() {
             [true],
           ]);
           return const XPathSequence.single('ok');
-        },
+        }).toXPathFunction(arity: 3),
       },
     );
     expect(

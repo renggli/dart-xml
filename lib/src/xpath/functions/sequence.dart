@@ -370,11 +370,17 @@ XPathSequence _fnIndexOf(
   Object search, [
   String? collation,
 ]) => XPathSequence(
-  seq
+  XPathSequence(seq.atomize())
       .toList()
       .asMap()
       .entries
-      .where((e) => e.value == search)
+      .where((e) {
+        try {
+          return compare(e.value, search) == 0;
+        } catch (_) {
+          return false;
+        }
+      })
       .map((e) => e.key + 1),
 );
 
@@ -399,24 +405,99 @@ const fnDeepEqual = XPathFunctionDefinition(
   function: _fnDeepEqual,
 );
 
+bool _deepEqual(Object? a, Object? b) {
+  if (identical(a, b)) return true;
+  if (a == null || b == null) return false;
+
+  // Handle sequences
+  if (a is XPathSequence && b is XPathSequence) {
+    if (a.length != b.length) return false;
+    final it1 = a.iterator;
+    final it2 = b.iterator;
+    while (it1.moveNext() && it2.moveNext()) {
+      if (!_deepEqual(it1.current, it2.current)) return false;
+    }
+    return true;
+  }
+
+  // Handle lists (arrays)
+  if (a is List && b is List) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (!_deepEqual(a[i], b[i])) return false;
+    }
+    return true;
+  }
+
+  // Handle maps
+  if (a is Map && b is Map) {
+    if (a.length != b.length) return false;
+    for (final keyA in a.keys) {
+      Object? foundKeyB;
+      for (final keyB in b.keys) {
+        if (_deepEqual(keyA, keyB)) {
+          foundKeyB = keyB;
+          break;
+        }
+      }
+      if (foundKeyB == null) return false;
+      if (!_deepEqual(a[keyA], b[foundKeyB])) return false;
+    }
+    return true;
+  }
+
+  // Handle XmlNode
+  if (a is XmlNode && b is XmlNode) {
+    if (a.nodeType != b.nodeType) return false;
+    if (a is XmlElement && b is XmlElement) {
+      if (a.name != b.name) return false;
+      if (a.attributes.length != b.attributes.length) return false;
+      for (final attrA in a.attributes) {
+        final attrB = b.getAttributeNode(attrA.name.qualified);
+        if (attrB == null || attrB.value != attrA.value) return false;
+      }
+      if (a.children.length != b.children.length) return false;
+      for (var i = 0; i < a.children.length; i++) {
+        if (!_deepEqual(a.children[i], b.children[i])) return false;
+      }
+      return true;
+    }
+    if (a is XmlAttribute && b is XmlAttribute) {
+      return a.name == b.name && a.value == b.value;
+    }
+    return a.value == b.value;
+  }
+
+  // Handle Function objects
+  if (a is Function || b is Function) {
+    throw XPathEvaluationException(
+      'Cannot compare function items with deep-equal',
+    );
+  }
+
+  // Handle atomic comparison
+  try {
+    return compare(a, b) == 0;
+  } catch (_) {
+    return a == b;
+  }
+}
+
 XPathSequence _fnDeepEqual(
   XPathContext context,
   XPathSequence parameter1,
   XPathSequence parameter2, [
   String? collation,
 ]) {
-  if (parameter1.length != parameter2.length) {
+  try {
+    return _deepEqual(parameter1, parameter2)
+        ? XPathSequence.trueSequence
+        : XPathSequence.falseSequence;
+  } on XPathEvaluationException {
+    rethrow;
+  } catch (_) {
     return XPathSequence.falseSequence;
   }
-  final it1 = parameter1.iterator;
-  final it2 = parameter2.iterator;
-  while (it1.moveNext() && it2.moveNext()) {
-    if (it1.current != it2.current) {
-      // TODO: Proper deep comparison for nodes, maps, etc.
-      return XPathSequence.falseSequence;
-    }
-  }
-  return XPathSequence.trueSequence;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-zero-or-one
@@ -614,14 +695,24 @@ const fnMax = XPathFunctionDefinition(
   function: _fnMax,
 );
 
+Iterable<Object> _atomizeMaxMin(Object item) {
+  if (item is XPathArray) {
+    return item.expand(_atomizeMaxMin);
+  }
+  if (item is XPathSequence) {
+    return item.expand(_atomizeMaxMin);
+  }
+  return [item];
+}
+
 XPathSequence _fnMax(
   XPathContext context,
   XPathSequence arg, [
   String? collation,
 ]) {
-  final iterator = arg
-      .map((item) => item is XmlNode ? xsNumeric.cast(item) : item)
-      .iterator;
+  final iterator = XPathSequence(
+    arg.expand(_atomizeMaxMin),
+  ).map((item) => item is XmlNode ? xsNumeric.cast(item) : item).iterator;
   if (!iterator.moveNext()) return XPathSequence.empty;
   var max = iterator.current;
   if (max is num && max.isNaN) return XPathSequence.nan;
@@ -656,9 +747,9 @@ XPathSequence _fnMin(
   XPathSequence arg, [
   String? collation,
 ]) {
-  final iterator = arg
-      .map((item) => item is XmlNode ? xsNumeric.cast(item) : item)
-      .iterator;
+  final iterator = XPathSequence(
+    arg.expand(_atomizeMaxMin),
+  ).map((item) => item is XmlNode ? xsNumeric.cast(item) : item).iterator;
   if (!iterator.moveNext()) return XPathSequence.empty;
   var min = iterator.current;
   if (min is num && min.isNaN) return XPathSequence.nan;

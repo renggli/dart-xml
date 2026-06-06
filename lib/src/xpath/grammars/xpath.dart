@@ -676,7 +676,7 @@ class XPathGrammar {
   Parser<XPathExpression> functionCall() => seq2(
     ref0(eqName).where((name) => !_reservedFunctionNames.contains(name)),
     ref0(argumentList),
-  ).map2(DynamicFunctionExpression.new);
+  ).map2(FunctionExpression.new);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-Argument
   Parser<XPathExpression> argument() =>
@@ -751,7 +751,7 @@ class XPathGrammar {
         ref0(functionBody),
       ).map4(
         (_, params, type, body) =>
-            InlineFunctionExpression(params.$2 ?? const [], body),
+            InlineFunctionExpression(body, params.$2 ?? const []),
       );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ParamList

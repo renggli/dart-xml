@@ -4,6 +4,7 @@ import 'package:xml/src/xml/utils/name.dart';
 import 'package:xml/src/xpath/evaluation/configuration.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/evaluation/namespaces.dart';
+import 'package:xml/src/xpath/types/function.dart';
 import 'package:xml/src/xpath/types/sequence.dart';
 
 import '../../utils/matchers.dart';
@@ -23,10 +24,12 @@ const name2 = XmlName.parts(
   namespaceUri: xpathArrayNamespace,
 );
 
-XPathSequence fun1(XPathContext context, List<XPathSequence> args) =>
-    XPathSequence.empty;
-XPathSequence fun2(XPathContext context, List<XPathSequence> args) =>
-    XPathSequence.empty;
+final XPathFunction fun1 =
+    ((XPathContext context, List<XPathSequence> args) => XPathSequence.empty)
+        .toXPathFunction(arity: 0);
+final XPathFunction fun2 =
+    ((XPathContext context, List<XPathSequence> args) => XPathSequence.empty)
+        .toXPathFunction(arity: 0);
 
 void trace1(XPathSequence value, String? label) {}
 void trace2(XPathSequence value, String? label) {}

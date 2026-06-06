@@ -13,7 +13,8 @@ export 'src/xpath/evaluation/configuration.dart';
 export 'src/xpath/exceptions/evaluation_exception.dart';
 export 'src/xpath/exceptions/parser_exception.dart';
 export 'src/xpath/generator.dart';
-export 'src/xpath/types/function.dart' show XPathFunction;
+export 'src/xpath/types/function.dart'
+    show XPathFunction, XPathWrappedFunctionExtension;
 export 'src/xpath/types/sequence.dart' show XPathSequence;
 
 extension XPathExtension on XmlNode {

@@ -35,7 +35,7 @@ void main() {
         ) => const XPathSequence.single('ok');
 
         final function = xsFunction.cast(myFunction);
-        expect(function, myFunction);
+        expect(function, isA<XPathFunction>());
         expect(function(context, []), ['ok']);
       });
       test('from XPathArray (array as function)', () {

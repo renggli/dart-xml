@@ -22,18 +22,9 @@ XPathSequence function(XPathContext context, List<XPathSequence> args) {
 }
 
 void main() {
-  group('StaticFunctionExpression', () {
-    test('evaluate', () {
-      const expr = StaticFunctionExpression(function, [
-        LiteralExpression(arg1),
-        LiteralExpression(arg2),
-      ]);
-      expect(expr(context), result);
-    });
-  });
   group('DynamicFunctionExpression', () {
     test('evaluate existing function', () {
-      const expr = DynamicFunctionExpression('fun', [
+      const expr = FunctionExpression('fun', [
         LiteralExpression(arg1),
         LiteralExpression(arg2),
       ]);
@@ -43,7 +34,7 @@ void main() {
               .copy(
                 functions: {
                   const XmlName.parts('fun', namespaceUri: xpathFnNamespace):
-                      function,
+                      function.toXPathFunction(arity: 2),
                 },
               )
               .context(context.item)
@@ -53,14 +44,14 @@ void main() {
       );
     });
     test('evaluate missing function', () {
-      const expr = DynamicFunctionExpression('fun', []);
+      const expr = FunctionExpression('fun', []);
       expect(
         () => expr(context),
         throwsA(isXPathEvaluationException(message: 'Unknown function: fun')),
       );
     });
     test('partial application expects more arguments', () {
-      const expr = DynamicFunctionExpression('fun', [
+      const expr = FunctionExpression('fun', [
         ArgumentPlaceholderExpression(),
         LiteralExpression(arg2),
       ]);
@@ -69,7 +60,7 @@ void main() {
             .copy(
               functions: {
                 const XmlName.parts('fun', namespaceUri: xpathFnNamespace):
-                    function,
+                    function.toXPathFunction(arity: 2),
               },
             )
             .context(context.item)
@@ -86,7 +77,7 @@ void main() {
       );
     });
     test('partial application expects fewer arguments', () {
-      const expr = DynamicFunctionExpression('fun', [
+      const expr = FunctionExpression('fun', [
         ArgumentPlaceholderExpression(),
         LiteralExpression(arg2),
       ]);
@@ -95,7 +86,7 @@ void main() {
             .copy(
               functions: {
                 const XmlName.parts('fun', namespaceUri: xpathFnNamespace):
-                    function,
+                    function.toXPathFunction(arity: 2),
               },
             )
             .context(context.item)
@@ -112,7 +103,7 @@ void main() {
       );
     });
     test('partial application success', () {
-      const expr = DynamicFunctionExpression('fun', [
+      const expr = FunctionExpression('fun', [
         ArgumentPlaceholderExpression(),
         LiteralExpression(arg2),
       ]);
@@ -121,7 +112,7 @@ void main() {
             .copy(
               functions: {
                 const XmlName.parts('fun', namespaceUri: xpathFnNamespace):
-                    function,
+                    function.toXPathFunction(arity: 2),
               },
             )
             .context(context.item)
@@ -133,28 +124,25 @@ void main() {
   });
   group('InlineFunctionExpression', () {
     test('no arguments', () {
-      const expr = InlineFunctionExpression([], LiteralExpression(result));
+      const expr = InlineFunctionExpression(LiteralExpression(result), []);
       final function = expr(context).first as XPathFunction;
       expect(function(context, []), result);
     });
     test('with arguments', () {
-      const expr = InlineFunctionExpression(['a'], VariableExpression('a'));
+      const expr = InlineFunctionExpression(VariableExpression('a'), ['a']);
       final function = expr(context).first as XPathFunction;
       expect(function(context, [result]), result);
     });
     test('closure', () {
-      const expr = InlineFunctionExpression(
-        [],
-        DynamicFunctionExpression('foo', []),
-      );
+      const expr = InlineFunctionExpression(FunctionExpression('foo', []), []);
       final closureContext = context.configuration
           .copy(
             functions: {
               const XmlName.parts(
                 'foo',
                 namespaceUri: xpathFnNamespace,
-              ): (context, args) =>
-                  result,
+              ): ((XPathContext context, List<XPathSequence> args) => result)
+                  .toXPathFunction(arity: 0),
             },
           )
           .context(context.item)
@@ -163,7 +151,7 @@ void main() {
       expect(function(context, []), result);
     });
     test('invalid number of arguments', () {
-      const expr = InlineFunctionExpression(['a'], VariableExpression('a'));
+      const expr = InlineFunctionExpression(VariableExpression('a'), ['a']);
       final function = expr(context).first as XPathFunction;
       expect(
         () => function(context, []),
@@ -186,8 +174,9 @@ void main() {
                         const XmlName.parts(
                           'foo',
                           namespaceUri: xpathFnNamespace,
-                        ): (context, args) =>
-                            result,
+                        ): ((XPathContext context, List<XPathSequence> args) =>
+                                result)
+                            .toXPathFunction(arity: 0),
                       },
                     )
                     .context(context.item)
@@ -217,11 +206,10 @@ void main() {
           context.configuration
               .copy(
                 functions: {
-                  const XmlName.parts(
-                    'foo',
-                    namespaceUri: xpathFnNamespace,
-                  ): (context, args) =>
-                      XPathSequence.single((args[0].first as int) + 1),
+                  const XmlName.parts('foo', namespaceUri: xpathFnNamespace):
+                      ((XPathContext context, List<XPathSequence> args) =>
+                              XPathSequence.single((args[0].first as int) + 1))
+                          .toXPathFunction(arity: 1),
                 },
               )
               .context(context.item)
@@ -241,11 +229,10 @@ void main() {
           context.configuration
               .copy(
                 functions: {
-                  const XmlName.parts(
-                    'foo',
-                    namespaceUri: xpathFnNamespace,
-                  ): (context, args) =>
-                      XPathSequence.single((args[0].first as int) + 1),
+                  const XmlName.parts('foo', namespaceUri: xpathFnNamespace):
+                      ((XPathContext context, List<XPathSequence> args) =>
+                              XPathSequence.single((args[0].first as int) + 1))
+                          .toXPathFunction(arity: 1),
                 },
               )
               .context(context.item)

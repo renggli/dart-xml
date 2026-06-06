@@ -203,8 +203,12 @@ const fnFunctionName = XPathFunctionDefinition(
   function: _fnFunctionName,
 );
 
-XPathSequence _fnFunctionName(XPathContext context, Function func) =>
-    XPathSequence.empty;
+XPathSequence _fnFunctionName(XPathContext context, XPathFunction func) {
+  final name = func.name;
+  return name.local.isNotEmpty
+      ? XPathSequence.single(name)
+      : XPathSequence.empty;
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-function-arity
 const fnFunctionArity = XPathFunctionDefinition(
@@ -213,8 +217,8 @@ const fnFunctionArity = XPathFunctionDefinition(
   function: _fnFunctionArity,
 );
 
-XPathSequence _fnFunctionArity(XPathContext context, Function func) =>
-    const XPathSequence.single(0);
+XPathSequence _fnFunctionArity(XPathContext context, XPathFunction func) =>
+    XPathSequence.single(func.arity);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-sort
 const fnSort = XPathFunctionDefinition(
