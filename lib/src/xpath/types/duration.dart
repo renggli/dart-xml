@@ -42,48 +42,9 @@ class _XPathDurationType extends XPathType<XPathDuration> {
     _ => throw XPathEvaluationException.unsupportedCast(this, value),
   };
 
-  static final _durationRegExp = RegExp(
-    r'^(-)?P(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$',
-  );
-
-  static XPathDuration _parseDuration(String value) {
-    final match = _durationRegExp.firstMatch(value);
-    if (match == null) {
-      throw XPathEvaluationException.unsupportedCast(xsDuration, value);
-    }
-    final hasYM = match.group(2) != null || match.group(3) != null;
-    final hasDT =
-        match.group(4) != null ||
-        match.group(5) != null ||
-        match.group(6) != null ||
-        match.group(7) != null;
-    if (!hasYM && !hasDT) {
-      throw XPathEvaluationException.unsupportedCast(xsDuration, value);
-    }
-    final negative = match.group(1) == '-';
-    final years = int.tryParse(match.group(2) ?? '0') ?? 0;
-    final months = int.tryParse(match.group(3) ?? '0') ?? 0;
-    final days = int.tryParse(match.group(4) ?? '0') ?? 0;
-    final hours = int.tryParse(match.group(5) ?? '0') ?? 0;
-    final minutes = int.tryParse(match.group(6) ?? '0') ?? 0;
-    final secondsDouble = double.tryParse(match.group(7) ?? '0') ?? 0.0;
-    final seconds = secondsDouble.truncate();
-    final frac = secondsDouble - seconds;
-    final ms = (frac * 1000).truncate();
-    final us = ((frac * 1000000) - (ms * 1000)).round();
-
-    return XPathDuration(
-      years: years,
-      months: months,
-      days: days,
-      hours: hours,
-      minutes: minutes,
-      seconds: seconds,
-      milliseconds: ms,
-      microseconds: us,
-      isNegative: negative,
-    );
-  }
+  XPathDuration _parseDuration(String value) =>
+      XPathDuration.tryParse(value) ??
+      (throw XPathEvaluationException.unsupportedCast(this, value));
 
   @override
   String castToString(XPathDuration value) {
@@ -151,35 +112,9 @@ class _XPathDayTimeDurationType extends XPathType<XPathDayTimeDuration> {
     _ => throw XPathEvaluationException.unsupportedCast(this, value),
   };
 
-  static final _dayTimeDurationRegExp = RegExp(
-    r'^(-)?P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$',
-  );
-
-  static XPathDayTimeDuration _parseDayTimeDuration(String value) {
-    final match = _dayTimeDurationRegExp.firstMatch(value);
-    if (match == null) {
-      throw XPathEvaluationException.unsupportedCast(xsDayTimeDuration, value);
-    }
-    if (match.group(2) == null &&
-        match.group(3) == null &&
-        match.group(4) == null &&
-        match.group(5) == null) {
-      throw XPathEvaluationException.unsupportedCast(xsDayTimeDuration, value);
-    }
-    final negative = match.group(1) == '-';
-    final days = int.tryParse(match.group(2) ?? '0') ?? 0;
-    final hours = int.tryParse(match.group(3) ?? '0') ?? 0;
-    final minutes = int.tryParse(match.group(4) ?? '0') ?? 0;
-    final secondsDouble = double.tryParse(match.group(5) ?? '0') ?? 0.0;
-    final duration = Duration(
-      days: days,
-      hours: hours,
-      minutes: minutes,
-      microseconds: (secondsDouble * Duration.microsecondsPerSecond).round(),
-    );
-    final totalUs = duration.inMicroseconds * (negative ? -1 : 1);
-    return XPathDayTimeDuration(totalUs);
-  }
+  XPathDayTimeDuration _parseDayTimeDuration(String value) =>
+      XPathDayTimeDuration.tryParse(value) ??
+      (throw XPathEvaluationException.unsupportedCast(this, value));
 
   @override
   String castToString(XPathDayTimeDuration value) {
@@ -212,30 +147,9 @@ class _XPathYearMonthDurationType extends XPathType<XPathYearMonthDuration> {
     _ => throw XPathEvaluationException.unsupportedCast(this, value),
   };
 
-  static final _yearMonthDurationRegExp = RegExp(
-    r'^(-)?P(?:(\d+)Y)?(?:(\d+)M)?$',
-  );
-
-  static XPathYearMonthDuration _parseYearMonthDuration(String value) {
-    final match = _yearMonthDurationRegExp.firstMatch(value);
-    if (match == null) {
-      throw XPathEvaluationException.unsupportedCast(
-        xsYearMonthDuration,
-        value,
-      );
-    }
-    if (match.group(2) == null && match.group(3) == null) {
-      throw XPathEvaluationException.unsupportedCast(
-        xsYearMonthDuration,
-        value,
-      );
-    }
-    final negative = match.group(1) == '-';
-    final years = int.tryParse(match.group(2) ?? '0') ?? 0;
-    final months = int.tryParse(match.group(3) ?? '0') ?? 0;
-    final total = (years * 12 + months) * (negative ? -1 : 1);
-    return XPathYearMonthDuration(total);
-  }
+  XPathYearMonthDuration _parseYearMonthDuration(String value) =>
+      XPathYearMonthDuration.tryParse(value) ??
+      (throw XPathEvaluationException.unsupportedCast(this, value));
 
   @override
   String castToString(XPathYearMonthDuration value) {

@@ -42,8 +42,9 @@
 
 ### Error Handling
 
-- Throw specific exceptions (e.g., `ArgumentError`, `StateError`, `FormatException`) rather than generic `Exception`.
-- Catch specific exceptions. Avoid generic `catch (e)` unless you are logging the error or rethrowing it.
+- **Throw Specific Exceptions**: Never throw generic Exception or String objects. Always throw specialized exceptions (e.g., `ArgumentError`, `StateError`, `FormatException`) to provide clear context.
+- **Catch Narrowly**: Avoid catching generic `Error` or `Exception` types, and never use blank catch blocks `catch (_)` or try-catch blocks without rethrowing, as they swallow critical failures.
+- **Prevent, Don't Catch**: Do not use exception handling for predictable control flow. If a framework or class provides a non-throwing alternative (e.g., `int.tryParse()` vs `int.parse()`), always prefer the safe method.
 
 ## Architecture
 
