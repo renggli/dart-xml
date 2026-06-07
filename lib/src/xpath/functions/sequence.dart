@@ -630,7 +630,7 @@ XPathSequence _fnAvg(XPathContext context, XPathSequence arg) {
   if (items.isEmpty) return XPathSequence.empty;
 
   final allNumeric = items.every((e) => e is num);
-  final allDuration = items.every((e) => e is XPathDuration);
+  final allDuration = items.every((e) => e is XPathAbstractDuration);
 
   if (!allNumeric && !allDuration) {
     throw XPathEvaluationException(
@@ -670,9 +670,7 @@ XPathSequence _fnAvg(XPathContext context, XPathSequence arg) {
           sumMicroseconds += (item as XPathDayTimeDuration).inMicroseconds;
         }
         final avgMicroseconds = _roundHalfToEven(sumMicroseconds / count);
-        return XPathSequence.single(
-          XPathDayTimeDuration(Duration(microseconds: avgMicroseconds)),
-        );
+        return XPathSequence.single(XPathDayTimeDuration(avgMicroseconds));
       }
     } catch (e) {
       if (e is XPathEvaluationException) rethrow;
@@ -798,7 +796,7 @@ XPathSequence _fnSum(
   }
 
   final allNumeric = items.every((e) => e is num);
-  final allDuration = items.every((e) => e is XPathDuration);
+  final allDuration = items.every((e) => e is XPathAbstractDuration);
 
   if (!allNumeric && !allDuration) {
     throw XPathEvaluationException(
@@ -834,9 +832,7 @@ XPathSequence _fnSum(
         for (final item in items) {
           sumMicroseconds += (item as XPathDayTimeDuration).inMicroseconds;
         }
-        return XPathSequence.single(
-          XPathDayTimeDuration(Duration(microseconds: sumMicroseconds)),
-        );
+        return XPathSequence.single(XPathDayTimeDuration(sumMicroseconds));
       }
     } catch (e) {
       if (e is XPathEvaluationException) rethrow;

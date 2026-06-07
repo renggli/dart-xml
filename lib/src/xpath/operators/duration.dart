@@ -12,9 +12,7 @@ XPathSequence opDurationEqual(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   final d1 = xsDuration.cast(left);
   final d2 = xsDuration.cast(right);
-  return XPathSequence.single(
-    d1.months == d2.months && d1.dayTime == d2.dayTime,
-  );
+  return XPathSequence.single(d1 == d2);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-yearMonthDuration-less-than
@@ -24,8 +22,7 @@ XPathSequence opYearMonthDurationLessThan(
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   return XPathSequence.single(
-    xsYearMonthDuration.cast(left).totalMonths <
-        xsYearMonthDuration.cast(right).totalMonths,
+    xsYearMonthDuration.cast(left) < xsYearMonthDuration.cast(right),
   );
 }
 
@@ -36,8 +33,7 @@ XPathSequence opYearMonthDurationGreaterThan(
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   return XPathSequence.single(
-    xsYearMonthDuration.cast(left).totalMonths >
-        xsYearMonthDuration.cast(right).totalMonths,
+    xsYearMonthDuration.cast(left) > xsYearMonthDuration.cast(right),
   );
 }
 
@@ -68,9 +64,9 @@ XPathSequence opAddDurations(XPathSequence left, XPathSequence right) {
   final d1 = xsDuration.cast(left);
   final d2 = xsDuration.cast(right);
   return XPathSequence.single(
-    XPathDuration(
-      months: d1.months + d2.months,
-      dayTime: d1.dayTime + d2.dayTime,
+    XPathDuration.fromValues(
+      d1.totalMonths + d2.totalMonths,
+      d1.totalMicroseconds + d2.totalMicroseconds,
     ),
   );
 }
@@ -96,9 +92,9 @@ XPathSequence opSubtractDurations(XPathSequence left, XPathSequence right) {
   final d1 = xsDuration.cast(left);
   final d2 = xsDuration.cast(right);
   return XPathSequence.single(
-    XPathDuration(
-      months: d1.months - d2.months,
-      dayTime: d1.dayTime - d2.dayTime,
+    XPathDuration.fromValues(
+      d1.totalMonths - d2.totalMonths,
+      d1.totalMicroseconds - d2.totalMicroseconds,
     ),
   );
 }
@@ -130,7 +126,10 @@ XPathSequence opMultiplyDuration(XPathSequence left, XPathSequence right) {
   final d = xsDuration.cast(left);
   final f = xsNumeric.cast(right);
   return XPathSequence.single(
-    XPathDuration(months: (d.months * f).round(), dayTime: d.dayTime * f),
+    XPathDuration.fromValues(
+      (d.totalMonths * f).round(),
+      (d.totalMicroseconds * f).round(),
+    ),
   );
 }
 
@@ -162,7 +161,7 @@ XPathSequence opDivideDuration(XPathSequence left, XPathSequence right) {
   final f = xsNumeric.cast(right).round();
   if (f == 0) throw XPathEvaluationException('Division by zero');
   return XPathSequence.single(
-    XPathDuration(months: d.months ~/ f, dayTime: d.dayTime ~/ f),
+    XPathDuration.fromValues(d.totalMonths ~/ f, d.totalMicroseconds ~/ f),
   );
 }
 
@@ -191,11 +190,11 @@ XPathSequence opDivideDurationByDuration(
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   final d2 = xsDayTimeDuration.cast(right);
-  if (d2.inMicroseconds == 0) {
+  if (d2.totalMicroseconds == 0) {
     throw XPathEvaluationException('Division by zero');
   }
   return XPathSequence.single(
-    xsDayTimeDuration.cast(left).inMicroseconds / d2.inMicroseconds,
+    xsDayTimeDuration.cast(left).totalMicroseconds / d2.totalMicroseconds,
   );
 }
 

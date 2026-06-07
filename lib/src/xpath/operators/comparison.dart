@@ -1,5 +1,4 @@
 import '../exceptions/evaluation_exception.dart';
-import '../types/date_time.dart';
 import '../values/date_time.dart';
 import '../values/duration.dart';
 import '../values/sequence.dart';
@@ -72,14 +71,9 @@ int compare(Object a, Object b) => switch ((a, b)) {
         : ba
         ? 1
         : -1,
-  (final DateTime da, final DateTime db)
-      when xsDateTime.matches(da) && xsDateTime.matches(db) =>
+  (final XPathAbstractDateTime da, final XPathAbstractDateTime db) =>
     da.compareTo(db),
-  (final XPathYearMonthDuration yma, final XPathYearMonthDuration ymb) =>
-    yma.totalMonths.compareTo(ymb.totalMonths),
-  (final XPathDayTimeDuration dta, final XPathDayTimeDuration dtb) =>
-    dta.dayTime.compareTo(dtb.dayTime),
-  (final XPathDate da, final XPathDate db) => da.compareTo(db),
-  (final XPathTime ta, final XPathTime tb) => ta.compareTo(tb),
+  (final XPathAbstractDuration da, final XPathAbstractDuration db) =>
+    da.compareTo(db),
   _ => a.toString().compareTo(b.toString()),
 };

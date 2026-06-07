@@ -107,22 +107,31 @@ XPathSequence opGDayEqual(XPathSequence left, XPathSequence right) =>
 /// https://www.w3.org/TR/xpath-functions-31/#func-subtract-dateTimes
 XPathSequence opSubtractDateTimes(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  final diff = xsDateTime.cast(left).difference(xsDateTime.cast(right));
-  return XPathSequence.single(XPathDayTimeDuration(diff));
+  final diff = xsDateTime
+      .cast(left)
+      .toDateTime()
+      .difference(xsDateTime.cast(right).toDateTime());
+  return XPathSequence.single(XPathDayTimeDuration(diff.inMicroseconds));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-subtract-dates
 XPathSequence opSubtractDates(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  final diff = xsDate.cast(left).difference(xsDate.cast(right));
-  return XPathSequence.single(XPathDayTimeDuration(diff));
+  final diff = xsDate
+      .cast(left)
+      .toDateTime()
+      .difference(xsDate.cast(right).toDateTime());
+  return XPathSequence.single(XPathDayTimeDuration(diff.inMicroseconds));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-subtract-times
 XPathSequence opSubtractTimes(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  final diff = xsTime.cast(left).difference(xsTime.cast(right));
-  return XPathSequence.single(XPathDayTimeDuration(diff));
+  final diff = xsTime
+      .cast(left)
+      .toDateTime()
+      .difference(xsTime.cast(right).toDateTime());
+  return XPathSequence.single(XPathDayTimeDuration(diff.inMicroseconds));
 }
 
 // ---------------------------------------------------------------------------
@@ -178,13 +187,25 @@ int _daysInMonth(int year, int month) {
   return days[month];
 }
 
-DateTime _wrapDateTime(DateTime result, DateTime original) {
-  final offset = original is XPathDateTimeWrapper
-      ? original.timezoneOffset
-      : (original.isUtc ? Duration.zero : null);
+XPathAbstractDateTime _wrapDateTime(
+  DateTime result,
+  XPathAbstractDateTime original,
+) {
+  final offset = original.timezoneOffsetMinutes;
   return switch (original) {
-    XPathDateTimeStamp() => XPathDateTimeStamp(result, offset),
-    _ => XPathDateTime(result, offset),
+    XPathDateTimeStamp() => XPathDateTimeStamp.fromDateTime(
+      result,
+      offset ?? 0,
+    ),
+    XPathDateTime() => XPathDateTime.fromDateTime(result, offset),
+    XPathDate() => XPathDate.fromDateTime(result, offset),
+    XPathTime() => XPathTime.fromDateTime(result, offset),
+    XPathYearMonth() => XPathYearMonth(result.year, result.month, offset),
+    XPathYear() => XPathYear(result.year, offset),
+    XPathMonthDay() => XPathMonthDay(result.month, result.day, offset),
+    XPathMonth() => XPathMonth(result.month, offset),
+    XPathDay() => XPathDay(result.day, offset),
+    _ => XPathDateTime.fromDateTime(result, offset),
   };
 }
 
@@ -193,8 +214,8 @@ XPathSequence opAddDurationToDateTime(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   final dt = xsDateTime.cast(left);
   final dur = xsDuration.cast(right);
-  var result = _addMonthsToDateTime(dt, dur.months);
-  result = result.add(dur.dayTime);
+  var result = _addMonthsToDateTime(dt.toDateTime(), dur.totalMonths);
+  result = result.add(dur.toDuration());
   return XPathSequence.single(_wrapDateTime(result, dt));
 }
 
@@ -206,8 +227,8 @@ XPathSequence opSubtractDurationFromDateTime(
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   final dt = xsDateTime.cast(left);
   final dur = xsDuration.cast(right);
-  var result = _addMonthsToDateTime(dt, -dur.months);
-  result = result.subtract(dur.dayTime);
+  var result = _addMonthsToDateTime(dt.toDateTime(), -dur.totalMonths);
+  result = result.subtract(dur.toDuration());
   return XPathSequence.single(_wrapDateTime(result, dt));
 }
 
@@ -220,7 +241,7 @@ XPathSequence opAddYearMonthDurationToDateTime(
   final dt = xsDateTime.cast(left);
   final months = xsYearMonthDuration.cast(right).totalMonths;
   return XPathSequence.single(
-    _wrapDateTime(_addMonthsToDateTime(dt, months), dt),
+    _wrapDateTime(_addMonthsToDateTime(dt.toDateTime(), months), dt),
   );
 }
 
@@ -231,7 +252,9 @@ XPathSequence opAddDayTimeDurationToDateTime(
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   final dt = xsDateTime.cast(left);
-  final result = dt.add(xsDayTimeDuration.cast(right));
+  final result = dt.toDateTime().add(
+    xsDayTimeDuration.cast(right).toDuration(),
+  );
   return XPathSequence.single(_wrapDateTime(result, dt));
 }
 
@@ -244,7 +267,7 @@ XPathSequence opSubtractYearMonthDurationFromDateTime(
   final dt = xsDateTime.cast(left);
   final months = xsYearMonthDuration.cast(right).totalMonths;
   return XPathSequence.single(
-    _wrapDateTime(_addMonthsToDateTime(dt, -months), dt),
+    _wrapDateTime(_addMonthsToDateTime(dt.toDateTime(), -months), dt),
   );
 }
 
@@ -255,7 +278,9 @@ XPathSequence opSubtractDayTimeDurationFromDateTime(
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   final dt = xsDateTime.cast(left);
-  final result = dt.subtract(xsDayTimeDuration.cast(right));
+  final result = dt.toDateTime().subtract(
+    xsDayTimeDuration.cast(right).toDuration(),
+  );
   return XPathSequence.single(_wrapDateTime(result, dt));
 }
 
@@ -271,7 +296,12 @@ XPathSequence opAddYearMonthDurationToDate(
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   final date = xsDate.cast(left);
   final months = xsYearMonthDuration.cast(right).totalMonths;
-  return XPathSequence.single(XPathDate(_addMonthsToDateTime(date, months)));
+  return XPathSequence.single(
+    XPathDate.fromDateTime(
+      _addMonthsToDateTime(date.toDateTime(), months),
+      date.timezoneOffsetMinutes,
+    ),
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-add-dayTimeDuration-to-date
@@ -285,10 +315,9 @@ XPathSequence opAddDayTimeDurationToDate(
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   final date = xsDate.cast(left);
   final dur = xsDayTimeDuration.cast(right);
-  // XPath spec: add duration, then strip time to midnight.
-  final added = date.add(dur.dayTime);
+  final added = date.toDateTime().add(dur.toDuration());
   return XPathSequence.single(
-    XPathDate(DateTime(added.year, added.month, added.day)),
+    XPathDate(added.year, added.month, added.day, date.timezoneOffsetMinutes),
   );
 }
 
@@ -300,7 +329,12 @@ XPathSequence opSubtractYearMonthDurationFromDate(
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   final date = xsDate.cast(left);
   final months = xsYearMonthDuration.cast(right).totalMonths;
-  return XPathSequence.single(XPathDate(_addMonthsToDateTime(date, -months)));
+  return XPathSequence.single(
+    XPathDate.fromDateTime(
+      _addMonthsToDateTime(date.toDateTime(), -months),
+      date.timezoneOffsetMinutes,
+    ),
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-subtract-dayTimeDuration-from-date
@@ -311,9 +345,14 @@ XPathSequence opSubtractDayTimeDurationFromDate(
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   final date = xsDate.cast(left);
   final dur = xsDayTimeDuration.cast(right);
-  final subtracted = date.subtract(dur.dayTime);
+  final subtracted = date.toDateTime().subtract(dur.toDuration());
   return XPathSequence.single(
-    XPathDate(DateTime(subtracted.year, subtracted.month, subtracted.day)),
+    XPathDate(
+      subtracted.year,
+      subtracted.month,
+      subtracted.day,
+      date.timezoneOffsetMinutes,
+    ),
   );
 }
 
@@ -329,20 +368,15 @@ XPathSequence opAddDayTimeDurationToTime(
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   final time = xsTime.cast(left);
   final dur = xsDayTimeDuration.cast(right);
-  // Add duration to a reference date carrying the time, then extract time.
-  final added = time.add(dur.dayTime);
+  final added = time.toDateTime().add(dur.toDuration());
   return XPathSequence.single(
     XPathTime(
-      DateTime(
-        1970,
-        1,
-        1,
-        added.hour,
-        added.minute,
-        added.second,
-        added.millisecond,
-        added.microsecond,
-      ),
+      added.hour,
+      added.minute,
+      added.second,
+      added.millisecond,
+      added.microsecond,
+      time.timezoneOffsetMinutes,
     ),
   );
 }
@@ -355,19 +389,15 @@ XPathSequence opSubtractDayTimeDurationFromTime(
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   final time = xsTime.cast(left);
   final dur = xsDayTimeDuration.cast(right);
-  final subtracted = time.subtract(dur.dayTime);
+  final subtracted = time.toDateTime().subtract(dur.toDuration());
   return XPathSequence.single(
     XPathTime(
-      DateTime(
-        1970,
-        1,
-        1,
-        subtracted.hour,
-        subtracted.minute,
-        subtracted.second,
-        subtracted.millisecond,
-        subtracted.microsecond,
-      ),
+      subtracted.hour,
+      subtracted.minute,
+      subtracted.second,
+      subtracted.millisecond,
+      subtracted.microsecond,
+      time.timezoneOffsetMinutes,
     ),
   );
 }

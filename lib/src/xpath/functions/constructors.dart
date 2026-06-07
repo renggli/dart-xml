@@ -375,7 +375,7 @@ const xsGDayConstructor = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
-      type: xsGDay,
+      type: xsDay,
       cardinality: XPathCardinality.exactlyOne,
     ),
   ],
@@ -388,7 +388,7 @@ const xsGMonthConstructor = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
-      type: xsGMonth,
+      type: xsMonth,
       cardinality: XPathCardinality.exactlyOne,
     ),
   ],
@@ -401,7 +401,7 @@ const xsGMonthDayConstructor = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
-      type: xsGMonthDay,
+      type: xsMonthDay,
       cardinality: XPathCardinality.exactlyOne,
     ),
   ],
@@ -414,7 +414,7 @@ const xsGYearConstructor = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
-      type: xsGYear,
+      type: xsYear,
       cardinality: XPathCardinality.exactlyOne,
     ),
   ],
@@ -427,7 +427,7 @@ const xsGYearMonthConstructor = XPathFunctionDefinition(
   requiredArguments: [
     XPathArgumentDefinition(
       name: 'value',
-      type: xsGYearMonth,
+      type: xsYearMonth,
       cardinality: XPathCardinality.exactlyOne,
     ),
   ],

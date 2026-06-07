@@ -19,11 +19,13 @@ const fnYearsFromDuration = XPathFunctionDefinition(
   function: _fnYearsFromDuration,
 );
 
-XPathSequence _fnYearsFromDuration(XPathContext context, XPathDuration? arg) {
+XPathSequence _fnYearsFromDuration(
+  XPathContext context,
+  XPathAbstractDuration? arg,
+) {
   if (arg == null) return XPathSequence.empty;
-  final absMonths = arg.months.abs();
-  final years = absMonths ~/ 12;
-  return XPathSequence.single(arg.months < 0 ? -years : years);
+  final years = arg.years ?? 0;
+  return XPathSequence.single(arg.isNegative ? -years : years);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-months-from-duration
@@ -39,11 +41,13 @@ const fnMonthsFromDuration = XPathFunctionDefinition(
   function: _fnMonthsFromDuration,
 );
 
-XPathSequence _fnMonthsFromDuration(XPathContext context, XPathDuration? arg) {
+XPathSequence _fnMonthsFromDuration(
+  XPathContext context,
+  XPathAbstractDuration? arg,
+) {
   if (arg == null) return XPathSequence.empty;
-  final absMonths = arg.months.abs();
-  final remaining = absMonths.remainder(12);
-  return XPathSequence.single(arg.months < 0 ? -remaining : remaining);
+  final months = arg.months ?? 0;
+  return XPathSequence.single(arg.isNegative ? -months : months);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-days-from-duration
@@ -59,11 +63,13 @@ const fnDaysFromDuration = XPathFunctionDefinition(
   function: _fnDaysFromDuration,
 );
 
-XPathSequence _fnDaysFromDuration(XPathContext context, XPathDuration? arg) {
+XPathSequence _fnDaysFromDuration(
+  XPathContext context,
+  XPathAbstractDuration? arg,
+) {
   if (arg == null) return XPathSequence.empty;
-  // days-from-duration only counts the day part of the dayTime component.
-  final days = arg.dayTime.abs().inDays;
-  return XPathSequence.single(arg.dayTime.isNegative ? -days : days);
+  final days = arg.days ?? 0;
+  return XPathSequence.single(arg.isNegative ? -days : days);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hours-from-duration
@@ -79,10 +85,13 @@ const fnHoursFromDuration = XPathFunctionDefinition(
   function: _fnHoursFromDuration,
 );
 
-XPathSequence _fnHoursFromDuration(XPathContext context, XPathDuration? arg) {
+XPathSequence _fnHoursFromDuration(
+  XPathContext context,
+  XPathAbstractDuration? arg,
+) {
   if (arg == null) return XPathSequence.empty;
-  final hours = arg.dayTime.abs().inHours.remainder(24);
-  return XPathSequence.single(arg.dayTime.isNegative ? -hours : hours);
+  final hours = arg.hours ?? 0;
+  return XPathSequence.single(arg.isNegative ? -hours : hours);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-minutes-from-duration
@@ -98,10 +107,13 @@ const fnMinutesFromDuration = XPathFunctionDefinition(
   function: _fnMinutesFromDuration,
 );
 
-XPathSequence _fnMinutesFromDuration(XPathContext context, XPathDuration? arg) {
+XPathSequence _fnMinutesFromDuration(
+  XPathContext context,
+  XPathAbstractDuration? arg,
+) {
   if (arg == null) return XPathSequence.empty;
-  final minutes = arg.dayTime.abs().inMinutes.remainder(60);
-  return XPathSequence.single(arg.dayTime.isNegative ? -minutes : minutes);
+  final minutes = arg.minutes ?? 0;
+  return XPathSequence.single(arg.isNegative ? -minutes : minutes);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-seconds-from-duration
@@ -117,14 +129,14 @@ const fnSecondsFromDuration = XPathFunctionDefinition(
   function: _fnSecondsFromDuration,
 );
 
-XPathSequence _fnSecondsFromDuration(XPathContext context, XPathDuration? arg) {
+XPathSequence _fnSecondsFromDuration(
+  XPathContext context,
+  XPathAbstractDuration? arg,
+) {
   if (arg == null) return XPathSequence.empty;
-  final abs = arg.dayTime.abs();
-  final wholeSeconds = abs.inSeconds.remainder(60);
-  final microRemainder = abs.inMicroseconds.remainder(
-    Duration.microsecondsPerSecond,
-  );
-  final seconds =
-      wholeSeconds + microRemainder / Duration.microsecondsPerSecond;
-  return XPathSequence.single(arg.dayTime.isNegative ? -seconds : seconds);
+  final s = arg.seconds ?? 0;
+  final ms = arg.milliseconds ?? 0;
+  final us = arg.microseconds ?? 0;
+  final seconds = s + ms / 1000.0 + us / 1000000.0;
+  return XPathSequence.single(arg.isNegative ? -seconds : seconds);
 }

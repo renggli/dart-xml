@@ -30,26 +30,20 @@ const fnDateTime = XPathFunctionDefinition(
 
 XPathSequence _fnDateTime(
   XPathContext context,
-  DateTime? arg1,
-  DateTime? arg2,
+  XPathDate? arg1,
+  XPathTime? arg2,
 ) {
   if (arg1 == null || arg2 == null) return XPathSequence.empty;
-  if (arg1.isUtc && arg2.isUtc) {
-    return XPathSequence.single(
-      DateTime.utc(
-        arg1.year,
-        arg1.month,
-        arg1.day,
-        arg2.hour,
-        arg2.minute,
-        arg2.second,
-        arg2.millisecond,
-        arg2.microsecond,
-      ),
+  final tz1 = arg1.timezoneOffsetMinutes;
+  final tz2 = arg2.timezoneOffsetMinutes;
+  if (tz1 != null && tz2 != null && tz1 != tz2) {
+    throw XPathEvaluationException(
+      'Timezone offsets of date and time arguments must match',
     );
   }
+  final offset = tz1 ?? tz2;
   return XPathSequence.single(
-    DateTime(
+    XPathDateTime(
       arg1.year,
       arg1.month,
       arg1.day,
@@ -58,6 +52,7 @@ XPathSequence _fnDateTime(
       arg2.second,
       arg2.millisecond,
       arg2.microsecond,
+      offset,
     ),
   );
 }
@@ -88,6 +83,9 @@ const fnMonthFromDateTime = XPathFunctionDefinition(
   function: _fnMonth,
 );
 
+XPathSequence _fnMonth(XPathContext context, XPathAbstractDateTime? arg) =>
+    arg != null ? XPathSequence.single(arg.month!) : XPathSequence.empty;
+
 /// https://www.w3.org/TR/xpath-functions-31/#func-day-from-dateTime
 const fnDayFromDateTime = XPathFunctionDefinition(
   name: XmlName.qualified('fn:day-from-dateTime'),
@@ -100,6 +98,9 @@ const fnDayFromDateTime = XPathFunctionDefinition(
   ],
   function: _fnDay,
 );
+
+XPathSequence _fnDay(XPathContext context, XPathAbstractDateTime? arg) =>
+    arg != null ? XPathSequence.single(arg.day!) : XPathSequence.empty;
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hours-from-dateTime
 const fnHoursFromDateTime = XPathFunctionDefinition(
@@ -114,6 +115,9 @@ const fnHoursFromDateTime = XPathFunctionDefinition(
   function: _fnHours,
 );
 
+XPathSequence _fnHours(XPathContext context, XPathAbstractDateTime? arg) =>
+    arg != null ? XPathSequence.single(arg.hour!) : XPathSequence.empty;
+
 /// https://www.w3.org/TR/xpath-functions-31/#func-minutes-from-dateTime
 const fnMinutesFromDateTime = XPathFunctionDefinition(
   name: XmlName.qualified('fn:minutes-from-dateTime'),
@@ -126,6 +130,9 @@ const fnMinutesFromDateTime = XPathFunctionDefinition(
   ],
   function: _fnMinutes,
 );
+
+XPathSequence _fnMinutes(XPathContext context, XPathAbstractDateTime? arg) =>
+    arg != null ? XPathSequence.single(arg.minute!) : XPathSequence.empty;
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-seconds-from-dateTime
 const fnSecondsFromDateTime = XPathFunctionDefinition(
@@ -140,6 +147,15 @@ const fnSecondsFromDateTime = XPathFunctionDefinition(
   function: _fnSeconds,
 );
 
+XPathSequence _fnSeconds(XPathContext context, XPathAbstractDateTime? arg) =>
+    arg != null
+    ? XPathSequence.single(
+        (arg.second ?? 0) +
+            (arg.millisecond ?? 0) / 1000.0 +
+            (arg.microsecond ?? 0) / 1000000.0,
+      )
+    : XPathSequence.empty;
+
 /// https://www.w3.org/TR/xpath-functions-31/#func-timezone-from-dateTime
 const fnTimezoneFromDateTime = XPathFunctionDefinition(
   name: XmlName.qualified('fn:timezone-from-dateTime'),
@@ -153,6 +169,13 @@ const fnTimezoneFromDateTime = XPathFunctionDefinition(
   function: _fnTimezone,
 );
 
+XPathSequence _fnTimezone(XPathContext context, XPathAbstractDateTime? arg) =>
+    arg != null && arg.timezoneOffsetMinutes != null
+    ? XPathSequence.single(
+        XPathDayTimeDuration(arg.timezoneOffsetMinutes! * 60 * 1000000),
+      )
+    : XPathSequence.empty;
+
 /// https://www.w3.org/TR/xpath-functions-31/#func-year-from-date
 const fnYearFromDate = XPathFunctionDefinition(
   name: XmlName.qualified('fn:year-from-date'),
@@ -165,6 +188,9 @@ const fnYearFromDate = XPathFunctionDefinition(
   ],
   function: _fnYear,
 );
+
+XPathSequence _fnYear(XPathContext context, XPathAbstractDateTime? arg) =>
+    arg != null ? XPathSequence.single(arg.year!) : XPathSequence.empty;
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-month-from-date
 const fnMonthFromDate = XPathFunctionDefinition(
@@ -257,31 +283,6 @@ const fnTimezoneFromTime = XPathFunctionDefinition(
   function: _fnTimezone,
 );
 
-XPathSequence _fnYear(XPathContext context, DateTime? arg) =>
-    arg != null ? XPathSequence.single(arg.year) : XPathSequence.empty;
-
-XPathSequence _fnMonth(XPathContext context, DateTime? arg) =>
-    arg != null ? XPathSequence.single(arg.month) : XPathSequence.empty;
-
-XPathSequence _fnDay(XPathContext context, DateTime? arg) =>
-    arg != null ? XPathSequence.single(arg.day) : XPathSequence.empty;
-
-XPathSequence _fnHours(XPathContext context, DateTime? arg) =>
-    arg != null ? XPathSequence.single(arg.hour) : XPathSequence.empty;
-
-XPathSequence _fnMinutes(XPathContext context, DateTime? arg) =>
-    arg != null ? XPathSequence.single(arg.minute) : XPathSequence.empty;
-
-XPathSequence _fnSeconds(XPathContext context, DateTime? arg) => arg != null
-    ? XPathSequence.single(
-        arg.second + arg.millisecond / 1000.0 + arg.microsecond / 1000000.0,
-      )
-    : XPathSequence.empty;
-
-XPathSequence _fnTimezone(XPathContext context, DateTime? arg) => arg != null
-    ? XPathSequence.single(XPathDayTimeDuration(arg.timeZoneOffset))
-    : XPathSequence.empty;
-
 /// https://www.w3.org/TR/xpath-functions-31/#func-adjust-dateTime-to-timezone
 const fnAdjustDateTimeToTimezone = XPathFunctionDefinition(
   name: XmlName.qualified('fn:adjust-dateTime-to-timezone'),
@@ -303,70 +304,9 @@ const fnAdjustDateTimeToTimezone = XPathFunctionDefinition(
   function: _fnAdjustDateTimeToTimezone,
 );
 
-DateTime? _adjustDateTimeHelper(DateTime? arg, XPathDayTimeDuration? timezone) {
-  if (arg == null) return null;
-  if (timezone != null) {
-    if (timezone.inSeconds.abs() > 14 * 3600) {
-      throw XPathEvaluationException('Timezone offset out of range: $timezone');
-    }
-    if (timezone.inSeconds % 60 != 0) {
-      throw XPathEvaluationException(
-        'Timezone offset must be an integral number of minutes: $timezone',
-      );
-    }
-  }
-  final Duration? targetOffset = timezone;
-
-  // Get the original offset (if any)
-  final originalOffset = arg is XPathDateTimeWrapper
-      ? arg.timezoneOffset
-      : (arg.isUtc ? Duration.zero : null);
-
-  final DateTime localComponents;
-  if (originalOffset == null || timezone == null) {
-    // If original had no timezone, or target timezone is null, local components are unchanged!
-    localComponents = arg;
-  } else {
-    // If original had a timezone and target is not null, preserve the UTC instant!
-    final utcInstant = arg is XPathDateTimeWrapper
-        ? arg.utcInstant
-        : arg.toUtc();
-    localComponents = utcInstant.add(targetOffset!);
-  }
-
-  // Format localComponents to UTC to be safe
-  final utcLocalComponents = DateTime.utc(
-    localComponents.year,
-    localComponents.month,
-    localComponents.day,
-    localComponents.hour,
-    localComponents.minute,
-    localComponents.second,
-    localComponents.millisecond,
-    localComponents.microsecond,
-  );
-
-  // Construct a new instance of the same type
-  return switch (arg) {
-    XPathDateTimeStamp() => XPathDateTimeStamp(
-      utcLocalComponents,
-      targetOffset,
-    ),
-    XPathDateTime() => XPathDateTime(utcLocalComponents, targetOffset),
-    XPathDate() => XPathDate(utcLocalComponents, targetOffset),
-    XPathTime() => XPathTime(utcLocalComponents, targetOffset),
-    XPathGYearMonth() => XPathGYearMonth(utcLocalComponents, targetOffset),
-    XPathGYear() => XPathGYear(utcLocalComponents, targetOffset),
-    XPathGMonthDay() => XPathGMonthDay(utcLocalComponents, targetOffset),
-    XPathGMonth() => XPathGMonth(utcLocalComponents, targetOffset),
-    XPathGDay() => XPathGDay(utcLocalComponents, targetOffset),
-    _ => XPathDateTime(utcLocalComponents, targetOffset),
-  };
-}
-
 XPathSequence _fnAdjustDateTimeToTimezone(
   XPathContext context,
-  DateTime? arg, [
+  XPathAbstractDateTime? arg, [
   XPathDayTimeDuration? timezone,
 ]) {
   final result = _adjustDateTimeHelper(arg, timezone);
@@ -396,7 +336,7 @@ const fnAdjustDateToTimezone = XPathFunctionDefinition(
 
 XPathSequence _fnAdjustDateToTimezone(
   XPathContext context,
-  DateTime? arg, [
+  XPathAbstractDateTime? arg, [
   XPathDayTimeDuration? timezone,
 ]) {
   final result = _adjustDateTimeHelper(arg, timezone);
@@ -428,7 +368,7 @@ const fnAdjustTimeToTimezone = XPathFunctionDefinition(
 
 XPathSequence _fnAdjustTimeToTimezone(
   XPathContext context,
-  DateTime? arg, [
+  XPathAbstractDateTime? arg, [
   XPathDayTimeDuration? timezone,
 ]) {
   final result = _adjustDateTimeHelper(arg, timezone);
@@ -471,13 +411,13 @@ const fnFormatDateTime = XPathFunctionDefinition(
 // Basic implementation: ignore picture and other arguments
 XPathSequence _fnFormatDateTime(
   XPathContext context,
-  DateTime? value,
+  XPathAbstractDateTime? value,
   String picture, [
   String? language,
   String? calendar,
   String? place,
 ]) => value != null
-    ? XPathSequence.single(value.toIso8601String())
+    ? XPathSequence.single(value.toString())
     : XPathSequence.empty;
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-format-date
@@ -559,4 +499,84 @@ XPathSequence _fnParseIetfDate(XPathContext context, [String? value]) =>
     throw UnimplementedError('fn:parse-ietf-date');
 
 Object _defaultToTimezone(XPathContext context) =>
-    XPathDayTimeDuration(DateTime.now().timeZoneOffset);
+    XPathDayTimeDuration.fromDuration(DateTime.now().timeZoneOffset);
+
+XPathAbstractDateTime? _adjustDateTimeHelper(
+  XPathAbstractDateTime? arg,
+  XPathDayTimeDuration? timezone,
+) {
+  if (arg == null) return null;
+  if (timezone != null) {
+    if (timezone.inSeconds.abs() > 14 * 3600) {
+      throw XPathEvaluationException('Timezone offset out of range: $timezone');
+    }
+    if (timezone.inSeconds % 60 != 0) {
+      throw XPathEvaluationException(
+        'Timezone offset must be an integral number of minutes: $timezone',
+      );
+    }
+  }
+
+  final originalOffsetMinutes = arg.timezoneOffsetMinutes;
+  final targetOffsetMinutes = timezone?.inMinutes;
+
+  final int y, m, d, h, min, s, ms, us;
+  if (timezone == null || originalOffsetMinutes == null) {
+    y = arg.year ?? 1970;
+    m = arg.month ?? 1;
+    d = arg.day ?? 1;
+    h = arg.hour ?? 0;
+    min = arg.minute ?? 0;
+    s = arg.second ?? 0;
+    ms = arg.millisecond ?? 0;
+    us = arg.microsecond ?? 0;
+  } else {
+    final utcInstant = arg
+        .toDateTime(); // This is a UTC DateTime since originalOffsetMinutes != null
+    final adjustedUtc = utcInstant.add(Duration(minutes: targetOffsetMinutes!));
+    y = adjustedUtc.year;
+    m = adjustedUtc.month;
+    d = adjustedUtc.day;
+    h = adjustedUtc.hour;
+    min = adjustedUtc.minute;
+    s = adjustedUtc.second;
+    ms = adjustedUtc.millisecond;
+    us = adjustedUtc.microsecond;
+  }
+
+  return switch (arg) {
+    XPathDateTimeStamp() =>
+      timezone == null
+          ? XPathDateTime(y, m, d, h, min, s, ms, us, null)
+          : XPathDateTimeStamp(
+              y,
+              m,
+              d,
+              h,
+              min,
+              s,
+              ms,
+              us,
+              targetOffsetMinutes!,
+            ),
+    XPathDateTime() => XPathDateTime(
+      y,
+      m,
+      d,
+      h,
+      min,
+      s,
+      ms,
+      us,
+      targetOffsetMinutes,
+    ),
+    XPathDate() => XPathDate(y, m, d, targetOffsetMinutes),
+    XPathTime() => XPathTime(h, min, s, ms, us, targetOffsetMinutes),
+    XPathYearMonth() => XPathYearMonth(y, m, targetOffsetMinutes),
+    XPathYear() => XPathYear(y, targetOffsetMinutes),
+    XPathMonthDay() => XPathMonthDay(m, d, targetOffsetMinutes),
+    XPathMonth() => XPathMonth(m, targetOffsetMinutes),
+    XPathDay() => XPathDay(d, targetOffsetMinutes),
+    _ => XPathDateTime(y, m, d, h, min, s, ms, us, targetOffsetMinutes),
+  };
+}

@@ -10,13 +10,13 @@ XPathSequence seq(Object value) => XPathSequence.single(value);
 
 void main() {
   // Helpers.
-  final d1Ymd = XPathYearMonthDuration(1); // 1 month
-  final d2Ymd = XPathYearMonthDuration(2); // 2 months
-  final d1Dtd = XPathDayTimeDuration(const Duration(days: 1));
-  final d2Dtd = XPathDayTimeDuration(const Duration(days: 2));
-  const d1 = XPathDuration(months: 0, dayTime: Duration(days: 1));
-  const d2 = XPathDuration(months: 0, dayTime: Duration(days: 1));
-  const d3 = XPathDuration(months: 0, dayTime: Duration(days: 2));
+  const d1Ymd = XPathYearMonthDuration(1); // 1 month
+  const d2Ymd = XPathYearMonthDuration(2); // 2 months
+  const d1Dtd = XPathDayTimeDuration(86400000000);
+  const d2Dtd = XPathDayTimeDuration(172800000000);
+  const d1 = XPathDuration(months: 0, days: 1);
+  const d2 = XPathDuration(months: 0, days: 1);
+  const d3 = XPathDuration(months: 0, days: 2);
 
   group('opDurationEqual', () {
     test('equal', () {
@@ -26,13 +26,13 @@ void main() {
       expect(opDurationEqual(seq(d1), seq(d3)), [false]);
     });
     test('P1Y eq P12M (yearMonth equality)', () {
-      final p1y = XPathYearMonthDuration(12);
-      final p12m = XPathYearMonthDuration(12);
+      const p1y = XPathYearMonthDuration(12);
+      const p12m = XPathYearMonthDuration(12);
       expect(opDurationEqual(seq(p1y), seq(p12m)), [true]);
     });
     test('P1Y ne P365D (yearMonth vs dayTime differ)', () {
-      final p1y = XPathYearMonthDuration(12);
-      final p365d = XPathDayTimeDuration(const Duration(days: 365));
+      const p1y = XPathYearMonthDuration(12);
+      const p365d = XPathDayTimeDuration(31536000000000);
       expect(opDurationEqual(seq(p1y), seq(p365d)), [false]);
     });
   });
@@ -65,7 +65,7 @@ void main() {
     test('add', () {
       expect(
         opAddYearMonthDurations(seq(d1Ymd), seq(d2Ymd)).first,
-        XPathYearMonthDuration(3),
+        const XPathYearMonthDuration(3),
       );
     });
   });
@@ -74,7 +74,7 @@ void main() {
     test('subtract', () {
       expect(
         opSubtractYearMonthDurations(seq(d2Ymd), seq(d1Ymd)).first,
-        XPathYearMonthDuration(1),
+        const XPathYearMonthDuration(1),
       );
     });
   });
@@ -83,7 +83,7 @@ void main() {
     test('multiply', () {
       expect(
         opMultiplyYearMonthDuration(seq(d1Ymd), seq(2)).first,
-        XPathYearMonthDuration(2),
+        const XPathYearMonthDuration(2),
       );
     });
   });
@@ -92,7 +92,7 @@ void main() {
     test('divide', () {
       expect(
         opDivideYearMonthDuration(seq(d2Ymd), seq(2)).first,
-        XPathYearMonthDuration(1),
+        const XPathYearMonthDuration(1),
       );
     });
   });
@@ -108,7 +108,7 @@ void main() {
       expect(
         () => opDivideYearMonthDurationByYearMonthDuration(
           seq(d1Ymd),
-          seq(XPathYearMonthDuration(0)),
+          seq(const XPathYearMonthDuration(0)),
         ),
         throwsA(isXPathEvaluationException(message: 'Division by zero')),
       );
@@ -119,7 +119,7 @@ void main() {
     test('add', () {
       expect(
         opAddDayTimeDurations(seq(d1Dtd), seq(d2Dtd)).first,
-        XPathDayTimeDuration(const Duration(days: 3)),
+        const XPathDayTimeDuration(259200000000),
       );
     });
   });
@@ -128,7 +128,7 @@ void main() {
     test('subtract', () {
       expect(
         opSubtractDayTimeDurations(seq(d2Dtd), seq(d1Dtd)).first,
-        XPathDayTimeDuration(const Duration(days: 1)),
+        const XPathDayTimeDuration(86400000000),
       );
     });
   });
@@ -137,7 +137,7 @@ void main() {
     test('multiply', () {
       expect(
         opMultiplyDayTimeDuration(seq(d1Dtd), seq(2)).first,
-        XPathDayTimeDuration(const Duration(days: 2)),
+        const XPathDayTimeDuration(172800000000),
       );
     });
   });
@@ -146,7 +146,7 @@ void main() {
     test('divide', () {
       expect(
         opDivideDayTimeDuration(seq(d2Dtd), seq(2)).first,
-        XPathDayTimeDuration(const Duration(days: 1)),
+        const XPathDayTimeDuration(86400000000),
       );
     });
   });
@@ -167,7 +167,7 @@ void main() {
       expect(
         () => opDivideDurationByDuration(
           seq(d1Dtd),
-          seq(XPathDayTimeDuration(Duration.zero)),
+          seq(const XPathDayTimeDuration(0)),
         ),
         throwsA(isXPathEvaluationException(message: 'Division by zero')),
       );
@@ -178,12 +178,12 @@ void main() {
     test('add', () {
       final result =
           opAddDurations(
-                seq(const XPathDuration(months: 1, dayTime: Duration(days: 1))),
-                seq(const XPathDuration(months: 2, dayTime: Duration(days: 3))),
+                seq(const XPathDuration(months: 1, days: 1)),
+                seq(const XPathDuration(months: 2, days: 3)),
               ).first
               as XPathDuration;
       expect(result.months, 3);
-      expect(result.dayTime, const Duration(days: 4));
+      expect(result.days, 4);
     });
   });
 
@@ -191,12 +191,12 @@ void main() {
     test('subtract', () {
       final result =
           opSubtractDurations(
-                seq(const XPathDuration(months: 3, dayTime: Duration(days: 4))),
-                seq(const XPathDuration(months: 1, dayTime: Duration(days: 1))),
+                seq(const XPathDuration(months: 3, days: 4)),
+                seq(const XPathDuration(months: 1, days: 1)),
               ).first
               as XPathDuration;
       expect(result.months, 2);
-      expect(result.dayTime, const Duration(days: 3));
+      expect(result.days, 3);
     });
   });
 
@@ -204,12 +204,12 @@ void main() {
     test('multiply', () {
       final result =
           opMultiplyDuration(
-                seq(const XPathDuration(months: 2, dayTime: Duration(days: 1))),
+                seq(const XPathDuration(months: 2, days: 1)),
                 seq(3),
               ).first
               as XPathDuration;
       expect(result.months, 6);
-      expect(result.dayTime, const Duration(days: 3));
+      expect(result.days, 3);
     });
   });
 
@@ -217,17 +217,17 @@ void main() {
     test('divide', () {
       final result =
           opDivideDuration(
-                seq(const XPathDuration(months: 6, dayTime: Duration(days: 3))),
+                seq(const XPathDuration(months: 6, days: 3)),
                 seq(3),
               ).first
               as XPathDuration;
       expect(result.months, 2);
-      expect(result.dayTime, const Duration(days: 1));
+      expect(result.days, 1);
     });
     test('divide by zero throws', () {
       expect(
         () => opDivideDuration(
-          seq(const XPathDuration(months: 1, dayTime: Duration(days: 1))),
+          seq(const XPathDuration(months: 1, days: 1)),
           seq(0),
         ),
         throwsA(isXPathEvaluationException(message: 'Division by zero')),

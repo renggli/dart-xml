@@ -5,8 +5,8 @@ import 'package:xml/src/xpath/values/date_time.dart';
 void main() {
   group('XPathDateTimeWrapper value tests', () {
     test('comparison and operators', () {
-      final dt1 = xsDateTime.cast('2021-01-01T12:00:00Z') as XPathDateTime;
-      final dt2 = xsDateTime.cast('2021-01-01T13:00:00Z') as XPathDateTime;
+      final dt1 = xsDateTime.cast('2021-01-01T12:00:00Z');
+      final dt2 = xsDateTime.cast('2021-01-01T13:00:00Z');
       expect(dt1.isBefore(dt2), isTrue);
       expect(dt2.isAfter(dt1), isTrue);
       expect(dt1.isAtSameMomentAs(dt1), isTrue);
@@ -21,22 +21,19 @@ void main() {
     });
 
     test('timezone formatting and conversions', () {
-      final dtUtc = xsDateTime.cast('2021-01-01T12:00:00Z') as XPathDateTime;
-      final dtPlus = XPathDateTime(
-        DateTime(2021, 1, 1, 12),
-        const Duration(hours: 5, minutes: 30),
-      );
-      final dtMinus = XPathDateTime(
-        DateTime(2021, 1, 1, 12),
-        const Duration(hours: -5, minutes: -30),
-      );
+      final dtUtc = xsDateTime.cast('2021-01-01T12:00:00Z');
+      const dtPlus = XPathDateTime(2021, 1, 1, 12, 0, 0, 0, 0, 330);
+      const dtMinus = XPathDateTime(2021, 1, 1, 12, 0, 0, 0, 0, -330);
       expect(xsDateTime.castToString(dtUtc), '2021-01-01T12:00:00Z');
       expect(xsDateTime.castToString(dtPlus), '2021-01-01T12:00:00+05:30');
       expect(xsDateTime.castToString(dtMinus), '2021-01-01T12:00:00-05:30');
       expect(dtUtc.toUtc(), same(dtUtc));
       expect(dtPlus.toUtc(), isA<XPathDateTime>());
-      expect(dtPlus.toUtc().timeZoneOffset, const Duration());
-      expect(dtUtc.toLocal().timeZoneOffset, DateTime.now().timeZoneOffset);
+      expect(dtPlus.toUtc().timezoneOffsetMinutes, 0);
+      expect(
+        dtUtc.toLocal().timezoneOffsetMinutes,
+        DateTime.now().timeZoneOffset.inMinutes,
+      );
     });
 
     test('date properties', () {
@@ -52,10 +49,7 @@ void main() {
     });
 
     test('fractional seconds formatting', () {
-      final dtFrac = XPathDateTime(
-        DateTime(2021, 1, 1, 12, 0, 0, 123, 456),
-        const Duration(),
-      );
+      const dtFrac = XPathDateTime(2021, 1, 1, 12, 0, 0, 123, 456, 0);
       expect(xsDateTime.castToString(dtFrac), '2021-01-01T12:00:00.123456Z');
     });
   });

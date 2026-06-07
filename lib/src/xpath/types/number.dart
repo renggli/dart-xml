@@ -1,6 +1,7 @@
 import '../../xml/nodes/node.dart';
 import '../definitions/type.dart';
 import '../exceptions/evaluation_exception.dart';
+import '../values/duration.dart';
 import '../values/sequence.dart';
 import 'string.dart';
 
@@ -20,6 +21,8 @@ class _XPathNumericType extends XPathType<num> {
   num cast(Object value) => switch (value) {
     num() => value,
     Duration() => value.inMicroseconds,
+    XPathDayTimeDuration() => value.inMicroseconds,
+    XPathYearMonthDuration() => value.totalMonths,
     bool() => value ? 1 : 0,
     String() => _parseNumeric(value.trim()),
     XmlNode() => cast(xsString.cast(value)),
@@ -57,6 +60,8 @@ class _XPathDecimalType extends XPathType<num> {
   num cast(Object value) => switch (value) {
     num() when value.isFinite => value,
     Duration() => value.inMicroseconds,
+    XPathDayTimeDuration() => value.inMicroseconds,
+    XPathYearMonthDuration() => value.totalMonths,
     bool() => value ? 1 : 0,
     String() => _parseDecimal(value.trim()),
     XmlNode() => cast(xsString.cast(value)),
@@ -138,6 +143,8 @@ class _XPathIntegerType extends XPathType<int> {
     int() => value,
     num() when value.isFinite => value.toInt(),
     Duration() => value.inMicroseconds,
+    XPathDayTimeDuration() => value.inMicroseconds,
+    XPathYearMonthDuration() => value.totalMonths,
     bool() => value ? 1 : 0,
     String() => _parseInteger(value.trim()),
     XmlNode() => cast(xsString.cast(value)),
@@ -208,6 +215,8 @@ class _XPathDoubleType extends XPathType<double> {
     double() => value,
     num() => value.toDouble(),
     Duration() => value.inMicroseconds.toDouble(),
+    XPathDayTimeDuration() => value.inMicroseconds.toDouble(),
+    XPathYearMonthDuration() => value.totalMonths.toDouble(),
     bool() => value ? 1 : 0,
     String() => _parseDouble(value.trim()),
     XmlNode() => cast(xsString.cast(value)),

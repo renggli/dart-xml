@@ -8,7 +8,7 @@ import 'string.dart';
 /// The XPath dateTime type.
 const xsDateTime = _XPathDateTimeType();
 
-class _XPathDateTimeType extends XPathType<DateTime> {
+class _XPathDateTimeType extends XPathType<XPathDateTime> {
   const _XPathDateTimeType();
 
   @override
@@ -18,54 +18,77 @@ class _XPathDateTimeType extends XPathType<DateTime> {
   bool matches(Object value) =>
       value is XPathDateTime ||
       value is XPathDateTimeStamp ||
-      (value is DateTime && value is! XPathDateTimeWrapper);
+      value is DateTime;
 
   @override
-  DateTime cast(Object value) => switch (value) {
-    DateTime() => value,
+  XPathDateTime cast(Object value) => switch (value) {
+    XPathDateTime() => value,
+    DateTime() => XPathDateTime.fromDateTime(
+      value,
+      value.isUtc ? 0 : value.timeZoneOffset.inMinutes,
+    ),
+    XPathDate() => XPathDateTime(
+      value.year,
+      value.month,
+      value.day,
+      0,
+      0,
+      0,
+      0,
+      0,
+      value.timezoneOffsetMinutes,
+    ),
+    XPathTime() => XPathDateTime(
+      1970,
+      1,
+      1,
+      value.hour,
+      value.minute,
+      value.second,
+      value.millisecond,
+      value.microsecond,
+      value.timezoneOffsetMinutes,
+    ),
+    XPathAbstractDateTime() => XPathDateTime(
+      value.year ?? 1970,
+      value.month ?? 1,
+      value.day ?? 1,
+      value.hour ?? 0,
+      value.minute ?? 0,
+      value.second ?? 0,
+      value.millisecond ?? 0,
+      value.microsecond ?? 0,
+      value.timezoneOffsetMinutes,
+    ),
     String() => _parseDateTime(value.trim()),
     XmlNode() => _parseDateTime(xsString.cast(value).trim()),
     XPathSequence(singleOrNull: final item?) => cast(item),
     _ => throw XPathEvaluationException.unsupportedCast(this, value),
   };
 
-  DateTime _parseDateTime(String value) {
+  XPathDateTime _parseDateTime(String value) {
     final match = _dateTimeRegExp.firstMatch(value);
     if (match != null) {
       final tzStr = match.namedGroup('timezone');
-      final offset = _parseTimezoneOffset(tzStr);
-      return XPathDateTime(
-        _createDateTime(
-          year: match.namedGroup('year')!,
-          month: match.namedGroup('month')!,
-          day: match.namedGroup('day')!,
-          hour: match.namedGroup('hour')!,
-          minute: match.namedGroup('minute')!,
-          second: match.namedGroup('second')!,
-        ),
-        offset,
-      );
+      final offset = _parseTimezoneOffsetMinutes(tzStr);
+      final yr = int.parse(match.namedGroup('year')!);
+      final mo = int.parse(match.namedGroup('month')!);
+      final dy = int.parse(match.namedGroup('day')!);
+      final hr = int.parse(match.namedGroup('hour')!);
+      final mn = int.parse(match.namedGroup('minute')!);
+      final scDouble = double.parse(match.namedGroup('second')!);
+      final sc = scDouble.truncate();
+      final frac = scDouble - sc;
+      final ms = (frac * 1000).truncate();
+      final us = ((frac * 1000000) - (ms * 1000)).round();
+      _validateDateTime(yr, mo, dy, hr, mn, scDouble);
+      return XPathDateTime(yr, mo, dy, hr, mn, sc, ms, us, offset);
     }
     throw XPathEvaluationException.unsupportedCast(this, value);
   }
 
   @override
-  String castToString(DateTime value) {
-    final buffer = StringBuffer();
-    _writeYear(buffer, value.year);
-    buffer.write('-');
-    _writePad2(buffer, value.month);
-    buffer.write('-');
-    _writePad2(buffer, value.day);
-    buffer.write('T');
-    _writePad2(buffer, value.hour);
-    buffer.write(':');
-    _writePad2(buffer, value.minute);
-    buffer.write(':');
-    _writeSeconds(buffer, value);
-    _writeTimezone(buffer, value);
-    return buffer.toString();
-  }
+  String castToString(XPathDateTime value) => value.toString();
 
   static const _timezoneRegExpPart = r'(?<timezone>Z|[+-]\d{2}:\d{2})?';
   static final _dateTimeRegExp = RegExp(
@@ -89,17 +112,28 @@ class _XPathDateTimeStampType extends XPathType<XPathDateTimeStamp> {
 
   @override
   bool matches(Object value) =>
-      value is XPathDateTimeStamp ||
-      (value is DateTime && value is! XPathDateTimeWrapper);
+      value is XPathDateTimeStamp || (value is DateTime && value.isUtc);
 
   @override
   XPathDateTimeStamp cast(Object value) => switch (value) {
     XPathDateTimeStamp() => value,
-    DateTime() when value.isUtc => XPathDateTimeStamp(value, const Duration()),
-    DateTime() => XPathDateTimeStamp(
+    DateTime() when value.isUtc => XPathDateTimeStamp.fromDateTime(value, 0),
+    DateTime() => XPathDateTimeStamp.fromDateTime(
       value,
-      value is XPathDateTimeWrapper ? value.timezoneOffset : null,
+      value.timeZoneOffset.inMinutes,
     ),
+    XPathAbstractDateTime() when value.timezoneOffsetMinutes != null =>
+      XPathDateTimeStamp(
+        value.year ?? 1970,
+        value.month ?? 1,
+        value.day ?? 1,
+        value.hour ?? 0,
+        value.minute ?? 0,
+        value.second ?? 0,
+        value.millisecond ?? 0,
+        value.microsecond ?? 0,
+        value.timezoneOffsetMinutes!,
+      ),
     String() => _parseDateTimeStamp(value.trim()),
     XPathSequence(singleOrNull: final item?) => cast(item),
     _ => throw XPathEvaluationException.unsupportedCast(this, value),
@@ -109,24 +143,25 @@ class _XPathDateTimeStampType extends XPathType<XPathDateTimeStamp> {
     final match = _XPathDateTimeType._dateTimeRegExp.firstMatch(trimmed);
     if (match != null && match.namedGroup('timezone') != null) {
       final tzStr = match.namedGroup('timezone');
-      final offset = _parseTimezoneOffset(tzStr);
-      return XPathDateTimeStamp(
-        _createDateTime(
-          year: match.namedGroup('year')!,
-          month: match.namedGroup('month')!,
-          day: match.namedGroup('day')!,
-          hour: match.namedGroup('hour')!,
-          minute: match.namedGroup('minute')!,
-          second: match.namedGroup('second')!,
-        ),
-        offset,
-      );
+      final offset = _parseTimezoneOffsetMinutes(tzStr)!;
+      final yr = int.parse(match.namedGroup('year')!);
+      final mo = int.parse(match.namedGroup('month')!);
+      final dy = int.parse(match.namedGroup('day')!);
+      final hr = int.parse(match.namedGroup('hour')!);
+      final mn = int.parse(match.namedGroup('minute')!);
+      final scDouble = double.parse(match.namedGroup('second')!);
+      final sc = scDouble.truncate();
+      final frac = scDouble - sc;
+      final ms = (frac * 1000).truncate();
+      final us = ((frac * 1000000) - (ms * 1000)).round();
+      _validateDateTime(yr, mo, dy, hr, mn, scDouble);
+      return XPathDateTimeStamp(yr, mo, dy, hr, mn, sc, ms, us, offset);
     }
     throw XPathEvaluationException.unsupportedCast(this, trimmed);
   }
 
   @override
-  String castToString(XPathDateTimeStamp value) => value.toIso8601String();
+  String castToString(XPathDateTimeStamp value) => value.toString();
 }
 
 /// The XPath date type.
@@ -139,16 +174,20 @@ class _XPathDateType extends XPathType<XPathDate> {
   String get name => 'xs:date';
 
   @override
-  bool matches(Object value) =>
-      value is XPathDate ||
-      (value is DateTime && value is! XPathDateTimeWrapper);
+  bool matches(Object value) => value is XPathDate || value is DateTime;
 
   @override
   XPathDate cast(Object value) => switch (value) {
     XPathDate() => value,
-    DateTime() => XPathDate(
+    DateTime() => XPathDate.fromDateTime(
       value,
-      value is XPathDateTimeWrapper ? value.timezoneOffset : null,
+      value.isUtc ? 0 : value.timeZoneOffset.inMinutes,
+    ),
+    XPathAbstractDateTime() => XPathDate(
+      value.year ?? 1970,
+      value.month ?? 1,
+      value.day ?? 1,
+      value.timezoneOffsetMinutes,
     ),
     String() => _parseDate(value.trim()),
     XPathSequence(singleOrNull: final item?) => cast(item),
@@ -159,30 +198,18 @@ class _XPathDateType extends XPathType<XPathDate> {
     final match = _dateRegExp.firstMatch(trimmed);
     if (match != null) {
       final tzStr = match.namedGroup('timezone');
-      final offset = _parseTimezoneOffset(tzStr);
-      return XPathDate(
-        _createDateTime(
-          year: match.namedGroup('year')!,
-          month: match.namedGroup('month')!,
-          day: match.namedGroup('day')!,
-        ),
-        offset,
-      );
+      final offset = _parseTimezoneOffsetMinutes(tzStr);
+      final yr = int.parse(match.namedGroup('year')!);
+      final mo = int.parse(match.namedGroup('month')!);
+      final dy = int.parse(match.namedGroup('day')!);
+      _validateDateTime(yr, mo, dy, 0, 0, 0.0);
+      return XPathDate(yr, mo, dy, offset);
     }
     throw XPathEvaluationException.unsupportedCast(this, trimmed);
   }
 
   @override
-  String castToString(XPathDate value) {
-    final buffer = StringBuffer();
-    _writeYear(buffer, value.year);
-    buffer.write('-');
-    _writePad2(buffer, value.month);
-    buffer.write('-');
-    _writePad2(buffer, value.day);
-    _writeTimezone(buffer, value);
-    return buffer.toString();
-  }
+  String castToString(XPathDate value) => value.toString();
 
   static final _dateRegExp = RegExp(
     '^'
@@ -202,16 +229,22 @@ class _XPathTimeType extends XPathType<XPathTime> {
   String get name => 'xs:time';
 
   @override
-  bool matches(Object value) =>
-      value is XPathTime ||
-      (value is DateTime && value is! XPathDateTimeWrapper);
+  bool matches(Object value) => value is XPathTime || value is DateTime;
 
   @override
   XPathTime cast(Object value) => switch (value) {
     XPathTime() => value,
-    DateTime() => XPathTime(
+    DateTime() => XPathTime.fromDateTime(
       value,
-      value is XPathDateTimeWrapper ? value.timezoneOffset : null,
+      value.isUtc ? 0 : value.timeZoneOffset.inMinutes,
+    ),
+    XPathAbstractDateTime() => XPathTime(
+      value.hour ?? 0,
+      value.minute ?? 0,
+      value.second ?? 0,
+      value.millisecond ?? 0,
+      value.microsecond ?? 0,
+      value.timezoneOffsetMinutes,
     ),
     String() => _parseTime(value.trim()),
     XPathSequence(singleOrNull: final item?) => cast(item),
@@ -222,30 +255,22 @@ class _XPathTimeType extends XPathType<XPathTime> {
     final match = _timeRegExp.firstMatch(trimmed);
     if (match != null) {
       final tzStr = match.namedGroup('timezone');
-      final offset = _parseTimezoneOffset(tzStr);
-      return XPathTime(
-        _createDateTime(
-          hour: match.namedGroup('hour')!,
-          minute: match.namedGroup('minute')!,
-          second: match.namedGroup('second')!,
-        ),
-        offset,
-      );
+      final offset = _parseTimezoneOffsetMinutes(tzStr);
+      final hr = int.parse(match.namedGroup('hour')!);
+      final mn = int.parse(match.namedGroup('minute')!);
+      final scDouble = double.parse(match.namedGroup('second')!);
+      final sc = scDouble.truncate();
+      final frac = scDouble - sc;
+      final ms = (frac * 1000).truncate();
+      final us = ((frac * 1000000) - (ms * 1000)).round();
+      _validateDateTime(1970, 1, 1, hr, mn, scDouble);
+      return XPathTime(hr, mn, sc, ms, us, offset);
     }
     throw XPathEvaluationException.unsupportedCast(this, trimmed);
   }
 
   @override
-  String castToString(XPathTime value) {
-    final buffer = StringBuffer();
-    _writePad2(buffer, value.hour);
-    buffer.write(':');
-    _writePad2(buffer, value.minute);
-    buffer.write(':');
-    _writeSeconds(buffer, value);
-    _writeTimezone(buffer, value);
-    return buffer.toString();
-  }
+  String castToString(XPathTime value) => value.toString();
 
   static final _timeRegExp = RegExp(
     '^'
@@ -256,56 +281,50 @@ class _XPathTimeType extends XPathType<XPathTime> {
 }
 
 /// The XPath gYearMonth type.
-const xsGYearMonth = _XPathGYearMonthType();
+const xsYearMonth = _XPathYearMonthType();
 
-class _XPathGYearMonthType extends XPathType<XPathGYearMonth> {
-  const _XPathGYearMonthType();
+class _XPathYearMonthType extends XPathType<XPathYearMonth> {
+  const _XPathYearMonthType();
 
   @override
   String get name => 'xs:gYearMonth';
 
   @override
-  bool matches(Object value) =>
-      value is XPathGYearMonth ||
-      (value is DateTime && value is! XPathDateTimeWrapper);
+  bool matches(Object value) => value is XPathYearMonth || value is DateTime;
 
   @override
-  XPathGYearMonth cast(Object value) => switch (value) {
-    XPathGYearMonth() => value,
-    DateTime() => XPathGYearMonth(
-      value,
-      value is XPathDateTimeWrapper ? value.timezoneOffset : null,
+  XPathYearMonth cast(Object value) => switch (value) {
+    XPathYearMonth() => value,
+    DateTime() => XPathYearMonth(
+      value.year,
+      value.month,
+      value.isUtc ? 0 : value.timeZoneOffset.inMinutes,
     ),
-    String() => _parseGYearMonth(value.trim()),
+    XPathAbstractDateTime() => XPathYearMonth(
+      value.year ?? 1970,
+      value.month ?? 1,
+      value.timezoneOffsetMinutes,
+    ),
+    String() => _parseYearMonth(value.trim()),
     XPathSequence(singleOrNull: final item?) => cast(item),
     _ => throw XPathEvaluationException.unsupportedCast(this, value),
   };
 
-  XPathGYearMonth _parseGYearMonth(String trimmed) {
+  XPathYearMonth _parseYearMonth(String trimmed) {
     final match = _yearMonthRegExp.firstMatch(trimmed);
     if (match != null) {
       final tzStr = match.namedGroup('timezone');
-      final offset = _parseTimezoneOffset(tzStr);
-      return XPathGYearMonth(
-        _createDateTime(
-          year: match.namedGroup('year')!,
-          month: match.namedGroup('month')!,
-        ),
-        offset,
-      );
+      final offset = _parseTimezoneOffsetMinutes(tzStr);
+      final yr = int.parse(match.namedGroup('year')!);
+      final mo = int.parse(match.namedGroup('month')!);
+      _validateDateTime(yr, mo, 1, 0, 0, 0.0);
+      return XPathYearMonth(yr, mo, offset);
     }
     throw XPathEvaluationException.unsupportedCast(this, trimmed);
   }
 
   @override
-  String castToString(XPathGYearMonth value) {
-    final buffer = StringBuffer();
-    _writeYear(buffer, value.year);
-    buffer.write('-');
-    _writePad2(buffer, value.month);
-    _writeTimezone(buffer, value);
-    return buffer.toString();
-  }
+  String castToString(XPathYearMonth value) => value.toString();
 
   static final _yearMonthRegExp = RegExp(
     '^'
@@ -316,51 +335,46 @@ class _XPathGYearMonthType extends XPathType<XPathGYearMonth> {
 }
 
 /// The XPath gYear type.
-const xsGYear = _XPathGYearType();
+const xsYear = _XPathYearType();
 
-class _XPathGYearType extends XPathType<XPathGYear> {
-  const _XPathGYearType();
+class _XPathYearType extends XPathType<XPathYear> {
+  const _XPathYearType();
 
   @override
   String get name => 'xs:gYear';
 
   @override
-  bool matches(Object value) =>
-      value is XPathGYear ||
-      (value is DateTime && value is! XPathDateTimeWrapper);
+  bool matches(Object value) => value is XPathYear || value is DateTime;
 
   @override
-  XPathGYear cast(Object value) => switch (value) {
-    XPathGYear() => value,
-    DateTime() => XPathGYear(
-      value,
-      value is XPathDateTimeWrapper ? value.timezoneOffset : null,
+  XPathYear cast(Object value) => switch (value) {
+    XPathYear() => value,
+    DateTime() => XPathYear(
+      value.year,
+      value.isUtc ? 0 : value.timeZoneOffset.inMinutes,
     ),
-    String() => _parseGYear(value.trim()),
+    XPathAbstractDateTime() => XPathYear(
+      value.year ?? 1970,
+      value.timezoneOffsetMinutes,
+    ),
+    String() => _parseYear(value.trim()),
     XPathSequence(singleOrNull: final item?) => cast(item),
     _ => throw XPathEvaluationException.unsupportedCast(this, value),
   };
 
-  XPathGYear _parseGYear(String trimmed) {
+  XPathYear _parseYear(String trimmed) {
     final match = _yearRegExp.firstMatch(trimmed);
     if (match != null) {
       final tzStr = match.namedGroup('timezone');
-      final offset = _parseTimezoneOffset(tzStr);
-      return XPathGYear(
-        _createDateTime(year: match.namedGroup('year')!),
-        offset,
-      );
+      final offset = _parseTimezoneOffsetMinutes(tzStr);
+      final yr = int.parse(match.namedGroup('year')!);
+      return XPathYear(yr, offset);
     }
     throw XPathEvaluationException.unsupportedCast(this, trimmed);
   }
 
   @override
-  String castToString(XPathGYear value) {
-    final buffer = StringBuffer();
-    _writeYear(buffer, value.year);
-    _writeTimezone(buffer, value);
-    return buffer.toString();
-  }
+  String castToString(XPathYear value) => value.toString();
 
   static final _yearRegExp = RegExp(
     '^'
@@ -371,56 +385,50 @@ class _XPathGYearType extends XPathType<XPathGYear> {
 }
 
 /// The XPath gMonthDay type.
-const xsGMonthDay = _XPathGMonthDayType();
+const xsMonthDay = _XPathMonthDayType();
 
-class _XPathGMonthDayType extends XPathType<XPathGMonthDay> {
-  const _XPathGMonthDayType();
+class _XPathMonthDayType extends XPathType<XPathMonthDay> {
+  const _XPathMonthDayType();
 
   @override
   String get name => 'xs:gMonthDay';
 
   @override
-  bool matches(Object value) =>
-      value is XPathGMonthDay ||
-      (value is DateTime && value is! XPathDateTimeWrapper);
+  bool matches(Object value) => value is XPathMonthDay || value is DateTime;
 
   @override
-  XPathGMonthDay cast(Object value) => switch (value) {
-    XPathGMonthDay() => value,
-    DateTime() => XPathGMonthDay(
-      value,
-      value is XPathDateTimeWrapper ? value.timezoneOffset : null,
+  XPathMonthDay cast(Object value) => switch (value) {
+    XPathMonthDay() => value,
+    DateTime() => XPathMonthDay(
+      value.month,
+      value.day,
+      value.isUtc ? 0 : value.timeZoneOffset.inMinutes,
     ),
-    String() => _parseGMonthDay(value.trim()),
+    XPathAbstractDateTime() => XPathMonthDay(
+      value.month ?? 1,
+      value.day ?? 1,
+      value.timezoneOffsetMinutes,
+    ),
+    String() => _parseMonthDay(value.trim()),
     XPathSequence(singleOrNull: final item?) => cast(item),
     _ => throw XPathEvaluationException.unsupportedCast(this, value),
   };
 
-  XPathGMonthDay _parseGMonthDay(String trimmed) {
+  XPathMonthDay _parseMonthDay(String trimmed) {
     final match = _monthDayRegExp.firstMatch(trimmed);
     if (match != null) {
       final tzStr = match.namedGroup('timezone');
-      final offset = _parseTimezoneOffset(tzStr);
-      return XPathGMonthDay(
-        _createDateTime(
-          month: match.namedGroup('month')!,
-          day: match.namedGroup('day')!,
-        ),
-        offset,
-      );
+      final offset = _parseTimezoneOffsetMinutes(tzStr);
+      final mo = int.parse(match.namedGroup('month')!);
+      final dy = int.parse(match.namedGroup('day')!);
+      _validateDateTime(1970, mo, dy, 0, 0, 0.0);
+      return XPathMonthDay(mo, dy, offset);
     }
     throw XPathEvaluationException.unsupportedCast(this, trimmed);
   }
 
   @override
-  String castToString(XPathGMonthDay value) {
-    final buffer = StringBuffer('--');
-    _writePad2(buffer, value.month);
-    buffer.write('-');
-    _writePad2(buffer, value.day);
-    _writeTimezone(buffer, value);
-    return buffer.toString();
-  }
+  String castToString(XPathMonthDay value) => value.toString();
 
   static final _monthDayRegExp = RegExp(
     '^'
@@ -431,51 +439,47 @@ class _XPathGMonthDayType extends XPathType<XPathGMonthDay> {
 }
 
 /// The XPath gMonth type.
-const xsGMonth = _XPathGMonthType();
+const xsMonth = _XPathMonthType();
 
-class _XPathGMonthType extends XPathType<XPathGMonth> {
-  const _XPathGMonthType();
+class _XPathMonthType extends XPathType<XPathMonth> {
+  const _XPathMonthType();
 
   @override
   String get name => 'xs:gMonth';
 
   @override
-  bool matches(Object value) =>
-      value is XPathGMonth ||
-      (value is DateTime && value is! XPathDateTimeWrapper);
+  bool matches(Object value) => value is XPathMonth || value is DateTime;
 
   @override
-  XPathGMonth cast(Object value) => switch (value) {
-    XPathGMonth() => value,
-    DateTime() => XPathGMonth(
-      value,
-      value is XPathDateTimeWrapper ? value.timezoneOffset : null,
+  XPathMonth cast(Object value) => switch (value) {
+    XPathMonth() => value,
+    DateTime() => XPathMonth(
+      value.month,
+      value.isUtc ? 0 : value.timeZoneOffset.inMinutes,
     ),
-    String() => _parseGMonth(value.trim()),
+    XPathAbstractDateTime() => XPathMonth(
+      value.month ?? 1,
+      value.timezoneOffsetMinutes,
+    ),
+    String() => _parseMonth(value.trim()),
     XPathSequence(singleOrNull: final item?) => cast(item),
     _ => throw XPathEvaluationException.unsupportedCast(this, value),
   };
 
-  XPathGMonth _parseGMonth(String trimmed) {
+  XPathMonth _parseMonth(String trimmed) {
     final match = _monthRegExp.firstMatch(trimmed);
     if (match != null) {
       final tzStr = match.namedGroup('timezone');
-      final offset = _parseTimezoneOffset(tzStr);
-      return XPathGMonth(
-        _createDateTime(month: match.namedGroup('month')!),
-        offset,
-      );
+      final offset = _parseTimezoneOffsetMinutes(tzStr);
+      final mo = int.parse(match.namedGroup('month')!);
+      _validateDateTime(1970, mo, 1, 0, 0, 0.0);
+      return XPathMonth(mo, offset);
     }
     throw XPathEvaluationException.unsupportedCast(this, trimmed);
   }
 
   @override
-  String castToString(XPathGMonth value) {
-    final buffer = StringBuffer('--');
-    _writePad2(buffer, value.month);
-    _writeTimezone(buffer, value);
-    return buffer.toString();
-  }
+  String castToString(XPathMonth value) => value.toString();
 
   static final _monthRegExp = RegExp(
     '^'
@@ -486,48 +490,47 @@ class _XPathGMonthType extends XPathType<XPathGMonth> {
 }
 
 /// The XPath gDay type.
-const xsGDay = _XPathGDayType();
+const xsDay = _XPathDayType();
 
-class _XPathGDayType extends XPathType<XPathGDay> {
-  const _XPathGDayType();
+class _XPathDayType extends XPathType<XPathDay> {
+  const _XPathDayType();
 
   @override
   String get name => 'xs:gDay';
 
   @override
-  bool matches(Object value) =>
-      value is XPathGDay ||
-      (value is DateTime && value is! XPathDateTimeWrapper);
+  bool matches(Object value) => value is XPathDay || value is DateTime;
 
   @override
-  XPathGDay cast(Object value) => switch (value) {
-    XPathGDay() => value,
-    DateTime() => XPathGDay(
-      value,
-      value is XPathDateTimeWrapper ? value.timezoneOffset : null,
+  XPathDay cast(Object value) => switch (value) {
+    XPathDay() => value,
+    DateTime() => XPathDay(
+      value.day,
+      value.isUtc ? 0 : value.timeZoneOffset.inMinutes,
     ),
-    String() => _parseGDay(value.trim()),
+    XPathAbstractDateTime() => XPathDay(
+      value.day ?? 1,
+      value.timezoneOffsetMinutes,
+    ),
+    String() => _parseDay(value.trim()),
     XPathSequence(singleOrNull: final item?) => cast(item),
     _ => throw XPathEvaluationException.unsupportedCast(this, value),
   };
 
-  XPathGDay _parseGDay(String trimmed) {
+  XPathDay _parseDay(String trimmed) {
     final match = _dayRegExp.firstMatch(trimmed);
     if (match != null) {
       final tzStr = match.namedGroup('timezone');
-      final offset = _parseTimezoneOffset(tzStr);
-      return XPathGDay(_createDateTime(day: match.namedGroup('day')!), offset);
+      final offset = _parseTimezoneOffsetMinutes(tzStr);
+      final dy = int.parse(match.namedGroup('day')!);
+      _validateDateTime(1970, 1, dy, 0, 0, 0.0);
+      return XPathDay(dy, offset);
     }
     throw XPathEvaluationException.unsupportedCast(this, trimmed);
   }
 
   @override
-  String castToString(XPathGDay value) {
-    final buffer = StringBuffer('---');
-    _writePad2(buffer, value.day);
-    _writeTimezone(buffer, value);
-    return buffer.toString();
-  }
+  String castToString(XPathDay value) => value.toString();
 
   static final _dayRegExp = RegExp(
     '^'
@@ -537,32 +540,19 @@ class _XPathGDayType extends XPathType<XPathGDay> {
   );
 }
 
-// Internal helpers
+// Helpers
 
-Duration? _parseTimezoneOffset(String? timezone) {
+int? _parseTimezoneOffsetMinutes(String? timezone) {
   if (timezone == null) return null;
-  if (timezone == 'Z') return const Duration();
+  if (timezone == 'Z') return 0;
   final sign = timezone.substring(0, 1) == '-' ? -1 : 1;
   final parts = timezone.substring(1).split(':');
   final hours = int.parse(parts[0]);
   final minutes = int.parse(parts[1]);
-  return Duration(hours: sign * hours, minutes: sign * minutes);
+  return sign * (hours * 60 + minutes);
 }
 
-DateTime _createDateTime({
-  String year = '1970',
-  String month = '01',
-  String day = '01',
-  String hour = '00',
-  String minute = '00',
-  String second = '00',
-}) {
-  final y = int.parse(year);
-  final m = int.parse(month);
-  final d = int.parse(day);
-  final h = int.parse(hour);
-  final min = int.parse(minute);
-  final sec = double.parse(second);
+void _validateDateTime(int y, int m, int d, int h, int min, double sec) {
   if (m < 1 || m > 12) throw XPathEvaluationException('Invalid month: $m');
   if (d < 1 || d > 31) throw XPathEvaluationException('Invalid day: $d');
   if (m == 4 || m == 6 || m == 9 || m == 11) {
@@ -578,65 +568,4 @@ DateTime _createDateTime({
   }
   if (min > 59) throw XPathEvaluationException('Invalid minute: $min');
   if (sec >= 60) throw XPathEvaluationException('Invalid second: $sec');
-  final buffer = StringBuffer();
-  _writeYear(buffer, y);
-  buffer.write('-');
-  _writePad2(buffer, m);
-  buffer.write('-');
-  _writePad2(buffer, d);
-  buffer.write('T');
-  _writePad2(buffer, h);
-  buffer.write(':');
-  _writePad2(buffer, min);
-  buffer.write(':');
-  buffer.write(second);
-  buffer.write('Z'); // Always parse as UTC to preserve local components
-  final result = DateTime.tryParse(buffer.toString());
-  if (result == null) {
-    throw XPathEvaluationException('Invalid date/time: ${buffer.toString()}');
-  }
-  return result;
-}
-
-void _writeYear(StringBuffer buffer, int year) {
-  if (year < 0) {
-    buffer.write('-');
-    buffer.write((-year).toString().padLeft(4, '0'));
-  } else {
-    buffer.write(year.toString().padLeft(4, '0'));
-  }
-}
-
-void _writePad2(StringBuffer buffer, int value) =>
-    buffer.write(value.toString().padLeft(2, '0'));
-
-void _writeSeconds(StringBuffer buffer, DateTime value) {
-  _writePad2(buffer, value.second);
-  if (value.millisecond > 0 || value.microsecond > 0) {
-    final seconds = value.millisecond / 1000.0 + value.microsecond / 1000000.0;
-    final string = seconds.toString();
-    buffer.write(string.substring(1)); // skip the leading 0
-  }
-}
-
-void _writeTimezone(StringBuffer buffer, DateTime value) {
-  if (value is XPathDateTimeWrapper) {
-    final offset = value.timezoneOffset;
-    if (offset != null) {
-      if (offset.inMicroseconds == 0) {
-        buffer.write('Z');
-      } else {
-        final sign = offset.isNegative ? '-' : '+';
-        final absOffset = offset.abs();
-        final hours = absOffset.inHours;
-        final minutes = absOffset.inMinutes % 60;
-        buffer.write(sign);
-        buffer.write(hours.toString().padLeft(2, '0'));
-        buffer.write(':');
-        buffer.write(minutes.toString().padLeft(2, '0'));
-      }
-    }
-  } else if (value.isUtc) {
-    buffer.write('Z');
-  }
 }

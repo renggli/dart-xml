@@ -12,37 +12,37 @@ void main() {
     });
     test('matches', () {
       // xs:duration matches XPathDuration and its subtypes.
-      const d = XPathDuration(months: 1, dayTime: Duration.zero);
+      const d = XPathDuration(months: 1);
       expect(xsDuration.matches(d), isTrue);
-      expect(xsDuration.matches(XPathYearMonthDuration(12)), isTrue);
-      expect(
-        xsDuration.matches(XPathDayTimeDuration(const Duration(seconds: 1))),
-        isTrue,
-      );
+      expect(xsDuration.matches(const XPathYearMonthDuration(12)), isTrue);
+      expect(xsDuration.matches(const XPathDayTimeDuration(1000000)), isTrue);
       expect(xsDuration.matches('P1Y'), isFalse);
     });
     group('cast', () {
       test('from XPathDuration', () {
-        const d = XPathDuration(months: 1, dayTime: Duration(days: 2));
+        const d = XPathDuration(months: 1, days: 2);
         expect(xsDuration.cast(d), d);
       });
       test('from XPathYearMonthDuration', () {
-        final d = XPathYearMonthDuration(12);
+        const d = XPathYearMonthDuration(12);
         expect(xsDuration.cast(d), d);
       });
       test('from XPathDayTimeDuration', () {
-        final d = XPathDayTimeDuration(const Duration(hours: 3));
+        const d = XPathDayTimeDuration(10800000000);
         expect(xsDuration.cast(d), d);
       });
       test('from String P1Y', () {
         final result = xsDuration.cast('P1Y');
-        expect(result.months, 12);
-        expect(result.dayTime, Duration.zero);
+        expect(result.totalMonths, 12);
+        expect(result.toDuration(), Duration.zero);
       });
       test('from String P1Y2M3DT10H30M', () {
         final result = xsDuration.cast('P1Y2M3DT10H30M');
-        expect(result.months, 14);
-        expect(result.dayTime, const Duration(days: 3, hours: 10, minutes: 30));
+        expect(result.totalMonths, 14);
+        expect(
+          result.toDuration(),
+          const Duration(days: 3, hours: 10, minutes: 30),
+        );
       });
       test('from String with leading whitespace', () {
         // K-SeqExprCast-640: whitespace should be trimmed.
@@ -52,11 +52,11 @@ void main() {
       });
       test('from negative duration', () {
         final result = xsDuration.cast('-P1D');
-        expect(result.months, 0);
-        expect(result.dayTime, const Duration(days: -1));
+        expect(result.totalMonths, 0);
+        expect(result.toDuration(), const Duration(days: -1));
       });
       test('from XPathSequence', () {
-        const d = XPathDuration(months: 1, dayTime: Duration.zero);
+        const d = XPathDuration(months: 1);
         expect(xsDuration.cast(const XPathSequence.single(d)), d);
         expect(
           () => xsDuration.cast(XPathSequence.empty),
@@ -98,12 +98,7 @@ void main() {
     });
     group('castToString', () {
       test('zero', () {
-        expect(
-          xsDuration.castToString(
-            const XPathDuration(months: 0, dayTime: Duration.zero),
-          ),
-          'PT0S',
-        );
+        expect(xsDuration.castToString(const XPathDuration(months: 0)), 'PT0S');
       });
       test('P1Y2M3DT10H30M', () {
         final d = xsDuration.cast('P1Y2M3DT10H30M');
@@ -127,41 +122,38 @@ void main() {
       expect(xsDayTimeDuration.name, 'xs:dayTimeDuration');
     });
     test('matches', () {
-      final duration = XPathDayTimeDuration(const Duration(seconds: 1));
+      const duration = XPathDayTimeDuration(1000000);
       expect(xsDayTimeDuration.matches(duration), isTrue);
       expect(xsDayTimeDuration.matches('P1D'), isFalse);
     });
     group('cast', () {
       test('from XPathDayTimeDuration', () {
-        final duration = XPathDayTimeDuration(const Duration(seconds: 1));
+        const duration = XPathDayTimeDuration(1000000);
         expect(xsDayTimeDuration.cast(duration), duration);
       });
       test('from Duration', () {
         const duration = Duration(days: 35);
         expect(
           xsDayTimeDuration.cast(duration),
-          XPathDayTimeDuration(duration),
+          XPathDayTimeDuration.fromDuration(duration),
         );
       });
       test('from XPathYearMonthDuration (discards entirely)', () {
-        final duration = XPathYearMonthDuration(12);
-        expect(
-          xsDayTimeDuration.cast(duration),
-          XPathDayTimeDuration(Duration.zero),
-        );
+        const duration = XPathYearMonthDuration(12);
+        expect(xsDayTimeDuration.cast(duration), const XPathDayTimeDuration(0));
       });
       test('from String (valid)', () {
         expect(
           xsDayTimeDuration.cast('P1D'),
-          XPathDayTimeDuration(const Duration(days: 1)),
+          const XPathDayTimeDuration(86400000000),
         );
         expect(
           xsDayTimeDuration.cast('-P1D'),
-          XPathDayTimeDuration(const Duration(days: -1)),
+          const XPathDayTimeDuration(-86400000000),
         );
         expect(
           xsDayTimeDuration.cast('PT1H'),
-          XPathDayTimeDuration(const Duration(hours: 1)),
+          const XPathDayTimeDuration(3600000000),
         );
       });
       test('from String (invalid throws)', () {
@@ -183,9 +175,9 @@ void main() {
         );
       });
       test('from XPathSequence', () {
-        final duration = XPathDayTimeDuration(const Duration(seconds: 1));
+        const duration = XPathDayTimeDuration(1000000);
         expect(
-          xsDayTimeDuration.cast(XPathSequence.single(duration)),
+          xsDayTimeDuration.cast(const XPathSequence.single(duration)),
           duration,
         );
       });
@@ -193,14 +185,14 @@ void main() {
     group('castToString', () {
       test('PT0S', () {
         expect(
-          xsDayTimeDuration.castToString(XPathDayTimeDuration(Duration.zero)),
+          xsDayTimeDuration.castToString(const XPathDayTimeDuration(0)),
           'PT0S',
         );
       });
       test('positive', () {
         expect(
           xsDayTimeDuration.castToString(
-            XPathDayTimeDuration(
+            XPathDayTimeDuration.fromDuration(
               const Duration(days: 3, hours: 8, minutes: 2, seconds: 1),
             ),
           ),
@@ -210,7 +202,7 @@ void main() {
       test('negative', () {
         expect(
           xsDayTimeDuration.castToString(
-            XPathDayTimeDuration(
+            XPathDayTimeDuration.fromDuration(
               const Duration(
                 days: -3,
                 hours: -8,
@@ -225,7 +217,7 @@ void main() {
       test('large positive days', () {
         expect(
           xsDayTimeDuration.castToString(
-            XPathDayTimeDuration(
+            XPathDayTimeDuration.fromDuration(
               const Duration(
                 days: 45678,
                 hours: 8,
@@ -245,24 +237,33 @@ void main() {
       expect(xsYearMonthDuration.name, 'xs:yearMonthDuration');
     });
     test('matches', () {
-      final duration = XPathYearMonthDuration(12);
+      const duration = XPathYearMonthDuration(12);
       expect(xsYearMonthDuration.matches(duration), isTrue);
       expect(xsYearMonthDuration.matches('P1Y'), isFalse);
     });
     group('cast', () {
       test('from XPathYearMonthDuration', () {
-        final duration = XPathYearMonthDuration(12);
+        const duration = XPathYearMonthDuration(12);
         expect(xsYearMonthDuration.cast(duration), duration);
       });
       test('from XPathDayTimeDuration (discards entirely)', () {
-        final duration = XPathDayTimeDuration(const Duration(days: 1));
-        expect(xsYearMonthDuration.cast(duration), XPathYearMonthDuration(0));
+        const duration = XPathDayTimeDuration(86400000000);
+        expect(
+          xsYearMonthDuration.cast(duration),
+          const XPathYearMonthDuration(0),
+        );
       });
       test('from String P1Y', () {
-        expect(xsYearMonthDuration.cast('P1Y'), XPathYearMonthDuration(12));
+        expect(
+          xsYearMonthDuration.cast('P1Y'),
+          const XPathYearMonthDuration(12),
+        );
       });
       test('from String -P1M', () {
-        expect(xsYearMonthDuration.cast('-P1M'), XPathYearMonthDuration(-1));
+        expect(
+          xsYearMonthDuration.cast('-P1M'),
+          const XPathYearMonthDuration(-1),
+        );
       });
       test('from String (invalid throws)', () {
         expect(
@@ -283,9 +284,9 @@ void main() {
         );
       });
       test('from XPathSequence', () {
-        final duration = XPathYearMonthDuration(12);
+        const duration = XPathYearMonthDuration(12);
         expect(
-          xsYearMonthDuration.cast(XPathSequence.single(duration)),
+          xsYearMonthDuration.cast(const XPathSequence.single(duration)),
           duration,
         );
       });
@@ -293,25 +294,25 @@ void main() {
     group('castToString', () {
       test('zero', () {
         expect(
-          xsYearMonthDuration.castToString(XPathYearMonthDuration(0)),
+          xsYearMonthDuration.castToString(const XPathYearMonthDuration(0)),
           'P0M',
         );
       });
       test('P1Y', () {
         expect(
-          xsYearMonthDuration.castToString(XPathYearMonthDuration(12)),
+          xsYearMonthDuration.castToString(const XPathYearMonthDuration(12)),
           'P1Y',
         );
       });
       test('P1Y3M', () {
         expect(
-          xsYearMonthDuration.castToString(XPathYearMonthDuration(15)),
+          xsYearMonthDuration.castToString(const XPathYearMonthDuration(15)),
           'P1Y3M',
         );
       });
       test('-P1M', () {
         expect(
-          xsYearMonthDuration.castToString(XPathYearMonthDuration(-1)),
+          xsYearMonthDuration.castToString(const XPathYearMonthDuration(-1)),
           '-P1M',
         );
       });
@@ -319,22 +320,31 @@ void main() {
     group('arithmetic', () {
       test('addition', () {
         expect(
-          XPathYearMonthDuration(12) + XPathYearMonthDuration(3),
-          XPathYearMonthDuration(15),
+          const XPathYearMonthDuration(12) + const XPathYearMonthDuration(3),
+          const XPathYearMonthDuration(15),
         );
       });
       test('subtraction', () {
         expect(
-          XPathYearMonthDuration(12) - XPathYearMonthDuration(3),
-          XPathYearMonthDuration(9),
+          const XPathYearMonthDuration(12) - const XPathYearMonthDuration(3),
+          const XPathYearMonthDuration(9),
         );
       });
       test('multiply', () {
-        expect(XPathYearMonthDuration(12) * 2, XPathYearMonthDuration(24));
+        expect(
+          const XPathYearMonthDuration(12) * 2,
+          const XPathYearMonthDuration(24),
+        );
       });
       test('comparison', () {
-        expect(XPathYearMonthDuration(12) < XPathYearMonthDuration(24), isTrue);
-        expect(XPathYearMonthDuration(24) > XPathYearMonthDuration(12), isTrue);
+        expect(
+          const XPathYearMonthDuration(12) < const XPathYearMonthDuration(24),
+          isTrue,
+        );
+        expect(
+          const XPathYearMonthDuration(24) > const XPathYearMonthDuration(12),
+          isTrue,
+        );
       });
     });
   });

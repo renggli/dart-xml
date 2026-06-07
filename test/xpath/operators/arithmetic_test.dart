@@ -29,21 +29,21 @@ void main() {
       expectEvaluate(
         xml,
         'xs:dateTime("2000-01-01T00:00:00") + xs:dayTimeDuration("P1D")',
-        [DateTime(2000, 1, 2)],
+        [const XPathDateTime(2000, 1, 2, 0, 0, 0)],
       );
     });
     test('duration + dateTime', () {
       expectEvaluate(
         xml,
         'xs:dayTimeDuration("P1D") + xs:dateTime("2000-01-01T00:00:00")',
-        [DateTime(2000, 1, 2)],
+        [const XPathDateTime(2000, 1, 2, 0, 0, 0)],
       );
     });
     test('duration + duration', () {
       expectEvaluate(
         xml,
         'xs:dayTimeDuration("P1D") + xs:dayTimeDuration("P2D")',
-        [const Duration(days: 3)],
+        [const XPathDayTimeDuration(259200000000)],
       );
     });
   });
@@ -66,21 +66,21 @@ void main() {
       expectEvaluate(
         xml,
         'xs:dateTime("2000-01-02T00:00:00") - xs:dayTimeDuration("P1D")',
-        [DateTime(2000)],
+        [const XPathDateTime(2000, 1, 1, 0, 0, 0)],
       );
     });
     test('dateTime - dateTime', () {
       expectEvaluate(
         xml,
         'xs:dateTime("2000-01-02T00:00:00") - xs:dateTime("2000-01-01T00:00:00")',
-        [const Duration(days: 1)],
+        [const XPathDayTimeDuration(86400000000)],
       );
     });
     test('duration - duration', () {
       expectEvaluate(
         xml,
         'xs:dayTimeDuration("P3D") - xs:dayTimeDuration("P1D")',
-        [const Duration(days: 2)],
+        [const XPathDayTimeDuration(172800000000)],
       );
     });
   });
@@ -101,12 +101,12 @@ void main() {
     });
     test('duration * number', () {
       expectEvaluate(xml, 'xs:dayTimeDuration("P1D") * 3', [
-        const Duration(days: 3),
+        const XPathDayTimeDuration(259200000000),
       ]);
     });
     test('number * duration', () {
       expectEvaluate(xml, '3 * xs:dayTimeDuration("P1D")', [
-        const Duration(days: 3),
+        const XPathDayTimeDuration(259200000000),
       ]);
     });
   });
@@ -127,7 +127,7 @@ void main() {
     });
     test('duration div number', () {
       expectEvaluate(xml, 'xs:dayTimeDuration("P6D") div 2', [
-        const Duration(days: 3),
+        const XPathDayTimeDuration(259200000000),
       ]);
     });
     test('duration div duration', () {
@@ -247,55 +247,55 @@ void main() {
       expectEvaluate(
         xml,
         'xs:yearMonthDuration("P1Y") + xs:yearMonthDuration("P2M")',
-        [XPathYearMonthDuration(14)],
+        [const XPathYearMonthDuration(14)],
       );
     });
     test('dateTime + yearMonthDuration', () {
       expectEvaluate(
         xml,
         'xs:dateTime("2000-01-01T00:00:00") + xs:yearMonthDuration("P1Y")',
-        [XPathDateTime(DateTime(2001))],
+        [const XPathDateTime(2001, 1, 1, 0, 0, 0)],
       );
     });
     test('yearMonthDuration + dateTime', () {
       expectEvaluate(
         xml,
         'xs:yearMonthDuration("P1Y") + xs:dateTime("2000-01-01T00:00:00")',
-        [XPathDateTime(DateTime(2001))],
+        [const XPathDateTime(2001, 1, 1, 0, 0, 0)],
       );
     });
     test('date + yearMonthDuration', () {
       expectEvaluate(
         xml,
         'xs:date("2000-01-01") + xs:yearMonthDuration("P1Y")',
-        [XPathDate(DateTime(2001))],
+        [const XPathDate(2001, 1, 1)],
       );
     });
     test('yearMonthDuration + date', () {
       expectEvaluate(
         xml,
         'xs:yearMonthDuration("P1Y") + xs:date("2000-01-01")',
-        [XPathDate(DateTime(2001))],
+        [const XPathDate(2001, 1, 1)],
       );
     });
     test('date + dayTimeDuration', () {
       expectEvaluate(xml, 'xs:date("2000-01-01") + xs:dayTimeDuration("P1D")', [
-        XPathDate(DateTime(2000, 1, 2)),
+        const XPathDate(2000, 1, 2),
       ]);
     });
     test('dayTimeDuration + date', () {
       expectEvaluate(xml, 'xs:dayTimeDuration("P1D") + xs:date("2000-01-01")', [
-        XPathDate(DateTime(2000, 1, 2)),
+        const XPathDate(2000, 1, 2),
       ]);
     });
     test('time + dayTimeDuration', () {
       expectEvaluate(xml, 'xs:time("10:00:00") + xs:dayTimeDuration("PT2H")', [
-        XPathTime(DateTime(1970, 1, 1, 12)),
+        const XPathTime(12, 0, 0),
       ]);
     });
     test('dayTimeDuration + time', () {
       expectEvaluate(xml, 'xs:dayTimeDuration("PT2H") + xs:time("10:00:00")', [
-        XPathTime(DateTime(1970, 1, 1, 12)),
+        const XPathTime(12, 0, 0),
       ]);
     });
     test('empty inputs return empty', () {
@@ -311,41 +311,41 @@ void main() {
       expectEvaluate(
         xml,
         'xs:dateTime("2001-01-01T00:00:00") - xs:yearMonthDuration("P1Y")',
-        [XPathDateTime(DateTime(2000))],
+        [const XPathDateTime(2000, 1, 1, 0, 0, 0)],
       );
     });
     test('date - yearMonthDuration', () {
       expectEvaluate(
         xml,
         'xs:date("2001-01-01") - xs:yearMonthDuration("P1Y")',
-        [XPathDate(DateTime(2000))],
+        [const XPathDate(2000, 1, 1)],
       );
     });
     test('date - dayTimeDuration', () {
       expectEvaluate(xml, 'xs:date("2000-01-02") - xs:dayTimeDuration("P1D")', [
-        XPathDate(DateTime(2000)),
+        const XPathDate(2000, 1, 1),
       ]);
     });
     test('date - date', () {
       expectEvaluate(xml, 'xs:date("2000-01-02") - xs:date("2000-01-01")', [
-        const Duration(days: 1),
+        const XPathDayTimeDuration(86400000000),
       ]);
     });
     test('time - dayTimeDuration', () {
       expectEvaluate(xml, 'xs:time("12:00:00") - xs:dayTimeDuration("PT2H")', [
-        XPathTime(DateTime(1970, 1, 1, 10)),
+        const XPathTime(10, 0, 0),
       ]);
     });
     test('time - time', () {
       expectEvaluate(xml, 'xs:time("12:00:00") - xs:time("10:00:00")', [
-        const Duration(hours: 2),
+        const XPathDayTimeDuration(7200000000),
       ]);
     });
     test('yearMonthDuration - yearMonthDuration', () {
       expectEvaluate(
         xml,
         'xs:yearMonthDuration("P1Y") - xs:yearMonthDuration("P2M")',
-        [XPathYearMonthDuration(10)],
+        [const XPathYearMonthDuration(10)],
       );
     });
     test('empty inputs return empty', () {
@@ -359,12 +359,12 @@ void main() {
   group('op:multiply dispatch', () {
     test('yearMonthDuration * number', () {
       expectEvaluate(xml, 'xs:yearMonthDuration("P1Y") * 2', [
-        XPathYearMonthDuration(24),
+        const XPathYearMonthDuration(24),
       ]);
     });
     test('number * yearMonthDuration', () {
       expectEvaluate(xml, '2 * xs:yearMonthDuration("P1Y")', [
-        XPathYearMonthDuration(24),
+        const XPathYearMonthDuration(24),
       ]);
     });
     test('empty inputs return empty', () {
@@ -385,7 +385,7 @@ void main() {
     });
     test('yearMonthDuration div number', () {
       expectEvaluate(xml, 'xs:yearMonthDuration("P2Y") div 2', [
-        XPathYearMonthDuration(12),
+        const XPathYearMonthDuration(12),
       ]);
     });
     test('empty inputs return empty', () {

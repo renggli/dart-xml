@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/types/duration.dart';
+import 'package:xml/src/xpath/values/date_time.dart';
 import 'package:xml/src/xpath/values/duration.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
@@ -170,7 +171,7 @@ void main() {
       'cast',
       () => expectEval(
         'xs:date("2020-01-01")',
-        isXPathSequence([DateTime(2020, 1, 1)]),
+        isXPathSequence([const XPathDate(2020, 1, 1)]),
       ),
     );
   });
@@ -180,7 +181,7 @@ void main() {
       'cast',
       () => expectEval(
         'xs:dateTime("2020-01-01T12:00:00")',
-        isXPathSequence([DateTime(2020, 1, 1, 12, 0, 0)]),
+        isXPathSequence([const XPathDateTime(2020, 1, 1, 12, 0, 0)]),
       ),
     );
   });
@@ -208,7 +209,7 @@ void main() {
       expectEval(
         'xs:dayTimeDuration("P3DT4H5M6.7S")',
         isXPathSequence([
-          XPathDayTimeDuration(
+          XPathDayTimeDuration.fromDuration(
             const Duration(
               days: 3,
               hours: 4,
@@ -235,13 +236,15 @@ void main() {
     test('cast', () {
       expectEval(
         'xs:yearMonthDuration("P1Y2M")',
-        isXPathSequence([XPathYearMonthDuration(14)]), // 1*12 + 2 = 14 months
+        isXPathSequence([
+          const XPathYearMonthDuration(14),
+        ]), // 1*12 + 2 = 14 months
       );
     });
     test('cast negative', () {
       expectEval(
         'xs:yearMonthDuration("-P1Y2M")',
-        isXPathSequence([XPathYearMonthDuration(-14)]),
+        isXPathSequence([const XPathYearMonthDuration(-14)]),
       );
     });
     test('invalid cast throws', () {

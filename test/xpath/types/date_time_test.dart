@@ -12,11 +12,16 @@ void main() {
     group('cast', () {
       test('from DateTime', () {
         final dateTime = DateTime.now();
-        expect(xsDateTime.cast(dateTime), same(dateTime));
+        final casted = xsDateTime.cast(dateTime);
+        expect(casted, isA<XPathDateTime>());
+        expect(casted.toDateTime().isAtSameMomentAs(dateTime), isTrue);
       });
       test('from String', () {
         final dateTime = DateTime.parse('2021-01-01T12:34:56.000Z');
-        expect(xsDateTime.cast('2021-01-01T12:34:56.000Z'), dateTime);
+        expect(
+          xsDateTime.cast('2021-01-01T12:34:56.000Z').toDateTime(),
+          dateTime,
+        );
       });
       test('from String (invalid format)', () {
         expect(
@@ -26,7 +31,7 @@ void main() {
       });
       test('from String (hour 24)', () {
         expect(
-          xsDateTime.cast('2021-01-01T24:00:00'),
+          xsDateTime.cast('2021-01-01T24:00:00').toDateTime(),
           DateTime.parse('2021-01-02T00:00:00'),
         );
         expect(
@@ -101,55 +106,56 @@ void main() {
     });
   });
 
-  group('xsGYearMonth', () {
+  group('xsYearMonth', () {
     test('name', () {
-      expect(xsGYearMonth.name, 'xs:gYearMonth');
+      expect(xsYearMonth.name, 'xs:gYearMonth');
     });
     test('castToString', () {
-      final val = xsGYearMonth.cast('1999-05');
-      expect(xsGYearMonth.castToString(val), '1999-05');
+      final val = xsYearMonth.cast('1999-05');
+      expect(xsYearMonth.castToString(val), '1999-05');
     });
   });
 
-  group('xsGYear', () {
+  group('xsYear', () {
     test('name', () {
-      expect(xsGYear.name, 'xs:gYear');
+      expect(xsYear.name, 'xs:gYear');
     });
     test('castToString', () {
-      final val = xsGYear.cast('1999');
-      expect(xsGYear.castToString(val), '1999');
+      final val = xsYear.cast('1999');
+      expect(xsYear.castToString(val), '1999');
     });
   });
 
-  group('xsGMonthDay', () {
+  group('xsMonthDay', () {
     test('name', () {
-      expect(xsGMonthDay.name, 'xs:gMonthDay');
+      expect(xsMonthDay.name, 'xs:gMonthDay');
     });
     test('castToString', () {
-      final val = xsGMonthDay.cast('--05-31');
-      expect(xsGMonthDay.castToString(val), '--05-31');
+      final val = xsMonthDay.cast('--05-31');
+      expect(xsMonthDay.castToString(val), '--05-31');
     });
   });
 
-  group('xsGMonth', () {
+  group('xsMonth', () {
     test('name', () {
-      expect(xsGMonth.name, 'xs:gMonth');
+      expect(xsMonth.name, 'xs:gMonth');
     });
     test('castToString', () {
-      final val = xsGMonth.cast('--05');
-      expect(xsGMonth.castToString(val), '--05');
+      final val = xsMonth.cast('--05');
+      expect(xsMonth.castToString(val), '--05');
     });
   });
 
-  group('xsGDay', () {
+  group('xsDay', () {
     test('name', () {
-      expect(xsGDay.name, 'xs:gDay');
+      expect(xsDay.name, 'xs:gDay');
     });
     test('castToString', () {
-      final val = xsGDay.cast('---31');
-      expect(xsGDay.castToString(val), '---31');
+      final val = xsDay.cast('---31');
+      expect(xsDay.castToString(val), '---31');
     });
   });
+
   group('XPathDateTimeWrapper properties and operators', () {
     test('matches and cast unsupported', () {
       expect(xsDateTime.matches(123), isFalse);
@@ -161,16 +167,13 @@ void main() {
       expect(() => xsDate.cast(123), throwsA(isXPathEvaluationException()));
       expect(() => xsTime.cast(123), throwsA(isXPathEvaluationException()));
       expect(
-        () => xsGYearMonth.cast(123),
+        () => xsYearMonth.cast(123),
         throwsA(isXPathEvaluationException()),
       );
-      expect(() => xsGYear.cast(123), throwsA(isXPathEvaluationException()));
-      expect(
-        () => xsGMonthDay.cast(123),
-        throwsA(isXPathEvaluationException()),
-      );
-      expect(() => xsGMonth.cast(123), throwsA(isXPathEvaluationException()));
-      expect(() => xsGDay.cast(123), throwsA(isXPathEvaluationException()));
+      expect(() => xsYear.cast(123), throwsA(isXPathEvaluationException()));
+      expect(() => xsMonthDay.cast(123), throwsA(isXPathEvaluationException()));
+      expect(() => xsMonth.cast(123), throwsA(isXPathEvaluationException()));
+      expect(() => xsDay.cast(123), throwsA(isXPathEvaluationException()));
     });
   });
 }

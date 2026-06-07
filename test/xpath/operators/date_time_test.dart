@@ -9,12 +9,21 @@ XPathSequence seq(Object value) => XPathSequence.single(value);
 
 void main() {
   // Reference values.
-  final dt1 = DateTime.utc(2023, 10, 26, 12, 30, 45);
-  final dt2 = DateTime.utc(2023, 10, 27, 12, 30, 45);
-  final dtd1 = XPathDayTimeDuration(const Duration(days: 1));
-  final ymd1 = XPathYearMonthDuration(1); // 1 month
-  final date1 = XPathDate(DateTime.utc(2020));
-  final time1 = XPathTime(DateTime(1970, 1, 1, 12, 0, 0));
+  final dt1 = XPathDateTime.fromDateTime(
+    DateTime.utc(2023, 10, 26, 12, 30, 45),
+    0,
+  );
+  final dt2 = XPathDateTime.fromDateTime(
+    DateTime.utc(2023, 10, 27, 12, 30, 45),
+    0,
+  );
+  const dtd1 = XPathDayTimeDuration(86400000000);
+  const ymd1 = XPathYearMonthDuration(1); // 1 month
+  final date1 = XPathDate.fromDateTime(DateTime.utc(2020), 0);
+  final time1 = XPathTime.fromDateTime(
+    DateTime(1970, 1, 1, 12, 0, 0),
+    DateTime(1970, 1, 1, 12, 0, 0).timeZoneOffset.inMinutes,
+  );
 
   group('opDateTimeEqual', () {
     test('equal', () {
@@ -44,7 +53,7 @@ void main() {
     test('subtract', () {
       expect(
         opSubtractDateTimes(seq(dt2), seq(dt1)).first,
-        XPathDayTimeDuration(const Duration(days: 1)),
+        const XPathDayTimeDuration(86400000000),
       );
     });
     test('empty left', () {
@@ -95,8 +104,8 @@ void main() {
     test('less than', () {
       expect(
         opDateLessThan(
-          seq(XPathDate(DateTime.utc(2020))),
-          seq(XPathDate(DateTime.utc(2021))),
+          seq(XPathDate.fromDateTime(DateTime.utc(2020), 0)),
+          seq(XPathDate.fromDateTime(DateTime.utc(2021), 0)),
         ),
         XPathSequence.trueSequence,
       );
@@ -107,8 +116,8 @@ void main() {
     test('greater than', () {
       expect(
         opDateGreaterThan(
-          seq(XPathDate(DateTime.utc(2021))),
-          seq(XPathDate(DateTime.utc(2020))),
+          seq(XPathDate.fromDateTime(DateTime.utc(2021), 0)),
+          seq(XPathDate.fromDateTime(DateTime.utc(2020), 0)),
         ),
         XPathSequence.trueSequence,
       );
@@ -125,8 +134,18 @@ void main() {
     test('less than', () {
       expect(
         opTimeLessThan(
-          seq(XPathTime(DateTime(1970, 1, 1, 10, 0, 0))),
-          seq(XPathTime(DateTime(1970, 1, 1, 11, 0, 0))),
+          seq(
+            XPathTime.fromDateTime(
+              DateTime(1970, 1, 1, 10, 0, 0),
+              DateTime(1970, 1, 1, 10, 0, 0).timeZoneOffset.inMinutes,
+            ),
+          ),
+          seq(
+            XPathTime.fromDateTime(
+              DateTime(1970, 1, 1, 11, 0, 0),
+              DateTime(1970, 1, 1, 11, 0, 0).timeZoneOffset.inMinutes,
+            ),
+          ),
         ),
         XPathSequence.trueSequence,
       );
@@ -137,8 +156,18 @@ void main() {
     test('greater than', () {
       expect(
         opTimeGreaterThan(
-          seq(XPathTime(DateTime(1970, 1, 1, 11, 0, 0))),
-          seq(XPathTime(DateTime(1970, 1, 1, 10, 0, 0))),
+          seq(
+            XPathTime.fromDateTime(
+              DateTime(1970, 1, 1, 11, 0, 0),
+              DateTime(1970, 1, 1, 11, 0, 0).timeZoneOffset.inMinutes,
+            ),
+          ),
+          seq(
+            XPathTime.fromDateTime(
+              DateTime(1970, 1, 1, 10, 0, 0),
+              DateTime(1970, 1, 1, 10, 0, 0).timeZoneOffset.inMinutes,
+            ),
+          ),
         ),
         XPathSequence.trueSequence,
       );
@@ -147,8 +176,8 @@ void main() {
 
   group('opSubtractDates', () {
     test('subtract', () {
-      final d1 = XPathDate(DateTime.utc(2021));
-      final d2 = XPathDate(DateTime.utc(2020));
+      final d1 = XPathDate.fromDateTime(DateTime.utc(2021), 0);
+      final d2 = XPathDate.fromDateTime(DateTime.utc(2020), 0);
       final result = opSubtractDates(seq(d1), seq(d2)).first;
       expect(result, isA<XPathDayTimeDuration>());
     });
@@ -156,8 +185,14 @@ void main() {
 
   group('opSubtractTimes', () {
     test('subtract', () {
-      final t1 = XPathTime(DateTime(1970, 1, 1, 12, 0, 0));
-      final t2 = XPathTime(DateTime(1970, 1, 1, 10, 0, 0));
+      final t1 = XPathTime.fromDateTime(
+        DateTime(1970, 1, 1, 12, 0, 0),
+        DateTime(1970, 1, 1, 12, 0, 0).timeZoneOffset.inMinutes,
+      );
+      final t2 = XPathTime.fromDateTime(
+        DateTime(1970, 1, 1, 10, 0, 0),
+        DateTime(1970, 1, 1, 10, 0, 0).timeZoneOffset.inMinutes,
+      );
       final result = opSubtractTimes(seq(t1), seq(t2)).first;
       expect(result, isA<XPathDayTimeDuration>());
     });

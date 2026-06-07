@@ -13,11 +13,30 @@ class _XPathDurationType extends XPathType<XPathDuration> {
   String get name => 'xs:duration';
 
   @override
-  bool matches(Object value) => value is XPathDuration;
+  bool matches(Object value) =>
+      value is XPathDuration ||
+      value is XPathYearMonthDuration ||
+      value is XPathDayTimeDuration ||
+      value is Duration;
 
   @override
   XPathDuration cast(Object value) => switch (value) {
     XPathDuration() => value,
+    XPathYearMonthDuration() => XPathDuration(
+      years: value.years,
+      months: value.months,
+      isNegative: value.isNegative,
+    ),
+    XPathDayTimeDuration() => XPathDuration(
+      days: value.days,
+      hours: value.hours,
+      minutes: value.minutes,
+      seconds: value.seconds,
+      milliseconds: value.milliseconds,
+      microseconds: value.microseconds,
+      isNegative: value.isNegative,
+    ),
+    Duration() => XPathDuration.fromDuration(value),
     String() => _parseDuration(value.trim()),
     XPathSequence(singleOrNull: final item?) => cast(item),
     _ => throw XPathEvaluationException.unsupportedCast(this, value),
@@ -47,56 +66,61 @@ class _XPathDurationType extends XPathType<XPathDuration> {
     final days = int.tryParse(match.group(4) ?? '0') ?? 0;
     final hours = int.tryParse(match.group(5) ?? '0') ?? 0;
     final minutes = int.tryParse(match.group(6) ?? '0') ?? 0;
-    final seconds = double.tryParse(match.group(7) ?? '0') ?? 0.0;
-    final totalMonths = (years * 12 + months) * (negative ? -1 : 1);
-    var dayTime = Duration(
+    final secondsDouble = double.tryParse(match.group(7) ?? '0') ?? 0.0;
+    final seconds = secondsDouble.truncate();
+    final frac = secondsDouble - seconds;
+    final ms = (frac * 1000).truncate();
+    final us = ((frac * 1000000) - (ms * 1000)).round();
+
+    return XPathDuration(
+      years: years,
+      months: months,
       days: days,
       hours: hours,
       minutes: minutes,
-      microseconds: (seconds * Duration.microsecondsPerSecond).round(),
+      seconds: seconds,
+      milliseconds: ms,
+      microseconds: us,
+      isNegative: negative,
     );
-    if (negative) dayTime = -dayTime;
-    return XPathDuration(months: totalMonths, dayTime: dayTime);
   }
 
   @override
   String castToString(XPathDuration value) {
-    if (value.months == 0 && value.dayTime == Duration.zero) return 'PT0S';
-    final negative = value.isNegative;
-    final buffer = StringBuffer(negative ? '-P' : 'P');
-    final absMonths = value.months.abs();
-    final absDayTime = value.dayTime.abs();
-    final years = absMonths ~/ 12;
-    final remainingMonths = absMonths.remainder(12);
-    if (years > 0) buffer.write('${years}Y');
-    if (remainingMonths > 0) buffer.write('${remainingMonths}M');
-    _writeDayTimePart(buffer, absDayTime);
+    if (value.totalMonths == 0 && value.totalMicroseconds == 0) return 'PT0S';
+    final buffer = StringBuffer(value.isNegative ? '-P' : 'P');
+    final absYears = value.years;
+    final absMonths = value.months;
+    if (absYears > 0) buffer.write('${absYears}Y');
+    if (absMonths > 0) buffer.write('${absMonths}M');
+    _writeDayTimePart(buffer, value);
     return buffer.toString();
   }
 }
 
 /// Shared helper to write the dayTime portion (D, T, H, M, S).
-void _writeDayTimePart(StringBuffer buffer, Duration duration) {
-  final days = duration.inDays;
-  if (days > 0) buffer.write('${days}D');
-  final hours = duration.inHours.remainder(24);
-  final minutes = duration.inMinutes.remainder(60);
-  final wholeSeconds = duration.inSeconds.remainder(60);
-  final microRemainder = duration.inMicroseconds.remainder(
-    Duration.microsecondsPerSecond,
-  );
-  final hasTime =
-      hours > 0 || minutes > 0 || wholeSeconds > 0 || microRemainder != 0;
+void _writeDayTimePart(StringBuffer buffer, XPathAbstractDuration value) {
+  final d = value.days ?? 0;
+  if (d > 0) buffer.write('${d}D');
+  final h = value.hours ?? 0;
+  final m = value.minutes ?? 0;
+  final s = value.seconds ?? 0;
+  final ms = value.milliseconds ?? 0;
+  final us = value.microseconds ?? 0;
+  final hasTime = h > 0 || m > 0 || s > 0 || ms > 0 || us > 0;
   if (hasTime) {
     buffer.write('T');
-    if (hours > 0) buffer.write('${hours}H');
-    if (minutes > 0) buffer.write('${minutes}M');
-    if (wholeSeconds > 0 || microRemainder != 0) {
-      buffer.write(wholeSeconds);
-      if (microRemainder != 0) {
-        final frac = (microRemainder.abs() / Duration.microsecondsPerSecond)
-            .toStringAsFixed(6);
-        buffer.write(frac.substring(1).replaceAll(RegExp(r'0+$'), ''));
+    if (h > 0) buffer.write('${h}H');
+    if (m > 0) buffer.write('${m}M');
+    if (s > 0 || ms > 0 || us > 0) {
+      buffer.write(s);
+      if (ms > 0 || us > 0) {
+        final totalUs = ms * 1000 + us;
+        final usStr = totalUs
+            .toString()
+            .padLeft(6, '0')
+            .replaceAll(RegExp(r'0+$'), '');
+        buffer.write('.$usStr');
       }
       buffer.write('S');
     }
@@ -113,14 +137,15 @@ class _XPathDayTimeDurationType extends XPathType<XPathDayTimeDuration> {
   String get name => 'xs:dayTimeDuration';
 
   @override
-  bool matches(Object value) => value is XPathDayTimeDuration;
+  bool matches(Object value) =>
+      value is XPathDayTimeDuration || value is Duration;
 
   @override
   XPathDayTimeDuration cast(Object value) => switch (value) {
     XPathDayTimeDuration() => value,
-    XPathYearMonthDuration() => XPathDayTimeDuration(Duration.zero),
-    XPathDuration() => XPathDayTimeDuration(value.dayTime),
-    Duration() => XPathDayTimeDuration(value),
+    XPathDuration() => XPathDayTimeDuration(value.totalMicroseconds),
+    XPathYearMonthDuration() => const XPathDayTimeDuration(0),
+    Duration() => XPathDayTimeDuration.fromDuration(value),
     String() => _parseDayTimeDuration(value.trim()),
     XPathSequence(singleOrNull: final item?) => cast(item),
     _ => throw XPathEvaluationException.unsupportedCast(this, value),
@@ -145,22 +170,22 @@ class _XPathDayTimeDurationType extends XPathType<XPathDayTimeDuration> {
     final days = int.tryParse(match.group(2) ?? '0') ?? 0;
     final hours = int.tryParse(match.group(3) ?? '0') ?? 0;
     final minutes = int.tryParse(match.group(4) ?? '0') ?? 0;
-    final seconds = double.tryParse(match.group(5) ?? '0') ?? 0.0;
+    final secondsDouble = double.tryParse(match.group(5) ?? '0') ?? 0.0;
     final duration = Duration(
       days: days,
       hours: hours,
       minutes: minutes,
-      microseconds: (seconds * Duration.microsecondsPerSecond).round(),
+      microseconds: (secondsDouble * Duration.microsecondsPerSecond).round(),
     );
-    return XPathDayTimeDuration(negative ? -duration : duration);
+    final totalUs = duration.inMicroseconds * (negative ? -1 : 1);
+    return XPathDayTimeDuration(totalUs);
   }
 
   @override
   String castToString(XPathDayTimeDuration value) {
-    if (value.inMicroseconds == 0) return 'PT0S';
-    final negative = value.isNegative;
-    final buffer = StringBuffer(negative ? '-P' : 'P');
-    _writeDayTimePart(buffer, value.dayTime.abs());
+    if (value.totalMicroseconds == 0) return 'PT0S';
+    final buffer = StringBuffer(value.isNegative ? '-P' : 'P');
+    _writeDayTimePart(buffer, value);
     return buffer.toString();
   }
 }
@@ -180,8 +205,8 @@ class _XPathYearMonthDurationType extends XPathType<XPathYearMonthDuration> {
   @override
   XPathYearMonthDuration cast(Object value) => switch (value) {
     XPathYearMonthDuration() => value,
-    XPathDayTimeDuration() => XPathYearMonthDuration(0),
-    XPathDuration() => XPathYearMonthDuration(value.months),
+    XPathDuration() => XPathYearMonthDuration(value.totalMonths),
+    XPathDayTimeDuration() => const XPathYearMonthDuration(0),
     String() => _parseYearMonthDuration(value.trim()),
     XPathSequence(singleOrNull: final item?) => cast(item),
     _ => throw XPathEvaluationException.unsupportedCast(this, value),
@@ -216,11 +241,10 @@ class _XPathYearMonthDurationType extends XPathType<XPathYearMonthDuration> {
   String castToString(XPathYearMonthDuration value) {
     if (value.totalMonths == 0) return 'P0M';
     final buffer = StringBuffer(value.isNegative ? '-P' : 'P');
-    final abs = value.totalMonths.abs();
-    final years = abs ~/ 12;
-    final months = abs.remainder(12);
-    if (years > 0) buffer.write('${years}Y');
-    if (months > 0 || years == 0) buffer.write('${months}M');
+    final absYears = value.years;
+    final absMonths = value.months;
+    if (absYears > 0) buffer.write('${absYears}Y');
+    if (absMonths > 0 || absYears == 0) buffer.write('${absMonths}M');
     return buffer.toString();
   }
 }

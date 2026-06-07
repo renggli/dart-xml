@@ -15,11 +15,11 @@ XPathSequence seq(Object value) => XPathSequence.single(value);
 void main() {
   group('fn:years-from-duration', () {
     test('returns years from dayTimeDuration', () {
-      final d1 = XPathDayTimeDuration(const Duration(days: 1));
+      const d1 = XPathDayTimeDuration(86400000000);
       expect(fnYearsFromDuration(context, [seq(d1)]), isXPathSequence([0]));
     });
     test('returns years from yearMonthDuration', () {
-      final d = XPathYearMonthDuration(14); // 1 year 2 months
+      const d = XPathYearMonthDuration(14); // 1 year 2 months
       expect(fnYearsFromDuration(context, [seq(d)]), isXPathSequence([1]));
     });
     test('returns empty for empty sequence', () {
@@ -32,11 +32,11 @@ void main() {
 
   group('fn:months-from-duration', () {
     test('returns months from dayTimeDuration', () {
-      final d1 = XPathDayTimeDuration(const Duration(days: 1));
+      const d1 = XPathDayTimeDuration(86400000000);
       expect(fnMonthsFromDuration(context, [seq(d1)]), isXPathSequence([0]));
     });
     test('returns months from yearMonthDuration P1Y2M', () {
-      final d = XPathYearMonthDuration(14); // 1 year 2 months → remainder 2
+      const d = XPathYearMonthDuration(14); // 1 year 2 months → remainder 2
       expect(fnMonthsFromDuration(context, [seq(d)]), isXPathSequence([2]));
     });
     test('returns empty for empty sequence', () {
@@ -49,11 +49,11 @@ void main() {
 
   group('fn:days-from-duration', () {
     test('returns days from dayTimeDuration', () {
-      final d1 = XPathDayTimeDuration(const Duration(days: 1));
+      const d1 = XPathDayTimeDuration(86400000000);
       expect(fnDaysFromDuration(context, [seq(d1)]), isXPathSequence([1]));
     });
     test('returns 0 from yearMonthDuration', () {
-      final d = XPathYearMonthDuration(12); // 1 year
+      const d = XPathYearMonthDuration(12); // 1 year
       expect(fnDaysFromDuration(context, [seq(d)]), isXPathSequence([0]));
     });
     test('returns empty for empty sequence', () {
@@ -66,7 +66,7 @@ void main() {
 
   group('fn:hours-from-duration', () {
     test('returns hours', () {
-      final d3 = XPathDayTimeDuration(const Duration(hours: 1));
+      const d3 = XPathDayTimeDuration(3600000000);
       expect(fnHoursFromDuration(context, [seq(d3)]), isXPathSequence([1]));
     });
     test('returns empty for empty sequence', () {
@@ -80,7 +80,7 @@ void main() {
   group('fn:minutes-from-duration', () {
     test('returns minutes', () {
       // 90 minutes = 1 hour 30 minutes; fn:minutes-from-duration returns 30.
-      final d = XPathDayTimeDuration(const Duration(minutes: 90));
+      const d = XPathDayTimeDuration(5400000000);
       expect(fnMinutesFromDuration(context, [seq(d)]), isXPathSequence([30]));
     });
     test('returns empty for empty sequence', () {
@@ -94,7 +94,7 @@ void main() {
   group('fn:seconds-from-duration', () {
     test('returns seconds', () {
       // 90 seconds = 1 min 30 sec; fn:seconds-from-duration returns 30.0.
-      final d = XPathDayTimeDuration(const Duration(seconds: 90));
+      const d = XPathDayTimeDuration(90000000);
       expect(fnSecondsFromDuration(context, [seq(d)]), isXPathSequence([30.0]));
     });
     test('returns empty for empty sequence', () {

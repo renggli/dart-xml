@@ -81,48 +81,60 @@ void main() {
       test('from dayTimeDuration', () {
         expect(
           xsString.cast(
-            XPathDayTimeDuration(const Duration(days: 1, hours: 2)),
+            XPathDayTimeDuration.fromDuration(
+              const Duration(days: 1, hours: 2),
+            ),
           ),
           'P1DT2H',
         );
         expect(
-          xsString.cast(XPathDayTimeDuration(const Duration(hours: 2))),
+          xsString.cast(
+            XPathDayTimeDuration.fromDuration(const Duration(hours: 2)),
+          ),
           'PT2H',
         );
         // Strips .0 from integer seconds
         expect(
-          xsString.cast(XPathDayTimeDuration(const Duration(seconds: 45))),
+          xsString.cast(
+            XPathDayTimeDuration.fromDuration(const Duration(seconds: 45)),
+          ),
           'PT45S',
         );
         // Does not reconstruct Y and M components
         expect(
-          xsString.cast(XPathDayTimeDuration(const Duration(days: 35))),
+          xsString.cast(
+            XPathDayTimeDuration.fromDuration(const Duration(days: 35)),
+          ),
           'P35D',
         );
         expect(
-          xsString.cast(XPathDayTimeDuration(const Duration(days: 400))),
+          xsString.cast(
+            XPathDayTimeDuration.fromDuration(const Duration(days: 400)),
+          ),
           'P400D',
         );
         expect(
-          xsString.cast(XPathDayTimeDuration(-const Duration(days: 1))),
+          xsString.cast(
+            XPathDayTimeDuration.fromDuration(-const Duration(days: 1)),
+          ),
           '-P1D',
         );
       });
       test('from yearMonthDuration', () {
         expect(
-          xsString.cast(XPathYearMonthDuration(12)), // 1 year
+          xsString.cast(const XPathYearMonthDuration(12)), // 1 year
           'P1Y',
         );
         expect(
-          xsString.cast(XPathYearMonthDuration(1)), // 1 month
+          xsString.cast(const XPathYearMonthDuration(1)), // 1 month
           'P1M',
         );
         expect(
-          xsString.cast(XPathYearMonthDuration(13)), // 1 year 1 month
+          xsString.cast(const XPathYearMonthDuration(13)), // 1 year 1 month
           'P1Y1M',
         );
         expect(
-          xsString.cast(XPathYearMonthDuration(-1)), // -1 month
+          xsString.cast(const XPathYearMonthDuration(-1)), // -1 month
           '-P1M',
         );
       });

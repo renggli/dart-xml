@@ -11,7 +11,7 @@ The official QT3 test suite can be run with the command `dart run bin/xpath_qt3t
 
 The core goals of this design are **efficiency**, **compactness**, and **readability**. To achieve this, we avoid heavy wrapper objects and runtime interpreters where possible. Instead, we leverage Dart's strong type system, modern features, and core libraries.
 
-- **Zero-Wrapper**: Map XPath Data Model types map directly to native Dart types.
+- **Zero-Wrapper**: Map XPath Data Model types map directly to native Dart typesm where possible.
 - **Lazy Sequences**: Use Dart's `Iterable` for all sequences to ensure laziness and low memory footprint.
 - **Functional AST**: Expression nodes are executable functors, reducing the need for a separate interpreter pass for evaluation.
 - **Exceptions**: Use Dart's exception system and human readable error messages to report errors.
@@ -72,21 +72,23 @@ XML nodes are represented by the [XmlNode](../../xml/nodes/node.dart) class and 
 
 ### Dates, Times and Durations
 
-Date and time values are represented by the Dart `DateTime` class.
-Duration values are represented by the Dart `Duration`.
+Date and time values are represented by subclasses of `XPathAbstractDateTime`.
+Duration values are represented by subclasses of `XPathAbstractDuration`.
+To convert from a Dart type use the factories `fromDateTime` and `fromDuration`.
+To convert to a Dart type use the converters `toDartTime` and `toDuration`.
 
 | XPath Type | Dart Type | Implementation
 | --- | --- | ---
 | `xs:date` | `XPathDate` | `xsDate`
-| `xs:dateTime` | `DateTime` | `xsDateTime`
+| `xs:dateTime` | `XPathDateTime` | `xsDateTime`
 | `xs:dateTimeStamp` | `XPathDateTimeStamp` | `xsDateTimeStamp`
 | `xs:dayTimeDuration` | `XPathDayTimeDuration` | `xsDayTimeDuration`
-| `xs:duration` | `Duration` | `xsDuration`
-| `xs:gDay` | `XPathGDay` | `xsGDay`
-| `xs:gMonth` | `XPathGMonth` | `xsGMonth`
-| `xs:gMonthDay` | `XPathGMonthDay` | `xsGMonthDay`
-| `xs:gYear` | `XPathGYear` | `xsGYear`
-| `xs:gYearMonth` | `XPathGYearMonth` | `xsGYearMonth`
+| `xs:duration` | `XPathDuration` | `xsDuration`
+| `xs:gDay` | `XPathDay` | `xsDay`
+| `xs:gMonth` | `XPathMonth` | `xsMonth`
+| `xs:gMonthDay` | `XPathMonthDay` | `xsMonthDay`
+| `xs:gYear` | `XPathYear` | `xsYear`
+| `xs:gYearMonth` | `XPathYearMonth` | `xsYearMonth`
 | `xs:time` | `XPathTime` | `xsTime`
 | `xs:yearMonthDuration` | `XPathYearMonthDuration` | `xsYearMonthDuration`
 
