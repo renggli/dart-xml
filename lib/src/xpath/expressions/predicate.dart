@@ -1,9 +1,8 @@
 import 'package:meta/meta.dart';
-
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../types/number.dart';
-import '../types/sequence.dart';
+import '../values/sequence.dart';
 
 @immutable
 class Predicate {

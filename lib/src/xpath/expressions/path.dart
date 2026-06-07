@@ -1,5 +1,4 @@
 import 'package:collection/collection.dart';
-
 import '../../xml/extensions/comparison.dart';
 import '../../xml/extensions/descendants.dart';
 import '../../xml/extensions/parent.dart';
@@ -7,7 +6,7 @@ import '../../xml/nodes/node.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../exceptions/evaluation_exception.dart';
-import '../types/sequence.dart';
+import '../values/sequence.dart';
 import 'axis.dart';
 import 'node.dart';
 import 'step.dart';

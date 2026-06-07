@@ -1,11 +1,10 @@
 import 'package:meta/meta.dart';
-
 import '../../xml/extensions/parent.dart';
 import '../../xml/nodes/node.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart' show XPathExpression;
 import '../types/node.dart';
-import '../types/sequence.dart';
+import '../values/sequence.dart';
 import 'axis.dart';
 import 'node.dart';
 import 'predicate.dart';

@@ -1,4 +1,4 @@
-import '../types/sequence.dart';
+import '../values/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-boolean-equal
 XPathSequence opBooleanEqual(XPathSequence left, XPathSequence right) =>

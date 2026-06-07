@@ -2,7 +2,7 @@ import 'package:test/test.dart';
 import 'package:xml/src/xml/nodes/element.dart';
 import 'package:xml/src/xpath/evaluation/configuration.dart';
 import 'package:xml/src/xpath/expressions/variable.dart';
-import 'package:xml/src/xpath/types/sequence.dart';
+import 'package:xml/src/xpath/values/sequence.dart';
 
 import '../../utils/matchers.dart';
 

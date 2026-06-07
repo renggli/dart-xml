@@ -1,16 +1,15 @@
 import 'dart:math';
-
 import 'package:collection/collection.dart';
-
 import '../../xml/utils/name.dart';
 import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types/any.dart';
-import '../types/function.dart';
 import '../types/number.dart';
 import '../types/sequence.dart';
+import '../values/function.dart';
+import '../values/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-number
 const fnNumber = XPathFunctionDefinition(

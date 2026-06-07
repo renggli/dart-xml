@@ -6,6 +6,9 @@ import '../types/any.dart';
 import '../types/function.dart';
 import '../types/map.dart';
 import '../types/sequence.dart';
+import '../values/function.dart';
+import '../values/map.dart';
+import '../values/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-size
 const fnMapSize = XPathFunctionDefinition(

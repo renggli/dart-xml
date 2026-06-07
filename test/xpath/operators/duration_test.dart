@@ -1,8 +1,8 @@
 import 'package:test/test.dart';
 
 import 'package:xml/src/xpath/operators/duration.dart';
-import 'package:xml/src/xpath/types/duration.dart';
-import 'package:xml/src/xpath/types/sequence.dart';
+import 'package:xml/src/xpath/values/duration.dart';
+import 'package:xml/src/xpath/values/sequence.dart';
 
 import '../../utils/matchers.dart';
 

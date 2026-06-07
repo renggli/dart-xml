@@ -1,11 +1,10 @@
 import '../definitions/type.dart';
 import '../exceptions/evaluation_exception.dart';
-import 'sequence.dart';
+import '../values/map.dart';
+import '../values/sequence.dart';
 
 /// The XPath map type.
 const xsMap = _XPathMapType();
-
-typedef XPathMap = Map<Object, Object>;
 
 class _XPathMapType extends XPathType<XPathMap> {
   const _XPathMapType();

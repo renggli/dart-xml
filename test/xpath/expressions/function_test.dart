@@ -4,9 +4,10 @@ import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/evaluation/namespaces.dart';
 import 'package:xml/src/xpath/expressions/function.dart';
 import 'package:xml/src/xpath/expressions/variable.dart';
-import 'package:xml/src/xpath/types/function.dart';
-import 'package:xml/src/xpath/types/sequence.dart';
+import 'package:xml/src/xpath/values/function.dart';
+import 'package:xml/src/xpath/values/sequence.dart';
 import 'package:xml/xml.dart';
+
 import '../../utils/matchers.dart';
 import '../helpers.dart';
 

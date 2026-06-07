@@ -11,8 +11,8 @@ import '../types/date_time.dart';
 import '../types/duration.dart';
 import '../types/number.dart';
 import '../types/qname.dart';
-import '../types/sequence.dart';
 import '../types/string.dart';
+import '../values/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-string
 const xsStringConstructor = XPathFunctionDefinition(

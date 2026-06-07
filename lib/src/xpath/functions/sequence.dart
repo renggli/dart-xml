@@ -5,14 +5,14 @@ import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../operators/comparison.dart';
 import '../types/any.dart';
-import '../types/array.dart';
-import '../types/duration.dart';
-import '../types/function.dart';
-import '../types/map.dart';
 import '../types/node.dart';
 import '../types/number.dart';
-import '../types/sequence.dart';
 import '../types/string.dart';
+import '../values/array.dart';
+import '../values/duration.dart';
+import '../values/function.dart';
+import '../values/map.dart';
+import '../values/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-empty
 const fnEmpty = XPathFunctionDefinition(

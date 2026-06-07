@@ -1,7 +1,7 @@
 import '../types/date_time.dart';
 import '../types/duration.dart';
 import '../types/number.dart';
-import '../types/sequence.dart';
+import '../values/sequence.dart';
 import 'date_time.dart';
 import 'duration.dart';
 

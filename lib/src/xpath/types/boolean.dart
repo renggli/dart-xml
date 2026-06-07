@@ -1,6 +1,6 @@
 import '../definitions/type.dart';
 import '../exceptions/evaluation_exception.dart';
-import 'sequence.dart';
+import '../values/sequence.dart';
 
 /// The XPath boolean type.
 const xsBoolean = _XPathBooleanType();

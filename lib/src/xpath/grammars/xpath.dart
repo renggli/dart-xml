@@ -1,6 +1,5 @@
 import 'package:petitparser/definition.dart';
 import 'package:petitparser/parser.dart';
-
 import '../../xml/entities/null_mapping.dart';
 import '../../xml_events/parser.dart';
 import '../definitions/cardinality.dart';
@@ -34,6 +33,7 @@ import '../types/function.dart';
 import '../types/map.dart';
 import '../types/node.dart';
 import '../types/sequence.dart';
+import '../values/sequence.dart';
 
 // XPath 3.1 Grammar: https://www.w3.org/TR/xpath-31/
 class XPathGrammar {

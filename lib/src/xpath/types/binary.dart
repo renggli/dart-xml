@@ -1,11 +1,9 @@
 import 'dart:convert';
 import 'dart:typed_data';
-
-import 'package:collection/collection.dart';
-
 import '../definitions/type.dart';
 import '../exceptions/evaluation_exception.dart';
-import 'sequence.dart';
+import '../values/binary.dart';
+import '../values/sequence.dart';
 
 /// The XPath base64Binary type.
 const xsBase64Binary = _XPathBase64BinaryType();
@@ -30,10 +28,6 @@ class _XPathBase64BinaryType extends XPathType<XPathBase64Binary> {
 
   @override
   String castToString(XPathBase64Binary value) => base64Encode(value);
-}
-
-class XPathBase64Binary extends DelegatingList<int> {
-  XPathBase64Binary(Uint8List super.base);
 }
 
 /// The XPath hexBinary type.
@@ -77,8 +71,4 @@ class _XPathHexBinaryType extends XPathType<XPathHexBinary> {
       .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
       .join()
       .toUpperCase();
-}
-
-class XPathHexBinary extends DelegatingList<int> {
-  XPathHexBinary(Uint8List super.base);
 }

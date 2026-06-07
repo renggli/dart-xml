@@ -2,7 +2,7 @@ import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types/number.dart';
-import '../types/sequence.dart';
+import '../values/sequence.dart';
 
 class RangeExpression implements XPathExpression {
   const RangeExpression(this.startExpression, this.endExpression);

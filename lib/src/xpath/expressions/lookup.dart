@@ -1,10 +1,10 @@
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../exceptions/evaluation_exception.dart';
-import '../types/array.dart';
-import '../types/map.dart';
 import '../types/number.dart';
-import '../types/sequence.dart';
+import '../values/array.dart';
+import '../values/map.dart';
+import '../values/sequence.dart';
 
 /// A postfix lookup expression (`expr?key`).
 ///

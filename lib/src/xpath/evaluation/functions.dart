@@ -18,7 +18,7 @@ import '../functions/qname.dart' as qname;
 import '../functions/sequence.dart' as sequence;
 import '../functions/string.dart' as string;
 import '../functions/uri.dart' as uri;
-import '../types/function.dart';
+import '../values/function.dart';
 import 'namespaces.dart';
 
 /// The standard functions.

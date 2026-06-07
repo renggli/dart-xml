@@ -1,9 +1,9 @@
 import '../../xml/utils/name.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
-import '../types/date_time.dart';
-import '../types/duration.dart';
-import '../types/sequence.dart';
+import '../values/date_time.dart';
+import '../values/duration.dart';
+import '../values/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-position
 const fnPosition = XPathFunctionDefinition(

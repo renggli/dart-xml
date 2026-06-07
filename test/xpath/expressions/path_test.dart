@@ -7,7 +7,7 @@ import 'package:xml/src/xpath/expressions/path.dart';
 import 'package:xml/src/xpath/expressions/predicate.dart';
 import 'package:xml/src/xpath/expressions/step.dart';
 import 'package:xml/src/xpath/expressions/variable.dart';
-import 'package:xml/src/xpath/types/sequence.dart';
+import 'package:xml/src/xpath/values/sequence.dart';
 import 'package:xml/xml.dart';
 
 import '../../utils/matchers.dart';

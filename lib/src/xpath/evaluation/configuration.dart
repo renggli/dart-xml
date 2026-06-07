@@ -1,8 +1,8 @@
 import '../../xml/nodes/node.dart';
 import '../../xml/utils/name.dart';
 import '../exceptions/evaluation_exception.dart';
-import '../types/function.dart';
-import '../types/sequence.dart';
+import '../values/function.dart';
+import '../values/sequence.dart';
 import 'context.dart';
 import 'functions.dart';
 import 'namespaces.dart';

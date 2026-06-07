@@ -1,6 +1,6 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/types/qname.dart';
-import 'package:xml/src/xpath/types/sequence.dart';
+import 'package:xml/src/xpath/values/sequence.dart';
 import 'package:xml/xml.dart';
 
 import '../../utils/matchers.dart';

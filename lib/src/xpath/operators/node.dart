@@ -1,7 +1,7 @@
 import '../../xml/extensions/comparison.dart';
 import '../../xml/nodes/node.dart';
 import '../types/node.dart';
-import '../types/sequence.dart';
+import '../values/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-union
 XPathSequence opUnion(XPathSequence left, XPathSequence right) =>

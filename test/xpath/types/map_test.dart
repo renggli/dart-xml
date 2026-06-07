@@ -1,7 +1,7 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/types/map.dart';
-import 'package:xml/src/xpath/types/sequence.dart';
 
+import 'package:xml/src/xpath/values/sequence.dart';
 import '../../utils/matchers.dart';
 
 void main() {

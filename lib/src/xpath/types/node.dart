@@ -11,7 +11,7 @@ import '../../xml/nodes/text.dart';
 import '../definitions/type.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../expressions/node.dart';
-import 'sequence.dart';
+import '../values/sequence.dart';
 
 /// The XPath node type.
 const xsNode = _XPathNodeType<XmlNode>('node');

@@ -3,6 +3,7 @@ import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types/sequence.dart';
+import '../values/sequence.dart';
 
 /// Checks if [expression] is an instance of [type].
 class InstanceofExpression extends XPathExpression {

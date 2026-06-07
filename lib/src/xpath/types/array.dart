@@ -1,11 +1,10 @@
 import '../definitions/type.dart';
 import '../exceptions/evaluation_exception.dart';
-import 'sequence.dart';
+import '../values/array.dart';
+import '../values/sequence.dart';
 
 /// The XPath array type.
 const xsArray = _XPathArrayType();
-
-typedef XPathArray = List<Object>;
 
 class _XPathArrayType extends XPathType<XPathArray> {
   const _XPathArrayType();

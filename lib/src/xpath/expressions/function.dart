@@ -3,7 +3,8 @@ import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types/function.dart';
-import '../types/sequence.dart';
+import '../values/function.dart';
+import '../values/sequence.dart';
 import 'variable.dart';
 
 class FunctionExpression implements XPathExpression {

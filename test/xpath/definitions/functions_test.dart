@@ -5,8 +5,8 @@ import 'package:xml/src/xpath/evaluation/configuration.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/types/any.dart';
 import 'package:xml/src/xpath/types/number.dart';
-import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/src/xpath/types/string.dart';
+import 'package:xml/src/xpath/values/sequence.dart';
 import 'package:xml/xml.dart';
 
 import '../../utils/matchers.dart';

@@ -1,6 +1,5 @@
 import 'package:meta/meta.dart';
-
-import '../types/sequence.dart';
+import '../values/sequence.dart';
 import 'context.dart';
 
 /// Abstract superclass of an XPath expression.

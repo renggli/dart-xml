@@ -1,5 +1,4 @@
 import 'dart:convert' as convert;
-
 import '../../xml/builder/builder.dart';
 import '../../xml/extensions/string.dart';
 import '../../xml/nodes/document.dart';
@@ -12,8 +11,8 @@ import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types/map.dart';
 import '../types/node.dart';
-import '../types/sequence.dart';
 import '../types/string.dart';
+import '../values/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-parse-json
 const fnParseJson = XPathFunctionDefinition(

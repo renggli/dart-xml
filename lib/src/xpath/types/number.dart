@@ -1,7 +1,7 @@
 import '../../xml/nodes/node.dart';
 import '../definitions/type.dart';
 import '../exceptions/evaluation_exception.dart';
-import 'sequence.dart';
+import '../values/sequence.dart';
 import 'string.dart';
 
 /// The XPath numeric type.

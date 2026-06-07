@@ -1,6 +1,6 @@
 import '../../xml/nodes/node.dart';
-import '../types/sequence.dart';
 import '../types/string.dart';
+import '../values/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-31/#id-logical-expressions
 XPathSequence opAnd(XPathSequence left, XPathSequence right) =>

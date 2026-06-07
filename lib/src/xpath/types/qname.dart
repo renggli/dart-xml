@@ -1,7 +1,7 @@
 import '../../xml/utils/name.dart';
 import '../definitions/type.dart';
 import '../exceptions/evaluation_exception.dart';
-import 'sequence.dart';
+import '../values/sequence.dart';
 
 /// The XPath QName type.
 const xsQName = _XPathQNameType();

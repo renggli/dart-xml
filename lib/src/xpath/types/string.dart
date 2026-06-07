@@ -2,6 +2,10 @@ import '../../xml/nodes/node.dart';
 import '../../xml/utils/name.dart';
 import '../definitions/type.dart';
 import '../exceptions/evaluation_exception.dart';
+import '../values/binary.dart';
+import '../values/date_time.dart';
+import '../values/duration.dart';
+import '../values/sequence.dart';
 import 'binary.dart';
 import 'boolean.dart';
 import 'date_time.dart';
@@ -9,7 +13,6 @@ import 'duration.dart';
 import 'node.dart';
 import 'number.dart';
 import 'qname.dart';
-import 'sequence.dart';
 
 /// The XPath string type.
 const xsString = _XPathStringType();

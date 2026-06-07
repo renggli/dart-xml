@@ -1,5 +1,4 @@
 import 'package:meta/meta.dart';
-
 import '../../xml/enums/node_type.dart';
 import '../../xml/extensions/ancestors.dart';
 import '../../xml/extensions/descendants.dart';

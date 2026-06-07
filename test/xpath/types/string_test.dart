@@ -1,10 +1,10 @@
 import 'dart:typed_data';
 
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/types/binary.dart';
-import 'package:xml/src/xpath/types/duration.dart';
-import 'package:xml/src/xpath/types/sequence.dart';
 import 'package:xml/src/xpath/types/string.dart';
+import 'package:xml/src/xpath/values/binary.dart';
+import 'package:xml/src/xpath/values/duration.dart';
+import 'package:xml/src/xpath/values/sequence.dart';
 import 'package:xml/xml.dart';
 
 import '../../utils/matchers.dart';

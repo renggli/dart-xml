@@ -1,8 +1,8 @@
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../evaluation/operators.dart';
-import '../types/sequence.dart';
 import '../types/string.dart';
+import '../values/sequence.dart';
 
 class BinaryOperatorExpression implements XPathExpression {
   const BinaryOperatorExpression(this.operator, this.left, this.right);

@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../grammars/parser.dart';
-import '../types/sequence.dart';
+import '../values/sequence.dart';
 import 'configuration.dart';
 
 /// Dynamic execution context to evaluate XPath expressions.

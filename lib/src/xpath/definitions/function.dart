@@ -3,16 +3,15 @@ import '../../xml/utils/name.dart';
 import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types/any.dart';
-import '../types/array.dart';
-import '../types/function.dart';
-import '../types/map.dart';
 import '../types/node.dart';
 import '../types/number.dart';
 import '../types/sequence.dart';
+import '../values/array.dart';
+import '../values/function.dart';
+import '../values/map.dart';
+import '../values/sequence.dart';
 import 'cardinality.dart';
 import 'type.dart';
-
-export 'package:petitparser/petitparser.dart' show unbounded;
 
 /// Definition of an XPath function.
 class XPathFunctionDefinition extends XPathFunction {

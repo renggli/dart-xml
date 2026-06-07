@@ -1,7 +1,8 @@
 import '../exceptions/evaluation_exception.dart';
 import '../types/date_time.dart';
-import '../types/duration.dart';
-import '../types/sequence.dart';
+import '../values/date_time.dart';
+import '../values/duration.dart';
+import '../values/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-31/#id-value-comparisons
 XPathSequence opValueEqual(XPathSequence left, XPathSequence right) {

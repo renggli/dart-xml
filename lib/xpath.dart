@@ -6,16 +6,16 @@ import 'package:meta/meta.dart' show experimental;
 import 'src/xml/nodes/node.dart';
 import 'src/xml/utils/name.dart';
 import 'src/xpath/evaluation/configuration.dart';
-import 'src/xpath/types/function.dart';
-import 'src/xpath/types/sequence.dart';
+import 'src/xpath/values/function.dart';
+import 'src/xpath/values/sequence.dart';
 
 export 'src/xpath/evaluation/configuration.dart';
 export 'src/xpath/exceptions/evaluation_exception.dart';
 export 'src/xpath/exceptions/parser_exception.dart';
 export 'src/xpath/generator.dart';
-export 'src/xpath/types/function.dart'
+export 'src/xpath/values/function.dart'
     show XPathFunction, XPathWrappedFunctionExtension;
-export 'src/xpath/types/sequence.dart' show XPathSequence;
+export 'src/xpath/values/sequence.dart' show XPathSequence;
 
 extension XPathExtension on XmlNode {
   /// Returns an iterable over the nodes matching the provided XPath

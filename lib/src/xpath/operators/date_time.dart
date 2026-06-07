@@ -1,6 +1,8 @@
 import '../types/date_time.dart';
 import '../types/duration.dart';
-import '../types/sequence.dart';
+import '../values/date_time.dart';
+import '../values/duration.dart';
+import '../values/sequence.dart';
 
 // ---------------------------------------------------------------------------
 // DateTime comparison

@@ -1,7 +1,8 @@
 import '../exceptions/evaluation_exception.dart';
 import '../types/duration.dart';
 import '../types/number.dart';
-import '../types/sequence.dart';
+import '../values/duration.dart';
+import '../values/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-duration-equal
 ///

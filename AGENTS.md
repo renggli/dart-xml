@@ -25,6 +25,7 @@
 
 - Adhere to the `directives_ordering` linter rule: `dart:` imports first, then `package:` imports, then relative imports.
 - Within `lib/`, prefer relative imports (e.g., `import 'src/utils.dart';`) over package imports.
+- All imports must be in a single block, not split into multiple import blocks.
 
 ### Code Quality
 
@@ -48,6 +49,7 @@
 
 - Keep the root `lib/` directory clean. It should primarily contain the public API exports.
 - Place implementation details in `lib/src/`. Users of the package should not import files from `lib/src/` directly.
+- Exports are only allowed in `lib/*.dart`, and never in any files in `lib/src/...`.
 - Avoid introducing new external dependencies in `pubspec.yaml` unless absolutely necessary and no alternative exists in the SDK. Justify any addition to the user.
 
 ## Testing

@@ -1,12 +1,11 @@
 import 'dart:core';
-
 import '../../xml/utils/name.dart';
 import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
-import '../types/sequence.dart';
 import '../types/string.dart';
+import '../values/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-resolve-uri
 const fnResolveUri = XPathFunctionDefinition(

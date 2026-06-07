@@ -1,8 +1,8 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/functions/sequence.dart';
 import 'package:xml/src/xpath/functions/uri.dart';
-import 'package:xml/src/xpath/types/duration.dart';
 import 'package:xml/src/xpath/types/number.dart';
+import 'package:xml/src/xpath/values/duration.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 

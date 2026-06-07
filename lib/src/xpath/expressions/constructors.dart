@@ -1,7 +1,7 @@
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../exceptions/evaluation_exception.dart';
-import '../types/sequence.dart';
+import '../values/sequence.dart';
 
 class MapConstructor implements XPathExpression {
   const MapConstructor(this.entries);

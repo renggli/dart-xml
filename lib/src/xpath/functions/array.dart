@@ -10,6 +10,9 @@ import '../types/function.dart';
 import '../types/number.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
+import '../values/array.dart';
+import '../values/function.dart';
+import '../values/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-size
 const fnArraySize = XPathFunctionDefinition(

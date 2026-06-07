@@ -1,5 +1,5 @@
 import '../types/binary.dart';
-import '../types/sequence.dart';
+import '../values/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hexBinary-equal
 XPathSequence opHexBinaryEqual(XPathSequence left, XPathSequence right) =>

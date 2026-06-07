@@ -1,9 +1,9 @@
 import 'package:test/test.dart';
 
 import 'package:xml/src/xpath/operators/date_time.dart';
-import 'package:xml/src/xpath/types/date_time.dart';
-import 'package:xml/src/xpath/types/duration.dart';
-import 'package:xml/src/xpath/types/sequence.dart';
+import 'package:xml/src/xpath/values/date_time.dart';
+import 'package:xml/src/xpath/values/duration.dart';
+import 'package:xml/src/xpath/values/sequence.dart';
 
 XPathSequence seq(Object value) => XPathSequence.single(value);
 

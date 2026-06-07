@@ -8,6 +8,7 @@ import '../types/any.dart';
 import '../types/number.dart';
 import '../types/sequence.dart';
 import '../types/string.dart';
+import '../values/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-codepoints-to-string
 const fnCodepointsToString = XPathFunctionDefinition(

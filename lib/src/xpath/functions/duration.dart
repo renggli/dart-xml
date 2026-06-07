@@ -3,7 +3,8 @@ import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
 import '../types/duration.dart';
-import '../types/sequence.dart';
+import '../values/duration.dart';
+import '../values/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-years-from-duration
 const fnYearsFromDuration = XPathFunctionDefinition(
