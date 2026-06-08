@@ -375,6 +375,74 @@ void assertComparatorInvariants(XmlNode xml) {
       expect(() => node.compareNodePosition(uniqueNode), throwsStateError);
       expect(() => uniqueNode.compareNodePosition(node), throwsStateError);
     }
+    // compareDocumentPosition
+    expect(node.compareDocumentPosition(node).isSame, isTrue);
+    for (final other in node.preceding) {
+      final pos = node.compareDocumentPosition(other);
+      final sameElementAttributes =
+          node is XmlAttribute &&
+          other is XmlAttribute &&
+          node.parent == other.parent;
+      expect(pos.isSame, isFalse);
+      expect(pos.isPreceding, isTrue);
+      expect(pos.isFollowing, isFalse);
+      expect(pos.isDisconnected, isFalse);
+      expect(pos.isImplementationSpecific, sameElementAttributes);
+    }
+    for (final other in node.following) {
+      final pos = node.compareDocumentPosition(other);
+      final sameElementAttributes =
+          node is XmlAttribute &&
+          other is XmlAttribute &&
+          node.parent == other.parent;
+      expect(pos.isSame, isFalse);
+      expect(pos.isDisconnected, isFalse);
+      expect(pos.isPreceding, isFalse);
+      expect(pos.isFollowing, isTrue);
+      expect(pos.isImplementationSpecific, sameElementAttributes);
+    }
+    for (final other in node.descendants) {
+      final pos = node.compareDocumentPosition(other);
+      final sameElementAttributes =
+          node is XmlAttribute &&
+          other is XmlAttribute &&
+          node.parent == other.parent;
+      expect(pos.isSame, isFalse);
+      expect(pos.isDisconnected, isFalse);
+      expect(pos.isPreceding, isFalse);
+      expect(pos.isFollowing, isTrue);
+      expect(pos.isContains, isFalse);
+      expect(pos.isContainedBy, isTrue);
+      expect(pos.isImplementationSpecific, sameElementAttributes);
+    }
+    for (final other in node.ancestors) {
+      final pos = node.compareDocumentPosition(other);
+      expect(pos.isSame, isFalse);
+      expect(pos.isDisconnected, isFalse);
+      expect(pos.isPreceding, isTrue);
+      expect(pos.isFollowing, isFalse);
+      expect(pos.isContains, isTrue);
+      expect(pos.isContainedBy, isFalse);
+      expect(pos.isImplementationSpecific, isFalse);
+    }
+    for (final uniqueNode in uniqueNodes) {
+      final pos1 = node.compareDocumentPosition(uniqueNode);
+      expect(pos1.isSame, isFalse);
+      expect(pos1.isDisconnected, isTrue);
+      expect(pos1.isContains, isFalse);
+      expect(pos1.isContainedBy, isFalse);
+      expect(pos1.isImplementationSpecific, isTrue);
+      expect(pos1.isPreceding || pos1.isFollowing, isTrue);
+
+      final pos2 = uniqueNode.compareDocumentPosition(node);
+      expect(pos1.isSame, isFalse);
+      expect(pos1.isDisconnected, isTrue);
+      expect(pos1.isContains, isFalse);
+      expect(pos1.isContainedBy, isFalse);
+      expect(pos1.isImplementationSpecific, isTrue);
+      expect(pos2.isPreceding || pos2.isFollowing, isTrue);
+      expect(pos1.isPreceding, isNot(pos2.isPreceding));
+    }
   }
 }
 
