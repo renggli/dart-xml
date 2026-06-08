@@ -147,7 +147,7 @@ List<Object> _sortAndDeduplicate(Iterable<Object> iter) {
   }
   final result = <Object>[];
   if (nodes.length <= 50) {
-    result.addAll(nodes.sorted((a, b) => a.compareNodePosition(b)));
+    result.addAll(nodes.sorted(_compareNodePosition));
   } else {
     final root = nodes.first.root;
     if (nodes.remove(root)) result.add(root);
@@ -156,11 +156,18 @@ List<Object> _sortAndDeduplicate(Iterable<Object> iter) {
       if (nodes.remove(node)) result.add(node);
     }
     if (nodes.isNotEmpty) {
-      result.addAll(nodes.sorted((a, b) => a.compareNodePosition(b)));
+      result.addAll(nodes.sorted(_compareNodePosition));
     }
   }
   result.addAll(others);
   return result;
+}
+
+int _compareNodePosition(XmlNode a, XmlNode b) {
+  final pos = a.compareDocumentPosition(b);
+  if (pos.isPreceding) return 1;
+  if (pos.isFollowing) return -1;
+  return 0;
 }
 
 Never _throwPathOperatorRequiresNodes(Object object) =>
