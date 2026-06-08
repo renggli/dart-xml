@@ -67,6 +67,7 @@ const fnCeiling = XPathFunctionDefinition(
 
 XPathSequence _fnCeiling(XPathContext context, num? arg) {
   if (arg == null) return XPathSequence.empty;
+  if (arg.isNaN || arg.isInfinite) return XPathSequence.single(arg);
   return XPathSequence.single(arg.ceil());
 }
 
@@ -85,6 +86,7 @@ const fnFloor = XPathFunctionDefinition(
 
 XPathSequence _fnFloor(XPathContext context, num? arg) {
   if (arg == null) return XPathSequence.empty;
+  if (arg.isNaN || arg.isInfinite) return XPathSequence.single(arg);
   return XPathSequence.single(arg.floor());
 }
 

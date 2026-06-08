@@ -56,8 +56,8 @@ XmlNode? _singleNodeOrNull(XPathSequence seq) {
   return xsNode.cast(seq.single);
 }
 
-int _compareNodePosition(XmlNode a, XmlNode b) {
-  final pos = a.compareDocumentPosition(b);
+int _compareNodePosition(XmlNode node1, XmlNode node2) {
+  final pos = node1.compareDocumentPosition(node2);
   if (pos.isPreceding) return 1;
   if (pos.isFollowing) return -1;
   return 0;

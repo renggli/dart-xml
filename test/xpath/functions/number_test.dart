@@ -175,10 +175,44 @@ void main() {
       );
     });
 
+    test('handles NaN and Infinity', () {
+      expect(
+        (fnCeiling(context, [const XPathSequence.single(double.nan)]).single
+                as num)
+            .isNaN,
+        isTrue,
+      );
+      expect(
+        fnCeiling(context, [const XPathSequence.single(double.infinity)]),
+        isXPathSequence([double.infinity]),
+      );
+      expect(
+        fnCeiling(context, [
+          const XPathSequence.single(double.negativeInfinity),
+        ]),
+        isXPathSequence([double.negativeInfinity]),
+      );
+    });
+
     test('integration via xpathEvaluate', () {
       final xml = XmlDocument.parse('<r><a>1</a><b>2<c/>3</b></r>');
       expectEvaluate(xml, 'ceiling(-1.5)', isXPathSequence([-1]));
       expectEvaluate(xml, 'ceiling(1.5)', isXPathSequence([2]));
+      expectEvaluate(
+        xml,
+        'ceiling(xs:double("NaN"))',
+        isXPathSequence([isNaN]),
+      );
+      expectEvaluate(
+        xml,
+        'ceiling(xs:double("INF"))',
+        isXPathSequence([double.infinity]),
+      );
+      expectEvaluate(
+        xml,
+        'ceiling(xs:double("-INF"))',
+        isXPathSequence([double.negativeInfinity]),
+      );
     });
   });
 
@@ -194,10 +228,38 @@ void main() {
       expect(fnFloor(context, [XPathSequence.empty]), isXPathSequence(isEmpty));
     });
 
+    test('handles NaN and Infinity', () {
+      expect(
+        (fnFloor(context, [const XPathSequence.single(double.nan)]).single
+                as num)
+            .isNaN,
+        isTrue,
+      );
+      expect(
+        fnFloor(context, [const XPathSequence.single(double.infinity)]),
+        isXPathSequence([double.infinity]),
+      );
+      expect(
+        fnFloor(context, [const XPathSequence.single(double.negativeInfinity)]),
+        isXPathSequence([double.negativeInfinity]),
+      );
+    });
+
     test('integration via xpathEvaluate', () {
       final xml = XmlDocument.parse('<r><a>1</a><b>2<c/>3</b></r>');
       expectEvaluate(xml, 'floor(-1.5)', isXPathSequence([-2]));
       expectEvaluate(xml, 'floor(1.5)', isXPathSequence([1]));
+      expectEvaluate(xml, 'floor(xs:double("NaN"))', isXPathSequence([isNaN]));
+      expectEvaluate(
+        xml,
+        'floor(xs:double("INF"))',
+        isXPathSequence([double.infinity]),
+      );
+      expectEvaluate(
+        xml,
+        'floor(xs:double("-INF"))',
+        isXPathSequence([double.negativeInfinity]),
+      );
     });
   });
 
