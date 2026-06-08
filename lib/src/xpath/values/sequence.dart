@@ -82,6 +82,7 @@ abstract mixin class XPathSequence<T extends Object> implements Iterable<T> {
   }
 }
 
+/// Extension to wrap/unwrap objects to and from [XPathSequence].
 extension XPathSequenceExtension on Object {
   /// Unwraps this object if it is an [XPathSequence] with a single value.
   Object toAtomicValue() {
@@ -142,6 +143,7 @@ class _XPathSingleSequence<T extends Object> extends Iterable<T>
   bool hasCardinality(XPathCardinality cardinality) => true;
 }
 
+/// An iterator for a single-value sequence.
 class _XPathSingleIterator<T> implements Iterator<T> {
   _XPathSingleIterator(this._value);
 
@@ -176,6 +178,7 @@ class _XPathCachedSequence<T extends Object> extends Iterable<T>
   Iterator<T> get iterator => _XPathCachedIterator(_iterator, _values);
 }
 
+/// An iterator for a cached sequence.
 class _XPathCachedIterator<T extends Object> implements Iterator<T> {
   _XPathCachedIterator(this._iterator, this._values);
 
@@ -200,6 +203,7 @@ class _XPathCachedIterator<T extends Object> implements Iterator<T> {
   }
 }
 
+/// Extension to atomize [XPathSequence] values.
 extension XPathSequenceAtomize on XPathSequence {
   Iterable<Object> atomize() => expand(atomizeItem);
 }

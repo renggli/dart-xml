@@ -68,6 +68,7 @@ abstract class XPathAbstractDuration
   }
 }
 
+/// Representation of an XPath duration value (xs:duration).
 class XPathDuration extends XPathAbstractDuration {
   @override
   final int years;
@@ -238,6 +239,7 @@ class XPathDuration extends XPathAbstractDuration {
   String toString() => xsDuration.castToString(this);
 }
 
+/// Representation of an XPath dayTimeDuration value (xs:dayTimeDuration).
 class XPathDayTimeDuration extends XPathAbstractDuration {
   /// The total number of microseconds in this dayTimeDuration.
   final int totalMicroseconds;
@@ -384,6 +386,7 @@ class XPathDayTimeDuration extends XPathAbstractDuration {
   String toString() => xsDayTimeDuration.castToString(this);
 }
 
+/// Representation of an XPath yearMonthDuration value (xs:yearMonthDuration).
 class XPathYearMonthDuration extends XPathAbstractDuration {
   /// The total number of months in this yearMonthDuration.
   final int totalMonths;

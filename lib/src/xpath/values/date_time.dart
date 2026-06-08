@@ -155,6 +155,7 @@ XPathAbstractDateTime _wrapDateTime(
   };
 }
 
+/// Representation of an XPath dateTime value (xs:dateTime).
 class XPathDateTime extends XPathAbstractDateTime {
   @override
   final int year;
@@ -361,6 +362,7 @@ class XPathDateTime extends XPathAbstractDateTime {
   }
 }
 
+/// Representation of an XPath dateTimeStamp value (xs:dateTimeStamp).
 class XPathDateTimeStamp extends XPathDateTime {
   /// Creates a new [XPathDateTimeStamp] with the given components.
   const XPathDateTimeStamp(
@@ -484,6 +486,7 @@ class XPathDateTimeStamp extends XPathDateTime {
   }
 }
 
+/// Representation of an XPath date value (xs:date).
 class XPathDate extends XPathAbstractDateTime {
   @override
   final int year;
@@ -609,6 +612,7 @@ class XPathDate extends XPathAbstractDateTime {
   }
 }
 
+/// Representation of an XPath time value (xs:time).
 class XPathTime extends XPathAbstractDateTime {
   @override
   int? get year => null;
@@ -779,6 +783,7 @@ class XPathTime extends XPathAbstractDateTime {
   }
 }
 
+/// Representation of an XPath gYearMonth value (xs:gYearMonth).
 class XPathYearMonth extends XPathAbstractDateTime {
   @override
   final int year;
@@ -876,6 +881,7 @@ class XPathYearMonth extends XPathAbstractDateTime {
   }
 }
 
+/// Representation of an XPath gYear value (xs:gYear).
 class XPathYear extends XPathAbstractDateTime {
   @override
   final int year;
@@ -964,6 +970,7 @@ class XPathYear extends XPathAbstractDateTime {
   }
 }
 
+/// Representation of an XPath gMonthDay value (xs:gMonthDay).
 class XPathMonthDay extends XPathAbstractDateTime {
   @override
   int? get year => null;
@@ -1063,6 +1070,7 @@ class XPathMonthDay extends XPathAbstractDateTime {
   }
 }
 
+/// Representation of an XPath gMonth value (xs:gMonth).
 class XPathMonth extends XPathAbstractDateTime {
   @override
   int? get year => null;
@@ -1155,6 +1163,7 @@ class XPathMonth extends XPathAbstractDateTime {
   }
 }
 
+/// Representation of an XPath gDay value (xs:gDay).
 class XPathDay extends XPathAbstractDateTime {
   @override
   int? get year => null;

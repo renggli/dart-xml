@@ -25,6 +25,7 @@ abstract class XPathFunction {
   String toString() => '$name#$arity';
 }
 
+/// Extension to convert a Dart [Function] into an [XPathFunction].
 extension XPathWrappedFunctionExtension on Function {
   /// Converts a Dart function into an [XPathFunction] with the provided [name]
   /// and [arity].
