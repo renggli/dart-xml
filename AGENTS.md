@@ -20,6 +20,7 @@
 - File names must use snake-case (e.g., `recipe_card.dart`).
 - Class names, enums, and extensions must use upper camel-case (e.g., `RecipeCard`).
 - Private class members, variables, and functions (visible only within the file) must be prefixed with an underscore `_`.
+- Use descriptive, intention-revealing names that communicate purpose. Avoid single-letter variables except for standard loop counters (e.g., `i`).
 
 ### Imports
 

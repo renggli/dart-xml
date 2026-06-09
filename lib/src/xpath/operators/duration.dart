@@ -123,12 +123,20 @@ XPathSequence opSubtractDayTimeDurations(
 
 XPathSequence opMultiplyDuration(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  final d = xsDuration.cast(left);
-  final f = xsNumeric.cast(right);
+  final duration = xsDuration.cast(left);
+  final factor = xsNumeric.cast(right);
+  if (factor.isNaN) {
+    throw XPathEvaluationException('NaN multiplier in duration multiplication');
+  }
+  if (factor.isInfinite) {
+    throw XPathEvaluationException(
+      'Overflow: duration multiplication by Infinity',
+    );
+  }
   return XPathSequence.single(
     XPathDuration.fromValues(
-      (d.totalMonths * f).round(),
-      (d.totalMicroseconds * f).round(),
+      (duration.totalMonths * factor).round(),
+      (duration.totalMicroseconds * factor).round(),
     ),
   );
 }
@@ -139,9 +147,17 @@ XPathSequence opMultiplyYearMonthDuration(
   XPathSequence right,
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  return XPathSequence.single(
-    xsYearMonthDuration.cast(left) * xsNumeric.cast(right),
-  );
+  final duration = xsYearMonthDuration.cast(left);
+  final factor = xsNumeric.cast(right);
+  if (factor.isNaN) {
+    throw XPathEvaluationException('NaN multiplier in duration multiplication');
+  }
+  if (factor.isInfinite) {
+    throw XPathEvaluationException(
+      'Overflow: duration multiplication by Infinity',
+    );
+  }
+  return XPathSequence.single(duration * factor);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-multiply-dayTimeDuration
@@ -150,18 +166,36 @@ XPathSequence opMultiplyDayTimeDuration(
   XPathSequence right,
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  return XPathSequence.single(
-    xsDayTimeDuration.cast(left) * xsNumeric.cast(right),
-  );
+  final duration = xsDayTimeDuration.cast(left);
+  final factor = xsNumeric.cast(right);
+  if (factor.isNaN) {
+    throw XPathEvaluationException('NaN multiplier in duration multiplication');
+  }
+  if (factor.isInfinite) {
+    throw XPathEvaluationException(
+      'Overflow: duration multiplication by Infinity',
+    );
+  }
+  return XPathSequence.single(duration * factor);
 }
 
 XPathSequence opDivideDuration(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  final d = xsDuration.cast(left);
-  final f = xsNumeric.cast(right).round();
-  if (f == 0) throw XPathEvaluationException('Division by zero');
+  final duration = xsDuration.cast(left);
+  final divisor = xsNumeric.cast(right);
+  if (divisor.isNaN) {
+    throw XPathEvaluationException('NaN divisor in duration division');
+  }
+  if (divisor.isInfinite) {
+    return const XPathSequence.single(XPathDuration());
+  }
+  final rounded = divisor.round();
+  if (rounded == 0) throw XPathEvaluationException('Division by zero');
   return XPathSequence.single(
-    XPathDuration.fromValues(d.totalMonths ~/ f, d.totalMicroseconds ~/ f),
+    XPathDuration.fromValues(
+      duration.totalMonths ~/ rounded,
+      duration.totalMicroseconds ~/ rounded,
+    ),
   );
 }
 
@@ -171,17 +205,33 @@ XPathSequence opDivideYearMonthDuration(
   XPathSequence right,
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  return XPathSequence.single(
-    xsYearMonthDuration.cast(left) ~/ xsNumeric.cast(right).round(),
-  );
+  final duration = xsYearMonthDuration.cast(left);
+  final divisor = xsNumeric.cast(right);
+  if (divisor.isNaN) {
+    throw XPathEvaluationException('NaN divisor in duration division');
+  }
+  if (divisor.isInfinite) {
+    return const XPathSequence.single(XPathYearMonthDuration(0));
+  }
+  final rounded = divisor.round();
+  if (rounded == 0) throw XPathEvaluationException('Division by zero');
+  return XPathSequence.single(duration ~/ rounded);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-divide-dayTimeDuration
 XPathSequence opDivideDayTimeDuration(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  return XPathSequence.single(
-    xsDayTimeDuration.cast(left) ~/ xsNumeric.cast(right).round(),
-  );
+  final duration = xsDayTimeDuration.cast(left);
+  final divisor = xsNumeric.cast(right);
+  if (divisor.isNaN) {
+    throw XPathEvaluationException('NaN divisor in duration division');
+  }
+  if (divisor.isInfinite) {
+    return const XPathSequence.single(XPathDayTimeDuration(0));
+  }
+  final rounded = divisor.round();
+  if (rounded == 0) throw XPathEvaluationException('Division by zero');
+  return XPathSequence.single(duration ~/ rounded);
 }
 
 XPathSequence opDivideDurationByDuration(
@@ -189,12 +239,12 @@ XPathSequence opDivideDurationByDuration(
   XPathSequence right,
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  final d2 = xsDayTimeDuration.cast(right);
-  if (d2.totalMicroseconds == 0) {
+  final divisor = xsDayTimeDuration.cast(right);
+  if (divisor.totalMicroseconds == 0) {
     throw XPathEvaluationException('Division by zero');
   }
   return XPathSequence.single(
-    xsDayTimeDuration.cast(left).totalMicroseconds / d2.totalMicroseconds,
+    xsDayTimeDuration.cast(left).totalMicroseconds / divisor.totalMicroseconds,
   );
 }
 
@@ -204,10 +254,12 @@ XPathSequence opDivideYearMonthDurationByYearMonthDuration(
   XPathSequence right,
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  final d2 = xsYearMonthDuration.cast(right);
-  if (d2.totalMonths == 0) throw XPathEvaluationException('Division by zero');
+  final divisor = xsYearMonthDuration.cast(right);
+  if (divisor.totalMonths == 0) {
+    throw XPathEvaluationException('Division by zero');
+  }
   return XPathSequence.single(
-    xsYearMonthDuration.cast(left).divideByDuration(d2),
+    xsYearMonthDuration.cast(left).divideByDuration(divisor),
   );
 }
 

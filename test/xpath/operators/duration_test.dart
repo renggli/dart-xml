@@ -86,6 +86,18 @@ void main() {
         const XPathYearMonthDuration(2),
       );
     });
+    test('multiply by NaN throws', () {
+      expect(
+        () => opMultiplyYearMonthDuration(seq(d1Ymd), seq(double.nan)),
+        throwsA(isXPathEvaluationException()),
+      );
+    });
+    test('multiply by Infinity throws', () {
+      expect(
+        () => opMultiplyYearMonthDuration(seq(d1Ymd), seq(double.infinity)),
+        throwsA(isXPathEvaluationException()),
+      );
+    });
   });
 
   group('opDivideYearMonthDuration', () {
@@ -93,6 +105,18 @@ void main() {
       expect(
         opDivideYearMonthDuration(seq(d2Ymd), seq(2)).first,
         const XPathYearMonthDuration(1),
+      );
+    });
+    test('divide by NaN throws', () {
+      expect(
+        () => opDivideYearMonthDuration(seq(d2Ymd), seq(double.nan)),
+        throwsA(isXPathEvaluationException()),
+      );
+    });
+    test('divide by Infinity returns zero duration', () {
+      expect(
+        opDivideYearMonthDuration(seq(d2Ymd), seq(double.infinity)).first,
+        const XPathYearMonthDuration(0),
       );
     });
   });
@@ -140,6 +164,18 @@ void main() {
         const XPathDayTimeDuration(172800000000),
       );
     });
+    test('multiply by NaN throws', () {
+      expect(
+        () => opMultiplyDayTimeDuration(seq(d1Dtd), seq(double.nan)),
+        throwsA(isXPathEvaluationException()),
+      );
+    });
+    test('multiply by Infinity throws', () {
+      expect(
+        () => opMultiplyDayTimeDuration(seq(d1Dtd), seq(double.infinity)),
+        throwsA(isXPathEvaluationException()),
+      );
+    });
   });
 
   group('opDivideDayTimeDuration', () {
@@ -147,6 +183,18 @@ void main() {
       expect(
         opDivideDayTimeDuration(seq(d2Dtd), seq(2)).first,
         const XPathDayTimeDuration(86400000000),
+      );
+    });
+    test('divide by NaN throws', () {
+      expect(
+        () => opDivideDayTimeDuration(seq(d2Dtd), seq(double.nan)),
+        throwsA(isXPathEvaluationException()),
+      );
+    });
+    test('divide by Infinity returns zero duration', () {
+      expect(
+        opDivideDayTimeDuration(seq(d2Dtd), seq(double.infinity)).first,
+        const XPathDayTimeDuration(0),
       );
     });
   });
@@ -211,6 +259,24 @@ void main() {
       expect(result.months, 6);
       expect(result.days, 3);
     });
+    test('multiply by NaN throws', () {
+      expect(
+        () => opMultiplyDuration(
+          seq(const XPathDuration(months: 2, days: 1)),
+          seq(double.nan),
+        ),
+        throwsA(isXPathEvaluationException()),
+      );
+    });
+    test('multiply by Infinity throws', () {
+      expect(
+        () => opMultiplyDuration(
+          seq(const XPathDuration(months: 2, days: 1)),
+          seq(double.infinity),
+        ),
+        throwsA(isXPathEvaluationException()),
+      );
+    });
   });
 
   group('opDivideDuration', () {
@@ -232,6 +298,25 @@ void main() {
         ),
         throwsA(isXPathEvaluationException(message: 'Division by zero')),
       );
+    });
+    test('divide by NaN throws', () {
+      expect(
+        () => opDivideDuration(
+          seq(const XPathDuration(months: 6, days: 3)),
+          seq(double.nan),
+        ),
+        throwsA(isXPathEvaluationException()),
+      );
+    });
+    test('divide by Infinity returns zero duration', () {
+      final result =
+          opDivideDuration(
+                seq(const XPathDuration(months: 6, days: 3)),
+                seq(double.infinity),
+              ).first
+              as XPathDuration;
+      expect(result.months, 0);
+      expect(result.days, 0);
     });
   });
 
