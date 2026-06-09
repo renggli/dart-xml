@@ -26,13 +26,23 @@ const fnCodepointsToString = XPathFunctionDefinition(
 XPathSequence _fnCodepointsToString(XPathContext context, XPathSequence arg) {
   final string = String.fromCharCodes(
     arg.cast<int>().map(
-      (char) => 0x00000 <= char && char <= 0x10FFFF
-          ? char
-          : throw XPathEvaluationException('Invalid character code: $char'),
+      (codepoint) => _isValidXmlChar(codepoint)
+          ? codepoint
+          : throw XPathEvaluationException(
+              'Invalid character code: $codepoint',
+            ),
     ),
   );
   return XPathSequence.single(string);
 }
+
+bool _isValidXmlChar(int codepoint) =>
+    codepoint == 0x9 ||
+    codepoint == 0xA ||
+    codepoint == 0xD ||
+    (codepoint >= 0x20 && codepoint <= 0xD7FF) ||
+    (codepoint >= 0xE000 && codepoint <= 0xFFFD) ||
+    (codepoint >= 0x10000 && codepoint <= 0x10FFFF);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-string-to-codepoints
 const fnStringToCodepoints = XPathFunctionDefinition(

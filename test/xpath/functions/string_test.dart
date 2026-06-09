@@ -597,6 +597,64 @@ void main() {
         ),
       );
     });
+
+    test('converts valid boundary codepoints to string', () {
+      expect(
+        fnCodepointsToString(context, [
+          const XPathSequence([
+            0x9,
+            0xA,
+            0xD,
+            0x20,
+            0xD7FF,
+            0xE000,
+            0xFFFD,
+            0x10000,
+            0x10FFFF,
+          ]),
+        ]),
+        isXPathSequence([
+          String.fromCharCodes([
+            0x9,
+            0xA,
+            0xD,
+            0x20,
+            0xD7FF,
+            0xE000,
+            0xFFFD,
+            0x10000,
+            0x10FFFF,
+          ]),
+        ]),
+      );
+    });
+
+    test('throws for invalid XML codepoints', () {
+      final invalidCodepoints = [
+        0,
+        8,
+        0xB,
+        0xC,
+        0xE,
+        0x1F,
+        0xD800,
+        0xDFFF,
+        0xFFFE,
+        0xFFFF,
+        0x110000,
+      ];
+      for (final codepoint in invalidCodepoints) {
+        expect(
+          () =>
+              fnCodepointsToString(context, [XPathSequence.single(codepoint)]),
+          throwsA(
+            isXPathEvaluationException(
+              message: 'Invalid character code: $codepoint',
+            ),
+          ),
+        );
+      }
+    });
   });
 
   group('fn:string-to-codepoints', () {
