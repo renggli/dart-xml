@@ -6,7 +6,6 @@ library;
 
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:collection/collection.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/types/boolean.dart';
@@ -166,11 +165,11 @@ class TestCase {
       );
       result.failures++;
     } catch (error) {
-      final message = error is StateError
-          ? error.message
-          : error is UnsupportedError
-          ? (error.message ?? 'Unsupported')
-          : error.toString();
+      final message = switch (error) {
+        final StateError error => error.message,
+        final UnsupportedError error => error.message ?? 'Unsupported',
+        _ => error.toString(),
+      };
       stdout.writeln(
         ': ERROR ${formatStopwatch(stopwatch)} - ${formatMessage(message)}',
       );
@@ -179,8 +178,7 @@ class TestCase {
   }
 
   void _test() {
-    final environment = _getEnvironment();
-    final context = environment.context;
+    final context = _getEnvironment().context;
     final test = _getTest();
     if (test == null) {
       throw StateError('Test expression not found: $element');
@@ -283,77 +281,11 @@ class TestEnvironment {
 
   String? _unparsedTextLoader(String uri, String? requestedEncoding) {
     final resource = resources[uri];
-    if (resource == null) {
-      return null;
-    }
+    if (resource == null) return null;
     final file = File('${directory.path}/${resource.file}');
-    if (!file.existsSync()) {
-      return null;
-    }
-    final bytes = file.readAsBytesSync();
-
-    final encodingName = requestedEncoding ?? resource.encoding;
-    if (encodingName != null) {
-      final normalized = encodingName.toLowerCase().replaceAll(
-        RegExp(r'[^a-z0-9]'),
-        '',
-      );
-      if (normalized == 'utf8') {
-        return _decodeUtf8(bytes);
-      } else if (normalized == 'utf16' || normalized == 'utf16le') {
-        return _decodeUtf16(bytes, bigEndian: false);
-      } else if (normalized == 'utf16be') {
-        return _decodeUtf16(bytes, bigEndian: true);
-      } else if (normalized == 'iso88591' || normalized == 'latin1') {
-        return latin1.decode(bytes);
-      } else if (normalized == 'usascii' || normalized == 'ascii') {
-        return ascii.decode(bytes);
-      } else {
-        throw XPathEvaluationException('Unsupported encoding: $encodingName');
-      }
-    }
-
-    // Auto-detect using BOM or default to UTF-8
-    if (bytes.length >= 2) {
-      if (bytes[0] == 0xFE && bytes[1] == 0xFF) {
-        return _decodeUtf16(bytes, bigEndian: true);
-      } else if (bytes[0] == 0xFF && bytes[1] == 0xFE) {
-        return _decodeUtf16(bytes, bigEndian: false);
-      }
-    }
-    return _decodeUtf8(bytes);
-  }
-
-  String _decodeUtf8(List<int> bytes) {
-    if (bytes.length >= 3 &&
-        bytes[0] == 0xEF &&
-        bytes[1] == 0xBB &&
-        bytes[2] == 0xBF) {
-      return utf8.decode(bytes.sublist(3));
-    }
-    return utf8.decode(bytes);
-  }
-
-  String _decodeUtf16(List<int> bytes, {bool? bigEndian}) {
-    if (bytes.length < 2) return '';
-    var start = 0;
-    var isBe = bigEndian ?? true;
-    if (bytes[0] == 0xFE && bytes[1] == 0xFF) {
-      isBe = true;
-      start = 2;
-    } else if (bytes[0] == 0xFF && bytes[1] == 0xFE) {
-      isBe = false;
-      start = 2;
-    }
-
-    final codeUnits = <int>[];
-    for (var i = start; i < bytes.length - 1; i += 2) {
-      final b1 = bytes[i];
-      final b2 = bytes[i + 1];
-      final value = isBe ? (b1 << 8) | b2 : (b2 << 8) | b1;
-      codeUnits.add(value);
-    }
-    return String.fromCharCodes(codeUnits);
+    if (!file.existsSync()) return null;
+    final encoding = Encoding.getByName(requestedEncoding ?? resource.encoding);
+    return file.readAsStringSync(encoding: encoding ?? utf8);
   }
 
   Map<String, XmlNode> _getDocuments() {
@@ -499,7 +431,6 @@ void verifyResult(XmlElement element, Object result, XPathContext context) {
       final expectedFragment = XmlDocumentFragment.parse(element.innerText);
       final expectedNodes = _flatten(expectedFragment.children);
       final resultNodes = _flatten(result.cast<XmlNode>());
-
       final expectedStr = _serializeNodes(
         expectedNodes,
         ignorePrefixes: ignorePrefixes,
@@ -508,7 +439,6 @@ void verifyResult(XmlElement element, Object result, XPathContext context) {
         resultNodes,
         ignorePrefixes: ignorePrefixes,
       );
-
       if (expectedStr != resultStr) {
         throw TestFailure(
           'Expected:\n$expectedStr\n\n'
