@@ -229,9 +229,19 @@ void main() {
   });
 
   group('fn:load-xquery-module', () {
-    test('unimplemented', () {
+    test('unimplemented without options', () {
       expect(
         () => fnLoadXqueryModule(context, [const XPathSequence.single('uri')]),
+        throwsA(isA<UnimplementedError>()),
+      );
+    });
+
+    test('unimplemented with options', () {
+      expect(
+        () => fnLoadXqueryModule(context, [
+          const XPathSequence.single('uri'),
+          XPathSequence.emptyMap,
+        ]),
         throwsA(isA<UnimplementedError>()),
       );
     });

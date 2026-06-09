@@ -7,6 +7,7 @@ import '../operators/comparison.dart';
 import '../types/any.dart';
 import '../types/array.dart';
 import '../types/function.dart';
+import '../types/map.dart';
 import '../types/number.dart';
 import '../types/qname.dart';
 import '../types/sequence.dart';
@@ -287,10 +288,15 @@ XPathSequence _fnFunctionLookup(XPathContext context, XmlName name, num arity) {
 const fnLoadXqueryModule = XPathFunctionDefinition(
   name: XmlName.qualified('fn:load-xquery-module'),
   requiredArguments: [XPathArgumentDefinition(name: 'uri', type: xsString)],
+  optionalArguments: [XPathArgumentDefinition(name: 'options', type: xsMap)],
   function: _fnLoadXqueryModule,
 );
 
-XPathSequence _fnLoadXqueryModule(XPathContext context, String uri) {
+XPathSequence _fnLoadXqueryModule(
+  XPathContext context,
+  String uri, [
+  Map<Object, Object>? options,
+]) {
   throw UnimplementedError('fn:load-xquery-module');
 }
 
