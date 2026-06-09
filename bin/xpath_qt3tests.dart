@@ -10,7 +10,6 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/types/boolean.dart';
-import 'package:xml/src/xpath/types/node.dart';
 import 'package:xml/src/xpath/types/number.dart';
 import 'package:xml/src/xpath/types/string.dart';
 import 'package:xml/xml.dart';
@@ -493,10 +492,25 @@ void verifyResult(XmlElement element, Object result, XPathContext context) {
         throw TestFailure('Expected ${element.innerText}, but got $result');
       }
     case 'assert-xml':
-      final xml = XmlDocument.parse(element.innerText);
-      if (xsNode.cast(result).toXmlString(pretty: true) !=
-          xml.rootElement.toXmlString(pretty: true)) {
-        throw TestFailure('Expected $xml, but got $result');
+      final ignorePrefixes = element.getAttribute('ignore-prefixes') == 'true';
+      final expectedFragment = XmlDocumentFragment.parse(element.innerText);
+      final expectedNodes = _flatten(expectedFragment.children);
+      final resultNodes = _flatten(result.cast<XmlNode>());
+
+      final expectedStr = _serializeNodes(
+        expectedNodes,
+        ignorePrefixes: ignorePrefixes,
+      );
+      final resultStr = _serializeNodes(
+        resultNodes,
+        ignorePrefixes: ignorePrefixes,
+      );
+
+      if (expectedStr != resultStr) {
+        throw TestFailure(
+          'Expected:\n$expectedStr\n\n'
+          'But got:\n$resultStr',
+        );
       }
     case 'assert-type':
       final evaluation = XPathConfiguration.standard()
@@ -530,6 +544,85 @@ void verifyResult(XmlElement element, Object result, XPathContext context) {
       }
     default:
       throw StateError('Unknown result type: $element');
+  }
+}
+
+List<XmlNode> _flatten(Iterable<XmlNode> nodes) {
+  final list = <XmlNode>[];
+  for (final node in nodes) {
+    if (node is XmlDocument || node is XmlDocumentFragment) {
+      list.addAll(_flatten(node.children));
+    } else {
+      list.add(node);
+    }
+  }
+  return list;
+}
+
+String _serializeNodes(List<XmlNode> nodes, {required bool ignorePrefixes}) {
+  final buffer = StringBuffer();
+  final writer = _TestRunnerPrettyWriter(
+    buffer,
+    ignorePrefixes: ignorePrefixes,
+  );
+  writer.writeIterable(
+    writer.normalizeText(nodes),
+    writer.newLine + writer.indent * writer.level,
+  );
+  return buffer.toString();
+}
+
+class _TestRunnerPrettyWriter extends XmlPrettyWriter {
+  _TestRunnerPrettyWriter(super.buffer, {required this.ignorePrefixes})
+    : super(
+        sortAttributes: (first, second) =>
+            (ignorePrefixes ? first.name.local : first.name.qualified)
+                .compareTo(
+                  ignorePrefixes ? second.name.local : second.name.qualified,
+                ),
+      );
+
+  final bool ignorePrefixes;
+
+  @override
+  void visitName(XmlName name) {
+    if (ignorePrefixes) {
+      buffer.write(name.local);
+    } else {
+      super.visitName(name);
+    }
+  }
+
+  @override
+  void visitDeclaration(XmlDeclaration node) {
+    // Ignore XML declarations
+  }
+
+  @override
+  void visitProcessing(XmlProcessing node) {
+    if (node.target == 'xml') {
+      // Ignore pseudo-xml declarations
+      return;
+    }
+    super.visitProcessing(node);
+  }
+
+  @override
+  List<XmlNode> normalizeText(List<XmlNode> nodes) {
+    final filtered = nodes.where(
+      (node) =>
+          node is! XmlDeclaration &&
+          !(node is XmlProcessing && node.target == 'xml'),
+    );
+    return super.normalizeText(filtered.toList());
+  }
+
+  @override
+  List<XmlAttribute> normalizeAttributes(List<XmlAttribute> attributes) {
+    final filtered = attributes.where(
+      (attr) => attr.name.prefix != 'xmlns' && attr.name.local != 'xmlns',
+    );
+    return super.normalizeAttributes(filtered.toList());
   }
 }
 
