@@ -247,6 +247,25 @@ class XPathDateTime extends XPathAbstractDateTime {
 
     if (!_validateDateTime(yr, mo, dy, hr, mn, scDouble)) return null;
 
+    if (hr == 24) {
+      final normalizedDate = DateTime.utc(
+        yr,
+        mo,
+        dy,
+      ).add(const Duration(days: 1));
+      return XPathDateTime(
+        normalizedDate.year,
+        normalizedDate.month,
+        normalizedDate.day,
+        0,
+        0,
+        0,
+        0,
+        0,
+        offset,
+      );
+    }
+
     return XPathDateTime(yr, mo, dy, hr, mn, sc, ms, us, offset);
   }
 
@@ -426,6 +445,25 @@ class XPathDateTimeStamp extends XPathDateTime {
     final us = ((frac * 1000000) - (ms * 1000)).round();
 
     if (!_validateDateTime(yr, mo, dy, hr, mn, scDouble)) return null;
+
+    if (hr == 24) {
+      final normalizedDate = DateTime.utc(
+        yr,
+        mo,
+        dy,
+      ).add(const Duration(days: 1));
+      return XPathDateTimeStamp(
+        normalizedDate.year,
+        normalizedDate.month,
+        normalizedDate.day,
+        0,
+        0,
+        0,
+        0,
+        0,
+        offset,
+      );
+    }
 
     return XPathDateTimeStamp(yr, mo, dy, hr, mn, sc, ms, us, offset);
   }
@@ -688,6 +726,10 @@ class XPathTime extends XPathAbstractDateTime {
     final us = ((frac * 1000000) - (ms * 1000)).round();
 
     if (!_validateDateTime(1970, 1, 1, hr, mn, scDouble)) return null;
+
+    if (hr == 24) {
+      return XPathTime(0, 0, 0, 0, 0, offset);
+    }
 
     return XPathTime(hr, mn, sc, ms, us, offset);
   }

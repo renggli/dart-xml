@@ -129,6 +129,12 @@ void main() {
         XPathDateTime.tryParse('-0004-01-01T12:00:00.123456-05:00'),
         isNotNull,
       );
+      final normalized = XPathDateTime.tryParse('2001-12-31T24:00:00');
+      expect(normalized, isNotNull);
+      expect(normalized!.year, 2002);
+      expect(normalized.month, 1);
+      expect(normalized.day, 1);
+      expect(normalized.hour, 0);
     });
     test('tryParse invalid cases', () {
       expect(XPathDateTime.tryParse(''), isNull);
@@ -176,6 +182,12 @@ void main() {
       expect(XPathDateTimeStamp.tryParse('2021-01-01T12:00:00Z'), isNotNull);
       expect(XPathDateTimeStamp.tryParse('2021-01-01T12:00:00'), isNull);
       expect(XPathDateTimeStamp.tryParse('2021-01-01T12:00:00+25:00'), isNull);
+      final normalized = XPathDateTimeStamp.tryParse('2001-12-31T24:00:00Z');
+      expect(normalized, isNotNull);
+      expect(normalized!.year, 2002);
+      expect(normalized.month, 1);
+      expect(normalized.day, 1);
+      expect(normalized.hour, 0);
     });
     test('toUtc and toLocal', () {
       const dts = XPathDateTimeStamp(2021, 1, 1, 12, 0, 0, 0, 0, 60);
@@ -266,6 +278,11 @@ void main() {
       expect(XPathTime.tryParse('13:14:15.123456+02:00'), isNotNull);
       expect(XPathTime.tryParse('13:14:15+25:00'), isNull);
       expect(XPathTime.tryParse('13:14'), isNull);
+      final normalized = XPathTime.tryParse('24:00:00');
+      expect(normalized, isNotNull);
+      expect(normalized!.hour, 0);
+      expect(normalized.minute, 0);
+      expect(normalized.second, 0);
       final fromDt = XPathTime.fromDateTime(
         DateTime.utc(1970, 1, 1, 13, 14, 15),
         60,
