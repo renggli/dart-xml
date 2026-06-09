@@ -19,10 +19,12 @@ void main() {
       expect(context.variables, isEmpty);
       expect(context.parentContext, isNull);
       expect(context.configuration, same(configuration));
+      expect(context.currentDateTime, isNotNull);
     });
     test('custom', () {
       final variables = {'var': 42};
       final parentContext = XPathContext(configuration, element);
+      final customTime = DateTime(2020, 5, 5);
       final context = XPathContext(
         configuration,
         element,
@@ -30,6 +32,7 @@ void main() {
         last: 23,
         variables: variables,
         parentContext: parentContext,
+        currentDateTime: customTime,
       );
       expect(context.item, same(element));
       expect(context.position, 17);
@@ -37,6 +40,7 @@ void main() {
       expect(context.variables, same(variables));
       expect(context.parentContext, same(parentContext));
       expect(context.configuration, same(configuration));
+      expect(context.currentDateTime, same(customTime));
     });
   });
   group('getVariable', () {
@@ -105,6 +109,7 @@ void main() {
       expect(copy.variables, same(base.variables));
       expect(copy.parentContext, same(base));
       expect(copy.configuration, same(base.configuration));
+      expect(copy.currentDateTime, same(base.currentDateTime));
     });
     test('with overrides', () {
       const variables = {'var2': 43};
@@ -120,6 +125,7 @@ void main() {
       expect(copy.last, 3);
       expect(copy.variables, same(variables));
       expect(copy.configuration, same(base.configuration));
+      expect(copy.currentDateTime, same(base.currentDateTime));
     });
   });
 }

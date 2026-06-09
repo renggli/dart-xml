@@ -30,7 +30,7 @@ const fnCurrentDateTime = XPathFunctionDefinition(
 );
 
 XPathSequence _fnCurrentDateTime(XPathContext context) {
-  final now = DateTime.now();
+  final now = context.currentDateTime;
   return XPathSequence.single(
     XPathDateTime.fromDateTime(now, now.timeZoneOffset.inMinutes),
   );
@@ -43,7 +43,7 @@ const fnCurrentDate = XPathFunctionDefinition(
 );
 
 XPathSequence _fnCurrentDate(XPathContext context) {
-  final now = DateTime.now();
+  final now = context.currentDateTime;
   return XPathSequence.single(
     XPathDate(now.year, now.month, now.day, now.timeZoneOffset.inMinutes),
   );
@@ -56,7 +56,7 @@ const fnCurrentTime = XPathFunctionDefinition(
 );
 
 XPathSequence _fnCurrentTime(XPathContext context) {
-  final now = DateTime.now();
+  final now = context.currentDateTime;
   return XPathSequence.single(
     XPathTime(
       now.hour,
@@ -76,7 +76,7 @@ const fnImplicitTimezone = XPathFunctionDefinition(
 );
 
 XPathSequence _fnImplicitTimezone(XPathContext context) => XPathSequence.single(
-  XPathDayTimeDuration(DateTime.now().timeZoneOffset.inMicroseconds),
+  XPathDayTimeDuration(context.currentDateTime.timeZoneOffset.inMicroseconds),
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-default-collation

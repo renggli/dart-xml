@@ -15,7 +15,9 @@ class XPathContext {
     this.last = 1,
     this.variables = const {},
     this.parentContext,
-  });
+    DateTime? currentDateTime,
+  }) : currentDateTime =
+           currentDateTime ?? parentContext?.currentDateTime ?? DateTime.now();
 
   /// Configuraiton associated with the context.
   final XPathConfiguration configuration;
@@ -34,6 +36,9 @@ class XPathContext {
 
   /// Parent context used for variable lookup.
   final XPathContext? parentContext;
+
+  /// Stable current date and time for the execution of the query.
+  final DateTime currentDateTime;
 
   /// Looks up an XPath variable with the given [name].
   Object getVariable(String name) {
@@ -68,5 +73,6 @@ class XPathContext {
     last: last ?? this.last,
     variables: variables ?? this.variables,
     parentContext: this,
+    currentDateTime: currentDateTime,
   );
 }
