@@ -27,6 +27,18 @@ void main() {
     test('map ? parenthesized expression', () {
       expectEvaluate(xml, 'map {"a": 1, "b": 2}?("a")', [1]);
     });
+    test('map ? key sequence of length > 1', () {
+      expectEvaluate(xml, 'map {"a": 1, "b": 2, "c": 3}?("a", "c")', [1, 3]);
+    });
+    test('map ? empty key sequence', () {
+      expectEvaluate(xml, 'map {"a": 1, "b": 2}?()', isEmpty);
+    });
+    test('array ? key sequence of length > 1', () {
+      expectEvaluate(xml, '[4, 5, 6]?(1, 3)', [4, 6]);
+    });
+    test('array ? empty key sequence', () {
+      expectEvaluate(xml, '[4, 5, 6]?()', isEmpty);
+    });
   });
 
   group('unary lookup', () {
@@ -46,6 +58,18 @@ void main() {
     });
     test('map ? NCName', () {
       expectEvaluate(xml, 'map {"a": 1, "b": 2} ! ?a', [1]);
+    });
+    test('map ? key sequence of length > 1', () {
+      expectEvaluate(xml, 'map {"a": 1, "b": 2, "c": 3} ! ?("a", "c")', [1, 3]);
+    });
+    test('map ? empty key sequence', () {
+      expectEvaluate(xml, 'map {"a": 1} ! ?()', isEmpty);
+    });
+    test('array ? key sequence of length > 1', () {
+      expectEvaluate(xml, '[4, 5, 6] ! ?(1, 3)', [4, 6]);
+    });
+    test('array ? empty key sequence', () {
+      expectEvaluate(xml, '[4, 5, 6] ! ?()', isEmpty);
     });
     test('map ? *', () {
       expectEvaluate(xml, 'map {"a": 1, "b": 2} ! ?*', [1, 2]);

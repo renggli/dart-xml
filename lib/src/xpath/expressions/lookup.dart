@@ -26,8 +26,8 @@ class LookupExpression implements XPathExpression {
 
   Iterable<Object> _lookup(XPathContext context, Object item) {
     if (key == null) return _lookupWildcard(item);
-    final keyValue = key!(context).single;
-    return _lookupKey(item, keyValue);
+    final keyValues = key!(context);
+    return keyValues.expand((keyValue) => _lookupKey(item, keyValue));
   }
 }
 
@@ -46,8 +46,10 @@ class UnaryLookupExpression implements XPathExpression {
     if (key == null) {
       return XPathSequence(_lookupWildcard(item));
     }
-    final keyValue = key!(context).single;
-    return XPathSequence(_lookupKey(item, keyValue));
+    final keyValues = key!(context);
+    return XPathSequence(
+      keyValues.expand((keyValue) => _lookupKey(item, keyValue)),
+    );
   }
 }
 
