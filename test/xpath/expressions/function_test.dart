@@ -205,7 +205,7 @@ void main() {
   });
   group('NamedFunctionExpression', () {
     test('evaluate', () {
-      const expr = NamedFunctionExpression('foo');
+      const expr = NamedFunctionExpression('foo', 0);
       final function =
           expr(
                 context.configuration
@@ -226,7 +226,7 @@ void main() {
       expect(function(context, []), result);
     });
     test('evaluate with standard functions', () {
-      const expr = NamedFunctionExpression('fn:abs');
+      const expr = NamedFunctionExpression('fn:abs', 1);
       final function = expr(context).first as XPathFunction;
       expect(
         function(context, [const XPathSequence.single(-42)]),
@@ -261,7 +261,7 @@ void main() {
     test('evaluate with expression', () {
       const expr = ArrowExpression(
         LiteralExpression(XPathSequence.single(1)),
-        NamedFunctionExpression('foo'),
+        NamedFunctionExpression('foo', 1),
         [],
       );
       expect(

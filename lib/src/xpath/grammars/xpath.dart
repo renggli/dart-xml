@@ -740,7 +740,7 @@ class XPathGrammar {
     ref0(eqName),
     token('#'),
     ref0(integerLiteral),
-  ).map3((name, _, arity) => NamedFunctionExpression(name));
+  ).map3((name, _, arity) => NamedFunctionExpression(name, arity));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-InlineFunctionExpr
   Parser<XPathExpression> inlineFunctionExpr() =>

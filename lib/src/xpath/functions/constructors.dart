@@ -798,6 +798,24 @@ XPathSequence _xsENTITYConstructor(XPathContext context, [Object? value]) {
   return XPathSequence.single(stringValue);
 }
 
+/// https://www.w3.org/TR/xpath-functions-31/#func-error
+const xsErrorConstructor = XPathFunctionDefinition(
+  name: XmlName.qualified('xs:error'),
+  requiredArguments: [
+    XPathArgumentDefinition(
+      name: 'value',
+      type: xsAnyAtomicType,
+      cardinality: XPathCardinality.zeroOrOne,
+    ),
+  ],
+  function: _xsErrorConstructor,
+);
+
+XPathSequence _xsErrorConstructor(XPathContext context, [Object? value]) {
+  if (value == null) return XPathSequence.empty;
+  throw XPathEvaluationException('Cannot cast $value to xs:error');
+}
+
 /// Helpers and patterns for string-derived XML Schema constructor validation.
 
 final _normalizeStringRegexp = RegExp(r'\s');

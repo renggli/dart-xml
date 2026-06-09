@@ -307,4 +307,5 @@ const standardFunctionDefinitions = <XPathFunctionDefinition>[
   constructors.xsIDConstructor,
   constructors.xsIDREFConstructor,
   constructors.xsENTITYConstructor,
+  constructors.xsErrorConstructor,
 ];

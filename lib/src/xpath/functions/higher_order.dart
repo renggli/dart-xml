@@ -276,9 +276,22 @@ const fnFunctionLookup = XPathFunctionDefinition(
 
 XPathSequence _fnFunctionLookup(XPathContext context, XmlName name, num arity) {
   try {
-    return XPathSequence.single(
-      context.configuration.getFunctionByString(name.extendedQualified),
+    final function = context.configuration.getFunctionByString(
+      name.extendedQualified,
     );
+    final isSupported = switch (function) {
+      XPathFunctionDefinition() =>
+        arity >= function.requiredArguments.length &&
+            (function.variadicArgument != null ||
+                arity <=
+                    function.requiredArguments.length +
+                        function.optionalArguments.length),
+      _ => arity == function.arity,
+    };
+    if (isSupported) {
+      return XPathSequence.single(function);
+    }
+    return XPathSequence.empty;
   } on XPathEvaluationException {
     return XPathSequence.empty;
   }

@@ -41,8 +41,9 @@ class CastableExpression extends XPathExpression {
 
   @override
   XPathSequence call(XPathContext context) {
+    final value = expression(context).toAtomicValue();
     try {
-      type.cast(expression(context).toAtomicValue());
+      type.cast(value);
       return XPathSequence.trueSequence;
     } catch (_) {
       return XPathSequence.falseSequence;

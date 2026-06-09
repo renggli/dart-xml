@@ -1,4 +1,5 @@
 import '../../xml/utils/name.dart';
+import '../definitions/function.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../exceptions/evaluation_exception.dart';
@@ -42,13 +43,30 @@ class InlineFunctionExpression implements XPathExpression {
 }
 
 class NamedFunctionExpression implements XPathExpression {
-  const NamedFunctionExpression(this.name);
+  const NamedFunctionExpression(this.name, this.arity);
 
   final String name;
+  final int arity;
 
   @override
-  XPathSequence call(XPathContext context) =>
-      XPathSequence.single(context.configuration.getFunctionByString(name));
+  XPathSequence call(XPathContext context) {
+    final function = context.configuration.getFunctionByString(name);
+    final isSupported = switch (function) {
+      XPathFunctionDefinition() =>
+        arity >= function.requiredArguments.length &&
+            (function.variadicArgument != null ||
+                arity <=
+                    function.requiredArguments.length +
+                        function.optionalArguments.length),
+      _ => arity == function.arity,
+    };
+    if (!isSupported) {
+      throw XPathEvaluationException(
+        'Function "$name" does not support arity $arity',
+      );
+    }
+    return XPathSequence.single(function);
+  }
 }
 
 class ArrowExpression implements XPathExpression {

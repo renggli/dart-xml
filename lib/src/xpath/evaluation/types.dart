@@ -24,6 +24,7 @@ final Map<String, XPathType<Object>> standardTypes = {
 /// Internal list of basic types.
 const basicTypes = <XPathType<Object>>[
   xsAny,
+  xsAnyAtomicType,
   xsArray,
   xsAttribute,
   xsBase64Binary,
@@ -40,6 +41,7 @@ const basicTypes = <XPathType<Object>>[
   xsDuration,
   xsElement,
   xsEmptySequence,
+  xsError,
   xsFunction,
   xsDay,
   xsMonth,

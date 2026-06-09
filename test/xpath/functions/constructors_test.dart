@@ -457,6 +457,44 @@ void main() {
     });
   });
 
+  group('xs:error', () {
+    test('empty sequence returns empty', () {
+      expectEval('xs:error(())', isXPathSequence(isEmpty));
+    });
+    test('invalid arity 0 throws', () {
+      expect(
+        () => root.xpathEvaluate('xs:error()').toList(),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+    });
+    test('invalid arity 2 throws', () {
+      expect(
+        () => root.xpathEvaluate('xs:error((), ())').toList(),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+    });
+    test('non-empty argument throws', () {
+      expect(
+        () => root.xpathEvaluate('xs:error(1)').toList(),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+      expect(
+        () => root.xpathEvaluate('xs:error("test")').toList(),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+    });
+    test('cast to xs:error throws', () {
+      expect(
+        () => root.xpathEvaluate('1 cast as xs:error').toList(),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+    });
+    test('castable as xs:error', () {
+      expectEval('1 castable as xs:error', isXPathSequence([false]));
+      expectEval('() castable as xs:error?', isXPathSequence([true]));
+    });
+  });
+
   group('namespace resolution', () {
     test('fn prefix', () {
       expectEval('fn:string("test")', isXPathSequence(['test']));
