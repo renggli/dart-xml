@@ -507,10 +507,10 @@ XPathAbstractDateTime? _adjustDateTimeHelper(
 ) {
   if (arg == null) return null;
   if (timezone != null) {
-    if (timezone.inSeconds.abs() > 14 * 3600) {
+    if (timezone.inMicroseconds.abs() > 14 * 3600 * 1000000) {
       throw XPathEvaluationException('Timezone offset out of range: $timezone');
     }
-    if (timezone.inSeconds % 60 != 0) {
+    if (timezone.inMicroseconds % (60 * 1000000) != 0) {
       throw XPathEvaluationException(
         'Timezone offset must be an integral number of minutes: $timezone',
       );

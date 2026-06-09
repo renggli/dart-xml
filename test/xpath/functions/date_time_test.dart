@@ -64,6 +64,21 @@ void main() {
         throwsA(isA<XPathEvaluationException>()),
       );
     });
+
+    test('throws exception for timezone with non-integral minutes', () {
+      final now = DateTime.now();
+      expect(
+        () => fnAdjustDateTimeToTimezone(context, [
+          XPathSequence.single(now),
+          const XPathSequence.single(XPathDayTimeDuration(1000)), // 1 ms
+        ]),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+    });
+
+    test('returns null for out of bounds year', () {
+      expect(XPathDate.tryParse('-25252734927766555-06-07+02:00'), isNull);
+    });
   });
 
   group('fn:adjust-date-to-timezone', () {

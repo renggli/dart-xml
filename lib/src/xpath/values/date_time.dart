@@ -1335,6 +1335,7 @@ int? _parseTimezoneOffsetMinutes(String? timezone) {
 }
 
 bool _validateDateTime(int y, int m, int d, int h, int min, double sec) {
+  if (y < -271821 || y > 275759) return false;
   if (m < 1 || m > 12) return false;
   if (d < 1 || d > 31) return false;
   if (m == 4 || m == 6 || m == 9 || m == 11) {
