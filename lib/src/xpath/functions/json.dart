@@ -78,8 +78,59 @@ XPathSequence _fnJsonDoc(
   Map<Object, Object>? options,
 ]) {
   if (href == null) return XPathSequence.empty;
-  // TODO: Implement fetching from URI
-  throw UnimplementedError('fn:json-doc');
+
+  // Resolve relative URI.
+  String resolved;
+  try {
+    final uri = Uri.parse(href);
+    if (uri.isAbsolute) {
+      resolved = href;
+    } else {
+      final base = context.configuration.baseUri;
+      if (base == null) {
+        throw XPathEvaluationException('Static base URI is undefined');
+      }
+      resolved = Uri.parse(base).resolve(href).toString();
+    }
+  } on FormatException catch (error) {
+    throw XPathEvaluationException('Invalid URI: $href (${error.message})');
+  }
+
+  // Check fragment identifier.
+  final parsedResolved = Uri.parse(resolved);
+  if (parsedResolved.hasFragment) {
+    throw XPathEvaluationException(
+      'URI contains a fragment identifier: $resolved',
+    );
+  }
+
+  final loader = context.configuration.unparsedTextLoader;
+  if (loader == null) {
+    throw XPathEvaluationException(
+      'No unparsed text loader available to load $resolved',
+    );
+  }
+
+  final String? loaded;
+  try {
+    loaded = loader(resolved, null);
+  } catch (exception) {
+    if (exception is XPathEvaluationException) rethrow;
+    throw XPathEvaluationException(
+      'Failed to load resource $resolved: $exception',
+    );
+  }
+
+  if (loaded == null) {
+    throw XPathEvaluationException('Resource not found: $resolved');
+  }
+
+  try {
+    final result = convert.json.decode(loaded);
+    return _jsonToXPath(result);
+  } on FormatException catch (error) {
+    throw XPathEvaluationException('Invalid JSON: ${error.message}');
+  }
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-json-to-xml

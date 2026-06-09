@@ -73,17 +73,76 @@ void main() {
     });
   });
   group('fn:json-doc', () {
-    test('unimplemented', () {
+    final jsonDocContext = XPathConfiguration.raw(
+      baseUri: 'http://example.com/json/',
+      unparsedTextLoader: (uri, encoding) {
+        if (uri == 'http://example.com/json/map.json') {
+          return '{"a": 1, "b": true}';
+        }
+        if (uri == 'http://example.com/json/array.json') {
+          return '[1, 2, 3]';
+        }
+        if (uri == 'http://example.com/json/invalid.json') {
+          return '{invalid}';
+        }
+        return null;
+      },
+    ).context(XPathSequence.empty);
+
+    test('returns empty sequence for empty href', () {
       expect(
-        () => fnJsonDoc(context, [const XPathSequence.single('url')]),
-        throwsA(isA<UnimplementedError>()),
+        fnJsonDoc(jsonDocContext, [XPathSequence.empty]),
+        isXPathSequence(isEmpty),
       );
     });
 
-    test('returns empty for empty sequence', () {
+    test('loads and decodes map from absolute URI', () {
+      final result = fnJsonDoc(jsonDocContext, [
+        const XPathSequence.single('http://example.com/json/map.json'),
+      ]);
+      expect(result.length, 1);
+      expect(result.first, {'a': 1.0, 'b': true});
+    });
+
+    test('resolves relative URI against baseUri', () {
+      final result = fnJsonDoc(jsonDocContext, [
+        const XPathSequence.single('array.json'),
+      ]);
+      expect(result.length, 1);
+      expect(result.first, [1.0, 2.0, 3.0]);
+    });
+
+    test('throws when static base URI is undefined for relative URI', () {
       expect(
-        fnJsonDoc(context, [XPathSequence.empty]),
-        isXPathSequence(isEmpty),
+        () => fnJsonDoc(context, [const XPathSequence.single('map.json')]),
+        throwsA(isXPathEvaluationException()),
+      );
+    });
+
+    test('throws when URI contains fragment identifier', () {
+      expect(
+        () => fnJsonDoc(jsonDocContext, [
+          const XPathSequence.single('map.json#frag'),
+        ]),
+        throwsA(isXPathEvaluationException()),
+      );
+    });
+
+    test('throws when resource is not found', () {
+      expect(
+        () => fnJsonDoc(jsonDocContext, [
+          const XPathSequence.single('missing.json'),
+        ]),
+        throwsA(isXPathEvaluationException()),
+      );
+    });
+
+    test('throws when resource is invalid JSON', () {
+      expect(
+        () => fnJsonDoc(jsonDocContext, [
+          const XPathSequence.single('invalid.json'),
+        ]),
+        throwsA(isXPathEvaluationException()),
       );
     });
   });
