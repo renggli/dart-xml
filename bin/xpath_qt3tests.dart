@@ -254,12 +254,15 @@ class TestEnvironment {
   ).context(source ?? XPathSequence.empty);
 
   String? _getBaseUri() {
-    final uri = element
+    final staticBaseUriElement = element
         .findElements('static-base-uri')
-        .singleOrNull
-        ?.getAttribute('uri');
-    if (uri == '#UNDEFINED') return null;
-    return uri;
+        .singleOrNull;
+    if (staticBaseUriElement != null) {
+      final uri = staticBaseUriElement.getAttribute('uri');
+      if (uri == '#UNDEFINED') return null;
+      return uri;
+    }
+    return directory.uri.toString();
   }
 
   Map<String, TestResource> _getResources() {
