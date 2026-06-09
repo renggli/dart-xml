@@ -32,18 +32,23 @@ void main() {
 
   group('fn:round-half-to-even', () {
     test('rounds half to even', () {
-      expect(
-        fnRoundHalfToEven(context, [const XPathSequence.single(0.5)]),
-        isXPathSequence([0]),
-      );
-      expect(
-        fnRoundHalfToEven(context, [const XPathSequence.single(1.5)]),
-        isXPathSequence([2]),
-      );
-      expect(
-        fnRoundHalfToEven(context, [const XPathSequence.single(2.5)]),
-        isXPathSequence([2]),
-      );
+      final res1 = fnRoundHalfToEven(context, [
+        const XPathSequence.single(0.5),
+      ]).single;
+      expect(res1, 0.0);
+      expect(res1, isA<double>());
+
+      final res2 = fnRoundHalfToEven(context, [
+        const XPathSequence.single(1.5),
+      ]).single;
+      expect(res2, 2.0);
+      expect(res2, isA<double>());
+
+      final res3 = fnRoundHalfToEven(context, [
+        const XPathSequence.single(2),
+      ]).single;
+      expect(res3, 2);
+      expect(res3, isA<int>());
     });
 
     test('returns empty for empty sequence', () {
@@ -162,10 +167,13 @@ void main() {
 
   group('fn:ceiling', () {
     test('rounds up', () {
-      expect(
-        fnCeiling(context, [const XPathSequence.single(1.5)]),
-        isXPathSequence([2]),
-      );
+      final res1 = fnCeiling(context, [const XPathSequence.single(1.5)]).single;
+      expect(res1, 2.0);
+      expect(res1, isA<double>());
+
+      final res2 = fnCeiling(context, [const XPathSequence.single(1)]).single;
+      expect(res2, 1);
+      expect(res2, isA<int>());
     });
 
     test('returns empty for empty sequence', () {
@@ -218,10 +226,13 @@ void main() {
 
   group('fn:floor', () {
     test('rounds down', () {
-      expect(
-        fnFloor(context, [const XPathSequence.single(1.5)]),
-        isXPathSequence([1]),
-      );
+      final res1 = fnFloor(context, [const XPathSequence.single(1.5)]).single;
+      expect(res1, 1.0);
+      expect(res1, isA<double>());
+
+      final res2 = fnFloor(context, [const XPathSequence.single(1)]).single;
+      expect(res2, 1);
+      expect(res2, isA<int>());
     });
 
     test('returns empty for empty sequence', () {
@@ -265,22 +276,21 @@ void main() {
 
   group('fn:round', () {
     test('rounds to nearest', () {
-      expect(
-        fnRound(context, [const XPathSequence.single(1.5)]),
-        isXPathSequence([2]),
-      );
-      expect(
-        fnRound(context, [const XPathSequence.single(-1.5)]),
-        isXPathSequence([-1]),
-      );
-      expect(
-        fnRound(context, [const XPathSequence.single(-0.5)]),
-        isXPathSequence([-0.0]),
-      );
-      expect(
-        fnRound(context, [const XPathSequence.single(-2.5)]),
-        isXPathSequence([-2]),
-      );
+      final res1 = fnRound(context, [const XPathSequence.single(1.5)]).single;
+      expect(res1, 2.0);
+      expect(res1, isA<double>());
+
+      final res2 = fnRound(context, [const XPathSequence.single(-1.5)]).single;
+      expect(res2, -1.0);
+      expect(res2, isA<double>());
+
+      final res3 = fnRound(context, [const XPathSequence.single(-0.5)]).single;
+      expect(res3, -0.0);
+      expect(res3, isA<double>());
+
+      final res4 = fnRound(context, [const XPathSequence.single(2)]).single;
+      expect(res4, 2);
+      expect(res4, isA<int>());
     });
 
     test('returns empty for empty sequence', () {

@@ -68,7 +68,7 @@ const fnCeiling = XPathFunctionDefinition(
 XPathSequence _fnCeiling(XPathContext context, num? arg) {
   if (arg == null) return XPathSequence.empty;
   if (arg.isNaN || arg.isInfinite) return XPathSequence.single(arg);
-  return XPathSequence.single(arg.ceil());
+  return XPathSequence.single(arg is double ? arg.ceilToDouble() : arg.ceil());
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-floor
@@ -87,7 +87,9 @@ const fnFloor = XPathFunctionDefinition(
 XPathSequence _fnFloor(XPathContext context, num? arg) {
   if (arg == null) return XPathSequence.empty;
   if (arg.isNaN || arg.isInfinite) return XPathSequence.single(arg);
-  return XPathSequence.single(arg.floor());
+  return XPathSequence.single(
+    arg is double ? arg.floorToDouble() : arg.floor(),
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-round
@@ -123,7 +125,13 @@ XPathSequence _fnRound(XPathContext context, num? arg, [int? precision]) {
   if (rounded == 0 && arg.isNegative && arg is double) {
     return XPathSequence.single(-0.0 / factor);
   }
-  return XPathSequence.single(rounded / factor);
+  final result = rounded / factor;
+  if (arg is double) {
+    return XPathSequence.single(result.toDouble());
+  } else if (arg is int) {
+    return XPathSequence.single(result.toInt());
+  }
+  return XPathSequence.single(result);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-round-half-to-even
@@ -158,7 +166,13 @@ XPathSequence _fnRoundHalfToEven(
   final rounded = diff == 0.5
       ? (floor % 2 == 0 ? floor : floor + 1)
       : value.round();
-  return XPathSequence.single(rounded / factor);
+  final result = rounded / factor;
+  if (arg is double) {
+    return XPathSequence.single(result.toDouble());
+  } else if (arg is int) {
+    return XPathSequence.single(result.toInt());
+  }
+  return XPathSequence.single(result);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-random-number-generator
