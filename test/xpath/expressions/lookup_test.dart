@@ -97,5 +97,45 @@ void main() {
         ),
       );
     });
+    test('native Dart Map ? key', () {
+      expectEvaluate(
+        xml,
+        r'$map?a',
+        [1],
+        variables: {
+          'map': {'a': 1, 'b': 2},
+        },
+      );
+    });
+    test('native Dart Map ? *', () {
+      expectEvaluate(
+        xml,
+        r'$map?*',
+        [1, 2],
+        variables: {
+          'map': {'a': 1, 'b': 2},
+        },
+      );
+    });
+    test('native Dart List ? index', () {
+      expectEvaluate(
+        xml,
+        r'$list?2',
+        [5],
+        variables: {
+          'list': [4, 5, 6],
+        },
+      );
+    });
+    test('native Dart List ? *', () {
+      expectEvaluate(
+        xml,
+        r'$list?*',
+        [4, 5, 6],
+        variables: {
+          'list': [4, 5, 6],
+        },
+      );
+    });
   });
 }

@@ -2,8 +2,6 @@ import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types/number.dart';
-import '../values/array.dart';
-import '../values/map.dart';
 import '../values/sequence.dart';
 
 /// A postfix lookup expression (`expr?key`).
@@ -62,30 +60,31 @@ class LookupKey {
 }
 
 Iterable<Object> _lookupWildcard(Object item) => switch (item) {
-  XPathMap() => item.values,
-  XPathArray() => item,
+  Map<Object?, Object?>() => item.values.whereType<Object>(),
+  List<Object?>() => item.whereType<Object>(),
   _ => throw XPathEvaluationException(
     'Lookup requires a map or array, but got ${item.runtimeType}',
   ),
 };
 
 Iterable<Object> _lookupKey(Object item, Object key) => switch (item) {
-  XPathMap() => _lookupMapKey(item, key),
-  XPathArray() => _lookupArrayIndex(item, key),
+  Map<Object?, Object?>() => _lookupMapKey(item, key),
+  List<Object?>() => _lookupListIndex(item, key),
   _ => throw XPathEvaluationException(
     'Lookup requires a map or array, but got ${item.runtimeType}',
   ),
 };
 
-Iterable<Object> _lookupMapKey(XPathMap map, Object key) {
+Iterable<Object> _lookupMapKey(Map<Object?, Object?> map, Object key) {
   final value = map[key];
   return value != null ? [value] : const [];
 }
 
-Iterable<Object> _lookupArrayIndex(XPathArray array, Object key) {
+Iterable<Object> _lookupListIndex(List<Object?> array, Object key) {
   final index = xsInteger.cast(key) - 1;
   if (index < 0 || index >= array.length) {
     throw XPathEvaluationException('Array index out of bounds: ${index + 1}');
   }
-  return [array[index]];
+  final value = array[index];
+  return value != null ? [value] : const [];
 }
