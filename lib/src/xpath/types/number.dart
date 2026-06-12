@@ -248,7 +248,11 @@ String _castNumberToString(num value) {
   if (value == double.negativeInfinity) return '-INF';
   if (value == 0.0 || value == -0.0) return '0';
   final string = value.toString();
-  return string.endsWith('.0')
+  final result = string.endsWith('.0')
       ? string.substring(0, string.length - 2)
       : string;
+  return result
+      .replaceAll('e+', 'E')
+      .replaceAll('e-', 'E-')
+      .replaceAll('e', 'E');
 }

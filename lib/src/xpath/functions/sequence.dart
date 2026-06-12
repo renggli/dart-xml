@@ -645,6 +645,9 @@ XPathSequence _fnAvg(XPathContext context, XPathSequence arg) {
     for (var i = 1; i < items.length; i++) {
       sum += items[i] as num;
     }
+    if (sum is int && sum % count == 0) {
+      return XPathSequence.single(sum ~/ count);
+    }
     return XPathSequence.single(sum / count);
   } else {
     final allYearMonth = items.every((e) => e is XPathYearMonthDuration);
