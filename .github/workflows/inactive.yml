@@ -6,7 +6,7 @@ jobs:
   stale:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/stale@v10
+      - uses: actions/stale@v11
         with:
           stale-issue-message: 'This issue is stale because it has been open 4 weeks with no activity.'
           stale-pr-message: 'This pull request is stale because it has been open 4 weeks with no activity.'
