@@ -1,5 +1,7 @@
 import 'dart:math';
+
 import 'package:collection/collection.dart';
+
 import '../../xml/utils/name.dart';
 import '../definitions/cardinality.dart';
 import '../definitions/function.dart';

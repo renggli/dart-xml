@@ -1,5 +1,6 @@
 import 'package:petitparser/definition.dart';
 import 'package:petitparser/parser.dart';
+
 import '../../xml/entities/null_mapping.dart';
 import '../../xml_events/parser.dart';
 import '../definitions/cardinality.dart';
@@ -37,7 +38,7 @@ import '../values/sequence.dart';
 
 // XPath 3.1 Grammar: https://www.w3.org/TR/xpath-31/
 class XPathGrammar {
-  const XPathGrammar();
+  const new();
 
   Parser<XPathExpression> build() => resolve(ref0(xpath)).end();
 
@@ -45,13 +46,14 @@ class XPathGrammar {
   Parser<XPathExpression> xpath() => ref0(expr);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-Expr
-  Parser<XPathExpression> expr() => ref0(exprSingle)
-      .plusSeparated(token(','))
-      .map(
-        (list) => list.elements.length == 1
-            ? list.elements.first
-            : SequenceExpression(list.elements),
-      );
+  Parser<XPathExpression> expr() =>
+      ref0(exprSingle)
+          .plusSeparated(token(','))
+          .map(
+            (list) => list.elements.length == 1
+                ? list.elements.first
+                : SequenceExpression(list.elements),
+          );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ExprSingle
   Parser<XPathExpression> exprSingle() => [
@@ -131,30 +133,32 @@ class XPathGrammar {
       );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-OrExpr
-  Parser<XPathExpression> orExpr() => ref0(andExpr)
-      .plusSeparated(token('or'))
-      .map(
-        (list) => list.elements
-            .skip(1)
-            .fold(
-              list.elements.first,
-              (left, right) =>
-                  BinaryOperatorExpression(general.opOr, left, right),
-            ),
-      );
+  Parser<XPathExpression> orExpr() =>
+      ref0(andExpr)
+          .plusSeparated(token('or'))
+          .map(
+            (list) => list.elements
+                .skip(1)
+                .fold(
+                  list.elements.first,
+                  (left, right) =>
+                      BinaryOperatorExpression(general.opOr, left, right),
+                ),
+          );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-AndExpr
-  Parser<XPathExpression> andExpr() => ref0(comparisonExpr)
-      .plusSeparated(token('and'))
-      .map(
-        (list) => list.elements
-            .skip(1)
-            .fold(
-              list.elements.first,
-              (left, right) =>
-                  BinaryOperatorExpression(general.opAnd, left, right),
-            ),
-      );
+  Parser<XPathExpression> andExpr() =>
+      ref0(comparisonExpr)
+          .plusSeparated(token('and'))
+          .map(
+            (list) => list.elements
+                .skip(1)
+                .fold(
+                  list.elements.first,
+                  (left, right) =>
+                      BinaryOperatorExpression(general.opAnd, left, right),
+                ),
+          );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ComparisonExpr
   Parser<XPathExpression> comparisonExpr() =>
@@ -172,13 +176,14 @@ class XPathGrammar {
       });
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-StringConcatExpr
-  Parser<XPathExpression> stringConcatExpr() => ref0(rangeExpr)
-      .plusSeparated(token('||'))
-      .map(
-        (list) => list.elements.length == 1
-            ? list.elements.first
-            : StringConcatExpression(list.elements),
-      );
+  Parser<XPathExpression> stringConcatExpr() =>
+      ref0(rangeExpr)
+          .plusSeparated(token('||'))
+          .map(
+            (list) => list.elements.length == 1
+                ? list.elements.first
+                : StringConcatExpression(list.elements),
+          );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-RangeExpr
   Parser<XPathExpression> rangeExpr() =>
@@ -256,16 +261,17 @@ class XPathGrammar {
       });
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-UnionExpr
-  Parser<XPathExpression> unionExpr() => ref0(intersectExceptExpr)
-      .plusSeparated([token('union'), token('|')].toChoiceParser())
-      .map((list) {
-        var result = list.elements.first;
-        for (var i = 1; i < list.elements.length; i++) {
-          final right = list.elements[i];
-          result = BinaryOperatorExpression(nodes.opUnion, result, right);
-        }
-        return result;
-      });
+  Parser<XPathExpression> unionExpr() =>
+      ref0(intersectExceptExpr)
+          .plusSeparated([token('union'), token('|')].toChoiceParser())
+          .map((list) {
+            var result = list.elements.first;
+            for (var i = 1; i < list.elements.length; i++) {
+              final right = list.elements[i];
+              result = BinaryOperatorExpression(nodes.opUnion, result, right);
+            }
+            return result;
+          });
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-IntersectExceptExpr
   Parser<XPathExpression> intersectExceptExpr() => ref0(instanceofExpr)
@@ -399,13 +405,14 @@ class XPathGrammar {
   ].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-SimpleMapExpr
-  Parser<XPathExpression> simpleMapExpr() => ref0(pathExpr)
-      .plusSeparated(token('!'))
-      .map(
-        (list) => list.elements.length == 1
-            ? list.elements.first
-            : SimpleMapExpression(list.elements),
-      );
+  Parser<XPathExpression> simpleMapExpr() =>
+      ref0(pathExpr)
+          .plusSeparated(token('!'))
+          .map(
+            (list) => list.elements.length == 1
+                ? list.elements.first
+                : SimpleMapExpression(list.elements),
+          );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-PathExpr
   Parser<XPathExpression> pathExpr() => [
@@ -421,25 +428,25 @@ class XPathGrammar {
           ? const RootNodeExpression()
           : PathExpression([const RootNodeExpression(), ...expr]),
     ),
-    ref0(
-      relativePathExpr,
-    ).map((expr) => expr.length == 1 ? expr.first : PathExpression(expr)),
+    ref0(relativePathExpr)
+        .map((expr) => expr.length == 1 ? expr.first : PathExpression(expr)),
   ].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-RelativePathExpr
-  Parser<List<XPathExpression>> relativePathExpr() => ref0(stepExpr)
-      .plusSeparated([token('//'), token('/')].toChoiceParser())
-      .map((list) {
-        final steps = [list.elements.first];
-        for (var i = 1; i < list.elements.length; i++) {
-          final sep = list.separators[i - 1];
-          if (sep == '//') {
-            steps.add(const StepExpression(DescendantOrSelfAxis()));
-          }
-          steps.add(list.elements[i]);
-        }
-        return steps;
-      });
+  Parser<List<XPathExpression>> relativePathExpr() =>
+      ref0(stepExpr)
+          .plusSeparated([token('//'), token('/')].toChoiceParser())
+          .map((list) {
+            final steps = [list.elements.first];
+            for (var i = 1; i < list.elements.length; i++) {
+              final sep = list.separators[i - 1];
+              if (sep == '//') {
+                steps.add(const StepExpression(DescendantOrSelfAxis()));
+              }
+              steps.add(list.elements[i]);
+            }
+            return steps;
+          });
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-StepExpr
   Parser<XPathExpression> stepExpr() =>
@@ -505,9 +512,9 @@ class XPathGrammar {
   ).map2((axis, test) => StepExpression(axis, nodeTest: test));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-AbbrevReverseStep
-  Parser<StepExpression> abbrevReverseStep() => [
-    token('..').constant(const StepExpression(ParentAxis())),
-  ].toChoiceParser();
+  Parser<StepExpression> abbrevReverseStep() =>
+      [token('..').constant(const StepExpression(ParentAxis()))]
+          .toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-NodeTest
   Parser<NodeTest> nodeTest() => [
@@ -577,18 +584,18 @@ class XPathGrammar {
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-KeySpecifier
   Parser<XPathExpression?> keySpecifier() => [
     ref0(ncName).map((name) => LiteralExpression(XPathSequence.single(name))),
-    ref0(
-      integerLiteral,
-    ).map((value) => LiteralExpression(XPathSequence.single(value))),
+    ref0(integerLiteral)
+        .map((value) => LiteralExpression(XPathSequence.single(value))),
     ref0(parenthesizedExpr),
     token('*').constant(null),
   ].toChoiceParser().cast<XPathExpression?>();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ArgumentList
-  Parser<List<XPathExpression>> argumentList() => ref0(argument)
-      .starSeparated(token(','))
-      .skip(before: token('('), after: token(')'))
-      .map((value) => value.elements);
+  Parser<List<XPathExpression>> argumentList() =>
+      ref0(argument)
+          .starSeparated(token(','))
+          .skip(before: token('('), after: token(')'))
+          .map((value) => value.elements);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-PredicateList
   Parser<List<Predicate>> predicateList() => ref0(predicate).star();
@@ -662,15 +669,16 @@ class XPathGrammar {
   Parser<String> varName() => trim(ref0(eqName).skip(before: char('\$')));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ParenthesizedExpr
-  Parser<XPathExpression> parenthesizedExpr() => ref0(expr)
-      .optional()
-      .skip(before: token('('), after: token(')'))
-      .map((expr) => expr ?? const SequenceExpression([]));
+  Parser<XPathExpression> parenthesizedExpr() =>
+      ref0(expr)
+          .optional()
+          .skip(before: token('('), after: token(')'))
+          .map((expr) => expr ?? const SequenceExpression([]));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ContextItemExpr
-  Parser<XPathExpression> contextItemExpr() => trim(
-    seq2(char('.'), char('.').not()),
-  ).constant(const ContextItemExpression());
+  Parser<XPathExpression> contextItemExpr() =>
+      trim(seq2(char('.'), char('.').not()))
+          .constant(const ContextItemExpression());
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-FunctionCall
   Parser<XPathExpression> functionCall() => seq2(
@@ -1047,9 +1055,9 @@ class XPathGrammar {
   // Different types of names.
   Parser<String> ncName() => trim(ref0(xmlGrammar.nonColonizedNameToken));
   Parser<String> qualifiedName() => trim(ref0(xmlGrammar.qualifiedNameToken));
-  Parser<String> bracedUriLiteral() => trim(
-    seq3('Q{'.toParser(), pattern('^{}').starString(), '}'.toParser()),
-  ).map3((_, uri, _) => uri);
+  Parser<String> bracedUriLiteral() =>
+      trim(seq3('Q{'.toParser(), pattern('^{}').starString(), '}'.toParser()))
+          .map3((_, uri, _) => uri);
 
   // Consumes a token.
   Parser<String> token(String token) => ref1(trim, token.toParser());

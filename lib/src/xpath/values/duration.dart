@@ -31,7 +31,7 @@ abstract class XPathAbstractDuration
   bool get isNegative;
 
   /// Constant constructor for subclasses.
-  const XPathAbstractDuration();
+  const new();
 
   /// Converts this object to a standard Dart [Duration] representation.
   Duration toDuration() {
@@ -98,7 +98,7 @@ class XPathDuration extends XPathAbstractDuration {
   final bool isNegative;
 
   /// Creates a new [XPathDuration] with the given components.
-  const XPathDuration({
+  const new({
     this.years = 0,
     this.months = 0,
     this.days = 0,
@@ -111,7 +111,7 @@ class XPathDuration extends XPathAbstractDuration {
   });
 
   /// Creates a new [XPathDuration] from years, months, and microsecond components.
-  factory XPathDuration.fromValues(int totalMonths, int totalMicroseconds) {
+  factory fromValues(int totalMonths, int totalMicroseconds) {
     final isNeg =
         totalMonths < 0 || (totalMonths == 0 && totalMicroseconds < 0);
     final absMonths = totalMonths.abs();
@@ -130,7 +130,7 @@ class XPathDuration extends XPathAbstractDuration {
   }
 
   /// Creates a new [XPathDuration] from a Dart [Duration] object.
-  factory XPathDuration.fromDuration(Duration duration) {
+  factory fromDuration(Duration duration) {
     final absUs = duration.abs().inMicroseconds;
     return XPathDuration(
       days: absUs ~/ Duration.microsecondsPerDay,
@@ -245,10 +245,10 @@ class XPathDayTimeDuration extends XPathAbstractDuration {
   final int totalMicroseconds;
 
   /// Creates a new [XPathDayTimeDuration] with the given total microseconds.
-  const XPathDayTimeDuration(this.totalMicroseconds);
+  const new(this.totalMicroseconds);
 
   /// Creates a new [XPathDayTimeDuration] from a Dart [Duration] object.
-  factory XPathDayTimeDuration.fromDuration(Duration duration) =>
+  factory fromDuration(Duration duration) =>
       XPathDayTimeDuration(duration.inMicroseconds);
 
   /// Attempts to parse a string representation of a dayTimeDuration.
@@ -392,7 +392,7 @@ class XPathYearMonthDuration extends XPathAbstractDuration {
   final int totalMonths;
 
   /// Creates a new [XPathYearMonthDuration] with the given total months.
-  const XPathYearMonthDuration(this.totalMonths);
+  const new(this.totalMonths);
 
   /// Attempts to parse a string representation of a yearMonthDuration.
   static XPathYearMonthDuration? tryParse(String value) {

@@ -13,10 +13,7 @@ class XmlDocumentFragment extends XmlNode with XmlHasChildren<XmlNode> {
   ///
   /// Note: It is the responsibility of the caller to provide a standard Dart
   /// [String] using the default UTF-16 encoding.
-  factory XmlDocumentFragment.parse(
-    String input, {
-    XmlEntityMapping? entityMapping,
-  }) {
+  factory parse(String input, {XmlEntityMapping? entityMapping}) {
     final events = parseEvents(
       input,
       entityMapping: entityMapping,
@@ -28,14 +25,14 @@ class XmlDocumentFragment extends XmlNode with XmlHasChildren<XmlNode> {
 
   /// Returns an [XmlDocumentFragment] built from calling the provided `callback`
   /// with an [XmlBuilder].
-  factory XmlDocumentFragment.build(CallbackWithBuilder callback) {
+  factory build(CallbackWithBuilder callback) {
     final builder = XmlBuilder();
     callback(builder);
     return builder.buildFragment();
   }
 
   /// Create a document fragment node with `children`.
-  XmlDocumentFragment([Iterable<XmlNode> children = const []]) {
+  new([Iterable<XmlNode> children = const []]) {
     this.children.initialize(this, childrenNodeTypes);
     this.children.addAll(children);
   }

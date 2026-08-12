@@ -5,7 +5,7 @@ import 'data.dart';
 /// XML text node.
 class XmlText extends XmlData {
   /// Create a text node with `value`.
-  XmlText(super.value);
+  new(super.value);
 
   @override
   XmlNodeType get nodeType => XmlNodeType.TEXT;

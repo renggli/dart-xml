@@ -7,7 +7,7 @@ import '../values/sequence.dart';
 const xsQName = _XPathQNameType();
 
 class _XPathQNameType extends XPathType<XmlName> {
-  const _XPathQNameType();
+  const new();
 
   @override
   String get name => 'xs:QName';

@@ -7,7 +7,7 @@ import '../values/sequence.dart';
 const xsMap = _XPathMapType();
 
 class _XPathMapType extends XPathType<XPathMap> {
-  const _XPathMapType();
+  const new();
 
   @override
   String get name => 'map(*)';

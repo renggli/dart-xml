@@ -5,7 +5,7 @@ import 'data.dart';
 /// XML comment node.
 class XmlComment extends XmlData {
   /// Create a comment section with `value`.
-  XmlComment(super.value);
+  new(super.value);
 
   @override
   XmlNodeType get nodeType => XmlNodeType.COMMENT;

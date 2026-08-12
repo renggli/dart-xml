@@ -4,14 +4,14 @@ import '../types/sequence.dart';
 import '../values/sequence.dart';
 
 class ContextItemExpression implements XPathExpression {
-  const ContextItemExpression();
+  const new();
 
   @override
   XPathSequence call(XPathContext context) => xsSequence.cast(context.item);
 }
 
 class VariableExpression implements XPathExpression {
-  const VariableExpression(this.name);
+  const new(this.name);
 
   final String name;
 
@@ -21,7 +21,7 @@ class VariableExpression implements XPathExpression {
 }
 
 class LiteralExpression implements XPathExpression {
-  const LiteralExpression(this.value);
+  const new(this.value);
 
   final XPathSequence value;
 

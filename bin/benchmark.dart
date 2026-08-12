@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:xml/xml.dart';
 
 /// Measures the time it takes to run [function] in microseconds.

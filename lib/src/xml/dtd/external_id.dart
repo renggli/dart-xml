@@ -3,14 +3,14 @@ import '../utils/token.dart';
 
 /// Immutable external ID.
 class DtdExternalId {
-  DtdExternalId.public(
+  new public(
     String this.publicId,
     XmlAttributeType this.publicIdType,
     this.systemId,
     this.systemIdType,
   );
 
-  DtdExternalId.system(this.systemId, this.systemIdType)
+  new system(this.systemId, this.systemIdType)
     : publicId = null,
       publicIdType = null;
 

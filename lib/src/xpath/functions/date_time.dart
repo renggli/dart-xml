@@ -531,8 +531,7 @@ XPathAbstractDateTime? _adjustDateTimeHelper(
     ms = arg.millisecond ?? 0;
     us = arg.microsecond ?? 0;
   } else {
-    final utcInstant = arg
-        .toDateTime(); // This is a UTC DateTime since originalOffsetMinutes != null
+    final utcInstant = arg.toDateTime(); // This is a UTC DateTime since originalOffsetMinutes != null
     final adjustedUtc = utcInstant.add(Duration(minutes: targetOffsetMinutes!));
     y = adjustedUtc.year;
     m = adjustedUtc.month;

@@ -23,8 +23,8 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> {
 
   // Construction
 
-  factory XmlNodeList() => XmlNodeList._(<E>[]);
-  XmlNodeList._(this._inner) : super(_inner);
+  factory() => XmlNodeList._(<E>[]);
+  new _(this._inner) : super(_inner);
 
   @internal
   void initialize(XmlNode parent, Set<XmlNodeType> nodeTypes) {
@@ -171,7 +171,7 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> {
 ///    nothing.
 class _XmlNodeListOperation<E extends XmlNode> {
   /// Creates an operation for the given [target].
-  _XmlNodeListOperation(this.target);
+  new(this.target);
 
   /// The set of seen nodes during expansion to deduplicate them.
   final seen = <XmlNode>{};

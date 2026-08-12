@@ -6,6 +6,7 @@ library;
 
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:collection/collection.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/types/boolean.dart';
@@ -76,7 +77,7 @@ void runFullTestCatalog() {
 }
 
 class TestCatalog {
-  TestCatalog(this.file);
+  new(this.file);
 
   final File file;
 
@@ -108,7 +109,7 @@ class TestCatalog {
 }
 
 class TestSet {
-  TestSet(this.catalog, this.name, this.file);
+  new(this.catalog, this.name, this.file);
 
   final TestCatalog catalog;
   final String name;
@@ -136,7 +137,7 @@ class TestSet {
 }
 
 class TestCase {
-  TestCase(this.catalog, this.testSet, this.element);
+  new(this.catalog, this.testSet, this.element);
 
   final TestCatalog catalog;
   final TestSet testSet;
@@ -226,7 +227,7 @@ class TestCase {
 }
 
 class TestEnvironment {
-  TestEnvironment(this.directory, this.element);
+  new(this.directory, this.element);
 
   final Directory directory;
   final XmlElement element;
@@ -352,7 +353,7 @@ class TestResult {
 }
 
 class TestFailure extends StateError {
-  TestFailure(super.message);
+  new(super.message);
 }
 
 void verifyResult(XmlElement element, Object result, XPathContext context) {
@@ -506,7 +507,7 @@ String _serializeNodes(List<XmlNode> nodes, {required bool ignorePrefixes}) {
 }
 
 class _TestRunnerPrettyWriter extends XmlPrettyWriter {
-  _TestRunnerPrettyWriter(super.buffer, {required this.ignorePrefixes})
+  new(super.buffer, {required this.ignorePrefixes})
     : super(
         sortAttributes: (first, second) =>
             (ignorePrefixes ? first.name.local : first.name.qualified)
@@ -597,7 +598,7 @@ String formatMessage(String message) {
 }
 
 class TestResource {
-  TestResource(this.file, this.encoding);
+  new(this.file, this.encoding);
   final String file;
   final String? encoding;
 }

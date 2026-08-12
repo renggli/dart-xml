@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+
 import '../../xml/enums/node_type.dart';
 import '../../xml/extensions/ancestors.dart';
 import '../../xml/extensions/descendants.dart';
@@ -17,17 +18,17 @@ sealed class Axis {
 /// includes the ancestor, ancestor-or-self, preceding, and preceding-sibling
 /// axes: https://www.w3.org/TR/1999/REC-xpath-19991116/#predicates
 @immutable
-sealed class ReverseAxis {}
+sealed class ReverseAxis;
 
 class AncestorAxis implements Axis, ReverseAxis {
-  const AncestorAxis();
+  const new();
 
   @override
   Iterable<XmlNode> find(XmlNode node) => node.ancestors.toList().reversed;
 }
 
 class AncestorOrSelfAxis implements Axis, ReverseAxis {
-  const AncestorOrSelfAxis();
+  const new();
 
   @override
   Iterable<XmlNode> find(XmlNode node) =>
@@ -35,21 +36,21 @@ class AncestorOrSelfAxis implements Axis, ReverseAxis {
 }
 
 class AttributeAxis implements Axis {
-  const AttributeAxis();
+  const new();
 
   @override
   Iterable<XmlNode> find(XmlNode node) => node.attributes;
 }
 
 class ChildAxis implements Axis {
-  const ChildAxis();
+  const new();
 
   @override
   Iterable<XmlNode> find(XmlNode node) => node.children;
 }
 
 class DescendantAxis implements Axis {
-  const DescendantAxis();
+  const new();
 
   @override
   Iterable<XmlNode> find(XmlNode node) => node.descendants.where(
@@ -58,7 +59,7 @@ class DescendantAxis implements Axis {
 }
 
 class DescendantOrSelfAxis implements Axis {
-  const DescendantOrSelfAxis();
+  const new();
 
   @override
   Iterable<XmlNode> find(XmlNode node) => [node].followedBy(
@@ -69,7 +70,7 @@ class DescendantOrSelfAxis implements Axis {
 }
 
 class FollowingAxis implements Axis {
-  const FollowingAxis();
+  const new();
 
   @override
   Iterable<XmlNode> find(XmlNode node) => node.following.where(
@@ -78,7 +79,7 @@ class FollowingAxis implements Axis {
 }
 
 class FollowingSiblingAxis implements Axis {
-  const FollowingSiblingAxis();
+  const new();
 
   @override
   Iterable<XmlNode> find(XmlNode node) {
@@ -89,14 +90,14 @@ class FollowingSiblingAxis implements Axis {
 }
 
 class NamespaceAxis implements Axis {
-  const NamespaceAxis();
+  const new();
 
   @override
   Iterable<XmlNode> find(XmlNode node) => node.namespaces;
 }
 
 class ParentAxis implements Axis, ReverseAxis {
-  const ParentAxis();
+  const new();
 
   @override
   Iterable<XmlNode> find(XmlNode node) {
@@ -106,7 +107,7 @@ class ParentAxis implements Axis, ReverseAxis {
 }
 
 class PrecedingAxis implements Axis, ReverseAxis {
-  const PrecedingAxis();
+  const new();
 
   @override
   Iterable<XmlNode> find(XmlNode node) {
@@ -119,7 +120,7 @@ class PrecedingAxis implements Axis, ReverseAxis {
 }
 
 class PrecedingSiblingAxis implements Axis, ReverseAxis {
-  const PrecedingSiblingAxis();
+  const new();
 
   @override
   Iterable<XmlNode> find(XmlNode node) {
@@ -130,7 +131,7 @@ class PrecedingSiblingAxis implements Axis, ReverseAxis {
 }
 
 class SelfAxis implements Axis {
-  const SelfAxis();
+  const new();
 
   @override
   Iterable<XmlNode> find(XmlNode node) => [node];

@@ -7,7 +7,7 @@ import '../values/sequence.dart';
 const xsArray = _XPathArrayType();
 
 class _XPathArrayType extends XPathType<XPathArray> {
-  const _XPathArrayType();
+  const new();
 
   @override
   String get name => 'array(*)';

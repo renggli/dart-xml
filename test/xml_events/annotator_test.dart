@@ -18,9 +18,9 @@ void verify(
     expect(events.expand(formatter), exected, reason: 'parseEvents');
   }
   if (stream != null) {
-    final events = stream(
-      Stream.value(input),
-    ).expand((each) => each).expand(formatter);
+    final events = stream(Stream.value(input))
+        .expand((each) => each)
+        .expand(formatter);
     expect(events, emitsInOrder(exected), reason: 'toXmlEvents');
   }
   if (codec != null) {

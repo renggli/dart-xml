@@ -15,7 +15,7 @@ import 'type.dart';
 
 /// Definition of an XPath function.
 class XPathFunctionDefinition extends XPathFunction {
-  const XPathFunctionDefinition({
+  const new({
     required this.name,
     this.requiredArguments = const [],
     this.optionalArguments = const [],
@@ -94,7 +94,7 @@ class XPathFunctionDefinition extends XPathFunction {
 
 /// Definition of an XPath function argument.
 class XPathArgumentDefinition {
-  const XPathArgumentDefinition({
+  const new({
     required this.name,
     required this.type,
     this.cardinality = XPathCardinality.exactlyOne,

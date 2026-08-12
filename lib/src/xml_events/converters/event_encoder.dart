@@ -24,7 +24,7 @@ extension XmlEventEncoderExtension on Stream<List<XmlEvent>> {
 
 /// A converter that encodes a sequence of [XmlEvent] objects to a [String].
 class XmlEventEncoder extends Converter<List<XmlEvent>, String> {
-  XmlEventEncoder({XmlEntityMapping? entityMapping})
+  new({XmlEntityMapping? entityMapping})
     : entityMapping = entityMapping ?? defaultEntityMapping;
 
   final XmlEntityMapping entityMapping;
@@ -48,7 +48,7 @@ class XmlEventEncoder extends Converter<List<XmlEvent>, String> {
 class _XmlEventEncoderSink
     with XmlEventVisitor
     implements ChunkedConversionSink<List<XmlEvent>> {
-  _XmlEventEncoderSink(this.sink, this.entityMapping);
+  new(this.sink, this.entityMapping);
 
   final Sink<String> sink;
   final XmlEntityMapping entityMapping;

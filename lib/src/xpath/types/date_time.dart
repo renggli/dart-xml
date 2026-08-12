@@ -9,7 +9,7 @@ import 'string.dart';
 const xsDateTime = _XPathDateTimeType();
 
 class _XPathDateTimeType extends XPathType<XPathDateTime> {
-  const _XPathDateTimeType();
+  const new();
 
   @override
   String get name => 'xs:dateTime';
@@ -78,7 +78,7 @@ class _XPathDateTimeType extends XPathType<XPathDateTime> {
 const xsDateTimeStamp = _XPathDateTimeStampType();
 
 class _XPathDateTimeStampType extends XPathType<XPathDateTimeStamp> {
-  const _XPathDateTimeStampType();
+  const new();
 
   @override
   String get name => 'xs:dateTimeStamp';
@@ -124,7 +124,7 @@ class _XPathDateTimeStampType extends XPathType<XPathDateTimeStamp> {
 const xsDate = _XPathDateType();
 
 class _XPathDateType extends XPathType<XPathDate> {
-  const _XPathDateType();
+  const new();
 
   @override
   String get name => 'xs:date';
@@ -162,7 +162,7 @@ class _XPathDateType extends XPathType<XPathDate> {
 const xsTime = _XPathTimeType();
 
 class _XPathTimeType extends XPathType<XPathTime> {
-  const _XPathTimeType();
+  const new();
 
   @override
   String get name => 'xs:time';
@@ -202,7 +202,7 @@ class _XPathTimeType extends XPathType<XPathTime> {
 const xsYearMonth = _XPathYearMonthType();
 
 class _XPathYearMonthType extends XPathType<XPathYearMonth> {
-  const _XPathYearMonthType();
+  const new();
 
   @override
   String get name => 'xs:gYearMonth';
@@ -240,7 +240,7 @@ class _XPathYearMonthType extends XPathType<XPathYearMonth> {
 const xsYear = _XPathYearType();
 
 class _XPathYearType extends XPathType<XPathYear> {
-  const _XPathYearType();
+  const new();
 
   @override
   String get name => 'xs:gYear';
@@ -276,7 +276,7 @@ class _XPathYearType extends XPathType<XPathYear> {
 const xsMonthDay = _XPathMonthDayType();
 
 class _XPathMonthDayType extends XPathType<XPathMonthDay> {
-  const _XPathMonthDayType();
+  const new();
 
   @override
   String get name => 'xs:gMonthDay';
@@ -314,7 +314,7 @@ class _XPathMonthDayType extends XPathType<XPathMonthDay> {
 const xsMonth = _XPathMonthType();
 
 class _XPathMonthType extends XPathType<XPathMonth> {
-  const _XPathMonthType();
+  const new();
 
   @override
   String get name => 'xs:gMonth';
@@ -350,7 +350,7 @@ class _XPathMonthType extends XPathType<XPathMonth> {
 const xsDay = _XPathDayType();
 
 class _XPathDayType extends XPathType<XPathDay> {
-  const _XPathDayType();
+  const new();
 
   @override
   String get name => 'xs:gDay';

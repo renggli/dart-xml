@@ -12,11 +12,11 @@ import 'token.dart';
 class XmlName with XmlHasVisitor, XmlHasWriter {
   /// Creates a [XmlName] with the given [qualified] name and an optional
   /// [namespaceUri].
-  const XmlName.qualified(this.qualified, {this.namespaceUri});
+  const new qualified(this.qualified, {this.namespaceUri});
 
   /// Creates an [XmlName] from a [local] name and an optional [prefix] and
   /// optional [namespaceUri].
-  const XmlName.parts(String local, {String? prefix, this.namespaceUri})
+  const new parts(String local, {String? prefix, this.namespaceUri})
     : qualified = prefix == null ? local : '$prefix${XmlToken.namespace}$local';
 
   /// Creates an [XmlName] from a parsed string.
@@ -28,7 +28,7 @@ class XmlName with XmlHasVisitor, XmlHasWriter {
   /// defined, [namespaceUri] is used instead (`null` by default).
   ///
   /// Throws a [XmlParserException] if the name is in an invalid extended form.
-  factory XmlName.parse(
+  factory parse(
     String name, {
     String? namespaceUri,
     Map<String, String>? namespaceUris,
@@ -57,7 +57,7 @@ class XmlName with XmlHasVisitor, XmlHasWriter {
   }
 
   /// Creates an [XmlName] for a namespace declaration with an optional [name].
-  const XmlName.namespace({String? name})
+  const new namespace({String? name})
     : this.qualified(
         name == null ? ns.xmlns : '${ns.xmlns}${XmlToken.namespace}$name',
         namespaceUri: ns.xmlnsUri,
@@ -66,7 +66,7 @@ class XmlName with XmlHasVisitor, XmlHasWriter {
   /// Creates a qualified [XmlName] from a [localName] name and an optional
   /// [namespacePrefix].
   @Deprecated('Use `XmlName.parts` instead')
-  const XmlName(String localName, [String? namespacePrefix])
+  const new(String localName, [String? namespacePrefix])
     : qualified = namespacePrefix == null
           ? localName
           : '$namespacePrefix${XmlToken.namespace}$localName',
@@ -74,7 +74,7 @@ class XmlName with XmlHasVisitor, XmlHasWriter {
 
   /// Create a [XmlName] by parsing the provided [qualified] name.
   @Deprecated('Use `XmlName.qualified` instead')
-  const XmlName.fromString(this.qualified) : namespaceUri = null;
+  const new fromString(this.qualified) : namespaceUri = null;
 
   /// The fully qualified name, including the namespace prefix.
   final String qualified;

@@ -3,7 +3,7 @@ import '../utils/token.dart';
 
 /// Describes the decoding and encoding of character entities.
 abstract class XmlEntityMapping {
-  const XmlEntityMapping();
+  const new();
 
   /// Decodes a string, resolving all possible entities.
   String decode(String input) {

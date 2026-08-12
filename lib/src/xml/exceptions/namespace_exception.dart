@@ -4,11 +4,11 @@ import 'format_exception.dart';
 /// Exception thrown when there is an error with a namespace.
 class XmlNamespaceException extends XmlException with XmlFormatException {
   /// Creates a new [XmlNamespaceException].
-  XmlNamespaceException(super.message, {this.buffer, this.position});
+  new(super.message, {this.buffer, this.position});
 
   /// Creates a new XmlTagException where [namespacePrefix] could not be
   /// resolved.
-  factory XmlNamespaceException.unknownNamespacePrefix(
+  factory unknownNamespacePrefix(
     String namespacePrefix, {
     String? buffer,
     int? position,

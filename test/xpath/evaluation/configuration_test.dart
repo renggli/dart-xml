@@ -24,12 +24,14 @@ const name2 = XmlName.parts(
   namespaceUri: xpathArrayNamespace,
 );
 
-final XPathFunction fun1 =
-    ((XPathContext context, List<XPathSequence> args) => XPathSequence.empty)
-        .toXPathFunction(arity: 0);
-final XPathFunction fun2 =
-    ((XPathContext context, List<XPathSequence> args) => XPathSequence.empty)
-        .toXPathFunction(arity: 0);
+final XPathFunction fun1 = ((
+  XPathContext context,
+  List<XPathSequence> args,
+) => XPathSequence.empty).toXPathFunction(arity: 0);
+final XPathFunction fun2 = ((
+  XPathContext context,
+  List<XPathSequence> args,
+) => XPathSequence.empty).toXPathFunction(arity: 0);
 
 void trace1(XPathSequence value, String? label) {}
 void trace2(XPathSequence value, String? label) {}

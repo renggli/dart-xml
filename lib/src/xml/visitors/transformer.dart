@@ -21,7 +21,7 @@ import '../utils/name.dart';
   'strongly-typed `XmlVisitor` over your DOM instead',
 )
 class XmlTransformer {
-  const XmlTransformer();
+  const new();
 
   T visit<T extends XmlHasVisitor>(T node) => switch (node) {
     XmlAttribute() => visitAttribute(node) as T,

@@ -4,7 +4,7 @@ import '../exceptions/evaluation_exception.dart';
 import '../values/sequence.dart';
 
 class MapConstructor implements XPathExpression {
-  const MapConstructor(this.entries);
+  const new(this.entries);
 
   final List<MapEntry<XPathExpression, XPathExpression>> entries;
 
@@ -25,7 +25,7 @@ class MapConstructor implements XPathExpression {
 }
 
 class SquareArrayConstructor implements XPathExpression {
-  const SquareArrayConstructor(this.members);
+  const new(this.members);
 
   final List<XPathExpression> members;
 
@@ -36,14 +36,14 @@ class SquareArrayConstructor implements XPathExpression {
 }
 
 class CurlyArrayConstructor implements XPathExpression {
-  const CurlyArrayConstructor(this.expression);
+  const new(this.expression);
 
   final XPathExpression expression;
 
   @override
   XPathSequence call(XPathContext context) => XPathSequence.single(
-    expression(
-      context,
-    ).expand((member) => member is XPathSequence ? member : [member]).toList(),
+    expression(context)
+        .expand((member) => member is XPathSequence ? member : [member])
+        .toList(),
   );
 }

@@ -14,7 +14,7 @@ extension XmlNormalizeEventsExtension on Stream<List<XmlEvent>> {
 /// A converter that normalizes sequences of [XmlEvent] objects, namely combines
 /// adjacent and removes empty text events.
 class XmlNormalizeEvents extends XmlListConverter<XmlEvent, XmlEvent> {
-  const XmlNormalizeEvents();
+  const new();
 
   @override
   ChunkedConversionSink<List<XmlEvent>> startChunkedConversion(
@@ -23,7 +23,7 @@ class XmlNormalizeEvents extends XmlListConverter<XmlEvent, XmlEvent> {
 }
 
 class _XmlNormalizeEventsSink implements ChunkedConversionSink<List<XmlEvent>> {
-  _XmlNormalizeEventsSink(this.sink);
+  new(this.sink);
 
   final Sink<List<XmlEvent>> sink;
   final List<XmlEvent> buffer = <XmlEvent>[];

@@ -68,8 +68,7 @@ void main() {
         () => xsDocument.cast(root),
         throwsA(
           isXPathEvaluationException(
-            message:
-                'Unsupported cast from <r a="1"><a>1</a><b>2<c>3</c></b><!--c--><?p?></r> to document',
+            message: 'Unsupported cast from <r a="1"><a>1</a><b>2<c>3</c></b><!--c--><?p?></r> to document',
           ),
         ),
       );
@@ -90,8 +89,7 @@ void main() {
         () => xsElement.cast(document),
         throwsA(
           isXPathEvaluationException(
-            message:
-                'Unsupported cast from <r a="1"><a>1</a><b>2<c>3</c></b><!--c--><?p?></r> to element',
+            message: 'Unsupported cast from <r a="1"><a>1</a><b>2<c>3</c></b><!--c--><?p?></r> to element',
           ),
         ),
       );
@@ -112,8 +110,7 @@ void main() {
         () => xsAttribute.cast(root),
         throwsA(
           isXPathEvaluationException(
-            message:
-                'Unsupported cast from <r a="1"><a>1</a><b>2<c>3</c></b><!--c--><?p?></r> to attribute',
+            message: 'Unsupported cast from <r a="1"><a>1</a><b>2<c>3</c></b><!--c--><?p?></r> to attribute',
           ),
         ),
       );
@@ -134,8 +131,7 @@ void main() {
         () => xsText.cast(root),
         throwsA(
           isXPathEvaluationException(
-            message:
-                'Unsupported cast from <r a="1"><a>1</a><b>2<c>3</c></b><!--c--><?p?></r> to text',
+            message: 'Unsupported cast from <r a="1"><a>1</a><b>2<c>3</c></b><!--c--><?p?></r> to text',
           ),
         ),
       );
@@ -156,8 +152,7 @@ void main() {
         () => xsComment.cast(root),
         throwsA(
           isXPathEvaluationException(
-            message:
-                'Unsupported cast from <r a="1"><a>1</a><b>2<c>3</c></b><!--c--><?p?></r> to comment',
+            message: 'Unsupported cast from <r a="1"><a>1</a><b>2<c>3</c></b><!--c--><?p?></r> to comment',
           ),
         ),
       );
@@ -178,8 +173,7 @@ void main() {
         () => xsProcessingInstruction.cast(root),
         throwsA(
           isXPathEvaluationException(
-            message:
-                'Unsupported cast from <r a="1"><a>1</a><b>2<c>3</c></b><!--c--><?p?></r> to processing-instruction',
+            message: 'Unsupported cast from <r a="1"><a>1</a><b>2<c>3</c></b><!--c--><?p?></r> to processing-instruction',
           ),
         ),
       );
@@ -200,8 +194,7 @@ void main() {
         () => xsNamespace.cast(root),
         throwsA(
           isXPathEvaluationException(
-            message:
-                'Unsupported cast from <r a="1"><a>1</a><b>2<c>3</c></b><!--c--><?p?></r> to namespace',
+            message: 'Unsupported cast from <r a="1"><a>1</a><b>2<c>3</c></b><!--c--><?p?></r> to namespace',
           ),
         ),
       );

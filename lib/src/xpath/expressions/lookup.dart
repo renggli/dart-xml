@@ -8,7 +8,7 @@ import '../values/sequence.dart';
 ///
 /// https://www.w3.org/TR/xpath-31/#id-postfix-lookup
 class LookupExpression implements XPathExpression {
-  const LookupExpression(this.base, this.key);
+  const new(this.base, this.key);
 
   /// The base expression to look up into.
   final XPathExpression base;
@@ -33,7 +33,7 @@ class LookupExpression implements XPathExpression {
 ///
 /// https://www.w3.org/TR/xpath-31/#id-unary-lookup
 class UnaryLookupExpression implements XPathExpression {
-  const UnaryLookupExpression(this.key);
+  const new(this.key);
 
   /// The key specifier, or `null` for wildcard (`?*`).
   final XPathExpression? key;
@@ -53,7 +53,7 @@ class UnaryLookupExpression implements XPathExpression {
 
 /// A helper wrapping a key specifier for the lookup postfix.
 class LookupKey {
-  const LookupKey(this.key);
+  const new(this.key);
 
   /// The key specifier expression, or `null` for wildcard (`?*`).
   final XPathExpression? key;

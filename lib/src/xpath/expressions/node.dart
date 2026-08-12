@@ -11,14 +11,14 @@ import 'name.dart';
 
 /// Abstract superclass for all node tests.
 abstract class NodeTest {
-  const NodeTest();
+  const new();
 
   bool matches(XmlNode node);
 }
 
 /// `node()` matches any node.
 class NodeTypeTest extends NodeTest {
-  const NodeTypeTest();
+  const new();
 
   @override
   bool matches(XmlNode node) => true;
@@ -26,7 +26,7 @@ class NodeTypeTest extends NodeTest {
 
 /// `text()` matches any text node.
 class TextTypeTest extends NodeTest {
-  const TextTypeTest();
+  const new();
 
   @override
   bool matches(XmlNode node) => node is XmlText || node is XmlCDATA;
@@ -34,7 +34,7 @@ class TextTypeTest extends NodeTest {
 
 /// `comment()` matches any comment node.
 class CommentTypeTest extends NodeTest {
-  const CommentTypeTest();
+  const new();
 
   @override
   bool matches(XmlNode node) => node is XmlComment;
@@ -42,7 +42,7 @@ class CommentTypeTest extends NodeTest {
 
 /// `namespace-node()` matches any namespace node.
 class NamespaceNodeTypeTest extends NodeTest {
-  const NamespaceNodeTypeTest();
+  const new();
 
   @override
   bool matches(XmlNode node) => node is XmlNamespace;
@@ -50,7 +50,7 @@ class NamespaceNodeTypeTest extends NodeTest {
 
 /// `element()` matches any element node.
 class ElementTypeTest extends NodeTest {
-  const ElementTypeTest({this.nameTest});
+  const new({this.nameTest});
 
   final NameTest? nameTest;
 
@@ -61,7 +61,7 @@ class ElementTypeTest extends NodeTest {
 
 /// `attribute()` matches any attribute node.
 class AttributeTypeTest extends NodeTest {
-  const AttributeTypeTest({this.nameTest});
+  const new({this.nameTest});
 
   final NameTest? nameTest;
 
@@ -72,7 +72,7 @@ class AttributeTypeTest extends NodeTest {
 
 /// `document-node()` matches any document node.
 class DocumentTypeTest extends NodeTest {
-  const DocumentTypeTest({this.rootElementTest});
+  const new({this.rootElementTest});
 
   final ElementTypeTest? rootElementTest;
 
@@ -84,7 +84,7 @@ class DocumentTypeTest extends NodeTest {
 
 /// `processing-instruction()` matches any processing-instruction node.
 class ProcessingTypeTest extends NodeTest {
-  const ProcessingTypeTest({this.target});
+  const new({this.target});
 
   final String? target;
 
@@ -95,7 +95,7 @@ class ProcessingTypeTest extends NodeTest {
 
 /// `schema-element()` an element node against a corresponding declaration.
 class SchemaElementTypeTest extends NodeTest {
-  const SchemaElementTypeTest();
+  const new();
 
   @override
   bool matches(XmlNode node) => throw UnimplementedError('SchemaElementTest');
@@ -103,7 +103,7 @@ class SchemaElementTypeTest extends NodeTest {
 
 /// `schema-attribute()` an attribute node against a corresponding declaration.
 class SchemaAttributeTypeTest extends NodeTest {
-  const SchemaAttributeTypeTest();
+  const new();
 
   @override
   bool matches(XmlNode node) => throw UnimplementedError('SchemaAttributeNode');

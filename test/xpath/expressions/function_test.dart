@@ -178,11 +178,10 @@ void main() {
       final closureContext = context.configuration
           .copy(
             functions: {
-              const XmlName.parts(
-                'foo',
-                namespaceUri: xpathFnNamespace,
-              ): ((XPathContext context, List<XPathSequence> args) => result)
-                  .toXPathFunction(arity: 0),
+              const XmlName.parts('foo', namespaceUri: xpathFnNamespace): ((
+                XPathContext context,
+                List<XPathSequence> args,
+              ) => result).toXPathFunction(arity: 0),
             },
           )
           .context(context.item)
@@ -214,9 +213,10 @@ void main() {
                         const XmlName.parts(
                           'foo',
                           namespaceUri: xpathFnNamespace,
-                        ): ((XPathContext context, List<XPathSequence> args) =>
-                                result)
-                            .toXPathFunction(arity: 0),
+                        ): ((
+                          XPathContext context,
+                          List<XPathSequence> args,
+                        ) => result).toXPathFunction(arity: 0),
                       },
                     )
                     .context(context.item)

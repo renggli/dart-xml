@@ -5,7 +5,7 @@ import 'data.dart';
 /// XML CDATA node.
 class XmlCDATA extends XmlData {
   /// Create a CDATA section with `text`.
-  XmlCDATA(super.value);
+  new(super.value);
 
   @override
   XmlNodeType get nodeType => XmlNodeType.CDATA;

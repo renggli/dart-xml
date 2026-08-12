@@ -9,7 +9,7 @@ import '../values/sequence.dart';
 import 'variable.dart';
 
 class FunctionExpression implements XPathExpression {
-  const FunctionExpression(this.name, this.arguments);
+  const new(this.name, this.arguments);
 
   final String name;
   final List<XPathExpression> arguments;
@@ -31,7 +31,7 @@ class FunctionExpression implements XPathExpression {
 }
 
 class InlineFunctionExpression implements XPathExpression {
-  const InlineFunctionExpression(this.expression, this.parameters);
+  const new(this.expression, this.parameters);
 
   final XPathExpression expression;
   final List<String> parameters;
@@ -43,7 +43,7 @@ class InlineFunctionExpression implements XPathExpression {
 }
 
 class NamedFunctionExpression implements XPathExpression {
-  const NamedFunctionExpression(this.name, this.arity);
+  const new(this.name, this.arity);
 
   final String name;
   final int arity;
@@ -70,7 +70,7 @@ class NamedFunctionExpression implements XPathExpression {
 }
 
 class ArrowExpression implements XPathExpression {
-  const ArrowExpression(this.expression, this.specifier, this.arguments);
+  const new(this.expression, this.specifier, this.arguments);
 
   final XPathExpression expression;
   final Object specifier;
@@ -110,7 +110,7 @@ class ArrowExpression implements XPathExpression {
 }
 
 class FunctionCallExpression implements XPathExpression {
-  const FunctionCallExpression(this.function, this.arguments);
+  const new(this.function, this.arguments);
 
   final XPathExpression function;
   final List<XPathExpression> arguments;
@@ -152,7 +152,7 @@ class FunctionCallExpression implements XPathExpression {
 }
 
 class ArgumentPlaceholderExpression implements XPathExpression {
-  const ArgumentPlaceholderExpression();
+  const new();
 
   @override
   XPathSequence call(XPathContext context) =>
@@ -186,7 +186,7 @@ XPathSequence _applyPartialFunction(
 }
 
 class _XPathInlineFunction extends XPathFunction {
-  _XPathInlineFunction(this.expression, this.context, this.parameters);
+  new(this.expression, this.context, this.parameters);
 
   final XPathExpression expression;
   final XPathContext context;
@@ -213,7 +213,7 @@ class _XPathInlineFunction extends XPathFunction {
 }
 
 class _XPathPartialFunction extends XPathFunction {
-  _XPathPartialFunction(this.evaluatedArguments, this.function, this.arity);
+  new(this.evaluatedArguments, this.function, this.arity);
 
   final List<XPathExpression> evaluatedArguments;
   final XPathFunction function;

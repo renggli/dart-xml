@@ -58,8 +58,7 @@ void main() {
         () => def.convert(function, XPathSequence.empty),
         throwsA(
           isXPathEvaluationException(
-            message:
-                'Function "foo" expects exactly one value for argument "arg", but got none.',
+            message: 'Function "foo" expects exactly one value for argument "arg", but got none.',
           ),
         ),
       );
@@ -67,8 +66,7 @@ void main() {
         () => def.convert(function, const XPathSequence(['a', 'b'])),
         throwsA(
           isXPathEvaluationException(
-            message:
-                'Function "foo" expects exactly one value for argument "arg", but got more than one.',
+            message: 'Function "foo" expects exactly one value for argument "arg", but got more than one.',
           ),
         ),
       );
@@ -85,8 +83,7 @@ void main() {
         () => def.convert(function, const XPathSequence(['a', 'b'])),
         throwsA(
           isXPathEvaluationException(
-            message:
-                'Function "foo" expects zero or one value for argument "arg", but got more than one.',
+            message: 'Function "foo" expects zero or one value for argument "arg", but got more than one.',
           ),
         ),
       );
@@ -106,8 +103,7 @@ void main() {
         () => def.convert(function, XPathSequence.empty),
         throwsA(
           isXPathEvaluationException(
-            message:
-                'Function "foo" expects one or more values for argument "arg", but got none.',
+            message: 'Function "foo" expects one or more values for argument "arg", but got none.',
           ),
         ),
       );

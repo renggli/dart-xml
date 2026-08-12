@@ -16,7 +16,7 @@ import 'has_name.dart';
 /// the position in said buffer, the parent event, and namespaces. This class
 /// also has the ability to validate parents and namespaces.
 class XmlAnnotator {
-  XmlAnnotator({
+  new({
     required this.validateNesting,
     required this.validateNamespace,
     required this.validateDocument,

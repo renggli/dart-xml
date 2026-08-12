@@ -41,7 +41,7 @@ extension XmlNormalizerExtension on XmlNode {
 
 /// Normalizes a node tree in-place.
 class XmlNormalizer with XmlVisitor {
-  const XmlNormalizer({
+  const new({
     required this.collapseWhitespace,
     required this.normalizeNewline,
     required this.trimWhitespace,

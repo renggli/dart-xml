@@ -24,7 +24,7 @@ class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
   ///
   /// Note: It is the responsibility of the caller to provide a standard Dart
   /// [String] using the default UTF-16 encoding.
-  factory XmlDocument.parse(String input, {XmlEntityMapping? entityMapping}) {
+  factory parse(String input, {XmlEntityMapping? entityMapping}) {
     final events = parseEvents(
       input,
       entityMapping: entityMapping,
@@ -48,14 +48,14 @@ class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
   /// });
   /// print(document.toXmlString());
   /// ```
-  factory XmlDocument.build(CallbackWithBuilder callback) {
+  factory build(CallbackWithBuilder callback) {
     final builder = XmlBuilder();
     callback(builder);
     return builder.buildDocument();
   }
 
   /// Create a document node with `children`.
-  XmlDocument([Iterable<XmlNode> children = const []]) {
+  new([Iterable<XmlNode> children = const []]) {
     this.children.initialize(this, childrenNodeTypes);
     this.children.addAll(children);
   }

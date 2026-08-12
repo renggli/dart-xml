@@ -5,7 +5,7 @@ import '../types/number.dart';
 import '../values/sequence.dart';
 
 class RangeExpression implements XPathExpression {
-  const RangeExpression(this.startExpression, this.endExpression);
+  const new(this.startExpression, this.endExpression);
 
   final XPathExpression startExpression;
   final XPathExpression endExpression;

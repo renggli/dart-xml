@@ -5,7 +5,7 @@ import 'data.dart';
 /// XML processing instruction.
 class XmlProcessing extends XmlData {
   /// Create a processing node with `target` and `value`.
-  XmlProcessing(this.target, super.value);
+  new(this.target, super.value);
 
   /// Return the processing target.
   final String target;

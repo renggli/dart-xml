@@ -3,6 +3,7 @@ import 'package:xml/src/xpath/evaluation/configuration.dart';
 import 'package:xml/src/xpath/functions/boolean.dart';
 import 'package:xml/src/xpath/values/sequence.dart';
 import 'package:xml/xml.dart';
+
 import '../../utils/matchers.dart';
 import '../helpers.dart';
 

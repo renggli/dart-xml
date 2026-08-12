@@ -7,7 +7,7 @@ import '../values/sequence.dart';
 
 /// Checks if [expression] is an instance of [type].
 class InstanceofExpression extends XPathExpression {
-  InstanceofExpression(this.expression, this.type);
+  new(this.expression, this.type);
 
   final XPathExpression expression;
   final XPathType<Object> type;
@@ -22,7 +22,7 @@ class InstanceofExpression extends XPathExpression {
 
 /// Casts [expression] to [type].
 class CastExpression extends XPathExpression {
-  CastExpression(this.expression, this.type);
+  new(this.expression, this.type);
 
   final XPathExpression expression;
   final XPathType<Object> type;
@@ -34,7 +34,7 @@ class CastExpression extends XPathExpression {
 
 /// Checks if [expression] is castable to [type].
 class CastableExpression extends XPathExpression {
-  CastableExpression(this.expression, this.type);
+  new(this.expression, this.type);
 
   final XPathExpression expression;
   final XPathType<Object> type;
@@ -53,7 +53,7 @@ class CastableExpression extends XPathExpression {
 
 /// Treats [expression] as [type].
 class TreatExpression extends XPathExpression {
-  TreatExpression(this.expression, this.type);
+  new(this.expression, this.type);
 
   final XPathExpression expression;
   final XPathType<Object> type;

@@ -9,7 +9,7 @@ import 'node.dart';
 /// XML document declaration.
 class XmlDeclaration extends XmlNode
     with XmlHasParent<XmlNode>, XmlHasAttributes {
-  XmlDeclaration([Iterable<XmlAttribute> attributes = const []]) {
+  new([Iterable<XmlAttribute> attributes = const []]) {
     this.attributes.initialize(this, attributeNodeTypes);
     this.attributes.addAll(attributes);
   }

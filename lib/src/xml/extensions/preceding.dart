@@ -17,7 +17,7 @@ extension XmlPrecedingExtension on XmlNode {
 
 /// Iterable to walk over the precedents of a node.
 class XmlPrecedingIterable extends IterableBase<XmlNode> {
-  XmlPrecedingIterable(this._start);
+  new(this._start);
 
   final XmlNode _start;
 
@@ -27,7 +27,7 @@ class XmlPrecedingIterable extends IterableBase<XmlNode> {
 
 /// Iterator to walk over the precedents of a node.
 class XmlPrecedingIterator implements Iterator<XmlNode> {
-  XmlPrecedingIterator(this._start) {
+  new(this._start) {
     _todo.add(_start.root);
   }
 

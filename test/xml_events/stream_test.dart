@@ -572,25 +572,28 @@ void main() {
   group('normalizeEvents', () {
     test('empty', () async {
       final input = <XmlEvent>[XmlTextEvent('')];
-      final output = await Stream.fromIterable([
-        input,
-      ]).normalizeEvents().flatten().toList();
+      final output = await Stream.fromIterable([input])
+          .normalizeEvents()
+          .flatten()
+          .toList();
       const expected = <XmlEvent>[];
       expect(output, expected);
     });
     test('whitespace', () async {
       final input = <XmlEvent>[XmlTextEvent(' \n\t')];
-      final actual = await Stream.fromIterable([
-        input,
-      ]).normalizeEvents().flatten().toList();
+      final actual = await Stream.fromIterable([input])
+          .normalizeEvents()
+          .flatten()
+          .toList();
       final expected = <XmlEvent>[XmlTextEvent(' \n\t')];
       expect(actual, expected);
     });
     test('combine two', () async {
       final input = <XmlEvent>[XmlTextEvent('a'), XmlTextEvent('b')];
-      final actual = await Stream.fromIterable([
-        input,
-      ]).normalizeEvents().flatten().toList();
+      final actual = await Stream.fromIterable([input])
+          .normalizeEvents()
+          .flatten()
+          .toList();
       final expected = <XmlEvent>[XmlTextEvent('ab')];
       expect(actual, expected);
     });
@@ -602,9 +605,10 @@ void main() {
         XmlTextEvent('d'),
         XmlTextEvent('e'),
       ];
-      final actual = await Stream.fromIterable([
-        input,
-      ]).normalizeEvents().flatten().toList();
+      final actual = await Stream.fromIterable([input])
+          .normalizeEvents()
+          .flatten()
+          .toList();
       final expected = <XmlEvent>[XmlTextEvent('abcde')];
       expect(actual, expected);
     });
@@ -617,9 +621,10 @@ void main() {
         XmlTextEvent('d'),
         XmlTextEvent('e'),
       ];
-      final actual = await Stream.fromIterable([
-        input,
-      ]).normalizeEvents().flatten().toList();
+      final actual = await Stream.fromIterable([input])
+          .normalizeEvents()
+          .flatten()
+          .toList();
       final expected = <XmlEvent>[
         XmlTextEvent('abc'),
         XmlStartElementEvent('br', [], true),

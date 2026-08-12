@@ -5,7 +5,7 @@ import 'exception.dart';
 /// Exception thrown when the parent relationship between nodes is invalid.
 class XmlParentException extends XmlException {
   /// Creates a new XmlParentException.
-  XmlParentException(super.message, {required this.node, this.parent});
+  new(super.message, {required this.node, this.parent});
 
   /// Ensure that [node] has a parent and returns that node.
   static XmlNode checkParent(XmlParentBase node) {

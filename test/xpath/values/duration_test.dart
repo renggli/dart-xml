@@ -56,15 +56,13 @@ void main() {
       expect(d1.compareTo(d2), isNotNull);
       expect(MockDuration().compareTo(MockDuration()), 0);
       expect(
-        const XPathYearMonthDuration(
-          12,
-        ).compareTo(const XPathYearMonthDuration(24)),
+        const XPathYearMonthDuration(12)
+            .compareTo(const XPathYearMonthDuration(24)),
         lessThan(0),
       );
       expect(
-        const XPathDayTimeDuration(
-          12,
-        ).compareTo(const XPathDayTimeDuration(24)),
+        const XPathDayTimeDuration(12)
+            .compareTo(const XPathDayTimeDuration(24)),
         lessThan(0),
       );
     });

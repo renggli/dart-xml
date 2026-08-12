@@ -2,7 +2,7 @@ import '../nodes/attribute.dart';
 
 // Internal class to define a namespace.
 class NamespaceDefinition {
-  NamespaceDefinition({required this.attribute, this.prefix, this.uri});
+  new({required this.attribute, this.prefix, this.uri});
 
   // Attribute with the definition.
   final XmlAttribute attribute;

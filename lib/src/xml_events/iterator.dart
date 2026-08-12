@@ -7,11 +7,8 @@ import 'event.dart';
 import 'parser.dart';
 
 class XmlEventIterator implements Iterator<XmlEvent> {
-  XmlEventIterator(
-    String input,
-    XmlEntityMapping entityMapping,
-    this._annotator,
-  ) : _eventParser = eventParserCache[entityMapping],
+  new(String input, XmlEntityMapping entityMapping, this._annotator)
+    : _eventParser = eventParserCache[entityMapping],
       _context = Failure(input, 0, '');
 
   final Parser<XmlEvent> _eventParser;

@@ -7,7 +7,7 @@ import '../values/sequence.dart';
 const xsDuration = _XPathDurationType();
 
 class _XPathDurationType extends XPathType<XPathDuration> {
-  const _XPathDurationType();
+  const new();
 
   @override
   String get name => 'xs:duration';
@@ -92,7 +92,7 @@ void _writeDayTimePart(StringBuffer buffer, XPathAbstractDuration value) {
 const xsDayTimeDuration = _XPathDayTimeDurationType();
 
 class _XPathDayTimeDurationType extends XPathType<XPathDayTimeDuration> {
-  const _XPathDayTimeDurationType();
+  const new();
 
   @override
   String get name => 'xs:dayTimeDuration';
@@ -129,7 +129,7 @@ class _XPathDayTimeDurationType extends XPathType<XPathDayTimeDuration> {
 const xsYearMonthDuration = _XPathYearMonthDurationType();
 
 class _XPathYearMonthDurationType extends XPathType<XPathYearMonthDuration> {
-  const _XPathYearMonthDurationType();
+  const new();
 
   @override
   String get name => 'xs:yearMonthDuration';

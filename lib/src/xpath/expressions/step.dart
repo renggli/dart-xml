@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+
 import '../../xml/extensions/parent.dart';
 import '../../xml/nodes/node.dart';
 import '../evaluation/context.dart';
@@ -12,7 +13,7 @@ import 'predicate.dart';
 /// A step in a path expression returning nodes in document order.
 @immutable
 class StepExpression implements XPathExpression {
-  const StepExpression(
+  const new(
     this.axis, {
     this.nodeTest = const NodeTypeTest(),
     this.predicates = const [],
@@ -52,7 +53,7 @@ class StepExpression implements XPathExpression {
 }
 
 class RootNodeExpression implements XPathExpression {
-  const RootNodeExpression();
+  const new();
 
   @override
   XPathSequence call(XPathContext context) =>

@@ -14,9 +14,10 @@ void mutatingTest<T extends XmlNode>(
 ) {
   test(description, () {
     final document = XmlDocument.parse(before);
-    final node = <XmlNode>[
-      document,
-    ].followedBy(document.descendants).whereType<T>().first;
+    final node = <XmlNode>[document]
+        .followedBy(document.descendants)
+        .whereType<T>()
+        .first;
     action(node);
     document.normalize();
     expect(document.toXmlString(), after, reason: 'should be modified');
@@ -33,9 +34,10 @@ void throwingTest<T extends XmlNode>(
 ) {
   test(description, () {
     final document = XmlDocument.parse(before);
-    final node = <XmlNode>[
-      document,
-    ].followedBy(document.descendants).whereType<T>().first;
+    final node = <XmlNode>[document]
+        .followedBy(document.descendants)
+        .whereType<T>()
+        .first;
     expect(() => action(node), matcher);
     expect(document.toXmlString(), before, reason: 'should not be modified');
     assertDocumentTreeInvariants(document);
@@ -161,19 +163,16 @@ void main() {
       (node) => node.children.add(node.children.first.copy()),
       '<element1><element2/><element2/></element1>',
     );
-    mutatingTest<XmlElement>(
-      'element (fragment children)',
-      '<element1/>',
-      (node) {
-        final fragment = XmlDocumentFragment([
-          XmlText('Hello'),
-          XmlElement(const XmlName.qualified('element2')),
-          XmlComment('comment'),
-        ]);
-        node.children.add(fragment);
-      },
-      '<element1>Hello<element2/><!--comment--></element1>',
-    );
+    mutatingTest<XmlElement>('element (fragment children)', '<element1/>', (
+      node,
+    ) {
+      final fragment = XmlDocumentFragment([
+        XmlText('Hello'),
+        XmlElement(const XmlName.qualified('element2')),
+        XmlComment('comment'),
+      ]);
+      node.children.add(fragment);
+    }, '<element1>Hello<element2/><!--comment--></element1>');
     mutatingTest<XmlElement>(
       'element (repeated fragment children)',
       '<element1/>',
@@ -234,19 +233,16 @@ void main() {
       (node) => node.children.addAll([node.children.first.copy()]),
       '<element1><element2/><element2/></element1>',
     );
-    mutatingTest<XmlElement>(
-      'element (fragment children)',
-      '<element1/>',
-      (node) {
-        final fragment = XmlDocumentFragment([
-          XmlText('Hello'),
-          XmlElement(const XmlName.qualified('element2')),
-          XmlComment('comment'),
-        ]);
-        node.children.addAll([fragment]);
-      },
-      '<element1>Hello<element2/><!--comment--></element1>',
-    );
+    mutatingTest<XmlElement>('element (fragment children)', '<element1/>', (
+      node,
+    ) {
+      final fragment = XmlDocumentFragment([
+        XmlText('Hello'),
+        XmlElement(const XmlName.qualified('element2')),
+        XmlComment('comment'),
+      ]);
+      node.children.addAll([fragment]);
+    }, '<element1>Hello<element2/><!--comment--></element1>');
     mutatingTest<XmlElement>(
       'element (repeated fragment children)',
       '<element1/>',
@@ -323,16 +319,11 @@ void main() {
     );
   });
   group('innerXml', () {
-    mutatingTest<XmlElement>(
-      'empty with multiple',
-      '<element/>',
-      (node) {
-        expect(node.innerXml, '');
-        node.innerXml = '<child1/> and <child2/>';
-        expect(node.innerXml, '<child1/> and <child2/>');
-      },
-      '<element><child1/> and <child2/></element>',
-    );
+    mutatingTest<XmlElement>('empty with multiple', '<element/>', (node) {
+      expect(node.innerXml, '');
+      node.innerXml = '<child1/> and <child2/>';
+      expect(node.innerXml, '<child1/> and <child2/>');
+    }, '<element><child1/> and <child2/></element>');
     mutatingTest<XmlElement>(
       'multiple with empty',
       '<element><child1/> and <child2/></element>',

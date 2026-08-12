@@ -31,7 +31,7 @@ extension XmlWithParentEventsExtension on Stream<List<XmlEvent>> {
 
 /// A converter that annotates [XmlEvent] objects with their parent events.
 class XmlWithParentEvents extends XmlListConverter<XmlEvent, XmlEvent> {
-  const XmlWithParentEvents();
+  const new();
 
   @override
   ChunkedConversionSink<List<XmlEvent>> startChunkedConversion(
@@ -42,7 +42,7 @@ class XmlWithParentEvents extends XmlListConverter<XmlEvent, XmlEvent> {
 class _XmlWithParentEventsSink
     with XmlEventVisitor
     implements ChunkedConversionSink<List<XmlEvent>> {
-  _XmlWithParentEventsSink(this.sink);
+  new(this.sink);
 
   final Sink<List<XmlEvent>> sink;
   XmlStartElementEvent? currentParent;

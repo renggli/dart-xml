@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+
 import '../exceptions/evaluation_exception.dart';
 import '../grammars/parser.dart';
 import '../values/sequence.dart';
@@ -8,7 +9,7 @@ import 'configuration.dart';
 class XPathContext {
   /// Creates a dynamic execution context.
   @internal
-  XPathContext(
+  new(
     this.configuration,
     this.item, {
     this.position = 1,

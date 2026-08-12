@@ -3,7 +3,7 @@ import '../definitions/type.dart';
 
 /// Exception thrown when calling an XPath functions fails.
 class XPathEvaluationException extends XmlException {
-  XPathEvaluationException(super.message);
+  new(super.message);
 
   /// Unsupported cast from [value] to [type].
   static Never unsupportedCast(XPathType type, Object value) =>

@@ -9,7 +9,7 @@ import 'node.dart';
 /// XML attribute node.
 class XmlAttribute extends XmlNode with XmlHasName, XmlHasParent<XmlNode> {
   /// Create an attribute with `name` and `value`.
-  XmlAttribute(
+  new(
     this.name,
     this.value, [
     this.attributeType = XmlAttributeType.DOUBLE_QUOTE,

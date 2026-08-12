@@ -220,9 +220,10 @@ const fnGenerateId = XPathFunctionDefinition(
 
 XPathSequence _fnGenerateId(XPathContext context, [XmlNode? node]) {
   if (node == null) return XPathSequence.emptyString;
-  final id = identityHashCode(
-    node,
-  ).toRadixString(16).toUpperCase().padLeft(8, '0');
+  final id = identityHashCode(node)
+      .toRadixString(16)
+      .toUpperCase()
+      .padLeft(8, '0');
   return XPathSequence.single('autoId$id');
 }
 

@@ -10,7 +10,7 @@ class XmlEventCodec extends Codec<List<XmlEvent>, String> {
   /// Creates a new [XmlEventCodec].
   ///
   /// See [XmlEventDecoder] for information about the parameters.
-  XmlEventCodec({
+  new({
     XmlEntityMapping? entityMapping,
     bool validateDocument = false,
     bool validateNamespace = false,

@@ -9,7 +9,7 @@ import 'map.dart';
 const xsFunction = _XPathFunctionType();
 
 class _XPathFunctionType extends XPathType<XPathFunction> {
-  const _XPathFunctionType();
+  const new();
 
   @override
   String get name => 'function(*)';

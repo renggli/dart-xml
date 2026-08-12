@@ -5,7 +5,7 @@ import '../types/string.dart';
 import '../values/sequence.dart';
 
 class BinaryOperatorExpression implements XPathExpression {
-  const BinaryOperatorExpression(this.operator, this.left, this.right);
+  const new(this.operator, this.left, this.right);
 
   final XPathBinaryOperator operator;
   final XPathExpression left;
@@ -17,7 +17,7 @@ class BinaryOperatorExpression implements XPathExpression {
 }
 
 class UnaryOperatorExpression implements XPathExpression {
-  const UnaryOperatorExpression(this.operator, this.arg);
+  const new(this.operator, this.arg);
 
   final XPathUnaryOperator operator;
   final XPathExpression arg;
@@ -27,7 +27,7 @@ class UnaryOperatorExpression implements XPathExpression {
 }
 
 class StringConcatExpression implements XPathExpression {
-  const StringConcatExpression(this.expressions);
+  const new(this.expressions);
 
   final List<XPathExpression> expressions;
 

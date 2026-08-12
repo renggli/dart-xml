@@ -6,9 +6,9 @@ import 'package:xml/xml_events.dart';
 
 import 'matchers.dart';
 
-class EmptyVisitor with XmlVisitor {}
+class EmptyVisitor with XmlVisitor;
 
-class EmptyEventVistor with XmlEventVisitor {}
+class EmptyEventVistor with XmlEventVisitor;
 
 void assertDocumentParseInvariants(String input) {
   final document = XmlDocument.parse(input);

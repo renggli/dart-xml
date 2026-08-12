@@ -3,7 +3,7 @@ import '../evaluation/expression.dart';
 import '../values/sequence.dart';
 
 class SimpleMapExpression implements XPathExpression {
-  const SimpleMapExpression(this.expressions);
+  const new(this.expressions);
 
   final List<XPathExpression> expressions;
 

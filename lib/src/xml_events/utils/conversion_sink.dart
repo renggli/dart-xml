@@ -1,6 +1,6 @@
 /// A sink that executes [callback] for each addition.
 class ConversionSink<T> implements Sink<T> {
-  ConversionSink(this.callback);
+  new(this.callback);
 
   void Function(T data) callback;
 

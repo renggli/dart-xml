@@ -715,9 +715,9 @@ XPathSequence _fnMax(
   XPathSequence arg, [
   String? collation,
 ]) {
-  final iterator = XPathSequence(
-    arg.expand(_atomizeMaxMin),
-  ).map((item) => item is XmlNode ? xsNumeric.cast(item) : item).iterator;
+  final iterator = XPathSequence(arg.expand(_atomizeMaxMin))
+      .map((item) => item is XmlNode ? xsNumeric.cast(item) : item)
+      .iterator;
   if (!iterator.moveNext()) return XPathSequence.empty;
   var max = iterator.current;
   if (max is num && max.isNaN) return XPathSequence.nan;
@@ -752,9 +752,9 @@ XPathSequence _fnMin(
   XPathSequence arg, [
   String? collation,
 ]) {
-  final iterator = XPathSequence(
-    arg.expand(_atomizeMaxMin),
-  ).map((item) => item is XmlNode ? xsNumeric.cast(item) : item).iterator;
+  final iterator = XPathSequence(arg.expand(_atomizeMaxMin))
+      .map((item) => item is XmlNode ? xsNumeric.cast(item) : item)
+      .iterator;
   if (!iterator.moveNext()) return XPathSequence.empty;
   var min = iterator.current;
   if (min is num && min.isNaN) return XPathSequence.nan;

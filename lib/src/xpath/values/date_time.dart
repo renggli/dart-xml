@@ -29,7 +29,7 @@ abstract class XPathAbstractDateTime
   int? get timezoneOffsetMinutes;
 
   /// Constant constructor for subclasses.
-  const XPathAbstractDateTime();
+  const new();
 
   /// Converts this object to a standard Dart [DateTime] representation.
   DateTime toDateTime();
@@ -185,7 +185,7 @@ class XPathDateTime extends XPathAbstractDateTime {
   final int? timezoneOffsetMinutes;
 
   /// Creates a new [XPathDateTime] with the given components.
-  const XPathDateTime(
+  const new(
     this.year,
     this.month,
     this.day,
@@ -198,20 +198,18 @@ class XPathDateTime extends XPathAbstractDateTime {
   ]);
 
   /// Creates a new [XPathDateTime] from a Dart [DateTime] object.
-  factory XPathDateTime.fromDateTime(
-    DateTime dateTime, [
-    int? timezoneOffsetMinutes,
-  ]) => XPathDateTime(
-    dateTime.year,
-    dateTime.month,
-    dateTime.day,
-    dateTime.hour,
-    dateTime.minute,
-    dateTime.second,
-    dateTime.millisecond,
-    dateTime.microsecond,
-    timezoneOffsetMinutes,
-  );
+  factory fromDateTime(DateTime dateTime, [int? timezoneOffsetMinutes]) =>
+      XPathDateTime(
+        dateTime.year,
+        dateTime.month,
+        dateTime.day,
+        dateTime.hour,
+        dateTime.minute,
+        dateTime.second,
+        dateTime.millisecond,
+        dateTime.microsecond,
+        timezoneOffsetMinutes,
+      );
 
   /// Attempts to parse a string representation of a dateTime.
   static XPathDateTime? tryParse(String value) {
@@ -384,7 +382,7 @@ class XPathDateTime extends XPathAbstractDateTime {
 /// Representation of an XPath dateTimeStamp value (xs:dateTimeStamp).
 class XPathDateTimeStamp extends XPathDateTime {
   /// Creates a new [XPathDateTimeStamp] with the given components.
-  const XPathDateTimeStamp(
+  const new(
     super.year,
     super.month,
     super.day,
@@ -397,20 +395,18 @@ class XPathDateTimeStamp extends XPathDateTime {
   ]);
 
   /// Creates a new [XPathDateTimeStamp] from a Dart [DateTime] object.
-  factory XPathDateTimeStamp.fromDateTime(
-    DateTime dateTime,
-    int timezoneOffsetMinutes,
-  ) => XPathDateTimeStamp(
-    dateTime.year,
-    dateTime.month,
-    dateTime.day,
-    dateTime.hour,
-    dateTime.minute,
-    dateTime.second,
-    dateTime.millisecond,
-    dateTime.microsecond,
-    timezoneOffsetMinutes,
-  );
+  factory fromDateTime(DateTime dateTime, int timezoneOffsetMinutes) =>
+      XPathDateTimeStamp(
+        dateTime.year,
+        dateTime.month,
+        dateTime.day,
+        dateTime.hour,
+        dateTime.minute,
+        dateTime.second,
+        dateTime.millisecond,
+        dateTime.microsecond,
+        timezoneOffsetMinutes,
+      );
 
   /// Attempts to parse a string representation of a dateTimeStamp.
   static XPathDateTimeStamp? tryParse(String value) {
@@ -554,23 +550,16 @@ class XPathDate extends XPathAbstractDateTime {
   final int? timezoneOffsetMinutes;
 
   /// Creates a new [XPathDate] with the given components.
-  const XPathDate(
-    this.year,
-    this.month,
-    this.day, [
-    this.timezoneOffsetMinutes,
-  ]);
+  const new(this.year, this.month, this.day, [this.timezoneOffsetMinutes]);
 
   /// Creates a new [XPathDate] from a Dart [DateTime] object.
-  factory XPathDate.fromDateTime(
-    DateTime dateTime, [
-    int? timezoneOffsetMinutes,
-  ]) => XPathDate(
-    dateTime.year,
-    dateTime.month,
-    dateTime.day,
-    timezoneOffsetMinutes,
-  );
+  factory fromDateTime(DateTime dateTime, [int? timezoneOffsetMinutes]) =>
+      XPathDate(
+        dateTime.year,
+        dateTime.month,
+        dateTime.day,
+        timezoneOffsetMinutes,
+      );
 
   /// Attempts to parse a string representation of a date.
   static XPathDate? tryParse(String value) {
@@ -680,7 +669,7 @@ class XPathTime extends XPathAbstractDateTime {
   final int? timezoneOffsetMinutes;
 
   /// Creates a new [XPathTime] with the given components.
-  const XPathTime(
+  const new(
     this.hour,
     this.minute,
     this.second, [
@@ -690,17 +679,15 @@ class XPathTime extends XPathAbstractDateTime {
   ]);
 
   /// Creates a new [XPathTime] from a Dart [DateTime] object.
-  factory XPathTime.fromDateTime(
-    DateTime dateTime, [
-    int? timezoneOffsetMinutes,
-  ]) => XPathTime(
-    dateTime.hour,
-    dateTime.minute,
-    dateTime.second,
-    dateTime.millisecond,
-    dateTime.microsecond,
-    timezoneOffsetMinutes,
-  );
+  factory fromDateTime(DateTime dateTime, [int? timezoneOffsetMinutes]) =>
+      XPathTime(
+        dateTime.hour,
+        dateTime.minute,
+        dateTime.second,
+        dateTime.millisecond,
+        dateTime.microsecond,
+        timezoneOffsetMinutes,
+      );
 
   /// Attempts to parse a string representation of a time.
   static XPathTime? tryParse(String value) {
@@ -855,7 +842,7 @@ class XPathYearMonth extends XPathAbstractDateTime {
   final int? timezoneOffsetMinutes;
 
   /// Creates a new [XPathYearMonth] with the given components.
-  const XPathYearMonth(this.year, this.month, [this.timezoneOffsetMinutes]);
+  const new(this.year, this.month, [this.timezoneOffsetMinutes]);
 
   /// Attempts to parse a string representation of a gYearMonth.
   static XPathYearMonth? tryParse(String value) {
@@ -953,7 +940,7 @@ class XPathYear extends XPathAbstractDateTime {
   final int? timezoneOffsetMinutes;
 
   /// Creates a new [XPathYear] with the given components.
-  const XPathYear(this.year, [this.timezoneOffsetMinutes]);
+  const new(this.year, [this.timezoneOffsetMinutes]);
 
   /// Attempts to parse a string representation of a gYear.
   static XPathYear? tryParse(String value) {
@@ -973,9 +960,8 @@ class XPathYear extends XPathAbstractDateTime {
   @override
   DateTime toDateTime() {
     if (timezoneOffsetMinutes != null) {
-      return DateTime.utc(
-        year,
-      ).subtract(Duration(minutes: timezoneOffsetMinutes!));
+      return DateTime.utc(year)
+          .subtract(Duration(minutes: timezoneOffsetMinutes!));
     }
     return DateTime(year);
   }
@@ -985,9 +971,8 @@ class XPathYear extends XPathAbstractDateTime {
     if (timezoneOffsetMinutes == null || timezoneOffsetMinutes == 0) {
       return this;
     }
-    final dt = DateTime.utc(
-      year,
-    ).subtract(Duration(minutes: timezoneOffsetMinutes!));
+    final dt = DateTime.utc(year)
+        .subtract(Duration(minutes: timezoneOffsetMinutes!));
     return XPathYear(dt.year, 0);
   }
 
@@ -1042,7 +1027,7 @@ class XPathMonthDay extends XPathAbstractDateTime {
   final int? timezoneOffsetMinutes;
 
   /// Creates a new [XPathMonthDay] with the given components.
-  const XPathMonthDay(this.month, this.day, [this.timezoneOffsetMinutes]);
+  const new(this.month, this.day, [this.timezoneOffsetMinutes]);
 
   /// Attempts to parse a string representation of a gMonthDay.
   static XPathMonthDay? tryParse(String value) {
@@ -1142,7 +1127,7 @@ class XPathMonth extends XPathAbstractDateTime {
   final int? timezoneOffsetMinutes;
 
   /// Creates a new [XPathMonth] with the given components.
-  const XPathMonth(this.month, [this.timezoneOffsetMinutes]);
+  const new(this.month, [this.timezoneOffsetMinutes]);
 
   /// Attempts to parse a string representation of a gMonth.
   static XPathMonth? tryParse(String value) {
@@ -1235,7 +1220,7 @@ class XPathDay extends XPathAbstractDateTime {
   final int? timezoneOffsetMinutes;
 
   /// Creates a new [XPathDay] with the given components.
-  const XPathDay(this.day, [this.timezoneOffsetMinutes]);
+  const new(this.day, [this.timezoneOffsetMinutes]);
 
   /// Attempts to parse a string representation of a gDay.
   static XPathDay? tryParse(String value) {

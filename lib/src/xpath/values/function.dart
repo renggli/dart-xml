@@ -10,7 +10,7 @@ import 'sequence.dart';
 
 /// Abstract base class for functions in XPath.
 abstract class XPathFunction {
-  const XPathFunction();
+  const new();
 
   /// The name of the function.
   XmlName get name;
@@ -37,7 +37,7 @@ extension XPathWrappedFunctionExtension on Function {
 
 /// A function that wraps a Dart function definition.
 class _XPathWrappedFunction extends XPathFunction {
-  _XPathWrappedFunction(this.name, this.arity, this.function);
+  new(this.name, this.arity, this.function);
 
   @override
   final XmlName name;
@@ -54,7 +54,7 @@ class _XPathWrappedFunction extends XPathFunction {
 
 /// A function wrapper for a casted XPathArray.
 class XPathArrayFunction extends XPathFunction {
-  XPathArrayFunction(this._array);
+  new(this._array);
 
   final XPathArray _array;
 
@@ -82,7 +82,7 @@ class XPathArrayFunction extends XPathFunction {
 
 /// A function wrapper for a casted XPathMap.
 class XPathMapFunction extends XPathFunction {
-  XPathMapFunction(this._map);
+  new(this._map);
 
   final XPathMap _map;
 

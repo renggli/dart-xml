@@ -18,7 +18,7 @@ import 'events/text.dart';
 import 'utils/event_attribute.dart';
 
 class XmlEventParser {
-  const XmlEventParser(this.entityMapping);
+  const new(this.entityMapping);
 
   final XmlEntityMapping entityMapping;
 

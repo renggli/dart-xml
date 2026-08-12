@@ -8,7 +8,7 @@ import '../values/sequence.dart';
 const xsAny = _XPathAnyType();
 
 class _XPathAnyType extends XPathType<Object> {
-  const _XPathAnyType();
+  const new();
 
   @override
   String get name => 'item()';
@@ -30,7 +30,7 @@ class _XPathAnyType extends XPathType<Object> {
 const xsAnyAtomicType = _XPathAnyAtomicType();
 
 class _XPathAnyAtomicType extends XPathType<Object> {
-  const _XPathAnyAtomicType();
+  const new();
 
   @override
   String get name => 'xs:anyAtomicType';
@@ -67,7 +67,7 @@ class _XPathAnyAtomicType extends XPathType<Object> {
 const xsError = _XPathErrorType();
 
 class _XPathErrorType extends XPathType<Object> {
-  const _XPathErrorType();
+  const new();
 
   @override
   String get name => 'xs:error';

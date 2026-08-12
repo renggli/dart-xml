@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart' show DelegatingIterable;
+
 import '../../xml/nodes/node.dart';
 import '../definitions/cardinality.dart';
 import '../exceptions/evaluation_exception.dart';
@@ -31,13 +32,13 @@ abstract mixin class XPathSequence<T extends Object> implements Iterable<T> {
   static const emptyMap = _XPathSingleSequence<XPathMap>({});
 
   /// Creates a sequence from a single [value].
-  const factory XPathSequence.single(T value) = _XPathSingleSequence;
+  const factory single(T value) = _XPathSingleSequence;
 
   /// Creates a sequence from an [Iterable].
-  const factory XPathSequence(Iterable<T> iterable) = _XPathDefaultSequence;
+  const factory(Iterable<T> iterable) = _XPathDefaultSequence;
 
   /// Creates a sequence from an [Iterable] that is cached on first iteration.
-  factory XPathSequence.cached(Iterable<T> iterable) = _XPathCachedSequence;
+  factory cached(Iterable<T> iterable) = _XPathCachedSequence;
 
   /// Creates a sequence from an integer range.
   static XPathSequence<int> range(int start, int stop) => start < stop
@@ -106,7 +107,7 @@ extension XPathSequenceExtension on Object {
 
 /// The empty sequence.
 class _XPathEmptySequence extends Iterable<Never> with XPathSequence<Never> {
-  const _XPathEmptySequence();
+  const new();
 
   @override
   int get length => 0;
@@ -126,7 +127,7 @@ class _XPathEmptySequence extends Iterable<Never> with XPathSequence<Never> {
 /// A sequence with a single value.
 class _XPathSingleSequence<T extends Object> extends Iterable<T>
     with XPathSequence<T> {
-  const _XPathSingleSequence(this._value);
+  const new(this._value);
 
   final T _value;
 
@@ -145,7 +146,7 @@ class _XPathSingleSequence<T extends Object> extends Iterable<T>
 
 /// An iterator for a single-value sequence.
 class _XPathSingleIterator<T> implements Iterator<T> {
-  _XPathSingleIterator(this._value);
+  new(this._value);
 
   final T _value;
   int _index = -1;
@@ -160,7 +161,7 @@ class _XPathSingleIterator<T> implements Iterator<T> {
 /// The default sequence imlementation wrapping an [Iterable].
 class _XPathDefaultSequence<T extends Object> extends DelegatingIterable<T>
     with XPathSequence<T> {
-  const _XPathDefaultSequence(super.base);
+  const new(super.base);
 
   @override
   String toString() => Iterable.iterableToShortString(this);
@@ -169,7 +170,7 @@ class _XPathDefaultSequence<T extends Object> extends DelegatingIterable<T>
 /// An optimized sequence that stores the results of the first iteration.
 class _XPathCachedSequence<T extends Object> extends Iterable<T>
     with XPathSequence<T> {
-  _XPathCachedSequence(Iterable<T> source) : _iterator = source.iterator;
+  new(Iterable<T> source) : _iterator = source.iterator;
 
   final Iterator<T> _iterator;
   final List<T> _values = [];
@@ -180,7 +181,7 @@ class _XPathCachedSequence<T extends Object> extends Iterable<T>
 
 /// An iterator for a cached sequence.
 class _XPathCachedIterator<T extends Object> implements Iterator<T> {
-  _XPathCachedIterator(this._iterator, this._values);
+  new(this._iterator, this._values);
 
   final Iterator<T> _iterator;
   final List<T> _values;

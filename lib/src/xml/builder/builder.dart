@@ -37,7 +37,7 @@ class XmlBuilder {
   ///
   /// For the meaning of the [optimizeNamespaces] parameter, read the
   /// documentation of the [optimizeNamespaces] property.
-  XmlBuilder({this.optimizeNamespaces = false}) {
+  new({this.optimizeNamespaces = false}) {
     _reset();
   }
 

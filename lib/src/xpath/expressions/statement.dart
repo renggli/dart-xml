@@ -5,7 +5,7 @@ import '../values/sequence.dart';
 typedef XPathBinding = ({String name, XPathExpression expression});
 
 class ForExpression implements XPathExpression {
-  const ForExpression(this.bindings, this.body);
+  const new(this.bindings, this.body);
 
   final List<XPathBinding> bindings;
   final XPathExpression body;
@@ -32,7 +32,7 @@ class ForExpression implements XPathExpression {
 }
 
 class LetExpression implements XPathExpression {
-  const LetExpression(this.bindings, this.body);
+  const new(this.bindings, this.body);
 
   final List<XPathBinding> bindings;
   final XPathExpression body;
@@ -48,7 +48,7 @@ class LetExpression implements XPathExpression {
 }
 
 class SomeExpression implements XPathExpression {
-  const SomeExpression(this.bindings, this.body);
+  const new(this.bindings, this.body);
 
   final List<XPathBinding> bindings;
   final XPathExpression body;
@@ -80,7 +80,7 @@ class SomeExpression implements XPathExpression {
 }
 
 class EveryExpression implements XPathExpression {
-  const EveryExpression(this.bindings, this.body);
+  const new(this.bindings, this.body);
 
   final List<XPathBinding> bindings;
   final XPathExpression body;
@@ -112,7 +112,7 @@ class EveryExpression implements XPathExpression {
 }
 
 class IfExpression implements XPathExpression {
-  const IfExpression(this.condition, this.trueExpression, this.falseExpression);
+  const new(this.condition, this.trueExpression, this.falseExpression);
 
   final XPathExpression condition;
   final XPathExpression trueExpression;

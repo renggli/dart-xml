@@ -50,9 +50,8 @@ void main() {
       expect(event.hashCode, other.hashCode);
     });
     test('declaration (attributes)', () {
-      final iterator = parseEvents(
-        '<?xml version="1.0" author=\'lfr\'?>',
-      ).iterator;
+      final iterator = parseEvents('<?xml version="1.0" author=\'lfr\'?>')
+          .iterator;
       expect(iterator.moveNext(), isTrue);
       final event = iterator.current as XmlDeclarationEvent;
       assertComplete(iterator);

@@ -5,7 +5,7 @@ import '../visitor.dart';
 
 /// Event of an XML text node.
 class XmlTextEvent extends XmlEvent {
-  XmlTextEvent(this.value);
+  new(this.value);
 
   final String value;
 
@@ -28,7 +28,7 @@ class XmlTextEvent extends XmlEvent {
 
 /// Internal event of an XML text node that is lazily decoded.
 class XmlRawTextEvent extends XmlEvent implements XmlTextEvent {
-  XmlRawTextEvent(this.raw, this.entityMapping);
+  new(this.raw, this.entityMapping);
 
   final String raw;
 

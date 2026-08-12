@@ -18,7 +18,7 @@ extension XmlSubtreeSelectorExtension on Stream<List<XmlEvent>> {
 /// A converter that selects [XmlEvent] objects that are part of a sub-tree
 /// started by an [XmlStartElementEvent] satisfying the provided predicate.
 class XmlSubtreeSelector extends XmlListConverter<XmlEvent, XmlEvent> {
-  const XmlSubtreeSelector(this.predicate);
+  const new(this.predicate);
 
   final Predicate<XmlStartElementEvent> predicate;
 
@@ -29,7 +29,7 @@ class XmlSubtreeSelector extends XmlListConverter<XmlEvent, XmlEvent> {
 }
 
 class _XmlSubtreeSelectorSink implements ChunkedConversionSink<List<XmlEvent>> {
-  _XmlSubtreeSelectorSink(this.sink, this.predicate);
+  new(this.sink, this.predicate);
 
   final Sink<List<XmlEvent>> sink;
   final Predicate<XmlStartElementEvent> predicate;

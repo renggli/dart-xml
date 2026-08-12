@@ -13,7 +13,7 @@ enum XPathCardinality {
   zeroOrMore('*');
 
   /// The cardinality of the sequence.
-  const XPathCardinality(this.suffix);
+  new(this.suffix);
 
   /// The suffix of the cardinality.
   final String suffix;

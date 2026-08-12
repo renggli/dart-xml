@@ -7,7 +7,7 @@ import 'node.dart';
 /// XML doctype node.
 class XmlDoctype extends XmlNode with XmlHasParent<XmlNode> {
   /// Create a doctype section.
-  XmlDoctype(this.name, [this.externalId, this.internalSubset]);
+  new(this.name, [this.externalId, this.internalSubset]);
 
   /// The name of the declaration.
   final String name;

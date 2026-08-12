@@ -63,7 +63,7 @@ class XmlEventDecoder extends Converter<String, List<XmlEvent>> {
   ///   and added to the event.
   /// - If [withParent] is `true`, each event is annotated with its logical
   ///   parent event.
-  XmlEventDecoder({
+  new({
     XmlEntityMapping? entityMapping,
     this.validateDocument = false,
     this.validateNamespace = false,
@@ -85,9 +85,8 @@ class XmlEventDecoder extends Converter<String, List<XmlEvent>> {
   List<XmlEvent> convert(String input, [int start = 0, int? end]) {
     final list = <XmlEvent>[];
     final sink = ConversionSink<List<XmlEvent>>(list.addAll);
-    startChunkedConversion(
-      sink,
-    ).addSlice(input, start, end ?? input.length, true);
+    startChunkedConversion(sink)
+        .addSlice(input, start, end ?? input.length, true);
     return list;
   }
 
@@ -109,11 +108,8 @@ class XmlEventDecoder extends Converter<String, List<XmlEvent>> {
 }
 
 class _XmlEventDecoderSink extends StringConversionSinkBase {
-  _XmlEventDecoderSink(
-    this.sink,
-    XmlEntityMapping entityMapping,
-    this.annotator,
-  ) : eventParser = eventParserCache[entityMapping];
+  new(this.sink, XmlEntityMapping entityMapping, this.annotator)
+    : eventParser = eventParserCache[entityMapping];
 
   final Sink<List<XmlEvent>> sink;
   final Parser<XmlEvent> eventParser;

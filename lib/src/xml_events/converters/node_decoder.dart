@@ -36,7 +36,7 @@ extension XmlNodeDecoderExtension on Stream<List<XmlEvent>> {
 /// A converter that decodes a sequence of [XmlEvent] objects to a forest of
 /// [XmlNode] objects.
 class XmlNodeDecoder extends XmlListConverter<XmlEvent, XmlNode> {
-  const XmlNodeDecoder();
+  const new();
 
   @override
   ChunkedConversionSink<List<XmlEvent>> startChunkedConversion(
@@ -59,7 +59,7 @@ class XmlNodeDecoder extends XmlListConverter<XmlEvent, XmlNode> {
 class _XmlNodeDecoderSink
     with XmlEventVisitor
     implements ChunkedConversionSink<List<XmlEvent>> {
-  _XmlNodeDecoderSink(this.sink);
+  new(this.sink);
 
   final Sink<List<XmlNode>> sink;
   XmlElement? parent;

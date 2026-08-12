@@ -85,9 +85,8 @@ void main() {
   group('order preservation', () {
     test('anyStep (selfStep | attributeStep)*', () {
       expect(
-        PathExpression(const [
-          StepExpression(AncestorOrSelfAxis()),
-        ]).isOrderPreserved,
+        PathExpression(const [StepExpression(AncestorOrSelfAxis())])
+            .isOrderPreserved,
         isTrue,
       );
       expect(
@@ -107,57 +106,54 @@ void main() {
         isFalse,
       );
     });
-    test(
-      '(selfStep | childStep)+ (descendantStep | descendantOrSelfStep)? (selfStep | attributeStep)*',
-      () {
-        expect(
-          PathExpression(const [
-            StepExpression(ChildAxis()),
-            StepExpression(ChildAxis()),
-            StepExpression(SelfAxis()),
-            StepExpression(DescendantAxis()),
-            StepExpression(SelfAxis()),
-            StepExpression(SelfAxis()),
-            StepExpression(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
-          ]).isOrderPreserved,
-          isTrue,
-        );
-        expect(
-          PathExpression(const [
-            StepExpression(ChildAxis()),
-            StepExpression(ChildAxis()),
-            StepExpression(SelfAxis()),
-            StepExpression(SelfAxis()),
-            StepExpression(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
-          ]).isOrderPreserved,
-          isTrue,
-        );
-        expect(
-          PathExpression(const [
-            StepExpression(ChildAxis()),
-            StepExpression(ChildAxis()),
-            StepExpression(SelfAxis()),
-            StepExpression(DescendantOrSelfAxis()),
-            StepExpression(SelfAxis()),
-            StepExpression(SelfAxis()),
-            StepExpression(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
-          ]).isOrderPreserved,
-          isTrue,
-        );
-        expect(
-          PathExpression(const [
-            StepExpression(ChildAxis()),
-            StepExpression(ChildAxis()),
-            StepExpression(SelfAxis()),
-            StepExpression(ParentAxis()),
-            StepExpression(SelfAxis()),
-            StepExpression(SelfAxis()),
-            StepExpression(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
-          ]).isOrderPreserved,
-          isFalse,
-        );
-      },
-    );
+    test('(selfStep | childStep)+ (descendantStep | descendantOrSelfStep)? (selfStep | attributeStep)*', () {
+      expect(
+        PathExpression(const [
+          StepExpression(ChildAxis()),
+          StepExpression(ChildAxis()),
+          StepExpression(SelfAxis()),
+          StepExpression(DescendantAxis()),
+          StepExpression(SelfAxis()),
+          StepExpression(SelfAxis()),
+          StepExpression(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
+        ]).isOrderPreserved,
+        isTrue,
+      );
+      expect(
+        PathExpression(const [
+          StepExpression(ChildAxis()),
+          StepExpression(ChildAxis()),
+          StepExpression(SelfAxis()),
+          StepExpression(SelfAxis()),
+          StepExpression(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
+        ]).isOrderPreserved,
+        isTrue,
+      );
+      expect(
+        PathExpression(const [
+          StepExpression(ChildAxis()),
+          StepExpression(ChildAxis()),
+          StepExpression(SelfAxis()),
+          StepExpression(DescendantOrSelfAxis()),
+          StepExpression(SelfAxis()),
+          StepExpression(SelfAxis()),
+          StepExpression(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
+        ]).isOrderPreserved,
+        isTrue,
+      );
+      expect(
+        PathExpression(const [
+          StepExpression(ChildAxis()),
+          StepExpression(ChildAxis()),
+          StepExpression(SelfAxis()),
+          StepExpression(ParentAxis()),
+          StepExpression(SelfAxis()),
+          StepExpression(SelfAxis()),
+          StepExpression(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
+        ]).isOrderPreserved,
+        isFalse,
+      );
+    });
   });
 
   group('evaluation edge cases', () {

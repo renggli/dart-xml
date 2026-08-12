@@ -128,7 +128,7 @@ extension XmlEachEventStreamListExtension on Stream<List<XmlEvent>> {
 }
 
 class XmlEventHandler with XmlEventVisitor {
-  const XmlEventHandler({
+  const new({
     this.onCDATA,
     this.onComment,
     this.onDeclaration,

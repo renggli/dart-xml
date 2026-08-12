@@ -6,7 +6,7 @@ import '../values/sequence.dart';
 const xsBoolean = _XPathBooleanType();
 
 class _XPathBooleanType extends XPathType<bool> {
-  const _XPathBooleanType();
+  const new();
 
   @override
   String get name => 'xs:boolean';

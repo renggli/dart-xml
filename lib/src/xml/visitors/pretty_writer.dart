@@ -13,7 +13,7 @@ import 'writer.dart';
 /// A visitor that writes XML nodes correctly indented and with whitespaces
 /// adapted.
 class XmlPrettyWriter extends XmlWriter {
-  XmlPrettyWriter(
+  new(
     super.buffer, {
     super.entityMapping,
     int? level,

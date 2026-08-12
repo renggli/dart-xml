@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+
 import '../definitions/type.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../values/binary.dart';
@@ -9,7 +10,7 @@ import '../values/sequence.dart';
 const xsBase64Binary = _XPathBase64BinaryType();
 
 class _XPathBase64BinaryType extends XPathType<XPathBase64Binary> {
-  const _XPathBase64BinaryType();
+  const new();
 
   @override
   String get name => 'xs:base64Binary';
@@ -34,7 +35,7 @@ class _XPathBase64BinaryType extends XPathType<XPathBase64Binary> {
 const xsHexBinary = _XPathHexBinaryType();
 
 class _XPathHexBinaryType extends XPathType<XPathHexBinary> {
-  const _XPathHexBinaryType();
+  const new();
 
   @override
   String get name => 'xs:hexBinary';

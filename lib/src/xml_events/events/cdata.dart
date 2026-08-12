@@ -4,7 +4,7 @@ import '../visitor.dart';
 
 /// Event of an XML CDATA node.
 class XmlCDATAEvent extends XmlEvent {
-  XmlCDATAEvent(this.value);
+  new(this.value);
 
   final String value;
 

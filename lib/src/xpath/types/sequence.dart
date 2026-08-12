@@ -8,7 +8,7 @@ import 'any.dart';
 const xsEmptySequence = _XPathEmptySequenceType();
 
 class _XPathEmptySequenceType extends XPathType<XPathSequence<Never>> {
-  const _XPathEmptySequenceType();
+  const new();
 
   @override
   String get name => 'empty-sequence()';
@@ -30,7 +30,7 @@ class _XPathEmptySequenceType extends XPathType<XPathSequence<Never>> {
 const xsSequence = XPathSequenceType(type: xsAny);
 
 class XPathSequenceType<T extends Object> extends XPathType<XPathSequence<T>> {
-  const XPathSequenceType({
+  const new({
     required this.type,
     this.cardinality = XPathCardinality.zeroOrMore,
   });

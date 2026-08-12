@@ -4,7 +4,7 @@ import 'node.dart';
 
 /// Abstract superclass for all named node tests.
 abstract class NameTest implements NodeTest {
-  const NameTest();
+  const new();
 
   @override
   bool matches(XmlNode node) =>
@@ -15,7 +15,7 @@ abstract class NameTest implements NodeTest {
 
 /// `*` matches any named node.
 class NodeNameTest extends NameTest {
-  const NodeNameTest();
+  const new();
 
   @override
   bool matchesName(XmlHasName node) => true;
@@ -23,7 +23,7 @@ class NodeNameTest extends NameTest {
 
 /// `ns:name` matches a node with a fully qualified name.
 class QualifiedNameTest extends NameTest {
-  const QualifiedNameTest(this.qualifiedName);
+  const new(this.qualifiedName);
 
   final String qualifiedName;
 
@@ -34,7 +34,7 @@ class QualifiedNameTest extends NameTest {
 /// `Q{http://http://www.w3.org/1999/xhtml}body` matches a node with a namespace
 /// URI and a local name.
 class NamespaceUriAndLocalNameTest extends NameTest {
-  const NamespaceUriAndLocalNameTest(this.namespaceUri, this.localName);
+  const new(this.namespaceUri, this.localName);
 
   final String namespaceUri;
   final String localName;
@@ -46,7 +46,7 @@ class NamespaceUriAndLocalNameTest extends NameTest {
 
 /// `xhtml:*` matches a node with a namespace prefix, ignoring the local name.
 class NamespacePrefixNameTest extends NameTest {
-  const NamespacePrefixNameTest(this.namespacePrefix);
+  const new(this.namespacePrefix);
 
   final String namespacePrefix;
 
@@ -56,7 +56,7 @@ class NamespacePrefixNameTest extends NameTest {
 
 /// `*:person` matches a node with a local name, ignoring the namespace.
 class LocalNameTest extends NameTest {
-  const LocalNameTest(this.localName);
+  const new(this.localName);
 
   final String localName;
 
@@ -67,7 +67,7 @@ class LocalNameTest extends NameTest {
 /// `Q{http://http://www.w3.org/1999/xhtml}*` matches a node with a namespace
 /// URI, ignoring the local name.
 class NamespaceUriTest extends NameTest {
-  const NamespaceUriTest(this.namespaceUri);
+  const new(this.namespaceUri);
 
   final String namespaceUri;
 

@@ -18,7 +18,7 @@ import 'qname.dart';
 const xsString = _XPathStringType();
 
 class _XPathStringType extends XPathType<String> {
-  const _XPathStringType();
+  const new();
 
   @override
   String get name => 'xs:string';

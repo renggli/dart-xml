@@ -5,7 +5,7 @@ import 'package:meta/meta.dart';
 import 'conversion_sink.dart';
 
 abstract class XmlListConverter<S, T> extends Converter<List<S>, List<T>> {
-  const XmlListConverter();
+  const new();
 
   @override
   @nonVirtual

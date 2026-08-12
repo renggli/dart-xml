@@ -11,13 +11,15 @@ import 'namespaces.dart';
 typedef XPathTraceCallback = void Function(XPathSequence value, String? label);
 
 /// Function type for loading unparsed text.
-typedef XPathUnparsedTextLoader =
-    String? Function(String uri, String? encoding);
+typedef XPathUnparsedTextLoader = String? Function(
+  String uri,
+  String? encoding,
+);
 
 /// Static configuration for XPath evaluation.
 class XPathConfiguration {
   /// Creates a static context extending the standard configuration.
-  factory XPathConfiguration({
+  factory({
     Map<String, Object>? variables,
     Map<XmlName, XPathFunction>? functions,
     String? namespaceUri,
@@ -40,11 +42,11 @@ class XPathConfiguration {
   );
 
   /// Creates a standard static configuration.
-  factory XPathConfiguration.standard() => _standard;
+  factory standard() => _standard;
 
   /// Creates a static configuration from scratch not including any of the
   /// standard functions or namespaces.
-  const XPathConfiguration.raw({
+  const new raw({
     this.variables = const {},
     this.functions = const {},
     this.namespaceUri,

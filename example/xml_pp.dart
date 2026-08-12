@@ -122,7 +122,7 @@ mixin ColoredWriter {
 }
 
 class XmlColoredWriter extends XmlWriter with ColoredWriter {
-  XmlColoredWriter(super.buffer, {super.entityMapping});
+  new(super.buffer, {super.entityMapping});
 
   @override
   final List<String> styles = [];
@@ -177,12 +177,7 @@ class XmlColoredWriter extends XmlWriter with ColoredWriter {
 }
 
 class XmlColoredPrettyWriter extends XmlPrettyWriter with ColoredWriter {
-  XmlColoredPrettyWriter(
-    super.buffer, {
-    super.entityMapping,
-    super.indent,
-    super.newLine,
-  });
+  new(super.buffer, {super.entityMapping, super.indent, super.newLine});
   @override
   final List<String> styles = [];
 

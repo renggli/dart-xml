@@ -3,7 +3,7 @@ typedef XmlLoader<K, V> = V Function(K key);
 
 /// Simple FIFO cache.
 class XmlCache<K, V> {
-  XmlCache(this._loader, this._maxSize);
+  new(this._loader, this._maxSize);
 
   final XmlLoader<K, V> _loader;
   final int _maxSize;

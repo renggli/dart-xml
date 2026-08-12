@@ -19,7 +19,7 @@ class XmlElement extends XmlNode
         XmlHasChildren<XmlNode> {
   /// Creates an element node with the provided [name], [attributes], and
   /// [children].
-  XmlElement(
+  new(
     this.name, [
     Iterable<XmlAttribute> attributes = const [],
     Iterable<XmlNode> children = const [],
@@ -33,7 +33,7 @@ class XmlElement extends XmlNode
 
   /// Creates an element with the qualified [name], and with optional
   /// [attributes] and [children].
-  XmlElement.tag(
+  new tag(
     String qualifiedName, {
     String? namespaceUri,
     Iterable<XmlAttribute> attributes = const [],

@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+
 import '../../xml/extensions/comparison.dart';
 import '../../xml/extensions/descendants.dart';
 import '../../xml/extensions/parent.dart';
@@ -12,7 +13,7 @@ import 'node.dart';
 import 'step.dart';
 
 class PathExpression implements XPathExpression {
-  factory PathExpression(List<XPathExpression> steps) {
+  factory(List<XPathExpression> steps) {
     if (steps.isEmpty) {
       throw ArgumentError('PathExpression must have at least one step');
     }
@@ -56,7 +57,7 @@ class PathExpression implements XPathExpression {
     );
   }
 
-  const PathExpression._(this.steps, {required this.isOrderPreserved});
+  const new _(this.steps, {required this.isOrderPreserved});
 
   final List<XPathExpression> steps;
   final bool isOrderPreserved;

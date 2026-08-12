@@ -4,7 +4,7 @@ import 'event.dart';
 import 'iterator.dart';
 
 class XmlEventIterable extends Iterable<XmlEvent> {
-  XmlEventIterable(
+  new(
     this.input, {
     required this.entityMapping,
     required this.validateNesting,

@@ -5,7 +5,7 @@ enum XmlAttributeType {
   SINGLE_QUOTE("'"),
   DOUBLE_QUOTE('"');
 
-  const XmlAttributeType(this.token);
+  new(this.token);
 
   final String token;
 }

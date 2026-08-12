@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../types/number.dart';
@@ -6,7 +7,7 @@ import '../values/sequence.dart';
 
 @immutable
 class Predicate {
-  const Predicate(this.expression);
+  const new(this.expression);
 
   final XPathExpression expression;
 
@@ -18,7 +19,7 @@ class Predicate {
 }
 
 class PredicateExpression implements XPathExpression {
-  const PredicateExpression(this.expression, this.predicate);
+  const new(this.expression, this.predicate);
 
   final XPathExpression expression;
   final Predicate predicate;

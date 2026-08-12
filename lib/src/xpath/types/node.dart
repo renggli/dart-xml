@@ -17,7 +17,7 @@ import '../values/sequence.dart';
 const xsNode = _XPathNodeType<XmlNode>('node');
 
 class _XPathNodeType<T extends XmlNode> extends XPathType<T> {
-  const _XPathNodeType(this.name);
+  const new(this.name);
 
   @override
   final String name;
@@ -56,8 +56,7 @@ const xsDocument = _XPathNodeType<XmlDocument>('document');
 const xsProcessingInstruction = XPathProcessingInstructionType();
 
 class XPathProcessingInstructionType extends _XPathNodeType<XmlProcessing> {
-  const XPathProcessingInstructionType([this.target])
-    : super('processing-instruction');
+  const new([this.target]) : super('processing-instruction');
 
   final String? target;
 
@@ -79,7 +78,7 @@ const xsNamespace = _XPathNodeType<XmlNamespace>('namespace');
 const xsText = _XPathTextType();
 
 class _XPathTextType extends _XPathNodeType<XmlData> {
-  const _XPathTextType() : super('text');
+  const new() : super('text');
 
   @override
   bool matches(Object value) => value is XmlText || value is XmlCDATA;
@@ -87,7 +86,7 @@ class _XPathTextType extends _XPathNodeType<XmlData> {
 
 /// Dynamic type wrapper for the `NodeTest` expressions.
 class NodeTestType extends _XPathNodeType<XmlNode> {
-  const NodeTestType(this.nodeTest, [String name = 'node-test']) : super(name);
+  const new(this.nodeTest, [String name = 'node-test']) : super(name);
 
   final NodeTest nodeTest;
 

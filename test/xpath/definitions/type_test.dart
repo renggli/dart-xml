@@ -2,7 +2,7 @@ import 'package:test/test.dart';
 import 'package:xml/src/xpath/definitions/type.dart';
 
 class _TestType extends XPathType<String> {
-  const _TestType();
+  const new();
   @override
   String get name => 'test:type';
   @override

@@ -8,7 +8,7 @@ import 'node.dart';
 /// XML namespace node.
 class XmlNamespace extends XmlNode with XmlHasName, XmlHasParent {
   /// Create a namespace node with `prefix` and `uri`.
-  XmlNamespace(this.prefix, this.uri);
+  new(this.prefix, this.uri);
 
   /// The namespace prefix.
   final String prefix;

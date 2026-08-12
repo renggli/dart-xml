@@ -4,7 +4,7 @@ import '../annotations/has_parent.dart';
 
 /// Immutable attributes of XML events.
 class XmlEventAttribute with XmlHasName, XmlHasParent {
-  XmlEventAttribute(this.name, this.value, this.attributeType);
+  new(this.name, this.value, this.attributeType);
 
   @override
   final String name;

@@ -7,7 +7,7 @@ import '../visitor.dart';
 
 /// Event of an XML declaration.
 class XmlDeclarationEvent extends XmlEvent {
-  XmlDeclarationEvent(this.attributes);
+  new(this.attributes);
 
   final List<XmlEventAttribute> attributes;
 

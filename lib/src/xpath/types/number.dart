@@ -9,7 +9,7 @@ import 'string.dart';
 const xsNumeric = _XPathNumericType();
 
 class _XPathNumericType extends XPathType<num> {
-  const _XPathNumericType();
+  const new();
 
   @override
   String get name => 'xs:numeric';
@@ -48,7 +48,7 @@ class _XPathNumericType extends XPathType<num> {
 const xsDecimal = _XPathDecimalType();
 
 class _XPathDecimalType extends XPathType<num> {
-  const _XPathDecimalType();
+  const new();
 
   @override
   String get name => 'xs:decimal';
@@ -130,7 +130,7 @@ const xsNegativeInteger = _XPathRangeCheckedIntegerType(
 );
 
 class _XPathIntegerType extends XPathType<int> {
-  const _XPathIntegerType();
+  const new();
 
   @override
   String get name => 'xs:integer';
@@ -165,9 +165,7 @@ class _XPathIntegerType extends XPathType<int> {
 
 /// An integer subtype with optional range constraints.
 class _XPathRangeCheckedIntegerType extends XPathType<int> {
-  const _XPathRangeCheckedIntegerType(this._name, {int? min, int? max})
-    : _min = min,
-      _max = max;
+  const new(this._name, {this._min, this._max});
 
   final String _name;
   final int? _min;
@@ -199,7 +197,7 @@ class _XPathRangeCheckedIntegerType extends XPathType<int> {
 const xsDouble = _XPathDoubleType();
 
 class _XPathDoubleType extends XPathType<double> {
-  const _XPathDoubleType();
+  const new();
 
   @override
   String get name => 'xs:double';
