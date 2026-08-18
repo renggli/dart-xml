@@ -66,7 +66,7 @@ class PathExpression implements XPathExpression {
   XPathSequence call(XPathContext context) {
     final inner = context.copy();
     if (isOrderPreserved) {
-      var nodes = <Object>[...steps.first(context)];
+      var nodes = <Object>[...steps.first.call(context)];
       for (final step in steps.skip(1)) {
         final innerNodes = <Object>[];
         for (final node in nodes) {
@@ -81,7 +81,7 @@ class PathExpression implements XPathExpression {
       }
       return XPathSequence(nodes);
     } else {
-      var nodes = <Object>{...steps.first(context)};
+      var nodes = <Object>{...steps.first.call(context)};
       for (final step in steps.skip(1)) {
         final innerNodes = <Object>{};
         for (final node in nodes) {

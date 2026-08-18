@@ -12,13 +12,13 @@ class MapConstructor implements XPathExpression {
   XPathSequence call(XPathContext context) {
     final map = <Object, Object>{};
     for (final entry in entries) {
-      final key = entry.key(context).toAtomicValue();
+      final key = entry.key.call(context).toAtomicValue();
       if (key is XPathSequence) {
         throw XPathEvaluationException(
           'map:constructor key must be exactly one item, but got $key',
         );
       }
-      map[key] = entry.value(context).toAtomicValue();
+      map[key] = entry.value.call(context).toAtomicValue();
     }
     return XPathSequence.single(map);
   }

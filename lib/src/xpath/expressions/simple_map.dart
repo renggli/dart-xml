@@ -9,7 +9,7 @@ class SimpleMapExpression implements XPathExpression {
 
   @override
   XPathSequence call(XPathContext context) {
-    var result = expressions.first(context);
+    var result = expressions.first.call(context);
     for (var i = 1; i < expressions.length; i++) {
       final expression = expressions[i];
       if (result.isEmpty) {
