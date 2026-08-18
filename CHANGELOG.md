@@ -1,5 +1,23 @@
 # Changelog
 
+## 7.1.0 (unpublished)
+
+- Dart 3.13 requirement.
+- Standard-compliant DOM position comparison:
+  - Introduced `XmlNode.compareDocumentPosition` returning `XmlDocumentPosition` bitmask flags (`isSame`, `isDisconnected`, `isPreceding`, `isFollowing`, `isContains`, `isContainedBy`, `isImplementationSpecific`), matching W3C DOM Level 3 / DOM 4.
+  - Deprecated `XmlNode.compareNodePosition` in favor of `compareDocumentPosition`.
+- XPath 3.1 enhancements and W3C compliance:
+  - Introduced `XPathConfiguration` to configure evaluation contexts (custom variables, functions, namespaces, documents, environment variables, base URI, unparsed text loader, and trace callback). Deprecated passing `variables` and `functions` directly to `xpath` and `xpathEvaluate`.
+  - Redesigned date, time, and duration types (`xs:duration`, `xs:dayTimeDuration`, `xs:yearMonthDuration`, `xs:dateTime`, `xs:date`, `xs:time`, and Gregorian date types) for strict W3C compliance.
+  - Added support for `xs:anyAtomicType`, `xs:error`, and string-derived XML Schema constructors.
+  - Added support for unparsed text and JSON document retrieval (`fn:unparsed-text`, `fn:unparsed-text-lines`, `fn:unparsed-text-available`, `fn:json-doc`) via `unparsedTextLoader`.
+  - Added context-aware document lookup (`fn:doc`, `fn:doc-available`) and cross-platform environment variable resolution (`fn:environment-variable`, `fn:available-environment-variables`).
+  - Added support for key sequences and native Dart `Map` and `List` structures in lookup expressions (`?`).
+  - Integrated maps and arrays into dynamic function calls.
+  - Added duration support in aggregation functions (`fn:avg`, `fn:sum`).
+  - Protected arithmetic and math functions (`fn:ceiling`, `fn:floor`, duration operations) against `Infinity` and `NaN`.
+  - Fix short-circuit evaluation for `!=` general comparisons ([#207](https://github.com/renggli/dart-xml/issues/207)).
+
 ## 7.0.1
 
 - Better namespace support across all parts of the library:
