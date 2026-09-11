@@ -1,10 +1,11 @@
-*.iml
-.*.md
-.DS_Store
-.qt3tests/
+.agents/
+.config/
 .dart_tool/
+.DS_Store
 .idea/
 .packages
 .pub/
-example/other
+.opencode/
+*.iml
+petitparser_examples/build
 pubspec.lock

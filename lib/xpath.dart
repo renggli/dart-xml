@@ -1,8 +1,6 @@
 /// Dart XPath adds support of XPath 3.1 expressions to the XML library.
 library;
 
-import 'package:meta/meta.dart' show experimental;
-
 import 'src/xml/nodes/node.dart';
 import 'src/xml/utils/name.dart';
 import 'src/xpath/evaluation/configuration.dart';
@@ -23,7 +21,6 @@ extension XPathExtension on XmlNode {
   ///
   /// An optional [configuration] can be provided to customize the evaluation
   /// context. The returned nodes are a lazy iterable of [XmlNode] instances.
-  @experimental
   Iterable<XmlNode> xpath(
     String expression, {
     XPathConfiguration? configuration,
@@ -43,7 +40,6 @@ extension XPathExtension on XmlNode {
   /// An optional [configuration] can be provided to customize the evaluation
   /// context. The returned value is of type [XPathSequence], which is a lazy
   /// iterable of [Object]s.
-  @experimental
   XPathSequence xpathEvaluate(
     String expression, {
     XPathConfiguration? configuration,
