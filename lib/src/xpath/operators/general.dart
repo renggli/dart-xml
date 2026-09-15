@@ -1,4 +1,6 @@
 import '../../xml/nodes/node.dart';
+import '../exceptions/evaluation_exception.dart';
+import '../types/number.dart';
 import '../types/string.dart';
 import '../values/sequence.dart';
 
@@ -51,12 +53,30 @@ XPathSequence _compareGeneral(
     for (final item2 in seq2) {
       if (item1 is num && item2 is num) {
         if (comparator(item1, item2)) return XPathSequence.trueSequence;
+      } else if (item1 is num && item2 is String) {
+        final num2 = _tryParseNumeric(item2);
+        if (num2 != null && comparator(item1, num2)) {
+          return XPathSequence.trueSequence;
+        }
+      } else if (item1 is String && item2 is num) {
+        final num1 = _tryParseNumeric(item1);
+        if (num1 != null && comparator(num1, item2)) {
+          return XPathSequence.trueSequence;
+        }
       } else if (comparator(item1.toString(), item2.toString())) {
         return XPathSequence.trueSequence;
       }
     }
   }
   return XPathSequence.falseSequence;
+}
+
+num? _tryParseNumeric(String value) {
+  try {
+    return xsNumeric.cast(value);
+  } on XPathEvaluationException {
+    return null;
+  }
 }
 
 Iterable<Object> _atomize(XPathSequence seq) => seq.expand(
