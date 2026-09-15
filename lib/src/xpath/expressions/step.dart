@@ -45,7 +45,7 @@ class StepExpression implements XPathExpression {
             matched.add(node);
           }
         }
-        result = matched;
+        result = isReverseIndexed ? matched.reversed.toList() : matched;
       }
     }
     return XPathSequence(result);

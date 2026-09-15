@@ -3,6 +3,7 @@ import '../enums/node_type.dart';
 import '../mixins/has_name.dart';
 import '../mixins/has_parent.dart';
 import '../utils/name.dart';
+import '../utils/namespace.dart';
 import '../visitors/visitor.dart';
 import 'node.dart';
 
@@ -24,6 +25,11 @@ class XmlAttribute extends XmlNode with XmlHasName, XmlHasParent<XmlNode> {
 
   /// Return the quote type.
   final XmlAttributeType attributeType;
+
+  /// Return `true` if this attribute is a namespace declaration (`xmlns` or
+  /// `xmlns:*`).
+  bool get isNamespaceDeclaration =>
+      name.prefix == xmlns || name.local == xmlns;
 
   @override
   XmlNodeType get nodeType => XmlNodeType.ATTRIBUTE;

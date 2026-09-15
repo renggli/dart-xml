@@ -21,6 +21,7 @@ void main() {
     expect(node.document, same(document));
     expect(node.depth, 1);
     expect(node.attributes, hasLength(1));
+    expect(node.elementAttributes, hasLength(1));
     expect(node.children, hasLength(1));
     expect(node.descendants, hasLength(2));
     expect(node.value, isNull);
@@ -49,6 +50,7 @@ void main() {
     expect(node.document, same(document));
     expect(node.depth, 1);
     expect(node.attributes, isEmpty);
+    expect(node.elementAttributes, isEmpty);
     expect(node.children, isEmpty);
     expect(node.descendants, isEmpty);
     expect(node.value, isNull);
@@ -74,6 +76,7 @@ void main() {
     expect(node.document, same(document));
     expect(node.depth, 1);
     expect(node.attributes, isEmpty);
+    expect(node.elementAttributes, isEmpty);
     expect(node.children, isEmpty);
     expect(node.descendants, isEmpty);
     expect(node.value, isNull);
@@ -112,6 +115,7 @@ void main() {
     final data = XmlElement.tag('data', attributes: node.attributes);
     expect(data.attributes, contains(attr));
     expect(node.attributes, isEmpty); // moved out
+    expect(node.elementAttributes, isEmpty);
     final data2 = XmlElement.tag('data2', children: node.children);
     expect(data2.children, contains(child));
     expect(node.children, isEmpty); // moved out
@@ -267,5 +271,20 @@ void main() {
     // ignore: deprecated_member_use_from_same_package
     expect(node.getAttributeNode('attr', namespace: 'uri'), isNull);
     expect(node.toString(), '<data xmlns="uri"/>');
+  });
+  test('elementAttributes and isNamespaceDeclaration', () {
+    final document = XmlDocument.parse(
+      '<data xmlns="default-uri" xmlns:p="prefix-uri" regular="value"/>',
+    );
+    final node = document.rootElement;
+    expect(node.attributes, hasLength(3));
+    expect(node.attributes[0].isNamespaceDeclaration, isTrue);
+    expect(node.attributes[1].isNamespaceDeclaration, isTrue);
+    expect(node.attributes[2].isNamespaceDeclaration, isFalse);
+
+    final elementAttrs = node.elementAttributes.toList();
+    expect(elementAttrs, hasLength(1));
+    expect(elementAttrs.first.name.qualified, 'regular');
+    expect(elementAttrs.first.value, 'value');
   });
 }

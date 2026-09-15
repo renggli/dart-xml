@@ -13,6 +13,7 @@ void main() {
     expect(node.document, isNull);
     expect(node.depth, 0);
     expect(node.attributes, isEmpty);
+    expect(node.elementAttributes, isEmpty);
     expect(node.namespaces, isEmpty);
     expect(node.children, hasLength(2));
     expect(node.value, isNull);
@@ -30,6 +31,7 @@ void main() {
     expect(node.document, isNull);
     expect(node.depth, 0);
     expect(node.attributes, isEmpty);
+    expect(node.elementAttributes, isEmpty);
     expect(node.namespaces, isEmpty);
     expect(node.children, isEmpty);
     expect(node.value, isNull);

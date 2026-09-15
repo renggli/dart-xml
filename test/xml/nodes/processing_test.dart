@@ -17,6 +17,7 @@ void main() {
     expect(node.document, same(document));
     expect(node.depth, 1);
     expect(node.attributes, isEmpty);
+    expect(node.elementAttributes, isEmpty);
     expect(node.namespaces, isEmpty);
     expect(node.children, isEmpty);
     expect(node.nodeType, XmlNodeType.PROCESSING);
@@ -35,6 +36,7 @@ void main() {
     expect(node.document, same(document));
     expect(node.depth, 1);
     expect(node.attributes, isEmpty);
+    expect(node.elementAttributes, isEmpty);
     expect(node.namespaces, isEmpty);
     expect(node.children, isEmpty);
     expect(node.nodeType, XmlNodeType.PROCESSING);

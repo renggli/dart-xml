@@ -6,7 +6,14 @@
 - Standard-compliant DOM position comparison:
   - Introduced `XmlNode.compareDocumentPosition` returning `XmlDocumentPosition` bitmask flags (`isSame`, `isDisconnected`, `isPreceding`, `isFollowing`, `isContains`, `isContainedBy`, `isImplementationSpecific`), matching W3C DOM Level 3 / DOM 4.
   - Deprecated `XmlNode.compareNodePosition` in favor of `compareDocumentPosition`.
+- XML attribute and namespace separation:
+  - Added `XmlAttribute.isNamespaceDeclaration` to distinguish namespace declarations (`xmlns` or `xmlns:*`) from regular attributes.
+  - Added `elementAttributes` getter on `XmlAttributesBase` and `XmlHasAttributes` to iterate over attributes excluding namespace declarations.
 - XPath 3.1 enhancements and W3C compliance:
+  - Excluded namespace declarations from the attribute axis (`@*`), aligning with XPath 3.1 specification.
+  - Restored document order for reverse-indexed axes with predicates.
+  - Implemented canonical EQName path generation in `fn:path` (`/Q{uri}name[idx]`, `@Q{uri}name`, `text()[idx]`).
+  - Improved ID and IDREF resolution in `fn:id`, `fn:idref`, and `fn:element-with-id` with `xml:id` and DTD `<!ATTLIST ... ID/IDREF>` attribute declarations.
   - Introduced `XPathConfiguration` to configure evaluation contexts (custom variables, functions, namespaces, documents, environment variables, base URI, unparsed text loader, and trace callback). Deprecated passing `variables` and `functions` directly to `xpath` and `xpathEvaluate`.
   - Redesigned date, time, and duration types (`xs:duration`, `xs:dayTimeDuration`, `xs:yearMonthDuration`, `xs:dateTime`, `xs:date`, `xs:time`, and Gregorian date types) for strict W3C compliance.
   - Added support for `xs:anyAtomicType`, `xs:error`, and string-derived XML Schema constructors.

@@ -39,7 +39,8 @@ class AttributeAxis implements Axis {
   const new();
 
   @override
-  Iterable<XmlNode> find(XmlNode node) => node.attributes;
+  Iterable<XmlNode> find(XmlNode node) =>
+      node.attributes.where((attr) => !attr.isNamespaceDeclaration);
 }
 
 class ChildAxis implements Axis {

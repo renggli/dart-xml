@@ -9,6 +9,11 @@ mixin XmlAttributesBase {
   /// Return the attribute nodes of this node in document order.
   List<XmlAttribute> get attributes => const [];
 
+  /// Return the attribute nodes of this node in document order, excluding
+  /// namespace declarations.
+  Iterable<XmlAttribute> get elementAttributes =>
+      attributes.where((attribute) => !attribute.isNamespaceDeclaration);
+
   /// Return the attribute value with the given `name`, or `null`.
   ///
   /// Both `name` and `namespaceUri` can be a specific [String]; or `'*'` to

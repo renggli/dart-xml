@@ -2,15 +2,18 @@ import '../../xml/extensions/ancestors.dart';
 import '../../xml/extensions/descendants.dart';
 import '../../xml/extensions/parent.dart';
 import '../../xml/nodes/attribute.dart';
+import '../../xml/nodes/cdata.dart';
+import '../../xml/nodes/comment.dart';
 import '../../xml/nodes/document.dart';
 import '../../xml/nodes/element.dart';
 import '../../xml/nodes/node.dart';
 import '../../xml/nodes/processing.dart';
+import '../../xml/nodes/text.dart';
 import '../../xml/utils/name.dart';
+import '../../xml/utils/namespace.dart';
 import '../definitions/cardinality.dart';
 import '../definitions/function.dart';
 import '../evaluation/context.dart';
-import '../exceptions/evaluation_exception.dart';
 import '../types/node.dart';
 import '../types/string.dart';
 import '../values/sequence.dart';
@@ -100,7 +103,6 @@ const fnId = XPathFunctionDefinition(
     XPathArgumentDefinition(
       name: 'node',
       type: xsNode,
-      cardinality: XPathCardinality.zeroOrOne,
       defaultValue: _defaultToContextItem,
     ),
   ],
@@ -111,12 +113,14 @@ XPathSequence _fnId(XPathContext context, XPathSequence arg, [XmlNode? node]) {
   final ids = _parseIdStrings(arg);
   if (ids.isEmpty) return XPathSequence.empty;
   final root = node?.root;
-  if (root == null) throw XPathEvaluationException('Invalid document');
+  if (root == null || root is! XmlDocument) return XPathSequence.empty;
+  final dtdIds = _getIdAttributes(root);
   return XPathSequence(
     root.descendantElements.where(
       (element) => element.attributes.any(
         (attribute) =>
-            _isIdAttribute(attribute) && ids.contains(attribute.value.trim()),
+            _isId(element, attribute, dtdIds) &&
+            ids.contains(attribute.value.trim()),
       ),
     ),
   );
@@ -136,7 +140,6 @@ const fnElementWithId = XPathFunctionDefinition(
     XPathArgumentDefinition(
       name: 'node',
       type: xsNode,
-      cardinality: XPathCardinality.zeroOrOne,
       defaultValue: _defaultToContextItem,
     ),
   ],
@@ -151,14 +154,17 @@ XPathSequence _fnElementWithId(
   final ids = _parseIdStrings(arg);
   if (ids.isEmpty) return XPathSequence.empty;
   final root = node?.root;
-  if (root == null) throw XPathEvaluationException('Invalid document');
+  if (root == null || root is! XmlDocument) return XPathSequence.empty;
+  final dtdIds = _getIdAttributes(root);
   final seen = <String>{};
   return XPathSequence(
     root.descendantElements.where(
-      (element) => element.attributes.where(_isIdAttribute).any((attribute) {
-        final value = attribute.value.trim();
-        return ids.contains(value) && seen.add(value);
-      }),
+      (element) => element.attributes
+          .where((attribute) => _isId(element, attribute, dtdIds))
+          .any((attribute) {
+            final value = attribute.value.trim();
+            return ids.contains(value) && seen.add(value);
+          }),
     ),
   );
 }
@@ -177,7 +183,6 @@ const fnIdref = XPathFunctionDefinition(
     XPathArgumentDefinition(
       name: 'node',
       type: xsNode,
-      cardinality: XPathCardinality.zeroOrOne,
       defaultValue: _defaultToContextItem,
     ),
   ],
@@ -192,12 +197,13 @@ XPathSequence _fnIdref(
   final ids = _parseIdStrings(arg);
   if (ids.isEmpty) return XPathSequence.empty;
   final root = node?.root;
-  if (root == null) throw XPathEvaluationException('Invalid document');
+  if (root == null || root is! XmlDocument) return XPathSequence.empty;
+  final dtdIdrefs = _getIdrefAttributes(root);
   return XPathSequence(
     root.descendantElements.expand(
       (element) => element.attributes.where(
         (attribute) =>
-            _isIdrefAttribute(attribute) &&
+            _isIdref(element, attribute, dtdIdrefs) &&
             attribute.value.trim().split(_whitespace).any(ids.contains),
       ),
     ),
@@ -332,32 +338,73 @@ const fnPath = XPathFunctionDefinition(
 );
 
 XPathSequence _fnPath(XPathContext context, [XmlNode? node]) {
-  if (node == null) return XPathSequence.emptyString;
-  // Basic implementation
+  if (node == null) return XPathSequence.empty;
+  if (node is XmlDocument) return const XPathSequence.single('/');
   final components = <String>[];
   XmlNode? current = node;
-  while (current != null) {
+  while (current != null && current is! XmlDocument) {
     switch (current) {
-      case XmlDocument():
-        components.add('');
       case XmlElement():
-        final name = current.name.local;
-        final preceding = current.parent?.children
-            .whereType<XmlElement>()
-            .where((XmlElement e) => e.name.local == name)
-            .toList();
-        if (preceding != null && preceding.length > 1) {
-          final index = preceding.indexOf(current);
-          components.add('$name[${index + 1}]');
-        } else {
-          components.add(name);
+        final local = current.name.local;
+        final uri = current.name.namespaceUri ?? '';
+        final siblings =
+            current.parent?.children.whereType<XmlElement>() ?? const [];
+        var index = 1;
+        for (final sibling in siblings) {
+          if (identical(sibling, current)) break;
+          if (sibling.name.local == local &&
+              (sibling.name.namespaceUri ?? '') == uri) {
+            index++;
+          }
         }
+        components.add('Q{$uri}$local[$index]');
       case XmlAttribute():
-        components.add('@${current.name.local}');
+        final local = current.name.local;
+        final uri = current.name.namespaceUri;
+        if (uri != null && uri.isNotEmpty) {
+          components.add('@Q{$uri}$local');
+        } else {
+          components.add('@$local');
+        }
+      case XmlText() || XmlCDATA():
+        final siblings =
+            current.parent?.children.where(
+              (e) => e is XmlText || e is XmlCDATA,
+            ) ??
+            const [];
+        var index = 1;
+        for (final sibling in siblings) {
+          if (identical(sibling, current)) break;
+          index++;
+        }
+        components.add('text()[$index]');
+      case XmlComment():
+        final siblings =
+            current.parent?.children.whereType<XmlComment>() ?? const [];
+        var index = 1;
+        for (final sibling in siblings) {
+          if (identical(sibling, current)) break;
+          index++;
+        }
+        components.add('comment()[$index]');
+      case XmlProcessing():
+        final target = current.target;
+        final siblings =
+            current.parent?.children.whereType<XmlProcessing>() ?? const [];
+        var index = 1;
+        for (final sibling in siblings) {
+          if (identical(sibling, current)) break;
+          if (sibling.target == target) index++;
+        }
+        components.add('processing-instruction($target)[$index]');
+      case _:
+        break;
     }
     current = current.parent;
   }
-  return XPathSequence.single(components.reversed.join('/'));
+  final isDocRoot = node.root is XmlDocument;
+  final path = components.reversed.join('/');
+  return XPathSequence.single(isDocRoot ? '/$path' : path);
 }
 
 final _whitespace = RegExp(r'\s+');
@@ -371,11 +418,60 @@ Set<String> _parseIdStrings(XPathSequence arg) => arg
     .where((each) => each.isNotEmpty)
     .toSet();
 
-bool _isIdAttribute(XmlAttribute attr) =>
-    attr.name.qualified == 'id' || attr.name.qualified == 'xml:id';
+final _attlistIdRegex = RegExp(
+  r'<!ATTLIST\s+([^\s>]+)\s+([^\s>]+)\s+ID\b',
+  caseSensitive: false,
+);
 
-bool _isIdrefAttribute(XmlAttribute attr) =>
-    attr.name.qualified == 'idref' ||
-    attr.name.qualified == 'idrefs' ||
-    attr.name.qualified == 'xml:idref' ||
-    attr.name.qualified == 'xml:idrefs';
+final _attlistIdrefRegex = RegExp(
+  r'<!ATTLIST\s+([^\s>]+)\s+([^\s>]+)\s+(?:IDREF|IDREFS)\b',
+  caseSensitive: false,
+);
+
+Map<String, Set<String>> _getIdAttributes(XmlNode root) {
+  final result = <String, Set<String>>{};
+  if (root is XmlDocument) {
+    final subset = root.doctypeElement?.internalSubset;
+    if (subset != null) {
+      for (final m in _attlistIdRegex.allMatches(subset)) {
+        result.putIfAbsent(m.group(1)!, () => {}).add(m.group(2)!);
+      }
+    }
+  }
+  return result;
+}
+
+Map<String, Set<String>> _getIdrefAttributes(XmlNode root) {
+  final result = <String, Set<String>>{};
+  if (root is XmlDocument) {
+    final subset = root.doctypeElement?.internalSubset;
+    if (subset != null) {
+      for (final m in _attlistIdrefRegex.allMatches(subset)) {
+        result.putIfAbsent(m.group(1)!, () => {}).add(m.group(2)!);
+      }
+    }
+  }
+  return result;
+}
+
+bool _isId(
+  XmlElement element,
+  XmlAttribute attr,
+  Map<String, Set<String>> dtdIds,
+) =>
+    attr.name.qualified == 'id' ||
+    attr.name.qualified == '$xml:id' ||
+    (dtdIds[element.name.local]?.contains(attr.name.local) ?? false);
+
+bool _isIdref(
+  XmlElement element,
+  XmlAttribute attr,
+  Map<String, Set<String>> dtdIdrefs,
+) {
+  final qualified = attr.name.qualified;
+  return qualified == 'idref' ||
+      qualified == 'idrefs' ||
+      qualified == '$xml:idref' ||
+      qualified == '$xml:idrefs' ||
+      (dtdIdrefs[element.name.local]?.contains(attr.name.local) ?? false);
+}

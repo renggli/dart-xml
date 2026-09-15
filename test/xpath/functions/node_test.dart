@@ -178,12 +178,19 @@ void main() {
       final a = document.findAllElements('a').first;
       expect(
         fnPath(context, [XPathSequence.single(a)]),
-        isXPathSequence(['/r/a']),
+        isXPathSequence(['/Q{}r[1]/Q{}a[1]']),
       );
     });
 
-    test('returns empty string for empty sequence', () {
-      expect(fnPath(context, [XPathSequence.empty]), isXPathSequence(['']));
+    test('returns / for document', () {
+      expect(
+        fnPath(context, [XPathSequence.single(document)]),
+        isXPathSequence(['/']),
+      );
+    });
+
+    test('returns empty sequence for empty sequence', () {
+      expect(fnPath(context, [XPathSequence.empty]), isXPathSequence(isEmpty));
     });
 
     test('handles multiple elements with same name', () {
@@ -191,7 +198,7 @@ void main() {
       final a2 = doc2.findAllElements('a').last;
       expect(
         fnPath(context, [XPathSequence.single(a2)]),
-        isXPathSequence(['/r/a[2]']),
+        isXPathSequence(['/Q{}r[1]/Q{}a[2]']),
       );
     });
 
@@ -200,7 +207,7 @@ void main() {
       final attr = doc3.rootElement.attributes.first;
       expect(
         fnPath(context, [XPathSequence.single(attr)]),
-        isXPathSequence(['/r/@a']),
+        isXPathSequence(['/Q{}r[1]/@a']),
       );
     });
   });
@@ -248,14 +255,27 @@ void main() {
   });
 
   group('fn:id', () {
-    test('throws for invalid document', () {
+    test('throws for empty sequence node argument', () {
       expect(
         () => fnId(context, [
           const XPathSequence.single('a'),
           XPathSequence.empty,
         ]),
-        throwsA(isXPathEvaluationException(message: 'Invalid document')),
+        throwsA(isXPathEvaluationException()),
       );
+    });
+
+    test('integration via xpathEvaluate with DTD', () {
+      final xml = XmlDocument.parse('''
+<!DOCTYPE IDS [
+<!ELEMENT IDS (a, b)>
+<!ATTLIST a anId ID #REQUIRED>
+]>
+<IDS><a anId="id1"/><b anId="id2"/></IDS>
+''');
+      final a = xml.findAllElements('a').single;
+      expectEvaluate(xml, 'id("id1")', isXPathSequence([a]));
+      expectEvaluate(xml, 'id("id2")', isXPathSequence(isEmpty));
     });
 
     test('integration via xpathEvaluate', () {
@@ -279,13 +299,13 @@ void main() {
   });
 
   group('fn:element-with-id', () {
-    test('throws for invalid document', () {
+    test('throws for empty sequence node argument', () {
       expect(
         () => fnElementWithId(context, [
           const XPathSequence.single('a'),
           XPathSequence.empty,
         ]),
-        throwsA(isXPathEvaluationException(message: 'Invalid document')),
+        throwsA(isXPathEvaluationException()),
       );
     });
 
@@ -311,13 +331,29 @@ void main() {
   });
 
   group('fn:idref', () {
-    test('throws for invalid document', () {
+    test('throws for empty sequence node argument', () {
       expect(
         () => fnIdref(context, [
           const XPathSequence.single('a'),
           XPathSequence.empty,
         ]),
-        throwsA(isXPathEvaluationException(message: 'Invalid document')),
+        throwsA(isXPathEvaluationException()),
+      );
+    });
+
+    test('integration via xpathEvaluate with DTD', () {
+      final xml = XmlDocument.parse('''
+<!DOCTYPE IDS [
+<!ELEMENT IDS (a)>
+<!ATTLIST a anIdRef IDREF #REQUIRED>
+]>
+<IDS><a anIdRef="id1"/></IDS>
+''');
+      final a = xml.findAllElements('a').single;
+      expectEvaluate(
+        xml,
+        'idref("id1")',
+        isXPathSequence([a.attributes.first]),
       );
     });
 

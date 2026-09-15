@@ -212,6 +212,16 @@ void assertNamedInvariant(XmlHasName named) {
 
 void assertAttributeInvariants(XmlNode xml) {
   for (final node in [xml, ...xml.descendants]) {
+    expect(
+      node.elementAttributes,
+      node.attributes.where((attribute) => !attribute.isNamespaceDeclaration),
+    );
+    for (final attribute in node.attributes) {
+      expect(
+        attribute.isNamespaceDeclaration,
+        attribute.name.prefix == 'xmlns' || attribute.name.local == 'xmlns',
+      );
+    }
     if (node is XmlElement) {
       for (final attribute in node.attributes) {
         expect(

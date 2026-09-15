@@ -16,6 +16,7 @@ void main() {
     expect(node.document, same(document));
     expect(node.depth, 2);
     expect(node.attributes, isEmpty);
+    expect(node.elementAttributes, isEmpty);
     expect(node.children, isEmpty);
     expect(node.value, 'urn:a');
     // ignore: deprecated_member_use_from_same_package
@@ -36,6 +37,7 @@ void main() {
     expect(node.document, same(document));
     expect(node.depth, 2);
     expect(node.attributes, isEmpty);
+    expect(node.elementAttributes, isEmpty);
     expect(node.children, isEmpty);
     expect(node.value, 'urn:a');
     // ignore: deprecated_member_use_from_same_package
@@ -56,6 +58,7 @@ void main() {
     expect(node.document, same(document));
     expect(node.depth, 1);
     expect(node.attributes, isEmpty);
+    expect(node.elementAttributes, isEmpty);
     expect(node.children, isEmpty);
     expect(node.value, 'http://www.w3.org/XML/1998/namespace');
     // ignore: deprecated_member_use_from_same_package

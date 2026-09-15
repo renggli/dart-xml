@@ -10,6 +10,7 @@ void main() {
     expect(node.document, same(node));
     expect(node.depth, 0);
     expect(node.attributes, isEmpty);
+    expect(node.elementAttributes, isEmpty);
     expect(node.children, hasLength(1));
     expect(node.value, isNull);
     // ignore: deprecated_member_use_from_same_package
@@ -35,6 +36,7 @@ void main() {
       '<!-- before -->\n<element/>\t<!-- after -->',
     );
     expect(node.attributes, isEmpty);
+    expect(node.elementAttributes, isEmpty);
     expect(node.children, hasLength(7));
     expect(
       node.toString(),
@@ -56,6 +58,7 @@ void main() {
   test('attributes', () {
     final document = XmlDocument();
     expect(document.attributes, isEmpty);
+    expect(document.elementAttributes, isEmpty);
     expect(document.getAttribute('attr'), isNull);
     expect(document.getAttributeNode('attr'), isNull);
     expect(
