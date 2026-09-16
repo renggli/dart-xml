@@ -8,13 +8,21 @@ import '../../utils/matchers.dart';
 final document = XmlDocument.parse('<r xmlns:p="uri"><a>1</a><b>2</b></r>');
 final context = const XPathConfiguration.raw().context(document);
 
+XPathSequence seq(Object value) => XPathSequence.single(switch (value) {
+  final XPathItem item => item,
+  final XmlNode node => XPathNode(node),
+  final XmlName name => XPathQName(name),
+  final String str => XPathString(str),
+  _ => throw ArgumentError.value(value),
+});
+
 void main() {
   group('fn:namespace-uri-for-prefix', () {
     test('throws for invalid element', () {
       expect(
         () => fnNamespaceUriForPrefix(context, [
           XPathSequence.empty,
-          XPathSequence.single(document),
+          seq(document),
         ]),
         throwsA(isXPathEvaluationException()),
       );
@@ -22,10 +30,7 @@ void main() {
 
     test('returns uri for prefix', () {
       expect(
-        fnNamespaceUriForPrefix(context, [
-          const XPathSequence.single('p'),
-          XPathSequence.single(document.rootElement),
-        ]),
+        fnNamespaceUriForPrefix(context, [seq('p'), seq(document.rootElement)]),
         isXPathSequence(['uri']),
       );
     });
@@ -33,8 +38,8 @@ void main() {
     test('returns empty for unknown prefix', () {
       expect(
         fnNamespaceUriForPrefix(context, [
-          const XPathSequence.single('unknown'),
-          XPathSequence.single(document.rootElement),
+          seq('unknown'),
+          seq(document.rootElement),
         ]),
         isXPathSequence(isEmpty),
       );
@@ -44,10 +49,7 @@ void main() {
   group('fn:resolve-QName', () {
     test('resolves QName', () {
       expect(
-        fnResolveQName(context, [
-          const XPathSequence.single('p:local'),
-          XPathSequence.single(document.rootElement),
-        ]),
+        fnResolveQName(context, [seq('p:local'), seq(document.rootElement)]),
         isXPathSequence([isA<XmlName>()]),
       );
     });
@@ -56,7 +58,7 @@ void main() {
       expect(
         fnResolveQName(context, [
           XPathSequence.empty,
-          XPathSequence.single(document.rootElement),
+          seq(document.rootElement),
         ]),
         isXPathSequence(isEmpty),
       );
@@ -65,8 +67,8 @@ void main() {
     test('throws for unknown prefix', () {
       expect(
         () => fnResolveQName(context, [
-          const XPathSequence.single('unknown:local'),
-          XPathSequence.single(document.rootElement),
+          seq('unknown:local'),
+          seq(document.rootElement),
         ]),
         throwsA(isXPathEvaluationException()),
       );
@@ -76,10 +78,7 @@ void main() {
   group('fn:QName', () {
     test('creates QName', () {
       expect(
-        fnQName(context, [
-          const XPathSequence.single('uri'),
-          const XPathSequence.single('p:local'),
-        ]),
+        fnQName(context, [seq('uri'), seq('p:local')]),
         isXPathSequence([isA<XmlName>()]),
       );
     });
@@ -88,10 +87,7 @@ void main() {
   group('fn:prefix-from-QName', () {
     test('returns prefix', () {
       const qname = XmlName.qualified('p:local');
-      expect(
-        fnPrefixFromQName(context, [const XPathSequence.single(qname)]),
-        isXPathSequence(['p']),
-      );
+      expect(fnPrefixFromQName(context, [seq(qname)]), isXPathSequence(['p']));
     });
 
     test('returns empty for empty sequence', () {
@@ -106,7 +102,7 @@ void main() {
     test('returns local name', () {
       const qname = XmlName.qualified('p:local');
       expect(
-        fnLocalNameFromQName(context, [const XPathSequence.single(qname)]),
+        fnLocalNameFromQName(context, [seq(qname)]),
         isXPathSequence(['local']),
       );
     });
@@ -123,7 +119,7 @@ void main() {
     test('returns empty if no namespace', () {
       const qname = XmlName.qualified('p:local');
       expect(
-        fnNamespaceUriFromQName(context, [const XPathSequence.single(qname)]),
+        fnNamespaceUriFromQName(context, [seq(qname)]),
         isXPathSequence(isEmpty),
       );
     });
@@ -131,7 +127,7 @@ void main() {
     test('returns namespace uri', () {
       final qnameWithUri = XmlName.parse('p:local', namespaceUri: 'uri');
       expect(
-        fnNamespaceUriFromQName(context, [XPathSequence.single(qnameWithUri)]),
+        fnNamespaceUriFromQName(context, [seq(qnameWithUri)]),
         isXPathSequence(['uri']),
       );
     });
@@ -140,16 +136,14 @@ void main() {
   group('fn:in-scope-prefixes', () {
     test('throws for non-element', () {
       expect(
-        () => fnInScopePrefixes(context, [XPathSequence.single(document)]),
+        () => fnInScopePrefixes(context, [seq(document)]),
         throwsA(isXPathEvaluationException()),
       );
     });
 
     test('returns in-scope prefixes', () {
       expect(
-        fnInScopePrefixes(context, [
-          XPathSequence.single(document.rootElement),
-        ]),
+        fnInScopePrefixes(context, [seq(document.rootElement)]),
         isXPathSequence(['p', 'xml']),
       );
     });

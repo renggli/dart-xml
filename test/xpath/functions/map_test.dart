@@ -1,11 +1,11 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/functions/map.dart';
-import 'package:xml/src/xpath/types/string.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
 import '../../utils/matchers.dart';
+import '../helpers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
 final context = const XPathConfiguration.raw().context(document);
@@ -17,7 +17,7 @@ void main() {
       final map2 = {'b': 3, 'c': 4};
       expect(
         fnMapMerge(context, [
-          XPathSequence([map1, map2]),
+          XPathSequence([toXPathItem(map1), toXPathItem(map2)]),
         ]),
         isXPathSequence([
           {'a': 1, 'b': 3, 'c': 4},
@@ -27,7 +27,7 @@ void main() {
 
     test('throws for non-map item', () {
       expect(
-        () => fnMapMerge(context, [const XPathSequence.single(123)]),
+        () => fnMapMerge(context, [seq(123)]),
         throwsA(
           isXPathEvaluationException(
             message: 'Unsupported cast from 123 to map(*)',
@@ -40,10 +40,7 @@ void main() {
   group('map:size', () {
     test('returns size', () {
       final map = {'a': 1, 'b': 2};
-      expect(
-        fnMapSize(context, [XPathSequence.single(map)]),
-        isXPathSequence([2]),
-      );
+      expect(fnMapSize(context, [seq(map)]), isXPathSequence([2]));
     });
   });
 
@@ -51,7 +48,7 @@ void main() {
     test('returns keys', () {
       final map = {'a': 1, 'b': 2};
       expect(
-        fnMapKeys(context, [XPathSequence.single(map)]),
+        fnMapKeys(context, [seq(map)]),
         isXPathSequence(containsAll(['a', 'b'])),
       );
     });
@@ -61,10 +58,7 @@ void main() {
     test('returns true if contains', () {
       final map = {'a': 1};
       expect(
-        fnMapContains(context, [
-          XPathSequence.single(map),
-          const XPathSequence.single('a'),
-        ]),
+        fnMapContains(context, [seq(map), seq('a')]),
         isXPathSequence([true]),
       );
     });
@@ -72,10 +66,7 @@ void main() {
     test('returns false if not contains', () {
       final map = {'a': 1};
       expect(
-        fnMapContains(context, [
-          XPathSequence.single(map),
-          const XPathSequence.single('b'),
-        ]),
+        fnMapContains(context, [seq(map), seq('b')]),
         isXPathSequence([false]),
       );
     });
@@ -84,24 +75,12 @@ void main() {
   group('map:get', () {
     test('returns value for key', () {
       final map = {'a': 1};
-      expect(
-        fnMapGet(context, [
-          XPathSequence.single(map),
-          const XPathSequence.single('a'),
-        ]),
-        isXPathSequence([1]),
-      );
+      expect(fnMapGet(context, [seq(map), seq('a')]), isXPathSequence([1]));
     });
 
     test('returns empty for missing key', () {
       final map = {'a': 1};
-      expect(
-        fnMapGet(context, [
-          XPathSequence.single(map),
-          const XPathSequence.single('b'),
-        ]),
-        isXPathSequence(isEmpty),
-      );
+      expect(fnMapGet(context, [seq(map), seq('b')]), isXPathSequence(isEmpty));
     });
   });
 
@@ -109,13 +88,10 @@ void main() {
     test('finds value', () {
       final map = {'a': 1};
       expect(
-        fnMapFind(context, [
-          XPathSequence.single(map),
-          const XPathSequence.single('a'),
-        ]),
-        [
+        fnMapFind(context, [seq(map), seq('a')]),
+        isXPathSequence([
           [1],
-        ],
+        ]),
       );
     });
 
@@ -125,13 +101,13 @@ void main() {
         map,
         {'a': 2},
       ];
-      final result = fnMapFind(context, [
-        XPathSequence.single(list),
-        const XPathSequence.single('a'),
-      ]);
-      expect(result, [
-        [1, 2],
-      ]);
+      final result = fnMapFind(context, [seq(list), seq('a')]);
+      expect(
+        result,
+        isXPathSequence([
+          [1, 2],
+        ]),
+      );
     });
   });
 
@@ -139,11 +115,7 @@ void main() {
     test('adds entry', () {
       final map = {'a': 1};
       expect(
-        fnMapPut(context, [
-          XPathSequence.single(map),
-          const XPathSequence.single('b'),
-          const XPathSequence.single(2),
-        ]),
+        fnMapPut(context, [seq(map), seq('b'), seq(2)]),
         isXPathSequence([
           {'a': 1, 'b': 2},
         ]),
@@ -154,10 +126,7 @@ void main() {
   group('map:entry', () {
     test('creates entry', () {
       expect(
-        fnMapEntry(context, [
-          const XPathSequence.single('a'),
-          const XPathSequence.single(1),
-        ]),
+        fnMapEntry(context, [seq('a'), seq(1)]),
         isXPathSequence([
           {'a': 1},
         ]),
@@ -169,10 +138,7 @@ void main() {
     test('removes entry', () {
       final map = {'a': 1, 'b': 2};
       expect(
-        fnMapRemove(context, [
-          XPathSequence.single(map),
-          const XPathSequence.single('a'),
-        ]),
+        fnMapRemove(context, [seq(map), seq('a')]),
         isXPathSequence([
           {'b': 2},
         ]),
@@ -183,8 +149,8 @@ void main() {
       final map = {'a': 1, 'b': 2};
       expect(
         fnMapRemove(context, [
-          XPathSequence.single(map),
-          const XPathSequence(['a', 'b']),
+          seq(map),
+          seq(['a', 'b']),
         ]),
         isXPathSequence([isEmpty]),
       );
@@ -195,16 +161,13 @@ void main() {
     test('applies function to mapping', () {
       final map = {'a': 1, 'b': 2};
       XPathSequence concat(XPathContext context, List<XPathSequence> args) {
-        final key = args[0];
-        final value = args[1];
-        return XPathSequence.single(xsString.cast(key) + xsString.cast(value));
+        final key = args[0].first.stringValue;
+        final value = args[1].first.stringValue;
+        return seq('$key$value');
       }
 
       expect(
-        fnMapForEach(context, [
-          XPathSequence.single(map),
-          XPathSequence.single(concat),
-        ]),
+        fnMapForEach(context, [seq(map), seq(concat)]),
         isXPathSequence(containsAll(['a1', 'b2'])),
       );
     });

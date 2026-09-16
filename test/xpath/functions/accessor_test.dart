@@ -4,6 +4,7 @@ import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
 import '../../utils/matchers.dart';
+import '../helpers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
 final context = const XPathConfiguration.raw().context(document);
@@ -16,16 +17,13 @@ void main() {
         fnNodeName(const XPathConfiguration.raw().context(a), []),
         isXPathSequence([a.name]),
       );
-      expect(
-        fnNodeName(context, [XPathSequence.single(a)]),
-        isXPathSequence([a.name]),
-      );
+      expect(fnNodeName(context, [seq(a)]), isXPathSequence([a.name]));
     });
 
     test('returns name of processing-instruction', () {
       final pi = XmlProcessing('target', 'value');
       expect(
-        fnNodeName(context, [XPathSequence.single(pi)]),
+        fnNodeName(context, [seq(pi)]),
         isXPathSequence([
           isA<XmlName>().having((name) => name.local, 'localName', 'target'),
         ]),
@@ -42,15 +40,12 @@ void main() {
 
   group('fn:nilled', () {
     test('returns empty for document', () {
-      expect(
-        fnNilled(context, [XPathSequence.single(document)]),
-        isXPathSequence(isEmpty),
-      );
+      expect(fnNilled(context, [seq(document)]), isXPathSequence(isEmpty));
     });
 
     test('returns false for element', () {
       expect(
-        fnNilled(context, [XPathSequence.single(document.rootElement)]),
+        fnNilled(context, [seq(document.rootElement)]),
         isXPathSequence([false]),
       );
     });
@@ -65,10 +60,7 @@ void main() {
 
   group('fn:string', () {
     test('returns string value', () {
-      expect(
-        fnString(context, [const XPathSequence.single('foo')]),
-        isXPathSequence(['foo']),
-      );
+      expect(fnString(context, [seq('foo')]), isXPathSequence(['foo']));
     });
 
     test('returns empty for empty sequence', () {
@@ -94,16 +86,13 @@ void main() {
     });
 
     test('returns atomic value', () {
-      expect(
-        fnData(context, [const XPathSequence.single(123)]),
-        isXPathSequence([123]),
-      );
+      expect(fnData(context, [seq(123)]), isXPathSequence([123]));
     });
 
     test('returns list value', () {
       expect(
         fnData(context, [
-          const XPathSequence.single([1, 2, 3]),
+          seq([1, 2, 3]),
         ]),
         isXPathSequence([1, 2, 3]),
       );
@@ -126,10 +115,7 @@ void main() {
     });
 
     test('returns empty for document', () {
-      expect(
-        fnBaseUri(context, [XPathSequence.single(document)]),
-        isXPathSequence(isEmpty),
-      );
+      expect(fnBaseUri(context, [seq(document)]), isXPathSequence(isEmpty));
     });
   });
 
@@ -142,10 +128,7 @@ void main() {
     });
 
     test('returns empty for document', () {
-      expect(
-        fnDocumentUri(context, [XPathSequence.single(document)]),
-        isXPathSequence(isEmpty),
-      );
+      expect(fnDocumentUri(context, [seq(document)]), isXPathSequence(isEmpty));
     });
   });
 
@@ -153,7 +136,7 @@ void main() {
     test('serializes sequence', () {
       expect(
         fnSerialize(context, [
-          XPathSequence([
+          seq([
             document.findAllElements('a').first,
             'text',
             document.findAllElements('b').first,
@@ -174,7 +157,7 @@ void main() {
   group('fn:parse-xml', () {
     test('parses xml string', () {
       expect(
-        fnParseXml(context, [const XPathSequence.single('<r><a>1</a></r>')]),
+        fnParseXml(context, [seq('<r><a>1</a></r>')]),
         isXPathSequence([isA<XmlDocument>()]),
       );
     });
@@ -188,7 +171,7 @@ void main() {
 
     test('throws exception on invalid xml', () {
       expect(
-        () => fnParseXml(context, [const XPathSequence.single('<r>unclosed')]),
+        () => fnParseXml(context, [seq('<r>unclosed')]),
         throwsA(isA<XmlException>()),
       );
     });
@@ -197,9 +180,7 @@ void main() {
   group('fn:parse-xml-fragment', () {
     test('parses xml fragment string', () {
       expect(
-        fnParseXmlFragment(context, [
-          const XPathSequence.single('<a>1</a><b>2</b>'),
-        ]),
+        fnParseXmlFragment(context, [seq('<a>1</a><b>2</b>')]),
         isXPathSequence([isA<XmlDocumentFragment>()]),
       );
     });
@@ -213,9 +194,7 @@ void main() {
 
     test('throws exception on invalid xml fragment', () {
       expect(
-        () => fnParseXmlFragment(context, [
-          const XPathSequence.single('<r>unclosed'),
-        ]),
+        () => fnParseXmlFragment(context, [seq('<r>unclosed')]),
         throwsA(isA<XmlException>()),
       );
     });

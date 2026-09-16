@@ -1,11 +1,9 @@
 import '../../xml/utils/name.dart';
-import '../definitions/function.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../exceptions/evaluation_exception.dart';
-import '../types/function.dart';
-import '../values/function.dart';
-import '../values/sequence.dart';
+import '../xdm/function_item.dart';
+import '../xdm/sequence.dart';
 import 'variable.dart';
 
 class FunctionExpression implements XPathExpression {
@@ -16,14 +14,16 @@ class FunctionExpression implements XPathExpression {
 
   @override
   XPathSequence call(XPathContext context) {
-    final function = context.configuration.getFunctionByString(name);
     final hasPlaceholders = arguments.any(
       (argument) => argument is ArgumentPlaceholderExpression,
     );
+    final function = context.configuration.getFunctionByString(
+      name,
+      hasPlaceholders ? null : arguments.length,
+    );
     return hasPlaceholders
         ? _applyPartialFunction(context, arguments, function)
-        : _invokeFunction(
-            function,
+        : function.call(
             context,
             arguments.map((each) => each(context)).toList(),
           );
@@ -50,21 +50,7 @@ class NamedFunctionExpression implements XPathExpression {
 
   @override
   XPathSequence call(XPathContext context) {
-    final function = context.configuration.getFunctionByString(name);
-    final isSupported = switch (function) {
-      XPathFunctionDefinition() =>
-        arity >= function.requiredArguments.length &&
-            (function.variadicArgument != null ||
-                arity <=
-                    function.requiredArguments.length +
-                        function.optionalArguments.length),
-      _ => arity == function.arity,
-    };
-    if (!isSupported) {
-      throw XPathEvaluationException(
-        'Function "$name" does not support arity $arity',
-      );
-    }
+    final function = context.configuration.getFunctionByString(name, arity);
     return XPathSequence.single(function);
   }
 }
@@ -83,26 +69,25 @@ class ArrowExpression implements XPathExpression {
     final spec = specifier;
     switch (spec) {
       case String():
-        final function = context.configuration.getFunctionByString(spec);
-        return _invokeFunction(function, context, argumentSeqs);
+        final function = context.configuration.getFunctionByString(
+          spec,
+          argumentSeqs.length,
+        );
+        return function.call(context, argumentSeqs);
       case XPathExpression():
         final functionSeq = spec(context);
-        if (functionSeq.isEmpty) {
-          throw XPathEvaluationException(
-            'Expected a single function item, but got an empty sequence',
-          );
-        } else if (functionSeq.length > 1) {
+        if (functionSeq.length != 1) {
           throw XPathEvaluationException(
             'Expected a single function item, but got ${functionSeq.length} items',
           );
         }
         final functionItem = functionSeq.first;
-        if (!xsFunction.matches(functionItem)) {
+        if (functionItem is! XPathFunctionItem) {
           throw XPathEvaluationException(
             'Expected a function item, but got ${functionItem.runtimeType}',
           );
         }
-        return _invokeFunction(functionItem, context, argumentSeqs);
+        return functionItem.call(context, argumentSeqs);
       default:
         throw StateError('Invalid arrow function specifier: $specifier');
     }
@@ -130,24 +115,20 @@ class FunctionCallExpression implements XPathExpression {
     );
   }
 
-  XPathFunction _evaluateFunction(XPathContext context) {
+  XPathFunctionItem _evaluateFunction(XPathContext context) {
     final result = function(context);
-    if (result.isEmpty) {
-      throw XPathEvaluationException(
-        'Expected a single function item, but got an empty sequence',
-      );
-    } else if (result.length > 1) {
+    if (result.length != 1) {
       throw XPathEvaluationException(
         'Expected a single function item, but got ${result.length} items',
       );
     }
     final functionItem = result.first;
-    if (!xsFunction.matches(functionItem)) {
+    if (functionItem is! XPathFunctionItem) {
       throw XPathEvaluationException(
         'Expected a function item, but got ${functionItem.runtimeType}',
       );
     }
-    return xsFunction.cast(functionItem);
+    return functionItem;
   }
 }
 
@@ -159,16 +140,10 @@ class ArgumentPlaceholderExpression implements XPathExpression {
       throw StateError('Argument placeholder cannot be evaluated');
 }
 
-XPathSequence _invokeFunction(
-  Object functionItem,
-  XPathContext context,
-  List<XPathSequence> arguments,
-) => xsFunction.cast(functionItem).call(context, arguments);
-
 XPathSequence _applyPartialFunction(
   XPathContext context,
   List<XPathExpression> arguments,
-  XPathFunction function,
+  XPathFunctionItem function,
 ) {
   final evaluatedArguments = arguments
       .map<XPathExpression>(
@@ -185,15 +160,15 @@ XPathSequence _applyPartialFunction(
   );
 }
 
-class _XPathInlineFunction extends XPathFunction {
-  new(this.expression, this.context, this.parameters);
+class _XPathInlineFunction extends XPathFunctionItem {
+  const new(this.expression, this.context, this.parameters);
 
   final XPathExpression expression;
   final XPathContext context;
   final List<String> parameters;
 
   @override
-  XmlName get name => const XmlName.qualified('dynamic-function');
+  XmlName? get name => const XmlName.qualified('dynamic-function');
 
   @override
   int get arity => parameters.length;
@@ -212,14 +187,14 @@ class _XPathInlineFunction extends XPathFunction {
   }
 }
 
-class _XPathPartialFunction extends XPathFunction {
-  new(this.evaluatedArguments, this.function, this.arity);
+class _XPathPartialFunction extends XPathFunctionItem {
+  const new(this.evaluatedArguments, this.function, this.arity);
 
   final List<XPathExpression> evaluatedArguments;
-  final XPathFunction function;
+  final XPathFunctionItem function;
 
   @override
-  XmlName get name => function.name;
+  XmlName? get name => function.name;
 
   @override
   final int arity;

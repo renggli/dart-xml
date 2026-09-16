@@ -6,6 +6,10 @@ import 'package:xml/xpath.dart';
 import '../../utils/matchers.dart';
 import '../helpers.dart';
 
+XPathSequence nSeq(XmlNode n) => XPathSequence.single(XPathNode(n));
+XPathSequence nSeqAll(List<XmlNode> nodes) =>
+    XPathSequence(nodes.map(XPathNode.new));
+
 void main() {
   final doc = XmlDocument.parse('<r><a/><b/><c/></r>');
   final aNode = doc.findAllElements('a').single;
@@ -15,14 +19,14 @@ void main() {
   group('opUnion', () {
     test('union', () {
       expect(
-        opUnion(XPathSequence.single(aNode), XPathSequence.single(bNode)),
-        XPathSequence([aNode, bNode]),
+        opUnion(nSeq(aNode), nSeq(bNode)),
+        isXPathSequence([aNode, bNode]),
       );
     });
     test('preserve document order', () {
       expect(
-        opUnion(XPathSequence.single(bNode), XPathSequence.single(aNode)),
-        [aNode, bNode],
+        opUnion(nSeq(bNode), nSeq(aNode)),
+        isXPathSequence([aNode, bNode]),
       );
     });
     test('integration union', () {
@@ -42,8 +46,8 @@ void main() {
   group('opIntersect', () {
     test('intersect', () {
       expect(
-        opIntersect(XPathSequence([aNode, bNode]), XPathSequence.single(aNode)),
-        [aNode],
+        opIntersect(nSeqAll([aNode, bNode]), nSeq(aNode)),
+        isXPathSequence([aNode]),
       );
     });
     test('integration intersect', () {
@@ -58,8 +62,8 @@ void main() {
   group('opExcept', () {
     test('except', () {
       expect(
-        opExcept(XPathSequence([aNode, bNode]), XPathSequence.single(aNode)),
-        [bNode],
+        opExcept(nSeqAll([aNode, bNode]), nSeq(aNode)),
+        isXPathSequence([bNode]),
       );
     });
     test('integration except', () {
@@ -73,22 +77,13 @@ void main() {
 
   group('opNodeIs', () {
     test('same node', () {
-      expect(
-        opNodeIs(XPathSequence.single(aNode), XPathSequence.single(aNode)),
-        isXPathSequence([true]),
-      );
+      expect(opNodeIs(nSeq(aNode), nSeq(aNode)), isXPathSequence([true]));
     });
     test('different node', () {
-      expect(
-        opNodeIs(XPathSequence.single(aNode), XPathSequence.single(bNode)),
-        isXPathSequence([false]),
-      );
+      expect(opNodeIs(nSeq(aNode), nSeq(bNode)), isXPathSequence([false]));
     });
     test('empty sequence returns empty', () {
-      expect(
-        opNodeIs(XPathSequence.empty, XPathSequence.single(aNode)),
-        isEmpty,
-      );
+      expect(opNodeIs(XPathSequence.empty, nSeq(aNode)), isEmpty);
     });
     test('integration is', () {
       expectEvaluate(doc, 'r/a is r/a', [true]);
@@ -99,28 +94,16 @@ void main() {
 
   group('opNodePrecedes', () {
     test('precedes', () {
-      expect(
-        opNodePrecedes(
-          XPathSequence.single(aNode),
-          XPathSequence.single(bNode),
-        ),
-        isXPathSequence([true]),
-      );
+      expect(opNodePrecedes(nSeq(aNode), nSeq(bNode)), isXPathSequence([true]));
     });
     test('does not precede', () {
       expect(
-        opNodePrecedes(
-          XPathSequence.single(bNode),
-          XPathSequence.single(aNode),
-        ),
+        opNodePrecedes(nSeq(bNode), nSeq(aNode)),
         isXPathSequence([false]),
       );
     });
     test('empty sequence returns empty', () {
-      expect(
-        opNodePrecedes(XPathSequence.empty, XPathSequence.single(aNode)),
-        isEmpty,
-      );
+      expect(opNodePrecedes(XPathSequence.empty, nSeq(aNode)), isEmpty);
     });
     test('integration <<', () {
       expectEvaluate(doc, 'r/a << r/b', [true]);
@@ -130,22 +113,13 @@ void main() {
 
   group('opNodeFollows', () {
     test('follows', () {
-      expect(
-        opNodeFollows(XPathSequence.single(bNode), XPathSequence.single(aNode)),
-        isXPathSequence([true]),
-      );
+      expect(opNodeFollows(nSeq(bNode), nSeq(aNode)), isXPathSequence([true]));
     });
     test('does not follow', () {
-      expect(
-        opNodeFollows(XPathSequence.single(aNode), XPathSequence.single(bNode)),
-        isXPathSequence([false]),
-      );
+      expect(opNodeFollows(nSeq(aNode), nSeq(bNode)), isXPathSequence([false]));
     });
     test('empty sequence returns empty', () {
-      expect(
-        opNodeFollows(XPathSequence.empty, XPathSequence.single(aNode)),
-        isEmpty,
-      );
+      expect(opNodeFollows(XPathSequence.empty, nSeq(aNode)), isEmpty);
     });
     test('integration >>', () {
       expectEvaluate(doc, 'r/b >> r/a', [true]);
@@ -163,61 +137,43 @@ void main() {
 
     test('node comparisons on disconnected trees', () {
       final precedesResult =
-          opNodePrecedes(
-                XPathSequence.single(aNode),
-                XPathSequence.single(cNode),
-              ).single
-              as bool;
+          (opNodePrecedes(nSeq(aNode), nSeq(cNode)).single as XPathBoolean)
+              .value;
 
       final followsResult =
-          opNodeFollows(
-                XPathSequence.single(aNode),
-                XPathSequence.single(cNode),
-              ).single
-              as bool;
+          (opNodeFollows(nSeq(aNode), nSeq(cNode)).single as XPathBoolean)
+              .value;
 
       expect(precedesResult, isNot(followsResult));
 
       expect(
-        opNodePrecedes(
-          XPathSequence.single(cNode),
-          XPathSequence.single(aNode),
-        ).single,
+        (opNodePrecedes(nSeq(cNode), nSeq(aNode)).single as XPathBoolean).value,
         followsResult,
       );
       expect(
-        opNodeFollows(
-          XPathSequence.single(cNode),
-          XPathSequence.single(aNode),
-        ).single,
+        (opNodeFollows(nSeq(cNode), nSeq(aNode)).single as XPathBoolean).value,
         precedesResult,
       );
     });
 
     test('union/intersect/except on disconnected trees', () {
       final unionResult = opUnion(
-        XPathSequence([bNode, aNode]),
-        XPathSequence([dNode, cNode]),
-      ).toList();
+        nSeqAll([bNode, aNode]),
+        nSeqAll([dNode, cNode]),
+      ).map((item) => (item as XPathNode).node).toList();
 
       expect(unionResult, hasLength(4));
       expect(unionResult.indexOf(aNode) < unionResult.indexOf(bNode), isTrue);
       expect(unionResult.indexOf(cNode) < unionResult.indexOf(dNode), isTrue);
 
       expect(
-        opIntersect(
-          XPathSequence([aNode, cNode]),
-          XPathSequence([cNode, dNode]),
-        ).toList(),
-        [cNode],
+        opIntersect(nSeqAll([aNode, cNode]), nSeqAll([cNode, dNode])),
+        isXPathSequence([cNode]),
       );
 
       expect(
-        opExcept(
-          XPathSequence([aNode, cNode]),
-          XPathSequence([cNode, dNode]),
-        ).toList(),
-        [aNode],
+        opExcept(nSeqAll([aNode, cNode]), nSeqAll([cNode, dNode])),
+        isXPathSequence([aNode]),
       );
     });
   });

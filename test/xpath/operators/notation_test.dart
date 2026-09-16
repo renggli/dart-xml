@@ -7,10 +7,10 @@ void main() {
     test('equal', () {
       expect(
         opNotationEqual(
-          const XPathSequence.single('foo:bar'),
-          const XPathSequence.single('foo:bar'),
+          const XPathSequence.single(XPathString('foo:bar')),
+          const XPathSequence.single(XPathString('foo:bar')),
         ),
-        [true],
+        XPathSequence.trueSequence,
       );
     });
   });

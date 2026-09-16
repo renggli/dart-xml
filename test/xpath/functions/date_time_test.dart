@@ -1,11 +1,10 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/functions/date_time.dart';
-import 'package:xml/src/xpath/values/date_time.dart';
-import 'package:xml/src/xpath/values/duration.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
 import '../../utils/matchers.dart';
+import '../helpers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
 final context = const XPathConfiguration.raw().context(document);
@@ -17,8 +16,8 @@ void main() {
     test('adjusts to UTC', () {
       expect(
         fnAdjustDateTimeToTimezone(context, [
-          XPathSequence.single(dt),
-          const XPathSequence.single(XPathDayTimeDuration(0)),
+          seq(dt),
+          seq(const XPathDayTimeDuration(0)),
         ]),
         isXPathSequence([XPathDateTime.fromDateTime(dt, 0)]),
       );
@@ -26,7 +25,7 @@ void main() {
 
     test('adjusts to implicit (local) timezone', () {
       final result =
-          fnAdjustDateTimeToTimezone(context, [XPathSequence.single(dt)]).first
+          fnAdjustDateTimeToTimezone(context, [seq(dt)]).first
               as XPathAbstractDateTime;
       expect(
         result.timezoneOffsetMinutes,
@@ -38,7 +37,7 @@ void main() {
       expect(
         fnAdjustDateTimeToTimezone(context, [
           XPathSequence.empty,
-          const XPathSequence.single(XPathDayTimeDuration(0)),
+          seq(const XPathDayTimeDuration(0)),
         ]),
         isXPathSequence(isEmpty),
       );
@@ -46,10 +45,7 @@ void main() {
 
     test('adjusts to empty timezone (returns timezone-less)', () {
       expect(
-        fnAdjustDateTimeToTimezone(context, [
-          XPathSequence.single(dt),
-          XPathSequence.empty,
-        ]),
+        fnAdjustDateTimeToTimezone(context, [seq(dt), XPathSequence.empty]),
         isXPathSequence([const XPathDateTime(2020, 1, 1, 10, 0, 0)]),
       );
     });
@@ -58,8 +54,8 @@ void main() {
       final now = DateTime.now();
       expect(
         () => fnAdjustDateTimeToTimezone(context, [
-          XPathSequence.single(now),
-          const XPathSequence.single(XPathDayTimeDuration(54000000000)),
+          seq(now),
+          seq(const XPathDayTimeDuration(54000000000)),
         ]),
         throwsA(isA<XPathEvaluationException>()),
       );
@@ -69,8 +65,8 @@ void main() {
       final now = DateTime.now();
       expect(
         () => fnAdjustDateTimeToTimezone(context, [
-          XPathSequence.single(now),
-          const XPathSequence.single(XPathDayTimeDuration(1000)), // 1 ms
+          seq(now),
+          seq(const XPathDayTimeDuration(1000)), // 1 ms
         ]),
         throwsA(isA<XPathEvaluationException>()),
       );
@@ -83,9 +79,9 @@ void main() {
 
   group('fn:adjust-date-to-timezone', () {
     test('adjusts to implicit (local) timezone', () {
-      final dt = DateTime.utc(2020, 1, 1);
+      const dt = XPathDate(2020, 1, 1, 0);
       final result =
-          fnAdjustDateToTimezone(context, [XPathSequence.single(dt)]).first
+          fnAdjustDateToTimezone(context, [seq(dt)]).first
               as XPathAbstractDateTime;
       expect(
         result.timezoneOffsetMinutes,
@@ -96,9 +92,9 @@ void main() {
 
   group('fn:adjust-time-to-timezone', () {
     test('adjusts to implicit (local) timezone', () {
-      final dt = DateTime.utc(2020, 1, 1, 10, 0, 0);
+      const dt = XPathTime(10, 0, 0, 0);
       final result =
-          fnAdjustTimeToTimezone(context, [XPathSequence.single(dt)]).first
+          fnAdjustTimeToTimezone(context, [seq(dt)]).first
               as XPathAbstractDateTime;
       expect(
         result.timezoneOffsetMinutes,
@@ -112,20 +108,14 @@ void main() {
 
     test('formats date time', () {
       expect(
-        fnFormatDateTime(context, [
-          XPathSequence.single(dt),
-          const XPathSequence.single('[Y]-[M]-[D]'),
-        ]),
+        fnFormatDateTime(context, [seq(dt), seq('[Y]-[M]-[D]')]),
         isXPathSequence(['2020-01-01T12:00:00Z']),
       );
     });
 
     test('returns empty for empty sequence', () {
       expect(
-        fnFormatDateTime(context, [
-          XPathSequence.empty,
-          const XPathSequence.single('[Y]'),
-        ]),
+        fnFormatDateTime(context, [XPathSequence.empty, seq('[Y]')]),
         isXPathSequence(isEmpty),
       );
     });
@@ -133,12 +123,9 @@ void main() {
 
   group('fn:format-date', () {
     test('formats date', () {
-      final dt = DateTime.utc(2020, 1, 1);
+      const dt = XPathDate(2020, 1, 1, 0);
       expect(
-        fnFormatDate(context, [
-          XPathSequence.single(dt),
-          const XPathSequence.single('[Y]'),
-        ]),
+        fnFormatDate(context, [seq(dt), seq('[Y]')]),
         isXPathSequence(['2020-01-01Z']),
       );
     });
@@ -146,12 +133,9 @@ void main() {
 
   group('fn:format-time', () {
     test('formats time', () {
-      final dt = DateTime.utc(1970, 1, 1, 10, 30, 0);
+      const dt = XPathTime(10, 30, 0, 0, 0, 0);
       expect(
-        fnFormatTime(context, [
-          XPathSequence.single(dt),
-          const XPathSequence.single('[H]:[m]'),
-        ]),
+        fnFormatTime(context, [seq(dt), seq('[H]:[m]')]),
         isXPathSequence(['10:30:00Z']),
       );
     });
@@ -162,8 +146,8 @@ void main() {
       // Both args are timezone-less.
       expect(
         (fnDateTime(context, [
-                  const XPathSequence.single(XPathDate(2023, 10, 26)),
-                  const XPathSequence.single(XPathTime(12, 30, 45)),
+                  seq(const XPathDate(2023, 10, 26)),
+                  seq(const XPathTime(12, 30, 45)),
                 ]).first
                 as XPathAbstractDateTime)
             .toDateTime(),
@@ -175,7 +159,7 @@ void main() {
       expect(
         fnDateTime(context, [
           XPathSequence.empty,
-          XPathSequence.single(DateTime.now()),
+          seq(const XPathTime(12, 0, 0)),
         ]),
         isXPathSequence(isEmpty),
       );
@@ -184,7 +168,7 @@ void main() {
     test('returns empty if second argument is empty', () {
       expect(
         fnDateTime(context, [
-          XPathSequence.single(DateTime.now()),
+          seq(const XPathDate(2023, 1, 1)),
           XPathSequence.empty,
         ]),
         isXPathSequence(isEmpty),
@@ -195,9 +179,7 @@ void main() {
   group('fn:year-from-dateTime', () {
     test('returns year', () {
       expect(
-        fnYearFromDateTime(context, [
-          XPathSequence.single(DateTime.utc(2023, 10, 26)),
-        ]),
+        fnYearFromDateTime(context, [seq(DateTime.utc(2023, 10, 26))]),
         isXPathSequence([2023]),
       );
     });
@@ -214,7 +196,7 @@ void main() {
     test('returns month', () {
       expect(
         fnMonthFromDateTime(context, [
-          XPathSequence.single(DateTime.utc(2023, 10, 26, 12, 30, 45)),
+          seq(DateTime.utc(2023, 10, 26, 12, 30, 45)),
         ]),
         isXPathSequence([10]),
       );
@@ -232,7 +214,7 @@ void main() {
     test('returns day', () {
       expect(
         fnDayFromDateTime(context, [
-          XPathSequence.single(DateTime.utc(2023, 10, 26, 12, 30, 45)),
+          seq(DateTime.utc(2023, 10, 26, 12, 30, 45)),
         ]),
         isXPathSequence([26]),
       );
@@ -250,7 +232,7 @@ void main() {
     test('returns hours', () {
       expect(
         fnHoursFromDateTime(context, [
-          XPathSequence.single(DateTime.utc(2023, 10, 26, 12, 30, 45)),
+          seq(DateTime.utc(2023, 10, 26, 12, 30, 45)),
         ]),
         isXPathSequence([12]),
       );
@@ -268,7 +250,7 @@ void main() {
     test('returns minutes', () {
       expect(
         fnMinutesFromDateTime(context, [
-          XPathSequence.single(DateTime.utc(2023, 10, 26, 12, 30, 45)),
+          seq(DateTime.utc(2023, 10, 26, 12, 30, 45)),
         ]),
         isXPathSequence([30]),
       );
@@ -286,7 +268,7 @@ void main() {
     test('returns seconds', () {
       expect(
         fnSecondsFromDateTime(context, [
-          XPathSequence.single(DateTime.utc(2023, 10, 26, 12, 30, 45)),
+          seq(DateTime.utc(2023, 10, 26, 12, 30, 45)),
         ]),
         isXPathSequence([45.0]),
       );
@@ -304,7 +286,7 @@ void main() {
     test('returns timezone', () {
       expect(
         fnTimezoneFromDateTime(context, [
-          XPathSequence.single(DateTime.utc(2023, 10, 26, 12, 30, 45)),
+          seq(DateTime.utc(2023, 10, 26, 12, 30, 45)),
         ]),
         isXPathSequence([const XPathDayTimeDuration(0)]),
       );
@@ -321,9 +303,7 @@ void main() {
   group('fn:year-from-date', () {
     test('returns year', () {
       expect(
-        fnYearFromDate(context, [
-          XPathSequence.single(DateTime.utc(2023, 10, 26, 12, 30, 45)),
-        ]),
+        fnYearFromDate(context, [seq(const XPathDate(2023, 10, 26, 0))]),
         isXPathSequence([2023]),
       );
     });
@@ -339,9 +319,7 @@ void main() {
   group('fn:month-from-date', () {
     test('returns month', () {
       expect(
-        fnMonthFromDate(context, [
-          XPathSequence.single(DateTime.utc(2023, 10, 26, 12, 30, 45)),
-        ]),
+        fnMonthFromDate(context, [seq(const XPathDate(2023, 10, 26, 0))]),
         isXPathSequence([10]),
       );
     });
@@ -357,9 +335,7 @@ void main() {
   group('fn:day-from-date', () {
     test('returns day', () {
       expect(
-        fnDayFromDate(context, [
-          XPathSequence.single(DateTime.utc(2023, 10, 26, 12, 30, 45)),
-        ]),
+        fnDayFromDate(context, [seq(const XPathDate(2023, 10, 26, 0))]),
         isXPathSequence([26]),
       );
     });
@@ -375,9 +351,7 @@ void main() {
   group('fn:timezone-from-date', () {
     test('returns timezone', () {
       expect(
-        fnTimezoneFromDate(context, [
-          XPathSequence.single(DateTime.utc(2023, 10, 26, 12, 30, 45)),
-        ]),
+        fnTimezoneFromDate(context, [seq(const XPathDate(2023, 10, 26, 0))]),
         isXPathSequence([const XPathDayTimeDuration(0)]),
       );
     });
@@ -393,9 +367,7 @@ void main() {
   group('fn:hours-from-time', () {
     test('returns hours', () {
       expect(
-        fnHoursFromTime(context, [
-          XPathSequence.single(DateTime.utc(2023, 10, 26, 12, 30, 45)),
-        ]),
+        fnHoursFromTime(context, [seq(const XPathTime(12, 30, 45, 0))]),
         isXPathSequence([12]),
       );
     });
@@ -411,9 +383,7 @@ void main() {
   group('fn:minutes-from-time', () {
     test('returns minutes', () {
       expect(
-        fnMinutesFromTime(context, [
-          XPathSequence.single(DateTime.utc(2023, 10, 26, 12, 30, 45)),
-        ]),
+        fnMinutesFromTime(context, [seq(const XPathTime(12, 30, 45, 0))]),
         isXPathSequence([30]),
       );
     });
@@ -429,9 +399,7 @@ void main() {
   group('fn:seconds-from-time', () {
     test('returns seconds', () {
       expect(
-        fnSecondsFromTime(context, [
-          XPathSequence.single(DateTime.utc(2023, 10, 26, 12, 30, 45)),
-        ]),
+        fnSecondsFromTime(context, [seq(const XPathTime(12, 30, 45, 0))]),
         isXPathSequence([45.0]),
       );
     });
@@ -448,7 +416,7 @@ void main() {
     test('returns timezone', () {
       expect(
         fnTimezoneFromTime(context, [
-          XPathSequence.single(DateTime.utc(2023, 10, 26, 12, 30, 45)),
+          seq(const XPathTime(12, 30, 45, 0, 0, 0)),
         ]),
         isXPathSequence([const XPathDayTimeDuration(0)]),
       );
@@ -465,7 +433,7 @@ void main() {
   group('fn:parse-ietf-date', () {
     test('unimplemented', () {
       expect(
-        () => fnParseIetfDate(context, []),
+        () => fnParseIetfDate(context, [XPathSequence.empty]),
         throwsA(isA<UnimplementedError>()),
       );
     });

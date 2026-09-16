@@ -3,6 +3,7 @@ import 'package:xml/src/xpath/functions/uri.dart';
 import 'package:xml/xpath.dart';
 
 import '../../utils/matchers.dart';
+import '../helpers.dart';
 
 void main() {
   final emptyContext = const XPathConfiguration.raw().context(
@@ -15,24 +16,18 @@ void main() {
   group('fn:environment-variable', () {
     test('returns empty sequence when variable is missing', () {
       expect(
-        fnEnvironmentVariable(emptyContext, [
-          const XPathSequence.single('TEST_VAR'),
-        ]),
+        fnEnvironmentVariable(emptyContext, [seq('TEST_VAR')]),
         isXPathSequence(isEmpty),
       );
     });
 
     test('returns variable value when present', () {
       expect(
-        fnEnvironmentVariable(populatedContext, [
-          const XPathSequence.single('TEST_VAR'),
-        ]),
+        fnEnvironmentVariable(populatedContext, [seq('TEST_VAR')]),
         isXPathSequence(['hello']),
       );
       expect(
-        fnEnvironmentVariable(populatedContext, [
-          const XPathSequence.single('ANOTHER_VAR'),
-        ]),
+        fnEnvironmentVariable(populatedContext, [seq('ANOTHER_VAR')]),
         isXPathSequence(['world']),
       );
     });
@@ -49,7 +44,10 @@ void main() {
     test('returns all available variable names', () {
       final result = fnAvailableEnvironmentVariables(populatedContext, []);
       expect(result.length, equals(2));
-      expect(result.toSet(), equals({'TEST_VAR', 'ANOTHER_VAR'}));
+      expect(
+        result.map(unwrapXPathItem).toSet(),
+        equals({'TEST_VAR', 'ANOTHER_VAR'}),
+      );
     });
   });
 
@@ -75,62 +73,49 @@ void main() {
 
     test('returns unparsed text from absolute URI', () {
       expect(
-        fnUnparsedText(textContext, [
-          const XPathSequence.single('http://example.com/dir/hello.txt'),
-        ]),
+        fnUnparsedText(textContext, [seq('http://example.com/dir/hello.txt')]),
         isXPathSequence(['hello world']),
       );
     });
 
     test('resolves relative URI against baseUri', () {
       expect(
-        fnUnparsedText(textContext, [const XPathSequence.single('hello.txt')]),
+        fnUnparsedText(textContext, [seq('hello.txt')]),
         isXPathSequence(['hello world']),
       );
     });
 
     test('throws when static base URI is undefined for relative URI', () {
       expect(
-        () => fnUnparsedText(emptyContext, [
-          const XPathSequence.single('hello.txt'),
-        ]),
+        () => fnUnparsedText(emptyContext, [seq('hello.txt')]),
         throwsA(isA<XPathEvaluationException>()),
       );
     });
 
     test('throws when URI contains fragment identifier', () {
       expect(
-        () => fnUnparsedText(textContext, [
-          const XPathSequence.single('hello.txt#frag'),
-        ]),
+        () => fnUnparsedText(textContext, [seq('hello.txt#frag')]),
         throwsA(isA<XPathEvaluationException>()),
       );
     });
 
     test('throws when encoding is unsupported', () {
       expect(
-        () => fnUnparsedText(textContext, [
-          const XPathSequence.single('hello.txt'),
-          const XPathSequence.single('invalid'),
-        ]),
+        () => fnUnparsedText(textContext, [seq('hello.txt'), seq('invalid')]),
         throwsA(isA<XPathEvaluationException>()),
       );
     });
 
     test('throws when resource is not found', () {
       expect(
-        () => fnUnparsedText(textContext, [
-          const XPathSequence.single('missing.txt'),
-        ]),
+        () => fnUnparsedText(textContext, [seq('missing.txt')]),
         throwsA(isA<XPathEvaluationException>()),
       );
     });
 
     test('throws when resource contains invalid XML characters', () {
       expect(
-        () => fnUnparsedText(textContext, [
-          const XPathSequence.single('invalid-chars.txt'),
-        ]),
+        () => fnUnparsedText(textContext, [seq('invalid-chars.txt')]),
         throwsA(isA<XPathEvaluationException>()),
       );
     });
@@ -152,7 +137,7 @@ void main() {
     test('splits text into lines correctly', () {
       expect(
         fnUnparsedTextLines(multiLineContext, [
-          const XPathSequence.single('http://example.com/lines.txt'),
+          seq('http://example.com/lines.txt'),
         ]),
         isXPathSequence(['line1', 'line2', 'line3', 'line4']),
       );
@@ -161,7 +146,7 @@ void main() {
     test('returns empty sequence for empty file', () {
       expect(
         fnUnparsedTextLines(multiLineContext, [
-          const XPathSequence.single('http://example.com/empty.txt'),
+          seq('http://example.com/empty.txt'),
         ]),
         isXPathSequence(isEmpty),
       );
@@ -184,7 +169,7 @@ void main() {
     test('returns true when resource is available and valid', () {
       expect(
         fnUnparsedTextAvailable(availableContext, [
-          const XPathSequence.single('http://example.com/ok.txt'),
+          seq('http://example.com/ok.txt'),
         ]),
         isXPathSequence([true]),
       );
@@ -193,7 +178,7 @@ void main() {
     test('returns false when resource is missing', () {
       expect(
         fnUnparsedTextAvailable(availableContext, [
-          const XPathSequence.single('http://example.com/missing.txt'),
+          seq('http://example.com/missing.txt'),
         ]),
         isXPathSequence([false]),
       );
@@ -202,7 +187,7 @@ void main() {
     test('returns false when resource contains invalid characters', () {
       expect(
         fnUnparsedTextAvailable(availableContext, [
-          const XPathSequence.single('http://example.com/invalid.txt'),
+          seq('http://example.com/invalid.txt'),
         ]),
         isXPathSequence([false]),
       );
@@ -221,32 +206,28 @@ void main() {
     });
     test('absolute URI returned as-is', () {
       expect(
-        fnResolveUri(baseContext, [
-          const XPathSequence.single('http://other.com/page'),
-        ]),
+        fnResolveUri(baseContext, [seq('http://other.com/page')]),
         isXPathSequence(['http://other.com/page']),
       );
     });
     test('relative resolved against static base', () {
       expect(
-        fnResolveUri(baseContext, [const XPathSequence.single('file.xml')]),
+        fnResolveUri(baseContext, [seq('file.xml')]),
         isXPathSequence(['http://example.com/dir/file.xml']),
       );
     });
     test('relative resolved against explicit base', () {
       expect(
         fnResolveUri(baseContext, [
-          const XPathSequence.single('file.xml'),
-          const XPathSequence.single('http://other.com/base/'),
+          seq('file.xml'),
+          seq('http://other.com/base/'),
         ]),
         isXPathSequence(['http://other.com/base/file.xml']),
       );
     });
     test('throws when static base undefined', () {
       expect(
-        () => fnResolveUri(emptyContext, [
-          const XPathSequence.single('file.xml'),
-        ]),
+        () => fnResolveUri(emptyContext, [seq('file.xml')]),
         throwsA(
           isXPathEvaluationException(message: 'Static base URI is undefined'),
         ),
@@ -257,9 +238,7 @@ void main() {
   group('fn:encode-for-uri', () {
     test('encodes special characters', () {
       expect(
-        fnEncodeForUri(emptyContext, [
-          const XPathSequence.single('hello world'),
-        ]),
+        fnEncodeForUri(emptyContext, [seq('hello world')]),
         isXPathSequence(['hello%20world']),
       );
     });
@@ -274,9 +253,7 @@ void main() {
   group('fn:iri-to-uri', () {
     test('encodes IRI', () {
       expect(
-        fnIriToUri(emptyContext, [
-          const XPathSequence.single('http://example.com/a b'),
-        ]),
+        fnIriToUri(emptyContext, [seq('http://example.com/a b')]),
         isXPathSequence(['http://example.com/a%20b']),
       );
     });
@@ -291,9 +268,7 @@ void main() {
   group('fn:escape-html-uri', () {
     test('escapes HTML URI', () {
       expect(
-        fnEscapeHtmlUri(emptyContext, [
-          const XPathSequence.single('http://example.com/a b'),
-        ]),
+        fnEscapeHtmlUri(emptyContext, [seq('http://example.com/a b')]),
         isXPathSequence(['http://example.com/a%20b']),
       );
     });
@@ -341,7 +316,7 @@ void main() {
     test('wraps non-XPathEvaluationException', () {
       expect(
         () => fnUnparsedText(throwingContext, [
-          const XPathSequence.single('http://example.com/any.txt'),
+          seq('http://example.com/any.txt'),
         ]),
         throwsA(
           isXPathEvaluationException(
@@ -359,8 +334,8 @@ void main() {
     test('accepts utf-8 encoding', () {
       expect(
         fnUnparsedText(encodingContext, [
-          const XPathSequence.single('http://example.com/file.txt'),
-          const XPathSequence.single('utf-8'),
+          seq('http://example.com/file.txt'),
+          seq('utf-8'),
         ]),
         isXPathSequence(['content']),
       );
@@ -376,9 +351,7 @@ void main() {
     });
     test('missing document throws', () {
       expect(
-        () => fnDoc(emptyContext, [
-          const XPathSequence.single('http://example.com/missing.xml'),
-        ]),
+        () => fnDoc(emptyContext, [seq('http://example.com/missing.xml')]),
         throwsA(
           isXPathEvaluationException(message: contains('Document not found')),
         ),
@@ -395,9 +368,7 @@ void main() {
     });
     test('missing document returns false', () {
       expect(
-        fnDocAvailable(emptyContext, [
-          const XPathSequence.single('http://example.com/missing.xml'),
-        ]),
+        fnDocAvailable(emptyContext, [seq('http://example.com/missing.xml')]),
         isXPathSequence([false]),
       );
     });

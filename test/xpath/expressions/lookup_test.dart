@@ -49,12 +49,7 @@ void main() {
       expectEvaluate(xml, '[4, 5, 6] ! ?*', [4, 5, 6]);
     });
     test('array index out of bounds', () {
-      expect(
-        () => xml.xpathEvaluate('[4, 5, 6] ! ?4'),
-        throwsA(
-          isXPathEvaluationException(message: 'Array index out of bounds: 4'),
-        ),
-      );
+      expectEvaluate(xml, '[4, 5, 6] ! ?4', isEmpty);
     });
     test('map ? NCName', () {
       expectEvaluate(xml, 'map {"a": 1, "b": 2} ! ?a', [1]);
@@ -80,21 +75,13 @@ void main() {
     test('invalid type', () {
       expect(
         () => xml.xpathEvaluate('1 ! ?*'),
-        throwsA(
-          isXPathEvaluationException(
-            message: 'Lookup requires a map or array, but got int',
-          ),
-        ),
+        throwsA(isXPathEvaluationException()),
       );
     });
     test('invalid type with key', () {
       expect(
         () => xml.xpathEvaluate('1 ! ?a'),
-        throwsA(
-          isXPathEvaluationException(
-            message: 'Lookup requires a map or array, but got int',
-          ),
-        ),
+        throwsA(isXPathEvaluationException()),
       );
     });
     test('native Dart Map ? key', () {

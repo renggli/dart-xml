@@ -1,12 +1,16 @@
-import '../values/sequence.dart';
+import '../xdm/atomic/boolean.dart';
+import '../xdm/atomic/numeric.dart';
+import '../xdm/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-same-key
 XPathSequence opSameKey(XPathSequence left, XPathSequence right) {
-  final k1 = left.toAtomicValue();
-  final k2 = right.toAtomicValue();
-  // TODO: Handle timezone, etc.
-  if (k1 is num && k1.isNaN && k2 is num && k2.isNaN) {
+  final k1 = left.single.atomize();
+  final k2 = right.single.atomize();
+  if (k1 is XPathDouble &&
+      k1.value.isNaN &&
+      k2 is XPathDouble &&
+      k2.value.isNaN) {
     return XPathSequence.trueSequence;
   }
-  return XPathSequence.single(k1 == k2);
+  return XPathSequence.single(XPathBoolean(k1 == k2));
 }

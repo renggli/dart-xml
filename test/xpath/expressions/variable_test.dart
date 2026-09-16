@@ -1,8 +1,7 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xml/nodes/element.dart';
-import 'package:xml/src/xpath/evaluation/configuration.dart';
 import 'package:xml/src/xpath/expressions/variable.dart';
-import 'package:xml/src/xpath/values/sequence.dart';
+import 'package:xml/xpath.dart';
 
 import '../../utils/matchers.dart';
 
@@ -11,11 +10,11 @@ void main() {
     final node = XmlElement.tag('root');
     final context = const XPathConfiguration.raw().context(node);
     const expr = ContextItemExpression();
-    expect(expr(context).first, node);
+    expect(expr(context), isXPathSequence([node]));
   });
   group('VariableExpression', () {
     test('evaluate existing variable', () {
-      const value = XPathSequence.single('a');
+      const value = XPathSequence.single(XPathString('a'));
       final context = const XPathConfiguration.raw()
           .context(XmlElement.tag('root'))
           .copy(variables: const {'var': value});
@@ -34,7 +33,7 @@ void main() {
     });
   });
   test('LiteralExpression', () {
-    const value = XPathSequence.single('a');
+    const value = XPathSequence.single(XPathString('a'));
     const expr = LiteralExpression(value);
     final context = const XPathConfiguration.raw().context(
       XmlElement.tag('root'),

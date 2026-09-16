@@ -22,7 +22,10 @@ void main() {
       expectEvaluate(xml, '1 to ()', isEmpty);
     });
     test('double operand', () {
-      expectEvaluate(xml, '1.0 to 3.0', [1, 2, 3]);
+      expect(
+        () => xml.xpathEvaluate('1.0 to 3.0'),
+        throwsA(isXPathEvaluationException()),
+      );
     });
     test('exceeds size limit', () {
       expect(

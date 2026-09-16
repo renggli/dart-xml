@@ -1,272 +1,263 @@
 import '../../xml/utils/name.dart';
-import '../definitions/cardinality.dart';
-import '../definitions/function.dart';
 import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
-import '../operators/comparison.dart';
-import '../types/any.dart';
-import '../types/array.dart';
-import '../types/function.dart';
-import '../types/number.dart';
-import '../types/sequence.dart';
-import '../types/string.dart';
-import '../values/array.dart';
-import '../values/function.dart';
-import '../values/sequence.dart';
+import '../xdm/atomic/numeric.dart';
+import '../xdm/atomic/string.dart';
+import '../xdm/function_item.dart';
+import '../xdm/functions/array.dart';
+import '../xdm/item.dart';
+import '../xdm/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-size
-const fnArraySize = XPathFunctionDefinition(
-  name: XmlName.qualified('array:size'),
-  requiredArguments: [XPathArgumentDefinition(name: 'array', type: xsArray)],
-  function: _fnArraySize,
+const fnArraySize = XPathFunctionItem.fn1(
+  XmlName.qualified('array:size'),
+  _fnArraySize,
 );
 
-XPathSequence _fnArraySize(XPathContext context, XPathArray array) =>
-    XPathSequence.single(array.length);
+XPathSequence _fnArraySize(XPathContext context, XPathSequence arraySeq) {
+  final array = arraySeq.first as XPathArray;
+  return XPathSequence.single(XPathInteger.fromInt(array.length));
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-get
-const fnArrayGet = XPathFunctionDefinition(
-  name: XmlName.qualified('array:get'),
-  requiredArguments: [
-    XPathArgumentDefinition(name: 'array', type: xsArray),
-    XPathArgumentDefinition(name: 'position', type: xsInteger),
-  ],
-  function: _fnArrayGet,
+const fnArrayGet = XPathFunctionItem.fn2(
+  XmlName.qualified('array:get'),
+  _fnArrayGet,
 );
 
 XPathSequence _fnArrayGet(
   XPathContext context,
-  XPathArray array,
-  int position,
+  XPathSequence arraySeq,
+  XPathSequence positionSeq,
 ) {
-  final index = position - 1;
+  final array = arraySeq.first as XPathArray;
+  final position = positionSeq.first as XPathInteger;
+  final index = position.asInt - 1;
   if (index < 0 || index >= array.length) {
-    throw XPathEvaluationException('Array index out of bounds: $position');
+    throw XPathEvaluationException(
+      'Array index out of bounds: ${position.asInt}',
+    );
   }
-  return array[index].toXPathSequence();
+  return array[index];
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-put
-const fnArrayPut = XPathFunctionDefinition(
-  name: XmlName.qualified('array:put'),
-  requiredArguments: [
-    XPathArgumentDefinition(name: 'array', type: xsArray),
-    XPathArgumentDefinition(name: 'position', type: xsInteger),
-    XPathArgumentDefinition(
-      name: 'member',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-  ],
-  function: _fnArrayPut,
+const fnArrayPut = XPathFunctionItem.fn3(
+  XmlName.qualified('array:put'),
+  _fnArrayPut,
 );
 
 XPathSequence _fnArrayPut(
   XPathContext context,
-  XPathArray array,
-  int position,
+  XPathSequence arraySeq,
+  XPathSequence positionSeq,
   XPathSequence member,
 ) {
-  final index = position - 1;
+  final array = arraySeq.first as XPathArray;
+  final position = positionSeq.first as XPathInteger;
+  final index = position.asInt - 1;
   if (index < 0 || index >= array.length) {
-    throw XPathEvaluationException('Array index out of bounds: $position');
+    throw XPathEvaluationException(
+      'Array index out of bounds: ${position.asInt}',
+    );
   }
-  final result = XPathArray.from(array);
-  result[index] = member.toAtomicValue();
-  return XPathSequence.single(result);
+  final members = List<XPathSequence>.from(array.members);
+  members[index] = member;
+  return XPathSequence.single(XPathArray(members));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-append
-const fnArrayAppend = XPathFunctionDefinition(
-  name: XmlName.qualified('array:append'),
-  requiredArguments: [
-    XPathArgumentDefinition(name: 'array', type: xsArray),
-    XPathArgumentDefinition(
-      name: 'member',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-  ],
-  function: _fnArrayAppend,
+const fnArrayAppend = XPathFunctionItem.fn2(
+  XmlName.qualified('array:append'),
+  _fnArrayAppend,
 );
 
 XPathSequence _fnArrayAppend(
   XPathContext context,
-  XPathArray array,
+  XPathSequence arraySeq,
   XPathSequence member,
-) => XPathSequence.single([...array, member.toAtomicValue()]);
+) {
+  final array = arraySeq.first as XPathArray;
+  return XPathSequence.single(XPathArray([...array.members, member]));
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-subarray
-const fnArraySubarray = XPathFunctionDefinition(
-  name: XmlName.qualified('array:subarray'),
-  requiredArguments: [
-    XPathArgumentDefinition(name: 'array', type: xsArray),
-    XPathArgumentDefinition(name: 'start', type: xsInteger),
-  ],
-  optionalArguments: [XPathArgumentDefinition(name: 'length', type: xsInteger)],
-  function: _fnArraySubarray,
+const fnArraySubarray = XPathFunctionItem.overloaded(
+  XmlName.qualified('array:subarray'),
+  {
+    2: XPathFunctionItem.fn2(
+      XmlName.qualified('array:subarray'),
+      _fnArraySubarray2,
+    ),
+    3: XPathFunctionItem.fn3(
+      XmlName.qualified('array:subarray'),
+      _fnArraySubarray3,
+    ),
+  },
 );
 
-XPathSequence _fnArraySubarray(
+XPathSequence _fnArraySubarray2(
   XPathContext context,
+  XPathSequence arraySeq,
+  XPathSequence startSeq,
+) => _evalSubarray(
+  arraySeq.first as XPathArray,
+  startSeq.first as XPathInteger,
+  null,
+);
+
+XPathSequence _fnArraySubarray3(
+  XPathContext context,
+  XPathSequence arraySeq,
+  XPathSequence startSeq,
+  XPathSequence lengthSeq,
+) => _evalSubarray(
+  arraySeq.first as XPathArray,
+  startSeq.first as XPathInteger,
+  lengthSeq.firstOrNull as XPathInteger?,
+);
+
+XPathSequence _evalSubarray(
   XPathArray array,
-  int start, [
-  int? length,
-]) {
-  final s = start - 1;
-  final l = length ?? (array.length - s);
+  XPathInteger start,
+  XPathInteger? length,
+) {
+  final s = start.asInt - 1;
+  final l = length?.asInt ?? (array.length - s);
   if (s < 0 || s > array.length || l < 0 || s + l > array.length) {
-    throw XPathEvaluationException('Invalid subarray range: $start, $length');
+    throw XPathEvaluationException(
+      'Invalid subarray range: ${start.asInt}, ${length?.asInt}',
+    );
   }
-  return XPathSequence.single(array.sublist(s, s + l));
+  return XPathSequence.single(XPathArray(array.members.sublist(s, s + l)));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-remove
-const fnArrayRemove = XPathFunctionDefinition(
-  name: XmlName.qualified('array:remove'),
-  requiredArguments: [
-    XPathArgumentDefinition(name: 'array', type: xsArray),
-    XPathArgumentDefinition(
-      name: 'positions',
-      type: xsInteger,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-  ],
-  function: _fnArrayRemove,
+const fnArrayRemove = XPathFunctionItem.fn2(
+  XmlName.qualified('array:remove'),
+  _fnArrayRemove,
 );
 
 XPathSequence _fnArrayRemove(
   XPathContext context,
-  XPathArray array,
+  XPathSequence arraySeq,
   XPathSequence positions,
 ) {
-  final indices = positions.map((p) => (p as int) - 1).toSet();
+  final array = arraySeq.first as XPathArray;
+  final indices = positions
+      .atomize()
+      .map((p) => (p as XPathInteger).asInt - 1)
+      .toSet();
   for (final index in indices) {
     if (index < 0 || index >= array.length) {
       throw XPathEvaluationException('Array index out of bounds: ${index + 1}');
     }
   }
-  final result = <Object>[];
+  final result = <XPathSequence>[];
   for (var i = 0; i < array.length; i++) {
     if (!indices.contains(i)) {
       result.add(array[i]);
     }
   }
-  return XPathSequence.single(result);
+  return XPathSequence.single(XPathArray(result));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-insert-before
-const fnArrayInsertBefore = XPathFunctionDefinition(
-  name: XmlName.qualified('array:insert-before'),
-  requiredArguments: [
-    XPathArgumentDefinition(name: 'array', type: xsArray),
-    XPathArgumentDefinition(name: 'position', type: xsInteger),
-    XPathArgumentDefinition(
-      name: 'member',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-  ],
-  function: _fnArrayInsertBefore,
+const fnArrayInsertBefore = XPathFunctionItem.fn3(
+  XmlName.qualified('array:insert-before'),
+  _fnArrayInsertBefore,
 );
 
 XPathSequence _fnArrayInsertBefore(
   XPathContext context,
-  XPathArray array,
-  int position,
+  XPathSequence arraySeq,
+  XPathSequence positionSeq,
   XPathSequence member,
 ) {
-  final index = position.toInt() - 1;
+  final array = arraySeq.first as XPathArray;
+  final position = positionSeq.first as XPathInteger;
+  final index = position.asInt - 1;
   if (index < 0 || index > array.length) {
-    throw XPathEvaluationException('Array index out of bounds: $position');
+    throw XPathEvaluationException(
+      'Array index out of bounds: ${position.asInt}',
+    );
   }
-  final result = XPathArray.from(array);
-  result.insert(index, member.toAtomicValue());
-  return XPathSequence.single(result);
+  final result = List<XPathSequence>.from(array.members);
+  result.insert(index, member);
+  return XPathSequence.single(XPathArray(result));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-head
-const fnArrayHead = XPathFunctionDefinition(
-  name: XmlName.qualified('array:head'),
-  requiredArguments: [XPathArgumentDefinition(name: 'array', type: xsArray)],
-  function: _fnArrayHead,
+const fnArrayHead = XPathFunctionItem.fn1(
+  XmlName.qualified('array:head'),
+  _fnArrayHead,
 );
 
-XPathSequence _fnArrayHead(XPathContext context, XPathArray array) {
+XPathSequence _fnArrayHead(XPathContext context, XPathSequence arraySeq) {
+  final array = arraySeq.first as XPathArray;
   if (array.isEmpty) {
     throw XPathEvaluationException('Empty array');
   }
-  return array.first.toXPathSequence();
+  return array.members.first;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-tail
-const fnArrayTail = XPathFunctionDefinition(
-  name: XmlName.qualified('array:tail'),
-  requiredArguments: [XPathArgumentDefinition(name: 'array', type: xsArray)],
-  function: _fnArrayTail,
+const fnArrayTail = XPathFunctionItem.fn1(
+  XmlName.qualified('array:tail'),
+  _fnArrayTail,
 );
 
-XPathSequence _fnArrayTail(XPathContext context, XPathArray array) {
+XPathSequence _fnArrayTail(XPathContext context, XPathSequence arraySeq) {
+  final array = arraySeq.first as XPathArray;
   if (array.isEmpty) {
     throw XPathEvaluationException('Empty array');
   }
-  return XPathSequence.single(array.sublist(1));
+  return XPathSequence.single(XPathArray(array.members.sublist(1)));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-reverse
-const fnArrayReverse = XPathFunctionDefinition(
-  name: XmlName.qualified('array:reverse'),
-  requiredArguments: [XPathArgumentDefinition(name: 'array', type: xsArray)],
-  function: _fnArrayReverse,
+const fnArrayReverse = XPathFunctionItem.fn1(
+  XmlName.qualified('array:reverse'),
+  _fnArrayReverse,
 );
 
-XPathSequence _fnArrayReverse(XPathContext context, XPathArray array) =>
-    XPathSequence.single(array.reversed.toList());
+XPathSequence _fnArrayReverse(XPathContext context, XPathSequence arraySeq) {
+  final array = arraySeq.first as XPathArray;
+  return XPathSequence.single(XPathArray(array.members.reversed.toList()));
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-join
-const fnArrayJoin = XPathFunctionDefinition(
-  name: XmlName.qualified('array:join'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arrays',
-      type: xsArray,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-  ],
-  function: _fnArrayJoin,
+const fnArrayJoin = XPathFunctionItem.fn1(
+  XmlName.qualified('array:join'),
+  _fnArrayJoin,
 );
 
 XPathSequence _fnArrayJoin(XPathContext context, XPathSequence arrays) {
-  final result = <Object>[];
+  final result = <XPathSequence>[];
   for (final item in arrays) {
-    result.addAll(item as XPathArray);
+    result.addAll((item as XPathArray).members);
   }
-  return XPathSequence.single(result);
+  return XPathSequence.single(XPathArray(result));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-flatten
-const fnArrayFlatten = XPathFunctionDefinition(
-  name: XmlName.qualified('array:flatten'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-  ],
-  function: _fnArrayFlatten,
+const fnArrayFlatten = XPathFunctionItem.fn1(
+  XmlName.qualified('array:flatten'),
+  _fnArrayFlatten,
 );
 
 XPathSequence _fnArrayFlatten(XPathContext context, XPathSequence input) =>
     XPathSequence(_fnArrayFlattenSync(context, input));
 
-Iterable<Object> _fnArrayFlattenSync(
+Iterable<XPathItem> _fnArrayFlattenSync(
   XPathContext context,
   XPathSequence input,
 ) sync* {
   for (final item in input) {
-    if (item is Iterable) {
-      yield* _fnArrayFlattenSync(context, XPathSequence(item.cast()));
+    if (item is XPathArray) {
+      for (final member in item.members) {
+        yield* _fnArrayFlattenSync(context, member);
+      }
     } else {
       yield item;
     }
@@ -274,159 +265,171 @@ Iterable<Object> _fnArrayFlattenSync(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-for-each
-const fnArrayForEach = XPathFunctionDefinition(
-  name: XmlName.qualified('array:for-each'),
-  requiredArguments: [
-    XPathArgumentDefinition(name: 'array', type: xsArray),
-    XPathArgumentDefinition(name: 'action', type: xsFunction),
-  ],
-  function: _fnArrayForEach,
+const fnArrayForEach = XPathFunctionItem.fn2(
+  XmlName.qualified('array:for-each'),
+  _fnArrayForEach,
 );
 
 XPathSequence _fnArrayForEach(
   XPathContext context,
-  XPathArray array,
-  XPathFunction action,
+  XPathSequence arraySeq,
+  XPathSequence actionSeq,
 ) {
-  final result = <Object>[];
-  for (final item in array) {
-    final value = action(context, [xsSequence.cast(item)]);
-    result.add(value.toAtomicValue());
+  final array = arraySeq.first as XPathArray;
+  final action = actionSeq.first as XPathFunctionItem;
+  final result = <XPathSequence>[];
+  for (final item in array.members) {
+    final value = action.call(context, [item]);
+    result.add(value);
   }
-  return XPathSequence.single(result);
+  return XPathSequence.single(XPathArray(result));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-filter
-const fnArrayFilter = XPathFunctionDefinition(
-  name: XmlName.qualified('array:filter'),
-  requiredArguments: [
-    XPathArgumentDefinition(name: 'array', type: xsArray),
-    XPathArgumentDefinition(name: 'predicate', type: xsFunction),
-  ],
-  function: _fnArrayFilter,
+const fnArrayFilter = XPathFunctionItem.fn2(
+  XmlName.qualified('array:filter'),
+  _fnArrayFilter,
 );
 
 XPathSequence _fnArrayFilter(
   XPathContext context,
-  XPathArray array,
-  XPathFunction predicate,
+  XPathSequence arraySeq,
+  XPathSequence predicateSeq,
 ) {
-  final result = <Object>[];
-  for (final item in array) {
-    final value = predicate(context, [xsSequence.cast(item)]);
-    if (value.ebv) result.add(item);
+  final array = arraySeq.first as XPathArray;
+  final predicate = predicateSeq.first as XPathFunctionItem;
+  final result = <XPathSequence>[];
+  for (final item in array.members) {
+    final value = predicate.call(context, [item]);
+    if (value.effectiveBooleanValue) result.add(item);
   }
-  return XPathSequence.single(result);
+  return XPathSequence.single(XPathArray(result));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-fold-left
-const fnArrayFoldLeft = XPathFunctionDefinition(
-  name: XmlName.qualified('array:fold-left'),
-  requiredArguments: [
-    XPathArgumentDefinition(name: 'array', type: xsArray),
-    XPathArgumentDefinition(name: 'zero', type: xsAny),
-    XPathArgumentDefinition(name: 'action', type: xsFunction),
-  ],
-  function: _fnArrayFoldLeft,
+const fnArrayFoldLeft = XPathFunctionItem.fn3(
+  XmlName.qualified('array:fold-left'),
+  _fnArrayFoldLeft,
 );
 
 XPathSequence _fnArrayFoldLeft(
   XPathContext context,
-  XPathArray array,
-  Object zero,
-  XPathFunction action,
+  XPathSequence arraySeq,
+  XPathSequence zero,
+  XPathSequence actionSeq,
 ) {
-  var result = xsSequence.cast(zero);
-  for (final item in array) {
-    result = action(context, [result, XPathSequence.single(item)]);
+  final array = arraySeq.first as XPathArray;
+  final action = actionSeq.first as XPathFunctionItem;
+  var result = zero;
+  for (final item in array.members) {
+    result = action.call(context, [result, item]);
   }
   return result;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-fold-right
-const fnArrayFoldRight = XPathFunctionDefinition(
-  name: XmlName.qualified('array:fold-right'),
-  requiredArguments: [
-    XPathArgumentDefinition(name: 'array', type: xsArray),
-    XPathArgumentDefinition(name: 'zero', type: xsAny),
-    XPathArgumentDefinition(name: 'action', type: xsFunction),
-  ],
-  function: _fnArrayFoldRight,
+const fnArrayFoldRight = XPathFunctionItem.fn3(
+  XmlName.qualified('array:fold-right'),
+  _fnArrayFoldRight,
 );
 
 XPathSequence _fnArrayFoldRight(
   XPathContext context,
-  XPathArray array,
-  Object zero,
-  XPathFunction action,
+  XPathSequence arraySeq,
+  XPathSequence zero,
+  XPathSequence actionSeq,
 ) {
-  var result = xsSequence.cast(zero);
-  for (var i = array.length - 1; i >= 0; i--) {
-    result = action(context, [XPathSequence.single(array[i]), result]);
+  final array = arraySeq.first as XPathArray;
+  final action = actionSeq.first as XPathFunctionItem;
+  var result = zero;
+  for (var i = array.members.length - 1; i >= 0; i--) {
+    result = action.call(context, [array.members[i], result]);
   }
   return result;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-for-each-pair
-const fnArrayForEachPair = XPathFunctionDefinition(
-  name: XmlName.qualified('array:for-each-pair'),
-  requiredArguments: [
-    XPathArgumentDefinition(name: 'array1', type: xsArray),
-    XPathArgumentDefinition(name: 'array2', type: xsArray),
-    XPathArgumentDefinition(name: 'action', type: xsFunction),
-  ],
-  function: _fnArrayForEachPair,
+const fnArrayForEachPair = XPathFunctionItem.fn3(
+  XmlName.qualified('array:for-each-pair'),
+  _fnArrayForEachPair,
 );
 
 XPathSequence _fnArrayForEachPair(
   XPathContext context,
-  XPathArray array1,
-  XPathArray array2,
-  XPathFunction action,
+  XPathSequence array1Seq,
+  XPathSequence array2Seq,
+  XPathSequence actionSeq,
 ) {
-  final result = <Object>[];
+  final array1 = array1Seq.first as XPathArray;
+  final array2 = array2Seq.first as XPathArray;
+  final action = actionSeq.first as XPathFunctionItem;
+  final result = <XPathSequence>[];
   final len = array1.length < array2.length ? array1.length : array2.length;
   for (var i = 0; i < len; i++) {
-    final value = action(context, [
-      xsSequence.cast(array1[i]),
-      xsSequence.cast(array2[i]),
-    ]);
-    result.add(value.toAtomicValue());
+    final value = action.call(context, [array1[i], array2[i]]);
+    result.add(value);
   }
-  return XPathSequence.single(result);
+  return XPathSequence.single(XPathArray(result));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-sort
-const fnArraySort = XPathFunctionDefinition(
-  name: XmlName.qualified('array:sort'),
-  requiredArguments: [XPathArgumentDefinition(name: 'array', type: xsArray)],
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'collation',
-      type: xsString,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-    XPathArgumentDefinition(name: 'key', type: xsFunction),
-  ],
-  function: _fnArraySort,
+const fnArraySort = XPathFunctionItem.overloaded(
+  XmlName.qualified('array:sort'),
+  {
+    1: XPathFunctionItem.fn1(XmlName.qualified('array:sort'), _fnArraySort1),
+    2: XPathFunctionItem.fn2(XmlName.qualified('array:sort'), _fnArraySort2),
+    3: XPathFunctionItem.fn3(XmlName.qualified('array:sort'), _fnArraySort3),
+  },
 );
 
-XPathSequence _fnArraySort(
+XPathSequence _fnArraySort1(XPathContext context, XPathSequence arraySeq) =>
+    _evalArraySort(context, arraySeq.first as XPathArray, null, null);
+
+XPathSequence _fnArraySort2(
   XPathContext context,
-  XPathArray array, [
-  String? collation,
-  XPathFunction? key,
-]) {
-  final result = XPathArray.from(array);
+  XPathSequence arraySeq,
+  XPathSequence collationSeq,
+) => _evalArraySort(
+  context,
+  arraySeq.first as XPathArray,
+  collationSeq.firstOrNull as XPathString?,
+  null,
+);
+
+XPathSequence _fnArraySort3(
+  XPathContext context,
+  XPathSequence arraySeq,
+  XPathSequence collationSeq,
+  XPathSequence keySeq,
+) => _evalArraySort(
+  context,
+  arraySeq.first as XPathArray,
+  collationSeq.firstOrNull as XPathString?,
+  keySeq.firstOrNull as XPathFunctionItem?,
+);
+
+XPathSequence _evalArraySort(
+  XPathContext context,
+  XPathArray array,
+  XPathString? collation,
+  XPathFunctionItem? key,
+) {
+  final result = List<XPathSequence>.from(array.members);
   result.sort((a, b) {
     final ka = key != null ? _evalSortKey(context, key, a) : a;
     final kb = key != null ? _evalSortKey(context, key, b) : b;
-    return compare(ka, kb);
+    final atomA = ka.atomize().firstOrNull;
+    final atomB = kb.atomize().firstOrNull;
+    if (atomA == null && atomB == null) return 0;
+    if (atomA == null) return -1;
+    if (atomB == null) return 1;
+    return atomA.compareTo(atomB);
   });
-  return XPathSequence.single(result);
+  return XPathSequence.single(XPathArray(result));
 }
 
-Object _evalSortKey(XPathContext context, XPathFunction key, Object item) {
-  final seq = key(context, [XPathSequence.single(item)]);
-  return seq.length == 1 ? seq.first : seq;
-}
+XPathSequence _evalSortKey(
+  XPathContext context,
+  XPathFunctionItem key,
+  XPathSequence item,
+) => key.call(context, [item]);

@@ -50,26 +50,11 @@ void main() {
     expectEvaluate(xml, "'Foo'", ['Foo']);
   });
   test('variable', () {
-    expectEvaluate(
-      xml,
-      '\$a',
-      ['hello'],
-      variables: {'a': const XPathSequence.single('hello')},
-    );
-    expectEvaluate(
-      xml,
-      '\$a',
-      [123],
-      variables: {'a': const XPathSequence.single(123)},
-    );
-    expectEvaluate(
-      xml,
-      '\$a',
-      [false],
-      variables: {'a': const XPathSequence.single(false)},
-    );
+    expectEvaluate(xml, r'$a', ['hello'], variables: {'a': 'hello'});
+    expectEvaluate(xml, r'$a', [123], variables: {'a': 123});
+    expectEvaluate(xml, r'$a', [false], variables: {'a': false});
     expect(
-      () => expectEvaluate(xml, '\$unknown', anything),
+      () => expectEvaluate(xml, r'$unknown', anything),
       throwsA(isXPathEvaluationException()),
     );
   });
@@ -83,15 +68,15 @@ void main() {
           'custom',
           namespaceUri: xpathFnNamespace,
         ): ((XPathContext context, List<XPathSequence> arguments) {
-          expect(context.item, same(xml));
+          expect((context.item as XPathNode).node, same(xml));
           expect(context.position, 1);
           expect(context.last, 1);
           expect(arguments, [
-            ['hello'],
-            [42],
-            [true],
+            isXPathSequence(['hello']),
+            isXPathSequence([42]),
+            isXPathSequence([true]),
           ]);
-          return const XPathSequence.single('ok');
+          return const XPathSequence.single(XPathString('ok'));
         }).toXPathFunction(arity: 3),
       },
     );

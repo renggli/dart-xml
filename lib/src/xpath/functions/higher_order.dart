@@ -1,183 +1,132 @@
 import '../../xml/utils/name.dart';
-import '../definitions/cardinality.dart';
-import '../definitions/function.dart';
 import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
-import '../operators/comparison.dart';
-import '../types/any.dart';
-import '../types/array.dart';
-import '../types/function.dart';
-import '../types/map.dart';
-import '../types/number.dart';
-import '../types/qname.dart';
-import '../types/sequence.dart';
-import '../types/string.dart';
-import '../values/array.dart';
-import '../values/function.dart';
-import '../values/sequence.dart';
+import '../xdm/atomic/numeric.dart';
+import '../xdm/atomic/qname.dart';
+import '../xdm/atomic/string.dart';
+import '../xdm/function_item.dart';
+import '../xdm/functions/array.dart';
+import '../xdm/item.dart';
+import '../xdm/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-for-each
-const fnForEach = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:for-each'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'seq',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-    XPathArgumentDefinition(name: 'action', type: xsFunction),
-  ],
-  function: _fnForEach,
+const fnForEach = XPathFunctionItem.fn2(
+  XmlName.qualified('fn:for-each'),
+  _fnForEach,
 );
 
 XPathSequence _fnForEach(
   XPathContext context,
   XPathSequence seq,
-  XPathFunction action,
-) => XPathSequence(_fnForEachSync(context, seq, action));
+  XPathSequence actionSeq,
+) {
+  final action = actionSeq.first as XPathFunctionItem;
+  return XPathSequence(_fnForEachSync(context, seq, action));
+}
 
-Iterable<Object> _fnForEachSync(
+Iterable<XPathItem> _fnForEachSync(
   XPathContext context,
   XPathSequence seq,
-  XPathFunction action,
+  XPathFunctionItem action,
 ) sync* {
   for (final item in seq) {
-    yield* action(context, [XPathSequence.single(item)]);
+    yield* action.call(context, [XPathSequence.single(item)]);
   }
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-filter
-const fnFilter = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:filter'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'seq',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-    XPathArgumentDefinition(name: 'predicate', type: xsFunction),
-  ],
-  function: _fnFilter,
+const fnFilter = XPathFunctionItem.fn2(
+  XmlName.qualified('fn:filter'),
+  _fnFilter,
 );
 
 XPathSequence _fnFilter(
   XPathContext context,
   XPathSequence seq,
-  XPathFunction predicate,
-) => XPathSequence(_fnFilterSync(context, seq, predicate));
+  XPathSequence predicateSeq,
+) {
+  final predicate = predicateSeq.first as XPathFunctionItem;
+  return XPathSequence(_fnFilterSync(context, seq, predicate));
+}
 
-Iterable<Object> _fnFilterSync(
+Iterable<XPathItem> _fnFilterSync(
   XPathContext context,
   XPathSequence seq,
-  XPathFunction predicate,
+  XPathFunctionItem predicate,
 ) sync* {
   for (final item in seq) {
-    final result = predicate(context, [XPathSequence.single(item)]);
-    if (result.ebv) yield item;
+    final result = predicate.call(context, [XPathSequence.single(item)]);
+    if (result.effectiveBooleanValue) yield item;
   }
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-fold-left
-const fnFoldLeft = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:fold-left'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'seq',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-    XPathArgumentDefinition(
-      name: 'zero',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-    XPathArgumentDefinition(name: 'action', type: xsFunction),
-  ],
-  function: _fnFoldLeft,
+const fnFoldLeft = XPathFunctionItem.fn3(
+  XmlName.qualified('fn:fold-left'),
+  _fnFoldLeft,
 );
 
 XPathSequence _fnFoldLeft(
   XPathContext context,
   XPathSequence seq,
   XPathSequence zero,
-  XPathFunction action,
+  XPathSequence actionSeq,
 ) {
+  final action = actionSeq.first as XPathFunctionItem;
   var result = zero;
   for (final item in seq) {
-    result = action(context, [result, XPathSequence.single(item)]);
+    result = action.call(context, [result, XPathSequence.single(item)]);
   }
   return result;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-fold-right
-const fnFoldRight = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:fold-right'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'seq',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-    XPathArgumentDefinition(
-      name: 'zero',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-    XPathArgumentDefinition(name: 'action', type: xsFunction),
-  ],
-  function: _fnFoldRight,
+const fnFoldRight = XPathFunctionItem.fn3(
+  XmlName.qualified('fn:fold-right'),
+  _fnFoldRight,
 );
 
 XPathSequence _fnFoldRight(
   XPathContext context,
   XPathSequence seq,
   XPathSequence zero,
-  XPathFunction action,
+  XPathSequence actionSeq,
 ) {
+  final action = actionSeq.first as XPathFunctionItem;
   var result = zero;
   final list = seq.toList();
   for (var i = list.length - 1; i >= 0; i--) {
-    result = action(context, [XPathSequence.single(list[i]), result]);
+    result = action.call(context, [XPathSequence.single(list[i]), result]);
   }
   return result;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-for-each-pair
-const fnForEachPair = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:for-each-pair'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'seq1',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-    XPathArgumentDefinition(
-      name: 'seq2',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-    XPathArgumentDefinition(name: 'action', type: xsFunction),
-  ],
-  function: _fnForEachPair,
+const fnForEachPair = XPathFunctionItem.fn3(
+  XmlName.qualified('fn:for-each-pair'),
+  _fnForEachPair,
 );
 
 XPathSequence _fnForEachPair(
   XPathContext context,
   XPathSequence seq1,
   XPathSequence seq2,
-  XPathFunction action,
-) => XPathSequence(_fnForEachPairSync(context, seq1, seq2, action));
+  XPathSequence actionSeq,
+) {
+  final action = actionSeq.first as XPathFunctionItem;
+  return XPathSequence(_fnForEachPairSync(context, seq1, seq2, action));
+}
 
-Iterable<Object> _fnForEachPairSync(
+Iterable<XPathItem> _fnForEachPairSync(
   XPathContext context,
   XPathSequence seq1,
   XPathSequence seq2,
-  XPathFunction action,
+  XPathFunctionItem action,
 ) sync* {
   final it1 = seq1.iterator;
   final it2 = seq2.iterator;
   while (it1.moveNext() && it2.moveNext()) {
-    yield* action(context, [
+    yield* action.call(context, [
       XPathSequence.single(it1.current),
       XPathSequence.single(it2.current),
     ]);
@@ -185,142 +134,158 @@ Iterable<Object> _fnForEachPairSync(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-apply
-const fnApply = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:apply'),
-  requiredArguments: [
-    XPathArgumentDefinition(name: 'function', type: xsFunction),
-    XPathArgumentDefinition(name: 'array', type: xsArray),
-  ],
-  function: _fnApply,
-);
+const fnApply = XPathFunctionItem.fn2(XmlName.qualified('fn:apply'), _fnApply);
 
 XPathSequence _fnApply(
   XPathContext context,
-  XPathFunction function,
-  XPathArray array,
-) => function(context, array.map(xsSequence.cast).toList());
+  XPathSequence functionSeq,
+  XPathSequence arraySeq,
+) {
+  final function = functionSeq.first as XPathFunctionItem;
+  final array = arraySeq.first as XPathArray;
+  return function.call(context, array.members);
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-function-name
-const fnFunctionName = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:function-name'),
-  requiredArguments: [XPathArgumentDefinition(name: 'func', type: xsFunction)],
-  function: _fnFunctionName,
+const fnFunctionName = XPathFunctionItem.fn1(
+  XmlName.qualified('fn:function-name'),
+  _fnFunctionName,
 );
 
-XPathSequence _fnFunctionName(XPathContext context, XPathFunction func) {
+XPathSequence _fnFunctionName(XPathContext context, XPathSequence funcSeq) {
+  final func = funcSeq.first as XPathFunctionItem;
   final name = func.name;
-  return name.local.isNotEmpty
-      ? XPathSequence.single(name)
+  return name != null && name.local.isNotEmpty
+      ? XPathSequence.single(XPathQName(name))
       : XPathSequence.empty;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-function-arity
-const fnFunctionArity = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:function-arity'),
-  requiredArguments: [XPathArgumentDefinition(name: 'func', type: xsFunction)],
-  function: _fnFunctionArity,
+const fnFunctionArity = XPathFunctionItem.fn1(
+  XmlName.qualified('fn:function-arity'),
+  _fnFunctionArity,
 );
 
-XPathSequence _fnFunctionArity(XPathContext context, XPathFunction func) =>
-    XPathSequence.single(func.arity);
+XPathSequence _fnFunctionArity(XPathContext context, XPathSequence funcSeq) {
+  final func = funcSeq.first as XPathFunctionItem;
+  return XPathSequence.single(XPathInteger.fromInt(func.arity));
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-sort
-const fnSort = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:sort'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'seq',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-  ],
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'collation',
-      type: xsString,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-    XPathArgumentDefinition(name: 'key', type: xsFunction),
-  ],
-  function: _fnSort,
+const fnSort = XPathFunctionItem.overloaded(XmlName.qualified('fn:sort'), {
+  1: XPathFunctionItem.fn1(XmlName.qualified('fn:sort'), _fnSort1),
+  2: XPathFunctionItem.fn2(XmlName.qualified('fn:sort'), _fnSort2),
+  3: XPathFunctionItem.fn3(XmlName.qualified('fn:sort'), _fnSort3),
+});
+
+XPathSequence _fnSort1(XPathContext context, XPathSequence seq) =>
+    _evalSort(context, seq, null, null);
+
+XPathSequence _fnSort2(
+  XPathContext context,
+  XPathSequence seq,
+  XPathSequence collationSeq,
+) => _evalSort(context, seq, collationSeq.firstOrNull as XPathString?, null);
+
+XPathSequence _fnSort3(
+  XPathContext context,
+  XPathSequence seq,
+  XPathSequence collationSeq,
+  XPathSequence keySeq,
+) => _evalSort(
+  context,
+  seq,
+  collationSeq.firstOrNull as XPathString?,
+  keySeq.firstOrNull as XPathFunctionItem?,
 );
 
-XPathSequence _fnSort(
+XPathSequence _evalSort(
   XPathContext context,
-  XPathSequence seq, [
-  String? collation,
-  XPathFunction? key,
-]) {
+  XPathSequence seq,
+  XPathString? collation,
+  XPathFunctionItem? key,
+) {
   final list = seq.toList();
   list.sort((a, b) {
-    final ka = key != null ? _evalSortKey(context, key, a) : a;
-    final kb = key != null ? _evalSortKey(context, key, b) : b;
-    return compare(ka, kb);
+    final ka = key != null
+        ? _evalSortKey(context, key, a)
+        : XPathSequence.single(a);
+    final kb = key != null
+        ? _evalSortKey(context, key, b)
+        : XPathSequence.single(b);
+    final atomA = ka.atomize().firstOrNull;
+    final atomB = kb.atomize().firstOrNull;
+    if (atomA == null && atomB == null) return 0;
+    if (atomA == null) return -1;
+    if (atomB == null) return 1;
+    return atomA.compareTo(atomB);
   });
   return XPathSequence(list);
 }
 
-Object _evalSortKey(XPathContext context, XPathFunction key, Object item) {
-  final seq = key(context, [XPathSequence.single(item)]);
-  return seq.length == 1 ? seq.first : seq;
-}
+XPathSequence _evalSortKey(
+  XPathContext context,
+  XPathFunctionItem key,
+  XPathItem item,
+) => key.call(context, [XPathSequence.single(item)]);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-function-lookup
-const fnFunctionLookup = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:function-lookup'),
-  requiredArguments: [
-    XPathArgumentDefinition(name: 'name', type: xsQName),
-    XPathArgumentDefinition(name: 'arity', type: xsInteger),
-  ],
-  function: _fnFunctionLookup,
+const fnFunctionLookup = XPathFunctionItem.fn2(
+  XmlName.qualified('fn:function-lookup'),
+  _fnFunctionLookup,
 );
 
-XPathSequence _fnFunctionLookup(XPathContext context, XmlName name, num arity) {
+XPathSequence _fnFunctionLookup(
+  XPathContext context,
+  XPathSequence qnameSeq,
+  XPathSequence aritySeq,
+) {
+  final qname = qnameSeq.first as XPathQName;
+  final arity = aritySeq.first as XPathInteger;
   try {
     final function = context.configuration.getFunctionByString(
-      name.extendedQualified,
+      qname.value.extendedQualified,
+      arity.asInt,
     );
-    final isSupported = switch (function) {
-      XPathFunctionDefinition() =>
-        arity >= function.requiredArguments.length &&
-            (function.variadicArgument != null ||
-                arity <=
-                    function.requiredArguments.length +
-                        function.optionalArguments.length),
-      _ => arity == function.arity,
-    };
-    if (isSupported) {
-      return XPathSequence.single(function);
-    }
-    return XPathSequence.empty;
+    return XPathSequence.single(function);
   } on XPathEvaluationException {
     return XPathSequence.empty;
   }
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-load-xquery-module
-const fnLoadXqueryModule = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:load-xquery-module'),
-  requiredArguments: [XPathArgumentDefinition(name: 'uri', type: xsString)],
-  optionalArguments: [XPathArgumentDefinition(name: 'options', type: xsMap)],
-  function: _fnLoadXqueryModule,
+const fnLoadXqueryModule = XPathFunctionItem.overloaded(
+  XmlName.qualified('fn:load-xquery-module'),
+  {
+    1: XPathFunctionItem.fn1(
+      XmlName.qualified('fn:load-xquery-module'),
+      _fnLoadXqueryModule1,
+    ),
+    2: XPathFunctionItem.fn2(
+      XmlName.qualified('fn:load-xquery-module'),
+      _fnLoadXqueryModule2,
+    ),
+  },
 );
 
-XPathSequence _fnLoadXqueryModule(
+XPathSequence _fnLoadXqueryModule1(XPathContext context, XPathSequence uri) {
+  throw UnimplementedError('fn:load-xquery-module');
+}
+
+XPathSequence _fnLoadXqueryModule2(
   XPathContext context,
-  String uri, [
-  Map<Object, Object>? options,
-]) {
+  XPathSequence uri,
+  XPathSequence options,
+) {
   throw UnimplementedError('fn:load-xquery-module');
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-transform
-const fnTransform = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:transform'),
-  requiredArguments: [XPathArgumentDefinition(name: 'options', type: xsAny)],
-  function: _fnTransform,
+const fnTransform = XPathFunctionItem.fn1(
+  XmlName.qualified('fn:transform'),
+  _fnTransform,
 );
 
-XPathSequence _fnTransform(XPathContext context, Object options) {
+XPathSequence _fnTransform(XPathContext context, XPathSequence options) {
   throw UnimplementedError('fn:transform');
 }

@@ -1,8 +1,7 @@
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/evaluation/configuration.dart';
 import 'package:xml/src/xpath/functions/boolean.dart';
-import 'package:xml/src/xpath/values/sequence.dart';
 import 'package:xml/xml.dart';
+import 'package:xml/xpath.dart';
 
 import '../../utils/matchers.dart';
 import '../helpers.dart';
@@ -14,7 +13,7 @@ void main() {
   group('fn:boolean', () {
     test('returns true for true', () {
       expect(
-        fnBoolean(context, [const XPathSequence.single(true)]),
+        fnBoolean(context, [XPathSequence.trueSequence]),
         XPathSequence.trueSequence,
       );
     });
@@ -28,7 +27,7 @@ void main() {
 
     test('returns true for number 1', () {
       expect(
-        fnBoolean(context, [const XPathSequence.single(1)]),
+        fnBoolean(context, [XPathSequence.single(XPathInteger.fromInt(1))]),
         XPathSequence.trueSequence,
       );
     });
@@ -52,8 +51,16 @@ void main() {
       expectEvaluate(xml, 'boolean(0)', isXPathSequence([false]));
       expectEvaluate(xml, 'boolean(1)', isXPathSequence([true]));
       expectEvaluate(xml, 'boolean(-1)', isXPathSequence([true]));
-      expectEvaluate(xml, 'boolean(0 div 0)', isXPathSequence([false]));
-      expectEvaluate(xml, 'boolean(1 div 0)', isXPathSequence([true]));
+      expectEvaluate(
+        xml,
+        'boolean(xs:double(0) div 0)',
+        isXPathSequence([false]),
+      );
+      expectEvaluate(
+        xml,
+        'boolean(xs:double(1) div 0)',
+        isXPathSequence([true]),
+      );
     });
 
     test('evaluation with boolean', () {
@@ -66,7 +73,7 @@ void main() {
   group('fn:not', () {
     test('negates boolean value', () {
       expect(
-        fnNot(context, [const XPathSequence.single(true)]),
+        fnNot(context, [XPathSequence.trueSequence]),
         XPathSequence.falseSequence,
       );
     });
@@ -106,15 +113,15 @@ void main() {
       final c = doc.rootElement.children.whereType<XmlElement>().first;
       final newContext = const XPathConfiguration.raw().context(c);
       expect(
-        fnLang(newContext, [const XPathSequence.single('en')]),
+        fnLang(newContext, [const XPathSequence.single(XPathString('en'))]),
         isXPathSequence([true]),
       );
       expect(
-        fnLang(newContext, [const XPathSequence.single('fr')]),
+        fnLang(newContext, [const XPathSequence.single(XPathString('fr'))]),
         isXPathSequence([false]),
       );
       expect(
-        fnLang(newContext, [const XPathSequence.single('EN-US')]),
+        fnLang(newContext, [const XPathSequence.single(XPathString('EN-US'))]),
         isXPathSequence([false]),
       );
       expect(

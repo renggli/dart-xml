@@ -1,15 +1,14 @@
 import 'package:test/test.dart';
-
 import 'package:xml/src/xpath/operators/map.dart';
-import 'package:xml/src/xpath/values/sequence.dart';
+import 'package:xml/xpath.dart';
 
 void main() {
   group('opSameKey', () {
     test('same string', () {
       expect(
         opSameKey(
-          const XPathSequence.single('a'),
-          const XPathSequence.single('a'),
+          const XPathSequence.single(XPathString('a')),
+          const XPathSequence.single(XPathString('a')),
         ),
         XPathSequence.trueSequence,
       );
@@ -17,8 +16,8 @@ void main() {
     test('same NaN', () {
       expect(
         opSameKey(
-          const XPathSequence.single(double.nan),
-          const XPathSequence.single(double.nan),
+          const XPathSequence.single(XPathDouble(double.nan)),
+          const XPathSequence.single(XPathDouble(double.nan)),
         ),
         XPathSequence.trueSequence,
       );
@@ -26,8 +25,8 @@ void main() {
     test('different string', () {
       expect(
         opSameKey(
-          const XPathSequence.single('a'),
-          const XPathSequence.single('b'),
+          const XPathSequence.single(XPathString('a')),
+          const XPathSequence.single(XPathString('b')),
         ),
         XPathSequence.falseSequence,
       );

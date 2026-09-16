@@ -2,48 +2,44 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import '../../xml/utils/name.dart';
-import '../definitions/cardinality.dart';
-import '../definitions/function.dart';
 import '../evaluation/context.dart';
-import '../types/string.dart';
-import '../values/sequence.dart';
+import '../xdm/atomic/binary.dart';
+import '../xdm/function_item.dart';
+import '../xdm/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-base64Binary-from-string
-const fnBase64BinaryFromString = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:base64Binary'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsString,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _fnBase64BinaryFromString,
+const fnBase64BinaryFromString = XPathFunctionItem.fn1(
+  XmlName.qualified('xs:base64Binary'),
+  _fnBase64BinaryFromString,
 );
 
-XPathSequence _fnBase64BinaryFromString(XPathContext context, String? arg) {
+XPathSequence _fnBase64BinaryFromString(
+  XPathContext context,
+  XPathSequence argSeq,
+) {
+  final arg = argSeq.atomize().firstOrNull;
   if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(base64.decode(arg));
+  return XPathSequence.single(
+    XPathBase64Binary(base64.decode(arg.stringValue)),
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hexBinary-from-string
-const fnHexBinaryFromString = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:hexBinary'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsString,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _fnHexBinaryFromString,
+const fnHexBinaryFromString = XPathFunctionItem.fn1(
+  XmlName.qualified('xs:hexBinary'),
+  _fnHexBinaryFromString,
 );
 
-XPathSequence _fnHexBinaryFromString(XPathContext context, String? arg) {
+XPathSequence _fnHexBinaryFromString(
+  XPathContext context,
+  XPathSequence argSeq,
+) {
+  final arg = argSeq.atomize().firstOrNull;
   if (arg == null) return XPathSequence.empty;
-  final bytes = Uint8List(arg.length ~/ 2);
-  for (var i = 0; i < arg.length; i += 2) {
-    bytes[i ~/ 2] = int.parse(arg.substring(i, i + 2), radix: 16);
+  final str = arg.stringValue;
+  final bytes = Uint8List(str.length ~/ 2);
+  for (var i = 0; i < str.length; i += 2) {
+    bytes[i ~/ 2] = int.parse(str.substring(i, i + 2), radix: 16);
   }
-  return XPathSequence.single(bytes);
+  return XPathSequence.single(XPathHexBinary(bytes));
 }

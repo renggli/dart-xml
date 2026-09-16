@@ -75,12 +75,34 @@ void main() {
       expectEvaluate(
         xml,
         "xs:time('00:00:00Z') castable as xs:dateTime",
-        orderedEquals([true]),
+        orderedEquals([false]),
       );
       expectEvaluate(
         xml,
         "xs:time('13:20:00+05:00') castable as xs:dateTime",
-        orderedEquals([true]),
+        orderedEquals([false]),
+      );
+    });
+
+    test('function item, map, array raises FOTY0013', () {
+      expect(
+        () => xml.xpathEvaluate('(function() { 2 }) castable as xs:integer'),
+        throwsA(isXPathEvaluationException()),
+      );
+      expect(
+        () => xml.xpathEvaluate('[1, 2] castable as xs:integer'),
+        throwsA(isXPathEvaluationException()),
+      );
+      expect(
+        () => xml.xpathEvaluate('map { 1: 2 } castable as xs:integer'),
+        throwsA(isXPathEvaluationException()),
+      );
+    });
+
+    test('abstract target types raise XPST0080', () {
+      expect(
+        () => xml.xpathEvaluate('1 castable as xs:anyAtomicType'),
+        throwsA(isXPathEvaluationException()),
       );
     });
   });
@@ -89,6 +111,13 @@ void main() {
     test('atomic types', () {
       expectEvaluate(xml, "'1' cast as xs:integer", orderedEquals([1]));
       expectEvaluate(xml, '1 cast as xs:string', orderedEquals(['1']));
+    });
+
+    test('abstract target types raise XPST0080', () {
+      expect(
+        () => xml.xpathEvaluate('1 cast as xs:anyAtomicType'),
+        throwsA(isXPathEvaluationException()),
+      );
     });
 
     test('duration to xs:numeric', () {
@@ -134,10 +163,14 @@ void main() {
     });
 
     test('xs:time with timezone to xs:dateTime', () {
-      // Time with Z timezone
-      expectEvaluate(xml, "xs:dateTime(xs:time('00:00:00Z'))", isNotEmpty);
-      // Time with timezone offset
-      expectEvaluate(xml, "xs:dateTime(xs:time('13:20:00+05:00'))", isNotEmpty);
+      expect(
+        () => xml.xpathEvaluate("xs:dateTime(xs:time('00:00:00Z'))"),
+        throwsA(isXPathEvaluationException()),
+      );
+      expect(
+        () => xml.xpathEvaluate("xs:dateTime(xs:time('13:20:00+05:00'))"),
+        throwsA(isXPathEvaluationException()),
+      );
     });
   });
 

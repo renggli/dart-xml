@@ -1,8 +1,8 @@
 import '../../xml/nodes/node.dart';
 import '../../xml/utils/name.dart';
 import '../exceptions/evaluation_exception.dart';
-import '../values/function.dart';
-import '../values/sequence.dart';
+import '../xdm/function_item.dart';
+import '../xdm/sequence.dart';
 import 'context.dart';
 import 'functions.dart';
 import 'namespaces.dart';
@@ -21,7 +21,7 @@ class XPathConfiguration {
   /// Creates a static context extending the standard configuration.
   factory({
     Map<String, Object>? variables,
-    Map<XmlName, XPathFunction>? functions,
+    Map<XmlName, XPathFunctionItem>? functions,
     String? namespaceUri,
     Map<String, String>? namespaceUris,
     Map<String, XmlNode>? documents,
@@ -62,7 +62,7 @@ class XPathConfiguration {
   final Map<String, Object> variables;
 
   /// Function definitions.
-  final Map<XmlName, XPathFunction> functions;
+  final Map<XmlName, XPathFunctionItem> functions;
 
   /// Default namespace URI for function lookups.
   final String? namespaceUri;
@@ -85,21 +85,42 @@ class XPathConfiguration {
   /// Callback to trace evaluation.
   final XPathTraceCallback? onTraceCallback;
 
-  /// Looks up a XPath function with the given [name].
-  XPathFunction getFunction(XmlName name) {
+  /// Looks up a XPath function with the given [name] and optional [arity].
+  XPathFunctionItem getFunction(XmlName name, [int? arity]) {
     final function = functions[name];
-    if (function != null) return function;
+    if (function != null) {
+      if (arity != null && function is XPathOverloadedFunction) {
+        final specific = function.getForArity(arity);
+        if (specific != null) return specific;
+        throw XPathEvaluationException(
+          'Function "$name" does not support arity $arity',
+        );
+      }
+      if (arity != null && !function.isVariadic && function.arity != arity) {
+        throw XPathEvaluationException(
+          'Function "$name" does not support arity $arity',
+        );
+      }
+      if (arity != null && function.isVariadic && arity < function.arity) {
+        throw XPathEvaluationException(
+          'Function "$name" expects at least ${function.arity} arguments, but got $arity',
+        );
+      }
+      return function;
+    }
     throw XPathEvaluationException('Unknown function: $name');
   }
 
-  /// Looks up a XPath function with the given [name] (string).
-  XPathFunction getFunctionByString(String name) => getFunction(
-    XmlName.parse(
-      name,
-      namespaceUri: namespaceUri,
-      namespaceUris: namespaceUris,
-    ),
-  );
+  /// Looks up a XPath function with the given [name] (string) and optional [arity].
+  XPathFunctionItem getFunctionByString(String name, [int? arity]) =>
+      getFunction(
+        XmlName.parse(
+          name,
+          namespaceUri: namespaceUri,
+          namespaceUris: namespaceUris,
+        ),
+        arity,
+      );
 
   /// Creates an evaluation context from this configuration, optionally
   /// with a provided context [item].
@@ -109,7 +130,7 @@ class XPathConfiguration {
   /// Creates a modified copy of the static context.
   XPathConfiguration copy({
     Map<String, Object>? variables,
-    Map<XmlName, XPathFunction>? functions,
+    Map<XmlName, XPathFunctionItem>? functions,
     String? namespaceUri,
     Map<String, String>? namespaceUris,
     Map<String, XmlNode>? documents,

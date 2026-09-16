@@ -1,11 +1,9 @@
 import 'package:test/test.dart';
 
 import 'package:xml/src/xpath/operators/date_time.dart';
-import 'package:xml/src/xpath/values/date_time.dart';
-import 'package:xml/src/xpath/values/duration.dart';
-import 'package:xml/src/xpath/values/sequence.dart';
+import 'package:xml/xpath.dart';
 
-XPathSequence seq(Object value) => XPathSequence.single(value);
+XPathSequence seq(XPathItem value) => XPathSequence.single(value);
 
 void main() {
   // Reference values.
@@ -27,25 +25,34 @@ void main() {
 
   group('opDateTimeEqual', () {
     test('equal', () {
-      expect(opDateTimeEqual(seq(dt1), seq(dt1)), [true]);
+      expect(opDateTimeEqual(seq(dt1), seq(dt1)), XPathSequence.trueSequence);
     });
     test('not equal', () {
-      expect(opDateTimeEqual(seq(dt1), seq(dt2)), [false]);
+      expect(opDateTimeEqual(seq(dt1), seq(dt2)), XPathSequence.falseSequence);
     });
   });
 
   group('opDateTimeLessThan', () {
     test('less than', () {
-      expect(opDateTimeLessThan(seq(dt1), seq(dt2)), [true]);
+      expect(
+        opDateTimeLessThan(seq(dt1), seq(dt2)),
+        XPathSequence.trueSequence,
+      );
     });
     test('not less than', () {
-      expect(opDateTimeLessThan(seq(dt2), seq(dt1)), [false]);
+      expect(
+        opDateTimeLessThan(seq(dt2), seq(dt1)),
+        XPathSequence.falseSequence,
+      );
     });
   });
 
   group('opDateTimeGreaterThan', () {
     test('greater than', () {
-      expect(opDateTimeGreaterThan(seq(dt2), seq(dt1)), [true]);
+      expect(
+        opDateTimeGreaterThan(seq(dt2), seq(dt1)),
+        XPathSequence.trueSequence,
+      );
     });
   });
 

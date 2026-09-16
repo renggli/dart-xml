@@ -1,8 +1,7 @@
 import 'package:test/test.dart';
+import 'package:xml/src/xpath/functions/constructors.dart';
 import 'package:xml/src/xpath/functions/sequence.dart';
 import 'package:xml/src/xpath/functions/uri.dart';
-import 'package:xml/src/xpath/types/number.dart';
-import 'package:xml/src/xpath/values/duration.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -19,10 +18,7 @@ void main() {
     });
 
     test('returns false for non-empty sequence', () {
-      expect(
-        fnEmpty(context, [const XPathSequence.single(1)]),
-        isXPathSequence([false]),
-      );
+      expect(fnEmpty(context, [seq(1)]), isXPathSequence([false]));
     });
   });
 
@@ -35,10 +31,7 @@ void main() {
     });
 
     test('returns true for non-empty sequence', () {
-      expect(
-        fnExists(context, [const XPathSequence.single(1)]),
-        isXPathSequence([true]),
-      );
+      expect(fnExists(context, [seq(1)]), isXPathSequence([true]));
     });
   });
 
@@ -50,7 +43,7 @@ void main() {
     test('returns first item', () {
       expect(
         fnHead(context, [
-          const XPathSequence([1, 2, 3]),
+          seq([1, 2, 3]),
         ]),
         isXPathSequence([1]),
       );
@@ -65,7 +58,7 @@ void main() {
     test('returns empty for single item sequence', () {
       expect(
         fnTail(context, [
-          const XPathSequence([1]),
+          seq([1]),
         ]),
         isXPathSequence(isEmpty),
       );
@@ -74,7 +67,7 @@ void main() {
     test('returns remaining items', () {
       expect(
         fnTail(context, [
-          const XPathSequence([1, 2, 3]),
+          seq([1, 2, 3]),
         ]),
         isXPathSequence([2, 3]),
       );
@@ -85,9 +78,9 @@ void main() {
     test('inserts at beginning', () {
       expect(
         fnInsertBefore(context, [
-          const XPathSequence([1, 2]),
-          const XPathSequence.single(1),
-          const XPathSequence.single(0),
+          seq([1, 2]),
+          seq(1),
+          seq(0),
         ]),
         isXPathSequence([0, 1, 2]),
       );
@@ -96,9 +89,9 @@ void main() {
     test('inserts in middle', () {
       expect(
         fnInsertBefore(context, [
-          const XPathSequence([1, 2]),
-          const XPathSequence.single(2),
-          const XPathSequence.single(0),
+          seq([1, 2]),
+          seq(2),
+          seq(0),
         ]),
         isXPathSequence([1, 0, 2]),
       );
@@ -107,9 +100,9 @@ void main() {
     test('inserts at end', () {
       expect(
         fnInsertBefore(context, [
-          const XPathSequence([1, 2]),
-          const XPathSequence.single(3),
-          const XPathSequence.single(0),
+          seq([1, 2]),
+          seq(3),
+          seq(0),
         ]),
         isXPathSequence([1, 2, 0]),
       );
@@ -118,9 +111,9 @@ void main() {
     test('handles zero index', () {
       expect(
         fnInsertBefore(context, [
-          const XPathSequence([1, 2]),
-          const XPathSequence.single(0),
-          const XPathSequence.single(0),
+          seq([1, 2]),
+          seq(0),
+          seq(0),
         ]),
         isXPathSequence([0, 1, 2]),
       );
@@ -129,9 +122,9 @@ void main() {
     test('handles out of bounds index', () {
       expect(
         fnInsertBefore(context, [
-          const XPathSequence([1, 2]),
-          const XPathSequence.single(10),
-          const XPathSequence.single(0),
+          seq([1, 2]),
+          seq(10),
+          seq(0),
         ]),
         isXPathSequence([1, 2, 0]),
       );
@@ -142,8 +135,8 @@ void main() {
     test('removes item at index', () {
       expect(
         fnRemove(context, [
-          const XPathSequence([1, 2, 3]),
-          const XPathSequence.single(2),
+          seq([1, 2, 3]),
+          seq(2),
         ]),
         isXPathSequence([1, 3]),
       );
@@ -152,8 +145,8 @@ void main() {
     test('handles zero index', () {
       expect(
         fnRemove(context, [
-          const XPathSequence([1, 2, 3]),
-          const XPathSequence.single(0),
+          seq([1, 2, 3]),
+          seq(0),
         ]),
         isXPathSequence([1, 2, 3]),
       );
@@ -162,8 +155,8 @@ void main() {
     test('handles out of bounds index', () {
       expect(
         fnRemove(context, [
-          const XPathSequence([1, 2, 3]),
-          const XPathSequence.single(4),
+          seq([1, 2, 3]),
+          seq(4),
         ]),
         isXPathSequence([1, 2, 3]),
       );
@@ -174,7 +167,7 @@ void main() {
     test('reverses sequence', () {
       expect(
         fnReverse(context, [
-          const XPathSequence([1, 2, 3]),
+          seq([1, 2, 3]),
         ]),
         isXPathSequence([3, 2, 1]),
       );
@@ -192,8 +185,8 @@ void main() {
     test('returns remaining items from starting position', () {
       expect(
         fnSubsequence(context, [
-          const XPathSequence([1, 2, 3, 4, 5]),
-          const XPathSequence.single(2),
+          seq([1, 2, 3, 4, 5]),
+          seq(2),
         ]),
         isXPathSequence([2, 3, 4, 5]),
       );
@@ -202,9 +195,9 @@ void main() {
     test('returns items within length limit', () {
       expect(
         fnSubsequence(context, [
-          const XPathSequence([1, 2, 3, 4, 5]),
-          const XPathSequence.single(2),
-          const XPathSequence.single(2),
+          seq([1, 2, 3, 4, 5]),
+          seq(2),
+          seq(2),
         ]),
         isXPathSequence([2, 3]),
       );
@@ -213,9 +206,9 @@ void main() {
     test('handles zero starting position', () {
       expect(
         fnSubsequence(context, [
-          const XPathSequence([1, 2, 3, 4, 5]),
-          const XPathSequence.single(0),
-          const XPathSequence.single(2),
+          seq([1, 2, 3, 4, 5]),
+          seq(0),
+          seq(2),
         ]),
         isXPathSequence([1]),
       );
@@ -224,9 +217,9 @@ void main() {
     test('handles negative starting position', () {
       expect(
         fnSubsequence(context, [
-          const XPathSequence([1, 2, 3, 4, 5]),
-          const XPathSequence.single(-1),
-          const XPathSequence.single(3),
+          seq([1, 2, 3, 4, 5]),
+          seq(-1),
+          seq(3),
         ]),
         isXPathSequence([1]),
       );
@@ -235,28 +228,22 @@ void main() {
 
   group('fn:unordered', () {
     test('returns sequence unchanged', () {
-      const seq = XPathSequence([1, 2, 3]);
-      expect(fnUnordered(context, [seq]), isXPathSequence(seq));
+      final sequence = seq([1, 2, 3]);
+      expect(fnUnordered(context, [sequence]), isXPathSequence(sequence));
     });
   });
 
   group('fn:format-integer', () {
     test('formats integer', () {
       expect(
-        fnFormatInteger(context, [
-          const XPathSequence.single(123),
-          const XPathSequence.single('#'),
-        ]),
+        fnFormatInteger(context, [seq(123), seq('#')]),
         isXPathSequence(['123']),
       );
     });
 
     test('returns empty for empty sequence', () {
       expect(
-        fnFormatInteger(context, [
-          XPathSequence.empty,
-          const XPathSequence.single('#'),
-        ]),
+        fnFormatInteger(context, [XPathSequence.empty, seq('#')]),
         isXPathSequence(isEmpty),
       );
     });
@@ -265,20 +252,14 @@ void main() {
   group('fn:format-number', () {
     test('formats number', () {
       expect(
-        fnFormatNumber(context, [
-          const XPathSequence.single(123.45),
-          const XPathSequence.single('#'),
-        ]),
+        fnFormatNumber(context, [seq(123.45), seq('#')]),
         isXPathSequence(['123.45']),
       );
     });
 
     test('returns empty for empty sequence', () {
       expect(
-        fnFormatNumber(context, [
-          XPathSequence.empty,
-          const XPathSequence.single('#'),
-        ]),
+        fnFormatNumber(context, [XPathSequence.empty, seq('#')]),
         isXPathSequence(isEmpty),
       );
     });
@@ -293,16 +274,13 @@ void main() {
     });
 
     test('returns item for single item sequence', () {
-      expect(
-        fnZeroOrOne(context, [const XPathSequence.single(1)]),
-        isXPathSequence([1]),
-      );
+      expect(fnZeroOrOne(context, [seq(1)]), isXPathSequence([1]));
     });
 
     test('throws for multiple items', () {
       expect(
         () => fnZeroOrOne(context, [
-          const XPathSequence([1, 2]),
+          seq([1, 2]),
         ]),
         throwsA(isXPathEvaluationException()),
       );
@@ -311,10 +289,7 @@ void main() {
 
   group('fn:one-or-more', () {
     test('returns sequence with items', () {
-      expect(
-        fnOneOrMore(context, [const XPathSequence.single(1)]),
-        isXPathSequence([1]),
-      );
+      expect(fnOneOrMore(context, [seq(1)]), isXPathSequence([1]));
     });
 
     test('throws for empty sequence', () {
@@ -327,10 +302,7 @@ void main() {
 
   group('fn:exactly-one', () {
     test('returns single item sequence', () {
-      expect(
-        fnExactlyOne(context, [const XPathSequence.single(1)]),
-        isXPathSequence([1]),
-      );
+      expect(fnExactlyOne(context, [seq(1)]), isXPathSequence([1]));
     });
 
     test('throws for empty sequence', () {
@@ -343,7 +315,7 @@ void main() {
     test('throws for multiple items', () {
       expect(
         () => fnExactlyOne(context, [
-          const XPathSequence([1, 2]),
+          seq([1, 2]),
         ]),
         throwsA(isXPathEvaluationException()),
       );
@@ -354,7 +326,7 @@ void main() {
     test('returns unique values', () {
       expect(
         fnDistinctValues(context, [
-          const XPathSequence([1, 2, 1, 3, 2]),
+          seq([1, 2, 1, 3, 2]),
         ]),
         isXPathSequence([1, 2, 3]),
       );
@@ -365,8 +337,8 @@ void main() {
     test('returns indices of item', () {
       expect(
         fnIndexOf(context, [
-          const XPathSequence([1, 2, 1, 3]),
-          const XPathSequence.single(1),
+          seq([1, 2, 1, 3]),
+          seq(1),
         ]),
         isXPathSequence([1, 3]),
       );
@@ -375,8 +347,8 @@ void main() {
     test('returns empty if item not found', () {
       expect(
         fnIndexOf(context, [
-          const XPathSequence([1, 2, 3]),
-          const XPathSequence.single(4),
+          seq([1, 2, 3]),
+          seq(4),
         ]),
         XPathSequence.empty,
       );
@@ -387,8 +359,8 @@ void main() {
     test('returns true for same items', () {
       expect(
         fnDeepEqual(context, [
-          const XPathSequence([1, 2]),
-          const XPathSequence([1, 2]),
+          seq([1, 2]),
+          seq([1, 2]),
         ]),
         isXPathSequence(XPathSequence.trueSequence),
       );
@@ -396,8 +368,8 @@ void main() {
     test('returns false for different items', () {
       expect(
         fnDeepEqual(context, [
-          const XPathSequence([1, 2]),
-          const XPathSequence([1, 3]),
+          seq([1, 2]),
+          seq([1, 3]),
         ]),
         isXPathSequence([false]),
       );
@@ -405,8 +377,8 @@ void main() {
     test('returns false for different length', () {
       expect(
         fnDeepEqual(context, [
-          const XPathSequence([1, 2]),
-          const XPathSequence([1, 2, 3]),
+          seq([1, 2]),
+          seq([1, 2, 3]),
         ]),
         isXPathSequence([false]),
       );
@@ -414,50 +386,50 @@ void main() {
     test('lists and maps comparison', () {
       expect(
         fnDeepEqual(context, [
-          const XPathSequence.single([1, 2]),
-          const XPathSequence.single([1, 2]),
+          seq([1, 2]),
+          seq([1, 2]),
         ]),
         isXPathSequence([true]),
       );
       expect(
         fnDeepEqual(context, [
-          const XPathSequence.single([1, 2]),
-          const XPathSequence.single([1, 3]),
+          seq([1, 2]),
+          seq([1, 3]),
         ]),
         isXPathSequence([false]),
       );
       expect(
         fnDeepEqual(context, [
-          const XPathSequence.single([1, 2]),
-          const XPathSequence.single([1, 2, 3]),
+          seq([1, 2]),
+          seq([1, 2, 3]),
         ]),
         isXPathSequence([false]),
       );
       expect(
         fnDeepEqual(context, [
-          const XPathSequence.single({'a': 1}),
-          const XPathSequence.single({'a': 1}),
+          seq({'a': 1}),
+          seq({'a': 1}),
         ]),
         isXPathSequence([true]),
       );
       expect(
         fnDeepEqual(context, [
-          const XPathSequence.single({'a': 1}),
-          const XPathSequence.single({'a': 2}),
+          seq({'a': 1}),
+          seq({'a': 2}),
         ]),
         isXPathSequence([false]),
       );
       expect(
         fnDeepEqual(context, [
-          const XPathSequence.single({'a': 1}),
-          const XPathSequence.single({'b': 1}),
+          seq({'a': 1}),
+          seq({'b': 1}),
         ]),
         isXPathSequence([false]),
       );
       expect(
         fnDeepEqual(context, [
-          const XPathSequence.single({'a': 1}),
-          const XPathSequence.single({'a': 1, 'b': 2}),
+          seq({'a': 1}),
+          seq({'a': 1, 'b': 2}),
         ]),
         isXPathSequence([false]),
       );
@@ -469,44 +441,32 @@ void main() {
       final doc4 = XmlDocument.parse('<r a="1">other</r>');
       final doc5 = XmlDocument.parse('<diff>text</diff>');
       expect(
+        fnDeepEqual(context, [seq(doc1.rootElement), seq(doc2.rootElement)]),
+        isXPathSequence([true]),
+      );
+      expect(
+        fnDeepEqual(context, [seq(doc1.rootElement), seq(doc3.rootElement)]),
+        isXPathSequence([false]),
+      );
+      expect(
+        fnDeepEqual(context, [seq(doc1.rootElement), seq(doc4.rootElement)]),
+        isXPathSequence([false]),
+      );
+      expect(
+        fnDeepEqual(context, [seq(doc1.rootElement), seq(doc5.rootElement)]),
+        isXPathSequence([false]),
+      );
+      expect(
         fnDeepEqual(context, [
-          XPathSequence.single(doc1.rootElement),
-          XPathSequence.single(doc2.rootElement),
+          seq(doc1.rootElement.attributes.first),
+          seq(doc2.rootElement.attributes.first),
         ]),
         isXPathSequence([true]),
       );
       expect(
         fnDeepEqual(context, [
-          XPathSequence.single(doc1.rootElement),
-          XPathSequence.single(doc3.rootElement),
-        ]),
-        isXPathSequence([false]),
-      );
-      expect(
-        fnDeepEqual(context, [
-          XPathSequence.single(doc1.rootElement),
-          XPathSequence.single(doc4.rootElement),
-        ]),
-        isXPathSequence([false]),
-      );
-      expect(
-        fnDeepEqual(context, [
-          XPathSequence.single(doc1.rootElement),
-          XPathSequence.single(doc5.rootElement),
-        ]),
-        isXPathSequence([false]),
-      );
-      expect(
-        fnDeepEqual(context, [
-          XPathSequence.single(doc1.rootElement.attributes.first),
-          XPathSequence.single(doc2.rootElement.attributes.first),
-        ]),
-        isXPathSequence([true]),
-      );
-      expect(
-        fnDeepEqual(context, [
-          XPathSequence.single(doc1.rootElement.attributes.first),
-          XPathSequence.single(doc3.rootElement.attributes.first),
+          seq(doc1.rootElement.attributes.first),
+          seq(doc3.rootElement.attributes.first),
         ]),
         isXPathSequence([false]),
       );
@@ -514,8 +474,8 @@ void main() {
     test('functions throw exception', () {
       expect(
         () => fnDeepEqual(context, [
-          XPathSequence.single(xsNumeric.cast),
-          XPathSequence.single(xsNumeric.cast),
+          seq(xsNumericConstructor),
+          seq(xsNumericConstructor),
         ]),
         throwsA(
           isXPathEvaluationException(message: contains('Cannot compare')),
@@ -529,7 +489,7 @@ void main() {
       expect(fnCount(context, [XPathSequence.empty]), isXPathSequence([0]));
       expect(
         fnCount(context, [
-          const XPathSequence([1, 2, 3]),
+          seq([1, 2, 3]),
         ]),
         isXPathSequence([3]),
       );
@@ -545,7 +505,7 @@ void main() {
     test('returns average', () {
       expect(
         fnAvg(context, [
-          const XPathSequence([1, 2, 3]),
+          seq([1, 2, 3]),
         ]),
         isXPathSequence([2.0]),
       );
@@ -561,7 +521,7 @@ void main() {
       // Average: 12 months (P1Y)
       expect(
         fnAvg(context, [
-          const XPathSequence([d1, d2]),
+          seq([d1, d2]),
         ]),
         isXPathSequence([const XPathYearMonthDuration(12)]),
       );
@@ -573,7 +533,7 @@ void main() {
       // Average: 13 hours
       expect(
         fnAvg(context, [
-          const XPathSequence([d1, d2]),
+          seq([d1, d2]),
         ]),
         isXPathSequence([const XPathDayTimeDuration(46800000000)]),
       );
@@ -582,9 +542,9 @@ void main() {
       // 5 months / 2 = 2.5 months. Round half-to-even -> 2 months.
       expect(
         fnAvg(context, [
-          const XPathSequence([
-            XPathYearMonthDuration(5),
-            XPathYearMonthDuration(0),
+          seq([
+            const XPathYearMonthDuration(5),
+            const XPathYearMonthDuration(0),
           ]),
         ]),
         isXPathSequence([const XPathYearMonthDuration(2)]),
@@ -592,9 +552,9 @@ void main() {
       // 7 months / 2 = 3.5 months. Round half-to-even -> 4 months.
       expect(
         fnAvg(context, [
-          const XPathSequence([
-            XPathYearMonthDuration(7),
-            XPathYearMonthDuration(0),
+          seq([
+            const XPathYearMonthDuration(7),
+            const XPathYearMonthDuration(0),
           ]),
         ]),
         isXPathSequence([const XPathYearMonthDuration(4)]),
@@ -604,27 +564,25 @@ void main() {
     test('throws error for mixed sequence or invalid types', () {
       expect(
         () => fnAvg(context, [
-          const XPathSequence([1, XPathDayTimeDuration(86400000000)]),
+          seq([1, const XPathDayTimeDuration(86400000000)]),
         ]),
         throwsA(isXPathEvaluationException()),
       );
       expect(
         () => fnAvg(context, [
-          const XPathSequence([
-            XPathYearMonthDuration(1),
-            XPathDayTimeDuration(86400000000),
+          seq([
+            const XPathYearMonthDuration(1),
+            const XPathDayTimeDuration(86400000000),
           ]),
         ]),
         throwsA(isXPathEvaluationException()),
       );
       expect(
-        () => fnAvg(context, [const XPathSequence.single('not a number')]),
+        () => fnAvg(context, [seq('not a number')]),
         throwsA(isXPathEvaluationException()),
       );
       expect(
-        () => fnAvg(context, [
-          const XPathSequence.single(XPathDuration(months: 1, days: 1)),
-        ]),
+        () => fnAvg(context, [seq(const XPathDuration(months: 1, days: 1))]),
         throwsA(isXPathEvaluationException()),
       );
     });
@@ -639,7 +597,7 @@ void main() {
     test('returns maximum for numbers', () {
       expect(
         fnMax(context, [
-          const XPathSequence([1, 3, 2]),
+          seq([1, 3, 2]),
         ]),
         isXPathSequence([3]),
       );
@@ -648,20 +606,20 @@ void main() {
     test('returns maximum for dates', () {
       expect(
         fnMax(context, [
-          XPathSequence([
-            DateTime(2022, 1, 1),
-            DateTime(2022, 1, 3),
-            DateTime(2022, 1, 2),
+          seq([
+            DateTime.utc(2022, 1, 1),
+            DateTime.utc(2022, 1, 3),
+            DateTime.utc(2022, 1, 2),
           ]),
         ]),
-        isXPathSequence([DateTime(2022, 1, 3)]),
+        isXPathSequence([DateTime.utc(2022, 1, 3)]),
       );
     });
 
     test('returns maximum for strings', () {
       expect(
         fnMax(context, [
-          const XPathSequence(['a', 'c', 'b']),
+          seq(['a', 'c', 'b']),
         ]),
         isXPathSequence(['c']),
       );
@@ -670,10 +628,10 @@ void main() {
     test('returns maximum for durations', () {
       expect(
         fnMax(context, [
-          const XPathSequence([
-            XPathDayTimeDuration(86400000000),
-            XPathDayTimeDuration(259200000000),
-            XPathDayTimeDuration(172800000000),
+          seq([
+            const XPathDayTimeDuration(86400000000),
+            const XPathDayTimeDuration(259200000000),
+            const XPathDayTimeDuration(172800000000),
           ]),
         ]),
         isXPathSequence([const XPathDayTimeDuration(259200000000)]),
@@ -683,13 +641,13 @@ void main() {
     test('handles NaN', () {
       expect(
         fnMax(context, [
-          const XPathSequence([double.nan, 1.0, 2.0]),
+          seq([double.nan, 1.0, 2.0]),
         ]),
         isXPathSequence([isNaN]),
       );
       expect(
         fnMax(context, [
-          const XPathSequence([1.0, double.nan, 2.0]),
+          seq([1.0, double.nan, 2.0]),
         ]),
         isXPathSequence([isNaN]),
       );
@@ -709,7 +667,7 @@ void main() {
     test('returns minimum for numbers', () {
       expect(
         fnMin(context, [
-          const XPathSequence([3, 1, 2]),
+          seq([3, 1, 2]),
         ]),
         isXPathSequence([1]),
       );
@@ -718,20 +676,20 @@ void main() {
     test('returns minimum for dates', () {
       expect(
         fnMin(context, [
-          XPathSequence([
-            DateTime(2022, 1, 3),
-            DateTime(2022, 1, 1),
-            DateTime(2022, 1, 2),
+          seq([
+            DateTime.utc(2022, 1, 3),
+            DateTime.utc(2022, 1, 1),
+            DateTime.utc(2022, 1, 2),
           ]),
         ]),
-        isXPathSequence([DateTime(2022, 1, 1)]),
+        isXPathSequence([DateTime.utc(2022, 1, 1)]),
       );
     });
 
     test('returns minimum for strings', () {
       expect(
         fnMin(context, [
-          const XPathSequence(['c', 'a', 'b']),
+          seq(['c', 'a', 'b']),
         ]),
         isXPathSequence(['a']),
       );
@@ -740,10 +698,10 @@ void main() {
     test('returns minimum for durations', () {
       expect(
         fnMin(context, [
-          const XPathSequence([
-            XPathDayTimeDuration(259200000000),
-            XPathDayTimeDuration(86400000000),
-            XPathDayTimeDuration(172800000000),
+          seq([
+            const XPathDayTimeDuration(259200000000),
+            const XPathDayTimeDuration(86400000000),
+            const XPathDayTimeDuration(172800000000),
           ]),
         ]),
         isXPathSequence([const XPathDayTimeDuration(86400000000)]),
@@ -753,13 +711,13 @@ void main() {
     test('handles NaN', () {
       expect(
         fnMin(context, [
-          const XPathSequence([double.nan, 1.0, 2.0]),
+          seq([double.nan, 1.0, 2.0]),
         ]),
         isXPathSequence([isNaN]),
       );
       expect(
         fnMin(context, [
-          const XPathSequence([1.0, double.nan, 2.0]),
+          seq([1.0, double.nan, 2.0]),
         ]),
         isXPathSequence([isNaN]),
       );
@@ -779,7 +737,7 @@ void main() {
     test('returns sum of numbers', () {
       expect(fnSum(context, [XPathSequence.empty]), isXPathSequence([0]));
       expect(
-        fnSum(context, [XPathSequence.empty, const XPathSequence.single(42)]),
+        fnSum(context, [XPathSequence.empty, seq(42)]),
         isXPathSequence([42]),
       );
       expect(
@@ -788,7 +746,7 @@ void main() {
       );
       expect(
         fnSum(context, [
-          const XPathSequence([1, 2, 3]),
+          seq([1, 2, 3]),
         ]),
         isXPathSequence([6.0]),
       );
@@ -801,7 +759,7 @@ void main() {
       const sum = XPathDayTimeDuration(518400000000);
       expect(
         fnSum(context, [
-          const XPathSequence([d1, d2, d3]),
+          seq([d1, d2, d3]),
         ]),
         isXPathSequence([sum]),
       );
@@ -812,7 +770,7 @@ void main() {
       const d2 = XPathYearMonthDuration(10); // P10M
       expect(
         fnSum(context, [
-          const XPathSequence([d1, d2]),
+          seq([d1, d2]),
         ]),
         isXPathSequence([const XPathYearMonthDuration(22)]),
       );
@@ -821,27 +779,25 @@ void main() {
     test('throws error for mixed sequence or invalid types', () {
       expect(
         () => fnSum(context, [
-          const XPathSequence([1, XPathDayTimeDuration(86400000000)]),
+          seq([1, const XPathDayTimeDuration(86400000000)]),
         ]),
         throwsA(isXPathEvaluationException()),
       );
       expect(
         () => fnSum(context, [
-          const XPathSequence([
-            XPathYearMonthDuration(1),
-            XPathDayTimeDuration(86400000000),
+          seq([
+            const XPathYearMonthDuration(1),
+            const XPathDayTimeDuration(86400000000),
           ]),
         ]),
         throwsA(isXPathEvaluationException()),
       );
       expect(
-        () => fnSum(context, [const XPathSequence.single('not a number')]),
+        () => fnSum(context, [seq('not a number')]),
         throwsA(isXPathEvaluationException()),
       );
       expect(
-        () => fnSum(context, [
-          const XPathSequence.single(XPathDuration(months: 1, days: 1)),
-        ]),
+        () => fnSum(context, [seq(const XPathDuration(months: 1, days: 1))]),
         throwsA(isXPathEvaluationException()),
       );
     });
@@ -854,11 +810,11 @@ void main() {
       final xmlNum = XmlDocument.parse('<r>42</r>');
       final xmlNotNum = XmlDocument.parse('<r>not a number</r>');
       expect(
-        fnSum(context, [XPathSequence.single(xmlNum.rootElement)]),
+        fnSum(context, [seq(xmlNum.rootElement)]),
         isXPathSequence([42.0]),
       );
       expect(
-        () => fnSum(context, [XPathSequence.single(xmlNotNum.rootElement)]),
+        () => fnSum(context, [seq(xmlNotNum.rootElement)]),
         throwsA(
           isXPathEvaluationException(
             message: contains('Cannot cast untypedAtomic'),
@@ -867,14 +823,14 @@ void main() {
       );
       expect(
         () => fnSum(context, [
-          const XPathSequence.single({'key': 'value'}),
+          seq({'key': 'value'}),
         ]),
         throwsA(
           isXPathEvaluationException(message: contains('Cannot atomize')),
         ),
       );
       expect(
-        () => fnSum(context, [XPathSequence.single(xsNumeric.cast)]),
+        () => fnSum(context, [seq(xsNumericConstructor)]),
         throwsA(
           isXPathEvaluationException(message: contains('Cannot atomize')),
         ),
@@ -885,7 +841,7 @@ void main() {
   group('fn:doc', () {
     test('throws for missing document', () {
       expect(
-        () => fnDoc(context, [const XPathSequence.single('uri')]),
+        () => fnDoc(context, [seq('uri')]),
         throwsA(isXPathEvaluationException(message: 'Document not found: uri')),
       );
     });
@@ -901,9 +857,7 @@ void main() {
           .context(context.item)
           .copy(variables: context.variables);
       expect(
-        fnDoc(contextWithDoc, [
-          const XPathSequence.single('http://example.com/doc'),
-        ]),
+        fnDoc(contextWithDoc, [seq('http://example.com/doc')]),
         isXPathSequence([doc]),
       );
     });
@@ -911,10 +865,7 @@ void main() {
 
   group('fn:doc-available', () {
     test('returns false if not available', () {
-      expect(
-        fnDocAvailable(context, [const XPathSequence.single('uri')]),
-        isXPathSequence([false]),
-      );
+      expect(fnDocAvailable(context, [seq('uri')]), isXPathSequence([false]));
     });
 
     test('returns false for empty sequence', () {
@@ -931,9 +882,7 @@ void main() {
           .context(context.item)
           .copy(variables: context.variables);
       expect(
-        fnDocAvailable(contextWithDoc, [
-          const XPathSequence.single('http://example.com/doc'),
-        ]),
+        fnDocAvailable(contextWithDoc, [seq('http://example.com/doc')]),
         isXPathSequence([true]),
       );
     });

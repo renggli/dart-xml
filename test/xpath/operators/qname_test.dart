@@ -1,7 +1,7 @@
 import 'package:test/test.dart';
-
 import 'package:xml/src/xpath/operators/qname.dart';
-import 'package:xml/src/xpath/values/sequence.dart';
+import 'package:xml/xml.dart';
+import 'package:xml/xpath.dart';
 
 void main() {
   group('opQNameEqual', () {
@@ -11,19 +11,19 @@ void main() {
     test('equal QNames', () {
       expect(
         opQNameEqual(
-          const XPathSequence.single('a'),
-          const XPathSequence.single('a'),
+          const XPathSequence.single(XPathQName(XmlName('a'))),
+          const XPathSequence.single(XPathQName(XmlName('a'))),
         ),
-        [true],
+        XPathSequence.trueSequence,
       );
     });
     test('different QNames', () {
       expect(
         opQNameEqual(
-          const XPathSequence.single('a'),
-          const XPathSequence.single('b'),
+          const XPathSequence.single(XPathQName(XmlName('a'))),
+          const XPathSequence.single(XPathQName(XmlName('b'))),
         ),
-        [false],
+        XPathSequence.falseSequence,
       );
     });
   });

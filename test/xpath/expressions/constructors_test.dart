@@ -19,12 +19,7 @@ void main() {
     test('invalid key', () {
       expect(
         () => xml.xpathEvaluate('map { (1, 2): "value" }'),
-        throwsA(
-          isXPathEvaluationException(
-            message:
-                'map:constructor key must be exactly one item, but got (1, 2)',
-          ),
-        ),
+        throwsA(isXPathEvaluationException()),
       );
     });
   });

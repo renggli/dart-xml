@@ -2,8 +2,9 @@ import 'package:meta/meta.dart';
 
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
-import '../types/number.dart';
-import '../values/sequence.dart';
+import '../xdm/atomic/numeric.dart';
+import '../xdm/item.dart';
+import '../xdm/sequence.dart';
 
 @immutable
 class Predicate {
@@ -14,7 +15,13 @@ class Predicate {
   bool matches(XPathContext context) {
     final value = expression(context);
     final item = value.singleOrNull;
-    return item is num ? xsInteger.cast(item) == context.position : value.ebv;
+    if (item is XPathNumeric) {
+      if (item is XPathInteger) {
+        return item.value == BigInt.from(context.position);
+      }
+      return item.toDouble() == context.position.toDouble();
+    }
+    return value.effectiveBooleanValue;
   }
 }
 
@@ -29,7 +36,7 @@ class PredicateExpression implements XPathExpression {
     final items = expression(context).toList();
     final inner = context.copy();
     inner.last = items.length;
-    final matched = <Object>[];
+    final matched = <XPathItem>[];
     for (var i = 0; i < items.length; i++) {
       final item = items[i];
       inner.item = item;

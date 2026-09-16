@@ -52,7 +52,34 @@ void expectEvaluate(
   );
   expect(
     node!.xpathEvaluate(expression, configuration: configuration),
-    matcher,
+    isXPathSequence(matcher),
     reason: expression,
   );
 }
+
+XPathSequence seq(Object? value) {
+  if (value == null) return XPathSequence.empty;
+  if (value is XPathSequence) return value;
+  if (value is XPathItem) return XPathSequence.single(value);
+  if (value is Iterable) return XPathSequence(value.map(toXPathItem));
+  return XPathSequence.single(toXPathItem(value));
+}
+
+XPathItem toXPathItem(Object? value) => switch (value) {
+  final XPathItem item => item,
+  final XmlNode node => XPathNode(node),
+  final XmlName name => XPathQName(name),
+  final bool b => XPathBoolean(b),
+  final int i => XPathInteger.fromInt(i),
+  final BigInt bi => XPathInteger(bi),
+  final double d => XPathDouble(d),
+  final String s => XPathString(s),
+  final DateTime dt => XPathDateTime.fromDateTime(dt, 0),
+  final Function fn => fn.toXPathFunction(),
+  final Map<XPathAtomic, XPathSequence> m => XPathMap(m),
+  final Map<dynamic, dynamic> m => XPathMap({
+    for (final e in m.entries) toXPathItem(e.key) as XPathAtomic: seq(e.value),
+  }),
+  final List<dynamic> l => XPathArray([for (final e in l) seq(e)]),
+  _ => throw ArgumentError.value(value),
+};

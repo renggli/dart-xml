@@ -1,8 +1,9 @@
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../exceptions/evaluation_exception.dart';
-import '../types/number.dart';
-import '../values/sequence.dart';
+import '../xdm/atomic/numeric.dart';
+import '../xdm/atomic/string.dart';
+import '../xdm/sequence.dart';
 
 class RangeExpression implements XPathExpression {
   const new(this.startExpression, this.endExpression);
@@ -17,14 +18,32 @@ class RangeExpression implements XPathExpression {
     if (startSeq.isEmpty || endSeq.isEmpty) {
       return XPathSequence.empty;
     }
-    final start = xsInteger.cast(startSeq.singleOrNull!);
-    final end = xsInteger.cast(endSeq.singleOrNull!);
-    if (start > end) {
+    final start = _toInteger(startSeq);
+    final end = _toInteger(endSeq);
+    if (start.value > end.value) {
       return XPathSequence.empty;
     }
-    if (end - start > 10000000) {
-      throw XPathEvaluationException('Sequence size limit exceeded (XPDY0130)');
-    }
     return XPathSequence.range(start, end);
+  }
+
+  static XPathInteger _toInteger(XPathSequence seq) {
+    final list = seq.atomize().toList();
+    if (list.length != 1) {
+      throw XPathEvaluationException(
+        'Range expression operands must be single integer items [err:XPTY0004]',
+      );
+    }
+    final item = list.single;
+    if (item is XPathInteger) return item;
+    if (item is XPathUntypedAtomic) {
+      final parsed = BigInt.tryParse(item.stringValue.trim());
+      if (parsed != null) return XPathInteger(parsed);
+      throw XPathEvaluationException(
+        'Cannot convert untypedAtomic "${item.stringValue}" to xs:integer [err:FORG0001]',
+      );
+    }
+    throw XPathEvaluationException(
+      'Range expression operand must be an integer, got ${item.type} [err:XPTY0004]',
+    );
   }
 }

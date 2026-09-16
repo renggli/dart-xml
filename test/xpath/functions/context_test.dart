@@ -1,8 +1,8 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/configuration.dart';
 import 'package:xml/src/xpath/functions/context.dart';
-import 'package:xml/src/xpath/values/date_time.dart';
-import 'package:xml/src/xpath/values/duration.dart';
+import 'package:xml/src/xpath/xdm/atomic/date_time.dart';
+import 'package:xml/src/xpath/xdm/atomic/duration.dart';
 import 'package:xml/xml.dart';
 
 import '../../utils/matchers.dart';

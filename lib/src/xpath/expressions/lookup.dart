@@ -1,9 +1,11 @@
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../exceptions/evaluation_exception.dart';
-import '../types/number.dart';
-import '../values/sequence.dart';
-import '../values/untyped_atomic.dart';
+import '../xdm/atomic/numeric.dart';
+import '../xdm/functions/array.dart';
+import '../xdm/functions/map.dart';
+import '../xdm/item.dart';
+import '../xdm/sequence.dart';
 
 /// A postfix lookup expression (`expr?key`).
 ///
@@ -23,9 +25,9 @@ class LookupExpression implements XPathExpression {
     return XPathSequence(items.expand((item) => _lookup(context, item)));
   }
 
-  Iterable<Object> _lookup(XPathContext context, Object item) {
+  Iterable<XPathItem> _lookup(XPathContext context, XPathItem item) {
     if (key == null) return _lookupWildcard(item);
-    final keyValues = key!(context);
+    final keyValues = key!(context).atomize();
     return keyValues.expand((keyValue) => _lookupKey(item, keyValue));
   }
 }
@@ -42,10 +44,15 @@ class UnaryLookupExpression implements XPathExpression {
   @override
   XPathSequence call(XPathContext context) {
     final item = context.item;
+    if (item is! XPathItem) {
+      throw XPathEvaluationException(
+        'Context item is undefined [err:XPDY0002]',
+      );
+    }
     if (key == null) {
       return XPathSequence(_lookupWildcard(item));
     }
-    final keyValues = key!(context);
+    final keyValues = key!(context).atomize();
     return XPathSequence(
       keyValues.expand((keyValue) => _lookupKey(item, keyValue)),
     );
@@ -60,33 +67,38 @@ class LookupKey {
   final XPathExpression? key;
 }
 
-Iterable<Object> _lookupWildcard(Object item) => switch (item) {
-  Map<Object?, Object?>() => item.values.whereType<Object>(),
-  List<Object?>() => item.whereType<Object>(),
+Iterable<XPathItem> _lookupWildcard(XPathItem item) => switch (item) {
+  XPathMap() => item.entries.values.expand((v) => v),
+  XPathArray() => item.members.expand((m) => m),
   _ => throw XPathEvaluationException(
-    'Lookup requires a map or array, but got ${item.runtimeType}',
+    'Lookup requires a map or array, but got ${item.type} [err:XPTY0004]',
   ),
 };
 
-Iterable<Object> _lookupKey(Object item, Object key) => switch (item) {
-  Map<Object?, Object?>() => _lookupMapKey(item, key),
-  List<Object?>() => _lookupListIndex(item, key),
+Iterable<XPathItem> _lookupKey(XPathItem item, XPathItem key) => switch (item) {
+  XPathMap() => _lookupMapKey(item, key),
+  XPathArray() => _lookupArrayKey(item, key),
   _ => throw XPathEvaluationException(
-    'Lookup requires a map or array, but got ${item.runtimeType}',
+    'Lookup requires a map or array, but got ${item.type} [err:XPTY0004]',
   ),
 };
 
-Iterable<Object> _lookupMapKey(Map<Object?, Object?> map, Object key) {
-  final normalizedKey = key is XPathUntypedAtomic ? key.value : key;
-  final value = map[normalizedKey];
-  return value != null ? [value] : const [];
+Iterable<XPathItem> _lookupMapKey(XPathMap map, XPathItem key) {
+  final atomicKey = key.atomize();
+  final value = map.get(atomicKey);
+  return value ?? const [];
 }
 
-Iterable<Object> _lookupListIndex(List<Object?> array, Object key) {
-  final index = xsInteger.cast(key) - 1;
-  if (index < 0 || index >= array.length) {
-    throw XPathEvaluationException('Array index out of bounds: ${index + 1}');
+Iterable<XPathItem> _lookupArrayKey(XPathArray array, XPathItem key) {
+  final atomicKey = key.atomize();
+  if (atomicKey is! XPathNumeric) {
+    throw XPathEvaluationException(
+      'Array lookup key must be an integer, got ${atomicKey.type} [err:XPTY0004]',
+    );
   }
-  final value = array[index];
-  return value != null ? [value] : const [];
+  final index = atomicKey.toBigInt().toInt();
+  if (index < 1 || index > array.length) {
+    return const [];
+  }
+  return array[index - 1];
 }

@@ -1,23 +1,11 @@
-import '../../xml/utils/name.dart';
 import '../exceptions/evaluation_exception.dart';
-import '../types/boolean.dart';
-import '../types/date_time.dart';
-import '../types/duration.dart';
-import '../types/number.dart';
-import '../values/binary.dart';
-import '../values/date_time.dart';
-import '../values/duration.dart';
-import '../values/sequence.dart';
-import '../values/untyped_atomic.dart';
+import '../xdm/atomic.dart';
+import '../xdm/casting_matrix.dart';
+import '../xdm/sequence.dart';
+import '../xdm/types.dart';
 import 'comparison.dart';
 
-/// https://www.w3.org/TR/xpath-31/#id-logical-expressions
-XPathSequence opAnd(XPathSequence left, XPathSequence right) =>
-    XPathSequence.single(left.ebv && right.ebv);
-
-/// https://www.w3.org/TR/xpath-31/#id-logical-expressions
-XPathSequence opOr(XPathSequence left, XPathSequence right) =>
-    XPathSequence.single(left.ebv || right.ebv);
+export 'boolean.dart' show opAnd, opOr;
 
 /// https://www.w3.org/TR/xpath-31/#id-general-comparisons
 XPathSequence opGeneralEqual(XPathSequence left, XPathSequence right) =>
@@ -25,51 +13,112 @@ XPathSequence opGeneralEqual(XPathSequence left, XPathSequence right) =>
 
 /// https://www.w3.org/TR/xpath-31/#id-general-comparisons
 XPathSequence opGeneralNotEqual(XPathSequence left, XPathSequence right) =>
-    _compareGeneral(left, right, (a, b) => !_generalEqual(a, b));
+    _compareGeneral(left, right, _generalNotEqual);
 
 /// https://www.w3.org/TR/xpath-31/#id-general-comparisons
 XPathSequence opGeneralLessThan(XPathSequence left, XPathSequence right) =>
-    _compareGeneral(left, right, (a, b) => compare(a, b) < 0);
+    _compareGeneral(left, right, (a, b) {
+      if (a is XPathDouble && a.value.isNaN ||
+          b is XPathDouble && b.value.isNaN) {
+        return false;
+      }
+      if (a is XPathQName || b is XPathQName) {
+        throw XPathEvaluationException(
+          'Cannot compare QNames for order [err:XPTY0004]',
+        );
+      }
+      return compare(a, b) < 0;
+    });
 
 /// https://www.w3.org/TR/xpath-31/#id-general-comparisons
 XPathSequence opGeneralGreaterThan(XPathSequence left, XPathSequence right) =>
-    _compareGeneral(left, right, (a, b) => compare(a, b) > 0);
+    _compareGeneral(left, right, (a, b) {
+      if (a is XPathDouble && a.value.isNaN ||
+          b is XPathDouble && b.value.isNaN) {
+        return false;
+      }
+      if (a is XPathQName || b is XPathQName) {
+        throw XPathEvaluationException(
+          'Cannot compare QNames for order [err:XPTY0004]',
+        );
+      }
+      return compare(a, b) > 0;
+    });
 
 /// https://www.w3.org/TR/xpath-31/#id-general-comparisons
 XPathSequence opGeneralLessThanOrEqual(
   XPathSequence left,
   XPathSequence right,
-) => _compareGeneral(left, right, (a, b) => compare(a, b) <= 0);
+) => _compareGeneral(left, right, (a, b) {
+  if (a is XPathDouble && a.value.isNaN || b is XPathDouble && b.value.isNaN) {
+    return false;
+  }
+  if (a is XPathQName || b is XPathQName) {
+    throw XPathEvaluationException(
+      'Cannot compare QNames for order [err:XPTY0004]',
+    );
+  }
+  return compare(a, b) <= 0;
+});
 
 /// https://www.w3.org/TR/xpath-31/#id-general-comparisons
 XPathSequence opGeneralGreaterThanOrEqual(
   XPathSequence left,
   XPathSequence right,
-) => _compareGeneral(left, right, (a, b) => compare(a, b) >= 0);
-
-bool _generalEqual(Object a, Object b) {
-  if (a is XmlName || b is XmlName) {
-    if (a is XmlName && b is XmlName) return a == b;
-    throw XPathEvaluationException('Cannot compare $a and $b');
+) => _compareGeneral(left, right, (a, b) {
+  if (a is XPathDouble && a.value.isNaN || b is XPathDouble && b.value.isNaN) {
+    return false;
   }
-  if (a is num && b is num) {
-    if (a.isNaN || b.isNaN) return false;
+  if (a is XPathQName || b is XPathQName) {
+    throw XPathEvaluationException(
+      'Cannot compare QNames for order [err:XPTY0004]',
+    );
+  }
+  return compare(a, b) >= 0;
+});
+
+bool _generalEqual(XPathAtomic a, XPathAtomic b) {
+  if (a is XPathDouble && a.value.isNaN || b is XPathDouble && b.value.isNaN) {
+    return false;
+  }
+  if (a is XPathQName && b is XPathQName) {
     return a == b;
   }
   if (a is XPathAbstractDuration && b is XPathAbstractDuration) {
     return a == b;
   }
-  if ((a is XPathBase64Binary && b is XPathBase64Binary) ||
-      (a is XPathHexBinary && b is XPathHexBinary)) {
+  if (a is XPathBase64Binary && b is XPathBase64Binary) {
+    return a == b;
+  }
+  if (a is XPathHexBinary && b is XPathHexBinary) {
     return a == b;
   }
   return compare(a, b) == 0;
 }
 
+bool _generalNotEqual(XPathAtomic a, XPathAtomic b) {
+  if (a is XPathDouble && a.value.isNaN || b is XPathDouble && b.value.isNaN) {
+    return true;
+  }
+  if (a is XPathQName && b is XPathQName) {
+    return a != b;
+  }
+  if (a is XPathAbstractDuration && b is XPathAbstractDuration) {
+    return a != b;
+  }
+  if (a is XPathBase64Binary && b is XPathBase64Binary) {
+    return a != b;
+  }
+  if (a is XPathHexBinary && b is XPathHexBinary) {
+    return a != b;
+  }
+  return compare(a, b) != 0;
+}
+
 XPathSequence _compareGeneral(
   XPathSequence left,
   XPathSequence right,
-  bool Function(Object, Object) comparator,
+  bool Function(XPathAtomic, XPathAtomic) comparator,
 ) {
   final seq1 = left.atomize().toList();
   final seq2 = right.atomize().toList();
@@ -90,43 +139,44 @@ XPathSequence _compareGeneral(
   return XPathSequence.falseSequence;
 }
 
-(Object, Object) _coerceForGeneralComp(Object a, Object b) {
+(XPathAtomic, XPathAtomic) _coerceForGeneralComp(XPathAtomic a, XPathAtomic b) {
   if (a is XPathUntypedAtomic && b is XPathUntypedAtomic) {
-    return (a.value, b.value);
+    return (XPathString(a.value), XPathString(b.value));
   }
   if (a is XPathUntypedAtomic) {
-    return (_coerceUntyped(a.value, b), b);
+    return (_coerceUntyped(a, b), b);
   }
   if (b is XPathUntypedAtomic) {
-    return (a, _coerceUntyped(b.value, a));
+    return (a, _coerceUntyped(b, a));
   }
   return _validateComparable(a, b);
 }
 
-Object _coerceUntyped(String value, Object target) => switch (target) {
-  num() => xsDouble.cast(value),
-  bool() => xsBoolean.cast(value),
-  String() => value,
-  XPathAbstractDuration() => xsDuration.cast(value),
-  XPathAbstractDateTime() => xsDateTime.cast(value),
-  _ => value,
-};
+XPathAtomic _coerceUntyped(XPathUntypedAtomic untyped, XPathAtomic target) {
+  if (target is XPathNumeric) {
+    return castAtomic(untyped, xsDouble);
+  }
+  if (target is XPathString || target is XPathAnyUri) {
+    return XPathString(untyped.value);
+  }
+  return castAtomic(untyped, target.type);
+}
 
-(Object, Object) _validateComparable(Object a, Object b) {
-  if ((a is num && b is num) ||
-      (a is String && b is String) ||
-      (a is bool && b is bool) ||
+(XPathAtomic, XPathAtomic) _validateComparable(XPathAtomic a, XPathAtomic b) {
+  if ((a is XPathNumeric && b is XPathNumeric) ||
+      (a is XPathString && b is XPathString) ||
+      (a is XPathAnyUri && b is XPathAnyUri) ||
+      (a is XPathString && b is XPathAnyUri) ||
+      (a is XPathAnyUri && b is XPathString) ||
+      (a is XPathBoolean && b is XPathBoolean) ||
       (a is XPathAbstractDateTime && b is XPathAbstractDateTime) ||
       (a is XPathAbstractDuration && b is XPathAbstractDuration) ||
-      (a is DateTime && b is DateTime) ||
-      (a is Duration && b is Duration) ||
-      (a is XmlName && b is XmlName) ||
+      (a is XPathQName && b is XPathQName) ||
       (a is XPathBase64Binary && b is XPathBase64Binary) ||
-      (a is XPathHexBinary && b is XPathHexBinary) ||
-      (a is List && b is List)) {
+      (a is XPathHexBinary && b is XPathHexBinary)) {
     return (a, b);
   }
   throw XPathEvaluationException(
-    'Cannot compare ${a.runtimeType} and ${b.runtimeType}',
+    'Cannot compare ${a.type} and ${b.type} [err:XPTY0004]',
   );
 }

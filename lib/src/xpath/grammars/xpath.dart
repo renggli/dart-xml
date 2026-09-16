@@ -4,7 +4,6 @@ import 'package:petitparser/parser.dart';
 import '../../xml/entities/null_mapping.dart';
 import '../../xml_events/parser.dart';
 import '../definitions/cardinality.dart';
-import '../definitions/type.dart';
 import '../evaluation/expression.dart';
 import '../evaluation/operators.dart';
 import '../evaluation/types.dart';
@@ -28,13 +27,10 @@ import '../operators/arithmetic.dart' as arithmetic;
 import '../operators/comparison.dart' as comparison;
 import '../operators/general.dart' as general;
 import '../operators/node.dart' as nodes;
-import '../types/any.dart';
-import '../types/array.dart';
-import '../types/function.dart';
-import '../types/map.dart';
-import '../types/node.dart';
-import '../types/sequence.dart';
-import '../values/sequence.dart';
+import '../xdm/atomic/numeric.dart';
+import '../xdm/atomic/string.dart';
+import '../xdm/sequence.dart';
+import '../xdm/types.dart';
 
 // XPath 3.1 Grammar: https://www.w3.org/TR/xpath-31/
 class XPathGrammar {
@@ -583,7 +579,9 @@ class XPathGrammar {
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-KeySpecifier
   Parser<XPathExpression?> keySpecifier() => [
-    ref0(ncName).map((name) => LiteralExpression(XPathSequence.single(name))),
+    ref0(
+      ncName,
+    ).map((name) => LiteralExpression(XPathSequence.single(XPathString(name)))),
     ref0(integerLiteral)
         .map((value) => LiteralExpression(XPathSequence.single(value))),
     ref0(parenthesizedExpr),
@@ -624,25 +622,26 @@ class XPathGrammar {
       );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-NumericLiteral
-  Parser<num> numericLiteral() => [
+  Parser<XPathNumeric> numericLiteral() => [
     ref0(doubleLiteral),
     ref0(decimalLiteral),
     ref0(integerLiteral),
   ].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-IntegerLiteral
-  Parser<int> integerLiteral() => trim(digit().plusString()).map(int.parse);
+  Parser<XPathInteger> integerLiteral() =>
+      trim(digit().plusString()).map(XPathInteger.parse);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-DecimalLiteral
-  Parser<double> decimalLiteral() => trim(
+  Parser<XPathDecimal> decimalLiteral() => trim(
     [
       seq2(char('.'), digit().plus()),
       seq3(digit().plus(), char('.'), digit().star()),
     ].toChoiceParser(),
-  ).flatten().map(double.parse);
+  ).flatten().map(XPathDecimal.parse);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-DoubleLiteral
-  Parser<double> doubleLiteral() => trim(
+  Parser<XPathDouble> doubleLiteral() => trim(
     seq4(
       [
         seq2(char('.'), digit().plus()),
@@ -652,15 +651,15 @@ class XPathGrammar {
       anyOf('+-').optional(),
       digit().plus(),
     ),
-  ).flatten().map(double.parse);
+  ).flatten().map(XPathDouble.parse);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-StringLiteral
-  Parser<String> stringLiteral() => trim(
+  Parser<XPathString> stringLiteral() => trim(
     [
       ref0(xmlGrammar.attributeValueDoubleQuote),
       ref0(xmlGrammar.attributeValueSingleQuote),
     ].toChoiceParser(),
-  ).map((tuple) => tuple.$1);
+  ).map((tuple) => XPathString(tuple.$1));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-VarRef
   Parser<XPathExpression> varRef() => ref0(varName).map(VariableExpression.new);
@@ -748,7 +747,7 @@ class XPathGrammar {
     ref0(eqName),
     token('#'),
     ref0(integerLiteral),
-  ).map3((name, _, arity) => NamedFunctionExpression(name, arity));
+  ).map3((name, _, arity) => NamedFunctionExpression(name, arity.asInt));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-InlineFunctionExpr
   Parser<XPathExpression> inlineFunctionExpr() =>
@@ -774,22 +773,22 @@ class XPathGrammar {
   ).map3((_, name, _) => name);
 
   // https://www.w3.org/TR/xpath-30/#prod-xpath30-TypeDeclaration
-  Parser<XPathType<Object>> typeDeclaration() =>
+  Parser<XPathType> typeDeclaration() =>
       seq2(token('as'), ref0(sequenceType)).map2((_, type) => type);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ArrayTest
-  Parser<XPathType<Object>> arrayTest() =>
+  Parser<XPathType> arrayTest() =>
       [ref0(anyArrayTest), ref0(typedArrayTest)].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-AnyArrayTest
-  Parser<XPathType<Object>> anyArrayTest() => seq3(
+  Parser<XPathType> anyArrayTest() => seq3(
     token('array'),
     token('('),
     token('*'),
   ).skip(after: token(')')).constant(xsArray);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-TypedArrayTest
-  Parser<XPathType<Object>> typedArrayTest() => seq4(
+  Parser<XPathType> typedArrayTest() => seq4(
     token('array'),
     token('('),
     ref0(sequenceType),
@@ -797,14 +796,14 @@ class XPathGrammar {
   ).constant(xsArray); // For now treat typed arrays as generic arrays
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ParenthesizedItemType
-  Parser<XPathType<Object>> parenthesizedItemType() =>
+  Parser<XPathType> parenthesizedItemType() =>
       ref0(itemType).skip(before: token('('), after: token(')'));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-SingleType
-  Parser<XPathType<Object>> singleType() =>
+  Parser<XPathType> singleType() =>
       seq2(ref0(atomicOrUnionType), token('?').optional()).map2(
         (type, opt) => XPathSequenceType(
-          type: type,
+          itemType: type,
           cardinality: opt == null
               ? XPathCardinality.exactlyOne
               : XPathCardinality.zeroOrOne,
@@ -828,11 +827,11 @@ class XPathGrammar {
   ).map2((uri, name) => 'Q{$uri}$name');
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-SequenceType
-  Parser<XPathType<Object>> sequenceType() => <Parser<XPathType<Object>>>[
+  Parser<XPathType> sequenceType() => <Parser<XPathType>>[
     token('empty-sequence()').constant(xsEmptySequence),
     seq2(ref0(itemType), ref0(occurrenceIndicator).optional()).map2(
       (type, occurrence) => XPathSequenceType(
-        type: type,
+        itemType: type,
         cardinality: occurrence ?? XPathCardinality.exactlyOne,
       ),
     ),
@@ -846,9 +845,9 @@ class XPathGrammar {
   ].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ItemType
-  Parser<XPathType<Object>> itemType() => <Parser<XPathType<Object>>>[
+  Parser<XPathType> itemType() => <Parser<XPathType>>[
     ref0(kindTest).map(NodeTestType.new),
-    token('item()').constant(xsAny),
+    token('item()').constant(xsItem),
     ref0(functionTest),
     ref0(mapTest),
     ref0(arrayTest),
@@ -857,23 +856,23 @@ class XPathGrammar {
   ].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-AtomicOrUnionType
-  Parser<XPathType<Object>> atomicOrUnionType() => ref0(eqName).map(
+  Parser<XPathType> atomicOrUnionType() => ref0(eqName).map(
     (name) => standardTypes[name] ?? _unimplemented('AtomicOrUnionType', name),
   );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-FunctionTest
-  Parser<XPathType<Object>> functionTest() =>
+  Parser<XPathType> functionTest() =>
       [ref0(anyFunctionTest), ref0(typedFunctionTest)].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-AnyFunctionTest
-  Parser<XPathType<Object>> anyFunctionTest() => seq3(
+  Parser<XPathType> anyFunctionTest() => seq3(
     token('function'),
     token('('),
     token('*'),
   ).skip(after: token(')')).constant(xsFunction);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-TypedFunctionTest
-  Parser<XPathType<Object>> typedFunctionTest() => seq4(
+  Parser<XPathType> typedFunctionTest() => seq4(
     token('function'),
     token('('),
     ref0(sequenceType).starSeparated(token(',')),
@@ -881,18 +880,18 @@ class XPathGrammar {
   ).seq(seq2(token('as'), ref0(sequenceType))).constant(xsFunction);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-MapTest
-  Parser<XPathType<Object>> mapTest() =>
+  Parser<XPathType> mapTest() =>
       [ref0(anyMapTest), ref0(typedMapTest)].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-AnyMapTest
-  Parser<XPathType<Object>> anyMapTest() => seq3(
+  Parser<XPathType> anyMapTest() => seq3(
     token('map'),
     token('('),
     token('*'),
   ).skip(after: token(')')).constant(xsMap);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-TypedMapTest
-  Parser<XPathType<Object>> typedMapTest() => seq4(
+  Parser<XPathType> typedMapTest() => seq4(
     token('map'),
     token('('),
     seq3(
@@ -974,7 +973,10 @@ class XPathGrammar {
   Parser<NodeTest> piTest() => seq4(
     token('processing-instruction'),
     token('('),
-    [ref0(ncName), ref0(stringLiteral)].toChoiceParser().optional(),
+    [
+      ref0(ncName),
+      ref0(stringLiteral).map((s) => s.value),
+    ].toChoiceParser().optional(),
     token(')'),
   ).map4((_, _, target, _) => ProcessingTypeTest(target: target));
 

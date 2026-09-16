@@ -2,205 +2,176 @@ import '../../xml/nodes/attribute.dart';
 import '../../xml/nodes/document.dart';
 import '../../xml/nodes/document_fragment.dart';
 import '../../xml/nodes/element.dart';
-import '../../xml/nodes/node.dart';
 import '../../xml/nodes/processing.dart';
 import '../../xml/utils/name.dart';
-import '../definitions/cardinality.dart';
-import '../definitions/function.dart';
-import '../evaluation/context.dart';
-import '../types/any.dart';
-import '../types/node.dart';
-import '../types/sequence.dart';
-import '../types/string.dart';
-import '../values/sequence.dart';
+import '../xdm/atomic/boolean.dart';
+import '../xdm/atomic/qname.dart';
+import '../xdm/atomic/string.dart';
+import '../xdm/function_item.dart';
+import '../xdm/item.dart';
+import '../xdm/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-node-name
-const fnNodeName = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:node-name'),
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsNode,
-      cardinality: XPathCardinality.zeroOrOne,
-      defaultValue: _defaultToContextItem,
+final fnNodeName = XPathFunctionItem.overloaded(
+  const XmlName.qualified('fn:node-name'),
+  {
+    0: XPathFunctionItem.fn0(
+      const XmlName.qualified('fn:node-name'),
+      (context) => _evalNodeName(context.item as XPathNode?),
     ),
-  ],
-  function: _fnNodeName,
+    1: XPathFunctionItem.fn1(
+      const XmlName.qualified('fn:node-name'),
+      (context, arg) => _evalNodeName(arg.firstOrNull as XPathNode?),
+    ),
+  },
 );
 
-XPathSequence _fnNodeName(XPathContext context, [XmlNode? node]) {
-  if (node == null) return XPathSequence.empty;
-  if (node is XmlElement) return XPathSequence.single(node.name);
-  if (node is XmlAttribute) return XPathSequence.single(node.name);
+XPathSequence _evalNodeName(XPathNode? nodeItem) {
+  if (nodeItem == null) return XPathSequence.empty;
+  final node = nodeItem.node;
+  if (node is XmlElement) return XPathSequence.single(XPathQName(node.name));
+  if (node is XmlAttribute) return XPathSequence.single(XPathQName(node.name));
   if (node is XmlProcessing) {
-    return XPathSequence.single(XmlName.qualified(node.target));
+    return XPathSequence.single(XPathQName(XmlName.qualified(node.target)));
   }
   return XPathSequence.empty;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-nilled
-const fnNilled = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:nilled'),
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsNode,
-      cardinality: XPathCardinality.zeroOrOne,
-      defaultValue: _defaultToContextItem,
+final fnNilled = XPathFunctionItem.overloaded(
+  const XmlName.qualified('fn:nilled'),
+  {
+    0: XPathFunctionItem.fn0(
+      const XmlName.qualified('fn:nilled'),
+      (context) => _evalNilled(context.item as XPathNode?),
     ),
-  ],
-  function: _fnNilled,
+    1: XPathFunctionItem.fn1(
+      const XmlName.qualified('fn:nilled'),
+      (context, arg) => _evalNilled(arg.firstOrNull as XPathNode?),
+    ),
+  },
 );
 
-XPathSequence _fnNilled(XPathContext context, [XmlNode? node]) {
-  if (node == null) return XPathSequence.empty;
+XPathSequence _evalNilled(XPathNode? nodeItem) {
+  if (nodeItem == null) return XPathSequence.empty;
+  final node = nodeItem.node;
   if (node is XmlElement) {
     // TODO: Implement proper nilled check based on xsi:nil attribute
-    return XPathSequence.falseSequence;
+    return const XPathSequence.single(XPathBoolean.xpathFalse);
   }
   return XPathSequence.empty;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-string
-const fnString = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:string'),
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsSequence,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-  ],
-  function: _fnString,
+final fnString = XPathFunctionItem.overloaded(
+  const XmlName.qualified('fn:string'),
+  {
+    0: XPathFunctionItem.fn0(const XmlName.qualified('fn:string'), (context) {
+      final item = context.item;
+      return XPathSequence.single(XPathString((item as XPathItem).stringValue));
+    }),
+    1: XPathFunctionItem.fn1(const XmlName.qualified('fn:string'), (
+      context,
+      arg,
+    ) {
+      final item = arg.firstOrNull;
+      if (item == null) return const XPathSequence.single(XPathString.empty);
+      return XPathSequence.single(XPathString(item.stringValue));
+    }),
+  },
 );
-
-XPathSequence _fnString(XPathContext context, [XPathSequence? arg]) {
-  if (arg == null) return XPathSequence.single(xsString.cast(context.item));
-  if (arg.isEmpty) return XPathSequence.emptyString;
-  return XPathSequence.single(xsString.cast(arg));
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-data
-const fnData = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:data'),
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
+final fnData = XPathFunctionItem.overloaded(
+  const XmlName.qualified('fn:data'),
+  {
+    0: XPathFunctionItem.fn0(
+      const XmlName.qualified('fn:data'),
+      (context) => XPathSequence([(context.item as XPathItem).atomize()]),
     ),
-  ],
-  function: _fnData,
+    1: XPathFunctionItem.fn1(
+      const XmlName.qualified('fn:data'),
+      (context, arg) => XPathSequence(arg.atomize()),
+    ),
+  },
 );
-
-XPathSequence _fnData(XPathContext context, [XPathSequence? arg]) {
-  if (arg == null) return _fnData(context, xsSequence.cast(context.item));
-  return XPathSequence(arg.atomize());
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-base-uri
-const fnBaseUri = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:base-uri'),
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsNode,
-      cardinality: XPathCardinality.zeroOrOne,
-      defaultValue: _defaultToContextItem,
-    ),
-  ],
-  function: _fnBaseUri,
-);
-
 // TODO: Add support for xml:base and tracking source URI
-XPathSequence _fnBaseUri(XPathContext context, [XmlNode? arg]) =>
-    XPathSequence.empty;
+final fnBaseUri = XPathFunctionItem.overloaded(
+  const XmlName.qualified('fn:base-uri'),
+  {
+    0: XPathFunctionItem.fn0(
+      const XmlName.qualified('fn:base-uri'),
+      (context) => XPathSequence.empty,
+    ),
+    1: XPathFunctionItem.fn1(
+      const XmlName.qualified('fn:base-uri'),
+      (context, arg) => XPathSequence.empty,
+    ),
+  },
+);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-document-uri
-const fnDocumentUri = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:document-uri'),
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsNode,
-      cardinality: XPathCardinality.zeroOrOne,
-      defaultValue: _defaultToContextItem,
-    ),
-  ],
-  function: _fnDocumentUri,
-);
-
 // TODO: Add support for tracking source document URI
-XPathSequence _fnDocumentUri(XPathContext context, [XmlNode? arg]) =>
-    XPathSequence.empty;
+final fnDocumentUri = XPathFunctionItem.overloaded(
+  const XmlName.qualified('fn:document-uri'),
+  {
+    0: XPathFunctionItem.fn0(
+      const XmlName.qualified('fn:document-uri'),
+      (context) => XPathSequence.empty,
+    ),
+    1: XPathFunctionItem.fn1(
+      const XmlName.qualified('fn:document-uri'),
+      (context, arg) => XPathSequence.empty,
+    ),
+  },
+);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-serialize
-const fnSerialize = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:serialize'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
+final fnSerialize = XPathFunctionItem.overloaded(
+  const XmlName.qualified('fn:serialize'),
+  {
+    1: XPathFunctionItem.fn1(
+      const XmlName.qualified('fn:serialize'),
+      (context, arg) => _evalSerialize(arg),
     ),
-  ],
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'params',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrOne,
+    2: XPathFunctionItem.fn2(
+      const XmlName.qualified('fn:serialize'),
+      (context, arg, params) => _evalSerialize(arg),
     ),
-  ],
-  function: _fnSerialize,
+  },
 );
 
-XPathSequence _fnSerialize(
-  XPathContext context,
-  XPathSequence arg, [
-  Object? params,
-]) {
+XPathSequence _evalSerialize(XPathSequence arg) {
   // TODO: Add support for serialization parameters
   final result = arg
-      .map((item) => item is XmlNode ? item.toXmlString() : xsString.cast(item))
+      .map(
+        (item) =>
+            item is XPathNode ? item.node.toXmlString() : item.stringValue,
+      )
       .join();
-  return XPathSequence.single(result);
+  return XPathSequence.single(XPathString(result));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-parse-xml
-const fnParseXml = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:parse-xml'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsString,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _fnParseXml,
+final fnParseXml = XPathFunctionItem.fn1(
+  const XmlName.qualified('fn:parse-xml'),
+  (context, arg) {
+    final str = arg.firstOrNull;
+    if (str == null) return XPathSequence.empty;
+    return XPathSequence.single(XPathNode(XmlDocument.parse(str.stringValue)));
+  },
 );
-
-XPathSequence _fnParseXml(XPathContext context, String? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(XmlDocument.parse(arg));
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-parse-xml-fragment
-const fnParseXmlFragment = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:parse-xml-fragment'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsString,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _fnParseXmlFragment,
+final fnParseXmlFragment = XPathFunctionItem.fn1(
+  const XmlName.qualified('fn:parse-xml-fragment'),
+  (context, arg) {
+    final str = arg.firstOrNull;
+    if (str == null) return XPathSequence.empty;
+    return XPathSequence.single(
+      XPathNode(XmlDocumentFragment.parse(str.stringValue)),
+    );
+  },
 );
-
-XmlNode _defaultToContextItem(XPathContext context) =>
-    xsNode.cast(context.item);
-
-XPathSequence _fnParseXmlFragment(XPathContext context, String? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(XmlDocumentFragment.parse(arg));
-}

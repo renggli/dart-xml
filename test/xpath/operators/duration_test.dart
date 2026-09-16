@@ -1,12 +1,15 @@
 import 'package:test/test.dart';
-
 import 'package:xml/src/xpath/operators/duration.dart';
-import 'package:xml/src/xpath/values/duration.dart';
-import 'package:xml/src/xpath/values/sequence.dart';
+import 'package:xml/xpath.dart';
 
 import '../../utils/matchers.dart';
 
-XPathSequence seq(Object value) => XPathSequence.single(value);
+XPathSequence seq(Object value) => XPathSequence.single(switch (value) {
+  final XPathItem item => item,
+  final int v => XPathInteger.fromInt(v),
+  final double v => XPathDouble(v),
+  _ => throw ArgumentError.value(value),
+});
 
 void main() {
   // Helpers.
@@ -20,44 +23,59 @@ void main() {
 
   group('opDurationEqual', () {
     test('equal', () {
-      expect(opDurationEqual(seq(d1), seq(d2)), [true]);
+      expect(opDurationEqual(seq(d1), seq(d2)), XPathSequence.trueSequence);
     });
     test('not equal', () {
-      expect(opDurationEqual(seq(d1), seq(d3)), [false]);
+      expect(opDurationEqual(seq(d1), seq(d3)), XPathSequence.falseSequence);
     });
     test('P1Y eq P12M (yearMonth equality)', () {
       const p1y = XPathYearMonthDuration(12);
       const p12m = XPathYearMonthDuration(12);
-      expect(opDurationEqual(seq(p1y), seq(p12m)), [true]);
+      expect(opDurationEqual(seq(p1y), seq(p12m)), XPathSequence.trueSequence);
     });
     test('P1Y ne P365D (yearMonth vs dayTime differ)', () {
       const p1y = XPathYearMonthDuration(12);
       const p365d = XPathDayTimeDuration(31536000000000);
-      expect(opDurationEqual(seq(p1y), seq(p365d)), [false]);
+      expect(
+        opDurationEqual(seq(p1y), seq(p365d)),
+        XPathSequence.falseSequence,
+      );
     });
   });
 
   group('opYearMonthDurationLessThan', () {
     test('less than', () {
-      expect(opYearMonthDurationLessThan(seq(d1Ymd), seq(d2Ymd)), [true]);
+      expect(
+        opYearMonthDurationLessThan(seq(d1Ymd), seq(d2Ymd)),
+        XPathSequence.trueSequence,
+      );
     });
   });
 
   group('opYearMonthDurationGreaterThan', () {
     test('greater than', () {
-      expect(opYearMonthDurationGreaterThan(seq(d2Ymd), seq(d1Ymd)), [true]);
+      expect(
+        opYearMonthDurationGreaterThan(seq(d2Ymd), seq(d1Ymd)),
+        XPathSequence.trueSequence,
+      );
     });
   });
 
   group('opDayTimeDurationLessThan', () {
     test('less than', () {
-      expect(opDayTimeDurationLessThan(seq(d1Dtd), seq(d2Dtd)), [true]);
+      expect(
+        opDayTimeDurationLessThan(seq(d1Dtd), seq(d2Dtd)),
+        XPathSequence.trueSequence,
+      );
     });
   });
 
   group('opDayTimeDurationGreaterThan', () {
     test('greater than', () {
-      expect(opDayTimeDurationGreaterThan(seq(d2Dtd), seq(d1Dtd)), [true]);
+      expect(
+        opDayTimeDurationGreaterThan(seq(d2Dtd), seq(d1Dtd)),
+        XPathSequence.trueSequence,
+      );
     });
   });
 
@@ -125,7 +143,7 @@ void main() {
     test('divide', () {
       expect(
         opDivideYearMonthDurationByYearMonthDuration(seq(d2Ymd), seq(d1Ymd)),
-        [2.0],
+        isXPathSequence([2.0]),
       );
     });
     test('divide by zero throws', () {
@@ -201,15 +219,19 @@ void main() {
 
   group('opDivideDayTimeDurationByDayTimeDuration', () {
     test('divide', () {
-      expect(opDivideDayTimeDurationByDayTimeDuration(seq(d2Dtd), seq(d1Dtd)), [
-        2.0,
-      ]);
+      expect(
+        opDivideDayTimeDurationByDayTimeDuration(seq(d2Dtd), seq(d1Dtd)),
+        isXPathSequence([2.0]),
+      );
     });
   });
 
   group('opDivideDurationByDuration', () {
     test('divide', () {
-      expect(opDivideDurationByDuration(seq(d2Dtd), seq(d1Dtd)), [2.0]);
+      expect(
+        opDivideDurationByDuration(seq(d2Dtd), seq(d1Dtd)),
+        isXPathSequence([2.0]),
+      );
     });
     test('divide by zero throws', () {
       expect(

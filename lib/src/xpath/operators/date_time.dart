@@ -1,8 +1,6 @@
-import '../types/date_time.dart';
-import '../types/duration.dart';
-import '../values/date_time.dart';
-import '../values/duration.dart';
-import '../values/sequence.dart';
+import '../xdm/atomic/date_time.dart';
+import '../xdm/atomic/duration.dart';
+import '../xdm/sequence.dart';
 
 // ---------------------------------------------------------------------------
 // DateTime comparison
@@ -11,74 +9,59 @@ import '../values/sequence.dart';
 /// https://www.w3.org/TR/xpath-functions-31/#func-dateTime-equal
 XPathSequence opDateTimeEqual(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  return XPathSequence.single(
-    xsDateTime.cast(left).compareTo(xsDateTime.cast(right)) == 0,
-  );
+  return (left.single as XPathAbstractDateTime).compareTo(
+            right.single as XPathAbstractDateTime,
+          ) ==
+          0
+      ? XPathSequence.trueSequence
+      : XPathSequence.falseSequence;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-dateTime-less-than
 XPathSequence opDateTimeLessThan(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  return XPathSequence.single(
-    xsDateTime.cast(left).compareTo(xsDateTime.cast(right)) < 0,
-  );
+  return (left.single as XPathAbstractDateTime).compareTo(
+            right.single as XPathAbstractDateTime,
+          ) <
+          0
+      ? XPathSequence.trueSequence
+      : XPathSequence.falseSequence;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-dateTime-greater-than
 XPathSequence opDateTimeGreaterThan(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  return XPathSequence.single(
-    xsDateTime.cast(left).compareTo(xsDateTime.cast(right)) > 0,
-  );
+  return (left.single as XPathAbstractDateTime).compareTo(
+            right.single as XPathAbstractDateTime,
+          ) >
+          0
+      ? XPathSequence.trueSequence
+      : XPathSequence.falseSequence;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-date-equal
-XPathSequence opDateEqual(XPathSequence left, XPathSequence right) {
-  if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  return XPathSequence.single(
-    xsDate.cast(left).compareTo(xsDate.cast(right)) == 0,
-  );
-}
+XPathSequence opDateEqual(XPathSequence left, XPathSequence right) =>
+    opDateTimeEqual(left, right);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-date-less-than
-XPathSequence opDateLessThan(XPathSequence left, XPathSequence right) {
-  if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  return XPathSequence.single(
-    xsDate.cast(left).compareTo(xsDate.cast(right)) < 0,
-  );
-}
+XPathSequence opDateLessThan(XPathSequence left, XPathSequence right) =>
+    opDateTimeLessThan(left, right);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-date-greater-than
-XPathSequence opDateGreaterThan(XPathSequence left, XPathSequence right) {
-  if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  return XPathSequence.single(
-    xsDate.cast(left).compareTo(xsDate.cast(right)) > 0,
-  );
-}
+XPathSequence opDateGreaterThan(XPathSequence left, XPathSequence right) =>
+    opDateTimeGreaterThan(left, right);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-time-equal
-XPathSequence opTimeEqual(XPathSequence left, XPathSequence right) {
-  if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  return XPathSequence.single(
-    xsTime.cast(left).compareTo(xsTime.cast(right)) == 0,
-  );
-}
+XPathSequence opTimeEqual(XPathSequence left, XPathSequence right) =>
+    opDateTimeEqual(left, right);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-time-less-than
-XPathSequence opTimeLessThan(XPathSequence left, XPathSequence right) {
-  if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  return XPathSequence.single(
-    xsTime.cast(left).compareTo(xsTime.cast(right)) < 0,
-  );
-}
+XPathSequence opTimeLessThan(XPathSequence left, XPathSequence right) =>
+    opDateTimeLessThan(left, right);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-time-greater-than
-XPathSequence opTimeGreaterThan(XPathSequence left, XPathSequence right) {
-  if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  return XPathSequence.single(
-    xsTime.cast(left).compareTo(xsTime.cast(right)) > 0,
-  );
-}
+XPathSequence opTimeGreaterThan(XPathSequence left, XPathSequence right) =>
+    opDateTimeGreaterThan(left, right);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-gYearMonth-equal
 XPathSequence opGYearMonthEqual(XPathSequence left, XPathSequence right) =>
@@ -107,30 +90,27 @@ XPathSequence opGDayEqual(XPathSequence left, XPathSequence right) =>
 /// https://www.w3.org/TR/xpath-functions-31/#func-subtract-dateTimes
 XPathSequence opSubtractDateTimes(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  final diff = xsDateTime
-      .cast(left)
-      .toDateTime()
-      .difference(xsDateTime.cast(right).toDateTime());
+  final diff = (left.single as XPathDateTime).toDateTime().difference(
+    (right.single as XPathDateTime).toDateTime(),
+  );
   return XPathSequence.single(XPathDayTimeDuration(diff.inMicroseconds));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-subtract-dates
 XPathSequence opSubtractDates(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  final diff = xsDate
-      .cast(left)
-      .toDateTime()
-      .difference(xsDate.cast(right).toDateTime());
+  final diff = (left.single as XPathDate).toDateTime().difference(
+    (right.single as XPathDate).toDateTime(),
+  );
   return XPathSequence.single(XPathDayTimeDuration(diff.inMicroseconds));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-subtract-times
 XPathSequence opSubtractTimes(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  final diff = xsTime
-      .cast(left)
-      .toDateTime()
-      .difference(xsTime.cast(right).toDateTime());
+  final diff = (left.single as XPathTime).toDateTime().difference(
+    (right.single as XPathTime).toDateTime(),
+  );
   return XPathSequence.single(XPathDayTimeDuration(diff.inMicroseconds));
 }
 
@@ -212,8 +192,8 @@ XPathAbstractDateTime _wrapDateTime(
 /// https://www.w3.org/TR/xpath-functions-31/#func-add-duration-to-dateTime
 XPathSequence opAddDurationToDateTime(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  final dt = xsDateTime.cast(left);
-  final dur = xsDuration.cast(right);
+  final dt = left.single as XPathDateTime;
+  final dur = right.single as XPathAbstractDuration;
   var result = _addMonthsToDateTime(dt.toDateTime(), dur.totalMonths);
   result = result.add(dur.toDuration());
   return XPathSequence.single(_wrapDateTime(result, dt));
@@ -225,8 +205,8 @@ XPathSequence opSubtractDurationFromDateTime(
   XPathSequence right,
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  final dt = xsDateTime.cast(left);
-  final dur = xsDuration.cast(right);
+  final dt = left.single as XPathDateTime;
+  final dur = right.single as XPathAbstractDuration;
   var result = _addMonthsToDateTime(dt.toDateTime(), -dur.totalMonths);
   result = result.subtract(dur.toDuration());
   return XPathSequence.single(_wrapDateTime(result, dt));
@@ -238,8 +218,8 @@ XPathSequence opAddYearMonthDurationToDateTime(
   XPathSequence right,
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  final dt = xsDateTime.cast(left);
-  final months = xsYearMonthDuration.cast(right).totalMonths;
+  final dt = left.single as XPathDateTime;
+  final months = (right.single as XPathYearMonthDuration).totalMonths;
   return XPathSequence.single(
     _wrapDateTime(_addMonthsToDateTime(dt.toDateTime(), months), dt),
   );
@@ -251,9 +231,9 @@ XPathSequence opAddDayTimeDurationToDateTime(
   XPathSequence right,
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  final dt = xsDateTime.cast(left);
+  final dt = left.single as XPathDateTime;
   final result = dt.toDateTime().add(
-    xsDayTimeDuration.cast(right).toDuration(),
+    (right.single as XPathDayTimeDuration).toDuration(),
   );
   return XPathSequence.single(_wrapDateTime(result, dt));
 }
@@ -264,8 +244,8 @@ XPathSequence opSubtractYearMonthDurationFromDateTime(
   XPathSequence right,
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  final dt = xsDateTime.cast(left);
-  final months = xsYearMonthDuration.cast(right).totalMonths;
+  final dt = left.single as XPathDateTime;
+  final months = (right.single as XPathYearMonthDuration).totalMonths;
   return XPathSequence.single(
     _wrapDateTime(_addMonthsToDateTime(dt.toDateTime(), -months), dt),
   );
@@ -277,9 +257,9 @@ XPathSequence opSubtractDayTimeDurationFromDateTime(
   XPathSequence right,
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  final dt = xsDateTime.cast(left);
+  final dt = left.single as XPathDateTime;
   final result = dt.toDateTime().subtract(
-    xsDayTimeDuration.cast(right).toDuration(),
+    (right.single as XPathDayTimeDuration).toDuration(),
   );
   return XPathSequence.single(_wrapDateTime(result, dt));
 }
@@ -294,8 +274,8 @@ XPathSequence opAddYearMonthDurationToDate(
   XPathSequence right,
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  final date = xsDate.cast(left);
-  final months = xsYearMonthDuration.cast(right).totalMonths;
+  final date = left.single as XPathDate;
+  final months = (right.single as XPathYearMonthDuration).totalMonths;
   return XPathSequence.single(
     XPathDate.fromDateTime(
       _addMonthsToDateTime(date.toDateTime(), months),
@@ -313,8 +293,8 @@ XPathSequence opAddDayTimeDurationToDate(
   XPathSequence right,
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  final date = xsDate.cast(left);
-  final dur = xsDayTimeDuration.cast(right);
+  final date = left.single as XPathDate;
+  final dur = right.single as XPathDayTimeDuration;
   final added = date.toDateTime().add(dur.toDuration());
   return XPathSequence.single(
     XPathDate(added.year, added.month, added.day, date.timezoneOffsetMinutes),
@@ -327,8 +307,8 @@ XPathSequence opSubtractYearMonthDurationFromDate(
   XPathSequence right,
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  final date = xsDate.cast(left);
-  final months = xsYearMonthDuration.cast(right).totalMonths;
+  final date = left.single as XPathDate;
+  final months = (right.single as XPathYearMonthDuration).totalMonths;
   return XPathSequence.single(
     XPathDate.fromDateTime(
       _addMonthsToDateTime(date.toDateTime(), -months),
@@ -343,8 +323,8 @@ XPathSequence opSubtractDayTimeDurationFromDate(
   XPathSequence right,
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  final date = xsDate.cast(left);
-  final dur = xsDayTimeDuration.cast(right);
+  final date = left.single as XPathDate;
+  final dur = right.single as XPathDayTimeDuration;
   final subtracted = date.toDateTime().subtract(dur.toDuration());
   return XPathSequence.single(
     XPathDate(
@@ -366,8 +346,8 @@ XPathSequence opAddDayTimeDurationToTime(
   XPathSequence right,
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  final time = xsTime.cast(left);
-  final dur = xsDayTimeDuration.cast(right);
+  final time = left.single as XPathTime;
+  final dur = right.single as XPathDayTimeDuration;
   final added = time.toDateTime().add(dur.toDuration());
   return XPathSequence.single(
     XPathTime(
@@ -387,8 +367,8 @@ XPathSequence opSubtractDayTimeDurationFromTime(
   XPathSequence right,
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  final time = xsTime.cast(left);
-  final dur = xsDayTimeDuration.cast(right);
+  final time = left.single as XPathTime;
+  final dur = right.single as XPathDayTimeDuration;
   final subtracted = time.toDateTime().subtract(dur.toDuration());
   return XPathSequence.single(
     XPathTime(

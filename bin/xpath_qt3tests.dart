@@ -9,9 +9,6 @@ import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
-import 'package:xml/src/xpath/types/boolean.dart';
-import 'package:xml/src/xpath/types/number.dart';
-import 'package:xml/src/xpath/types/string.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -392,7 +389,7 @@ void verifyResult(XmlElement element, Object result, XPathContext context) {
           .copy(variables: {'result': result})
           .context()
           .evaluate(element.innerText);
-      if (xsBoolean.cast(evaluation) != true) {
+      if (evaluation.ebv != true) {
         throw TestFailure(
           'Expected true for ${element.innerText} with result=$result, '
           'but got $evaluation',
@@ -411,20 +408,25 @@ void verifyResult(XmlElement element, Object result, XPathContext context) {
         throw TestFailure('Expected empty, but got $result');
       }
     case 'assert-true':
-      if (xsBoolean.cast(result) != true) {
+      if (result.ebv != true) {
         throw TestFailure('Expected true, but got $result');
       }
     case 'assert-false':
-      if (xsBoolean.cast(result) != false) {
+      if (result.ebv != false) {
         throw TestFailure('Expected false, but got $result');
       }
     case 'assert-string-value':
-      final string = result.map(xsString.cast).join(' ');
+      final string = result.map((item) => item.stringValue).join(' ');
       if (string != element.innerText) {
         throw TestFailure('Expected ${element.innerText}, but got $result');
       }
     case 'assert-number-value':
-      if (xsNumeric.cast(result) != double.parse(element.innerText)) {
+      final first = result.atomize().firstOrNull;
+      final numVal = switch (first) {
+        final XPathNumeric n => n.toDouble(),
+        _ => double.nan,
+      };
+      if (numVal != double.parse(element.innerText)) {
         throw TestFailure('Expected ${element.innerText}, but got $result');
       }
     case 'assert-xml':
@@ -451,7 +453,7 @@ void verifyResult(XmlElement element, Object result, XPathContext context) {
           .copy(variables: {'result': result})
           .context()
           .evaluate('\$result instance of ${element.innerText}');
-      if (xsBoolean.cast(evaluation) != true) {
+      if (evaluation.ebv != true) {
         throw TestFailure(
           'Expected true for ${element.innerText} with result=$result, '
           'to be of type ${element.innerText}',
@@ -579,13 +581,7 @@ bool isSupported(XmlElement element) {
 
 /// Helper to textualize a sequence for comparison.
 String formatSequence(XPathSequence sequence) =>
-    '(${sequence.map((item) {
-      try {
-        return xsString.cast(item);
-      } catch (_) {
-        return item.toString();
-      }
-    }).join(', ')})';
+    '(${sequence.map((item) => item.stringValue).join(', ')})';
 
 /// Helper to format a stopwatch duration.
 String formatStopwatch(Stopwatch stopwatch) =>

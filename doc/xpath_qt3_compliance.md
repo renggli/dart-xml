@@ -8,9 +8,9 @@ This document tracks known discrepancies between PetitXml XPath 3.1 implementati
 
 - **Suites**: 369
 - **Total Cases**: 22,514
-- **Passing**: 19,024 (84.5%)
-- **Failures**: 2,708 (12.0%)
-- **Errors**: 782 (3.5%)
+- **Passing**: 19,063 (84.7%)
+- **Failures**: 2,272 (10.1%)
+- **Errors**: 1,179 (5.2%)
 
 ---
 
@@ -74,7 +74,7 @@ This document tracks known discrepancies between PetitXml XPath 3.1 implementati
 
 ### 3. Numeric Aggregations & Modulo Semantics
 
-- [ ] **Status**: Pending
+- [x] **Status**: Completed
 - **User Impact**: High / Frequent
 - **QT3 Target**: 169 issues (155 failures, 14 errors)
 - **Primary Suites**: `op-numeric-mod`, `fn-min`, `fn-max`, `fn-avg`, `fn-sum`, `fn-number`, `op-numeric-divide`

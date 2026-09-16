@@ -7,7 +7,8 @@ import '../../xml/nodes/node.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../exceptions/evaluation_exception.dart';
-import '../values/sequence.dart';
+import '../xdm/item.dart';
+import '../xdm/sequence.dart';
 import 'axis.dart';
 import 'node.dart';
 import 'step.dart';
@@ -66,11 +67,11 @@ class PathExpression implements XPathExpression {
   XPathSequence call(XPathContext context) {
     final inner = context.copy();
     if (isOrderPreserved) {
-      var nodes = <Object>[...steps.first.call(context)];
+      var nodes = <XPathItem>[...steps.first.call(context)];
       for (final step in steps.skip(1)) {
-        final innerNodes = <Object>[];
+        final innerNodes = <XPathItem>[];
         for (final node in nodes) {
-          if (node is XmlNode) {
+          if (node is XPathNode) {
             inner.item = node;
             innerNodes.addAll(step(inner));
           } else {
@@ -81,11 +82,11 @@ class PathExpression implements XPathExpression {
       }
       return XPathSequence(nodes);
     } else {
-      var nodes = <Object>{...steps.first.call(context)};
+      var nodes = <XPathItem>{...steps.first.call(context)};
       for (final step in steps.skip(1)) {
-        final innerNodes = <Object>{};
+        final innerNodes = <XPathItem>{};
         for (final node in nodes) {
-          if (node is XmlNode) {
+          if (node is XPathNode) {
             inner.item = node;
             innerNodes.addAll(step(inner));
           } else {
@@ -136,28 +137,28 @@ bool _isOrderPreserved(List<XPathExpression> expressions) {
   return i == steps.length;
 }
 
-List<Object> _sortAndDeduplicate(Iterable<Object> iter) {
+List<XPathItem> _sortAndDeduplicate(Iterable<XPathItem> iter) {
   final nodes = <XmlNode>{};
-  final others = <Object>{};
+  final others = <XPathItem>{};
   for (final item in iter) {
-    if (item is XmlNode) {
-      nodes.add(item);
+    if (item is XPathNode) {
+      nodes.add(item.node);
     } else {
       others.add(item);
     }
   }
-  final result = <Object>[];
+  final result = <XPathItem>[];
   if (nodes.length <= 50) {
-    result.addAll(nodes.sorted(_compareNodePosition));
+    result.addAll(nodes.sorted(_compareNodePosition).map(XPathNode.new));
   } else {
     final root = nodes.first.root;
-    if (nodes.remove(root)) result.add(root);
+    if (nodes.remove(root)) result.add(XPathNode(root));
     for (final node in root.descendants) {
       if (nodes.isEmpty) break;
-      if (nodes.remove(node)) result.add(node);
+      if (nodes.remove(node)) result.add(XPathNode(node));
     }
     if (nodes.isNotEmpty) {
-      result.addAll(nodes.sorted(_compareNodePosition));
+      result.addAll(nodes.sorted(_compareNodePosition).map(XPathNode.new));
     }
   }
   result.addAll(others);
@@ -171,7 +172,8 @@ int _compareNodePosition(XmlNode node1, XmlNode node2) {
   return 0;
 }
 
-Never _throwPathOperatorRequiresNodes(Object object) =>
-    throw XPathEvaluationException(
-      'Path operator / requires sequence of nodes, but got $object',
-    );
+Never _throwPathOperatorRequiresNodes(
+  Object object,
+) => throw XPathEvaluationException(
+  'Path operator / requires sequence of nodes, but got $object [err:XPTY0019]',
+);

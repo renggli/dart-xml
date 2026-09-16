@@ -4,8 +4,9 @@ import '../../xml/extensions/parent.dart';
 import '../../xml/nodes/node.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart' show XPathExpression;
-import '../types/node.dart';
-import '../values/sequence.dart';
+import '../exceptions/evaluation_exception.dart';
+import '../xdm/item.dart';
+import '../xdm/sequence.dart';
 import 'axis.dart';
 import 'node.dart';
 import 'predicate.dart';
@@ -25,8 +26,14 @@ class StepExpression implements XPathExpression {
 
   @override
   XPathSequence call(XPathContext context) {
+    final item = context.item;
+    if (item is! XPathNode) {
+      throw XPathEvaluationException(
+        'Step expression requires a node, but got ${item.runtimeType} [err:XPTY0019]',
+      );
+    }
     var result = <XmlNode>[];
-    for (final node in axis.find(xsNode.cast(context.item))) {
+    for (final node in axis.find(item.node)) {
       if (nodeTest.matches(node)) {
         result.add(node);
       }
@@ -38,8 +45,8 @@ class StepExpression implements XPathExpression {
         inner.last = result.length;
         final matched = <XmlNode>[];
         for (var i = 0; i < result.length; i++) {
-          final node = inner.item =
-              result[isReverseIndexed ? result.length - i - 1 : i];
+          final node = result[isReverseIndexed ? result.length - i - 1 : i];
+          inner.item = XPathNode(node);
           inner.position = i + 1;
           if (predicate.matches(inner)) {
             matched.add(node);
@@ -48,7 +55,7 @@ class StepExpression implements XPathExpression {
         result = isReverseIndexed ? matched.reversed.toList() : matched;
       }
     }
-    return XPathSequence(result);
+    return XPathSequence(result.map(XPathNode.new));
   }
 }
 
@@ -56,6 +63,14 @@ class RootNodeExpression implements XPathExpression {
   const new();
 
   @override
-  XPathSequence call(XPathContext context) =>
-      XPathSequence.single(xsNode.cast(context.item).root);
+  XPathSequence call(XPathContext context) {
+    var item = context.item;
+    if (item is XmlNode) item = XPathNode(item);
+    if (item is! XPathNode) {
+      throw XPathEvaluationException(
+        'Root expression requires a node, but got ${item.runtimeType} [err:XPTY0019]',
+      );
+    }
+    return XPathSequence.single(XPathNode(item.node.root));
+  }
 }

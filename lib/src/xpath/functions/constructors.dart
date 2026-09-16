@@ -1,857 +1,320 @@
 import '../../xml/utils/name.dart';
-import '../../xml/utils/token.dart';
-import '../definitions/cardinality.dart';
-import '../definitions/function.dart';
-import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
-import '../types/any.dart';
-import '../types/binary.dart';
-import '../types/boolean.dart';
-import '../types/date_time.dart';
-import '../types/duration.dart';
-import '../types/number.dart';
-import '../types/qname.dart';
-import '../types/string.dart';
-import '../values/sequence.dart';
+import '../xdm/atomic.dart';
+import '../xdm/casting_matrix.dart';
+import '../xdm/function_item.dart';
+import '../xdm/sequence.dart';
+import '../xdm/types.dart';
+
+XPathFunctionItem _atomicConstructor(XmlName name, XPathType targetType) =>
+    XPathFunctionItem.overloaded(name, {
+      0: XPathFunctionItem.fn0(name, (context) => XPathSequence.empty),
+      1: XPathFunctionItem.fn1(name, (context, arg) {
+        final value = arg.atomize().firstOrNull;
+        if (value == null) return XPathSequence.empty;
+        if (targetType == xsError) {
+          throw XPathEvaluationException('Cannot cast to xs:error');
+        }
+        return XPathSequence.single(castAtomic(value, targetType));
+      }),
+    });
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-string
-const xsStringConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:string'),
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _xsStringConstructor,
+final xsStringConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:string'),
+  xsString,
 );
-
-XPathSequence _xsStringConstructor(XPathContext context, [Object? value]) {
-  if (value == null) return XPathSequence.empty;
-  return XPathSequence.single(xsString.cast(value));
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-boolean
-const xsBooleanConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:boolean'),
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _xsBooleanConstructor,
+final xsBooleanConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:boolean'),
+  xsBoolean,
 );
-
-XPathSequence _xsBooleanConstructor(XPathContext context, [Object? value]) {
-  if (value == null) return XPathSequence.empty;
-  return XPathSequence.single(xsBoolean.cast(value));
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-integer
-const xsIntegerConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:integer'),
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _xsIntegerConstructor,
+final xsIntegerConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:integer'),
+  xsInteger,
 );
-
-XPathSequence _xsIntegerConstructor(XPathContext context, [Object? value]) {
-  if (value == null) return XPathSequence.empty;
-  return XPathSequence.single(xsInteger.cast(value));
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-decimal
-const xsDecimalConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:decimal'),
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _xsDecimalConstructor,
+final xsDecimalConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:decimal'),
+  xsDecimal,
 );
-
-XPathSequence _xsDecimalConstructor(XPathContext context, [Object? value]) {
-  if (value == null) return XPathSequence.empty;
-  return XPathSequence.single(xsDecimal.cast(value));
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-double
-const xsDoubleConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:double'),
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _xsDoubleConstructor,
+final xsDoubleConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:double'),
+  xsDouble,
 );
-
-XPathSequence _xsDoubleConstructor(XPathContext context, [Object? value]) {
-  if (value == null) return XPathSequence.empty;
-  return XPathSequence.single(xsDouble.cast(value));
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-float
-const xsFloatConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:float'),
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _xsFloatConstructor,
+final xsFloatConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:float'),
+  xsDouble,
 );
-
-XPathSequence _xsFloatConstructor(XPathContext context, [Object? value]) {
-  if (value == null) return XPathSequence.empty;
-  return XPathSequence.single(xsDouble.cast(value));
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-numeric
-const xsNumericConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:numeric'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.exactlyOne,
+final xsNumericConstructor = XPathFunctionItem.overloaded(
+  const XmlName.qualified('xs:numeric'),
+  {
+    0: XPathFunctionItem.fn0(
+      const XmlName.qualified('xs:numeric'),
+      (context) => XPathSequence.empty,
     ),
-  ],
-  function: _xsNumericConstructor,
+    1: XPathFunctionItem.fn1(const XmlName.qualified('xs:numeric'), (
+      context,
+      arg,
+    ) {
+      final value = arg.atomize().firstOrNull;
+      if (value == null) return XPathSequence.empty;
+      if (value is XPathNumeric) return XPathSequence.single(value);
+      return XPathSequence.single(castAtomic(value, xsDouble));
+    }),
+  },
 );
 
-XPathSequence _xsNumericConstructor(XPathContext context, Object value) =>
-    XPathSequence.single(xsNumeric.cast(value));
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-integer
-const xsByteConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:byte'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.exactlyOne,
-    ),
-  ],
-  function: _xsByteConstructor,
+/// https://www.w3.org/TR/xpath-functions-31/#func-byte
+final xsByteConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:byte'),
+  xsByte,
 );
 
-XPathSequence _xsByteConstructor(XPathContext context, Object value) =>
-    XPathSequence.single(xsByte.cast(value));
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-integer
-const xsIntConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:int'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.exactlyOne,
-    ),
-  ],
-  function: _xsIntConstructor,
+/// https://www.w3.org/TR/xpath-functions-31/#func-int
+final xsIntConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:int'),
+  xsInt,
 );
 
-XPathSequence _xsIntConstructor(XPathContext context, Object value) =>
-    XPathSequence.single(xsInt.cast(value));
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-integer
-const xsLongConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:long'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.exactlyOne,
-    ),
-  ],
-  function: _xsLongConstructor,
+/// https://www.w3.org/TR/xpath-functions-31/#func-long
+final xsLongConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:long'),
+  xsLong,
 );
 
-XPathSequence _xsLongConstructor(XPathContext context, Object value) =>
-    XPathSequence.single(xsLong.cast(value));
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-integer
-const xsNegativeIntegerConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:negativeInteger'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.exactlyOne,
-    ),
-  ],
-  function: _xsNegativeIntegerConstructor,
+/// https://www.w3.org/TR/xpath-functions-31/#func-negativeInteger
+final xsNegativeIntegerConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:negativeInteger'),
+  xsNegativeInteger,
 );
 
-XPathSequence _xsNegativeIntegerConstructor(
-  XPathContext context,
-  Object value,
-) => XPathSequence.single(xsNegativeInteger.cast(value));
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-integer
-const xsNonNegativeIntegerConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:nonNegativeInteger'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.exactlyOne,
-    ),
-  ],
-  function: _xsNonNegativeIntegerConstructor,
+/// https://www.w3.org/TR/xpath-functions-31/#func-nonNegativeInteger
+final xsNonNegativeIntegerConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:nonNegativeInteger'),
+  xsNonNegativeInteger,
 );
 
-XPathSequence _xsNonNegativeIntegerConstructor(
-  XPathContext context,
-  Object value,
-) => XPathSequence.single(xsNonNegativeInteger.cast(value));
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-integer
-const xsNonPositiveIntegerConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:nonPositiveInteger'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.exactlyOne,
-    ),
-  ],
-  function: _xsNonPositiveIntegerConstructor,
+/// https://www.w3.org/TR/xpath-functions-31/#func-nonPositiveInteger
+final xsNonPositiveIntegerConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:nonPositiveInteger'),
+  xsNonPositiveInteger,
 );
 
-XPathSequence _xsNonPositiveIntegerConstructor(
-  XPathContext context,
-  Object value,
-) => XPathSequence.single(xsNonPositiveInteger.cast(value));
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-integer
-const xsPositiveIntegerConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:positiveInteger'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.exactlyOne,
-    ),
-  ],
-  function: _xsPositiveIntegerConstructor,
+/// https://www.w3.org/TR/xpath-functions-31/#func-positiveInteger
+final xsPositiveIntegerConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:positiveInteger'),
+  xsPositiveInteger,
 );
 
-XPathSequence _xsPositiveIntegerConstructor(
-  XPathContext context,
-  Object value,
-) => XPathSequence.single(xsPositiveInteger.cast(value));
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-integer
-const xsShortConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:short'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.exactlyOne,
-    ),
-  ],
-  function: _xsShortConstructor,
+/// https://www.w3.org/TR/xpath-functions-31/#func-short
+final xsShortConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:short'),
+  xsShort,
 );
 
-XPathSequence _xsShortConstructor(XPathContext context, Object value) =>
-    XPathSequence.single(xsShort.cast(value));
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-integer
-const xsUnsignedByteConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:unsignedByte'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.exactlyOne,
-    ),
-  ],
-  function: _xsUnsignedByteConstructor,
+/// https://www.w3.org/TR/xpath-functions-31/#func-unsignedByte
+final xsUnsignedByteConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:unsignedByte'),
+  xsUnsignedByte,
 );
 
-XPathSequence _xsUnsignedByteConstructor(XPathContext context, Object value) =>
-    XPathSequence.single(xsUnsignedByte.cast(value));
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-integer
-const xsUnsignedIntConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:unsignedInt'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.exactlyOne,
-    ),
-  ],
-  function: _xsUnsignedIntConstructor,
+/// https://www.w3.org/TR/xpath-functions-31/#func-unsignedInt
+final xsUnsignedIntConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:unsignedInt'),
+  xsUnsignedInt,
 );
 
-XPathSequence _xsUnsignedIntConstructor(XPathContext context, Object value) =>
-    XPathSequence.single(xsUnsignedInt.cast(value));
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-integer
-const xsUnsignedLongConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:unsignedLong'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.exactlyOne,
-    ),
-  ],
-  function: _xsUnsignedLongConstructor,
+/// https://www.w3.org/TR/xpath-functions-31/#func-unsignedLong
+final xsUnsignedLongConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:unsignedLong'),
+  xsUnsignedLong,
 );
 
-XPathSequence _xsUnsignedLongConstructor(XPathContext context, Object value) =>
-    XPathSequence.single(xsUnsignedLong.cast(value));
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-integer
-const xsUnsignedShortConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:unsignedShort'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.exactlyOne,
-    ),
-  ],
-  function: _xsUnsignedShortConstructor,
+/// https://www.w3.org/TR/xpath-functions-31/#func-unsignedShort
+final xsUnsignedShortConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:unsignedShort'),
+  xsUnsignedShort,
 );
-
-XPathSequence _xsUnsignedShortConstructor(XPathContext context, Object value) =>
-    XPathSequence.single(xsUnsignedShort.cast(value));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-date
-const xsDateConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:date'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsDate,
-      cardinality: XPathCardinality.exactlyOne,
-    ),
-  ],
-  function: _xsSingleValueConstructor,
+final xsDateConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:date'),
+  xsDate,
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-dateTime
-const xsDateTimeConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:dateTime'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsDateTime,
-      cardinality: XPathCardinality.exactlyOne,
-    ),
-  ],
-  function: _xsSingleValueConstructor,
+final xsDateTimeConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:dateTime'),
+  xsDateTime,
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-dateTimeStamp
-const xsDateTimeStampConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:dateTimeStamp'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsDateTimeStamp,
-      cardinality: XPathCardinality.exactlyOne,
-    ),
-  ],
-  function: _xsSingleValueConstructor,
+final xsDateTimeStampConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:dateTimeStamp'),
+  xsDateTimeStamp,
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-gDay
-const xsGDayConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:gDay'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsDay,
-      cardinality: XPathCardinality.exactlyOne,
-    ),
-  ],
-  function: _xsSingleValueConstructor,
+final xsGDayConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:gDay'),
+  xsGDay,
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-gMonth
-const xsGMonthConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:gMonth'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsMonth,
-      cardinality: XPathCardinality.exactlyOne,
-    ),
-  ],
-  function: _xsSingleValueConstructor,
+final xsGMonthConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:gMonth'),
+  xsGMonth,
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-gMonthDay
-const xsGMonthDayConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:gMonthDay'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsMonthDay,
-      cardinality: XPathCardinality.exactlyOne,
-    ),
-  ],
-  function: _xsSingleValueConstructor,
+final xsGMonthDayConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:gMonthDay'),
+  xsGMonthDay,
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-gYear
-const xsGYearConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:gYear'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsYear,
-      cardinality: XPathCardinality.exactlyOne,
-    ),
-  ],
-  function: _xsSingleValueConstructor,
+final xsGYearConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:gYear'),
+  xsGYear,
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-gYearMonth
-const xsGYearMonthConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:gYearMonth'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsYearMonth,
-      cardinality: XPathCardinality.exactlyOne,
-    ),
-  ],
-  function: _xsSingleValueConstructor,
+final xsGYearMonthConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:gYearMonth'),
+  xsGYearMonth,
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-time
-const xsTimeConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:time'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsTime,
-      cardinality: XPathCardinality.exactlyOne,
-    ),
-  ],
-  function: _xsSingleValueConstructor,
+final xsTimeConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:time'),
+  xsTime,
 );
-
-XPathSequence _xsSingleValueConstructor(XPathContext context, Object value) =>
-    XPathSequence.single(value);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-duration
-const xsDurationConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:duration'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.exactlyOne,
-    ),
-  ],
-  function: _xsDurationConstructor,
+final xsDurationConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:duration'),
+  xsDuration,
 );
-
-XPathSequence _xsDurationConstructor(XPathContext context, Object value) =>
-    XPathSequence.single(xsDuration.cast(value));
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-yearMonthDuration
-const xsYearMonthDurationConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:yearMonthDuration'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.exactlyOne,
-    ),
-  ],
-  function: _xsYearMonthDurationConstructor,
-);
-
-XPathSequence _xsYearMonthDurationConstructor(
-  XPathContext context,
-  Object value,
-) => XPathSequence.single(xsYearMonthDuration.cast(value));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-dayTimeDuration
-const xsDayTimeDurationConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:dayTimeDuration'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.exactlyOne,
-    ),
-  ],
-  function: _xsDayTimeDurationConstructor,
+final xsDayTimeDurationConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:dayTimeDuration'),
+  xsDayTimeDuration,
 );
 
-XPathSequence _xsDayTimeDurationConstructor(
-  XPathContext context,
-  Object value,
-) => XPathSequence.single(xsDayTimeDuration.cast(value));
+/// https://www.w3.org/TR/xpath-functions-31/#func-yearMonthDuration
+final xsYearMonthDurationConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:yearMonthDuration'),
+  xsYearMonthDuration,
+);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hexBinary
-const xsHexBinaryConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:hexBinary'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.exactlyOne,
-    ),
-  ],
-  function: _xsHexBinaryConstructor,
+final xsHexBinaryConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:hexBinary'),
+  xsHexBinary,
 );
-
-XPathSequence _xsHexBinaryConstructor(XPathContext context, Object value) =>
-    XPathSequence.single(xsHexBinary.cast(value));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-base64Binary
-const xsBase64BinaryConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:base64Binary'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.exactlyOne,
-    ),
-  ],
-  function: _xsBase64BinaryConstructor,
+final xsBase64BinaryConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:base64Binary'),
+  xsBase64Binary,
 );
 
-XPathSequence _xsBase64BinaryConstructor(XPathContext context, Object value) =>
-    XPathSequence.single(xsBase64Binary.cast(value));
-
 /// https://www.w3.org/TR/xpath-functions-31/#func-anyURI
-const xsAnyURIConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:anyURI'),
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _xsStringConstructor,
+final xsAnyURIConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:anyURI'),
+  xsAnyURI,
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-QName
-const xsQNameConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:QName'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.exactlyOne,
-    ),
-  ],
-  function: _xsQNameConstructor,
+final xsQNameConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:QName'),
+  xsQName,
 );
 
-XPathSequence _xsQNameConstructor(XPathContext context, Object value) =>
-    XPathSequence.single(xsQName.cast(value));
-
 /// https://www.w3.org/TR/xpath-functions-31/#func-NOTATION
-const xsNOTATIONConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:NOTATION'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.exactlyOne,
-    ),
-  ],
-  function: _xsStringConstructor, // NOTATION is implemented as string?
+final xsNOTATIONConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:NOTATION'),
+  xsNOTATION,
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-untypedAtomic
-const xsUntypedAtomicConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:untypedAtomic'),
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _xsUntypedAtomicConstructor,
+final xsUntypedAtomicConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:untypedAtomic'),
+  xsUntypedAtomic,
 );
-
-XPathSequence _xsUntypedAtomicConstructor(
-  XPathContext context, [
-  Object? value,
-]) {
-  if (value == null) return XPathSequence.empty;
-  return XPathSequence.single(xsUntypedAtomic.cast(value));
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-normalizedString
-const xsNormalizedStringConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:normalizedString'),
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _xsNormalizedStringConstructor,
+final xsNormalizedStringConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:normalizedString'),
+  xsNormalizedString,
 );
-
-XPathSequence _xsNormalizedStringConstructor(
-  XPathContext context, [
-  Object? value,
-]) {
-  if (value == null) return XPathSequence.empty;
-  final stringValue = xsString.cast(value);
-  return XPathSequence.single(_normalizeString(stringValue));
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-token
-const xsTokenConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:token'),
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _xsTokenConstructor,
+final xsTokenConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:token'),
+  xsToken,
 );
-
-XPathSequence _xsTokenConstructor(XPathContext context, [Object? value]) {
-  if (value == null) return XPathSequence.empty;
-  final stringValue = xsString.cast(value);
-  return XPathSequence.single(_collapseWhitespace(stringValue));
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-language
-const xsLanguageConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:language'),
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _xsLanguageConstructor,
+final xsLanguageConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:language'),
+  xsLanguage,
 );
-
-XPathSequence _xsLanguageConstructor(XPathContext context, [Object? value]) {
-  if (value == null) return XPathSequence.empty;
-  final stringValue = _collapseWhitespace(xsString.cast(value));
-  if (!_languageRegExp.hasMatch(stringValue)) {
-    throw XPathEvaluationException(
-      'Invalid lexical value for xs:language: "$stringValue"',
-    );
-  }
-  return XPathSequence.single(stringValue);
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-NMTOKEN
-const xsNMTOKENConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:NMTOKEN'),
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _xsNMTOKENConstructor,
+final xsNMTokenConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:NMTOKEN'),
+  xsNMToken,
 );
-
-XPathSequence _xsNMTOKENConstructor(XPathContext context, [Object? value]) {
-  if (value == null) return XPathSequence.empty;
-  final stringValue = _collapseWhitespace(xsString.cast(value));
-  if (!_nmTokenRegExp.hasMatch(stringValue)) {
-    throw XPathEvaluationException(
-      'Invalid lexical value for xs:NMTOKEN: "$stringValue"',
-    );
-  }
-  return XPathSequence.single(stringValue);
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-Name
-const xsNameConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:Name'),
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _xsNameConstructor,
+final xsNameConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:Name'),
+  xsName,
 );
-
-XPathSequence _xsNameConstructor(XPathContext context, [Object? value]) {
-  if (value == null) return XPathSequence.empty;
-  final stringValue = _collapseWhitespace(xsString.cast(value));
-  if (!_nameRegExp.hasMatch(stringValue)) {
-    throw XPathEvaluationException(
-      'Invalid lexical value for xs:Name: "$stringValue"',
-    );
-  }
-  return XPathSequence.single(stringValue);
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-NCName
-const xsNCNameConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:NCName'),
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _xsNCNameConstructor,
+final xsNCNameConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:NCName'),
+  xsNCName,
 );
-
-XPathSequence _xsNCNameConstructor(XPathContext context, [Object? value]) {
-  if (value == null) return XPathSequence.empty;
-  final stringValue = _collapseWhitespace(xsString.cast(value));
-  if (!_ncNameRegExp.hasMatch(stringValue)) {
-    throw XPathEvaluationException(
-      'Invalid lexical value for xs:NCName: "$stringValue"',
-    );
-  }
-  return XPathSequence.single(stringValue);
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-ID
-const xsIDConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:ID'),
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _xsIDConstructor,
+final xsIDConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:ID'),
+  xsID,
 );
-
-XPathSequence _xsIDConstructor(XPathContext context, [Object? value]) {
-  if (value == null) return XPathSequence.empty;
-  final stringValue = _collapseWhitespace(xsString.cast(value));
-  if (!_ncNameRegExp.hasMatch(stringValue)) {
-    throw XPathEvaluationException(
-      'Invalid lexical value for xs:ID: "$stringValue"',
-    );
-  }
-  return XPathSequence.single(stringValue);
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-IDREF
-const xsIDREFConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:IDREF'),
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _xsIDREFConstructor,
+final xsIDREFConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:IDREF'),
+  xsIDREF,
 );
-
-XPathSequence _xsIDREFConstructor(XPathContext context, [Object? value]) {
-  if (value == null) return XPathSequence.empty;
-  final stringValue = _collapseWhitespace(xsString.cast(value));
-  if (!_ncNameRegExp.hasMatch(stringValue)) {
-    throw XPathEvaluationException(
-      'Invalid lexical value for xs:IDREF: "$stringValue"',
-    );
-  }
-  return XPathSequence.single(stringValue);
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-ENTITY
-const xsENTITYConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:ENTITY'),
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _xsENTITYConstructor,
+final xsENTITYConstructor = _atomicConstructor(
+  const XmlName.qualified('xs:ENTITY'),
+  xsENTITY,
 );
-
-XPathSequence _xsENTITYConstructor(XPathContext context, [Object? value]) {
-  if (value == null) return XPathSequence.empty;
-  final stringValue = _collapseWhitespace(xsString.cast(value));
-  if (!_ncNameRegExp.hasMatch(stringValue)) {
-    throw XPathEvaluationException(
-      'Invalid lexical value for xs:ENTITY: "$stringValue"',
-    );
-  }
-  return XPathSequence.single(stringValue);
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-error
-const xsErrorConstructor = XPathFunctionDefinition(
-  name: XmlName.qualified('xs:error'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsAnyAtomicType,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _xsErrorConstructor,
-);
-
-XPathSequence _xsErrorConstructor(XPathContext context, [Object? value]) {
-  if (value == null) return XPathSequence.empty;
-  throw XPathEvaluationException('Cannot cast $value to xs:error');
-}
-
-/// Helpers and patterns for string-derived XML Schema constructor validation.
-
-final _normalizeStringRegexp = RegExp(r'\s');
-String _normalizeString(String value) =>
-    value.replaceAll(_normalizeStringRegexp, ' ');
-
-final _collapseWhitespaceRegExp = RegExp(r'\s+');
-String _collapseWhitespace(String value) =>
-    value.trim().replaceAll(_collapseWhitespaceRegExp, ' ');
-
-final _ncNameStartCharPattern = XmlToken.nameStartChars.replaceFirst(':', '');
-final _ncNameCharPattern = XmlToken.nameChars.replaceFirst(':', '');
-
-final _languageRegExp = RegExp(r'^[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*$');
-final _nmTokenRegExp = RegExp('^[${XmlToken.nameChars}]+\$', unicode: true);
-final _nameRegExp = RegExp(
-  '^[${XmlToken.nameStartChars}][${XmlToken.nameChars}]*\$',
-  unicode: true,
-);
-final _ncNameRegExp = RegExp(
-  '^[$_ncNameStartCharPattern][$_ncNameCharPattern]*\$',
-  unicode: true,
+final xsErrorConstructor = XPathFunctionItem.fn1(
+  const XmlName.qualified('xs:error'),
+  (context, arg) {
+    final value = arg.atomize().firstOrNull;
+    if (value == null) return XPathSequence.empty;
+    throw XPathEvaluationException('Cannot cast to xs:error');
+  },
 );

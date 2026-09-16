@@ -41,9 +41,9 @@ void main() {
             'is-c',
             namespaceUri: 'custom',
           ): ((XPathContext context, List<XPathSequence> args) {
-            final node = args[0].first as XmlNode;
+            final node = (args[0].first as XPathNode).node;
             return XPathSequence.single(
-              node is XmlElement && node.name.local == 'c',
+              XPathBoolean(node is XmlElement && node.name.local == 'c'),
             );
           }).toXPathFunction(arity: 1),
         },
@@ -94,8 +94,8 @@ void main() {
               'double',
               namespaceUri: 'custom',
             ): ((XPathContext context, List<XPathSequence> args) {
-              final val = args[0].first as num;
-              return XPathSequence.single(val * 2);
+              final val = (args[0].first as XPathNumeric).toDouble();
+              return XPathSequence.from([val * 2]);
             }).toXPathFunction(arity: 1),
           },
           configuration: XPathConfiguration(

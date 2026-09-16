@@ -1,6 +1,5 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/functions/number.dart';
-import 'package:xml/src/xpath/values/map.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -13,10 +12,7 @@ final context = const XPathConfiguration.raw().context(document);
 void main() {
   group('fn:abs', () {
     test('returns absolute value', () {
-      expect(
-        fnAbs(context, [const XPathSequence.single(-5)]),
-        isXPathSequence([5]),
-      );
+      expect(fnAbs(context, [seq(-5)]), isXPathSequence([5]));
     });
 
     test('returns empty for empty sequence', () {
@@ -32,23 +28,17 @@ void main() {
 
   group('fn:round-half-to-even', () {
     test('rounds half to even', () {
-      final res1 = fnRoundHalfToEven(context, [
-        const XPathSequence.single(0.5),
-      ]).single;
-      expect(res1, 0.0);
-      expect(res1, isA<double>());
+      final res1 = fnRoundHalfToEven(context, [seq(0.5)]).single;
+      expect(res1, isA<XPathDouble>());
+      expect((res1 as XPathDouble).value, 0.0);
 
-      final res2 = fnRoundHalfToEven(context, [
-        const XPathSequence.single(1.5),
-      ]).single;
-      expect(res2, 2.0);
-      expect(res2, isA<double>());
+      final res2 = fnRoundHalfToEven(context, [seq(1.5)]).single;
+      expect(res2, isA<XPathDouble>());
+      expect((res2 as XPathDouble).value, 2.0);
 
-      final res3 = fnRoundHalfToEven(context, [
-        const XPathSequence.single(2),
-      ]).single;
-      expect(res3, 2);
-      expect(res3, isA<int>());
+      final res3 = fnRoundHalfToEven(context, [seq(2)]).single;
+      expect(res3, isA<XPathInteger>());
+      expect((res3 as XPathInteger).asInt, 2);
     });
 
     test('returns empty for empty sequence', () {
@@ -59,27 +49,12 @@ void main() {
     });
 
     test('handles precision', () {
+      expect(fnRoundHalfToEven(context, [seq(2.5)]), isXPathSequence([2]));
+      expect(fnRoundHalfToEven(context, [seq(3.5)]), isXPathSequence([4]));
+      expect(fnRoundHalfToEven(context, [seq(2.4)]), isXPathSequence([2]));
+      expect(fnRoundHalfToEven(context, [seq(2.6)]), isXPathSequence([3]));
       expect(
-        fnRoundHalfToEven(context, [const XPathSequence.single(2.5)]),
-        isXPathSequence([2]),
-      );
-      expect(
-        fnRoundHalfToEven(context, [const XPathSequence.single(3.5)]),
-        isXPathSequence([4]),
-      );
-      expect(
-        fnRoundHalfToEven(context, [const XPathSequence.single(2.4)]),
-        isXPathSequence([2]),
-      );
-      expect(
-        fnRoundHalfToEven(context, [const XPathSequence.single(2.6)]),
-        isXPathSequence([3]),
-      );
-      expect(
-        fnRoundHalfToEven(context, [
-          const XPathSequence.single(2.5),
-          const XPathSequence.single(0),
-        ]),
+        fnRoundHalfToEven(context, [seq(2.5), seq(0)]),
         isXPathSequence([2]),
       );
     });
@@ -87,15 +62,14 @@ void main() {
 
   group('fn:number', () {
     test('converts string to number', () {
-      expect(
-        fnNumber(context, [const XPathSequence.single('123')]),
-        isXPathSequence([123]),
-      );
+      expect(fnNumber(context, [seq('123')]), isXPathSequence([123]));
     });
 
     test('returns NaN for empty sequence', () {
       expect(
-        (fnNumber(context, [XPathSequence.empty]).first as num).isNaN,
+        (fnNumber(context, [XPathSequence.empty]).first as XPathDouble)
+            .value
+            .isNaN,
         isTrue,
       );
     });
@@ -127,53 +101,64 @@ void main() {
   group('fn:random-number-generator', () {
     test('returns state map', () {
       final first = fnRandomNumberGenerator(context, []).single as XPathMap;
-      expect(first.keys, containsAll(['number', 'next', 'permute']));
-      final firstValue = first['number'];
-      expect(firstValue, isA<double>());
+      expect(
+        first.keys.map((k) => k.stringValue),
+        containsAll(['number', 'next', 'permute']),
+      );
+      final firstValue =
+          (first.get(const XPathString('number'))!.single as XPathDouble).value;
       expect(firstValue, isNonNegative);
       expect(firstValue, lessThan(1.0));
 
       final second =
-          (first['next'] as XPathFunction)(context, []).single as XPathMap;
-      expect(second.keys, containsAll(['number', 'next', 'permute']));
-      final secondValue = second['number'];
-      expect(secondValue, isA<double>());
+          (first.get(const XPathString('next'))!.single as XPathFunctionItem)(
+                context,
+                [],
+              ).single
+              as XPathMap;
+      expect(
+        second.keys.map((k) => k.stringValue),
+        containsAll(['number', 'next', 'permute']),
+      );
+      final secondValue =
+          (second.get(const XPathString('number'))!.single as XPathDouble)
+              .value;
       expect(secondValue, isNonNegative);
       expect(secondValue, lessThan(1.0));
       expect(secondValue, isNot(firstValue));
 
-      final firstPermutation = (first['permute'] as XPathFunction)(context, [
-        const XPathSequence([1, 2, 3]),
-      ]);
-      expect(firstPermutation, isA<XPathSequence>());
+      final firstPermutation =
+          (first.get(const XPathString('permute'))!.single
+              as XPathFunctionItem)(context, [
+            seq([1, 2, 3]),
+          ]);
       expect(firstPermutation, hasLength(3));
-      expect(firstPermutation, containsAll([1, 2, 3]));
+      expect(firstPermutation.map(unwrapXPathItem), containsAll([1, 2, 3]));
     });
 
     test('handles seed', () {
-      final result = fnRandomNumberGenerator(context, [
-        const XPathSequence.single(123),
-      ]);
+      final result = fnRandomNumberGenerator(context, [seq(123)]);
       expect(result, isNotEmpty);
       // Check determinism
-      final result2 = fnRandomNumberGenerator(context, [
-        const XPathSequence.single(123),
-      ]);
-      final map1 = result.first as Map;
-      final map2 = result2.first as Map;
-      expect(map1['number'], map2['number']);
+      final result2 = fnRandomNumberGenerator(context, [seq(123)]);
+      final map1 = result.first as XPathMap;
+      final map2 = result2.first as XPathMap;
+      expect(
+        map1.get(const XPathString('number'))!.first,
+        map2.get(const XPathString('number'))!.first,
+      );
     });
   });
 
   group('fn:ceiling', () {
     test('rounds up', () {
-      final res1 = fnCeiling(context, [const XPathSequence.single(1.5)]).single;
-      expect(res1, 2.0);
-      expect(res1, isA<double>());
+      final res1 = fnCeiling(context, [seq(1.5)]).single;
+      expect(res1, isA<XPathDouble>());
+      expect((res1 as XPathDouble).value, 2.0);
 
-      final res2 = fnCeiling(context, [const XPathSequence.single(1)]).single;
-      expect(res2, 1);
-      expect(res2, isA<int>());
+      final res2 = fnCeiling(context, [seq(1)]).single;
+      expect(res2, isA<XPathInteger>());
+      expect((res2 as XPathInteger).asInt, 1);
     });
 
     test('returns empty for empty sequence', () {
@@ -185,19 +170,17 @@ void main() {
 
     test('handles NaN and Infinity', () {
       expect(
-        (fnCeiling(context, [const XPathSequence.single(double.nan)]).single
-                as num)
+        (fnCeiling(context, [seq(double.nan)]).single as XPathDouble)
+            .value
             .isNaN,
         isTrue,
       );
       expect(
-        fnCeiling(context, [const XPathSequence.single(double.infinity)]),
+        fnCeiling(context, [seq(double.infinity)]),
         isXPathSequence([double.infinity]),
       );
       expect(
-        fnCeiling(context, [
-          const XPathSequence.single(double.negativeInfinity),
-        ]),
+        fnCeiling(context, [seq(double.negativeInfinity)]),
         isXPathSequence([double.negativeInfinity]),
       );
     });
@@ -226,13 +209,13 @@ void main() {
 
   group('fn:floor', () {
     test('rounds down', () {
-      final res1 = fnFloor(context, [const XPathSequence.single(1.5)]).single;
-      expect(res1, 1.0);
-      expect(res1, isA<double>());
+      final res1 = fnFloor(context, [seq(1.5)]).single;
+      expect(res1, isA<XPathDouble>());
+      expect((res1 as XPathDouble).value, 1.0);
 
-      final res2 = fnFloor(context, [const XPathSequence.single(1)]).single;
-      expect(res2, 1);
-      expect(res2, isA<int>());
+      final res2 = fnFloor(context, [seq(1)]).single;
+      expect(res2, isA<XPathInteger>());
+      expect((res2 as XPathInteger).asInt, 1);
     });
 
     test('returns empty for empty sequence', () {
@@ -241,17 +224,15 @@ void main() {
 
     test('handles NaN and Infinity', () {
       expect(
-        (fnFloor(context, [const XPathSequence.single(double.nan)]).single
-                as num)
-            .isNaN,
+        (fnFloor(context, [seq(double.nan)]).single as XPathDouble).value.isNaN,
         isTrue,
       );
       expect(
-        fnFloor(context, [const XPathSequence.single(double.infinity)]),
+        fnFloor(context, [seq(double.infinity)]),
         isXPathSequence([double.infinity]),
       );
       expect(
-        fnFloor(context, [const XPathSequence.single(double.negativeInfinity)]),
+        fnFloor(context, [seq(double.negativeInfinity)]),
         isXPathSequence([double.negativeInfinity]),
       );
     });
@@ -276,21 +257,21 @@ void main() {
 
   group('fn:round', () {
     test('rounds to nearest', () {
-      final res1 = fnRound(context, [const XPathSequence.single(1.5)]).single;
-      expect(res1, 2.0);
-      expect(res1, isA<double>());
+      final res1 = fnRound(context, [seq(1.5)]).single;
+      expect(res1, isA<XPathDouble>());
+      expect((res1 as XPathDouble).value, 2.0);
 
-      final res2 = fnRound(context, [const XPathSequence.single(-1.5)]).single;
-      expect(res2, -1.0);
-      expect(res2, isA<double>());
+      final res2 = fnRound(context, [seq(-1.5)]).single;
+      expect(res2, isA<XPathDouble>());
+      expect((res2 as XPathDouble).value, -1.0);
 
-      final res3 = fnRound(context, [const XPathSequence.single(-0.5)]).single;
-      expect(res3, -0.0);
-      expect(res3, isA<double>());
+      final res3 = fnRound(context, [seq(-0.5)]).single;
+      expect(res3, isA<XPathDouble>());
+      expect((res3 as XPathDouble).value, -0.0);
 
-      final res4 = fnRound(context, [const XPathSequence.single(2)]).single;
-      expect(res4, 2);
-      expect(res4, isA<int>());
+      final res4 = fnRound(context, [seq(2)]).single;
+      expect(res4, isA<XPathInteger>());
+      expect((res4 as XPathInteger).asInt, 2);
     });
 
     test('returns empty for empty sequence', () {
@@ -298,41 +279,17 @@ void main() {
     });
 
     test('returns NaN for NaN', () {
-      expect(
-        fnRound(context, [const XPathSequence.single(double.nan)]),
-        isXPathSequence([isNaN]),
-      );
+      expect(fnRound(context, [seq(double.nan)]), isXPathSequence([isNaN]));
     });
 
     test('handles precision arguments', () {
+      expect(fnRound(context, [seq(1.5), seq(1)]), isXPathSequence([1.5]));
       expect(
-        fnRound(context, [
-          const XPathSequence.single(1.5),
-          const XPathSequence.single(1),
-        ]),
-        isXPathSequence([1.5]),
-      );
-      expect(
-        fnRound(context, [
-          const XPathSequence.single(123.456),
-          const XPathSequence.single(2),
-        ]),
+        fnRound(context, [seq(123.456), seq(2)]),
         isXPathSequence([123.46]),
       );
-      expect(
-        fnRound(context, [
-          const XPathSequence.single(123.456),
-          const XPathSequence.single(0),
-        ]),
-        isXPathSequence([123]),
-      );
-      expect(
-        fnRound(context, [
-          const XPathSequence.single(123.456),
-          const XPathSequence.single(-2),
-        ]),
-        isXPathSequence([100]),
-      );
+      expect(fnRound(context, [seq(123.456), seq(0)]), isXPathSequence([123]));
+      expect(fnRound(context, [seq(123.456), seq(-2)]), isXPathSequence([100]));
     });
 
     test('integration via xpathEvaluate', () {

@@ -8,8 +8,9 @@ void main() {
     test('functions have unique names', () {
       final names = <XmlName>{};
       for (final definition in standardFunctionDefinitions) {
+        expect(definition.name, isNotNull);
         expect(
-          names.add(definition.name),
+          names.add(definition.name!),
           isTrue,
           reason: 'Function name "${definition.name}" is not unique',
         );
@@ -17,8 +18,9 @@ void main() {
     });
     test('functions contains all functions', () {
       for (final definition in standardFunctionDefinitions) {
-        final name = definition.name.withNamespaceUri(
-          xpathNamespaceUris[definition.name.prefix],
+        final defName = definition.name!;
+        final name = defName.withNamespaceUri(
+          xpathNamespaceUris[defName.prefix],
         );
         expect(
           standardFunctions[name],

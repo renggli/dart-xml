@@ -1,25 +1,25 @@
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/evaluation/configuration.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/evaluation/namespaces.dart';
 import 'package:xml/src/xpath/expressions/function.dart';
 import 'package:xml/src/xpath/expressions/variable.dart';
-import 'package:xml/src/xpath/values/function.dart';
-import 'package:xml/src/xpath/values/sequence.dart';
 import 'package:xml/xml.dart';
+import 'package:xml/xpath.dart';
 
 import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 final context = XPathConfiguration().context(XmlElement.tag('root'));
-const arg1 = XPathSequence.single('First');
-const arg2 = XPathSequence.single('Second');
-const result = XPathSequence.single('Confirmed');
+const arg1 = XPathSequence.single(XPathString('First'));
+const arg2 = XPathSequence.single(XPathString('Second'));
+const result = XPathSequence.single(XPathString('Confirmed'));
 
 XPathSequence function(XPathContext context, List<XPathSequence> args) {
   expect(args, [arg1, arg2]);
   return result;
 }
+
+final xpathFunction = function.toXPathFunction(arity: 2);
 
 void main() {
   group('DynamicFunctionExpression', () {
@@ -66,7 +66,7 @@ void main() {
             .context(context.item)
             .copy(variables: context.variables),
       );
-      final functionItem = functionSeq.first as XPathFunction;
+      final functionItem = functionSeq.first as XPathFunctionItem;
       expect(
         () => functionItem(context, []),
         throwsA(
@@ -92,7 +92,7 @@ void main() {
             .context(context.item)
             .copy(variables: context.variables),
       );
-      final functionItem = functionSeq.first as XPathFunction;
+      final functionItem = functionSeq.first as XPathFunctionItem;
       expect(
         () => functionItem(context, [arg1, arg2]),
         throwsA(
@@ -118,7 +118,7 @@ void main() {
             .context(context.item)
             .copy(variables: context.variables),
       );
-      final functionItem = functionSeq.first as XPathFunction;
+      final functionItem = functionSeq.first as XPathFunctionItem;
       expect(functionItem(context, [arg1]), result);
     });
     test('partial application name and arity', () {
@@ -145,7 +145,7 @@ void main() {
             .context(context.item)
             .copy(variables: context.variables),
       );
-      final fn = functionSeq.first as XPathFunction;
+      final fn = functionSeq.first as XPathFunctionItem;
       expect(
         fn.name,
         const XmlName.parts('fun', namespaceUri: xpathFnNamespace),
@@ -156,7 +156,7 @@ void main() {
   group('InlineFunctionExpression', () {
     test('no arguments', () {
       const expr = InlineFunctionExpression(LiteralExpression(result), []);
-      final function = expr(context).first as XPathFunction;
+      final function = expr(context).first as XPathFunctionItem;
       expect(function(context, []), result);
     });
     test('name and arity', () {
@@ -164,13 +164,13 @@ void main() {
         'a',
         'b',
       ]);
-      final fn = expr(context).first as XPathFunction;
+      final fn = expr(context).first as XPathFunctionItem;
       expect(fn.name, const XmlName.qualified('dynamic-function'));
       expect(fn.arity, 2);
     });
     test('with arguments', () {
       const expr = InlineFunctionExpression(VariableExpression('a'), ['a']);
-      final function = expr(context).first as XPathFunction;
+      final function = expr(context).first as XPathFunctionItem;
       expect(function(context, [result]), result);
     });
     test('closure', () {
@@ -186,12 +186,12 @@ void main() {
           )
           .context(context.item)
           .copy(variables: context.variables);
-      final function = expr(closureContext).first as XPathFunction;
+      final function = expr(closureContext).first as XPathFunctionItem;
       expect(function(context, []), result);
     });
     test('invalid number of arguments', () {
       const expr = InlineFunctionExpression(VariableExpression('a'), ['a']);
-      final function = expr(context).first as XPathFunction;
+      final function = expr(context).first as XPathFunctionItem;
       expect(
         () => function(context, []),
         throwsA(
@@ -222,24 +222,26 @@ void main() {
                     .context(context.item)
                     .copy(variables: context.variables),
               ).first
-              as XPathFunction;
+              as XPathFunctionItem;
       expect(function(context, []), result);
     });
     test('evaluate with standard functions', () {
       const expr = NamedFunctionExpression('fn:abs', 1);
-      final function = expr(context).first as XPathFunction;
+      final function = expr(context).first as XPathFunctionItem;
       expect(
-        function(context, [const XPathSequence.single(-42)]),
+        function(context, [
+          XPathSequence.from([-42]),
+        ]),
         isXPathSequence([42]),
       );
     });
   });
   group('ArrowExpression', () {
     test('evaluate with name', () {
-      const expr = ArrowExpression(
-        LiteralExpression(XPathSequence.single(1)),
+      final expr = ArrowExpression(
+        LiteralExpression(XPathSequence.single(XPathInteger.fromInt(1))),
         'foo',
-        [],
+        const [],
       );
       expect(
         expr(
@@ -248,21 +250,25 @@ void main() {
                 functions: {
                   const XmlName.parts('foo', namespaceUri: xpathFnNamespace):
                       ((XPathContext context, List<XPathSequence> args) =>
-                              XPathSequence.single((args[0].first as int) + 1))
+                              XPathSequence.single(
+                                XPathInteger.fromInt(
+                                  (args[0].first as XPathInteger).asInt + 1,
+                                ),
+                              ))
                           .toXPathFunction(arity: 1),
                 },
               )
               .context(context.item)
               .copy(variables: context.variables),
         ).first,
-        2,
+        XPathInteger.fromInt(2),
       );
     });
     test('evaluate with expression', () {
-      const expr = ArrowExpression(
-        LiteralExpression(XPathSequence.single(1)),
-        NamedFunctionExpression('foo', 1),
-        [],
+      final expr = ArrowExpression(
+        LiteralExpression(XPathSequence.single(XPathInteger.fromInt(1))),
+        const NamedFunctionExpression('foo', 1),
+        const [],
       );
       expect(
         expr(
@@ -271,52 +277,55 @@ void main() {
                 functions: {
                   const XmlName.parts('foo', namespaceUri: xpathFnNamespace):
                       ((XPathContext context, List<XPathSequence> args) =>
-                              XPathSequence.single((args[0].first as int) + 1))
+                              XPathSequence.single(
+                                XPathInteger.fromInt(
+                                  (args[0].first as XPathInteger).asInt + 1,
+                                ),
+                              ))
                           .toXPathFunction(arity: 1),
                 },
               )
               .context(context.item)
               .copy(variables: context.variables),
         ).first,
-        2,
+        XPathInteger.fromInt(2),
       );
     });
     test('evaluate with empty expression', () {
-      const expr = ArrowExpression(
-        LiteralExpression(XPathSequence.single(1)),
-        LiteralExpression(XPathSequence.empty),
-        [],
+      final expr = ArrowExpression(
+        LiteralExpression(XPathSequence.single(XPathInteger.fromInt(1))),
+        const LiteralExpression(XPathSequence.empty),
+        const [],
       );
       expect(
         () => expr(context),
         throwsA(
           isXPathEvaluationException(
-            message:
-                'Expected a single function item, but got an empty sequence',
+            message: 'Expected a single function item, but got 0 items',
           ),
         ),
       );
     });
     test('evaluate with non-function expression', () {
-      const expr = ArrowExpression(
-        LiteralExpression(XPathSequence.single(1)),
-        LiteralExpression(XPathSequence.single(123)),
-        [],
+      final expr = ArrowExpression(
+        LiteralExpression(XPathSequence.single(XPathInteger.fromInt(1))),
+        LiteralExpression(XPathSequence.single(XPathInteger.fromInt(123))),
+        const [],
       );
       expect(
         () => expr(context),
         throwsA(
           isXPathEvaluationException(
-            message: 'Expected a function item, but got int',
+            message: 'Expected a function item, but got XPathInteger',
           ),
         ),
       );
     });
     test('evaluate with multiple items expression', () {
-      const expr = ArrowExpression(
-        LiteralExpression(XPathSequence.single(1)),
-        LiteralExpression(XPathSequence([function, function])),
-        [],
+      final expr = ArrowExpression(
+        LiteralExpression(XPathSequence.single(XPathInteger.fromInt(1))),
+        LiteralExpression(XPathSequence([xpathFunction, xpathFunction])),
+        const [],
       );
       expect(
         () => expr(context),
@@ -328,10 +337,10 @@ void main() {
       );
     });
     test('evaluate with invalid specifier', () {
-      const expr = ArrowExpression(
-        LiteralExpression(XPathSequence.single(1)),
+      final expr = ArrowExpression(
+        LiteralExpression(XPathSequence.single(XPathInteger.fromInt(1))),
         123,
-        [],
+        const [],
       );
       expect(
         () => expr(context),
@@ -345,20 +354,27 @@ void main() {
       );
     });
     test('evaluate with Map', () {
-      final map = {'key': 'value'};
+      final map = XPathMap({
+        const XPathString('key'): const XPathSequence.single(
+          XPathString('value'),
+        ),
+      });
       final expr = ArrowExpression(
-        const LiteralExpression(XPathSequence.single('key')),
+        const LiteralExpression(XPathSequence.single(XPathString('key'))),
         LiteralExpression(XPathSequence.single(map)),
-        [],
+        const [],
       );
       expect(expr(context), isXPathSequence(['value']));
     });
     test('evaluate with List', () {
-      final array = ['first', 'second'];
+      const array = XPathArray([
+        XPathSequence.single(XPathString('first')),
+        XPathSequence.single(XPathString('second')),
+      ]);
       final expr = ArrowExpression(
-        const LiteralExpression(XPathSequence.single(1)),
-        LiteralExpression(XPathSequence.single(array)),
-        [],
+        LiteralExpression(XPathSequence.single(XPathInteger.fromInt(1))),
+        const LiteralExpression(XPathSequence.single(array)),
+        const [],
       );
       expect(expr(context), isXPathSequence(['first']));
     });
@@ -374,30 +390,29 @@ void main() {
         () => expr(context),
         throwsA(
           isXPathEvaluationException(
-            message:
-                'Expected a single function item, but got an empty sequence',
+            message: 'Expected a single function item, but got 0 items',
           ),
         ),
       );
     });
     test('evaluate with non-function sequence', () {
       const expr = FunctionCallExpression(
-        LiteralExpression(XPathSequence.single('text')),
+        LiteralExpression(XPathSequence.single(XPathString('text'))),
         [],
       );
       expect(
         () => expr(context),
         throwsA(
           isXPathEvaluationException(
-            message: 'Expected a function item, but got String',
+            message: 'Expected a function item, but got XPathString',
           ),
         ),
       );
     });
     test('evaluate with multiple items sequence', () {
-      const expr = FunctionCallExpression(
-        LiteralExpression(XPathSequence([function, function])),
-        [],
+      final expr = FunctionCallExpression(
+        LiteralExpression(XPathSequence([xpathFunction, xpathFunction])),
+        const [],
       );
       expect(
         () => expr(context),
@@ -409,12 +424,12 @@ void main() {
       );
     });
     test('partial application expects more arguments', () {
-      const expr = FunctionCallExpression(
-        LiteralExpression(XPathSequence.single(function)),
-        [ArgumentPlaceholderExpression(), LiteralExpression(arg2)],
+      final expr = FunctionCallExpression(
+        LiteralExpression(XPathSequence.single(xpathFunction)),
+        const [ArgumentPlaceholderExpression(), LiteralExpression(arg2)],
       );
       final functionSeq = expr(context);
-      final resultFunction = functionSeq.first as XPathFunction;
+      final resultFunction = functionSeq.first as XPathFunctionItem;
       expect(
         () => resultFunction(context, []),
         throwsA(
@@ -425,12 +440,12 @@ void main() {
       );
     });
     test('partial application expects fewer arguments', () {
-      const expr = FunctionCallExpression(
-        LiteralExpression(XPathSequence.single(function)),
-        [ArgumentPlaceholderExpression(), LiteralExpression(arg2)],
+      final expr = FunctionCallExpression(
+        LiteralExpression(XPathSequence.single(xpathFunction)),
+        const [ArgumentPlaceholderExpression(), LiteralExpression(arg2)],
       );
       final functionSeq = expr(context);
-      final resultFunction = functionSeq.first as XPathFunction;
+      final resultFunction = functionSeq.first as XPathFunctionItem;
       expect(
         () => resultFunction(context, [arg1, arg2]),
         throwsA(
@@ -441,27 +456,34 @@ void main() {
       );
     });
     test('partial application success', () {
-      const expr = FunctionCallExpression(
-        LiteralExpression(XPathSequence.single(function)),
-        [ArgumentPlaceholderExpression(), LiteralExpression(arg2)],
+      final expr = FunctionCallExpression(
+        LiteralExpression(XPathSequence.single(xpathFunction)),
+        const [ArgumentPlaceholderExpression(), LiteralExpression(arg2)],
       );
       final functionSeq = expr(context);
-      final resultFunction = functionSeq.first as XPathFunction;
+      final resultFunction = functionSeq.first as XPathFunctionItem;
       expect(resultFunction(context, [arg1]), result);
     });
     test('evaluate with Map', () {
-      final map = {'key': 'value'};
+      final map = XPathMap({
+        const XPathString('key'): const XPathSequence.single(
+          XPathString('value'),
+        ),
+      });
       final expr = FunctionCallExpression(
         LiteralExpression(XPathSequence.single(map)),
-        [const LiteralExpression(XPathSequence.single('key'))],
+        const [LiteralExpression(XPathSequence.single(XPathString('key')))],
       );
       expect(expr(context), isXPathSequence(['value']));
     });
     test('evaluate with List', () {
-      final array = ['first', 'second'];
+      const array = XPathArray([
+        XPathSequence.single(XPathString('first')),
+        XPathSequence.single(XPathString('second')),
+      ]);
       final expr = FunctionCallExpression(
-        LiteralExpression(XPathSequence.single(array)),
-        [const LiteralExpression(XPathSequence.single(1))],
+        const LiteralExpression(XPathSequence.single(array)),
+        [LiteralExpression(XPathSequence.single(XPathInteger.fromInt(1)))],
       );
       expect(expr(context), isXPathSequence(['first']));
     });

@@ -3,10 +3,11 @@ import 'dart:math' as math;
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/configuration.dart';
 import 'package:xml/src/xpath/functions/math.dart';
-import 'package:xml/src/xpath/values/sequence.dart';
+import 'package:xml/src/xpath/xdm/sequence.dart';
 import 'package:xml/xml.dart';
 
 import '../../utils/matchers.dart';
+import '../helpers.dart';
 
 final context = const XPathConfiguration.raw().context(XmlDocument());
 void main() {
@@ -18,10 +19,7 @@ void main() {
 
   group('math:sqrt', () {
     test('returns square root', () {
-      expect(
-        mathSqrt(context, [const XPathSequence.single(4)]),
-        isXPathSequence([2.0]),
-      );
+      expect(mathSqrt(context, [seq(4)]), isXPathSequence([2.0]));
     });
 
     test('returns empty for empty sequence', () {
@@ -34,10 +32,7 @@ void main() {
 
   group('math:exp', () {
     test('returns exp', () {
-      expect(
-        mathExp(context, [const XPathSequence.single(0)]),
-        isXPathSequence([1.0]),
-      );
+      expect(mathExp(context, [seq(0)]), isXPathSequence([1.0]));
     });
 
     test('returns empty for empty sequence', () {
@@ -47,10 +42,7 @@ void main() {
 
   group('math:exp10', () {
     test('returns exp10', () {
-      expect(
-        mathExp10(context, [const XPathSequence.single(0)]),
-        isXPathSequence([1.0]),
-      );
+      expect(mathExp10(context, [seq(0)]), isXPathSequence([1.0]));
     });
 
     test('returns empty for empty sequence', () {
@@ -63,10 +55,7 @@ void main() {
 
   group('math:log', () {
     test('returns log', () {
-      expect(
-        mathLog(context, [const XPathSequence.single(math.e)]),
-        isXPathSequence([1.0]),
-      );
+      expect(mathLog(context, [seq(math.e)]), isXPathSequence([1.0]));
     });
 
     test('returns empty for empty sequence', () {
@@ -76,10 +65,7 @@ void main() {
 
   group('math:log10', () {
     test('returns log10', () {
-      expect(
-        mathLog10(context, [const XPathSequence.single(10)]),
-        isXPathSequence([1.0]),
-      );
+      expect(mathLog10(context, [seq(10)]), isXPathSequence([1.0]));
     });
 
     test('returns empty for empty sequence', () {
@@ -92,18 +78,12 @@ void main() {
 
   group('math:pow', () {
     test('returns power', () {
-      expect(
-        mathPow(context, [
-          const XPathSequence.single(2),
-          const XPathSequence.single(3),
-        ]),
-        isXPathSequence([8.0]),
-      );
+      expect(mathPow(context, [seq(2), seq(3)]), isXPathSequence([8.0]));
     });
 
     test('returns empty for empty sequence', () {
       expect(
-        mathPow(context, [XPathSequence.empty, const XPathSequence.single(2)]),
+        mathPow(context, [XPathSequence.empty, seq(2)]),
         isXPathSequence(<num>[]),
       );
     });
@@ -111,10 +91,7 @@ void main() {
 
   group('math:sin', () {
     test('returns sine', () {
-      expect(
-        mathSin(context, [const XPathSequence.single(0)]),
-        isXPathSequence([0.0]),
-      );
+      expect(mathSin(context, [seq(0)]), isXPathSequence([0.0]));
     });
 
     test('returns empty for empty sequence', () {
@@ -124,10 +101,7 @@ void main() {
 
   group('math:cos', () {
     test('returns cosine', () {
-      expect(
-        mathCos(context, [const XPathSequence.single(0)]),
-        isXPathSequence([1.0]),
-      );
+      expect(mathCos(context, [seq(0)]), isXPathSequence([1.0]));
     });
 
     test('returns empty for empty sequence', () {
@@ -137,10 +111,7 @@ void main() {
 
   group('math:tan', () {
     test('returns tangent', () {
-      expect(
-        mathTan(context, [const XPathSequence.single(0)]),
-        isXPathSequence([0.0]),
-      );
+      expect(mathTan(context, [seq(0)]), isXPathSequence([0.0]));
     });
 
     test('returns empty for empty sequence', () {
@@ -150,10 +121,7 @@ void main() {
 
   group('math:asin', () {
     test('returns arcsine', () {
-      expect(
-        mathAsin(context, [const XPathSequence.single(0)]),
-        isXPathSequence([0.0]),
-      );
+      expect(mathAsin(context, [seq(0)]), isXPathSequence([0.0]));
     });
 
     test('returns empty for empty sequence', () {
@@ -166,10 +134,7 @@ void main() {
 
   group('math:acos', () {
     test('returns arccosine', () {
-      expect(
-        mathAcos(context, [const XPathSequence.single(1)]),
-        isXPathSequence([0.0]),
-      );
+      expect(mathAcos(context, [seq(1)]), isXPathSequence([0.0]));
     });
 
     test('returns empty for empty sequence', () {
@@ -182,10 +147,7 @@ void main() {
 
   group('math:atan', () {
     test('returns arctangent', () {
-      expect(
-        mathAtan(context, [const XPathSequence.single(0)]),
-        isXPathSequence([0.0]),
-      );
+      expect(mathAtan(context, [seq(0)]), isXPathSequence([0.0]));
     });
 
     test('returns empty for empty sequence', () {
@@ -198,13 +160,7 @@ void main() {
 
   group('math:atan2', () {
     test('returns arctangent2', () {
-      expect(
-        mathAtan2(context, [
-          const XPathSequence.single(0),
-          const XPathSequence.single(1),
-        ]),
-        isXPathSequence([0.0]),
-      );
+      expect(mathAtan2(context, [seq(0), seq(1)]), isXPathSequence([0.0]));
     });
   });
 }

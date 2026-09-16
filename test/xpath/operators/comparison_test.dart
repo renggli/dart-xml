@@ -1,41 +1,53 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/operators/comparison.dart';
-import 'package:xml/src/xpath/values/sequence.dart';
 import 'package:xml/xml.dart';
+import 'package:xml/xpath.dart';
 
 import '../../utils/matchers.dart';
 
 void main() {
   group('compare', () {
     test('numbers', () {
-      expect(compare(1, 2), -1);
-      expect(compare(2, 2), 0);
-      expect(compare(2, 1), 1);
-      expect(compare(1.0, 2.0), -1);
-      expect(compare(1, 1.0), 0);
+      expect(compare(XPathInteger.fromInt(1), XPathInteger.fromInt(2)), -1);
+      expect(compare(XPathInteger.fromInt(2), XPathInteger.fromInt(2)), 0);
+      expect(compare(XPathInteger.fromInt(2), XPathInteger.fromInt(1)), 1);
+      expect(compare(const XPathDouble(1.0), const XPathDouble(2.0)), -1);
+      expect(compare(XPathInteger.fromInt(1), const XPathDouble(1.0)), 0);
     });
     test('strings', () {
-      expect(compare('a', 'b'), -1);
-      expect(compare('b', 'b'), 0);
-      expect(compare('b', 'a'), 1);
+      expect(compare(const XPathString('a'), const XPathString('b')), -1);
+      expect(compare(const XPathString('b'), const XPathString('b')), 0);
+      expect(compare(const XPathString('b'), const XPathString('a')), 1);
     });
     test('booleans', () {
-      expect(compare(false, true), -1);
-      expect(compare(true, true), 0);
-      expect(compare(false, false), 0);
-      expect(compare(true, false), 1);
+      expect(
+        compare(XPathBoolean.falseInstance, XPathBoolean.trueInstance),
+        -1,
+      );
+      expect(compare(XPathBoolean.trueInstance, XPathBoolean.trueInstance), 0);
+      expect(
+        compare(XPathBoolean.falseInstance, XPathBoolean.falseInstance),
+        0,
+      );
+      expect(compare(XPathBoolean.trueInstance, XPathBoolean.falseInstance), 1);
     });
     test('incompatible types throw', () {
-      expect(() => compare(1, '2'), throwsA(isXPathEvaluationException()));
-      expect(() => compare('2', 1), throwsA(isXPathEvaluationException()));
+      expect(
+        () => compare(XPathInteger.fromInt(1), const XPathString('2')),
+        throwsA(isXPathEvaluationException()),
+      );
+      expect(
+        () => compare(const XPathString('2'), XPathInteger.fromInt(1)),
+        throwsA(isXPathEvaluationException()),
+      );
     });
   });
 
-  final earlier = DateTime.utc(2024, 1, 1);
-  final later = DateTime.utc(2025, 6, 15);
-  const shortDuration = Duration(hours: 1);
-  const longDuration = Duration(days: 2);
+  final earlier = XPathDateTime.fromDateTime(DateTime.utc(2024, 1, 1));
+  final later = XPathDateTime.fromDateTime(DateTime.utc(2025, 6, 15));
+  const shortDuration = XPathDayTimeDuration(Duration.microsecondsPerHour);
+  const longDuration = XPathDayTimeDuration(2 * Duration.microsecondsPerDay);
 
   group('opValueLessThan', () {
     test('DateTime values', () {
@@ -59,15 +71,18 @@ void main() {
     test('bool values', () {
       expect(
         opValueLessThan(
-          const XPathSequence.single(false),
-          const XPathSequence.single(true),
+          const XPathSequence.single(XPathBoolean.falseInstance),
+          const XPathSequence.single(XPathBoolean.trueInstance),
         ),
         isXPathSequence([true]),
       );
     });
     test('empty sequence returns empty', () {
       expect(
-        opValueLessThan(XPathSequence.empty, const XPathSequence.single(1)),
+        opValueLessThan(
+          XPathSequence.empty,
+          XPathSequence.single(XPathInteger.fromInt(1)),
+        ),
         isXPathSequence(isEmpty),
       );
     });
@@ -86,8 +101,8 @@ void main() {
     test('bool values', () {
       expect(
         opValueGreaterThanOrEqual(
-          const XPathSequence.single(true),
-          const XPathSequence.single(true),
+          const XPathSequence.single(XPathBoolean.trueInstance),
+          const XPathSequence.single(XPathBoolean.trueInstance),
         ),
         isXPathSequence([true]),
       );
@@ -122,8 +137,8 @@ void main() {
     test('equal numbers', () {
       expect(
         opValueEqual(
-          const XPathSequence.single(1),
-          const XPathSequence.single(1),
+          XPathSequence.single(XPathInteger.fromInt(1)),
+          XPathSequence.single(XPathInteger.fromInt(1)),
         ),
         isXPathSequence([true]),
       );
@@ -131,8 +146,8 @@ void main() {
     test('not equal numbers', () {
       expect(
         opValueEqual(
-          const XPathSequence.single(1),
-          const XPathSequence.single(2),
+          XPathSequence.single(XPathInteger.fromInt(1)),
+          XPathSequence.single(XPathInteger.fromInt(2)),
         ),
         isXPathSequence([false]),
       );
@@ -141,26 +156,32 @@ void main() {
       final node = XmlElement(const XmlName('a'), [], [XmlText('foo')]);
       expect(
         opValueEqual(
-          XPathSequence.single(node),
-          const XPathSequence.single('foo'),
+          XPathSequence.single(XPathNode(node)),
+          const XPathSequence.single(XPathString('foo')),
         ),
         isXPathSequence([true]),
       );
     });
     test('empty sequence returns empty', () {
       expect(
-        opValueEqual(XPathSequence.empty, const XPathSequence.single(1)),
+        opValueEqual(
+          XPathSequence.empty,
+          XPathSequence.single(XPathInteger.fromInt(1)),
+        ),
         isXPathSequence(isEmpty),
       );
     });
     test('sequence with more than one item throws', () {
-      const multiple = XPathSequence([1, 2]);
-      const single = XPathSequence.single(1);
+      final multiple = XPathSequence([
+        XPathInteger.fromInt(1),
+        XPathInteger.fromInt(2),
+      ]);
+      final single = XPathSequence.single(XPathInteger.fromInt(1));
       expect(
         () => opValueEqual(multiple, single),
         throwsA(
           isXPathEvaluationException(
-            message: 'Sequence contains more than one item: (1, 2)',
+            message: contains('Sequence contains more than one item'),
           ),
         ),
       );
@@ -171,8 +192,8 @@ void main() {
     test('not equal numbers', () {
       expect(
         opValueNotEqual(
-          const XPathSequence.single(1),
-          const XPathSequence.single(2),
+          XPathSequence.single(XPathInteger.fromInt(1)),
+          XPathSequence.single(XPathInteger.fromInt(2)),
         ),
         isXPathSequence([true]),
       );
@@ -180,15 +201,18 @@ void main() {
     test('equal numbers', () {
       expect(
         opValueNotEqual(
-          const XPathSequence.single(1),
-          const XPathSequence.single(1),
+          XPathSequence.single(XPathInteger.fromInt(1)),
+          XPathSequence.single(XPathInteger.fromInt(1)),
         ),
         isXPathSequence([false]),
       );
     });
     test('empty sequence returns empty', () {
       expect(
-        opValueNotEqual(XPathSequence.empty, const XPathSequence.single(1)),
+        opValueNotEqual(
+          XPathSequence.empty,
+          XPathSequence.single(XPathInteger.fromInt(1)),
+        ),
         isXPathSequence(isEmpty),
       );
     });
@@ -198,8 +222,10 @@ void main() {
     test('atomize array', () {
       expect(
         opValueEqual(
-          const XPathSequence.single([1]),
-          const XPathSequence.single(1),
+          XPathSequence.single(
+            XPathArray([XPathSequence.single(XPathInteger.fromInt(1))]),
+          ),
+          XPathSequence.single(XPathInteger.fromInt(1)),
         ),
         isXPathSequence([true]),
       );
@@ -208,24 +234,31 @@ void main() {
     test('atomize nested array', () {
       expect(
         opValueEqual(
-          const XPathSequence.single([
-            [1],
-          ]),
-          const XPathSequence.single(1),
+          XPathSequence.single(
+            XPathArray([
+              XPathSequence.single(
+                XPathArray([XPathSequence.single(XPathInteger.fromInt(1))]),
+              ),
+            ]),
+          ),
+          XPathSequence.single(XPathInteger.fromInt(1)),
         ),
         isXPathSequence([true]),
       );
     });
 
     test('atomizing map throws FOTY0013', () {
+      final map = XPathMap({
+        const XPathString('a'): XPathSequence.single(XPathInteger.fromInt(1)),
+      });
       expect(
         () => opValueEqual(
-          const XPathSequence.single(<Object, Object>{'a': 1}),
-          const XPathSequence.single(1),
+          XPathSequence.single(map),
+          XPathSequence.single(XPathInteger.fromInt(1)),
         ),
         throwsA(
           isXPathEvaluationException(
-            message: 'Cannot atomize a map or function item',
+            message: contains('Cannot atomize a map or function item'),
           ),
         ),
       );
@@ -236,12 +269,12 @@ void main() {
           XPathSequence.empty;
       expect(
         () => opValueEqual(
-          XPathSequence.single(dummy),
-          const XPathSequence.single(1),
+          XPathSequence.single(dummy.toXPathFunction()),
+          XPathSequence.single(XPathInteger.fromInt(1)),
         ),
         throwsA(
           isXPathEvaluationException(
-            message: 'Cannot atomize a map or function item',
+            message: contains('Cannot atomize a map or function item'),
           ),
         ),
       );

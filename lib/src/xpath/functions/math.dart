@@ -1,247 +1,188 @@
 import 'dart:math' as math;
 
 import '../../xml/utils/name.dart';
-import '../definitions/cardinality.dart';
-import '../definitions/function.dart';
 import '../evaluation/context.dart';
-import '../types/number.dart';
-import '../values/sequence.dart';
+import '../xdm/atomic/numeric.dart';
+import '../xdm/function_item.dart';
+import '../xdm/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-pi
-const mathPi = XPathFunctionDefinition(
-  name: XmlName.qualified('math:pi'),
-  function: _mathPi,
-);
+const mathPi = XPathFunctionItem.fn0(XmlName.qualified('math:pi'), _mathPi);
 
 XPathSequence _mathPi(XPathContext context) =>
-    const XPathSequence.single(math.pi);
+    const XPathSequence.single(XPathDouble(math.pi));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-exp
-const mathExp = XPathFunctionDefinition(
-  name: XmlName.qualified('math:exp'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsNumeric,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _mathExp,
-);
+const mathExp = XPathFunctionItem.fn1(XmlName.qualified('math:exp'), _mathExp);
 
-XPathSequence _mathExp(XPathContext context, num? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(math.exp(arg));
+XPathSequence _mathExp(XPathContext context, XPathSequence arg) {
+  final val = arg.firstOrNull;
+  if (val == null) return XPathSequence.empty;
+  return XPathSequence.single(
+    XPathDouble(math.exp((val as XPathNumeric).toDouble())),
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-exp10
-const mathExp10 = XPathFunctionDefinition(
-  name: XmlName.qualified('math:exp10'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsNumeric,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _mathExp10,
+const mathExp10 = XPathFunctionItem.fn1(
+  XmlName.qualified('math:exp10'),
+  _mathExp10,
 );
 
-XPathSequence _mathExp10(XPathContext context, num? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(math.pow(10, arg));
+XPathSequence _mathExp10(XPathContext context, XPathSequence arg) {
+  final val = arg.firstOrNull;
+  if (val == null) return XPathSequence.empty;
+  return XPathSequence.single(
+    XPathDouble(math.pow(10, (val as XPathNumeric).toDouble()).toDouble()),
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-log
-const mathLog = XPathFunctionDefinition(
-  name: XmlName.qualified('math:log'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsNumeric,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _mathLog,
-);
+const mathLog = XPathFunctionItem.fn1(XmlName.qualified('math:log'), _mathLog);
 
-XPathSequence _mathLog(XPathContext context, num? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(math.log(arg));
+XPathSequence _mathLog(XPathContext context, XPathSequence arg) {
+  final val = arg.firstOrNull;
+  if (val == null) return XPathSequence.empty;
+  return XPathSequence.single(
+    XPathDouble(math.log((val as XPathNumeric).toDouble())),
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-log10
-const mathLog10 = XPathFunctionDefinition(
-  name: XmlName.qualified('math:log10'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsNumeric,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _mathLog10,
+const mathLog10 = XPathFunctionItem.fn1(
+  XmlName.qualified('math:log10'),
+  _mathLog10,
 );
 
-XPathSequence _mathLog10(XPathContext context, num? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(math.log(arg) / math.ln10);
+XPathSequence _mathLog10(XPathContext context, XPathSequence arg) {
+  final val = arg.firstOrNull;
+  if (val == null) return XPathSequence.empty;
+  return XPathSequence.single(
+    XPathDouble(math.log((val as XPathNumeric).toDouble()) / math.ln10),
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-pow
-const mathPow = XPathFunctionDefinition(
-  name: XmlName.qualified('math:pow'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg1',
-      type: xsNumeric,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-    XPathArgumentDefinition(name: 'arg2', type: xsNumeric),
-  ],
-  function: _mathPow,
-);
+const mathPow = XPathFunctionItem.fn2(XmlName.qualified('math:pow'), _mathPow);
 
-XPathSequence _mathPow(XPathContext context, num? arg1, num arg2) {
-  if (arg1 == null) return XPathSequence.empty;
-  return XPathSequence.single(math.pow(arg1, arg2));
+XPathSequence _mathPow(
+  XPathContext context,
+  XPathSequence arg1,
+  XPathSequence arg2,
+) {
+  final val1 = arg1.firstOrNull;
+  if (val1 == null) return XPathSequence.empty;
+  final val2 = arg2.first as XPathNumeric;
+  return XPathSequence.single(
+    XPathDouble(
+      math.pow((val1 as XPathNumeric).toDouble(), val2.toDouble()).toDouble(),
+    ),
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-sqrt
-const mathSqrt = XPathFunctionDefinition(
-  name: XmlName.qualified('math:sqrt'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsNumeric,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _mathSqrt,
+const mathSqrt = XPathFunctionItem.fn1(
+  XmlName.qualified('math:sqrt'),
+  _mathSqrt,
 );
 
-XPathSequence _mathSqrt(XPathContext context, num? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(math.sqrt(arg));
+XPathSequence _mathSqrt(XPathContext context, XPathSequence arg) {
+  final val = arg.firstOrNull;
+  if (val == null) return XPathSequence.empty;
+  return XPathSequence.single(
+    XPathDouble(math.sqrt((val as XPathNumeric).toDouble())),
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-sin
-const mathSin = XPathFunctionDefinition(
-  name: XmlName.qualified('math:sin'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsNumeric,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _mathSin,
-);
+const mathSin = XPathFunctionItem.fn1(XmlName.qualified('math:sin'), _mathSin);
 
-XPathSequence _mathSin(XPathContext context, num? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(math.sin(arg));
+XPathSequence _mathSin(XPathContext context, XPathSequence arg) {
+  final val = arg.firstOrNull;
+  if (val == null) return XPathSequence.empty;
+  return XPathSequence.single(
+    XPathDouble(math.sin((val as XPathNumeric).toDouble())),
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-cos
-const mathCos = XPathFunctionDefinition(
-  name: XmlName.qualified('math:cos'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsNumeric,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _mathCos,
-);
+const mathCos = XPathFunctionItem.fn1(XmlName.qualified('math:cos'), _mathCos);
 
-XPathSequence _mathCos(XPathContext context, num? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(math.cos(arg));
+XPathSequence _mathCos(XPathContext context, XPathSequence arg) {
+  final val = arg.firstOrNull;
+  if (val == null) return XPathSequence.empty;
+  return XPathSequence.single(
+    XPathDouble(math.cos((val as XPathNumeric).toDouble())),
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-tan
-const mathTan = XPathFunctionDefinition(
-  name: XmlName.qualified('math:tan'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsNumeric,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _mathTan,
-);
+const mathTan = XPathFunctionItem.fn1(XmlName.qualified('math:tan'), _mathTan);
 
-XPathSequence _mathTan(XPathContext context, num? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(math.tan(arg));
+XPathSequence _mathTan(XPathContext context, XPathSequence arg) {
+  final val = arg.firstOrNull;
+  if (val == null) return XPathSequence.empty;
+  return XPathSequence.single(
+    XPathDouble(math.tan((val as XPathNumeric).toDouble())),
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-asin
-const mathAsin = XPathFunctionDefinition(
-  name: XmlName.qualified('math:asin'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsNumeric,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _mathAsin,
+const mathAsin = XPathFunctionItem.fn1(
+  XmlName.qualified('math:asin'),
+  _mathAsin,
 );
 
-XPathSequence _mathAsin(XPathContext context, num? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(math.asin(arg));
+XPathSequence _mathAsin(XPathContext context, XPathSequence arg) {
+  final val = arg.firstOrNull;
+  if (val == null) return XPathSequence.empty;
+  return XPathSequence.single(
+    XPathDouble(math.asin((val as XPathNumeric).toDouble())),
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-acos
-const mathAcos = XPathFunctionDefinition(
-  name: XmlName.qualified('math:acos'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsNumeric,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _mathAcos,
+const mathAcos = XPathFunctionItem.fn1(
+  XmlName.qualified('math:acos'),
+  _mathAcos,
 );
 
-XPathSequence _mathAcos(XPathContext context, num? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(math.acos(arg));
+XPathSequence _mathAcos(XPathContext context, XPathSequence arg) {
+  final val = arg.firstOrNull;
+  if (val == null) return XPathSequence.empty;
+  return XPathSequence.single(
+    XPathDouble(math.acos((val as XPathNumeric).toDouble())),
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-atan
-const mathAtan = XPathFunctionDefinition(
-  name: XmlName.qualified('math:atan'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsNumeric,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _mathAtan,
+const mathAtan = XPathFunctionItem.fn1(
+  XmlName.qualified('math:atan'),
+  _mathAtan,
 );
 
-XPathSequence _mathAtan(XPathContext context, num? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(math.atan(arg));
+XPathSequence _mathAtan(XPathContext context, XPathSequence arg) {
+  final val = arg.firstOrNull;
+  if (val == null) return XPathSequence.empty;
+  return XPathSequence.single(
+    XPathDouble(math.atan((val as XPathNumeric).toDouble())),
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-atan2
-const mathAtan2 = XPathFunctionDefinition(
-  name: XmlName.qualified('math:atan2'),
-  requiredArguments: [
-    XPathArgumentDefinition(name: 'y', type: xsNumeric),
-    XPathArgumentDefinition(name: 'x', type: xsNumeric),
-  ],
-  function: _mathAtan2,
+const mathAtan2 = XPathFunctionItem.fn2(
+  XmlName.qualified('math:atan2'),
+  _mathAtan2,
 );
 
-XPathSequence _mathAtan2(XPathContext context, num y, num x) =>
-    XPathSequence.single(math.atan2(y, x));
+XPathSequence _mathAtan2(
+  XPathContext context,
+  XPathSequence y,
+  XPathSequence x,
+) {
+  final valY = y.first as XPathNumeric;
+  final valX = x.first as XPathNumeric;
+  return XPathSequence.single(
+    XPathDouble(math.atan2(valY.toDouble(), valX.toDouble())),
+  );
+}

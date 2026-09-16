@@ -1,32 +1,31 @@
 import '../../xml/utils/name.dart';
-import '../definitions/function.dart';
 import '../evaluation/context.dart';
-import '../values/date_time.dart';
-import '../values/duration.dart';
-import '../values/sequence.dart';
+import '../xdm/atomic/date_time.dart';
+import '../xdm/atomic/duration.dart';
+import '../xdm/atomic/numeric.dart';
+import '../xdm/atomic/string.dart';
+import '../xdm/function_item.dart';
+import '../xdm/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-position
-const fnPosition = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:position'),
-  function: _fnPosition,
+const fnPosition = XPathFunctionItem.fn0(
+  XmlName.qualified('fn:position'),
+  _fnPosition,
 );
 
 XPathSequence _fnPosition(XPathContext context) =>
-    XPathSequence.single(context.position);
+    XPathSequence.single(XPathInteger.fromInt(context.position));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-last
-const fnLast = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:last'),
-  function: _fnLast,
-);
+const fnLast = XPathFunctionItem.fn0(XmlName.qualified('fn:last'), _fnLast);
 
 XPathSequence _fnLast(XPathContext context) =>
-    XPathSequence.single(context.last);
+    XPathSequence.single(XPathInteger.fromInt(context.last));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-current-dateTime
-const fnCurrentDateTime = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:current-dateTime'),
-  function: _fnCurrentDateTime,
+const fnCurrentDateTime = XPathFunctionItem.fn0(
+  XmlName.qualified('fn:current-dateTime'),
+  _fnCurrentDateTime,
 );
 
 XPathSequence _fnCurrentDateTime(XPathContext context) {
@@ -37,9 +36,9 @@ XPathSequence _fnCurrentDateTime(XPathContext context) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-current-date
-const fnCurrentDate = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:current-date'),
-  function: _fnCurrentDate,
+const fnCurrentDate = XPathFunctionItem.fn0(
+  XmlName.qualified('fn:current-date'),
+  _fnCurrentDate,
 );
 
 XPathSequence _fnCurrentDate(XPathContext context) {
@@ -50,9 +49,9 @@ XPathSequence _fnCurrentDate(XPathContext context) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-current-time
-const fnCurrentTime = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:current-time'),
-  function: _fnCurrentTime,
+const fnCurrentTime = XPathFunctionItem.fn0(
+  XmlName.qualified('fn:current-time'),
+  _fnCurrentTime,
 );
 
 XPathSequence _fnCurrentTime(XPathContext context) {
@@ -70,9 +69,9 @@ XPathSequence _fnCurrentTime(XPathContext context) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-implicit-timezone
-const fnImplicitTimezone = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:implicit-timezone'),
-  function: _fnImplicitTimezone,
+const fnImplicitTimezone = XPathFunctionItem.fn0(
+  XmlName.qualified('fn:implicit-timezone'),
+  _fnImplicitTimezone,
 );
 
 XPathSequence _fnImplicitTimezone(XPathContext context) => XPathSequence.single(
@@ -80,33 +79,33 @@ XPathSequence _fnImplicitTimezone(XPathContext context) => XPathSequence.single(
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-default-collation
-const fnDefaultCollation = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:default-collation'),
-  function: _fnDefaultCollation,
+const fnDefaultCollation = XPathFunctionItem.fn0(
+  XmlName.qualified('fn:default-collation'),
+  _fnDefaultCollation,
 );
 
 XPathSequence _fnDefaultCollation(XPathContext context) =>
     const XPathSequence.single(
-      'http://www.w3.org/2005/xpath-functions/collation/codepoint',
+      XPathString('http://www.w3.org/2005/xpath-functions/collation/codepoint'),
     );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-default-language
-const fnDefaultLanguage = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:default-language'),
-  function: _fnDefaultLanguage,
+const fnDefaultLanguage = XPathFunctionItem.fn0(
+  XmlName.qualified('fn:default-language'),
+  _fnDefaultLanguage,
 );
 
 XPathSequence _fnDefaultLanguage(XPathContext context) =>
-    const XPathSequence.single('en');
+    const XPathSequence.single(XPathString('en'));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-static-base-uri
-const fnStaticBaseUri = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:static-base-uri'),
-  function: _fnStaticBaseUri,
+const fnStaticBaseUri = XPathFunctionItem.fn0(
+  XmlName.qualified('fn:static-base-uri'),
+  _fnStaticBaseUri,
 );
 
 XPathSequence _fnStaticBaseUri(XPathContext context) {
   final base = context.configuration.baseUri;
   if (base == null) return XPathSequence.empty;
-  return XPathSequence.single(base);
+  return XPathSequence.single(XPathString(base));
 }

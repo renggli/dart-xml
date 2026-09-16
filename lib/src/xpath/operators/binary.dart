@@ -1,50 +1,66 @@
-import '../types/binary.dart';
-import '../values/sequence.dart';
+import '../xdm/atomic/binary.dart';
+import '../xdm/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hexBinary-equal
-XPathSequence opHexBinaryEqual(XPathSequence left, XPathSequence right) =>
-    XPathSequence.single(
-      _compareBinary(xsHexBinary.cast(left), xsHexBinary.cast(right)) == 0,
-    );
+XPathSequence opHexBinaryEqual(XPathSequence left, XPathSequence right) {
+  if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
+  return (left.single as XPathHexBinary) == (right.single as XPathHexBinary)
+      ? XPathSequence.trueSequence
+      : XPathSequence.falseSequence;
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hexBinary-less-than
-XPathSequence opHexBinaryLessThan(XPathSequence left, XPathSequence right) =>
-    XPathSequence.single(
-      _compareBinary(xsHexBinary.cast(left), xsHexBinary.cast(right)) < 0,
-    );
+XPathSequence opHexBinaryLessThan(XPathSequence left, XPathSequence right) {
+  if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
+  return (left.single as XPathHexBinary).compareTo(
+            right.single as XPathHexBinary,
+          ) <
+          0
+      ? XPathSequence.trueSequence
+      : XPathSequence.falseSequence;
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hexBinary-greater-than
-XPathSequence opHexBinaryGreaterThan(XPathSequence left, XPathSequence right) =>
-    XPathSequence.single(
-      _compareBinary(xsHexBinary.cast(left), xsHexBinary.cast(right)) > 0,
-    );
+XPathSequence opHexBinaryGreaterThan(XPathSequence left, XPathSequence right) {
+  if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
+  return (left.single as XPathHexBinary).compareTo(
+            right.single as XPathHexBinary,
+          ) >
+          0
+      ? XPathSequence.trueSequence
+      : XPathSequence.falseSequence;
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-base64Binary-equal
-XPathSequence opBase64BinaryEqual(XPathSequence left, XPathSequence right) =>
-    XPathSequence.single(
-      _compareBinary(xsBase64Binary.cast(left), xsBase64Binary.cast(right)) ==
-          0,
-    );
+XPathSequence opBase64BinaryEqual(XPathSequence left, XPathSequence right) {
+  if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
+  return (left.single as XPathBase64Binary) ==
+          (right.single as XPathBase64Binary)
+      ? XPathSequence.trueSequence
+      : XPathSequence.falseSequence;
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-base64Binary-less-than
-XPathSequence opBase64BinaryLessThan(XPathSequence left, XPathSequence right) =>
-    XPathSequence.single(
-      _compareBinary(xsBase64Binary.cast(left), xsBase64Binary.cast(right)) < 0,
-    );
+XPathSequence opBase64BinaryLessThan(XPathSequence left, XPathSequence right) {
+  if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
+  return (left.single as XPathBase64Binary).compareTo(
+            right.single as XPathBase64Binary,
+          ) <
+          0
+      ? XPathSequence.trueSequence
+      : XPathSequence.falseSequence;
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-base64Binary-greater-than
 XPathSequence opBase64BinaryGreaterThan(
   XPathSequence left,
   XPathSequence right,
-) => XPathSequence.single(
-  _compareBinary(xsBase64Binary.cast(left), xsBase64Binary.cast(right)) > 0,
-);
-
-int _compareBinary(List<int> a, List<int> b) {
-  final len = a.length < b.length ? a.length : b.length;
-  for (var i = 0; i < len; i++) {
-    final diff = a[i].compareTo(b[i]);
-    if (diff != 0) return diff;
-  }
-  return a.length.compareTo(b.length);
+) {
+  if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
+  return (left.single as XPathBase64Binary).compareTo(
+            right.single as XPathBase64Binary,
+          ) >
+          0
+      ? XPathSequence.trueSequence
+      : XPathSequence.falseSequence;
 }

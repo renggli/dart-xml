@@ -1,5 +1,4 @@
 import '../../xml/utils/name.dart';
-import '../definitions/function.dart';
 import '../functions/accessor.dart' as accessor;
 import '../functions/array.dart' as array;
 import '../functions/boolean.dart' as boolean;
@@ -18,19 +17,20 @@ import '../functions/qname.dart' as qname;
 import '../functions/sequence.dart' as sequence;
 import '../functions/string.dart' as string;
 import '../functions/uri.dart' as uri;
-import '../values/function.dart';
+import '../xdm/function_item.dart';
 import 'namespaces.dart';
 
 /// The standard functions.
-final Map<XmlName, XPathFunction> standardFunctions = {
+final Map<XmlName, XPathFunctionItem> standardFunctions = {
   for (final definition in standardFunctionDefinitions)
-    definition.name.withNamespaceUri(
-      xpathNamespaceUris[definition.name.prefix],
-    ): definition,
+    if (definition.name != null)
+      definition.name!.withNamespaceUri(
+        xpathNamespaceUris[definition.name!.prefix],
+      ): definition,
 };
 
 /// Internal list of standard function definitions.
-const standardFunctionDefinitions = <XPathFunctionDefinition>[
+final standardFunctionDefinitions = <XPathFunctionItem>[
   // Accessors
   accessor.fnNodeName,
   accessor.fnNilled,
@@ -301,7 +301,7 @@ const standardFunctionDefinitions = <XPathFunctionDefinition>[
   constructors.xsNormalizedStringConstructor,
   constructors.xsTokenConstructor,
   constructors.xsLanguageConstructor,
-  constructors.xsNMTOKENConstructor,
+  constructors.xsNMTokenConstructor,
   constructors.xsNameConstructor,
   constructors.xsNCNameConstructor,
   constructors.xsIDConstructor,

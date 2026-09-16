@@ -1,6 +1,7 @@
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
-import '../values/sequence.dart';
+import '../xdm/item.dart';
+import '../xdm/sequence.dart';
 
 typedef XPathBinding = ({String name, XPathExpression expression});
 
@@ -12,7 +13,7 @@ class ForExpression implements XPathExpression {
 
   @override
   XPathSequence call(XPathContext context) {
-    Iterable<Object> loop(int index, XPathContext currentContext) sync* {
+    Iterable<XPathItem> loop(int index, XPathContext currentContext) sync* {
       if (index < bindings.length) {
         final binding = bindings[index];
         final sequence = binding.expression(currentContext);
@@ -69,7 +70,7 @@ class SomeExpression implements XPathExpression {
         }
         return false;
       } else {
-        return body(currentContext).ebv;
+        return body(currentContext).effectiveBooleanValue;
       }
     }
 
@@ -101,7 +102,7 @@ class EveryExpression implements XPathExpression {
         }
         return true;
       } else {
-        return body(currentContext).ebv;
+        return body(currentContext).effectiveBooleanValue;
       }
     }
 
@@ -119,7 +120,8 @@ class IfExpression implements XPathExpression {
   final XPathExpression falseExpression;
 
   @override
-  XPathSequence call(XPathContext context) => condition(context).ebv
+  XPathSequence call(XPathContext context) =>
+      condition(context).effectiveBooleanValue
       ? trueExpression(context)
       : falseExpression(context);
 }

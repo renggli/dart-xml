@@ -1,25 +1,20 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/operators/arithmetic.dart';
-import 'package:xml/src/xpath/values/date_time.dart';
-import 'package:xml/src/xpath/values/duration.dart';
-import 'package:xml/src/xpath/values/sequence.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
+import '../../utils/matchers.dart';
 import '../helpers.dart';
+
+XPathSequence intSeq(int val) =>
+    XPathSequence.single(XPathInteger.fromInt(val));
 
 void main() {
   final xml = XmlDocument.parse('<r><a>1</a><b>2<c/>3</b></r>');
 
   group('op:numeric-add', () {
     test('numbers', () {
-      expect(
-        opNumericAdd(
-          const XPathSequence.single(1),
-          const XPathSequence.single(2),
-        ),
-        [3],
-      );
+      expect(opNumericAdd(intSeq(1), intSeq(2)), isXPathSequence([3]));
     });
     test('integration numbers', () {
       expectEvaluate(xml, '1 + 2', [3]);
@@ -50,13 +45,7 @@ void main() {
 
   group('op:numeric-subtract', () {
     test('numbers', () {
-      expect(
-        opNumericSubtract(
-          const XPathSequence.single(2),
-          const XPathSequence.single(1),
-        ),
-        [1],
-      );
+      expect(opNumericSubtract(intSeq(2), intSeq(1)), isXPathSequence([1]));
     });
     test('integration numbers', () {
       expectEvaluate(xml, '1 - 2', [-1]);
@@ -87,13 +76,7 @@ void main() {
 
   group('op:numeric-multiply', () {
     test('numbers', () {
-      expect(
-        opNumericMultiply(
-          const XPathSequence.single(2),
-          const XPathSequence.single(3),
-        ),
-        [6],
-      );
+      expect(opNumericMultiply(intSeq(2), intSeq(3)), isXPathSequence([6]));
     });
     test('integration numbers', () {
       expectEvaluate(xml, '2 * 3', [6]);
@@ -113,13 +96,7 @@ void main() {
 
   group('op:numeric-divide', () {
     test('numbers', () {
-      expect(
-        opNumericDivide(
-          const XPathSequence.single(6),
-          const XPathSequence.single(2),
-        ),
-        [3.0],
-      );
+      expect(opNumericDivide(intSeq(6), intSeq(2)), isXPathSequence([3.0]));
     });
     test('integration numbers', () {
       expectEvaluate(xml, '6 div 3', [2]);
@@ -142,38 +119,40 @@ void main() {
   group('op:numeric-integer-divide', () {
     test('numbers', () {
       expect(
-        opNumericIntegerDivide(
-          const XPathSequence.single(6),
-          const XPathSequence.single(2),
-        ),
-        [3],
+        opNumericIntegerDivide(intSeq(6), intSeq(2)),
+        isXPathSequence([3]),
       );
     });
     test('integration numbers', () {
       expectEvaluate(xml, '5 idiv 2', [2]);
       expectEvaluate(xml, '8 idiv 2', [4]);
+      expect(
+        () => xml.xpathEvaluate('5 idiv 0'),
+        throwsA(isXPathEvaluationException()),
+      );
     });
   });
 
   group('op:numeric-mod', () {
     test('numbers', () {
-      expect(
-        opNumericMod(
-          const XPathSequence.single(5),
-          const XPathSequence.single(2),
-        ),
-        [1],
-      );
+      expect(opNumericMod(intSeq(5), intSeq(2)), isXPathSequence([1]));
     });
     test('integration numbers', () {
       expectEvaluate(xml, '5 mod 2', [1]);
       expectEvaluate(xml, '8 mod 2', [0]);
+      expectEvaluate(xml, '-5 mod 3', [-2]);
+      expectEvaluate(xml, '5 mod -3', [2]);
+      expectEvaluate(xml, '-5 mod -3', [-2]);
+      expect(
+        () => xml.xpathEvaluate('5 mod 0'),
+        throwsA(isXPathEvaluationException()),
+      );
     });
   });
 
   group('op:numeric-unary-plus', () {
     test('numbers', () {
-      expect(opNumericUnaryPlus(const XPathSequence.single(1)), [1]);
+      expect(opNumericUnaryPlus(intSeq(1)), isXPathSequence([1]));
     });
     test('integration numbers', () {
       expectEvaluate(xml, '+1', [1]);
@@ -184,7 +163,7 @@ void main() {
 
   group('op:numeric-unary-minus', () {
     test('numbers', () {
-      expect(opNumericUnaryMinus(const XPathSequence.single(1)), [-1]);
+      expect(opNumericUnaryMinus(intSeq(1)), isXPathSequence([-1]));
     });
     test('integration numbers', () {
       expectEvaluate(xml, '-1', [-1]);
@@ -195,36 +174,21 @@ void main() {
 
   group('op:numeric-equal', () {
     test('numbers', () {
-      expect(
-        opNumericEqual(
-          const XPathSequence.single(1),
-          const XPathSequence.single(1),
-        ),
-        [true],
-      );
+      expect(opNumericEqual(intSeq(1), intSeq(1)), isXPathSequence([true]));
     });
   });
 
   group('op:numeric-less-than', () {
     test('numbers', () {
-      expect(
-        opNumericLessThan(
-          const XPathSequence.single(1),
-          const XPathSequence.single(2),
-        ),
-        [true],
-      );
+      expect(opNumericLessThan(intSeq(1), intSeq(2)), isXPathSequence([true]));
     });
   });
 
   group('op:numeric-greater-than', () {
     test('numbers', () {
       expect(
-        opNumericGreaterThan(
-          const XPathSequence.single(2),
-          const XPathSequence.single(1),
-        ),
-        [true],
+        opNumericGreaterThan(intSeq(2), intSeq(1)),
+        isXPathSequence([true]),
       );
     });
   });
@@ -299,10 +263,7 @@ void main() {
       ]);
     });
     test('empty inputs return empty', () {
-      expect(
-        opAdd(XPathSequence.empty, const XPathSequence.single(1)),
-        isEmpty,
-      );
+      expect(opAdd(XPathSequence.empty, intSeq(1)), isEmpty);
     });
   });
 
@@ -349,10 +310,7 @@ void main() {
       );
     });
     test('empty inputs return empty', () {
-      expect(
-        opSubtract(XPathSequence.empty, const XPathSequence.single(1)),
-        isEmpty,
-      );
+      expect(opSubtract(XPathSequence.empty, intSeq(1)), isEmpty);
     });
   });
 
@@ -368,10 +326,7 @@ void main() {
       ]);
     });
     test('empty inputs return empty', () {
-      expect(
-        opMultiply(XPathSequence.empty, const XPathSequence.single(1)),
-        isEmpty,
-      );
+      expect(opMultiply(XPathSequence.empty, intSeq(1)), isEmpty);
     });
   });
 
@@ -389,10 +344,7 @@ void main() {
       ]);
     });
     test('empty inputs return empty', () {
-      expect(
-        opDivide(XPathSequence.empty, const XPathSequence.single(1)),
-        isEmpty,
-      );
+      expect(opDivide(XPathSequence.empty, intSeq(1)), isEmpty);
     });
   });
 }

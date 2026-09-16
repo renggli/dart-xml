@@ -1,6 +1,5 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/functions/duration.dart';
-import 'package:xml/src/xpath/values/duration.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -10,7 +9,7 @@ final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
 final context = const XPathConfiguration.raw().context(document);
 
 /// Wraps a value in a single-item XPathSequence.
-XPathSequence seq(Object value) => XPathSequence.single(value);
+XPathSequence seq(XPathItem value) => XPathSequence.single(value);
 
 void main() {
   group('fn:years-from-duration', () {

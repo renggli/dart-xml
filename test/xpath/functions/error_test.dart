@@ -1,8 +1,7 @@
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/evaluation/configuration.dart';
 import 'package:xml/src/xpath/functions/error.dart';
-import 'package:xml/src/xpath/values/sequence.dart';
 import 'package:xml/xml.dart';
+import 'package:xml/xpath.dart';
 
 import '../../utils/matchers.dart';
 
@@ -20,7 +19,8 @@ void main() {
 
     test('throws with code', () {
       expect(
-        () => fnError(context, [const XPathSequence.single('code')]),
+        () =>
+            fnError(context, [const XPathSequence.single(XPathString('code'))]),
         throwsA(isXPathEvaluationException(message: 'code')),
       );
     });
@@ -28,8 +28,8 @@ void main() {
     test('throws with code and description', () {
       expect(
         () => fnError(context, [
-          const XPathSequence.single('code'),
-          const XPathSequence.single('description'),
+          const XPathSequence.single(XPathString('code')),
+          const XPathSequence.single(XPathString('description')),
         ]),
         throwsA(isXPathEvaluationException(message: 'code: description')),
       );
@@ -38,9 +38,13 @@ void main() {
     test('throws with code, description, and value', () {
       expect(
         () => fnError(context, [
-          const XPathSequence.single('code'),
-          const XPathSequence.single('description'),
-          const XPathSequence([1, 2, 3]),
+          const XPathSequence.single(XPathString('code')),
+          const XPathSequence.single(XPathString('description')),
+          XPathSequence([
+            XPathInteger.fromInt(1),
+            XPathInteger.fromInt(2),
+            XPathInteger.fromInt(3),
+          ]),
         ]),
         throwsA(
           isXPathEvaluationException(message: 'code: description (1, 2, 3)'),
@@ -51,15 +55,15 @@ void main() {
 
   group('fn:trace', () {
     test('without handler returns value', () {
-      const value = XPathSequence.single('value');
-      const label = XPathSequence.single('label');
+      const value = XPathSequence.single(XPathString('value'));
+      const label = XPathSequence.single(XPathString('label'));
       expect(fnTrace(context, [value]), isXPathSequence(['value']));
       expect(fnTrace(context, [value, label]), isXPathSequence(['value']));
     });
 
     test('with handler logs and returns value', () {
-      const value = XPathSequence.single('value');
-      const label = XPathSequence.single('label');
+      const value = XPathSequence.single(XPathString('value'));
+      const label = XPathSequence.single(XPathString('label'));
       final traceLog = <(XPathSequence, String?)>[];
       final traceContext = context.configuration
           .copy(
@@ -70,7 +74,7 @@ void main() {
           .copy(variables: context.variables);
       expect(fnTrace(traceContext, [value]), same(value));
       expect(fnTrace(traceContext, [value, label]), same(value));
-      expect(traceLog, [(value, null), (value, label.single)]);
+      expect(traceLog, [(value, null), (value, 'label')]);
     });
   });
 }

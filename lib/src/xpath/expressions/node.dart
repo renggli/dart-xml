@@ -7,6 +7,8 @@ import '../../xml/nodes/namespace.dart';
 import '../../xml/nodes/node.dart';
 import '../../xml/nodes/processing.dart';
 import '../../xml/nodes/text.dart';
+import '../xdm/item.dart';
+import '../xdm/types.dart';
 import 'name.dart';
 
 /// Abstract superclass for all node tests.
@@ -107,4 +109,16 @@ class SchemaAttributeTypeTest extends NodeTest {
 
   @override
   bool matches(XmlNode node) => throw UnimplementedError('SchemaAttributeNode');
+}
+
+/// Dynamic type wrapper for the [NodeTest] expressions in SequenceType.
+class NodeTestType extends XPathType {
+  const new(this.nodeTest, [String name = 'node-test'])
+    : super(name: name, parent: xsNode, isAtomic: false);
+
+  final NodeTest nodeTest;
+
+  @override
+  bool matchesItem(XPathItem item) =>
+      item is XPathNode && nodeTest.matches(item.node);
 }

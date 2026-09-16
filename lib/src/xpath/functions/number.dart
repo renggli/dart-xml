@@ -1,200 +1,272 @@
-import 'dart:math';
+import 'dart:math' as math;
 
 import 'package:collection/collection.dart';
 
 import '../../xml/utils/name.dart';
-import '../definitions/cardinality.dart';
-import '../definitions/function.dart';
 import '../evaluation/context.dart';
-import '../exceptions/evaluation_exception.dart';
-import '../types/any.dart';
-import '../types/number.dart';
-import '../types/sequence.dart';
-import '../values/function.dart';
-import '../values/sequence.dart';
+import '../xdm/atomic.dart';
+import '../xdm/function_item.dart';
+import '../xdm/functions/function.dart';
+import '../xdm/functions/map.dart';
+import '../xdm/item.dart';
+import '../xdm/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-number
-const fnNumber = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:number'),
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsSequence,
-      cardinality: XPathCardinality.zeroOrMore,
+final fnNumber = XPathFunctionItem.overloaded(
+  const XmlName.qualified('fn:number'),
+  {
+    0: XPathFunctionItem.fn0(
+      const XmlName.qualified('fn:number'),
+      (context) => _evalNumber(context.item as XPathItem?),
     ),
-  ],
-  function: _fnNumber,
+    1: XPathFunctionItem.fn1(
+      const XmlName.qualified('fn:number'),
+      (context, arg) => _evalNumber(arg.atomize().firstOrNull),
+    ),
+  },
 );
 
-XPathSequence _fnNumber(XPathContext context, [XPathSequence? arg]) {
-  try {
-    if (arg == null) return XPathSequence.single(xsNumeric.cast(context.item));
-    if (arg.isEmpty) return const XPathSequence.single(double.nan);
-    return XPathSequence.single(xsNumeric.cast(arg));
-  } on XPathEvaluationException {
-    return const XPathSequence.single(double.nan);
+XPathSequence _evalNumber(XPathItem? arg) {
+  if (arg == null) return const XPathSequence.single(XPathDouble.nan);
+  if (arg is XPathNumeric) {
+    return XPathSequence.single(XPathDouble(arg.toDouble()));
   }
+  if (arg is XPathBoolean) {
+    return XPathSequence.single(XPathDouble(arg.value ? 1.0 : 0.0));
+  }
+  final text = arg.stringValue.trim();
+  final d = double.tryParse(text);
+  if (d != null) return XPathSequence.single(XPathDouble(d));
+  return const XPathSequence.single(XPathDouble.nan);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-abs
-const fnAbs = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:abs'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsNumeric,
-      cardinality: XPathCardinality.zeroOrOne,
+final fnAbs = XPathFunctionItem.fn1(const XmlName.qualified('fn:abs'), (
+  context,
+  arg,
+) {
+  final item = arg.atomize().firstOrNull;
+  if (item == null) return XPathSequence.empty;
+  if (item is! XPathNumeric) return XPathSequence.empty;
+  return switch (item) {
+    final XPathInteger i => XPathSequence.single(
+      XPathInteger(i.value.abs(), i.type),
     ),
-  ],
-  function: _fnAbs,
-);
-
-XPathSequence _fnAbs(XPathContext context, num? arg) {
-  if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(arg.abs());
-}
+    final XPathDecimal d => XPathSequence.single(
+      XPathDecimal(d.unscaledValue.abs(), d.scale),
+    ),
+    final XPathDouble d => XPathSequence.single(
+      XPathDouble(d.value.abs(), d.type),
+    ),
+  };
+});
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-ceiling
-const fnCeiling = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:ceiling'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsNumeric,
-      cardinality: XPathCardinality.zeroOrOne,
+final fnCeiling = XPathFunctionItem.fn1(const XmlName.qualified('fn:ceiling'), (
+  context,
+  arg,
+) {
+  final item = arg.atomize().firstOrNull;
+  if (item == null) return XPathSequence.empty;
+  if (item is! XPathNumeric) return XPathSequence.empty;
+  return switch (item) {
+    final XPathInteger i => XPathSequence.single(i),
+    final XPathDecimal d => XPathSequence.single(
+      XPathDecimal.fromBigInt(
+        d.scale == 0 ? d.unscaledValue : BigInt.from(d.toDouble().ceil()),
+      ),
     ),
-  ],
-  function: _fnCeiling,
-);
-
-XPathSequence _fnCeiling(XPathContext context, num? arg) {
-  if (arg == null) return XPathSequence.empty;
-  if (arg.isNaN || arg.isInfinite) return XPathSequence.single(arg);
-  return XPathSequence.single(arg is double ? arg.ceilToDouble() : arg.ceil());
-}
+    final XPathDouble d => XPathSequence.single(
+      d.value.isNaN || d.value.isInfinite
+          ? d
+          : XPathDouble(d.value.ceilToDouble(), d.type),
+    ),
+  };
+});
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-floor
-const fnFloor = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:floor'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsNumeric,
-      cardinality: XPathCardinality.zeroOrOne,
+final fnFloor = XPathFunctionItem.fn1(const XmlName.qualified('fn:floor'), (
+  context,
+  arg,
+) {
+  final item = arg.atomize().firstOrNull;
+  if (item == null) return XPathSequence.empty;
+  if (item is! XPathNumeric) return XPathSequence.empty;
+  return switch (item) {
+    final XPathInteger i => XPathSequence.single(i),
+    final XPathDecimal d => XPathSequence.single(
+      XPathDecimal.fromBigInt(
+        d.scale == 0 ? d.unscaledValue : BigInt.from(d.toDouble().floor()),
+      ),
     ),
-  ],
-  function: _fnFloor,
-);
-
-XPathSequence _fnFloor(XPathContext context, num? arg) {
-  if (arg == null) return XPathSequence.empty;
-  if (arg.isNaN || arg.isInfinite) return XPathSequence.single(arg);
-  return XPathSequence.single(
-    arg is double ? arg.floorToDouble() : arg.floor(),
-  );
-}
+    final XPathDouble d => XPathSequence.single(
+      d.value.isNaN || d.value.isInfinite
+          ? d
+          : XPathDouble(d.value.floorToDouble(), d.type),
+    ),
+  };
+});
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-round
-const fnRound = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:round'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsNumeric,
-      cardinality: XPathCardinality.zeroOrOne,
+final fnRound = XPathFunctionItem.overloaded(
+  const XmlName.qualified('fn:round'),
+  {
+    1: XPathFunctionItem.fn1(
+      const XmlName.qualified('fn:round'),
+      (context, arg) =>
+          _evalRound(arg.atomize().firstOrNull as XPathNumeric?, null),
     ),
-  ],
-  optionalArguments: [
-    XPathArgumentDefinition(name: 'precision', type: xsInteger),
-  ],
-  function: _fnRound,
+    2: XPathFunctionItem.fn2(
+      const XmlName.qualified('fn:round'),
+      (context, arg, precision) => _evalRound(
+        arg.atomize().firstOrNull as XPathNumeric?,
+        precision.atomize().firstOrNull as XPathInteger?,
+      ),
+    ),
+  },
 );
 
-XPathSequence _fnRound(XPathContext context, num? arg, [int? precision]) {
+XPathSequence _evalRound(XPathNumeric? arg, XPathInteger? precision) {
   if (arg == null) return XPathSequence.empty;
-  if (arg.isNaN || arg.isInfinite) return XPathSequence.single(arg);
-  final p = precision ?? 0;
-  final factor = pow(10, p);
-  final value = arg * factor;
-  final floor = value.floor();
-  final diff = value - floor;
-  num rounded;
-  if (diff == 0.5) {
-    rounded = floor + 1;
-  } else {
-    rounded = value.round();
+  final p = precision?.asInt ?? 0;
+  if (arg is XPathDouble) {
+    final val = arg.value;
+    if (val.isNaN || val.isInfinite || val == 0.0) {
+      return XPathSequence.single(arg);
+    }
+    final factor = math.pow(10, p);
+    final scaled = val * factor;
+    final floor = scaled.floorToDouble();
+    final diff = scaled - floor;
+    final rounded = (diff == 0.5) ? floor + 1.0 : scaled.roundToDouble();
+    final result = rounded / factor;
+    if (result == 0.0 && val.isNegative) {
+      return XPathSequence.single(XPathDouble(-0.0, arg.type));
+    }
+    return XPathSequence.single(XPathDouble(result, arg.type));
+  } else if (arg is XPathInteger) {
+    if (p >= 0) return XPathSequence.single(arg);
+    final factor = BigInt.from(10).pow(-p);
+    final val = arg.value;
+    final div = val ~/ factor;
+    final rem = (val % factor).abs();
+    final half = factor ~/ BigInt.two;
+    final rounded = rem >= half
+        ? (val.isNegative
+              ? (div - BigInt.one) * factor
+              : (div + BigInt.one) * factor)
+        : div * factor;
+    return XPathSequence.single(XPathInteger(rounded, arg.type));
+  } else if (arg is XPathDecimal) {
+    final val = arg.toDouble();
+    final factor = math.pow(10, p);
+    final scaled = val * factor;
+    final floor = scaled.floorToDouble();
+    final diff = scaled - floor;
+    final rounded = (diff == 0.5) ? floor + 1.0 : scaled.roundToDouble();
+    final result = rounded / factor;
+    return XPathSequence.single(XPathDecimal.fromNum(result));
   }
-  if (rounded == 0 && arg.isNegative && arg is double) {
-    return XPathSequence.single(-0.0 / factor);
-  }
-  final result = rounded / factor;
-  if (arg is double) {
-    return XPathSequence.single(result.toDouble());
-  } else if (arg is int) {
-    return XPathSequence.single(result.toInt());
-  }
-  return XPathSequence.single(result);
+  return XPathSequence.single(arg);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-round-half-to-even
-const fnRoundHalfToEven = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:round-half-to-even'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsNumeric,
-      cardinality: XPathCardinality.zeroOrOne,
+final fnRoundHalfToEven = XPathFunctionItem.overloaded(
+  const XmlName.qualified('fn:round-half-to-even'),
+  {
+    1: XPathFunctionItem.fn1(
+      const XmlName.qualified('fn:round-half-to-even'),
+      (context, arg) => _evalRoundHalfToEven(
+        arg.atomize().firstOrNull as XPathNumeric?,
+        null,
+      ),
     ),
-  ],
-  optionalArguments: [
-    XPathArgumentDefinition(name: 'precision', type: xsNumeric),
-  ],
-  function: _fnRoundHalfToEven,
+    2: XPathFunctionItem.fn2(
+      const XmlName.qualified('fn:round-half-to-even'),
+      (context, arg, precision) => _evalRoundHalfToEven(
+        arg.atomize().firstOrNull as XPathNumeric?,
+        precision.atomize().firstOrNull as XPathInteger?,
+      ),
+    ),
+  },
 );
 
-XPathSequence _fnRoundHalfToEven(
-  XPathContext context,
-  num? arg, [
-  num? precision,
-]) {
+XPathSequence _evalRoundHalfToEven(XPathNumeric? arg, XPathInteger? precision) {
   if (arg == null) return XPathSequence.empty;
-  if (arg.isNaN || arg.isInfinite) return XPathSequence.single(arg);
-  // TODO: Proper round-half-to-even implementation
-  final p = precision?.toInt() ?? 0;
-  final factor = pow(10, p);
-  final value = arg * factor;
-  final floor = value.floor();
-  final diff = value - floor;
+  final p = precision?.asInt ?? 0;
+  if (arg is XPathDouble) {
+    final val = arg.value;
+    if (val.isNaN || val.isInfinite || val == 0.0) {
+      return XPathSequence.single(arg);
+    }
+    final factor = math.pow(10, p);
+    final scaled = val * factor;
+    final floor = scaled.floor();
+    final diff = scaled - floor;
+    final rounded = diff == 0.5
+        ? (floor % 2 == 0 ? floor.toDouble() : (floor + 1).toDouble())
+        : scaled.roundToDouble();
+    final result = rounded / factor;
+    return XPathSequence.single(XPathDouble(result, arg.type));
+  }
+  final val = arg.toDouble();
+  final factor = math.pow(10, p);
+  final scaled = val * factor;
+  final floor = scaled.floor();
+  final diff = scaled - floor;
   final rounded = diff == 0.5
       ? (floor % 2 == 0 ? floor : floor + 1)
-      : value.round();
+      : scaled.round();
   final result = rounded / factor;
-  if (arg is double) {
-    return XPathSequence.single(result.toDouble());
-  } else if (arg is int) {
-    return XPathSequence.single(result.toInt());
+  if (arg is XPathInteger) {
+    return XPathSequence.single(XPathInteger.fromInt(result.toInt(), arg.type));
   }
-  return XPathSequence.single(result);
+  return XPathSequence.single(XPathDecimal.fromNum(result));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-random-number-generator
-const fnRandomNumberGenerator = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:random-number-generator'),
-  optionalArguments: [XPathArgumentDefinition(name: 'seed', type: xsAny)],
-  function: _fnRandomNumberGenerator,
+final fnRandomNumberGenerator = XPathFunctionItem.overloaded(
+  const XmlName.qualified('fn:random-number-generator'),
+  {
+    0: XPathFunctionItem.fn0(
+      const XmlName.qualified('fn:random-number-generator'),
+      (context) => _evalRandomNumberGenerator(null),
+    ),
+    1: XPathFunctionItem.fn1(
+      const XmlName.qualified('fn:random-number-generator'),
+      (context, seed) => _evalRandomNumberGenerator(seed.atomize().firstOrNull),
+    ),
+  },
 );
 
-XPathSequence _fnRandomNumberGenerator(XPathContext context, [Object? seed]) {
-  final random = Random(seed?.hashCode);
-  final object = <String, Object>{};
-  object['number'] = random.nextDouble();
-  object['next'] =
-      ((XPathContext context, List<XPathSequence> args) => XPathSequence.single(
-        {...object, 'number': random.nextDouble()},
-      )).toXPathFunction(name: const XmlName.parts('next'), arity: 0);
-  object['permute'] =
-      ((XPathContext context, List<XPathSequence> args) => XPathSequence(
-        args.single.toList().shuffled(random),
-      )).toXPathFunction(name: const XmlName.parts('permute'), arity: 1);
-  return XPathSequence.single(object);
+XPathSequence _evalRandomNumberGenerator(XPathItem? seed) {
+  final random = math.Random(seed?.hashCode);
+  final entries = <XPathAtomic, XPathSequence>{};
+  entries[const XPathString('number')] = XPathSequence.single(
+    XPathDouble(random.nextDouble()),
+  );
+  entries[const XPathString('next')] = XPathSequence.single(
+    XPathFunction(
+      name: const XmlName.parts('next'),
+      arity: 0,
+      function: (XPathContext c, List<XPathSequence> args) =>
+          XPathSequence.single(
+            XPathMap({
+              ...entries,
+              const XPathString('number'): XPathSequence.single(
+                XPathDouble(random.nextDouble()),
+              ),
+            }),
+          ),
+    ),
+  );
+  entries[const XPathString('permute')] = XPathSequence.single(
+    XPathFunction(
+      name: const XmlName.parts('permute'),
+      arity: 1,
+      function: (XPathContext c, List<XPathSequence> args) =>
+          XPathSequence(args.single.toList().shuffled(random)),
+    ),
+  );
+  return XPathSequence.single(XPathMap(entries));
 }

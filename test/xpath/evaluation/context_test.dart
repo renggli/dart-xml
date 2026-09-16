@@ -2,6 +2,7 @@ import 'package:test/test.dart';
 import 'package:xml/src/xml/nodes/document.dart';
 import 'package:xml/src/xpath/evaluation/configuration.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
+import 'package:xml/src/xpath/xdm/item.dart';
 
 import '../../utils/matchers.dart';
 
@@ -13,7 +14,7 @@ void main() {
   group('constructor', () {
     test('default', () {
       final context = XPathContext(configuration, element);
-      expect(context.item, same(element));
+      expect(context.item, XPathNode(element));
       expect(context.position, 1);
       expect(context.last, 1);
       expect(context.variables, isEmpty);
@@ -34,7 +35,7 @@ void main() {
         parentContext: parentContext,
         currentDateTime: customTime,
       );
-      expect(context.item, same(element));
+      expect(context.item, XPathNode(element));
       expect(context.position, 17);
       expect(context.last, 23);
       expect(context.variables, same(variables));
@@ -120,7 +121,7 @@ void main() {
         variables: variables,
       );
       expect(copy, isNot(same(base)));
-      expect(copy.item, same(document));
+      expect(copy.item, XPathNode(document));
       expect(copy.position, 2);
       expect(copy.last, 3);
       expect(copy.variables, same(variables));

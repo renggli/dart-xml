@@ -1,7 +1,10 @@
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../exceptions/evaluation_exception.dart';
-import '../values/sequence.dart';
+import '../xdm/atomic.dart';
+import '../xdm/functions/array.dart';
+import '../xdm/functions/map.dart';
+import '../xdm/sequence.dart';
 
 class MapConstructor implements XPathExpression {
   const new(this.entries);
@@ -10,17 +13,17 @@ class MapConstructor implements XPathExpression {
 
   @override
   XPathSequence call(XPathContext context) {
-    final map = <Object, Object>{};
+    final map = <XPathAtomic, XPathSequence>{};
     for (final entry in entries) {
-      final key = entry.key.call(context).toAtomicValue();
-      if (key is XPathSequence) {
+      final keySeq = entry.key(context).atomize().toList();
+      if (keySeq.length != 1) {
         throw XPathEvaluationException(
-          'map:constructor key must be exactly one item, but got $key',
+          'map:constructor key must be exactly one atomic item [err:XPTY0004]',
         );
       }
-      map[key] = entry.value.call(context).toAtomicValue();
+      map[keySeq.single] = entry.value(context);
     }
-    return XPathSequence.single(map);
+    return XPathSequence.single(XPathMap(map));
   }
 }
 
@@ -31,7 +34,7 @@ class SquareArrayConstructor implements XPathExpression {
 
   @override
   XPathSequence call(XPathContext context) => XPathSequence.single(
-    members.map((member) => member(context).toAtomicValue()).toList(),
+    XPathArray(members.map((member) => member(context)).toList()),
   );
 }
 
@@ -41,9 +44,10 @@ class CurlyArrayConstructor implements XPathExpression {
   final XPathExpression expression;
 
   @override
-  XPathSequence call(XPathContext context) => XPathSequence.single(
-    expression(context)
-        .expand((member) => member is XPathSequence ? member : [member])
-        .toList(),
-  );
+  XPathSequence call(XPathContext context) {
+    final seq = expression(context);
+    return XPathSequence.single(
+      XPathArray(seq.map(XPathSequence.single).toList()),
+    );
+  }
 }

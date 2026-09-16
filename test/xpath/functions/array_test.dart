@@ -1,23 +1,23 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/functions/array.dart';
-import 'package:xml/src/xpath/types/string.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
 import '../../utils/matchers.dart';
+import '../helpers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
 final context = const XPathConfiguration.raw().context(document);
+
+XPathSequence arraySeq(List<dynamic> list) =>
+    XPathSequence.single(toXPathItem(list));
 
 void main() {
   group('array:size', () {
     test('returns size of array', () {
       final array = ['a', 'b', 'c'];
-      expect(
-        fnArraySize(context, [XPathSequence.single(array)]),
-        isXPathSequence([3]),
-      );
+      expect(fnArraySize(context, [arraySeq(array)]), isXPathSequence([3]));
     });
   });
 
@@ -26,20 +26,14 @@ void main() {
 
     test('returns item at index', () {
       expect(
-        fnArrayGet(context, [
-          XPathSequence.single(array),
-          const XPathSequence.single(1),
-        ]),
+        fnArrayGet(context, [arraySeq(array), seq(1)]),
         isXPathSequence(['a']),
       );
     });
 
     test('throws exception for index out of bounds (too large)', () {
       expect(
-        () => fnArrayGet(context, [
-          XPathSequence.single(array),
-          const XPathSequence.single(3),
-        ]),
+        () => fnArrayGet(context, [arraySeq(array), seq(3)]),
         throwsA(
           isXPathEvaluationException(message: 'Array index out of bounds: 3'),
         ),
@@ -48,10 +42,7 @@ void main() {
 
     test('throws exception for index out of bounds (zero)', () {
       expect(
-        () => fnArrayGet(context, [
-          XPathSequence.single(array),
-          const XPathSequence.single(0),
-        ]),
+        () => fnArrayGet(context, [arraySeq(array), seq(0)]),
         throwsA(
           isXPathEvaluationException(message: 'Array index out of bounds: 0'),
         ),
@@ -64,11 +55,7 @@ void main() {
 
     test('replaces item at index', () {
       expect(
-        fnArrayPut(context, [
-          XPathSequence.single(array),
-          const XPathSequence.single(1),
-          const XPathSequence.single('c'),
-        ]),
+        fnArrayPut(context, [arraySeq(array), seq(1), seq('c')]),
         isXPathSequence([
           ['c', 'b'],
         ]),
@@ -77,11 +64,7 @@ void main() {
 
     test('throws exception for index out of bounds', () {
       expect(
-        () => fnArrayPut(context, [
-          XPathSequence.single(array),
-          const XPathSequence.single(3),
-          const XPathSequence.single('c'),
-        ]),
+        () => fnArrayPut(context, [arraySeq(array), seq(3), seq('c')]),
         throwsA(
           isXPathEvaluationException(message: 'Array index out of bounds: 3'),
         ),
@@ -93,10 +76,7 @@ void main() {
     test('appends item to array', () {
       final array = ['a'];
       expect(
-        fnArrayAppend(context, [
-          XPathSequence.single(array),
-          const XPathSequence.single('b'),
-        ]),
+        fnArrayAppend(context, [arraySeq(array), seq('b')]),
         isXPathSequence([
           ['a', 'b'],
         ]),
@@ -109,10 +89,7 @@ void main() {
 
     test('returns subarray with start index', () {
       expect(
-        fnArraySubarray(context, [
-          XPathSequence.single(array),
-          const XPathSequence.single(2),
-        ]),
+        fnArraySubarray(context, [arraySeq(array), seq(2)]),
         isXPathSequence([
           ['b', 'c', 'd'],
         ]),
@@ -121,11 +98,7 @@ void main() {
 
     test('returns subarray with start and length', () {
       expect(
-        fnArraySubarray(context, [
-          XPathSequence.single(array),
-          const XPathSequence.single(2),
-          const XPathSequence.single(2),
-        ]),
+        fnArraySubarray(context, [arraySeq(array), seq(2), seq(2)]),
         isXPathSequence([
           ['b', 'c'],
         ]),
@@ -134,10 +107,7 @@ void main() {
 
     test('throws exception for invalid range (zero start)', () {
       expect(
-        () => fnArraySubarray(context, [
-          XPathSequence.single(array),
-          const XPathSequence.single(0),
-        ]),
+        () => fnArraySubarray(context, [arraySeq(array), seq(0)]),
         throwsA(
           isXPathEvaluationException(
             message: 'Invalid subarray range: 0, null',
@@ -148,21 +118,14 @@ void main() {
 
     test('returns empty for index exceeding array size', () {
       expect(
-        fnArraySubarray(context, [
-          XPathSequence.single(array),
-          const XPathSequence.single(5),
-        ]),
+        fnArraySubarray(context, [arraySeq(array), seq(5)]),
         isXPathSequence([isEmpty]),
       );
     });
 
     test('throws exception for invalid range (length exceeds bounds)', () {
       expect(
-        () => fnArraySubarray(context, [
-          XPathSequence.single(array),
-          const XPathSequence.single(4),
-          const XPathSequence.single(2),
-        ]),
+        () => fnArraySubarray(context, [arraySeq(array), seq(4), seq(2)]),
         throwsA(
           isXPathEvaluationException(message: 'Invalid subarray range: 4, 2'),
         ),
@@ -175,10 +138,7 @@ void main() {
 
     test('removes item at index', () {
       expect(
-        fnArrayRemove(context, [
-          XPathSequence.single(array),
-          const XPathSequence.single(2),
-        ]),
+        fnArrayRemove(context, [arraySeq(array), seq(2)]),
         isXPathSequence([
           ['a', 'c'],
         ]),
@@ -188,8 +148,8 @@ void main() {
     test('removes multiple items at indices', () {
       expect(
         fnArrayRemove(context, [
-          XPathSequence.single(array),
-          const XPathSequence([1, 3]),
+          arraySeq(array),
+          seq([1, 3]),
         ]),
         isXPathSequence([
           ['b'],
@@ -199,10 +159,7 @@ void main() {
 
     test('throws exception for index out of bounds', () {
       expect(
-        () => fnArrayRemove(context, [
-          XPathSequence.single(array),
-          const XPathSequence.single(4),
-        ]),
+        () => fnArrayRemove(context, [arraySeq(array), seq(4)]),
         throwsA(
           isXPathEvaluationException(message: 'Array index out of bounds: 4'),
         ),
@@ -215,11 +172,7 @@ void main() {
 
     test('inserts item before index', () {
       expect(
-        fnArrayInsertBefore(context, [
-          XPathSequence.single(array),
-          const XPathSequence.single(2),
-          const XPathSequence.single('b'),
-        ]),
+        fnArrayInsertBefore(context, [arraySeq(array), seq(2), seq('b')]),
         isXPathSequence([
           ['a', 'b', 'c'],
         ]),
@@ -228,11 +181,7 @@ void main() {
 
     test('throws exception for index out of bounds', () {
       expect(
-        () => fnArrayInsertBefore(context, [
-          XPathSequence.single(array),
-          const XPathSequence.single(4),
-          const XPathSequence.single('d'),
-        ]),
+        () => fnArrayInsertBefore(context, [arraySeq(array), seq(4), seq('d')]),
         throwsA(
           isXPathEvaluationException(message: 'Array index out of bounds: 4'),
         ),
@@ -244,9 +193,7 @@ void main() {
     test('returns first item', () {
       expect(
         fnArrayHead(context, [
-          const XPathSequence([
-            ['a', 'b'],
-          ]),
+          arraySeq(['a', 'b']),
         ]),
         isXPathSequence(['a']),
       );
@@ -254,7 +201,7 @@ void main() {
 
     test('throws exception for empty array', () {
       expect(
-        () => fnArrayHead(context, [const XPathSequence.single([])]),
+        () => fnArrayHead(context, [arraySeq([])]),
         throwsA(isXPathEvaluationException(message: 'Empty array')),
       );
     });
@@ -264,9 +211,7 @@ void main() {
     test('returns remaining items', () {
       expect(
         fnArrayTail(context, [
-          const XPathSequence([
-            ['a', 'b', 'c'],
-          ]),
+          arraySeq(['a', 'b', 'c']),
         ]),
         isXPathSequence([
           ['b', 'c'],
@@ -276,7 +221,7 @@ void main() {
 
     test('throws exception for empty array', () {
       expect(
-        () => fnArrayTail(context, [const XPathSequence.single([])]),
+        () => fnArrayTail(context, [arraySeq([])]),
         throwsA(isXPathEvaluationException(message: 'Empty array')),
       );
     });
@@ -286,9 +231,7 @@ void main() {
     test('reverses array', () {
       expect(
         fnArrayReverse(context, [
-          const XPathSequence([
-            ['a', 'b', 'c'],
-          ]),
+          arraySeq(['a', 'b', 'c']),
         ]),
         isXPathSequence([
           ['c', 'b', 'a'],
@@ -301,7 +244,7 @@ void main() {
     test('returns single array unchanged', () {
       expect(
         fnArrayJoin(context, [
-          const XPathSequence.single([1, 2]),
+          arraySeq([1, 2]),
         ]),
         isXPathSequence([
           [1, 2],
@@ -312,9 +255,9 @@ void main() {
     test('joins multiple arrays', () {
       expect(
         fnArrayJoin(context, [
-          const XPathSequence([
-            [1, 2],
-            [3, 4, 5],
+          XPathSequence([
+            toXPathItem([1, 2]),
+            toXPathItem([3, 4, 5]),
           ]),
         ]),
         isXPathSequence([
@@ -326,27 +269,27 @@ void main() {
 
   group('array:flatten', () {
     test('flattens nested arrays', () {
-      final input = [
-        1,
-        [2, 3],
-        [
+      final input = XPathSequence([
+        XPathInteger.fromInt(1),
+        toXPathItem([2, 3]),
+        toXPathItem([
           [4, 5],
-        ],
-      ];
+        ]),
+      ]);
       expect(
-        fnArrayFlatten(context, [XPathSequence(input)]),
+        fnArrayFlatten(context, [input]),
         isXPathSequence([1, 2, 3, 4, 5]),
       );
     });
 
     test('flattens nested sequences', () {
-      final nestedSeq = [
-        1,
-        const XPathSequence([2, 3]),
-        [4],
-      ];
+      final nestedSeq = XPathSequence([
+        XPathInteger.fromInt(1),
+        toXPathItem([2, 3]),
+        toXPathItem([4]),
+      ]);
       expect(
-        fnArrayFlatten(context, [XPathSequence(nestedSeq)]),
+        fnArrayFlatten(context, [nestedSeq]),
         isXPathSequence([1, 2, 3, 4]),
       );
     });
@@ -356,14 +299,14 @@ void main() {
     test('applies function to each item', () {
       final array = [1, 2, 3];
       XPathSequence double(XPathContext context, List<XPathSequence> args) =>
-          XPathSequence.single((args.single.single as num) * 2);
-      final result = fnArrayForEach(context, [
-        XPathSequence.single(array),
-        XPathSequence.single(double),
-      ]);
-      expect(result, [
-        [2, 4, 6],
-      ]);
+          seq((args.single.single as XPathInteger).asInt * 2);
+      final result = fnArrayForEach(context, [arraySeq(array), seq(double)]);
+      expect(
+        result,
+        isXPathSequence([
+          [2, 4, 6],
+        ]),
+      );
     });
   });
 
@@ -371,11 +314,8 @@ void main() {
     test('filters items using function', () {
       final array = [1, 2, 3, 4];
       XPathSequence isEven(XPathContext context, List<XPathSequence> args) =>
-          XPathSequence.single((args.single.single as num) % 2 == 0);
-      final result = fnArrayFilter(context, [
-        XPathSequence.single(array),
-        XPathSequence.single(isEven),
-      ]);
+          seq((args.single.single as XPathInteger).asInt % 2 == 0);
+      final result = fnArrayFilter(context, [arraySeq(array), seq(isEven)]);
       expect(
         result,
         isXPathSequence([
@@ -388,16 +328,12 @@ void main() {
   group('array:fold-left', () {
     test('folds from left', () {
       final array = [1, 2, 3, 4, 5];
-      XPathSequence add(XPathContext context, List<XPathSequence> args) =>
-          XPathSequence.single(
-            (args[0].single as num) + (args[1].single as num),
-          );
+      XPathSequence add(XPathContext context, List<XPathSequence> args) => seq(
+        (args[0].single as XPathInteger).asInt +
+            (args[1].single as XPathInteger).asInt,
+      );
       expect(
-        fnArrayFoldLeft(context, [
-          XPathSequence.single(array),
-          const XPathSequence.single(0),
-          XPathSequence.single(add),
-        ]),
+        fnArrayFoldLeft(context, [arraySeq(array), seq(0), seq(add)]),
         isXPathSequence([15]),
       );
     });
@@ -406,16 +342,12 @@ void main() {
   group('array:fold-right', () {
     test('folds from right', () {
       final array = [1, 2, 3, 4, 5];
-      XPathSequence sub(XPathContext context, List<XPathSequence> args) =>
-          XPathSequence.single(
-            (args[0].single as num) - (args[1].single as num),
-          );
+      XPathSequence sub(XPathContext context, List<XPathSequence> args) => seq(
+        (args[0].single as XPathInteger).asInt -
+            (args[1].single as XPathInteger).asInt,
+      );
       expect(
-        fnArrayFoldRight(context, [
-          XPathSequence.single(array),
-          const XPathSequence.single(0),
-          XPathSequence.single(sub),
-        ]),
+        fnArrayFoldRight(context, [arraySeq(array), seq(0), seq(sub)]),
         isXPathSequence([3]),
       );
     });
@@ -426,41 +358,44 @@ void main() {
       final array1 = ['a', 'b', 'c'];
       final array2 = ['1', '2', '3'];
       XPathSequence concat(XPathContext context, List<XPathSequence> args) =>
-          XPathSequence.single('${args[0].single}${args[1].single}');
+          seq('${args[0].single.stringValue}${args[1].single.stringValue}');
       final result = fnArrayForEachPair(context, [
-        XPathSequence.single(array1),
-        XPathSequence.single(array2),
-        XPathSequence.single(concat),
+        arraySeq(array1),
+        arraySeq(array2),
+        seq(concat),
       ]);
-      expect(result, [
-        ['a1', 'b2', 'c3'],
-      ]);
+      expect(
+        result,
+        isXPathSequence([
+          ['a1', 'b2', 'c3'],
+        ]),
+      );
     });
   });
 
   group('array:sort', () {
     test('sorts items', () {
       final array = [3, 1, 2];
-      final result = fnArraySort(context, [XPathSequence.single(array)]);
+      final result = fnArraySort(context, [arraySeq(array)]);
       expect(
         result,
-        isXPathSequence({
+        isXPathSequence([
           [1, 2, 3],
-        }),
+        ]),
       );
     });
 
     test('sorts items with key function', () {
       final array = ['apple', 'be', 'cat'];
       XPathSequence length(XPathContext context, List<XPathSequence> args) {
-        final arg = args[0];
-        return XPathSequence.single(xsString.cast(arg).length);
+        final arg = args[0].first.stringValue;
+        return seq(arg.length);
       }
 
       final result = fnArraySort(context, [
-        XPathSequence.single(array),
+        arraySeq(array),
         XPathSequence.empty, // collation
-        XPathSequence.single(length),
+        seq(length),
       ]);
       expect(
         result,

@@ -1,8 +1,8 @@
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../evaluation/operators.dart';
-import '../types/string.dart';
-import '../values/sequence.dart';
+import '../xdm/atomic/string.dart';
+import '../xdm/sequence.dart';
 
 class BinaryOperatorExpression implements XPathExpression {
   const new(this.operator, this.left, this.right);
@@ -35,8 +35,10 @@ class StringConcatExpression implements XPathExpression {
   XPathSequence call(XPathContext context) {
     final buffer = StringBuffer();
     for (final expression in expressions) {
-      buffer.write(xsString.cast(expression(context)));
+      for (final item in expression(context).atomize()) {
+        buffer.write(item.stringValue);
+      }
     }
-    return XPathSequence.single(buffer.toString());
+    return XPathSequence.single(XPathString(buffer.toString()));
   }
 }

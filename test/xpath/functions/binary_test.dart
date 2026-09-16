@@ -2,10 +2,9 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/evaluation/configuration.dart';
 import 'package:xml/src/xpath/functions/binary.dart';
-import 'package:xml/src/xpath/values/sequence.dart';
 import 'package:xml/xml.dart';
+import 'package:xml/xpath.dart';
 
 import '../../utils/matchers.dart';
 
@@ -17,7 +16,9 @@ void main() {
       const input = 'SGVsbG8gV29ybGQ=';
       final expected = Uint8List.fromList(utf8.encode('Hello World'));
       expect(
-        fnBase64BinaryFromString(context, [const XPathSequence.single(input)]),
+        fnBase64BinaryFromString(context, [
+          const XPathSequence.single(XPathString(input)),
+        ]),
         isXPathSequence([expected]),
       );
     });
@@ -35,7 +36,9 @@ void main() {
       const input = '48656C6C6F20576F726C64';
       final expected = Uint8List.fromList(utf8.encode('Hello World'));
       expect(
-        fnHexBinaryFromString(context, [const XPathSequence.single(input)]),
+        fnHexBinaryFromString(context, [
+          const XPathSequence.single(XPathString(input)),
+        ]),
         isXPathSequence([expected]),
       );
     });

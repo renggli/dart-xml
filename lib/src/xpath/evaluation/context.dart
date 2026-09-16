@@ -1,8 +1,10 @@
 import 'package:meta/meta.dart';
 
+import '../../xml/nodes/node.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../grammars/parser.dart';
-import '../values/sequence.dart';
+import '../xdm/item.dart';
+import '../xdm/sequence.dart';
 import 'configuration.dart';
 
 /// Dynamic execution context to evaluate XPath expressions.
@@ -11,13 +13,14 @@ class XPathContext {
   @internal
   new(
     this.configuration,
-    this.item, {
+    Object item, {
     this.position = 1,
     this.last = 1,
     this.variables = const {},
     this.parentContext,
     DateTime? currentDateTime,
-  }) : currentDateTime =
+  }) : item = item is XmlNode ? XPathNode(item) : item,
+       currentDateTime =
            currentDateTime ?? parentContext?.currentDateTime ?? DateTime.now();
 
   /// Configuraiton associated with the context.

@@ -1,4 +1,4 @@
-import '../values/sequence.dart';
+import '../xdm/sequence.dart';
 
 /// Function definition for a binary XPath operator.
 typedef XPathBinaryOperator = XPathSequence Function(

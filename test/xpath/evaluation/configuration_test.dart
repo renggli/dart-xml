@@ -4,8 +4,9 @@ import 'package:xml/src/xml/utils/name.dart';
 import 'package:xml/src/xpath/evaluation/configuration.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/evaluation/namespaces.dart';
-import 'package:xml/src/xpath/values/function.dart';
-import 'package:xml/src/xpath/values/sequence.dart';
+import 'package:xml/src/xpath/xdm/functions/function.dart';
+import 'package:xml/src/xpath/xdm/item.dart';
+import 'package:xml/src/xpath/xdm/sequence.dart';
 
 import '../../utils/matchers.dart';
 
@@ -142,7 +143,7 @@ void main() {
     });
     test('context', () {
       final context = standard.context(document);
-      expect(context.item, same(document));
+      expect(context.item, XPathNode(document));
       expect(context.configuration, same(standard));
     });
     test('evaluate', () {

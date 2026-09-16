@@ -1,0 +1,35 @@
+import '../../../xml/utils/name.dart';
+import '../../exceptions/evaluation_exception.dart';
+import '../atomic.dart';
+import '../types.dart';
+
+/// Represents an xs:QName atomic value.
+final class XPathQName extends XPathAtomic {
+  const new(this.value);
+
+  @override
+  final XmlName value;
+
+  @override
+  XPathType get type => xsQName;
+
+  @override
+  String get stringValue => value.qualified;
+
+  @override
+  bool get effectiveBooleanValue =>
+      throw XPathEvaluationException('EBV not defined for QName values');
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is XPathQName) {
+      return value.local == other.value.local &&
+          value.namespaceUri == other.value.namespaceUri;
+    }
+    return false;
+  }
+
+  @override
+  int get hashCode => Object.hash(value.local, value.namespaceUri);
+}

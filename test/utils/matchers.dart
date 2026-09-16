@@ -144,6 +144,68 @@ Matcher isXPathEvaluationException({dynamic message = isNotEmpty}) =>
         .having((value) => value.message, 'message', message)
         .having((value) => value.toString(), 'toString', isNotEmpty);
 
+Object? unwrapXPathItem(XPathItem item) => switch (item) {
+  XPathNode(:final node) => node,
+  XPathBoolean(:final value) => value,
+  XPathInteger(:final value) => value.isValidInt ? value.toInt() : value,
+  final XPathDecimal d => d.toDouble(),
+  XPathDouble(:final value) => value,
+  XPathString(:final value) => value,
+  XPathUntypedAtomic(:final value) => value,
+  XPathAnyUri(:final value) => value,
+  XPathBinary(:final value) => value,
+  XPathQName(:final value) => value,
+  XPathMap(:final entries) => {
+    for (final e in entries.entries)
+      (unwrapXPathItem(e.key) ?? e.key.stringValue): e.value.length == 1
+          ? unwrapXPathItem(e.value.first)
+          : e.value.map(unwrapXPathItem).toList(),
+  },
+  XPathArray(:final members) => members.map((seq) {
+    if (seq.length == 1) return unwrapXPathItem(seq.first);
+    return seq.map(unwrapXPathItem).toList();
+  }).toList(),
+  final XPathAbstractDateTime dt => dt.toDateTime(),
+  _ => item,
+};
+
+class _XPathSequenceMatcher extends Matcher {
+  const new(this.matcher);
+  final dynamic matcher;
+
+  @override
+  bool matches(Object? item, Map<dynamic, dynamic> matchState) {
+    if (item is! XPathSequence) return false;
+    final m = wrapMatcher(matcher);
+    if (m.matches(item, matchState)) return true;
+    if (m.matches(item.toList(), matchState)) return true;
+    final unwrapped = item.map(unwrapXPathItem).toList();
+    return m.matches(unwrapped, matchState);
+  }
+
+  @override
+  Description describe(Description description) =>
+      description.add('is XPathSequence matching ').addDescriptionOf(matcher);
+
+  @override
+  Description describeMismatch(
+    Object? item,
+    Description mismatchDescription,
+    Map<dynamic, dynamic> matchState,
+    bool verbose,
+  ) {
+    if (item is! XPathSequence) {
+      return mismatchDescription.add('is not an XPathSequence');
+    }
+    final unwrapped = item.map(unwrapXPathItem).toList();
+    return mismatchDescription
+        .add('was ')
+        .addDescriptionOf(item)
+        .add(' (unwrapped: ')
+        .addDescriptionOf(unwrapped)
+        .add(')');
+  }
+}
+
 /// Returns a [Matcher] that asserts on an [XPathSequence].
-Matcher isXPathSequence(dynamic matcher) =>
-    allOf(isA<XPathSequence>(), matcher);
+Matcher isXPathSequence(dynamic matcher) => _XPathSequenceMatcher(matcher);

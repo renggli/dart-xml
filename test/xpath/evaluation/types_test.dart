@@ -5,7 +5,7 @@ void main() {
   group('types', () {
     test('types have unique names and aliases', () {
       final names = <String>{};
-      for (final type in basicTypes) {
+      for (final type in allStandardTypes) {
         expect(
           names.add(type.name),
           isTrue,
@@ -14,7 +14,7 @@ void main() {
       }
     });
     test('types contains all types and their aliases', () {
-      for (final type in basicTypes) {
+      for (final type in allStandardTypes) {
         expect(
           standardTypes[type.name],
           type,

@@ -1,5 +1,4 @@
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/evaluation/configuration.dart';
 import 'package:xml/src/xpath/expressions/axis.dart';
 import 'package:xml/src/xpath/expressions/name.dart';
 import 'package:xml/src/xpath/expressions/node.dart';
@@ -7,8 +6,8 @@ import 'package:xml/src/xpath/expressions/path.dart';
 import 'package:xml/src/xpath/expressions/predicate.dart';
 import 'package:xml/src/xpath/expressions/step.dart';
 import 'package:xml/src/xpath/expressions/variable.dart';
-import 'package:xml/src/xpath/values/sequence.dart';
 import 'package:xml/xml.dart';
+import 'package:xml/xpath.dart';
 
 import '../../utils/matchers.dart';
 
@@ -53,8 +52,12 @@ void main() {
           StepExpression(
             stepAxis,
             nodeTest: const QualifiedNameTest('x'),
-            predicates: const [
-              Predicate(LiteralExpression(XPathSequence.single(1))),
+            predicates: [
+              Predicate(
+                LiteralExpression(
+                  XPathSequence.single(XPathInteger.fromInt(1)),
+                ),
+              ),
             ],
           ),
         ]);
@@ -165,7 +168,7 @@ void main() {
       'non-node items on path step without order preserved throws Exception',
       () {
         final path = PathExpression([
-          const LiteralExpression(XPathSequence.single('text')),
+          const LiteralExpression(XPathSequence.single(XPathString('text'))),
           const StepExpression(ChildAxis()),
         ]);
         expect(path.isOrderPreserved, isFalse);
@@ -173,8 +176,7 @@ void main() {
           () => path(context),
           throwsA(
             isXPathEvaluationException(
-              message:
-                  'Path operator / requires sequence of nodes, but got text',
+              message: 'Path operator / requires sequence of nodes, but got text [err:XPTY0019]',
             ),
           ),
         );
@@ -184,13 +186,13 @@ void main() {
       final xml = XmlDocument.parse('<root><a><b/></a></root>');
       final path = PathExpression([
         const StepExpression(AncestorAxis()),
-        const LiteralExpression(XPathSequence.single(1)),
+        LiteralExpression(XPathSequence.single(XPathInteger.fromInt(1))),
       ]);
       expect(path.isOrderPreserved, isFalse);
       final evalContext = XPathConfiguration().context(
         xml.rootElement.children.first,
       );
-      expect(path(evalContext), equals([1]));
+      expect(path(evalContext), isXPathSequence([1]));
     });
     test('sort and deduplicate with large node sets', () {
       final xml = XmlDocument.parse(
@@ -216,8 +218,8 @@ void main() {
       final path = PathExpression([
         LiteralExpression(
           XPathSequence([
-            ...xml1.findAllElements('b'),
-            ...xml2.rootElement.children,
+            ...xml1.findAllElements('b').map(XPathNode.new),
+            ...xml2.rootElement.children.map(XPathNode.new),
           ]),
         ),
         const StepExpression(SelfAxis()),

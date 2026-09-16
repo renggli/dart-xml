@@ -3,6 +3,7 @@ import 'package:xml/src/xpath/operators/boolean.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
+import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 void main() {
@@ -10,13 +11,13 @@ void main() {
     test('true with true', () {
       expect(
         opBooleanEqual(XPathSequence.trueSequence, XPathSequence.trueSequence),
-        [true],
+        isXPathSequence([true]),
       );
     });
     test('true with false', () {
       expect(
         opBooleanEqual(XPathSequence.trueSequence, XPathSequence.falseSequence),
-        [false],
+        isXPathSequence([false]),
       );
     });
   });
@@ -28,7 +29,7 @@ void main() {
           XPathSequence.falseSequence,
           XPathSequence.trueSequence,
         ),
-        [true],
+        isXPathSequence([true]),
       );
     });
     test('true with true', () {
@@ -37,7 +38,7 @@ void main() {
           XPathSequence.trueSequence,
           XPathSequence.trueSequence,
         ),
-        [false],
+        isXPathSequence([false]),
       );
     });
   });
@@ -49,7 +50,7 @@ void main() {
           XPathSequence.trueSequence,
           XPathSequence.falseSequence,
         ),
-        [true],
+        isXPathSequence([true]),
       );
     });
     test('false with true', () {
@@ -58,7 +59,7 @@ void main() {
           XPathSequence.falseSequence,
           XPathSequence.trueSequence,
         ),
-        [false],
+        isXPathSequence([false]),
       );
     });
   });

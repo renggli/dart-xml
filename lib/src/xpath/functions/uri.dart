@@ -1,35 +1,50 @@
 import 'dart:core';
 
 import '../../xml/utils/name.dart';
-import '../definitions/cardinality.dart';
-import '../definitions/function.dart';
 import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
-import '../types/string.dart';
-import '../values/sequence.dart';
+import '../xdm/atomic/boolean.dart';
+import '../xdm/atomic/string.dart';
+import '../xdm/function_item.dart';
+import '../xdm/item.dart';
+import '../xdm/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-resolve-uri
-const fnResolveUri = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:resolve-uri'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'relative',
-      type: xsString,
-      cardinality: XPathCardinality.zeroOrOne,
+const fnResolveUri = XPathFunctionItem.overloaded(
+  XmlName.qualified('fn:resolve-uri'),
+  {
+    1: XPathFunctionItem.fn1(
+      XmlName.qualified('fn:resolve-uri'),
+      _fnResolveUri1,
     ),
-  ],
-  optionalArguments: [XPathArgumentDefinition(name: 'base', type: xsString)],
-  function: _fnResolveUri,
+    2: XPathFunctionItem.fn2(
+      XmlName.qualified('fn:resolve-uri'),
+      _fnResolveUri2,
+    ),
+  },
 );
 
-XPathSequence _fnResolveUri(
+XPathSequence _fnResolveUri1(XPathContext context, XPathSequence relativeSeq) =>
+    _evalResolveUri(context, relativeSeq.firstOrNull as XPathString?, null);
+
+XPathSequence _fnResolveUri2(
   XPathContext context,
-  String? relative, [
-  String? base,
-]) {
+  XPathSequence relativeSeq,
+  XPathSequence baseSeq,
+) => _evalResolveUri(
+  context,
+  relativeSeq.firstOrNull as XPathString?,
+  baseSeq.firstOrNull as XPathString?,
+);
+
+XPathSequence _evalResolveUri(
+  XPathContext context,
+  XPathString? relative,
+  XPathString? base,
+) {
   if (relative == null) return XPathSequence.empty;
   try {
-    final uri = Uri.parse(relative);
+    final uri = Uri.parse(relative.value);
     if (uri.isAbsolute) return XPathSequence.single(relative);
     final String resolvedBase;
     if (base == null) {
@@ -39,10 +54,10 @@ XPathSequence _fnResolveUri(
       }
       resolvedBase = staticBase;
     } else {
-      resolvedBase = base;
+      resolvedBase = base.value;
     }
     return XPathSequence.single(
-      Uri.parse(resolvedBase).resolve(relative).toString(),
+      XPathString(Uri.parse(resolvedBase).resolve(relative.value).toString()),
     );
   } on FormatException catch (error) {
     throw XPathEvaluationException('Invalid URI: ${error.message}');
@@ -50,113 +65,117 @@ XPathSequence _fnResolveUri(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-doc
-const fnDoc = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:doc'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'uri',
-      type: xsString,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _fnDoc,
-);
+const fnDoc = XPathFunctionItem.fn1(XmlName.qualified('fn:doc'), _fnDoc);
 
-XPathSequence _fnDoc(XPathContext context, String? uri) {
+XPathSequence _fnDoc(XPathContext context, XPathSequence uriSeq) {
+  final uri = uriSeq.firstOrNull as XPathString?;
   if (uri == null) return XPathSequence.empty;
-  final document = context.configuration.documents[uri];
-  if (document != null) return XPathSequence.single(document);
-  throw XPathEvaluationException('Document not found: $uri');
+  final document = context.configuration.documents[uri.value];
+  if (document != null) return XPathSequence.single(XPathNode(document));
+  throw XPathEvaluationException('Document not found: ${uri.value}');
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-doc-available
-const fnDocAvailable = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:doc-available'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'uri',
-      type: xsString,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _fnDocAvailable,
+const fnDocAvailable = XPathFunctionItem.fn1(
+  XmlName.qualified('fn:doc-available'),
+  _fnDocAvailable,
 );
 
-XPathSequence _fnDocAvailable(XPathContext context, String? uri) {
-  if (uri == null) return const XPathSequence.single(false);
-  return XPathSequence.single(context.configuration.documents.containsKey(uri));
+XPathSequence _fnDocAvailable(XPathContext context, XPathSequence uriSeq) {
+  final uri = uriSeq.firstOrNull as XPathString?;
+  if (uri == null) return const XPathSequence.single(XPathBoolean.xpathFalse);
+  final available = context.configuration.documents.containsKey(uri.value);
+  return XPathSequence.single(XPathBoolean.fromBool(available));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-collection
-const fnCollection = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:collection'),
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'uri',
-      type: xsString,
-      cardinality: XPathCardinality.zeroOrOne,
+const fnCollection = XPathFunctionItem.overloaded(
+  XmlName.qualified('fn:collection'),
+  {
+    0: XPathFunctionItem.fn0(
+      XmlName.qualified('fn:collection'),
+      _fnCollection0,
     ),
-  ],
-  function: _fnCollection,
+    1: XPathFunctionItem.fn1(
+      XmlName.qualified('fn:collection'),
+      _fnCollection1,
+    ),
+  },
 );
 
-XPathSequence _fnCollection(XPathContext context, [String? uri]) =>
+XPathSequence _fnCollection0(XPathContext context) => XPathSequence.empty;
+XPathSequence _fnCollection1(XPathContext context, XPathSequence uriSeq) =>
     XPathSequence.empty;
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-uri-collection
-const fnUriCollection = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:uri-collection'),
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'uri',
-      type: xsString,
-      cardinality: XPathCardinality.zeroOrOne,
+const fnUriCollection = XPathFunctionItem.overloaded(
+  XmlName.qualified('fn:uri-collection'),
+  {
+    0: XPathFunctionItem.fn0(
+      XmlName.qualified('fn:uri-collection'),
+      _fnUriCollection0,
     ),
-  ],
-  function: _fnUriCollection,
+    1: XPathFunctionItem.fn1(
+      XmlName.qualified('fn:uri-collection'),
+      _fnUriCollection1,
+    ),
+  },
 );
 
-XPathSequence _fnUriCollection(XPathContext context, [String? uri]) =>
+XPathSequence _fnUriCollection0(XPathContext context) => XPathSequence.empty;
+XPathSequence _fnUriCollection1(XPathContext context, XPathSequence uriSeq) =>
     XPathSequence.empty;
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-unparsed-text
-const fnUnparsedText = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:unparsed-text'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'href',
-      type: xsString,
-      cardinality: XPathCardinality.zeroOrOne,
+const fnUnparsedText = XPathFunctionItem.overloaded(
+  XmlName.qualified('fn:unparsed-text'),
+  {
+    1: XPathFunctionItem.fn1(
+      XmlName.qualified('fn:unparsed-text'),
+      _fnUnparsedText1,
     ),
-  ],
-  optionalArguments: [
-    XPathArgumentDefinition(name: 'encoding', type: xsString),
-  ],
-  function: _fnUnparsedText,
+    2: XPathFunctionItem.fn2(
+      XmlName.qualified('fn:unparsed-text'),
+      _fnUnparsedText2,
+    ),
+  },
 );
 
-XPathSequence _fnUnparsedText(
+XPathSequence _fnUnparsedText1(XPathContext context, XPathSequence hrefSeq) =>
+    _evalUnparsedText(context, hrefSeq.firstOrNull as XPathString?, null);
+
+XPathSequence _fnUnparsedText2(
   XPathContext context,
-  String? href, [
-  String? encoding,
-]) {
+  XPathSequence hrefSeq,
+  XPathSequence encodingSeq,
+) => _evalUnparsedText(
+  context,
+  hrefSeq.firstOrNull as XPathString?,
+  encodingSeq.firstOrNull as XPathString?,
+);
+
+XPathSequence _evalUnparsedText(
+  XPathContext context,
+  XPathString? href,
+  XPathString? encoding,
+) {
   if (href == null) return XPathSequence.empty;
 
   // Resolve relative URI.
   String resolved;
   try {
-    final uri = Uri.parse(href);
+    final uri = Uri.parse(href.value);
     if (uri.isAbsolute) {
-      resolved = href;
+      resolved = href.value;
     } else {
       final base = context.configuration.baseUri;
       if (base == null) {
         throw XPathEvaluationException('Static base URI is undefined');
       }
-      resolved = Uri.parse(base).resolve(href).toString();
+      resolved = Uri.parse(base).resolve(href.value).toString();
     }
   } on FormatException catch (e) {
-    throw XPathEvaluationException('Invalid URI: $href (${e.message})');
+    throw XPathEvaluationException('Invalid URI: ${href.value} (${e.message})');
   }
 
   // Check fragment identifier.
@@ -169,7 +188,7 @@ XPathSequence _fnUnparsedText(
 
   // Validate encoding name.
   if (encoding != null) {
-    _validateEncodingName(encoding);
+    _validateEncodingName(encoding.value);
   }
 
   final loader = context.configuration.unparsedTextLoader;
@@ -181,7 +200,7 @@ XPathSequence _fnUnparsedText(
 
   final String? loaded;
   try {
-    loaded = loader(resolved, encoding);
+    loaded = loader(resolved, encoding?.value);
   } catch (e) {
     if (e is XPathEvaluationException) rethrow;
     throw XPathEvaluationException('Failed to load resource $resolved: $e');
@@ -194,7 +213,7 @@ XPathSequence _fnUnparsedText(
   // Validate XML characters in text.
   _validateXmlCharacters(loaded);
 
-  return XPathSequence.single(loaded);
+  return XPathSequence.single(XPathString(loaded));
 }
 
 void _validateEncodingName(String encoding) {
@@ -234,142 +253,158 @@ void _validateXmlCharacters(String text) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-unparsed-text-lines
-const fnUnparsedTextLines = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:unparsed-text-lines'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'href',
-      type: xsString,
-      cardinality: XPathCardinality.zeroOrOne,
+const fnUnparsedTextLines = XPathFunctionItem.overloaded(
+  XmlName.qualified('fn:unparsed-text-lines'),
+  {
+    1: XPathFunctionItem.fn1(
+      XmlName.qualified('fn:unparsed-text-lines'),
+      _fnUnparsedTextLines1,
     ),
-  ],
-  optionalArguments: [
-    XPathArgumentDefinition(name: 'encoding', type: xsString),
-  ],
-  function: _fnUnparsedTextLines,
+    2: XPathFunctionItem.fn2(
+      XmlName.qualified('fn:unparsed-text-lines'),
+      _fnUnparsedTextLines2,
+    ),
+  },
 );
 
-XPathSequence _fnUnparsedTextLines(
+XPathSequence _fnUnparsedTextLines1(
   XPathContext context,
-  String? href, [
-  String? encoding,
-]) {
+  XPathSequence hrefSeq,
+) => _evalUnparsedTextLines(context, hrefSeq.firstOrNull as XPathString?, null);
+
+XPathSequence _fnUnparsedTextLines2(
+  XPathContext context,
+  XPathSequence hrefSeq,
+  XPathSequence encodingSeq,
+) => _evalUnparsedTextLines(
+  context,
+  hrefSeq.firstOrNull as XPathString?,
+  encodingSeq.firstOrNull as XPathString?,
+);
+
+XPathSequence _evalUnparsedTextLines(
+  XPathContext context,
+  XPathString? href,
+  XPathString? encoding,
+) {
   if (href == null) return XPathSequence.empty;
-  final textSequence = _fnUnparsedText(context, href, encoding);
+  final textSequence = _evalUnparsedText(context, href, encoding);
   if (textSequence.isEmpty) return XPathSequence.empty;
-  final text = textSequence.single as String;
+  final text = (textSequence.first as XPathString).value;
   if (text.isEmpty) return XPathSequence.empty;
 
   final lines = text.split(RegExp(r'\r\n|\r|\n'));
   if (lines.isNotEmpty && lines.last.isEmpty) {
     lines.removeLast();
   }
-  return XPathSequence(lines);
+  return XPathSequence(lines.map(XPathString.new));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-unparsed-text-available
-const fnUnparsedTextAvailable = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:unparsed-text-available'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'href',
-      type: xsString,
-      cardinality: XPathCardinality.zeroOrOne,
+const fnUnparsedTextAvailable = XPathFunctionItem.overloaded(
+  XmlName.qualified('fn:unparsed-text-available'),
+  {
+    1: XPathFunctionItem.fn1(
+      XmlName.qualified('fn:unparsed-text-available'),
+      _fnUnparsedTextAvailable1,
     ),
-  ],
-  optionalArguments: [
-    XPathArgumentDefinition(name: 'encoding', type: xsString),
-  ],
-  function: _fnUnparsedTextAvailable,
+    2: XPathFunctionItem.fn2(
+      XmlName.qualified('fn:unparsed-text-available'),
+      _fnUnparsedTextAvailable2,
+    ),
+  },
 );
 
-XPathSequence _fnUnparsedTextAvailable(
+XPathSequence _fnUnparsedTextAvailable1(
   XPathContext context,
-  String? href, [
-  String? encoding,
-]) {
-  if (href == null) return const XPathSequence.single(false);
+  XPathSequence hrefSeq,
+) => _evalUnparsedTextAvailable(
+  context,
+  hrefSeq.firstOrNull as XPathString?,
+  null,
+);
+
+XPathSequence _fnUnparsedTextAvailable2(
+  XPathContext context,
+  XPathSequence hrefSeq,
+  XPathSequence encodingSeq,
+) => _evalUnparsedTextAvailable(
+  context,
+  hrefSeq.firstOrNull as XPathString?,
+  encodingSeq.firstOrNull as XPathString?,
+);
+
+XPathSequence _evalUnparsedTextAvailable(
+  XPathContext context,
+  XPathString? href,
+  XPathString? encoding,
+) {
+  if (href == null) return const XPathSequence.single(XPathBoolean.xpathFalse);
   try {
-    _fnUnparsedText(context, href, encoding);
-    return const XPathSequence.single(true);
+    _evalUnparsedText(context, href, encoding);
+    return const XPathSequence.single(XPathBoolean.xpathTrue);
   } catch (_) {
-    return const XPathSequence.single(false);
+    return const XPathSequence.single(XPathBoolean.xpathFalse);
   }
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-environment-variable
-const fnEnvironmentVariable = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:environment-variable'),
-  requiredArguments: [XPathArgumentDefinition(name: 'name', type: xsString)],
-  function: _fnEnvironmentVariable,
+const fnEnvironmentVariable = XPathFunctionItem.fn1(
+  XmlName.qualified('fn:environment-variable'),
+  _fnEnvironmentVariable,
 );
 
-XPathSequence _fnEnvironmentVariable(XPathContext context, String name) {
-  final value = context.configuration.environment[name];
-  if (value != null) return XPathSequence.single(value);
+XPathSequence _fnEnvironmentVariable(
+  XPathContext context,
+  XPathSequence nameSeq,
+) {
+  final name = nameSeq.first as XPathString;
+  final value = context.configuration.environment[name.value];
+  if (value != null) return XPathSequence.single(XPathString(value));
   return XPathSequence.empty;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-available-environment-variables
-const fnAvailableEnvironmentVariables = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:available-environment-variables'),
-  function: _fnAvailableEnvironmentVariables,
+const fnAvailableEnvironmentVariables = XPathFunctionItem.fn0(
+  XmlName.qualified('fn:available-environment-variables'),
+  _fnAvailableEnvironmentVariables,
 );
 
 XPathSequence _fnAvailableEnvironmentVariables(XPathContext context) =>
-    XPathSequence(context.configuration.environment.keys.toList());
+    XPathSequence(context.configuration.environment.keys.map(XPathString.new));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-encode-for-uri
-const fnEncodeForUri = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:encode-for-uri'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'uri-part',
-      type: xsString,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _fnEncodeForUri,
+const fnEncodeForUri = XPathFunctionItem.fn1(
+  XmlName.qualified('fn:encode-for-uri'),
+  _fnEncodeForUri,
 );
 
-XPathSequence _fnEncodeForUri(XPathContext context, String? uriPart) {
-  if (uriPart == null) return XPathSequence.emptyString;
-  return XPathSequence.single(Uri.encodeComponent(uriPart));
+XPathSequence _fnEncodeForUri(XPathContext context, XPathSequence uriPartSeq) {
+  final uriPart = uriPartSeq.firstOrNull as XPathString?;
+  if (uriPart == null) return const XPathSequence.single(XPathString.empty);
+  return XPathSequence.single(XPathString(Uri.encodeComponent(uriPart.value)));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-iri-to-uri
-const fnIriToUri = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:iri-to-uri'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'iri',
-      type: xsString,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _fnIriToUri,
+const fnIriToUri = XPathFunctionItem.fn1(
+  XmlName.qualified('fn:iri-to-uri'),
+  _fnIriToUri,
 );
 
-XPathSequence _fnIriToUri(XPathContext context, String? iri) {
-  if (iri == null) return XPathSequence.emptyString;
-  return XPathSequence.single(Uri.encodeFull(iri));
+XPathSequence _fnIriToUri(XPathContext context, XPathSequence iriSeq) {
+  final iri = iriSeq.firstOrNull as XPathString?;
+  if (iri == null) return const XPathSequence.single(XPathString.empty);
+  return XPathSequence.single(XPathString(Uri.encodeFull(iri.value)));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-escape-html-uri
-const fnEscapeHtmlUri = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:escape-html-uri'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'uri',
-      type: xsString,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-  ],
-  function: _fnEscapeHtmlUri,
+const fnEscapeHtmlUri = XPathFunctionItem.fn1(
+  XmlName.qualified('fn:escape-html-uri'),
+  _fnEscapeHtmlUri,
 );
 
-XPathSequence _fnEscapeHtmlUri(XPathContext context, String? uri) {
-  if (uri == null) return XPathSequence.emptyString;
-  // TODO: Proper HTML URI escaping
-  return XPathSequence.single(Uri.encodeFull(uri));
+XPathSequence _fnEscapeHtmlUri(XPathContext context, XPathSequence uriSeq) {
+  final uri = uriSeq.firstOrNull as XPathString?;
+  if (uri == null) return const XPathSequence.single(XPathString.empty);
+  return XPathSequence.single(XPathString(Uri.encodeFull(uri.value)));
 }

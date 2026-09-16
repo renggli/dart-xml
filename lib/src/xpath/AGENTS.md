@@ -5,177 +5,89 @@ Adhere to the official XPath 3.1 standard at all times:
 - XML Path Language (XPath) 3.1: <https://www.w3.org/TR/xpath-31/>
 - XPath Functions and Operators 3.1: <https://www.w3.org/TR/xpath-functions-31/>
 
-The official QT3 test suite can be run with the command `dart run bin/xpath_qt3tests.dart`. Not all of the these over 22,000 integration tests are currently passing, but the goal is that they eventually should. New regressions in the QT3 test suite are not acceptable.
+The official QT3 test suite can be run with the command `dart run bin/xpath_qt3tests.dart`. Regressions in the QT3 test suite are not acceptable.
 
-## Overal Design
+## Overall Design
 
-The core goals of this design are **efficiency**, **compactness**, and **readability**. To achieve this, we avoid heavy wrapper objects and runtime interpreters where possible. Instead, we leverage Dart's strong type system, modern features, and core libraries.
+The core goals of this design are **correctness with the standard**, **efficiency**, **compactness**, and **readability**. The engine is built directly upon the W3C XQuery and XPath Data Model 3.1 (XDM).
 
-- **Zero-Wrapper**: Map XPath Data Model types map directly to native Dart typesm where possible.
-- **Lazy Sequences**: Use Dart's `Iterable` for all sequences to ensure laziness and low memory footprint.
-- **Functional AST**: Expression nodes are executable functors, reducing the need for a separate interpreter pass for evaluation.
-- **Exceptions**: Use Dart's exception system and human readable error messages to report errors.
+- **XDM 3.1 Data Model**: Everything in XPath evaluation is an `XPathSequence` containing zero or more `XPathItem`s.
+- **Typed Atomics**: Exact schema type identity is preserved across all evaluation stages (`XPathAtomic`).
+- **Arbitrary Precision**: `XPathInteger` is backed by `BigInt`, and `XPathDecimal` is backed by fixed-point unscaled integer and scale, eliminating IEEE-754 floating point drift for decimal operations.
+- **W3C §19 Casting Matrix**: Explicit, zero-heuristic static casting table lookup and conversion.
+- **Lazy & Flatted Sequences**: All sequences implement the XDM flattening invariant (`(1, (2, 3)) == (1, 2, 3)`).
+- **First-Class Function Items**: Maps, arrays, and functions are unified under `XPathFunctionItem` (functions with arity).
 
 ## Data Model
 
-Instead of wrapping every integer, string, and node, we use Dart's native types. This allows the XPath engine to interact seamlessly with existing Dart objects.
+The data model is rooted in `XPathItem`:
 
-Type descriptions are implemented as subclasses of [XPathType](definitions/type.dart). Types can check if a Dart Object is of their type with [XPathType.matches]. Types can convert any other object to their type with [XPathType.cast].
+```mermaid
+graph TD
+    XPathSequence["XPathSequence (Iterable<XPathItem>)"]
+    XPathItem["XPathItem (sealed)"]
+    XPathNode["XPathNode (XmlNode wrapper)"]
+    XPathAtomic["XPathAtomic (sealed, Comparable)"]
+    XPathFunctionItem["XPathFunctionItem (sealed, arity)"]
 
-### Sequences
+    XPathSequence -->|contains 0..N| XPathItem
+    XPathItem --> XPathNode
+    XPathItem --> XPathAtomic
+    XPathItem --> XPathFunctionItem
 
-Sequences are implemented as an `XPathSequence`, a thin wrapper around a Dart [Iterable]. The impelementation is defined in [sequence.dart](types/sequence.dart).
+    XPathAtomic --> XPathNumeric["XPathNumeric (abstract)"]
+    XPathNumeric --> XPathInteger["XPathInteger (BigInt)"]
+    XPathNumeric --> XPathDecimal["XPathDecimal (BigInt, scale)"]
+    XPathNumeric --> XPathDouble["XPathDouble (double)"]
+    XPathNumeric --> XPathFloat["XPathFloat (double clamped)"]
 
-| XPath Type | Dart Type | Type Implementation
-| --- | --- | ---
-| `sequence` | `XPathSequence` | `xsSequence`
-| `empty-sequence` | `XPathSequence` | `xsEmptySequence`
+    XPathAtomic --> XPathString["XPathString / XPathUntypedAtomic / XPathAnyUri"]
+    XPathAtomic --> XPathBoolean["XPathBoolean (true / false const)"]
+    XPathAtomic --> XPathBinary["XPathBase64Binary / XPathHexBinary"]
+    XPathAtomic --> XPathTemporal["XPathDateTime / XPathDate / XPathTime / XPathDuration"]
+    XPathAtomic --> XPathQName["XPathQName"]
 
-There are various optimized implementations for specific use-cases. Use the most appropriate implementation for a given use-case.
+    XPathFunctionItem --> XPathFunction["XPathFunction (builtin / inline)"]
+    XPathFunctionItem --> XPathMap["XPathMap (arity 1)"]
+    XPathFunctionItem --> XPathArray["XPathArray (arity 1)"]
+```
 
-| XPathSequence | Description
-| --- | ---
-| `XPathSequence.empty` | The empty sequence.
-| `XPathSequence.trueSequence` | The sequence with a single `true` value.
-| `XPathSequence.falseSequence` | The sequence with a single `false` value.
-| `XPathSequence.emptyString` | The sequence with an empty string.
-| `XPathSequence.nan` | The sequence with a NaN value.
-| `XPathSequence.emptyArray` | The sequence with an empty array.
-| `XPathSequence.emptyMap` | The sequence with an empty map.
-| `const XPathSequence.single(value)` | The sequence with a single value.
-| `const XPathSequence(iterable)` | The sequence of an iterable.
-| `XPathSequence.cached(iterable)` | The sequence of an iterable that is at most evaluated once and then cached.
-| `XPathSequence.range(start, stop)` | The sequence of integers from start to stop.
+### Sequences (`XPathSequence`)
 
-### Nodes
+Sequences are ordered collections of zero or more `XPathItem` instances. Sequences cannot contain nested sequences; all nested sequences are automatically flattened.
 
-XML nodes are represented by the [XmlNode](../../xml/nodes/node.dart) class and its subtypes.
+| Constant / Factory | Description |
+| --- | --- |
+| `XPathSequence.empty` | Canonical empty sequence `()`. |
+| `XPathSequence.trueSequence` | Sequence containing `XPathBoolean.trueInstance`. |
+| `XPathSequence.falseSequence` | Sequence containing `XPathBoolean.falseInstance`. |
+| `XPathSequence.single(item)` | Sequence containing exactly one item. |
+| `XPathSequence.from(items)` | Sequence created from an iterable, flattening any sequences. |
+| `XPathSequence.cached(items)` | Lazy sequence cached on first evaluation. |
 
-| XPath Type | Dart Type | Implementation
-| --- | --- | ---
-| `attribute` | `XmlAttribute` | `xsAttribute`
-| `comment` | `XmlComment` | `xsComment`
-| `document` | `XmlDocument` | `xsDocument`
-| `element` | `XmlElement` | `xsElement`
-| `node` | `XmlNode` | `xsNode`
-| `namespace` | `XmlNamespace` | `xsNamespace`
-| `processing-instruction` | `XmlProcessing` | `xsProcessingInstruction`
-| `text` | `XmlText` and `XmlCDATA` | `xsText`
+### Nodes (`XPathNode`)
 
-### Functions
+Represents XML DOM nodes wrapping `XmlNode`.
 
-| XPath Type | Dart Type | Implementation
-| --- | --- | ---
-| `function(*)` | `XPathFunction` | `xsFunction`
-| `array(*)` | `XPathArray` | `xsArray`
-| `map(*)` | `XPathMap` | `xsMap`
+- Atomization yields `XPathUntypedAtomic` containing the string value of the node.
+- Effective Boolean Value (EBV) of any node is always `true`.
 
-### Dates, Times and Durations
+### Functions, Maps, and Arrays (`XPathFunctionItem`)
 
-Date and time values are represented by subclasses of `XPathAbstractDateTime`.
-Duration values are represented by subclasses of `XPathAbstractDuration`.
-To convert from a Dart type use the factories `fromDateTime` and `fromDuration`.
-To convert to a Dart type use the converters `toDartTime` and `toDuration`.
+In XPath 3.1, functions, maps, and arrays all implement `XPathFunctionItem`:
 
-| XPath Type | Dart Type | Implementation
-| --- | --- | ---
-| `xs:date` | `XPathDate` | `xsDate`
-| `xs:dateTime` | `XPathDateTime` | `xsDateTime`
-| `xs:dateTimeStamp` | `XPathDateTimeStamp` | `xsDateTimeStamp`
-| `xs:dayTimeDuration` | `XPathDayTimeDuration` | `xsDayTimeDuration`
-| `xs:duration` | `XPathDuration` | `xsDuration`
-| `xs:gDay` | `XPathDay` | `xsDay`
-| `xs:gMonth` | `XPathMonth` | `xsMonth`
-| `xs:gMonthDay` | `XPathMonthDay` | `xsMonthDay`
-| `xs:gYear` | `XPathYear` | `xsYear`
-| `xs:gYearMonth` | `XPathYearMonth` | `xsYearMonth`
-| `xs:time` | `XPathTime` | `xsTime`
-| `xs:yearMonthDuration` | `XPathYearMonthDuration` | `xsYearMonthDuration`
+- `XPathFunction`: Builtin or inline anonymous functions with an associated arity.
+- `XPathMap`: Associative map implementing a function of arity 1 (`$map($key)`).
+- `XPathArray`: 1-based indexed collection implementing a function of arity 1 (`$array($index)`).
+- Attempting to atomize a function item or map raises `err:FOTY0013`. Computing EBV raises `err:FORG0006`.
 
-### Numerics
+### Casting & Comparisons
 
-Numeric values are represented by the Dart `num` class and its subtypes.
-
-| XPath Type | Dart Type | Implementation
-| --- | --- | ---
-| `xs:numeric` | `num` | `xsNumeric`
-| `xs:byte` | `int` | `xsByte`
-| `xs:decimal` | `num` | `xsDecimal`
-| `xs:double` | `double` | `xsDouble`
-| `xs:float` | `double` | `xsDouble`
-| `xs:int` | `int` | `xsInt`
-| `xs:integer` | `int` | `xsInteger`
-| `xs:long` | `int` | `xsLong`
-| `xs:negativeInteger` | `int` | `xsNegativeInteger`
-| `xs:nonNegativeInteger` | `int` | `xsNonNegativeInteger`
-| `xs:nonPositiveInteger` | `int` | `xsNonPositiveInteger`
-| `xs:positiveInteger` | `int` | `xsPositiveInteger`
-| `xs:short` | `int` | `xsShort`
-| `xs:unsignedByte` | `int` | `xsUnsignedByte`
-| `xs:unsignedInt` | `int` | `xsUnsignedInt`
-| `xs:unsignedLong` | `int` | `xsUnsignedLong`
-| `xs:unsignedShort` | `int` | `xsUnsignedShort`
-
-### Strings
-
-String values are represented by the Dart `String` class.
-
-| XPath Type | Dart Type | Implementation
-| --- | --- | ---
-| `xs:string` | `String` | `xsString`
-| `xs:normalizedString` | `String` | `xsString`
-| `xs:token` | `String` | `xsString`
-| `xs:language` | `String` | `xsString`
-| `xs:NMTOKEN` | `String` | `xsString`
-| `xs:NMTOKENS` | `String` | `xsString`
-| `xs:Name` | `String` | `xsString`
-| `xs:NCName` | `String` | `xsString`
-| `xs:ID` | `String` | `xsString`
-| `xs:IDREF` | `String` | `xsString`
-| `xs:IDREFS` | `String` | `xsString`
-| `xs:ENTITY` | `String` | `xsString`
-| `xs:ENTITIES` | `String` | `xsString`
-
-### Booleans
-
-Boolean values are represented by the Dart `bool` class.
-
-| XPath Type | Dart Type | Implementation
-| --- | --- | ---
-| `xs:boolean` | `bool` | `xsBoolean`
-
-### Others
-
-| XPath Type | Dart Type | Implementation
-| --- | --- | ---
-| `item()` | `Object` | `xsAny`
-| `xs:base64Binary` | `XPathBase64Binary` | `xsBase64Binary`
-| `xs:hexBinary` | `XPathHexBinary` | `xsHexBinary`
-| `xs:anyURI` | `String` | `xsString`
-| `xs:QName` | `XmlName` | `xsQName`
-| `xs:untyped` | `Object` | `xsAny`
-| `xs:untypedAtomic` | `Object` | `xsAny`
-| `xs:NOTATION` | `String` | `xsString`
+- Casting is driven by the static 2D lookup table in `casting_matrix.dart` implementing the full W3C XPath 3.1 §19 matrix.
+- Comparisons evaluate along typed domains via `XPathAtomic.compareTo`, promoting `xs:untypedAtomic` per W3C specification without heuristics.
 
 ## Functions & Operators
 
-All **XPath functions** are implemented in the [functions](functions) directory. A function definition follows the pattern:
-
-1. A comment with a link to the standard describing the function.
-2. A const `XPathFunctionDefinition` describing the function signature referring to the implementation function below.
-     - Arguments with the cardinalty `XPathCardinality.exactlyOne` (default) has the corresponding native type.
-     - Arguments with the cardinalty `XPathCardinality.zeroOrOne` has the corresponding type nullable.
-     - Arguments with the cardinalty `XPathCardinality.zeroOrMore` or `XPathCardinality.oneOrMore` have type `XPathSequence`.
-3. The private function implementation following these principles:
-     - The first argument is always `XPathContext context`.
-     - The following arguments are the arguments as described in the definition.
-     - The argument types must be the corresponding native types, optional arguments are nullable.
-     - The return type is always `XPathSequence`.
-     - The function body should not do any type validation or argument unpacking. This must be done through the configuration in `XPathFunctionDefinition`.
-
-All **XPath operators** are implemented as functions in the [operators](operators) directory. An operator definition follows the pattern:
-
-1. A comment with a link to the standard describing the operator.
-2. The operator implementation following these principles
-     - The arguments are always of the type `XPathSequence`.
-     - The return type is always `XPathSequence`.
+- **XPath Operators**: Implemented in `operators/`. Accept and return `XPathSequence`s, evaluating on native `XPathItem`s.
+- **XPath Functions**: Implemented in `functions/`. Accept `XPathContext` and `List<XPathSequence>` arguments, returning an `XPathSequence`.
+- **XPath Expressions**: Functional AST nodes implementing `call(XPathContext context) -> XPathSequence`.

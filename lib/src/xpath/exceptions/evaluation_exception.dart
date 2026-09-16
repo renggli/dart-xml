@@ -1,5 +1,5 @@
 import '../../xml/exceptions/exception.dart';
-import '../definitions/type.dart';
+import '../xdm/types.dart';
 
 /// Exception thrown when calling an XPath functions fails.
 class XPathEvaluationException extends XmlException {

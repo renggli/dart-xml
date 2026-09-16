@@ -9,3 +9,5 @@
 *.iml
 petitparser_examples/build
 pubspec.lock
+xpath_old/
+xpath_old_tests/

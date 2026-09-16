@@ -1,6 +1,7 @@
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
-import '../values/sequence.dart';
+import '../xdm/item.dart';
+import '../xdm/sequence.dart';
 
 class SimpleMapExpression implements XPathExpression {
   const new(this.expressions);
@@ -16,7 +17,7 @@ class SimpleMapExpression implements XPathExpression {
         continue;
       }
       final inputList = result.toList();
-      final outputList = <Object>[];
+      final outputList = <XPathItem>[];
       final innerContext = context.copy();
       innerContext.last = inputList.length;
       for (var j = 0; j < inputList.length; j++) {

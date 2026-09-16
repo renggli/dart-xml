@@ -4,79 +4,83 @@ import 'package:xml/xpath.dart';
 
 import '../../utils/matchers.dart';
 
+XPathSequence intSeq(List<int> values) =>
+    XPathSequence(values.map(XPathInteger.fromInt));
+
 void main() {
   group('opAnd', () {
     test('true and true', () {
-      expect(opAnd(XPathSequence.trueSequence, XPathSequence.trueSequence), [
-        true,
-      ]);
+      expect(
+        opAnd(XPathSequence.trueSequence, XPathSequence.trueSequence),
+        XPathSequence.trueSequence,
+      );
     });
     test('true and false', () {
-      expect(opAnd(XPathSequence.trueSequence, XPathSequence.falseSequence), [
-        false,
-      ]);
+      expect(
+        opAnd(XPathSequence.trueSequence, XPathSequence.falseSequence),
+        XPathSequence.falseSequence,
+      );
     });
     test('false and true', () {
-      expect(opAnd(XPathSequence.falseSequence, XPathSequence.trueSequence), [
-        false,
-      ]);
+      expect(
+        opAnd(XPathSequence.falseSequence, XPathSequence.trueSequence),
+        XPathSequence.falseSequence,
+      );
     });
   });
 
   group('opOr', () {
     test('true or true', () {
-      expect(opOr(XPathSequence.trueSequence, XPathSequence.trueSequence), [
-        true,
-      ]);
+      expect(
+        opOr(XPathSequence.trueSequence, XPathSequence.trueSequence),
+        XPathSequence.trueSequence,
+      );
     });
     test('false or false', () {
-      expect(opOr(XPathSequence.falseSequence, XPathSequence.falseSequence), [
-        false,
-      ]);
+      expect(
+        opOr(XPathSequence.falseSequence, XPathSequence.falseSequence),
+        XPathSequence.falseSequence,
+      );
     });
     test('true or false', () {
-      expect(opOr(XPathSequence.trueSequence, XPathSequence.falseSequence), [
-        true,
-      ]);
+      expect(
+        opOr(XPathSequence.trueSequence, XPathSequence.falseSequence),
+        XPathSequence.trueSequence,
+      );
     });
     test('false or true', () {
-      expect(opOr(XPathSequence.falseSequence, XPathSequence.trueSequence), [
-        true,
-      ]);
+      expect(
+        opOr(XPathSequence.falseSequence, XPathSequence.trueSequence),
+        XPathSequence.trueSequence,
+      );
     });
   });
 
   group('opGeneralEqual', () {
     test('overlapping ranges', () {
       expect(
-        opGeneralEqual(
-          const XPathSequence([1, 2]),
-          const XPathSequence([2, 3]),
-        ),
-        [true],
+        opGeneralEqual(intSeq([1, 2]), intSeq([2, 3])),
+        XPathSequence.trueSequence,
       );
     });
     test('disjoint ranges', () {
       expect(
-        opGeneralEqual(
-          const XPathSequence([1, 2]),
-          const XPathSequence([3, 4]),
-        ),
-        [false],
+        opGeneralEqual(intSeq([1, 2]), intSeq([3, 4])),
+        XPathSequence.falseSequence,
       );
     });
     test('type coercion with untypedAtomic', () {
       expect(
         opGeneralEqual(
-          const XPathSequence([1]),
-          const XPathSequence([XPathUntypedAtomic('1')]),
+          intSeq([1]),
+          XPathSequence([const XPathUntypedAtomic('1')]),
         ),
-        [true],
+        XPathSequence.trueSequence,
       );
       expect(
         () => opGeneralEqual(
-          const XPathSequence([1]),
-          const XPathSequence(['1']),
+          intSeq([1]),
+          XPathSequence([const XPathString('1')]),
         ),
         throwsA(isXPathEvaluationException()),
       );
@@ -86,31 +90,28 @@ void main() {
   group('opGeneralNotEqual', () {
     test('overlapping with not equal', () {
       expect(
-        opGeneralNotEqual(
-          const XPathSequence([1, 2]),
-          const XPathSequence([2, 3]),
-        ),
-        [true],
+        opGeneralNotEqual(intSeq([1, 2]), intSeq([2, 3])),
+        XPathSequence.trueSequence,
       );
     });
     test('single value equal', () {
       expect(
-        opGeneralNotEqual(const XPathSequence([1]), const XPathSequence([1])),
-        [false],
+        opGeneralNotEqual(intSeq([1]), intSeq([1])),
+        XPathSequence.falseSequence,
       );
     });
     test('type coercion with untypedAtomic', () {
       expect(
         opGeneralNotEqual(
-          const XPathSequence([1]),
-          const XPathSequence([XPathUntypedAtomic('1')]),
+          intSeq([1]),
+          XPathSequence([const XPathUntypedAtomic('1')]),
         ),
-        [false],
+        XPathSequence.falseSequence,
       );
       expect(
         () => opGeneralNotEqual(
-          const XPathSequence([1]),
-          const XPathSequence(['1']),
+          intSeq([1]),
+          XPathSequence([const XPathString('1')]),
         ),
         throwsA(isXPathEvaluationException()),
       );
@@ -120,11 +121,8 @@ void main() {
   group('opGeneralLessThan', () {
     test('less than', () {
       expect(
-        opGeneralLessThan(
-          const XPathSequence([1, 2]),
-          const XPathSequence([0, 3]),
-        ),
-        [true],
+        opGeneralLessThan(intSeq([1, 2]), intSeq([0, 3])),
+        XPathSequence.trueSequence,
       );
     });
   });
@@ -132,11 +130,8 @@ void main() {
   group('opGeneralGreaterThan', () {
     test('greater than', () {
       expect(
-        opGeneralGreaterThan(
-          const XPathSequence([1, 2]),
-          const XPathSequence([0, 3]),
-        ),
-        [true],
+        opGeneralGreaterThan(intSeq([1, 2]), intSeq([0, 3])),
+        XPathSequence.trueSequence,
       );
     });
   });
@@ -144,11 +139,8 @@ void main() {
   group('opGeneralLessThanOrEqual', () {
     test('less than or equal', () {
       expect(
-        opGeneralLessThanOrEqual(
-          const XPathSequence([1, 2]),
-          const XPathSequence([0, 3]),
-        ),
-        [true],
+        opGeneralLessThanOrEqual(intSeq([1, 2]), intSeq([0, 3])),
+        XPathSequence.trueSequence,
       );
     });
   });
@@ -156,11 +148,8 @@ void main() {
   group('opGeneralGreaterThanOrEqual', () {
     test('greater than or equal', () {
       expect(
-        opGeneralGreaterThanOrEqual(
-          const XPathSequence([1, 2]),
-          const XPathSequence([0, 3]),
-        ),
-        [true],
+        opGeneralGreaterThanOrEqual(intSeq([1, 2]), intSeq([0, 3])),
+        XPathSequence.trueSequence,
       );
     });
   });

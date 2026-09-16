@@ -1,128 +1,68 @@
-import '../../../xml.dart';
-import '../definitions/cardinality.dart';
-import '../definitions/function.dart';
-import '../evaluation/context.dart';
+import '../../xml/nodes/attribute.dart';
+import '../../xml/nodes/element.dart';
+import '../../xml/utils/name.dart';
 import '../exceptions/evaluation_exception.dart';
-import '../operators/comparison.dart';
-import '../types/any.dart';
-import '../types/node.dart';
-import '../types/number.dart';
-import '../types/string.dart';
-import '../values/array.dart';
-import '../values/duration.dart';
-import '../values/function.dart';
-import '../values/map.dart';
-import '../values/sequence.dart';
+import '../xdm/atomic.dart';
+import '../xdm/function_item.dart';
+import '../xdm/functions/array.dart';
+import '../xdm/functions/map.dart';
+import '../xdm/item.dart';
+import '../xdm/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-empty
-const fnEmpty = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:empty'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-  ],
-  function: _fnEmpty,
+final fnEmpty = XPathFunctionItem.fn1(
+  const XmlName.qualified('fn:empty'),
+  (context, arg) => XPathSequence.single(XPathBoolean.fromBool(arg.isEmpty)),
 );
-
-XPathSequence _fnEmpty(XPathContext context, XPathSequence arg) =>
-    XPathSequence.single(arg.isEmpty);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-exists
-const fnExists = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:exists'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-  ],
-  function: _fnExists,
+final fnExists = XPathFunctionItem.fn1(
+  const XmlName.qualified('fn:exists'),
+  (context, arg) => XPathSequence.single(XPathBoolean.fromBool(arg.isNotEmpty)),
 );
-
-XPathSequence _fnExists(XPathContext context, XPathSequence arg) =>
-    XPathSequence.single(arg.isNotEmpty);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-head
-const fnHead = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:head'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-  ],
-  function: _fnHead,
-);
-
-XPathSequence _fnHead(XPathContext context, XPathSequence arg) {
+final fnHead = XPathFunctionItem.fn1(const XmlName.qualified('fn:head'), (
+  context,
+  arg,
+) {
   if (arg.isEmpty) return XPathSequence.empty;
   return XPathSequence.single(arg.first);
-}
+});
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-tail
-const fnTail = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:tail'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-  ],
-  function: _fnTail,
-);
-
-XPathSequence _fnTail(XPathContext context, XPathSequence arg) {
+final fnTail = XPathFunctionItem.fn1(const XmlName.qualified('fn:tail'), (
+  context,
+  arg,
+) {
   if (arg.isEmpty) return XPathSequence.empty;
   return XPathSequence(arg.skip(1));
-}
+});
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-insert-before
-const fnInsertBefore = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:insert-before'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'target',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-    XPathArgumentDefinition(name: 'position', type: xsNumeric),
-    XPathArgumentDefinition(
-      name: 'inserts',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-  ],
-  function: _fnInsertBefore,
+final fnInsertBefore = XPathFunctionItem.fn3(
+  const XmlName.qualified('fn:insert-before'),
+  (context, target, position, inserts) {
+    final posItem = position.atomize().firstOrNull as XPathInteger?;
+    final pos = posItem?.asInt ?? 1;
+    return XPathSequence(_fnInsertBeforeSync(target, pos, inserts));
+  },
 );
 
-XPathSequence _fnInsertBefore(
-  XPathContext context,
+Iterable<XPathItem> _fnInsertBeforeSync(
   XPathSequence target,
-  num position,
-  XPathSequence inserts,
-) => XPathSequence(_fnInsertBeforeSync(target, position, inserts));
-
-Iterable<Object> _fnInsertBeforeSync(
-  XPathSequence target,
-  num position,
+  int position,
   XPathSequence inserts,
 ) sync* {
   var index = 1;
-  final pos = position.toInt();
-  if (pos <= 0) {
+  if (position <= 0) {
     yield* inserts;
     yield* target;
     return;
   }
   var inserted = false;
   for (final item in target) {
-    if (index == pos) {
+    if (index == position) {
       yield* inserts;
       inserted = true;
     }
@@ -135,30 +75,20 @@ Iterable<Object> _fnInsertBeforeSync(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-remove
-const fnRemove = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:remove'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'target',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-    XPathArgumentDefinition(name: 'position', type: xsNumeric),
-  ],
-  function: _fnRemove,
-);
+final fnRemove = XPathFunctionItem.fn2(const XmlName.qualified('fn:remove'), (
+  context,
+  target,
+  position,
+) {
+  final posItem = position.atomize().firstOrNull as XPathInteger?;
+  final pos = posItem?.asInt ?? 1;
+  return XPathSequence(_fnRemoveSync(target, pos));
+});
 
-XPathSequence _fnRemove(
-  XPathContext context,
-  XPathSequence target,
-  num position,
-) => XPathSequence(_fnRemoveSync(target, position));
-
-Iterable<Object> _fnRemoveSync(XPathSequence target, num position) sync* {
+Iterable<XPathItem> _fnRemoveSync(XPathSequence target, int position) sync* {
   var index = 1;
-  final pos = position.toInt();
   for (final item in target) {
-    if (index != pos) {
+    if (index != position) {
       yield item;
     }
     index++;
@@ -166,110 +96,102 @@ Iterable<Object> _fnRemoveSync(XPathSequence target, num position) sync* {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-reverse
-const fnReverse = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:reverse'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-  ],
-  function: _fnReverse,
+final fnReverse = XPathFunctionItem.fn1(
+  const XmlName.qualified('fn:reverse'),
+  (context, arg) => XPathSequence(arg.toList().reversed),
 );
-
-XPathSequence _fnReverse(XPathContext context, XPathSequence arg) =>
-    XPathSequence(arg.toList().reversed);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-format-integer
-const fnFormatInteger = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:format-integer'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsNumeric,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-    XPathArgumentDefinition(name: 'picture', type: xsString),
-  ],
-  optionalArguments: [
-    XPathArgumentDefinition(name: 'language', type: xsString),
-  ],
-  function: _fnFormatInteger,
+final fnFormatInteger = XPathFunctionItem.overloaded(
+  const XmlName.qualified('fn:format-integer'),
+  {
+    2: XPathFunctionItem.fn2(const XmlName.qualified('fn:format-integer'), (
+      context,
+      value,
+      picture,
+    ) {
+      final val = value.atomize().firstOrNull as XPathInteger?;
+      if (val == null) return XPathSequence.empty;
+      return XPathSequence.single(XPathString(val.stringValue));
+    }),
+    3: XPathFunctionItem.fn3(const XmlName.qualified('fn:format-integer'), (
+      context,
+      value,
+      picture,
+      language,
+    ) {
+      final val = value.atomize().firstOrNull as XPathInteger?;
+      if (val == null) return XPathSequence.empty;
+      return XPathSequence.single(XPathString(val.stringValue));
+    }),
+  },
 );
-
-XPathSequence _fnFormatInteger(
-  XPathContext context,
-  num? value,
-  String picture, [
-  String? language,
-]) {
-  if (value == null) return XPathSequence.empty;
-  // TODO: Proper implementation
-  return XPathSequence.single(value.toString());
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-format-number
-const fnFormatNumber = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:format-number'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'value',
-      type: xsNumeric,
-      cardinality: XPathCardinality.zeroOrOne,
-    ),
-    XPathArgumentDefinition(name: 'picture', type: xsString),
-  ],
-  optionalArguments: [
-    XPathArgumentDefinition(name: 'decimal-format-name', type: xsString),
-  ],
-  function: _fnFormatNumber,
+final fnFormatNumber = XPathFunctionItem.overloaded(
+  const XmlName.qualified('fn:format-number'),
+  {
+    2: XPathFunctionItem.fn2(const XmlName.qualified('fn:format-number'), (
+      context,
+      value,
+      picture,
+    ) {
+      final val = value.atomize().firstOrNull as XPathNumeric?;
+      if (val == null) return XPathSequence.empty;
+      return XPathSequence.single(XPathString(val.stringValue));
+    }),
+    3: XPathFunctionItem.fn3(const XmlName.qualified('fn:format-number'), (
+      context,
+      value,
+      picture,
+      decimalFormatName,
+    ) {
+      final val = value.atomize().firstOrNull as XPathNumeric?;
+      if (val == null) return XPathSequence.empty;
+      return XPathSequence.single(XPathString(val.stringValue));
+    }),
+  },
 );
-
-XPathSequence _fnFormatNumber(
-  XPathContext context,
-  num? value,
-  String picture, [
-  String? decimalFormatName,
-]) {
-  if (value == null) return XPathSequence.empty;
-  // TODO: Proper implementation
-  return XPathSequence.single(value.toString());
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-subsequence
-const fnSubsequence = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:subsequence'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'sourceSeq',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
+final fnSubsequence = XPathFunctionItem.overloaded(
+  const XmlName.qualified('fn:subsequence'),
+  {
+    2: XPathFunctionItem.fn2(
+      const XmlName.qualified('fn:subsequence'),
+      (context, sourceSeq, startingLoc) => _evalSubsequence(
+        sourceSeq,
+        startingLoc.atomize().firstOrNull as XPathNumeric?,
+        null,
+      ),
     ),
-    XPathArgumentDefinition(name: 'startingLoc', type: xsDouble),
-  ],
-  optionalArguments: [XPathArgumentDefinition(name: 'length', type: xsDouble)],
-  function: _fnSubsequence,
+    3: XPathFunctionItem.fn3(
+      const XmlName.qualified('fn:subsequence'),
+      (context, sourceSeq, startingLoc, length) => _evalSubsequence(
+        sourceSeq,
+        startingLoc.atomize().firstOrNull as XPathNumeric?,
+        length.atomize().firstOrNull as XPathNumeric?,
+      ),
+    ),
+  },
 );
 
-XPathSequence _fnSubsequence(
-  XPathContext context,
+XPathSequence _evalSubsequence(
   XPathSequence sourceSeq,
-  double startingLoc, [
-  double? length,
-]) {
-  if (startingLoc.isNaN || (length != null && length.isNaN)) {
+  XPathNumeric? startingLoc,
+  XPathNumeric? length,
+) {
+  if (startingLoc == null) return XPathSequence.empty;
+  final sVal = startingLoc.toDouble();
+  final lVal = length?.toDouble();
+  if (sVal.isNaN || (lVal != null && lVal.isNaN)) {
     return XPathSequence.empty;
   }
 
-  final startRound = startingLoc.isInfinite
-      ? startingLoc
-      : startingLoc.roundToDouble();
-
-  final lengthRound = length == null
+  final startRound = sVal.isInfinite ? sVal : sVal.roundToDouble();
+  final lengthRound = lVal == null
       ? null
-      : (length.isInfinite ? length : length.roundToDouble());
-
+      : (lVal.isInfinite ? lVal : lVal.roundToDouble());
   final endRound = lengthRound != null
       ? startRound + lengthRound
       : double.infinity;
@@ -299,7 +221,7 @@ XPathSequence _fnSubsequence(
     }
   }
 
-  Iterable<Object> iter = sourceSeq;
+  Iterable<XPathItem> iter = sourceSeq;
   if (skipCount > 0) {
     iter = iter.skip(skipCount);
   }
@@ -311,113 +233,118 @@ XPathSequence _fnSubsequence(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-unordered
-const fnUnordered = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:unordered'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'sourceSeq',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-  ],
-  function: _fnUnordered,
+final fnUnordered = XPathFunctionItem.fn1(
+  const XmlName.qualified('fn:unordered'),
+  (context, sourceSeq) => sourceSeq,
 );
-
-XPathSequence _fnUnordered(XPathContext context, XPathSequence sourceSeq) =>
-    sourceSeq;
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-distinct-values
-const fnDistinctValues = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:distinct-values'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
+final fnDistinctValues = XPathFunctionItem.overloaded(
+  const XmlName.qualified('fn:distinct-values'),
+  {
+    1: XPathFunctionItem.fn1(
+      const XmlName.qualified('fn:distinct-values'),
+      (context, arg) => _evalDistinctValues(arg),
     ),
-  ],
-  optionalArguments: [
-    XPathArgumentDefinition(name: 'collation', type: xsString),
-  ],
-  function: _fnDistinctValues,
+    2: XPathFunctionItem.fn2(
+      const XmlName.qualified('fn:distinct-values'),
+      (context, arg, collation) => _evalDistinctValues(arg),
+    ),
+  },
 );
 
-XPathSequence _fnDistinctValues(
-  XPathContext context,
-  XPathSequence arg, [
-  String? collation,
-]) => XPathSequence(arg.toSet());
+XPathSequence _evalDistinctValues(XPathSequence arg) {
+  final set = <XPathAtomic>{};
+  final result = <XPathAtomic>[];
+  for (final atom in arg.atomize()) {
+    if (set.add(atom)) {
+      result.add(atom);
+    }
+  }
+  return XPathSequence(result);
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-index-of
-const fnIndexOf = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:index-of'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'seq',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-    XPathArgumentDefinition(name: 'search', type: xsAny),
-  ],
-  optionalArguments: [
-    XPathArgumentDefinition(name: 'collation', type: xsString),
-  ],
-  function: _fnIndexOf,
+final fnIndexOf = XPathFunctionItem.overloaded(
+  const XmlName.qualified('fn:index-of'),
+  {
+    2: XPathFunctionItem.fn2(const XmlName.qualified('fn:index-of'), (
+      context,
+      seq,
+      searchSeq,
+    ) {
+      final search = searchSeq.atomize().firstOrNull;
+      if (search == null) return XPathSequence.empty;
+      return _evalIndexOf(seq, search);
+    }),
+    3: XPathFunctionItem.fn3(const XmlName.qualified('fn:index-of'), (
+      context,
+      seq,
+      searchSeq,
+      collation,
+    ) {
+      final search = searchSeq.atomize().firstOrNull;
+      if (search == null) return XPathSequence.empty;
+      return _evalIndexOf(seq, search);
+    }),
+  },
 );
 
-XPathSequence _fnIndexOf(
-  XPathContext context,
-  XPathSequence seq,
-  Object search, [
-  String? collation,
-]) => XPathSequence(
-  XPathSequence(seq.atomize())
-      .toList()
-      .asMap()
-      .entries
-      .where((e) {
-        try {
-          return compare(e.value, search) == 0;
-        } catch (_) {
-          return false;
-        }
-      })
-      .map((e) => e.key + 1),
-);
+XPathSequence _evalIndexOf(XPathSequence seq, XPathAtomic search) =>
+    XPathSequence(
+      seq
+          .atomize()
+          .toList()
+          .asMap()
+          .entries
+          .where((e) {
+            try {
+              return e.value == search;
+            } catch (_) {
+              return false;
+            }
+          })
+          .map((e) => XPathInteger.fromInt(e.key + 1)),
+    );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-deep-equal
-const fnDeepEqual = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:deep-equal'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'parameter1',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
+final fnDeepEqual = XPathFunctionItem.overloaded(
+  const XmlName.qualified('fn:deep-equal'),
+  {
+    2: XPathFunctionItem.fn2(
+      const XmlName.qualified('fn:deep-equal'),
+      (context, p1, p2) => _evalDeepEqual(p1, p2),
     ),
-    XPathArgumentDefinition(
-      name: 'parameter2',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
+    3: XPathFunctionItem.fn3(
+      const XmlName.qualified('fn:deep-equal'),
+      (context, p1, p2, collation) => _evalDeepEqual(p1, p2),
     ),
-  ],
-  optionalArguments: [
-    XPathArgumentDefinition(name: 'collation', type: xsString),
-  ],
-  function: _fnDeepEqual,
+  },
 );
 
 bool _deepEqual(Object? a, Object? b) {
-  if (a is Function ||
-      b is Function ||
-      a is XPathFunction ||
-      b is XPathFunction) {
+  if (a is XPathFunctionItem || b is XPathFunctionItem) {
+    if (a is XPathMap && b is XPathMap) {
+      if (a.length != b.length) return false;
+      for (final keyA in a.keys) {
+        final valA = a.get(keyA);
+        final valB = b.get(keyA);
+        if (valB == null || !_deepEqual(valA, valB)) return false;
+      }
+      return true;
+    }
+    if (a is XPathArray && b is XPathArray) {
+      if (a.length != b.length) return false;
+      for (var i = 0; i < a.length; i++) {
+        if (!_deepEqual(a[i], b[i])) return false;
+      }
+      return true;
+    }
     throw XPathEvaluationException(
       'Cannot compare function items with deep-equal',
     );
   }
-  if (identical(a, b) && a is! List && a is! Map && a is! XPathSequence) {
-    return true;
-  }
+  if (identical(a, b)) return true;
   if (a == null || b == null) return false;
 
   // Handle sequences
@@ -431,205 +358,111 @@ bool _deepEqual(Object? a, Object? b) {
     return true;
   }
 
-  // Handle lists (arrays)
-  if (a is List && b is List) {
-    if (a.length != b.length) return false;
-    for (var i = 0; i < a.length; i++) {
-      if (!_deepEqual(a[i], b[i])) return false;
-    }
-    return true;
-  }
-
-  // Handle maps
-  if (a is Map && b is Map) {
-    if (a.length != b.length) return false;
-    for (final keyA in a.keys) {
-      Object? foundKeyB;
-      for (final keyB in b.keys) {
-        if (_deepEqual(keyA, keyB)) {
-          foundKeyB = keyB;
-          break;
-        }
-      }
-      if (foundKeyB == null) return false;
-      if (!_deepEqual(a[keyA], b[foundKeyB])) return false;
-    }
-    return true;
-  }
-
-  // Handle XmlNode
-  if (a is XmlNode && b is XmlNode) {
-    if (a.nodeType != b.nodeType) return false;
-    if (a is XmlElement && b is XmlElement) {
-      if (a.name != b.name) return false;
-      if (a.attributes.length != b.attributes.length) return false;
-      for (final attrA in a.attributes) {
-        final attrB = b.getAttributeNode(attrA.name.qualified);
+  // Handle XPathNode
+  if (a is XPathNode && b is XPathNode) {
+    final na = a.node;
+    final nb = b.node;
+    if (na.nodeType != nb.nodeType) return false;
+    if (na is XmlElement && nb is XmlElement) {
+      if (na.name != nb.name) return false;
+      if (na.attributes.length != nb.attributes.length) return false;
+      for (final attrA in na.attributes) {
+        final attrB = nb.getAttributeNode(attrA.name.qualified);
         if (attrB == null || attrB.value != attrA.value) return false;
       }
-      if (a.children.length != b.children.length) return false;
-      for (var i = 0; i < a.children.length; i++) {
-        if (!_deepEqual(a.children[i], b.children[i])) return false;
+      if (na.children.length != nb.children.length) return false;
+      for (var i = 0; i < na.children.length; i++) {
+        if (!_deepEqual(XPathNode(na.children[i]), XPathNode(nb.children[i]))) {
+          return false;
+        }
       }
       return true;
     }
-    if (a is XmlAttribute && b is XmlAttribute) {
-      return a.name == b.name && a.value == b.value;
+    if (na is XmlAttribute && nb is XmlAttribute) {
+      return na.name == nb.name && na.value == nb.value;
     }
-    return a.value == b.value;
+    return na.value == nb.value;
   }
 
-  // Handle atomic comparison
-  try {
-    return compare(a, b) == 0;
-  } catch (_) {
+  if (a is XPathAtomic && b is XPathAtomic) {
     return a == b;
   }
+
+  return false;
 }
 
-XPathSequence _fnDeepEqual(
-  XPathContext context,
+XPathSequence _evalDeepEqual(
   XPathSequence parameter1,
-  XPathSequence parameter2, [
-  String? collation,
-]) {
+  XPathSequence parameter2,
+) {
   try {
     return _deepEqual(parameter1, parameter2)
-        ? XPathSequence.trueSequence
-        : XPathSequence.falseSequence;
+        ? const XPathSequence.single(XPathBoolean.xpathTrue)
+        : const XPathSequence.single(XPathBoolean.xpathFalse);
   } on XPathEvaluationException {
     rethrow;
   } catch (_) {
-    return XPathSequence.falseSequence;
+    return const XPathSequence.single(XPathBoolean.xpathFalse);
   }
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-zero-or-one
-const fnZeroOrOne = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:zero-or-one'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-  ],
-  function: _fnZeroOrOne,
+final fnZeroOrOne = XPathFunctionItem.fn1(
+  const XmlName.qualified('fn:zero-or-one'),
+  (context, arg) {
+    if (arg.length > 1) {
+      throw XPathEvaluationException('Sequence has more than one item');
+    }
+    return arg;
+  },
 );
-
-XPathSequence _fnZeroOrOne(XPathContext context, XPathSequence arg) {
-  if (arg.length > 1) {
-    throw XPathEvaluationException('Sequence has more than one item');
-  }
-  return arg;
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-one-or-more
-const fnOneOrMore = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:one-or-more'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-  ],
-  function: _fnOneOrMore,
+final fnOneOrMore = XPathFunctionItem.fn1(
+  const XmlName.qualified('fn:one-or-more'),
+  (context, arg) {
+    if (arg.isEmpty) {
+      throw XPathEvaluationException('Sequence is empty');
+    }
+    return arg;
+  },
 );
-
-XPathSequence _fnOneOrMore(XPathContext context, XPathSequence arg) {
-  if (arg.isEmpty) {
-    throw XPathEvaluationException('Sequence is empty');
-  }
-  return arg;
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-exactly-one
-const fnExactlyOne = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:exactly-one'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-  ],
-  function: _fnExactlyOne,
+final fnExactlyOne = XPathFunctionItem.fn1(
+  const XmlName.qualified('fn:exactly-one'),
+  (context, arg) {
+    if (arg.length != 1) {
+      throw XPathEvaluationException('Sequence does not have exactly one item');
+    }
+    return arg;
+  },
 );
-
-XPathSequence _fnExactlyOne(XPathContext context, XPathSequence arg) {
-  if (arg.length != 1) {
-    throw XPathEvaluationException('Sequence does not have exactly one item');
-  }
-  return arg;
-}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-count
-const fnCount = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:count'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-  ],
-  function: _fnCount,
+final fnCount = XPathFunctionItem.fn1(
+  const XmlName.qualified('fn:count'),
+  (context, arg) => XPathSequence.single(XPathInteger.fromInt(arg.length)),
 );
-
-XPathSequence _fnCount(XPathContext context, XPathSequence arg) =>
-    XPathSequence.single(arg.length);
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-avg
-const fnAvg = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:avg'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-  ],
-  function: _fnAvg,
-);
-
-Iterable<Object> _atomizeSumAvg(Object item) {
-  if (item is XPathArray) {
-    return item.expand(_atomizeSumAvg);
-  }
-  if (item is XPathSequence) {
-    return item.expand(_atomizeSumAvg);
-  }
-  if (item is XmlNode) {
-    final valStr = xsNode.castToString(item);
-    try {
-      return [xsDouble.cast(valStr)];
-    } catch (_) {
+final fnAvg = XPathFunctionItem.fn1(const XmlName.qualified('fn:avg'), (
+  context,
+  arg,
+) {
+  final items = arg.atomize().map((a) {
+    if (a is XPathUntypedAtomic) {
+      final d = double.tryParse(a.value);
+      if (d != null) return XPathDouble(d);
       throw XPathEvaluationException(
-        'Cannot cast untypedAtomic "$valStr" to double',
+        'Cannot cast untypedAtomic "${a.value}" to double',
       );
     }
-  }
-  if (item is XPathMap || item is Function) {
-    throw XPathEvaluationException('Cannot atomize a map or function item');
-  }
-  return [item];
-}
-
-int _roundHalfToEven(double value) {
-  final floor = value.floor();
-  final diff = value - floor;
-  if (diff == 0.5) {
-    return floor.isEven ? floor : floor + 1;
-  }
-  return value.round();
-}
-
-XPathSequence _fnAvg(XPathContext context, XPathSequence arg) {
-  final items = arg.expand(_atomizeSumAvg).toList();
+    return a;
+  }).toList();
   if (items.isEmpty) return XPathSequence.empty;
 
-  final allNumeric = items.every((e) => e is num);
+  final allNumeric = items.every((e) => e is XPathNumeric);
   final allDuration = items.every((e) => e is XPathAbstractDuration);
 
   if (!allNumeric && !allDuration) {
@@ -639,16 +472,12 @@ XPathSequence _fnAvg(XPathContext context, XPathSequence arg) {
   }
 
   final count = items.length;
-
   if (allNumeric) {
-    var sum = items.first as num;
+    var sum = items.first as XPathNumeric;
     for (var i = 1; i < items.length; i++) {
-      sum += items[i] as num;
+      sum = sum + (items[i] as XPathNumeric);
     }
-    if (sum is int && sum % count == 0) {
-      return XPathSequence.single(sum ~/ count);
-    }
-    return XPathSequence.single(sum / count);
+    return XPathSequence.single(sum / XPathInteger.fromInt(count));
   } else {
     final allYearMonth = items.every((e) => e is XPathYearMonthDuration);
     final allDayTime = items.every((e) => e is XPathDayTimeDuration);
@@ -659,72 +488,88 @@ XPathSequence _fnAvg(XPathContext context, XPathSequence arg) {
       );
     }
 
-    try {
-      if (allYearMonth) {
-        var sumMonths = 0;
-        for (final item in items) {
-          sumMonths += (item as XPathYearMonthDuration).totalMonths;
-        }
-        final avgMonths = _roundHalfToEven(sumMonths / count);
-        return XPathSequence.single(XPathYearMonthDuration(avgMonths));
-      } else {
-        var sumMicroseconds = 0;
-        for (final item in items) {
-          sumMicroseconds += (item as XPathDayTimeDuration).inMicroseconds;
-        }
-        final avgMicroseconds = _roundHalfToEven(sumMicroseconds / count);
-        return XPathSequence.single(XPathDayTimeDuration(avgMicroseconds));
+    int roundHalfToEven(double val) {
+      final floor = val.floor();
+      final diff = val - floor;
+      if (diff == 0.5) return floor.isEven ? floor : floor + 1;
+      return val.round();
+    }
+
+    if (allYearMonth) {
+      var sumMonths = 0;
+      for (final item in items) {
+        sumMonths += (item as XPathYearMonthDuration).totalMonths;
       }
-    } catch (e) {
-      if (e is XPathEvaluationException) rethrow;
-      throw XPathEvaluationException(
-        'fn:avg: duration arithmetic overflow: $e',
-      );
+      final avgMonths = roundHalfToEven(sumMonths / count);
+      return XPathSequence.single(XPathYearMonthDuration(avgMonths));
+    } else {
+      var sumMicroseconds = 0;
+      for (final item in items) {
+        sumMicroseconds += (item as XPathDayTimeDuration).inMicroseconds;
+      }
+      final avgMicroseconds = roundHalfToEven(sumMicroseconds / count);
+      return XPathSequence.single(XPathDayTimeDuration(avgMicroseconds));
     }
   }
-}
+});
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-max
-const fnMax = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:max'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-  ],
-  optionalArguments: [
-    XPathArgumentDefinition(name: 'collation', type: xsString),
-  ],
-  function: _fnMax,
-);
+final fnMax = XPathFunctionItem.overloaded(const XmlName.qualified('fn:max'), {
+  1: XPathFunctionItem.fn1(
+    const XmlName.qualified('fn:max'),
+    (context, arg) => _evalMax(arg),
+  ),
+  2: XPathFunctionItem.fn2(
+    const XmlName.qualified('fn:max'),
+    (context, arg, collation) => _evalMax(arg),
+  ),
+});
 
-Iterable<Object> _atomizeMaxMin(Object item) {
-  if (item is XPathArray) {
-    return item.expand(_atomizeMaxMin);
+List<XPathAtomic> _prepareMinMax(XPathSequence arg) {
+  final rawItems = arg.atomize().toList();
+  if (rawItems.isEmpty) return const [];
+  var hasNumeric = false;
+  var hasString = false;
+  final items = <XPathAtomic>[];
+  for (final raw in rawItems) {
+    var val = raw;
+    if (val is XPathUntypedAtomic) {
+      final d = double.tryParse(val.value);
+      if (d != null) {
+        val = XPathDouble(d);
+      } else {
+        throw XPathEvaluationException(
+          'Cannot cast untypedAtomic to double in min/max',
+        );
+      }
+    }
+    if (val is XPathNumeric) {
+      hasNumeric = true;
+    } else if (val is XPathString) {
+      hasString = true;
+    }
+    items.add(val);
   }
-  if (item is XPathSequence) {
-    return item.expand(_atomizeMaxMin);
+  if (hasNumeric && hasString) {
+    throw XPathEvaluationException(
+      'fn:min/fn:max cannot compare numeric and string values [err:FORG0006]',
+    );
   }
-  return [item];
+  return items;
 }
 
-XPathSequence _fnMax(
-  XPathContext context,
-  XPathSequence arg, [
-  String? collation,
-]) {
-  final iterator = XPathSequence(arg.expand(_atomizeMaxMin))
-      .map((item) => item is XmlNode ? xsNumeric.cast(item) : item)
-      .iterator;
-  if (!iterator.moveNext()) return XPathSequence.empty;
-  var max = iterator.current;
-  if (max is num && max.isNaN) return XPathSequence.nan;
-  while (iterator.moveNext()) {
-    final item = iterator.current;
-    if (item is num && item.isNaN) return XPathSequence.nan;
-    if (compare(item, max) > 0) {
+XPathSequence _evalMax(XPathSequence arg) {
+  final items = _prepareMinMax(arg);
+  if (items.isEmpty) return XPathSequence.empty;
+  for (final item in items) {
+    if (item is XPathDouble && item.value.isNaN) {
+      return const XPathSequence.single(XPathDouble.nan);
+    }
+  }
+  var max = items.first;
+  for (var i = 1; i < items.length; i++) {
+    final item = items[i];
+    if (item.compareTo(max) > 0) {
       max = item;
     }
   }
@@ -732,36 +577,29 @@ XPathSequence _fnMax(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-min
-const fnMin = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:min'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-  ],
-  optionalArguments: [
-    XPathArgumentDefinition(name: 'collation', type: xsString),
-  ],
-  function: _fnMin,
-);
+final fnMin = XPathFunctionItem.overloaded(const XmlName.qualified('fn:min'), {
+  1: XPathFunctionItem.fn1(
+    const XmlName.qualified('fn:min'),
+    (context, arg) => _evalMin(arg),
+  ),
+  2: XPathFunctionItem.fn2(
+    const XmlName.qualified('fn:min'),
+    (context, arg, collation) => _evalMin(arg),
+  ),
+});
 
-XPathSequence _fnMin(
-  XPathContext context,
-  XPathSequence arg, [
-  String? collation,
-]) {
-  final iterator = XPathSequence(arg.expand(_atomizeMaxMin))
-      .map((item) => item is XmlNode ? xsNumeric.cast(item) : item)
-      .iterator;
-  if (!iterator.moveNext()) return XPathSequence.empty;
-  var min = iterator.current;
-  if (min is num && min.isNaN) return XPathSequence.nan;
-  while (iterator.moveNext()) {
-    final item = iterator.current;
-    if (item is num && item.isNaN) return XPathSequence.nan;
-    if (compare(item, min) < 0) {
+XPathSequence _evalMin(XPathSequence arg) {
+  final items = _prepareMinMax(arg);
+  if (items.isEmpty) return XPathSequence.empty;
+  for (final item in items) {
+    if (item is XPathDouble && item.value.isNaN) {
+      return const XPathSequence.single(XPathDouble.nan);
+    }
+  }
+  var min = items.first;
+  for (var i = 1; i < items.length; i++) {
+    final item = items[i];
+    if (item.compareTo(min) < 0) {
       min = item;
     }
   }
@@ -769,36 +607,34 @@ XPathSequence _fnMin(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-sum
-const fnSum = XPathFunctionDefinition(
-  name: XmlName.qualified('fn:sum'),
-  requiredArguments: [
-    XPathArgumentDefinition(
-      name: 'arg',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-  ],
-  optionalArguments: [
-    XPathArgumentDefinition(
-      name: 'zero',
-      type: xsAny,
-      cardinality: XPathCardinality.zeroOrMore,
-    ),
-  ],
-  function: _fnSum,
-);
+final fnSum = XPathFunctionItem.overloaded(const XmlName.qualified('fn:sum'), {
+  1: XPathFunctionItem.fn1(
+    const XmlName.qualified('fn:sum'),
+    (context, arg) => _evalSum(arg, null),
+  ),
+  2: XPathFunctionItem.fn2(
+    const XmlName.qualified('fn:sum'),
+    (context, arg, zero) => _evalSum(arg, zero),
+  ),
+});
 
-XPathSequence _fnSum(
-  XPathContext context,
-  XPathSequence arg, [
-  XPathSequence? zero,
-]) {
-  final items = arg.expand(_atomizeSumAvg).toList();
+XPathSequence _evalSum(XPathSequence arg, XPathSequence? zero) {
+  final items = arg.atomize().map((a) {
+    if (a is XPathUntypedAtomic) {
+      final d = double.tryParse(a.value);
+      if (d != null) return XPathDouble(d);
+      throw XPathEvaluationException(
+        'Cannot cast untypedAtomic "${a.value}" to double',
+      );
+    }
+    return a;
+  }).toList();
+
   if (items.isEmpty) {
-    return zero ?? const XPathSequence.single(0);
+    return zero ?? XPathSequence.single(XPathInteger.fromInt(0));
   }
 
-  final allNumeric = items.every((e) => e is num);
+  final allNumeric = items.every((e) => e is XPathNumeric);
   final allDuration = items.every((e) => e is XPathAbstractDuration);
 
   if (!allNumeric && !allDuration) {
@@ -808,9 +644,9 @@ XPathSequence _fnSum(
   }
 
   if (allNumeric) {
-    var sum = items.first as num;
+    var sum = items.first as XPathNumeric;
     for (var i = 1; i < items.length; i++) {
-      sum += items[i] as num;
+      sum = sum + (items[i] as XPathNumeric);
     }
     return XPathSequence.single(sum);
   } else {
@@ -823,25 +659,18 @@ XPathSequence _fnSum(
       );
     }
 
-    try {
-      if (allYearMonth) {
-        var sumMonths = 0;
-        for (final item in items) {
-          sumMonths += (item as XPathYearMonthDuration).totalMonths;
-        }
-        return XPathSequence.single(XPathYearMonthDuration(sumMonths));
-      } else {
-        var sumMicroseconds = 0;
-        for (final item in items) {
-          sumMicroseconds += (item as XPathDayTimeDuration).inMicroseconds;
-        }
-        return XPathSequence.single(XPathDayTimeDuration(sumMicroseconds));
+    if (allYearMonth) {
+      var sumMonths = 0;
+      for (final item in items) {
+        sumMonths += (item as XPathYearMonthDuration).totalMonths;
       }
-    } catch (e) {
-      if (e is XPathEvaluationException) rethrow;
-      throw XPathEvaluationException(
-        'fn:sum: duration arithmetic overflow: $e',
-      );
+      return XPathSequence.single(XPathYearMonthDuration(sumMonths));
+    } else {
+      var sumMicroseconds = 0;
+      for (final item in items) {
+        sumMicroseconds += (item as XPathDayTimeDuration).inMicroseconds;
+      }
+      return XPathSequence.single(XPathDayTimeDuration(sumMicroseconds));
     }
   }
 }

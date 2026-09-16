@@ -7,19 +7,19 @@ void main() {
     test('same content', () {
       expect(
         opHexBinaryEqual(
-          const XPathSequence.single('AB'),
-          const XPathSequence.single('AB'),
+          XPathSequence.single(XPathHexBinary.fromHex('AB')),
+          XPathSequence.single(XPathHexBinary.fromHex('AB')),
         ),
-        [true],
+        XPathSequence.trueSequence,
       );
     });
     test('different content', () {
       expect(
         opHexBinaryEqual(
-          const XPathSequence.single('AB'),
-          const XPathSequence.single('AC'),
+          XPathSequence.single(XPathHexBinary.fromHex('AB')),
+          XPathSequence.single(XPathHexBinary.fromHex('AC')),
         ),
-        [false],
+        XPathSequence.falseSequence,
       );
     });
   });
@@ -28,10 +28,10 @@ void main() {
     test('less than', () {
       expect(
         opHexBinaryLessThan(
-          const XPathSequence.single('AA'),
-          const XPathSequence.single('BB'),
+          XPathSequence.single(XPathHexBinary.fromHex('AA')),
+          XPathSequence.single(XPathHexBinary.fromHex('BB')),
         ),
-        [true],
+        XPathSequence.trueSequence,
       );
     });
   });
@@ -40,10 +40,10 @@ void main() {
     test('greater than', () {
       expect(
         opHexBinaryGreaterThan(
-          const XPathSequence.single('BB'),
-          const XPathSequence.single('AA'),
+          XPathSequence.single(XPathHexBinary.fromHex('BB')),
+          XPathSequence.single(XPathHexBinary.fromHex('AA')),
         ),
-        [true],
+        XPathSequence.trueSequence,
       );
     });
   });
@@ -52,10 +52,10 @@ void main() {
     test('same content', () {
       expect(
         opBase64BinaryEqual(
-          const XPathSequence.single('AA=='),
-          const XPathSequence.single('AA=='),
+          XPathSequence.single(XPathBase64Binary.fromBase64('AA==')),
+          XPathSequence.single(XPathBase64Binary.fromBase64('AA==')),
         ),
-        [true],
+        XPathSequence.trueSequence,
       );
     });
   });
@@ -64,10 +64,10 @@ void main() {
     test('less than', () {
       expect(
         opBase64BinaryLessThan(
-          const XPathSequence.single('AA=='),
-          const XPathSequence.single('AQ=='),
+          XPathSequence.single(XPathBase64Binary.fromBase64('AA==')),
+          XPathSequence.single(XPathBase64Binary.fromBase64('AQ==')),
         ),
-        [true],
+        XPathSequence.trueSequence,
       );
     });
   });
@@ -76,10 +76,10 @@ void main() {
     test('greater than', () {
       expect(
         opBase64BinaryGreaterThan(
-          const XPathSequence.single('AQ=='),
-          const XPathSequence.single('AA=='),
+          XPathSequence.single(XPathBase64Binary.fromBase64('AQ==')),
+          XPathSequence.single(XPathBase64Binary.fromBase64('AA==')),
         ),
-        [true],
+        XPathSequence.trueSequence,
       );
     });
   });
