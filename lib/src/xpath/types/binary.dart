@@ -5,6 +5,7 @@ import '../definitions/type.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../values/binary.dart';
 import '../values/sequence.dart';
+import '../values/untyped_atomic.dart';
 
 /// The XPath base64Binary type.
 const xsBase64Binary = _XPathBase64BinaryType();
@@ -22,6 +23,7 @@ class _XPathBase64BinaryType extends XPathType<XPathBase64Binary> {
   XPathBase64Binary cast(Object value) => switch (value) {
     XPathBase64Binary() => value,
     List<int>() => XPathBase64Binary(Uint8List.fromList(value)),
+    XPathUntypedAtomic() => XPathBase64Binary(base64Decode(value.value.trim())),
     String() => XPathBase64Binary(base64Decode(value)),
     XPathSequence(singleOrNull: final item?) => cast(item),
     _ => throw XPathEvaluationException.unsupportedCast(this, value),
@@ -47,6 +49,7 @@ class _XPathHexBinaryType extends XPathType<XPathHexBinary> {
   XPathHexBinary cast(Object value) => switch (value) {
     XPathHexBinary() => value,
     List<int>() => XPathHexBinary(Uint8List.fromList(value)),
+    XPathUntypedAtomic() => _parseHexBinary(value.value.trim()),
     String() => _parseHexBinary(value),
     XPathSequence(singleOrNull: final item?) => cast(item),
     _ => throw XPathEvaluationException.unsupportedCast(this, value),

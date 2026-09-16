@@ -100,7 +100,8 @@ class XPathMapFunction extends XPathFunction {
         'Maps expects exactly 1 argument, but got ${arguments.length}',
       );
     }
-    final key = arguments[0].toAtomicValue();
+    final rawKey = arguments[0].toAtomicValue();
+    final key = rawKey is XPathUntypedAtomic ? rawKey.value : rawKey;
     final result = _map[key];
     return result != null ? xsSequence.cast(result) : XPathSequence.empty;
   }

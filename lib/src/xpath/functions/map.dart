@@ -9,6 +9,7 @@ import '../types/sequence.dart';
 import '../values/function.dart';
 import '../values/map.dart';
 import '../values/sequence.dart';
+import '../values/untyped_atomic.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-size
 const fnMapSize = XPathFunctionDefinition(
@@ -31,7 +32,8 @@ const fnMapGet = XPathFunctionDefinition(
 );
 
 XPathSequence _fnMapGet(XPathContext context, XPathMap map, Object key) {
-  final value = map[key] ?? XPathSequence.empty;
+  final normalizedKey = _normalizeKey(key);
+  final value = map[normalizedKey] ?? XPathSequence.empty;
   return value.toXPathSequence();
 }
 
@@ -55,7 +57,7 @@ XPathSequence _fnMapPut(
   XPathMap map,
   Object key,
   XPathSequence value,
-) => XPathSequence.single({...map, key: value.toAtomicValue()});
+) => XPathSequence.single({...map, _normalizeKey(key): value.toAtomicValue()});
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-contains
 const fnMapContains = XPathFunctionDefinition(
@@ -68,7 +70,7 @@ const fnMapContains = XPathFunctionDefinition(
 );
 
 XPathSequence _fnMapContains(XPathContext context, XPathMap map, Object key) =>
-    XPathSequence.single(map.containsKey(key));
+    XPathSequence.single(map.containsKey(_normalizeKey(key)));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-remove
 const fnMapRemove = XPathFunctionDefinition(
@@ -91,7 +93,7 @@ XPathSequence _fnMapRemove(
 ) {
   final result = XPathMap.from(map);
   for (final key in keys) {
-    result.remove(key);
+    result.remove(_normalizeKey(key));
   }
   return XPathSequence.single(result);
 }
@@ -192,10 +194,11 @@ void _fnMapFindRecurse(
   Object key,
   List<Object> result,
 ) {
+  final normalizedKey = _normalizeKey(key);
   for (final item in sequence) {
     if (item is Map) {
-      if (item.containsKey(key)) {
-        result.add(item[key] as Object);
+      if (item.containsKey(normalizedKey)) {
+        result.add(item[normalizedKey] as Object);
       }
       _fnMapFindRecurse(XPathSequence(item.values.cast<Object>()), key, result);
     } else if (item is List<Object>) {
@@ -222,4 +225,6 @@ XPathSequence _fnMapEntry(
   XPathContext context,
   Object key,
   XPathSequence value,
-) => XPathSequence.single({key: value.toAtomicValue()});
+) => XPathSequence.single({_normalizeKey(key): value.toAtomicValue()});
+
+Object _normalizeKey(Object key) => key is XPathUntypedAtomic ? key.value : key;

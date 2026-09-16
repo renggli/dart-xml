@@ -1,6 +1,7 @@
 import '../definitions/type.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../values/sequence.dart';
+import '../values/untyped_atomic.dart';
 
 /// The XPath boolean type.
 const xsBoolean = _XPathBooleanType();
@@ -16,6 +17,7 @@ class _XPathBooleanType extends XPathType<bool> {
 
   @override
   bool cast(Object value) => switch (value) {
+    XPathUntypedAtomic() => cast(value.value),
     bool() => value,
     num() => value != 0 && !value.isNaN,
     String() => _parseBoolean(value.trim()),

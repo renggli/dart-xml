@@ -17,9 +17,6 @@ void main() {
     test('isAtomic', () {
       expect(type.isAtomic, isTrue);
     });
-    test('aliases', () {
-      expect(type.aliases, isEmpty);
-    });
     test('castToString', () {
       expect(type.castToString('hello'), 'hello');
     });

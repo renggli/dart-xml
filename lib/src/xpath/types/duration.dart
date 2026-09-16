@@ -2,6 +2,7 @@ import '../definitions/type.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../values/duration.dart';
 import '../values/sequence.dart';
+import '../values/untyped_atomic.dart';
 
 /// The XPath duration type (xs:duration) combining a year-month and day-time part.
 const xsDuration = _XPathDurationType();
@@ -37,6 +38,7 @@ class _XPathDurationType extends XPathType<XPathDuration> {
       isNegative: value.isNegative,
     ),
     Duration() => XPathDuration.fromDuration(value),
+    XPathUntypedAtomic() => _parseDuration(value.value.trim()),
     String() => _parseDuration(value.trim()),
     XPathSequence(singleOrNull: final item?) => cast(item),
     _ => throw XPathEvaluationException.unsupportedCast(this, value),
@@ -74,14 +76,10 @@ void _writeDayTimePart(StringBuffer buffer, XPathAbstractDuration value) {
     if (h > 0) buffer.write('${h}H');
     if (m > 0) buffer.write('${m}M');
     if (s > 0 || ms > 0 || us > 0) {
-      buffer.write(s);
+      buffer.write('$s');
       if (ms > 0 || us > 0) {
-        final totalUs = ms * 1000 + us;
-        final usStr = totalUs
-            .toString()
-            .padLeft(6, '0')
-            .replaceAll(RegExp(r'0+$'), '');
-        buffer.write('.$usStr');
+        final fraction = (ms * 1000 + us).toString().padLeft(6, '0');
+        buffer.write('.${fraction.replaceFirst(RegExp(r'0+$'), '')}');
       }
       buffer.write('S');
     }
@@ -107,6 +105,7 @@ class _XPathDayTimeDurationType extends XPathType<XPathDayTimeDuration> {
     XPathDuration() => XPathDayTimeDuration(value.totalMicroseconds),
     XPathYearMonthDuration() => const XPathDayTimeDuration(0),
     Duration() => XPathDayTimeDuration.fromDuration(value),
+    XPathUntypedAtomic() => _parseDayTimeDuration(value.value.trim()),
     String() => _parseDayTimeDuration(value.trim()),
     XPathSequence(singleOrNull: final item?) => cast(item),
     _ => throw XPathEvaluationException.unsupportedCast(this, value),
@@ -142,6 +141,7 @@ class _XPathYearMonthDurationType extends XPathType<XPathYearMonthDuration> {
     XPathYearMonthDuration() => value,
     XPathDuration() => XPathYearMonthDuration(value.totalMonths),
     XPathDayTimeDuration() => const XPathYearMonthDuration(0),
+    XPathUntypedAtomic() => _parseYearMonthDuration(value.value.trim()),
     String() => _parseYearMonthDuration(value.trim()),
     XPathSequence(singleOrNull: final item?) => cast(item),
     _ => throw XPathEvaluationException.unsupportedCast(this, value),

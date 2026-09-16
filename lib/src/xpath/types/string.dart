@@ -6,6 +6,7 @@ import '../values/binary.dart';
 import '../values/date_time.dart';
 import '../values/duration.dart';
 import '../values/sequence.dart';
+import '../values/untyped_atomic.dart';
 import 'binary.dart';
 import 'boolean.dart';
 import 'date_time.dart';
@@ -24,28 +25,11 @@ class _XPathStringType extends XPathType<String> {
   String get name => 'xs:string';
 
   @override
-  Iterable<String> get aliases => const [
-    'xs:normalizedString',
-    'xs:token',
-    'xs:language',
-    'xs:NMTOKEN',
-    'xs:NMTOKENS',
-    'xs:Name',
-    'xs:NCName',
-    'xs:ID',
-    'xs:IDREF',
-    'xs:IDREFS',
-    'xs:ENTITY',
-    'xs:ENTITIES',
-    'xs:anyURI',
-    'xs:NOTATION',
-  ];
-
-  @override
   bool matches(Object value) => value is String;
 
   @override
   String cast(Object value) => switch (value) {
+    XPathUntypedAtomic() => value.value,
     String() => value,
     bool() => xsBoolean.castToString(value),
     num() => xsNumeric.castToString(value),

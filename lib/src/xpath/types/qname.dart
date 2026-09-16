@@ -2,6 +2,7 @@ import '../../xml/utils/name.dart';
 import '../definitions/type.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../values/sequence.dart';
+import '../values/untyped_atomic.dart';
 
 /// The XPath QName type.
 const xsQName = _XPathQNameType();
@@ -18,6 +19,7 @@ class _XPathQNameType extends XPathType<XmlName> {
   @override
   XmlName cast(Object value) => switch (value) {
     XmlName() => value,
+    XPathUntypedAtomic() => XmlName.qualified(value.value.trim()),
     String() => XmlName.qualified(value),
     XPathSequence(singleOrNull: final item?) => cast(item),
     _ => throw XPathEvaluationException.unsupportedCast(this, value),

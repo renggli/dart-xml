@@ -15,10 +15,7 @@ import '../types/string.dart';
 
 /// The standard types.
 final Map<String, XPathType<Object>> standardTypes = {
-  for (var type in basicTypes) ...{
-    type.name: type,
-    for (var alias in type.aliases) alias: type,
-  },
+  for (var type in basicTypes) ...{type.name: type},
 };
 
 /// Internal list of basic types.
@@ -71,5 +68,6 @@ const basicTypes = <XPathType<Object>>[
   xsUnsignedInt,
   xsUnsignedLong,
   xsUnsignedShort,
+  xsUntypedAtomic,
   xsYearMonthDuration,
 ];

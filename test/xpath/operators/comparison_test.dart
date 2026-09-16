@@ -26,9 +26,9 @@ void main() {
       expect(compare(false, false), 0);
       expect(compare(true, false), 1);
     });
-    test('mixed types', () {
-      expect(compare(1, '2'), -1); // "1" < "2"
-      expect(compare('2', 1), 1); // "2" > "1"
+    test('incompatible types throw', () {
+      expect(() => compare(1, '2'), throwsA(isXPathEvaluationException()));
+      expect(() => compare('2', 1), throwsA(isXPathEvaluationException()));
     });
   });
 

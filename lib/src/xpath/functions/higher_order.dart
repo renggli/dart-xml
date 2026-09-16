@@ -253,15 +253,16 @@ XPathSequence _fnSort(
 ]) {
   final list = seq.toList();
   list.sort((a, b) {
-    final ka = key != null
-        ? key(context, [XPathSequence.single(a)]).toAtomicValue()
-        : a;
-    final kb = key != null
-        ? key(context, [XPathSequence.single(b)]).toAtomicValue()
-        : b;
+    final ka = key != null ? _evalSortKey(context, key, a) : a;
+    final kb = key != null ? _evalSortKey(context, key, b) : b;
     return compare(ka, kb);
   });
   return XPathSequence(list);
+}
+
+Object _evalSortKey(XPathContext context, XPathFunction key, Object item) {
+  final seq = key(context, [XPathSequence.single(item)]);
+  return seq.length == 1 ? seq.first : seq;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-function-lookup

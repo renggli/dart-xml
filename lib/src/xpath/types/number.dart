@@ -3,6 +3,7 @@ import '../definitions/type.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../values/duration.dart';
 import '../values/sequence.dart';
+import '../values/untyped_atomic.dart';
 import 'string.dart';
 
 /// The XPath numeric type.
@@ -19,6 +20,7 @@ class _XPathNumericType extends XPathType<num> {
 
   @override
   num cast(Object value) => switch (value) {
+    XPathUntypedAtomic() => cast(value.value),
     num() => value,
     Duration() => value.inMicroseconds,
     XPathDayTimeDuration() => value.inMicroseconds,
@@ -58,6 +60,7 @@ class _XPathDecimalType extends XPathType<num> {
 
   @override
   num cast(Object value) => switch (value) {
+    XPathUntypedAtomic() => cast(value.value),
     num() when value.isFinite => value,
     Duration() => value.inMicroseconds,
     XPathDayTimeDuration() => value.inMicroseconds,
@@ -140,6 +143,7 @@ class _XPathIntegerType extends XPathType<int> {
 
   @override
   int cast(Object value) => switch (value) {
+    XPathUntypedAtomic() => cast(value.value),
     int() => value,
     num() when value.isFinite => value.toInt(),
     Duration() => value.inMicroseconds,
@@ -203,13 +207,11 @@ class _XPathDoubleType extends XPathType<double> {
   String get name => 'xs:double';
 
   @override
-  Iterable<String> get aliases => const ['xs:float'];
-
-  @override
   bool matches(Object value) => value is double;
 
   @override
   double cast(Object value) => switch (value) {
+    XPathUntypedAtomic() => cast(value.value),
     double() => value,
     num() => value.toDouble(),
     Duration() => value.inMicroseconds.toDouble(),

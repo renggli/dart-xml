@@ -110,7 +110,10 @@ void main() {
     });
 
     test('returns string value of context node', () {
-      expect(fnData(context, []), isXPathSequence(['12']));
+      expect(
+        fnData(context, []),
+        isXPathSequence([const XPathUntypedAtomic('12')]),
+      );
     });
   });
 

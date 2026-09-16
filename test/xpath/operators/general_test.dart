@@ -2,6 +2,8 @@ import 'package:test/test.dart';
 import 'package:xml/src/xpath/operators/general.dart';
 import 'package:xml/xpath.dart';
 
+import '../../utils/matchers.dart';
+
 void main() {
   group('opAnd', () {
     test('true and true', () {
@@ -63,10 +65,20 @@ void main() {
         [false],
       );
     });
-    test('type coercion', () {
+    test('type coercion with untypedAtomic', () {
       expect(
-        opGeneralEqual(const XPathSequence([1]), const XPathSequence(['1'])),
+        opGeneralEqual(
+          const XPathSequence([1]),
+          const XPathSequence([XPathUntypedAtomic('1')]),
+        ),
         [true],
+      );
+      expect(
+        () => opGeneralEqual(
+          const XPathSequence([1]),
+          const XPathSequence(['1']),
+        ),
+        throwsA(isXPathEvaluationException()),
       );
     });
   });
@@ -87,10 +99,20 @@ void main() {
         [false],
       );
     });
-    test('type coercion', () {
+    test('type coercion with untypedAtomic', () {
       expect(
-        opGeneralNotEqual(const XPathSequence([1]), const XPathSequence(['1'])),
+        opGeneralNotEqual(
+          const XPathSequence([1]),
+          const XPathSequence([XPathUntypedAtomic('1')]),
+        ),
         [false],
+      );
+      expect(
+        () => opGeneralNotEqual(
+          const XPathSequence([1]),
+          const XPathSequence(['1']),
+        ),
+        throwsA(isXPathEvaluationException()),
       );
     });
   });

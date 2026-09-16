@@ -7,6 +7,7 @@ import '../types/node.dart';
 import 'array.dart';
 import 'binary.dart';
 import 'map.dart';
+import 'untyped_atomic.dart';
 
 /// An XPath sequence.
 abstract mixin class XPathSequence<T extends Object> implements Iterable<T> {
@@ -74,6 +75,7 @@ abstract mixin class XPathSequence<T extends Object> implements Iterable<T> {
         bool() => item,
         num() => item != 0 && !item.isNaN,
         String() => item.isNotEmpty,
+        XPathUntypedAtomic() => item.value.isNotEmpty,
         _ => throw XPathEvaluationException(
           'Invalid type for EBV: ${item.runtimeType}',
         ),
@@ -210,10 +212,11 @@ extension XPathSequenceAtomize on XPathSequence {
 }
 
 Iterable<Object> atomizeItem(Object item) => switch (item) {
+  XPathUntypedAtomic() => [item],
   XPathBase64Binary() || XPathHexBinary() => [item],
   XPathArray() => item.expand(atomizeItem),
   XPathSequence() => item.expand(atomizeItem),
-  XmlNode() => [xsNode.castToString(item)],
+  XmlNode() => [XPathUntypedAtomic(xsNode.castToString(item))],
   XPathMap() || Function() => throw XPathEvaluationException(
     'Cannot atomize a map or function item',
   ),

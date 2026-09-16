@@ -11,13 +11,6 @@ void main() {
           isTrue,
           reason: 'Type name "${type.name}" is not unique',
         );
-        for (final alias in type.aliases) {
-          expect(
-            names.add(alias),
-            isTrue,
-            reason: 'Alias "$alias" of "${type.name}" is not unique',
-          );
-        }
       }
     });
     test('types contains all types and their aliases', () {
@@ -27,13 +20,6 @@ void main() {
           type,
           reason: 'Type name "${type.name}" is missing',
         );
-        for (final alias in type.aliases) {
-          expect(
-            standardTypes[alias],
-            type,
-            reason: 'Type alias "$alias" of "${type.name}" is missing',
-          );
-        }
       }
     });
   });

@@ -3,6 +3,7 @@ import '../evaluation/expression.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../types/number.dart';
 import '../values/sequence.dart';
+import '../values/untyped_atomic.dart';
 
 /// A postfix lookup expression (`expr?key`).
 ///
@@ -76,7 +77,8 @@ Iterable<Object> _lookupKey(Object item, Object key) => switch (item) {
 };
 
 Iterable<Object> _lookupMapKey(Map<Object?, Object?> map, Object key) {
-  final value = map[key];
+  final normalizedKey = key is XPathUntypedAtomic ? key.value : key;
+  final value = map[normalizedKey];
   return value != null ? [value] : const [];
 }
 

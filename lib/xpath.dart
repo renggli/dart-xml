@@ -14,6 +14,7 @@ export 'src/xpath/generator.dart';
 export 'src/xpath/values/function.dart'
     show XPathFunction, XPathWrappedFunctionExtension;
 export 'src/xpath/values/sequence.dart' show XPathSequence;
+export 'src/xpath/values/untyped_atomic.dart' show XPathUntypedAtomic;
 
 extension XPathExtension on XmlNode {
   /// Returns an iterable over the nodes matching the provided XPath

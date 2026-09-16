@@ -3,6 +3,7 @@ import '../definitions/type.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../values/date_time.dart';
 import '../values/sequence.dart';
+import '../values/untyped_atomic.dart';
 import 'string.dart';
 
 /// The XPath dateTime type.
@@ -60,6 +61,7 @@ class _XPathDateTimeType extends XPathType<XPathDateTime> {
       value.microsecond ?? 0,
       value.timezoneOffsetMinutes,
     ),
+    XPathUntypedAtomic() => _parseDateTime(value.value.trim()),
     String() => _parseDateTime(value.trim()),
     XmlNode() => _parseDateTime(xsString.cast(value).trim()),
     XPathSequence(singleOrNull: final item?) => cast(item),
@@ -107,6 +109,7 @@ class _XPathDateTimeStampType extends XPathType<XPathDateTimeStamp> {
         value.microsecond ?? 0,
         value.timezoneOffsetMinutes!,
       ),
+    XPathUntypedAtomic() => _parseDateTimeStamp(value.value.trim()),
     String() => _parseDateTimeStamp(value.trim()),
     XPathSequence(singleOrNull: final item?) => cast(item),
     _ => throw XPathEvaluationException.unsupportedCast(this, value),
@@ -145,6 +148,7 @@ class _XPathDateType extends XPathType<XPathDate> {
       value.day ?? 1,
       value.timezoneOffsetMinutes,
     ),
+    XPathUntypedAtomic() => _parseDate(value.value.trim()),
     String() => _parseDate(value.trim()),
     XPathSequence(singleOrNull: final item?) => cast(item),
     _ => throw XPathEvaluationException.unsupportedCast(this, value),
@@ -185,6 +189,7 @@ class _XPathTimeType extends XPathType<XPathTime> {
       value.microsecond ?? 0,
       value.timezoneOffsetMinutes,
     ),
+    XPathUntypedAtomic() => _parseTime(value.value.trim()),
     String() => _parseTime(value.trim()),
     XPathSequence(singleOrNull: final item?) => cast(item),
     _ => throw XPathEvaluationException.unsupportedCast(this, value),
@@ -223,6 +228,7 @@ class _XPathYearMonthType extends XPathType<XPathYearMonth> {
       value.month ?? 1,
       value.timezoneOffsetMinutes,
     ),
+    XPathUntypedAtomic() => _parseYearMonth(value.value.trim()),
     String() => _parseYearMonth(value.trim()),
     XPathSequence(singleOrNull: final item?) => cast(item),
     _ => throw XPathEvaluationException.unsupportedCast(this, value),
@@ -259,6 +265,7 @@ class _XPathYearType extends XPathType<XPathYear> {
       value.year ?? 1970,
       value.timezoneOffsetMinutes,
     ),
+    XPathUntypedAtomic() => _parseYear(value.value.trim()),
     String() => _parseYear(value.trim()),
     XPathSequence(singleOrNull: final item?) => cast(item),
     _ => throw XPathEvaluationException.unsupportedCast(this, value),
@@ -297,6 +304,7 @@ class _XPathMonthDayType extends XPathType<XPathMonthDay> {
       value.day ?? 1,
       value.timezoneOffsetMinutes,
     ),
+    XPathUntypedAtomic() => _parseMonthDay(value.value.trim()),
     String() => _parseMonthDay(value.trim()),
     XPathSequence(singleOrNull: final item?) => cast(item),
     _ => throw XPathEvaluationException.unsupportedCast(this, value),
@@ -333,6 +341,7 @@ class _XPathMonthType extends XPathType<XPathMonth> {
       value.month ?? 1,
       value.timezoneOffsetMinutes,
     ),
+    XPathUntypedAtomic() => _parseMonth(value.value.trim()),
     String() => _parseMonth(value.trim()),
     XPathSequence(singleOrNull: final item?) => cast(item),
     _ => throw XPathEvaluationException.unsupportedCast(this, value),
@@ -369,6 +378,7 @@ class _XPathDayType extends XPathType<XPathDay> {
       value.day ?? 1,
       value.timezoneOffsetMinutes,
     ),
+    XPathUntypedAtomic() => _parseDay(value.value.trim()),
     String() => _parseDay(value.trim()),
     XPathSequence(singleOrNull: final item?) => cast(item),
     _ => throw XPathEvaluationException.unsupportedCast(this, value),

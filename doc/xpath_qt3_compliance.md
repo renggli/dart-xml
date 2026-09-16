@@ -8,10 +8,9 @@ This document tracks known discrepancies between PetitXml XPath 3.1 implementati
 
 - **Suites**: 369
 - **Total Cases**: 22,514
-- **Passing**: 18,842 (83.7%)
-- **Failures**: 2,911 (12.9%)
-- **Errors**: 761 (3.4%)
-- **Target Issues (excl. regex & date/number formatting)**: 2,421 (2,009 failures, 412 errors)
+- **Passing**: 19,024 (84.5%)
+- **Failures**: 2,708 (12.0%)
+- **Errors**: 782 (3.5%)
 
 ---
 
@@ -45,7 +44,7 @@ This document tracks known discrepancies between PetitXml XPath 3.1 implementati
 
 ### 2. General & Value Comparison Error Rules
 
-- [ ] **Status**: Pending
+- [x] **Status**: Completed
 - **User Impact**: High / Frequent
 - **QT3 Target**: 65 issues (59 failures, 6 errors)
 - **Primary Suites**: `prod-ValueComp`, `prod-GeneralComp.eq`, `prod-GeneralComp.ne`, `prod-GeneralComp.lt`, `prod-GeneralComp.gt`
@@ -54,15 +53,22 @@ This document tracks known discrepancies between PetitXml XPath 3.1 implementati
   - Value comparisons with an empty sequence return boolean instead of returning an empty sequence `()`.
   - General comparisons with empty sequences produce unexpected truth values.
 - **Implementation Steps**:
-  1. In `lib/src/xpath/expressions/operators.dart`, update `ValueComparisonExpression`:
+  1. In `lib/src/xpath/operators/comparison.dart`, update `ValueComparisonExpression`:
      - If either operand is empty sequence `()`, return `XPathSequence.empty`.
      - Verify both operands are atomic items with comparable types (per XPath 3.1 §3.5.1). If non-comparable, throw `XPathEvaluationException` (`XPTY0004`).
-  2. Ensure `GeneralComparisonExpression` atomizes operands and applies standard type promotion rules without swallowing type errors when explicitly mandated.
+     - NaN equality: `NaN != NaN`, `NaN eq NaN` is false.
+  2. In `lib/src/xpath/operators/general.dart`, ensure `GeneralComparisonExpression` atomizes operands and applies standard type promotion and untypedAtomic coercion without swallowing type errors when explicitly mandated.
+  3. Introduce `XPathAtomic`, `XPathNumeric` (`XPathInteger` with `BigInt`, `XPathDecimal`, `XPathDouble`), and `XPathUntypedAtomic`.
 - **Files**:
-  - `lib/src/xpath/expressions/operators.dart`
-  - `lib/src/xpath/evaluation/operators.dart`
+  - `lib/src/xpath/operators/comparison.dart`
+  - `lib/src/xpath/operators/general.dart`
+  - `lib/src/xpath/values/atomic.dart`
+  - `lib/src/xpath/values/numeric.dart`
+  - `lib/src/xpath/values/untyped_atomic.dart`
 - **Unit Tests**:
-  - `test/xpath/expressions/operators_test.dart`
+  - `test/xpath/operators/comparison_test.dart`
+  - `test/xpath/operators/general_test.dart`
+  - `test/xpath/values/numeric_test.dart`
 
 ---
 

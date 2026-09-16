@@ -28,7 +28,7 @@ const xsStringConstructor = XPathFunctionDefinition(
 );
 
 XPathSequence _xsStringConstructor(XPathContext context, [Object? value]) {
-  if (value == null) return XPathSequence.emptyString;
+  if (value == null) return XPathSequence.empty;
   return XPathSequence.single(xsString.cast(value));
 }
 
@@ -53,66 +53,74 @@ XPathSequence _xsBooleanConstructor(XPathContext context, [Object? value]) {
 /// https://www.w3.org/TR/xpath-functions-31/#func-integer
 const xsIntegerConstructor = XPathFunctionDefinition(
   name: XmlName.qualified('xs:integer'),
-  requiredArguments: [
+  optionalArguments: [
     XPathArgumentDefinition(
       name: 'value',
       type: xsAny,
-      cardinality: XPathCardinality.exactlyOne,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   function: _xsIntegerConstructor,
 );
 
-XPathSequence _xsIntegerConstructor(XPathContext context, Object value) =>
-    XPathSequence.single(xsInteger.cast(value));
+XPathSequence _xsIntegerConstructor(XPathContext context, [Object? value]) {
+  if (value == null) return XPathSequence.empty;
+  return XPathSequence.single(xsInteger.cast(value));
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-decimal
 const xsDecimalConstructor = XPathFunctionDefinition(
   name: XmlName.qualified('xs:decimal'),
-  requiredArguments: [
+  optionalArguments: [
     XPathArgumentDefinition(
       name: 'value',
       type: xsAny,
-      cardinality: XPathCardinality.exactlyOne,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   function: _xsDecimalConstructor,
 );
 
-XPathSequence _xsDecimalConstructor(XPathContext context, Object value) =>
-    XPathSequence.single(xsDecimal.cast(value));
+XPathSequence _xsDecimalConstructor(XPathContext context, [Object? value]) {
+  if (value == null) return XPathSequence.empty;
+  return XPathSequence.single(xsDecimal.cast(value));
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-double
 const xsDoubleConstructor = XPathFunctionDefinition(
   name: XmlName.qualified('xs:double'),
-  requiredArguments: [
+  optionalArguments: [
     XPathArgumentDefinition(
       name: 'value',
       type: xsAny,
-      cardinality: XPathCardinality.exactlyOne,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   function: _xsDoubleConstructor,
 );
 
-XPathSequence _xsDoubleConstructor(XPathContext context, Object value) =>
-    XPathSequence.single(xsDouble.cast(value));
+XPathSequence _xsDoubleConstructor(XPathContext context, [Object? value]) {
+  if (value == null) return XPathSequence.empty;
+  return XPathSequence.single(xsDouble.cast(value));
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-float
 const xsFloatConstructor = XPathFunctionDefinition(
   name: XmlName.qualified('xs:float'),
-  requiredArguments: [
+  optionalArguments: [
     XPathArgumentDefinition(
       name: 'value',
       type: xsAny,
-      cardinality: XPathCardinality.exactlyOne,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
   function: _xsFloatConstructor,
 );
 
-XPathSequence _xsFloatConstructor(XPathContext context, Object value) =>
-    XPathSequence.single(xsDouble.cast(value));
+XPathSequence _xsFloatConstructor(XPathContext context, [Object? value]) {
+  if (value == null) return XPathSequence.empty;
+  return XPathSequence.single(xsDouble.cast(value));
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-numeric
 const xsNumericConstructor = XPathFunctionDefinition(
@@ -579,15 +587,23 @@ const xsNOTATIONConstructor = XPathFunctionDefinition(
 /// https://www.w3.org/TR/xpath-functions-31/#func-untypedAtomic
 const xsUntypedAtomicConstructor = XPathFunctionDefinition(
   name: XmlName.qualified('xs:untypedAtomic'),
-  requiredArguments: [
+  optionalArguments: [
     XPathArgumentDefinition(
       name: 'value',
       type: xsAny,
-      cardinality: XPathCardinality.exactlyOne,
+      cardinality: XPathCardinality.zeroOrOne,
     ),
   ],
-  function: _xsStringConstructor, // untypedAtomic is likely string compatible
+  function: _xsUntypedAtomicConstructor,
 );
+
+XPathSequence _xsUntypedAtomicConstructor(
+  XPathContext context, [
+  Object? value,
+]) {
+  if (value == null) return XPathSequence.empty;
+  return XPathSequence.single(xsUntypedAtomic.cast(value));
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-normalizedString
 const xsNormalizedStringConstructor = XPathFunctionDefinition(

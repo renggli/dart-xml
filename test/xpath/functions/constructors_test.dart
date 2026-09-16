@@ -17,7 +17,7 @@ void main() {
       expectEval('xs:string("hello")', isXPathSequence(['hello']));
     });
     test('no arguments', () {
-      expectEval('xs:string()', isXPathSequence(['']));
+      expectEval('xs:string()', isXPathSequence(isEmpty));
     });
     test('boolean', () {
       expectEval('xs:string(true())', isXPathSequence(['true']));
@@ -306,7 +306,10 @@ void main() {
 
   group('xs:untypedAtomic', () {
     test('cast', () {
-      expectEval('xs:untypedAtomic("test")', isXPathSequence(['test']));
+      expectEval(
+        'xs:untypedAtomic("test")',
+        isXPathSequence([const XPathUntypedAtomic('test')]),
+      );
     });
   });
 
