@@ -70,6 +70,7 @@ XPathItem toXPathItem(Object? value) => switch (value) {
   final XmlNode node => XPathNode(node),
   final XmlName name => XPathQName(name),
   final bool b => XPathBoolean(b),
+  final double d when !d.isFinite => XPathDouble(d),
   final int i => XPathInteger.fromInt(i),
   final BigInt bi => XPathInteger(bi),
   final double d => XPathDouble(d),

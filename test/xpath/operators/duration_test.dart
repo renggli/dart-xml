@@ -6,6 +6,7 @@ import '../../utils/matchers.dart';
 
 XPathSequence seq(Object value) => XPathSequence.single(switch (value) {
   final XPathItem item => item,
+  final double v when !v.isFinite => XPathDouble(v),
   final int v => XPathInteger.fromInt(v),
   final double v => XPathDouble(v),
   _ => throw ArgumentError.value(value),

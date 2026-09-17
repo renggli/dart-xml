@@ -1,4 +1,4 @@
-import '../definitions/cardinality.dart';
+import '../evaluation/cardinality.dart';
 import 'item.dart';
 import 'sequence.dart';
 

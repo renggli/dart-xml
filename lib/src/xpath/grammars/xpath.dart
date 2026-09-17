@@ -3,7 +3,7 @@ import 'package:petitparser/parser.dart';
 
 import '../../xml/entities/null_mapping.dart';
 import '../../xml_events/parser.dart';
-import '../definitions/cardinality.dart';
+import '../evaluation/cardinality.dart';
 import '../evaluation/expression.dart';
 import '../evaluation/operators.dart';
 import '../evaluation/types.dart';

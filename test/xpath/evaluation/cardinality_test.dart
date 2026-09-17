@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/definitions/cardinality.dart';
+import 'package:xml/src/xpath/evaluation/cardinality.dart';
 
 void main() {
   group('XPathCardinality', () {

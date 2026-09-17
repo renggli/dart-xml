@@ -1,4 +1,4 @@
-import '../definitions/cardinality.dart';
+import '../evaluation/cardinality.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../exceptions/evaluation_exception.dart';

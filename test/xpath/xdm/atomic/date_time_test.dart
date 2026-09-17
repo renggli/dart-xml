@@ -1,0 +1,157 @@
+import 'package:test/test.dart';
+import 'package:xml/src/xpath/xdm/atomic/date_time.dart';
+import 'package:xml/src/xpath/xdm/types.dart';
+
+import '../../../utils/matchers.dart';
+
+void main() {
+  group('XPathDateTime', () {
+    test('properties, toDateTime and formatting', () {
+      const dt = XPathDateTime(2021, 1, 2, 3, 4, 5, 6, 7, 0);
+      expect(dt.type, equals(xsDateTime));
+      expect(dt.year, equals(2021));
+      expect(dt.month, equals(1));
+      expect(dt.day, equals(2));
+      expect(dt.hour, equals(3));
+      expect(dt.minute, equals(4));
+      expect(dt.second, equals(5));
+      expect(dt.millisecond, equals(6));
+      expect(dt.microsecond, equals(7));
+      expect(dt.timezoneOffsetMinutes, equals(0));
+      expect(dt.isUtc, isTrue);
+      expect(dt.toString(), equals('2021-01-02T03:04:05.006007Z'));
+
+      final d = dt.toDateTime();
+      expect(d.isUtc, isTrue);
+      expect(d.year, equals(2021));
+    });
+
+    test('effectiveBooleanValue throws', () {
+      const dt = XPathDateTime(2021, 1, 1, 0, 0, 0);
+      expect(
+        () => dt.effectiveBooleanValue,
+        throwsA(isXPathEvaluationException()),
+      );
+    });
+
+    test('parsing tryParse valid and invalid', () {
+      expect(XPathDateTime.tryParse('2021-01-02T03:04:05Z'), isNotNull);
+      expect(XPathDateTime.tryParse('2021-01-02T03:04:05+02:00'), isNotNull);
+      expect(XPathDateTime.tryParse('2021-01-02T03:04:05'), isNotNull);
+      expect(XPathDateTime.tryParse('2021-01-02T24:00:00'), isNotNull);
+      expect(XPathDateTime.tryParse('2021-01-02'), isNull);
+      expect(XPathDateTime.tryParse('invalid'), isNull);
+    });
+
+    test('comparison, before, after, equality', () {
+      final dt1 = XPathDateTime.tryParse('2021-01-01T12:00:00Z')!;
+      final dt2 = XPathDateTime.tryParse('2021-01-01T13:00:00Z')!;
+      final dt1Equiv = XPathDateTime.tryParse('2021-01-01T14:00:00+02:00')!;
+
+      expect(dt1.isBefore(dt2), isTrue);
+      expect(dt2.isAfter(dt1), isTrue);
+      expect(dt1.isAtSameMomentAs(dt1Equiv), isTrue);
+      expect(dt1 == dt1Equiv, isTrue);
+      expect(dt1 == dt2, isFalse);
+    });
+
+    test('add, subtract, difference', () {
+      final dt = XPathDateTime.tryParse('2021-01-01T00:00:00Z')!;
+      final added = dt.add(const Duration(days: 1));
+      expect(added.day, equals(2));
+      final subtracted = dt.subtract(const Duration(days: 1));
+      expect(subtracted.day, equals(31));
+      expect(added.difference(dt), equals(const Duration(days: 1)));
+    });
+  });
+
+  group('XPathDateTimeStamp', () {
+    test('parsing requires timezone offset', () {
+      expect(XPathDateTimeStamp.tryParse('2021-01-02T03:04:05Z'), isNotNull);
+      expect(
+        XPathDateTimeStamp.tryParse('2021-01-02T03:04:05+05:00'),
+        isNotNull,
+      );
+      expect(XPathDateTimeStamp.tryParse('2021-01-02T03:04:05'), isNull);
+    });
+  });
+
+  group('XPathDate', () {
+    test('properties, parsing and formatting', () {
+      const date = XPathDate(2021, 5, 20, 0);
+      expect(date.type, equals(xsDate));
+      expect(date.year, equals(2021));
+      expect(date.month, equals(5));
+      expect(date.day, equals(20));
+      expect(date.toString(), equals('2021-05-20Z'));
+
+      expect(XPathDate.tryParse('2021-05-20'), isNotNull);
+      expect(XPathDate.tryParse('2021-05-20-05:00'), isNotNull);
+      expect(XPathDate.tryParse('2021-02-30'), isNull);
+    });
+  });
+
+  group('XPathTime', () {
+    test('properties, parsing and formatting', () {
+      const time = XPathTime(12, 34, 56, 0, 0, 0);
+      expect(time.type, equals(xsTime));
+      expect(time.hour, equals(12));
+      expect(time.minute, equals(34));
+      expect(time.second, equals(56));
+      expect(time.toString(), equals('12:34:56Z'));
+
+      expect(XPathTime.tryParse('12:34:56'), isNotNull);
+      expect(XPathTime.tryParse('24:00:00'), isNotNull);
+      expect(XPathTime.tryParse('24:01:00'), isNull);
+    });
+  });
+
+  group('XPathYearMonth, XPathYear, XPathMonthDay, XPathMonth, XPathDay', () {
+    test('XPathYearMonth', () {
+      const ym = XPathYearMonth(2021, 12, 0);
+      expect(ym.type, equals(xsGYearMonth));
+      expect(ym.year, equals(2021));
+      expect(ym.month, equals(12));
+      expect(ym.toString(), equals('2021-12Z'));
+      expect(XPathYearMonth.tryParse('2021-12'), isNotNull);
+      expect(XPathYearMonth.tryParse('2021-13'), isNull);
+    });
+
+    test('XPathYear', () {
+      const y = XPathYear(2021, 0);
+      expect(y.type, equals(xsGYear));
+      expect(y.year, equals(2021));
+      expect(y.toString(), equals('2021Z'));
+      expect(XPathYear.tryParse('2021'), isNotNull);
+      expect(XPathYear.tryParse('20'), isNull);
+    });
+
+    test('XPathMonthDay', () {
+      const md = XPathMonthDay(12, 25, 0);
+      expect(md.type, equals(xsGMonthDay));
+      expect(md.month, equals(12));
+      expect(md.day, equals(25));
+      expect(md.toString(), equals('--12-25Z'));
+      expect(XPathMonthDay.tryParse('--12-25'), isNotNull);
+      expect(XPathMonthDay.tryParse('--12-32'), isNull);
+    });
+
+    test('XPathMonth', () {
+      const m = XPathMonth(5, 0);
+      expect(m.type, equals(xsGMonth));
+      expect(m.month, equals(5));
+      expect(m.toString(), equals('--05Z'));
+      expect(XPathMonth.tryParse('--05'), isNotNull);
+      expect(XPathMonth.tryParse('--13'), isNull);
+    });
+
+    test('XPathDay', () {
+      const d = XPathDay(15, 0);
+      expect(d.type, equals(xsGDay));
+      expect(d.day, equals(15));
+      expect(d.toString(), equals('---15Z'));
+      expect(XPathDay.tryParse('---15'), isNotNull);
+      expect(XPathDay.tryParse('---32'), isNull);
+    });
+  });
+}

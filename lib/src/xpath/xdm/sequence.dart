@@ -1,5 +1,5 @@
 import '../../xml/nodes/node.dart';
-import '../definitions/cardinality.dart';
+import '../evaluation/cardinality.dart';
 import '../exceptions/evaluation_exception.dart';
 import 'atomic.dart';
 import 'functions/array.dart';
@@ -53,6 +53,7 @@ abstract class XPathSequence extends Iterable<XPathItem> {
     final XPathItem item => item,
     final XmlNode node => XPathNode(node),
     final bool b => XPathBoolean(b),
+    final double d when !d.isFinite => XPathDouble(d),
     final int i => XPathInteger.fromInt(i),
     final BigInt bi => XPathInteger(bi),
     final double d => XPathDouble(d),
