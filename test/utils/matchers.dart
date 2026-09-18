@@ -144,30 +144,7 @@ Matcher isXPathEvaluationException({dynamic message = isNotEmpty}) =>
         .having((value) => value.message, 'message', message)
         .having((value) => value.toString(), 'toString', isNotEmpty);
 
-Object? unwrapXPathItem(XPathItem item) => switch (item) {
-  XPathNode(:final node) => node,
-  XPathBoolean(:final value) => value,
-  XPathInteger(:final value) => value.isValidInt ? value.toInt() : value,
-  final XPathDecimal d => d.toDouble(),
-  XPathDouble(:final value) => value,
-  XPathString(:final value) => value,
-  XPathUntypedAtomic(:final value) => value,
-  XPathAnyUri(:final value) => value,
-  XPathBinary(:final value) => value,
-  XPathQName(:final value) => value,
-  XPathMap(:final entries) => {
-    for (final e in entries.entries)
-      (unwrapXPathItem(e.key) ?? e.key.stringValue): e.value.length == 1
-          ? unwrapXPathItem(e.value.first)
-          : e.value.map(unwrapXPathItem).toList(),
-  },
-  XPathArray(:final members) => members.map((seq) {
-    if (seq.length == 1) return unwrapXPathItem(seq.first);
-    return seq.map(unwrapXPathItem).toList();
-  }).toList(),
-  final XPathAbstractDateTime dt => dt.toDateTime(),
-  _ => item,
-};
+Object? unwrapXPathItem(XPathItem item) => item.toValue();
 
 class _XPathSequenceMatcher extends Matcher {
   const new(this.matcher);

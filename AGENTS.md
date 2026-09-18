@@ -56,7 +56,7 @@
 
 ### XPath and XDM Function Conventions
 
-- Standard XPath functions and operators are defined as `XPathFunctionItem` instances without reflection (`Function.apply`) or intermediate descriptor classes (`XPathFunctionDefinition`).
+- Standard XPath functions and operators are defined as `XPathFunctionItem` instances.
 - Always use specialized typed constructors: `XPathFunctionItem.fn0`, `.fn1`, `.fn2`, `.fn3`, `.fnN`, `.variadic`, or `.overloaded`.
 - For overloaded arities, use `XPathFunctionItem.overloaded` mapping each arity to its specialized `XPathFunctionItem` implementation.
 - For variadic functions (e.g. `fn:concat`), use `XPathFunctionItem.variadic(name, minArity, fn)` and ensure `XPathConfiguration.getFunction` handles variadic lookup.

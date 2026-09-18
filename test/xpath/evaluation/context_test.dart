@@ -2,7 +2,9 @@ import 'package:test/test.dart';
 import 'package:xml/src/xml/nodes/document.dart';
 import 'package:xml/src/xpath/evaluation/configuration.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
+import 'package:xml/src/xpath/xdm/atomic.dart';
 import 'package:xml/src/xpath/xdm/item.dart';
+import 'package:xml/src/xpath/xdm/sequence.dart';
 
 import '../../utils/matchers.dart';
 
@@ -13,7 +15,7 @@ final element = document.rootElement;
 void main() {
   group('constructor', () {
     test('default', () {
-      final context = XPathContext(configuration, element);
+      final context = XPathContext(configuration, XPathNode(element));
       expect(context.item, XPathNode(element));
       expect(context.position, 1);
       expect(context.last, 1);
@@ -23,12 +25,12 @@ void main() {
       expect(context.currentDateTime, isNotNull);
     });
     test('custom', () {
-      final variables = {'var': 42};
-      final parentContext = XPathContext(configuration, element);
+      final variables = {'var': XPathSequence.fromObject(42)};
+      final parentContext = XPathContext(configuration, XPathNode(element));
       final customTime = DateTime(2020, 5, 5);
       final context = XPathContext(
         configuration,
-        element,
+        XPathNode(element),
         position: 17,
         last: 23,
         variables: variables,
@@ -43,15 +45,25 @@ void main() {
       expect(context.configuration, same(configuration));
       expect(context.currentDateTime, same(customTime));
     });
+    test('converts native Dart types via XPathConfiguration', () {
+      final config = XPathConfiguration(
+        variables: {'x': 123, 'y': 'world', 'flag': true},
+      );
+      final context = config.context('hello');
+      expect(context.item, const XPathString('hello'));
+      expect(context.getVariable('x').toValue(), 123);
+      expect(context.getVariable('y').toValue(), 'world');
+      expect(context.getVariable('flag').toValue(), true);
+    });
   });
   group('getVariable', () {
     test('defined in context', () {
       final context = XPathContext(
         configuration,
-        element,
-        variables: const {'var': 42},
+        XPathNode(element),
+        variables: {'var': XPathSequence.fromObject(42)},
       );
-      expect(context.getVariable('var'), same(42));
+      expect(context.getVariable('var').toValue(), equals(42));
       expect(
         () => context.getVariable('undefined'),
         throwsA(
@@ -62,14 +74,14 @@ void main() {
     test('defined in parent context', () {
       final context = XPathContext(
         configuration,
-        element,
+        XPathNode(element),
         parentContext: XPathContext(
           configuration,
-          element,
-          variables: const {'var': 42},
+          XPathNode(element),
+          variables: {'var': XPathSequence.fromObject(42)},
         ),
       );
-      expect(context.getVariable('var'), same(42));
+      expect(context.getVariable('var').toValue(), equals(42));
       expect(
         () => context.getVariable('undefined'),
         throwsA(
@@ -79,8 +91,8 @@ void main() {
     });
     test('defined in static context', () {
       final configuration = XPathConfiguration(variables: const {'var': 42});
-      final context = XPathContext(configuration, element);
-      expect(context.getVariable('var'), same(42));
+      final context = XPathContext(configuration, XPathNode(element));
+      expect(context.getVariable('var').toValue(), equals(42));
       expect(
         () => context.getVariable('undefined'),
         throwsA(
@@ -90,16 +102,16 @@ void main() {
     });
   });
   test('evaluate', () {
-    final context = XPathContext(configuration, element);
+    final context = XPathContext(configuration, XPathNode(element));
     expect(context.evaluate('1 + 2'), isXPathSequence([3]));
   });
   group('copy', () {
     final base = XPathContext(
       configuration,
-      element,
+      XPathNode(element),
       position: 17,
       last: 23,
-      variables: const {'var1': 42},
+      variables: {'var1': XPathSequence.fromObject(42)},
     );
     test('without overrides', () {
       final copy = base.copy();
@@ -113,9 +125,9 @@ void main() {
       expect(copy.currentDateTime, same(base.currentDateTime));
     });
     test('with overrides', () {
-      const variables = {'var2': 43};
+      final variables = {'var2': XPathSequence.fromObject(43)};
       final copy = base.copy(
-        item: document,
+        item: XPathNode(document),
         position: 2,
         last: 3,
         variables: variables,

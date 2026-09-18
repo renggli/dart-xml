@@ -24,6 +24,9 @@ abstract interface class XPathItem {
 
   /// Effective boolean value (EBV) of this item.
   bool get effectiveBooleanValue;
+
+  /// Converts this item to a native Dart value.
+  Object? toValue();
 }
 
 /// Represents an XML node item in the XDM 3.1 data model.
@@ -57,6 +60,9 @@ final class XPathNode implements XPathItem {
 
   @override
   bool get effectiveBooleanValue => true;
+
+  @override
+  XmlNode toValue() => node;
 
   @override
   bool operator ==(Object other) =>

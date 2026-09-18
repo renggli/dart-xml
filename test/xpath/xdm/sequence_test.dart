@@ -206,5 +206,38 @@ void main() {
       expect(s1 == s4, isFalse);
       expect(s1 == Object(), isFalse);
     });
+
+    test('fromObject converts various types', () {
+      expect(XPathSequence.fromObject(null), same(XPathSequence.empty));
+      expect(
+        XPathSequence.fromObject(XPathSequence.empty),
+        same(XPathSequence.empty),
+      );
+      expect(XPathSequence.fromObject(42).toValue(), equals(42));
+      expect(XPathSequence.fromObject('hello').toValue(), equals('hello'));
+      expect(XPathSequence.fromObject(true).toValue(), isTrue);
+      expect(XPathSequence.fromObject([1, 2, 3]).toValue(), equals([1, 2, 3]));
+      expect(
+        XPathSequence.fromObject({'a': 1, 'b': 2}).toValue(),
+        equals({'a': 1, 'b': 2}),
+      );
+      final now = DateTime.utc(2025, 1, 1);
+      expect(XPathSequence.fromObject(now).toValue(), equals(now));
+      const dur = Duration(seconds: 30);
+      expect(XPathSequence.fromObject(dur).toValue(), equals(dur));
+    });
+
+    test('toValue unwraps empty, single, and multiple items', () {
+      expect(XPathSequence.empty.toValue(), isNull);
+      expect(
+        const XPathSequence.single(XPathString('abc')).toValue(),
+        equals('abc'),
+      );
+      expect(
+        XPathSequence([const XPathString('a'), XPathInteger.fromInt(1)])
+            .toValue(),
+        equals(['a', 1]),
+      );
+    });
   });
 }

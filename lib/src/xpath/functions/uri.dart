@@ -3,7 +3,6 @@ import 'dart:core';
 import '../../xml/utils/name.dart';
 import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
-import '../xdm/atomic/boolean.dart';
 import '../xdm/atomic/string.dart';
 import '../xdm/function_item.dart';
 import '../xdm/item.dart';
@@ -83,9 +82,9 @@ const fnDocAvailable = XPathFunctionItem.fn1(
 
 XPathSequence _fnDocAvailable(XPathContext context, XPathSequence uriSeq) {
   final uri = uriSeq.firstOrNull as XPathString?;
-  if (uri == null) return const XPathSequence.single(XPathBoolean.xpathFalse);
+  if (uri == null) return XPathSequence.falseSequence;
   final available = context.configuration.documents.containsKey(uri.value);
-  return XPathSequence.single(XPathBoolean.fromBool(available));
+  return available ? XPathSequence.trueSequence : XPathSequence.falseSequence;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-collection
@@ -339,12 +338,12 @@ XPathSequence _evalUnparsedTextAvailable(
   XPathString? href,
   XPathString? encoding,
 ) {
-  if (href == null) return const XPathSequence.single(XPathBoolean.xpathFalse);
+  if (href == null) return XPathSequence.falseSequence;
   try {
     _evalUnparsedText(context, href, encoding);
-    return const XPathSequence.single(XPathBoolean.xpathTrue);
+    return XPathSequence.trueSequence;
   } catch (_) {
-    return const XPathSequence.single(XPathBoolean.xpathFalse);
+    return XPathSequence.falseSequence;
   }
 }
 

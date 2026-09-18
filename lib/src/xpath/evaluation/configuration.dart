@@ -20,7 +20,7 @@ typedef XPathUnparsedTextLoader = String? Function(
 class XPathConfiguration {
   /// Creates a static context extending the standard configuration.
   factory({
-    Map<String, Object>? variables,
+    Map<String, Object?>? variables,
     Map<XmlName, XPathFunctionItem>? functions,
     String? namespaceUri,
     Map<String, String>? namespaceUris,
@@ -59,7 +59,7 @@ class XPathConfiguration {
   });
 
   /// Variable definitions.
-  final Map<String, Object> variables;
+  final Map<String, XPathSequence> variables;
 
   /// Function definitions.
   final Map<XmlName, XPathFunctionItem> functions;
@@ -124,12 +124,14 @@ class XPathConfiguration {
 
   /// Creates an evaluation context from this configuration, optionally
   /// with a provided context [item].
-  XPathContext context([Object item = XPathSequence.empty]) =>
-      XPathContext(this, item);
+  XPathContext context([Object item = XPathSequence.empty]) => XPathContext(
+    this,
+    item is XPathSequence ? item : XPathSequence.toItem(item),
+  );
 
   /// Creates a modified copy of the static context.
   XPathConfiguration copy({
-    Map<String, Object>? variables,
+    Map<String, Object?>? variables,
     Map<XmlName, XPathFunctionItem>? functions,
     String? namespaceUri,
     Map<String, String>? namespaceUris,
@@ -138,17 +140,25 @@ class XPathConfiguration {
     String? baseUri,
     XPathUnparsedTextLoader? unparsedTextLoader,
     XPathTraceCallback? onTraceCallback,
-  }) => XPathConfiguration.raw(
-    variables: this.variables.extend(variables),
-    functions: this.functions.extend(functions),
-    namespaceUri: namespaceUri ?? this.namespaceUri,
-    namespaceUris: this.namespaceUris.extend(namespaceUris),
-    documents: this.documents.extend(documents),
-    environment: this.environment.extend(environment),
-    baseUri: baseUri ?? this.baseUri,
-    unparsedTextLoader: unparsedTextLoader ?? this.unparsedTextLoader,
-    onTraceCallback: onTraceCallback ?? this.onTraceCallback,
-  );
+  }) {
+    final convertedVariables = variables == null
+        ? null
+        : {
+            for (final entry in variables.entries)
+              entry.key: XPathSequence.fromObject(entry.value),
+          };
+    return XPathConfiguration.raw(
+      variables: this.variables.extend(convertedVariables),
+      functions: this.functions.extend(functions),
+      namespaceUri: namespaceUri ?? this.namespaceUri,
+      namespaceUris: this.namespaceUris.extend(namespaceUris),
+      documents: this.documents.extend(documents),
+      environment: this.environment.extend(environment),
+      baseUri: baseUri ?? this.baseUri,
+      unparsedTextLoader: unparsedTextLoader ?? this.unparsedTextLoader,
+      onTraceCallback: onTraceCallback ?? this.onTraceCallback,
+    );
+  }
 }
 
 extension _MapExtension<K, V> on Map<K, V> {

@@ -66,7 +66,10 @@ void main() {
         unparsedTextLoader: textLoader1,
         onTraceCallback: trace1,
       );
-      expect(context.variables, {...standard.variables, 'var': 42});
+      expect(context.variables, {
+        ...standard.variables,
+        'var': XPathSequence.fromObject(42),
+      });
       expect(context.functions, {...standard.functions, name1: fun1});
       expect(context.namespaceUri, 'namespaceUri');
       expect(context.namespaceUris, {...standard.namespaceUris, 'ns': 'uri'});
@@ -91,7 +94,7 @@ void main() {
     });
     test('raw', () {
       final context = XPathConfiguration.raw(
-        variables: {'var': 42},
+        variables: {'var': XPathSequence.fromObject(42)},
         functions: {name1: fun1},
         namespaceUri: 'namespaceUri',
         namespaceUris: {'ns': 'uri'},
@@ -101,7 +104,7 @@ void main() {
         unparsedTextLoader: textLoader1,
         onTraceCallback: trace1,
       );
-      expect(context.variables, {'var': 42});
+      expect(context.variables, {'var': XPathSequence.fromObject(42)});
       expect(context.functions, {name1: fun1});
       expect(context.namespaceUri, 'namespaceUri');
       expect(context.namespaceUris, {'ns': 'uri'});
@@ -153,7 +156,7 @@ void main() {
   });
   group('copy', () {
     final base = XPathConfiguration.raw(
-      variables: {'var1': 41},
+      variables: {'var1': XPathSequence.fromObject(41)},
       functions: {name1: fun1},
       namespaceUri: 'namespaceUri1',
       namespaceUris: {'ns1': 'uri1'},
@@ -165,7 +168,7 @@ void main() {
     );
     test('without overrides', () {
       final copy = base.copy();
-      expect(copy.variables, {'var1': 41});
+      expect(copy.variables, {'var1': XPathSequence.fromObject(41)});
       expect(copy.functions, {name1: fun1});
       expect(copy.namespaceUri, 'namespaceUri1');
       expect(copy.namespaceUris, {'ns1': 'uri1'});
@@ -187,7 +190,10 @@ void main() {
         unparsedTextLoader: textLoader2,
         onTraceCallback: trace2,
       );
-      expect(copy.variables, {'var1': 41, 'var2': 42});
+      expect(copy.variables, {
+        'var1': XPathSequence.fromObject(41),
+        'var2': XPathSequence.fromObject(42),
+      });
       expect(copy.functions, {name1: fun1, name2: fun2});
       expect(copy.namespaceUri, 'namespaceUri2');
       expect(copy.namespaceUris, {'ns1': 'uri1', 'ns2': 'uri2'});

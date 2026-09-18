@@ -23,6 +23,9 @@ abstract class XPathAtomic implements XPathItem, Comparable<XPathAtomic> {
   XPathAtomic atomize() => this;
 
   @override
+  Object toValue() => value;
+
+  @override
   int compareTo(XPathAtomic other) =>
       throw XPathEvaluationException('Cannot compare $type with ${other.type}');
 

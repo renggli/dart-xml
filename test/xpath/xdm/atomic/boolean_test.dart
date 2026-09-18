@@ -11,8 +11,6 @@ void main() {
       expect(XPathBoolean(false), same(XPathBoolean.falseInstance));
       expect(XPathBoolean.from(true), same(XPathBoolean.trueInstance));
       expect(XPathBoolean.fromBool(false), same(XPathBoolean.falseInstance));
-      expect(XPathBoolean.xpathTrue, same(XPathBoolean.trueInstance));
-      expect(XPathBoolean.xpathFalse, same(XPathBoolean.falseInstance));
     });
 
     test('properties', () {

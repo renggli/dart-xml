@@ -324,9 +324,11 @@ final fnContains = XPathFunctionItem.overloaded(
 );
 
 XPathSequence _evalContains(String? arg1, String? arg2) {
-  if (arg1 == null) return const XPathSequence.single(XPathBoolean.xpathFalse);
-  if (arg2 == null) return const XPathSequence.single(XPathBoolean.xpathTrue);
-  return XPathSequence.single(XPathBoolean.fromBool(arg1.contains(arg2)));
+  if (arg1 == null) return XPathSequence.falseSequence;
+  if (arg2 == null) return XPathSequence.trueSequence;
+  return arg1.contains(arg2)
+      ? XPathSequence.trueSequence
+      : XPathSequence.falseSequence;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-starts-with
@@ -351,9 +353,11 @@ final fnStartsWith = XPathFunctionItem.overloaded(
 );
 
 XPathSequence _evalStartsWith(String? arg1, String? arg2) {
-  if (arg1 == null) return const XPathSequence.single(XPathBoolean.xpathFalse);
-  if (arg2 == null) return const XPathSequence.single(XPathBoolean.xpathTrue);
-  return XPathSequence.single(XPathBoolean.fromBool(arg1.startsWith(arg2)));
+  if (arg1 == null) return XPathSequence.falseSequence;
+  if (arg2 == null) return XPathSequence.trueSequence;
+  return arg1.startsWith(arg2)
+      ? XPathSequence.trueSequence
+      : XPathSequence.falseSequence;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-ends-with
@@ -378,9 +382,11 @@ final fnEndsWith = XPathFunctionItem.overloaded(
 );
 
 XPathSequence _evalEndsWith(String? arg1, String? arg2) {
-  if (arg1 == null) return const XPathSequence.single(XPathBoolean.xpathFalse);
-  if (arg2 == null) return const XPathSequence.single(XPathBoolean.xpathTrue);
-  return XPathSequence.single(XPathBoolean.fromBool(arg1.endsWith(arg2)));
+  if (arg1 == null) return XPathSequence.falseSequence;
+  if (arg2 == null) return XPathSequence.trueSequence;
+  return arg1.endsWith(arg2)
+      ? XPathSequence.trueSequence
+      : XPathSequence.falseSequence;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-substring-before
@@ -467,10 +473,7 @@ final fnMatches = XPathFunctionItem.overloaded(
 );
 
 XPathSequence _evalMatches(String? input, String? pattern, String? flags) {
-  if (input == null) return const XPathSequence.single(XPathBoolean.xpathFalse);
-  if (pattern == null) {
-    return const XPathSequence.single(XPathBoolean.xpathFalse);
-  }
+  if (input == null || pattern == null) return XPathSequence.falseSequence;
   final regex = _regexpCache[(pattern: pattern, flags: flags)];
   return XPathSequence.single(XPathBoolean.fromBool(regex.hasMatch(input)));
 }
@@ -613,7 +616,7 @@ final fnContainsToken = XPathFunctionItem.overloaded(
 
 XPathSequence _evalContainsToken(String? input, String? token) {
   if (input == null || token == null) {
-    return const XPathSequence.single(XPathBoolean.xpathFalse);
+    return XPathSequence.falseSequence;
   }
   final tokens = input.trim().split(_whitespaceRegExp);
   return XPathSequence.single(

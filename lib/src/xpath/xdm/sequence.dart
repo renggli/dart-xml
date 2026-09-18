@@ -1,4 +1,7 @@
+import 'dart:typed_data';
+
 import '../../xml/nodes/node.dart';
+import '../../xml/utils/name.dart';
 import '../evaluation/cardinality.dart';
 import '../exceptions/evaluation_exception.dart';
 import 'atomic.dart';
@@ -52,16 +55,39 @@ abstract class XPathSequence extends Iterable<XPathItem> {
   static XPathItem toItem(Object obj) => switch (obj) {
     final XPathItem item => item,
     final XmlNode node => XPathNode(node),
+    final XmlName name => XPathQName(name),
     final bool b => XPathBoolean(b),
     final double d when !d.isFinite => XPathDouble(d),
     final int i => XPathInteger.fromInt(i),
     final BigInt bi => XPathInteger(bi),
     final double d => XPathDouble(d),
     final String s => XPathString(s),
+    final DateTime dt => XPathDateTime.fromDateTime(dt, 0),
+    final Duration dur => XPathDayTimeDuration.fromDuration(dur),
+    final Uint8List bytes => XPathBase64Binary(bytes),
+    final Map<XPathAtomic, XPathSequence> m => XPathMap(m),
+    final Map<Object, Object?> m => XPathMap({
+      for (final entry in m.entries)
+        toItem(entry.key) as XPathAtomic: fromObject(entry.value),
+    }),
+    final List<XPathSequence> l => XPathArray(l),
+    final List<Object?> l => XPathArray([for (final e in l) fromObject(e)]),
     _ => throw XPathEvaluationException(
       'Cannot convert ${obj.runtimeType} to XPathItem',
     ),
   };
+
+  /// Converts any Dart object or collection into an [XPathSequence].
+  static XPathSequence fromObject(Object? value) {
+    if (value == null) return empty;
+    if (value is XPathSequence) return value;
+    if (value is XPathItem) return XPathSequence.single(value);
+    if (value is List) return XPathSequence.single(toItem(value));
+    if (value is Map) return XPathSequence.single(toItem(value));
+    if (value is Iterable<XPathItem>) return XPathSequence(value);
+    if (value is Iterable<Object?>) return XPathSequence.from(value);
+    return XPathSequence.single(toItem(value));
+  }
 
   static Iterable<XPathItem> _flatten(Iterable<Object?> objects) sync* {
     for (final obj in objects) {
@@ -110,6 +136,16 @@ abstract class XPathSequence extends Iterable<XPathItem> {
 
   /// Returns all XML nodes in this sequence.
   Iterable<XmlNode> get nodes => whereType<XPathNode>().map((n) => n.node);
+
+  /// Converts this sequence to a native Dart value:
+  /// - `null` if empty
+  /// - the unwrapped value if single item
+  /// - a `List` of unwrapped values otherwise
+  Object? toValue() {
+    if (isEmpty) return null;
+    if (length == 1) return first.toValue();
+    return [for (final item in this) item.toValue()];
+  }
 
   /// Creates a sequence representing an integer range [start] to [stop].
   static XPathSequence range(XPathInteger start, XPathInteger stop) {
@@ -207,6 +243,9 @@ class _XPathEmptySequence extends XPathSequence {
       cardinality == XPathCardinality.zeroOrOne;
 
   @override
+  Object? toValue() => null;
+
+  @override
   String toString() => '()';
 }
 
@@ -229,6 +268,9 @@ class _XPathSingleSequence extends XPathSequence {
 
   @override
   XPathItem? get singleOrNull => _item;
+
+  @override
+  Object? toValue() => _item.toValue();
 
   @override
   bool get ebv => _item is XPathNode || _item.effectiveBooleanValue;

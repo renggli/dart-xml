@@ -4,7 +4,6 @@ import '../../xml/nodes/document_fragment.dart';
 import '../../xml/nodes/element.dart';
 import '../../xml/nodes/processing.dart';
 import '../../xml/utils/name.dart';
-import '../xdm/atomic/boolean.dart';
 import '../xdm/atomic/qname.dart';
 import '../xdm/atomic/string.dart';
 import '../xdm/function_item.dart';
@@ -57,7 +56,7 @@ XPathSequence _evalNilled(XPathNode? nodeItem) {
   final node = nodeItem.node;
   if (node is XmlElement) {
     // TODO: Implement proper nilled check based on xsi:nil attribute
-    return const XPathSequence.single(XPathBoolean.xpathFalse);
+    return XPathSequence.falseSequence;
   }
   return XPathSequence.empty;
 }

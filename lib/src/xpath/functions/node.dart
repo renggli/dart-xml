@@ -12,7 +12,6 @@ import '../../xml/nodes/text.dart';
 import '../../xml/utils/name.dart';
 import '../../xml/utils/namespace.dart';
 import '../exceptions/evaluation_exception.dart';
-import '../xdm/atomic/boolean.dart';
 import '../xdm/atomic/string.dart';
 import '../xdm/function_item.dart';
 import '../xdm/item.dart';
@@ -288,11 +287,11 @@ final fnHasChildren = XPathFunctionItem.overloaded(
 
 XPathSequence _evalHasChildren(XPathNode? nodeItem) {
   if (nodeItem == null) {
-    return const XPathSequence.single(XPathBoolean.xpathFalse);
+    return XPathSequence.falseSequence;
   }
-  return XPathSequence.single(
-    XPathBoolean.fromBool(nodeItem.node.children.isNotEmpty),
-  );
+  return nodeItem.node.children.isNotEmpty
+      ? XPathSequence.trueSequence
+      : XPathSequence.falseSequence;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-innermost

@@ -8,6 +8,9 @@ abstract class XPathAbstractDuration extends XPathAtomic {
   Object get value => this;
 
   @override
+  Duration toValue() => toDuration();
+
+  @override
   bool get effectiveBooleanValue =>
       throw XPathEvaluationException('Cannot compute EBV of duration: $this');
 

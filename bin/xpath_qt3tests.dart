@@ -433,7 +433,7 @@ void verifyResult(XmlElement element, Object result, XPathContext context) {
       final ignorePrefixes = element.getAttribute('ignore-prefixes') == 'true';
       final expectedFragment = XmlDocumentFragment.parse(element.innerText);
       final expectedNodes = _flatten(expectedFragment.children);
-      final resultNodes = _flatten(result.cast<XmlNode>());
+      final resultNodes = _flatten(result.nodes);
       final expectedStr = _serializeNodes(
         expectedNodes,
         ignorePrefixes: ignorePrefixes,

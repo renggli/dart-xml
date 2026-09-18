@@ -36,6 +36,12 @@ final class XPathMap extends XPathFunctionItem {
   }
 
   @override
+  Map<Object, Object?> toValue() => {
+    for (final entry in entries.entries)
+      entry.key.toValue(): entry.value.toValue(),
+  };
+
+  @override
   XPathSequence call(XPathContext context, List<XPathSequence> arguments) {
     if (arguments.length != 1) {
       throw XPathEvaluationException(

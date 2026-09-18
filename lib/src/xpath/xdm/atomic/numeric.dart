@@ -56,6 +56,9 @@ final class XPathInteger extends XPathNumeric {
   int get asInt => value.toInt();
 
   @override
+  Object toValue() => value.isValidInt ? value.toInt() : value;
+
+  @override
   XPathDecimal toDecimal() => XPathDecimal(value, 0);
 
   @override
@@ -223,6 +226,11 @@ final class XPathDecimal extends XPathNumeric {
     if (scale == 0) return unscaledValue;
     return unscaledValue ~/ _ten.pow(scale);
   }
+
+  @override
+  Object toValue() => scale == 0 && unscaledValue.isValidInt
+      ? unscaledValue.toInt()
+      : toDouble();
 
   @override
   XPathDecimal toDecimal() => this;

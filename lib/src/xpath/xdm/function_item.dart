@@ -89,6 +89,9 @@ abstract class XPathFunctionItem implements XPathItem {
     'Cannot compute EBV for a function item: $this',
   );
 
+  @override
+  Object toValue() => this;
+
   /// Invokes the function item with the given arguments.
   XPathSequence call(XPathContext context, List<XPathSequence> arguments);
 

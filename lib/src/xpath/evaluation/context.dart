@@ -1,9 +1,7 @@
 import 'package:meta/meta.dart';
 
-import '../../xml/nodes/node.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../grammars/parser.dart';
-import '../xdm/item.dart';
 import '../xdm/sequence.dart';
 import 'configuration.dart';
 
@@ -13,14 +11,13 @@ class XPathContext {
   @internal
   new(
     this.configuration,
-    Object item, {
+    this.item, {
     this.position = 1,
     this.last = 1,
     this.variables = const {},
     this.parentContext,
     DateTime? currentDateTime,
-  }) : item = item is XmlNode ? XPathNode(item) : item,
-       currentDateTime =
+  }) : currentDateTime =
            currentDateTime ?? parentContext?.currentDateTime ?? DateTime.now();
 
   /// Configuraiton associated with the context.
@@ -36,7 +33,7 @@ class XPathContext {
   int last;
 
   /// Variables defined in this scope.
-  final Map<String, Object> variables;
+  final Map<String, XPathSequence> variables;
 
   /// Parent context used for variable lookup.
   final XPathContext? parentContext;
@@ -45,7 +42,7 @@ class XPathContext {
   final DateTime currentDateTime;
 
   /// Looks up an XPath variable with the given [name].
-  Object getVariable(String name) {
+  XPathSequence getVariable(String name) {
     // Find the variable in the context chain.
     XPathContext? context = this;
     while (context != null) {
@@ -69,7 +66,7 @@ class XPathContext {
     Object? item,
     int? position,
     int? last,
-    Map<String, Object>? variables,
+    Map<String, XPathSequence>? variables,
   }) => XPathContext(
     configuration,
     item ?? this.item,

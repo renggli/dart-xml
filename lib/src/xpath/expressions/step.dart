@@ -64,8 +64,7 @@ class RootNodeExpression implements XPathExpression {
 
   @override
   XPathSequence call(XPathContext context) {
-    var item = context.item;
-    if (item is XmlNode) item = XPathNode(item);
+    final item = context.item;
     if (item is! XPathNode) {
       throw XPathEvaluationException(
         'Root expression requires a node, but got ${item.runtimeType} [err:XPTY0019]',

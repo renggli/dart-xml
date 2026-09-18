@@ -180,7 +180,7 @@ class _XPathInlineFunction extends XPathFunctionItem {
         'Expected ${parameters.length} arguments, but got ${arguments.length}',
       );
     }
-    final localVariables = <String, Object>{
+    final localVariables = <String, XPathSequence>{
       for (var i = 0; i < parameters.length; i++) parameters[i]: arguments[i],
     };
     return expression(this.context.copy(variables: localVariables));

@@ -8,6 +8,9 @@ abstract class XPathAbstractDateTime extends XPathAtomic {
   Object get value => this;
 
   @override
+  DateTime toValue() => toDateTime();
+
+  @override
   String get stringValue => toString();
 
   @override

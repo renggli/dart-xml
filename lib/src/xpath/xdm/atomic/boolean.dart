@@ -11,17 +11,13 @@ final class XPathBoolean extends XPathAtomic {
   /// The singleton false instance.
   static const falseInstance = XPathBoolean._(false);
 
-  /// Legacy / compatibility constants.
-  static const xpathTrue = trueInstance;
-  static const xpathFalse = falseInstance;
-
   /// Returns a boolean singleton for [val].
   factory(bool val) => val ? trueInstance : falseInstance;
 
-  /// Creates an [XPathBoolean] from a Dart [bool].
+  /// Returns a boolean singleton for [val].
   factory from(bool val) => val ? trueInstance : falseInstance;
 
-  /// Creates an [XPathBoolean] from a Dart [bool].
+  /// Returns a boolean singleton for [val].
   factory fromBool(bool val) => val ? trueInstance : falseInstance;
 
   @override

@@ -29,6 +29,9 @@ final class XPathArray extends XPathFunctionItem {
   XPathSequence operator [](int index) => members[index];
 
   @override
+  List<Object?> toValue() => [for (final member in members) member.toValue()];
+
+  @override
   XPathSequence call(XPathContext context, List<XPathSequence> arguments) {
     if (arguments.length != 1) {
       throw XPathEvaluationException(

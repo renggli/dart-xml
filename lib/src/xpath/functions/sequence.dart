@@ -397,12 +397,12 @@ XPathSequence _evalDeepEqual(
 ) {
   try {
     return _deepEqual(parameter1, parameter2)
-        ? const XPathSequence.single(XPathBoolean.xpathTrue)
-        : const XPathSequence.single(XPathBoolean.xpathFalse);
+        ? XPathSequence.trueSequence
+        : XPathSequence.falseSequence;
   } on XPathEvaluationException {
     rethrow;
   } catch (_) {
-    return const XPathSequence.single(XPathBoolean.xpathFalse);
+    return XPathSequence.falseSequence;
   }
 }
 
