@@ -8,9 +8,9 @@ This document tracks known discrepancies between PetitXml XPath 3.1 implementati
 
 - **Suites**: 369
 - **Total Cases**: 22,514
-- **Passing**: 19,063 (84.7%)
-- **Failures**: 2,272 (10.1%)
-- **Errors**: 1,179 (5.2%)
+- **Passing**: 19,197 (85.3%)
+- **Failures**: 2,298 (10.2%)
+- **Errors**: 1,019 (4.5%)
 
 ---
 
@@ -62,13 +62,13 @@ This document tracks known discrepancies between PetitXml XPath 3.1 implementati
 - **Files**:
   - `lib/src/xpath/operators/comparison.dart`
   - `lib/src/xpath/operators/general.dart`
-  - `lib/src/xpath/values/atomic.dart`
-  - `lib/src/xpath/values/numeric.dart`
-  - `lib/src/xpath/values/untyped_atomic.dart`
+  - `lib/src/xpath/xdm/atomic.dart`
+  - `lib/src/xpath/xdm/atomic/numeric.dart`
+  - `lib/src/xpath/xdm/atomic/string.dart`
 - **Unit Tests**:
   - `test/xpath/operators/comparison_test.dart`
   - `test/xpath/operators/general_test.dart`
-  - `test/xpath/values/numeric_test.dart`
+  - `test/xpath/xdm/atomic/numeric_test.dart`
 
 ---
 
@@ -100,23 +100,19 @@ This document tracks known discrepancies between PetitXml XPath 3.1 implementati
 
 ### 4. Casting Matrix & Cast/Castable Validation
 
-- [ ] **Status**: Pending
+- [x] **Status**: Completed
 - **User Impact**: Medium-High
-- **QT3 Target**: 473 issues (459 failures, 14 errors)
 - **Primary Suites**: `prod-CastExpr`, `prod-CastableExpr`, `prod-CastExpr.derived`
-- **Root Causes**:
-  - `CastExpression` and `CastableExpression` lack the W3C §17 type transition matrix. Illegal conversions (e.g. `xs:float` to `xs:anyURI`, `xs:date` to `xs:time`) succeed or return `true`.
-  - `castable as` does not raise `FOTY0013` when applied to function items, maps, or arrays.
-  - Disallow casting to abstract types `xs:anyAtomicType` and `xs:NOTATION` (`XPST0080`).
-- **Implementation Steps**:
-  1. Implement a 2D matrix or lookup table representing XPath 3.1 §17 casting rules in `lib/src/xpath/definitions/type.dart` or `lib/src/xpath/evaluation/types.dart`.
-  2. In `CastExpression`, enforce source-to-target legality before attempting type conversion, throwing `XPathEvaluationException` (`XPTY0004` / `XPST0080`).
-  3. In `CastableExpression`, reject non-atomic types with `FOTY0013` error and evaluate allowed castability via the matrix.
+- **Addressed**:
+  - Full W3C XPath 3.1 §19 casting matrix implemented in `lib/src/xpath/xdm/casting_matrix.dart`.
+  - `CastExpression` and `CastableExpression` in `lib/src/xpath/expressions/types.dart` enforce source-to-target transitions and integer subtype bounds.
+  - Disallows casting to abstract types `xs:anyAtomicType` and `xs:NOTATION` (`XPST0080`).
+  - Rejects function items, maps, and arrays with `FOTY0013`.
 - **Files**:
-  - `lib/src/xpath/definitions/type.dart`
+  - `lib/src/xpath/xdm/casting_matrix.dart`
   - `lib/src/xpath/expressions/types.dart`
-  - `lib/src/xpath/evaluation/types.dart`
 - **Unit Tests**:
+  - `test/xpath/xdm/casting_matrix_test.dart`
   - `test/xpath/expressions/types_test.dart`
 
 ---
@@ -128,21 +124,21 @@ This document tracks known discrepancies between PetitXml XPath 3.1 implementati
 - **QT3 Target**: 187 issues (111 failures, 76 errors)
 - **Primary Suites**: `fn-parse-ietf-date`, `op-duration-equal`, `op-dateTime-equal`, `op-time-equal`, `op-divide-dayTimeDuration`
 - **Root Causes**:
-  - `fn:parse-ietf-date` is unimplemented.
-  - Duration comparisons do not enforce subtype equivalence (`yearMonthDuration` vs `dayTimeDuration` must error).
+  - `fn:parse-ietf-date` throws `UnimplementedError` in `lib/src/xpath/functions/date_time.dart`.
+  - Duration comparisons in `lib/src/xpath/xdm/atomic/duration.dart` allow mixed cross-type comparisons (`yearMonthDuration` vs `dayTimeDuration`) that must raise dynamic type errors per XPath 3.1.
   - Time-only timezone adjustments lack implicit timezone context fallback.
 - **Implementation Steps**:
   1. Implement `fn:parse-ietf-date` in `lib/src/xpath/functions/date_time.dart` supporting RFC 2822 (`Mon, 20 Nov 1995 19:12:08 -0500`), RFC 850, and ANSI C `asctime()`.
-  2. Enforce duration comparison compatibility in `lib/src/xpath/functions/duration.dart`.
+  2. Disallow mixed duration comparisons (`xs:yearMonthDuration` vs `xs:dayTimeDuration`) in `lib/src/xpath/xdm/atomic/duration.dart` and raise `XPathEvaluationException` (`XPTY0004`).
   3. Correct timezone adjustment calculation in `fn:adjust-time-to-timezone`.
 - **Files**:
   - `lib/src/xpath/functions/date_time.dart`
-  - `lib/src/xpath/functions/duration.dart`
-  - `lib/src/xpath/types/date_time.dart`
-  - `lib/src/xpath/types/duration.dart`
+  - `lib/src/xpath/xdm/atomic/date_time.dart`
+  - `lib/src/xpath/xdm/atomic/duration.dart`
 - **Unit Tests**:
   - `test/xpath/functions/date_time_test.dart`
-  - `test/xpath/functions/duration_test.dart`
+  - `test/xpath/xdm/atomic/date_time_test.dart`
+  - `test/xpath/xdm/atomic/duration_test.dart`
 
 ---
 
@@ -153,13 +149,13 @@ This document tracks known discrepancies between PetitXml XPath 3.1 implementati
 - **QT3 Target**: 156 issues (129 failures, 27 errors)
 - **Primary Suites**: `fn-json-to-xml`, `fn-parse-json`, `fn-xml-to-json`, `fn-json-doc`
 - **Root Causes**:
-  - `fn:json-to-xml`: Missing attribute `escaped="true"` for escaped Unicode/control characters; missing XML schema type wrapper attributes.
+  - `fn:json-to-xml`: Missing attribute `escaped="true"` for escaped Unicode/control characters; missing schema type wrapper attributes.
   - `fn:parse-json`: Missing options map (`duplicates`, `escape`, `fallback`).
   - `fn:xml-to-json`: Slash escaping and key ordering.
 - **Implementation Steps**:
   1. Add options map parsing in `fn:parse-json` (`lib/src/xpath/functions/json.dart`).
   2. Ensure `fn:json-to-xml` matches W3C XML representation for JSON (including `escaped="true"` and untyped atomic elements).
-  3. Fix character escaping roundtripping in `fn:xml-to-json`.
+  3. Implement `fn:xml-to-json` roundtripping.
 - **Files**:
   - `lib/src/xpath/functions/json.dart`
 - **Unit Tests**:
@@ -174,16 +170,16 @@ This document tracks known discrepancies between PetitXml XPath 3.1 implementati
 - **QT3 Target**: 89 issues (59 failures, 30 errors)
 - **Primary Suites**: `fn-serialize`
 - **Root Causes**:
-  - Lacks full serialization parameter map support (`output:serialization-parameters`).
-  - Methods `xml`, `xhtml`, `html`, `text`, `json`, `adaptive` not fully dispatched.
-  - Parameter options (`omit-xml-declaration`, `indent`, `cdata-section-elements`) not wired to writer.
+  - Currently `_evalSerialize` in `lib/src/xpath/functions/accessor.dart` does a naive concatenation, ignoring options parameter (`output:serialization-parameters` or `map(*)`).
+  - Output methods `xml`, `xhtml`, `html`, `text`, `json`, `adaptive` not dispatched.
+  - Parameter options (`omit-xml-declaration`, `indent`, `cdata-section-elements`, `method`) not wired.
 - **Implementation Steps**:
-  1. Implement serialization parameters extraction from element or map options in `lib/src/xpath/functions/node.dart` (or dedicated serialization module).
-  2. Wire parameters into `XmlPrettyWriter` or custom serializer for non-XML serialization methods.
+  1. Extract serialization options from second argument (element or map) in `lib/src/xpath/functions/accessor.dart`.
+  2. Wire parameters into `XmlWriter` / `XmlPrettyWriter` or custom formatters for `text`, `json`, and `adaptive`.
 - **Files**:
-  - `lib/src/xpath/functions/node.dart`
+  - `lib/src/xpath/functions/accessor.dart`
 - **Unit Tests**:
-  - `test/xpath/functions/node_test.dart`
+  - `test/xpath/functions/accessor_test.dart`
 
 ---
 
@@ -194,17 +190,19 @@ This document tracks known discrepancies between PetitXml XPath 3.1 implementati
 - **QT3 Target**: 87 issues (68 failures, 19 errors)
 - **Primary Suites**: `prod-InstanceofExpr`, `prod-ArrayTest`, `prod-MapTest`, `prod-TreatExpr`
 - **Root Causes**:
-  - Parameterized tests (`array(xs:integer)`, `map(xs:string, xs:integer)`) do not validate item/key/value types.
-  - Element and schema element tests (`element(foo, xs:untyped)`) not fully implemented.
+  - Parameterized tests (`array(xs:integer)`, `map(xs:string, xs:integer)`) in `lib/src/xpath/grammars/xpath.dart` fall back to generic `xsArray` / `xsMap` without validating member or entry types.
+  - Element tests with type specifiers (`element(foo, xs:untyped)`) and `schema-element()` are unimplemented.
 - **Implementation Steps**:
-  1. Enhance `ArrayType` and `MapType` in `lib/src/xpath/definitions/type.dart` to support nested element type validation.
-  2. Implement `element()` and `schema-element()` type tests.
+  1. Introduce parameterized `XPathArrayType(memberType)` and `XPathMapType(keyType, valueType)` in `lib/src/xpath/xdm/types.dart` and update `XPathType.matchesItem`.
+  2. Wire parameterized `array(...)` and `map(...)` parsing in `lib/src/xpath/grammars/xpath.dart`.
+  3. Implement typed `element(name, type)` matching in `lib/src/xpath/expressions/node.dart`.
 - **Files**:
-  - `lib/src/xpath/definitions/type.dart`
-  - `lib/src/xpath/expressions/types.dart`
-  - `lib/src/xpath/grammars/parser.dart`
+  - `lib/src/xpath/xdm/types.dart`
+  - `lib/src/xpath/expressions/node.dart`
+  - `lib/src/xpath/grammars/xpath.dart`
 - **Unit Tests**:
   - `test/xpath/expressions/types_test.dart`
+  - `test/xpath/xdm/types_test.dart`
 
 ---
 
@@ -215,18 +213,20 @@ This document tracks known discrepancies between PetitXml XPath 3.1 implementati
 - **QT3 Target**: 156 issues (136 failures, 20 errors)
 - **Primary Suites**: `fn-function-lookup`, `prod-NamedFunctionRef`, `fn-collection`, `fn-random-number-generator`
 - **Root Causes**:
-  - `fn:function-name` returns `'dynamic-function'` instead of empty sequence `()` for anonymous functions.
-  - `fn:random-number-generator` arity handling and map shape.
-  - `fn:collection` missing default fallback.
+  - `fn:function-lookup` fails on certain built-in and overloaded functions due to namespace or arity lookup mismatches.
+  - `fn:collection` returns empty sequence without fallback to default collection in `XPathConfiguration`.
+  - `fn:load-xquery-module` and `fn:transform` throw `UnimplementedError`.
 - **Implementation Steps**:
-  1. Return `XPathSequence.empty` for anonymous functions in `fn:function-name`.
-  2. Align `fn:random-number-generator` map structure (`number`, `next`, `permute`) with XPath 3.1 specification.
-  3. Wire default collection resolver into `XPathConfiguration`.
+  1. Add default collection resolver support in `XPathConfiguration` and wire into `fn:collection` in `lib/src/xpath/functions/uri.dart`.
+  2. Verify all standard functions and user-defined functions can be looked up dynamically via `fn:function-lookup`.
+  3. Handle XQuery/XSLT module invocation stubbing or graceful failure.
 - **Files**:
   - `lib/src/xpath/functions/higher_order.dart`
+  - `lib/src/xpath/functions/uri.dart`
   - `lib/src/xpath/evaluation/configuration.dart`
 - **Unit Tests**:
   - `test/xpath/functions/higher_order_test.dart`
+  - `test/xpath/functions/uri_test.dart`
 
 ---
 
@@ -240,30 +240,26 @@ This document tracks known discrepancies between PetitXml XPath 3.1 implementati
   - Collation URIs (`http://www.w3.org/2013/collation/UCA?...`) fallback to codepoint comparison or fail.
 - **Implementation Steps**:
   1. Parse collation URIs into strength and case-handling parameters.
-  2. Apply collation comparison in string comparison and search functions.
+  2. Apply collation comparison in string comparison and search functions in `lib/src/xpath/functions/string.dart`.
 - **Files**:
   - `lib/src/xpath/functions/string.dart`
-  - `lib/src/xpath/evaluation/context.dart`
 - **Unit Tests**:
   - `test/xpath/functions/string_test.dart`
 
 ---
 
-### 11. Arbitrary-Precision Integers (`BigInt`)
+### 11. Arbitrary-Precision Integers (`BigInt`) & Number Formatting
 
-- [ ] **Status**: Pending
+- [x] **Status**: Completed
 - **User Impact**: Very Low
-- **QT3 Target**: 129 issues (113 failures, 16 errors)
 - **Primary Suites**: `fn-round`, `fn-round-half-to-even`, `op-to`, `prod-Literal`
-- **Root Causes**:
-  - Dart 64-bit `int` overflow on integers > $2^{63}-1$.
-  - Negative zero `-0.0` vs `-0` string formatting.
-- **Implementation Steps**:
-  1. Support `BigInt` for `xs:integer` when values exceed 64-bit bounds.
-  2. Format negative zero floating point values as `"-0"` per XPath serialization rules.
+- **Addressed**:
+  - `XPathInteger` uses `BigInt` for arbitrary precision arithmetic and range iteration (`lib/src/xpath/xdm/atomic/numeric.dart`).
+  - `XPathDecimal` implements exact decimal representation with `BigInt` unscaled value and scale.
+  - `RangeExpression` in `lib/src/xpath/expressions/range.dart` operates on `XPathInteger` with full `BigInt` precision.
+  - `XPathDouble` correctly formats special values (`NaN`, `INF`, `-INF`, `0`, and exponential forms).
 - **Files**:
-  - `lib/src/xpath/types/number.dart`
-  - `lib/src/xpath/types/integer.dart`
+  - `lib/src/xpath/xdm/atomic/numeric.dart`
   - `lib/src/xpath/expressions/range.dart`
 - **Unit Tests**:
-  - `test/xpath/types/number_test.dart`
+  - `test/xpath/xdm/atomic/numeric_test.dart`
