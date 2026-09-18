@@ -80,21 +80,14 @@ class TestSet {
     if (matchingCases.isEmpty) return;
 
     result.testSuites++;
-    var printedHeader = false;
-
-    void ensureHeader() {
-      if (!printedHeader && options.verbosity != Verbosity.quiet) {
-        stdout.writeln(name);
-        printedHeader = true;
-      }
-    }
+    options.onSuiteStart?.call(this);
 
     for (final testCase in matchingCases) {
       if (options.maxErrors != null &&
           result.failureCount >= options.maxErrors!) {
         break;
       }
-      testCase.run(result, options, onBeforePrint: ensureHeader);
+      testCase.run(result, options);
     }
   }
 }
@@ -109,88 +102,45 @@ class TestCase {
 
   late final name = element.getAttribute('name')!;
 
-  void run(
-    TestResult result,
-    RunnerOptions options, {
-    void Function()? onBeforePrint,
-  }) {
+  void run(TestResult result, RunnerOptions options) {
     result.testCases++;
-
-    if (skippedTests.contains(name)) {
-      result.skipped++;
-      if (options.shouldPrintOutcome(TestStatus.skipped)) {
-        onBeforePrint?.call();
-        _printStatus('SKIP', name);
-      }
-      return;
-    }
 
     final stopwatch = Stopwatch()..start();
     try {
       _test();
       stopwatch.stop();
       result.successes++;
-      if (options.shouldPrintOutcome(TestStatus.success)) {
-        onBeforePrint?.call();
-        _printStatus('PASS', name, stopwatch: stopwatch, options: options);
-      }
+      options.onTestResult?.call(
+        TestCaseResult(this, TestStatus.success, duration: stopwatch.elapsed),
+      );
     } on TestFailure catch (error) {
       stopwatch.stop();
       result.failures++;
-      if (options.shouldPrintOutcome(TestStatus.failure)) {
-        onBeforePrint?.call();
-        _printStatus(
-          'FAIL',
-          name,
-          stopwatch: stopwatch,
-          options: options,
+      options.onTestResult?.call(
+        TestCaseResult(
+          this,
+          TestStatus.failure,
+          duration: stopwatch.elapsed,
           detail: error.message,
-        );
-      }
+        ),
+      );
     } catch (error) {
       stopwatch.stop();
       result.errors++;
-      if (options.shouldPrintOutcome(TestStatus.error)) {
-        onBeforePrint?.call();
-        final message = switch (error) {
-          final StateError error => error.message,
-          final UnsupportedError error => error.message ?? 'Unsupported',
-          _ => error.toString(),
-        };
-        _printStatus(
-          'ERROR',
-          name,
-          stopwatch: stopwatch,
-          options: options,
+      final message = switch (error) {
+        final StateError error => error.message,
+        final UnsupportedError error => error.message ?? 'Unsupported',
+        _ => error.toString(),
+      };
+      options.onTestResult?.call(
+        TestCaseResult(
+          this,
+          TestStatus.error,
+          duration: stopwatch.elapsed,
           detail: message,
-        );
-      }
+        ),
+      );
     }
-  }
-
-  void _printStatus(
-    String badge,
-    String testName, {
-    Stopwatch? stopwatch,
-    RunnerOptions? options,
-    String? detail,
-  }) {
-    final buffer = StringBuffer('  [')
-      ..write(badge.padRight(5))
-      ..write('] ')
-      ..write(testName);
-    if (stopwatch != null && (options?.showTime ?? false)) {
-      buffer
-        ..write(' (')
-        ..write(formatDuration(stopwatch.elapsed))
-        ..write(')');
-    }
-    if (detail != null && detail.isNotEmpty) {
-      buffer
-        ..write(': ')
-        ..write(formatMessage(detail));
-    }
-    stdout.writeln(buffer.toString());
   }
 
   void _test() {

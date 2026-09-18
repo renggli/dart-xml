@@ -1,31 +1,29 @@
 import 'dart:io';
 
-/// Outcome status of a test case.
-enum TestStatus {
-  success,
-  failure,
-  error,
-  skipped;
+import 'models.dart';
 
-  static TestStatus? tryParse(String value) => switch (value.toLowerCase()) {
-    'success' || 'successes' || 'ok' || 'pass' => TestStatus.success,
-    'failure' || 'failures' || 'fail' => TestStatus.failure,
-    'error' || 'errors' || 'err' => TestStatus.error,
-    'skipped' || 'skip' => TestStatus.skipped,
-    _ => null,
-  };
+/// Outcome status of a test case.
+enum TestStatus { success, failure, error }
+
+/// A completed test case result with its status and optional failure/error detail.
+class TestCaseResult {
+  const new(this.testCase, this.status, {required this.duration, this.detail});
+
+  final TestCase testCase;
+  final TestStatus status;
+  final Duration duration;
+  final String? detail;
 }
 
 /// Aggregated results of a test execution.
 class TestResult {
   var testSuites = 0;
   var testCases = 0;
-  var skipped = 0;
   var successes = 0;
   var failures = 0;
   var errors = 0;
 
-  int get totalReported => successes + skipped + failures + errors;
+  int get totalReported => successes + failures + errors;
   int get failureCount => failures + errors;
 }
 
@@ -33,10 +31,13 @@ class TestResult {
 enum Verbosity {
   /// Only print the final summary table.
   quiet,
-  /// Print all test cases (successes, failures, errors, skipped).
+
+  /// Print all test cases (successes, failures, errors).
   all,
+
   /// Print failures and errors (hide passes).
   failures,
+
   /// Print only test errors (hide passes and assertion failures).
   errors,
 }
@@ -51,6 +52,8 @@ class RunnerOptions {
     this.verbosity = Verbosity.failures,
     this.showTime = true,
     this.maxErrors,
+    this.onSuiteStart,
+    this.onTestResult,
   });
 
   /// Path to the catalog XML file.
@@ -73,6 +76,12 @@ class RunnerOptions {
 
   /// Stop testing after reaching this many failures + errors.
   final int? maxErrors;
+
+  /// Callback invoked whenever a test case completes.
+  final void Function(TestCaseResult result)? onTestResult;
+
+  /// Callback invoked when a suite with matching test cases starts running.
+  final void Function(TestSet testSet)? onSuiteStart;
 
   /// Checks if a suite name matches the filter.
   bool matchesSuite(String name) {

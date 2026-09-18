@@ -9,9 +9,6 @@ const githubRepository = 'https://github.com/w3c/qt3tests.git';
 /// Default path to the local catalog file.
 final defaultCatalogFile = File('.qt3tests/catalog.xml').absolute;
 
-/// Test names that are skipped.
-const skippedTests = <String>{};
-
 /// Clones or pulls the QT3 test data repository.
 void downloadAndUpdateTestData(File catalogFile) {
   const depthParameter = '--depth=1';
@@ -64,7 +61,7 @@ String formatSequence(XPathSequence sequence) =>
 String formatDuration(Duration duration) {
   final micros = duration.inMicroseconds;
   if (micros < 1000) {
-    return '${micros}µs';
+    return '$microsµs';
   } else if (micros < 1000000) {
     return '${(micros / 1000).toStringAsFixed(2)}ms';
   } else {
@@ -75,7 +72,9 @@ String formatDuration(Duration duration) {
 /// Helper to format an error message concisely.
 String formatMessage(String message) {
   final normalize = message.trim().replaceAll(RegExp(r'\s+'), ' ');
-  return normalize.length > 80 ? '${normalize.substring(0, 77)}...' : normalize;
+  return normalize.length > 120
+      ? '${normalize.substring(0, 120)}...'
+      : normalize;
 }
 
 /// A test resource file specification.

@@ -6,6 +6,7 @@ library;
 
 import 'dart:io';
 
+// ignore: depend_on_referenced_packages internal tool
 import 'package:args/args.dart';
 
 import 'qt3/models.dart';
@@ -141,39 +142,83 @@ void main(List<String> arguments) {
     exit(64);
   }
 
+  var currentSuiteName = '';
+  var printedSuiteHeader = false;
+
+  void handleSuiteStart(TestSet testSet) {
+    currentSuiteName = testSet.name;
+    printedSuiteHeader = false;
+  }
+
+  final showTime = argResults.flag('time');
+
+  void handleTestResult(TestCaseResult result) {
+    if (verbosity == Verbosity.quiet) return;
+
+    final shouldPrint = switch (verbosity) {
+      Verbosity.quiet => false,
+      Verbosity.all => true,
+      Verbosity.failures => result.status != TestStatus.success,
+      Verbosity.errors => result.status == TestStatus.error,
+    };
+    if (!shouldPrint) return;
+
+    if (!printedSuiteHeader) {
+      stdout.writeln(currentSuiteName);
+      printedSuiteHeader = true;
+    }
+
+    final (badge, detail) = switch (result.status) {
+      TestStatus.success => ('PASS', null),
+      TestStatus.failure => ('FAIL', result.detail),
+      TestStatus.error => ('ERROR', result.detail),
+    };
+
+    final buffer = StringBuffer('  [$badge] ${result.testCase.name}');
+    if (showTime) {
+      buffer.write(' (${formatDuration(result.duration)})');
+    }
+    if (detail != null && detail.isNotEmpty) {
+      buffer.write(': ${formatMessage(detail)}');
+    }
+    stdout.writeln(buffer.toString());
+  }
+
   final options = RunnerOptions(
     catalogFile: catalogFile,
     update: update,
     suitePatterns: suitePatterns,
     testPatterns: testPatterns,
     verbosity: verbosity,
-    showTime: argResults.flag('time'),
+    showTime: showTime,
     maxErrors: maxErrors,
+    onSuiteStart: handleSuiteStart,
+    onTestResult: handleTestResult,
   );
 
   runCatalog(catalogFile, options);
 }
 
 void runCatalog(File catalogFile, RunnerOptions options) {
-  final stopwatch = Stopwatch()..start();
   final result = TestResult();
   TestCatalog(catalogFile).run(result, options);
-  stopwatch.stop();
 
   stdout.writeln();
-  stdout.writeln('Summary (${formatDuration(stopwatch.elapsed)})');
   for (final (label, count, total) in [
     ('Suites', result.testSuites, -1),
     ('Total', result.testCases, -1),
     ('Passed', result.successes, result.testCases),
-    ('Skipped', result.skipped, result.testCases),
     ('Failed', result.failures, result.testCases),
     ('Errors', result.errors, result.testCases),
   ]) {
-    final percentage = total > 0
-        ? ' (${(100 * count / result.testCases).toStringAsFixed(1)}%)'
-        : '';
-    stdout.writeln('- $label: $count $percentage');
+    stdout.writeln(
+      [
+        '$label:'.padRight(10),
+        count.toString().padLeft(10),
+        if (total > 0)
+          '${(100 * count / total).toStringAsFixed(1)}%'.padLeft(10),
+      ].join(''),
+    );
   }
 
   if (result.failureCount > 0) {
