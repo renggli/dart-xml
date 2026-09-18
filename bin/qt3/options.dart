@@ -23,7 +23,6 @@ class TestResult {
   var failures = 0;
   var errors = 0;
 
-  int get totalReported => successes + failures + errors;
   int get failureCount => failures + errors;
 }
 
@@ -45,8 +44,6 @@ enum Verbosity {
 /// Configuration options for the QT3 test runner.
 class RunnerOptions {
   const new({
-    this.catalogFile,
-    this.update = false,
     this.suitePatterns = const [],
     this.testPatterns = const [],
     this.verbosity = Verbosity.failures,
@@ -55,12 +52,6 @@ class RunnerOptions {
     this.onSuiteStart,
     this.onTestResult,
   });
-
-  /// Path to the catalog XML file.
-  final File? catalogFile;
-
-  /// Whether to download or git pull the QT3 test suite repository.
-  final bool update;
 
   /// Patterns to filter test-set / test-suite names.
   final List<Pattern> suitePatterns;
@@ -77,11 +68,11 @@ class RunnerOptions {
   /// Stop testing after reaching this many failures + errors.
   final int? maxErrors;
 
-  /// Callback invoked whenever a test case completes.
-  final void Function(TestCaseResult result)? onTestResult;
-
   /// Callback invoked when a suite with matching test cases starts running.
   final void Function(TestSet testSet)? onSuiteStart;
+
+  /// Callback invoked whenever a test case completes.
+  final void Function(TestCaseResult result)? onTestResult;
 
   /// Checks if a suite name matches the filter.
   bool matchesSuite(String name) {
@@ -94,12 +85,4 @@ class RunnerOptions {
     if (testPatterns.isEmpty) return true;
     return testPatterns.any((pattern) => pattern.allMatches(name).isNotEmpty);
   }
-
-  /// Checks if an outcome should be printed according to verbosity.
-  bool shouldPrintOutcome(TestStatus status) => switch (verbosity) {
-    Verbosity.quiet => false,
-    Verbosity.all => true,
-    Verbosity.failures => status != TestStatus.success,
-    Verbosity.errors => status == TestStatus.error,
-  };
 }

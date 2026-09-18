@@ -13,11 +13,6 @@ import 'qt3/models.dart';
 import 'qt3/options.dart';
 import 'qt3/utils.dart';
 
-export 'qt3/models.dart';
-export 'qt3/options.dart';
-export 'qt3/utils.dart';
-export 'qt3/verifier.dart';
-
 final parser = ArgParser()
   ..addFlag(
     'help',
@@ -84,20 +79,16 @@ void main(List<String> arguments) {
   try {
     argResults = parser.parse(arguments);
   } on FormatException catch (e) {
-    stderr.writeln('Error: ${e.message}');
-    stderr.writeln();
-    stderr.writeln(parser.usage);
+    stderr.writeln('Error: ${e.message}\n\n${parser.usage}');
     exit(64);
   }
 
   if (argResults.flag('help')) {
     stdout.writeln(
-      'Usage: dart run bin/xpath_qt3tests.dart [options] [patterns]',
+      'Usage: dart run bin/xpath_qt3tests.dart [options] [patterns]\n\n'
+      'Positional arguments are treated as test case filters.\n\n'
+      '${parser.usage}',
     );
-    stdout.writeln();
-    stdout.writeln('Positional arguments are treated as test case filters.');
-    stdout.writeln();
-    stdout.writeln(parser.usage);
     return;
   }
 
@@ -144,62 +135,49 @@ void main(List<String> arguments) {
 
   var currentSuiteName = '';
   var printedSuiteHeader = false;
-
-  void handleSuiteStart(TestSet testSet) {
-    currentSuiteName = testSet.name;
-    printedSuiteHeader = false;
-  }
-
   final showTime = argResults.flag('time');
 
-  void handleTestResult(TestCaseResult result) {
-    if (verbosity == Verbosity.quiet) return;
-
-    final shouldPrint = switch (verbosity) {
-      Verbosity.quiet => false,
-      Verbosity.all => true,
-      Verbosity.failures => result.status != TestStatus.success,
-      Verbosity.errors => result.status == TestStatus.error,
-    };
-    if (!shouldPrint) return;
-
-    if (!printedSuiteHeader) {
-      stdout.writeln(currentSuiteName);
-      printedSuiteHeader = true;
-    }
-
-    final (badge, detail) = switch (result.status) {
-      TestStatus.success => ('PASS', null),
-      TestStatus.failure => ('FAIL', result.detail),
-      TestStatus.error => ('ERROR', result.detail),
-    };
-
-    final buffer = StringBuffer('  [$badge] ${result.testCase.name}');
-    if (showTime) {
-      buffer.write(' (${formatDuration(result.duration)})');
-    }
-    if (detail != null && detail.isNotEmpty) {
-      buffer.write(': ${formatMessage(detail)}');
-    }
-    stdout.writeln(buffer.toString());
-  }
-
   final options = RunnerOptions(
-    catalogFile: catalogFile,
-    update: update,
     suitePatterns: suitePatterns,
     testPatterns: testPatterns,
     verbosity: verbosity,
     showTime: showTime,
     maxErrors: maxErrors,
-    onSuiteStart: handleSuiteStart,
-    onTestResult: handleTestResult,
+    onSuiteStart: (suite) {
+      currentSuiteName = suite.name;
+      printedSuiteHeader = false;
+    },
+    onTestResult: (result) {
+      final shouldPrint = switch (verbosity) {
+        Verbosity.quiet => false,
+        Verbosity.all => true,
+        Verbosity.failures => result.status != TestStatus.success,
+        Verbosity.errors => result.status == TestStatus.error,
+      };
+      if (!shouldPrint) return;
+
+      if (!printedSuiteHeader) {
+        stdout.writeln(currentSuiteName);
+        printedSuiteHeader = true;
+      }
+
+      final (badge, detail) = switch (result.status) {
+        TestStatus.success => ('PASS', null),
+        TestStatus.failure => ('FAIL', result.detail),
+        TestStatus.error => ('ERROR', result.detail),
+      };
+
+      final buffer = StringBuffer('  [$badge] ${result.testCase.name}');
+      if (showTime) {
+        buffer.write(' (${formatDuration(result.duration)})');
+      }
+      if (detail != null && detail.isNotEmpty) {
+        buffer.write(': ${formatMessage(detail)}');
+      }
+      stdout.writeln(buffer.toString());
+    },
   );
 
-  runCatalog(catalogFile, options);
-}
-
-void runCatalog(File catalogFile, RunnerOptions options) {
   final result = TestResult();
   TestCatalog(catalogFile).run(result, options);
 
