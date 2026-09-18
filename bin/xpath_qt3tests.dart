@@ -1,600 +1,182 @@
-/// Runner of the official XPath and XQpery W3C test-suite.
+/// Runner of the official XPath and XQuery W3C test-suite.
 ///
 /// This test-suite is not meant to replace unit-tests. It is purely used to
 /// identify gaps and discrepancies of the library with the standard.
 library;
 
-import 'dart:convert';
 import 'dart:io';
 
-import 'package:collection/collection.dart';
-import 'package:xml/src/xpath/evaluation/context.dart';
-import 'package:xml/xml.dart';
-import 'package:xml/xpath.dart';
+import 'package:args/args.dart';
 
-/// URL of the official XPath and XQpery W3C test-suite.
-const githubRepository = 'https://github.com/w3c/qt3tests.git';
+import 'qt3/models.dart';
+import 'qt3/options.dart';
+import 'qt3/utils.dart';
 
-/// Path to the local catalog file.
-final catalogFile = File('.qt3tests/catalog.xml').absolute;
+export 'qt3/models.dart';
+export 'qt3/options.dart';
+export 'qt3/utils.dart';
+export 'qt3/verifier.dart';
 
-/// Test names that are skipped.
-const skippedTests = <String>{};
-
-void main() {
-  downloadAndUpdateTestData();
-  runFullTestCatalog();
-}
-
-void downloadAndUpdateTestData() {
-  const depthParameter = '--depth=1';
-  final dataDirectory = catalogFile.parent;
-  if (!dataDirectory.existsSync()) {
-    final result = Process.runSync('git', [
-      'clone',
-      githubRepository,
-      dataDirectory.path,
-      depthParameter,
-    ]);
-    if (result.exitCode != 0) {
-      throw StateError('Could not download QT3 test suite: ${result.stderr}');
-    }
-  } else {
-    final result = Process.runSync('git', [
-      '-C',
-      dataDirectory.path,
-      'pull',
-      depthParameter,
-    ]);
-    if (result.exitCode != 0) {
-      throw StateError('Could not update QT3 test suite: ${result.stderr}');
-    }
-  }
-}
-
-void runFullTestCatalog() {
-  final result = TestResult();
-  TestCatalog(catalogFile).run(result);
-  stdout.writeln();
-  stdout.writeln('${result.testSuites} test-suites');
-  stdout.writeln('${result.testCases} test-cases');
-  stdout.writeln();
-  for (final MapEntry(key: label, value: count) in {
-    'successes': result.successes,
-    'skipped': result.skipped,
-    'failures': result.failures,
-    'errors': result.errors,
-  }.entries) {
-    stdout.writeln(
-      '${count.toString().padLeft(5)} '
-      '${(100 * count / result.testCases).toStringAsFixed(1).padLeft(4)}% '
-      '$label',
-    );
-  }
-}
-
-class TestCatalog {
-  new(this.file);
-
-  final File file;
-
-  late final XmlDocument document = XmlDocument.parse(file.readAsStringSync());
-  late final Map<String, TestEnvironment> environments = Map.fromEntries(
-    document.rootElement
-        .findElements('environment')
-        .map((element) => TestEnvironment(file.parent, element))
-        .map((environment) => MapEntry(environment.name, environment)),
+final parser = ArgParser()
+  ..addFlag(
+    'help',
+    abbr: 'h',
+    negatable: false,
+    help: 'Show this usage information and exit.',
+  )
+  ..addFlag(
+    'update',
+    abbr: 'u',
+    negatable: false,
+    help: 'Update or clone the QT3 test-suite repository.',
+  )
+  ..addOption(
+    'catalog',
+    abbr: 'c',
+    valueHelp: 'file',
+    help: 'Path to QT3 catalog XML file.',
+  )
+  ..addMultiOption(
+    'suite',
+    abbr: 's',
+    valueHelp: 'pattern',
+    help: 'Filter test suites by pattern.',
+  )
+  ..addMultiOption(
+    'test',
+    abbr: 't',
+    valueHelp: 'pattern',
+    help: 'Filter test cases by pattern.',
+  )
+  ..addFlag(
+    'all',
+    abbr: 'a',
+    negatable: false,
+    help: 'Show all tests, including passes (defaults to failures & errors).',
+  )
+  ..addFlag(
+    'errors-only',
+    abbr: 'e',
+    negatable: false,
+    help: 'Show only errors (hide assertion failures and passes).',
+  )
+  ..addFlag(
+    'quiet',
+    abbr: 'q',
+    negatable: false,
+    help: 'Suppress test output and print only summary.',
+  )
+  ..addFlag(
+    'time',
+    defaultsTo: true,
+    help: 'Display elapsed duration per test.',
+  )
+  ..addOption(
+    'max-errors',
+    abbr: 'm',
+    valueHelp: 'count',
+    help: 'Halt execution after reaching this number of failures/errors.',
   );
-  late final List<TestSet> testSets = document.rootElement
-      .findElements('test-set')
-      .map(
-        (node) => TestSet(
-          this,
-          node.getAttribute('name')!,
-          File('${file.parent.path}/${node.getAttribute('file')!}'),
-        ),
-      )
+
+void main(List<String> arguments) {
+  final ArgResults argResults;
+  try {
+    argResults = parser.parse(arguments);
+  } on FormatException catch (e) {
+    stderr.writeln('Error: ${e.message}');
+    stderr.writeln();
+    stderr.writeln(parser.usage);
+    exit(64);
+  }
+
+  if (argResults.flag('help')) {
+    stdout.writeln(
+      'Usage: dart run bin/xpath_qt3tests.dart [options] [patterns]',
+    );
+    stdout.writeln();
+    stdout.writeln('Positional arguments are treated as test case filters.');
+    stdout.writeln();
+    stdout.writeln(parser.usage);
+    return;
+  }
+
+  final catalogFile = argResults.option('catalog') != null
+      ? File(argResults.option('catalog')!).absolute
+      : defaultCatalogFile;
+
+  final update = !catalogFile.existsSync() || argResults.flag('update');
+  if (update) downloadAndUpdateTestData(catalogFile);
+
+  if (!catalogFile.existsSync()) {
+    stderr.writeln('Error: Catalog file not found at ${catalogFile.path}');
+    stderr.writeln('Run with --update to clone the test suite.');
+    exit(1);
+  }
+
+  final suitePatterns = argResults
+      .multiOption('suite')
+      .map(RegExp.new)
       .toList();
 
-  void run(TestResult result) {
-    for (final testSet in testSets) {
-      if (isSupported(testSet.document.rootElement)) {
-        testSet.run(result);
-      }
-    }
+  final testPatterns = [
+    ...argResults.multiOption('test'),
+    ...argResults.rest,
+  ].map(RegExp.new).toList();
+
+  final verbosity = switch ((
+    argResults.flag('quiet'),
+    argResults.flag('errors-only'),
+    argResults.flag('all'),
+  )) {
+    (true, _, _) => Verbosity.quiet,
+    (_, true, _) => Verbosity.errors,
+    (_, _, true) => Verbosity.all,
+    _ => Verbosity.failures,
+  };
+
+  final maxErrorsStr = argResults.option('max-errors');
+  final maxErrors = maxErrorsStr != null ? int.tryParse(maxErrorsStr) : null;
+  if (maxErrorsStr != null && maxErrors == null) {
+    stderr.writeln('Error: --max-errors must be an integer.');
+    exit(64);
   }
-}
 
-class TestSet {
-  new(this.catalog, this.name, this.file);
-
-  final TestCatalog catalog;
-  final String name;
-  final File file;
-
-  late final XmlDocument document = XmlDocument.parse(file.readAsStringSync());
-  late final Map<String, TestEnvironment> environments = Map.fromEntries(
-    document.rootElement
-        .findElements('environment')
-        .map((element) => TestEnvironment(file.parent, element))
-        .map((environment) => MapEntry(environment.name, environment)),
+  final options = RunnerOptions(
+    catalogFile: catalogFile,
+    update: update,
+    suitePatterns: suitePatterns,
+    testPatterns: testPatterns,
+    verbosity: verbosity,
+    showTime: argResults.flag('time'),
+    maxErrors: maxErrors,
   );
-  late final Iterable<TestCase> testCases = document.rootElement
-      .findAllElements('test-case')
-      .where(isSupported)
-      .map((element) => TestCase(catalog, this, element));
 
-  void run(TestResult result) {
-    result.testSuites++;
-    stdout.writeln(name);
-    for (final testCase in testCases) {
-      testCase.run(result);
-    }
-  }
+  runCatalog(catalogFile, options);
 }
 
-class TestCase {
-  new(this.catalog, this.testSet, this.element);
+void runCatalog(File catalogFile, RunnerOptions options) {
+  final stopwatch = Stopwatch()..start();
+  final result = TestResult();
+  TestCatalog(catalogFile).run(result, options);
+  stopwatch.stop();
 
-  final TestCatalog catalog;
-  final TestSet testSet;
-  final XmlElement element;
-
-  late final name = element.getAttribute('name')!;
-
-  void run(TestResult result) {
-    result.testCases++;
-    stdout.write('\t$name');
-    if (skippedTests.contains(name)) {
-      stdout.writeln(': SKIPPED');
-      result.skipped++;
-      return;
-    }
-    final stopwatch = Stopwatch()..start();
-    try {
-      _test();
-      stopwatch.stop();
-      stdout.writeln(': OK ${formatStopwatch(stopwatch)}');
-      result.successes++;
-    } on TestFailure catch (error) {
-      stopwatch.stop();
-      stdout.writeln(
-        ': FAILURE ${formatStopwatch(stopwatch)} - ${formatMessage(error.message)}',
-      );
-      result.failures++;
-    } catch (error) {
-      final message = switch (error) {
-        final StateError error => error.message,
-        final UnsupportedError error => error.message ?? 'Unsupported',
-        _ => error.toString(),
-      };
-      stdout.writeln(
-        ': ERROR ${formatStopwatch(stopwatch)} - ${formatMessage(message)}',
-      );
-      result.errors++;
-    }
+  stdout.writeln();
+  stdout.writeln('Summary (${formatDuration(stopwatch.elapsed)})');
+  for (final (label, count, total) in [
+    ('Suites', result.testSuites, -1),
+    ('Total', result.testCases, -1),
+    ('Passed', result.successes, result.testCases),
+    ('Skipped', result.skipped, result.testCases),
+    ('Failed', result.failures, result.testCases),
+    ('Errors', result.errors, result.testCases),
+  ]) {
+    final percentage = total > 0
+        ? ' (${(100 * count / result.testCases).toStringAsFixed(1)}%)'
+        : '';
+    stdout.writeln('- $label: $count $percentage');
   }
 
-  void _test() {
-    final context = _getEnvironment().context;
-    final test = _getTest();
-    if (test == null) {
-      throw StateError('Test expression not found: $element');
-    }
-    final result = _getResult();
-    if (result == null) {
-      throw StateError('Test result not found: $element');
-    }
-    late final Object evaluation;
-    try {
-      // Force evaluation of lazy sequences.
-      evaluation = XPathSequence(context.evaluate(test).toList());
-    } catch (exception) {
-      evaluation = exception;
-    }
-    verifyResult(result, evaluation, context);
+  if (result.failureCount > 0) {
+    exitCode = 1;
   }
-
-  TestEnvironment _getEnvironment() {
-    final envElement = element.findElements('environment').singleOrNull;
-    final ref = envElement?.getAttribute('ref');
-    if (ref != null) {
-      final environment =
-          catalog.environments[ref] ?? testSet.environments[ref];
-      if (environment == null) {
-        throw StateError('Environment "$ref" not found');
-      }
-      return environment;
-    }
-    if (envElement != null) {
-      return TestEnvironment(testSet.file.parent, envElement);
-    }
-    final empty =
-        catalog.environments['empty'] ?? testSet.environments['empty'];
-    if (empty == null) {
-      throw StateError('Environment "empty" not found');
-    }
-    return empty;
-  }
-
-  String? _getTest() => element.findElements('test').singleOrNull?.innerText;
-
-  XmlElement? _getResult() =>
-      element.findElements('result').singleOrNull?.childElements.singleOrNull;
-}
-
-class TestEnvironment {
-  new(this.directory, this.element);
-
-  final Directory directory;
-  final XmlElement element;
-
-  late final String name = element.getAttribute('name') ?? '<inline>';
-
-  late final XmlNode? source = _getSource();
-
-  late final Map<String, XmlNode> documents = _getDocuments();
-
-  late final Map<String, Object> variables = _getVariables();
-
-  late final String? baseUri = _getBaseUri();
-
-  late final Map<String, TestResource> resources = _getResources();
-
-  XPathContext get context => XPathConfiguration(
-    documents: documents,
-    variables: variables,
-    environment: Platform.environment,
-    baseUri: baseUri,
-    unparsedTextLoader: _unparsedTextLoader,
-  ).context(source ?? XPathSequence.empty);
-
-  String? _getBaseUri() {
-    final staticBaseUriElement = element
-        .findElements('static-base-uri')
-        .singleOrNull;
-    if (staticBaseUriElement != null) {
-      final uri = staticBaseUriElement.getAttribute('uri');
-      if (uri == '#UNDEFINED') return null;
-      return uri;
-    }
-    return directory.uri.toString();
-  }
-
-  Map<String, TestResource> _getResources() {
-    final results = <String, TestResource>{};
-    for (final el in element.findElements('resource')) {
-      final file = el.getAttribute('file');
-      if (file == null) continue;
-      final uri = el.getAttribute('uri');
-      final encoding = el.getAttribute('encoding');
-      final resource = TestResource(file, encoding);
-      if (uri != null) {
-        results[uri] = resource;
-      }
-      results[file] = resource;
-    }
-    return results;
-  }
-
-  String? _unparsedTextLoader(String uri, String? requestedEncoding) {
-    final resource = resources[uri];
-    if (resource == null) return null;
-    final file = File('${directory.path}/${resource.file}');
-    if (!file.existsSync()) return null;
-    final encoding = Encoding.getByName(requestedEncoding ?? resource.encoding);
-    return file.readAsStringSync(encoding: encoding ?? utf8);
-  }
-
-  Map<String, XmlNode> _getDocuments() {
-    final results = <String, XmlNode>{};
-    for (final element in element.findElements('source')) {
-      final file = element.getAttribute('file');
-      if (file == null) continue;
-      final uri = element.getAttribute('uri');
-      final node = XmlDocument.parse(
-        File('${directory.path}/$file').readAsStringSync(),
-      );
-      results[file] = node;
-      if (uri != null) {
-        results[uri] = node;
-      }
-    }
-    return results;
-  }
-
-  XmlNode? _getSource() {
-    final sources = element.findElements('source');
-    final source =
-        sources.where((e) => e.getAttribute('role') == '.').singleOrNull ??
-        sources.singleOrNull;
-    final file = source?.getAttribute('file');
-    return documents[file];
-  }
-
-  Map<String, Object> _getVariables() {
-    final variables = <String, Object>{};
-    for (final param in element.findElements('param')) {
-      final name = param.getAttribute('name');
-      final select = param.getAttribute('select');
-      final sourceContext = param.getAttribute('source');
-      if (name != null && select != null) {
-        // Try to evaluate the param with respect to a specific document source.
-        final item = documents[sourceContext] ?? source ?? XPathSequence.empty;
-        variables[name] = XPathConfiguration.standard()
-            .context(item)
-            .evaluate(select);
-      }
-    }
-    for (final source in element.findElements('source')) {
-      final role = source.getAttribute('role');
-      final file = source.getAttribute('file');
-      if (role != null && role.startsWith(r'$') && file != null) {
-        final node = documents[file];
-        if (node != null) {
-          variables[role.substring(1)] = node;
-        }
-      }
-    }
-    return variables;
-  }
-}
-
-class TestResult {
-  var testSuites = 0;
-  var testCases = 0;
-  var skipped = 0;
-  var successes = 0;
-  var failures = 0;
-  var errors = 0;
-}
-
-class TestFailure extends StateError {
-  new(super.message);
-}
-
-void verifyResult(XmlElement element, Object result, XPathContext context) {
-  // First handle the primitive operations.
-  switch (element.localName) {
-    case 'error':
-      if (result is! Error && result is! Exception) {
-        throw TestFailure('Expected error, but got $result');
-      }
-      return;
-    case 'all-of':
-      for (final child in element.childElements) {
-        verifyResult(child, result, context);
-      }
-      return;
-    case 'any-of':
-      final errors = <Object>[];
-      for (final child in element.childElements) {
-        try {
-          verifyResult(child, result, context);
-          return;
-        } catch (error) {
-          errors.add(error);
-        }
-      }
-      throw errors.first;
-  }
-
-  // If we don't have a sequence at this point, this must be an error.
-  if (result is! XPathSequence) throw result;
-
-  // Execute the different assertion types.
-  switch (element.localName) {
-    case 'assert':
-      final evaluation = XPathConfiguration.standard()
-          .copy(variables: {'result': result})
-          .context()
-          .evaluate(element.innerText);
-      if (evaluation.ebv != true) {
-        throw TestFailure(
-          'Expected true for ${element.innerText} with result=$result, '
-          'but got $evaluation',
-        );
-      }
-    case 'assert-eq':
-    case 'assert-deep-eq':
-      final expected = context.evaluate(element.innerText);
-      final resultString = formatSequence(result);
-      final expectedString = formatSequence(expected);
-      if (resultString != expectedString) {
-        throw TestFailure('Expected $expectedString, but got $resultString');
-      }
-    case 'assert-empty':
-      if (result.isNotEmpty) {
-        throw TestFailure('Expected empty, but got $result');
-      }
-    case 'assert-true':
-      if (result.ebv != true) {
-        throw TestFailure('Expected true, but got $result');
-      }
-    case 'assert-false':
-      if (result.ebv != false) {
-        throw TestFailure('Expected false, but got $result');
-      }
-    case 'assert-string-value':
-      final string = result.map((item) => item.stringValue).join(' ');
-      if (string != element.innerText) {
-        throw TestFailure('Expected ${element.innerText}, but got $result');
-      }
-    case 'assert-number-value':
-      final first = result.atomize().firstOrNull;
-      final numVal = switch (first) {
-        final XPathNumeric n => n.toDouble(),
-        _ => double.nan,
-      };
-      if (numVal != double.parse(element.innerText)) {
-        throw TestFailure('Expected ${element.innerText}, but got $result');
-      }
-    case 'assert-xml':
-      final ignorePrefixes = element.getAttribute('ignore-prefixes') == 'true';
-      final expectedFragment = XmlDocumentFragment.parse(element.innerText);
-      final expectedNodes = _flatten(expectedFragment.children);
-      final resultNodes = _flatten(result.nodes);
-      final expectedStr = _serializeNodes(
-        expectedNodes,
-        ignorePrefixes: ignorePrefixes,
-      );
-      final resultStr = _serializeNodes(
-        resultNodes,
-        ignorePrefixes: ignorePrefixes,
-      );
-      if (expectedStr != resultStr) {
-        throw TestFailure(
-          'Expected:\n$expectedStr\n\n'
-          'But got:\n$resultStr',
-        );
-      }
-    case 'assert-type':
-      final evaluation = XPathConfiguration.standard()
-          .copy(variables: {'result': result})
-          .context()
-          .evaluate('\$result instance of ${element.innerText}');
-      if (evaluation.ebv != true) {
-        throw TestFailure(
-          'Expected true for ${element.innerText} with result=$result, '
-          'to be of type ${element.innerText}',
-        );
-      }
-    case 'assert-permutation':
-      final expected = XPathConfiguration.standard().context().evaluate(
-        element.innerText,
-      );
-      if (const SetEquality<Object>().equals(
-        result.toSet(),
-        expected.toSet(),
-      )) {
-        return;
-      }
-      throw TestFailure(
-        'Expected $result to be a permutation of ${element.innerText}',
-      );
-    case 'assert-count':
-      final actual = result.length;
-      final expected = int.parse(element.innerText);
-      if (actual != expected) {
-        throw TestFailure('Expected $expected items, but got $actual $result');
-      }
-    default:
-      throw StateError('Unknown result type: $element');
-  }
-}
-
-List<XmlNode> _flatten(Iterable<XmlNode> nodes) {
-  final list = <XmlNode>[];
-  for (final node in nodes) {
-    if (node is XmlDocument || node is XmlDocumentFragment) {
-      list.addAll(_flatten(node.children));
-    } else {
-      list.add(node);
-    }
-  }
-  return list;
-}
-
-String _serializeNodes(List<XmlNode> nodes, {required bool ignorePrefixes}) {
-  final buffer = StringBuffer();
-  final writer = _TestRunnerPrettyWriter(
-    buffer,
-    ignorePrefixes: ignorePrefixes,
-  );
-  writer.writeIterable(
-    writer.normalizeText(nodes),
-    writer.newLine + writer.indent * writer.level,
-  );
-  return buffer.toString();
-}
-
-class _TestRunnerPrettyWriter extends XmlPrettyWriter {
-  new(super.buffer, {required this.ignorePrefixes})
-    : super(
-        sortAttributes: (first, second) =>
-            (ignorePrefixes ? first.name.local : first.name.qualified)
-                .compareTo(
-                  ignorePrefixes ? second.name.local : second.name.qualified,
-                ),
-      );
-
-  final bool ignorePrefixes;
-
-  @override
-  void visitName(XmlName name) {
-    if (ignorePrefixes) {
-      buffer.write(name.local);
-    } else {
-      super.visitName(name);
-    }
-  }
-
-  @override
-  void visitDeclaration(XmlDeclaration node) {
-    // Ignore XML declarations
-  }
-
-  @override
-  void visitProcessing(XmlProcessing node) {
-    if (node.target == 'xml') {
-      // Ignore pseudo-xml declarations
-      return;
-    }
-    super.visitProcessing(node);
-  }
-
-  @override
-  List<XmlNode> normalizeText(List<XmlNode> nodes) {
-    final filtered = nodes.where(
-      (node) =>
-          node is! XmlDeclaration &&
-          !(node is XmlProcessing && node.target == 'xml'),
-    );
-    return super.normalizeText(filtered.toList());
-  }
-
-  @override
-  List<XmlAttribute> normalizeAttributes(List<XmlAttribute> attributes) {
-    final filtered = attributes.where(
-      (attr) => attr.name.prefix != 'xmlns' && attr.name.local != 'xmlns',
-    );
-    return super.normalizeAttributes(filtered.toList());
-  }
-}
-
-/// We only support XPath tests.
-bool isSupported(XmlElement element) {
-  for (final dependency in element.findElements('dependency')) {
-    if (dependency.getAttribute('type') == 'spec') {
-      final value = dependency.getAttribute('value') ?? '';
-      final specs = value.split(' ');
-      if (specs.any((spec) => spec.startsWith('XP'))) {
-        return true; // XPath tests are supported.
-      }
-      if (specs.any((spec) => spec.startsWith('XQ'))) {
-        return false; // XQuery tests are not supported.
-      }
-    }
-  }
-  return true;
-}
-
-/// Helper to textualize a sequence for comparison.
-String formatSequence(XPathSequence sequence) =>
-    '(${sequence.map((item) => item.stringValue).join(', ')})';
-
-/// Helper to format a stopwatch duration.
-String formatStopwatch(Stopwatch stopwatch) =>
-    '[${(stopwatch.elapsed.inMicroseconds / 1000).toStringAsFixed(3)}ms]';
-
-/// Helper to format a error message.
-String formatMessage(String message) {
-  final normalize = message.trim().replaceAll(RegExp(r'\s+'), ' ');
-  return normalize.length > 80 ? '${normalize.substring(0, 75)}...' : normalize;
-}
-
-class TestResource {
-  new(this.file, this.encoding);
-  final String file;
-  final String? encoding;
 }
