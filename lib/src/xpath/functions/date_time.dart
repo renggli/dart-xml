@@ -403,7 +403,219 @@ final fnFormatTime = XPathFunctionItem.overloaded(
 /// https://www.w3.org/TR/xpath-functions-31/#func-parse-ietf-date
 final fnParseIetfDate = XPathFunctionItem.fn1(
   const XmlName.qualified('fn:parse-ietf-date'),
-  (context, value) => throw UnimplementedError('fn:parse-ietf-date'),
+  (context, valueSeq) {
+    final atom = valueSeq.atomize().firstOrNull;
+    if (atom == null) return XPathSequence.empty;
+    final value = atom.stringValue.trim();
+    if (value.isEmpty) {
+      throw XPathEvaluationException(
+        'Invalid IETF date format: [err:FORG0010]',
+      );
+    }
+
+    final match = _ietfDateRegExp.firstMatch(value);
+    if (match == null) {
+      throw XPathEvaluationException(
+        'Invalid IETF date format: $value [err:FORG0010]',
+      );
+    }
+
+    final dayStr = match.namedGroup('day') ?? match.namedGroup('day2');
+    final monStr = match.namedGroup('mon') ?? match.namedGroup('mon2');
+    final yrStr = match.namedGroup('year') ?? match.namedGroup('year2');
+
+    final day = int.tryParse(dayStr ?? '');
+    final month = _monthNames[monStr?.toLowerCase()];
+    var year = int.tryParse(yrStr ?? '');
+
+    if (day == null || month == null || year == null) {
+      throw XPathEvaluationException(
+        'Invalid date components in IETF date: $value [err:FORG0010]',
+      );
+    }
+
+    if (year < 100) {
+      year += 1900;
+    }
+
+    final hr = int.tryParse(match.namedGroup('hour') ?? '');
+    final mn = int.tryParse(match.namedGroup('min') ?? '');
+    final secStr = match.namedGroup('sec');
+    final sec = secStr != null ? int.tryParse(secStr) : 0;
+    final fracStr = match.namedGroup('frac');
+
+    if (hr == null || mn == null || sec == null) {
+      throw XPathEvaluationException(
+        'Invalid time components in IETF date: $value [err:FORG0010]',
+      );
+    }
+
+    var ms = 0;
+    var us = 0;
+    if (fracStr != null && fracStr.isNotEmpty) {
+      final padded = fracStr.padRight(6, '0').substring(0, 6);
+      final totalMicros = int.tryParse(padded) ?? 0;
+      ms = totalMicros ~/ 1000;
+      us = totalMicros % 1000;
+    }
+
+    final tzSign = match.namedGroup('tzsign');
+    final tzHour = match.namedGroup('tzhour');
+    final tzMin = match.namedGroup('tzmin');
+    final tzName = match.namedGroup('tzname');
+    final tzComment = match.namedGroup('tzcomment');
+
+    var offsetMinutes = 0;
+    if (tzSign != null && tzHour != null) {
+      final th = int.tryParse(tzHour) ?? 0;
+      final tm = tzMin != null && tzMin.isNotEmpty
+          ? (int.tryParse(tzMin) ?? 0)
+          : 0;
+      if (th > 14 || (th == 14 && tm != 0) || tm > 59) {
+        throw XPathEvaluationException(
+          'Invalid timezone offset in IETF date: $value [err:FORG0010]',
+        );
+      }
+      if (tzComment != null) {
+        final commentTz = tzComment.trim().toUpperCase();
+        if (commentTz.isNotEmpty && !_namedTzOffsets.containsKey(commentTz)) {
+          throw XPathEvaluationException(
+            'Unknown timezone name in comment: $tzComment [err:FORG0010]',
+          );
+        }
+      }
+      offsetMinutes = (tzSign == '-' ? -1 : 1) * (th * 60 + tm);
+    } else if (tzName != null) {
+      final off = _namedTzOffsets[tzName.toUpperCase()];
+      if (off == null) {
+        throw XPathEvaluationException(
+          'Unknown timezone name in IETF date: $tzName [err:FORG0010]',
+        );
+      }
+      offsetMinutes = off;
+    }
+
+    // Validate date/time
+    final isLeapYear = (year % 4 == 0) && (year % 100 != 0 || year % 400 == 0);
+    final daysInMonth = switch (month) {
+      1 || 3 || 5 || 7 || 8 || 10 || 12 => 31,
+      4 || 6 || 9 || 11 => 30,
+      2 => isLeapYear ? 29 : 28,
+      _ => 0,
+    };
+    if (day < 1 || day > daysInMonth) {
+      throw XPathEvaluationException(
+        'Day out of range in IETF date: $day [err:FORG0010]',
+      );
+    }
+
+    if (hr == 24 && mn == 0 && sec == 0 && ms == 0 && us == 0) {
+      final dt = DateTime.utc(year, month, day).add(const Duration(days: 1));
+      return XPathSequence.single(
+        XPathDateTimeStamp(
+          dt.year,
+          dt.month,
+          dt.day,
+          0,
+          0,
+          0,
+          0,
+          0,
+          offsetMinutes,
+        ),
+      );
+    }
+
+    if (hr > 23 || mn > 59 || sec > 59) {
+      throw XPathEvaluationException(
+        'Time out of range in IETF date: $hr:$mn:$sec [err:FORG0010]',
+      );
+    }
+
+    final result = XPathDateTimeStamp(
+      year,
+      month,
+      day,
+      hr,
+      mn,
+      sec,
+      ms,
+      us,
+      offsetMinutes,
+    );
+    final utc = result.toUtc();
+    return XPathSequence.single(
+      XPathDateTimeStamp(
+        utc.year,
+        utc.month,
+        utc.day,
+        utc.hour,
+        utc.minute,
+        utc.second,
+        utc.millisecond,
+        utc.microsecond,
+        0,
+      ),
+    );
+  },
+);
+
+const _monthNames = <String, int>{
+  'jan': 1,
+  'feb': 2,
+  'mar': 3,
+  'apr': 4,
+  'may': 5,
+  'jun': 6,
+  'jul': 7,
+  'aug': 8,
+  'sep': 9,
+  'oct': 10,
+  'nov': 11,
+  'dec': 12,
+};
+
+const _namedTzOffsets = <String, int>{
+  'UTC': 0,
+  'UT': 0,
+  'GMT': 0,
+  'Z': 0,
+  'EST': -300,
+  'EDT': -240,
+  'CST': -360,
+  'CDT': -300,
+  'MST': -420,
+  'MDT': -360,
+  'PST': -480,
+  'PDT': -420,
+};
+
+final _ietfDateRegExp = RegExp(
+  r'^(?:(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)(?:,\s+|\s+))?'
+  r'(?:'
+  // RFC 2822: day mon year
+  r'(?<day>\d{1,2})(?:\s*-\s*|\s+)(?<mon>[A-Za-z]{3})(?:\s*-\s*|\s+)(?<year>\d{2}|\d{4})'
+  r'|'
+  // asctime / RFC 850 variant: mon day
+  r'(?<mon2>[A-Za-z]{3})(?:\s*-\s*|\s+)(?<day2>\d{1,2})'
+  r')'
+  r'\s+(?<hour>\d{1,2}):(?<min>\d{2})(?::(?<sec>\d{2})(?:\.(?<frac>\d+))?)?'
+  r'(?:'
+  // Timezone if before year (asctime)
+  r'(?:'
+  r'(?:\s*|\s+)(?:(?<tzsign>[+-])(?<tzhour>\d{1,2}):?(?<tzmin>\d{2})?|(?<tzname>[A-Za-z]{1,4}))'
+  r'(?:\s*\(\s*(?<tzcomment>[A-Za-z]+)\s*\))?'
+  r')?'
+  r'(?:\s+(?<year2>\d{2}|\d{4}))'
+  r'|'
+  // Timezone at end
+  r'(?:'
+  r'(?:\s*|\s+)(?:(?<tzsign>[+-])(?<tzhour>\d{1,2}):?(?<tzmin>\d{2})?|(?<tzname>[A-Za-z]{1,4}))'
+  r'(?:\s*\(\s*(?<tzcomment>[A-Za-z]+)\s*\))?'
+  r')?'
+  r')'
+  r'$',
+  caseSensitive: false,
 );
 
 XPathDayTimeDuration _defaultToTimezone(XPathContext context) =>

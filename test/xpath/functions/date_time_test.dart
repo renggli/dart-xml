@@ -431,10 +431,54 @@ void main() {
   });
 
   group('fn:parse-ietf-date', () {
-    test('unimplemented', () {
+    test('returns empty for empty sequence', () {
+      final result = fnParseIetfDate(context, [XPathSequence.empty]);
+      expect(result, isEmpty);
+    });
+
+    test('parses RFC 2822 format', () {
+      final result = fnParseIetfDate(context, const [
+        XPathSequence.single(XPathString('Wed, 20 Aug 2014 19:36:01 GMT')),
+      ]);
+      expect(result.first.stringValue, '2014-08-20T19:36:01Z');
+    });
+
+    test('parses RFC 850 format', () {
+      final result = fnParseIetfDate(context, const [
+        XPathSequence.single(XPathString('Wednesday, 20-Aug-14 19:36:01 GMT')),
+      ]);
+      expect(result.first.stringValue, '1914-08-20T19:36:01Z');
+    });
+
+    test('parses asctime format', () {
+      final result = fnParseIetfDate(context, const [
+        XPathSequence.single(XPathString('Wed Aug 20 19:36:01 2014')),
+      ]);
+      expect(result.first.stringValue, '2014-08-20T19:36:01Z');
+    });
+
+    test('parses with timezone offset and comment', () {
+      final result = fnParseIetfDate(context, const [
+        XPathSequence.single(
+          XPathString('Wed, 20 Aug 2014 14:36:01 -05:00 (EST)'),
+        ),
+      ]);
+      expect(result.first.stringValue, '2014-08-20T19:36:01Z');
+    });
+
+    test('handles 24:00:00 midnight rollover', () {
+      final result = fnParseIetfDate(context, const [
+        XPathSequence.single(XPathString('Aug 20 24:00:00 2014')),
+      ]);
+      expect(result.first.stringValue, '2014-08-21T00:00:00Z');
+    });
+
+    test('throws for invalid input', () {
       expect(
-        () => fnParseIetfDate(context, [XPathSequence.empty]),
-        throwsA(isA<UnimplementedError>()),
+        () => fnParseIetfDate(context, const [
+          XPathSequence.single(XPathString('invalid-date')),
+        ]),
+        throwsA(isA<XPathEvaluationException>()),
       );
     });
   });

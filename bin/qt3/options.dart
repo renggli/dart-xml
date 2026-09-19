@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'models.dart';
 
 /// Outcome status of a test case.

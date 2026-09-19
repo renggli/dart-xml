@@ -181,19 +181,25 @@ class XPathDuration extends XPathAbstractDuration {
     final hours = int.tryParse(match.group(5) ?? '0') ?? 0;
     final minutes = int.tryParse(match.group(6) ?? '0') ?? 0;
     final secondsDouble = double.tryParse(match.group(7) ?? '0') ?? 0.0;
-
-    final seconds = secondsDouble.truncate();
-    final frac = secondsDouble - seconds;
+    final totalSeconds = secondsDouble.truncate();
+    final frac = secondsDouble - totalSeconds;
     final ms = (frac * 1000).truncate();
     final us = ((frac * 1000000) - (ms * 1000)).round();
+
+    final sec = totalSeconds % 60;
+    final totalMinutes = minutes + totalSeconds ~/ 60;
+    final min = totalMinutes % 60;
+    final totalHours = hours + totalMinutes ~/ 60;
+    final hr = totalHours % 24;
+    final dy = days + totalHours ~/ 24;
 
     return XPathDuration(
       years: years,
       months: months,
-      days: days,
-      hours: hours,
-      minutes: minutes,
-      seconds: seconds,
+      days: dy,
+      hours: hr,
+      minutes: min,
+      seconds: sec,
       milliseconds: ms,
       microseconds: us,
       isNegative: negative,
@@ -409,6 +415,9 @@ class XPathDayTimeDuration extends XPathAbstractDuration {
       return other.totalMonths == 0 &&
           totalMicroseconds == other.totalMicroseconds;
     }
+    if (other is XPathYearMonthDuration) {
+      return totalMicroseconds == 0 && other.totalMonths == 0;
+    }
     return false;
   }
 
@@ -525,6 +534,9 @@ class XPathYearMonthDuration extends XPathAbstractDuration {
     }
     if (other is XPathDuration) {
       return totalMonths == other.totalMonths && other.totalMicroseconds == 0;
+    }
+    if (other is XPathDayTimeDuration) {
+      return totalMonths == 0 && other.totalMicroseconds == 0;
     }
     return false;
   }

@@ -119,26 +119,18 @@ This document tracks known discrepancies between PetitXml XPath 3.1 implementati
 
 ### 5. Date, Time & Duration Operations & IETF Parser
 
-- [ ] **Status**: Pending
+- [x] **Status**: Completed
 - **User Impact**: Medium-High
-- **QT3 Target**: 187 issues (111 failures, 76 errors)
-- **Primary Suites**: `fn-parse-ietf-date`, `op-duration-equal`, `op-dateTime-equal`, `op-time-equal`, `op-divide-dayTimeDuration`
-- **Root Causes**:
-  - `fn:parse-ietf-date` throws `UnimplementedError` in `lib/src/xpath/functions/date_time.dart`.
-  - Duration comparisons in `lib/src/xpath/xdm/atomic/duration.dart` allow mixed cross-type comparisons (`yearMonthDuration` vs `dayTimeDuration`) that must raise dynamic type errors per XPath 3.1.
-  - Time-only timezone adjustments lack implicit timezone context fallback.
-- **Implementation Steps**:
-  1. Implement `fn:parse-ietf-date` in `lib/src/xpath/functions/date_time.dart` supporting RFC 2822 (`Mon, 20 Nov 1995 19:12:08 -0500`), RFC 850, and ANSI C `asctime()`.
-  2. Disallow mixed duration comparisons (`xs:yearMonthDuration` vs `xs:dayTimeDuration`) in `lib/src/xpath/xdm/atomic/duration.dart` and raise `XPathEvaluationException` (`XPTY0004`).
-  3. Correct timezone adjustment calculation in `fn:adjust-time-to-timezone`.
+- **Primary Suites**: `fn-parse-ietf-date`, `op-duration-equal`, `fn-seconds-from-duration`
+- **Addressed**:
+  - Implemented `fn:parse-ietf-date` in `lib/src/xpath/functions/date_time.dart` conforming to RFC 2822, RFC 850, and asctime formats, returning UTC normalized timestamps (`xs:dateTimeStamp`).
+  - Corrected duration normalization in `XPathDuration.tryParse` so overflow seconds/minutes/hours are normalized across days and time components.
+  - Aligned duration equality (`eq`/`ne`) between zero-valued `xs:yearMonthDuration` and `xs:dayTimeDuration` per XPath 3.1 specification.
 - **Files**:
   - `lib/src/xpath/functions/date_time.dart`
-  - `lib/src/xpath/xdm/atomic/date_time.dart`
   - `lib/src/xpath/xdm/atomic/duration.dart`
 - **Unit Tests**:
   - `test/xpath/functions/date_time_test.dart`
-  - `test/xpath/xdm/atomic/date_time_test.dart`
-  - `test/xpath/xdm/atomic/duration_test.dart`
 
 ---
 
