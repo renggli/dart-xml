@@ -182,7 +182,7 @@ class TestCase {
     if (empty == null) {
       throw StateError('Environment "empty" not found');
     }
-    return empty;
+    return TestEnvironment(testSet.file.parent, empty.element);
   }
 
   String? _getTest() => element.findElements('test').singleOrNull?.innerText;
@@ -248,10 +248,15 @@ class TestEnvironment {
 
   String? _unparsedTextLoader(String uri, String? requestedEncoding) {
     final resource = resources[uri];
-    if (resource == null) return null;
-    final file = File('${directory.path}/${resource.file}');
+    final file = resource != null
+        ? File('${directory.path}/${resource.file}')
+        : (uri.startsWith('file://')
+              ? File.fromUri(Uri.parse(uri))
+              : File('${directory.path}/$uri'));
     if (!file.existsSync()) return null;
-    final encoding = Encoding.getByName(requestedEncoding ?? resource.encoding);
+    final encoding = Encoding.getByName(
+      requestedEncoding ?? resource?.encoding,
+    );
     return file.readAsStringSync(encoding: encoding ?? utf8);
   }
 

@@ -136,18 +136,13 @@ This document tracks known discrepancies between PetitXml XPath 3.1 implementati
 
 ### 6. JSON Support & Interoperability
 
-- [ ] **Status**: Pending
+- [x] **Status**: Completed
 - **User Impact**: Medium
-- **QT3 Target**: 156 issues (129 failures, 27 errors)
 - **Primary Suites**: `fn-json-to-xml`, `fn-parse-json`, `fn-xml-to-json`, `fn-json-doc`
-- **Root Causes**:
-  - `fn:json-to-xml`: Missing attribute `escaped="true"` for escaped Unicode/control characters; missing schema type wrapper attributes.
-  - `fn:parse-json`: Missing options map (`duplicates`, `escape`, `fallback`).
-  - `fn:xml-to-json`: Slash escaping and key ordering.
-- **Implementation Steps**:
-  1. Add options map parsing in `fn:parse-json` (`lib/src/xpath/functions/json.dart`).
-  2. Ensure `fn:json-to-xml` matches W3C XML representation for JSON (including `escaped="true"` and untyped atomic elements).
-  3. Implement `fn:xml-to-json` roundtripping.
+- **Addressed**:
+  - Full options map parsing for `liberal`, `duplicates` (`reject`, `use-first`, `use-last`, `retain`), `escape`, `validate`, and arity-1 `fallback` function with proper error codes (`FOJS0005`, `XPTY0004`).
+  - Full custom recursive-descent JSON parser in `lib/src/xpath/functions/json.dart` retaining lexical number representation for XML, tracking Unicode escapes and surrogate pairs, and honoring XML 1.0 character validity.
+  - Complete `xml-to-json` serializer with full XDM JSON namespace validation, `escaped` and `escaped-key` attribute handling (`FOJS0006`, `FOJS0007`), duplicate key detection, double formatting per XPath 3.1 §18.2, and solidus escaping per bug 29665.
 - **Files**:
   - `lib/src/xpath/functions/json.dart`
 - **Unit Tests**:

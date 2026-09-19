@@ -63,7 +63,7 @@ class XPathSequenceType extends XPathType {
   String get name => '$itemType$cardinality';
 
   @override
-  bool matchesItem(XPathItem item) => item.type.isSubtypeOf(itemType);
+  bool matchesItem(XPathItem item) => itemType.matchesItem(item);
 
   /// Returns `true` if the [sequence] matches this sequence type.
   @override

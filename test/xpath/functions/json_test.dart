@@ -50,6 +50,48 @@ void main() {
         isXPathSequence(isEmpty),
       );
     });
+    test('options duplicates reject', () {
+      expect(
+        () => fnParseJson(context, [
+          seq('{"a": 1, "a": 2}'),
+          seq(XPathMap({XPathString('duplicates'): seq('reject')})),
+        ]),
+        throwsA(isXPathEvaluationException()),
+      );
+    });
+    test('options duplicates use-last', () {
+      final result = fnParseJson(context, [
+        seq('{"a": 1, "a": 2}'),
+        seq(XPathMap({XPathString('duplicates'): seq('use-last')})),
+      ]);
+      expect(
+        (result.first as XPathMap).get(XPathString('a')),
+        isXPathSequence([2]),
+      );
+    });
+    test('options liberal', () {
+      final result = fnParseJson(context, [
+        seq('{"a": 1,}'),
+        seq(XPathMap({XPathString('liberal'): seq(true)})),
+      ]);
+      expect(
+        (result.first as XPathMap).get(XPathString('a')),
+        isXPathSequence([1]),
+      );
+    });
+    test('options escape and fallback', () {
+      final fallbackFn = XPathFunctionItem.fn1(
+        const XmlName.qualified('local:fallback'),
+        (ctx, arg) => seq('?'),
+      );
+      final result = fnParseJson(context, [
+        seq(r'"\u0000"'),
+        seq(
+          XPathMap({XPathString('fallback'): XPathSequence.single(fallbackFn)}),
+        ),
+      ]);
+      expect(result, isXPathSequence(['?']));
+    });
   });
   group('fn:json-doc', () {
     final jsonDocContext = XPathConfiguration.raw(
@@ -127,7 +169,6 @@ void main() {
       final result = fnJsonToXml(context, [seq(input)]);
       expect(
         ((result.single as XPathNode).node as XmlDocument).toXmlString(),
-        '<?xml version="1.0"?>'
         '<map xmlns="http://www.w3.org/2005/xpath-functions">'
         '<number key="a">1</number>'
         '<array key="b">'
@@ -150,6 +191,14 @@ void main() {
         () => fnJsonToXml(context, [seq('{')]),
         throwsA(isXPathEvaluationException()),
       );
+    });
+    test('options duplicates', () {
+      final result = fnJsonToXml(context, [
+        seq('{"a": 1, "a": 2}'),
+        seq(XPathMap({XPathString('duplicates'): seq('use-first')})),
+      ]);
+      final doc = (result.single as XPathNode).node as XmlDocument;
+      expect(doc.findAllElements('number').length, 1);
     });
   });
   group('fn:xml-to-json', () {
@@ -174,6 +223,25 @@ void main() {
         fnXmlToJson(context, [XPathSequence.empty]),
         isXPathSequence(isEmpty),
       );
+    });
+    test('options indent', () {
+      const input =
+          '<map xmlns="http://www.w3.org/2005/xpath-functions">'
+          '<number key="a">1</number>'
+          '</map>';
+      final document = XmlDocument.parse(input);
+      final result = fnXmlToJson(context, [
+        seq(document),
+        seq(XPathMap({XPathString('indent'): seq(true)})),
+      ]);
+      expect(result, isXPathSequence(['{\n  "a" : 1\n}']));
+    });
+    test('escaped text', () {
+      const input =
+          '<string xmlns="http://www.w3.org/2005/xpath-functions" escaped="true">\\u0041</string>';
+      final document = XmlDocument.parse(input);
+      final result = fnXmlToJson(context, [seq(document)]);
+      expect(result, isXPathSequence([r'"\u0041"']));
     });
   });
 }

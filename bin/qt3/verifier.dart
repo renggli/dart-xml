@@ -43,7 +43,7 @@ void verifyResult(XmlElement element, Object result, XPathContext context) {
   // Execute the different assertion types.
   switch (element.localName) {
     case 'assert':
-      final evaluation = XPathConfiguration.standard()
+      final evaluation = context.configuration
           .copy(variables: {'result': result})
           .context()
           .evaluate(element.innerText);
@@ -54,12 +54,21 @@ void verifyResult(XmlElement element, Object result, XPathContext context) {
         );
       }
     case 'assert-eq':
-    case 'assert-deep-eq':
       final expected = context.evaluate(element.innerText);
       final resultString = formatSequence(result);
       final expectedString = formatSequence(expected);
       if (resultString != expectedString) {
         throw TestFailure('Expected $expectedString, but got $resultString');
+      }
+    case 'assert-deep-eq':
+      final expected = context.evaluate(element.innerText);
+      final comparison = context.configuration
+          .getFunctionByString('fn:deep-equal', 2)
+          .call(context, [result, expected]);
+      if (comparison.ebv != true) {
+        throw TestFailure(
+          'Expected $result to be deep-equal to ${element.innerText} ($expected)',
+        );
       }
     case 'assert-empty':
       if (result.isNotEmpty) {
@@ -107,7 +116,7 @@ void verifyResult(XmlElement element, Object result, XPathContext context) {
         );
       }
     case 'assert-type':
-      final evaluation = XPathConfiguration.standard()
+      final evaluation = context.configuration
           .copy(variables: {'result': result})
           .context()
           .evaluate(r'$result instance of ' + element.innerText);
