@@ -15,6 +15,7 @@ import '../functions/node.dart' as node;
 import '../functions/number.dart' as number;
 import '../functions/qname.dart' as qname;
 import '../functions/sequence.dart' as sequence;
+import '../functions/serialization.dart' as serialization;
 import '../functions/string.dart' as string;
 import '../functions/uri.dart' as uri;
 import '../xdm/function_item.dart';
@@ -226,7 +227,7 @@ final standardFunctionDefinitions = <XPathFunctionItem>[
   uri.fnAvailableEnvironmentVariables,
   accessor.fnParseXml,
   accessor.fnParseXmlFragment,
-  accessor.fnSerialize,
+  serialization.fnSerialize,
 
   // String
   string.fnCodepointsToString,

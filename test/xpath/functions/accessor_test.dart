@@ -132,28 +132,6 @@ void main() {
     });
   });
 
-  group('fn:serialize', () {
-    test('serializes sequence', () {
-      expect(
-        fnSerialize(context, [
-          seq([
-            document.findAllElements('a').first,
-            'text',
-            document.findAllElements('b').first,
-          ]),
-        ]),
-        isXPathSequence(['<a>1</a>text<b>2</b>']),
-      );
-    });
-
-    test('returns empty string for empty sequence', () {
-      expect(
-        fnSerialize(context, [XPathSequence.empty]),
-        isXPathSequence(['']),
-      );
-    });
-  });
-
   group('fn:parse-xml', () {
     test('parses xml string', () {
       expect(

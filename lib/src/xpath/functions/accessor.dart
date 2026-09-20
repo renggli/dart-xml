@@ -127,32 +127,6 @@ final fnDocumentUri = XPathFunctionItem.overloaded(
   },
 );
 
-/// https://www.w3.org/TR/xpath-functions-31/#func-serialize
-final fnSerialize = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:serialize'),
-  {
-    1: XPathFunctionItem.fn1(
-      const XmlName.qualified('fn:serialize'),
-      (context, arg) => _evalSerialize(arg),
-    ),
-    2: XPathFunctionItem.fn2(
-      const XmlName.qualified('fn:serialize'),
-      (context, arg, params) => _evalSerialize(arg),
-    ),
-  },
-);
-
-XPathSequence _evalSerialize(XPathSequence arg) {
-  // TODO: Add support for serialization parameters
-  final result = arg
-      .map(
-        (item) =>
-            item is XPathNode ? item.node.toXmlString() : item.stringValue,
-      )
-      .join();
-  return XPathSequence.single(XPathString(result));
-}
-
 /// https://www.w3.org/TR/xpath-functions-31/#func-parse-xml
 final fnParseXml = XPathFunctionItem.fn1(
   const XmlName.qualified('fn:parse-xml'),

@@ -54,7 +54,7 @@ void main() {
       expect(
         () => fnParseJson(context, [
           seq('{"a": 1, "a": 2}'),
-          seq(XPathMap({XPathString('duplicates'): seq('reject')})),
+          seq(XPathMap({const XPathString('duplicates'): seq('reject')})),
         ]),
         throwsA(isXPathEvaluationException()),
       );
@@ -62,20 +62,20 @@ void main() {
     test('options duplicates use-last', () {
       final result = fnParseJson(context, [
         seq('{"a": 1, "a": 2}'),
-        seq(XPathMap({XPathString('duplicates'): seq('use-last')})),
+        seq(XPathMap({const XPathString('duplicates'): seq('use-last')})),
       ]);
       expect(
-        (result.first as XPathMap).get(XPathString('a')),
+        (result.first as XPathMap).get(const XPathString('a')),
         isXPathSequence([2]),
       );
     });
     test('options liberal', () {
       final result = fnParseJson(context, [
         seq('{"a": 1,}'),
-        seq(XPathMap({XPathString('liberal'): seq(true)})),
+        seq(XPathMap({const XPathString('liberal'): seq(true)})),
       ]);
       expect(
-        (result.first as XPathMap).get(XPathString('a')),
+        (result.first as XPathMap).get(const XPathString('a')),
         isXPathSequence([1]),
       );
     });
@@ -87,7 +87,9 @@ void main() {
       final result = fnParseJson(context, [
         seq(r'"\u0000"'),
         seq(
-          XPathMap({XPathString('fallback'): XPathSequence.single(fallbackFn)}),
+          XPathMap({
+            const XPathString('fallback'): XPathSequence.single(fallbackFn),
+          }),
         ),
       ]);
       expect(result, isXPathSequence(['?']));
@@ -195,7 +197,7 @@ void main() {
     test('options duplicates', () {
       final result = fnJsonToXml(context, [
         seq('{"a": 1, "a": 2}'),
-        seq(XPathMap({XPathString('duplicates'): seq('use-first')})),
+        seq(XPathMap({const XPathString('duplicates'): seq('use-first')})),
       ]);
       final doc = (result.single as XPathNode).node as XmlDocument;
       expect(doc.findAllElements('number').length, 1);
@@ -232,7 +234,7 @@ void main() {
       final document = XmlDocument.parse(input);
       final result = fnXmlToJson(context, [
         seq(document),
-        seq(XPathMap({XPathString('indent'): seq(true)})),
+        seq(XPathMap({const XPathString('indent'): seq(true)})),
       ]);
       expect(result, isXPathSequence(['{\n  "a" : 1\n}']));
     });

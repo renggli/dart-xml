@@ -1,6 +1,5 @@
 import '../../xml/builder/builder.dart';
 import '../../xml/extensions/string.dart';
-import '../../xml/nodes/attribute.dart';
 import '../../xml/nodes/document.dart';
 import '../../xml/nodes/element.dart';
 import '../../xml/nodes/node.dart';
@@ -9,9 +8,6 @@ import '../../xml/utils/name.dart';
 import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/atomic.dart';
-import '../xdm/atomic/boolean.dart';
-import '../xdm/atomic/numeric.dart';
-import '../xdm/atomic/string.dart';
 import '../xdm/function_item.dart';
 import '../xdm/functions/array.dart';
 import '../xdm/functions/map.dart';
@@ -455,12 +451,7 @@ bool _parseXmlToJsonOptions(XPathMap? options) {
 // ---------------------------------------------------------------------------
 
 class _JsonParser {
-  _JsonParser(
-    this.input,
-    this.options, {
-    this.context,
-    required this.isXmlTarget,
-  });
+  new(this.input, this.options, {this.context, required this.isXmlTarget});
 
   final String input;
   final _JsonOptions options;
@@ -982,7 +973,7 @@ class _JsonParser {
     _pos++; // consume opening '"'
     final sb = StringBuffer();
     final cmpSb = StringBuffer();
-    bool escapedAttribute = false;
+    var escapedAttribute = false;
 
     while (!_isEof) {
       final ch = _next();
@@ -1325,7 +1316,7 @@ class _JsonParser {
 }
 
 class _ParsedString {
-  const _ParsedString({
+  const new({
     required this.effectiveValue,
     required this.escapedComparisonKey,
     required this.escaped,
@@ -1341,7 +1332,7 @@ class _ParsedString {
 // ---------------------------------------------------------------------------
 
 class _XmlToJsonSerializer {
-  _XmlToJsonSerializer({this.indent = false});
+  new({this.indent = false});
 
   final bool indent;
 
@@ -1396,11 +1387,13 @@ class _XmlToJsonSerializer {
     for (final attr in element.attributes) {
       final name = attr.name;
       if (name.prefix == 'xmlns' || name.qualified == 'xmlns') continue;
-      if (name.namespaceUri == 'http://www.w3.org/2001/XMLSchema-instance')
+      if (name.namespaceUri == 'http://www.w3.org/2001/XMLSchema-instance') {
         continue;
+      }
       if (name.namespaceUri == 'http://www.w3.org/XML/1998/namespace' &&
-          name.local == 'space')
+          name.local == 'space') {
         continue;
+      }
       final uri = name.namespaceUri;
       if (name.prefix == null || uri == null || uri.isEmpty || uri == _ns) {
         if (name.local == 'key' ||
@@ -1577,7 +1570,7 @@ class _XmlToJsonSerializer {
       }
       return s;
     } else {
-      var s = value.toStringAsExponential().toUpperCase();
+      final s = value.toStringAsExponential().toUpperCase();
       final parts = s.split('E');
       var mantissa = parts[0];
       var exp = parts[1];
@@ -1818,42 +1811,6 @@ class _XmlToJsonSerializer {
         sb.writeCharCode(ch);
       }
     }
-    return sb.toString();
-  }
-
-  String _escapeJsonString(String input) {
-    final sb = StringBuffer();
-    sb.write('"');
-    for (var i = 0; i < input.length; i++) {
-      final code = input.codeUnitAt(i);
-      switch (code) {
-        case 0x22: // "
-          sb.write(r'\"');
-        case 0x5C: // \
-          sb.write(r'\\');
-        case 0x2F: // /
-          sb.write(r'\/');
-        case 0x08: // \b
-          sb.write(r'\b');
-        case 0x0C: // \f
-          sb.write(r'\f');
-        case 0x0A: // \n
-          sb.write(r'\n');
-        case 0x0D: // \r
-          sb.write(r'\r');
-        case 0x09: // \t
-          sb.write(r'\t');
-        default:
-          if (code < 0x20 || (code >= 0x7F && code <= 0x9F)) {
-            sb.write(
-              '\\u${code.toRadixString(16).toUpperCase().padLeft(4, '0')}',
-            );
-          } else {
-            sb.writeCharCode(code);
-          }
-      }
-    }
-    sb.write('"');
     return sb.toString();
   }
 }

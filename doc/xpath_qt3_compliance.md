@@ -152,20 +152,20 @@ This document tracks known discrepancies between PetitXml XPath 3.1 implementati
 
 ### 7. XML Serialization (`fn:serialize`)
 
-- [ ] **Status**: Pending
+- [x] **Status**: Completed
 - **User Impact**: Medium
-- **QT3 Target**: 89 issues (59 failures, 30 errors)
 - **Primary Suites**: `fn-serialize`
-- **Root Causes**:
-  - Currently `_evalSerialize` in `lib/src/xpath/functions/accessor.dart` does a naive concatenation, ignoring options parameter (`output:serialization-parameters` or `map(*)`).
-  - Output methods `xml`, `xhtml`, `html`, `text`, `json`, `adaptive` not dispatched.
-  - Parameter options (`omit-xml-declaration`, `indent`, `cdata-section-elements`, `method`) not wired.
-- **Implementation Steps**:
-  1. Extract serialization options from second argument (element or map) in `lib/src/xpath/functions/accessor.dart`.
-  2. Wire parameters into `XmlWriter` / `XmlPrettyWriter` or custom formatters for `text`, `json`, and `adaptive`.
+- **Addressed**:
+  - Implemented `SerializationParameters` in `lib/src/xpath/functions/serialization.dart` with support for loading from XML elements (`output:serialization-parameters`) and XDM maps (`map(*)`).
+  - Validated options (`method`, `indent`, `omit-xml-declaration`, `standalone`, `item-separator`, `version`, `encoding`, `cdata-section-elements`, `suppress-indentation`, `use-character-maps`, `allow-duplicate-names`, etc.) with standard error codes (`SEPM0016`, `SEPM0017`, `SEPM0019`, `SERE0020`, `SERE0022`, `SERE0023`, `SENR0001`, `XPTY0004`, `XQDY0137`).
+  - Added full serializer support for all output methods: `xml`, `html` (with HTML5 DOCTYPE and `<meta>` charset insertion), `xhtml`, `text`, `json` (with array/map formatting and character escape handling), and `adaptive` (with boolean `true()`/`false()` notation).
+  - Fixed duplicate key enforcement `[err:XQDY0137]` in `MapConstructor`.
 - **Files**:
+  - `lib/src/xpath/functions/serialization.dart`
   - `lib/src/xpath/functions/accessor.dart`
+  - `lib/src/xpath/expressions/constructors.dart`
 - **Unit Tests**:
+  - `test/xpath/functions/serialization_test.dart`
   - `test/xpath/functions/accessor_test.dart`
 
 ---

@@ -21,7 +21,15 @@ class MapConstructor implements XPathExpression {
           'map:constructor key must be exactly one atomic item [err:XPTY0004]',
         );
       }
-      map[keySeq.single] = entry.value(context);
+      final key = keySeq.single;
+      for (final existingKey in map.keys) {
+        if (XPathMap.sameKey(existingKey, key)) {
+          throw XPathEvaluationException(
+            'Duplicate key in map constructor: $key [err:XQDY0137]',
+          );
+        }
+      }
+      map[key] = entry.value(context);
     }
     return XPathSequence.single(XPathMap(map));
   }
