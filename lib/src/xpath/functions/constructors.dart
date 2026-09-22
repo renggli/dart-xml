@@ -52,7 +52,7 @@ final xsDoubleConstructor = _atomicConstructor(
 /// https://www.w3.org/TR/xpath-functions-31/#func-float
 final xsFloatConstructor = _atomicConstructor(
   const XmlName.qualified('xs:float'),
-  xsDouble,
+  xsFloat,
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-numeric

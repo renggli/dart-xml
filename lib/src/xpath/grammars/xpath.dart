@@ -7,6 +7,7 @@ import '../evaluation/cardinality.dart';
 import '../evaluation/expression.dart';
 import '../evaluation/operators.dart';
 import '../evaluation/types.dart';
+import '../exceptions/parser_exception.dart';
 import '../expressions/axis.dart';
 import '../expressions/constructors.dart';
 import '../expressions/function.dart';
@@ -756,21 +757,23 @@ class XPathGrammar {
         seq3(token('('), ref0(paramList).optional(), token(')')),
         ref0(typeDeclaration).optional(),
         ref0(functionBody),
-      ).map4(
-        (_, params, type, body) =>
-            InlineFunctionExpression(body, params.$2 ?? const []),
-      );
+      ).map4((_, params, type, body) {
+        final rawParams = params.$2;
+        final names = rawParams?.map((p) => p.$1).toList() ?? const <String>[];
+        final types = rawParams?.map((p) => p.$2).toList();
+        return InlineFunctionExpression(body, names, types, type);
+      });
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ParamList
-  Parser<List<String>> paramList() =>
+  Parser<List<(String, XPathType?)>> paramList() =>
       ref0(param).plusSeparated(token(',')).map((list) => list.elements);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-Param
-  Parser<String> param() => seq3(
+  Parser<(String, XPathType?)> param() => seq3(
     token('\$'),
     ref0(eqName),
     ref0(typeDeclaration).optional(),
-  ).map3((_, name, _) => name);
+  ).map3((_, name, type) => (name, type));
 
   // https://www.w3.org/TR/xpath-30/#prod-xpath30-TypeDeclaration
   Parser<XPathType> typeDeclaration() =>
@@ -793,7 +796,7 @@ class XPathGrammar {
     token('('),
     ref0(sequenceType),
     token(')'),
-  ).constant(xsArray); // For now treat typed arrays as generic arrays
+  ).map4((_, _, type, _) => XPathArrayType(type));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ParenthesizedItemType
   Parser<XPathType> parenthesizedItemType() =>
@@ -856,9 +859,7 @@ class XPathGrammar {
   ].toChoiceParser();
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-AtomicOrUnionType
-  Parser<XPathType> atomicOrUnionType() => ref0(eqName).map(
-    (name) => standardTypes[name] ?? _unimplemented('AtomicOrUnionType', name),
-  );
+  Parser<XPathType> atomicOrUnionType() => ref0(eqName).map(_resolveAtomicType);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-FunctionTest
   Parser<XPathType> functionTest() =>
@@ -872,12 +873,21 @@ class XPathGrammar {
   ).skip(after: token(')')).constant(xsFunction);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-TypedFunctionTest
-  Parser<XPathType> typedFunctionTest() => seq4(
-    token('function'),
-    token('('),
-    ref0(sequenceType).starSeparated(token(',')),
-    token(')'),
-  ).seq(seq2(token('as'), ref0(sequenceType))).constant(xsFunction);
+  Parser<XPathType> typedFunctionTest() {
+    // function ( SequenceType* ) as SequenceType
+    final paramParser = ref0(sequenceType).starSeparated(token(','));
+    return seq6(
+      token('function'),
+      token('('),
+      paramParser,
+      token(')'),
+      token('as'),
+      ref0(sequenceType),
+    ).map6(
+      (_, _, params, _, _, ret) =>
+          XPathFunctionType(parameterTypes: params.elements, returnType: ret),
+    );
+  }
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-MapTest
   Parser<XPathType> mapTest() =>
@@ -894,13 +904,9 @@ class XPathGrammar {
   Parser<XPathType> typedMapTest() => seq4(
     token('map'),
     token('('),
-    seq3(
-      ref0(atomicOrUnionType),
-      token(','),
-      ref0(sequenceType),
-    ), // Key type, comma, value type
+    seq3(ref0(atomicOrUnionType), token(','), ref0(sequenceType)),
     token(')'),
-  ).constant(xsMap);
+  ).map4((_, _, kv, _) => XPathMapType(kv.$1, kv.$3));
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-FunctionBody
   Parser<XPathExpression> functionBody() => ref0(enclosedExpr);
@@ -1080,6 +1086,29 @@ class XPathGrammar {
 Never _unimplemented(String feature, [dynamic arg]) => throw UnimplementedError(
   '$feature${arg != null ? ' ($arg)' : ''} not yet implemented',
 );
+
+/// Resolves an EQName to a known [XPathType] for use in `atomicOrUnionType`.
+///
+/// Throws [XPathParserException] with `[err:XPST0051]` if [name] is not
+/// recognized as a valid schema type. Bare NCNames without a namespace prefix
+/// are rejected unless they are an explicit alias defined on the type.
+XPathType _resolveAtomicType(String name) {
+  final type = standardTypes[name];
+  if (type == null) {
+    throw XPathParserException('Unknown schema type: $name [err:XPST0051]');
+  }
+  // Reject bare NCNames (no prefix colon, no Q{} qualifier) that were only
+  // added to standardTypes as xs: shorthand (e.g. "integer" for xs:integer).
+  // Per XPath 3.1, an unprefixed name in atomicOrUnionType must resolve via
+  // the default type namespace; without one configured it is an error.
+  if (!name.contains(':') && !name.contains('{')) {
+    final isExplicitAlias = type.aliases.contains(name) || type.name == name;
+    if (!isExplicitAlias) {
+      throw XPathParserException('Unknown schema type: $name [err:XPST0051]');
+    }
+  }
+  return type;
+}
 
 NameTest _eqNameToNodeTest(String name) {
   if (name.startsWith('Q{')) {

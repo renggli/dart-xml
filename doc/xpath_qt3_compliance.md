@@ -172,22 +172,42 @@ This document tracks known discrepancies between PetitXml XPath 3.1 implementati
 
 ### 8. SequenceType & `instance of` Matching
 
-- [ ] **Status**: Pending
+- [x] **Status**: Completed
 - **User Impact**: Medium-Low
-- **QT3 Target**: 87 issues (68 failures, 19 errors)
-- **Primary Suites**: `prod-InstanceofExpr`, `prod-ArrayTest`, `prod-MapTest`, `prod-TreatExpr`
-- **Root Causes**:
-  - Parameterized tests (`array(xs:integer)`, `map(xs:string, xs:integer)`) in `lib/src/xpath/grammars/xpath.dart` fall back to generic `xsArray` / `xsMap` without validating member or entry types.
-  - Element tests with type specifiers (`element(foo, xs:untyped)`) and `schema-element()` are unimplemented.
-- **Implementation Steps**:
-  1. Introduce parameterized `XPathArrayType(memberType)` and `XPathMapType(keyType, valueType)` in `lib/src/xpath/xdm/types.dart` and update `XPathType.matchesItem`.
-  2. Wire parameterized `array(...)` and `map(...)` parsing in `lib/src/xpath/grammars/xpath.dart`.
-  3. Implement typed `element(name, type)` matching in `lib/src/xpath/expressions/node.dart`.
+- **QT3 Target**: 87 issues (68 failures, 19 errors) → **all resolved**
+- **Primary Suites**: `prod-InstanceofExpr` 273/273, `prod-ArrayTest` 47/47, `prod-MapTest` 44/44, `prod-TreatExpr` 61/61
+- **Addressed**:
+  - Added `XPathArrayType(memberType)`, `XPathMapType(keyType, valueType)`, and
+    `XPathFunctionType({parameterTypes, returnType})` in `lib/src/xpath/xdm/types.dart`
+    with correct parent hierarchy (`XPathArrayType → xsArray → xsFunction`,
+    `XPathMapType → xsMap → xsFunction`, `XPathFunctionType → xsFunction`).
+  - Each type implements `isSubtypeOf` (contra/covariant for functions, covariant for
+    arrays/maps), `matchesItem`, `operator==`, `hashCode`, and `name`.
+  - `XPathMapType.isSubtypeOf(XPathFunctionType)` handles the XDM map-as-function
+    subtype relationship per XPath 3.1 §2.5.5.3.
+  - Wired parameterized type grammar: `typedArrayTest`, `typedMapTest`, and
+    `typedFunctionTest` now produce typed descriptors instead of wildcards.
+  - Added `_resolveAtomicType` helper in `lib/src/xpath/grammars/xpath.dart` that
+    rejects unknown or bare unqualified atomic type names with `[err:XPST0051]`.
+  - `InlineFunctionExpression` and `_XPathInlineFunction` carry declared param types
+    and return type; params are validated at call time (`[err:XPTY0004]`), and the
+    declared types participate in `instance of function(T) as R` matching.
+  - Added `parameterTypes`/`returnType` to `fnName#1` (param `node()?`, return
+    `xs:string`) and `fnFilter#2` (params `item()*` and `function(item()) as
+    xs:boolean`, return `item()*`) enabling typed `instance of` checks on built-in
+    higher-order functions.
+  - `XPathCardinality.isSubtypeOf` models the cardinality lattice required for
+    sequence-type subtype checking.
 - **Files**:
   - `lib/src/xpath/xdm/types.dart`
-  - `lib/src/xpath/expressions/node.dart`
+  - `lib/src/xpath/xdm/function_item.dart`
+  - `lib/src/xpath/expressions/function.dart`
   - `lib/src/xpath/grammars/xpath.dart`
+  - `lib/src/xpath/functions/node.dart`
+  - `lib/src/xpath/functions/higher_order.dart`
+  - `lib/src/xpath/evaluation/cardinality.dart`
 - **Unit Tests**:
+  - `test/xpath/evaluation/cardinality_test.dart`
   - `test/xpath/expressions/types_test.dart`
   - `test/xpath/xdm/types_test.dart`
 

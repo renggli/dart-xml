@@ -1,4 +1,5 @@
 import '../../xml/utils/name.dart';
+import '../evaluation/cardinality.dart';
 import '../evaluation/context.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/atomic/numeric.dart';
@@ -8,6 +9,7 @@ import '../xdm/function_item.dart';
 import '../xdm/functions/array.dart';
 import '../xdm/item.dart';
 import '../xdm/sequence.dart';
+import '../xdm/types.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-for-each
 const fnForEach = XPathFunctionItem.fn2(
@@ -35,9 +37,34 @@ Iterable<XPathItem> _fnForEachSync(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-filter
+///
+/// Signature: `fn:filter($seq as item()*, $f as function(item()) as xs:boolean)
+/// as item()*`
 const fnFilter = XPathFunctionItem.fn2(
   XmlName.qualified('fn:filter'),
   _fnFilter,
+  parameterTypes: [
+    XPathSequenceType(
+      itemType: xsItem,
+      cardinality: XPathCardinality.zeroOrMore,
+    ),
+    XPathFunctionType(
+      parameterTypes: [
+        XPathSequenceType(
+          itemType: xsItem,
+          cardinality: XPathCardinality.exactlyOne,
+        ),
+      ],
+      returnType: XPathSequenceType(
+        itemType: xsBoolean,
+        cardinality: XPathCardinality.exactlyOne,
+      ),
+    ),
+  ],
+  returnType: XPathSequenceType(
+    itemType: xsItem,
+    cardinality: XPathCardinality.zeroOrMore,
+  ),
 );
 
 XPathSequence _fnFilter(

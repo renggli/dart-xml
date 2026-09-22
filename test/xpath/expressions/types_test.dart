@@ -185,4 +185,64 @@ void main() {
       );
     });
   });
+
+  group('inline function typed parameters', () {
+    test('XPTY0004: parameter type mismatch at runtime', () {
+      expect(
+        () => xml.xpathEvaluate(
+          '(function(\$x as xs:integer) { \$x })(\'hello\')',
+        ),
+        throwsA(isXPathEvaluationException(message: contains('XPTY0004'))),
+      );
+    });
+
+    test('no error when declared type matches', () {
+      expectEvaluate(
+        xml,
+        '(function(\$x as xs:integer) { \$x })(42)',
+        orderedEquals([42]),
+      );
+    });
+
+    test('no error when parameter is untyped', () {
+      expectEvaluate(
+        xml,
+        "(function(\$x) { \$x })('hello')",
+        orderedEquals(['hello']),
+      );
+    });
+
+    test('instance of typed function type', () {
+      // Typed inline function satisfies the declared signature.
+      expectEvaluate(
+        xml,
+        'function(\$x as xs:integer) as xs:integer { \$x } '
+        'instance of function(xs:integer) as xs:integer',
+        orderedEquals([true]),
+      );
+      // Wrong declared return type is not a match.
+      expectEvaluate(
+        xml,
+        'function(\$x as xs:integer) as xs:integer { \$x } '
+        'instance of function(xs:integer) as xs:string',
+        orderedEquals([false]),
+      );
+    });
+  });
+
+  group('XPST0051', () {
+    test('unknown type in instance of raises parser error', () {
+      expect(
+        () => xml.xpathEvaluate('1 instance of xs:unknownType'),
+        throwsA(isA<XPathParserException>()),
+      );
+    });
+
+    test('bare NCName in instance of raises parser error', () {
+      expect(
+        () => xml.xpathEvaluate('1 instance of integer'),
+        throwsA(isA<XPathParserException>()),
+      );
+    });
+  });
 }

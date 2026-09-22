@@ -11,11 +11,13 @@ import '../../xml/nodes/processing.dart';
 import '../../xml/nodes/text.dart';
 import '../../xml/utils/name.dart';
 import '../../xml/utils/namespace.dart';
+import '../evaluation/cardinality.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/atomic/string.dart';
 import '../xdm/function_item.dart';
 import '../xdm/item.dart';
 import '../xdm/sequence.dart';
+import '../xdm/types.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-name
 final fnName = XPathFunctionItem.overloaded(
@@ -28,6 +30,16 @@ final fnName = XPathFunctionItem.overloaded(
     1: XPathFunctionItem.fn1(
       const XmlName.qualified('fn:name'),
       (context, arg) => _evalName(arg.firstOrNull as XPathNode?),
+      parameterTypes: const [
+        XPathSequenceType(
+          itemType: xsNode,
+          cardinality: XPathCardinality.zeroOrOne,
+        ),
+      ],
+      returnType: const XPathSequenceType(
+        itemType: xsString,
+        cardinality: XPathCardinality.exactlyOne,
+      ),
     ),
   },
 );

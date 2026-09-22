@@ -18,6 +18,18 @@ enum XPathCardinality {
   /// The suffix of the cardinality.
   final String suffix;
 
+  /// Returns `true` if this cardinality is a subset of [other].
+  bool isSubtypeOf(XPathCardinality other) => switch (this) {
+    XPathCardinality.exactlyOne => true,
+    XPathCardinality.zeroOrOne =>
+      other == XPathCardinality.zeroOrOne ||
+          other == XPathCardinality.zeroOrMore,
+    XPathCardinality.oneOrMore =>
+      other == XPathCardinality.oneOrMore ||
+          other == XPathCardinality.zeroOrMore,
+    XPathCardinality.zeroOrMore => other == XPathCardinality.zeroOrMore,
+  };
+
   @override
   String toString() => suffix;
 }

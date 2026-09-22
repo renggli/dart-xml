@@ -1,8 +1,15 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/cardinality.dart';
+import 'package:xml/src/xpath/functions/node.dart';
 import 'package:xml/src/xpath/xdm/atomic.dart';
+import 'package:xml/src/xpath/xdm/function_item.dart';
+import 'package:xml/src/xpath/xdm/functions/array.dart';
 import 'package:xml/src/xpath/xdm/sequence.dart';
 import 'package:xml/src/xpath/xdm/types.dart';
+
+/// The arity-1 variant of `fn:name` with declared param `node()?` and return `xs:string`.
+XPathFunctionItem get fnName1 =>
+    (fnName as XPathOverloadedFunction).byArity[1]!;
 
 void main() {
   group('XPathType hierarchy and subtypes', () {
@@ -163,6 +170,233 @@ void main() {
       expect(standardTypes['map(*)'], equals(xsMap));
       expect(standardTypes['array(*)'], equals(xsArray));
       expect(standardTypes['non-existent-type'], isNull);
+    });
+  });
+
+  group('XPathArrayType', () {
+    test('isAny for default constructor', () {
+      const t = XPathArrayType();
+      expect(t.name, equals('array(*)'));
+      expect(t.memberType, equals(xsSequence));
+    });
+
+    test('named member type', () {
+      const t = XPathArrayType(xsInteger);
+      expect(t.name, equals('array(xs:integer)'));
+    });
+
+    test('isSubtypeOf hierarchy', () {
+      const anyArray = XPathArrayType();
+      const intArray = XPathArrayType(xsInteger);
+      // typed array is subtype of array(*) (the constant)
+      expect(intArray.isSubtypeOf(xsArray), isTrue);
+      // typed array is subtype of anyArray
+      expect(intArray.isSubtypeOf(anyArray), isTrue);
+      // array(*) is subtype of function(*) and item()
+      expect(xsArray.isSubtypeOf(xsFunction), isTrue);
+      expect(xsArray.isSubtypeOf(xsItem), isTrue);
+      // anyArray is subtype of anyArray
+      expect(anyArray.isSubtypeOf(anyArray), isTrue);
+      // anyArray is NOT subtype of typed array
+      expect(anyArray.isSubtypeOf(intArray), isFalse);
+      // intArray is NOT subtype of string array
+      expect(intArray.isSubtypeOf(const XPathArrayType(xsString)), isFalse);
+    });
+
+    test('matchesItem filters by member type', () {
+      const arr = XPathArray([]);
+      const anyArray = XPathArrayType();
+      expect(anyArray.matchesItem(arr), isTrue);
+
+      final intArr = XPathArray([
+        XPathSequence.single(XPathInteger.fromInt(1)),
+        XPathSequence.single(XPathInteger.fromInt(2)),
+      ]);
+      const intArray = XPathArrayType(xsInteger);
+      expect(intArray.matchesItem(intArr), isTrue);
+
+      const strArray = XPathArrayType(xsString);
+      expect(strArray.matchesItem(intArr), isFalse);
+    });
+  });
+
+  group('XPathMapType', () {
+    test('wildcard map', () {
+      const t = XPathMapType();
+      expect(t.name, equals('map(*)'));
+    });
+
+    test('typed map name', () {
+      const t = XPathMapType(xsInteger, xsString);
+      expect(t.name, equals('map(xs:integer, xs:string)'));
+    });
+
+    test('isSubtypeOf hierarchy', () {
+      const anyMap = XPathMapType();
+      const intStrMap = XPathMapType(xsInteger, xsString);
+      // typed map is subtype of map(*)
+      expect(intStrMap.isSubtypeOf(xsMap), isTrue);
+      expect(intStrMap.isSubtypeOf(anyMap), isTrue);
+      // map(*) is subtype of function(*) and item()
+      expect(xsMap.isSubtypeOf(xsFunction), isTrue);
+      expect(xsMap.isSubtypeOf(xsItem), isTrue);
+      // anyMap is NOT subtype of typed map
+      expect(anyMap.isSubtypeOf(intStrMap), isFalse);
+      // map(xs:integer, xs:string) IS subtype of map(xs:decimal, xs:string)
+      // (xs:integer is subtype of xs:decimal, xs:string is subtype of xs:string)
+      expect(
+        intStrMap.isSubtypeOf(const XPathMapType(xsDecimal, xsString)),
+        isTrue,
+      );
+    });
+
+    test('isSubtypeOf function type (map-as-function)', () {
+      const intStrMap = XPathMapType(xsInteger, xsString);
+      // map(xs:integer, xs:string) is subtype of function(xs:anyAtomicType) as item()*
+      expect(
+        intStrMap.isSubtypeOf(
+          const XPathFunctionType(
+            parameterTypes: [
+              XPathSequenceType(
+                itemType: xsAnyAtomicType,
+                cardinality: XPathCardinality.exactlyOne,
+              ),
+            ],
+            returnType: XPathSequenceType(
+              itemType: xsItem,
+              cardinality: XPathCardinality.zeroOrMore,
+            ),
+          ),
+        ),
+        isTrue,
+      );
+      // map(xs:integer, xs:string) is NOT subtype of function(xs:string) as item()*
+      // because xs:integer is NOT subtype of xs:string
+      expect(
+        intStrMap.isSubtypeOf(
+          const XPathFunctionType(
+            parameterTypes: [
+              XPathSequenceType(
+                itemType: xsString,
+                cardinality: XPathCardinality.exactlyOne,
+              ),
+            ],
+          ),
+        ),
+        isFalse,
+      );
+    });
+  });
+
+  group('XPathFunctionType', () {
+    test('wildcard function', () {
+      const t = XPathFunctionType();
+      expect(t.name, equals('function(*)'));
+      expect(t.isAny, isTrue);
+    });
+
+    test('typed function name', () {
+      const t = XPathFunctionType(
+        parameterTypes: [
+          XPathSequenceType(
+            itemType: xsInteger,
+            cardinality: XPathCardinality.exactlyOne,
+          ),
+        ],
+        returnType: XPathSequenceType(
+          itemType: xsString,
+          cardinality: XPathCardinality.exactlyOne,
+        ),
+      );
+      expect(t.name, equals('function(xs:integer) as xs:string'));
+    });
+
+    test('isSubtypeOf hierarchy', () {
+      const anyFn = XPathFunctionType();
+      // Any typed function is subtype of function(*)
+      expect(
+        const XPathFunctionType(
+          parameterTypes: [
+            XPathSequenceType(
+              itemType: xsInteger,
+              cardinality: XPathCardinality.exactlyOne,
+            ),
+          ],
+        ).isSubtypeOf(anyFn),
+        isTrue,
+      );
+      // function(*) is subtype of function(*) (same)
+      expect(anyFn.isSubtypeOf(anyFn), isTrue);
+      // function(*) is subtype of xsFunction and xsItem
+      expect(anyFn.isSubtypeOf(xsFunction), isTrue);
+      expect(anyFn.isSubtypeOf(xsItem), isTrue);
+    });
+
+    test('isSubtypeOf contravariance and covariance', () {
+      // function(node()?) as xs:string is subtype of function(element()) as xs:string
+      // because element() IS subtype of node()? (contravariance: test param subtype of fn param)
+      const fnNodeOptStr = XPathFunctionType(
+        parameterTypes: [
+          XPathSequenceType(
+            itemType: xsNode,
+            cardinality: XPathCardinality.zeroOrOne,
+          ),
+        ],
+        returnType: XPathSequenceType(
+          itemType: xsString,
+          cardinality: XPathCardinality.exactlyOne,
+        ),
+      );
+      const testElemStr = XPathFunctionType(
+        parameterTypes: [
+          XPathSequenceType(
+            itemType: xsElement,
+            cardinality: XPathCardinality.exactlyOne,
+          ),
+        ],
+        returnType: XPathSequenceType(
+          itemType: xsString,
+          cardinality: XPathCardinality.exactlyOne,
+        ),
+      );
+      expect(fnNodeOptStr.isSubtypeOf(testElemStr), isTrue);
+      // Not the reverse: function(element()) as xs:string is NOT subtype of
+      // function(node()?) as xs:string (node()? is NOT subtype of element())
+      expect(testElemStr.isSubtypeOf(fnNodeOptStr), isFalse);
+    });
+
+    test('matchesItem on typed function item', () {
+      const fnType = XPathFunctionType(
+        parameterTypes: [
+          XPathSequenceType(
+            itemType: xsNode,
+            cardinality: XPathCardinality.zeroOrOne,
+          ),
+        ],
+        returnType: XPathSequenceType(
+          itemType: xsString,
+          cardinality: XPathCardinality.exactlyOne,
+        ),
+      );
+      // Wildcard function(*) matches any function item.
+      const anyFnType = XPathFunctionType();
+      expect(anyFnType.matchesItem(fnName1), isTrue);
+      // Exact declared type matches.
+      expect(fnType.matchesItem(fnName1), isTrue);
+      // Mismatched return type is not a match.
+      const wrongReturnType = XPathFunctionType(
+        parameterTypes: [
+          XPathSequenceType(
+            itemType: xsNode,
+            cardinality: XPathCardinality.zeroOrOne,
+          ),
+        ],
+        returnType: XPathSequenceType(
+          itemType: xsInteger,
+          cardinality: XPathCardinality.exactlyOne,
+        ),
+      );
+      expect(wrongReturnType.matchesItem(fnName1), isFalse);
     });
   });
 }

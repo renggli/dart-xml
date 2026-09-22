@@ -4,6 +4,7 @@ import '../evaluation/expression.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/function_item.dart';
 import '../xdm/sequence.dart';
+import '../xdm/types.dart';
 import 'variable.dart';
 
 class FunctionExpression implements XPathExpression {
@@ -30,15 +31,33 @@ class FunctionExpression implements XPathExpression {
   }
 }
 
+/// Represents an inline `function($param as T) as R { ... }` expression.
 class InlineFunctionExpression implements XPathExpression {
-  const new(this.expression, this.parameters);
+  const new(
+    this.expression,
+    this.parameters, [
+    this.parameterTypes,
+    this.returnType,
+  ]);
 
   final XPathExpression expression;
   final List<String> parameters;
 
+  /// Optional declared type for each parameter (`null` = untyped).
+  final List<XPathType?>? parameterTypes;
+
+  /// Optional declared return type.
+  final XPathType? returnType;
+
   @override
   XPathSequence call(XPathContext context) => XPathSequence.single(
-    _XPathInlineFunction(expression, context, parameters),
+    _XPathInlineFunction(
+      expression,
+      context,
+      parameters,
+      parameterTypes,
+      returnType,
+    ),
   );
 }
 
@@ -161,11 +180,19 @@ XPathSequence _applyPartialFunction(
 }
 
 class _XPathInlineFunction extends XPathFunctionItem {
-  const new(this.expression, this.context, this.parameters);
+  const new(
+    this.expression,
+    this.context,
+    this.parameters,
+    this._declaredParamTypes,
+    this._declaredReturnType,
+  );
 
   final XPathExpression expression;
   final XPathContext context;
   final List<String> parameters;
+  final List<XPathType?>? _declaredParamTypes;
+  final XPathType? _declaredReturnType;
 
   @override
   XmlName? get name => const XmlName.qualified('dynamic-function');
@@ -173,12 +200,37 @@ class _XPathInlineFunction extends XPathFunctionItem {
   @override
   int get arity => parameters.length;
 
+  /// Exposes declared parameter types for `instance of function(T) as R` matching.
+  ///
+  /// Each entry is the declared type, or [xsSequence] (`item()*`) for untyped params.
+  @override
+  List<XPathType>? get parameterTypes {
+    final types = _declaredParamTypes;
+    if (types == null) return null;
+    return [for (final t in types) t ?? xsSequence];
+  }
+
+  @override
+  XPathType? get returnType => _declaredReturnType;
+
   @override
   XPathSequence call(XPathContext context, List<XPathSequence> arguments) {
     if (arguments.length != parameters.length) {
       throw XPathEvaluationException(
         'Expected ${parameters.length} arguments, but got ${arguments.length}',
       );
+    }
+    final types = _declaredParamTypes;
+    if (types != null) {
+      for (var i = 0; i < parameters.length; i++) {
+        final expected = types[i];
+        if (expected != null && !expected.matchesSequence(arguments[i])) {
+          throw XPathEvaluationException(
+            'Argument ${i + 1} does not match declared type $expected '
+            '[err:XPTY0004]',
+          );
+        }
+      }
     }
     final localVariables = <String, XPathSequence>{
       for (var i = 0; i < parameters.length; i++) parameters[i]: arguments[i],

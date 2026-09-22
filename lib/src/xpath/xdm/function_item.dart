@@ -36,27 +36,58 @@ abstract class XPathFunctionItem implements XPathItem {
     XmlName? name,
     required int arity,
     required XPathFunctionN function,
+    List<XPathType>? parameterTypes,
+    XPathType? returnType,
   }) = _XPathFunctionN.named;
 
   /// Creates a function item with 0 arguments.
-  const factory fn0(XmlName? name, XPathFunction0 function) = _XPathFunction0;
+  const factory fn0(
+    XmlName? name,
+    XPathFunction0 function, {
+    XPathType? returnType,
+  }) = _XPathFunction0;
 
   /// Creates a function item with 1 argument.
-  const factory fn1(XmlName? name, XPathFunction1 function) = _XPathFunction1;
+  const factory fn1(
+    XmlName? name,
+    XPathFunction1 function, {
+    List<XPathType>? parameterTypes,
+    XPathType? returnType,
+  }) = _XPathFunction1;
 
   /// Creates a function item with 2 arguments.
-  const factory fn2(XmlName? name, XPathFunction2 function) = _XPathFunction2;
+  const factory fn2(
+    XmlName? name,
+    XPathFunction2 function, {
+    List<XPathType>? parameterTypes,
+    XPathType? returnType,
+  }) = _XPathFunction2;
 
   /// Creates a function item with 3 arguments.
-  const factory fn3(XmlName? name, XPathFunction3 function) = _XPathFunction3;
+  const factory fn3(
+    XmlName? name,
+    XPathFunction3 function, {
+    List<XPathType>? parameterTypes,
+    XPathType? returnType,
+  }) = _XPathFunction3;
 
   /// Creates a function item with [arity] arguments taking a list.
-  const factory fnN(XmlName? name, int arity, XPathFunctionN function) =
-      _XPathFunctionN;
+  const factory fnN(
+    XmlName? name,
+    int arity,
+    XPathFunctionN function, {
+    List<XPathType>? parameterTypes,
+    XPathType? returnType,
+  }) = _XPathFunctionN;
 
   /// Creates a variadic function item with minimum arity [minArity].
-  const factory variadic(XmlName? name, int minArity, XPathFunctionN function) =
-      _XPathVariadicFunction;
+  const factory variadic(
+    XmlName? name,
+    int minArity,
+    XPathFunctionN function, {
+    List<XPathType>? parameterTypes,
+    XPathType? returnType,
+  }) = _XPathVariadicFunction;
 
   /// Creates an overloaded function item that dispatches across arities.
   const factory overloaded(XmlName? name, Map<int, XPathFunctionItem> byArity) =
@@ -71,8 +102,19 @@ abstract class XPathFunctionItem implements XPathItem {
   /// Returns `true` if this function accepts variable arguments (at least [arity]).
   bool get isVariadic => false;
 
+  /// The parameter types of the function, if statically known.
+  List<XPathType>? get parameterTypes => null;
+
+  /// The return type of the function, if statically known.
+  XPathType? get returnType => null;
+
   @override
-  XPathType get type => xsFunction;
+  XPathType get type => parameterTypes != null || returnType != null
+      ? XPathFunctionType(
+          parameterTypes: parameterTypes,
+          returnType: returnType,
+        )
+      : xsFunction;
 
   @override
   XPathAtomic atomize() => throw XPathEvaluationException(
@@ -101,7 +143,7 @@ abstract class XPathFunctionItem implements XPathItem {
 }
 
 class _XPathFunction0 extends XPathFunctionItem {
-  const new(this.name, this._function);
+  const new(this.name, this._function, {this.returnType});
 
   @override
   final XmlName? name;
@@ -110,6 +152,9 @@ class _XPathFunction0 extends XPathFunctionItem {
 
   @override
   int get arity => 0;
+
+  @override
+  final XPathType? returnType;
 
   @override
   XPathSequence call(XPathContext context, List<XPathSequence> arguments) {
@@ -123,7 +168,7 @@ class _XPathFunction0 extends XPathFunctionItem {
 }
 
 class _XPathFunction1 extends XPathFunctionItem {
-  const new(this.name, this._function);
+  const new(this.name, this._function, {this.parameterTypes, this.returnType});
 
   @override
   final XmlName? name;
@@ -132,6 +177,12 @@ class _XPathFunction1 extends XPathFunctionItem {
 
   @override
   int get arity => 1;
+
+  @override
+  final List<XPathType>? parameterTypes;
+
+  @override
+  final XPathType? returnType;
 
   @override
   XPathSequence call(XPathContext context, List<XPathSequence> arguments) {
@@ -145,7 +196,7 @@ class _XPathFunction1 extends XPathFunctionItem {
 }
 
 class _XPathFunction2 extends XPathFunctionItem {
-  const new(this.name, this._function);
+  const new(this.name, this._function, {this.parameterTypes, this.returnType});
 
   @override
   final XmlName? name;
@@ -154,6 +205,12 @@ class _XPathFunction2 extends XPathFunctionItem {
 
   @override
   int get arity => 2;
+
+  @override
+  final List<XPathType>? parameterTypes;
+
+  @override
+  final XPathType? returnType;
 
   @override
   XPathSequence call(XPathContext context, List<XPathSequence> arguments) {
@@ -167,7 +224,7 @@ class _XPathFunction2 extends XPathFunctionItem {
 }
 
 class _XPathFunction3 extends XPathFunctionItem {
-  const new(this.name, this._function);
+  const new(this.name, this._function, {this.parameterTypes, this.returnType});
 
   @override
   final XmlName? name;
@@ -176,6 +233,12 @@ class _XPathFunction3 extends XPathFunctionItem {
 
   @override
   int get arity => 3;
+
+  @override
+  final List<XPathType>? parameterTypes;
+
+  @override
+  final XPathType? returnType;
 
   @override
   XPathSequence call(XPathContext context, List<XPathSequence> arguments) {
@@ -189,9 +252,21 @@ class _XPathFunction3 extends XPathFunctionItem {
 }
 
 class _XPathFunctionN extends XPathFunctionItem {
-  const new(this.name, this.arity, this._function);
+  const new(
+    this.name,
+    this.arity,
+    this._function, {
+    this.parameterTypes,
+    this.returnType,
+  });
 
-  const new named({this.name, required this.arity, required this._function});
+  const new named({
+    this.name,
+    required this.arity,
+    required this._function,
+    this.parameterTypes,
+    this.returnType,
+  });
 
   @override
   final XmlName? name;
@@ -200,6 +275,12 @@ class _XPathFunctionN extends XPathFunctionItem {
   final int arity;
 
   final XPathFunctionN _function;
+
+  @override
+  final List<XPathType>? parameterTypes;
+
+  @override
+  final XPathType? returnType;
 
   @override
   XPathSequence call(XPathContext context, List<XPathSequence> arguments) {
@@ -227,6 +308,12 @@ class XPathOverloadedFunction extends XPathFunctionItem {
   XPathFunctionItem? getForArity(int arity) => byArity[arity];
 
   @override
+  List<XPathType>? get parameterTypes => byArity[arity]?.parameterTypes;
+
+  @override
+  XPathType? get returnType => byArity[arity]?.returnType;
+
+  @override
   XPathSequence call(XPathContext context, List<XPathSequence> arguments) {
     final func = byArity[arguments.length];
     if (func != null) {
@@ -239,7 +326,13 @@ class XPathOverloadedFunction extends XPathFunctionItem {
 }
 
 class _XPathVariadicFunction extends XPathFunctionItem {
-  const new(this.name, this.minArity, this._function);
+  const new(
+    this.name,
+    this.minArity,
+    this._function, {
+    this.parameterTypes,
+    this.returnType,
+  });
 
   @override
   final XmlName? name;
@@ -253,6 +346,12 @@ class _XPathVariadicFunction extends XPathFunctionItem {
   bool get isVariadic => true;
 
   final XPathFunctionN _function;
+
+  @override
+  final List<XPathType>? parameterTypes;
+
+  @override
+  final XPathType? returnType;
 
   @override
   XPathSequence call(XPathContext context, List<XPathSequence> arguments) {

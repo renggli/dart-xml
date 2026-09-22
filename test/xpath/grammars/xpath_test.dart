@@ -168,7 +168,6 @@ void main() {
 
   group('unimplemented', () {
     final expressions = [
-      '1 instance of xs:unknownType',
       'document-node(schema-element(foo))',
       'attribute(foo, xs:integer)',
       'element(foo, xs:integer)',
@@ -178,6 +177,18 @@ void main() {
         expect(
           () => parser.parse(expression),
           throwsA(isA<UnimplementedError>()),
+        );
+      });
+    }
+  });
+
+  group('XPST0051', () {
+    final expressions = ['1 instance of xs:unknownType'];
+    for (final expression in expressions) {
+      test(expression, () {
+        expect(
+          () => parser.parse(expression),
+          throwsA(isA<XPathParserException>()),
         );
       });
     }
