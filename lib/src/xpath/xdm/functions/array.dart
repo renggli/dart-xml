@@ -1,4 +1,5 @@
 import '../../evaluation/context.dart';
+import '../../exceptions/error_code.dart';
 import '../../exceptions/evaluation_exception.dart';
 import '../atomic/numeric.dart';
 import '../function_item.dart';
@@ -35,18 +36,21 @@ final class XPathArray extends XPathFunctionItem {
   XPathSequence call(XPathContext context, List<XPathSequence> arguments) {
     if (arguments.length != 1) {
       throw XPathEvaluationException(
+        XPathErrorCode.FOAP0001,
         'Arrays expect exactly 1 argument, but got ${arguments.length}',
       );
     }
     final arg = arguments.single.atomize().firstOrNull;
     if (arg is! XPathInteger) {
       throw XPathEvaluationException(
+        XPathErrorCode.XPTY0004,
         'Array index must be an integer, got ${arg?.type}',
       );
     }
     final idx = arg.value.toInt();
     if (idx < 1 || idx > members.length) {
       throw XPathEvaluationException(
+        XPathErrorCode.FOAY0001,
         'Array index out of bounds: $idx (length: ${members.length})',
       );
     }

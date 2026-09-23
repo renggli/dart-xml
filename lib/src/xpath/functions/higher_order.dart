@@ -1,6 +1,7 @@
 import '../../xml/utils/name.dart';
 import '../evaluation/cardinality.dart';
 import '../evaluation/context.dart';
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/atomic/numeric.dart';
 import '../xdm/atomic/qname.dart';
@@ -275,24 +276,28 @@ XPathSequence _fnFunctionLookup(
 ) {
   if (qnameSeq.length != 1) {
     throw XPathEvaluationException(
-      'Expected single QName for function-lookup [err:XPTY0004]',
+      XPathErrorCode.XPTY0004,
+      'Expected single QName for function-lookup',
     );
   }
   final qname = qnameSeq.single;
   if (qname is! XPathQName) {
     throw XPathEvaluationException(
-      'Expected xs:QName for function-lookup [err:XPTY0004]',
+      XPathErrorCode.XPTY0004,
+      'Expected xs:QName for function-lookup',
     );
   }
   if (aritySeq.length != 1) {
     throw XPathEvaluationException(
-      'Expected single integer for function-lookup [err:XPTY0004]',
+      XPathErrorCode.XPTY0004,
+      'Expected single integer for function-lookup',
     );
   }
   final arity = aritySeq.single;
   if (arity is! XPathInteger) {
     throw XPathEvaluationException(
-      'Expected xs:integer for function-lookup [err:XPTY0004]',
+      XPathErrorCode.XPTY0004,
+      'Expected xs:integer for function-lookup',
     );
   }
   final arityInt = arity.asInt;

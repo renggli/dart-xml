@@ -1,3 +1,4 @@
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/atomic/duration.dart';
 import '../xdm/atomic/numeric.dart';
@@ -129,10 +130,14 @@ XPathSequence opMultiplyDuration(XPathSequence left, XPathSequence right) {
   final duration = left.single as XPathDuration;
   final factor = (right.single as XPathNumeric).toDouble();
   if (factor.isNaN) {
-    throw XPathEvaluationException('NaN multiplier in duration multiplication');
+    throw XPathEvaluationException(
+      XPathErrorCode.FOCA0005,
+      'NaN multiplier in duration multiplication',
+    );
   }
   if (factor.isInfinite) {
     throw XPathEvaluationException(
+      XPathErrorCode.FODT0002,
       'Overflow: duration multiplication by Infinity',
     );
   }
@@ -153,10 +158,14 @@ XPathSequence opMultiplyYearMonthDuration(
   final duration = left.single as XPathYearMonthDuration;
   final factor = (right.single as XPathNumeric).toDouble();
   if (factor.isNaN) {
-    throw XPathEvaluationException('NaN multiplier in duration multiplication');
+    throw XPathEvaluationException(
+      XPathErrorCode.FOCA0005,
+      'NaN multiplier in duration multiplication',
+    );
   }
   if (factor.isInfinite) {
     throw XPathEvaluationException(
+      XPathErrorCode.FODT0002,
       'Overflow: duration multiplication by Infinity',
     );
   }
@@ -172,10 +181,14 @@ XPathSequence opMultiplyDayTimeDuration(
   final duration = left.single as XPathDayTimeDuration;
   final factor = (right.single as XPathNumeric).toDouble();
   if (factor.isNaN) {
-    throw XPathEvaluationException('NaN multiplier in duration multiplication');
+    throw XPathEvaluationException(
+      XPathErrorCode.FOCA0005,
+      'NaN multiplier in duration multiplication',
+    );
   }
   if (factor.isInfinite) {
     throw XPathEvaluationException(
+      XPathErrorCode.FODT0002,
       'Overflow: duration multiplication by Infinity',
     );
   }
@@ -187,13 +200,18 @@ XPathSequence opDivideDuration(XPathSequence left, XPathSequence right) {
   final duration = left.single as XPathDuration;
   final divisor = (right.single as XPathNumeric).toDouble();
   if (divisor.isNaN) {
-    throw XPathEvaluationException('NaN divisor in duration division');
+    throw XPathEvaluationException(
+      XPathErrorCode.FOCA0005,
+      'NaN divisor in duration division',
+    );
   }
   if (divisor.isInfinite) {
     return const XPathSequence.single(XPathDuration());
   }
   final rounded = divisor.round();
-  if (rounded == 0) throw XPathEvaluationException('Division by zero');
+  if (rounded == 0) {
+    throw XPathEvaluationException(XPathErrorCode.FOAR0001, 'Division by zero');
+  }
   return XPathSequence.single(
     XPathDuration.fromValues(
       duration.totalMonths ~/ rounded,
@@ -211,13 +229,18 @@ XPathSequence opDivideYearMonthDuration(
   final duration = left.single as XPathYearMonthDuration;
   final divisor = (right.single as XPathNumeric).toDouble();
   if (divisor.isNaN) {
-    throw XPathEvaluationException('NaN divisor in duration division');
+    throw XPathEvaluationException(
+      XPathErrorCode.FOCA0005,
+      'NaN divisor in duration division',
+    );
   }
   if (divisor.isInfinite) {
     return const XPathSequence.single(XPathYearMonthDuration(0));
   }
   final rounded = divisor.round();
-  if (rounded == 0) throw XPathEvaluationException('Division by zero');
+  if (rounded == 0) {
+    throw XPathEvaluationException(XPathErrorCode.FOAR0001, 'Division by zero');
+  }
   return XPathSequence.single(duration ~/ rounded);
 }
 
@@ -227,13 +250,18 @@ XPathSequence opDivideDayTimeDuration(XPathSequence left, XPathSequence right) {
   final duration = left.single as XPathDayTimeDuration;
   final divisor = (right.single as XPathNumeric).toDouble();
   if (divisor.isNaN) {
-    throw XPathEvaluationException('NaN divisor in duration division');
+    throw XPathEvaluationException(
+      XPathErrorCode.FOCA0005,
+      'NaN divisor in duration division',
+    );
   }
   if (divisor.isInfinite) {
     return const XPathSequence.single(XPathDayTimeDuration(0));
   }
   final rounded = divisor.round();
-  if (rounded == 0) throw XPathEvaluationException('Division by zero');
+  if (rounded == 0) {
+    throw XPathEvaluationException(XPathErrorCode.FOAR0001, 'Division by zero');
+  }
   return XPathSequence.single(duration ~/ rounded);
 }
 
@@ -245,7 +273,7 @@ XPathSequence opDivideDurationByDuration(
   final d1 = left.single as XPathDayTimeDuration;
   final divisor = right.single as XPathDayTimeDuration;
   if (divisor.totalMicroseconds == 0) {
-    throw XPathEvaluationException('Division by zero');
+    throw XPathEvaluationException(XPathErrorCode.FOAR0001, 'Division by zero');
   }
   return XPathSequence.single(
     XPathDouble(d1.totalMicroseconds / divisor.totalMicroseconds),
@@ -261,7 +289,7 @@ XPathSequence opDivideYearMonthDurationByYearMonthDuration(
   final d1 = left.single as XPathYearMonthDuration;
   final divisor = right.single as XPathYearMonthDuration;
   if (divisor.totalMonths == 0) {
-    throw XPathEvaluationException('Division by zero');
+    throw XPathEvaluationException(XPathErrorCode.FOAR0001, 'Division by zero');
   }
   return XPathSequence.single(
     XPathDouble(d1.totalMonths / divisor.totalMonths),

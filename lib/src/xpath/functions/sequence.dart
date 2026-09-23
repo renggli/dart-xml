@@ -1,6 +1,7 @@
 import '../../xml/nodes/attribute.dart';
 import '../../xml/nodes/element.dart';
 import '../../xml/utils/name.dart';
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/atomic.dart';
 import '../xdm/function_item.dart';
@@ -341,6 +342,7 @@ bool _deepEqual(Object? a, Object? b) {
       return true;
     }
     throw XPathEvaluationException(
+      XPathErrorCode.FOTY0015,
       'Cannot compare function items with deep-equal',
     );
   }
@@ -411,7 +413,10 @@ final fnZeroOrOne = XPathFunctionItem.fn1(
   const XmlName.qualified('fn:zero-or-one'),
   (context, arg) {
     if (arg.length > 1) {
-      throw XPathEvaluationException('Sequence has more than one item');
+      throw XPathEvaluationException(
+        XPathErrorCode.FORG0003,
+        'Sequence has more than one item',
+      );
     }
     return arg;
   },
@@ -422,7 +427,10 @@ final fnOneOrMore = XPathFunctionItem.fn1(
   const XmlName.qualified('fn:one-or-more'),
   (context, arg) {
     if (arg.isEmpty) {
-      throw XPathEvaluationException('Sequence is empty');
+      throw XPathEvaluationException(
+        XPathErrorCode.FORG0004,
+        'Sequence is empty',
+      );
     }
     return arg;
   },
@@ -433,7 +441,10 @@ final fnExactlyOne = XPathFunctionItem.fn1(
   const XmlName.qualified('fn:exactly-one'),
   (context, arg) {
     if (arg.length != 1) {
-      throw XPathEvaluationException('Sequence does not have exactly one item');
+      throw XPathEvaluationException(
+        XPathErrorCode.FORG0005,
+        'Sequence does not have exactly one item',
+      );
     }
     return arg;
   },
@@ -455,6 +466,7 @@ final fnAvg = XPathFunctionItem.fn1(const XmlName.qualified('fn:avg'), (
       final d = double.tryParse(a.value);
       if (d != null) return XPathDouble(d);
       throw XPathEvaluationException(
+        XPathErrorCode.FORG0001,
         'Cannot cast untypedAtomic "${a.value}" to double',
       );
     }
@@ -467,6 +479,7 @@ final fnAvg = XPathFunctionItem.fn1(const XmlName.qualified('fn:avg'), (
 
   if (!allNumeric && !allDuration) {
     throw XPathEvaluationException(
+      XPathErrorCode.FORG0006,
       'fn:avg: mixed or unsupported argument types',
     );
   }
@@ -484,6 +497,7 @@ final fnAvg = XPathFunctionItem.fn1(const XmlName.qualified('fn:avg'), (
 
     if (!allYearMonth && !allDayTime) {
       throw XPathEvaluationException(
+        XPathErrorCode.FORG0006,
         'fn:avg: mixed or unsupported duration types',
       );
     }
@@ -539,6 +553,7 @@ List<XPathAtomic> _prepareMinMax(XPathSequence arg) {
         val = XPathDouble(d);
       } else {
         throw XPathEvaluationException(
+          XPathErrorCode.FORG0001,
           'Cannot cast untypedAtomic to double in min/max',
         );
       }
@@ -552,7 +567,8 @@ List<XPathAtomic> _prepareMinMax(XPathSequence arg) {
   }
   if (hasNumeric && hasString) {
     throw XPathEvaluationException(
-      'fn:min/fn:max cannot compare numeric and string values [err:FORG0006]',
+      XPathErrorCode.FORG0006,
+      'fn:min/fn:max cannot compare numeric and string values',
     );
   }
   return items;
@@ -624,6 +640,7 @@ XPathSequence _evalSum(XPathSequence arg, XPathSequence? zero) {
       final d = double.tryParse(a.value);
       if (d != null) return XPathDouble(d);
       throw XPathEvaluationException(
+        XPathErrorCode.FORG0001,
         'Cannot cast untypedAtomic "${a.value}" to double',
       );
     }
@@ -639,6 +656,7 @@ XPathSequence _evalSum(XPathSequence arg, XPathSequence? zero) {
 
   if (!allNumeric && !allDuration) {
     throw XPathEvaluationException(
+      XPathErrorCode.FORG0006,
       'fn:sum: mixed or unsupported argument types',
     );
   }
@@ -655,6 +673,7 @@ XPathSequence _evalSum(XPathSequence arg, XPathSequence? zero) {
 
     if (!allYearMonth && !allDayTime) {
       throw XPathEvaluationException(
+        XPathErrorCode.FORG0006,
         'fn:sum: mixed or unsupported duration types',
       );
     }

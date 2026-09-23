@@ -1,5 +1,6 @@
 import '../../xml/utils/cache.dart';
 import '../../xml/utils/name.dart';
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/atomic/boolean.dart';
 import '../xdm/atomic/numeric.dart';
@@ -18,6 +19,7 @@ final fnCodepointsToString = XPathFunctionItem.fn1(
         return _isValidXmlChar(codepoint)
             ? codepoint
             : throw XPathEvaluationException(
+                XPathErrorCode.FOCH0001,
                 'Invalid character code: $codepoint',
               );
       }),
@@ -567,13 +569,17 @@ final fnAnalyzeString = XPathFunctionItem.overloaded(
   {
     2: XPathFunctionItem.fn2(
       const XmlName.qualified('fn:analyze-string'),
-      (context, input, pattern) =>
-          throw XPathEvaluationException('Not implemented: fn:analyze-string'),
+      (context, input, pattern) => throw XPathEvaluationException(
+        XPathErrorCode.FOER0000,
+        'Not implemented: fn:analyze-string',
+      ),
     ),
     3: XPathFunctionItem.fn3(
       const XmlName.qualified('fn:analyze-string'),
-      (context, input, pattern, flags) =>
-          throw XPathEvaluationException('Not implemented: fn:analyze-string'),
+      (context, input, pattern, flags) => throw XPathEvaluationException(
+        XPathErrorCode.FOER0000,
+        'Not implemented: fn:analyze-string',
+      ),
     ),
   },
 );
@@ -648,7 +654,10 @@ RegExp _compileRegex(String pattern, String? flags) {
       } else if (flag == 'q') {
         isLiteral = true;
       } else if (flag != 'x') {
-        throw XPathEvaluationException('Invalid regex flag: $flag');
+        throw XPathEvaluationException(
+          XPathErrorCode.FORX0001,
+          'Invalid regex flag: $flag',
+        );
       }
     }
   }
@@ -661,7 +670,10 @@ RegExp _compileRegex(String pattern, String? flags) {
       unicode: true,
     );
   } on FormatException catch (error) {
-    throw XPathEvaluationException('Invalid regex: ${error.message}');
+    throw XPathEvaluationException(
+      XPathErrorCode.FORX0002,
+      'Invalid regex: ${error.message}',
+    );
   }
 }
 

@@ -1,5 +1,6 @@
 import '../../xml/utils/name.dart';
 import '../evaluation/context.dart';
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/atomic/date_time.dart';
 import '../xdm/atomic/duration.dart';
@@ -19,6 +20,7 @@ final fnDateTime = XPathFunctionItem.fn2(
     final tz2 = arg2.timezoneOffsetMinutes;
     if (tz1 != null && tz2 != null && tz1 != tz2) {
       throw XPathEvaluationException(
+        XPathErrorCode.FORG0008,
         'Timezone offsets of date and time arguments must match',
       );
     }
@@ -409,14 +411,16 @@ final fnParseIetfDate = XPathFunctionItem.fn1(
     final value = atom.stringValue.trim();
     if (value.isEmpty) {
       throw XPathEvaluationException(
-        'Invalid IETF date format: [err:FORG0010]',
+        XPathErrorCode.FORG0010,
+        'Invalid IETF date format: empty string',
       );
     }
 
     final match = _ietfDateRegExp.firstMatch(value);
     if (match == null) {
       throw XPathEvaluationException(
-        'Invalid IETF date format: $value [err:FORG0010]',
+        XPathErrorCode.FORG0010,
+        'Invalid IETF date format: $value',
       );
     }
 
@@ -430,7 +434,8 @@ final fnParseIetfDate = XPathFunctionItem.fn1(
 
     if (day == null || month == null || year == null) {
       throw XPathEvaluationException(
-        'Invalid date components in IETF date: $value [err:FORG0010]',
+        XPathErrorCode.FORG0010,
+        'Invalid date components in IETF date: $value',
       );
     }
 
@@ -446,7 +451,8 @@ final fnParseIetfDate = XPathFunctionItem.fn1(
 
     if (hr == null || mn == null || sec == null) {
       throw XPathEvaluationException(
-        'Invalid time components in IETF date: $value [err:FORG0010]',
+        XPathErrorCode.FORG0010,
+        'Invalid time components in IETF date: $value',
       );
     }
 
@@ -473,14 +479,16 @@ final fnParseIetfDate = XPathFunctionItem.fn1(
           : 0;
       if (th > 14 || (th == 14 && tm != 0) || tm > 59) {
         throw XPathEvaluationException(
-          'Invalid timezone offset in IETF date: $value [err:FORG0010]',
+          XPathErrorCode.FORG0010,
+          'Invalid timezone offset in IETF date: $value',
         );
       }
       if (tzComment != null) {
         final commentTz = tzComment.trim().toUpperCase();
         if (commentTz.isNotEmpty && !_namedTzOffsets.containsKey(commentTz)) {
           throw XPathEvaluationException(
-            'Unknown timezone name in comment: $tzComment [err:FORG0010]',
+            XPathErrorCode.FORG0010,
+            'Unknown timezone name in comment: $tzComment',
           );
         }
       }
@@ -489,7 +497,8 @@ final fnParseIetfDate = XPathFunctionItem.fn1(
       final off = _namedTzOffsets[tzName.toUpperCase()];
       if (off == null) {
         throw XPathEvaluationException(
-          'Unknown timezone name in IETF date: $tzName [err:FORG0010]',
+          XPathErrorCode.FORG0010,
+          'Unknown timezone name in IETF date: $tzName',
         );
       }
       offsetMinutes = off;
@@ -505,7 +514,8 @@ final fnParseIetfDate = XPathFunctionItem.fn1(
     };
     if (day < 1 || day > daysInMonth) {
       throw XPathEvaluationException(
-        'Day out of range in IETF date: $day [err:FORG0010]',
+        XPathErrorCode.FORG0010,
+        'Day out of range in IETF date: $day',
       );
     }
 
@@ -528,7 +538,8 @@ final fnParseIetfDate = XPathFunctionItem.fn1(
 
     if (hr > 23 || mn > 59 || sec > 59) {
       throw XPathEvaluationException(
-        'Time out of range in IETF date: $hr:$mn:$sec [err:FORG0010]',
+        XPathErrorCode.FORG0010,
+        'Time out of range in IETF date: $hr:$mn:$sec',
       );
     }
 
@@ -628,10 +639,14 @@ XPathAbstractDateTime? _adjustDateTimeHelper(
   if (arg == null) return null;
   if (timezone != null) {
     if (timezone.inMicroseconds.abs() > 14 * 3600 * 1000000) {
-      throw XPathEvaluationException('Timezone offset out of range: $timezone');
+      throw XPathEvaluationException(
+        XPathErrorCode.FODT0003,
+        'Timezone offset out of range: $timezone',
+      );
     }
     if (timezone.inMicroseconds % (60 * 1000000) != 0) {
       throw XPathEvaluationException(
+        XPathErrorCode.FODT0003,
         'Timezone offset must be an integral number of minutes: $timezone',
       );
     }

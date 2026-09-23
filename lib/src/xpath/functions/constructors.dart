@@ -1,4 +1,5 @@
 import '../../xml/utils/name.dart';
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/atomic.dart';
 import '../xdm/casting_matrix.dart';
@@ -13,7 +14,10 @@ XPathFunctionItem _atomicConstructor(XmlName name, XPathType targetType) =>
         final value = arg.atomize().firstOrNull;
         if (value == null) return XPathSequence.empty;
         if (targetType == xsError) {
-          throw XPathEvaluationException('Cannot cast to xs:error');
+          throw XPathEvaluationException(
+            XPathErrorCode.FORG0001,
+            'Cannot cast to xs:error',
+          );
         }
         return XPathSequence.single(castAtomic(value, targetType));
       }),
@@ -350,6 +354,9 @@ final xsErrorConstructor = XPathFunctionItem.fn1(
   (context, arg) {
     final value = arg.atomize().firstOrNull;
     if (value == null) return XPathSequence.empty;
-    throw XPathEvaluationException('Cannot cast to xs:error');
+    throw XPathEvaluationException(
+      XPathErrorCode.FORG0001,
+      'Cannot cast to xs:error',
+    );
   },
 );

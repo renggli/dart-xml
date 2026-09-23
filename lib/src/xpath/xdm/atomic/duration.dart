@@ -1,3 +1,4 @@
+import '../../exceptions/error_code.dart';
 import '../../exceptions/evaluation_exception.dart';
 import '../atomic.dart';
 import '../types.dart';
@@ -11,8 +12,10 @@ abstract class XPathAbstractDuration extends XPathAtomic {
   Duration toValue() => toDuration();
 
   @override
-  bool get effectiveBooleanValue =>
-      throw XPathEvaluationException('Cannot compute EBV of duration: $this');
+  bool get effectiveBooleanValue => throw XPathEvaluationException(
+    XPathErrorCode.FORG0006,
+    'Cannot compute EBV of duration: $this',
+  );
 
   /// The number of years in the duration, if applicable.
   int? get years;

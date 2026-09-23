@@ -1,3 +1,4 @@
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/atomic.dart';
 import '../xdm/casting_matrix.dart';
@@ -24,7 +25,8 @@ XPathSequence opGeneralLessThan(XPathSequence left, XPathSequence right) =>
       }
       if (a is XPathQName || b is XPathQName) {
         throw XPathEvaluationException(
-          'Cannot compare QNames for order [err:XPTY0004]',
+          XPathErrorCode.XPTY0004,
+          'Cannot compare QNames for order',
         );
       }
       return compare(a, b) < 0;
@@ -39,7 +41,8 @@ XPathSequence opGeneralGreaterThan(XPathSequence left, XPathSequence right) =>
       }
       if (a is XPathQName || b is XPathQName) {
         throw XPathEvaluationException(
-          'Cannot compare QNames for order [err:XPTY0004]',
+          XPathErrorCode.XPTY0004,
+          'Cannot compare QNames for order',
         );
       }
       return compare(a, b) > 0;
@@ -55,7 +58,8 @@ XPathSequence opGeneralLessThanOrEqual(
   }
   if (a is XPathQName || b is XPathQName) {
     throw XPathEvaluationException(
-      'Cannot compare QNames for order [err:XPTY0004]',
+      XPathErrorCode.XPTY0004,
+      'Cannot compare QNames for order',
     );
   }
   return compare(a, b) <= 0;
@@ -71,7 +75,8 @@ XPathSequence opGeneralGreaterThanOrEqual(
   }
   if (a is XPathQName || b is XPathQName) {
     throw XPathEvaluationException(
-      'Cannot compare QNames for order [err:XPTY0004]',
+      XPathErrorCode.XPTY0004,
+      'Cannot compare QNames for order',
     );
   }
   return compare(a, b) >= 0;
@@ -177,6 +182,7 @@ XPathAtomic _coerceUntyped(XPathUntypedAtomic untyped, XPathAtomic target) {
     return (a, b);
   }
   throw XPathEvaluationException(
-    'Cannot compare ${a.type} and ${b.type} [err:XPTY0004]',
+    XPathErrorCode.XPTY0004,
+    'Cannot compare ${a.type} and ${b.type}',
   );
 }

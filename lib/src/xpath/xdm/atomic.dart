@@ -1,3 +1,4 @@
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import 'item.dart';
 
@@ -26,8 +27,10 @@ abstract class XPathAtomic implements XPathItem, Comparable<XPathAtomic> {
   Object toValue() => value;
 
   @override
-  int compareTo(XPathAtomic other) =>
-      throw XPathEvaluationException('Cannot compare $type with ${other.type}');
+  int compareTo(XPathAtomic other) => throw XPathEvaluationException(
+    XPathErrorCode.XPTY0004,
+    'Cannot compare $type with ${other.type}',
+  );
 
   @override
   String toString() => stringValue;

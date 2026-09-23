@@ -1,6 +1,7 @@
 import '../../xml/utils/name.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/function_item.dart';
 import '../xdm/sequence.dart';
@@ -97,12 +98,14 @@ class ArrowExpression implements XPathExpression {
         final functionSeq = spec(context);
         if (functionSeq.length != 1) {
           throw XPathEvaluationException(
+            XPathErrorCode.XPTY0004,
             'Expected a single function item, but got ${functionSeq.length} items',
           );
         }
         final functionItem = functionSeq.first;
         if (functionItem is! XPathFunctionItem) {
           throw XPathEvaluationException(
+            XPathErrorCode.XPTY0004,
             'Expected a function item, but got ${functionItem.runtimeType}',
           );
         }
@@ -138,12 +141,14 @@ class FunctionCallExpression implements XPathExpression {
     final result = function(context);
     if (result.length != 1) {
       throw XPathEvaluationException(
+        XPathErrorCode.XPTY0004,
         'Expected a single function item, but got ${result.length} items',
       );
     }
     final functionItem = result.first;
     if (functionItem is! XPathFunctionItem) {
       throw XPathEvaluationException(
+        XPathErrorCode.XPTY0004,
         'Expected a function item, but got ${functionItem.runtimeType}',
       );
     }
@@ -217,6 +222,7 @@ class _XPathInlineFunction extends XPathFunctionItem {
   XPathSequence call(XPathContext context, List<XPathSequence> arguments) {
     if (arguments.length != parameters.length) {
       throw XPathEvaluationException(
+        XPathErrorCode.FOAP0001,
         'Expected ${parameters.length} arguments, but got ${arguments.length}',
       );
     }
@@ -226,8 +232,8 @@ class _XPathInlineFunction extends XPathFunctionItem {
         final expected = types[i];
         if (expected != null && !expected.matchesSequence(arguments[i])) {
           throw XPathEvaluationException(
-            'Argument ${i + 1} does not match declared type $expected '
-            '[err:XPTY0004]',
+            XPathErrorCode.XPTY0004,
+            'Argument ${i + 1} does not match declared type $expected',
           );
         }
       }
@@ -259,6 +265,7 @@ class _XPathPartialFunction extends XPathFunctionItem {
       if (argument is ArgumentPlaceholderExpression) {
         if (nestedArgumentIndex >= arguments.length) {
           throw XPathEvaluationException(
+            XPathErrorCode.FOAP0001,
             'Partial function application expects more arguments',
           );
         }
@@ -269,6 +276,7 @@ class _XPathPartialFunction extends XPathFunctionItem {
     }
     if (nestedArgumentIndex < arguments.length) {
       throw XPathEvaluationException(
+        XPathErrorCode.FOAP0001,
         'Partial function application expects fewer arguments',
       );
     }

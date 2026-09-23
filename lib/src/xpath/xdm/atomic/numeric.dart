@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import '../../exceptions/error_code.dart';
 import '../../exceptions/evaluation_exception.dart';
 import '../atomic.dart';
 import '../types.dart';
@@ -93,12 +94,18 @@ final class XPathInteger extends XPathNumeric {
   XPathInteger idiv(XPathNumeric other) => switch (other) {
     final XPathInteger i =>
       i.value == BigInt.zero
-          ? throw XPathEvaluationException('Division by zero')
+          ? throw XPathEvaluationException(
+              XPathErrorCode.FOAR0001,
+              'Division by zero',
+            )
           : XPathInteger(value ~/ i.value),
     final XPathDecimal d => toDecimal().idiv(d),
     final XPathDouble d =>
       d.value == 0 || d.value.isNaN
-          ? throw XPathEvaluationException('Division by zero or NaN in idiv')
+          ? throw XPathEvaluationException(
+              XPathErrorCode.FOAR0001,
+              'Division by zero or NaN in idiv',
+            )
           : XPathInteger(BigInt.from(toDouble() ~/ d.value)),
   };
 
@@ -107,7 +114,8 @@ final class XPathInteger extends XPathNumeric {
     final XPathInteger i =>
       i.value == BigInt.zero
           ? throw XPathEvaluationException(
-              'Division by zero in mod [err:FOAR0001]',
+              XPathErrorCode.FOAR0001,
+              'Division by zero in mod',
             )
           : XPathInteger(value.remainder(i.value)),
     final XPathDecimal d => toDecimal() % d,
@@ -288,7 +296,10 @@ final class XPathDecimal extends XPathNumeric {
 
   XPathDecimal _divDecimal(XPathDecimal other) {
     if (other.unscaledValue == BigInt.zero) {
-      throw XPathEvaluationException('Division by zero');
+      throw XPathEvaluationException(
+        XPathErrorCode.FOAR0001,
+        'Division by zero',
+      );
     }
     const precision = 20;
     final shift = precision + other.scale - scale;
@@ -310,11 +321,17 @@ final class XPathDecimal extends XPathNumeric {
     final XPathInteger i => idiv(i.toDecimal()),
     final XPathDecimal d =>
       d.unscaledValue == BigInt.zero
-          ? throw XPathEvaluationException('Division by zero in idiv')
+          ? throw XPathEvaluationException(
+              XPathErrorCode.FOAR0001,
+              'Division by zero in idiv',
+            )
           : XPathInteger(toBigInt() ~/ d.toBigInt()),
     final XPathDouble d =>
       d.value == 0 || d.value.isNaN
-          ? throw XPathEvaluationException('Division by zero or NaN in idiv')
+          ? throw XPathEvaluationException(
+              XPathErrorCode.FOAR0001,
+              'Division by zero or NaN in idiv',
+            )
           : XPathInteger(BigInt.from(toDouble() ~/ d.value)),
   };
 
@@ -327,7 +344,10 @@ final class XPathDecimal extends XPathNumeric {
 
   XPathDecimal _modDecimal(XPathDecimal other) {
     if (other.unscaledValue == BigInt.zero) {
-      throw XPathEvaluationException('Division by zero in mod [err:FOAR0001]');
+      throw XPathEvaluationException(
+        XPathErrorCode.FOAR0001,
+        'Division by zero in mod',
+      );
     }
     final maxScale = math.max(scale, other.scale);
     final u1 = unscaledValue * _ten.pow(maxScale - scale);
@@ -447,7 +467,10 @@ final class XPathDouble extends XPathNumeric {
   XPathInteger idiv(XPathNumeric other) {
     final otherD = other.toDouble();
     if (otherD == 0.0 || otherD.isNaN || value.isNaN || value.isInfinite) {
-      throw XPathEvaluationException('Invalid operand in idiv');
+      throw XPathEvaluationException(
+        XPathErrorCode.FOAR0001,
+        'Invalid operand in idiv',
+      );
     }
     return XPathInteger(BigInt.from(value ~/ otherD));
   }
@@ -456,7 +479,10 @@ final class XPathDouble extends XPathNumeric {
   XPathNumeric operator %(XPathNumeric other) {
     final otherD = other.toDouble();
     if (otherD == 0.0) {
-      throw XPathEvaluationException('Division by zero in mod [err:FOAR0001]');
+      throw XPathEvaluationException(
+        XPathErrorCode.FOAR0001,
+        'Division by zero in mod',
+      );
     }
     return XPathDouble(value.remainder(otherD));
   }

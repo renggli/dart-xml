@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../grammars/parser.dart';
 import '../xdm/sequence.dart';
@@ -54,7 +55,10 @@ class XPathContext {
     final variable = configuration.variables[name];
     if (variable != null) return variable;
     // If still not found, throw an exception.
-    throw XPathEvaluationException('Unknown variable: $name');
+    throw XPathEvaluationException(
+      XPathErrorCode.XPST0008,
+      'Unknown variable: $name',
+    );
   }
 
   /// Evaluates the given XPath [expression].

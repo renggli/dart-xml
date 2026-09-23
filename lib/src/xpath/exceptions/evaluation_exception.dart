@@ -1,13 +1,15 @@
 import '../../xml/exceptions/exception.dart';
-import '../xdm/types.dart';
+import 'error_code.dart';
 
-/// Exception thrown when calling an XPath functions fails.
+/// Exception thrown when calling an XPath function or evaluating an expression fails.
 class XPathEvaluationException extends XmlException {
-  new(super.message);
+  new(this.errorCode, [this.details]) : super(errorCode.format(details));
 
-  /// Unsupported cast from [value] to [type].
-  static Never unsupportedCast(XPathType type, Object value) =>
-      throw XPathEvaluationException('Unsupported cast from $value to $type');
+  /// The XPath error code.
+  final XPathErrorCode errorCode;
+
+  /// Optional specific details of the error.
+  final String? details;
 
   @override
   String toString() => 'XPathEvaluationException: $message';

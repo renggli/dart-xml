@@ -9,6 +9,7 @@ import 'src/xpath/xdm/item.dart';
 import 'src/xpath/xdm/sequence.dart';
 
 export 'src/xpath/evaluation/configuration.dart';
+export 'src/xpath/exceptions/error_code.dart';
 export 'src/xpath/exceptions/evaluation_exception.dart';
 export 'src/xpath/exceptions/parser_exception.dart';
 export 'src/xpath/generator.dart';

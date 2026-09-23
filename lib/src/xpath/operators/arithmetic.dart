@@ -1,3 +1,4 @@
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/atomic/date_time.dart';
 import '../xdm/atomic/duration.dart';
@@ -14,11 +15,13 @@ XPathNumeric _toNumeric(XPathItem item) {
     final d = XPathDouble.tryParse(item.stringValue);
     if (d != null) return d;
     throw XPathEvaluationException(
-      'Cannot convert untypedAtomic "${item.stringValue}" to xs:double [err:FORG0001]',
+      XPathErrorCode.FORG0001,
+      'Cannot convert untypedAtomic "${item.stringValue}" to xs:double',
     );
   }
   throw XPathEvaluationException(
-    'Expected numeric value, got $item [err:XPTY0004]',
+    XPathErrorCode.XPTY0004,
+    'Expected numeric value, got $item',
   );
 }
 

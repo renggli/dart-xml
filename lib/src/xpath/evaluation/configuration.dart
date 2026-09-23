@@ -1,5 +1,6 @@
 import '../../xml/nodes/node.dart';
 import '../../xml/utils/name.dart';
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/function_item.dart';
 import '../xdm/sequence.dart';
@@ -99,22 +100,28 @@ class XPathConfiguration {
         final specific = function.getForArity(arity);
         if (specific != null) return specific;
         throw XPathEvaluationException(
+          XPathErrorCode.XPST0017,
           'Function "$name" does not support arity $arity',
         );
       }
       if (arity != null && !function.isVariadic && function.arity != arity) {
         throw XPathEvaluationException(
+          XPathErrorCode.XPST0017,
           'Function "$name" does not support arity $arity',
         );
       }
       if (arity != null && function.isVariadic && arity < function.arity) {
         throw XPathEvaluationException(
+          XPathErrorCode.XPST0017,
           'Function "$name" expects at least ${function.arity} arguments, but got $arity',
         );
       }
       return function;
     }
-    throw XPathEvaluationException('Unknown function: $name');
+    throw XPathEvaluationException(
+      XPathErrorCode.XPST0017,
+      'Unknown function: $name',
+    );
   }
 
   /// Looks up a XPath function with the given [name] (string) and optional [arity].

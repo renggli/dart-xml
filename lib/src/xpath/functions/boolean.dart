@@ -2,6 +2,7 @@ import '../../xml/extensions/ancestors.dart';
 import '../../xml/nodes/element.dart';
 import '../../xml/utils/name.dart';
 import '../evaluation/context.dart';
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/atomic/boolean.dart';
 import '../xdm/atomic/string.dart';
@@ -58,7 +59,10 @@ XPathSequence _evalLang(
       ? nodeItem
       : (context.item is XPathNode ? context.item as XPathNode : null);
   if (target == null) {
-    throw XPathEvaluationException('fn:lang requires a context node');
+    throw XPathEvaluationException(
+      XPathErrorCode.XPDY0002,
+      'fn:lang requires a context node',
+    );
   }
   final item = target.node;
   final lang = [item, ...item.ancestors]

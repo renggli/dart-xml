@@ -1,5 +1,6 @@
 import '../../xml/utils/name.dart';
 import '../evaluation/context.dart';
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/atomic/string.dart';
 import '../xdm/function_item.dart';
@@ -13,18 +14,20 @@ const fnError = XPathFunctionItem.overloaded(XmlName.qualified('fn:error'), {
   3: XPathFunctionItem.fn3(XmlName.qualified('fn:error'), _fnError3),
 });
 
-XPathSequence _fnError0(XPathContext context) {
-  throw XPathEvaluationException('');
-}
+XPathSequence _fnError0(XPathContext context) =>
+    throw XPathEvaluationException(XPathErrorCode.FOER0000);
 
 XPathSequence _fnError1(XPathContext context, XPathSequence code) {
   final c = code.firstOrNull;
   final codeStr = c != null
       ? (c is XPathString ? c.value : c.stringValue)
       : null;
-  final buffer = StringBuffer();
-  if (codeStr != null) buffer.write(codeStr);
-  throw XPathEvaluationException(buffer.toString());
+  final errorCode =
+      XPathErrorCode.tryFromCode(codeStr ?? '') ?? XPathErrorCode.FOER0000;
+  throw XPathEvaluationException(
+    errorCode,
+    codeStr != null && codeStr != errorCode.name ? codeStr : null,
+  );
 }
 
 XPathSequence _fnError2(
@@ -40,13 +43,12 @@ XPathSequence _fnError2(
   final descStr = d != null
       ? (d is XPathString ? d.value : d.stringValue)
       : null;
-  final buffer = StringBuffer();
-  if (codeStr != null) buffer.write(codeStr);
-  if (descStr != null) {
-    if (buffer.isNotEmpty) buffer.write(': ');
-    buffer.write(descStr);
-  }
-  throw XPathEvaluationException(buffer.toString());
+  final errorCode =
+      XPathErrorCode.tryFromCode(codeStr ?? '') ?? XPathErrorCode.FOER0000;
+  final details = codeStr != null && codeStr != errorCode.name
+      ? (descStr != null ? '$codeStr: $descStr' : codeStr)
+      : descStr;
+  throw XPathEvaluationException(errorCode, details);
 }
 
 XPathSequence _fnError3(
@@ -63,17 +65,16 @@ XPathSequence _fnError3(
   final descStr = d != null
       ? (d is XPathString ? d.value : d.stringValue)
       : null;
-  final buffer = StringBuffer();
-  if (codeStr != null) buffer.write(codeStr);
-  if (descStr != null) {
-    if (buffer.isNotEmpty) buffer.write(': ');
-    buffer.write(descStr);
-  }
+  final errorCode =
+      XPathErrorCode.tryFromCode(codeStr ?? '') ?? XPathErrorCode.FOER0000;
+  var details = codeStr != null && codeStr != errorCode.name
+      ? (descStr != null ? '$codeStr: $descStr' : codeStr)
+      : descStr;
   if (errorObject.isNotEmpty) {
-    if (buffer.isNotEmpty) buffer.write(' ');
-    buffer.write(errorObject);
+    final itemsStr = errorObject.join(', ');
+    details = details != null ? '$details ($itemsStr)' : '($itemsStr)';
   }
-  throw XPathEvaluationException(buffer.toString());
+  throw XPathEvaluationException(errorCode, details);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-trace

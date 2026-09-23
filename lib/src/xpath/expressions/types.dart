@@ -1,6 +1,7 @@
 import '../evaluation/cardinality.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/casting_matrix.dart';
 import '../xdm/function_item.dart';
@@ -28,7 +29,8 @@ void _validateCastTargetType(XPathType type) {
       target.name == 'xs:anyAtomicType' ||
       target.name == 'xs:NOTATION') {
     throw XPathEvaluationException(
-      'Target type cannot be ${target.name} [err:XPST0080]',
+      XPathErrorCode.XPST0080,
+      'Target type cannot be ${target.name}',
     );
   }
 }
@@ -37,7 +39,8 @@ void _validateCastOperand(XPathSequence sequence) {
   for (final item in sequence) {
     if (item is XPathFunctionItem) {
       throw XPathEvaluationException(
-        'Cannot cast or test castable for a function, map, or array [err:FOTY0013]',
+        XPathErrorCode.FOTY0013,
+        'Cannot cast or test castable for a function, map, or array',
       );
     }
   }
@@ -63,12 +66,14 @@ class CastExpression implements XPathExpression {
           return XPathSequence.empty;
         }
         throw XPathEvaluationException(
-          'Cannot cast empty sequence to required type ${seqType.itemType} [err:XPTY0004]',
+          XPathErrorCode.XPTY0004,
+          'Cannot cast empty sequence to required type ${seqType.itemType}',
         );
       }
       if (sequence.length != 1) {
         throw XPathEvaluationException(
-          'Cannot cast sequence of length ${sequence.length} to ${type.name} [err:XPTY0004]',
+          XPathErrorCode.XPTY0004,
+          'Cannot cast sequence of length ${sequence.length} to ${type.name}',
         );
       }
       return XPathSequence.single(
@@ -77,7 +82,8 @@ class CastExpression implements XPathExpression {
     }
     if (sequence.length != 1) {
       throw XPathEvaluationException(
-        'Cannot cast sequence of length ${sequence.length} to ${type.name} [err:XPTY0004]',
+        XPathErrorCode.XPTY0004,
+        'Cannot cast sequence of length ${sequence.length} to ${type.name}',
       );
     }
     return XPathSequence.single(castAtomic(sequence.single, type));
@@ -130,7 +136,8 @@ class TreatExpression implements XPathExpression {
     final result = expression(context);
     if (type.matchesSequence(result)) return result;
     throw XPathEvaluationException(
-      'Expected $type, but got $result [err:XPDY0050]',
+      XPathErrorCode.XPDY0050,
+      'Expected $type, but got $result',
     );
   }
 }

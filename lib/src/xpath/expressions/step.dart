@@ -4,6 +4,7 @@ import '../../xml/extensions/parent.dart';
 import '../../xml/nodes/node.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart' show XPathExpression;
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/item.dart';
 import '../xdm/sequence.dart';
@@ -29,7 +30,8 @@ class StepExpression implements XPathExpression {
     final item = context.item;
     if (item is! XPathNode) {
       throw XPathEvaluationException(
-        'Step expression requires a node, but got ${item.runtimeType} [err:XPTY0019]',
+        XPathErrorCode.XPTY0019,
+        'Step expression requires a node, but got ${item.runtimeType}',
       );
     }
     var result = <XmlNode>[];
@@ -67,7 +69,8 @@ class RootNodeExpression implements XPathExpression {
     final item = context.item;
     if (item is! XPathNode) {
       throw XPathEvaluationException(
-        'Root expression requires a node, but got ${item.runtimeType} [err:XPTY0019]',
+        XPathErrorCode.XPTY0019,
+        'Root expression requires a node, but got ${item.runtimeType}',
       );
     }
     return XPathSequence.single(XPathNode(item.node.root));

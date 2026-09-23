@@ -6,6 +6,7 @@ import '../../xml/nodes/namespace.dart';
 import '../../xml/nodes/node.dart';
 import '../../xml/nodes/text.dart';
 import '../../xml/utils/name.dart';
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/atomic.dart';
 import '../xdm/function_item.dart';
@@ -75,7 +76,8 @@ class SerializationParameters {
       return fromElement(item.node as XmlElement);
     }
     throw XPathEvaluationException(
-      'Serialization parameters must be a map or an element [err:XPTY0004]',
+      XPathErrorCode.XPTY0004,
+      'Serialization parameters must be a map or an element',
     );
   }
 
@@ -96,7 +98,8 @@ class SerializationParameters {
         continue;
       } else {
         throw XPathEvaluationException(
-          'Serialization parameter key must be xs:string or xs:QName [err:XPTY0004]',
+          XPathErrorCode.XPTY0004,
+          'Serialization parameter key must be xs:string or xs:QName',
         );
       }
 
@@ -109,7 +112,10 @@ class SerializationParameters {
               v != 'text' &&
               v != 'json' &&
               v != 'adaptive') {
-            throw XPathEvaluationException('Unknown method: $v [err:SEPM0016]');
+            throw XPathEvaluationException(
+              XPathErrorCode.SEPM0016,
+              'Unknown method: $v',
+            );
           }
           params.method = v;
 
@@ -140,12 +146,14 @@ class SerializationParameters {
                     : (first.value == 'no' ? false : null);
               } else {
                 throw XPathEvaluationException(
-                  'Invalid standalone value [err:XPTY0004]',
+                  XPathErrorCode.XPTY0004,
+                  'Invalid standalone value',
                 );
               }
             } else {
               throw XPathEvaluationException(
-                'Invalid standalone sequence [err:XPTY0004]',
+                XPathErrorCode.XPTY0004,
+                'Invalid standalone sequence',
               );
             }
           }
@@ -200,7 +208,8 @@ class SerializationParameters {
               list.add(XmlName.parse(it.stringValue));
             } else {
               throw XPathEvaluationException(
-                'cdata-section-elements items must be QNames [err:XPTY0004]',
+                XPathErrorCode.XPTY0004,
+                'cdata-section-elements items must be QNames',
               );
             }
           }
@@ -225,7 +234,8 @@ class SerializationParameters {
               list.add(XmlName.parse(it.stringValue));
             } else {
               throw XPathEvaluationException(
-                'suppress-indentation items must be QNames [err:XPTY0004]',
+                XPathErrorCode.XPTY0004,
+                'suppress-indentation items must be QNames',
               );
             }
           }
@@ -234,7 +244,8 @@ class SerializationParameters {
         case 'use-character-maps':
           if (valSeq.length != 1 || valSeq.first is! XPathMap) {
             throw XPathEvaluationException(
-              'use-character-maps must be a map [err:XPTY0004]',
+              XPathErrorCode.XPTY0004,
+              'use-character-maps must be a map',
             );
           }
           final charMap = valSeq.first as XPathMap;
@@ -243,25 +254,29 @@ class SerializationParameters {
             final k = e.key;
             if (k is! XPathString && k is! XPathUntypedAtomic) {
               throw XPathEvaluationException(
-                'Character map keys must be single characters [err:XPTY0004]',
+                XPathErrorCode.XPTY0004,
+                'Character map keys must be single characters',
               );
             }
             final kStr = k.stringValue;
             if (kStr.runes.length != 1) {
               throw XPathEvaluationException(
-                'Character map key must be a single character: $kStr [err:SEPM0016]',
+                XPathErrorCode.SEPM0016,
+                'Character map key must be a single character: $kStr',
               );
             }
             final vSeq = e.value;
             if (vSeq.length != 1) {
               throw XPathEvaluationException(
-                'Character map value must be a single string [err:XPTY0004]',
+                XPathErrorCode.XPTY0004,
+                'Character map value must be a single string',
               );
             }
             final vItem = vSeq.first;
             if (vItem is! XPathString && vItem is! XPathUntypedAtomic) {
               throw XPathEvaluationException(
-                'Character map value must be a single string [err:XPTY0004]',
+                XPathErrorCode.XPTY0004,
+                'Character map value must be a single string',
               );
             }
             mapResult[kStr] = vItem.stringValue;
@@ -276,7 +291,8 @@ class SerializationParameters {
 
     if (params.method == 'json' && hasItemSeparator) {
       throw XPathEvaluationException(
-        'item-separator cannot be specified for JSON method [err:SERE0023]',
+        XPathErrorCode.SERE0023,
+        'item-separator cannot be specified for JSON method',
       );
     }
 
@@ -287,13 +303,15 @@ class SerializationParameters {
     if (element.name.local != 'serialization-parameters' ||
         element.name.namespaceUri != _outputNamespace) {
       throw XPathEvaluationException(
-        'Outermost element must be output:serialization-parameters in $_outputNamespace [err:XPTY0004]',
+        XPathErrorCode.XPTY0004,
+        'Outermost element must be output:serialization-parameters in $_outputNamespace',
       );
     }
     for (final attr in element.attributes) {
       if (attr.name.prefix != 'xmlns' && attr.name.qualified != 'xmlns') {
         throw XPathEvaluationException(
-          'Attributes on serialization-parameters not allowed [err:SEPM0017]',
+          XPathErrorCode.SEPM0017,
+          'Attributes on serialization-parameters not allowed',
         );
       }
     }
@@ -306,7 +324,8 @@ class SerializationParameters {
       final key = (name.namespaceUri, name.local);
       if (seen.contains(key)) {
         throw XPathEvaluationException(
-          'Duplicate serialization parameter: ${name.qualified} [err:SEPM0019]',
+          XPathErrorCode.SEPM0019,
+          'Duplicate serialization parameter: ${name.qualified}',
         );
       }
       seen.add(key);
@@ -314,7 +333,8 @@ class SerializationParameters {
       if (name.namespaceUri != _outputNamespace) {
         if (name.namespaceUri == null || name.namespaceUri!.isEmpty) {
           throw XPathEvaluationException(
-            'Elements must be in $_outputNamespace [err:SEPM0017]',
+            XPathErrorCode.SEPM0017,
+            'Elements must be in $_outputNamespace',
           );
         }
         // Implementation-defined extension parameter in non-null namespace; ignore
@@ -327,7 +347,8 @@ class SerializationParameters {
         for (final attr in child.attributes) {
           if (attr.name.prefix != 'xmlns' && attr.name.qualified != 'xmlns') {
             throw XPathEvaluationException(
-              'Attributes not allowed on use-character-maps [err:SEPM0017]',
+              XPathErrorCode.SEPM0017,
+              'Attributes not allowed on use-character-maps',
             );
           }
         }
@@ -337,7 +358,8 @@ class SerializationParameters {
           if (cmChild.name.local != 'character-map' ||
               cmChild.name.namespaceUri != _outputNamespace) {
             throw XPathEvaluationException(
-              'Invalid child of use-character-maps [err:SEPM0017]',
+              XPathErrorCode.SEPM0017,
+              'Invalid child of use-character-maps',
             );
           }
           for (final attr in cmChild.attributes) {
@@ -346,7 +368,8 @@ class SerializationParameters {
                 attr.name.prefix != 'xmlns' &&
                 attr.name.qualified != 'xmlns') {
               throw XPathEvaluationException(
-                'Invalid attribute on character-map [err:SEPM0017]',
+                XPathErrorCode.SEPM0017,
+                'Invalid attribute on character-map',
               );
             }
           }
@@ -354,17 +377,20 @@ class SerializationParameters {
           final mapString = cmChild.getAttribute('map-string');
           if (character == null || mapString == null) {
             throw XPathEvaluationException(
-              'character and map-string required on character-map [err:SEPM0017]',
+              XPathErrorCode.SEPM0017,
+              'character and map-string required on character-map',
             );
           }
           if (character.runes.length != 1) {
             throw XPathEvaluationException(
-              'character-map character must be single char [err:SEPM0017]',
+              XPathErrorCode.SEPM0017,
+              'character-map character must be single char',
             );
           }
           if (seenChars.contains(character)) {
             throw XPathEvaluationException(
-              'Duplicate character mapping for $character [err:SEPM0018]',
+              XPathErrorCode.SEPM0018,
+              'Duplicate character mapping for $character',
             );
           }
           seenChars.add(character);
@@ -379,14 +405,16 @@ class SerializationParameters {
             attr.name.prefix != 'xmlns' &&
             attr.name.qualified != 'xmlns') {
           throw XPathEvaluationException(
-            'Invalid attribute on serialization parameter [err:SEPM0017]',
+            XPathErrorCode.SEPM0017,
+            'Invalid attribute on serialization parameter',
           );
         }
       }
       final value = child.getAttribute('value');
       if (value == null) {
         throw XPathEvaluationException(
-          'Missing value attribute on $local [err:SEPM0017]',
+          XPathErrorCode.SEPM0017,
+          'Missing value attribute on $local',
         );
       }
 
@@ -397,7 +425,8 @@ class SerializationParameters {
           final v = value.trim();
           if (v != 'yes' && v != 'no') {
             throw XPathEvaluationException(
-              'Invalid value for indent: $value [err:SEPM0017]',
+              XPathErrorCode.SEPM0017,
+              'Invalid value for indent: $value',
             );
           }
           params.indent = v == 'yes';
@@ -405,7 +434,8 @@ class SerializationParameters {
           final v = value.trim();
           if (v != 'yes' && v != 'no') {
             throw XPathEvaluationException(
-              'Invalid value for omit-xml-declaration: $value [err:SEPM0017]',
+              XPathErrorCode.SEPM0017,
+              'Invalid value for omit-xml-declaration: $value',
             );
           }
           params.omitXmlDeclaration = v == 'yes';
@@ -413,7 +443,8 @@ class SerializationParameters {
           final v = value.trim();
           if (v != 'yes' && v != 'no' && v != 'omit') {
             throw XPathEvaluationException(
-              'Invalid value for standalone: $value [err:SEPM0017]',
+              XPathErrorCode.SEPM0017,
+              'Invalid value for standalone: $value',
             );
           }
           params.standalone = v == 'yes' ? true : (v == 'no' ? false : null);
@@ -425,7 +456,8 @@ class SerializationParameters {
           final v = value.trim();
           if (v != 'yes' && v != 'no') {
             throw XPathEvaluationException(
-              'Invalid value for undeclare-prefixes: $value [err:SEPM0017]',
+              XPathErrorCode.SEPM0017,
+              'Invalid value for undeclare-prefixes: $value',
             );
           }
           params.undeclarePrefixes = v == 'yes';
@@ -445,7 +477,8 @@ class SerializationParameters {
               .toList();
         default:
           throw XPathEvaluationException(
-            'Disallowed or unrecognized serialization parameter: $local [err:SEPM0017]',
+            XPathErrorCode.SEPM0017,
+            'Disallowed or unrecognized serialization parameter: $local',
           );
       }
     }
@@ -457,7 +490,8 @@ class SerializationParameters {
     final atom = seq.atomize().toList();
     if (atom.length != 1) {
       throw XPathEvaluationException(
-        'Option "$name" must be a single string [err:XPTY0004]',
+        XPathErrorCode.XPTY0004,
+        'Option "$name" must be a single string',
       );
     }
     final first = atom.first;
@@ -465,7 +499,8 @@ class SerializationParameters {
       return first.stringValue;
     }
     throw XPathEvaluationException(
-      'Option "$name" must be a string [err:XPTY0004]',
+      XPathErrorCode.XPTY0004,
+      'Option "$name" must be a string',
     );
   }
 
@@ -473,7 +508,8 @@ class SerializationParameters {
     final atom = seq.atomize().toList();
     if (atom.length != 1) {
       throw XPathEvaluationException(
-        'Option "$name" must be a single boolean [err:XPTY0004]',
+        XPathErrorCode.XPTY0004,
+        'Option "$name" must be a single boolean',
       );
     }
     final first = atom.first;
@@ -489,7 +525,8 @@ class SerializationParameters {
       }
     }
     throw XPathEvaluationException(
-      'Option "$name" must be a boolean [err:XPTY0004]',
+      XPathErrorCode.XPTY0004,
+      'Option "$name" must be a boolean',
     );
   }
 
@@ -497,7 +534,8 @@ class SerializationParameters {
     final atom = seq.atomize().toList();
     if (atom.length != 1) {
       throw XPathEvaluationException(
-        'Option "$name" must be a single number [err:XPTY0004]',
+        XPathErrorCode.XPTY0004,
+        'Option "$name" must be a single number',
       );
     }
     final first = atom.first;
@@ -509,7 +547,8 @@ class SerializationParameters {
       if (parsed != null) return parsed;
     }
     throw XPathEvaluationException(
-      'Option "$name" must be a number [err:XPTY0004]',
+      XPathErrorCode.XPTY0004,
+      'Option "$name" must be a number',
     );
   }
 }
@@ -576,7 +615,8 @@ String _serializeXml(XPathSequence sequence, SerializationParameters params) {
       final node = item.node;
       if (node is XmlAttribute || node is XmlNamespace) {
         throw XPathEvaluationException(
-          'Cannot serialize free-standing attribute or namespace in XML method [err:SENR0001]',
+          XPathErrorCode.SENR0001,
+          'Cannot serialize free-standing attribute or namespace in XML method',
         );
       }
       _writeXmlItemNode(sb, node, params);
@@ -745,7 +785,8 @@ String _serializeJson(XPathSequence sequence, SerializationParameters params) {
   if (sequence.isEmpty) return 'null';
   if (sequence.length > 1) {
     throw XPathEvaluationException(
-      'JSON output method cannot serialize sequence of length > 1 [err:SERE0023]',
+      XPathErrorCode.SERE0023,
+      'JSON output method cannot serialize sequence of length > 1',
     );
   }
   final item = sequence.single;
@@ -769,7 +810,8 @@ String _serializeJsonItem(
       final keyStr = k.stringValue;
       if (!params.allowDuplicateNames && seen.contains(keyStr)) {
         throw XPathEvaluationException(
-          'Duplicate key in JSON serialization: $keyStr [err:SERE0022]',
+          XPathErrorCode.SERE0022,
+          'Duplicate key in JSON serialization: $keyStr',
         );
       }
       seen.add(keyStr);
@@ -780,7 +822,8 @@ String _serializeJsonItem(
         sb.write('null');
       } else if (valSeq.length > 1) {
         throw XPathEvaluationException(
-          'Cannot serialize sequence with length > 1 inside JSON map [err:SERE0023]',
+          XPathErrorCode.SERE0023,
+          'Cannot serialize sequence with length > 1 inside JSON map',
         );
       } else {
         sb.write(_serializeJsonItem(valSeq.single, params));
@@ -798,7 +841,8 @@ String _serializeJsonItem(
         sb.write('null');
       } else if (memberSeq.length > 1) {
         throw XPathEvaluationException(
-          'Cannot serialize sequence with length > 1 inside JSON array [err:SERE0023]',
+          XPathErrorCode.SERE0023,
+          'Cannot serialize sequence with length > 1 inside JSON array',
         );
       } else {
         sb.write(_serializeJsonItem(memberSeq.single, params));
@@ -830,7 +874,8 @@ String _serializeJsonItem(
     final d = item.toDouble();
     if (d.isNaN || d.isInfinite) {
       throw XPathEvaluationException(
-        'Cannot serialize NaN or Infinity with JSON method [err:SERE0020]',
+        XPathErrorCode.SERE0020,
+        'Cannot serialize NaN or Infinity with JSON method',
       );
     }
     return item.stringValue;

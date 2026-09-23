@@ -1,5 +1,6 @@
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/item.dart';
 import '../xdm/sequence.dart';
@@ -12,7 +13,10 @@ class ContextItemExpression implements XPathExpression {
     final item = context.item;
     if (item is XPathItem) return XPathSequence.single(item);
     if (item is XPathSequence) return item;
-    throw XPathEvaluationException('Context item is undefined [err:XPDY0002]');
+    throw XPathEvaluationException(
+      XPathErrorCode.XPDY0002,
+      'Context item is undefined',
+    );
   }
 }
 

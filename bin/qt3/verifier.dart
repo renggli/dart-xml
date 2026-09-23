@@ -18,6 +18,19 @@ void verifyResult(XmlElement element, Object result, XPathContext context) {
       if (result is! Error && result is! Exception) {
         throw TestFailure('Expected error, but got $result');
       }
+      final code = element.getAttribute('code');
+      if (code != null && code != '*' && result is XPathEvaluationException) {
+        final expectedCode = code.startsWith('Q{')
+            ? code.split('}').last
+            : (code.contains(':') ? code.split(':').last : code);
+        if (result.errorCode.name != expectedCode &&
+            result.errorCode.code != expectedCode &&
+            result.errorCode.qname.stringValue != code) {
+          throw TestFailure(
+            'Expected error code $code, but got ${result.errorCode.name} (${result.message})',
+          );
+        }
+      }
       return;
     case 'all-of':
       for (final child in element.childElements) {

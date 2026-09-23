@@ -1,5 +1,6 @@
 import '../../xml/extensions/comparison.dart';
 import '../../xml/nodes/node.dart';
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/item.dart';
 import '../xdm/sequence.dart';
@@ -25,7 +26,8 @@ XPathSequence _nodeSetOperation(
   for (final item in left) {
     if (item is! XPathNode) {
       throw XPathEvaluationException(
-        'Required item type of operand is node(); got ${item.type} [err:XPTY0004]',
+        XPathErrorCode.XPTY0004,
+        'Required item type of operand is node(); got ${item.type}',
       );
     }
     arg1.add(item.node);
@@ -34,7 +36,8 @@ XPathSequence _nodeSetOperation(
   for (final item in right) {
     if (item is! XPathNode) {
       throw XPathEvaluationException(
-        'Required item type of operand is node(); got ${item.type} [err:XPTY0004]',
+        XPathErrorCode.XPTY0004,
+        'Required item type of operand is node(); got ${item.type}',
       );
     }
     arg2.add(item.node);
@@ -79,7 +82,8 @@ XmlNode? _singleNodeOrNull(XPathSequence seq) {
   final item = seq.single;
   if (item is! XPathNode) {
     throw XPathEvaluationException(
-      'Required item type of operand is node(); got ${item.type} [err:XPTY0004]',
+      XPathErrorCode.XPTY0004,
+      'Required item type of operand is node(); got ${item.type}',
     );
   }
   return item.node;

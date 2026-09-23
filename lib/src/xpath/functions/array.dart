@@ -1,5 +1,6 @@
 import '../../xml/utils/name.dart';
 import '../evaluation/context.dart';
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/atomic/numeric.dart';
 import '../xdm/atomic/string.dart';
@@ -35,6 +36,7 @@ XPathSequence _fnArrayGet(
   final index = position.asInt - 1;
   if (index < 0 || index >= array.length) {
     throw XPathEvaluationException(
+      XPathErrorCode.FOAY0001,
       'Array index out of bounds: ${position.asInt}',
     );
   }
@@ -58,6 +60,7 @@ XPathSequence _fnArrayPut(
   final index = position.asInt - 1;
   if (index < 0 || index >= array.length) {
     throw XPathEvaluationException(
+      XPathErrorCode.FOAY0001,
       'Array index out of bounds: ${position.asInt}',
     );
   }
@@ -126,6 +129,7 @@ XPathSequence _evalSubarray(
   final l = length?.asInt ?? (array.length - s);
   if (s < 0 || s > array.length || l < 0 || s + l > array.length) {
     throw XPathEvaluationException(
+      XPathErrorCode.FOAY0001,
       'Invalid subarray range: ${start.asInt}, ${length?.asInt}',
     );
   }
@@ -150,7 +154,10 @@ XPathSequence _fnArrayRemove(
       .toSet();
   for (final index in indices) {
     if (index < 0 || index >= array.length) {
-      throw XPathEvaluationException('Array index out of bounds: ${index + 1}');
+      throw XPathEvaluationException(
+        XPathErrorCode.FOAY0001,
+        'Array index out of bounds: ${index + 1}',
+      );
     }
   }
   final result = <XPathSequence>[];
@@ -179,6 +186,7 @@ XPathSequence _fnArrayInsertBefore(
   final index = position.asInt - 1;
   if (index < 0 || index > array.length) {
     throw XPathEvaluationException(
+      XPathErrorCode.FOAY0001,
       'Array index out of bounds: ${position.asInt}',
     );
   }
@@ -196,7 +204,7 @@ const fnArrayHead = XPathFunctionItem.fn1(
 XPathSequence _fnArrayHead(XPathContext context, XPathSequence arraySeq) {
   final array = arraySeq.first as XPathArray;
   if (array.isEmpty) {
-    throw XPathEvaluationException('Empty array');
+    throw XPathEvaluationException(XPathErrorCode.FOAY0001, 'Empty array');
   }
   return array.members.first;
 }
@@ -210,7 +218,7 @@ const fnArrayTail = XPathFunctionItem.fn1(
 XPathSequence _fnArrayTail(XPathContext context, XPathSequence arraySeq) {
   final array = arraySeq.first as XPathArray;
   if (array.isEmpty) {
-    throw XPathEvaluationException('Empty array');
+    throw XPathEvaluationException(XPathErrorCode.FOAY0001, 'Empty array');
   }
   return XPathSequence.single(XPathArray(array.members.sublist(1)));
 }

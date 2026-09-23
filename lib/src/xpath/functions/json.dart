@@ -6,6 +6,7 @@ import '../../xml/nodes/node.dart';
 import '../../xml/nodes/text.dart';
 import '../../xml/utils/name.dart';
 import '../evaluation/context.dart';
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/atomic.dart';
 import '../xdm/function_item.dart';
@@ -17,7 +18,8 @@ import '../xdm/sequence.dart';
 XPathString? _expectOptionalString(XPathSequence seq, String funcName) {
   if (seq.length > 1) {
     throw XPathEvaluationException(
-      '$funcName argument must contain at most one item [err:XPTY0004]',
+      XPathErrorCode.XPTY0004,
+      '$funcName argument must contain at most one item',
     );
   }
   final item = seq.firstOrNull;
@@ -28,35 +30,40 @@ XPathString? _expectOptionalString(XPathSequence seq, String funcName) {
     return atomized.first as XPathString;
   }
   throw XPathEvaluationException(
-    '$funcName argument must be xs:string? [err:XPTY0004]',
+    XPathErrorCode.XPTY0004,
+    '$funcName argument must be xs:string?',
   );
 }
 
 XPathMap? _expectOptionalMap(XPathSequence seq, String funcName) {
   if (seq.length > 1) {
     throw XPathEvaluationException(
-      '$funcName options argument must contain at most one item [err:XPTY0004]',
+      XPathErrorCode.XPTY0004,
+      '$funcName options argument must contain at most one item',
     );
   }
   final item = seq.firstOrNull;
   if (item == null) return null;
   if (item is XPathMap) return item;
   throw XPathEvaluationException(
-    '$funcName options argument must be map(*)? [err:XPTY0004]',
+    XPathErrorCode.XPTY0004,
+    '$funcName options argument must be map(*)?',
   );
 }
 
 XPathNode? _expectOptionalNode(XPathSequence seq, String funcName) {
   if (seq.length > 1) {
     throw XPathEvaluationException(
-      '$funcName argument must contain at most one node [err:XPTY0004]',
+      XPathErrorCode.XPTY0004,
+      '$funcName argument must contain at most one node',
     );
   }
   final item = seq.firstOrNull;
   if (item == null) return null;
   if (item is XPathNode) return item;
   throw XPathEvaluationException(
-    '$funcName argument must be node()? [err:XPTY0004]',
+    XPathErrorCode.XPTY0004,
+    '$funcName argument must be node()?',
   );
 }
 
@@ -140,12 +147,16 @@ XPathSequence _evalJsonDoc(
     } else {
       final base = context.configuration.baseUri;
       if (base == null) {
-        throw XPathEvaluationException('Static base URI is undefined');
+        throw XPathEvaluationException(
+          XPathErrorCode.XPST0001,
+          'Static base URI is undefined',
+        );
       }
       resolved = Uri.parse(base).resolve(href.value).toString();
     }
   } on FormatException catch (error) {
     throw XPathEvaluationException(
+      XPathErrorCode.FODC0002,
       'Invalid URI: ${href.value} (${error.message})',
     );
   }
@@ -154,6 +165,7 @@ XPathSequence _evalJsonDoc(
   final parsedResolved = Uri.parse(resolved);
   if (parsedResolved.hasFragment) {
     throw XPathEvaluationException(
+      XPathErrorCode.FOJS0005,
       'URI contains a fragment identifier: $resolved',
     );
   }
@@ -161,6 +173,7 @@ XPathSequence _evalJsonDoc(
   final loader = context.configuration.unparsedTextLoader;
   if (loader == null) {
     throw XPathEvaluationException(
+      XPathErrorCode.FODC0002,
       'No unparsed text loader available to load $resolved',
     );
   }
@@ -171,12 +184,16 @@ XPathSequence _evalJsonDoc(
   } catch (exception) {
     if (exception is XPathEvaluationException) rethrow;
     throw XPathEvaluationException(
+      XPathErrorCode.FODC0002,
       'Failed to load resource $resolved: $exception',
     );
   }
 
   if (loaded == null) {
-    throw XPathEvaluationException('Resource not found: $resolved');
+    throw XPathEvaluationException(
+      XPathErrorCode.FODC0002,
+      'Resource not found: $resolved',
+    );
   }
 
   final opts = _parseJsonOptions(context, options, isXmlTarget: false);
@@ -326,7 +343,8 @@ _JsonOptions _parseJsonOptions(
       case 'liberal':
         if (valueSeq.length != 1 || valueSeq.first is! XPathBoolean) {
           throw XPathEvaluationException(
-            'Option "liberal" must be a single xs:boolean [err:XPTY0004]',
+            XPathErrorCode.XPTY0004,
+            'Option "liberal" must be a single xs:boolean',
           );
         }
         liberal = (valueSeq.first as XPathBoolean).value;
@@ -334,7 +352,8 @@ _JsonOptions _parseJsonOptions(
       case 'duplicates':
         if (valueSeq.length != 1 || valueSeq.first is! XPathString) {
           throw XPathEvaluationException(
-            'Option "duplicates" must be a single xs:string [err:XPTY0004]',
+            XPathErrorCode.XPTY0004,
+            'Option "duplicates" must be a single xs:string',
           );
         }
         final dupStr = (valueSeq.first as XPathString).value;
@@ -343,7 +362,8 @@ _JsonOptions _parseJsonOptions(
               dupStr != 'use-first' &&
               dupStr != 'retain') {
             throw XPathEvaluationException(
-              'Invalid value for duplicates in json-to-xml: $dupStr [err:FOJS0005]',
+              XPathErrorCode.FOJS0005,
+              'Invalid value for duplicates in json-to-xml: $dupStr',
             );
           }
         } else {
@@ -351,7 +371,8 @@ _JsonOptions _parseJsonOptions(
               dupStr != 'use-first' &&
               dupStr != 'use-last') {
             throw XPathEvaluationException(
-              'Invalid value for duplicates in parse-json: $dupStr [err:FOJS0005]',
+              XPathErrorCode.FOJS0005,
+              'Invalid value for duplicates in parse-json: $dupStr',
             );
           }
         }
@@ -360,7 +381,8 @@ _JsonOptions _parseJsonOptions(
       case 'escape':
         if (valueSeq.length != 1 || valueSeq.first is! XPathBoolean) {
           throw XPathEvaluationException(
-            'Option "escape" must be a single xs:boolean [err:XPTY0004]',
+            XPathErrorCode.XPTY0004,
+            'Option "escape" must be a single xs:boolean',
           );
         }
         escape = (valueSeq.first as XPathBoolean).value;
@@ -368,7 +390,8 @@ _JsonOptions _parseJsonOptions(
       case 'validate':
         if (valueSeq.length != 1 || valueSeq.first is! XPathBoolean) {
           throw XPathEvaluationException(
-            'Option "validate" must be a single xs:boolean [err:XPTY0004]',
+            XPathErrorCode.XPTY0004,
+            'Option "validate" must be a single xs:boolean',
           );
         }
         validate = (valueSeq.first as XPathBoolean).value;
@@ -376,13 +399,15 @@ _JsonOptions _parseJsonOptions(
       case 'fallback':
         if (valueSeq.length != 1 || valueSeq.first is! XPathFunctionItem) {
           throw XPathEvaluationException(
-            'Option "fallback" must be a function item [err:XPTY0004]',
+            XPathErrorCode.XPTY0004,
+            'Option "fallback" must be a function item',
           );
         }
         final fn = valueSeq.first as XPathFunctionItem;
         if (fn.arity != 1) {
           throw XPathEvaluationException(
-            'Option "fallback" must be an arity-1 function [err:XPTY0004]',
+            XPathErrorCode.XPTY0004,
+            'Option "fallback" must be an arity-1 function',
           );
         }
         fallback = fn;
@@ -393,20 +418,23 @@ _JsonOptions _parseJsonOptions(
 
       default:
         throw XPathEvaluationException(
-          'Unknown option key: $key [err:FOJS0005]',
+          XPathErrorCode.FOJS0005,
+          'Unknown option key: $key',
         );
     }
   }
 
   if (escape && fallback != null) {
     throw XPathEvaluationException(
-      'Cannot specify both escape=true and a fallback function [err:FOJS0005]',
+      XPathErrorCode.FOJS0005,
+      'Cannot specify both escape=true and a fallback function',
     );
   }
 
   if (isXmlTarget && validate && duplicates == 'retain') {
     throw XPathEvaluationException(
-      'duplicates="retain" cannot be used when validate=true [err:FOJS0005]',
+      XPathErrorCode.FOJS0005,
+      'duplicates="retain" cannot be used when validate=true',
     );
   }
 
@@ -433,13 +461,15 @@ bool _parseXmlToJsonOptions(XPathMap? options) {
       case 'indent':
         if (valueSeq.length != 1 || valueSeq.first is! XPathBoolean) {
           throw XPathEvaluationException(
-            'Option "indent" must be a single xs:boolean [err:XPTY0004]',
+            XPathErrorCode.XPTY0004,
+            'Option "indent" must be a single xs:boolean',
           );
         }
         indent = (valueSeq.first as XPathBoolean).value;
       default:
         throw XPathEvaluationException(
-          'Unknown option key in xml-to-json: $key [err:FOJS0005]',
+          XPathErrorCode.FOJS0005,
+          'Unknown option key in xml-to-json: $key',
         );
     }
   }
@@ -484,13 +514,17 @@ class _JsonParser {
     }
     _skipWhitespace();
     if (_isEof) {
-      throw XPathEvaluationException('Empty JSON input [err:FOJS0001]');
+      throw XPathEvaluationException(
+        XPathErrorCode.FOJS0001,
+        'Empty JSON input',
+      );
     }
     final result = _parseValueToXPath();
     _skipWhitespace();
     if (!_isEof) {
       throw XPathEvaluationException(
-        'Unexpected character after JSON value [err:FOJS0001]',
+        XPathErrorCode.FOJS0001,
+        'Unexpected character after JSON value',
       );
     }
     return result;
@@ -502,13 +536,17 @@ class _JsonParser {
     }
     _skipWhitespace();
     if (_isEof) {
-      throw XPathEvaluationException('Empty JSON input [err:FOJS0001]');
+      throw XPathEvaluationException(
+        XPathErrorCode.FOJS0001,
+        'Empty JSON input',
+      );
     }
     _parseValueToXml(builder, isRoot: true);
     _skipWhitespace();
     if (!_isEof) {
       throw XPathEvaluationException(
-        'Unexpected character after JSON value [err:FOJS0001]',
+        XPathErrorCode.FOJS0001,
+        'Unexpected character after JSON value',
       );
     }
   }
@@ -516,7 +554,10 @@ class _JsonParser {
   XPathSequence _parseValueToXPath() {
     _skipWhitespace();
     if (_isEof) {
-      throw XPathEvaluationException('Unexpected end of JSON [err:FOJS0001]');
+      throw XPathEvaluationException(
+        XPathErrorCode.FOJS0001,
+        'Unexpected end of JSON',
+      );
     }
     final ch = _peek();
     if (ch == 0x7B) {
@@ -547,7 +588,8 @@ class _JsonParser {
       return XPathSequence.single(XPathDouble(double.parse(numStr)));
     } else {
       throw XPathEvaluationException(
-        'Unexpected character in JSON: "${String.fromCharCode(ch)}" [err:FOJS0001]',
+        XPathErrorCode.FOJS0001,
+        'Unexpected character in JSON: "${String.fromCharCode(ch)}"',
       );
     }
   }
@@ -559,7 +601,10 @@ class _JsonParser {
   }) {
     _skipWhitespace();
     if (_isEof) {
-      throw XPathEvaluationException('Unexpected end of JSON [err:FOJS0001]');
+      throw XPathEvaluationException(
+        XPathErrorCode.FOJS0001,
+        'Unexpected end of JSON',
+      );
     }
     final ch = _peek();
     final nsMap = isRoot
@@ -627,7 +672,8 @@ class _JsonParser {
       );
     } else {
       throw XPathEvaluationException(
-        'Unexpected character in JSON: "${String.fromCharCode(ch)}" [err:FOJS0001]',
+        XPathErrorCode.FOJS0001,
+        'Unexpected character in JSON: "${String.fromCharCode(ch)}"',
       );
     }
   }
@@ -648,7 +694,8 @@ class _JsonParser {
       _skipWhitespace();
       if (_peek() != 0x22) {
         throw XPathEvaluationException(
-          'Expected string key in JSON object [err:FOJS0001]',
+          XPathErrorCode.FOJS0001,
+          'Expected string key in JSON object',
         );
       }
       final keyParsed = _parseString();
@@ -656,7 +703,8 @@ class _JsonParser {
       if (_next() != 0x3A) {
         // ':'
         throw XPathEvaluationException(
-          'Expected ":" after key in JSON object [err:FOJS0001]',
+          XPathErrorCode.FOJS0001,
+          'Expected ":" after key in JSON object',
         );
       }
 
@@ -667,7 +715,8 @@ class _JsonParser {
 
       if (isDuplicate && options.duplicates == 'reject') {
         throw XPathEvaluationException(
-          'Duplicate key: ${keyParsed.effectiveValue} [err:FOJS0003]',
+          XPathErrorCode.FOJS0003,
+          'Duplicate key: ${keyParsed.effectiveValue}',
         );
       }
 
@@ -688,7 +737,8 @@ class _JsonParser {
           // trailing comma
           if (!options.liberal) {
             throw XPathEvaluationException(
-              'Trailing comma in JSON object [err:FOJS0001]',
+              XPathErrorCode.FOJS0001,
+              'Trailing comma in JSON object',
             );
           }
           _pos++;
@@ -700,7 +750,8 @@ class _JsonParser {
         break;
       } else {
         throw XPathEvaluationException(
-          'Expected "," or "}" in JSON object [err:FOJS0001]',
+          XPathErrorCode.FOJS0001,
+          'Expected "," or "}" in JSON object',
         );
       }
     }
@@ -736,14 +787,16 @@ class _JsonParser {
           _skipWhitespace();
           if (_peek() != 0x22) {
             throw XPathEvaluationException(
-              'Expected string key in JSON object [err:FOJS0001]',
+              XPathErrorCode.FOJS0001,
+              'Expected string key in JSON object',
             );
           }
           final keyParsed = _parseString();
           _skipWhitespace();
           if (_next() != 0x3A) {
             throw XPathEvaluationException(
-              'Expected ":" after key in JSON object [err:FOJS0001]',
+              XPathErrorCode.FOJS0001,
+              'Expected ":" after key in JSON object',
             );
           }
 
@@ -754,12 +807,14 @@ class _JsonParser {
           if (isDuplicate) {
             if (options.duplicates == 'reject') {
               throw XPathEvaluationException(
-                'Duplicate key: ${keyParsed.effectiveValue} [err:FOJS0003]',
+                XPathErrorCode.FOJS0003,
+                'Duplicate key: ${keyParsed.effectiveValue}',
               );
             }
             if (options.validate) {
               throw XPathEvaluationException(
-                'Duplicate key with validate=true: ${keyParsed.effectiveValue} [err:FOJS0003]',
+                XPathErrorCode.FOJS0003,
+                'Duplicate key with validate=true: ${keyParsed.effectiveValue}',
               );
             }
           }
@@ -785,7 +840,8 @@ class _JsonParser {
             if (_peek() == 0x7D) {
               if (!options.liberal) {
                 throw XPathEvaluationException(
-                  'Trailing comma in JSON object [err:FOJS0001]',
+                  XPathErrorCode.FOJS0001,
+                  'Trailing comma in JSON object',
                 );
               }
               _pos++;
@@ -796,7 +852,8 @@ class _JsonParser {
             break;
           } else {
             throw XPathEvaluationException(
-              'Expected "," or "}" in JSON object [err:FOJS0001]',
+              XPathErrorCode.FOJS0001,
+              'Expected "," or "}" in JSON object',
             );
           }
         }
@@ -807,7 +864,10 @@ class _JsonParser {
   void _skipJsonValue() {
     _skipWhitespace();
     if (_isEof) {
-      throw XPathEvaluationException('Unexpected end of JSON [err:FOJS0001]');
+      throw XPathEvaluationException(
+        XPathErrorCode.FOJS0001,
+        'Unexpected end of JSON',
+      );
     }
     final ch = _peek();
     if (ch == 0x7B) {
@@ -821,7 +881,12 @@ class _JsonParser {
         _skipWhitespace();
         _parseString();
         _skipWhitespace();
-        if (_next() != 0x3A) throw XPathEvaluationException('Expected ":"');
+        if (_next() != 0x3A) {
+          throw XPathEvaluationException(
+            XPathErrorCode.FOJS0001,
+            'Expected ":"',
+          );
+        }
         _skipJsonValue();
         _skipWhitespace();
         final nextCh = _peek();
@@ -836,7 +901,10 @@ class _JsonParser {
           _pos++;
           break;
         } else {
-          throw XPathEvaluationException('Expected "," or "}"');
+          throw XPathEvaluationException(
+            XPathErrorCode.FOJS0001,
+            'Expected "," or "}"',
+          );
         }
       }
     } else if (ch == 0x5B) {
@@ -861,7 +929,10 @@ class _JsonParser {
           _pos++;
           break;
         } else {
-          throw XPathEvaluationException('Expected "," or "]"');
+          throw XPathEvaluationException(
+            XPathErrorCode.FOJS0001,
+            'Expected "," or "]"',
+          );
         }
       }
     } else if (ch == 0x22) {
@@ -899,7 +970,8 @@ class _JsonParser {
         if (_peek() == 0x5D) {
           if (!options.liberal) {
             throw XPathEvaluationException(
-              'Trailing comma in JSON array [err:FOJS0001]',
+              XPathErrorCode.FOJS0001,
+              'Trailing comma in JSON array',
             );
           }
           _pos++;
@@ -910,7 +982,8 @@ class _JsonParser {
         break;
       } else {
         throw XPathEvaluationException(
-          'Expected "," or "]" in JSON array [err:FOJS0001]',
+          XPathErrorCode.FOJS0001,
+          'Expected "," or "]" in JSON array',
         );
       }
     }
@@ -950,7 +1023,8 @@ class _JsonParser {
             if (_peek() == 0x5D) {
               if (!options.liberal) {
                 throw XPathEvaluationException(
-                  'Trailing comma in JSON array [err:FOJS0001]',
+                  XPathErrorCode.FOJS0001,
+                  'Trailing comma in JSON array',
                 );
               }
               _pos++;
@@ -961,7 +1035,8 @@ class _JsonParser {
             break;
           } else {
             throw XPathEvaluationException(
-              'Expected "," or "]" in JSON array [err:FOJS0001]',
+              XPathErrorCode.FOJS0001,
+              'Expected "," or "]" in JSON array',
             );
           }
         }
@@ -990,7 +1065,8 @@ class _JsonParser {
         // backslash '\'
         if (_isEof) {
           throw XPathEvaluationException(
-            'Unterminated escape in JSON string [err:FOJS0001]',
+            XPathErrorCode.FOJS0001,
+            'Unterminated escape in JSON string',
           );
         }
         final esc = _next();
@@ -1058,14 +1134,16 @@ class _JsonParser {
             );
           default:
             throw XPathEvaluationException(
-              'Invalid escape character in JSON string: \\${String.fromCharCode(esc)} [err:FOJS0001]',
+              XPathErrorCode.FOJS0001,
+              'Invalid escape character in JSON string: \\${String.fromCharCode(esc)}',
             );
         }
       } else {
         // Raw character
         if (ch < 0x20) {
           throw XPathEvaluationException(
-            'Unescaped control character in JSON string [err:FOJS0001]',
+            XPathErrorCode.FOJS0001,
+            'Unescaped control character in JSON string',
           );
         }
         final charStr = String.fromCharCode(ch);
@@ -1074,7 +1152,10 @@ class _JsonParser {
       }
     }
 
-    throw XPathEvaluationException('Unterminated JSON string [err:FOJS0001]');
+    throw XPathEvaluationException(
+      XPathErrorCode.FOJS0001,
+      'Unterminated JSON string',
+    );
   }
 
   void _handleControlEscape(
@@ -1117,7 +1198,8 @@ class _JsonParser {
   int _parseHex4() {
     if (_pos + 4 > input.length) {
       throw XPathEvaluationException(
-        'Insufficient hex digits in \\u escape [err:FOJS0001]',
+        XPathErrorCode.FOJS0001,
+        'Insufficient hex digits in \\u escape',
       );
     }
     final hexStr = input.substring(_pos, _pos + 4);
@@ -1125,7 +1207,8 @@ class _JsonParser {
     final code = int.tryParse(hexStr, radix: 16);
     if (code == null) {
       throw XPathEvaluationException(
-        'Invalid hex digits in \\u escape: $hexStr [err:FOJS0001]',
+        XPathErrorCode.FOJS0001,
+        'Invalid hex digits in \\u escape: $hexStr',
       );
     }
     return code;
@@ -1230,13 +1313,17 @@ class _JsonParser {
       final first = resSeq.firstOrNull;
       if (resSeq.length != 1 || first is! XPathString) {
         throw XPathEvaluationException(
-          'Fallback function must return a single xs:string [err:FOJS0005]',
+          XPathErrorCode.FOJS0005,
+          'Fallback function must return a single xs:string',
         );
       }
       return first.value;
     } catch (e) {
       if (e is XPathEvaluationException) rethrow;
-      throw XPathEvaluationException('Fallback function failed: $e');
+      throw XPathEvaluationException(
+        XPathErrorCode.FOJS0005,
+        'Fallback function failed: $e',
+      );
     }
   }
 
@@ -1247,10 +1334,12 @@ class _JsonParser {
       _pos++;
     }
 
-    if (_isEof) throw XPathEvaluationException('Invalid number [err:FOJS0001]');
+    if (_isEof) {
+      throw XPathEvaluationException(XPathErrorCode.FOJS0001, 'Invalid number');
+    }
     final firstDigit = _peek();
     if (firstDigit < 0x30 || firstDigit > 0x39) {
-      throw XPathEvaluationException('Invalid number [err:FOJS0001]');
+      throw XPathEvaluationException(XPathErrorCode.FOJS0001, 'Invalid number');
     }
 
     if (firstDigit == 0x30) {
@@ -1259,7 +1348,8 @@ class _JsonParser {
         final nextD = _peek();
         if (nextD >= 0x30 && nextD <= 0x39) {
           throw XPathEvaluationException(
-            'Leading zero not allowed in number [err:FOJS0001]',
+            XPathErrorCode.FOJS0001,
+            'Leading zero not allowed in number',
           );
         }
       }
@@ -1275,7 +1365,8 @@ class _JsonParser {
       _pos++;
       if (_isEof || _peek() < 0x30 || _peek() > 0x39) {
         throw XPathEvaluationException(
-          'Decimal point must be followed by digits [err:FOJS0001]',
+          XPathErrorCode.FOJS0001,
+          'Decimal point must be followed by digits',
         );
       }
       while (!_isEof && _peek() >= 0x30 && _peek() <= 0x39) {
@@ -1293,7 +1384,8 @@ class _JsonParser {
       }
       if (_isEof || _peek() < 0x30 || _peek() > 0x39) {
         throw XPathEvaluationException(
-          'Exponent must be followed by digits [err:FOJS0001]',
+          XPathErrorCode.FOJS0001,
+          'Exponent must be followed by digits',
         );
       }
       while (!_isEof && _peek() >= 0x30 && _peek() <= 0x39) {
@@ -1308,7 +1400,8 @@ class _JsonParser {
     if (_pos + literal.length > input.length ||
         input.substring(_pos, _pos + literal.length) != literal) {
       throw XPathEvaluationException(
-        'Expected "$literal" in JSON [err:FOJS0001]',
+        XPathErrorCode.FOJS0001,
+        'Expected "$literal" in JSON',
       );
     }
     _pos += literal.length;
@@ -1341,7 +1434,8 @@ class _XmlToJsonSerializer {
       XmlDocument() => _findRootElement(node),
       XmlElement() => node,
       _ => throw XPathEvaluationException(
-        'Input to xml-to-json must be a document or element node [err:FOJS0006]',
+        XPathErrorCode.FOJS0006,
+        'Input to xml-to-json must be a document or element node',
       ),
     };
     return _serializeElement(rootElement, 0);
@@ -1351,13 +1445,17 @@ class _XmlToJsonSerializer {
     for (final child in doc.children) {
       if (child is XmlElement) return child;
     }
-    throw XPathEvaluationException('Empty XML document [err:FOJS0006]');
+    throw XPathEvaluationException(
+      XPathErrorCode.FOJS0006,
+      'Empty XML document',
+    );
   }
 
   String _serializeElement(XmlElement element, int indentLevel) {
     if (element.name.namespaceUri != _ns) {
       throw XPathEvaluationException(
-        'Element is not in namespace $_ns: ${element.name} [err:FOJS0006]',
+        XPathErrorCode.FOJS0006,
+        'Element is not in namespace $_ns: ${element.name}',
       );
     }
 
@@ -1378,7 +1476,8 @@ class _XmlToJsonSerializer {
         return _serializeNull(element);
       default:
         throw XPathEvaluationException(
-          'Invalid element in $_ns: ${element.localName} [err:FOJS0006]',
+          XPathErrorCode.FOJS0006,
+          'Invalid element in $_ns: ${element.localName}',
         );
     }
   }
@@ -1403,7 +1502,8 @@ class _XmlToJsonSerializer {
         }
       }
       throw XPathEvaluationException(
-        'Disallowed attribute on <${element.localName}>: ${attr.name} [err:FOJS0006]',
+        XPathErrorCode.FOJS0006,
+        'Disallowed attribute on <${element.localName}>: ${attr.name}',
       );
     }
   }
@@ -1416,7 +1516,8 @@ class _XmlToJsonSerializer {
       } else if (child is XmlText) {
         if (child.value.trim().isNotEmpty) {
           throw XPathEvaluationException(
-            'Map element contains non-whitespace text [err:FOJS0006]',
+            XPathErrorCode.FOJS0006,
+            'Map element contains non-whitespace text',
           );
         }
       }
@@ -1433,7 +1534,8 @@ class _XmlToJsonSerializer {
       final rawKey = child.getAttribute('key');
       if (rawKey == null) {
         throw XPathEvaluationException(
-          'Child of map element lacks "key" attribute [err:FOJS0006]',
+          XPathErrorCode.FOJS0006,
+          'Child of map element lacks "key" attribute',
         );
       }
 
@@ -1444,7 +1546,8 @@ class _XmlToJsonSerializer {
 
       if (seenKeys.contains(effectiveKey)) {
         throw XPathEvaluationException(
-          'Duplicate key in map: $effectiveKey [err:FOJS0006]',
+          XPathErrorCode.FOJS0006,
+          'Duplicate key in map: $effectiveKey',
         );
       }
       seenKeys.add(effectiveKey);
@@ -1479,7 +1582,8 @@ class _XmlToJsonSerializer {
       } else if (child is XmlText) {
         if (child.value.trim().isNotEmpty) {
           throw XPathEvaluationException(
-            'Array element contains non-whitespace text [err:FOJS0006]',
+            XPathErrorCode.FOJS0006,
+            'Array element contains non-whitespace text',
           );
         }
       }
@@ -1514,7 +1618,8 @@ class _XmlToJsonSerializer {
     for (final child in element.children) {
       if (child is XmlElement) {
         throw XPathEvaluationException(
-          'String element cannot contain child elements [err:FOJS0006]',
+          XPathErrorCode.FOJS0006,
+          'String element cannot contain child elements',
         );
       }
     }
@@ -1527,20 +1632,23 @@ class _XmlToJsonSerializer {
     for (final child in element.children) {
       if (child is XmlElement) {
         throw XPathEvaluationException(
-          'Number element cannot contain child elements [err:FOJS0006]',
+          XPathErrorCode.FOJS0006,
+          'Number element cannot contain child elements',
         );
       }
     }
     final text = element.innerText.trim();
     if (text == 'NaN' || text == 'INF' || text == '-INF') {
       throw XPathEvaluationException(
-        'Number cannot be NaN, INF, or -INF [err:FOJS0006]',
+        XPathErrorCode.FOJS0006,
+        'Number cannot be NaN, INF, or -INF',
       );
     }
     final numVal = double.tryParse(text);
     if (numVal == null) {
       throw XPathEvaluationException(
-        'Invalid number format: $text [err:FOJS0006]',
+        XPathErrorCode.FOJS0006,
+        'Invalid number format: $text',
       );
     }
     return _formatDoubleForJson(numVal, text);
@@ -1624,7 +1732,8 @@ class _XmlToJsonSerializer {
         if (ch == 0x5C) {
           if (i + 1 >= text.length) {
             throw XPathEvaluationException(
-              'Unterminated escape sequence in escaped string [err:FOJS0007]',
+              XPathErrorCode.FOJS0007,
+              'Unterminated escape sequence in escaped string',
             );
           }
           final next = text.codeUnitAt(i + 1);
@@ -1642,21 +1751,24 @@ class _XmlToJsonSerializer {
           } else if (next == 0x75) {
             if (i + 5 >= text.length) {
               throw XPathEvaluationException(
-                'Incomplete \\uXXXX escape in escaped string [err:FOJS0007]',
+                XPathErrorCode.FOJS0007,
+                'Incomplete \\uXXXX escape in escaped string',
               );
             }
             final hex = text.substring(i + 2, i + 6);
             final code = int.tryParse(hex, radix: 16);
             if (code == null) {
               throw XPathEvaluationException(
-                'Invalid hex in \\uXXXX escape in escaped string [err:FOJS0007]',
+                XPathErrorCode.FOJS0007,
+                'Invalid hex in \\uXXXX escape in escaped string',
               );
             }
             sb.write('\\u$hex');
             i += 6;
           } else {
             throw XPathEvaluationException(
-              'Invalid escape sequence in escaped string: \\${String.fromCharCode(next)} [err:FOJS0007]',
+              XPathErrorCode.FOJS0007,
+              'Invalid escape sequence in escaped string: \\${String.fromCharCode(next)}',
             );
           }
         } else if (ch == 0x22) {
@@ -1694,7 +1806,8 @@ class _XmlToJsonSerializer {
     for (final child in element.children) {
       if (child is XmlElement) {
         throw XPathEvaluationException(
-          'Boolean element cannot contain child elements [err:FOJS0006]',
+          XPathErrorCode.FOJS0006,
+          'Boolean element cannot contain child elements',
         );
       }
     }
@@ -1702,7 +1815,8 @@ class _XmlToJsonSerializer {
     if (text == 'true' || text == '1') return 'true';
     if (text == 'false' || text == '0') return 'false';
     throw XPathEvaluationException(
-      'Invalid boolean content: $text [err:FOJS0006]',
+      XPathErrorCode.FOJS0006,
+      'Invalid boolean content: $text',
     );
   }
 
@@ -1710,14 +1824,16 @@ class _XmlToJsonSerializer {
     for (final child in element.children) {
       if (child is XmlElement) {
         throw XPathEvaluationException(
-          'Null element cannot contain child elements [err:FOJS0006]',
+          XPathErrorCode.FOJS0006,
+          'Null element cannot contain child elements',
         );
       }
     }
     final text = element.innerText.trim();
     if (text.isNotEmpty) {
       throw XPathEvaluationException(
-        'Null element cannot contain text [err:FOJS0006]',
+        XPathErrorCode.FOJS0006,
+        'Null element cannot contain text',
       );
     }
     return 'null';
@@ -1729,7 +1845,8 @@ class _XmlToJsonSerializer {
     if (trimmed == 'true' || trimmed == '1') return true;
     if (trimmed == 'false' || trimmed == '0') return false;
     throw XPathEvaluationException(
-      'Invalid boolean attribute value: $value [err:FOJS0006]',
+      XPathErrorCode.FOJS0006,
+      'Invalid boolean attribute value: $value',
     );
   }
 
@@ -1741,7 +1858,8 @@ class _XmlToJsonSerializer {
         // '\'
         if (i + 1 >= input.length) {
           throw XPathEvaluationException(
-            'Incomplete escape sequence in escaped string [err:FOJS0007]',
+            XPathErrorCode.FOJS0007,
+            'Incomplete escape sequence in escaped string',
           );
         }
         i++;
@@ -1766,14 +1884,16 @@ class _XmlToJsonSerializer {
           case 0x75: // \uXXXX
             if (i + 4 >= input.length) {
               throw XPathEvaluationException(
-                'Incomplete \\u hex escape in escaped string [err:FOJS0007]',
+                XPathErrorCode.FOJS0007,
+                'Incomplete \\u hex escape in escaped string',
               );
             }
             final hex = input.substring(i + 1, i + 5);
             final code = int.tryParse(hex, radix: 16);
             if (code == null) {
               throw XPathEvaluationException(
-                'Invalid \\u hex escape: $hex [err:FOJS0007]',
+                XPathErrorCode.FOJS0007,
+                'Invalid \\u hex escape: $hex',
               );
             }
             i += 4;
@@ -1793,18 +1913,21 @@ class _XmlToJsonSerializer {
                 }
               }
               throw XPathEvaluationException(
-                'Unpaired high surrogate in escaped string: $hex [err:FOJS0007]',
+                XPathErrorCode.FOJS0007,
+                'Unpaired high surrogate in escaped string: $hex',
               );
             }
             if (code >= 0xDC00 && code <= 0xDFFF) {
               throw XPathEvaluationException(
-                'Unpaired low surrogate in escaped string: $hex [err:FOJS0007]',
+                XPathErrorCode.FOJS0007,
+                'Unpaired low surrogate in escaped string: $hex',
               );
             }
             sb.write(String.fromCharCode(code));
           default:
             throw XPathEvaluationException(
-              'Invalid escape sequence in escaped string: \\${String.fromCharCode(next)} [err:FOJS0007]',
+              XPathErrorCode.FOJS0007,
+              'Invalid escape sequence in escaped string: \\${String.fromCharCode(next)}',
             );
         }
       } else {

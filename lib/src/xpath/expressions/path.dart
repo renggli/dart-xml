@@ -6,6 +6,7 @@ import '../../xml/extensions/parent.dart';
 import '../../xml/nodes/node.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/item.dart';
 import '../xdm/sequence.dart';
@@ -172,8 +173,8 @@ int _compareNodePosition(XmlNode node1, XmlNode node2) {
   return 0;
 }
 
-Never _throwPathOperatorRequiresNodes(
-  Object object,
-) => throw XPathEvaluationException(
-  'Path operator / requires sequence of nodes, but got $object [err:XPTY0019]',
-);
+Never _throwPathOperatorRequiresNodes(Object object) =>
+    throw XPathEvaluationException(
+      XPathErrorCode.XPTY0019,
+      'Path operator / requires sequence of nodes, but got $object',
+    );

@@ -1,4 +1,5 @@
 import '../../../xml/utils/name.dart';
+import '../../exceptions/error_code.dart';
 import '../../exceptions/evaluation_exception.dart';
 import '../atomic.dart';
 import '../types.dart';
@@ -17,8 +18,10 @@ final class XPathQName extends XPathAtomic {
   String get stringValue => value.qualified;
 
   @override
-  bool get effectiveBooleanValue =>
-      throw XPathEvaluationException('EBV not defined for QName values');
+  bool get effectiveBooleanValue => throw XPathEvaluationException(
+    XPathErrorCode.FORG0006,
+    'EBV not defined for QName values',
+  );
 
   @override
   bool operator ==(Object other) {

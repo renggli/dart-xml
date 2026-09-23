@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 
+import '../../exceptions/error_code.dart';
 import '../../exceptions/evaluation_exception.dart';
 import '../atomic.dart';
 import '../types.dart';
@@ -15,8 +16,10 @@ abstract class XPathBinary extends XPathAtomic {
   final Uint8List value;
 
   @override
-  bool get effectiveBooleanValue =>
-      throw XPathEvaluationException('EBV not defined for binary values');
+  bool get effectiveBooleanValue => throw XPathEvaluationException(
+    XPathErrorCode.FORG0006,
+    'EBV not defined for binary values',
+  );
 
   @override
   int compareTo(XPathAtomic other) {
@@ -67,7 +70,10 @@ final class XPathHexBinary extends XPathBinary {
   factory fromHex(String text) {
     final clean = text.replaceAll(RegExp(r'\s+'), '').toUpperCase();
     if (clean.length.isOdd) {
-      throw XPathEvaluationException('Invalid hex length: ${clean.length}');
+      throw XPathEvaluationException(
+        XPathErrorCode.FORG0001,
+        'Invalid hex length: ${clean.length}',
+      );
     }
     final bytes = Uint8List(clean.length ~/ 2);
     for (var i = 0; i < bytes.length; i++) {

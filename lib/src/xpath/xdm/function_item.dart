@@ -1,5 +1,6 @@
 import '../../xml/utils/name.dart';
 import '../evaluation/context.dart';
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import 'atomic.dart';
 import 'item.dart';
@@ -118,16 +119,19 @@ abstract class XPathFunctionItem implements XPathItem {
 
   @override
   XPathAtomic atomize() => throw XPathEvaluationException(
-    'Cannot atomize a map or function item [err:FOTY0013]',
+    XPathErrorCode.FOTY0013,
+    'Cannot atomize a map or function item',
   );
 
   @override
   String get stringValue => throw XPathEvaluationException(
+    XPathErrorCode.FOTY0013,
     'String value not defined for function item: $this',
   );
 
   @override
   bool get effectiveBooleanValue => throw XPathEvaluationException(
+    XPathErrorCode.FORG0006,
     'Cannot compute EBV for a function item: $this',
   );
 
@@ -160,6 +164,7 @@ class _XPathFunction0 extends XPathFunctionItem {
   XPathSequence call(XPathContext context, List<XPathSequence> arguments) {
     if (arguments.isNotEmpty) {
       throw XPathEvaluationException(
+        XPathErrorCode.FOAP0001,
         'Function ${name?.qualified ?? '(anonymous)'} expects 0 arguments, but got ${arguments.length}.',
       );
     }
@@ -188,6 +193,7 @@ class _XPathFunction1 extends XPathFunctionItem {
   XPathSequence call(XPathContext context, List<XPathSequence> arguments) {
     if (arguments.length != 1) {
       throw XPathEvaluationException(
+        XPathErrorCode.FOAP0001,
         'Function ${name?.qualified ?? '(anonymous)'} expects 1 argument, but got ${arguments.length}.',
       );
     }
@@ -216,6 +222,7 @@ class _XPathFunction2 extends XPathFunctionItem {
   XPathSequence call(XPathContext context, List<XPathSequence> arguments) {
     if (arguments.length != 2) {
       throw XPathEvaluationException(
+        XPathErrorCode.FOAP0001,
         'Function ${name?.qualified ?? '(anonymous)'} expects 2 arguments, but got ${arguments.length}.',
       );
     }
@@ -244,6 +251,7 @@ class _XPathFunction3 extends XPathFunctionItem {
   XPathSequence call(XPathContext context, List<XPathSequence> arguments) {
     if (arguments.length != 3) {
       throw XPathEvaluationException(
+        XPathErrorCode.FOAP0001,
         'Function ${name?.qualified ?? '(anonymous)'} expects 3 arguments, but got ${arguments.length}.',
       );
     }
@@ -286,6 +294,7 @@ class _XPathFunctionN extends XPathFunctionItem {
   XPathSequence call(XPathContext context, List<XPathSequence> arguments) {
     if (arguments.length != arity) {
       throw XPathEvaluationException(
+        XPathErrorCode.FOAP0001,
         'Function ${name?.qualified ?? '(anonymous)'} expects $arity arguments, but got ${arguments.length}.',
       );
     }
@@ -320,6 +329,7 @@ class XPathOverloadedFunction extends XPathFunctionItem {
       return func.call(context, arguments);
     }
     throw XPathEvaluationException(
+      XPathErrorCode.FOAP0001,
       'Function ${name?.qualified ?? '(anonymous)'} does not support arity ${arguments.length}. Available arities: ${byArity.keys.toList()..sort()}.',
     );
   }
@@ -357,6 +367,7 @@ class _XPathVariadicFunction extends XPathFunctionItem {
   XPathSequence call(XPathContext context, List<XPathSequence> arguments) {
     if (arguments.length < minArity) {
       throw XPathEvaluationException(
+        XPathErrorCode.FOAP0001,
         'Function ${name?.qualified ?? '(anonymous)'} expects at least $minArity arguments, but got ${arguments.length}.',
       );
     }

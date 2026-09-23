@@ -1,5 +1,6 @@
 import '../../xml/utils/name.dart';
 import '../../xml/utils/token.dart';
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import 'atomic.dart';
 import 'types.dart';
@@ -285,12 +286,14 @@ bool canCastType(XPathType source, XPathType target) {
 XPathAtomic castAtomic(XPathAtomic item, XPathType targetType) {
   if (targetType == xsAnyAtomicType || targetType == xsNOTATION) {
     throw XPathEvaluationException(
-      'XPST0080: Cannot cast to abstract type ${targetType.name}',
+      XPathErrorCode.XPST0080,
+      'Cannot cast to abstract type ${targetType.name}',
     );
   }
   if (!targetType.isAtomic) {
     throw XPathEvaluationException(
-      'XPTY0004: Target type ${targetType.name} is not an atomic type',
+      XPathErrorCode.XPTY0004,
+      'Target type ${targetType.name} is not an atomic type',
     );
   }
 
@@ -299,7 +302,8 @@ XPathAtomic castAtomic(XPathAtomic item, XPathType targetType) {
 
   if (!_allowedPrimitiveCasts.contains((sourcePrimitive, targetPrimitive))) {
     throw XPathEvaluationException(
-      'XPTY0004: Cannot cast ${item.type.name} to ${targetType.name}',
+      XPathErrorCode.XPTY0004,
+      'Cannot cast ${item.type.name} to ${targetType.name}',
     );
   }
 
@@ -402,7 +406,8 @@ XPathAtomic _performCast(
     if (targetPrimitive == xsDateTimeStamp) {
       if (item.timezoneOffsetMinutes == null) {
         throw XPathEvaluationException(
-          'FODT0001: xs:dateTimeStamp requires timezone',
+          XPathErrorCode.FODT0001,
+          'xs:dateTimeStamp requires timezone',
         );
       }
       return XPathDateTime(
@@ -504,7 +509,8 @@ XPathAtomic _performCast(
   }
 
   throw XPathEvaluationException(
-    'FORG0001: Cannot cast ${item.type.name} to ${targetType.name}',
+    XPathErrorCode.FORG0001,
+    'Cannot cast ${item.type.name} to ${targetType.name}',
   );
 }
 
@@ -522,7 +528,10 @@ XPathAtomic _castFromString(
       if (trimmed == 'false' || trimmed == '0') {
         return XPathBoolean.falseInstance;
       }
-      throw XPathEvaluationException('FORG0001: Invalid boolean literal');
+      throw XPathEvaluationException(
+        XPathErrorCode.FORG0001,
+        'Invalid boolean literal',
+      );
     }
     if (targetPrimitive == xsDouble || targetPrimitive == xsFloat) {
       return XPathDouble.parse(trimmed, targetType);
@@ -535,57 +544,89 @@ XPathAtomic _castFromString(
     }
     if (targetPrimitive == xsDateTime) {
       return XPathDateTime.tryParse(trimmed) ??
-          (throw XPathEvaluationException('FORG0001: Invalid xs:dateTime'));
+          (throw XPathEvaluationException(
+            XPathErrorCode.FORG0001,
+            'Invalid xs:dateTime',
+          ));
     }
     if (targetPrimitive == xsDateTimeStamp) {
       final dt = XPathDateTime.tryParse(trimmed);
       if (dt == null || dt.timezoneOffsetMinutes == null) {
-        throw XPathEvaluationException('FORG0001: Invalid xs:dateTimeStamp');
+        throw XPathEvaluationException(
+          XPathErrorCode.FORG0001,
+          'Invalid xs:dateTimeStamp',
+        );
       }
       return dt;
     }
     if (targetPrimitive == xsDate) {
       return XPathDate.tryParse(trimmed) ??
-          (throw XPathEvaluationException('FORG0001: Invalid xs:date'));
+          (throw XPathEvaluationException(
+            XPathErrorCode.FORG0001,
+            'Invalid xs:date',
+          ));
     }
     if (targetPrimitive == xsTime) {
       return XPathTime.tryParse(trimmed) ??
-          (throw XPathEvaluationException('FORG0001: Invalid xs:time'));
+          (throw XPathEvaluationException(
+            XPathErrorCode.FORG0001,
+            'Invalid xs:time',
+          ));
     }
     if (targetPrimitive == xsGYearMonth) {
       return XPathYearMonth.tryParse(trimmed) ??
-          (throw XPathEvaluationException('FORG0001: Invalid xs:gYearMonth'));
+          (throw XPathEvaluationException(
+            XPathErrorCode.FORG0001,
+            'Invalid xs:gYearMonth',
+          ));
     }
     if (targetPrimitive == xsGYear) {
       return XPathYear.tryParse(trimmed) ??
-          (throw XPathEvaluationException('FORG0001: Invalid xs:gYear'));
+          (throw XPathEvaluationException(
+            XPathErrorCode.FORG0001,
+            'Invalid xs:gYear',
+          ));
     }
     if (targetPrimitive == xsGMonthDay) {
       return XPathMonthDay.tryParse(trimmed) ??
-          (throw XPathEvaluationException('FORG0001: Invalid xs:gMonthDay'));
+          (throw XPathEvaluationException(
+            XPathErrorCode.FORG0001,
+            'Invalid xs:gMonthDay',
+          ));
     }
     if (targetPrimitive == xsGMonth) {
       return XPathMonth.tryParse(trimmed) ??
-          (throw XPathEvaluationException('FORG0001: Invalid xs:gMonth'));
+          (throw XPathEvaluationException(
+            XPathErrorCode.FORG0001,
+            'Invalid xs:gMonth',
+          ));
     }
     if (targetPrimitive == xsGDay) {
       return XPathDay.tryParse(trimmed) ??
-          (throw XPathEvaluationException('FORG0001: Invalid xs:gDay'));
+          (throw XPathEvaluationException(
+            XPathErrorCode.FORG0001,
+            'Invalid xs:gDay',
+          ));
     }
     if (targetPrimitive == xsDuration) {
       return XPathDuration.tryParse(trimmed) ??
-          (throw XPathEvaluationException('FORG0001: Invalid xs:duration'));
+          (throw XPathEvaluationException(
+            XPathErrorCode.FORG0001,
+            'Invalid xs:duration',
+          ));
     }
     if (targetPrimitive == xsYearMonthDuration) {
       return XPathYearMonthDuration.tryParse(trimmed) ??
           (throw XPathEvaluationException(
-            'FORG0001: Invalid xs:yearMonthDuration',
+            XPathErrorCode.FORG0001,
+            'Invalid xs:yearMonthDuration',
           ));
     }
     if (targetPrimitive == xsDayTimeDuration) {
       return XPathDayTimeDuration.tryParse(trimmed) ??
           (throw XPathEvaluationException(
-            'FORG0001: Invalid xs:dayTimeDuration',
+            XPathErrorCode.FORG0001,
+            'Invalid xs:dayTimeDuration',
           ));
     }
     if (targetPrimitive == xsBase64Binary) {
@@ -600,12 +641,14 @@ XPathAtomic _castFromString(
   } catch (e) {
     if (e is XPathEvaluationException) rethrow;
     throw XPathEvaluationException(
-      'FORG0001: Invalid literal for ${targetType.name}: "$text"',
+      XPathErrorCode.FORG0001,
+      'Invalid literal for ${targetType.name}: "$text"',
     );
   }
 
   throw XPathEvaluationException(
-    'FORG0001: Cannot cast string to ${targetType.name}',
+    XPathErrorCode.FORG0001,
+    'Cannot cast string to ${targetType.name}',
   );
 }
 
@@ -615,7 +658,8 @@ void _validateTargetConstraints(XPathAtomic item, XPathType targetType) {
     if (bounds != null) {
       if (item.value < bounds.$1 || item.value > bounds.$2) {
         throw XPathEvaluationException(
-          'FORG0001: Integer value ${item.value} out of range for ${targetType.name}',
+          XPathErrorCode.FORG0001,
+          'Integer value ${item.value} out of range for ${targetType.name}',
         );
       }
     }
@@ -624,19 +668,22 @@ void _validateTargetConstraints(XPathAtomic item, XPathType targetType) {
     if (targetType == xsLanguage) {
       if (!_languageRegExp.hasMatch(str)) {
         throw XPathEvaluationException(
-          'FORG0001: Invalid lexical value for xs:language: "$str"',
+          XPathErrorCode.FORG0001,
+          'Invalid lexical value for xs:language: "$str"',
         );
       }
     } else if (targetType == xsNMToken) {
       if (!_nmTokenRegExp.hasMatch(str)) {
         throw XPathEvaluationException(
-          'FORG0001: Invalid lexical value for xs:NMTOKEN: "$str"',
+          XPathErrorCode.FORG0001,
+          'Invalid lexical value for xs:NMTOKEN: "$str"',
         );
       }
     } else if (targetType == xsName) {
       if (!_nameRegExp.hasMatch(str)) {
         throw XPathEvaluationException(
-          'FORG0001: Invalid lexical value for xs:Name: "$str"',
+          XPathErrorCode.FORG0001,
+          'Invalid lexical value for xs:Name: "$str"',
         );
       }
     } else if (targetType == xsNCName ||
@@ -645,7 +692,8 @@ void _validateTargetConstraints(XPathAtomic item, XPathType targetType) {
         targetType == xsENTITY) {
       if (!_ncNameRegExp.hasMatch(str)) {
         throw XPathEvaluationException(
-          'FORG0001: Invalid lexical value for ${targetType.name}: "$str"',
+          XPathErrorCode.FORG0001,
+          'Invalid lexical value for ${targetType.name}: "$str"',
         );
       }
     }

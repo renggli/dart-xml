@@ -91,3 +91,11 @@ In XPath 3.1, functions, maps, and arrays all implement `XPathFunctionItem`:
 - **XPath Operators**: Implemented in `operators/`. Accept and return `XPathSequence`s, evaluating on native `XPathItem`s.
 - **XPath Functions**: Implemented in `functions/`. Accept `XPathContext` and `List<XPathSequence>` arguments, returning an `XPathSequence`.
 - **XPath Expressions**: Functional AST nodes implementing `call(XPathContext context) -> XPathSequence`.
+
+## Error Handling
+
+Standard XPath errors are defined using `XPathErrorCode` adhering to <https://www.w3.org/2005/xqt-errors/>.
+
+- Evaluation failures must throw `XPathEvaluationException(XPathErrorCode errorCode, [String? details])`.
+- Never hardcode error code strings like `[err:XPTY0004]` into error messages; `XPathErrorCode.format` automatically produces standard formatted descriptions with `[err:XXXX]`.
+- QT3 verifier asserts against expected error codes using `XPathEvaluationException.errorCode`.

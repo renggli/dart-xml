@@ -1,5 +1,6 @@
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/atomic.dart';
 import '../xdm/functions/array.dart';
@@ -18,14 +19,16 @@ class MapConstructor implements XPathExpression {
       final keySeq = entry.key(context).atomize().toList();
       if (keySeq.length != 1) {
         throw XPathEvaluationException(
-          'map:constructor key must be exactly one atomic item [err:XPTY0004]',
+          XPathErrorCode.XPTY0004,
+          'map:constructor key must be exactly one atomic item',
         );
       }
       final key = keySeq.single;
       for (final existingKey in map.keys) {
         if (XPathMap.sameKey(existingKey, key)) {
           throw XPathEvaluationException(
-            'Duplicate key in map constructor: $key [err:XQDY0137]',
+            XPathErrorCode.XQDY0137,
+            'Duplicate key in map constructor: $key',
           );
         }
       }

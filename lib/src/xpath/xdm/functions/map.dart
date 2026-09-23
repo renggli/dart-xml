@@ -1,4 +1,5 @@
 import '../../evaluation/context.dart';
+import '../../exceptions/error_code.dart';
 import '../../exceptions/evaluation_exception.dart';
 import '../atomic.dart';
 import '../function_item.dart';
@@ -45,12 +46,16 @@ final class XPathMap extends XPathFunctionItem {
   XPathSequence call(XPathContext context, List<XPathSequence> arguments) {
     if (arguments.length != 1) {
       throw XPathEvaluationException(
+        XPathErrorCode.FOAP0001,
         'Maps expect exactly 1 argument, but got ${arguments.length}',
       );
     }
     final key = arguments.single.atomize().firstOrNull;
     if (key == null) {
-      throw XPathEvaluationException('Map key cannot be empty sequence');
+      throw XPathEvaluationException(
+        XPathErrorCode.XPTY0004,
+        'Map key cannot be empty sequence',
+      );
     }
     return get(key) ?? XPathSequence.empty;
   }

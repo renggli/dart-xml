@@ -58,7 +58,10 @@ void main() {
       unparsedTextLoader: (uri, encoding) {
         if (uri == 'http://example.com/dir/hello.txt') {
           if (encoding == 'invalid') {
-            throw XPathEvaluationException('Unsupported encoding: $encoding');
+            throw XPathEvaluationException(
+              XPathErrorCode.FOUT1190,
+              'Unsupported encoding: $encoding',
+            );
           }
           return 'hello world';
         }

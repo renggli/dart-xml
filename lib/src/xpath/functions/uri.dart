@@ -2,6 +2,7 @@ import 'dart:core';
 
 import '../../xml/utils/name.dart';
 import '../evaluation/context.dart';
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/atomic/string.dart';
 import '../xdm/function_item.dart';
@@ -51,7 +52,10 @@ XPathSequence _evalResolveUri(
     if (base == null) {
       final staticBase = context.configuration.baseUri;
       if (staticBase == null) {
-        throw XPathEvaluationException('Static base URI is undefined');
+        throw XPathEvaluationException(
+          XPathErrorCode.XPST0001,
+          'Static base URI is undefined',
+        );
       }
       resolvedBase = staticBase;
     } else {
@@ -61,7 +65,10 @@ XPathSequence _evalResolveUri(
       XPathAnyUri(Uri.parse(resolvedBase).resolve(relative.value).toString()),
     );
   } on FormatException catch (error) {
-    throw XPathEvaluationException('Invalid URI: ${error.message}');
+    throw XPathEvaluationException(
+      XPathErrorCode.FORG0002,
+      'Invalid URI: ${error.message}',
+    );
   }
 }
 
@@ -73,7 +80,10 @@ XPathSequence _fnDoc(XPathContext context, XPathSequence uriSeq) {
   if (uri == null) return XPathSequence.empty;
   final document = context.configuration.documents[uri.value];
   if (document != null) return XPathSequence.single(XPathNode(document));
-  throw XPathEvaluationException('Document not found: ${uri.value}');
+  throw XPathEvaluationException(
+    XPathErrorCode.FODC0002,
+    'Document not found: ${uri.value}',
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-doc-available
@@ -110,7 +120,8 @@ XPathSequence _fnCollection0(XPathContext context) {
     return XPathSequence(nodes.map(XPathNode.new));
   }
   throw XPathEvaluationException(
-    'No default collection available [err:FODC0002]',
+    XPathErrorCode.FODC0002,
+    'No default collection available',
   );
 }
 
@@ -134,7 +145,8 @@ XPathSequence _fnCollection1(XPathContext context, XPathSequence uriSeq) {
     return XPathSequence(nodes.map(XPathNode.new));
   }
   throw XPathEvaluationException(
-    'Collection not found: $uriStr [err:FODC0002]',
+    XPathErrorCode.FODC0002,
+    'Collection not found: $uriStr',
   );
 }
 
@@ -170,7 +182,8 @@ XPathSequence _fnUriCollection0(XPathContext context) {
     return XPathSequence(uris);
   }
   throw XPathEvaluationException(
-    'No default collection available [err:FODC0002]',
+    XPathErrorCode.FODC0002,
+    'No default collection available',
   );
 }
 
@@ -205,7 +218,8 @@ XPathSequence _fnUriCollection1(XPathContext context, XPathSequence uriSeq) {
     return XPathSequence(uris);
   }
   throw XPathEvaluationException(
-    'Collection not found: $uriStr [err:FODC0002]',
+    XPathErrorCode.FODC0002,
+    'Collection not found: $uriStr',
   );
 }
 
@@ -253,18 +267,25 @@ XPathSequence _evalUnparsedText(
     } else {
       final base = context.configuration.baseUri;
       if (base == null) {
-        throw XPathEvaluationException('Static base URI is undefined');
+        throw XPathEvaluationException(
+          XPathErrorCode.XPST0001,
+          'Static base URI is undefined',
+        );
       }
       resolved = Uri.parse(base).resolve(href.value).toString();
     }
   } on FormatException catch (e) {
-    throw XPathEvaluationException('Invalid URI: ${href.value} (${e.message})');
+    throw XPathEvaluationException(
+      XPathErrorCode.FOUT1170,
+      'Invalid URI: ${href.value} (${e.message})',
+    );
   }
 
   // Check fragment identifier.
   final parsedResolved = Uri.parse(resolved);
   if (parsedResolved.hasFragment) {
     throw XPathEvaluationException(
+      XPathErrorCode.FOUT1170,
       'URI contains a fragment identifier: $resolved',
     );
   }
@@ -277,6 +298,7 @@ XPathSequence _evalUnparsedText(
   final loader = context.configuration.unparsedTextLoader;
   if (loader == null) {
     throw XPathEvaluationException(
+      XPathErrorCode.FOUT1200,
       'No unparsed text loader available to load $resolved',
     );
   }
@@ -286,11 +308,17 @@ XPathSequence _evalUnparsedText(
     loaded = loader(resolved, encoding?.value);
   } catch (e) {
     if (e is XPathEvaluationException) rethrow;
-    throw XPathEvaluationException('Failed to load resource $resolved: $e');
+    throw XPathEvaluationException(
+      XPathErrorCode.FOUT1200,
+      'Failed to load resource $resolved: $e',
+    );
   }
 
   if (loaded == null) {
-    throw XPathEvaluationException('Resource not found: $resolved');
+    throw XPathEvaluationException(
+      XPathErrorCode.FOUT1200,
+      'Resource not found: $resolved',
+    );
   }
 
   // Validate XML characters in text.
@@ -315,7 +343,10 @@ void _validateEncodingName(String encoding) {
     'ascii',
   };
   if (!supported.contains(normalized)) {
-    throw XPathEvaluationException('Unsupported encoding: $encoding');
+    throw XPathEvaluationException(
+      XPathErrorCode.FOUT1190,
+      'Unsupported encoding: $encoding',
+    );
   }
 }
 
@@ -330,6 +361,7 @@ void _validateXmlCharacters(String text) {
       continue;
     }
     throw XPathEvaluationException(
+      XPathErrorCode.FOUT1190,
       'Invalid XML character: U+${char.toRadixString(16).toUpperCase()}',
     );
   }

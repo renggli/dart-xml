@@ -12,6 +12,7 @@ import '../../xml/nodes/text.dart';
 import '../../xml/utils/name.dart';
 import '../../xml/utils/namespace.dart';
 import '../evaluation/cardinality.dart';
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/atomic/string.dart';
 import '../xdm/function_item.dart';
@@ -124,6 +125,7 @@ final fnId = XPathFunctionItem.overloaded(const XmlName.qualified('fn:id'), {
     final nodeItem = node.firstOrNull;
     if (nodeItem is! XPathNode) {
       throw XPathEvaluationException(
+        XPathErrorCode.XPTY0004,
         'Expected a node for the second argument of fn:id',
       );
     }
@@ -166,6 +168,7 @@ final fnElementWithId = XPathFunctionItem.overloaded(
       final nodeItem = node.firstOrNull;
       if (nodeItem is! XPathNode) {
         throw XPathEvaluationException(
+          XPathErrorCode.XPTY0004,
           'Expected a node for the second argument of fn:element-with-id',
         );
       }
@@ -211,6 +214,7 @@ final fnIdref = XPathFunctionItem.overloaded(
       final nodeItem = node.firstOrNull;
       if (nodeItem is! XPathNode) {
         throw XPathEvaluationException(
+          XPathErrorCode.XPTY0004,
           'Expected a node for the second argument of fn:idref',
         );
       }

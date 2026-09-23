@@ -1,6 +1,7 @@
 import '../../xml/nodes/element.dart';
 import '../../xml/utils/name.dart';
 import '../evaluation/context.dart';
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/atomic/qname.dart';
 import '../xdm/atomic/string.dart';
@@ -24,7 +25,10 @@ XPathSequence _fnResolveQName(
   final elementNode = elementSeq.first as XPathNode;
   final element = elementNode.node;
   if (element is! XmlElement) {
-    throw XPathEvaluationException('Expected element, found: $element');
+    throw XPathEvaluationException(
+      XPathErrorCode.XPTY0004,
+      'Expected element, found: $element',
+    );
   }
   final qnameStr = qnameItem is XPathString
       ? qnameItem.value
@@ -40,7 +44,10 @@ XPathSequence _fnResolveQName(
       return XPathSequence.single(XPathQName(name.withNamespaceUri(uri)));
     }
   }
-  throw XPathEvaluationException('Invalid qualified name: $qnameStr');
+  throw XPathEvaluationException(
+    XPathErrorCode.FONS0004,
+    'No namespace found for prefix: $qnameStr',
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-QName
@@ -125,7 +132,10 @@ XPathSequence _fnNamespaceUriForPrefix(
   final elementNode = elementSeq.first as XPathNode;
   final element = elementNode.node;
   if (element is! XmlElement) {
-    throw XPathEvaluationException('Expected element, found: $element');
+    throw XPathEvaluationException(
+      XPathErrorCode.XPTY0004,
+      'Expected element, found: $element',
+    );
   }
   final prefixItem = prefixSeq.firstOrNull;
   final p = prefixItem != null
@@ -149,7 +159,10 @@ XPathSequence _fnInScopePrefixes(
   final elementNode = elementSeq.first as XPathNode;
   final element = elementNode.node;
   if (element is! XmlElement) {
-    throw XPathEvaluationException('Expected element, found: $element');
+    throw XPathEvaluationException(
+      XPathErrorCode.XPTY0004,
+      'Expected element, found: $element',
+    );
   }
   return XPathSequence(element.namespaces.map((ns) => XPathString(ns.prefix)));
 }

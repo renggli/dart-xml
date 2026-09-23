@@ -1,5 +1,6 @@
 import '../../xml/utils/name.dart';
 import '../evaluation/context.dart';
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/atomic.dart';
 import '../xdm/function_item.dart';
@@ -119,7 +120,10 @@ XPathSequence _evalMapMerge(XPathSequence maps, XPathMap? options) {
   for (final item in maps) {
     if (item is! XPathMap) {
       final val = item is XPathAtomic ? item.value : item;
-      throw XPathEvaluationException('Unsupported cast from $val to map(*)');
+      throw XPathEvaluationException(
+        XPathErrorCode.XPTY0004,
+        'Unsupported cast from $val to map(*)',
+      );
     }
     result.addAll(item.entries);
   }

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import '../../xml/nodes/node.dart';
 import '../../xml/utils/name.dart';
 import '../evaluation/cardinality.dart';
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import 'atomic.dart';
 import 'functions/array.dart';
@@ -73,6 +74,7 @@ abstract class XPathSequence extends Iterable<XPathItem> {
     final List<XPathSequence> l => XPathArray(l),
     final List<Object?> l => XPathArray([for (final e in l) fromObject(e)]),
     _ => throw XPathEvaluationException(
+      XPathErrorCode.XPTY0004,
       'Cannot convert ${obj.runtimeType} to XPathItem',
     ),
   };
@@ -128,7 +130,10 @@ abstract class XPathSequence extends Iterable<XPathItem> {
     if (!it.moveNext()) {
       return first.effectiveBooleanValue;
     }
-    throw XPathEvaluationException('Invalid EBV for sequence of length > 1');
+    throw XPathEvaluationException(
+      XPathErrorCode.FORG0006,
+      'Invalid EBV for sequence of length > 1',
+    );
   }
 
   /// Alias for [ebv].
@@ -151,7 +156,10 @@ abstract class XPathSequence extends Iterable<XPathItem> {
   static XPathSequence range(XPathInteger start, XPathInteger stop) {
     if (start.value > stop.value) return empty;
     if (stop.value - start.value > BigInt.from(10000000)) {
-      throw XPathEvaluationException('Sequence size limit exceeded (XPDY0130)');
+      throw XPathEvaluationException(
+        XPathErrorCode.XPDY0130,
+        'Sequence size limit exceeded',
+      );
     }
     return _XPathRangeSequence(start.value, stop.value);
   }

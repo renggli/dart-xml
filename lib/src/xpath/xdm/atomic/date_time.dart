@@ -1,3 +1,4 @@
+import '../../exceptions/error_code.dart';
 import '../../exceptions/evaluation_exception.dart';
 import '../atomic.dart';
 import '../types.dart';
@@ -15,6 +16,7 @@ abstract class XPathAbstractDateTime extends XPathAtomic {
 
   @override
   bool get effectiveBooleanValue => throw XPathEvaluationException(
+    XPathErrorCode.FORG0006,
     'EBV not defined for temporal values: $this',
   );
 

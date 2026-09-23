@@ -1,3 +1,4 @@
+import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/atomic.dart';
 import '../xdm/sequence.dart';
@@ -14,7 +15,10 @@ XPathSequence opValueEqual(XPathSequence left, XPathSequence right) {
     if (a is XPathQName && b is XPathQName) {
       return a == b ? XPathSequence.trueSequence : XPathSequence.falseSequence;
     }
-    throw XPathEvaluationException('Cannot compare $a and $b [err:XPTY0004]');
+    throw XPathEvaluationException(
+      XPathErrorCode.XPTY0004,
+      'Cannot compare $a and $b',
+    );
   }
   if (a is XPathAbstractDuration && b is XPathAbstractDuration) {
     return a == b ? XPathSequence.trueSequence : XPathSequence.falseSequence;
@@ -40,7 +44,10 @@ XPathSequence opValueNotEqual(XPathSequence left, XPathSequence right) {
     if (a is XPathQName && b is XPathQName) {
       return a != b ? XPathSequence.trueSequence : XPathSequence.falseSequence;
     }
-    throw XPathEvaluationException('Cannot compare $a and $b [err:XPTY0004]');
+    throw XPathEvaluationException(
+      XPathErrorCode.XPTY0004,
+      'Cannot compare $a and $b',
+    );
   }
   if (a is XPathAbstractDuration && b is XPathAbstractDuration) {
     return a != b ? XPathSequence.trueSequence : XPathSequence.falseSequence;
@@ -77,7 +84,8 @@ XPathAtomic? _atomizeSingle(XPathSequence seq) {
   if (data.isEmpty) return null;
   if (data.length > 1) {
     throw XPathEvaluationException(
-      'Sequence contains more than one item: (${data.join(', ')}) [err:XPTY0004]',
+      XPathErrorCode.XPTY0004,
+      'Sequence contains more than one item: (${data.join(', ')})',
     );
   }
   final item = data.first;
@@ -100,7 +108,8 @@ XPathSequence _compareValue(
   }
   if (a is XPathQName || b is XPathQName) {
     throw XPathEvaluationException(
-      'Cannot compare QNames for order [err:XPTY0004]',
+      XPathErrorCode.XPTY0004,
+      'Cannot compare QNames for order',
     );
   }
   return test(compare(a, b))
@@ -142,6 +151,7 @@ int compare(XPathAtomic a, XPathAtomic b) {
     return a.compareTo(b);
   }
   throw XPathEvaluationException(
-    'Cannot compare ${a.type} and ${b.type} [err:XPTY0004]',
+    XPathErrorCode.XPTY0004,
+    'Cannot compare ${a.type} and ${b.type}',
   );
 }
