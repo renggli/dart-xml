@@ -184,6 +184,7 @@ void main() {
       ]);
       expect(result, isXPathSequence([isA<XPathFunctionItem>()]));
     });
+
     test('unknown function returns empty', () {
       final result = fnFunctionLookup(context, [
         seq(const XmlName.qualified('nonexistent')),
@@ -191,6 +192,30 @@ void main() {
       ]);
       expect(result, isEmpty);
     });
+
+    test('absent namespace does not match standard function', () {
+      expect(
+        document.xpathEvaluate('function-lookup(QName("", "round"), 2)'),
+        isEmpty,
+      );
+    });
+
+    test('negative arity returns empty', () {
+      expect(
+        document.xpathEvaluate('function-lookup(xs:QName("fn:abs"), -1)'),
+        isEmpty,
+      );
+    });
+
+    test('invalid argument cardinality throws XPTY0004', () {
+      expect(
+        () => document.xpathEvaluate(
+          'function-lookup((xs:QName("fn:abs"), xs:QName("fn:abs")), 1)',
+        ),
+        throwsA(isXPathEvaluationException(message: contains('XPTY0004'))),
+      );
+    });
+
     test('integration via xpathEvaluate', () {
       expect(
         document.xpathEvaluate('function-lookup(xs:QName("fn:abs"), 1)(-42)'),
@@ -200,7 +225,7 @@ void main() {
   });
 
   group('fn:function-name', () {
-    test('returns name', () {
+    test('returns empty for anonymous function', () {
       expect(
         fnFunctionName(context, [
           seq(
@@ -209,6 +234,24 @@ void main() {
           ),
         ]),
         isXPathSequence(isEmpty),
+      );
+    });
+
+    test('returns empty for inline function', () {
+      expect(
+        document.xpathEvaluate('function-name(function(\$x) { \$x })'),
+        isEmpty,
+      );
+    });
+
+    test('returns QName with namespace for named function ref', () {
+      final result = document.xpathEvaluate('function-name(fn:abs#1)');
+      expect(result.length, equals(1));
+      final qname = result.first as XPathQName;
+      expect(qname.value.local, equals('abs'));
+      expect(
+        qname.value.namespaceUri,
+        equals('http://www.w3.org/2005/xpath-functions'),
       );
     });
   });

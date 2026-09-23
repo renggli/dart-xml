@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/functions/uri.dart';
+import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
 import '../../utils/matchers.dart';
@@ -375,14 +376,66 @@ void main() {
   });
 
   group('fn:collection', () {
-    test('returns empty sequence', () {
-      expect(fnCollection(emptyContext, []), isXPathSequence(isEmpty));
+    test('throws FODC0002 when no default collection', () {
+      expect(
+        () => fnCollection(emptyContext, []),
+        throwsA(isXPathEvaluationException(message: contains('FODC0002'))),
+      );
+    });
+
+    test('returns default collection when configured', () {
+      final doc1 = XmlDocument.parse('<a/>');
+      final doc2 = XmlDocument.parse('<b/>');
+      final colContext = XPathConfiguration.raw(
+        collections: {
+          '': [doc1, doc2],
+        },
+      ).context(XPathSequence.empty);
+      final result = fnCollection(colContext, []);
+      expect(result.length, equals(2));
+      expect((result.first as XPathNode).node, equals(doc1));
+      expect((result.last as XPathNode).node, equals(doc2));
+    });
+
+    test('returns named collection', () {
+      final doc = XmlDocument.parse('<c/>');
+      final colContext = XPathConfiguration.raw(
+        collections: {
+          'http://example.com/c': [doc],
+        },
+      ).context(XPathSequence.empty);
+      final result = fnCollection(colContext, [seq('http://example.com/c')]);
+      expect(result.length, equals(1));
+      expect((result.first as XPathNode).node, equals(doc));
+    });
+
+    test('throws FODC0002 for missing named collection', () {
+      expect(
+        () => fnCollection(emptyContext, [seq('http://example.com/missing')]),
+        throwsA(isXPathEvaluationException(message: contains('FODC0002'))),
+      );
     });
   });
 
   group('fn:uri-collection', () {
-    test('returns empty sequence', () {
-      expect(fnUriCollection(emptyContext, []), isXPathSequence(isEmpty));
+    test('throws FODC0002 when no default collection', () {
+      expect(
+        () => fnUriCollection(emptyContext, []),
+        throwsA(isXPathEvaluationException(message: contains('FODC0002'))),
+      );
+    });
+
+    test('returns URIs for collection documents', () {
+      final doc = XmlDocument.parse('<d/>');
+      final colContext = XPathConfiguration.raw(
+        documents: {'http://example.com/d.xml': doc},
+        collections: {
+          '': [doc],
+        },
+      ).context(XPathSequence.empty);
+      final result = fnUriCollection(colContext, []);
+      expect(result, isXPathSequence(['http://example.com/d.xml']));
+      expect(result.first.type, equals(xsAnyURI));
     });
   });
 }

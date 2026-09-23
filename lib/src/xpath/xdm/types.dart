@@ -446,7 +446,10 @@ const xsName = _XDMType(name: 'xs:Name', parent: xsToken);
 const xsNCName = _XDMType(name: 'xs:NCName', parent: xsName);
 const xsID = _XDMType(name: 'xs:ID', parent: xsNCName);
 const xsIDREF = _XDMType(name: 'xs:IDREF', parent: xsNCName);
+const xsIDREFS = _XDMType(name: 'xs:IDREFS', parent: xsAnyAtomicType);
 const xsENTITY = _XDMType(name: 'xs:ENTITY', parent: xsNCName);
+const xsENTITIES = _XDMType(name: 'xs:ENTITIES', parent: xsAnyAtomicType);
+const xsNMTOKENS = _XDMType(name: 'xs:NMTOKENS', parent: xsAnyAtomicType);
 
 const xsBoolean = _XDMType(name: 'xs:boolean', parent: xsAnyAtomicType);
 
@@ -572,7 +575,10 @@ const allStandardTypes = <XPathType>[
   xsNCName,
   xsID,
   xsIDREF,
+  xsIDREFS,
   xsENTITY,
+  xsENTITIES,
+  xsNMTOKENS,
   xsBoolean,
   xsBase64Binary,
   xsHexBinary,

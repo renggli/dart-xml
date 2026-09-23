@@ -6,6 +6,7 @@ import '../xdm/atomic/numeric.dart';
 import '../xdm/atomic/string.dart';
 import '../xdm/function_item.dart';
 import '../xdm/sequence.dart';
+import '../xdm/types.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-position
 const fnPosition = XPathFunctionItem.fn0(
@@ -96,7 +97,7 @@ const fnDefaultLanguage = XPathFunctionItem.fn0(
 );
 
 XPathSequence _fnDefaultLanguage(XPathContext context) =>
-    const XPathSequence.single(XPathString('en'));
+    const XPathSequence.single(XPathString('en', xsLanguage));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-static-base-uri
 const fnStaticBaseUri = XPathFunctionItem.fn0(
@@ -107,5 +108,5 @@ const fnStaticBaseUri = XPathFunctionItem.fn0(
 XPathSequence _fnStaticBaseUri(XPathContext context) {
   final base = context.configuration.baseUri;
   if (base == null) return XPathSequence.empty;
-  return XPathSequence.single(XPathString(base));
+  return XPathSequence.single(XPathAnyUri(base));
 }

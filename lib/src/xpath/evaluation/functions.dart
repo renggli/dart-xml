@@ -303,10 +303,13 @@ final standardFunctionDefinitions = <XPathFunctionItem>[
   constructors.xsTokenConstructor,
   constructors.xsLanguageConstructor,
   constructors.xsNMTokenConstructor,
+  constructors.xsNMTOKENSConstructor,
   constructors.xsNameConstructor,
   constructors.xsNCNameConstructor,
   constructors.xsIDConstructor,
   constructors.xsIDREFConstructor,
+  constructors.xsIDREFSConstructor,
   constructors.xsENTITYConstructor,
+  constructors.xsENTITIESConstructor,
   constructors.xsErrorConstructor,
 ];

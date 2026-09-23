@@ -44,7 +44,9 @@ XPathSequence _evalResolveUri(
   if (relative == null) return XPathSequence.empty;
   try {
     final uri = Uri.parse(relative.value);
-    if (uri.isAbsolute) return XPathSequence.single(relative);
+    if (uri.isAbsolute) {
+      return XPathSequence.single(XPathAnyUri(relative.value));
+    }
     final String resolvedBase;
     if (base == null) {
       final staticBase = context.configuration.baseUri;
@@ -56,7 +58,7 @@ XPathSequence _evalResolveUri(
       resolvedBase = base.value;
     }
     return XPathSequence.single(
-      XPathString(Uri.parse(resolvedBase).resolve(relative.value).toString()),
+      XPathAnyUri(Uri.parse(resolvedBase).resolve(relative.value).toString()),
     );
   } on FormatException catch (error) {
     throw XPathEvaluationException('Invalid URI: ${error.message}');
@@ -102,9 +104,39 @@ const fnCollection = XPathFunctionItem.overloaded(
   },
 );
 
-XPathSequence _fnCollection0(XPathContext context) => XPathSequence.empty;
-XPathSequence _fnCollection1(XPathContext context, XPathSequence uriSeq) =>
-    XPathSequence.empty;
+XPathSequence _fnCollection0(XPathContext context) {
+  final nodes = context.configuration.collections[''];
+  if (nodes != null) {
+    return XPathSequence(nodes.map(XPathNode.new));
+  }
+  throw XPathEvaluationException(
+    'No default collection available [err:FODC0002]',
+  );
+}
+
+XPathSequence _fnCollection1(XPathContext context, XPathSequence uriSeq) {
+  final uriItem = uriSeq.firstOrNull;
+  if (uriItem == null) return _fnCollection0(context);
+  final uriStr = uriItem is XPathString ? uriItem.value : uriItem.stringValue;
+  if (uriStr.isEmpty) return _fnCollection0(context);
+
+  final base = context.configuration.baseUri;
+  var resolved = uriStr;
+  if (base != null) {
+    try {
+      resolved = Uri.parse(base).resolve(uriStr).toString();
+    } catch (_) {}
+  }
+  final nodes =
+      context.configuration.collections[resolved] ??
+      context.configuration.collections[uriStr];
+  if (nodes != null) {
+    return XPathSequence(nodes.map(XPathNode.new));
+  }
+  throw XPathEvaluationException(
+    'Collection not found: $uriStr [err:FODC0002]',
+  );
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-uri-collection
 const fnUriCollection = XPathFunctionItem.overloaded(
@@ -121,9 +153,61 @@ const fnUriCollection = XPathFunctionItem.overloaded(
   },
 );
 
-XPathSequence _fnUriCollection0(XPathContext context) => XPathSequence.empty;
-XPathSequence _fnUriCollection1(XPathContext context, XPathSequence uriSeq) =>
-    XPathSequence.empty;
+XPathSequence _fnUriCollection0(XPathContext context) {
+  final nodes = context.configuration.collections[''];
+  if (nodes != null) {
+    final uris = <XPathItem>[];
+    for (final node in nodes) {
+      for (final entry in context.configuration.documents.entries) {
+        if (identical(entry.value, node)) {
+          if (entry.key.contains('://') || entry.key.startsWith('/')) {
+            uris.add(XPathAnyUri(entry.key));
+            break;
+          }
+        }
+      }
+    }
+    return XPathSequence(uris);
+  }
+  throw XPathEvaluationException(
+    'No default collection available [err:FODC0002]',
+  );
+}
+
+XPathSequence _fnUriCollection1(XPathContext context, XPathSequence uriSeq) {
+  final uriItem = uriSeq.firstOrNull;
+  if (uriItem == null) return _fnUriCollection0(context);
+  final uriStr = uriItem is XPathString ? uriItem.value : uriItem.stringValue;
+  if (uriStr.isEmpty) return _fnUriCollection0(context);
+
+  final base = context.configuration.baseUri;
+  var resolved = uriStr;
+  if (base != null) {
+    try {
+      resolved = Uri.parse(base).resolve(uriStr).toString();
+    } catch (_) {}
+  }
+  final nodes =
+      context.configuration.collections[resolved] ??
+      context.configuration.collections[uriStr];
+  if (nodes != null) {
+    final uris = <XPathItem>[];
+    for (final node in nodes) {
+      for (final entry in context.configuration.documents.entries) {
+        if (identical(entry.value, node)) {
+          if (entry.key.contains('://') || entry.key.startsWith('/')) {
+            uris.add(XPathAnyUri(entry.key));
+            break;
+          }
+        }
+      }
+    }
+    return XPathSequence(uris);
+  }
+  throw XPathEvaluationException(
+    'Collection not found: $uriStr [err:FODC0002]',
+  );
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-unparsed-text
 const fnUnparsedText = XPathFunctionItem.overloaded(

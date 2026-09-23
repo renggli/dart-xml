@@ -25,6 +25,7 @@ class XPathConfiguration {
     String? namespaceUri,
     Map<String, String>? namespaceUris,
     Map<String, XmlNode>? documents,
+    Map<String, List<XmlNode>>? collections,
     Map<String, String>? environment,
     String? baseUri,
     XPathUnparsedTextLoader? unparsedTextLoader,
@@ -35,6 +36,7 @@ class XPathConfiguration {
     namespaceUri: namespaceUri,
     namespaceUris: namespaceUris,
     documents: documents,
+    collections: collections,
     environment: environment,
     baseUri: baseUri,
     unparsedTextLoader: unparsedTextLoader,
@@ -52,6 +54,7 @@ class XPathConfiguration {
     this.namespaceUri,
     this.namespaceUris = const {},
     this.documents = const {},
+    this.collections = const {},
     this.environment = const {},
     this.baseUri,
     this.unparsedTextLoader,
@@ -72,6 +75,9 @@ class XPathConfiguration {
 
   /// Document definitions
   final Map<String, XmlNode> documents;
+
+  /// Collection definitions.
+  final Map<String, List<XmlNode>> collections;
 
   /// Environment variable definitions.
   final Map<String, String> environment;
@@ -136,6 +142,7 @@ class XPathConfiguration {
     String? namespaceUri,
     Map<String, String>? namespaceUris,
     Map<String, XmlNode>? documents,
+    Map<String, List<XmlNode>>? collections,
     Map<String, String>? environment,
     String? baseUri,
     XPathUnparsedTextLoader? unparsedTextLoader,
@@ -153,6 +160,7 @@ class XPathConfiguration {
       namespaceUri: namespaceUri ?? this.namespaceUri,
       namespaceUris: this.namespaceUris.extend(namespaceUris),
       documents: this.documents.extend(documents),
+      collections: this.collections.extend(collections),
       environment: this.environment.extend(environment),
       baseUri: baseUri ?? this.baseUri,
       unparsedTextLoader: unparsedTextLoader ?? this.unparsedTextLoader,

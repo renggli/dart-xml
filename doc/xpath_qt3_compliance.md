@@ -6,11 +6,11 @@ This document tracks known discrepancies between PetitXml XPath 3.1 implementati
 
 ## Baseline Stats (QT3 Test Suite)
 
-- **Suites**: 369
+- **Suites**: 353
 - **Total Cases**: 22,514
-- **Passing**: 19,197 (85.3%)
-- **Failures**: 2,298 (10.2%)
-- **Errors**: 1,019 (4.5%)
+- **Passing**: 19,941 (88.6%)
+- **Failures**: 1,988 (8.8%)
+- **Errors**: 585 (2.6%)
 
 ---
 
@@ -215,25 +215,46 @@ This document tracks known discrepancies between PetitXml XPath 3.1 implementati
 
 ### 9. Higher-Order Functions & Dynamic Introspection
 
-- [ ] **Status**: Pending
+- [x] **Status**: Completed
 - **User Impact**: Low-Medium
 - **QT3 Target**: 156 issues (136 failures, 20 errors)
-- **Primary Suites**: `fn-function-lookup`, `prod-NamedFunctionRef`, `fn-collection`, `fn-random-number-generator`
-- **Root Causes**:
-  - `fn:function-lookup` fails on certain built-in and overloaded functions due to namespace or arity lookup mismatches.
-  - `fn:collection` returns empty sequence without fallback to default collection in `XPathConfiguration`.
-  - `fn:load-xquery-module` and `fn:transform` throw `UnimplementedError`.
-- **Implementation Steps**:
-  1. Add default collection resolver support in `XPathConfiguration` and wire into `fn:collection` in `lib/src/xpath/functions/uri.dart`.
-  2. Verify all standard functions and user-defined functions can be looked up dynamically via `fn:function-lookup`.
-  3. Handle XQuery/XSLT module invocation stubbing or graceful failure.
+- **Primary Suites**: `fn-function-lookup` (655/666 passed, 98.3%), `prod-NamedFunctionRef` (540/546 passed, 98.9%), `fn-collection` (26/26 passed, 100.0%), `fn-random-number-generator` (41/41 passed, 100.0%)
+- **Implementation Notes**:
+  - `fn:function-lookup`:
+    - Strict argument type/cardinality validation returning `[err:XPTY0004]` on non-single QName or non-single integer.
+    - Negative arity returns empty sequence `()`.
+    - Correct namespace resolution: resolves prefix via `context.configuration.namespaceUris` or default function namespace when unqualified, preserving absent namespace (`QName("", "round")` returns empty).
+    - Captures context item on arity-0 dynamic function invocation.
+  - `fn:function-name`:
+    - Returns empty sequence for anonymous/inline functions and arrays/maps per XPath 3.1 §16.1.2.
+    - Automatically resolves namespace URI from configuration when inspecting named function items.
+  - XML Schema list type constructor functions:
+    - Added `xs:IDREFS`, `xs:NMTOKENS`, and `xs:ENTITIES` constructor functions and type descriptors.
+  - `fn:resolve-uri` and `fn:static-base-uri`:
+    - Return `XPathAnyUri` typed atomic values instead of generic `XPathString`.
+  - `fn:random-number-generator`:
+    - Implemented with a single `math.Random` instance and an updated map, using deterministic seed initialization (`seed?.hashCode & 0x7FFFFFFF ?? 0`) for full JavaScript compatibility.
+  - Collections and Document URI:
+    - Added `collections: Map<String, List<XmlNode>>` to `XPathConfiguration` with default collection lookup (`''`).
+    - Implemented `fn:collection` and `fn:uri-collection` with `[err:FODC0002]` raised when collection or default collection is not available.
+    - Implemented `fn:base-uri` and `fn:document-uri` with `xml:base` attribute resolution and document URI tracking.
 - **Files**:
   - `lib/src/xpath/functions/higher_order.dart`
   - `lib/src/xpath/functions/uri.dart`
+  - `lib/src/xpath/functions/context.dart`
+  - `lib/src/xpath/functions/accessor.dart`
+  - `lib/src/xpath/functions/number.dart`
+  - `lib/src/xpath/functions/constructors.dart`
   - `lib/src/xpath/evaluation/configuration.dart`
+  - `lib/src/xpath/evaluation/functions.dart`
+  - `lib/src/xpath/expressions/function.dart`
+  - `lib/src/xpath/xdm/types.dart`
+  - `bin/qt3/models.dart`
 - **Unit Tests**:
   - `test/xpath/functions/higher_order_test.dart`
   - `test/xpath/functions/uri_test.dart`
+  - `test/xpath/functions/sequence_test.dart`
+  - `test/xpath/expressions/function_test.dart`
 
 ---
 

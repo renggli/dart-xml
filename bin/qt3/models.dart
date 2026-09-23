@@ -210,13 +210,38 @@ class TestEnvironment {
 
   late final Map<String, TestResource> resources = _getResources();
 
+  late final Map<String, List<XmlNode>> collections = _getCollections();
+
   XPathContext get context => XPathConfiguration(
     documents: documents,
+    collections: collections,
     variables: variables,
     environment: Platform.environment,
     baseUri: baseUri,
     unparsedTextLoader: _unparsedTextLoader,
   ).context(source ?? XPathSequence.empty);
+
+  Map<String, List<XmlNode>> _getCollections() {
+    final results = <String, List<XmlNode>>{};
+    for (final el in element.findElements('collection')) {
+      final uri = el.getAttribute('uri') ?? '';
+      final nodes = <XmlNode>[];
+      for (final src in el.findElements('source')) {
+        final file = src.getAttribute('file');
+        if (file == null) continue;
+        final srcUri = src.getAttribute('uri');
+        final node =
+            documents[file] ??
+            (srcUri != null ? documents[srcUri] : null) ??
+            XmlDocument.parse(
+              File('${directory.path}/$file').readAsStringSync(),
+            );
+        nodes.add(node);
+      }
+      results[uri] = nodes;
+    }
+    return results;
+  }
 
   String? _getBaseUri() {
     final staticBaseUriElement = element
@@ -262,13 +287,18 @@ class TestEnvironment {
 
   Map<String, XmlNode> _getDocuments() {
     final results = <String, XmlNode>{};
-    for (final element in element.findElements('source')) {
+    final sources = [
+      ...element.findElements('source'),
+      for (final col in element.findElements('collection'))
+        ...col.findElements('source'),
+    ];
+    for (final element in sources) {
       final file = element.getAttribute('file');
       if (file == null) continue;
       final uri = element.getAttribute('uri');
-      final node = XmlDocument.parse(
-        File('${directory.path}/$file').readAsStringSync(),
-      );
+      final node =
+          results[file] ??
+          XmlDocument.parse(File('${directory.path}/$file').readAsStringSync());
       results[file] = node;
       if (uri != null) {
         results[uri] = node;

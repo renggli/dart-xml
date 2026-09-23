@@ -195,7 +195,7 @@ class _XPathInlineFunction extends XPathFunctionItem {
   final XPathType? _declaredReturnType;
 
   @override
-  XmlName? get name => const XmlName.qualified('dynamic-function');
+  XmlName? get name => null;
 
   @override
   int get arity => parameters.length;

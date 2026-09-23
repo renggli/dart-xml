@@ -180,11 +180,17 @@ const fnFunctionName = XPathFunctionItem.fn1(
 );
 
 XPathSequence _fnFunctionName(XPathContext context, XPathSequence funcSeq) {
-  final func = funcSeq.first as XPathFunctionItem;
-  final name = func.name;
-  return name != null && name.local.isNotEmpty
-      ? XPathSequence.single(XPathQName(name))
-      : XPathSequence.empty;
+  final func = funcSeq.firstOrNull as XPathFunctionItem?;
+  if (func == null) return XPathSequence.empty;
+  var name = func.name;
+  if (name == null || name.local.isEmpty) return XPathSequence.empty;
+  if (name.namespaceUri == null && name.prefix != null) {
+    final uri = context.configuration.namespaceUris[name.prefix];
+    if (uri != null) {
+      name = name.withNamespaceUri(uri);
+    }
+  }
+  return XPathSequence.single(XPathQName(name));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-function-arity
@@ -267,13 +273,52 @@ XPathSequence _fnFunctionLookup(
   XPathSequence qnameSeq,
   XPathSequence aritySeq,
 ) {
-  final qname = qnameSeq.first as XPathQName;
-  final arity = aritySeq.first as XPathInteger;
-  try {
-    final function = context.configuration.getFunctionByString(
-      qname.value.extendedQualified,
-      arity.asInt,
+  if (qnameSeq.length != 1) {
+    throw XPathEvaluationException(
+      'Expected single QName for function-lookup [err:XPTY0004]',
     );
+  }
+  final qname = qnameSeq.single;
+  if (qname is! XPathQName) {
+    throw XPathEvaluationException(
+      'Expected xs:QName for function-lookup [err:XPTY0004]',
+    );
+  }
+  if (aritySeq.length != 1) {
+    throw XPathEvaluationException(
+      'Expected single integer for function-lookup [err:XPTY0004]',
+    );
+  }
+  final arity = aritySeq.single;
+  if (arity is! XPathInteger) {
+    throw XPathEvaluationException(
+      'Expected xs:integer for function-lookup [err:XPTY0004]',
+    );
+  }
+  final arityInt = arity.asInt;
+  if (arityInt < 0) {
+    return XPathSequence.empty;
+  }
+  var name = qname.value;
+  if (name.namespaceUri == null) {
+    final uri = name.prefix != null
+        ? context.configuration.namespaceUris[name.prefix]
+        : context.configuration.namespaceUri;
+    if (uri != null) {
+      name = name.withNamespaceUri(uri);
+    }
+  }
+  try {
+    final function = context.configuration.getFunction(name, arityInt);
+    if (arityInt == 0) {
+      final boundItem = context.item;
+      return XPathSequence.single(
+        XPathFunctionItem.fn0(
+          function.name,
+          (c) => function.call(c.configuration.context(boundItem), const []),
+        ),
+      );
+    }
     return XPathSequence.single(function);
   } on XPathEvaluationException {
     return XPathSequence.empty;

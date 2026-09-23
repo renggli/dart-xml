@@ -1,9 +1,11 @@
+import '../../xml/extensions/parent.dart';
 import '../../xml/nodes/attribute.dart';
 import '../../xml/nodes/document.dart';
 import '../../xml/nodes/document_fragment.dart';
 import '../../xml/nodes/element.dart';
 import '../../xml/nodes/processing.dart';
 import '../../xml/utils/name.dart';
+import '../evaluation/context.dart';
 import '../xdm/atomic/qname.dart';
 import '../xdm/atomic/string.dart';
 import '../xdm/function_item.dart';
@@ -96,36 +98,91 @@ final fnData = XPathFunctionItem.overloaded(
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-base-uri
-// TODO: Add support for xml:base and tracking source URI
 final fnBaseUri = XPathFunctionItem.overloaded(
   const XmlName.qualified('fn:base-uri'),
   {
     0: XPathFunctionItem.fn0(
       const XmlName.qualified('fn:base-uri'),
-      (context) => XPathSequence.empty,
+      (context) => _evalBaseUri(context, context.item as XPathNode?),
     ),
     1: XPathFunctionItem.fn1(
       const XmlName.qualified('fn:base-uri'),
-      (context, arg) => XPathSequence.empty,
+      (context, arg) => _evalBaseUri(context, arg.firstOrNull as XPathNode?),
     ),
   },
 );
 
+XPathSequence _evalBaseUri(XPathContext context, XPathNode? nodeItem) {
+  if (nodeItem == null) return XPathSequence.empty;
+  final node = nodeItem.node;
+  var current = node is XmlElement ? node : node.parentElement;
+  final baseUris = <String>[];
+  while (current != null) {
+    final xmlBase = current.getAttribute('xml:base');
+    if (xmlBase != null) {
+      baseUris.add(xmlBase);
+    }
+    current = current.parentElement;
+  }
+  final doc = node.root;
+  String? docUri;
+  for (final entry in context.configuration.documents.entries) {
+    if (identical(entry.value, doc)) {
+      if (entry.key.contains('://') || entry.key.startsWith('/')) {
+        docUri = entry.key;
+        break;
+      }
+    }
+  }
+  docUri ??= context.configuration.baseUri;
+
+  var resolved = docUri;
+  for (final b in baseUris.reversed) {
+    if (resolved != null) {
+      try {
+        resolved = Uri.parse(resolved).resolve(b).toString();
+      } catch (_) {
+        resolved = b;
+      }
+    } else {
+      resolved = b;
+    }
+  }
+  if (resolved != null) {
+    return XPathSequence.single(XPathAnyUri(resolved));
+  }
+  return XPathSequence.empty;
+}
+
 /// https://www.w3.org/TR/xpath-functions-31/#func-document-uri
-// TODO: Add support for tracking source document URI
 final fnDocumentUri = XPathFunctionItem.overloaded(
   const XmlName.qualified('fn:document-uri'),
   {
     0: XPathFunctionItem.fn0(
       const XmlName.qualified('fn:document-uri'),
-      (context) => XPathSequence.empty,
+      (context) => _evalDocumentUri(context, context.item as XPathNode?),
     ),
     1: XPathFunctionItem.fn1(
       const XmlName.qualified('fn:document-uri'),
-      (context, arg) => XPathSequence.empty,
+      (context, arg) =>
+          _evalDocumentUri(context, arg.firstOrNull as XPathNode?),
     ),
   },
 );
+
+XPathSequence _evalDocumentUri(XPathContext context, XPathNode? nodeItem) {
+  if (nodeItem == null) return XPathSequence.empty;
+  final node = nodeItem.node;
+  if (node is! XmlDocument) return XPathSequence.empty;
+  for (final entry in context.configuration.documents.entries) {
+    if (identical(entry.value, node)) {
+      if (entry.key.contains('://') || entry.key.startsWith('/')) {
+        return XPathSequence.single(XPathAnyUri(entry.key));
+      }
+    }
+  }
+  return XPathSequence.empty;
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-parse-xml
 final fnParseXml = XPathFunctionItem.fn1(

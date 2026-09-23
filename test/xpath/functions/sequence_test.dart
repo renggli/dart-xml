@@ -889,14 +889,20 @@ void main() {
   });
 
   group('fn:collection', () {
-    test('returns empty sequence', () {
-      expect(fnCollection(context, []), isXPathSequence(isEmpty));
+    test('throws FODC0002 when no default collection', () {
+      expect(
+        () => fnCollection(context, []),
+        throwsA(isXPathEvaluationException(message: contains('FODC0002'))),
+      );
     });
   });
 
   group('fn:uri-collection', () {
-    test('returns empty sequence', () {
-      expect(fnUriCollection(context, []), isXPathSequence(isEmpty));
+    test('throws FODC0002 when no default collection', () {
+      expect(
+        () => fnUriCollection(context, []),
+        throwsA(isXPathEvaluationException(message: contains('FODC0002'))),
+      );
     });
   });
 }

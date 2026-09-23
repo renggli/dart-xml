@@ -303,9 +303,44 @@ final xsIDREFConstructor = _atomicConstructor(
   xsIDREF,
 );
 
+XPathFunctionItem _listConstructor(XmlName name, XPathType itemType) =>
+    XPathFunctionItem.overloaded(name, {
+      0: XPathFunctionItem.fn0(name, (context) => XPathSequence.empty),
+      1: XPathFunctionItem.fn1(name, (context, arg) {
+        final value = arg.atomize().firstOrNull;
+        if (value == null) return XPathSequence.empty;
+        final str = value.stringValue.trim();
+        if (str.isEmpty) return XPathSequence.empty;
+        final tokens = str.split(RegExp(r'\s+'));
+        final items = <XPathAtomic>[];
+        for (final token in tokens) {
+          items.add(castAtomic(XPathString(token), itemType));
+        }
+        return XPathSequence(items);
+      }),
+    });
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-IDREFS
+final xsIDREFSConstructor = _listConstructor(
+  const XmlName.qualified('xs:IDREFS'),
+  xsIDREF,
+);
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-NMTOKENS
+final xsNMTOKENSConstructor = _listConstructor(
+  const XmlName.qualified('xs:NMTOKENS'),
+  xsNMToken,
+);
+
 /// https://www.w3.org/TR/xpath-functions-31/#func-ENTITY
 final xsENTITYConstructor = _atomicConstructor(
   const XmlName.qualified('xs:ENTITY'),
+  xsENTITY,
+);
+
+/// https://www.w3.org/TR/xpath-functions-31/#func-ENTITIES
+final xsENTITIESConstructor = _listConstructor(
+  const XmlName.qualified('xs:ENTITIES'),
   xsENTITY,
 );
 

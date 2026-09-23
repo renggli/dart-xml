@@ -3,10 +3,8 @@ import 'dart:math' as math;
 import 'package:collection/collection.dart';
 
 import '../../xml/utils/name.dart';
-import '../evaluation/context.dart';
 import '../xdm/atomic.dart';
 import '../xdm/function_item.dart';
-import '../xdm/functions/function.dart';
 import '../xdm/functions/map.dart';
 import '../xdm/item.dart';
 import '../xdm/sequence.dart';
@@ -240,33 +238,25 @@ final fnRandomNumberGenerator = XPathFunctionItem.overloaded(
 );
 
 XPathSequence _evalRandomNumberGenerator(XPathItem? seed) {
-  final random = math.Random(seed?.hashCode);
+  final random = math.Random(seed != null ? (seed.hashCode & 0x7FFFFFFF) : 0);
   final entries = <XPathAtomic, XPathSequence>{};
+  final map = XPathMap(entries);
   entries[const XPathString('number')] = XPathSequence.single(
     XPathDouble(random.nextDouble()),
   );
   entries[const XPathString('next')] = XPathSequence.single(
-    XPathFunction(
-      name: const XmlName.parts('next'),
-      arity: 0,
-      function: (XPathContext c, List<XPathSequence> args) =>
-          XPathSequence.single(
-            XPathMap({
-              ...entries,
-              const XPathString('number'): XPathSequence.single(
-                XPathDouble(random.nextDouble()),
-              ),
-            }),
-          ),
-    ),
+    XPathFunctionItem.fn0(const XmlName.parts('next'), (context) {
+      entries[const XPathString('number')] = XPathSequence.single(
+        XPathDouble(random.nextDouble()),
+      );
+      return XPathSequence.single(map);
+    }),
   );
   entries[const XPathString('permute')] = XPathSequence.single(
-    XPathFunction(
-      name: const XmlName.parts('permute'),
-      arity: 1,
-      function: (XPathContext c, List<XPathSequence> args) =>
-          XPathSequence(args.single.toList().shuffled(random)),
+    XPathFunctionItem.fn1(
+      const XmlName.parts('permute'),
+      (context, sequence) => XPathSequence(sequence.toList().shuffled(random)),
     ),
   );
-  return XPathSequence.single(XPathMap(entries));
+  return XPathSequence.single(map);
 }

@@ -165,7 +165,7 @@ void main() {
         'b',
       ]);
       final fn = expr(context).first as XPathFunctionItem;
-      expect(fn.name, const XmlName.qualified('dynamic-function'));
+      expect(fn.name, isNull);
       expect(fn.arity, 2);
     });
     test('with arguments', () {
