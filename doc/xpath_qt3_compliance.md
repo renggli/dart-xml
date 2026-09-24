@@ -1,6 +1,6 @@
 # XPath 3.1 Compliance Roadmap & Implementation Tracker
 
-This document tracks known discrepancies between PetitXml XPath 3.1 implementation and the official W3C QT3 test-suite, ordered by real-world user impact.
+This document tracks known discrepancies between PetitXml XPath 3.1 implementation and the official W3C QT3 test-suite, ordered by real-world user impact and ROI.
 
 ---
 
@@ -8,267 +8,190 @@ This document tracks known discrepancies between PetitXml XPath 3.1 implementati
 
 - **Suites**: 353
 - **Total Cases**: 22,514
-- **Passing**: 19,941 (88.6%)
-- **Failures**: 1,988 (8.8%)
-- **Errors**: 585 (2.6%)
+- **Passing**: 19,774 (87.8%)
+- **Failures**: 2,147 (9.5%)
+- **Errors**: 593 (2.6%)
 
 ---
 
 ## Issue Checklist & Implementation Guide
 
-### 1. XML Node Navigation & Identification
+### 1. XML Path & Axis Step Edge Cases
 
-- [x] **Status**: Completed
-- **User Impact**: Critical / Daily
-- **QT3 Target**: 135 issues (133 failures, 2 errors)
-- **Primary Suites**: `prod-AxisStep`, `fn-id`, `fn-idref`, `fn-element-with-id`, `fn-path`, `fn-innermost`, `fn-outermost`
+- [ ] **Status**: Pending
+- **User Impact**: High (core query functionality)
+- **Cost to Fix**: ~15k–25k tokens
+- **Code Size Increase**: ~100–200 LOC
+- **QT3 Target**: 147 issues (130 failures, 17 errors)
+- **Primary Suites**: `prod-AxisStep` (49), `fn-outermost` (17), `fn-innermost` (17), `prod-AxisStep.static-typing` (15), `prod-NameTest` (18), `prod-ContextItemExpr` (11), `fn-root` (6), `fn-path` (5)
 - **Root Causes**:
-  - `fn:id`, `fn:idref`, and `fn:element-with-id` lack `xml:id` and DTD ID/IDREF index resolution across document roots.
-  - `fn:path` does not generate canonical EQName path notation (`/Q{uri}elem[1]`).
-  - `fn:innermost` and `fn:outermost` incorrectly process namespace/attribute nodes and fail document-order filtering.
-  - `prod-AxisStep` edge cases with namespace axis and reverse axis indexing.
+  - Positional predicate evaluation on reverse axes (e.g. `ancestor::*[1]` requires reverse-axis indexing prior to document-order sorting).
+  - Namespace axis (`namespace::*`) interaction with document order and synthetic node generation.
+  - `fn:innermost` and `fn:outermost` document-order handling across disconnected nodes or XML fragment roots.
+  - Wildcard namespace prefix matching (`*:local`, `prefix:*`) edge cases under varying static context setups.
 - **Implementation Steps**:
-  1. Add `xml:id` and ID attribute traversal helper in `lib/src/xpath/functions/node.dart` (or `lib/src/xpath/expressions/axis.dart`).
-  2. Implement `fn:path` producing canonical XPath 3.1 expressions (`/Q{uri}name[idx]`).
-  3. Filter non-node/attribute targets in `fn:innermost` / `fn:outermost` and sort strictly by document order.
-  4. Fix reverse axis predicate positional context evaluation.
+  1. Audit predicate evaluation order in `lib/src/xpath/expressions/step.dart` for reverse axes to evaluate position in reverse document order before canonical document-order reordering.
+  2. Normalize `fn:innermost` and `fn:outermost` in `lib/src/xpath/functions/node.dart` across disjoint document trees and empty sequences.
+  3. Support namespace axis step iteration in `lib/src/xpath/expressions/axis.dart`.
 - **Files**:
-  - `lib/src/xpath/functions/node.dart`
-  - `lib/src/xpath/expressions/axis.dart`
   - `lib/src/xpath/expressions/step.dart`
+  - `lib/src/xpath/expressions/axis.dart`
+  - `lib/src/xpath/functions/node.dart`
 - **Unit Tests**:
-  - `test/xpath/functions/node_test.dart`
   - `test/xpath/expressions/axis_test.dart`
+  - `test/xpath/expressions/step_test.dart`
+  - `test/xpath/functions/node_test.dart`
 
 ---
 
-### 2. General & Value Comparison Error Rules
+### 2. Numeric Semantics, Precision & IEEE Math
 
-- [x] **Status**: Completed
-- **User Impact**: High / Frequent
-- **QT3 Target**: 65 issues (59 failures, 6 errors)
-- **Primary Suites**: `prod-ValueComp`, `prod-GeneralComp.eq`, `prod-GeneralComp.ne`, `prod-GeneralComp.lt`, `prod-GeneralComp.gt`
+- [ ] **Status**: Pending
+- **User Impact**: Medium-High (data accuracy and standard compliance)
+- **Cost to Fix**: ~15k–20k tokens
+- **Code Size Increase**: ~120–200 LOC
+- **QT3 Target**: 226 issues (222 failures, 4 errors)
+- **Primary Suites**: `fn-round` (56), `fn-round-half-to-even` (23), `op-numeric-divide` (25), `fn-number` (20), `op-numeric-integer-divide` (18), `fn-abs` (15)
 - **Root Causes**:
-  - Value comparisons (`eq`, `ne`, `lt`, `gt`, `le`, `ge`) between disjoint atomic types (e.g. string vs integer, date vs time) return `false` instead of raising dynamic type error `XPTY0004`.
-  - Value comparisons with an empty sequence return boolean instead of returning an empty sequence `()`.
-  - General comparisons with empty sequences produce unexpected truth values.
+  - Negative zero (`-0.0` vs `0.0`): serialization and arithmetic losing negative zero representation; `Expected -0, but got (0)`.
+  - `NaN` comparison in `fn:deep-equal`: two `NaN` floats/doubles must compare equal in `fn:deep-equal` per XPath 3.1 §16.1.1 (standard `eq` returns false).
+  - `fn:round` arity-2 rounding to negative precision, tie-breaking towards positive infinity (different from half-to-even), and float overflow to `INF`/`-INF`.
+  - Integer division (`idiv`) overflow checks throwing `[err:FOAR0002]` on `BigInt` overflow vs division by zero (`[err:FOAR0001]`).
 - **Implementation Steps**:
-  1. In `lib/src/xpath/operators/comparison.dart`, update `ValueComparisonExpression`:
-     - If either operand is empty sequence `()`, return `XPathSequence.empty`.
-     - Verify both operands are atomic items with comparable types (per XPath 3.1 §3.5.1). If non-comparable, throw `XPathEvaluationException` (`XPTY0004`).
-     - NaN equality: `NaN != NaN`, `NaN eq NaN` is false.
-  2. In `lib/src/xpath/operators/general.dart`, ensure `GeneralComparisonExpression` atomizes operands and applies standard type promotion and untypedAtomic coercion without swallowing type errors when explicitly mandated.
-  3. Introduce `XPathAtomic`, `XPathNumeric` (`XPathInteger` with `BigInt`, `XPathDecimal`, `XPathDouble`), and `XPathUntypedAtomic`.
+  1. Preserve `-0.0` across `XPathDouble` and `XPathDecimal`, formatting `-0.0` as `-0` in string values.
+  2. Implement `fn:deep-equal` IEEE 754 `NaN` equivalence rule in `lib/src/xpath/functions/sequence.dart`.
+  3. Align `fn:round` and `fn:round-half-to-even` in `lib/src/xpath/functions/math.dart` for negative precision scaling and tie rules.
+  4. Ensure `op:numeric-integer-divide` correctly distinguishes `FOAR0001` (division by zero) from `FOAR0002` (overflow).
 - **Files**:
-  - `lib/src/xpath/operators/comparison.dart`
-  - `lib/src/xpath/operators/general.dart`
-  - `lib/src/xpath/xdm/atomic.dart`
   - `lib/src/xpath/xdm/atomic/numeric.dart`
-  - `lib/src/xpath/xdm/atomic/string.dart`
-- **Unit Tests**:
-  - `test/xpath/operators/comparison_test.dart`
-  - `test/xpath/operators/general_test.dart`
-  - `test/xpath/xdm/atomic/numeric_test.dart`
-
----
-
-### 3. Numeric Aggregations & Modulo Semantics
-
-- [x] **Status**: Completed
-- **User Impact**: High / Frequent
-- **QT3 Target**: 169 issues (155 failures, 14 errors)
-- **Primary Suites**: `op-numeric-mod`, `fn-min`, `fn-max`, `fn-avg`, `fn-sum`, `fn-number`, `op-numeric-divide`
-- **Root Causes**:
-  - `op:numeric-mod`: Dart's `%` operator uses truncated integer remainder / Euclidean semantics (`-5 % 3 == 1`), while XPath 3.1 requires IEEE remainder (`-5 mod 3 == -2`).
-  - `fn:min` / `fn:max`: When sequence contains `NaN`, result must be `NaN` for float/double; non-comparable items must raise dynamic error; empty sequence returns `()`.
-  - `fn:avg` / `fn:sum`: Duration types (`xs:dayTimeDuration`, `xs:yearMonthDuration`) arithmetic not supported.
-- **Implementation Steps**:
-  1. Update `mod` operator in `lib/src/xpath/expressions/operators.dart` and `evaluation/operators.dart` to compute `a - (a ~/ b) * b` for integers and `a.remainder(b)` for floating-point.
-  2. Update `fn:min` / `fn:max` in `lib/src/xpath/functions/math.dart`:
-     - Check for `NaN` and propagate according to IEEE rules.
-     - Validate item types for comparability, throwing `XPathEvaluationException` if heterogeneous non-numeric items exist.
-  3. Add duration aggregation support in `fn:sum` and `fn:avg`.
-- **Files**:
   - `lib/src/xpath/functions/math.dart`
   - `lib/src/xpath/functions/sequence.dart`
-  - `lib/src/xpath/expressions/operators.dart`
+  - `lib/src/xpath/operators/arithmetic.dart`
 - **Unit Tests**:
+  - `test/xpath/xdm/atomic/numeric_test.dart`
   - `test/xpath/functions/math_test.dart`
-  - `test/xpath/expressions/operators_test.dart`
+  - `test/xpath/operators/arithmetic_test.dart`
 
 ---
 
-### 4. Casting Matrix & Cast/Castable Validation
+### 3. Regular Expressions & String Analysis
 
-- [x] **Status**: Completed
-- **User Impact**: Medium-High
-- **Primary Suites**: `prod-CastExpr`, `prod-CastableExpr`, `prod-CastExpr.derived`
-- **Addressed**:
-  - Full W3C XPath 3.1 §19 casting matrix implemented in `lib/src/xpath/xdm/casting_matrix.dart`.
-  - `CastExpression` and `CastableExpression` in `lib/src/xpath/expressions/types.dart` enforce source-to-target transitions and integer subtype bounds.
-  - Disallows casting to abstract types `xs:anyAtomicType` and `xs:NOTATION` (`XPST0080`).
-  - Rejects function items, maps, and arrays with `FOTY0013`.
+- [ ] **Status**: Pending
+- **User Impact**: High (frequently used for text manipulation & validation)
+- **Cost to Fix**: ~35k–50k tokens
+- **Code Size Increase**: ~600–900 LOC
+- **QT3 Target**: 679 issues (340 failures, 339 errors)
+- **Primary Suites**: `fn-matches.re` (570), `fn-replace` (38), `fn-analyze-string` (28), `fn-matches` (23)
+- **Root Causes**:
+  - W3C XML Schema Regex vs Dart `RegExp`: W3C regex supports Unicode categories (`\p{Is...}`, `\p{L}`, `\p{Nd}`), character class subtraction (`[a-z-[aeiou]]`), and multi-character escape codes not supported by Dart's ECMAScript regex engine, resulting in `[err:FORX0002]`.
+  - XPath 3.1 regex flags: flag `q` (literal quote mode) and whitespace suppression in `x` flag mode.
+  - `fn:analyze-string`: completely unimplemented (`[err:FOER0000]`); required to produce `<fn:analyze-string-result>` XML elements with `<fn:match>` and `<fn:non-match>` children.
+  - Replacement string group handling in `fn:replace` (`$0`, `$1`, `\$`, `\\`).
+- **Implementation Steps**:
+  1. Build an XML Schema regex pattern preprocessor/transpiler translating `\p{Is...}`, character class subtractions, and flag `q` into Dart-compatible `RegExp` patterns or PetitParser-based matching.
+  2. Implement `fn:analyze-string` in `lib/src/xpath/functions/string.dart` returning canonical XML result elements.
+  3. Validate regex syntax strictly per W3C specification, raising `[err:FORX0002]` for invalid quantifiers or syntax.
 - **Files**:
-  - `lib/src/xpath/xdm/casting_matrix.dart`
+  - `lib/src/xpath/functions/string.dart`
+  - `lib/src/xpath/common/regex.dart` (new)
+- **Unit Tests**:
+  - `test/xpath/functions/string_test.dart`
+
+---
+
+### 4. Type Casting, Bounds & Float Representation
+
+- [ ] **Status**: Pending
+- **User Impact**: Medium (interoperability with schema datatypes)
+- **Cost to Fix**: ~15k–20k tokens
+- **Code Size Increase**: ~100–180 LOC
+- **QT3 Target**: 143 issues (134 failures, 9 errors)
+- **Primary Suites**: `prod-CastExpr` (94), `prod-CastableExpr` (35)
+- **Root Causes**:
+  - `xs:float` canonical string representation: scientific notation required when magnitude is $\ge 10^6$ or $< 10^{-6}$ (e.g. `1.2678968E7`), and 32-bit single precision IEEE rounding.
+  - Strict lexical validation when casting from `xs:string` / `xs:untypedAtomic` to numeric types (rejecting whitespace within numbers, invalid signs, or exponents without digits).
+  - Abstract/forbidden target types: casting to `xs:NOTATION`, `xs:anySimpleType`, `xs:anyAtomicType` must raise `[err:XPST0080]`.
+- **Implementation Steps**:
+  1. Separate `XPathFloat` from `XPathDouble` or add float formatting logic that enforces 32-bit precision and W3C scientific notation rules.
+  2. Enforce lexical syntax rules in numeric `tryParse` helpers.
+  3. Prevent casting to abstract types in `CastExpression` and `CastableExpression`.
+- **Files**:
+  - `lib/src/xpath/xdm/atomic/numeric.dart`
   - `lib/src/xpath/expressions/types.dart`
+  - `lib/src/xpath/xdm/casting_matrix.dart`
 - **Unit Tests**:
-  - `test/xpath/xdm/casting_matrix_test.dart`
   - `test/xpath/expressions/types_test.dart`
+  - `test/xpath/xdm/casting_matrix_test.dart`
 
 ---
 
-### 5. Date, Time & Duration Operations & IETF Parser
+### 5. Formatting Functions (`format-number`, `format-dateTime`, `format-integer`)
 
-- [x] **Status**: Completed
-- **User Impact**: Medium-High
-- **Primary Suites**: `fn-parse-ietf-date`, `op-duration-equal`, `fn-seconds-from-duration`
-- **Addressed**:
-  - Implemented `fn:parse-ietf-date` in `lib/src/xpath/functions/date_time.dart` conforming to RFC 2822, RFC 850, and asctime formats, returning UTC normalized timestamps (`xs:dateTimeStamp`).
-  - Corrected duration normalization in `XPathDuration.tryParse` so overflow seconds/minutes/hours are normalized across days and time components.
-  - Aligned duration equality (`eq`/`ne`) between zero-valued `xs:yearMonthDuration` and `xs:dayTimeDuration` per XPath 3.1 specification.
+- [ ] **Status**: Pending
+- **User Impact**: Medium (presentation, report generation)
+- **Cost to Fix**: ~30k–45k tokens
+- **Code Size Increase**: ~500–800 LOC
+- **QT3 Target**: 565 issues (558 failures, 7 errors)
+- **Primary Suites**: `fn-format-number` (214), `fn-format-date` (121), `fn-format-dateTime` (84), `fn-format-time` (84), `fn-format-integer` (62)
+- **Root Causes**:
+  - `fn:format-number`: picture string parsing (mandatory `0`, optional `#`, grouping `,`, decimal `.`, percent `%`, per-mille `‰`, min/max digits, exponent `e`/`E`), plus decimal format configurations.
+  - `fn:format-dateTime`, `fn:format-date`, `fn:format-time`: picture string variable components (`[Y]`, `[M01]`, `[D]`, `[H]`, `[m]`, `[s]`, `[z]`, `[Z]`), width specifiers, language fallback.
+  - `fn:format-integer`: picture format strings (e.g. `001`, `a`, `A`, `i`, `I`, `w`, `W`).
+- **Implementation Steps**:
+  1. Implement picture string parser for `fn:format-number` with decimal format symbols in `lib/src/xpath/functions/format_number.dart`.
+  2. Implement date/time picture parser for `fn:format-date`, `fn:format-time`, `fn:format-dateTime`.
+  3. Implement integer formatting with roman numerals and alpha numbering in `fn:format-integer`.
 - **Files**:
+  - `lib/src/xpath/functions/format_number.dart` (new)
   - `lib/src/xpath/functions/date_time.dart`
-  - `lib/src/xpath/xdm/atomic/duration.dart`
 - **Unit Tests**:
+  - `test/xpath/functions/format_number_test.dart`
   - `test/xpath/functions/date_time_test.dart`
 
 ---
 
-### 6. JSON Support & Interoperability
+### 6. Function Resolution, EQName & Syntax Validation
 
-- [x] **Status**: Completed
-- **User Impact**: Medium
-- **Primary Suites**: `fn-json-to-xml`, `fn-parse-json`, `fn-xml-to-json`, `fn-json-doc`
-- **Addressed**:
-  - Full options map parsing for `liberal`, `duplicates` (`reject`, `use-first`, `use-last`, `retain`), `escape`, `validate`, and arity-1 `fallback` function with proper error codes (`FOJS0005`, `XPTY0004`).
-  - Full custom recursive-descent JSON parser in `lib/src/xpath/functions/json.dart` retaining lexical number representation for XML, tracking Unicode escapes and surrogate pairs, and honoring XML 1.0 character validity.
-  - Complete `xml-to-json` serializer with full XDM JSON namespace validation, `escaped` and `escaped-key` attribute handling (`FOJS0006`, `FOJS0007`), duplicate key detection, double formatting per XPath 3.1 §18.2, and solidus escaping per bug 29665.
+- [ ] **Status**: Pending
+- **User Impact**: Medium (correct parsing & error reporting)
+- **Cost to Fix**: ~10k–15k tokens
+- **Code Size Increase**: ~80–150 LOC
+- **QT3 Target**: 109 issues (83 failures, 26 errors)
+- **Primary Suites**: `prod-NamedFunctionRef` (22), `prod-FunctionCall` (18), `prod-Literal` (17), `fn-QName` (17), `prod-EQName` (10)
+- **Root Causes**:
+  - Dynamic function invocations where context item is implicitly required.
+  - Numeric and string literal syntax validation (e.g. adjacent operators, scientific exponent formatting, invalid character references).
+  - Prefix-to-URI resolution in `fn:QName` rejecting invalid NCNames with `[err:FOCA0002]`.
+- **Implementation Steps**:
+  1. Validate literal tokens and EQName syntax strictly during grammar parsing.
+  2. Refine `fn:QName` and `fn:resolve-QName` validation rules and error codes.
+  3. Ensure dynamic function item calls correctly inherit or check context items.
 - **Files**:
-  - `lib/src/xpath/functions/json.dart`
-- **Unit Tests**:
-  - `test/xpath/functions/json_test.dart`
-
----
-
-### 7. XML Serialization (`fn:serialize`)
-
-- [x] **Status**: Completed
-- **User Impact**: Medium
-- **Primary Suites**: `fn-serialize`
-- **Addressed**:
-  - Implemented `SerializationParameters` in `lib/src/xpath/functions/serialization.dart` with support for loading from XML elements (`output:serialization-parameters`) and XDM maps (`map(*)`).
-  - Validated options (`method`, `indent`, `omit-xml-declaration`, `standalone`, `item-separator`, `version`, `encoding`, `cdata-section-elements`, `suppress-indentation`, `use-character-maps`, `allow-duplicate-names`, etc.) with standard error codes (`SEPM0016`, `SEPM0017`, `SEPM0019`, `SERE0020`, `SERE0022`, `SERE0023`, `SENR0001`, `XPTY0004`, `XQDY0137`).
-  - Added full serializer support for all output methods: `xml`, `html` (with HTML5 DOCTYPE and `<meta>` charset insertion), `xhtml`, `text`, `json` (with array/map formatting and character escape handling), and `adaptive` (with boolean `true()`/`false()` notation).
-  - Fixed duplicate key enforcement `[err:XQDY0137]` in `MapConstructor`.
-- **Files**:
-  - `lib/src/xpath/functions/serialization.dart`
-  - `lib/src/xpath/functions/accessor.dart`
-  - `lib/src/xpath/expressions/constructors.dart`
-- **Unit Tests**:
-  - `test/xpath/functions/serialization_test.dart`
-  - `test/xpath/functions/accessor_test.dart`
-
----
-
-### 8. SequenceType & `instance of` Matching
-
-- [x] **Status**: Completed
-- **User Impact**: Medium-Low
-- **QT3 Target**: 87 issues (68 failures, 19 errors) → **all resolved**
-- **Primary Suites**: `prod-InstanceofExpr` 273/273, `prod-ArrayTest` 47/47, `prod-MapTest` 44/44, `prod-TreatExpr` 61/61
-- **Addressed**:
-  - Added `XPathArrayType(memberType)`, `XPathMapType(keyType, valueType)`, and
-    `XPathFunctionType({parameterTypes, returnType})` in `lib/src/xpath/xdm/types.dart`
-    with correct parent hierarchy (`XPathArrayType → xsArray → xsFunction`,
-    `XPathMapType → xsMap → xsFunction`, `XPathFunctionType → xsFunction`).
-  - Each type implements `isSubtypeOf` (contra/covariant for functions, covariant for
-    arrays/maps), `matchesItem`, `operator==`, `hashCode`, and `name`.
-  - `XPathMapType.isSubtypeOf(XPathFunctionType)` handles the XDM map-as-function
-    subtype relationship per XPath 3.1 §2.5.5.3.
-  - Wired parameterized type grammar: `typedArrayTest`, `typedMapTest`, and
-    `typedFunctionTest` now produce typed descriptors instead of wildcards.
-  - Added `_resolveAtomicType` helper in `lib/src/xpath/grammars/xpath.dart` that
-    rejects unknown or bare unqualified atomic type names with `[err:XPST0051]`.
-  - `InlineFunctionExpression` and `_XPathInlineFunction` carry declared param types
-    and return type; params are validated at call time (`[err:XPTY0004]`), and the
-    declared types participate in `instance of function(T) as R` matching.
-  - Added `parameterTypes`/`returnType` to `fnName#1` (param `node()?`, return
-    `xs:string`) and `fnFilter#2` (params `item()*` and `function(item()) as
-    xs:boolean`, return `item()*`) enabling typed `instance of` checks on built-in
-    higher-order functions.
-  - `XPathCardinality.isSubtypeOf` models the cardinality lattice required for
-    sequence-type subtype checking.
-- **Files**:
-  - `lib/src/xpath/xdm/types.dart`
-  - `lib/src/xpath/xdm/function_item.dart`
-  - `lib/src/xpath/expressions/function.dart`
   - `lib/src/xpath/grammars/xpath.dart`
-  - `lib/src/xpath/functions/node.dart`
-  - `lib/src/xpath/functions/higher_order.dart`
-  - `lib/src/xpath/evaluation/cardinality.dart`
-- **Unit Tests**:
-  - `test/xpath/evaluation/cardinality_test.dart`
-  - `test/xpath/expressions/types_test.dart`
-  - `test/xpath/xdm/types_test.dart`
-
----
-
-### 9. Higher-Order Functions & Dynamic Introspection
-
-- [x] **Status**: Completed
-- **User Impact**: Low-Medium
-- **QT3 Target**: 156 issues (136 failures, 20 errors)
-- **Primary Suites**: `fn-function-lookup` (655/666 passed, 98.3%), `prod-NamedFunctionRef` (540/546 passed, 98.9%), `fn-collection` (26/26 passed, 100.0%), `fn-random-number-generator` (41/41 passed, 100.0%)
-- **Implementation Notes**:
-  - `fn:function-lookup`:
-    - Strict argument type/cardinality validation returning `[err:XPTY0004]` on non-single QName or non-single integer.
-    - Negative arity returns empty sequence `()`.
-    - Correct namespace resolution: resolves prefix via `context.configuration.namespaceUris` or default function namespace when unqualified, preserving absent namespace (`QName("", "round")` returns empty).
-    - Captures context item on arity-0 dynamic function invocation.
-  - `fn:function-name`:
-    - Returns empty sequence for anonymous/inline functions and arrays/maps per XPath 3.1 §16.1.2.
-    - Automatically resolves namespace URI from configuration when inspecting named function items.
-  - XML Schema list type constructor functions:
-    - Added `xs:IDREFS`, `xs:NMTOKENS`, and `xs:ENTITIES` constructor functions and type descriptors.
-  - `fn:resolve-uri` and `fn:static-base-uri`:
-    - Return `XPathAnyUri` typed atomic values instead of generic `XPathString`.
-  - `fn:random-number-generator`:
-    - Implemented with a single `math.Random` instance and an updated map, using deterministic seed initialization (`seed?.hashCode & 0x7FFFFFFF ?? 0`) for full JavaScript compatibility.
-  - Collections and Document URI:
-    - Added `collections: Map<String, List<XmlNode>>` to `XPathConfiguration` with default collection lookup (`''`).
-    - Implemented `fn:collection` and `fn:uri-collection` with `[err:FODC0002]` raised when collection or default collection is not available.
-    - Implemented `fn:base-uri` and `fn:document-uri` with `xml:base` attribute resolution and document URI tracking.
-- **Files**:
-  - `lib/src/xpath/functions/higher_order.dart`
-  - `lib/src/xpath/functions/uri.dart`
-  - `lib/src/xpath/functions/context.dart`
-  - `lib/src/xpath/functions/accessor.dart`
-  - `lib/src/xpath/functions/number.dart`
-  - `lib/src/xpath/functions/constructors.dart`
-  - `lib/src/xpath/evaluation/configuration.dart`
-  - `lib/src/xpath/evaluation/functions.dart`
+  - `lib/src/xpath/functions/qname.dart`
   - `lib/src/xpath/expressions/function.dart`
-  - `lib/src/xpath/xdm/types.dart`
-  - `bin/qt3/models.dart`
 - **Unit Tests**:
-  - `test/xpath/functions/higher_order_test.dart`
-  - `test/xpath/functions/uri_test.dart`
-  - `test/xpath/functions/sequence_test.dart`
+  - `test/xpath/functions/qname_test.dart`
   - `test/xpath/expressions/function_test.dart`
 
 ---
 
-### 10. Unicode Collation Algorithm (UCA) & Collation URIs
+### 7. Unicode Collation Algorithm (UCA) & Collation URIs
 
 - [ ] **Status**: Pending
-- **User Impact**: Low
-- **QT3 Target**: 62 issues (62 failures, 0 errors)
-- **Primary Suites**: `misc-UCACollation`, `fn-compare`, `fn-contains`, `fn-starts-with`
+- **User Impact**: Low (advanced linguistic sorting/comparison)
+- **Cost to Fix**: ~20k–30k tokens
+- **Code Size Increase**: ~250–400 LOC
+- **QT3 Target**: 131 issues (131 failures, 0 errors)
+- **Primary Suites**: `misc-UCACollation` (49), `fn-compare` (20), `fn-contains` (15), `fn-collation-key` (13), `fn-starts-with` (10), `fn-ends-with` (9), `fn-substring-before` (8), `fn-substring-after` (7)
 - **Root Causes**:
   - Collation URIs (`http://www.w3.org/2013/collation/UCA?...`) fallback to codepoint comparison or fail.
+  - Missing support for collation strength (`primary`, `secondary`, `tertiary`), `caseLevel`, and `caseFirst`.
+  - `fn:collation-key` unimplemented or returning codepoints.
 - **Implementation Steps**:
-  1. Parse collation URIs into strength and case-handling parameters.
-  2. Apply collation comparison in string comparison and search functions in `lib/src/xpath/functions/string.dart`.
+  1. Parse UCA collation URI parameters (`strength`, `caseLevel`, `caseFirst`).
+  2. Apply case-folding and accent-folding comparisons based on collation strength.
+  3. Implement `fn:collation-key` generating canonical sort keys.
 - **Files**:
   - `lib/src/xpath/functions/string.dart`
 - **Unit Tests**:
@@ -276,18 +199,37 @@ This document tracks known discrepancies between PetitXml XPath 3.1 implementati
 
 ---
 
-### 11. Arbitrary-Precision Integers (`BigInt`) & Number Formatting
+### 8. Unparsed Text & Resource Decoding
 
-- [x] **Status**: Completed
-- **User Impact**: Very Low
-- **Primary Suites**: `fn-round`, `fn-round-half-to-even`, `op-to`, `prod-Literal`
-- **Addressed**:
-  - `XPathInteger` uses `BigInt` for arbitrary precision arithmetic and range iteration (`lib/src/xpath/xdm/atomic/numeric.dart`).
-  - `XPathDecimal` implements exact decimal representation with `BigInt` unscaled value and scale.
-  - `RangeExpression` in `lib/src/xpath/expressions/range.dart` operates on `XPathInteger` with full `BigInt` precision.
-  - `XPathDouble` correctly formats special values (`NaN`, `INF`, `-INF`, `0`, and exponential forms).
+- [ ] **Status**: Pending
+- **User Impact**: Low (external text file ingestion)
+- **Cost to Fix**: ~10k–15k tokens
+- **Code Size Increase**: ~100–150 LOC
+- **QT3 Target**: 45 issues (33 failures, 12 errors)
+- **Primary Suites**: `fn-unparsed-text` (19), `fn-unparsed-text-lines` (14), `fn-unparsed-text-available` (12)
+- **Root Causes**:
+  - Missing automatic encoding detection from byte order marks (BOM) or XML declarations for UTF-16LE, UTF-16BE, ISO-8859-1.
+  - Raising correct error codes: `[err:FOUT1170]` (resource not found), `[err:FOUT1190]` (cannot decode octet sequence), `[err:FOUT1200]` (unsupported encoding).
+- **Implementation Steps**:
+  1. Inspect BOM / leading bytes in `unparsedTextLoader` to determine encoding when not specified.
+  2. Map decoding errors to `XPathEvaluationException.fout1190` and missing resources to `fout1170`.
 - **Files**:
-  - `lib/src/xpath/xdm/atomic/numeric.dart`
-  - `lib/src/xpath/expressions/range.dart`
+  - `lib/src/xpath/functions/accessor.dart`
+  - `bin/qt3/models.dart`
 - **Unit Tests**:
-  - `test/xpath/xdm/atomic/numeric_test.dart`
+  - `test/xpath/functions/accessor_test.dart`
+
+---
+
+### 9. XSLT 3.0 & Dynamic XQuery Modules (Out of Scope)
+
+- [ ] **Status**: Won't Fix / Out of Scope
+- **User Impact**: Negligible (PetitXml is an XPath/XML library, not an XSLT/XQuery compiler)
+- **Cost to Fix**: >500k tokens
+- **Code Size Increase**: >5,000 LOC
+- **QT3 Target**: 119 issues (0 failures, 119 errors)
+- **Primary Suites**: `fn-transform` (85), `fn-load-xquery-module` (33)
+- **Root Causes**:
+  - `fn:transform` invokes an external XSLT 3.0 processor.
+  - `fn:load-xquery-module` dynamically loads XQuery 3.1 modules.
+  - Both are optional features in the XPath 3.1 specification intended for full XSLT/XQuery engines.
