@@ -4,7 +4,6 @@ import '../evaluation/expression.dart';
 import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/casting_matrix.dart';
-import '../xdm/function_item.dart';
 import '../xdm/sequence.dart';
 import '../xdm/types.dart';
 
@@ -35,17 +34,6 @@ void _validateCastTargetType(XPathType type) {
   }
 }
 
-void _validateCastOperand(XPathSequence sequence) {
-  for (final item in sequence) {
-    if (item is XPathFunctionItem) {
-      throw XPathEvaluationException(
-        XPathErrorCode.FOTY0013,
-        'Cannot cast or test castable for a function, map, or array',
-      );
-    }
-  }
-}
-
 /// Casts [expression] to [type].
 class CastExpression implements XPathExpression {
   const new(this.expression, this.type);
@@ -57,7 +45,6 @@ class CastExpression implements XPathExpression {
   XPathSequence call(XPathContext context) {
     _validateCastTargetType(type);
     final raw = expression(context);
-    _validateCastOperand(raw);
     final sequence = raw.atomize().toList();
     if (type is XPathSequenceType) {
       final seqType = type as XPathSequenceType;
@@ -101,7 +88,6 @@ class CastableExpression implements XPathExpression {
   XPathSequence call(XPathContext context) {
     _validateCastTargetType(type);
     final raw = expression(context);
-    _validateCastOperand(raw);
     final sequence = raw.atomize().toList();
     try {
       if (type is XPathSequenceType) {

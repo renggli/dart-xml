@@ -154,8 +154,6 @@ final Set<(XPathType, XPathType)> _allowedPrimitiveCasts = {
   (xsYearMonthDuration, xsDayTimeDuration),
   (xsYearMonthDuration, xsString),
   (xsYearMonthDuration, xsUntypedAtomic),
-  (xsYearMonthDuration, xsInteger),
-  (xsYearMonthDuration, xsDecimal),
 
   // xs:dayTimeDuration
   (xsDayTimeDuration, xsDuration),
@@ -163,10 +161,6 @@ final Set<(XPathType, XPathType)> _allowedPrimitiveCasts = {
   (xsDayTimeDuration, xsDayTimeDuration),
   (xsDayTimeDuration, xsString),
   (xsDayTimeDuration, xsUntypedAtomic),
-  (xsDayTimeDuration, xsInteger),
-  (xsDayTimeDuration, xsDecimal),
-  (xsDayTimeDuration, xsFloat),
-  (xsDayTimeDuration, xsDouble),
 
   // xs:dateTime
   (xsDateTime, xsDateTime),
@@ -353,7 +347,7 @@ XPathAtomic _performCast(
       return XPathDouble(item.toDouble(), targetType);
     }
     if (targetPrimitive == xsFloat) {
-      return XPathDouble(item.toDouble(), targetType);
+      return XPathDouble(roundToFloat(item.toDouble()), targetType);
     }
     if (targetPrimitive == xsDecimal) {
       return item.toDecimal();
@@ -487,25 +481,6 @@ XPathAtomic _performCast(
     }
     if (targetPrimitive == xsDayTimeDuration) {
       return XPathDayTimeDuration(us);
-    }
-    if (targetPrimitive == xsInteger || targetPrimitive == xsDecimal) {
-      if (item is XPathYearMonthDuration) {
-        final m = BigInt.from(item.totalMonths);
-        return targetPrimitive == xsInteger
-            ? XPathInteger(m, targetType)
-            : XPathDecimal(m, 0);
-      }
-      if (item is XPathDayTimeDuration) {
-        final us = BigInt.from(item.totalMicroseconds);
-        return targetPrimitive == xsInteger
-            ? XPathInteger(us, targetType)
-            : XPathDecimal(us, 0);
-      }
-    }
-    if (targetPrimitive == xsDouble || targetPrimitive == xsFloat) {
-      if (item is XPathDayTimeDuration) {
-        return XPathDouble(item.totalMicroseconds.toDouble(), targetType);
-      }
     }
   }
 

@@ -8,9 +8,9 @@ This document tracks known discrepancies between PetitXml XPath 3.1 implementati
 
 - **Suites**: 353
 - **Total Cases**: 22,514
-- **Passing**: 19,875 (88.3%)
-- **Failures**: 2,049 (9.1%)
-- **Errors**: 590 (2.6%)
+- **Passing**: 19,962 (88.7%)
+- **Failures**: 1,992 (8.8%)
+- **Errors**: 560 (2.5%)
 
 ---
 
@@ -101,7 +101,7 @@ This document tracks known discrepancies between PetitXml XPath 3.1 implementati
 
 ### 4. Type Casting, Bounds & Float Representation
 
-- [ ] **Status**: Pending
+- [x] **Status**: Resolved
 - **User Impact**: Medium (interoperability with schema datatypes)
 - **Cost to Fix**: ~15k–20k tokens
 - **Code Size Increase**: ~100–180 LOC

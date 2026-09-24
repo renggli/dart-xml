@@ -45,15 +45,25 @@ void main() {
       );
     });
 
-    test('duration to numeric', () {
+    test('duration to numeric is disallowed', () {
       expectEvaluate(
         xml,
         "xs:dayTimeDuration('PT1H') castable as xs:numeric",
-        orderedEquals([true]),
+        orderedEquals([false]),
       );
       expectEvaluate(
         xml,
         "xs:dayTimeDuration('PT1S') castable as xs:integer",
+        orderedEquals([false]),
+      );
+      expectEvaluate(
+        xml,
+        "xs:yearMonthDuration('P1Y') castable as xs:integer",
+        orderedEquals([false]),
+      );
+      expectEvaluate(
+        xml,
+        "xs:yearMonthDuration('P1Y') castable as xs:dayTimeDuration",
         orderedEquals([true]),
       );
     });
@@ -84,17 +94,25 @@ void main() {
       );
     });
 
-    test('function item, map, array raises FOTY0013', () {
+    test('function item and map raise FOTY0013, arrays are atomized', () {
       expect(
         () => xml.xpathEvaluate('(function() { 2 }) castable as xs:integer'),
         throwsA(isXPathEvaluationException()),
       );
       expect(
-        () => xml.xpathEvaluate('[1, 2] castable as xs:integer'),
+        () => xml.xpathEvaluate('map { 1: 2 } castable as xs:integer'),
         throwsA(isXPathEvaluationException()),
       );
+      expectEvaluate(
+        xml,
+        '[1, 2] castable as xs:integer',
+        orderedEquals([false]),
+      );
+      expectEvaluate(xml, '[5] castable as xs:integer', orderedEquals([true]));
+      expectEvaluate(xml, '[] castable as xs:integer?', orderedEquals([true]));
+      expectEvaluate(xml, '[] castable as xs:integer', orderedEquals([false]));
       expect(
-        () => xml.xpathEvaluate('map { 1: 2 } castable as xs:integer'),
+        () => xml.xpathEvaluate('[map { 1: 2 }] castable as xs:integer'),
         throwsA(isXPathEvaluationException()),
       );
     });
@@ -120,34 +138,26 @@ void main() {
       );
     });
 
-    test('duration to xs:numeric', () {
-      // 1 second = 1,000,000 microseconds
-      expectEvaluate(
-        xml,
-        "xs:numeric(xs:dayTimeDuration('PT1S'))",
-        orderedEquals([1000000]),
-      );
-      // 1 hour = 3,600,000,000 microseconds
-      expectEvaluate(
-        xml,
-        "xs:numeric(xs:dayTimeDuration('PT1H'))",
-        orderedEquals([3600000000]),
+    test('array operand is atomized', () {
+      expectEvaluate(xml, '[5] cast as xs:integer', orderedEquals([5]));
+      expect(
+        () => xml.xpathEvaluate('[1, 2] cast as xs:integer'),
+        throwsA(isXPathEvaluationException()),
       );
     });
 
-    test('duration to xs:integer', () {
-      expectEvaluate(
-        xml,
-        "xs:integer(xs:dayTimeDuration('PT1S'))",
-        orderedEquals([1000000]),
+    test('duration to numeric is disallowed', () {
+      expect(
+        () => xml.xpathEvaluate("xs:numeric(xs:dayTimeDuration('PT1S'))"),
+        throwsA(isXPathEvaluationException()),
       );
-    });
-
-    test('duration to xs:double', () {
-      expectEvaluate(
-        xml,
-        "xs:double(xs:dayTimeDuration('PT1S'))",
-        orderedEquals([1000000.0]),
+      expect(
+        () => xml.xpathEvaluate("xs:integer(xs:dayTimeDuration('PT1S'))"),
+        throwsA(isXPathEvaluationException()),
+      );
+      expect(
+        () => xml.xpathEvaluate("xs:double(xs:dayTimeDuration('PT1S'))"),
+        throwsA(isXPathEvaluationException()),
       );
     });
 

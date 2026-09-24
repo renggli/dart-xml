@@ -1,9 +1,18 @@
 import 'dart:math' as math;
+import 'dart:typed_data';
 
 import '../../exceptions/error_code.dart';
 import '../../exceptions/evaluation_exception.dart';
 import '../atomic.dart';
 import '../types.dart';
+
+final _float32Holder = Float32List(1);
+
+/// Converts a 64-bit Dart [double] to a 32-bit single-precision IEEE 754 float.
+double roundToFloat(double value) {
+  _float32Holder[0] = value;
+  return _float32Holder[0];
+}
 
 /// Sealed base class for all XDM numeric atomic values.
 sealed class XPathNumeric extends XPathAtomic {
@@ -172,6 +181,17 @@ final class XPathDecimal extends XPathNumeric {
 
   factory parse(String text) {
     final trimmed = text.trim();
+    if (trimmed.contains('e') || trimmed.contains('E')) {
+      final parts = trimmed.split(RegExp(r'[eE]'));
+      final mantissa = XPathDecimal.parse(parts[0]);
+      final exp = int.parse(parts[1]);
+      final newScale = mantissa.scale - exp;
+      if (newScale >= 0) {
+        return XPathDecimal(mantissa.unscaledValue, newScale);
+      } else {
+        return XPathDecimal(mantissa.unscaledValue * _ten.pow(-newScale), 0);
+      }
+    }
     final dot = trimmed.indexOf('.');
     if (dot == -1) {
       return XPathDecimal(BigInt.parse(trimmed), 0);
@@ -403,16 +423,26 @@ final class XPathDouble extends XPathNumeric {
   factory parse(String text, [XPathType type = xsDouble]) {
     final res = tryParse(text, type);
     if (res != null) return res;
-    return XPathDouble(double.parse(text.trim()), type);
+    final val = double.parse(text.trim());
+    return XPathDouble(type == xsFloat ? roundToFloat(val) : val, type);
   }
 
   static XPathDouble? tryParse(String text, [XPathType type = xsDouble]) {
     final trimmed = text.trim();
-    if (trimmed == 'INF') return infinity;
-    if (trimmed == '-INF') return negativeInfinity;
-    if (trimmed == 'NaN') return nan;
+    if (trimmed == 'INF' || trimmed == '+INF') {
+      return type == xsDouble ? infinity : XPathDouble(double.infinity, type);
+    }
+    if (trimmed == '-INF') {
+      return type == xsDouble
+          ? negativeInfinity
+          : XPathDouble(double.negativeInfinity, type);
+    }
+    if (trimmed == 'NaN') {
+      return type == xsDouble ? nan : XPathDouble(double.nan, type);
+    }
     final val = double.tryParse(trimmed);
-    return val == null ? null : XPathDouble(val, type);
+    if (val == null) return null;
+    return XPathDouble(type == xsFloat ? roundToFloat(val) : val, type);
   }
 
   @override
@@ -426,13 +456,13 @@ final class XPathDouble extends XPathNumeric {
     if (value.isNaN) return 'NaN';
     if (value == double.infinity) return 'INF';
     if (value == double.negativeInfinity) return '-INF';
-    if (value == 0.0 || value == -0.0) return '0';
-    final s = value.toString();
-    final stripped = s.endsWith('.0') ? s.substring(0, s.length - 2) : s;
-    return stripped
-        .replaceAll('e+', 'E')
-        .replaceAll('e-', 'E-')
-        .replaceAll('e', 'E');
+    if (value == 0.0) return value.isNegative ? '-0' : '0';
+    final abs = value.abs();
+    if (abs >= 1e-6 && abs < 1e6) {
+      final s = value.toString();
+      return s.endsWith('.0') ? s.substring(0, s.length - 2) : s;
+    }
+    return _toXPathScientific(value);
   }
 
   @override
@@ -442,10 +472,38 @@ final class XPathDouble extends XPathNumeric {
   double toDouble() => value;
 
   @override
-  BigInt toBigInt() => BigInt.from(value.toInt());
+  BigInt toBigInt() {
+    if (value.isNaN || value.isInfinite) {
+      throw XPathEvaluationException(
+        XPathErrorCode.FOCA0002,
+        'Cannot convert $value to xs:integer',
+      );
+    }
+    if (value.abs() > 9223372036854775807.0) {
+      throw XPathEvaluationException(
+        XPathErrorCode.FOCA0003,
+        'Float value too large for integer: $value',
+      );
+    }
+    return BigInt.from(value.toInt());
+  }
 
   @override
-  XPathDecimal toDecimal() => XPathDecimal.parse(value.toString());
+  XPathDecimal toDecimal() {
+    if (value.isNaN || value.isInfinite) {
+      throw XPathEvaluationException(
+        XPathErrorCode.FOCA0002,
+        'Cannot convert $value to xs:decimal',
+      );
+    }
+    if (value.abs() >= 1e100) {
+      throw XPathEvaluationException(
+        XPathErrorCode.FOCA0001,
+        'Float value too large for decimal: $value',
+      );
+    }
+    return XPathDecimal.parse(value.toString());
+  }
 
   @override
   XPathNumeric operator +(XPathNumeric other) =>
@@ -513,4 +571,43 @@ final class XPathDouble extends XPathNumeric {
 
   @override
   int get hashCode => value.hashCode;
+}
+
+String _toXPathScientific(double value) {
+  final s = value.toString();
+  if (s.contains('e') || s.contains('E')) {
+    final parts = s.split(RegExp(r'[eE]'));
+    var mantissa = parts[0];
+    final exp = int.parse(parts[1]).toString();
+    if (!mantissa.contains('.')) {
+      mantissa = '$mantissa.0';
+    }
+    return '${mantissa}E$exp';
+  }
+  final sign = s.startsWith('-') ? '-' : '';
+  final absStr = sign.isNotEmpty ? s.substring(1) : s;
+  final dot = absStr.indexOf('.');
+  final intPart = dot == -1 ? absStr : absStr.substring(0, dot);
+  final fracPart = dot == -1 ? '' : absStr.substring(dot + 1);
+
+  if (intPart != '0') {
+    final exp = intPart.length - 1;
+    final firstDigit = intPart[0];
+    final rest = (intPart.substring(1) + fracPart).replaceAll(
+      RegExp(r'0+$'),
+      '',
+    );
+    final mantissa = rest.isEmpty ? '$firstDigit.0' : '$firstDigit.$rest';
+    return '$sign${mantissa}E$exp';
+  } else {
+    final firstNonZero = fracPart.indexOf(RegExp(r'[1-9]'));
+    if (firstNonZero == -1) return '${sign}0.0E0';
+    final exp = -(firstNonZero + 1);
+    final firstDigit = fracPart[firstNonZero];
+    final rest = fracPart
+        .substring(firstNonZero + 1)
+        .replaceAll(RegExp(r'0+$'), '');
+    final mantissa = rest.isEmpty ? '$firstDigit.0' : '$firstDigit.$rest';
+    return '$sign${mantissa}E$exp';
+  }
 }

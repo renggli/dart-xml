@@ -144,5 +144,92 @@ void main() {
         throwsA(isXPathEvaluationException()),
       );
     });
+
+    test('duration casting rules', () {
+      const ymd = XPathYearMonthDuration(14); // P1Y2M
+      const dtd = XPathDayTimeDuration(90000000); // PT90S
+
+      // Duration to numeric is disallowed
+      expect(
+        () => castAtomic(ymd, xsDecimal),
+        throwsA(isXPathEvaluationException()),
+      );
+      expect(
+        () => castAtomic(ymd, xsInteger),
+        throwsA(isXPathEvaluationException()),
+      );
+      expect(
+        () => castAtomic(dtd, xsFloat),
+        throwsA(isXPathEvaluationException()),
+      );
+      expect(
+        () => castAtomic(dtd, xsDouble),
+        throwsA(isXPathEvaluationException()),
+      );
+
+      // Duration to duration is allowed
+      final ymdToDtd = castAtomic(ymd, xsDayTimeDuration);
+      expect(ymdToDtd.stringValue, equals('PT0S'));
+
+      final dtdToYmd = castAtomic(dtd, xsYearMonthDuration);
+      expect(dtdToYmd.stringValue, equals('P0M'));
+    });
+
+    test('float 32-bit rounding and bounds', () {
+      // Underflow to zero
+      final underflow = XPathDouble.parse('5.4321E-100', xsFloat);
+      expect(underflow.value, equals(0.0));
+      expect(underflow.stringValue, equals('0'));
+
+      // Overflow to infinity
+      final overflow = XPathDouble.parse('1.0E40', xsFloat);
+      expect(overflow.value, equals(double.infinity));
+      expect(overflow.stringValue, equals('INF'));
+
+      // Single-precision rounding
+      final rounded = castAtomic(
+        XPathDecimal.parse('12678967.543233'),
+        xsFloat,
+      );
+      expect(rounded.stringValue, equals('1.2678968E7'));
+
+      // Negative zero
+      final negZero = XPathDouble.parse('-0.0', xsFloat);
+      expect(negZero.stringValue, equals('-0'));
+
+      // +INF parsing
+      final plusInf = XPathDouble.parse('+INF', xsFloat);
+      expect(plusInf.stringValue, equals('INF'));
+      final plusInfDouble = XPathDouble.parse('+INF', xsDouble);
+      expect(plusInfDouble.stringValue, equals('INF'));
+    });
+
+    test('double and float canonical string representation', () {
+      // Decimal range: [1e-6, 1e6)
+      expect(const XPathDouble(0.0).stringValue, equals('0'));
+      expect(const XPathDouble(-0.0).stringValue, equals('-0'));
+      expect(const XPathDouble(1.0).stringValue, equals('1'));
+      expect(const XPathDouble(999999.0).stringValue, equals('999999'));
+      expect(const XPathDouble(0.000001).stringValue, equals('0.000001'));
+      expect(const XPathDouble(12.34).stringValue, equals('12.34'));
+
+      // Scientific range: magnitude < 1e-6 or >= 1e6
+      expect(const XPathDouble(1000000.0).stringValue, equals('1.0E6'));
+      expect(const XPathDouble(-10000000.0).stringValue, equals('-1.0E7'));
+      expect(
+        const XPathDouble(1.26743233e15).stringValue,
+        equals('1.26743233E15'),
+      );
+      expect(const XPathDouble(1e-7).stringValue, equals('1.0E-7'));
+      expect(const XPathDouble(-1e-7).stringValue, equals('-1.0E-7'));
+    });
+
+    test('XPathDecimal parsing with scientific notation', () {
+      final d1 = XPathDecimal.parse('1e-7');
+      expect(d1.stringValue, equals('0.0000001'));
+
+      final d2 = XPathDecimal.parse('1.5e3');
+      expect(d2.stringValue, equals('1500'));
+    });
   });
 }
