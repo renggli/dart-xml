@@ -89,9 +89,15 @@ void main() {
       test(key, () {
         final document = XmlDocument.parse(value);
         for (final node in [document, ...document.descendants]) {
-          if (node is XmlAttribute && node.isNamespaceDeclaration) {
+          if ((node is XmlAttribute &&
+                  (node.isNamespaceDeclaration ||
+                      node.parent is! XmlElement)) ||
+              (node is XmlText && node.parent is XmlDocument) ||
+              node is XmlDeclaration ||
+              node is XmlDoctype) {
             continue;
           }
+
           final expression = node.xpathGenerate(byId: 'id');
           final result = document.xpath(expression);
           expect(result.single, node, reason: expression);

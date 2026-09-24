@@ -6,12 +6,14 @@ import '../../xml/nodes/cdata.dart';
 import '../../xml/nodes/comment.dart';
 import '../../xml/nodes/document.dart';
 import '../../xml/nodes/element.dart';
+import '../../xml/nodes/namespace.dart';
 import '../../xml/nodes/node.dart';
 import '../../xml/nodes/processing.dart';
 import '../../xml/nodes/text.dart';
 import '../../xml/utils/name.dart';
 import '../../xml/utils/namespace.dart';
 import '../evaluation/cardinality.dart';
+import '../evaluation/context.dart';
 import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/atomic/string.dart';
@@ -20,17 +22,66 @@ import '../xdm/item.dart';
 import '../xdm/sequence.dart';
 import '../xdm/types.dart';
 
+XPathNode? _optionalNodeArg(
+  XPathContext context,
+  XPathSequence? arg,
+  String fnName,
+) {
+  if (arg == null) {
+    final item = context.item;
+    if (item is XPathSequence && item.isEmpty) {
+      throw XPathEvaluationException(
+        XPathErrorCode.XPDY0002,
+        'The context item is absent [err:XPDY0002]',
+      );
+    }
+    if (item is! XPathNode) {
+      throw XPathEvaluationException(
+        XPathErrorCode.XPTY0004,
+        'Context item for $fnName must be a node, got ${item.runtimeType}',
+      );
+    }
+    return item;
+  }
+  if (arg.isEmpty) return null;
+  final item = arg.single;
+  if (item is! XPathNode) {
+    throw XPathEvaluationException(
+      XPathErrorCode.XPTY0004,
+      'Argument to $fnName must be a node, got ${item.type}',
+    );
+  }
+  return item;
+}
+
+XPathNode _requiredNodeArg(XPathSequence arg, String fnName) {
+  if (arg.isEmpty) {
+    throw XPathEvaluationException(
+      XPathErrorCode.XPTY0004,
+      'Expected a node for the argument of $fnName',
+    );
+  }
+  final item = arg.single;
+  if (item is! XPathNode) {
+    throw XPathEvaluationException(
+      XPathErrorCode.XPTY0004,
+      'Expected a node for the argument of $fnName, got ${item.type}',
+    );
+  }
+  return item;
+}
+
 /// https://www.w3.org/TR/xpath-functions-31/#func-name
 final fnName = XPathFunctionItem.overloaded(
   const XmlName.qualified('fn:name'),
   {
     0: XPathFunctionItem.fn0(
       const XmlName.qualified('fn:name'),
-      (context) => _evalName(context.item as XPathNode?),
+      (context) => _evalName(_optionalNodeArg(context, null, 'fn:name')),
     ),
     1: XPathFunctionItem.fn1(
       const XmlName.qualified('fn:name'),
-      (context, arg) => _evalName(arg.firstOrNull as XPathNode?),
+      (context, arg) => _evalName(_optionalNodeArg(context, arg, 'fn:name')),
       parameterTypes: const [
         XPathSequenceType(
           itemType: xsNode,
@@ -50,8 +101,15 @@ XPathSequence _evalName(XPathNode? nodeItem) {
   final node = nodeItem.node;
   return switch (node) {
     XmlElement() => XPathSequence.single(XPathString(node.name.toString())),
-    XmlAttribute() => XPathSequence.single(XPathString(node.name.toString())),
+    XmlAttribute() => XPathSequence.single(
+      XPathString(
+        node.name.prefix != null
+            ? '${node.name.prefix}:${node.name.local}'
+            : node.name.local,
+      ),
+    ),
     XmlProcessing() => XPathSequence.single(XPathString(node.target)),
+    XmlNamespace(:final prefix) => XPathSequence.single(XPathString(prefix)),
     _ => const XPathSequence.single(XPathString.empty),
   };
 }
@@ -62,11 +120,13 @@ final fnLocalName = XPathFunctionItem.overloaded(
   {
     0: XPathFunctionItem.fn0(
       const XmlName.qualified('fn:local-name'),
-      (context) => _evalLocalName(context.item as XPathNode?),
+      (context) =>
+          _evalLocalName(_optionalNodeArg(context, null, 'fn:local-name')),
     ),
     1: XPathFunctionItem.fn1(
       const XmlName.qualified('fn:local-name'),
-      (context, arg) => _evalLocalName(arg.firstOrNull as XPathNode?),
+      (context, arg) =>
+          _evalLocalName(_optionalNodeArg(context, arg, 'fn:local-name')),
     ),
   },
 );
@@ -78,6 +138,7 @@ XPathSequence _evalLocalName(XPathNode? nodeItem) {
     XmlElement() => XPathSequence.single(XPathString(node.name.local)),
     XmlAttribute() => XPathSequence.single(XPathString(node.name.local)),
     XmlProcessing() => XPathSequence.single(XPathString(node.target)),
+    XmlNamespace(:final prefix) => XPathSequence.single(XPathString(prefix)),
     _ => const XPathSequence.single(XPathString.empty),
   };
 }
@@ -88,11 +149,14 @@ final fnNamespaceUri = XPathFunctionItem.overloaded(
   {
     0: XPathFunctionItem.fn0(
       const XmlName.qualified('fn:namespace-uri'),
-      (context) => _evalNamespaceUri(context.item as XPathNode?),
+      (context) => _evalNamespaceUri(
+        _optionalNodeArg(context, null, 'fn:namespace-uri'),
+      ),
     ),
     1: XPathFunctionItem.fn1(
       const XmlName.qualified('fn:namespace-uri'),
-      (context, arg) => _evalNamespaceUri(arg.firstOrNull as XPathNode?),
+      (context, arg) =>
+          _evalNamespaceUri(_optionalNodeArg(context, arg, 'fn:namespace-uri')),
     ),
   },
 );
@@ -107,6 +171,7 @@ XPathSequence _evalNamespaceUri(XPathNode? nodeItem) {
     XmlAttribute() => XPathSequence.single(
       XPathString(node.name.namespaceUri ?? ''),
     ),
+
     _ => const XPathSequence.single(XPathString.empty),
   };
 }
@@ -115,22 +180,12 @@ XPathSequence _evalNamespaceUri(XPathNode? nodeItem) {
 final fnId = XPathFunctionItem.overloaded(const XmlName.qualified('fn:id'), {
   1: XPathFunctionItem.fn1(
     const XmlName.qualified('fn:id'),
-    (context, arg) => _evalId(arg, context.item as XPathNode?),
+    (context, arg) => _evalId(arg, _optionalNodeArg(context, null, 'fn:id')),
   ),
-  2: XPathFunctionItem.fn2(const XmlName.qualified('fn:id'), (
-    context,
-    arg,
-    node,
-  ) {
-    final nodeItem = node.firstOrNull;
-    if (nodeItem is! XPathNode) {
-      throw XPathEvaluationException(
-        XPathErrorCode.XPTY0004,
-        'Expected a node for the second argument of fn:id',
-      );
-    }
-    return _evalId(arg, nodeItem);
-  }),
+  2: XPathFunctionItem.fn2(
+    const XmlName.qualified('fn:id'),
+    (context, arg, node) => _evalId(arg, _requiredNodeArg(node, 'fn:id')),
+  ),
 });
 
 XPathSequence _evalId(XPathSequence arg, XPathNode? nodeItem) {
@@ -158,22 +213,16 @@ final fnElementWithId = XPathFunctionItem.overloaded(
   {
     1: XPathFunctionItem.fn1(
       const XmlName.qualified('fn:element-with-id'),
-      (context, arg) => _evalElementWithId(arg, context.item as XPathNode?),
+      (context, arg) => _evalElementWithId(
+        arg,
+        _optionalNodeArg(context, null, 'fn:element-with-id'),
+      ),
     ),
-    2: XPathFunctionItem.fn2(const XmlName.qualified('fn:element-with-id'), (
-      context,
-      arg,
-      node,
-    ) {
-      final nodeItem = node.firstOrNull;
-      if (nodeItem is! XPathNode) {
-        throw XPathEvaluationException(
-          XPathErrorCode.XPTY0004,
-          'Expected a node for the second argument of fn:element-with-id',
-        );
-      }
-      return _evalElementWithId(arg, nodeItem);
-    }),
+    2: XPathFunctionItem.fn2(
+      const XmlName.qualified('fn:element-with-id'),
+      (context, arg, node) =>
+          _evalElementWithId(arg, _requiredNodeArg(node, 'fn:element-with-id')),
+    ),
   },
 );
 
@@ -204,22 +253,14 @@ final fnIdref = XPathFunctionItem.overloaded(
   {
     1: XPathFunctionItem.fn1(
       const XmlName.qualified('fn:idref'),
-      (context, arg) => _evalIdref(arg, context.item as XPathNode?),
+      (context, arg) =>
+          _evalIdref(arg, _optionalNodeArg(context, null, 'fn:idref')),
     ),
-    2: XPathFunctionItem.fn2(const XmlName.qualified('fn:idref'), (
-      context,
-      arg,
-      node,
-    ) {
-      final nodeItem = node.firstOrNull;
-      if (nodeItem is! XPathNode) {
-        throw XPathEvaluationException(
-          XPathErrorCode.XPTY0004,
-          'Expected a node for the second argument of fn:idref',
-        );
-      }
-      return _evalIdref(arg, nodeItem);
-    }),
+    2: XPathFunctionItem.fn2(
+      const XmlName.qualified('fn:idref'),
+      (context, arg, node) =>
+          _evalIdref(arg, _requiredNodeArg(node, 'fn:idref')),
+    ),
   },
 );
 
@@ -248,11 +289,13 @@ final fnGenerateId = XPathFunctionItem.overloaded(
   {
     0: XPathFunctionItem.fn0(
       const XmlName.qualified('fn:generate-id'),
-      (context) => _evalGenerateId(context.item as XPathNode?),
+      (context) =>
+          _evalGenerateId(_optionalNodeArg(context, null, 'fn:generate-id')),
     ),
     1: XPathFunctionItem.fn1(
       const XmlName.qualified('fn:generate-id'),
-      (context, arg) => _evalGenerateId(arg.firstOrNull as XPathNode?),
+      (context, arg) =>
+          _evalGenerateId(_optionalNodeArg(context, arg, 'fn:generate-id')),
     ),
   },
 );
@@ -272,11 +315,11 @@ final fnRoot = XPathFunctionItem.overloaded(
   {
     0: XPathFunctionItem.fn0(
       const XmlName.qualified('fn:root'),
-      (context) => _evalRoot(context.item as XPathNode?),
+      (context) => _evalRoot(_optionalNodeArg(context, null, 'fn:root')),
     ),
     1: XPathFunctionItem.fn1(
       const XmlName.qualified('fn:root'),
-      (context, arg) => _evalRoot(arg.firstOrNull as XPathNode?),
+      (context, arg) => _evalRoot(_optionalNodeArg(context, arg, 'fn:root')),
     ),
   },
 );
@@ -292,11 +335,13 @@ final fnHasChildren = XPathFunctionItem.overloaded(
   {
     0: XPathFunctionItem.fn0(
       const XmlName.qualified('fn:has-children'),
-      (context) => _evalHasChildren(context.item as XPathNode?),
+      (context) =>
+          _evalHasChildren(_optionalNodeArg(context, null, 'fn:has-children')),
     ),
     1: XPathFunctionItem.fn1(
       const XmlName.qualified('fn:has-children'),
-      (context, arg) => _evalHasChildren(arg.firstOrNull as XPathNode?),
+      (context, arg) =>
+          _evalHasChildren(_optionalNodeArg(context, arg, 'fn:has-children')),
     ),
   },
 );
@@ -314,7 +359,16 @@ XPathSequence _evalHasChildren(XPathNode? nodeItem) {
 final fnInnermost = XPathFunctionItem.fn1(
   const XmlName.qualified('fn:innermost'),
   (context, nodes) {
-    final list = nodes.whereType<XPathNode>().toList();
+    final list = <XPathNode>[];
+    for (final item in nodes) {
+      if (item is! XPathNode) {
+        throw XPathEvaluationException(
+          XPathErrorCode.XPTY0004,
+          'Argument to fn:innermost must be a sequence of nodes, but got ${item.runtimeType}',
+        );
+      }
+      list.add(item);
+    }
     final result = <XPathNode>[];
     for (final nodeItem in list) {
       final node = nodeItem.node;
@@ -323,7 +377,9 @@ final fnInnermost = XPathFunctionItem.fn1(
             node != other.node &&
             node.descendants.any((desc) => desc == other.node),
       )) {
-        result.add(nodeItem);
+        if (!result.any((existing) => existing.node == node)) {
+          result.add(nodeItem);
+        }
       }
     }
     return XPathSequence(result);
@@ -334,7 +390,16 @@ final fnInnermost = XPathFunctionItem.fn1(
 final fnOutermost = XPathFunctionItem.fn1(
   const XmlName.qualified('fn:outermost'),
   (context, nodes) {
-    final list = nodes.whereType<XPathNode>().toList();
+    final list = <XPathNode>[];
+    for (final item in nodes) {
+      if (item is! XPathNode) {
+        throw XPathEvaluationException(
+          XPathErrorCode.XPTY0004,
+          'Argument to fn:outermost must be a sequence of nodes, but got ${item.runtimeType}',
+        );
+      }
+      list.add(item);
+    }
     final result = <XPathNode>[];
     for (final nodeItem in list) {
       final node = nodeItem.node;
@@ -343,7 +408,9 @@ final fnOutermost = XPathFunctionItem.fn1(
             node != other.node &&
             node.ancestors.any((anc) => anc == other.node),
       )) {
-        result.add(nodeItem);
+        if (!result.any((existing) => existing.node == node)) {
+          result.add(nodeItem);
+        }
       }
     }
     return XPathSequence(result);
@@ -356,11 +423,11 @@ final fnPath = XPathFunctionItem.overloaded(
   {
     0: XPathFunctionItem.fn0(
       const XmlName.qualified('fn:path'),
-      (context) => _evalPath(context.item as XPathNode?),
+      (context) => _evalPath(_optionalNodeArg(context, null, 'fn:path')),
     ),
     1: XPathFunctionItem.fn1(
       const XmlName.qualified('fn:path'),
-      (context, arg) => _evalPath(arg.firstOrNull as XPathNode?),
+      (context, arg) => _evalPath(_optionalNodeArg(context, arg, 'fn:path')),
     ),
   },
 );
@@ -389,7 +456,8 @@ XPathSequence _evalPath(XPathNode? nodeItem) {
         components.add('Q{$uri}$local[$index]');
       case XmlAttribute():
         final local = current.name.local;
-        final uri = current.name.namespaceUri;
+        final prefix = current.name.prefix;
+        final uri = prefix != null ? current.name.namespaceUri : null;
         if (uri != null && uri.isNotEmpty) {
           components.add('@Q{$uri}$local');
         } else {
@@ -426,6 +494,15 @@ XPathSequence _evalPath(XPathNode? nodeItem) {
           if (sibling.target == target) index++;
         }
         components.add('processing-instruction($target)[$index]');
+      case XmlNamespace():
+        final prefix = current.prefix;
+        if (prefix.isNotEmpty) {
+          components.add('namespace::$prefix');
+        } else {
+          components.add(
+            'namespace::*[Q{http://www.w3.org/2005/xpath-functions}local-name()=""]',
+          );
+        }
       case _:
         break;
     }

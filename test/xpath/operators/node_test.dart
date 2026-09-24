@@ -90,6 +90,25 @@ void main() {
       expectEvaluate(doc, 'r/a is r/b', [false]);
       expectEvaluate(doc, '() is r/a', isEmpty);
     });
+    test('namespace nodes identity on same element', () {
+      final nsDoc = XmlDocument.parse('<r xmlns:ns="http://test.com"/>');
+      final ns1 = nsDoc.xpathEvaluate('r/namespace::ns');
+      final ns2 = nsDoc.xpathEvaluate('r/namespace::*[local-name()="ns"]');
+      expect(opNodeIs(ns1, ns2), isXPathSequence([true]));
+      expectEvaluate(
+        nsDoc,
+        'r/namespace::ns is r/namespace::*[local-name()="ns"]',
+        [true],
+      );
+    });
+    test('namespace nodes on different elements are not identical', () {
+      final nsDoc = XmlDocument.parse(
+        '<r xmlns:ns="http://test.com"><child xmlns:ns="http://test.com"/></r>',
+      );
+      expectEvaluate(nsDoc, 'r/namespace::ns is r/child/namespace::ns', [
+        false,
+      ]);
+    });
   });
 
   group('opNodePrecedes', () {
@@ -109,6 +128,14 @@ void main() {
       expectEvaluate(doc, 'r/a << r/b', [true]);
       expectEvaluate(doc, 'r/b << r/a', [false]);
     });
+    test('namespace precedes attributes and children of same element', () {
+      final nsDoc = XmlDocument.parse(
+        '<r xmlns:ns="http://test.com" a="1"><child/></r>',
+      );
+      expectEvaluate(nsDoc, 'r/namespace::ns << r/@a', [true]);
+      expectEvaluate(nsDoc, 'r/namespace::ns << r/child', [true]);
+      expectEvaluate(nsDoc, 'r/@a << r/namespace::ns', [false]);
+    });
   });
 
   group('opNodeFollows', () {
@@ -124,6 +151,14 @@ void main() {
     test('integration >>', () {
       expectEvaluate(doc, 'r/b >> r/a', [true]);
       expectEvaluate(doc, 'r/a >> r/b', [false]);
+    });
+    test('attribute and child follow namespace of same element', () {
+      final nsDoc = XmlDocument.parse(
+        '<r xmlns:ns="http://test.com" a="1"><child/></r>',
+      );
+      expectEvaluate(nsDoc, 'r/@a >> r/namespace::ns', [true]);
+      expectEvaluate(nsDoc, 'r/child >> r/namespace::ns', [true]);
+      expectEvaluate(nsDoc, 'r/namespace::ns >> r/@a', [false]);
     });
   });
 

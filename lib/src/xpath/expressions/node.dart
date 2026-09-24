@@ -9,6 +9,7 @@ import '../../xml/nodes/processing.dart';
 import '../../xml/nodes/text.dart';
 import '../xdm/item.dart';
 import '../xdm/types.dart';
+import 'axis.dart';
 import 'name.dart';
 
 /// Abstract superclass for all node tests.
@@ -23,7 +24,7 @@ class NodeTypeTest extends NodeTest {
   const new();
 
   @override
-  bool matches(XmlNode node) => true;
+  bool matches(XmlNode node) => isXPathNode(node);
 }
 
 /// `text()` matches any text node.

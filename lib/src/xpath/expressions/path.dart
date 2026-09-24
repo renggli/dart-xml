@@ -1,8 +1,6 @@
 import 'package:collection/collection.dart';
 
 import '../../xml/extensions/comparison.dart';
-import '../../xml/extensions/descendants.dart';
-import '../../xml/extensions/parent.dart';
 import '../../xml/nodes/node.dart';
 import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
@@ -148,22 +146,10 @@ List<XPathItem> _sortAndDeduplicate(Iterable<XPathItem> iter) {
       others.add(item);
     }
   }
-  final result = <XPathItem>[];
-  if (nodes.length <= 50) {
-    result.addAll(nodes.sorted(_compareNodePosition).map(XPathNode.new));
-  } else {
-    final root = nodes.first.root;
-    if (nodes.remove(root)) result.add(XPathNode(root));
-    for (final node in root.descendants) {
-      if (nodes.isEmpty) break;
-      if (nodes.remove(node)) result.add(XPathNode(node));
-    }
-    if (nodes.isNotEmpty) {
-      result.addAll(nodes.sorted(_compareNodePosition).map(XPathNode.new));
-    }
-  }
-  result.addAll(others);
-  return result;
+  final sortedNodes = nodes.length <= 1
+      ? nodes.map(XPathNode.new)
+      : nodes.sorted(_compareNodePosition).map(XPathNode.new);
+  return [...sortedNodes, ...others];
 }
 
 int _compareNodePosition(XmlNode node1, XmlNode node2) {

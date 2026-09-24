@@ -376,4 +376,174 @@ void main() {
       );
     });
   });
+
+  group('fn:innermost', () {
+    final xml = XmlDocument.parse('<r><a><b/></a><c/></r>');
+
+    test('retains only deepest nodes', () {
+      expectEvaluate(
+        xml,
+        'fn:innermost(//*)',
+        isXPathSequence([
+          xml.findAllElements('b').single,
+          xml.findAllElements('c').single,
+        ]),
+      );
+    });
+
+    test('empty sequence returns empty', () {
+      expectEvaluate(xml, 'fn:innermost(())', isXPathSequence(isEmpty));
+    });
+
+    test('throws XPTY0004 on non-node item', () {
+      expect(
+        () => xml.xpathEvaluate('fn:innermost((//*, 1))'),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+    });
+  });
+
+  group('fn:outermost', () {
+    final xml = XmlDocument.parse('<r><a><b/></a><c/></r>');
+
+    test('retains only shallowest nodes', () {
+      expectEvaluate(
+        xml,
+        'fn:outermost(//*)',
+        isXPathSequence([xml.rootElement]),
+      );
+      expectEvaluate(
+        xml,
+        'fn:outermost((//a, //b, //c))',
+        isXPathSequence([
+          xml.findAllElements('a').single,
+          xml.findAllElements('c').single,
+        ]),
+      );
+    });
+
+    test('empty sequence returns empty', () {
+      expectEvaluate(xml, 'fn:outermost(())', isXPathSequence(isEmpty));
+    });
+
+    test('throws XPTY0004 on non-node item', () {
+      expect(
+        () => xml.xpathEvaluate('fn:outermost((//*, "string"))'),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+    });
+  });
+
+  group('fn:path', () {
+    final xml = XmlDocument.parse(
+      '<r xmlns="http://ns.com" a="1"><!--c--><?pi data?>text</r>',
+    );
+
+    test('document returns /', () {
+      expectEvaluate(xml, 'fn:path(/)', isXPathSequence(['/']));
+    });
+
+    test('context item default', () {
+      expectEvaluate(xml, 'fn:path()', isXPathSequence(['/']));
+    });
+
+    test('element path includes namespace and index', () {
+      expectEvaluate(
+        xml,
+        'fn:path(/*)',
+        isXPathSequence(['/Q{http://ns.com}r[1]']),
+      );
+    });
+
+    test('attribute path', () {
+      expectEvaluate(
+        xml,
+        'fn:path(/*/@a)',
+        isXPathSequence(['/Q{http://ns.com}r[1]/@a']),
+      );
+    });
+
+    test('comment path', () {
+      expectEvaluate(
+        xml,
+        'fn:path(/*/comment())',
+        isXPathSequence(['/Q{http://ns.com}r[1]/comment()[1]']),
+      );
+    });
+
+    test('processing-instruction path', () {
+      expectEvaluate(
+        xml,
+        'fn:path(/*/processing-instruction())',
+        isXPathSequence([
+          '/Q{http://ns.com}r[1]/processing-instruction(pi)[1]',
+        ]),
+      );
+    });
+
+    test('text path', () {
+      expectEvaluate(
+        xml,
+        'fn:path(/*/text())',
+        isXPathSequence(['/Q{http://ns.com}r[1]/text()[1]']),
+      );
+    });
+
+    test('unnamed namespace path uses double quotes', () {
+      expectEvaluate(
+        xml,
+        'fn:path(/*/namespace::*[local-name()=""])',
+        isXPathSequence([
+          '/Q{http://ns.com}r[1]/namespace::*[Q{http://www.w3.org/2005/xpath-functions}local-name()=""]',
+        ]),
+      );
+    });
+
+    test('named namespace path uses prefix', () {
+      expectEvaluate(
+        xml,
+        'fn:path(/*/namespace::*[local-name()="xml"])',
+        isXPathSequence(['/Q{http://ns.com}r[1]/namespace::xml']),
+      );
+    });
+
+    test('empty sequence returns empty', () {
+      expectEvaluate(xml, 'fn:path(())', isXPathSequence(isEmpty));
+    });
+
+    test('throws XPTY0004 on non-node item', () {
+      expect(
+        () => xml.xpathEvaluate('fn:path(123)'),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+    });
+  });
+
+  group('fn:root', () {
+    final xml = XmlDocument.parse('<r><a/></r>');
+
+    test('returns document root', () {
+      expectEvaluate(xml, 'fn:root(/*/a)', isXPathSequence([xml]));
+    });
+
+    test('zero-argument uses context node', () {
+      expectEvaluate(xml, 'fn:root()', isXPathSequence([xml]));
+    });
+
+    test('isolated element returns itself', () {
+      final elem = XmlElement(const XmlName('isolated'));
+      expect(elem.xpathEvaluate('fn:root()'), isXPathSequence([elem]));
+    });
+
+    test('empty sequence returns empty', () {
+      expectEvaluate(xml, 'fn:root(())', isXPathSequence(isEmpty));
+    });
+
+    test('throws XPTY0004 on non-node item', () {
+      expect(
+        () => xml.xpathEvaluate('fn:root("not-a-node")'),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+    });
+  });
 }

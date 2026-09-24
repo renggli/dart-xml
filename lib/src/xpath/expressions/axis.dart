@@ -6,7 +6,19 @@ import '../../xml/extensions/descendants.dart';
 import '../../xml/extensions/following.dart';
 import '../../xml/extensions/preceding.dart';
 import '../../xml/extensions/sibling.dart';
+import '../../xml/nodes/document.dart';
+import '../../xml/nodes/element.dart';
 import '../../xml/nodes/node.dart';
+import '../../xml/nodes/text.dart';
+
+/// Determines whether [node] is a recognized node in the XPath 3.1 Data Model (XDM).
+bool isXPathNode(XmlNode node) => switch (node.nodeType) {
+  XmlNodeType.DECLARATION ||
+  XmlNodeType.DOCUMENT_TYPE ||
+  XmlNodeType.ENTITY ||
+  XmlNodeType.NOTATION => false,
+  _ => true,
+};
 
 @immutable
 sealed class Axis {
@@ -24,15 +36,18 @@ class AncestorAxis implements Axis, ReverseAxis {
   const new();
 
   @override
-  Iterable<XmlNode> find(XmlNode node) => node.ancestors.toList().reversed;
+  Iterable<XmlNode> find(XmlNode node) =>
+      node.ancestors.where(isXPathNode).toList().reversed;
 }
 
 class AncestorOrSelfAxis implements Axis, ReverseAxis {
   const new();
 
   @override
-  Iterable<XmlNode> find(XmlNode node) =>
-      node.ancestors.toList().reversed.followedBy([node]);
+  Iterable<XmlNode> find(XmlNode node) {
+    final ancestors = node.ancestors.where(isXPathNode).toList().reversed;
+    return isXPathNode(node) ? ancestors.followedBy([node]) : ancestors;
+  }
 }
 
 class AttributeAxis implements Axis {
@@ -47,7 +62,13 @@ class ChildAxis implements Axis {
   const new();
 
   @override
-  Iterable<XmlNode> find(XmlNode node) => node.children;
+  Iterable<XmlNode> find(XmlNode node) {
+    final children = node.children;
+    if (node is XmlDocument) {
+      return children.where((child) => isXPathNode(child) && child is! XmlText);
+    }
+    return children.where(isXPathNode);
+  }
 }
 
 class DescendantAxis implements Axis {
@@ -55,7 +76,10 @@ class DescendantAxis implements Axis {
 
   @override
   Iterable<XmlNode> find(XmlNode node) => node.descendants.where(
-    (XmlNode each) => each.nodeType != XmlNodeType.ATTRIBUTE,
+    (XmlNode each) =>
+        each.nodeType != XmlNodeType.ATTRIBUTE &&
+        isXPathNode(each) &&
+        (each.parent is! XmlDocument || each is! XmlText),
   );
 }
 
@@ -63,11 +87,15 @@ class DescendantOrSelfAxis implements Axis {
   const new();
 
   @override
-  Iterable<XmlNode> find(XmlNode node) => [node].followedBy(
-    node.descendants.where(
-      (XmlNode each) => each.nodeType != XmlNodeType.ATTRIBUTE,
-    ),
-  );
+  Iterable<XmlNode> find(XmlNode node) =>
+      [if (isXPathNode(node)) node].followedBy(
+        node.descendants.where(
+          (XmlNode each) =>
+              each.nodeType != XmlNodeType.ATTRIBUTE &&
+              isXPathNode(each) &&
+              (each.parent is! XmlDocument || each is! XmlText),
+        ),
+      );
 }
 
 class FollowingAxis implements Axis {
@@ -75,7 +103,10 @@ class FollowingAxis implements Axis {
 
   @override
   Iterable<XmlNode> find(XmlNode node) => node.following.where(
-    (XmlNode each) => each.nodeType != XmlNodeType.ATTRIBUTE,
+    (XmlNode each) =>
+        each.nodeType != XmlNodeType.ATTRIBUTE &&
+        isXPathNode(each) &&
+        (each.parent is! XmlDocument || each is! XmlText),
   );
 }
 
@@ -86,7 +117,11 @@ class FollowingSiblingAxis implements Axis {
   Iterable<XmlNode> find(XmlNode node) {
     final siblings = node.siblings;
     final index = siblings.indexOf(node);
-    return siblings.getRange(index + 1, siblings.length);
+    final range = siblings.getRange(index + 1, siblings.length);
+    if (node.parent is XmlDocument) {
+      return range.where((each) => isXPathNode(each) && each is! XmlText);
+    }
+    return range.where(isXPathNode);
   }
 }
 
@@ -94,7 +129,10 @@ class NamespaceAxis implements Axis {
   const new();
 
   @override
-  Iterable<XmlNode> find(XmlNode node) => node.namespaces;
+  Iterable<XmlNode> find(XmlNode node) {
+    if (node is! XmlElement) return const [];
+    return node.namespaces.map((ns) => ns.copy()..attachParent(node));
+  }
 }
 
 class ParentAxis implements Axis, ReverseAxis {
@@ -103,7 +141,7 @@ class ParentAxis implements Axis, ReverseAxis {
   @override
   Iterable<XmlNode> find(XmlNode node) {
     final parent = node.parent;
-    return parent == null ? [] : [parent];
+    return parent != null && isXPathNode(parent) ? [parent] : const [];
   }
 }
 
@@ -115,7 +153,10 @@ class PrecedingAxis implements Axis, ReverseAxis {
     final ancestors = node.ancestors.toSet();
     return node.preceding.where(
       (XmlNode each) =>
-          !ancestors.contains(each) && each.nodeType != XmlNodeType.ATTRIBUTE,
+          !ancestors.contains(each) &&
+          each.nodeType != XmlNodeType.ATTRIBUTE &&
+          isXPathNode(each) &&
+          (each.parent is! XmlDocument || each is! XmlText),
     );
   }
 }
@@ -127,7 +168,11 @@ class PrecedingSiblingAxis implements Axis, ReverseAxis {
   Iterable<XmlNode> find(XmlNode node) {
     final siblings = node.siblings;
     final index = siblings.indexOf(node);
-    return siblings.getRange(0, index);
+    final range = siblings.getRange(0, index);
+    if (node.parent is XmlDocument) {
+      return range.where((each) => isXPathNode(each) && each is! XmlText);
+    }
+    return range.where(isXPathNode);
   }
 }
 
@@ -135,5 +180,5 @@ class SelfAxis implements Axis {
   const new();
 
   @override
-  Iterable<XmlNode> find(XmlNode node) => [node];
+  Iterable<XmlNode> find(XmlNode node) => isXPathNode(node) ? [node] : const [];
 }

@@ -1,4 +1,5 @@
 import '../../xml/extensions/comparison.dart';
+import '../../xml/nodes/namespace.dart';
 import '../../xml/nodes/node.dart';
 import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
@@ -52,9 +53,15 @@ XPathSequence opNodeIs(XPathSequence left, XPathSequence right) {
   final node1 = _singleNodeOrNull(left);
   final node2 = _singleNodeOrNull(right);
   if (node1 == null || node2 == null) return XPathSequence.empty;
-  return identical(node1, node2)
-      ? XPathSequence.trueSequence
-      : XPathSequence.falseSequence;
+  if (identical(node1, node2)) return XPathSequence.trueSequence;
+  if (node1 is XmlNamespace && node2 is XmlNamespace) {
+    return (node1.parent == node2.parent &&
+            node1.prefix == node2.prefix &&
+            node1.uri == node2.uri)
+        ? XPathSequence.trueSequence
+        : XPathSequence.falseSequence;
+  }
+  return XPathSequence.falseSequence;
 }
 
 /// https://www.w3.org/TR/xpath-31/#id-node-comparisons

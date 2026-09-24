@@ -5,6 +5,7 @@ import '../../xml/nodes/data.dart';
 import '../../xml/nodes/document.dart';
 import '../../xml/nodes/document_fragment.dart';
 import '../../xml/nodes/element.dart';
+import '../../xml/nodes/namespace.dart';
 import '../../xml/nodes/node.dart';
 import '../../xml/nodes/processing.dart';
 import '../../xml/nodes/text.dart';
@@ -43,6 +44,7 @@ final class XPathNode implements XPathItem {
     XmlText() => xsText,
     XmlComment() => xsComment,
     XmlProcessing() => xsProcessingInstruction,
+    XmlNamespace() => xsNamespace,
     XmlDocument() || XmlDocumentFragment() => xsDocument,
     _ => xsNode,
   };
@@ -55,6 +57,7 @@ final class XPathNode implements XPathItem {
     XmlAttribute(:final value) => value,
     XmlData(:final value) => value,
     XmlProcessing(:final text) => text,
+    XmlNamespace(:final value) => value,
     _ => node.innerText,
   };
 

@@ -2,6 +2,7 @@ import '../mixins/has_name.dart';
 import '../nodes/attribute.dart';
 import '../nodes/data.dart';
 import '../nodes/doctype.dart';
+import '../nodes/namespace.dart';
 import '../nodes/node.dart';
 import '../nodes/processing.dart';
 import 'parent.dart';
@@ -45,19 +46,71 @@ extension XmlComparisonExtension on XmlNode {
     var otherNode = other;
     XmlAttribute? thisAttribute;
     XmlAttribute? otherAttribute;
+    XmlNamespace? thisNamespace;
+    XmlNamespace? otherNamespace;
 
-    // Normalize attributes to their parent/owner elements.
+    // Normalize attributes and namespaces to their parent/owner elements.
     if (thisNode is XmlAttribute) {
       thisAttribute = thisNode;
       thisNode = thisAttribute.parent ?? thisAttribute;
+    } else if (thisNode is XmlNamespace) {
+      thisNamespace = thisNode;
+      thisNode = thisNamespace.parent ?? thisNamespace;
     }
     if (otherNode is XmlAttribute) {
       otherAttribute = otherNode;
       otherNode = otherAttribute.parent ?? otherNode;
+    } else if (otherNode is XmlNamespace) {
+      otherNamespace = otherNode;
+      otherNode = otherNamespace.parent ?? otherNode;
     }
 
     // Handle cases where both nodes share the same owner element.
     if (thisNode == otherNode) {
+      if (thisNamespace != null && otherNamespace != null) {
+        var cmp = thisNamespace.prefix.compareTo(otherNamespace.prefix);
+        if (cmp == 0) {
+          cmp = thisNamespace.uri.compareTo(otherNamespace.uri);
+        }
+        if (cmp == 0) {
+          cmp = identityHashCode(thisNamespace)
+              .compareTo(identityHashCode(otherNamespace));
+          if (cmp == 0) cmp = 1;
+        }
+        return XmlDocumentPosition(
+          XmlDocumentPosition._implementationSpecific |
+              (cmp < 0
+                  ? XmlDocumentPosition._following
+                  : XmlDocumentPosition._preceding),
+        );
+      }
+      if (thisNamespace != null && otherAttribute != null) {
+        return const XmlDocumentPosition(
+          XmlDocumentPosition._implementationSpecific |
+              XmlDocumentPosition._following,
+        );
+      }
+      if (thisAttribute != null && otherNamespace != null) {
+        return const XmlDocumentPosition(
+          XmlDocumentPosition._implementationSpecific |
+              XmlDocumentPosition._preceding,
+        );
+      }
+      if (thisNamespace != null &&
+          thisAttribute == null &&
+          otherNamespace == null &&
+          otherAttribute == null) {
+        return const XmlDocumentPosition(
+          XmlDocumentPosition._contains | XmlDocumentPosition._preceding,
+        );
+      }
+      if (thisNamespace == null &&
+          thisAttribute == null &&
+          (otherNamespace != null || otherAttribute != null)) {
+        return const XmlDocumentPosition(
+          XmlDocumentPosition._containedBy | XmlDocumentPosition._following,
+        );
+      }
       if (thisAttribute != null && otherAttribute != null) {
         for (final attr in thisNode.attributes) {
           if (attr == thisAttribute) {
@@ -73,11 +126,6 @@ extension XmlComparisonExtension on XmlNode {
             );
           }
         }
-      }
-      if (thisAttribute == null && otherAttribute != null) {
-        return const XmlDocumentPosition(
-          XmlDocumentPosition._containedBy | XmlDocumentPosition._following,
-        );
       }
       if (thisAttribute != null && otherAttribute == null) {
         return const XmlDocumentPosition(
@@ -98,6 +146,9 @@ extension XmlComparisonExtension on XmlNode {
         depthThis--;
       }
       if (ancestorThis == ancestorOther) {
+        if (otherAttribute != null || otherNamespace != null) {
+          return const XmlDocumentPosition(XmlDocumentPosition._preceding);
+        }
         return const XmlDocumentPosition(
           XmlDocumentPosition._contains | XmlDocumentPosition._preceding,
         );
@@ -108,6 +159,9 @@ extension XmlComparisonExtension on XmlNode {
         depthOther--;
       }
       if (ancestorThis == ancestorOther) {
+        if (thisAttribute != null || thisNamespace != null) {
+          return const XmlDocumentPosition(XmlDocumentPosition._following);
+        }
         return const XmlDocumentPosition(
           XmlDocumentPosition._containedBy | XmlDocumentPosition._following,
         );
@@ -247,6 +301,8 @@ bool _compareData(XmlNode node1, XmlNode node2) {
     return node1.name == node2.name &&
         node1.externalId == node2.externalId &&
         node1.internalSubset == node2.internalSubset;
+  } else if (node1 is XmlNamespace && node2 is XmlNamespace) {
+    return node1.uri == node2.uri;
   }
   return true;
 }

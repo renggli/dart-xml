@@ -12,7 +12,7 @@ class ContextItemExpression implements XPathExpression {
   XPathSequence call(XPathContext context) {
     final item = context.item;
     if (item is XPathItem) return XPathSequence.single(item);
-    if (item is XPathSequence) return item;
+    if (item is XPathSequence && item.isNotEmpty) return item;
     throw XPathEvaluationException(
       XPathErrorCode.XPDY0002,
       'Context item is undefined',

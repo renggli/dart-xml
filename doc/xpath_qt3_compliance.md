@@ -8,9 +8,9 @@ This document tracks known discrepancies between PetitXml XPath 3.1 implementati
 
 - **Suites**: 353
 - **Total Cases**: 22,514
-- **Passing**: 19,774 (87.8%)
-- **Failures**: 2,147 (9.5%)
-- **Errors**: 593 (2.6%)
+- **Passing**: 19,875 (88.3%)
+- **Failures**: 2,049 (9.1%)
+- **Errors**: 590 (2.6%)
 
 ---
 
@@ -18,7 +18,7 @@ This document tracks known discrepancies between PetitXml XPath 3.1 implementati
 
 ### 1. XML Path & Axis Step Edge Cases
 
-- [ ] **Status**: Pending
+- [x] **Status**: Resolved
 - **User Impact**: High (core query functionality)
 - **Cost to Fix**: ~15k–25k tokens
 - **Code Size Increase**: ~100–200 LOC

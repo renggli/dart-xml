@@ -28,6 +28,12 @@ class StepExpression implements XPathExpression {
   @override
   XPathSequence call(XPathContext context) {
     final item = context.item;
+    if (item is XPathSequence && item.isEmpty) {
+      throw XPathEvaluationException(
+        XPathErrorCode.XPDY0002,
+        'The context item is absent',
+      );
+    }
     if (item is! XPathNode) {
       throw XPathEvaluationException(
         XPathErrorCode.XPTY0019,
@@ -42,20 +48,22 @@ class StepExpression implements XPathExpression {
     }
     if (predicates.isNotEmpty) {
       final isReverseIndexed = axis is ReverseAxis;
+      var current = isReverseIndexed ? result.reversed.toList() : result;
       final inner = context.copy();
       for (final predicate in predicates) {
-        inner.last = result.length;
+        inner.last = current.length;
         final matched = <XmlNode>[];
-        for (var i = 0; i < result.length; i++) {
-          final node = result[isReverseIndexed ? result.length - i - 1 : i];
+        for (var i = 0; i < current.length; i++) {
+          final node = current[i];
           inner.item = XPathNode(node);
           inner.position = i + 1;
           if (predicate.matches(inner)) {
             matched.add(node);
           }
         }
-        result = isReverseIndexed ? matched.reversed.toList() : matched;
+        current = matched;
       }
+      result = isReverseIndexed ? current.reversed.toList() : current;
     }
     return XPathSequence(result.map(XPathNode.new));
   }
@@ -67,6 +75,12 @@ class RootNodeExpression implements XPathExpression {
   @override
   XPathSequence call(XPathContext context) {
     final item = context.item;
+    if (item is XPathSequence && item.isEmpty) {
+      throw XPathEvaluationException(
+        XPathErrorCode.XPDY0002,
+        'The context item is absent',
+      );
+    }
     if (item is! XPathNode) {
       throw XPathEvaluationException(
         XPathErrorCode.XPTY0019,

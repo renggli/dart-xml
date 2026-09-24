@@ -488,6 +488,8 @@ class XPathGrammar {
               test is AttributeTypeTest ||
               test is SchemaAttributeTypeTest
           ? StepExpression(const AttributeAxis(), nodeTest: test)
+          : test is NamespaceNodeTypeTest
+          ? StepExpression(const NamespaceAxis(), nodeTest: test)
           : StepExpression(const ChildAxis(), nodeTest: test),
     ),
   ].toChoiceParser();
