@@ -2,6 +2,7 @@ import '../../xml/utils/name.dart';
 import '../evaluation/context.dart';
 import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
+import '../xdm/atomic/qname.dart';
 import '../xdm/atomic/string.dart';
 import '../xdm/function_item.dart';
 import '../xdm/sequence.dart';
@@ -17,17 +18,31 @@ const fnError = XPathFunctionItem.overloaded(XmlName.qualified('fn:error'), {
 XPathSequence _fnError0(XPathContext context) =>
     throw XPathEvaluationException(XPathErrorCode.FOER0000);
 
+XPathErrorCode _resolveErrorCode(XPathSequence code) {
+  final items = code.atomize();
+  if (items.isEmpty) {
+    return XPathErrorCode.FOER0000;
+  }
+  if (items.length > 1) {
+    throw XPathEvaluationException(XPathErrorCode.XPTY0004);
+  }
+  final item = items.single;
+  if (item is! XPathQName) {
+    throw XPathEvaluationException(XPathErrorCode.XPTY0004);
+  }
+  final local = item.value.local;
+  final uri = item.value.namespaceUri ?? XPathErrorCode.standardNamespaceUri;
+  final known = XPathErrorCode.tryFromCode(local);
+  if (known != null &&
+      (known.namespaceUri == uri || item.value.namespaceUri == null)) {
+    return known;
+  }
+  return XPathErrorCode(local, 'Error', uri);
+}
+
 XPathSequence _fnError1(XPathContext context, XPathSequence code) {
-  final c = code.firstOrNull;
-  final codeStr = c != null
-      ? (c is XPathString ? c.value : c.stringValue)
-      : null;
-  final errorCode =
-      XPathErrorCode.tryFromCode(codeStr ?? '') ?? XPathErrorCode.FOER0000;
-  throw XPathEvaluationException(
-    errorCode,
-    codeStr != null && codeStr != errorCode.name ? codeStr : null,
-  );
+  final errorCode = _resolveErrorCode(code);
+  throw XPathEvaluationException(errorCode);
 }
 
 XPathSequence _fnError2(
@@ -35,20 +50,13 @@ XPathSequence _fnError2(
   XPathSequence code,
   XPathSequence description,
 ) {
-  final c = code.firstOrNull;
-  final d = description.firstOrNull;
-  final codeStr = c != null
-      ? (c is XPathString ? c.value : c.stringValue)
-      : null;
-  final descStr = d != null
-      ? (d is XPathString ? d.value : d.stringValue)
-      : null;
-  final errorCode =
-      XPathErrorCode.tryFromCode(codeStr ?? '') ?? XPathErrorCode.FOER0000;
-  final details = codeStr != null && codeStr != errorCode.name
-      ? (descStr != null ? '$codeStr: $descStr' : codeStr)
-      : descStr;
-  throw XPathEvaluationException(errorCode, details);
+  final errorCode = _resolveErrorCode(code);
+  final d = description.atomize();
+  if (d.length > 1) {
+    throw XPathEvaluationException(XPathErrorCode.XPTY0004);
+  }
+  final descStr = d.firstOrNull?.stringValue;
+  throw XPathEvaluationException(errorCode, descStr);
 }
 
 XPathSequence _fnError3(
@@ -57,19 +65,13 @@ XPathSequence _fnError3(
   XPathSequence description,
   XPathSequence errorObject,
 ) {
-  final c = code.firstOrNull;
-  final d = description.firstOrNull;
-  final codeStr = c != null
-      ? (c is XPathString ? c.value : c.stringValue)
-      : null;
-  final descStr = d != null
-      ? (d is XPathString ? d.value : d.stringValue)
-      : null;
-  final errorCode =
-      XPathErrorCode.tryFromCode(codeStr ?? '') ?? XPathErrorCode.FOER0000;
-  var details = codeStr != null && codeStr != errorCode.name
-      ? (descStr != null ? '$codeStr: $descStr' : codeStr)
-      : descStr;
+  final errorCode = _resolveErrorCode(code);
+  final d = description.atomize();
+  if (d.length > 1) {
+    throw XPathEvaluationException(XPathErrorCode.XPTY0004);
+  }
+  final descStr = d.firstOrNull?.stringValue;
+  var details = descStr;
   if (errorObject.isNotEmpty) {
     final itemsStr = errorObject.join(', ');
     details = details != null ? '$details ($itemsStr)' : '($itemsStr)';

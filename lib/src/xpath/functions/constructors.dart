@@ -247,12 +247,6 @@ final xsQNameConstructor = _atomicConstructor(
   xsQName,
 );
 
-/// https://www.w3.org/TR/xpath-functions-31/#func-NOTATION
-final xsNOTATIONConstructor = _atomicConstructor(
-  const XmlName.qualified('xs:NOTATION'),
-  xsNOTATION,
-);
-
 /// https://www.w3.org/TR/xpath-functions-31/#func-untypedAtomic
 final xsUntypedAtomicConstructor = _atomicConstructor(
   const XmlName.qualified('xs:untypedAtomic'),

@@ -543,28 +543,46 @@ XPathAtomic _castFromString(
       return XPathInteger.parse(trimmed, targetType);
     }
     if (targetPrimitive == xsDateTime) {
-      return XPathDateTime.tryParse(trimmed) ??
-          (throw XPathEvaluationException(
-            XPathErrorCode.FORG0001,
-            'Invalid xs:dateTime',
-          ));
+      final dt = XPathDateTime.tryParse(trimmed);
+      if (dt != null) return dt;
+      if (_isYearOutOfRange(trimmed)) {
+        throw XPathEvaluationException(
+          XPathErrorCode.FODT0001,
+          'Year out of range: $trimmed',
+        );
+      }
+      throw XPathEvaluationException(
+        XPathErrorCode.FORG0001,
+        'Invalid xs:dateTime',
+      );
     }
     if (targetPrimitive == xsDateTimeStamp) {
       final dt = XPathDateTime.tryParse(trimmed);
-      if (dt == null || dt.timezoneOffsetMinutes == null) {
+      if (dt != null && dt.timezoneOffsetMinutes != null) return dt;
+      if (_isYearOutOfRange(trimmed)) {
         throw XPathEvaluationException(
-          XPathErrorCode.FORG0001,
-          'Invalid xs:dateTimeStamp',
+          XPathErrorCode.FODT0001,
+          'Year out of range: $trimmed',
         );
       }
-      return dt;
+      throw XPathEvaluationException(
+        XPathErrorCode.FORG0001,
+        'Invalid xs:dateTimeStamp',
+      );
     }
     if (targetPrimitive == xsDate) {
-      return XPathDate.tryParse(trimmed) ??
-          (throw XPathEvaluationException(
-            XPathErrorCode.FORG0001,
-            'Invalid xs:date',
-          ));
+      final d = XPathDate.tryParse(trimmed);
+      if (d != null) return d;
+      if (_isYearOutOfRange(trimmed)) {
+        throw XPathEvaluationException(
+          XPathErrorCode.FODT0001,
+          'Year out of range: $trimmed',
+        );
+      }
+      throw XPathEvaluationException(
+        XPathErrorCode.FORG0001,
+        'Invalid xs:date',
+      );
     }
     if (targetPrimitive == xsTime) {
       return XPathTime.tryParse(trimmed) ??
@@ -574,18 +592,32 @@ XPathAtomic _castFromString(
           ));
     }
     if (targetPrimitive == xsGYearMonth) {
-      return XPathYearMonth.tryParse(trimmed) ??
-          (throw XPathEvaluationException(
-            XPathErrorCode.FORG0001,
-            'Invalid xs:gYearMonth',
-          ));
+      final ym = XPathYearMonth.tryParse(trimmed);
+      if (ym != null) return ym;
+      if (_isYearOutOfRange(trimmed)) {
+        throw XPathEvaluationException(
+          XPathErrorCode.FODT0001,
+          'Year out of range: $trimmed',
+        );
+      }
+      throw XPathEvaluationException(
+        XPathErrorCode.FORG0001,
+        'Invalid xs:gYearMonth',
+      );
     }
     if (targetPrimitive == xsGYear) {
-      return XPathYear.tryParse(trimmed) ??
-          (throw XPathEvaluationException(
-            XPathErrorCode.FORG0001,
-            'Invalid xs:gYear',
-          ));
+      final y = XPathYear.tryParse(trimmed);
+      if (y != null) return y;
+      if (_isYearOutOfRange(trimmed)) {
+        throw XPathEvaluationException(
+          XPathErrorCode.FODT0001,
+          'Year out of range: $trimmed',
+        );
+      }
+      throw XPathEvaluationException(
+        XPathErrorCode.FORG0001,
+        'Invalid xs:gYear',
+      );
     }
     if (targetPrimitive == xsGMonthDay) {
       return XPathMonthDay.tryParse(trimmed) ??
@@ -721,3 +753,17 @@ final _ncNameRegExp = RegExp(
   '^[$_ncNameStartCharPattern][$_ncNameCharPattern]*\$',
   unicode: true,
 );
+
+final _yearPrefixRegExp = RegExp(r'^-?(?<year>\d{4,})');
+
+bool _isYearOutOfRange(String trimmed) {
+  final match = _yearPrefixRegExp.firstMatch(trimmed);
+  if (match != null) {
+    final yrStr = match.group(0)!;
+    final yr = int.tryParse(yrStr);
+    if (yr == null || yr < -271821 || yr > 275759) {
+      return true;
+    }
+  }
+  return false;
+}

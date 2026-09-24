@@ -297,7 +297,6 @@ final standardFunctionDefinitions = <XPathFunctionItem>[
   constructors.xsBase64BinaryConstructor,
   constructors.xsAnyURIConstructor,
   constructors.xsQNameConstructor,
-  constructors.xsNOTATIONConstructor,
   constructors.xsUntypedAtomicConstructor,
   constructors.xsNormalizedStringConstructor,
   constructors.xsTokenConstructor,

@@ -14,6 +14,7 @@ import '../xdm/functions/array.dart';
 import '../xdm/functions/map.dart';
 import '../xdm/item.dart';
 import '../xdm/sequence.dart';
+import 'uri.dart';
 
 XPathString? _expectOptionalString(XPathSequence seq, String funcName) {
   if (seq.length > 1) {
@@ -138,63 +139,9 @@ XPathSequence _evalJsonDoc(
 ) {
   if (href == null) return XPathSequence.empty;
 
-  // Resolve relative URI.
-  String resolved;
-  try {
-    final uri = Uri.parse(href.value);
-    if (uri.isAbsolute) {
-      resolved = href.value;
-    } else {
-      final base = context.configuration.baseUri;
-      if (base == null) {
-        throw XPathEvaluationException(
-          XPathErrorCode.XPST0001,
-          'Static base URI is undefined',
-        );
-      }
-      resolved = Uri.parse(base).resolve(href.value).toString();
-    }
-  } on FormatException catch (error) {
-    throw XPathEvaluationException(
-      XPathErrorCode.FODC0002,
-      'Invalid URI: ${href.value} (${error.message})',
-    );
-  }
-
-  // Check fragment identifier.
-  final parsedResolved = Uri.parse(resolved);
-  if (parsedResolved.hasFragment) {
-    throw XPathEvaluationException(
-      XPathErrorCode.FOJS0005,
-      'URI contains a fragment identifier: $resolved',
-    );
-  }
-
-  final loader = context.configuration.unparsedTextLoader;
-  if (loader == null) {
-    throw XPathEvaluationException(
-      XPathErrorCode.FODC0002,
-      'No unparsed text loader available to load $resolved',
-    );
-  }
-
-  final String? loaded;
-  try {
-    loaded = loader(resolved, null);
-  } catch (exception) {
-    if (exception is XPathEvaluationException) rethrow;
-    throw XPathEvaluationException(
-      XPathErrorCode.FODC0002,
-      'Failed to load resource $resolved: $exception',
-    );
-  }
-
-  if (loaded == null) {
-    throw XPathEvaluationException(
-      XPathErrorCode.FODC0002,
-      'Resource not found: $resolved',
-    );
-  }
+  final textSeq = fnUnparsedText.call(context, [XPathSequence.single(href)]);
+  if (textSeq.isEmpty) return XPathSequence.empty;
+  final loaded = (textSeq.first as XPathString).value;
 
   final opts = _parseJsonOptions(context, options, isXmlTarget: false);
   final parser = _JsonParser(

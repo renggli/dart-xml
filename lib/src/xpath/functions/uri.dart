@@ -72,12 +72,55 @@ XPathSequence _evalResolveUri(
   }
 }
 
+bool _isValidUriPercentEncoding(String str) {
+  for (var i = 0; i < str.length; i++) {
+    if (str.codeUnitAt(i) == 0x25) {
+      if (i + 2 >= str.length) return false;
+      final c1 = str.codeUnitAt(i + 1);
+      final c2 = str.codeUnitAt(i + 2);
+      if (!_isHexDigit(c1) || !_isHexDigit(c2)) return false;
+      i += 2;
+    }
+  }
+  return true;
+}
+
+bool _isHexDigit(int c) =>
+    (c >= 0x30 && c <= 0x39) ||
+    (c >= 0x41 && c <= 0x46) ||
+    (c >= 0x61 && c <= 0x66);
+
+bool _isValidUriReference(String s) {
+  if (s.contains('\\') ||
+      s.contains('>') ||
+      s.contains('<') ||
+      s.contains(' ') ||
+      s.startsWith(':/')) {
+    return false;
+  }
+  if (!_isValidUriPercentEncoding(s)) {
+    return false;
+  }
+  try {
+    Uri.parse(s);
+    return true;
+  } on FormatException {
+    return false;
+  }
+}
+
 /// https://www.w3.org/TR/xpath-functions-31/#func-doc
 const fnDoc = XPathFunctionItem.fn1(XmlName.qualified('fn:doc'), _fnDoc);
 
 XPathSequence _fnDoc(XPathContext context, XPathSequence uriSeq) {
   final uri = uriSeq.firstOrNull as XPathString?;
   if (uri == null) return XPathSequence.empty;
+  if (!_isValidUriReference(uri.value)) {
+    throw XPathEvaluationException(
+      XPathErrorCode.FODC0005,
+      'Invalid URI: ${uri.value}',
+    );
+  }
   final document = context.configuration.documents[uri.value];
   if (document != null) return XPathSequence.single(XPathNode(document));
   throw XPathEvaluationException(
@@ -257,6 +300,12 @@ XPathSequence _evalUnparsedText(
   XPathString? encoding,
 ) {
   if (href == null) return XPathSequence.empty;
+  if (!_isValidUriReference(href.value) || href.value.contains('#')) {
+    throw XPathEvaluationException(
+      XPathErrorCode.FOUT1170,
+      'Invalid URI: ${href.value}',
+    );
+  }
 
   // Resolve relative URI.
   String resolved;
@@ -268,7 +317,7 @@ XPathSequence _evalUnparsedText(
       final base = context.configuration.baseUri;
       if (base == null) {
         throw XPathEvaluationException(
-          XPathErrorCode.XPST0001,
+          XPathErrorCode.FOUT1170,
           'Static base URI is undefined',
         );
       }
@@ -281,12 +330,19 @@ XPathSequence _evalUnparsedText(
     );
   }
 
-  // Check fragment identifier.
+  // Check fragment identifier and scheme.
   final parsedResolved = Uri.parse(resolved);
   if (parsedResolved.hasFragment) {
     throw XPathEvaluationException(
       XPathErrorCode.FOUT1170,
       'URI contains a fragment identifier: $resolved',
+    );
+  }
+  if (parsedResolved.hasScheme &&
+      !['file', 'http', 'https', 'data'].contains(parsedResolved.scheme)) {
+    throw XPathEvaluationException(
+      XPathErrorCode.FOUT1170,
+      'Unsupported URI scheme: ${parsedResolved.scheme}',
     );
   }
 
