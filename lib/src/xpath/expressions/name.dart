@@ -41,7 +41,7 @@ class NamespaceUriAndLocalNameTest extends NameTest {
 
   @override
   bool matchesName(XmlHasName node) =>
-      node.namespaceUri == namespaceUri && node.localName == localName;
+      (node.namespaceUri ?? '') == namespaceUri && node.localName == localName;
 }
 
 /// `xhtml:*` matches a node with a namespace prefix, ignoring the local name.
@@ -72,5 +72,6 @@ class NamespaceUriTest extends NameTest {
   final String namespaceUri;
 
   @override
-  bool matchesName(XmlHasName node) => node.namespaceUri == namespaceUri;
+  bool matchesName(XmlHasName node) =>
+      (node.namespaceUri ?? '') == namespaceUri;
 }

@@ -76,10 +76,107 @@ void main() {
   });
 
   group('fn:QName', () {
-    test('creates QName', () {
+    test('creates QName with prefix and uri', () {
+      final result = fnQName(context, [seq('uri'), seq('p:local')]);
+      expect(result, isXPathSequence([isA<XmlName>()]));
+      final qname = result.single as XPathQName;
+      expect(qname.value.prefix, 'p');
+      expect(qname.value.local, 'local');
+      expect(qname.value.namespaceUri, 'uri');
+    });
+
+    test('creates QName without prefix', () {
+      final result = fnQName(context, [seq('uri'), seq('local')]);
+      expect(result, isXPathSequence([isA<XmlName>()]));
+      final qname = result.single as XPathQName;
+      expect(qname.value.prefix, isNull);
+      expect(qname.value.local, 'local');
+      expect(qname.value.namespaceUri, 'uri');
+    });
+
+    test('creates QName with empty uri matching absent namespace', () {
+      final result = fnQName(context, [seq(''), seq('local')]);
+      final qname = result.single as XPathQName;
+      expect(qname.value.namespaceUri, isEmpty);
+      expect(qname == const XPathQName(XmlName.qualified('local')), isTrue);
+    });
+
+    test('throws FOCA0002 for invalid lexical QName', () {
       expect(
-        fnQName(context, [seq('uri'), seq('p:local')]),
-        isXPathSequence([isA<XmlName>()]),
+        () => fnQName(context, [seq('uri'), seq('1invalid')]),
+        throwsA(isXPathEvaluationException(message: contains('FOCA0002'))),
+      );
+      expect(
+        () => fnQName(context, [seq('uri'), seq(':local')]),
+        throwsA(isXPathEvaluationException(message: contains('FOCA0002'))),
+      );
+      expect(
+        () => fnQName(context, [seq('uri'), seq('prefix:')]),
+        throwsA(isXPathEvaluationException(message: contains('FOCA0002'))),
+      );
+      expect(
+        () => fnQName(context, [seq('uri'), seq('a:b:c')]),
+        throwsA(isXPathEvaluationException(message: contains('FOCA0002'))),
+      );
+      expect(
+        () => fnQName(context, [seq('uri'), seq('invalid name')]),
+        throwsA(isXPathEvaluationException(message: contains('FOCA0002'))),
+      );
+    });
+
+    test('throws FOCA0002 when prefix is given with empty or null uri', () {
+      expect(
+        () => fnQName(context, [XPathSequence.empty, seq('p:local')]),
+        throwsA(isXPathEvaluationException(message: contains('FOCA0002'))),
+      );
+      expect(
+        () => fnQName(context, [seq(''), seq('p:local')]),
+        throwsA(isXPathEvaluationException(message: contains('FOCA0002'))),
+      );
+    });
+
+    test('throws FOCA0002 for xmlns prefix or reserved xmlns uri', () {
+      expect(
+        () => fnQName(context, [seq('http://example.com'), seq('xmlns:foo')]),
+        throwsA(isXPathEvaluationException(message: contains('FOCA0002'))),
+      );
+      expect(
+        () => fnQName(context, [
+          seq('http://www.w3.org/2000/xmlns/'),
+          seq('foo'),
+        ]),
+        throwsA(isXPathEvaluationException(message: contains('FOCA0002'))),
+      );
+    });
+
+    test('throws FOCA0002 for xml prefix mismatch', () {
+      expect(
+        () => fnQName(context, [seq('http://wrong.uri'), seq('xml:foo')]),
+        throwsA(isXPathEvaluationException(message: contains('FOCA0002'))),
+      );
+      expect(
+        () => fnQName(context, [
+          seq('http://www.w3.org/XML/1998/namespace'),
+          seq('other:foo'),
+        ]),
+        throwsA(isXPathEvaluationException(message: contains('FOCA0002'))),
+      );
+    });
+
+    test('throws XPTY0004 for non-string arguments', () {
+      expect(
+        () => fnQName(context, [
+          XPathSequence.single(XPathInteger.fromInt(100)),
+          seq('foo'),
+        ]),
+        throwsA(isXPathEvaluationException(message: contains('XPTY0004'))),
+      );
+      expect(
+        () => fnQName(context, [
+          seq('uri'),
+          XPathSequence.single(XPathInteger.fromInt(100)),
+        ]),
+        throwsA(isXPathEvaluationException(message: contains('XPTY0004'))),
       );
     });
   });

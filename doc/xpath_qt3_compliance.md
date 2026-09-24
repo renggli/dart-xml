@@ -152,7 +152,7 @@ This document tracks known discrepancies between PetitXml XPath 3.1 implementati
 
 ### 6. Function Resolution, EQName & Syntax Validation
 
-- [ ] **Status**: Pending
+- [x] **Status**: Resolved
 - **User Impact**: Medium (correct parsing & error reporting)
 - **Cost to Fix**: ~10k–15k tokens
 - **Code Size Increase**: ~80–150 LOC

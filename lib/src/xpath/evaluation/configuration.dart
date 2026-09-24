@@ -94,6 +94,12 @@ class XPathConfiguration {
 
   /// Looks up a XPath function with the given [name] and optional [arity].
   XPathFunctionItem getFunction(XmlName name, [int? arity]) {
+    if (name.prefix != null && name.namespaceUri == null) {
+      throw XPathEvaluationException(
+        XPathErrorCode.XPST0081,
+        'Cannot expand namespace prefix: ${name.prefix}',
+      );
+    }
     final function = functions[name];
     if (function != null) {
       if (arity != null && function is XPathOverloadedFunction) {
@@ -125,15 +131,17 @@ class XPathConfiguration {
   }
 
   /// Looks up a XPath function with the given [name] (string) and optional [arity].
-  XPathFunctionItem getFunctionByString(String name, [int? arity]) =>
-      getFunction(
-        XmlName.parse(
-          name,
-          namespaceUri: namespaceUri,
-          namespaceUris: namespaceUris,
-        ),
-        arity,
-      );
+  XPathFunctionItem getFunctionByString(String name, [int? arity]) {
+    final isPrefixed = !name.startsWith('Q{') && name.contains(':');
+    return getFunction(
+      XmlName.parse(
+        name,
+        namespaceUri: isPrefixed ? null : namespaceUri,
+        namespaceUris: namespaceUris,
+      ),
+      arity,
+    );
+  }
 
   /// Creates an evaluation context from this configuration, optionally
   /// with a provided context [item].

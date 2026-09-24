@@ -521,4 +521,55 @@ void main() {
       );
     });
   });
+
+  group('Function Resolution & Validation', () {
+    final doc = XmlDocument();
+    test('unbound prefix throws XPST0081', () {
+      expect(
+        () => doc.xpathEvaluate('unbound-prefix:unknown-func()'),
+        throwsA(isXPathEvaluationException(message: contains('XPST0081'))),
+      );
+    });
+    test('reserved function names rejected in named function reference', () {
+      for (final name in [
+        'attribute',
+        'comment',
+        'document-node',
+        'element',
+        'empty-sequence',
+        'function',
+        'if',
+        'item',
+        'map',
+        'namespace-node',
+        'node',
+        'processing-instruction',
+        'schema-attribute',
+        'schema-element',
+        'switch',
+        'text',
+        'typeswitch',
+        'array',
+      ]) {
+        expect(
+          () => doc.xpathEvaluate('$name#1'),
+          throwsA(isXPathParserException()),
+        );
+      }
+    });
+    test('inline function duplicate parameter names throw XQST0039', () {
+      expect(
+        () => doc.xpathEvaluate(r'function($a, $a) { 42 }'),
+        throwsA(isXPathEvaluationException(message: contains('XQST0039'))),
+      );
+      expect(
+        () => doc.xpathEvaluate(r'function($Q{ }a, $a) { 42 }'),
+        throwsA(isXPathEvaluationException(message: contains('XQST0039'))),
+      );
+      expect(
+        () => doc.xpathEvaluate(r'function($Q{}a, $Q{   }a) { 42 }'),
+        throwsA(isXPathEvaluationException(message: contains('XQST0039'))),
+      );
+    });
+  });
 }

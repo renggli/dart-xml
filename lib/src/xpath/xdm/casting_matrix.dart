@@ -1,5 +1,6 @@
 import '../../xml/utils/name.dart';
 import '../../xml/utils/token.dart';
+import '../evaluation/namespaces.dart';
 import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import 'atomic.dart';
@@ -668,7 +669,17 @@ XPathAtomic _castFromString(
       return XPathHexBinary.fromHex(trimmed);
     }
     if (targetPrimitive == xsQName) {
-      return XPathQName(XmlName.fromString(trimmed));
+      if (!isValidQName(trimmed)) {
+        throw XPathEvaluationException(
+          XPathErrorCode.FOCA0002,
+          'Invalid lexical QName: "$trimmed"',
+        );
+      }
+      final name = XmlName.fromString(trimmed);
+      final uri =
+          xpathNamespaceUris[name.prefix] ??
+          (name.prefix == 'xml' ? xmlXmlNamespace : null);
+      return XPathQName(uri != null ? name.withNamespaceUri(uri) : name);
     }
   } catch (e) {
     if (e is XPathEvaluationException) rethrow;

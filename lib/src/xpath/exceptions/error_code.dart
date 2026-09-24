@@ -296,6 +296,16 @@ class XPathErrorCode {
     'No two keys in a map may have the same key value',
   );
 
+  // XQuery Static Errors
+  static const XQST0039 = XPathErrorCode(
+    'XQST0039',
+    'Duplicate parameter name in function definition',
+  );
+  static const XQST0070 = XPathErrorCode(
+    'XQST0070',
+    'Reserved namespace URI in namespace declaration or EQName',
+  );
+
   /// Standard list of predefined XPath error codes.
   static const values = <XPathErrorCode>[
     FOAP0001,
@@ -372,6 +382,8 @@ class XPathErrorCode {
     XPTY0019,
     XPTY0020,
     XQDY0137,
+    XQST0039,
+    XQST0070,
   ];
 
   /// Creates a new [XPathErrorCode] with the given [name], [message], and optional [namespaceUri].

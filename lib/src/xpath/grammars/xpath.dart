@@ -7,6 +7,8 @@ import '../evaluation/cardinality.dart';
 import '../evaluation/expression.dart';
 import '../evaluation/operators.dart';
 import '../evaluation/types.dart';
+import '../exceptions/error_code.dart';
+import '../exceptions/evaluation_exception.dart';
 import '../exceptions/parser_exception.dart';
 import '../expressions/axis.dart';
 import '../expressions/constructors.dart';
@@ -659,16 +661,25 @@ class XPathGrammar {
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-StringLiteral
   Parser<XPathString> stringLiteral() => trim(
     [
-      ref0(xmlGrammar.attributeValueDoubleQuote),
-      ref0(xmlGrammar.attributeValueSingleQuote),
+      seq3(
+        char('"'),
+        [string('""').constant('"'), pattern('^"')].toChoiceParser().star(),
+        char('"'),
+      ).map3((_, chars, _) => XPathString(chars.join())),
+      seq3(
+        char("'"),
+        [string("''").constant("'"), pattern("^'")].toChoiceParser().star(),
+        char("'"),
+      ).map3((_, chars, _) => XPathString(chars.join())),
     ].toChoiceParser(),
-  ).map((tuple) => XPathString(tuple.$1));
+  );
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-VarRef
   Parser<XPathExpression> varRef() => ref0(varName).map(VariableExpression.new);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-VarName
-  Parser<String> varName() => trim(ref0(eqName).skip(before: char('\$')));
+  Parser<String> varName() =>
+      trim(ref0(eqName).skip(before: char(r'$'))).map(_normalizeEQName);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-ParenthesizedExpr
   Parser<XPathExpression> parenthesizedExpr() =>
@@ -747,7 +758,7 @@ class XPathGrammar {
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-NamedFunctionRef
   Parser<XPathExpression> namedFunctionRef() => seq3(
-    ref0(eqName),
+    ref0(eqName).where((name) => !_reservedFunctionNames.contains(name)),
     token('#'),
     ref0(integerLiteral),
   ).map3((name, _, arity) => NamedFunctionExpression(name, arity.asInt));
@@ -763,6 +774,15 @@ class XPathGrammar {
         final rawParams = params.$2;
         final names = rawParams?.map((p) => p.$1).toList() ?? const <String>[];
         final types = rawParams?.map((p) => p.$2).toList();
+        final seen = <String>{};
+        for (final name in names) {
+          if (!seen.add(name)) {
+            throw XPathEvaluationException(
+              XPathErrorCode.XQST0039,
+              'Duplicate parameter name: \$$name',
+            );
+          }
+        }
         return InlineFunctionExpression(body, names, types, type);
       });
 
@@ -771,11 +791,10 @@ class XPathGrammar {
       ref0(param).plusSeparated(token(',')).map((list) => list.elements);
 
   // https://www.w3.org/TR/xpath-31/#doc-xpath31-Param
-  Parser<(String, XPathType?)> param() => seq3(
-    token('\$'),
-    ref0(eqName),
+  Parser<(String, XPathType?)> param() => seq2(
+    ref0(varName),
     ref0(typeDeclaration).optional(),
-  ).map3((_, name, type) => (name, type));
+  ).map2((name, type) => (name, type));
 
   // https://www.w3.org/TR/xpath-30/#prod-xpath30-TypeDeclaration
   Parser<XPathType> typeDeclaration() =>
@@ -1067,7 +1086,16 @@ class XPathGrammar {
   Parser<String> qualifiedName() => trim(ref0(xmlGrammar.qualifiedNameToken));
   Parser<String> bracedUriLiteral() =>
       trim(seq3('Q{'.toParser(), pattern('^{}').starString(), '}'.toParser()))
-          .map3((_, uri, _) => uri);
+          .map3((_, uri, _) {
+            final collapsed = uri.trim().replaceAll(RegExp(r'\s+'), ' ');
+            if (collapsed == 'http://www.w3.org/2000/xmlns/') {
+              throw XPathEvaluationException(
+                XPathErrorCode.XQST0070,
+                'Reserved namespace URI: $collapsed',
+              );
+            }
+            return collapsed;
+          });
 
   // Consumes a token.
   Parser<String> token(String token) => ref1(trim, token.toParser());
@@ -1127,6 +1155,7 @@ NameTest _eqNameToNodeTest(String name) {
 const xmlGrammar = XmlEventParser(XmlNullEntityMapping());
 
 const _reservedFunctionNames = {
+  'array',
   'attribute',
   'comment',
   'document-node',
@@ -1145,3 +1174,13 @@ const _reservedFunctionNames = {
   'text',
   'typeswitch',
 };
+
+String _normalizeEQName(String name) {
+  if (name.startsWith('Q{')) {
+    final end = name.indexOf('}');
+    if (end != -1 && name.substring(2, end).isEmpty) {
+      return name.substring(end + 1);
+    }
+  }
+  return name;
+}

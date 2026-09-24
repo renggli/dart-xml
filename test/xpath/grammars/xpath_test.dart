@@ -239,4 +239,56 @@ void main() {
       );
     }
   });
+
+  group('string literal escaping', () {
+    test('doubled double quotes', () {
+      expectEvaluate(xml, '""""', ['"']);
+      expectEvaluate(xml, '"""""hello"""""', ['""hello""']);
+      expectEvaluate(xml, '"a""b""c"', ['a"b"c']);
+    });
+
+    test('doubled single quotes', () {
+      expectEvaluate(xml, "''''", ["'"]);
+      expectEvaluate(xml, "'''''hello'''''", ["''hello''"]);
+      expectEvaluate(xml, "'a''b''c'", ["a'b'c"]);
+    });
+  });
+
+  group('EQName syntax and semantics', () {
+    final nsXml = XmlDocument.parse(
+      '<root xmlns="http://default.org" xmlns:p="http://prefix.org">'
+      '<child xmlns="">unprefixed</child>'
+      '<p:child>prefixed</p:child>'
+      '</root>',
+    );
+
+    test('whitespace collapse in braced uri literal', () {
+      expectXPath(nsXml, '//Q{  http://prefix.org  }child', [
+        '<p:child>prefixed</p:child>',
+      ]);
+      expectXPath(nsXml, '//Q{ \n http://prefix.org \t }child', [
+        '<p:child>prefixed</p:child>',
+      ]);
+    });
+
+    test('reserved namespace URI throws XQST0070', () {
+      expect(
+        () => nsXml.xpathEvaluate('/Q{http://www.w3.org/2000/xmlns/}foo'),
+        throwsA(isXPathEvaluationException(message: contains('XQST0070'))),
+      );
+      expect(
+        () => nsXml.xpathEvaluate('/Q{ http://www.w3.org/2000/xmlns/  }foo'),
+        throwsA(isXPathEvaluationException(message: contains('XQST0070'))),
+      );
+    });
+
+    test('EQName wildcard with empty URI matches no-namespace nodes', () {
+      expectXPath(nsXml, '//Q{}*', ['<child xmlns="">unprefixed</child>']);
+    });
+
+    test('EQName variables normalize empty URI to local name', () {
+      expectEvaluate(xml, r'for $Q{}x in (1, 2) return $x', [1, 2]);
+      expectEvaluate(xml, r'let $Q{   }a := 10 return $a + $Q{}a', [20]);
+    });
+  });
 }

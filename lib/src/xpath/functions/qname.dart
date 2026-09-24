@@ -1,5 +1,6 @@
 import '../../xml/nodes/element.dart';
 import '../../xml/utils/name.dart';
+import '../evaluation/cardinality.dart';
 import '../evaluation/context.dart';
 import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
@@ -8,6 +9,7 @@ import '../xdm/atomic/string.dart';
 import '../xdm/function_item.dart';
 import '../xdm/item.dart';
 import '../xdm/sequence.dart';
+import '../xdm/types.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-resolve-QName
 const fnResolveQName = XPathFunctionItem.fn2(
@@ -51,26 +53,135 @@ XPathSequence _fnResolveQName(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-QName
-const fnQName = XPathFunctionItem.fn2(XmlName.qualified('fn:QName'), _fnQName);
+const fnQName = XPathFunctionItem.fn2(
+  XmlName.qualified('fn:QName'),
+  _fnQName,
+  parameterTypes: [
+    XPathSequenceType(
+      itemType: xsString,
+      cardinality: XPathCardinality.zeroOrOne,
+    ),
+    XPathSequenceType(
+      itemType: xsString,
+      cardinality: XPathCardinality.exactlyOne,
+    ),
+  ],
+  returnType: XPathSequenceType(
+    itemType: xsQName,
+    cardinality: XPathCardinality.exactlyOne,
+  ),
+);
 
 XPathSequence _fnQName(
   XPathContext context,
   XPathSequence paramURISeq,
   XPathSequence paramQNameSeq,
 ) {
+  if (paramURISeq.length > 1) {
+    throw XPathEvaluationException(
+      XPathErrorCode.XPTY0004,
+      'Argument 1 to fn:QName accepts at most one item',
+    );
+  }
   final paramURIItem = paramURISeq.firstOrNull;
-  final paramURI = paramURIItem != null
-      ? (paramURIItem is XPathString
-            ? paramURIItem.value
-            : paramURIItem.stringValue)
-      : null;
-  final paramQNameItem = paramQNameSeq.first;
-  final paramQName = paramQNameItem is XPathString
-      ? paramQNameItem.value
-      : paramQNameItem.stringValue;
-  return XPathSequence.single(
-    XPathQName(XmlName.parse(paramQName, namespaceUri: paramURI)),
-  );
+  if (paramURIItem != null &&
+      paramURIItem is! XPathString &&
+      paramURIItem is! XPathUntypedAtomic) {
+    throw XPathEvaluationException(
+      XPathErrorCode.XPTY0004,
+      'Expected xs:string? for argument 1 of fn:QName, but got ${paramURIItem.type.name}',
+    );
+  }
+  final paramURI = paramURIItem?.stringValue;
+
+  if (paramQNameSeq.length != 1) {
+    throw XPathEvaluationException(
+      XPathErrorCode.XPTY0004,
+      'Argument 2 to fn:QName must be exactly one item',
+    );
+  }
+  final paramQNameItem = paramQNameSeq.single;
+  if (paramQNameItem is! XPathString && paramQNameItem is! XPathUntypedAtomic) {
+    throw XPathEvaluationException(
+      XPathErrorCode.XPTY0004,
+      'Expected xs:string for argument 2 of fn:QName, but got ${paramQNameItem.type.name}',
+    );
+  }
+  final paramQName = paramQNameItem.stringValue;
+
+  final colonIndex = paramQName.indexOf(':');
+  final String? prefix;
+  final String local;
+
+  if (colonIndex != -1) {
+    if (paramQName.indexOf(':', colonIndex + 1) != -1) {
+      throw XPathEvaluationException(
+        XPathErrorCode.FOCA0002,
+        'Invalid lexical QName: "$paramQName"',
+      );
+    }
+    prefix = paramQName.substring(0, colonIndex);
+    local = paramQName.substring(colonIndex + 1);
+    if (!isValidNCName(prefix) || !isValidNCName(local)) {
+      throw XPathEvaluationException(
+        XPathErrorCode.FOCA0002,
+        'Invalid lexical QName: "$paramQName"',
+      );
+    }
+    if (paramURI == null || paramURI.isEmpty) {
+      throw XPathEvaluationException(
+        XPathErrorCode.FOCA0002,
+        'Prefix "$prefix" requires non-empty namespace URI',
+      );
+    }
+    if (prefix == 'xmlns') {
+      throw XPathEvaluationException(
+        XPathErrorCode.FOCA0002,
+        'Prefix "xmlns" is not allowed in QName',
+      );
+    }
+    if (prefix == 'xml' && paramURI != 'http://www.w3.org/XML/1998/namespace') {
+      throw XPathEvaluationException(
+        XPathErrorCode.FOCA0002,
+        'Prefix "xml" must be bound to http://www.w3.org/XML/1998/namespace',
+      );
+    }
+    if (paramURI == 'http://www.w3.org/XML/1998/namespace' && prefix != 'xml') {
+      throw XPathEvaluationException(
+        XPathErrorCode.FOCA0002,
+        'Namespace http://www.w3.org/XML/1998/namespace must have prefix "xml"',
+      );
+    }
+  } else {
+    prefix = null;
+    local = paramQName;
+    if (!isValidNCName(local)) {
+      throw XPathEvaluationException(
+        XPathErrorCode.FOCA0002,
+        'Invalid lexical QName: "$paramQName"',
+      );
+    }
+    if (paramURI == 'http://www.w3.org/XML/1998/namespace') {
+      throw XPathEvaluationException(
+        XPathErrorCode.FOCA0002,
+        'Namespace http://www.w3.org/XML/1998/namespace must have prefix "xml"',
+      );
+    }
+  }
+
+  if (paramURI == 'http://www.w3.org/2000/xmlns/') {
+    throw XPathEvaluationException(
+      XPathErrorCode.FOCA0002,
+      'Namespace http://www.w3.org/2000/xmlns/ is reserved and not allowed in QName',
+    );
+  }
+
+  final effectiveUri = paramURI;
+  final xmlName = prefix != null
+      ? XmlName.qualified('$prefix:$local', namespaceUri: effectiveUri)
+      : XmlName.parts(local, namespaceUri: effectiveUri);
+
+  return XPathSequence.single(XPathQName(xmlName));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-prefix-from-QName
