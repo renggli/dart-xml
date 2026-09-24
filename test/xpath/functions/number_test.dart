@@ -19,6 +19,19 @@ void main() {
       expect(fnAbs(context, [XPathSequence.empty]), isXPathSequence(isEmpty));
     });
 
+    test('type errors on non-numeric arguments', () {
+      expect(
+        () => fnAbs(context, [seq('a string')]),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+      expect(
+        () => fnAbs(context, [
+          seq([1, 2]),
+        ]),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+    });
+
     test('integration via xpathEvaluate', () {
       final xml = XmlDocument.parse('<r><a>1</a><b>2<c/>3</b></r>');
       expectEvaluate(xml, 'abs(-2)', isXPathSequence([2]));
@@ -57,6 +70,22 @@ void main() {
         fnRoundHalfToEven(context, [seq(2.5), seq(0)]),
         isXPathSequence([2]),
       );
+      expect(fnRoundHalfToEven(context, [seq(-2.5)]), isXPathSequence([-2]));
+      expect(fnRoundHalfToEven(context, [seq(-1.5)]), isXPathSequence([-2]));
+    });
+
+    test('exact BigInt rounding without double precision loss', () {
+      final bigInt = XPathInteger.parse('-999999999999999999');
+      final res = fnRoundHalfToEven(context, [seq(bigInt)]).single;
+      expect(res.stringValue, equals('-999999999999999999'));
+
+      final bigDec = XPathDecimal.parse('3.567812');
+      final hugePrec = XPathInteger.parse('4294967296');
+      final resDec = fnRoundHalfToEven(context, [
+        seq(bigDec),
+        seq(hugePrec),
+      ]).single;
+      expect(resDec.stringValue, equals('3.567812'));
     });
   });
 
@@ -290,6 +319,31 @@ void main() {
       );
       expect(fnRound(context, [seq(123.456), seq(0)]), isXPathSequence([123]));
       expect(fnRound(context, [seq(123.456), seq(-2)]), isXPathSequence([100]));
+    });
+
+    test('exact decimal and integer rounding', () {
+      final dec = XPathDecimal.parse('35.425');
+      final resDec = fnRound(context, [seq(dec), seq(2)]).single;
+      expect(resDec.stringValue, equals('35.43'));
+
+      final bigInt = XPathDecimal.parse('-999999999999999999');
+      final resInt = fnRound(context, [seq(bigInt)]).single;
+      expect(resInt.stringValue, equals('-999999999999999999'));
+
+      const negSmall = XPathDouble(-0.01);
+      final resNeg = fnRound(context, [seq(negSmall), seq(0)]).single;
+      expect(resNeg.stringValue, equals('-0'));
+    });
+
+    test('type errors on invalid arguments', () {
+      expect(
+        () => fnRound(context, [seq('a string')]),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+      expect(
+        () => fnRound(context, [seq(1), seq('a string')]),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
     });
 
     test('integration via xpathEvaluate', () {

@@ -387,6 +387,9 @@ bool _deepEqual(Object? a, Object? b) {
   }
 
   if (a is XPathAtomic && b is XPathAtomic) {
+    if (a is XPathDouble && b is XPathDouble) {
+      if (a.value.isNaN && b.value.isNaN) return true;
+    }
     return a == b;
   }
 

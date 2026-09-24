@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
+import 'package:xml/src/xpath/operators/comparison.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -71,7 +72,17 @@ void verifyResult(XmlElement element, Object result, XPathContext context) {
       final resultString = formatSequence(result);
       final expectedString = formatSequence(expected);
       if (resultString != expectedString) {
-        throw TestFailure('Expected $expectedString, but got $resultString');
+        try {
+          final eq = opValueEqual(result, expected);
+          if (eq.ebv != true) {
+            throw TestFailure(
+              'Expected $expectedString, but got $resultString',
+            );
+          }
+        } catch (e) {
+          if (e is TestFailure) rethrow;
+          throw TestFailure('Expected $expectedString, but got $resultString');
+        }
       }
     case 'assert-deep-eq':
       final expected = context.evaluate(element.innerText);

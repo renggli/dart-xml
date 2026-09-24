@@ -8,9 +8,9 @@ This document tracks known discrepancies between PetitXml XPath 3.1 implementati
 
 - **Suites**: 353
 - **Total Cases**: 22,514
-- **Passing**: 19,962 (88.7%)
-- **Failures**: 1,992 (8.8%)
-- **Errors**: 560 (2.5%)
+- **Passing**: 20,159 (89.5%)
+- **Failures**: 1,796 (8.0%)
+- **Errors**: 559 (2.5%)
 
 ---
 
@@ -46,7 +46,7 @@ This document tracks known discrepancies between PetitXml XPath 3.1 implementati
 
 ### 2. Numeric Semantics, Precision & IEEE Math
 
-- [ ] **Status**: Pending
+- [x] **Status**: Resolved
 - **User Impact**: Medium-High (data accuracy and standard compliance)
 - **Cost to Fix**: ~15k–20k tokens
 - **Code Size Increase**: ~120–200 LOC

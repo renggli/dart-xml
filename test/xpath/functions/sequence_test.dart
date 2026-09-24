@@ -434,6 +434,22 @@ void main() {
         isXPathSequence([false]),
       );
     });
+    test('NaN values are equal per IEEE 754 rule', () {
+      expect(
+        fnDeepEqual(context, [
+          seq([double.nan]),
+          seq([double.nan]),
+        ]),
+        isXPathSequence([true]),
+      );
+      expect(
+        fnDeepEqual(context, [
+          seq({'a': double.nan}),
+          seq({'a': double.nan}),
+        ]),
+        isXPathSequence([true]),
+      );
+    });
     test('XmlNodes comparison', () {
       final doc1 = XmlDocument.parse('<r a="1">text</r>');
       final doc2 = XmlDocument.parse('<r a="1">text</r>');

@@ -1,4 +1,5 @@
 import 'package:test/test.dart';
+import 'package:xml/src/xpath/exceptions/error_code.dart';
 import 'package:xml/src/xpath/xdm/atomic/numeric.dart';
 import 'package:xml/src/xpath/xdm/types.dart';
 
@@ -115,12 +116,22 @@ void main() {
     test('division by zero throws evaluation exception', () {
       expect(
         () => XPathDecimal.parse('1.0') / XPathDecimal.fromInt(0),
-        throwsA(isXPathEvaluationException()),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOAR0001)),
       );
       expect(
         () => XPathInteger.fromInt(1).idiv(XPathInteger.fromInt(0)),
-        throwsA(isXPathEvaluationException()),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOAR0001)),
       );
+    });
+
+    test('idiv exact unscaled decimal division', () {
+      final a = XPathDecimal.parse('3.5');
+      final b = XPathDecimal.parse('1.2');
+      expect(a.idiv(b), equals(XPathInteger.fromInt(2)));
+
+      final c = XPathDecimal.parse('0.9');
+      final d = XPathDecimal.parse('0.4');
+      expect(c.idiv(d), equals(XPathInteger.fromInt(2)));
     });
   });
 
@@ -137,9 +148,53 @@ void main() {
     test('formatting stringValue', () {
       expect(const XPathDouble(1.0).stringValue, equals('1'));
       expect(const XPathDouble(0.0).stringValue, equals('0'));
+      expect(const XPathDouble(-0.0).stringValue, equals('-0'));
       expect(XPathDouble.infinity.stringValue, equals('INF'));
       expect(XPathDouble.negativeInfinity.stringValue, equals('-INF'));
       expect(XPathDouble.nan.stringValue, equals('NaN'));
+    });
+
+    test('single-precision float stringValue uses shortest precision', () {
+      final f = XPathDouble(roundToFloat(1.13), xsFloat);
+      expect(f.stringValue, equals('1.13'));
+    });
+
+    test('negative zero equality and comparisons', () {
+      const negZero = XPathDouble(-0.0);
+      const posZero = XPathDouble(0.0);
+      expect(negZero == posZero, isTrue);
+      expect(negZero.compareTo(posZero), equals(0));
+      expect(posZero.compareTo(negZero), equals(0));
+      expect(negZero.compareTo(XPathInteger.zero), equals(0));
+      expect(XPathInteger.zero.compareTo(negZero), equals(0));
+      expect(XPathDecimal.zero.compareTo(negZero), equals(0));
+      expect(-posZero, equals(negZero));
+    });
+
+    test('idiv semantics and error codes', () {
+      const d10 = XPathDouble(10.0);
+      const d0 = XPathDouble(0.0);
+      expect(
+        () => d10.idiv(d0),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOAR0001)),
+      );
+      expect(
+        () => d10.idiv(XPathDouble.nan),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOAR0002)),
+      );
+      expect(
+        () => XPathDouble.infinity.idiv(d10),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOAR0002)),
+      );
+      expect(d10.idiv(XPathDouble.infinity), equals(XPathInteger(BigInt.zero)));
+      expect(
+        d10.idiv(XPathDouble.negativeInfinity),
+        equals(XPathInteger(BigInt.zero)),
+      );
+      expect(
+        () => const XPathDouble(1e30).idiv(const XPathDouble(1e-30)),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOAR0002)),
+      );
     });
 
     test('mixed operations promote to double', () {
@@ -153,6 +208,7 @@ void main() {
     test('EBV', () {
       expect(const XPathDouble(1.0).effectiveBooleanValue, isTrue);
       expect(const XPathDouble(0.0).effectiveBooleanValue, isFalse);
+      expect(const XPathDouble(-0.0).effectiveBooleanValue, isFalse);
       expect(XPathDouble.nan.effectiveBooleanValue, isFalse);
     });
 

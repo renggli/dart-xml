@@ -44,6 +44,8 @@ final class XPathInteger extends XPathNumeric {
   factory parse(String text, [XPathType type = xsInteger]) =>
       XPathInteger(BigInt.parse(text.trim()), type);
 
+  static final zero = XPathInteger(BigInt.zero);
+
   @override
   final BigInt value;
 
@@ -110,12 +112,19 @@ final class XPathInteger extends XPathNumeric {
           : XPathInteger(value ~/ i.value),
     final XPathDecimal d => toDecimal().idiv(d),
     final XPathDouble d =>
-      d.value == 0 || d.value.isNaN
+      d.value == 0
           ? throw XPathEvaluationException(
               XPathErrorCode.FOAR0001,
-              'Division by zero or NaN in idiv',
+              'Division by zero in idiv',
             )
-          : XPathInteger(BigInt.from(toDouble() ~/ d.value)),
+          : d.value.isNaN
+          ? throw XPathEvaluationException(
+              XPathErrorCode.FOAR0002,
+              'NaN in idiv',
+            )
+          : d.value.isInfinite
+          ? XPathInteger(BigInt.zero)
+          : XPathDouble(toDouble()).idiv(d),
   };
 
   @override
@@ -140,7 +149,9 @@ final class XPathInteger extends XPathNumeric {
     if (other is XPathDecimal) return toDecimal().compareTo(other);
     if (other is XPathDouble) {
       if (other.value.isNaN) return -1;
-      return toDouble().compareTo(other.value);
+      final d = toDouble();
+      if (d == other.value) return 0;
+      return d.compareTo(other.value);
     }
     return super.compareTo(other);
   }
@@ -213,6 +224,7 @@ final class XPathDecimal extends XPathNumeric {
   }
 
   static final BigInt _ten = BigInt.from(10);
+  static final zero = XPathDecimal(BigInt.zero, 0);
 
   final BigInt unscaledValue;
   final int scale;
@@ -345,14 +357,26 @@ final class XPathDecimal extends XPathNumeric {
               XPathErrorCode.FOAR0001,
               'Division by zero in idiv',
             )
-          : XPathInteger(toBigInt() ~/ d.toBigInt()),
+          : () {
+              final maxScale = math.max(scale, d.scale);
+              final u1 = unscaledValue * _ten.pow(maxScale - scale);
+              final u2 = d.unscaledValue * _ten.pow(maxScale - d.scale);
+              return XPathInteger(u1 ~/ u2);
+            }(),
     final XPathDouble d =>
-      d.value == 0 || d.value.isNaN
+      d.value == 0
           ? throw XPathEvaluationException(
               XPathErrorCode.FOAR0001,
-              'Division by zero or NaN in idiv',
+              'Division by zero in idiv',
             )
-          : XPathInteger(BigInt.from(toDouble() ~/ d.value)),
+          : d.value.isNaN
+          ? throw XPathEvaluationException(
+              XPathErrorCode.FOAR0002,
+              'NaN in idiv',
+            )
+          : d.value.isInfinite
+          ? XPathInteger(BigInt.zero)
+          : XPathDouble(toDouble()).idiv(d),
   };
 
   @override
@@ -389,7 +413,9 @@ final class XPathDecimal extends XPathNumeric {
     }
     if (other is XPathDouble) {
       if (other.value.isNaN) return -1;
-      return toDouble().compareTo(other.value);
+      final d = toDouble();
+      if (d == other.value) return 0;
+      return d.compareTo(other.value);
     }
     return super.compareTo(other);
   }
@@ -457,12 +483,22 @@ final class XPathDouble extends XPathNumeric {
     if (value == double.infinity) return 'INF';
     if (value == double.negativeInfinity) return '-INF';
     if (value == 0.0) return value.isNegative ? '-0' : '0';
-    final abs = value.abs();
+    var d = value;
+    if (type == xsFloat) {
+      for (var p = 1; p <= 9; p++) {
+        final candidate = double.parse(value.toStringAsPrecision(p));
+        if (roundToFloat(candidate) == value) {
+          d = candidate;
+          break;
+        }
+      }
+    }
+    final abs = d.abs();
     if (abs >= 1e-6 && abs < 1e6) {
-      final s = value.toString();
+      final s = d.toString();
       return s.endsWith('.0') ? s.substring(0, s.length - 2) : s;
     }
-    return _toXPathScientific(value);
+    return _toXPathScientific(d);
   }
 
   @override
@@ -524,10 +560,28 @@ final class XPathDouble extends XPathNumeric {
   @override
   XPathInteger idiv(XPathNumeric other) {
     final otherD = other.toDouble();
-    if (otherD == 0.0 || otherD.isNaN || value.isNaN || value.isInfinite) {
+    if (otherD == 0.0) {
       throw XPathEvaluationException(
         XPathErrorCode.FOAR0001,
+        'Division by zero in idiv',
+      );
+    }
+    if (value.isNaN || otherD.isNaN || value.isInfinite) {
+      throw XPathEvaluationException(
+        XPathErrorCode.FOAR0002,
         'Invalid operand in idiv',
+      );
+    }
+    if (otherD.isInfinite) {
+      return XPathInteger(BigInt.zero);
+    }
+    final quotient = value / otherD;
+    if (quotient.isNaN ||
+        quotient.isInfinite ||
+        quotient.abs() > 9223372036854775807.0) {
+      throw XPathEvaluationException(
+        XPathErrorCode.FOAR0002,
+        'Overflow in idiv',
       );
     }
     return XPathInteger(BigInt.from(value ~/ otherD));
@@ -553,6 +607,7 @@ final class XPathDouble extends XPathNumeric {
     if (other is XPathNumeric) {
       final otherD = other.toDouble();
       if (value.isNaN || otherD.isNaN) return -1;
+      if (value == otherD) return 0;
       return value.compareTo(otherD);
     }
     return super.compareTo(other);
