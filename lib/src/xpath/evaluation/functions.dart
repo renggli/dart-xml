@@ -24,11 +24,13 @@ import 'namespaces.dart';
 /// The standard functions.
 final Map<XmlName, XPathFunctionItem> standardFunctions = {
   for (final definition in standardFunctionDefinitions)
-    if (definition.name != null)
-      definition.name!.withNamespaceUri(
-        xpathNamespaceUris[definition.name!.prefix],
-      ): definition,
+    definition.name.withNamespaceUri(
+      xpathNamespaceUris[definition.name.prefix],
+    ): definition,
 };
+
+/// The name of the anonymous function.
+const anonymousFunctionName = XmlName.qualified('(anonymous)');
 
 /// Internal list of standard function definitions.
 final standardFunctionDefinitions = <XPathFunctionItem>[

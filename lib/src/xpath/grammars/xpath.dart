@@ -6,7 +6,6 @@ import '../../xml_events/parser.dart';
 import '../evaluation/cardinality.dart';
 import '../evaluation/expression.dart';
 import '../evaluation/operators.dart';
-import '../evaluation/types.dart';
 import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../exceptions/parser_exception.dart';

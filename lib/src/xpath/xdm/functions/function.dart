@@ -1,5 +1,6 @@
 import '../../../xml/utils/name.dart';
 import '../../evaluation/context.dart';
+import '../../evaluation/functions.dart';
 import '../function_item.dart';
 import '../sequence.dart';
 
@@ -10,10 +11,10 @@ typedef XPathFunctionCallback = XPathSequence Function(
 
 /// A callable XPath function item (builtin, anonymous, or partial).
 final class XPathFunction extends XPathFunctionItem {
-  const new({this.name, required this.arity, required this.function});
+  const new({required this.name, required this.arity, required this.function});
 
   @override
-  final XmlName? name;
+  final XmlName name;
 
   @override
   final int arity;
@@ -31,7 +32,7 @@ extension XPathWrappedFunctionExtension on Function {
   /// and [arity].
   XPathFunction toXPathFunction({XmlName? name, int arity = 0}) =>
       XPathFunction(
-        name: name,
+        name: name ?? anonymousFunctionName,
         arity: arity,
         function: (context, arguments) =>
             Function.apply(this, [context, arguments]) as XPathSequence,

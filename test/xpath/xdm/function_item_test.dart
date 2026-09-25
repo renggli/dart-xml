@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/configuration.dart';
+import 'package:xml/src/xpath/evaluation/functions.dart';
 import 'package:xml/src/xpath/xdm/atomic.dart';
 import 'package:xml/src/xpath/xdm/function_item.dart';
 import 'package:xml/src/xpath/xdm/sequence.dart';
@@ -193,7 +194,10 @@ void main() {
     });
 
     test('item methods throw', () {
-      final f = XPathFunctionItem.fn0(null, (ctx) => XPathSequence.empty);
+      final f = XPathFunctionItem.fn0(
+        anonymousFunctionName,
+        (ctx) => XPathSequence.empty,
+      );
       expect(f.toString(), '(anonymous)#0');
       expect(f.atomize, throwsA(isXPathEvaluationException()));
       expect(() => f.stringValue, throwsA(isXPathEvaluationException()));

@@ -1,6 +1,7 @@
 import '../../xml/utils/name.dart';
 import '../evaluation/cardinality.dart';
 import '../evaluation/context.dart';
+import '../evaluation/functions.dart';
 import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/atomic/numeric.dart';
@@ -184,7 +185,9 @@ XPathSequence _fnFunctionName(XPathContext context, XPathSequence funcSeq) {
   final func = funcSeq.firstOrNull as XPathFunctionItem?;
   if (func == null) return XPathSequence.empty;
   var name = func.name;
-  if (name == null || name.local.isEmpty) return XPathSequence.empty;
+  if (name == anonymousFunctionName || name.local.isEmpty) {
+    return XPathSequence.empty;
+  }
   if (name.namespaceUri == null && name.prefix != null) {
     final uri = context.configuration.namespaceUris[name.prefix];
     if (uri != null) {

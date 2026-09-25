@@ -1,5 +1,6 @@
 import '../../xml/utils/name.dart';
 import '../evaluation/context.dart';
+import '../evaluation/functions.dart';
 import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import 'atomic.dart';
@@ -34,7 +35,7 @@ abstract class XPathFunctionItem implements XPathItem {
 
   /// Creates a general function item taking a list of arguments.
   const factory function({
-    XmlName? name,
+    required XmlName name,
     required int arity,
     required XPathFunctionN function,
     List<XPathType>? parameterTypes,
@@ -43,14 +44,14 @@ abstract class XPathFunctionItem implements XPathItem {
 
   /// Creates a function item with 0 arguments.
   const factory fn0(
-    XmlName? name,
+    XmlName name,
     XPathFunction0 function, {
     XPathType? returnType,
   }) = _XPathFunction0;
 
   /// Creates a function item with 1 argument.
   const factory fn1(
-    XmlName? name,
+    XmlName name,
     XPathFunction1 function, {
     List<XPathType>? parameterTypes,
     XPathType? returnType,
@@ -58,7 +59,7 @@ abstract class XPathFunctionItem implements XPathItem {
 
   /// Creates a function item with 2 arguments.
   const factory fn2(
-    XmlName? name,
+    XmlName name,
     XPathFunction2 function, {
     List<XPathType>? parameterTypes,
     XPathType? returnType,
@@ -66,7 +67,7 @@ abstract class XPathFunctionItem implements XPathItem {
 
   /// Creates a function item with 3 arguments.
   const factory fn3(
-    XmlName? name,
+    XmlName name,
     XPathFunction3 function, {
     List<XPathType>? parameterTypes,
     XPathType? returnType,
@@ -74,7 +75,7 @@ abstract class XPathFunctionItem implements XPathItem {
 
   /// Creates a function item with [arity] arguments taking a list.
   const factory fnN(
-    XmlName? name,
+    XmlName name,
     int arity,
     XPathFunctionN function, {
     List<XPathType>? parameterTypes,
@@ -83,7 +84,7 @@ abstract class XPathFunctionItem implements XPathItem {
 
   /// Creates a variadic function item with minimum arity [minArity].
   const factory variadic(
-    XmlName? name,
+    XmlName name,
     int minArity,
     XPathFunctionN function, {
     List<XPathType>? parameterTypes,
@@ -91,11 +92,11 @@ abstract class XPathFunctionItem implements XPathItem {
   }) = _XPathVariadicFunction;
 
   /// Creates an overloaded function item that dispatches across arities.
-  const factory overloaded(XmlName? name, Map<int, XPathFunctionItem> byArity) =
+  const factory overloaded(XmlName name, Map<int, XPathFunctionItem> byArity) =
       XPathOverloadedFunction;
 
   /// The name of the function, if named.
-  XmlName? get name => null;
+  XmlName get name => anonymousFunctionName;
 
   /// The arity (number of required arguments) of the function item.
   int get arity;
@@ -142,15 +143,14 @@ abstract class XPathFunctionItem implements XPathItem {
   XPathSequence call(XPathContext context, List<XPathSequence> arguments);
 
   @override
-  String toString() =>
-      name != null ? '${name!.qualified}#$arity' : '(anonymous)#$arity';
+  String toString() => '${name.qualified}#$arity';
 }
 
 class _XPathFunction0 extends XPathFunctionItem {
   const new(this.name, this._function, {this.returnType});
 
   @override
-  final XmlName? name;
+  final XmlName name;
 
   final XPathFunction0 _function;
 
@@ -165,7 +165,7 @@ class _XPathFunction0 extends XPathFunctionItem {
     if (arguments.isNotEmpty) {
       throw XPathEvaluationException(
         XPathErrorCode.FOAP0001,
-        'Function ${name?.qualified ?? '(anonymous)'} expects 0 arguments, but got ${arguments.length}.',
+        'Function ${name.qualified} expects 0 arguments, but got ${arguments.length}.',
       );
     }
     return _function(context);
@@ -176,7 +176,7 @@ class _XPathFunction1 extends XPathFunctionItem {
   const new(this.name, this._function, {this.parameterTypes, this.returnType});
 
   @override
-  final XmlName? name;
+  final XmlName name;
 
   final XPathFunction1 _function;
 
@@ -194,7 +194,7 @@ class _XPathFunction1 extends XPathFunctionItem {
     if (arguments.length != 1) {
       throw XPathEvaluationException(
         XPathErrorCode.FOAP0001,
-        'Function ${name?.qualified ?? '(anonymous)'} expects 1 argument, but got ${arguments.length}.',
+        'Function ${name.qualified} expects 1 argument, but got ${arguments.length}.',
       );
     }
     return _function(context, arguments[0]);
@@ -205,7 +205,7 @@ class _XPathFunction2 extends XPathFunctionItem {
   const new(this.name, this._function, {this.parameterTypes, this.returnType});
 
   @override
-  final XmlName? name;
+  final XmlName name;
 
   final XPathFunction2 _function;
 
@@ -223,7 +223,7 @@ class _XPathFunction2 extends XPathFunctionItem {
     if (arguments.length != 2) {
       throw XPathEvaluationException(
         XPathErrorCode.FOAP0001,
-        'Function ${name?.qualified ?? '(anonymous)'} expects 2 arguments, but got ${arguments.length}.',
+        'Function ${name.qualified} expects 2 arguments, but got ${arguments.length}.',
       );
     }
     return _function(context, arguments[0], arguments[1]);
@@ -234,7 +234,7 @@ class _XPathFunction3 extends XPathFunctionItem {
   const new(this.name, this._function, {this.parameterTypes, this.returnType});
 
   @override
-  final XmlName? name;
+  final XmlName name;
 
   final XPathFunction3 _function;
 
@@ -252,7 +252,7 @@ class _XPathFunction3 extends XPathFunctionItem {
     if (arguments.length != 3) {
       throw XPathEvaluationException(
         XPathErrorCode.FOAP0001,
-        'Function ${name?.qualified ?? '(anonymous)'} expects 3 arguments, but got ${arguments.length}.',
+        'Function ${name.qualified} expects 3 arguments, but got ${arguments.length}.',
       );
     }
     return _function(context, arguments[0], arguments[1], arguments[2]);
@@ -269,7 +269,7 @@ class _XPathFunctionN extends XPathFunctionItem {
   });
 
   const new named({
-    this.name,
+    required this.name,
     required this.arity,
     required this._function,
     this.parameterTypes,
@@ -277,7 +277,7 @@ class _XPathFunctionN extends XPathFunctionItem {
   });
 
   @override
-  final XmlName? name;
+  final XmlName name;
 
   @override
   final int arity;
@@ -295,7 +295,7 @@ class _XPathFunctionN extends XPathFunctionItem {
     if (arguments.length != arity) {
       throw XPathEvaluationException(
         XPathErrorCode.FOAP0001,
-        'Function ${name?.qualified ?? '(anonymous)'} expects $arity arguments, but got ${arguments.length}.',
+        'Function ${name.qualified} expects $arity arguments, but got ${arguments.length}.',
       );
     }
     return _function(context, arguments);
@@ -307,7 +307,7 @@ class XPathOverloadedFunction extends XPathFunctionItem {
   const new(this.name, this.byArity);
 
   @override
-  final XmlName? name;
+  final XmlName name;
 
   final Map<int, XPathFunctionItem> byArity;
 
@@ -330,7 +330,7 @@ class XPathOverloadedFunction extends XPathFunctionItem {
     }
     throw XPathEvaluationException(
       XPathErrorCode.FOAP0001,
-      'Function ${name?.qualified ?? '(anonymous)'} does not support arity ${arguments.length}. Available arities: ${byArity.keys.toList()..sort()}.',
+      'Function ${name.qualified} does not support arity ${arguments.length}. Available arities: ${byArity.keys.toList()..sort()}.',
     );
   }
 }
@@ -345,7 +345,7 @@ class _XPathVariadicFunction extends XPathFunctionItem {
   });
 
   @override
-  final XmlName? name;
+  final XmlName name;
 
   final int minArity;
 
@@ -368,7 +368,7 @@ class _XPathVariadicFunction extends XPathFunctionItem {
     if (arguments.length < minArity) {
       throw XPathEvaluationException(
         XPathErrorCode.FOAP0001,
-        'Function ${name?.qualified ?? '(anonymous)'} expects at least $minArity arguments, but got ${arguments.length}.',
+        'Function ${name.qualified} expects at least $minArity arguments, but got ${arguments.length}.',
       );
     }
     return _function(context, arguments);

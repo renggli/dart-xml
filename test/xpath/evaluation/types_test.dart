@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/evaluation/types.dart';
+import 'package:xml/src/xpath/xdm/types.dart';
 
 void main() {
   group('types', () {

@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
+import 'package:xml/src/xpath/evaluation/functions.dart';
 import 'package:xml/src/xpath/evaluation/namespaces.dart';
 import 'package:xml/src/xpath/expressions/function.dart';
 import 'package:xml/src/xpath/expressions/variable.dart';
@@ -165,7 +166,7 @@ void main() {
         'b',
       ]);
       final fn = expr(context).first as XPathFunctionItem;
-      expect(fn.name, isNull);
+      expect(fn.name, anonymousFunctionName);
       expect(fn.arity, 2);
     });
     test('with arguments', () {

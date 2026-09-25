@@ -200,9 +200,6 @@ class _XPathInlineFunction extends XPathFunctionItem {
   final XPathType? _declaredReturnType;
 
   @override
-  XmlName? get name => null;
-
-  @override
   int get arity => parameters.length;
 
   /// Exposes declared parameter types for `instance of function(T) as R` matching.
@@ -252,7 +249,7 @@ class _XPathPartialFunction extends XPathFunctionItem {
   final XPathFunctionItem function;
 
   @override
-  XmlName? get name => function.name;
+  XmlName get name => function.name;
 
   @override
   final int arity;

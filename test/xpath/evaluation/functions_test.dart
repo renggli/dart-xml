@@ -10,7 +10,7 @@ void main() {
       for (final definition in standardFunctionDefinitions) {
         expect(definition.name, isNotNull);
         expect(
-          names.add(definition.name!),
+          names.add(definition.name),
           isTrue,
           reason: 'Function name "${definition.name}" is not unique',
         );
@@ -18,7 +18,7 @@ void main() {
     });
     test('functions contains all functions', () {
       for (final definition in standardFunctionDefinitions) {
-        final defName = definition.name!;
+        final defName = definition.name;
         final name = defName.withNamespaceUri(
           xpathNamespaceUris[defName.prefix],
         );
