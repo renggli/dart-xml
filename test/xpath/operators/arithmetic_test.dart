@@ -172,27 +172,6 @@ void main() {
     });
   });
 
-  group('op:numeric-equal', () {
-    test('numbers', () {
-      expect(opNumericEqual(intSeq(1), intSeq(1)), isXPathSequence([true]));
-    });
-  });
-
-  group('op:numeric-less-than', () {
-    test('numbers', () {
-      expect(opNumericLessThan(intSeq(1), intSeq(2)), isXPathSequence([true]));
-    });
-  });
-
-  group('op:numeric-greater-than', () {
-    test('numbers', () {
-      expect(
-        opNumericGreaterThan(intSeq(2), intSeq(1)),
-        isXPathSequence([true]),
-      );
-    });
-  });
-
   group('priority', () {
     test('multiplication before addition', () {
       expectEvaluate(xml, '2 + 3 * 4', [14]);

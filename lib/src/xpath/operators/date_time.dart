@@ -3,87 +3,6 @@ import '../xdm/atomic/duration.dart';
 import '../xdm/sequence.dart';
 
 // ---------------------------------------------------------------------------
-// DateTime comparison
-// ---------------------------------------------------------------------------
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-dateTime-equal
-XPathSequence opDateTimeEqual(XPathSequence left, XPathSequence right) {
-  if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  return (left.single as XPathDateTime).compareTo(
-            right.single as XPathDateTime,
-          ) ==
-          0
-      ? XPathSequence.trueSequence
-      : XPathSequence.falseSequence;
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-dateTime-less-than
-XPathSequence opDateTimeLessThan(XPathSequence left, XPathSequence right) {
-  if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  return (left.single as XPathDateTime).compareTo(
-            right.single as XPathDateTime,
-          ) <
-          0
-      ? XPathSequence.trueSequence
-      : XPathSequence.falseSequence;
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-dateTime-greater-than
-XPathSequence opDateTimeGreaterThan(XPathSequence left, XPathSequence right) {
-  if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  return (left.single as XPathDateTime).compareTo(
-            right.single as XPathDateTime,
-          ) >
-          0
-      ? XPathSequence.trueSequence
-      : XPathSequence.falseSequence;
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-date-equal
-XPathSequence opDateEqual(XPathSequence left, XPathSequence right) =>
-    opDateTimeEqual(left, right);
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-date-less-than
-XPathSequence opDateLessThan(XPathSequence left, XPathSequence right) =>
-    opDateTimeLessThan(left, right);
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-date-greater-than
-XPathSequence opDateGreaterThan(XPathSequence left, XPathSequence right) =>
-    opDateTimeGreaterThan(left, right);
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-time-equal
-XPathSequence opTimeEqual(XPathSequence left, XPathSequence right) =>
-    opDateTimeEqual(left, right);
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-time-less-than
-XPathSequence opTimeLessThan(XPathSequence left, XPathSequence right) =>
-    opDateTimeLessThan(left, right);
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-time-greater-than
-XPathSequence opTimeGreaterThan(XPathSequence left, XPathSequence right) =>
-    opDateTimeGreaterThan(left, right);
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-gYearMonth-equal
-XPathSequence opGYearMonthEqual(XPathSequence left, XPathSequence right) =>
-    opDateTimeEqual(left, right);
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-gYear-equal
-XPathSequence opGYearEqual(XPathSequence left, XPathSequence right) =>
-    opDateTimeEqual(left, right);
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-gMonthDay-equal
-XPathSequence opGMonthDayEqual(XPathSequence left, XPathSequence right) =>
-    opDateTimeEqual(left, right);
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-gMonth-equal
-XPathSequence opGMonthEqual(XPathSequence left, XPathSequence right) =>
-    opDateTimeEqual(left, right);
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-gDay-equal
-XPathSequence opGDayEqual(XPathSequence left, XPathSequence right) =>
-    opDateTimeEqual(left, right);
-
-// ---------------------------------------------------------------------------
 // DateTime subtraction (returns xs:dayTimeDuration)
 // ---------------------------------------------------------------------------
 
@@ -203,58 +122,6 @@ XPathSequence opSubtractDurationFromDateTime(
   final dur = right.single as XPathDuration;
   var result = _addMonthsToDateTime(dt.toDateTime(), -dur.totalMonths);
   result = result.subtract(dur.toDuration());
-  return XPathSequence.single(_wrapDateTime(result, dt));
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-add-yearMonthDuration-to-dateTime
-XPathSequence opAddYearMonthDurationToDateTime(
-  XPathSequence left,
-  XPathSequence right,
-) {
-  if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  final dt = left.single as XPathDateTime;
-  final months = (right.single as XPathDuration).totalMonths;
-  return XPathSequence.single(
-    _wrapDateTime(_addMonthsToDateTime(dt.toDateTime(), months), dt),
-  );
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-add-dayTimeDuration-to-dateTime
-XPathSequence opAddDayTimeDurationToDateTime(
-  XPathSequence left,
-  XPathSequence right,
-) {
-  if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  final dt = left.single as XPathDateTime;
-  final result = dt.toDateTime().add(
-    (right.single as XPathDuration).toDuration(),
-  );
-  return XPathSequence.single(_wrapDateTime(result, dt));
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-subtract-yearMonthDuration-from-dateTime
-XPathSequence opSubtractYearMonthDurationFromDateTime(
-  XPathSequence left,
-  XPathSequence right,
-) {
-  if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  final dt = left.single as XPathDateTime;
-  final months = (right.single as XPathDuration).totalMonths;
-  return XPathSequence.single(
-    _wrapDateTime(_addMonthsToDateTime(dt.toDateTime(), -months), dt),
-  );
-}
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-subtract-dayTimeDuration-from-dateTime
-XPathSequence opSubtractDayTimeDurationFromDateTime(
-  XPathSequence left,
-  XPathSequence right,
-) {
-  if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
-  final dt = left.single as XPathDateTime;
-  final result = dt.toDateTime().subtract(
-    (right.single as XPathDuration).toDuration(),
-  );
   return XPathSequence.single(_wrapDateTime(result, dt));
 }
 
@@ -379,18 +246,3 @@ XPathSequence opSubtractDayTimeDurationFromTime(
     ),
   );
 }
-
-// ---------------------------------------------------------------------------
-// xs:dateTime subtractYearMonth (returns xs:dateTime)
-// ---------------------------------------------------------------------------
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-subtract-yearMonthDuration-from-dateTime
-XPathSequence opSubtractYearMonthDurationFromDateTimeSeq(
-  XPathSequence left,
-  XPathSequence right,
-) => opSubtractYearMonthDurationFromDateTime(left, right);
-
-XPathSequence opSubtractDayTimeDurationFromDateTimeSeq(
-  XPathSequence left,
-  XPathSequence right,
-) => opSubtractDayTimeDurationFromDateTime(left, right);

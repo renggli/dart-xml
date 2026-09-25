@@ -108,20 +108,6 @@ void main() {
       );
     });
 
-    test('cached sequence memoizes traversal', () {
-      var counter = 0;
-      final iterable = Iterable<XPathItem>.generate(3, (i) {
-        counter++;
-        return XPathInteger.fromInt(i);
-      });
-      final cached = XPathSequence.cached(iterable);
-      expect(counter, equals(0));
-      expect(cached.toList().length, equals(3));
-      expect(counter, equals(3));
-      expect(cached.toList().length, equals(3));
-      expect(counter, equals(3));
-    });
-
     test('range sequence', () {
       final r = XPathSequence.range(
         XPathInteger.fromInt(1),

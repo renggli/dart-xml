@@ -27,39 +27,6 @@ void main() {
     DateTime(1970, 1, 1, 12, 0, 0).timeZoneOffset.inMinutes,
   );
 
-  group('opDateTimeEqual', () {
-    test('equal', () {
-      expect(opDateTimeEqual(seq(dt1), seq(dt1)), XPathSequence.trueSequence);
-    });
-    test('not equal', () {
-      expect(opDateTimeEqual(seq(dt1), seq(dt2)), XPathSequence.falseSequence);
-    });
-  });
-
-  group('opDateTimeLessThan', () {
-    test('less than', () {
-      expect(
-        opDateTimeLessThan(seq(dt1), seq(dt2)),
-        XPathSequence.trueSequence,
-      );
-    });
-    test('not less than', () {
-      expect(
-        opDateTimeLessThan(seq(dt2), seq(dt1)),
-        XPathSequence.falseSequence,
-      );
-    });
-  });
-
-  group('opDateTimeGreaterThan', () {
-    test('greater than', () {
-      expect(
-        opDateTimeGreaterThan(seq(dt2), seq(dt1)),
-        XPathSequence.trueSequence,
-      );
-    });
-  });
-
   group('opSubtractDateTimes', () {
     test('subtract', () {
       expect(
@@ -105,102 +72,6 @@ void main() {
     });
   });
 
-  group('opDateEqual', () {
-    test('equal', () {
-      expect(opDateEqual(seq(date1), seq(date1)), XPathSequence.trueSequence);
-    });
-  });
-
-  group('opDateLessThan', () {
-    test('less than', () {
-      expect(
-        opDateLessThan(
-          seq(const XPathDateTime.date(2020, 1, 1, 0)),
-          seq(const XPathDateTime.date(2021, 1, 1, 0)),
-        ),
-        XPathSequence.trueSequence,
-      );
-    });
-  });
-
-  group('opDateGreaterThan', () {
-    test('greater than', () {
-      expect(
-        opDateGreaterThan(
-          seq(const XPathDateTime.date(2021, 1, 1, 0)),
-          seq(const XPathDateTime.date(2020, 1, 1, 0)),
-        ),
-        XPathSequence.trueSequence,
-      );
-    });
-  });
-
-  group('opTimeEqual', () {
-    test('equal', () {
-      expect(opTimeEqual(seq(time1), seq(time1)), XPathSequence.trueSequence);
-    });
-  });
-
-  group('opTimeLessThan', () {
-    test('less than', () {
-      expect(
-        opTimeLessThan(
-          seq(
-            XPathDateTime.time(
-              10,
-              0,
-              0,
-              0,
-              0,
-              DateTime(1970, 1, 1, 10, 0, 0).timeZoneOffset.inMinutes,
-            ),
-          ),
-          seq(
-            XPathDateTime.time(
-              11,
-              0,
-              0,
-              0,
-              0,
-              DateTime(1970, 1, 1, 11, 0, 0).timeZoneOffset.inMinutes,
-            ),
-          ),
-        ),
-        XPathSequence.trueSequence,
-      );
-    });
-  });
-
-  group('opTimeGreaterThan', () {
-    test('greater than', () {
-      expect(
-        opTimeGreaterThan(
-          seq(
-            XPathDateTime.time(
-              11,
-              0,
-              0,
-              0,
-              0,
-              DateTime(1970, 1, 1, 11, 0, 0).timeZoneOffset.inMinutes,
-            ),
-          ),
-          seq(
-            XPathDateTime.time(
-              10,
-              0,
-              0,
-              0,
-              0,
-              DateTime(1970, 1, 1, 10, 0, 0).timeZoneOffset.inMinutes,
-            ),
-          ),
-        ),
-        XPathSequence.trueSequence,
-      );
-    });
-  });
-
   group('opSubtractDates', () {
     test('subtract', () {
       const d1 = XPathDateTime.date(2021, 1, 1, 0);
@@ -232,66 +103,6 @@ void main() {
       final result = opSubtractTimes(seq(t1), seq(t2)).first;
       expect(result, isA<XPathDuration>());
       expect((result as XPathDuration).type, xsDayTimeDuration);
-    });
-  });
-
-  group('opGYearMonthEqual', () {
-    test('equal', () {
-      expect(opGYearMonthEqual(seq(dt1), seq(dt1)), XPathSequence.trueSequence);
-    });
-  });
-
-  group('opGYearEqual', () {
-    test('equal', () {
-      expect(opGYearEqual(seq(dt1), seq(dt1)), XPathSequence.trueSequence);
-    });
-  });
-
-  group('opGMonthDayEqual', () {
-    test('equal', () {
-      expect(opGMonthDayEqual(seq(dt1), seq(dt1)), XPathSequence.trueSequence);
-    });
-  });
-
-  group('opGMonthEqual', () {
-    test('equal', () {
-      expect(opGMonthEqual(seq(dt1), seq(dt1)), XPathSequence.trueSequence);
-    });
-  });
-
-  group('opGDayEqual', () {
-    test('equal', () {
-      expect(opGDayEqual(seq(dt1), seq(dt1)), XPathSequence.trueSequence);
-    });
-  });
-
-  group('opAddYearMonthDurationToDateTime', () {
-    test('add duration', () {
-      expect(opAddYearMonthDurationToDateTime(seq(dt1), seq(ymd1)), isNotNull);
-    });
-  });
-
-  group('opAddDayTimeDurationToDateTime', () {
-    test('add duration', () {
-      expect(opAddDayTimeDurationToDateTime(seq(dt1), seq(dtd1)).first, dt2);
-    });
-  });
-
-  group('opSubtractYearMonthDurationFromDateTime', () {
-    test('subtract duration', () {
-      expect(
-        opSubtractYearMonthDurationFromDateTime(seq(dt1), seq(ymd1)),
-        isNotNull,
-      );
-    });
-  });
-
-  group('opSubtractDayTimeDurationFromDateTime', () {
-    test('subtract duration', () {
-      expect(
-        opSubtractDayTimeDurationFromDateTime(seq(dt2), seq(dtd1)).first,
-        dt1,
-      );
     });
   });
 

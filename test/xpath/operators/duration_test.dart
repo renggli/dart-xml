@@ -13,237 +13,9 @@ XPathSequence seq(Object value) => XPathSequence.single(switch (value) {
 });
 
 void main() {
-  // Helpers.
-  const d1Ymd = XPathDuration.yearMonth(1); // 1 month
-  const d2Ymd = XPathDuration.yearMonth(2); // 2 months
   const d1Dtd = XPathDuration.dayTime(86400000000);
   const d2Dtd = XPathDuration.dayTime(172800000000);
   const d1 = XPathDuration(months: 0, days: 1);
-  const d2 = XPathDuration(months: 0, days: 1);
-  const d3 = XPathDuration(months: 0, days: 2);
-
-  group('opDurationEqual', () {
-    test('equal', () {
-      expect(opDurationEqual(seq(d1), seq(d2)), XPathSequence.trueSequence);
-    });
-    test('not equal', () {
-      expect(opDurationEqual(seq(d1), seq(d3)), XPathSequence.falseSequence);
-    });
-    test('P1Y eq P12M (yearMonth equality)', () {
-      const p1y = XPathDuration.yearMonth(12);
-      const p12m = XPathDuration.yearMonth(12);
-      expect(opDurationEqual(seq(p1y), seq(p12m)), XPathSequence.trueSequence);
-    });
-    test('P1Y ne P365D (yearMonth vs dayTime differ)', () {
-      const p1y = XPathDuration.yearMonth(12);
-      const p365d = XPathDuration.dayTime(31536000000000);
-      expect(
-        opDurationEqual(seq(p1y), seq(p365d)),
-        XPathSequence.falseSequence,
-      );
-    });
-  });
-
-  group('opYearMonthDurationLessThan', () {
-    test('less than', () {
-      expect(
-        opYearMonthDurationLessThan(seq(d1Ymd), seq(d2Ymd)),
-        XPathSequence.trueSequence,
-      );
-    });
-  });
-
-  group('opYearMonthDurationGreaterThan', () {
-    test('greater than', () {
-      expect(
-        opYearMonthDurationGreaterThan(seq(d2Ymd), seq(d1Ymd)),
-        XPathSequence.trueSequence,
-      );
-    });
-  });
-
-  group('opDayTimeDurationLessThan', () {
-    test('less than', () {
-      expect(
-        opDayTimeDurationLessThan(seq(d1Dtd), seq(d2Dtd)),
-        XPathSequence.trueSequence,
-      );
-    });
-  });
-
-  group('opDayTimeDurationGreaterThan', () {
-    test('greater than', () {
-      expect(
-        opDayTimeDurationGreaterThan(seq(d2Dtd), seq(d1Dtd)),
-        XPathSequence.trueSequence,
-      );
-    });
-  });
-
-  group('opAddYearMonthDurations', () {
-    test('add', () {
-      expect(
-        opAddYearMonthDurations(seq(d1Ymd), seq(d2Ymd)).first,
-        const XPathDuration.yearMonth(3),
-      );
-    });
-  });
-
-  group('opSubtractYearMonthDurations', () {
-    test('subtract', () {
-      expect(
-        opSubtractYearMonthDurations(seq(d2Ymd), seq(d1Ymd)).first,
-        const XPathDuration.yearMonth(1),
-      );
-    });
-  });
-
-  group('opMultiplyYearMonthDuration', () {
-    test('multiply', () {
-      expect(
-        opMultiplyYearMonthDuration(seq(d1Ymd), seq(2)).first,
-        const XPathDuration.yearMonth(2),
-      );
-    });
-    test('multiply by NaN throws', () {
-      expect(
-        () => opMultiplyYearMonthDuration(seq(d1Ymd), seq(double.nan)),
-        throwsA(isXPathEvaluationException()),
-      );
-    });
-    test('multiply by Infinity throws', () {
-      expect(
-        () => opMultiplyYearMonthDuration(seq(d1Ymd), seq(double.infinity)),
-        throwsA(isXPathEvaluationException()),
-      );
-    });
-  });
-
-  group('opDivideYearMonthDuration', () {
-    test('divide', () {
-      expect(
-        opDivideYearMonthDuration(seq(d2Ymd), seq(2)).first,
-        const XPathDuration.yearMonth(1),
-      );
-    });
-    test('divide by NaN throws', () {
-      expect(
-        () => opDivideYearMonthDuration(seq(d2Ymd), seq(double.nan)),
-        throwsA(isXPathEvaluationException()),
-      );
-    });
-    test('divide by Infinity returns zero duration', () {
-      expect(
-        opDivideYearMonthDuration(seq(d2Ymd), seq(double.infinity)).first,
-        const XPathDuration.yearMonth(0),
-      );
-    });
-  });
-
-  group('opDivideYearMonthDurationByYearMonthDuration', () {
-    test('divide', () {
-      expect(
-        opDivideYearMonthDurationByYearMonthDuration(seq(d2Ymd), seq(d1Ymd)),
-        isXPathSequence([2.0]),
-      );
-    });
-    test('divide by zero throws', () {
-      expect(
-        () => opDivideYearMonthDurationByYearMonthDuration(
-          seq(d1Ymd),
-          seq(const XPathDuration.yearMonth(0)),
-        ),
-        throwsA(isXPathEvaluationException(message: 'Division by zero')),
-      );
-    });
-  });
-
-  group('opAddDayTimeDurations', () {
-    test('add', () {
-      expect(
-        opAddDayTimeDurations(seq(d1Dtd), seq(d2Dtd)).first,
-        const XPathDuration.dayTime(259200000000),
-      );
-    });
-  });
-
-  group('opSubtractDayTimeDurations', () {
-    test('subtract', () {
-      expect(
-        opSubtractDayTimeDurations(seq(d2Dtd), seq(d1Dtd)).first,
-        const XPathDuration.dayTime(86400000000),
-      );
-    });
-  });
-
-  group('opMultiplyDayTimeDuration', () {
-    test('multiply', () {
-      expect(
-        opMultiplyDayTimeDuration(seq(d1Dtd), seq(2)).first,
-        const XPathDuration.dayTime(172800000000),
-      );
-    });
-    test('multiply by NaN throws', () {
-      expect(
-        () => opMultiplyDayTimeDuration(seq(d1Dtd), seq(double.nan)),
-        throwsA(isXPathEvaluationException()),
-      );
-    });
-    test('multiply by Infinity throws', () {
-      expect(
-        () => opMultiplyDayTimeDuration(seq(d1Dtd), seq(double.infinity)),
-        throwsA(isXPathEvaluationException()),
-      );
-    });
-  });
-
-  group('opDivideDayTimeDuration', () {
-    test('divide', () {
-      expect(
-        opDivideDayTimeDuration(seq(d2Dtd), seq(2)).first,
-        const XPathDuration.dayTime(86400000000),
-      );
-    });
-    test('divide by NaN throws', () {
-      expect(
-        () => opDivideDayTimeDuration(seq(d2Dtd), seq(double.nan)),
-        throwsA(isXPathEvaluationException()),
-      );
-    });
-    test('divide by Infinity returns zero duration', () {
-      expect(
-        opDivideDayTimeDuration(seq(d2Dtd), seq(double.infinity)).first,
-        const XPathDuration.dayTime(0),
-      );
-    });
-  });
-
-  group('opDivideDayTimeDurationByDayTimeDuration', () {
-    test('divide', () {
-      expect(
-        opDivideDayTimeDurationByDayTimeDuration(seq(d2Dtd), seq(d1Dtd)),
-        isXPathSequence([2.0]),
-      );
-    });
-  });
-
-  group('opDivideDurationByDuration', () {
-    test('divide', () {
-      expect(
-        opDivideDurationByDuration(seq(d2Dtd), seq(d1Dtd)),
-        isXPathSequence([2.0]),
-      );
-    });
-    test('divide by zero throws', () {
-      expect(
-        () => opDivideDurationByDuration(
-          seq(d1Dtd),
-          seq(const XPathDuration.dayTime(0)),
-        ),
-        throwsA(isXPathEvaluationException(message: 'Division by zero')),
-      );
-    });
-  });
 
   group('opAddDurations', () {
     test('add', () {
@@ -343,11 +115,25 @@ void main() {
     });
   });
 
-  group('empty input returns empty', () {
-    test('opDurationEqual', () {
-      expect(opDurationEqual(XPathSequence.empty, seq(d1)), isEmpty);
-      expect(opDurationEqual(seq(d1), XPathSequence.empty), isEmpty);
+  group('opDivideDurationByDuration', () {
+    test('divide', () {
+      expect(
+        opDivideDurationByDuration(seq(d2Dtd), seq(d1Dtd)),
+        isXPathSequence([2.0]),
+      );
     });
+    test('divide by zero throws', () {
+      expect(
+        () => opDivideDurationByDuration(
+          seq(d1Dtd),
+          seq(const XPathDuration.dayTime(0)),
+        ),
+        throwsA(isXPathEvaluationException(message: 'Division by zero')),
+      );
+    });
+  });
+
+  group('empty input returns empty', () {
     test('opAddDurations', () {
       expect(opAddDurations(XPathSequence.empty, seq(d1)), isEmpty);
     });

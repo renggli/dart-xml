@@ -6,7 +6,17 @@ import '../xdm/sequence.dart';
 import '../xdm/types.dart';
 import 'comparison.dart';
 
-export 'boolean.dart' show opAnd, opOr;
+/// https://www.w3.org/TR/xpath-31/#id-logical-expressions
+XPathSequence opAnd(XPathSequence left, XPathSequence right) =>
+    left.ebv && right.ebv
+    ? XPathSequence.trueSequence
+    : XPathSequence.falseSequence;
+
+/// https://www.w3.org/TR/xpath-31/#id-logical-expressions
+XPathSequence opOr(XPathSequence left, XPathSequence right) =>
+    left.ebv || right.ebv
+    ? XPathSequence.trueSequence
+    : XPathSequence.falseSequence;
 
 /// https://www.w3.org/TR/xpath-31/#id-general-comparisons
 XPathSequence opGeneralEqual(XPathSequence left, XPathSequence right) =>

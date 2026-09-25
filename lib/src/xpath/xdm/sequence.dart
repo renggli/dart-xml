@@ -49,9 +49,6 @@ abstract class XPathSequence extends Iterable<XPathItem> {
     return _XPathListSequence(flat);
   }
 
-  /// Creates a lazily-evaluated cached sequence.
-  factory cached(Iterable<XPathItem> items) = _XPathCachedSequence;
-
   /// Converts an arbitrary object into a valid [XPathItem].
   static XPathItem toItem(Object obj) => switch (obj) {
     final XPathItem item => item,
@@ -321,35 +318,4 @@ class _XPathListSequence extends XPathSequence {
 
   @override
   String toString() => '(${_items.join(', ')})';
-}
-
-class _XPathCachedSequence extends XPathSequence {
-  new(Iterable<XPathItem> source) : _iterator = source.iterator, super._();
-
-  final Iterator<XPathItem> _iterator;
-  final List<XPathItem> _cache = [];
-
-  @override
-  Iterator<XPathItem> get iterator => _CachedIterator(_iterator, _cache);
-}
-
-class _CachedIterator implements Iterator<XPathItem> {
-  new(this._source, this._cache);
-  final Iterator<XPathItem> _source;
-  final List<XPathItem> _cache;
-  int _idx = -1;
-
-  @override
-  XPathItem get current => _cache[_idx];
-
-  @override
-  bool moveNext() {
-    _idx++;
-    if (_idx < _cache.length) return true;
-    if (_source.moveNext()) {
-      _cache.add(_source.current);
-      return true;
-    }
-    return false;
-  }
 }

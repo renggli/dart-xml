@@ -63,7 +63,6 @@ Sequences are ordered collections of zero or more `XPathItem` instances. Sequenc
 | `XPathSequence.falseSequence` | Sequence containing `XPathBoolean.falseInstance`. |
 | `XPathSequence.single(item)` | Sequence containing exactly one item. |
 | `XPathSequence.from(items)` | Sequence created from an iterable, flattening any sequences. |
-| `XPathSequence.cached(items)` | Lazy sequence cached on first evaluation. |
 
 ### Nodes (`XPathNode`)
 

@@ -74,30 +74,6 @@ XPathSequence opNumericUnaryMinus(XPathSequence arg) => arg.isEmpty
     ? XPathSequence.empty
     : XPathSequence.single(-_toNumeric(arg.single));
 
-/// https://www.w3.org/TR/xpath-functions-31/#func-numeric-equal
-XPathSequence opNumericEqual(XPathSequence left, XPathSequence right) =>
-    left.isEmpty || right.isEmpty
-    ? XPathSequence.empty
-    : (_toNumeric(left.single).compareTo(_toNumeric(right.single)) == 0
-          ? XPathSequence.trueSequence
-          : XPathSequence.falseSequence);
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-numeric-less-than
-XPathSequence opNumericLessThan(XPathSequence left, XPathSequence right) =>
-    left.isEmpty || right.isEmpty
-    ? XPathSequence.empty
-    : (_toNumeric(left.single).compareTo(_toNumeric(right.single)) < 0
-          ? XPathSequence.trueSequence
-          : XPathSequence.falseSequence);
-
-/// https://www.w3.org/TR/xpath-functions-31/#func-numeric-greater-than
-XPathSequence opNumericGreaterThan(XPathSequence left, XPathSequence right) =>
-    left.isEmpty || right.isEmpty
-    ? XPathSequence.empty
-    : (_toNumeric(left.single).compareTo(_toNumeric(right.single)) > 0
-          ? XPathSequence.trueSequence
-          : XPathSequence.falseSequence);
-
 /// Dispatches the `+` operator based on operand types.
 ///
 /// https://www.w3.org/TR/xpath-31/#id-arithmetic
@@ -106,11 +82,9 @@ XPathSequence opAdd(XPathSequence left, XPathSequence right) {
   final a = left.single;
   final b = right.single;
   if (a is XPathDuration && b is XPathDuration) {
-    if (a.isYearMonth && b.isYearMonth) {
-      return opAddYearMonthDurations(left, right);
-    } else if (a.isDayTime && b.isDayTime) {
-      return opAddDayTimeDurations(left, right);
-    } else if (a.type == xsDuration && b.type == xsDuration) {
+    if ((a.isYearMonth && b.isYearMonth) ||
+        (a.isDayTime && b.isDayTime) ||
+        (a.type == xsDuration && b.type == xsDuration)) {
       return opAddDurations(left, right);
     }
     throw XPathEvaluationException(
@@ -153,11 +127,9 @@ XPathSequence opSubtract(XPathSequence left, XPathSequence right) {
   final a = left.single;
   final b = right.single;
   if (a is XPathDuration && b is XPathDuration) {
-    if (a.isYearMonth && b.isYearMonth) {
-      return opSubtractYearMonthDurations(left, right);
-    } else if (a.isDayTime && b.isDayTime) {
-      return opSubtractDayTimeDurations(left, right);
-    } else if (a.type == xsDuration && b.type == xsDuration) {
+    if ((a.isYearMonth && b.isYearMonth) ||
+        (a.isDayTime && b.isDayTime) ||
+        (a.type == xsDuration && b.type == xsDuration)) {
       return opSubtractDurations(left, right);
     }
     throw XPathEvaluationException(
@@ -224,17 +196,7 @@ XPathSequence opDivide(XPathSequence left, XPathSequence right) {
   final b = right.single;
   final bIsNum = b is XPathNumeric || b is XPathUntypedAtomic;
   if (a is XPathDuration && b is XPathDuration) {
-    if (a.isYearMonth && b.isYearMonth) {
-      return opDivideYearMonthDurationByYearMonthDuration(left, right);
-    } else if (a.isDayTime && b.isDayTime) {
-      return opDivideDayTimeDurationByDayTimeDuration(left, right);
-    } else if (a.type == xsDuration && b.type == xsDuration) {
-      return opDivideDurationByDuration(left, right);
-    }
-    throw XPathEvaluationException(
-      XPathErrorCode.XPTY0004,
-      'Cannot divide ${a.type} by ${b.type}',
-    );
+    return opDivideDurationByDuration(left, right);
   } else if (a is XPathDuration && bIsNum) {
     return opDivideDuration(left, XPathSequence.single(_toNumeric(b)));
   }
