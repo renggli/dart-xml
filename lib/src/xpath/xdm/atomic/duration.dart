@@ -3,8 +3,69 @@ import '../../exceptions/evaluation_exception.dart';
 import '../atomic.dart';
 import '../types.dart';
 
-/// An abstract representation of XPath duration types.
-abstract class XPathAbstractDuration extends XPathAtomic {
+/// Representation of XPath duration values (xs:duration, xs:yearMonthDuration,
+/// and xs:dayTimeDuration).
+final class XPathDuration extends XPathAtomic {
+  /// Creates a new [XPathDuration].
+  const new({
+    int years = 0,
+    int months = 0,
+    int days = 0,
+    int hours = 0,
+    int minutes = 0,
+    int seconds = 0,
+    int milliseconds = 0,
+    int microseconds = 0,
+    int? totalMonths,
+    int? totalMicroseconds,
+    bool isNegative = false,
+    this.type = xsDuration,
+  }) : totalMonths =
+           totalMonths ?? (years * 12 + months) * (isNegative ? -1 : 1),
+       totalMicroseconds =
+           totalMicroseconds ??
+           (days * Duration.microsecondsPerDay +
+                   hours * Duration.microsecondsPerHour +
+                   minutes * Duration.microsecondsPerMinute +
+                   seconds * Duration.microsecondsPerSecond +
+                   milliseconds * Duration.microsecondsPerMillisecond +
+                   microseconds) *
+               (isNegative ? -1 : 1);
+
+  /// Creates a new [XPathDuration] representing an xs:dayTimeDuration.
+  const new dayTime(int totalMicroseconds)
+    : this(totalMicroseconds: totalMicroseconds, type: xsDayTimeDuration);
+
+  /// Creates a new [XPathDuration] representing an xs:yearMonthDuration.
+  const new yearMonth(int totalMonths)
+    : this(totalMonths: totalMonths, type: xsYearMonthDuration);
+
+  /// Creates a new [XPathDuration] from years, months, and microsecond components.
+  factory fromValues(
+    int totalMonths,
+    int totalMicroseconds, [
+    XPathType type = xsDuration,
+  ]) => XPathDuration(
+    totalMonths: totalMonths,
+    totalMicroseconds: totalMicroseconds,
+    type: type,
+  );
+
+  /// Creates a new [XPathDuration] from a Dart [Duration] object.
+  factory fromDuration(
+    Duration duration, [
+    XPathType type = xsDayTimeDuration,
+  ]) => XPathDuration(totalMicroseconds: duration.inMicroseconds, type: type);
+
+  /// Total number of months in this duration.
+  final int totalMonths;
+
+  /// Total number of microseconds in this duration.
+  final int totalMicroseconds;
+
+  @override
+  final XPathType type;
+
   @override
   Object get value => this;
 
@@ -17,226 +78,135 @@ abstract class XPathAbstractDuration extends XPathAtomic {
     'Cannot compute EBV of duration: $this',
   );
 
-  /// The number of years in the duration, if applicable.
-  int? get years;
-
-  /// The number of months in the duration, if applicable.
-  int? get months;
-
-  /// The number of days in the duration, if applicable.
-  int? get days;
-
-  /// The number of hours in the duration, if applicable.
-  int? get hours;
-
-  /// The number of minutes in the duration, if applicable.
-  int? get minutes;
-
-  /// The number of seconds in the duration, if applicable.
-  int? get seconds;
-
-  /// The number of milliseconds in the duration, if applicable.
-  int? get milliseconds;
-
-  /// The number of microseconds in the duration, if applicable.
-  int? get microseconds;
-
   /// Whether the duration is negative.
-  bool get isNegative;
+  bool get isNegative =>
+      totalMonths < 0 || (totalMonths == 0 && totalMicroseconds < 0);
 
-  /// Constant constructor for subclasses.
-  const new();
+  /// Whether this duration is an `xs:yearMonthDuration`.
+  bool get isYearMonth => type.isSubtypeOf(xsYearMonthDuration);
+
+  /// Whether this duration is an `xs:dayTimeDuration`.
+  bool get isDayTime => type.isSubtypeOf(xsDayTimeDuration);
+
+  /// The number of years in the duration.
+  int get years => totalMonths.abs() ~/ 12;
+
+  /// The number of months in the duration (0-11).
+  int get months => totalMonths.abs() % 12;
+
+  /// The number of days in the duration.
+  int get days => totalMicroseconds.abs() ~/ Duration.microsecondsPerDay;
+
+  /// The number of hours in the duration (0-23).
+  int get hours =>
+      (totalMicroseconds.abs() ~/ Duration.microsecondsPerHour) % 24;
+
+  /// The number of minutes in the duration (0-59).
+  int get minutes =>
+      (totalMicroseconds.abs() ~/ Duration.microsecondsPerMinute) % 60;
+
+  /// The number of seconds in the duration (0-59).
+  int get seconds =>
+      (totalMicroseconds.abs() ~/ Duration.microsecondsPerSecond) % 60;
+
+  /// The number of milliseconds in the duration (0-999).
+  int get milliseconds =>
+      (totalMicroseconds.abs() ~/ Duration.microsecondsPerMillisecond) % 1000;
+
+  /// The number of microseconds in the duration (0-999).
+  int get microseconds => totalMicroseconds.abs() % 1000;
+
+  /// Returns the duration in days.
+  int get inDays => totalMicroseconds ~/ Duration.microsecondsPerDay;
+
+  /// Returns the duration in hours.
+  int get inHours => totalMicroseconds ~/ Duration.microsecondsPerHour;
+
+  /// Returns the duration in minutes.
+  int get inMinutes => totalMicroseconds ~/ Duration.microsecondsPerMinute;
+
+  /// Returns the duration in seconds.
+  int get inSeconds => totalMicroseconds ~/ Duration.microsecondsPerSecond;
+
+  /// Returns the duration in milliseconds.
+  int get inMilliseconds =>
+      totalMicroseconds ~/ Duration.microsecondsPerMillisecond;
+
+  /// Returns the duration in microseconds.
+  int get inMicroseconds => totalMicroseconds;
 
   /// Converts this object to a standard Dart [Duration] representation.
-  Duration toDuration() {
-    final d = days ?? 0;
-    final h = hours ?? 0;
-    final m = minutes ?? 0;
-    final s = seconds ?? 0;
-    final ms = milliseconds ?? 0;
-    final us = microseconds ?? 0;
-    final duration = Duration(
-      days: d,
-      hours: h,
-      minutes: m,
-      seconds: s,
-      milliseconds: ms,
-      microseconds: us,
-    );
-    return isNegative ? -duration : duration;
-  }
+  Duration toDuration() => Duration(microseconds: totalMicroseconds);
 
-  /// The total number of months in this duration.
-  int get totalMonths =>
-      ((years ?? 0) * 12 + (months ?? 0)) * (isNegative ? -1 : 1);
+  /// Returns the absolute value of this duration.
+  XPathDuration abs() => XPathDuration(
+    totalMonths: totalMonths.abs(),
+    totalMicroseconds: totalMicroseconds.abs(),
+    type: type,
+  );
 
-  @override
-  int compareTo(XPathAtomic other) {
-    if (other is XPathAbstractDuration) {
-      if (this is XPathYearMonthDuration && other is XPathYearMonthDuration) {
-        return (this as XPathYearMonthDuration).totalMonths.compareTo(
-          other.totalMonths,
-        );
-      }
-      if (this is XPathDayTimeDuration && other is XPathDayTimeDuration) {
-        return (this as XPathDayTimeDuration).totalMicroseconds.compareTo(
-          other.totalMicroseconds,
-        );
-      }
-      return toString().compareTo(other.toString());
+  /// Adds another [XPathDuration] to this one.
+  XPathDuration operator +(XPathDuration other) => XPathDuration(
+    totalMonths: totalMonths + other.totalMonths,
+    totalMicroseconds: totalMicroseconds + other.totalMicroseconds,
+    type: type == other.type ? type : xsDuration,
+  );
+
+  /// Subtracts another [XPathDuration] from this one.
+  XPathDuration operator -(XPathDuration other) => XPathDuration(
+    totalMonths: totalMonths - other.totalMonths,
+    totalMicroseconds: totalMicroseconds - other.totalMicroseconds,
+    type: type == other.type ? type : xsDuration,
+  );
+
+  /// Multiplies this duration by a factor.
+  XPathDuration operator *(num factor) => XPathDuration(
+    totalMonths: (totalMonths * factor).round(),
+    totalMicroseconds: (totalMicroseconds * factor).round(),
+    type: type,
+  );
+
+  /// Divides this duration by an integer quotient.
+  XPathDuration operator ~/(int quotient) => XPathDuration(
+    totalMonths: totalMonths ~/ quotient,
+    totalMicroseconds: totalMicroseconds ~/ quotient,
+    type: type,
+  );
+
+  /// Negates this duration.
+  XPathDuration operator -() => XPathDuration(
+    totalMonths: -totalMonths,
+    totalMicroseconds: -totalMicroseconds,
+    type: type,
+  );
+
+  /// Compares if this duration is less than another.
+  bool operator <(XPathDuration other) => compareTo(other) < 0;
+
+  /// Compares if this duration is less than or equal to another.
+  bool operator <=(XPathDuration other) => compareTo(other) <= 0;
+
+  /// Compares if this duration is greater than another.
+  bool operator >(XPathDuration other) => compareTo(other) > 0;
+
+  /// Compares if this duration is greater than or equal to another.
+  bool operator >=(XPathDuration other) => compareTo(other) >= 0;
+
+  /// Divides this duration by another [XPathDuration] returning a double.
+  double divideByDuration(XPathDuration other) {
+    if (type.isSubtypeOf(xsYearMonthDuration) &&
+        other.type.isSubtypeOf(xsYearMonthDuration)) {
+      return totalMonths / other.totalMonths;
     }
-    return super.compareTo(other);
-  }
-}
-
-/// Representation of an XPath duration value (xs:duration).
-class XPathDuration extends XPathAbstractDuration {
-  @override
-  final int years;
-
-  @override
-  final int months;
-
-  @override
-  final int days;
-
-  @override
-  final int hours;
-
-  @override
-  final int minutes;
-
-  @override
-  final int seconds;
-
-  @override
-  final int milliseconds;
-
-  @override
-  final int microseconds;
-
-  @override
-  final bool isNegative;
-
-  /// Creates a new [XPathDuration] with the given components.
-  const new({
-    this.years = 0,
-    this.months = 0,
-    this.days = 0,
-    this.hours = 0,
-    this.minutes = 0,
-    this.seconds = 0,
-    this.milliseconds = 0,
-    this.microseconds = 0,
-    this.isNegative = false,
-  });
-
-  /// Creates a new [XPathDuration] from years, months, and microsecond components.
-  factory fromValues(int totalMonths, int totalMicroseconds) {
-    final isNeg =
-        totalMonths < 0 || (totalMonths == 0 && totalMicroseconds < 0);
-    final absMonths = totalMonths.abs();
-    final absUs = totalMicroseconds.abs();
-    return XPathDuration(
-      years: absMonths ~/ 12,
-      months: absMonths % 12,
-      days: absUs ~/ Duration.microsecondsPerDay,
-      hours: (absUs ~/ Duration.microsecondsPerHour) % 24,
-      minutes: (absUs ~/ Duration.microsecondsPerMinute) % 60,
-      seconds: (absUs ~/ Duration.microsecondsPerSecond) % 60,
-      milliseconds: (absUs ~/ Duration.microsecondsPerMillisecond) % 1000,
-      microseconds: absUs % 1000,
-      isNegative: isNeg,
-    );
-  }
-
-  /// Creates a new [XPathDuration] from a Dart [Duration] object.
-  factory fromDuration(Duration duration) {
-    final absUs = duration.abs().inMicroseconds;
-    return XPathDuration(
-      days: absUs ~/ Duration.microsecondsPerDay,
-      hours: (absUs ~/ Duration.microsecondsPerHour) % 24,
-      minutes: (absUs ~/ Duration.microsecondsPerMinute) % 60,
-      seconds: (absUs ~/ Duration.microsecondsPerSecond) % 60,
-      milliseconds: (absUs ~/ Duration.microsecondsPerMillisecond) % 1000,
-      microseconds: absUs % 1000,
-      isNegative: duration.isNegative,
-    );
-  }
-
-  /// Attempts to parse a string representation of a duration.
-  static XPathDuration? tryParse(String value) {
-    final match = _durationRegExp.firstMatch(value);
-    if (match == null) return null;
-
-    final hasYM = match.group(2) != null || match.group(3) != null;
-    final hasDT =
-        match.group(4) != null ||
-        match.group(5) != null ||
-        match.group(6) != null ||
-        match.group(7) != null;
-    if (!hasYM && !hasDT) return null;
-
-    final negative = match.group(1) == '-';
-    final years = int.tryParse(match.group(2) ?? '0') ?? 0;
-    final months = int.tryParse(match.group(3) ?? '0') ?? 0;
-    final days = int.tryParse(match.group(4) ?? '0') ?? 0;
-    final hours = int.tryParse(match.group(5) ?? '0') ?? 0;
-    final minutes = int.tryParse(match.group(6) ?? '0') ?? 0;
-    final secondsDouble = double.tryParse(match.group(7) ?? '0') ?? 0.0;
-    final totalSeconds = secondsDouble.truncate();
-    final frac = secondsDouble - totalSeconds;
-    final ms = (frac * 1000).truncate();
-    final us = ((frac * 1000000) - (ms * 1000)).round();
-
-    final sec = totalSeconds % 60;
-    final totalMinutes = minutes + totalSeconds ~/ 60;
-    final min = totalMinutes % 60;
-    final totalHours = hours + totalMinutes ~/ 60;
-    final hr = totalHours % 24;
-    final dy = days + totalHours ~/ 24;
-
-    return XPathDuration(
-      years: years,
-      months: months,
-      days: dy,
-      hours: hr,
-      minutes: min,
-      seconds: sec,
-      milliseconds: ms,
-      microseconds: us,
-      isNegative: negative,
-    );
-  }
-
-  @override
-  int get totalMonths => (years * 12 + months) * (isNegative ? -1 : 1);
-
-  /// The total number of microseconds.
-  int get totalMicroseconds {
-    final us =
-        days * Duration.microsecondsPerDay +
-        hours * Duration.microsecondsPerHour +
-        minutes * Duration.microsecondsPerMinute +
-        seconds * Duration.microsecondsPerSecond +
-        milliseconds * Duration.microsecondsPerMillisecond +
-        microseconds;
-    return isNegative ? -us : us;
+    return totalMicroseconds / other.totalMicroseconds;
   }
 
   @override
   bool operator ==(Object other) {
-    if (other is XPathDuration) {
-      return totalMonths == other.totalMonths &&
-          totalMicroseconds == other.totalMicroseconds;
-    }
-    if (other is XPathYearMonthDuration) {
-      return totalMonths == other.totalMonths && totalMicroseconds == 0;
-    }
-    if (other is XPathDayTimeDuration) {
-      return totalMonths == 0 && totalMicroseconds == other.totalMicroseconds;
-    }
-    return false;
+    if (identical(this, other)) return true;
+    if (other is! XPathDuration) return false;
+    return totalMonths == other.totalMonths &&
+        totalMicroseconds == other.totalMicroseconds;
   }
 
   @override
@@ -245,17 +215,13 @@ class XPathDuration extends XPathAbstractDuration {
   @override
   int compareTo(XPathAtomic other) {
     if (other is XPathDuration) {
+      if (isYearMonth && other.isYearMonth) {
+        return totalMonths.compareTo(other.totalMonths);
+      }
+      if (isDayTime && other.isDayTime) {
+        return totalMicroseconds.compareTo(other.totalMicroseconds);
+      }
       final c1 = totalMonths.compareTo(other.totalMonths);
-      if (c1 != 0) return c1;
-      return totalMicroseconds.compareTo(other.totalMicroseconds);
-    }
-    if (other is XPathYearMonthDuration) {
-      final c1 = totalMonths.compareTo(other.totalMonths);
-      if (c1 != 0) return c1;
-      return totalMicroseconds.compareTo(0);
-    }
-    if (other is XPathDayTimeDuration) {
-      final c1 = totalMonths.compareTo(0);
       if (c1 != 0) return c1;
       return totalMicroseconds.compareTo(other.totalMicroseconds);
     }
@@ -263,10 +229,22 @@ class XPathDuration extends XPathAbstractDuration {
   }
 
   @override
-  XPathType get type => xsDuration;
-
-  @override
   String get stringValue {
+    if (type == xsYearMonthDuration) {
+      if (totalMonths == 0) return 'P0M';
+      final buffer = StringBuffer(totalMonths < 0 ? '-P' : 'P');
+      final absYears = years;
+      final absMonths = months;
+      if (absYears > 0) buffer.write('${absYears}Y');
+      if (absMonths > 0 || absYears == 0) buffer.write('${absMonths}M');
+      return buffer.toString();
+    }
+    if (type == xsDayTimeDuration) {
+      if (totalMicroseconds == 0) return 'PT0S';
+      final buffer = StringBuffer(totalMicroseconds < 0 ? '-P' : 'P');
+      _writeDayTimePart(buffer, this);
+      return buffer.toString();
+    }
     if (totalMonths == 0 && totalMicroseconds == 0) return 'PT0S';
     final buffer = StringBuffer(isNegative ? '-P' : 'P');
     final absYears = years;
@@ -279,22 +257,61 @@ class XPathDuration extends XPathAbstractDuration {
 
   @override
   String toString() => stringValue;
-}
 
-/// Representation of an XPath dayTimeDuration value (xs:dayTimeDuration).
-class XPathDayTimeDuration extends XPathAbstractDuration {
-  /// The total number of microseconds in this dayTimeDuration.
-  final int totalMicroseconds;
+  /// Attempts to parse a string representation of a duration.
+  static XPathDuration? tryParse(String value, [XPathType type = xsDuration]) {
+    if (type == xsYearMonthDuration) {
+      return tryParseYearMonth(value);
+    }
+    if (type == xsDayTimeDuration) {
+      return tryParseDayTime(value);
+    }
+    final match = _durationRegExp.firstMatch(value);
+    if (match == null) return null;
 
-  /// Creates a new [XPathDayTimeDuration] with the given total microseconds.
-  const new(this.totalMicroseconds);
+    final hasYM = match.group(2) != null || match.group(3) != null;
+    final hasDT =
+        match.group(4) != null ||
+        match.group(5) != null ||
+        match.group(6) != null ||
+        match.group(7) != null;
+    if (!hasYM && !hasDT) return null;
 
-  /// Creates a new [XPathDayTimeDuration] from a Dart [Duration] object.
-  factory fromDuration(Duration duration) =>
-      XPathDayTimeDuration(duration.inMicroseconds);
+    final negative = match.group(1) == '-';
+    final yr = int.tryParse(match.group(2) ?? '0') ?? 0;
+    final mo = int.tryParse(match.group(3) ?? '0') ?? 0;
+    final dy = int.tryParse(match.group(4) ?? '0') ?? 0;
+    final hr = int.tryParse(match.group(5) ?? '0') ?? 0;
+    final min = int.tryParse(match.group(6) ?? '0') ?? 0;
+    final scDouble = double.tryParse(match.group(7) ?? '0') ?? 0.0;
+    final totalSeconds = scDouble.truncate();
+    final frac = scDouble - totalSeconds;
+    final ms = (frac * 1000).truncate();
+    final us = ((frac * 1000000) - (ms * 1000)).round();
+
+    final sec = totalSeconds % 60;
+    final totalMin = min + totalSeconds ~/ 60;
+    final m = totalMin % 60;
+    final totalHr = hr + totalMin ~/ 60;
+    final h = totalHr % 24;
+    final d = dy + totalHr ~/ 24;
+
+    return XPathDuration(
+      years: yr,
+      months: mo,
+      days: d,
+      hours: h,
+      minutes: m,
+      seconds: sec,
+      milliseconds: ms,
+      microseconds: us,
+      isNegative: negative,
+      type: type,
+    );
+  }
 
   /// Attempts to parse a string representation of a dayTimeDuration.
-  static XPathDayTimeDuration? tryParse(String value) {
+  static XPathDuration? tryParseDayTime(String value) {
     final match = _dayTimeDurationRegExp.firstMatch(value);
     if (match == null) return null;
 
@@ -318,140 +335,11 @@ class XPathDayTimeDuration extends XPathAbstractDuration {
       microseconds: (secondsDouble * Duration.microsecondsPerSecond).round(),
     );
     final totalUs = duration.inMicroseconds * (negative ? -1 : 1);
-    return XPathDayTimeDuration(totalUs);
+    return XPathDuration.dayTime(totalUs);
   }
-
-  @override
-  int? get years => null;
-
-  @override
-  int? get months => null;
-
-  @override
-  int get days => totalMicroseconds.abs() ~/ Duration.microsecondsPerDay;
-
-  @override
-  int get hours =>
-      (totalMicroseconds.abs() ~/ Duration.microsecondsPerHour) % 24;
-
-  @override
-  int get minutes =>
-      (totalMicroseconds.abs() ~/ Duration.microsecondsPerMinute) % 60;
-
-  @override
-  int get seconds =>
-      (totalMicroseconds.abs() ~/ Duration.microsecondsPerSecond) % 60;
-
-  @override
-  int get milliseconds =>
-      (totalMicroseconds.abs() ~/ Duration.microsecondsPerMillisecond) % 1000;
-
-  @override
-  int get microseconds => totalMicroseconds.abs() % 1000;
-
-  @override
-  bool get isNegative => totalMicroseconds < 0;
-
-  /// Returns the duration in days.
-  int get inDays => totalMicroseconds ~/ Duration.microsecondsPerDay;
-
-  /// Returns the duration in hours.
-  int get inHours => totalMicroseconds ~/ Duration.microsecondsPerHour;
-
-  /// Returns the duration in minutes.
-  int get inMinutes => totalMicroseconds ~/ Duration.microsecondsPerMinute;
-
-  /// Returns the duration in seconds.
-  int get inSeconds => totalMicroseconds ~/ Duration.microsecondsPerSecond;
-
-  /// Returns the duration in milliseconds.
-  int get inMilliseconds =>
-      totalMicroseconds ~/ Duration.microsecondsPerMillisecond;
-
-  /// Returns the duration in microseconds.
-  int get inMicroseconds => totalMicroseconds;
-
-  /// Returns the absolute value of this duration.
-  XPathDayTimeDuration abs() => XPathDayTimeDuration(totalMicroseconds.abs());
-
-  /// Adds another [XPathDayTimeDuration] to this one.
-  XPathDayTimeDuration operator +(XPathDayTimeDuration other) =>
-      XPathDayTimeDuration(totalMicroseconds + other.totalMicroseconds);
-
-  /// Subtracts another [XPathDayTimeDuration] from this one.
-  XPathDayTimeDuration operator -(XPathDayTimeDuration other) =>
-      XPathDayTimeDuration(totalMicroseconds - other.totalMicroseconds);
-
-  /// Multiplies this duration by a factor.
-  XPathDayTimeDuration operator *(num factor) =>
-      XPathDayTimeDuration((totalMicroseconds * factor).round());
-
-  /// Divides this duration by an integer quotient.
-  XPathDayTimeDuration operator ~/(int quotient) =>
-      XPathDayTimeDuration(totalMicroseconds ~/ quotient);
-
-  /// Negates this duration.
-  XPathDayTimeDuration operator -() => XPathDayTimeDuration(-totalMicroseconds);
-
-  /// Compares if this duration is less than another.
-  bool operator <(XPathDayTimeDuration other) =>
-      totalMicroseconds < other.totalMicroseconds;
-
-  /// Compares if this duration is less than or equal to another.
-  bool operator <=(XPathDayTimeDuration other) =>
-      totalMicroseconds <= other.totalMicroseconds;
-
-  /// Compares if this duration is greater than another.
-  bool operator >(XPathDayTimeDuration other) =>
-      totalMicroseconds > other.totalMicroseconds;
-
-  /// Compares if this duration is greater than or equal to another.
-  bool operator >=(XPathDayTimeDuration other) =>
-      totalMicroseconds >= other.totalMicroseconds;
-
-  @override
-  bool operator ==(Object other) {
-    if (other is XPathDayTimeDuration) {
-      return totalMicroseconds == other.totalMicroseconds;
-    }
-    if (other is XPathDuration) {
-      return other.totalMonths == 0 &&
-          totalMicroseconds == other.totalMicroseconds;
-    }
-    if (other is XPathYearMonthDuration) {
-      return totalMicroseconds == 0 && other.totalMonths == 0;
-    }
-    return false;
-  }
-
-  @override
-  int get hashCode => totalMicroseconds.hashCode;
-
-  @override
-  XPathType get type => xsDayTimeDuration;
-
-  @override
-  String get stringValue {
-    if (totalMicroseconds == 0) return 'PT0S';
-    final buffer = StringBuffer(isNegative ? '-P' : 'P');
-    _writeDayTimePart(buffer, this);
-    return buffer.toString();
-  }
-
-  @override
-  String toString() => stringValue;
-}
-
-/// Representation of an XPath yearMonthDuration value (xs:yearMonthDuration).
-class XPathYearMonthDuration extends XPathAbstractDuration {
-  @override
-  final int totalMonths;
-
-  /// Creates a new [XPathYearMonthDuration] with the given total months.
-  const new(this.totalMonths);
 
   /// Attempts to parse a string representation of a yearMonthDuration.
-  static XPathYearMonthDuration? tryParse(String value) {
+  static XPathDuration? tryParseYearMonth(String value) {
     final match = _yearMonthDurationRegExp.firstMatch(value);
     if (match == null) return null;
 
@@ -461,118 +349,18 @@ class XPathYearMonthDuration extends XPathAbstractDuration {
     final years = int.tryParse(match.group(2) ?? '0') ?? 0;
     final months = int.tryParse(match.group(3) ?? '0') ?? 0;
     final total = (years * 12 + months) * (negative ? -1 : 1);
-    return XPathYearMonthDuration(total);
+    return XPathDuration.yearMonth(total);
   }
-
-  @override
-  int get years => totalMonths.abs() ~/ 12;
-
-  @override
-  int get months => totalMonths.abs() % 12;
-
-  @override
-  int? get days => null;
-
-  @override
-  int? get hours => null;
-
-  @override
-  int? get minutes => null;
-
-  @override
-  int? get seconds => null;
-
-  @override
-  int? get milliseconds => null;
-
-  @override
-  int? get microseconds => null;
-
-  @override
-  bool get isNegative => totalMonths < 0;
-
-  /// Adds another [XPathYearMonthDuration] to this one.
-  XPathYearMonthDuration operator +(XPathYearMonthDuration other) =>
-      XPathYearMonthDuration(totalMonths + other.totalMonths);
-
-  /// Subtracts another [XPathYearMonthDuration] from this one.
-  XPathYearMonthDuration operator -(XPathYearMonthDuration other) =>
-      XPathYearMonthDuration(totalMonths - other.totalMonths);
-
-  /// Multiplies this duration by a factor.
-  XPathYearMonthDuration operator *(num factor) =>
-      XPathYearMonthDuration((totalMonths * factor).round());
-
-  /// Divides this duration by an integer quotient.
-  XPathYearMonthDuration operator ~/(int quotient) =>
-      XPathYearMonthDuration(totalMonths ~/ quotient);
-
-  /// Negates this duration.
-  XPathYearMonthDuration operator -() => XPathYearMonthDuration(-totalMonths);
-
-  /// Compares if this duration is less than another.
-  bool operator <(XPathYearMonthDuration other) =>
-      totalMonths < other.totalMonths;
-
-  /// Compares if this duration is less than or equal to another.
-  bool operator <=(XPathYearMonthDuration other) =>
-      totalMonths <= other.totalMonths;
-
-  /// Compares if this duration is greater than another.
-  bool operator >(XPathYearMonthDuration other) =>
-      totalMonths > other.totalMonths;
-
-  /// Compares if this duration is greater than or equal to another.
-  bool operator >=(XPathYearMonthDuration other) =>
-      totalMonths >= other.totalMonths;
-
-  /// Divides this duration by another [XPathYearMonthDuration] returning a double.
-  double divideByDuration(XPathYearMonthDuration other) =>
-      totalMonths / other.totalMonths;
-
-  @override
-  bool operator ==(Object other) {
-    if (other is XPathYearMonthDuration) {
-      return totalMonths == other.totalMonths;
-    }
-    if (other is XPathDuration) {
-      return totalMonths == other.totalMonths && other.totalMicroseconds == 0;
-    }
-    if (other is XPathDayTimeDuration) {
-      return totalMonths == 0 && other.totalMicroseconds == 0;
-    }
-    return false;
-  }
-
-  @override
-  int get hashCode => totalMonths.hashCode;
-
-  @override
-  XPathType get type => xsYearMonthDuration;
-
-  @override
-  String get stringValue {
-    if (totalMonths == 0) return 'P0M';
-    final buffer = StringBuffer(isNegative ? '-P' : 'P');
-    final absYears = years;
-    final absMonths = months;
-    if (absYears > 0) buffer.write('${absYears}Y');
-    if (absMonths > 0 || absYears == 0) buffer.write('${absMonths}M');
-    return buffer.toString();
-  }
-
-  @override
-  String toString() => stringValue;
 }
 
-void _writeDayTimePart(StringBuffer buffer, XPathAbstractDuration value) {
-  final d = value.days ?? 0;
+void _writeDayTimePart(StringBuffer buffer, XPathDuration value) {
+  final d = value.days;
   if (d > 0) buffer.write('${d}D');
-  final h = value.hours ?? 0;
-  final m = value.minutes ?? 0;
-  final s = value.seconds ?? 0;
-  final ms = value.milliseconds ?? 0;
-  final us = value.microseconds ?? 0;
+  final h = value.hours;
+  final m = value.minutes;
+  final s = value.seconds;
+  final ms = value.milliseconds;
+  final us = value.microseconds;
   final hasTime = h > 0 || m > 0 || s > 0 || ms > 0 || us > 0;
   if (hasTime) {
     buffer.write('T');
@@ -589,8 +377,7 @@ void _writeDayTimePart(StringBuffer buffer, XPathAbstractDuration value) {
   }
 }
 
-// Regexes and Parsing Helpers
-
+// Regexes
 final _durationRegExp = RegExp(
   r'^(-)?P(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$',
 );

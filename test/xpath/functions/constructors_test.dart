@@ -168,7 +168,7 @@ void main() {
       'cast',
       () => expectEval(
         'xs:date("2020-01-01")',
-        isXPathSequence([const XPathDate(2020, 1, 1)]),
+        isXPathSequence([const XPathDateTime.date(2020, 1, 1)]),
       ),
     );
   });
@@ -206,7 +206,7 @@ void main() {
       expectEval(
         'xs:dayTimeDuration("P3DT4H5M6.7S")',
         isXPathSequence([
-          XPathDayTimeDuration.fromDuration(
+          XPathDuration.fromDuration(
             const Duration(
               days: 3,
               hours: 4,
@@ -234,14 +234,14 @@ void main() {
       expectEval(
         'xs:yearMonthDuration("P1Y2M")',
         isXPathSequence([
-          const XPathYearMonthDuration(14),
+          const XPathDuration.yearMonth(14),
         ]), // 1*12 + 2 = 14 months
       );
     });
     test('cast negative', () {
       expectEval(
         'xs:yearMonthDuration("-P1Y2M")',
-        isXPathSequence([const XPathYearMonthDuration(-14)]),
+        isXPathSequence([const XPathDuration.yearMonth(-14)]),
       );
     });
     test('invalid cast throws', () {

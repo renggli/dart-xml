@@ -20,11 +20,10 @@ XPathSequence opValueEqual(XPathSequence left, XPathSequence right) {
       'Cannot compare $a and $b',
     );
   }
-  if (a is XPathAbstractDuration && b is XPathAbstractDuration) {
+  if (a is XPathDuration && b is XPathDuration) {
     return a == b ? XPathSequence.trueSequence : XPathSequence.falseSequence;
   }
-  if ((a is XPathBase64Binary && b is XPathBase64Binary) ||
-      (a is XPathHexBinary && b is XPathHexBinary)) {
+  if (a is XPathBinary && b is XPathBinary && a.type == b.type) {
     return a == b ? XPathSequence.trueSequence : XPathSequence.falseSequence;
   }
   return compare(a, b) == 0
@@ -49,11 +48,10 @@ XPathSequence opValueNotEqual(XPathSequence left, XPathSequence right) {
       'Cannot compare $a and $b',
     );
   }
-  if (a is XPathAbstractDuration && b is XPathAbstractDuration) {
+  if (a is XPathDuration && b is XPathDuration) {
     return a != b ? XPathSequence.trueSequence : XPathSequence.falseSequence;
   }
-  if ((a is XPathBase64Binary && b is XPathBase64Binary) ||
-      (a is XPathHexBinary && b is XPathHexBinary)) {
+  if (a is XPathBinary && b is XPathBinary && a.type == b.type) {
     return a != b ? XPathSequence.trueSequence : XPathSequence.falseSequence;
   }
   return compare(a, b) != 0
@@ -135,19 +133,18 @@ int compare(XPathAtomic a, XPathAtomic b) {
   if (a is XPathBoolean && b is XPathBoolean) {
     return a.compareTo(b);
   }
-  if (a is XPathAbstractDateTime && b is XPathAbstractDateTime) {
+  if (a is XPathDateTime && b is XPathDateTime) {
     return a.compareTo(b);
   }
-  if (a is XPathYearMonthDuration && b is XPathYearMonthDuration) {
-    return a.totalMonths.compareTo(b.totalMonths);
+  if (a is XPathDuration && b is XPathDuration) {
+    if (a.isYearMonth && b.isYearMonth) {
+      return a.totalMonths.compareTo(b.totalMonths);
+    }
+    if (a.isDayTime && b.isDayTime) {
+      return a.totalMicroseconds.compareTo(b.totalMicroseconds);
+    }
   }
-  if (a is XPathDayTimeDuration && b is XPathDayTimeDuration) {
-    return a.totalMicroseconds.compareTo(b.totalMicroseconds);
-  }
-  if (a is XPathHexBinary && b is XPathHexBinary) {
-    return a.compareTo(b);
-  }
-  if (a is XPathBase64Binary && b is XPathBase64Binary) {
+  if (a is XPathBinary && b is XPathBinary && a.type == b.type) {
     return a.compareTo(b);
   }
   throw XPathEvaluationException(

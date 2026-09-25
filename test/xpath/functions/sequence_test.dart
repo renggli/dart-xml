@@ -532,26 +532,26 @@ void main() {
     });
 
     test('returns average of yearMonthDurations', () {
-      const d1 = XPathYearMonthDuration(14); // P1Y2M
-      const d2 = XPathYearMonthDuration(10); // P10M
+      const d1 = XPathDuration.yearMonth(14); // P1Y2M
+      const d2 = XPathDuration.yearMonth(10); // P10M
       // Average: 12 months (P1Y)
       expect(
         fnAvg(context, [
           seq([d1, d2]),
         ]),
-        isXPathSequence([const XPathYearMonthDuration(12)]),
+        isXPathSequence([const XPathDuration.yearMonth(12)]),
       );
     });
 
     test('returns average of dayTimeDurations with round-half-to-even', () {
-      const d1 = XPathDayTimeDuration(86400000000); // 24 hours
-      const d2 = XPathDayTimeDuration(7200000000); // 2 hours
+      const d1 = XPathDuration.dayTime(86400000000); // 24 hours
+      const d2 = XPathDuration.dayTime(7200000000); // 2 hours
       // Average: 13 hours
       expect(
         fnAvg(context, [
           seq([d1, d2]),
         ]),
-        isXPathSequence([const XPathDayTimeDuration(46800000000)]),
+        isXPathSequence([const XPathDuration.dayTime(46800000000)]),
       );
 
       // Testing round-half-to-even:
@@ -559,36 +559,36 @@ void main() {
       expect(
         fnAvg(context, [
           seq([
-            const XPathYearMonthDuration(5),
-            const XPathYearMonthDuration(0),
+            const XPathDuration.yearMonth(5),
+            const XPathDuration.yearMonth(0),
           ]),
         ]),
-        isXPathSequence([const XPathYearMonthDuration(2)]),
+        isXPathSequence([const XPathDuration.yearMonth(2)]),
       );
       // 7 months / 2 = 3.5 months. Round half-to-even -> 4 months.
       expect(
         fnAvg(context, [
           seq([
-            const XPathYearMonthDuration(7),
-            const XPathYearMonthDuration(0),
+            const XPathDuration.yearMonth(7),
+            const XPathDuration.yearMonth(0),
           ]),
         ]),
-        isXPathSequence([const XPathYearMonthDuration(4)]),
+        isXPathSequence([const XPathDuration.yearMonth(4)]),
       );
     });
 
     test('throws error for mixed sequence or invalid types', () {
       expect(
         () => fnAvg(context, [
-          seq([1, const XPathDayTimeDuration(86400000000)]),
+          seq([1, const XPathDuration.dayTime(86400000000)]),
         ]),
         throwsA(isXPathEvaluationException()),
       );
       expect(
         () => fnAvg(context, [
           seq([
-            const XPathYearMonthDuration(1),
-            const XPathDayTimeDuration(86400000000),
+            const XPathDuration.yearMonth(1),
+            const XPathDuration.dayTime(86400000000),
           ]),
         ]),
         throwsA(isXPathEvaluationException()),
@@ -645,12 +645,12 @@ void main() {
       expect(
         fnMax(context, [
           seq([
-            const XPathDayTimeDuration(86400000000),
-            const XPathDayTimeDuration(259200000000),
-            const XPathDayTimeDuration(172800000000),
+            const XPathDuration.dayTime(86400000000),
+            const XPathDuration.dayTime(259200000000),
+            const XPathDuration.dayTime(172800000000),
           ]),
         ]),
-        isXPathSequence([const XPathDayTimeDuration(259200000000)]),
+        isXPathSequence([const XPathDuration.dayTime(259200000000)]),
       );
     });
 
@@ -715,12 +715,12 @@ void main() {
       expect(
         fnMin(context, [
           seq([
-            const XPathDayTimeDuration(259200000000),
-            const XPathDayTimeDuration(86400000000),
-            const XPathDayTimeDuration(172800000000),
+            const XPathDuration.dayTime(259200000000),
+            const XPathDuration.dayTime(86400000000),
+            const XPathDuration.dayTime(172800000000),
           ]),
         ]),
-        isXPathSequence([const XPathDayTimeDuration(86400000000)]),
+        isXPathSequence([const XPathDuration.dayTime(86400000000)]),
       );
     });
 
@@ -769,10 +769,10 @@ void main() {
     });
 
     test('returns sum of durations', () {
-      const d1 = XPathDayTimeDuration(86400000000);
-      const d2 = XPathDayTimeDuration(172800000000);
-      const d3 = XPathDayTimeDuration(259200000000);
-      const sum = XPathDayTimeDuration(518400000000);
+      const d1 = XPathDuration.dayTime(86400000000);
+      const d2 = XPathDuration.dayTime(172800000000);
+      const d3 = XPathDuration.dayTime(259200000000);
+      const sum = XPathDuration.dayTime(518400000000);
       expect(
         fnSum(context, [
           seq([d1, d2, d3]),
@@ -782,28 +782,28 @@ void main() {
     });
 
     test('returns sum of yearMonthDurations', () {
-      const d1 = XPathYearMonthDuration(12); // P1Y
-      const d2 = XPathYearMonthDuration(10); // P10M
+      const d1 = XPathDuration.yearMonth(12); // P1Y
+      const d2 = XPathDuration.yearMonth(10); // P10M
       expect(
         fnSum(context, [
           seq([d1, d2]),
         ]),
-        isXPathSequence([const XPathYearMonthDuration(22)]),
+        isXPathSequence([const XPathDuration.yearMonth(22)]),
       );
     });
 
     test('throws error for mixed sequence or invalid types', () {
       expect(
         () => fnSum(context, [
-          seq([1, const XPathDayTimeDuration(86400000000)]),
+          seq([1, const XPathDuration.dayTime(86400000000)]),
         ]),
         throwsA(isXPathEvaluationException()),
       );
       expect(
         () => fnSum(context, [
           seq([
-            const XPathYearMonthDuration(1),
-            const XPathDayTimeDuration(86400000000),
+            const XPathDuration.yearMonth(1),
+            const XPathDuration.dayTime(86400000000),
           ]),
         ]),
         throwsA(isXPathEvaluationException()),

@@ -1,8 +1,5 @@
 include: package:lints/recommended.yaml
 analyzer:
-  exclude:
-    - xpath_old/**
-    - xpath_old_tests/**
   language:
     strict-casts: true
     strict-inference: true

@@ -6,6 +6,7 @@ import '../xdm/atomic/numeric.dart';
 import '../xdm/atomic/string.dart';
 import '../xdm/item.dart';
 import '../xdm/sequence.dart';
+import '../xdm/types.dart';
 import 'date_time.dart';
 import 'duration.dart';
 
@@ -104,39 +105,42 @@ XPathSequence opAdd(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   final a = left.single;
   final b = right.single;
-  if (a is XPathYearMonthDuration && b is XPathYearMonthDuration) {
-    return opAddYearMonthDurations(left, right);
-  } else if (a is XPathDayTimeDuration && b is XPathDayTimeDuration) {
-    return opAddDayTimeDurations(left, right);
-  } else if (a is XPathDuration && b is XPathDuration) {
-    return opAddDurations(left, right);
-    // xs:dateTime arithmetic
-  } else if (a is XPathDateTime && b is XPathYearMonthDuration) {
-    return opAddYearMonthDurationToDateTime(left, right);
-  } else if (a is XPathYearMonthDuration && b is XPathDateTime) {
-    return opAddYearMonthDurationToDateTime(right, left);
-  } else if (a is XPathDateTime && b is XPathDayTimeDuration) {
-    return opAddDayTimeDurationToDateTime(left, right);
-  } else if (a is XPathDayTimeDuration && b is XPathDateTime) {
-    return opAddDayTimeDurationToDateTime(right, left);
+  if (a is XPathDuration && b is XPathDuration) {
+    if (a.isYearMonth && b.isYearMonth) {
+      return opAddYearMonthDurations(left, right);
+    } else if (a.isDayTime && b.isDayTime) {
+      return opAddDayTimeDurations(left, right);
+    } else if (a.type == xsDuration && b.type == xsDuration) {
+      return opAddDurations(left, right);
+    }
+    throw XPathEvaluationException(
+      XPathErrorCode.XPTY0004,
+      'Cannot add ${a.type} and ${b.type}',
+    );
   } else if (a is XPathDateTime && b is XPathDuration) {
-    return opAddDurationToDateTime(left, right);
+    if (a.type.isSubtypeOf(xsDateTime)) {
+      return opAddDurationToDateTime(left, right);
+    } else if (a.type == xsDate) {
+      if (b.type.isSubtypeOf(xsYearMonthDuration)) {
+        return opAddYearMonthDurationToDate(left, right);
+      } else if (b.type.isSubtypeOf(xsDayTimeDuration)) {
+        return opAddDayTimeDurationToDate(left, right);
+      }
+      throw XPathEvaluationException(
+        XPathErrorCode.XPTY0004,
+        'Cannot add ${b.type} to xs:date',
+      );
+    } else if (a.type == xsTime) {
+      if (b.type.isSubtypeOf(xsDayTimeDuration)) {
+        return opAddDayTimeDurationToTime(left, right);
+      }
+      throw XPathEvaluationException(
+        XPathErrorCode.XPTY0004,
+        'Cannot add ${b.type} to xs:time',
+      );
+    }
   } else if (a is XPathDuration && b is XPathDateTime) {
-    return opAddDurationToDateTime(right, left);
-    // xs:date arithmetic
-  } else if (a is XPathDate && b is XPathYearMonthDuration) {
-    return opAddYearMonthDurationToDate(left, right);
-  } else if (a is XPathYearMonthDuration && b is XPathDate) {
-    return opAddYearMonthDurationToDate(right, left);
-  } else if (a is XPathDate && b is XPathDayTimeDuration) {
-    return opAddDayTimeDurationToDate(left, right);
-  } else if (a is XPathDayTimeDuration && b is XPathDate) {
-    return opAddDayTimeDurationToDate(right, left);
-    // xs:time arithmetic
-  } else if (a is XPathTime && b is XPathDayTimeDuration) {
-    return opAddDayTimeDurationToTime(left, right);
-  } else if (a is XPathDayTimeDuration && b is XPathTime) {
-    return opAddDayTimeDurationToTime(right, left);
+    return opAdd(right, left);
   }
   return opNumericAdd(left, right);
 }
@@ -148,33 +152,48 @@ XPathSequence opSubtract(XPathSequence left, XPathSequence right) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.empty;
   final a = left.single;
   final b = right.single;
-  if (a is XPathYearMonthDuration && b is XPathYearMonthDuration) {
-    return opSubtractYearMonthDurations(left, right);
-  } else if (a is XPathDayTimeDuration && b is XPathDayTimeDuration) {
-    return opSubtractDayTimeDurations(left, right);
-  } else if (a is XPathDuration && b is XPathDuration) {
-    return opSubtractDurations(left, right);
-    // xs:dateTime
-  } else if (a is XPathDateTime && b is XPathYearMonthDuration) {
-    return opSubtractYearMonthDurationFromDateTime(left, right);
-  } else if (a is XPathDateTime && b is XPathDayTimeDuration) {
-    return opSubtractDayTimeDurationFromDateTime(left, right);
+  if (a is XPathDuration && b is XPathDuration) {
+    if (a.isYearMonth && b.isYearMonth) {
+      return opSubtractYearMonthDurations(left, right);
+    } else if (a.isDayTime && b.isDayTime) {
+      return opSubtractDayTimeDurations(left, right);
+    } else if (a.type == xsDuration && b.type == xsDuration) {
+      return opSubtractDurations(left, right);
+    }
+    throw XPathEvaluationException(
+      XPathErrorCode.XPTY0004,
+      'Cannot subtract ${b.type} from ${a.type}',
+    );
   } else if (a is XPathDateTime && b is XPathDuration) {
-    return opSubtractDurationFromDateTime(left, right);
+    if (a.type.isSubtypeOf(xsDateTime)) {
+      return opSubtractDurationFromDateTime(left, right);
+    } else if (a.type == xsDate) {
+      if (b.type.isSubtypeOf(xsYearMonthDuration)) {
+        return opSubtractYearMonthDurationFromDate(left, right);
+      } else if (b.type.isSubtypeOf(xsDayTimeDuration)) {
+        return opSubtractDayTimeDurationFromDate(left, right);
+      }
+      throw XPathEvaluationException(
+        XPathErrorCode.XPTY0004,
+        'Cannot subtract ${b.type} from xs:date',
+      );
+    } else if (a.type == xsTime) {
+      if (b.type.isSubtypeOf(xsDayTimeDuration)) {
+        return opSubtractDayTimeDurationFromTime(left, right);
+      }
+      throw XPathEvaluationException(
+        XPathErrorCode.XPTY0004,
+        'Cannot subtract ${b.type} from xs:time',
+      );
+    }
   } else if (a is XPathDateTime && b is XPathDateTime) {
-    return opSubtractDateTimes(left, right);
-    // xs:date
-  } else if (a is XPathDate && b is XPathYearMonthDuration) {
-    return opSubtractYearMonthDurationFromDate(left, right);
-  } else if (a is XPathDate && b is XPathDayTimeDuration) {
-    return opSubtractDayTimeDurationFromDate(left, right);
-  } else if (a is XPathDate && b is XPathDate) {
-    return opSubtractDates(left, right);
-    // xs:time
-  } else if (a is XPathTime && b is XPathDayTimeDuration) {
-    return opSubtractDayTimeDurationFromTime(left, right);
-  } else if (a is XPathTime && b is XPathTime) {
-    return opSubtractTimes(left, right);
+    if (a.type.isSubtypeOf(xsDateTime) && b.type.isSubtypeOf(xsDateTime)) {
+      return opSubtractDateTimes(left, right);
+    } else if (a.type == xsDate && b.type == xsDate) {
+      return opSubtractDates(left, right);
+    } else if (a.type == xsTime && b.type == xsTime) {
+      return opSubtractTimes(left, right);
+    }
   }
   return opNumericSubtract(left, right);
 }
@@ -188,25 +207,8 @@ XPathSequence opMultiply(XPathSequence left, XPathSequence right) {
   final b = right.single;
   final aIsNum = a is XPathNumeric || a is XPathUntypedAtomic;
   final bIsNum = b is XPathNumeric || b is XPathUntypedAtomic;
-  if (a is XPathYearMonthDuration && bIsNum) {
-    return opMultiplyYearMonthDuration(
-      left,
-      XPathSequence.single(_toNumeric(b)),
-    );
-  } else if (a is XPathDayTimeDuration && bIsNum) {
-    return opMultiplyDayTimeDuration(left, XPathSequence.single(_toNumeric(b)));
-  } else if (a is XPathDuration && bIsNum) {
+  if (a is XPathDuration && bIsNum) {
     return opMultiplyDuration(left, XPathSequence.single(_toNumeric(b)));
-  } else if (aIsNum && b is XPathYearMonthDuration) {
-    return opMultiplyYearMonthDuration(
-      right,
-      XPathSequence.single(_toNumeric(a)),
-    );
-  } else if (aIsNum && b is XPathDayTimeDuration) {
-    return opMultiplyDayTimeDuration(
-      right,
-      XPathSequence.single(_toNumeric(a)),
-    );
   } else if (aIsNum && b is XPathDuration) {
     return opMultiplyDuration(right, XPathSequence.single(_toNumeric(a)));
   }
@@ -221,16 +223,18 @@ XPathSequence opDivide(XPathSequence left, XPathSequence right) {
   final a = left.single;
   final b = right.single;
   final bIsNum = b is XPathNumeric || b is XPathUntypedAtomic;
-  if (a is XPathYearMonthDuration && b is XPathYearMonthDuration) {
-    return opDivideYearMonthDurationByYearMonthDuration(left, right);
-  } else if (a is XPathDayTimeDuration && b is XPathDayTimeDuration) {
-    return opDivideDayTimeDurationByDayTimeDuration(left, right);
-  } else if (a is XPathDuration && b is XPathDuration) {
-    return opDivideDurationByDuration(left, right);
-  } else if (a is XPathYearMonthDuration && bIsNum) {
-    return opDivideYearMonthDuration(left, XPathSequence.single(_toNumeric(b)));
-  } else if (a is XPathDayTimeDuration && bIsNum) {
-    return opDivideDayTimeDuration(left, XPathSequence.single(_toNumeric(b)));
+  if (a is XPathDuration && b is XPathDuration) {
+    if (a.isYearMonth && b.isYearMonth) {
+      return opDivideYearMonthDurationByYearMonthDuration(left, right);
+    } else if (a.isDayTime && b.isDayTime) {
+      return opDivideDayTimeDurationByDayTimeDuration(left, right);
+    } else if (a.type == xsDuration && b.type == xsDuration) {
+      return opDivideDurationByDuration(left, right);
+    }
+    throw XPathEvaluationException(
+      XPathErrorCode.XPTY0004,
+      'Cannot divide ${a.type} by ${b.type}',
+    );
   } else if (a is XPathDuration && bIsNum) {
     return opDivideDuration(left, XPathSequence.single(_toNumeric(b)));
   }

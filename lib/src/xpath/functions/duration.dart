@@ -14,8 +14,8 @@ const fnYearsFromDuration = XPathFunctionItem.fn1(
 XPathSequence _fnYearsFromDuration(XPathContext context, XPathSequence arg) {
   final item = arg.firstOrNull;
   if (item == null) return XPathSequence.empty;
-  final duration = item as XPathAbstractDuration;
-  final years = duration.years ?? 0;
+  final duration = item as XPathDuration;
+  final years = duration.years;
   return XPathSequence.single(
     XPathInteger.fromInt(duration.isNegative ? -years : years),
   );
@@ -30,8 +30,8 @@ const fnMonthsFromDuration = XPathFunctionItem.fn1(
 XPathSequence _fnMonthsFromDuration(XPathContext context, XPathSequence arg) {
   final item = arg.firstOrNull;
   if (item == null) return XPathSequence.empty;
-  final duration = item as XPathAbstractDuration;
-  final months = duration.months ?? 0;
+  final duration = item as XPathDuration;
+  final months = duration.months;
   return XPathSequence.single(
     XPathInteger.fromInt(duration.isNegative ? -months : months),
   );
@@ -46,8 +46,8 @@ const fnDaysFromDuration = XPathFunctionItem.fn1(
 XPathSequence _fnDaysFromDuration(XPathContext context, XPathSequence arg) {
   final item = arg.firstOrNull;
   if (item == null) return XPathSequence.empty;
-  final duration = item as XPathAbstractDuration;
-  final days = duration.days ?? 0;
+  final duration = item as XPathDuration;
+  final days = duration.days;
   return XPathSequence.single(
     XPathInteger.fromInt(duration.isNegative ? -days : days),
   );
@@ -62,8 +62,8 @@ const fnHoursFromDuration = XPathFunctionItem.fn1(
 XPathSequence _fnHoursFromDuration(XPathContext context, XPathSequence arg) {
   final item = arg.firstOrNull;
   if (item == null) return XPathSequence.empty;
-  final duration = item as XPathAbstractDuration;
-  final hours = duration.hours ?? 0;
+  final duration = item as XPathDuration;
+  final hours = duration.hours;
   return XPathSequence.single(
     XPathInteger.fromInt(duration.isNegative ? -hours : hours),
   );
@@ -78,8 +78,8 @@ const fnMinutesFromDuration = XPathFunctionItem.fn1(
 XPathSequence _fnMinutesFromDuration(XPathContext context, XPathSequence arg) {
   final item = arg.firstOrNull;
   if (item == null) return XPathSequence.empty;
-  final duration = item as XPathAbstractDuration;
-  final minutes = duration.minutes ?? 0;
+  final duration = item as XPathDuration;
+  final minutes = duration.minutes;
   return XPathSequence.single(
     XPathInteger.fromInt(duration.isNegative ? -minutes : minutes),
   );
@@ -94,10 +94,10 @@ const fnSecondsFromDuration = XPathFunctionItem.fn1(
 XPathSequence _fnSecondsFromDuration(XPathContext context, XPathSequence arg) {
   final item = arg.firstOrNull;
   if (item == null) return XPathSequence.empty;
-  final duration = item as XPathAbstractDuration;
-  final s = duration.seconds ?? 0;
-  final ms = duration.milliseconds ?? 0;
-  final us = duration.microseconds ?? 0;
+  final duration = item as XPathDuration;
+  final s = duration.seconds;
+  final ms = duration.milliseconds;
+  final us = duration.microseconds;
   final seconds = s + ms / 1000.0 + us / 1000000.0;
   final value = duration.isNegative ? -seconds : seconds;
   return XPathSequence.single(XPathDecimal.fromNum(value));

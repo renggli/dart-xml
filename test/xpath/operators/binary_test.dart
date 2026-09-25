@@ -7,8 +7,8 @@ void main() {
     test('same content', () {
       expect(
         opHexBinaryEqual(
-          XPathSequence.single(XPathHexBinary.fromHex('AB')),
-          XPathSequence.single(XPathHexBinary.fromHex('AB')),
+          XPathSequence.single(XPathBinary.fromHex('AB')),
+          XPathSequence.single(XPathBinary.fromHex('AB')),
         ),
         XPathSequence.trueSequence,
       );
@@ -16,8 +16,8 @@ void main() {
     test('different content', () {
       expect(
         opHexBinaryEqual(
-          XPathSequence.single(XPathHexBinary.fromHex('AB')),
-          XPathSequence.single(XPathHexBinary.fromHex('AC')),
+          XPathSequence.single(XPathBinary.fromHex('AB')),
+          XPathSequence.single(XPathBinary.fromHex('AC')),
         ),
         XPathSequence.falseSequence,
       );
@@ -28,8 +28,8 @@ void main() {
     test('less than', () {
       expect(
         opHexBinaryLessThan(
-          XPathSequence.single(XPathHexBinary.fromHex('AA')),
-          XPathSequence.single(XPathHexBinary.fromHex('BB')),
+          XPathSequence.single(XPathBinary.fromHex('AA')),
+          XPathSequence.single(XPathBinary.fromHex('BB')),
         ),
         XPathSequence.trueSequence,
       );
@@ -40,8 +40,8 @@ void main() {
     test('greater than', () {
       expect(
         opHexBinaryGreaterThan(
-          XPathSequence.single(XPathHexBinary.fromHex('BB')),
-          XPathSequence.single(XPathHexBinary.fromHex('AA')),
+          XPathSequence.single(XPathBinary.fromHex('BB')),
+          XPathSequence.single(XPathBinary.fromHex('AA')),
         ),
         XPathSequence.trueSequence,
       );
@@ -52,8 +52,8 @@ void main() {
     test('same content', () {
       expect(
         opBase64BinaryEqual(
-          XPathSequence.single(XPathBase64Binary.fromBase64('AA==')),
-          XPathSequence.single(XPathBase64Binary.fromBase64('AA==')),
+          XPathSequence.single(XPathBinary.fromBase64('AA==')),
+          XPathSequence.single(XPathBinary.fromBase64('AA==')),
         ),
         XPathSequence.trueSequence,
       );
@@ -64,8 +64,8 @@ void main() {
     test('less than', () {
       expect(
         opBase64BinaryLessThan(
-          XPathSequence.single(XPathBase64Binary.fromBase64('AA==')),
-          XPathSequence.single(XPathBase64Binary.fromBase64('AQ==')),
+          XPathSequence.single(XPathBinary.fromBase64('AA==')),
+          XPathSequence.single(XPathBinary.fromBase64('AQ==')),
         ),
         XPathSequence.trueSequence,
       );
@@ -76,8 +76,8 @@ void main() {
     test('greater than', () {
       expect(
         opBase64BinaryGreaterThan(
-          XPathSequence.single(XPathBase64Binary.fromBase64('AQ==')),
-          XPathSequence.single(XPathBase64Binary.fromBase64('AA==')),
+          XPathSequence.single(XPathBinary.fromBase64('AQ==')),
+          XPathSequence.single(XPathBinary.fromBase64('AA==')),
         ),
         XPathSequence.trueSequence,
       );

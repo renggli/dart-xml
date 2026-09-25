@@ -46,8 +46,8 @@ void main() {
 
   final earlier = XPathDateTime.fromDateTime(DateTime.utc(2024, 1, 1));
   final later = XPathDateTime.fromDateTime(DateTime.utc(2025, 6, 15));
-  const shortDuration = XPathDayTimeDuration(Duration.microsecondsPerHour);
-  const longDuration = XPathDayTimeDuration(2 * Duration.microsecondsPerDay);
+  const shortDuration = XPathDuration.dayTime(Duration.microsecondsPerHour);
+  const longDuration = XPathDuration.dayTime(2 * Duration.microsecondsPerDay);
 
   group('opValueLessThan', () {
     test('DateTime values', () {

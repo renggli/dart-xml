@@ -89,13 +89,10 @@ bool _generalEqual(XPathAtomic a, XPathAtomic b) {
   if (a is XPathQName && b is XPathQName) {
     return a == b;
   }
-  if (a is XPathAbstractDuration && b is XPathAbstractDuration) {
+  if (a is XPathDuration && b is XPathDuration) {
     return a == b;
   }
-  if (a is XPathBase64Binary && b is XPathBase64Binary) {
-    return a == b;
-  }
-  if (a is XPathHexBinary && b is XPathHexBinary) {
+  if (a is XPathBinary && b is XPathBinary && a.type == b.type) {
     return a == b;
   }
   return compare(a, b) == 0;
@@ -108,13 +105,10 @@ bool _generalNotEqual(XPathAtomic a, XPathAtomic b) {
   if (a is XPathQName && b is XPathQName) {
     return a != b;
   }
-  if (a is XPathAbstractDuration && b is XPathAbstractDuration) {
+  if (a is XPathDuration && b is XPathDuration) {
     return a != b;
   }
-  if (a is XPathBase64Binary && b is XPathBase64Binary) {
-    return a != b;
-  }
-  if (a is XPathHexBinary && b is XPathHexBinary) {
+  if (a is XPathBinary && b is XPathBinary && a.type == b.type) {
     return a != b;
   }
   return compare(a, b) != 0;
@@ -174,11 +168,10 @@ XPathAtomic _coerceUntyped(XPathUntypedAtomic untyped, XPathAtomic target) {
       (a is XPathString && b is XPathAnyUri) ||
       (a is XPathAnyUri && b is XPathString) ||
       (a is XPathBoolean && b is XPathBoolean) ||
-      (a is XPathAbstractDateTime && b is XPathAbstractDateTime) ||
-      (a is XPathAbstractDuration && b is XPathAbstractDuration) ||
+      (a is XPathDateTime && b is XPathDateTime) ||
+      (a is XPathDuration && b is XPathDuration) ||
       (a is XPathQName && b is XPathQName) ||
-      (a is XPathBase64Binary && b is XPathBase64Binary) ||
-      (a is XPathHexBinary && b is XPathHexBinary)) {
+      (a is XPathBinary && b is XPathBinary && a.type == b.type)) {
     return (a, b);
   }
   throw XPathEvaluationException(

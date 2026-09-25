@@ -478,7 +478,7 @@ final fnAvg = XPathFunctionItem.fn1(const XmlName.qualified('fn:avg'), (
   if (items.isEmpty) return XPathSequence.empty;
 
   final allNumeric = items.every((e) => e is XPathNumeric);
-  final allDuration = items.every((e) => e is XPathAbstractDuration);
+  final allDuration = items.every((e) => e is XPathDuration);
 
   if (!allNumeric && !allDuration) {
     throw XPathEvaluationException(
@@ -495,8 +495,10 @@ final fnAvg = XPathFunctionItem.fn1(const XmlName.qualified('fn:avg'), (
     }
     return XPathSequence.single(sum / XPathInteger.fromInt(count));
   } else {
-    final allYearMonth = items.every((e) => e is XPathYearMonthDuration);
-    final allDayTime = items.every((e) => e is XPathDayTimeDuration);
+    final allYearMonth = items.every(
+      (e) => e is XPathDuration && e.isYearMonth,
+    );
+    final allDayTime = items.every((e) => e is XPathDuration && e.isDayTime);
 
     if (!allYearMonth && !allDayTime) {
       throw XPathEvaluationException(
@@ -515,17 +517,17 @@ final fnAvg = XPathFunctionItem.fn1(const XmlName.qualified('fn:avg'), (
     if (allYearMonth) {
       var sumMonths = 0;
       for (final item in items) {
-        sumMonths += (item as XPathYearMonthDuration).totalMonths;
+        sumMonths += (item as XPathDuration).totalMonths;
       }
       final avgMonths = roundHalfToEven(sumMonths / count);
-      return XPathSequence.single(XPathYearMonthDuration(avgMonths));
+      return XPathSequence.single(XPathDuration.yearMonth(avgMonths));
     } else {
       var sumMicroseconds = 0;
       for (final item in items) {
-        sumMicroseconds += (item as XPathDayTimeDuration).inMicroseconds;
+        sumMicroseconds += (item as XPathDuration).inMicroseconds;
       }
       final avgMicroseconds = roundHalfToEven(sumMicroseconds / count);
-      return XPathSequence.single(XPathDayTimeDuration(avgMicroseconds));
+      return XPathSequence.single(XPathDuration.dayTime(avgMicroseconds));
     }
   }
 });
@@ -655,7 +657,7 @@ XPathSequence _evalSum(XPathSequence arg, XPathSequence? zero) {
   }
 
   final allNumeric = items.every((e) => e is XPathNumeric);
-  final allDuration = items.every((e) => e is XPathAbstractDuration);
+  final allDuration = items.every((e) => e is XPathDuration);
 
   if (!allNumeric && !allDuration) {
     throw XPathEvaluationException(
@@ -671,8 +673,10 @@ XPathSequence _evalSum(XPathSequence arg, XPathSequence? zero) {
     }
     return XPathSequence.single(sum);
   } else {
-    final allYearMonth = items.every((e) => e is XPathYearMonthDuration);
-    final allDayTime = items.every((e) => e is XPathDayTimeDuration);
+    final allYearMonth = items.every(
+      (e) => e is XPathDuration && e.isYearMonth,
+    );
+    final allDayTime = items.every((e) => e is XPathDuration && e.isDayTime);
 
     if (!allYearMonth && !allDayTime) {
       throw XPathEvaluationException(
@@ -684,15 +688,15 @@ XPathSequence _evalSum(XPathSequence arg, XPathSequence? zero) {
     if (allYearMonth) {
       var sumMonths = 0;
       for (final item in items) {
-        sumMonths += (item as XPathYearMonthDuration).totalMonths;
+        sumMonths += (item as XPathDuration).totalMonths;
       }
-      return XPathSequence.single(XPathYearMonthDuration(sumMonths));
+      return XPathSequence.single(XPathDuration.yearMonth(sumMonths));
     } else {
       var sumMicroseconds = 0;
       for (final item in items) {
-        sumMicroseconds += (item as XPathDayTimeDuration).inMicroseconds;
+        sumMicroseconds += (item as XPathDuration).inMicroseconds;
       }
-      return XPathSequence.single(XPathDayTimeDuration(sumMicroseconds));
+      return XPathSequence.single(XPathDuration.dayTime(sumMicroseconds));
     }
   }
 }

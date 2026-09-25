@@ -8,13 +8,14 @@ import '../xdm/atomic/numeric.dart';
 import '../xdm/atomic/string.dart';
 import '../xdm/function_item.dart';
 import '../xdm/sequence.dart';
+import '../xdm/types.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-dateTime
 final fnDateTime = XPathFunctionItem.fn2(
   const XmlName.qualified('fn:dateTime'),
   (context, arg1Seq, arg2Seq) {
-    final arg1 = arg1Seq.atomize().firstOrNull as XPathDate?;
-    final arg2 = arg2Seq.atomize().firstOrNull as XPathTime?;
+    final arg1 = arg1Seq.atomize().firstOrNull as XPathDateTime?;
+    final arg2 = arg2Seq.atomize().firstOrNull as XPathDateTime?;
     if (arg1 == null || arg2 == null) return XPathSequence.empty;
     final tz1 = arg1.timezoneOffsetMinutes;
     final tz2 = arg2.timezoneOffsetMinutes;
@@ -44,67 +45,61 @@ final fnDateTime = XPathFunctionItem.fn2(
 /// https://www.w3.org/TR/xpath-functions-31/#func-year-from-dateTime
 final fnYearFromDateTime = XPathFunctionItem.fn1(
   const XmlName.qualified('fn:year-from-dateTime'),
-  (context, arg) =>
-      _evalYear(arg.atomize().firstOrNull as XPathAbstractDateTime?),
+  (context, arg) => _evalYear(arg.atomize().firstOrNull as XPathDateTime?),
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-month-from-dateTime
 final fnMonthFromDateTime = XPathFunctionItem.fn1(
   const XmlName.qualified('fn:month-from-dateTime'),
-  (context, arg) =>
-      _evalMonth(arg.atomize().firstOrNull as XPathAbstractDateTime?),
+  (context, arg) => _evalMonth(arg.atomize().firstOrNull as XPathDateTime?),
 );
 
-XPathSequence _evalMonth(XPathAbstractDateTime? arg) => arg != null
+XPathSequence _evalMonth(XPathDateTime? arg) => arg != null
     ? XPathSequence.single(XPathInteger.fromInt(arg.month!))
     : XPathSequence.empty;
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-day-from-dateTime
 final fnDayFromDateTime = XPathFunctionItem.fn1(
   const XmlName.qualified('fn:day-from-dateTime'),
-  (context, arg) =>
-      _evalDay(arg.atomize().firstOrNull as XPathAbstractDateTime?),
+  (context, arg) => _evalDay(arg.atomize().firstOrNull as XPathDateTime?),
 );
 
-XPathSequence _evalDay(XPathAbstractDateTime? arg) => arg != null
+XPathSequence _evalDay(XPathDateTime? arg) => arg != null
     ? XPathSequence.single(XPathInteger.fromInt(arg.day!))
     : XPathSequence.empty;
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hours-from-dateTime
 final fnHoursFromDateTime = XPathFunctionItem.fn1(
   const XmlName.qualified('fn:hours-from-dateTime'),
-  (context, arg) =>
-      _evalHours(arg.atomize().firstOrNull as XPathAbstractDateTime?),
+  (context, arg) => _evalHours(arg.atomize().firstOrNull as XPathDateTime?),
 );
 
-XPathSequence _evalHours(XPathAbstractDateTime? arg) => arg != null
+XPathSequence _evalHours(XPathDateTime? arg) => arg != null
     ? XPathSequence.single(XPathInteger.fromInt(arg.hour!))
     : XPathSequence.empty;
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-minutes-from-dateTime
 final fnMinutesFromDateTime = XPathFunctionItem.fn1(
   const XmlName.qualified('fn:minutes-from-dateTime'),
-  (context, arg) =>
-      _evalMinutes(arg.atomize().firstOrNull as XPathAbstractDateTime?),
+  (context, arg) => _evalMinutes(arg.atomize().firstOrNull as XPathDateTime?),
 );
 
-XPathSequence _evalMinutes(XPathAbstractDateTime? arg) => arg != null
+XPathSequence _evalMinutes(XPathDateTime? arg) => arg != null
     ? XPathSequence.single(XPathInteger.fromInt(arg.minute!))
     : XPathSequence.empty;
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-seconds-from-dateTime
 final fnSecondsFromDateTime = XPathFunctionItem.fn1(
   const XmlName.qualified('fn:seconds-from-dateTime'),
-  (context, arg) =>
-      _evalSeconds(arg.atomize().firstOrNull as XPathAbstractDateTime?),
+  (context, arg) => _evalSeconds(arg.atomize().firstOrNull as XPathDateTime?),
 );
 
-XPathSequence _evalSeconds(XPathAbstractDateTime? arg) => arg != null
+XPathSequence _evalSeconds(XPathDateTime? arg) => arg != null
     ? XPathSequence.single(
         XPathDecimal.fromNum(
           (arg.second ?? 0) +
-              (arg.millisecond ?? 0) / 1000.0 +
-              (arg.microsecond ?? 0) / 1000000.0,
+              arg.millisecond / 1000.0 +
+              arg.microsecond / 1000000.0,
         ),
       )
     : XPathSequence.empty;
@@ -112,75 +107,66 @@ XPathSequence _evalSeconds(XPathAbstractDateTime? arg) => arg != null
 /// https://www.w3.org/TR/xpath-functions-31/#func-timezone-from-dateTime
 final fnTimezoneFromDateTime = XPathFunctionItem.fn1(
   const XmlName.qualified('fn:timezone-from-dateTime'),
-  (context, arg) =>
-      _evalTimezone(arg.atomize().firstOrNull as XPathAbstractDateTime?),
+  (context, arg) => _evalTimezone(arg.atomize().firstOrNull as XPathDateTime?),
 );
 
-XPathSequence _evalTimezone(XPathAbstractDateTime? arg) =>
+XPathSequence _evalTimezone(XPathDateTime? arg) =>
     arg != null && arg.timezoneOffsetMinutes != null
     ? XPathSequence.single(
-        XPathDayTimeDuration(arg.timezoneOffsetMinutes! * 60 * 1000000),
+        XPathDuration.dayTime(arg.timezoneOffsetMinutes! * 60 * 1000000),
       )
     : XPathSequence.empty;
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-year-from-date
 final fnYearFromDate = XPathFunctionItem.fn1(
   const XmlName.qualified('fn:year-from-date'),
-  (context, arg) =>
-      _evalYear(arg.atomize().firstOrNull as XPathAbstractDateTime?),
+  (context, arg) => _evalYear(arg.atomize().firstOrNull as XPathDateTime?),
 );
 
-XPathSequence _evalYear(XPathAbstractDateTime? arg) => arg != null
+XPathSequence _evalYear(XPathDateTime? arg) => arg != null
     ? XPathSequence.single(XPathInteger.fromInt(arg.year!))
     : XPathSequence.empty;
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-month-from-date
 final fnMonthFromDate = XPathFunctionItem.fn1(
   const XmlName.qualified('fn:month-from-date'),
-  (context, arg) =>
-      _evalMonth(arg.atomize().firstOrNull as XPathAbstractDateTime?),
+  (context, arg) => _evalMonth(arg.atomize().firstOrNull as XPathDateTime?),
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-day-from-date
 final fnDayFromDate = XPathFunctionItem.fn1(
   const XmlName.qualified('fn:day-from-date'),
-  (context, arg) =>
-      _evalDay(arg.atomize().firstOrNull as XPathAbstractDateTime?),
+  (context, arg) => _evalDay(arg.atomize().firstOrNull as XPathDateTime?),
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-timezone-from-date
 final fnTimezoneFromDate = XPathFunctionItem.fn1(
   const XmlName.qualified('fn:timezone-from-date'),
-  (context, arg) =>
-      _evalTimezone(arg.atomize().firstOrNull as XPathAbstractDateTime?),
+  (context, arg) => _evalTimezone(arg.atomize().firstOrNull as XPathDateTime?),
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hours-from-time
 final fnHoursFromTime = XPathFunctionItem.fn1(
   const XmlName.qualified('fn:hours-from-time'),
-  (context, arg) =>
-      _evalHours(arg.atomize().firstOrNull as XPathAbstractDateTime?),
+  (context, arg) => _evalHours(arg.atomize().firstOrNull as XPathDateTime?),
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-minutes-from-time
 final fnMinutesFromTime = XPathFunctionItem.fn1(
   const XmlName.qualified('fn:minutes-from-time'),
-  (context, arg) =>
-      _evalMinutes(arg.atomize().firstOrNull as XPathAbstractDateTime?),
+  (context, arg) => _evalMinutes(arg.atomize().firstOrNull as XPathDateTime?),
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-seconds-from-time
 final fnSecondsFromTime = XPathFunctionItem.fn1(
   const XmlName.qualified('fn:seconds-from-time'),
-  (context, arg) =>
-      _evalSeconds(arg.atomize().firstOrNull as XPathAbstractDateTime?),
+  (context, arg) => _evalSeconds(arg.atomize().firstOrNull as XPathDateTime?),
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-timezone-from-time
 final fnTimezoneFromTime = XPathFunctionItem.fn1(
   const XmlName.qualified('fn:timezone-from-time'),
-  (context, arg) =>
-      _evalTimezone(arg.atomize().firstOrNull as XPathAbstractDateTime?),
+  (context, arg) => _evalTimezone(arg.atomize().firstOrNull as XPathDateTime?),
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-adjust-dateTime-to-timezone
@@ -191,7 +177,7 @@ final fnAdjustDateTimeToTimezone = XPathFunctionItem.overloaded(
       const XmlName.qualified('fn:adjust-dateTime-to-timezone'),
       (context, arg) => _evalAdjustDateTimeToTimezone(
         context,
-        arg.atomize().firstOrNull as XPathAbstractDateTime?,
+        arg.atomize().firstOrNull as XPathDateTime?,
         _defaultToTimezone(context),
       ),
     ),
@@ -199,8 +185,8 @@ final fnAdjustDateTimeToTimezone = XPathFunctionItem.overloaded(
       const XmlName.qualified('fn:adjust-dateTime-to-timezone'),
       (context, arg, tz) => _evalAdjustDateTimeToTimezone(
         context,
-        arg.atomize().firstOrNull as XPathAbstractDateTime?,
-        tz.atomize().firstOrNull as XPathDayTimeDuration?,
+        arg.atomize().firstOrNull as XPathDateTime?,
+        tz.atomize().firstOrNull as XPathDuration?,
       ),
     ),
   },
@@ -208,8 +194,8 @@ final fnAdjustDateTimeToTimezone = XPathFunctionItem.overloaded(
 
 XPathSequence _evalAdjustDateTimeToTimezone(
   XPathContext context,
-  XPathAbstractDateTime? arg,
-  XPathDayTimeDuration? timezone,
+  XPathDateTime? arg,
+  XPathDuration? timezone,
 ) {
   final result = _adjustDateTimeHelper(arg, timezone);
   return result != null ? XPathSequence.single(result) : XPathSequence.empty;
@@ -223,7 +209,7 @@ final fnAdjustDateToTimezone = XPathFunctionItem.overloaded(
       const XmlName.qualified('fn:adjust-date-to-timezone'),
       (context, arg) => _evalAdjustDateToTimezone(
         context,
-        arg.atomize().firstOrNull as XPathAbstractDateTime?,
+        arg.atomize().firstOrNull as XPathDateTime?,
         _defaultToTimezone(context),
       ),
     ),
@@ -231,8 +217,8 @@ final fnAdjustDateToTimezone = XPathFunctionItem.overloaded(
       const XmlName.qualified('fn:adjust-date-to-timezone'),
       (context, arg, tz) => _evalAdjustDateToTimezone(
         context,
-        arg.atomize().firstOrNull as XPathAbstractDateTime?,
-        tz.atomize().firstOrNull as XPathDayTimeDuration?,
+        arg.atomize().firstOrNull as XPathDateTime?,
+        tz.atomize().firstOrNull as XPathDuration?,
       ),
     ),
   },
@@ -240,13 +226,13 @@ final fnAdjustDateToTimezone = XPathFunctionItem.overloaded(
 
 XPathSequence _evalAdjustDateToTimezone(
   XPathContext context,
-  XPathAbstractDateTime? arg,
-  XPathDayTimeDuration? timezone,
+  XPathDateTime? arg,
+  XPathDuration? timezone,
 ) {
   final result = _adjustDateTimeHelper(arg, timezone);
   return result != null
       ? XPathSequence.single(
-          XPathDate(
+          XPathDateTime.date(
             result.year!,
             result.month!,
             result.day!,
@@ -264,7 +250,7 @@ final fnAdjustTimeToTimezone = XPathFunctionItem.overloaded(
       const XmlName.qualified('fn:adjust-time-to-timezone'),
       (context, arg) => _evalAdjustTimeToTimezone(
         context,
-        arg.atomize().firstOrNull as XPathAbstractDateTime?,
+        arg.atomize().firstOrNull as XPathDateTime?,
         _defaultToTimezone(context),
       ),
     ),
@@ -272,8 +258,8 @@ final fnAdjustTimeToTimezone = XPathFunctionItem.overloaded(
       const XmlName.qualified('fn:adjust-time-to-timezone'),
       (context, arg, tz) => _evalAdjustTimeToTimezone(
         context,
-        arg.atomize().firstOrNull as XPathAbstractDateTime?,
-        tz.atomize().firstOrNull as XPathDayTimeDuration?,
+        arg.atomize().firstOrNull as XPathDateTime?,
+        tz.atomize().firstOrNull as XPathDuration?,
       ),
     ),
   },
@@ -281,18 +267,18 @@ final fnAdjustTimeToTimezone = XPathFunctionItem.overloaded(
 
 XPathSequence _evalAdjustTimeToTimezone(
   XPathContext context,
-  XPathAbstractDateTime? arg,
-  XPathDayTimeDuration? timezone,
+  XPathDateTime? arg,
+  XPathDuration? timezone,
 ) {
   final result = _adjustDateTimeHelper(arg, timezone);
   return result != null
       ? XPathSequence.single(
-          XPathTime(
+          XPathDateTime.time(
             result.hour!,
             result.minute!,
             result.second ?? 0,
-            result.millisecond ?? 0,
-            result.microsecond ?? 0,
+            result.millisecond,
+            result.microsecond,
             result.timezoneOffsetMinutes,
           ),
         )
@@ -305,34 +291,30 @@ final fnFormatDateTime = XPathFunctionItem.overloaded(
   {
     2: XPathFunctionItem.fn2(
       const XmlName.qualified('fn:format-dateTime'),
-      (context, val, pic) => _evalFormatDateTime(
-        val.atomize().firstOrNull as XPathAbstractDateTime?,
-      ),
+      (context, val, pic) =>
+          _evalFormatDateTime(val.atomize().firstOrNull as XPathDateTime?),
     ),
     3: XPathFunctionItem.fn3(
       const XmlName.qualified('fn:format-dateTime'),
-      (context, val, pic, lang) => _evalFormatDateTime(
-        val.atomize().firstOrNull as XPathAbstractDateTime?,
-      ),
+      (context, val, pic, lang) =>
+          _evalFormatDateTime(val.atomize().firstOrNull as XPathDateTime?),
     ),
     4: XPathFunctionItem.fnN(
       const XmlName.qualified('fn:format-dateTime'),
       4,
-      (context, args) => _evalFormatDateTime(
-        args[0].atomize().firstOrNull as XPathAbstractDateTime?,
-      ),
+      (context, args) =>
+          _evalFormatDateTime(args[0].atomize().firstOrNull as XPathDateTime?),
     ),
     5: XPathFunctionItem.fnN(
       const XmlName.qualified('fn:format-dateTime'),
       5,
-      (context, args) => _evalFormatDateTime(
-        args[0].atomize().firstOrNull as XPathAbstractDateTime?,
-      ),
+      (context, args) =>
+          _evalFormatDateTime(args[0].atomize().firstOrNull as XPathDateTime?),
     ),
   },
 );
 
-XPathSequence _evalFormatDateTime(XPathAbstractDateTime? value) => value != null
+XPathSequence _evalFormatDateTime(XPathDateTime? value) => value != null
     ? XPathSequence.single(XPathString(value.stringValue))
     : XPathSequence.empty;
 
@@ -342,29 +324,25 @@ final fnFormatDate = XPathFunctionItem.overloaded(
   {
     2: XPathFunctionItem.fn2(
       const XmlName.qualified('fn:format-date'),
-      (context, val, pic) => _evalFormatDateTime(
-        val.atomize().firstOrNull as XPathAbstractDateTime?,
-      ),
+      (context, val, pic) =>
+          _evalFormatDateTime(val.atomize().firstOrNull as XPathDateTime?),
     ),
     3: XPathFunctionItem.fn3(
       const XmlName.qualified('fn:format-date'),
-      (context, val, pic, lang) => _evalFormatDateTime(
-        val.atomize().firstOrNull as XPathAbstractDateTime?,
-      ),
+      (context, val, pic, lang) =>
+          _evalFormatDateTime(val.atomize().firstOrNull as XPathDateTime?),
     ),
     4: XPathFunctionItem.fnN(
       const XmlName.qualified('fn:format-date'),
       4,
-      (context, args) => _evalFormatDateTime(
-        args[0].atomize().firstOrNull as XPathAbstractDateTime?,
-      ),
+      (context, args) =>
+          _evalFormatDateTime(args[0].atomize().firstOrNull as XPathDateTime?),
     ),
     5: XPathFunctionItem.fnN(
       const XmlName.qualified('fn:format-date'),
       5,
-      (context, args) => _evalFormatDateTime(
-        args[0].atomize().firstOrNull as XPathAbstractDateTime?,
-      ),
+      (context, args) =>
+          _evalFormatDateTime(args[0].atomize().firstOrNull as XPathDateTime?),
     ),
   },
 );
@@ -375,29 +353,25 @@ final fnFormatTime = XPathFunctionItem.overloaded(
   {
     2: XPathFunctionItem.fn2(
       const XmlName.qualified('fn:format-time'),
-      (context, val, pic) => _evalFormatDateTime(
-        val.atomize().firstOrNull as XPathAbstractDateTime?,
-      ),
+      (context, val, pic) =>
+          _evalFormatDateTime(val.atomize().firstOrNull as XPathDateTime?),
     ),
     3: XPathFunctionItem.fn3(
       const XmlName.qualified('fn:format-time'),
-      (context, val, pic, lang) => _evalFormatDateTime(
-        val.atomize().firstOrNull as XPathAbstractDateTime?,
-      ),
+      (context, val, pic, lang) =>
+          _evalFormatDateTime(val.atomize().firstOrNull as XPathDateTime?),
     ),
     4: XPathFunctionItem.fnN(
       const XmlName.qualified('fn:format-time'),
       4,
-      (context, args) => _evalFormatDateTime(
-        args[0].atomize().firstOrNull as XPathAbstractDateTime?,
-      ),
+      (context, args) =>
+          _evalFormatDateTime(args[0].atomize().firstOrNull as XPathDateTime?),
     ),
     5: XPathFunctionItem.fnN(
       const XmlName.qualified('fn:format-time'),
       5,
-      (context, args) => _evalFormatDateTime(
-        args[0].atomize().firstOrNull as XPathAbstractDateTime?,
-      ),
+      (context, args) =>
+          _evalFormatDateTime(args[0].atomize().firstOrNull as XPathDateTime?),
     ),
   },
 );
@@ -522,7 +496,7 @@ final fnParseIetfDate = XPathFunctionItem.fn1(
     if (hr == 24 && mn == 0 && sec == 0 && ms == 0 && us == 0) {
       final dt = DateTime.utc(year, month, day).add(const Duration(days: 1));
       return XPathSequence.single(
-        XPathDateTimeStamp(
+        XPathDateTime(
           dt.year,
           dt.month,
           dt.day,
@@ -532,6 +506,7 @@ final fnParseIetfDate = XPathFunctionItem.fn1(
           0,
           0,
           offsetMinutes,
+          xsDateTimeStamp,
         ),
       );
     }
@@ -543,7 +518,7 @@ final fnParseIetfDate = XPathFunctionItem.fn1(
       );
     }
 
-    final result = XPathDateTimeStamp(
+    final result = XPathDateTime(
       year,
       month,
       day,
@@ -553,10 +528,11 @@ final fnParseIetfDate = XPathFunctionItem.fn1(
       ms,
       us,
       offsetMinutes,
+      xsDateTimeStamp,
     );
     final utc = result.toUtc();
     return XPathSequence.single(
-      XPathDateTimeStamp(
+      XPathDateTime(
         utc.year,
         utc.month,
         utc.day,
@@ -566,6 +542,7 @@ final fnParseIetfDate = XPathFunctionItem.fn1(
         utc.millisecond,
         utc.microsecond,
         0,
+        xsDateTimeStamp,
       ),
     );
   },
@@ -629,12 +606,13 @@ final _ietfDateRegExp = RegExp(
   caseSensitive: false,
 );
 
-XPathDayTimeDuration _defaultToTimezone(XPathContext context) =>
-    XPathDayTimeDuration(context.currentDateTime.timeZoneOffset.inMicroseconds);
+XPathDuration _defaultToTimezone(XPathContext context) => XPathDuration.dayTime(
+  context.currentDateTime.timeZoneOffset.inMicroseconds,
+);
 
-XPathAbstractDateTime? _adjustDateTimeHelper(
-  XPathAbstractDateTime? arg,
-  XPathDayTimeDuration? timezone,
+XPathDateTime? _adjustDateTimeHelper(
+  XPathDateTime? arg,
+  XPathDuration? timezone,
 ) {
   if (arg == null) return null;
   if (timezone != null) {
@@ -663,10 +641,10 @@ XPathAbstractDateTime? _adjustDateTimeHelper(
     h = arg.hour ?? 0;
     min = arg.minute ?? 0;
     s = arg.second ?? 0;
-    ms = arg.millisecond ?? 0;
-    us = arg.microsecond ?? 0;
+    ms = arg.millisecond;
+    us = arg.microsecond;
   } else {
-    final utcInstant = arg.toDateTime(); // This is a UTC DateTime since originalOffsetMinutes != null
+    final utcInstant = arg.toDateTime();
     final adjustedUtc = utcInstant.add(Duration(minutes: targetOffsetMinutes!));
     y = adjustedUtc.year;
     m = adjustedUtc.month;
@@ -678,39 +656,20 @@ XPathAbstractDateTime? _adjustDateTimeHelper(
     us = adjustedUtc.microsecond;
   }
 
-  return switch (arg) {
-    XPathDateTimeStamp() =>
-      timezone == null
-          ? XPathDateTime(y, m, d, h, min, s, ms, us, null)
-          : XPathDateTimeStamp(
-              y,
-              m,
-              d,
-              h,
-              min,
-              s,
-              ms,
-              us,
-              targetOffsetMinutes!,
-            ),
-    XPathDateTime() => XPathDateTime(
-      y,
-      m,
-      d,
-      h,
-      min,
-      s,
-      ms,
-      us,
-      targetOffsetMinutes,
-    ),
-    XPathDate() => XPathDate(y, m, d, targetOffsetMinutes),
-    XPathTime() => XPathTime(h, min, s, ms, us, targetOffsetMinutes),
-    XPathYearMonth() => XPathYearMonth(y, m, targetOffsetMinutes),
-    XPathYear() => XPathYear(y, targetOffsetMinutes),
-    XPathMonthDay() => XPathMonthDay(m, d, targetOffsetMinutes),
-    XPathMonth() => XPathMonth(m, targetOffsetMinutes),
-    XPathDay() => XPathDay(d, targetOffsetMinutes),
-    _ => XPathDateTime(y, m, d, h, min, s, ms, us, targetOffsetMinutes),
-  };
+  var resType = arg.type;
+  if (arg.type == xsDateTimeStamp && timezone == null) {
+    resType = xsDateTime;
+  }
+  return XPathDateTime.fromParts(
+    year: arg.year != null ? y : null,
+    month: arg.month != null ? m : null,
+    day: arg.day != null ? d : null,
+    hour: arg.hour != null ? h : null,
+    minute: arg.minute != null ? min : null,
+    second: arg.second != null ? s : null,
+    millisecond: ms,
+    microsecond: us,
+    timezoneOffsetMinutes: targetOffsetMinutes,
+    type: resType,
+  );
 }

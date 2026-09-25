@@ -1,9 +1,7 @@
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/evaluation/configuration.dart';
 import 'package:xml/src/xpath/functions/context.dart';
-import 'package:xml/src/xpath/xdm/atomic/date_time.dart';
-import 'package:xml/src/xpath/xdm/atomic/duration.dart';
 import 'package:xml/xml.dart';
+import 'package:xml/xpath.dart';
 
 import '../../utils/matchers.dart';
 
@@ -31,22 +29,25 @@ void main() {
 
   group('fn:current-date', () {
     test('returns current date', () {
-      expect(fnCurrentDate(context, []).first, isA<XPathDate>());
+      final date = fnCurrentDate(context, []).first;
+      expect(date, isA<XPathDateTime>());
+      expect((date as XPathDateTime).type, xsDate);
     });
   });
 
   group('fn:current-time', () {
     test('returns current time', () {
-      expect(fnCurrentTime(context, []).first, isA<XPathTime>());
+      final time = fnCurrentTime(context, []).first;
+      expect(time, isA<XPathDateTime>());
+      expect((time as XPathDateTime).type, xsTime);
     });
   });
 
   group('fn:implicit-timezone', () {
     test('returns implicit timezone', () {
-      expect(
-        fnImplicitTimezone(context, []),
-        isXPathSequence([isA<XPathDayTimeDuration>()]),
-      );
+      final tz = fnImplicitTimezone(context, []).first;
+      expect(tz, isA<XPathDuration>());
+      expect((tz as XPathDuration).type, xsDayTimeDuration);
     });
   });
 

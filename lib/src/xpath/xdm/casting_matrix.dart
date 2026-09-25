@@ -190,6 +190,7 @@ final Set<(XPathType, XPathType)> _allowedPrimitiveCasts = {
 
   // xs:date
   (xsDate, xsDateTime),
+  (xsDate, xsDateTimeStamp),
   (xsDate, xsDate),
   (xsDate, xsGYearMonth),
   (xsDate, xsGYear),
@@ -376,111 +377,51 @@ XPathAtomic _performCast(
   // Binary conversions
   if (item is XPathBinary) {
     if (targetPrimitive == xsBase64Binary) {
-      return XPathBase64Binary(item.value);
+      return XPathBinary(item.value, xsBase64Binary);
     }
     if (targetPrimitive == xsHexBinary) {
-      return XPathHexBinary(item.value);
+      return XPathBinary(item.value, xsHexBinary);
     }
   }
 
   // Temporal conversions
-  if (item is XPathAbstractDateTime) {
-    if (targetPrimitive == xsDateTime) {
-      return XPathDateTime(
-        item.year ?? 1970,
-        item.month ?? 1,
-        item.day ?? 1,
-        item.hour ?? 0,
-        item.minute ?? 0,
-        item.second ?? 0,
-        item.millisecond ?? 0,
-        item.microsecond ?? 0,
-        item.timezoneOffsetMinutes,
-      );
-    }
+  if (item is XPathDateTime) {
     if (targetPrimitive == xsDateTimeStamp) {
       if (item.timezoneOffsetMinutes == null) {
         throw XPathEvaluationException(
-          XPathErrorCode.FODT0001,
+          XPathErrorCode.FORG0001,
           'xs:dateTimeStamp requires timezone',
         );
       }
-      return XPathDateTime(
-        item.year ?? 1970,
-        item.month ?? 1,
-        item.day ?? 1,
-        item.hour ?? 0,
-        item.minute ?? 0,
-        item.second ?? 0,
-        item.millisecond ?? 0,
-        item.microsecond ?? 0,
-        item.timezoneOffsetMinutes,
-      );
     }
-    if (targetPrimitive == xsDate) {
-      return XPathDate(
-        item.year ?? 1970,
-        item.month ?? 1,
-        item.day ?? 1,
-        item.timezoneOffsetMinutes,
-      );
-    }
-    if (targetPrimitive == xsTime) {
-      return XPathTime(
-        item.hour ?? 0,
-        item.minute ?? 0,
-        item.second ?? 0,
-        item.millisecond ?? 0,
-        item.microsecond ?? 0,
-        item.timezoneOffsetMinutes,
-      );
-    }
-    if (targetPrimitive == xsGYearMonth) {
-      return XPathYearMonth(
-        item.year ?? 1970,
-        item.month ?? 1,
-        item.timezoneOffsetMinutes,
-      );
-    }
-    if (targetPrimitive == xsGYear) {
-      return XPathYear(item.year ?? 1970, item.timezoneOffsetMinutes);
-    }
-    if (targetPrimitive == xsGMonthDay) {
-      return XPathMonthDay(
-        item.month ?? 1,
-        item.day ?? 1,
-        item.timezoneOffsetMinutes,
-      );
-    }
-    if (targetPrimitive == xsGMonth) {
-      return XPathMonth(item.month ?? 1, item.timezoneOffsetMinutes);
-    }
-    if (targetPrimitive == xsGDay) {
-      return XPathDay(item.day ?? 1, item.timezoneOffsetMinutes);
-    }
+    return XPathDateTime.fromParts(
+      year: item.year ?? 1970,
+      month: item.month ?? 1,
+      day: item.day ?? 1,
+      hour: item.hour ?? 0,
+      minute: item.minute ?? 0,
+      second: item.second ?? 0,
+      millisecond: item.millisecond,
+      microsecond: item.microsecond,
+      timezoneOffsetMinutes: item.timezoneOffsetMinutes,
+      type: targetPrimitive,
+    );
   }
 
   // Duration conversions
-  if (item is XPathAbstractDuration) {
-    final months = switch (item) {
-      XPathYearMonthDuration() => item.totalMonths,
-      XPathDuration() => item.totalMonths,
-      _ => (item.years ?? 0) * 12 + (item.months ?? 0),
-    };
-    final us = switch (item) {
-      XPathDayTimeDuration() => item.totalMicroseconds,
-      XPathDuration() => item.totalMicroseconds,
-      _ => item.toDuration().inMicroseconds,
-    };
-
+  if (item is XPathDuration) {
     if (targetPrimitive == xsDuration) {
-      return XPathDuration.fromValues(months, us);
+      return XPathDuration.fromValues(
+        item.totalMonths,
+        item.totalMicroseconds,
+        xsDuration,
+      );
     }
     if (targetPrimitive == xsYearMonthDuration) {
-      return XPathYearMonthDuration(months);
+      return XPathDuration.yearMonth(item.totalMonths);
     }
     if (targetPrimitive == xsDayTimeDuration) {
-      return XPathDayTimeDuration(us);
+      return XPathDuration.dayTime(item.totalMicroseconds);
     }
   }
 
@@ -547,7 +488,7 @@ XPathAtomic _castFromString(
       );
     }
     if (targetPrimitive == xsDate) {
-      final d = XPathDate.tryParse(trimmed);
+      final d = XPathDateTime.tryParseDate(trimmed);
       if (d != null) return d;
       if (_isYearOutOfRange(trimmed)) {
         throw XPathEvaluationException(
@@ -561,14 +502,14 @@ XPathAtomic _castFromString(
       );
     }
     if (targetPrimitive == xsTime) {
-      return XPathTime.tryParse(trimmed) ??
+      return XPathDateTime.tryParseTime(trimmed) ??
           (throw XPathEvaluationException(
             XPathErrorCode.FORG0001,
             'Invalid xs:time',
           ));
     }
     if (targetPrimitive == xsGYearMonth) {
-      final ym = XPathYearMonth.tryParse(trimmed);
+      final ym = XPathDateTime.tryParseYearMonth(trimmed);
       if (ym != null) return ym;
       if (_isYearOutOfRange(trimmed)) {
         throw XPathEvaluationException(
@@ -582,7 +523,7 @@ XPathAtomic _castFromString(
       );
     }
     if (targetPrimitive == xsGYear) {
-      final y = XPathYear.tryParse(trimmed);
+      final y = XPathDateTime.tryParseYear(trimmed);
       if (y != null) return y;
       if (_isYearOutOfRange(trimmed)) {
         throw XPathEvaluationException(
@@ -596,21 +537,21 @@ XPathAtomic _castFromString(
       );
     }
     if (targetPrimitive == xsGMonthDay) {
-      return XPathMonthDay.tryParse(trimmed) ??
+      return XPathDateTime.tryParseMonthDay(trimmed) ??
           (throw XPathEvaluationException(
             XPathErrorCode.FORG0001,
             'Invalid xs:gMonthDay',
           ));
     }
     if (targetPrimitive == xsGMonth) {
-      return XPathMonth.tryParse(trimmed) ??
+      return XPathDateTime.tryParseMonth(trimmed) ??
           (throw XPathEvaluationException(
             XPathErrorCode.FORG0001,
             'Invalid xs:gMonth',
           ));
     }
     if (targetPrimitive == xsGDay) {
-      return XPathDay.tryParse(trimmed) ??
+      return XPathDateTime.tryParseDay(trimmed) ??
           (throw XPathEvaluationException(
             XPathErrorCode.FORG0001,
             'Invalid xs:gDay',
@@ -624,24 +565,24 @@ XPathAtomic _castFromString(
           ));
     }
     if (targetPrimitive == xsYearMonthDuration) {
-      return XPathYearMonthDuration.tryParse(trimmed) ??
+      return XPathDuration.tryParseYearMonth(trimmed) ??
           (throw XPathEvaluationException(
             XPathErrorCode.FORG0001,
             'Invalid xs:yearMonthDuration',
           ));
     }
     if (targetPrimitive == xsDayTimeDuration) {
-      return XPathDayTimeDuration.tryParse(trimmed) ??
+      return XPathDuration.tryParseDayTime(trimmed) ??
           (throw XPathEvaluationException(
             XPathErrorCode.FORG0001,
             'Invalid xs:dayTimeDuration',
           ));
     }
     if (targetPrimitive == xsBase64Binary) {
-      return XPathBase64Binary.fromBase64(trimmed);
+      return XPathBinary.fromBase64(trimmed);
     }
     if (targetPrimitive == xsHexBinary) {
-      return XPathHexBinary.fromHex(trimmed);
+      return XPathBinary.fromHex(trimmed);
     }
     if (targetPrimitive == xsQName) {
       if (!isValidQName(trimmed)) {

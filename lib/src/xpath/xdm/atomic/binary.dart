@@ -8,18 +8,51 @@ import '../../exceptions/evaluation_exception.dart';
 import '../atomic.dart';
 import '../types.dart';
 
-/// Base class for binary atomic types.
-abstract class XPathBinary extends XPathAtomic {
-  const new(this.value);
+/// Representation of binary atomic values (xs:base64Binary and xs:hexBinary).
+final class XPathBinary extends XPathAtomic {
+  /// Creates a new [XPathBinary].
+  const new(this.value, [this.type = xsBase64Binary]);
+
+  /// Creates a new [XPathBinary] from base64 encoded text.
+  factory fromBase64(String text) => XPathBinary(
+    base64Decode(text.replaceAll(RegExp(r'\s+'), '')),
+    xsBase64Binary,
+  );
+
+  /// Creates a new [XPathBinary] from hex encoded text.
+  factory fromHex(String text) {
+    final clean = text.replaceAll(RegExp(r'\s+'), '').toUpperCase();
+    if (clean.length.isOdd) {
+      throw XPathEvaluationException(
+        XPathErrorCode.FORG0001,
+        'Invalid hex length: ${clean.length}',
+      );
+    }
+    final bytes = Uint8List(clean.length ~/ 2);
+    for (var i = 0; i < bytes.length; i++) {
+      bytes[i] = int.parse(clean.substring(i * 2, i * 2 + 2), radix: 16);
+    }
+    return XPathBinary(bytes, xsHexBinary);
+  }
 
   @override
   final Uint8List value;
+
+  @override
+  final XPathType type;
 
   @override
   bool get effectiveBooleanValue => throw XPathEvaluationException(
     XPathErrorCode.FORG0006,
     'EBV not defined for binary values',
   );
+
+  @override
+  String get stringValue => type == xsHexBinary
+      ? value
+            .map((b) => b.toRadixString(16).padLeft(2, '0').toUpperCase())
+            .join()
+      : base64Encode(value);
 
   @override
   int compareTo(XPathAtomic other) {
@@ -47,46 +80,4 @@ abstract class XPathBinary extends XPathAtomic {
 
   @override
   int get hashCode => const ListEquality<int>().hash(value);
-}
-
-/// Represents an xs:base64Binary atomic value.
-final class XPathBase64Binary extends XPathBinary {
-  const new(super.value);
-
-  factory fromBase64(String text) =>
-      XPathBase64Binary(base64Decode(text.replaceAll(RegExp(r'\s+'), '')));
-
-  @override
-  XPathType get type => xsBase64Binary;
-
-  @override
-  String get stringValue => base64Encode(value);
-}
-
-/// Represents an xs:hexBinary atomic value.
-final class XPathHexBinary extends XPathBinary {
-  const new(super.value);
-
-  factory fromHex(String text) {
-    final clean = text.replaceAll(RegExp(r'\s+'), '').toUpperCase();
-    if (clean.length.isOdd) {
-      throw XPathEvaluationException(
-        XPathErrorCode.FORG0001,
-        'Invalid hex length: ${clean.length}',
-      );
-    }
-    final bytes = Uint8List(clean.length ~/ 2);
-    for (var i = 0; i < bytes.length; i++) {
-      bytes[i] = int.parse(clean.substring(i * 2, i * 2 + 2), radix: 16);
-    }
-    return XPathHexBinary(bytes);
-  }
-
-  @override
-  XPathType get type => xsHexBinary;
-
-  @override
-  String get stringValue => value
-      .map((b) => b.toRadixString(16).padLeft(2, '0').toUpperCase())
-      .join();
 }

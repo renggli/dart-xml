@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
 import '../../xml/utils/name.dart';
 import '../evaluation/context.dart';
 import '../xdm/atomic/binary.dart';
@@ -19,9 +16,7 @@ XPathSequence _fnBase64BinaryFromString(
 ) {
   final arg = argSeq.atomize().firstOrNull;
   if (arg == null) return XPathSequence.empty;
-  return XPathSequence.single(
-    XPathBase64Binary(base64.decode(arg.stringValue)),
-  );
+  return XPathSequence.single(XPathBinary.fromBase64(arg.stringValue));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hexBinary-from-string
@@ -36,10 +31,5 @@ XPathSequence _fnHexBinaryFromString(
 ) {
   final arg = argSeq.atomize().firstOrNull;
   if (arg == null) return XPathSequence.empty;
-  final str = arg.stringValue;
-  final bytes = Uint8List(str.length ~/ 2);
-  for (var i = 0; i < str.length; i += 2) {
-    bytes[i ~/ 2] = int.parse(str.substring(i, i + 2), radix: 16);
-  }
-  return XPathSequence.single(XPathHexBinary(bytes));
+  return XPathSequence.single(XPathBinary.fromHex(arg.stringValue));
 }

@@ -3,8 +3,212 @@ import '../../exceptions/evaluation_exception.dart';
 import '../atomic.dart';
 import '../types.dart';
 
-/// An abstract representation of XPath date and time types.
-abstract class XPathAbstractDateTime extends XPathAtomic {
+/// Representation of XPath date and time values (xs:dateTime, xs:dateTimeStamp,
+/// xs:date, xs:time, xs:gYearMonth, xs:gYear, xs:gMonthDay, xs:gMonth, and xs:gDay).
+final class XPathDateTime extends XPathAtomic {
+  /// Creates a new [XPathDateTime] with the given components.
+  const new(
+    this.year, [
+    this.month,
+    this.day,
+    this.hour,
+    this.minute,
+    this.second,
+    this.millisecond = 0,
+    this.microsecond = 0,
+    this.timezoneOffsetMinutes,
+    this.type = xsDateTime,
+  ]);
+
+  /// Creates a new [XPathDateTime] with named components filtered for the target [type].
+  factory fromParts({
+    int? year,
+    int? month,
+    int? day,
+    int? hour,
+    int? minute,
+    int? second,
+    int millisecond = 0,
+    int microsecond = 0,
+    int? timezoneOffsetMinutes,
+    XPathType type = xsDateTime,
+  }) {
+    final hasYear =
+        type != xsTime &&
+        type != xsGMonthDay &&
+        type != xsGMonth &&
+        type != xsGDay;
+    final hasMonth = type != xsTime && type != xsGYear && type != xsGDay;
+    final hasDay =
+        type != xsTime &&
+        type != xsGYearMonth &&
+        type != xsGYear &&
+        type != xsGMonth;
+    final hasTime = type.isSubtypeOf(xsDateTime) || type == xsTime;
+    return XPathDateTime(
+      hasYear ? year : null,
+      hasMonth ? month : null,
+      hasDay ? day : null,
+      hasTime ? hour : null,
+      hasTime ? minute : null,
+      hasTime ? second : null,
+      hasTime ? millisecond : 0,
+      hasTime ? microsecond : 0,
+      timezoneOffsetMinutes,
+      type,
+    );
+  }
+
+  /// Creates a new [XPathDateTime] representing an xs:date.
+  const new date(
+    int this.year,
+    int this.month,
+    int this.day, [
+    this.timezoneOffsetMinutes,
+  ]) : hour = null,
+       minute = null,
+       second = null,
+       millisecond = 0,
+       microsecond = 0,
+       type = xsDate;
+
+  /// Creates a new [XPathDateTime] representing an xs:time.
+  const new time(
+    int this.hour,
+    int this.minute,
+    int this.second, [
+    this.millisecond = 0,
+    this.microsecond = 0,
+    this.timezoneOffsetMinutes,
+  ]) : year = null,
+       month = null,
+       day = null,
+       type = xsTime;
+
+  /// Creates a new [XPathDateTime] representing an xs:gYearMonth.
+  const new yearMonth(
+    int this.year,
+    int this.month, [
+    this.timezoneOffsetMinutes,
+  ]) : day = null,
+       hour = null,
+       minute = null,
+       second = null,
+       millisecond = 0,
+       microsecond = 0,
+       type = xsGYearMonth;
+
+  /// Creates a new [XPathDateTime] representing an xs:gYear.
+  const new year(int this.year, [this.timezoneOffsetMinutes])
+    : month = null,
+      day = null,
+      hour = null,
+      minute = null,
+      second = null,
+      millisecond = 0,
+      microsecond = 0,
+      type = xsGYear;
+
+  /// Creates a new [XPathDateTime] representing an xs:gMonthDay.
+  const new monthDay(int this.month, int this.day, [this.timezoneOffsetMinutes])
+    : year = null,
+      hour = null,
+      minute = null,
+      second = null,
+      millisecond = 0,
+      microsecond = 0,
+      type = xsGMonthDay;
+
+  /// Creates a new [XPathDateTime] representing an xs:gMonth.
+  const new month(int this.month, [this.timezoneOffsetMinutes])
+    : year = null,
+      day = null,
+      hour = null,
+      minute = null,
+      second = null,
+      millisecond = 0,
+      microsecond = 0,
+      type = xsGMonth;
+
+  /// Creates a new [XPathDateTime] representing an xs:gDay.
+  const new day(int this.day, [this.timezoneOffsetMinutes])
+    : year = null,
+      month = null,
+      hour = null,
+      minute = null,
+      second = null,
+      millisecond = 0,
+      microsecond = 0,
+      type = xsGDay;
+
+  /// Creates a new [XPathDateTime] from a Dart [DateTime] object.
+  factory fromDateTime(
+    DateTime dateTime, [
+    int? timezoneOffsetMinutes,
+    XPathType type = xsDateTime,
+  ]) {
+    if (type == xsDate) {
+      return XPathDateTime.date(
+        dateTime.year,
+        dateTime.month,
+        dateTime.day,
+        timezoneOffsetMinutes,
+      );
+    }
+    if (type == xsTime) {
+      return XPathDateTime.time(
+        dateTime.hour,
+        dateTime.minute,
+        dateTime.second,
+        dateTime.millisecond,
+        dateTime.microsecond,
+        timezoneOffsetMinutes,
+      );
+    }
+    return XPathDateTime(
+      dateTime.year,
+      dateTime.month,
+      dateTime.day,
+      dateTime.hour,
+      dateTime.minute,
+      dateTime.second,
+      dateTime.millisecond,
+      dateTime.microsecond,
+      timezoneOffsetMinutes,
+      type,
+    );
+  }
+
+  /// The year component, if present.
+  final int? year;
+
+  /// The month component, if present.
+  final int? month;
+
+  /// The day component, if present.
+  final int? day;
+
+  /// The hour component, if present.
+  final int? hour;
+
+  /// The minute component, if present.
+  final int? minute;
+
+  /// The second component, if present.
+  final int? second;
+
+  /// The millisecond component.
+  final int millisecond;
+
+  /// The microsecond component.
+  final int microsecond;
+
+  /// The timezone offset in minutes, if present.
+  final int? timezoneOffsetMinutes;
+
+  @override
+  final XPathType type;
+
   @override
   Object get value => this;
 
@@ -20,47 +224,34 @@ abstract class XPathAbstractDateTime extends XPathAtomic {
     'EBV not defined for temporal values: $this',
   );
 
-  /// The year component, if present.
-  int? get year;
-
-  /// The month component, if present.
-  int? get month;
-
-  /// The day component, if present.
-  int? get day;
-
-  /// The hour component, if present.
-  int? get hour;
-
-  /// The minute component, if present.
-  int? get minute;
-
-  /// The second component, if present.
-  int? get second;
-
-  /// The millisecond component, if present.
-  int? get millisecond;
-
-  /// The microsecond component, if present.
-  int? get microsecond;
-
-  /// The timezone offset in minutes, if present.
-  int? get timezoneOffsetMinutes;
-
-  /// Constant constructor for subclasses.
-  const new();
-
-  /// Converts this object to a standard Dart [DateTime] representation.
-  DateTime toDateTime();
-
-  /// Converts this date-time representation to UTC.
-  XPathAbstractDateTime toUtc();
-
-  /// Converts this date-time representation to local time.
-  XPathAbstractDateTime toLocal();
-
   /// Whether this date-time has a timezone offset.
   bool get isUtc => timezoneOffsetMinutes != null;
+
+  /// Converts this object to a standard Dart [DateTime] representation.
+  DateTime toDateTime() {
+    if (timezoneOffsetMinutes != null) {
+      return DateTime.utc(
+        year ?? 1970,
+        month ?? 1,
+        day ?? 1,
+        hour ?? 0,
+        minute ?? 0,
+        second ?? 0,
+        millisecond,
+        microsecond,
+      ).subtract(Duration(minutes: timezoneOffsetMinutes!));
+    }
+    return DateTime(
+      year ?? 1970,
+      month ?? 1,
+      day ?? 1,
+      hour ?? 0,
+      minute ?? 0,
+      second ?? 0,
+      millisecond,
+      microsecond,
+    );
+  }
 
   /// Returns the UTC instant for comparison.
   DateTime get utcInstant {
@@ -74,15 +265,93 @@ abstract class XPathAbstractDateTime extends XPathAtomic {
       hour ?? 0,
       minute ?? 0,
       second ?? 0,
-      millisecond ?? 0,
-      microsecond ?? 0,
+      millisecond,
+      microsecond,
     );
     return dt.subtract(offset);
   }
 
+  /// Converts this date-time representation to UTC.
+  XPathDateTime toUtc() {
+    if (timezoneOffsetMinutes == null || timezoneOffsetMinutes == 0) {
+      return this;
+    }
+    final dt = toDateTime();
+    return XPathDateTime.fromParts(
+      year: year != null ? dt.year : null,
+      month: month != null ? dt.month : null,
+      day: day != null ? dt.day : null,
+      hour: hour != null ? dt.hour : null,
+      minute: minute != null ? dt.minute : null,
+      second: second != null ? dt.second : null,
+      millisecond: millisecond,
+      microsecond: microsecond,
+      timezoneOffsetMinutes: 0,
+      type: type,
+    );
+  }
+
+  /// Converts this date-time representation to local time.
+  XPathDateTime toLocal() {
+    final localOffsetMinutes = DateTime.now().timeZoneOffset.inMinutes;
+    if (timezoneOffsetMinutes == localOffsetMinutes) return this;
+    final utcDt = DateTime.utc(
+      year ?? 1970,
+      month ?? 1,
+      day ?? 1,
+      hour ?? 0,
+      minute ?? 0,
+      second ?? 0,
+      millisecond,
+      microsecond,
+    );
+    final adjusted = timezoneOffsetMinutes != null
+        ? utcDt.subtract(Duration(minutes: timezoneOffsetMinutes!))
+        : utcDt;
+    final localDt = adjusted.add(Duration(minutes: localOffsetMinutes));
+    return XPathDateTime.fromParts(
+      year: year != null ? localDt.year : null,
+      month: month != null ? localDt.month : null,
+      day: day != null ? localDt.day : null,
+      hour: hour != null ? localDt.hour : null,
+      minute: minute != null ? localDt.minute : null,
+      second: second != null ? localDt.second : null,
+      millisecond: millisecond,
+      microsecond: microsecond,
+      timezoneOffsetMinutes: localOffsetMinutes,
+      type: type,
+    );
+  }
+
+  /// Checks if this instant is before [other].
+  bool isBefore(XPathDateTime other) => compareTo(other) < 0;
+
+  /// Checks if this instant is after [other].
+  bool isAfter(XPathDateTime other) => compareTo(other) > 0;
+
+  /// Checks if this instant is at the same moment as [other].
+  bool isAtSameMomentAs(XPathDateTime other) => compareTo(other) == 0;
+
+  /// Adds a [duration] to this date-time.
+  XPathDateTime add(Duration duration) =>
+      _wrapDateTime(toDateTime().add(duration), this);
+
+  /// Subtracts a [duration] from this date-time.
+  XPathDateTime subtract(Duration duration) =>
+      _wrapDateTime(toDateTime().subtract(duration), this);
+
+  /// Calculates the difference between this and [other] date-time.
+  Duration difference(XPathDateTime other) =>
+      toDateTime().difference(other.toDateTime());
+
   @override
   bool operator ==(Object other) {
-    if (other is! XPathAbstractDateTime) return false;
+    if (identical(this, other)) return true;
+    if (other is! XPathDateTime) return false;
+    if (type != other.type &&
+        !(type.isSubtypeOf(xsDateTime) && other.type.isSubtypeOf(xsDateTime))) {
+      return false;
+    }
     try {
       return compareTo(other) == 0;
     } catch (_) {
@@ -106,34 +375,75 @@ abstract class XPathAbstractDateTime extends XPathAtomic {
     );
   }
 
-  /// Checks if this instant is before [other].
-  bool isBefore(XPathAbstractDateTime other) => compareTo(other) < 0;
-
-  /// Checks if this instant is after [other].
-  bool isAfter(XPathAbstractDateTime other) => compareTo(other) > 0;
-
-  /// Checks if this instant is at the same moment as [other].
-  bool isAtSameMomentAs(XPathAbstractDateTime other) => compareTo(other) == 0;
-
   @override
   int compareTo(XPathAtomic other) {
-    if (other is XPathAbstractDateTime) {
-      return utcInstant.compareTo(other.utcInstant);
+    if (other is XPathDateTime) {
+      if (type == other.type ||
+          (type.isSubtypeOf(xsDateTime) &&
+              other.type.isSubtypeOf(xsDateTime))) {
+        return utcInstant.compareTo(other.utcInstant);
+      }
     }
     return super.compareTo(other);
   }
 
-  /// Adds a [duration] to this date-time.
-  XPathAbstractDateTime add(Duration duration) =>
-      _wrapDateTime(toDateTime().add(duration), this);
+  @override
+  String toString() {
+    final buffer = StringBuffer();
+    if (type == xsDate) {
+      _writeYear(buffer, year ?? 1970);
+      buffer.write('-');
+      buffer.write((month ?? 1).toString().padLeft(2, '0'));
+      buffer.write('-');
+      buffer.write((day ?? 1).toString().padLeft(2, '0'));
+    } else if (type == xsTime) {
+      _writeTime(buffer);
+    } else if (type == xsGYearMonth) {
+      _writeYear(buffer, year ?? 1970);
+      buffer.write('-');
+      buffer.write((month ?? 1).toString().padLeft(2, '0'));
+    } else if (type == xsGYear) {
+      _writeYear(buffer, year ?? 1970);
+    } else if (type == xsGMonthDay) {
+      buffer.write('--');
+      buffer.write((month ?? 1).toString().padLeft(2, '0'));
+      buffer.write('-');
+      buffer.write((day ?? 1).toString().padLeft(2, '0'));
+    } else if (type == xsGMonth) {
+      buffer.write('--');
+      buffer.write((month ?? 1).toString().padLeft(2, '0'));
+    } else if (type == xsGDay) {
+      buffer.write('---');
+      buffer.write((day ?? 1).toString().padLeft(2, '0'));
+    } else {
+      // xsDateTime, xsDateTimeStamp
+      _writeYear(buffer, year ?? 1970);
+      buffer.write('-');
+      buffer.write((month ?? 1).toString().padLeft(2, '0'));
+      buffer.write('-');
+      buffer.write((day ?? 1).toString().padLeft(2, '0'));
+      buffer.write('T');
+      _writeTime(buffer);
+    }
+    buffer.write(_formatTimezone());
+    return buffer.toString();
+  }
 
-  /// Subtracts a [duration] from this date-time.
-  XPathAbstractDateTime subtract(Duration duration) =>
-      _wrapDateTime(toDateTime().subtract(duration), this);
-
-  /// Calculates the difference between this and [other] date-time.
-  Duration difference(XPathAbstractDateTime other) =>
-      toDateTime().difference(other.toDateTime());
+  void _writeTime(StringBuffer buffer) {
+    buffer.write((hour ?? 0).toString().padLeft(2, '0'));
+    buffer.write(':');
+    buffer.write((minute ?? 0).toString().padLeft(2, '0'));
+    buffer.write(':');
+    buffer.write((second ?? 0).toString().padLeft(2, '0'));
+    if (millisecond > 0 || microsecond > 0) {
+      final totalUs = millisecond * 1000 + microsecond;
+      final usStr = totalUs
+          .toString()
+          .padLeft(6, '0')
+          .replaceAll(RegExp(r'0+$'), '');
+      buffer.write('.$usStr');
+    }
+  }
 
   String _formatTimezone() {
     final offset = timezoneOffsetMinutes;
@@ -146,105 +456,32 @@ abstract class XPathAbstractDateTime extends XPathAtomic {
     return '$sign${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}';
   }
 
-  void _writeYear(StringBuffer buffer, int year) {
-    if (year < 0) {
+  void _writeYear(StringBuffer buffer, int yr) {
+    if (yr < 0) {
       buffer.write('-');
-      buffer.write((-year).toString().padLeft(4, '0'));
+      buffer.write((-yr).toString().padLeft(4, '0'));
     } else {
-      buffer.write(year.toString().padLeft(4, '0'));
+      buffer.write(yr.toString().padLeft(4, '0'));
     }
   }
-}
 
-XPathAbstractDateTime _wrapDateTime(
-  DateTime result,
-  XPathAbstractDateTime original,
-) {
-  final offset = original.timezoneOffsetMinutes;
-  return switch (original) {
-    XPathDateTimeStamp() => XPathDateTimeStamp.fromDateTime(
-      result,
-      offset ?? 0,
-    ),
-    XPathDateTime() => XPathDateTime.fromDateTime(result, offset),
-    XPathDate() => XPathDate.fromDateTime(result, offset),
-    XPathTime() => XPathTime.fromDateTime(result, offset),
-    XPathYearMonth() => XPathYearMonth(result.year, result.month, offset),
-    XPathYear() => XPathYear(result.year, offset),
-    XPathMonthDay() => XPathMonthDay(result.month, result.day, offset),
-    XPathMonth() => XPathMonth(result.month, offset),
-    XPathDay() => XPathDay(result.day, offset),
-    _ => XPathDateTime.fromDateTime(result, offset),
-  };
-}
+  /// Attempts to parse a string representation of a date/time.
+  static XPathDateTime? tryParse(String value, [XPathType type = xsDateTime]) {
+    if (type == xsDate) return tryParseDate(value);
+    if (type == xsTime) return tryParseTime(value);
+    if (type == xsGYearMonth) return tryParseYearMonth(value);
+    if (type == xsGYear) return tryParseYear(value);
+    if (type == xsGMonthDay) return tryParseMonthDay(value);
+    if (type == xsGMonth) return tryParseMonth(value);
+    if (type == xsGDay) return tryParseDay(value);
 
-/// Representation of an XPath dateTime value (xs:dateTime).
-class XPathDateTime extends XPathAbstractDateTime {
-  @override
-  XPathType get type => xsDateTime;
-
-  @override
-  final int year;
-
-  @override
-  final int month;
-
-  @override
-  final int day;
-
-  @override
-  final int hour;
-
-  @override
-  final int minute;
-
-  @override
-  final int second;
-
-  @override
-  final int millisecond;
-
-  @override
-  final int microsecond;
-
-  @override
-  final int? timezoneOffsetMinutes;
-
-  /// Creates a new [XPathDateTime] with the given components.
-  const new(
-    this.year,
-    this.month,
-    this.day,
-    this.hour,
-    this.minute,
-    this.second, [
-    this.millisecond = 0,
-    this.microsecond = 0,
-    this.timezoneOffsetMinutes,
-  ]);
-
-  /// Creates a new [XPathDateTime] from a Dart [DateTime] object.
-  factory fromDateTime(DateTime dateTime, [int? timezoneOffsetMinutes]) =>
-      XPathDateTime(
-        dateTime.year,
-        dateTime.month,
-        dateTime.day,
-        dateTime.hour,
-        dateTime.minute,
-        dateTime.second,
-        dateTime.millisecond,
-        dateTime.microsecond,
-        timezoneOffsetMinutes,
-      );
-
-  /// Attempts to parse a string representation of a dateTime.
-  static XPathDateTime? tryParse(String value) {
     final match = _dateTimeRegExp.firstMatch(value);
     if (match == null) return null;
 
     final tzStr = match.namedGroup('timezone');
     final offset = _parseTimezoneOffsetMinutes(tzStr);
     if (tzStr != null && offset == null) return null;
+    if (type == xsDateTimeStamp && offset == null) return null;
 
     final yr = int.tryParse(match.namedGroup('year') ?? '');
     if (yr == null) return null;
@@ -287,311 +524,19 @@ class XPathDateTime extends XPathAbstractDateTime {
         0,
         0,
         offset,
+        type,
       );
     }
 
-    return XPathDateTime(yr, mo, dy, hr, mn, sc, ms, us, offset);
+    return XPathDateTime(yr, mo, dy, hr, mn, sc, ms, us, offset, type);
   }
 
-  @override
-  DateTime toDateTime() {
-    if (timezoneOffsetMinutes != null) {
-      return DateTime.utc(
-        year,
-        month,
-        day,
-        hour,
-        minute,
-        second,
-        millisecond,
-        microsecond,
-      ).subtract(Duration(minutes: timezoneOffsetMinutes!));
-    }
-    return DateTime(
-      year,
-      month,
-      day,
-      hour,
-      minute,
-      second,
-      millisecond,
-      microsecond,
-    );
-  }
-
-  @override
-  XPathDateTime toUtc() {
-    if (timezoneOffsetMinutes == null || timezoneOffsetMinutes == 0) {
-      return this;
-    }
-    final dt = DateTime.utc(
-      year,
-      month,
-      day,
-      hour,
-      minute,
-      second,
-      millisecond,
-      microsecond,
-    ).subtract(Duration(minutes: timezoneOffsetMinutes!));
-    return XPathDateTime(
-      dt.year,
-      dt.month,
-      dt.day,
-      dt.hour,
-      dt.minute,
-      dt.second,
-      dt.millisecond,
-      dt.microsecond,
-      0,
-    );
-  }
-
-  @override
-  XPathDateTime toLocal() {
-    final localOffsetMinutes = DateTime.now().timeZoneOffset.inMinutes;
-    if (timezoneOffsetMinutes == localOffsetMinutes) return this;
-    final utcDt = DateTime.utc(
-      year,
-      month,
-      day,
-      hour,
-      minute,
-      second,
-      millisecond,
-      microsecond,
-    );
-    final adjusted = timezoneOffsetMinutes != null
-        ? utcDt.subtract(Duration(minutes: timezoneOffsetMinutes!))
-        : utcDt;
-    final localDt = adjusted.add(Duration(minutes: localOffsetMinutes));
-    return XPathDateTime(
-      localDt.year,
-      localDt.month,
-      localDt.day,
-      localDt.hour,
-      localDt.minute,
-      localDt.second,
-      localDt.millisecond,
-      localDt.microsecond,
-      localOffsetMinutes,
-    );
-  }
-
-  @override
-  String toString() {
-    final buffer = StringBuffer();
-    _writeYear(buffer, year);
-    buffer.write('-');
-    buffer.write(month.toString().padLeft(2, '0'));
-    buffer.write('-');
-    buffer.write(day.toString().padLeft(2, '0'));
-    buffer.write('T');
-    buffer.write(hour.toString().padLeft(2, '0'));
-    buffer.write(':');
-    buffer.write(minute.toString().padLeft(2, '0'));
-    buffer.write(':');
-    buffer.write(second.toString().padLeft(2, '0'));
-    if (millisecond > 0 || microsecond > 0) {
-      final totalUs = millisecond * 1000 + microsecond;
-      final usStr = totalUs
-          .toString()
-          .padLeft(6, '0')
-          .replaceAll(RegExp(r'0+$'), '');
-      buffer.write('.$usStr');
-    }
-    buffer.write(_formatTimezone());
-    return buffer.toString();
-  }
-}
-
-/// Representation of an XPath dateTimeStamp value (xs:dateTimeStamp).
-class XPathDateTimeStamp extends XPathDateTime {
-  /// Creates a new [XPathDateTimeStamp] with the given components.
-  const new(
-    super.year,
-    super.month,
-    super.day,
-    super.hour,
-    super.minute,
-    super.second, [
-    super.millisecond,
-    super.microsecond,
-    int super.timezoneOffsetMinutes = 0,
-  ]);
-
-  /// Creates a new [XPathDateTimeStamp] from a Dart [DateTime] object.
-  factory fromDateTime(DateTime dateTime, int timezoneOffsetMinutes) =>
-      XPathDateTimeStamp(
-        dateTime.year,
-        dateTime.month,
-        dateTime.day,
-        dateTime.hour,
-        dateTime.minute,
-        dateTime.second,
-        dateTime.millisecond,
-        dateTime.microsecond,
-        timezoneOffsetMinutes,
-      );
-
-  /// Attempts to parse a string representation of a dateTimeStamp.
-  static XPathDateTimeStamp? tryParse(String value) {
-    final match = _dateTimeRegExp.firstMatch(value);
-    if (match == null || match.namedGroup('timezone') == null) return null;
-
-    final tzStr = match.namedGroup('timezone');
-    final offset = _parseTimezoneOffsetMinutes(tzStr);
-    if (offset == null) return null;
-
-    final yr = int.tryParse(match.namedGroup('year') ?? '');
-    if (yr == null) return null;
-
-    final mo = int.tryParse(match.namedGroup('month') ?? '');
-    if (mo == null) return null;
-
-    final dy = int.tryParse(match.namedGroup('day') ?? '');
-    if (dy == null) return null;
-
-    final hr = int.tryParse(match.namedGroup('hour') ?? '');
-    if (hr == null) return null;
-
-    final mn = int.tryParse(match.namedGroup('minute') ?? '');
-    if (mn == null) return null;
-
-    final scDouble = double.tryParse(match.namedGroup('second') ?? '');
-    if (scDouble == null) return null;
-
-    final sc = scDouble.truncate();
-    final frac = scDouble - sc;
-    final ms = (frac * 1000).truncate();
-    final us = ((frac * 1000000) - (ms * 1000)).round();
-
-    if (!_validateDateTime(yr, mo, dy, hr, mn, scDouble)) return null;
-
-    if (hr == 24) {
-      final normalizedDate = DateTime.utc(
-        yr,
-        mo,
-        dy,
-      ).add(const Duration(days: 1));
-      return XPathDateTimeStamp(
-        normalizedDate.year,
-        normalizedDate.month,
-        normalizedDate.day,
-        0,
-        0,
-        0,
-        0,
-        0,
-        offset,
-      );
-    }
-
-    return XPathDateTimeStamp(yr, mo, dy, hr, mn, sc, ms, us, offset);
-  }
-
-  @override
-  XPathDateTimeStamp toUtc() {
-    if (timezoneOffsetMinutes == 0) return this;
-    final dt = DateTime.utc(
-      year,
-      month,
-      day,
-      hour,
-      minute,
-      second,
-      millisecond,
-      microsecond,
-    ).subtract(Duration(minutes: timezoneOffsetMinutes!));
-    return XPathDateTimeStamp(
-      dt.year,
-      dt.month,
-      dt.day,
-      dt.hour,
-      dt.minute,
-      dt.second,
-      dt.millisecond,
-      dt.microsecond,
-      0,
-    );
-  }
-
-  @override
-  XPathDateTimeStamp toLocal() {
-    final localOffsetMinutes = DateTime.now().timeZoneOffset.inMinutes;
-    if (timezoneOffsetMinutes == localOffsetMinutes) return this;
-    final utcDt = DateTime.utc(
-      year,
-      month,
-      day,
-      hour,
-      minute,
-      second,
-      millisecond,
-      microsecond,
-    );
-    final adjusted = utcDt.subtract(Duration(minutes: timezoneOffsetMinutes!));
-    final localDt = adjusted.add(Duration(minutes: localOffsetMinutes));
-    return XPathDateTimeStamp(
-      localDt.year,
-      localDt.month,
-      localDt.day,
-      localDt.hour,
-      localDt.minute,
-      localDt.second,
-      localDt.millisecond,
-      localDt.microsecond,
-      localOffsetMinutes,
-    );
-  }
-}
-
-/// Representation of an XPath date value (xs:date).
-class XPathDate extends XPathAbstractDateTime {
-  @override
-  XPathType get type => xsDate;
-
-  @override
-  final int year;
-
-  @override
-  final int month;
-
-  @override
-  final int day;
-
-  @override
-  int? get hour => null;
-
-  @override
-  int? get minute => null;
-
-  @override
-  int? get second => null;
-
-  @override
-  int? get millisecond => null;
-
-  @override
-  int? get microsecond => null;
-
-  @override
-  final int? timezoneOffsetMinutes;
-
-  /// Creates a new [XPathDate] with the given components.
-  const new(this.year, this.month, this.day, [this.timezoneOffsetMinutes]);
-
-  /// Creates a new [XPathDate] from a Dart [DateTime] object.
-  factory fromDateTime(DateTime dateTime, [int? timezoneOffsetMinutes]) =>
-      XPathDate(
-        dateTime.year,
-        dateTime.month,
-        dateTime.day,
-        timezoneOffsetMinutes,
-      );
+  /// Attempts to parse a string representation of an xs:dateTimeStamp.
+  static XPathDateTime? tryParseDateTimeStamp(String value) =>
+      tryParse(value, xsDateTimeStamp);
 
   /// Attempts to parse a string representation of a date.
-  static XPathDate? tryParse(String value) {
+  static XPathDateTime? tryParseDate(String value) {
     final match = _dateRegExp.firstMatch(value);
     if (match == null) return null;
 
@@ -610,119 +555,11 @@ class XPathDate extends XPathAbstractDateTime {
 
     if (!_validateDateTime(yr, mo, dy, 0, 0, 0.0)) return null;
 
-    return XPathDate(yr, mo, dy, offset);
+    return XPathDateTime.date(yr, mo, dy, offset);
   }
-
-  @override
-  DateTime toDateTime() {
-    if (timezoneOffsetMinutes != null) {
-      return DateTime.utc(
-        year,
-        month,
-        day,
-      ).subtract(Duration(minutes: timezoneOffsetMinutes!));
-    }
-    return DateTime(year, month, day);
-  }
-
-  @override
-  XPathDate toUtc() {
-    if (timezoneOffsetMinutes == null || timezoneOffsetMinutes == 0) {
-      return this;
-    }
-    final dt = DateTime.utc(
-      year,
-      month,
-      day,
-    ).subtract(Duration(minutes: timezoneOffsetMinutes!));
-    return XPathDate(dt.year, dt.month, dt.day, 0);
-  }
-
-  @override
-  XPathDate toLocal() {
-    final localOffsetMinutes = DateTime.now().timeZoneOffset.inMinutes;
-    if (timezoneOffsetMinutes == localOffsetMinutes) return this;
-    final utcDt = DateTime.utc(year, month, day);
-    final adjusted = timezoneOffsetMinutes != null
-        ? utcDt.subtract(Duration(minutes: timezoneOffsetMinutes!))
-        : utcDt;
-    final localDt = adjusted.add(Duration(minutes: localOffsetMinutes));
-    return XPathDate(
-      localDt.year,
-      localDt.month,
-      localDt.day,
-      localOffsetMinutes,
-    );
-  }
-
-  @override
-  String toString() {
-    final buffer = StringBuffer();
-    _writeYear(buffer, year);
-    buffer.write('-');
-    buffer.write(month.toString().padLeft(2, '0'));
-    buffer.write('-');
-    buffer.write(day.toString().padLeft(2, '0'));
-    buffer.write(_formatTimezone());
-    return buffer.toString();
-  }
-}
-
-/// Representation of an XPath time value (xs:time).
-class XPathTime extends XPathAbstractDateTime {
-  @override
-  XPathType get type => xsTime;
-
-  @override
-  int? get year => null;
-
-  @override
-  int? get month => null;
-
-  @override
-  int? get day => null;
-
-  @override
-  final int hour;
-
-  @override
-  final int minute;
-
-  @override
-  final int second;
-
-  @override
-  final int millisecond;
-
-  @override
-  final int microsecond;
-
-  @override
-  final int? timezoneOffsetMinutes;
-
-  /// Creates a new [XPathTime] with the given components.
-  const new(
-    this.hour,
-    this.minute,
-    this.second, [
-    this.millisecond = 0,
-    this.microsecond = 0,
-    this.timezoneOffsetMinutes,
-  ]);
-
-  /// Creates a new [XPathTime] from a Dart [DateTime] object.
-  factory fromDateTime(DateTime dateTime, [int? timezoneOffsetMinutes]) =>
-      XPathTime(
-        dateTime.hour,
-        dateTime.minute,
-        dateTime.second,
-        dateTime.millisecond,
-        dateTime.microsecond,
-        timezoneOffsetMinutes,
-      );
 
   /// Attempts to parse a string representation of a time.
-  static XPathTime? tryParse(String value) {
+  static XPathDateTime? tryParseTime(String value) {
     final match = _timeRegExp.firstMatch(value);
     if (match == null) return null;
 
@@ -747,140 +584,14 @@ class XPathTime extends XPathAbstractDateTime {
     if (!_validateDateTime(1970, 1, 1, hr, mn, scDouble)) return null;
 
     if (hr == 24) {
-      return XPathTime(0, 0, 0, 0, 0, offset);
+      return const XPathDateTime.time(0, 0, 0, 0, 0, null);
     }
 
-    return XPathTime(hr, mn, sc, ms, us, offset);
+    return XPathDateTime.time(hr, mn, sc, ms, us, offset);
   }
-
-  @override
-  DateTime toDateTime() {
-    if (timezoneOffsetMinutes != null) {
-      return DateTime.utc(
-        1970,
-        1,
-        1,
-        hour,
-        minute,
-        second,
-        millisecond,
-        microsecond,
-      ).subtract(Duration(minutes: timezoneOffsetMinutes!));
-    }
-    return DateTime(1970, 1, 1, hour, minute, second, millisecond, microsecond);
-  }
-
-  @override
-  XPathTime toUtc() {
-    if (timezoneOffsetMinutes == null || timezoneOffsetMinutes == 0) {
-      return this;
-    }
-    final dt = DateTime.utc(
-      1970,
-      1,
-      1,
-      hour,
-      minute,
-      second,
-      millisecond,
-      microsecond,
-    ).subtract(Duration(minutes: timezoneOffsetMinutes!));
-    return XPathTime(
-      dt.hour,
-      dt.minute,
-      dt.second,
-      dt.millisecond,
-      dt.microsecond,
-      0,
-    );
-  }
-
-  @override
-  XPathTime toLocal() {
-    final localOffsetMinutes = DateTime.now().timeZoneOffset.inMinutes;
-    if (timezoneOffsetMinutes == localOffsetMinutes) return this;
-    final utcDt = DateTime.utc(
-      1970,
-      1,
-      1,
-      hour,
-      minute,
-      second,
-      millisecond,
-      microsecond,
-    );
-    final adjusted = timezoneOffsetMinutes != null
-        ? utcDt.subtract(Duration(minutes: timezoneOffsetMinutes!))
-        : utcDt;
-    final localDt = adjusted.add(Duration(minutes: localOffsetMinutes));
-    return XPathTime(
-      localDt.hour,
-      localDt.minute,
-      localDt.second,
-      localDt.millisecond,
-      localDt.microsecond,
-      localOffsetMinutes,
-    );
-  }
-
-  @override
-  String toString() {
-    final buffer = StringBuffer();
-    buffer.write(hour.toString().padLeft(2, '0'));
-    buffer.write(':');
-    buffer.write(minute.toString().padLeft(2, '0'));
-    buffer.write(':');
-    buffer.write(second.toString().padLeft(2, '0'));
-    if (millisecond > 0 || microsecond > 0) {
-      final totalUs = millisecond * 1000 + microsecond;
-      final usStr = totalUs
-          .toString()
-          .padLeft(6, '0')
-          .replaceAll(RegExp(r'0+$'), '');
-      buffer.write('.$usStr');
-    }
-    buffer.write(_formatTimezone());
-    return buffer.toString();
-  }
-}
-
-/// Representation of an XPath gYearMonth value (xs:gYearMonth).
-class XPathYearMonth extends XPathAbstractDateTime {
-  @override
-  XPathType get type => xsGYearMonth;
-
-  @override
-  final int year;
-
-  @override
-  final int month;
-
-  @override
-  int? get day => null;
-
-  @override
-  int? get hour => null;
-
-  @override
-  int? get minute => null;
-
-  @override
-  int? get second => null;
-
-  @override
-  int? get millisecond => null;
-
-  @override
-  int? get microsecond => null;
-
-  @override
-  final int? timezoneOffsetMinutes;
-
-  /// Creates a new [XPathYearMonth] with the given components.
-  const new(this.year, this.month, [this.timezoneOffsetMinutes]);
 
   /// Attempts to parse a string representation of a gYearMonth.
-  static XPathYearMonth? tryParse(String value) {
+  static XPathDateTime? tryParseYearMonth(String value) {
     final match = _yearMonthRegExp.firstMatch(value);
     if (match == null) return null;
 
@@ -892,96 +603,13 @@ class XPathYearMonth extends XPathAbstractDateTime {
     if (yr == null) return null;
 
     final mo = int.tryParse(match.namedGroup('month') ?? '');
-    if (mo == null) return null;
+    if (mo == null || mo < 1 || mo > 12) return null;
 
-    if (!_validateDateTime(yr, mo, 1, 0, 0, 0.0)) return null;
-
-    return XPathYearMonth(yr, mo, offset);
+    return XPathDateTime.yearMonth(yr, mo, offset);
   }
-
-  @override
-  DateTime toDateTime() {
-    if (timezoneOffsetMinutes != null) {
-      return DateTime.utc(
-        year,
-        month,
-      ).subtract(Duration(minutes: timezoneOffsetMinutes!));
-    }
-    return DateTime(year, month);
-  }
-
-  @override
-  XPathYearMonth toUtc() {
-    if (timezoneOffsetMinutes == null || timezoneOffsetMinutes == 0) {
-      return this;
-    }
-    final dt = DateTime.utc(
-      year,
-      month,
-    ).subtract(Duration(minutes: timezoneOffsetMinutes!));
-    return XPathYearMonth(dt.year, dt.month, 0);
-  }
-
-  @override
-  XPathYearMonth toLocal() {
-    final localOffsetMinutes = DateTime.now().timeZoneOffset.inMinutes;
-    if (timezoneOffsetMinutes == localOffsetMinutes) return this;
-    final utcDt = DateTime.utc(year, month);
-    final adjusted = timezoneOffsetMinutes != null
-        ? utcDt.subtract(Duration(minutes: timezoneOffsetMinutes!))
-        : utcDt;
-    final localDt = adjusted.add(Duration(minutes: localOffsetMinutes));
-    return XPathYearMonth(localDt.year, localDt.month, localOffsetMinutes);
-  }
-
-  @override
-  String toString() {
-    final buffer = StringBuffer();
-    _writeYear(buffer, year);
-    buffer.write('-');
-    buffer.write(month.toString().padLeft(2, '0'));
-    buffer.write(_formatTimezone());
-    return buffer.toString();
-  }
-}
-
-/// Representation of an XPath gYear value (xs:gYear).
-class XPathYear extends XPathAbstractDateTime {
-  @override
-  XPathType get type => xsGYear;
-
-  @override
-  final int year;
-
-  @override
-  int? get month => null;
-
-  @override
-  int? get day => null;
-
-  @override
-  int? get hour => null;
-
-  @override
-  int? get minute => null;
-
-  @override
-  int? get second => null;
-
-  @override
-  int? get millisecond => null;
-
-  @override
-  int? get microsecond => null;
-
-  @override
-  final int? timezoneOffsetMinutes;
-
-  /// Creates a new [XPathYear] with the given components.
-  const new(this.year, [this.timezoneOffsetMinutes]);
 
   /// Attempts to parse a string representation of a gYear.
-  static XPathYear? tryParse(String value) {
+  static XPathDateTime? tryParseYear(String value) {
     final match = _yearRegExp.firstMatch(value);
     if (match == null) return null;
 
@@ -992,86 +620,11 @@ class XPathYear extends XPathAbstractDateTime {
     final yr = int.tryParse(match.namedGroup('year') ?? '');
     if (yr == null) return null;
 
-    return XPathYear(yr, offset);
+    return XPathDateTime.year(yr, offset);
   }
-
-  @override
-  DateTime toDateTime() {
-    if (timezoneOffsetMinutes != null) {
-      return DateTime.utc(year)
-          .subtract(Duration(minutes: timezoneOffsetMinutes!));
-    }
-    return DateTime(year);
-  }
-
-  @override
-  XPathYear toUtc() {
-    if (timezoneOffsetMinutes == null || timezoneOffsetMinutes == 0) {
-      return this;
-    }
-    final dt = DateTime.utc(year)
-        .subtract(Duration(minutes: timezoneOffsetMinutes!));
-    return XPathYear(dt.year, 0);
-  }
-
-  @override
-  XPathYear toLocal() {
-    final localOffsetMinutes = DateTime.now().timeZoneOffset.inMinutes;
-    if (timezoneOffsetMinutes == localOffsetMinutes) return this;
-    final utcDt = DateTime.utc(year);
-    final adjusted = timezoneOffsetMinutes != null
-        ? utcDt.subtract(Duration(minutes: timezoneOffsetMinutes!))
-        : utcDt;
-    final localDt = adjusted.add(Duration(minutes: localOffsetMinutes));
-    return XPathYear(localDt.year, localOffsetMinutes);
-  }
-
-  @override
-  String toString() {
-    final buffer = StringBuffer();
-    _writeYear(buffer, year);
-    buffer.write(_formatTimezone());
-    return buffer.toString();
-  }
-}
-
-/// Representation of an XPath gMonthDay value (xs:gMonthDay).
-class XPathMonthDay extends XPathAbstractDateTime {
-  @override
-  XPathType get type => xsGMonthDay;
-
-  @override
-  int? get year => null;
-
-  @override
-  final int month;
-
-  @override
-  final int day;
-
-  @override
-  int? get hour => null;
-
-  @override
-  int? get minute => null;
-
-  @override
-  int? get second => null;
-
-  @override
-  int? get millisecond => null;
-
-  @override
-  int? get microsecond => null;
-
-  @override
-  final int? timezoneOffsetMinutes;
-
-  /// Creates a new [XPathMonthDay] with the given components.
-  const new(this.month, this.day, [this.timezoneOffsetMinutes]);
 
   /// Attempts to parse a string representation of a gMonthDay.
-  static XPathMonthDay? tryParse(String value) {
+  static XPathDateTime? tryParseMonthDay(String value) {
     final match = _monthDayRegExp.firstMatch(value);
     if (match == null) return null;
 
@@ -1085,96 +638,13 @@ class XPathMonthDay extends XPathAbstractDateTime {
     final dy = int.tryParse(match.namedGroup('day') ?? '');
     if (dy == null) return null;
 
-    if (!_validateDateTime(1970, mo, dy, 0, 0, 0.0)) return null;
+    if (!_validateDateTime(1972, mo, dy, 0, 0, 0.0)) return null;
 
-    return XPathMonthDay(mo, dy, offset);
+    return XPathDateTime.monthDay(mo, dy, offset);
   }
-
-  @override
-  DateTime toDateTime() {
-    if (timezoneOffsetMinutes != null) {
-      return DateTime.utc(
-        1970,
-        month,
-        day,
-      ).subtract(Duration(minutes: timezoneOffsetMinutes!));
-    }
-    return DateTime(1970, month, day);
-  }
-
-  @override
-  XPathMonthDay toUtc() {
-    if (timezoneOffsetMinutes == null || timezoneOffsetMinutes == 0) {
-      return this;
-    }
-    final dt = DateTime.utc(
-      1970,
-      month,
-      day,
-    ).subtract(Duration(minutes: timezoneOffsetMinutes!));
-    return XPathMonthDay(dt.month, dt.day, 0);
-  }
-
-  @override
-  XPathMonthDay toLocal() {
-    final localOffsetMinutes = DateTime.now().timeZoneOffset.inMinutes;
-    if (timezoneOffsetMinutes == localOffsetMinutes) return this;
-    final utcDt = DateTime.utc(1970, month, day);
-    final adjusted = timezoneOffsetMinutes != null
-        ? utcDt.subtract(Duration(minutes: timezoneOffsetMinutes!))
-        : utcDt;
-    final localDt = adjusted.add(Duration(minutes: localOffsetMinutes));
-    return XPathMonthDay(localDt.month, localDt.day, localOffsetMinutes);
-  }
-
-  @override
-  String toString() {
-    final buffer = StringBuffer('--');
-    buffer.write(month.toString().padLeft(2, '0'));
-    buffer.write('-');
-    buffer.write(day.toString().padLeft(2, '0'));
-    buffer.write(_formatTimezone());
-    return buffer.toString();
-  }
-}
-
-/// Representation of an XPath gMonth value (xs:gMonth).
-class XPathMonth extends XPathAbstractDateTime {
-  @override
-  XPathType get type => xsGMonth;
-
-  @override
-  int? get year => null;
-
-  @override
-  final int month;
-
-  @override
-  int? get day => null;
-
-  @override
-  int? get hour => null;
-
-  @override
-  int? get minute => null;
-
-  @override
-  int? get second => null;
-
-  @override
-  int? get millisecond => null;
-
-  @override
-  int? get microsecond => null;
-
-  @override
-  final int? timezoneOffsetMinutes;
-
-  /// Creates a new [XPathMonth] with the given components.
-  const new(this.month, [this.timezoneOffsetMinutes]);
 
   /// Attempts to parse a string representation of a gMonth.
-  static XPathMonth? tryParse(String value) {
+  static XPathDateTime? tryParseMonth(String value) {
     final match = _monthRegExp.firstMatch(value);
     if (match == null) return null;
 
@@ -1183,94 +653,13 @@ class XPathMonth extends XPathAbstractDateTime {
     if (tzStr != null && offset == null) return null;
 
     final mo = int.tryParse(match.namedGroup('month') ?? '');
-    if (mo == null) return null;
+    if (mo == null || mo < 1 || mo > 12) return null;
 
-    if (!_validateDateTime(1970, mo, 1, 0, 0, 0.0)) return null;
-
-    return XPathMonth(mo, offset);
+    return XPathDateTime.month(mo, offset);
   }
-
-  @override
-  DateTime toDateTime() {
-    if (timezoneOffsetMinutes != null) {
-      return DateTime.utc(
-        1970,
-        month,
-      ).subtract(Duration(minutes: timezoneOffsetMinutes!));
-    }
-    return DateTime(1970, month);
-  }
-
-  @override
-  XPathMonth toUtc() {
-    if (timezoneOffsetMinutes == null || timezoneOffsetMinutes == 0) {
-      return this;
-    }
-    final dt = DateTime.utc(
-      1970,
-      month,
-    ).subtract(Duration(minutes: timezoneOffsetMinutes!));
-    return XPathMonth(dt.month, 0);
-  }
-
-  @override
-  XPathMonth toLocal() {
-    final localOffsetMinutes = DateTime.now().timeZoneOffset.inMinutes;
-    if (timezoneOffsetMinutes == localOffsetMinutes) return this;
-    final utcDt = DateTime.utc(1970, month);
-    final adjusted = timezoneOffsetMinutes != null
-        ? utcDt.subtract(Duration(minutes: timezoneOffsetMinutes!))
-        : utcDt;
-    final localDt = adjusted.add(Duration(minutes: localOffsetMinutes));
-    return XPathMonth(localDt.month, localOffsetMinutes);
-  }
-
-  @override
-  String toString() {
-    final buffer = StringBuffer('--');
-    buffer.write(month.toString().padLeft(2, '0'));
-    buffer.write(_formatTimezone());
-    return buffer.toString();
-  }
-}
-
-/// Representation of an XPath gDay value (xs:gDay).
-class XPathDay extends XPathAbstractDateTime {
-  @override
-  XPathType get type => xsGDay;
-
-  @override
-  int? get year => null;
-
-  @override
-  int? get month => null;
-
-  @override
-  final int day;
-
-  @override
-  int? get hour => null;
-
-  @override
-  int? get minute => null;
-
-  @override
-  int? get second => null;
-
-  @override
-  int? get millisecond => null;
-
-  @override
-  int? get microsecond => null;
-
-  @override
-  final int? timezoneOffsetMinutes;
-
-  /// Creates a new [XPathDay] with the given components.
-  const new(this.day, [this.timezoneOffsetMinutes]);
 
   /// Attempts to parse a string representation of a gDay.
-  static XPathDay? tryParse(String value) {
+  static XPathDateTime? tryParseDay(String value) {
     final match = _dayRegExp.firstMatch(value);
     if (match == null) return null;
 
@@ -1279,57 +668,26 @@ class XPathDay extends XPathAbstractDateTime {
     if (tzStr != null && offset == null) return null;
 
     final dy = int.tryParse(match.namedGroup('day') ?? '');
-    if (dy == null) return null;
+    if (dy == null || dy < 1 || dy > 31) return null;
 
-    if (!_validateDateTime(1970, 1, dy, 0, 0, 0.0)) return null;
-
-    return XPathDay(dy, offset);
+    return XPathDateTime.day(dy, offset);
   }
+}
 
-  @override
-  DateTime toDateTime() {
-    if (timezoneOffsetMinutes != null) {
-      return DateTime.utc(
-        1970,
-        1,
-        day,
-      ).subtract(Duration(minutes: timezoneOffsetMinutes!));
-    }
-    return DateTime(1970, 1, day);
-  }
-
-  @override
-  XPathDay toUtc() {
-    if (timezoneOffsetMinutes == null || timezoneOffsetMinutes == 0) {
-      return this;
-    }
-    final dt = DateTime.utc(
-      1970,
-      1,
-      day,
-    ).subtract(Duration(minutes: timezoneOffsetMinutes!));
-    return XPathDay(dt.day, 0);
-  }
-
-  @override
-  XPathDay toLocal() {
-    final localOffsetMinutes = DateTime.now().timeZoneOffset.inMinutes;
-    if (timezoneOffsetMinutes == localOffsetMinutes) return this;
-    final utcDt = DateTime.utc(1970, 1, day);
-    final adjusted = timezoneOffsetMinutes != null
-        ? utcDt.subtract(Duration(minutes: timezoneOffsetMinutes!))
-        : utcDt;
-    final localDt = adjusted.add(Duration(minutes: localOffsetMinutes));
-    return XPathDay(localDt.day, localOffsetMinutes);
-  }
-
-  @override
-  String toString() {
-    final buffer = StringBuffer('---');
-    buffer.write(day.toString().padLeft(2, '0'));
-    buffer.write(_formatTimezone());
-    return buffer.toString();
-  }
+XPathDateTime _wrapDateTime(DateTime result, XPathDateTime original) {
+  final offset = original.timezoneOffsetMinutes;
+  return XPathDateTime.fromParts(
+    year: original.year != null ? result.year : null,
+    month: original.month != null ? result.month : null,
+    day: original.day != null ? result.day : null,
+    hour: original.hour != null ? result.hour : null,
+    minute: original.minute != null ? result.minute : null,
+    second: original.second != null ? result.second : null,
+    millisecond: result.millisecond,
+    microsecond: result.microsecond,
+    timezoneOffsetMinutes: offset,
+    type: original.type,
+  );
 }
 
 // Regexes and Parsing Helpers

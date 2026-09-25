@@ -64,8 +64,8 @@ abstract class XPathSequence extends Iterable<XPathItem> {
     final double d => XPathDouble(d),
     final String s => XPathString(s),
     final DateTime dt => XPathDateTime.fromDateTime(dt, 0),
-    final Duration dur => XPathDayTimeDuration.fromDuration(dur),
-    final Uint8List bytes => XPathBase64Binary(bytes),
+    final Duration dur => XPathDuration.fromDuration(dur),
+    final Uint8List bytes => XPathBinary(bytes),
     final Map<XPathAtomic, XPathSequence> m => XPathMap(m),
     final Map<Object, Object?> m => XPathMap({
       for (final entry in m.entries)

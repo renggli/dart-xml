@@ -7,9 +7,9 @@ import 'package:xml/src/xpath/xdm/types.dart';
 import '../../../utils/matchers.dart';
 
 void main() {
-  group('XPathBase64Binary', () {
+  group('XPathBinary base64', () {
     test('construction and parsing fromBase64', () {
-      final b64 = XPathBase64Binary.fromBase64('  SGVsbG8= \n');
+      final b64 = XPathBinary.fromBase64('  SGVsbG8= \n');
       expect(b64.type, equals(xsBase64Binary));
       expect(b64.stringValue, equals('SGVsbG8='));
       expect(b64.value, equals(Uint8List.fromList([72, 101, 108, 108, 111])));
@@ -17,7 +17,7 @@ void main() {
     });
 
     test('effectiveBooleanValue throws', () {
-      final b64 = XPathBase64Binary.fromBase64('SGVsbG8=');
+      final b64 = XPathBinary.fromBase64('SGVsbG8=');
       expect(
         () => b64.effectiveBooleanValue,
         throwsA(isXPathEvaluationException()),
@@ -25,10 +25,10 @@ void main() {
     });
 
     test('equality, hashCode, and comparisons', () {
-      final b1 = XPathBase64Binary.fromBase64('AA==');
-      final b2 = XPathBase64Binary.fromBase64('AA==');
-      final b3 = XPathBase64Binary.fromBase64('AQ==');
-      final b4 = XPathBase64Binary.fromBase64('AAA=');
+      final b1 = XPathBinary.fromBase64('AA==');
+      final b2 = XPathBinary.fromBase64('AA==');
+      final b3 = XPathBinary.fromBase64('AQ==');
+      final b4 = XPathBinary.fromBase64('AAA=');
 
       expect(b1, equals(b2));
       expect(b1.hashCode, equals(b2.hashCode));
@@ -40,9 +40,9 @@ void main() {
     });
   });
 
-  group('XPathHexBinary', () {
+  group('XPathBinary hex', () {
     test('construction and parsing fromHex', () {
-      final hex = XPathHexBinary.fromHex(' 48 65 6c 6c 6f ');
+      final hex = XPathBinary.fromHex(' 48 65 6c 6c 6f ');
       expect(hex.type, equals(xsHexBinary));
       expect(hex.stringValue, equals('48656C6C6F'));
       expect(hex.value, equals(Uint8List.fromList([72, 101, 108, 108, 111])));
@@ -51,13 +51,13 @@ void main() {
 
     test('odd length throws evaluation exception', () {
       expect(
-        () => XPathHexBinary.fromHex('123'),
+        () => XPathBinary.fromHex('123'),
         throwsA(isXPathEvaluationException()),
       );
     });
 
     test('effectiveBooleanValue throws', () {
-      final hex = XPathHexBinary.fromHex('4865');
+      final hex = XPathBinary.fromHex('4865');
       expect(
         () => hex.effectiveBooleanValue,
         throwsA(isXPathEvaluationException()),
@@ -65,9 +65,9 @@ void main() {
     });
 
     test('equality and comparisons', () {
-      final h1 = XPathHexBinary.fromHex('00');
-      final h2 = XPathHexBinary.fromHex('00');
-      final h3 = XPathHexBinary.fromHex('01');
+      final h1 = XPathBinary.fromHex('00');
+      final h2 = XPathBinary.fromHex('00');
+      final h3 = XPathBinary.fromHex('01');
 
       expect(h1, equals(h2));
       expect(h1 == h3, isFalse);

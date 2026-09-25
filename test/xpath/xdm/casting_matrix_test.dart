@@ -102,9 +102,10 @@ void main() {
     });
 
     test('casting between binary types', () {
-      final hex = XPathHexBinary.fromHex('48656C6C6F'); // "Hello"
+      final hex = XPathBinary.fromHex('48656C6C6F'); // "Hello"
       final b64 = castAtomic(hex, xsBase64Binary);
-      expect(b64, isA<XPathBase64Binary>());
+      expect(b64, isA<XPathBinary>());
+      expect(b64.type, equals(xsBase64Binary));
       expect(b64.stringValue, equals('SGVsbG8='));
 
       final hexBack = castAtomic(b64, xsHexBinary);
@@ -146,8 +147,8 @@ void main() {
     });
 
     test('duration casting rules', () {
-      const ymd = XPathYearMonthDuration(14); // P1Y2M
-      const dtd = XPathDayTimeDuration(90000000); // PT90S
+      const ymd = XPathDuration.yearMonth(14); // P1Y2M
+      const dtd = XPathDuration.dayTime(90000000); // PT90S
 
       // Duration to numeric is disallowed
       expect(
