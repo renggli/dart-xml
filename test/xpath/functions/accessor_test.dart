@@ -50,6 +50,13 @@ void main() {
       );
     });
 
+    test('returns false for context element (0-arg)', () {
+      final elemContext = const XPathConfiguration.raw().context(
+        document.rootElement,
+      );
+      expect(fnNilled(elemContext, []), isXPathSequence([false]));
+    });
+
     test('returns empty for empty sequence', () {
       expect(
         fnNilled(context, [XPathSequence.empty]),
@@ -117,6 +124,31 @@ void main() {
     test('returns empty for document', () {
       expect(fnBaseUri(context, [seq(document)]), isXPathSequence(isEmpty));
     });
+
+    test('resolves xml:base attributes hierarchy and document base', () {
+      final baseDoc = XmlDocument.parse(
+        '<doc xml:base="http://example.com/dir/">'
+        '  <sub xml:base="sub/"/>'
+        '</doc>',
+      );
+      final subElem = baseDoc.findAllElements('sub').first;
+      expect(
+        fnBaseUri(context, [seq(subElem)]),
+        isXPathSequence(['http://example.com/dir/sub/']),
+      );
+    });
+
+    test('uses document URI from configuration', () {
+      final doc = XmlDocument.parse('<doc><item/></doc>');
+      final config = XPathConfiguration.raw(
+        documents: {'http://example.com/test.xml': doc},
+      );
+      final ctx = config.context(doc.rootElement);
+      expect(
+        fnBaseUri(ctx, [seq(doc.findAllElements('item').first)]),
+        isXPathSequence(['http://example.com/test.xml']),
+      );
+    });
   });
 
   group('fn:document-uri', () {
@@ -129,6 +161,18 @@ void main() {
 
     test('returns empty for document', () {
       expect(fnDocumentUri(context, [seq(document)]), isXPathSequence(isEmpty));
+    });
+
+    test('returns URI for registered document', () {
+      final doc = XmlDocument.parse('<doc/>');
+      final config = XPathConfiguration.raw(
+        documents: {'https://example.com/doc.xml': doc},
+      );
+      final ctx = config.context(doc);
+      expect(
+        fnDocumentUri(ctx, [seq(doc)]),
+        isXPathSequence(['https://example.com/doc.xml']),
+      );
     });
   });
 

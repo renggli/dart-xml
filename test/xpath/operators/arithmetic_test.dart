@@ -326,4 +326,60 @@ void main() {
       expect(opDivide(XPathSequence.empty, intSeq(1)), isEmpty);
     });
   });
+
+  group('type errors in arithmetic dispatch', () {
+    test('non-numeric operands throw XPTY0004 or FORG0001', () {
+      expect(
+        () => opNumericAdd(seq('abc'), intSeq(1)),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+      expect(
+        () => opNumericAdd(
+          seq(const XPathUntypedAtomic('not-a-number')),
+          intSeq(1),
+        ),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORG0001)),
+      );
+    });
+
+    test('incompatible duration additions and subtractions throw XPTY0004', () {
+      final ymd = XPathDuration.tryParseYearMonth('P1Y')!;
+      final dtd = XPathDuration.tryParseDayTime('P1D')!;
+      expect(
+        () => opAdd(seq(ymd), seq(dtd)),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+      expect(
+        () => opSubtract(seq(ymd), seq(dtd)),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+    });
+
+    test('incompatible date/time and duration additions throw XPTY0004', () {
+      final date = XPathDateTime.tryParseDate('2021-01-01')!;
+      final time = XPathDateTime.tryParseTime('12:00:00')!;
+      final genericDuration = XPathDuration.tryParse('P1Y1D')!;
+      final ymd = XPathDuration.tryParseYearMonth('P1Y')!;
+
+      // Cannot add generic xs:duration to xs:date
+      expect(
+        () => opAdd(seq(date), seq(genericDuration)),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+      expect(
+        () => opSubtract(seq(date), seq(genericDuration)),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+
+      // Cannot add xs:yearMonthDuration to xs:time
+      expect(
+        () => opAdd(seq(time), seq(ymd)),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+      expect(
+        () => opSubtract(seq(time), seq(ymd)),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+    });
+  });
 }

@@ -361,18 +361,32 @@ final class XPathDateTime extends XPathAtomic {
 
   @override
   int get hashCode {
-    final dt = toDateTime().toUtc();
-    return Object.hash(
-      dt.year,
-      dt.month,
-      dt.day,
-      dt.hour,
-      dt.minute,
-      dt.second,
-      dt.millisecond,
-      dt.microsecond,
-      timezoneOffsetMinutes,
-    );
+    try {
+      final dt = toDateTime().toUtc();
+      return Object.hash(
+        dt.year,
+        dt.month,
+        dt.day,
+        dt.hour,
+        dt.minute,
+        dt.second,
+        dt.millisecond,
+        dt.microsecond,
+        timezoneOffsetMinutes,
+      );
+    } catch (_) {
+      return Object.hash(
+        year,
+        month,
+        day,
+        hour,
+        minute,
+        second,
+        millisecond,
+        microsecond,
+        timezoneOffsetMinutes,
+      );
+    }
   }
 
   @override
@@ -603,7 +617,9 @@ final class XPathDateTime extends XPathAtomic {
     if (yr == null) return null;
 
     final mo = int.tryParse(match.namedGroup('month') ?? '');
-    if (mo == null || mo < 1 || mo > 12) return null;
+    if (mo == null) return null;
+
+    if (!_validateDateTime(yr, mo, 1, 0, 0, 0.0)) return null;
 
     return XPathDateTime.yearMonth(yr, mo, offset);
   }
@@ -619,6 +635,8 @@ final class XPathDateTime extends XPathAtomic {
 
     final yr = int.tryParse(match.namedGroup('year') ?? '');
     if (yr == null) return null;
+
+    if (!_validateDateTime(yr, 1, 1, 0, 0, 0.0)) return null;
 
     return XPathDateTime.year(yr, offset);
   }

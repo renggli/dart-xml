@@ -496,4 +496,97 @@ void main() {
       );
     });
   });
+
+  group('fn:format-dateTime, fn:format-date, fn:format-time', () {
+    final dt = XPathDateTime.tryParse('2021-05-20T12:30:00Z')!;
+    final d = XPathDateTime.tryParseDate('2021-05-20')!;
+    final t = XPathDateTime.tryParseTime('12:30:00')!;
+
+    test('fn:format-dateTime with 2, 3, 4, 5 arguments', () {
+      expect(
+        fnFormatDateTime(context, [seq(dt), seq('[Y0001]-[M01]-[D01]')]),
+        isXPathSequence(['2021-05-20T12:30:00Z']),
+      );
+      expect(
+        fnFormatDateTime(context, [seq(dt), seq('[Y]'), seq('en')]),
+        isXPathSequence(['2021-05-20T12:30:00Z']),
+      );
+      expect(
+        fnFormatDateTime(context, [seq(dt), seq('[Y]'), seq('en'), seq('AD')]),
+        isXPathSequence(['2021-05-20T12:30:00Z']),
+      );
+      expect(
+        fnFormatDateTime(context, [
+          seq(dt),
+          seq('[Y]'),
+          seq('en'),
+          seq('AD'),
+          seq('US'),
+        ]),
+        isXPathSequence(['2021-05-20T12:30:00Z']),
+      );
+      expect(
+        fnFormatDateTime(context, [XPathSequence.empty, seq('[Y]')]),
+        isXPathSequence(isEmpty),
+      );
+    });
+
+    test('fn:format-date with 2, 3, 4, 5 arguments', () {
+      expect(
+        fnFormatDate(context, [seq(d), seq('[Y0001]-[M01]-[D01]')]),
+        isXPathSequence(['2021-05-20']),
+      );
+      expect(
+        fnFormatDate(context, [seq(d), seq('[Y]'), seq('en')]),
+        isXPathSequence(['2021-05-20']),
+      );
+      expect(
+        fnFormatDate(context, [seq(d), seq('[Y]'), seq('en'), seq('AD')]),
+        isXPathSequence(['2021-05-20']),
+      );
+      expect(
+        fnFormatDate(context, [
+          seq(d),
+          seq('[Y]'),
+          seq('en'),
+          seq('AD'),
+          seq('US'),
+        ]),
+        isXPathSequence(['2021-05-20']),
+      );
+      expect(
+        fnFormatDate(context, [XPathSequence.empty, seq('[Y]')]),
+        isXPathSequence(isEmpty),
+      );
+    });
+
+    test('fn:format-time with 2, 3, 4, 5 arguments', () {
+      expect(
+        fnFormatTime(context, [seq(t), seq('[H01]:[m01]:[s01]')]),
+        isXPathSequence(['12:30:00']),
+      );
+      expect(
+        fnFormatTime(context, [seq(t), seq('[H]'), seq('en')]),
+        isXPathSequence(['12:30:00']),
+      );
+      expect(
+        fnFormatTime(context, [seq(t), seq('[H]'), seq('en'), seq('AD')]),
+        isXPathSequence(['12:30:00']),
+      );
+      expect(
+        fnFormatTime(context, [
+          seq(t),
+          seq('[H]'),
+          seq('en'),
+          seq('AD'),
+          seq('US'),
+        ]),
+        isXPathSequence(['12:30:00']),
+      );
+      expect(
+        fnFormatTime(context, [XPathSequence.empty, seq('[H]')]),
+        isXPathSequence(isEmpty),
+      );
+    });
+  });
 }

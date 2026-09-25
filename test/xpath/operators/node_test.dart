@@ -211,5 +211,28 @@ void main() {
         isXPathSequence([aNode]),
       );
     });
+
+    test('non-node operands throw XPTY0004', () {
+      expect(
+        () => opUnion(seq(1), nSeq(aNode)),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+      expect(
+        () => opUnion(nSeq(aNode), seq(1)),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+      expect(
+        () => opNodeIs(seq(1), nSeq(aNode)),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+      expect(
+        () => opNodePrecedes(seq(1), nSeq(aNode)),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+      expect(
+        () => opNodeFollows(seq(1), nSeq(aNode)),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+    });
   });
 }

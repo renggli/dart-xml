@@ -87,6 +87,127 @@ void main() {
       ]).single;
       expect(resDec.stringValue, equals('3.567812'));
     });
+
+    test('XPathInteger negative precision and tie-to-even', () {
+      // Tie cases
+      expect(
+        fnRoundHalfToEven(context, [seq(XPathInteger.fromInt(125)), seq(-1)]),
+        isXPathSequence([120]),
+      );
+      expect(
+        fnRoundHalfToEven(context, [seq(XPathInteger.fromInt(135)), seq(-1)]),
+        isXPathSequence([140]),
+      );
+      expect(
+        fnRoundHalfToEven(context, [seq(XPathInteger.fromInt(-125)), seq(-1)]),
+        isXPathSequence([-120]),
+      );
+      expect(
+        fnRoundHalfToEven(context, [seq(XPathInteger.fromInt(-135)), seq(-1)]),
+        isXPathSequence([-140]),
+      );
+      // Non-tie cases
+      expect(
+        fnRoundHalfToEven(context, [seq(XPathInteger.fromInt(124)), seq(-1)]),
+        isXPathSequence([120]),
+      );
+      expect(
+        fnRoundHalfToEven(context, [seq(XPathInteger.fromInt(126)), seq(-1)]),
+        isXPathSequence([130]),
+      );
+      expect(
+        fnRoundHalfToEven(context, [seq(XPathInteger.fromInt(-124)), seq(-1)]),
+        isXPathSequence([-120]),
+      );
+      expect(
+        fnRoundHalfToEven(context, [seq(XPathInteger.fromInt(-126)), seq(-1)]),
+        isXPathSequence([-130]),
+      );
+      // Extreme shift (> 100)
+      expect(
+        fnRoundHalfToEven(context, [seq(XPathInteger.fromInt(125)), seq(-105)]),
+        isXPathSequence([0]),
+      );
+    });
+
+    test('XPathDecimal precision rounding and tie-to-even', () {
+      // Rounding with positive precision
+      expect(
+        fnRoundHalfToEven(context, [seq(XPathDecimal.parse('12.345')), seq(2)]),
+        isXPathSequence([12.34]),
+      );
+      expect(
+        fnRoundHalfToEven(context, [seq(XPathDecimal.parse('12.355')), seq(2)]),
+        isXPathSequence([12.36]),
+      );
+      expect(
+        fnRoundHalfToEven(context, [
+          seq(XPathDecimal.parse('-12.345')),
+          seq(2),
+        ]),
+        isXPathSequence([-12.34]),
+      );
+      expect(
+        fnRoundHalfToEven(context, [
+          seq(XPathDecimal.parse('-12.355')),
+          seq(2),
+        ]),
+        isXPathSequence([-12.36]),
+      );
+      expect(
+        fnRoundHalfToEven(context, [seq(XPathDecimal.parse('12.344')), seq(2)]),
+        isXPathSequence([12.34]),
+      );
+      expect(
+        fnRoundHalfToEven(context, [seq(XPathDecimal.parse('12.346')), seq(2)]),
+        isXPathSequence([12.35]),
+      );
+      expect(
+        fnRoundHalfToEven(context, [
+          seq(XPathDecimal.parse('-12.344')),
+          seq(2),
+        ]),
+        isXPathSequence([-12.34]),
+      );
+      expect(
+        fnRoundHalfToEven(context, [
+          seq(XPathDecimal.parse('-12.346')),
+          seq(2),
+        ]),
+        isXPathSequence([-12.35]),
+      );
+      // Rounding with negative precision on XPathDecimal
+      expect(
+        fnRoundHalfToEven(context, [seq(XPathDecimal.parse('125.0')), seq(-1)]),
+        isXPathSequence([120]),
+      );
+      expect(
+        fnRoundHalfToEven(context, [seq(XPathDecimal.parse('135.0')), seq(-1)]),
+        isXPathSequence([140]),
+      );
+      expect(
+        fnRoundHalfToEven(context, [
+          seq(XPathDecimal.parse('-125.0')),
+          seq(-1),
+        ]),
+        isXPathSequence([-120]),
+      );
+      expect(
+        fnRoundHalfToEven(context, [
+          seq(XPathDecimal.parse('-135.0')),
+          seq(-1),
+        ]),
+        isXPathSequence([-140]),
+      );
+      // Extreme shift (> 100)
+      expect(
+        fnRoundHalfToEven(context, [
+          seq(XPathDecimal.parse('12.34')),
+          seq(-105),
+        ]),
+        isXPathSequence([0]),
+      );
+    });
   });
 
   group('fn:number', () {

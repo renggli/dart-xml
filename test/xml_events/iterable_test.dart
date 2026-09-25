@@ -165,10 +165,11 @@ void main() {
       final event = iterator.current as XmlTextEvent;
       assertComplete(iterator);
       expect(event.nodeType, XmlNodeType.TEXT);
-      expect(event.value, 'Hello World!');
       // ignore: deprecated_member_use_from_same_package
       expect(event.text, 'Hello World!');
       final other = XmlTextEvent(event.value);
+      // ignore: deprecated_member_use_from_same_package
+      expect(other.text, 'Hello World!');
       expect(event, other);
       expect(event.hashCode, other.hashCode);
     });

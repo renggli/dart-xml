@@ -1,4 +1,5 @@
 import 'package:test/test.dart';
+import 'package:xml/src/xpath/exceptions/error_code.dart';
 import 'package:xml/src/xpath/xdm/atomic.dart';
 import 'package:xml/src/xpath/xdm/casting_matrix.dart';
 import 'package:xml/src/xpath/xdm/types.dart';
@@ -231,6 +232,73 @@ void main() {
 
       final d2 = XPathDecimal.parse('1.5e3');
       expect(d2.stringValue, equals('1500'));
+    });
+
+    test('casting boolean to float and decimal', () {
+      expect(
+        castAtomic(XPathBoolean.trueInstance, xsDouble),
+        equals(const XPathDouble(1.0)),
+      );
+      expect(
+        castAtomic(XPathBoolean.falseInstance, xsDouble),
+        equals(const XPathDouble(0.0)),
+      );
+      expect(
+        castAtomic(XPathBoolean.trueInstance, xsDecimal).stringValue,
+        equals('1'),
+      );
+      expect(
+        castAtomic(XPathBoolean.falseInstance, xsDecimal).stringValue,
+        equals('0'),
+      );
+    });
+
+    test('year out of range errors throw FODT0001', () {
+      void expectYearError(String text, XPathType targetType) {
+        expect(
+          () => castAtomic(XPathString(text), targetType),
+          throwsA(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FODT0001),
+          ),
+        );
+      }
+
+      expectYearError('300000-01-01', xsDate);
+      expectYearError('300000-01-01T00:00:00Z', xsDateTime);
+      expectYearError('300000-01-01T00:00:00Z', xsDateTimeStamp);
+      expectYearError('100000000000000000000000000000-01', xsGYearMonth);
+      expectYearError('100000000000000000000000000000', xsGYear);
+    });
+
+    test('invalid lexical representations throw errors', () {
+      void expectLexicalError(String text, XPathType targetType) {
+        expect(
+          () => castAtomic(XPathString(text), targetType),
+          throwsA(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FORG0001),
+          ),
+        );
+      }
+
+      expectLexicalError('invalid', xsTime);
+      expectLexicalError('invalid', xsGMonthDay);
+      expectLexicalError('invalid', xsGMonth);
+      expectLexicalError('invalid', xsGDay);
+      expectLexicalError('invalid', xsDate);
+      expectLexicalError('invalid', xsDateTime);
+
+      expect(
+        () => castAtomic(const XPathString('1:2:3'), xsQName),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOCA0002)),
+      );
+    });
+
+    test('duration disallowed casts throw XPTY0004', () {
+      final ymd = XPathDuration.tryParse('P1Y2M', xsYearMonthDuration)!;
+      expect(
+        () => castAtomic(ymd, xsInteger),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
     });
   });
 }

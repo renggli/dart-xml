@@ -5,6 +5,7 @@ import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
 import '../../utils/matchers.dart';
+import '../helpers.dart';
 
 void main() {
   group('compare', () {
@@ -278,6 +279,56 @@ void main() {
           ),
         ),
       );
+    });
+
+    test('QName value comparisons and order restriction', () {
+      const q1 = XPathQName(XmlName('foo'));
+      const q2 = XPathQName(XmlName('foo'));
+      const q3 = XPathQName(XmlName('bar'));
+
+      expect(opValueEqual(seq(q1), seq(q2)), isXPathSequence([true]));
+      expect(opValueEqual(seq(q1), seq(q3)), isXPathSequence([false]));
+      expect(opValueNotEqual(seq(q1), seq(q3)), isXPathSequence([true]));
+
+      // Comparing QName with non-QName throws XPTY0004
+      expect(
+        () => opValueEqual(seq(q1), seq(1)),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+      expect(
+        () => opValueNotEqual(seq(q1), seq(1)),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+
+      // Order comparisons on QNames throw XPTY0004
+      expect(
+        () => opValueLessThan(seq(q1), seq(q2)),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+    });
+
+    test('AnyURI and String comparisons', () {
+      const u1 = XPathAnyUri('http://example.com/a');
+      const u2 = XPathAnyUri('http://example.com/b');
+      const s1 = XPathString('http://example.com/a');
+
+      expect(compare(u1, u2), lessThan(0));
+      expect(compare(s1, u2), lessThan(0));
+      expect(compare(u2, s1), greaterThan(0));
+    });
+
+    test('Binary and Duration value comparisons', () {
+      final b1 = XPathBinary.fromHex('0102');
+      final b2 = XPathBinary.fromHex('0102');
+      final b3 = XPathBinary.fromHex('0103');
+
+      expect(opValueEqual(seq(b1), seq(b2)), isXPathSequence([true]));
+      expect(opValueNotEqual(seq(b1), seq(b3)), isXPathSequence([true]));
+      expect(compare(b1, b3), lessThan(0));
+
+      final ymd1 = XPathDuration.tryParseYearMonth('P1Y')!;
+      final ymd2 = XPathDuration.tryParseYearMonth('P2Y')!;
+      expect(compare(ymd1, ymd2), lessThan(0));
     });
   });
 }

@@ -239,11 +239,19 @@ void main() {
         fnFormatInteger(context, [seq(123), seq('#')]),
         isXPathSequence(['123']),
       );
+      expect(
+        fnFormatInteger(context, [seq(123), seq('#'), seq('en')]),
+        isXPathSequence(['123']),
+      );
     });
 
     test('returns empty for empty sequence', () {
       expect(
         fnFormatInteger(context, [XPathSequence.empty, seq('#')]),
+        isXPathSequence(isEmpty),
+      );
+      expect(
+        fnFormatInteger(context, [XPathSequence.empty, seq('#'), seq('en')]),
         isXPathSequence(isEmpty),
       );
     });
@@ -255,11 +263,19 @@ void main() {
         fnFormatNumber(context, [seq(123.45), seq('#')]),
         isXPathSequence(['123.45']),
       );
+      expect(
+        fnFormatNumber(context, [seq(123.45), seq('#'), seq('df')]),
+        isXPathSequence(['123.45']),
+      );
     });
 
     test('returns empty for empty sequence', () {
       expect(
         fnFormatNumber(context, [XPathSequence.empty, seq('#')]),
+        isXPathSequence(isEmpty),
+      );
+      expect(
+        fnFormatNumber(context, [XPathSequence.empty, seq('#'), seq('df')]),
         isXPathSequence(isEmpty),
       );
     });
@@ -331,6 +347,16 @@ void main() {
         isXPathSequence([1, 2, 3]),
       );
     });
+
+    test('accepts collation argument', () {
+      expect(
+        fnDistinctValues(context, [
+          seq(['a', 'b', 'a']),
+          seq('http://www.w3.org/2005/xpath-functions/collation/codepoint'),
+        ]),
+        isXPathSequence(['a', 'b']),
+      );
+    });
   });
 
   group('fn:index-of', () {
@@ -353,6 +379,35 @@ void main() {
         XPathSequence.empty,
       );
     });
+
+    test('accepts collation argument', () {
+      expect(
+        fnIndexOf(context, [
+          seq(['a', 'b', 'a']),
+          seq('a'),
+          seq('http://www.w3.org/2005/xpath-functions/collation/codepoint'),
+        ]),
+        isXPathSequence([1, 3]),
+      );
+    });
+
+    test('returns empty if search target is empty', () {
+      expect(
+        fnIndexOf(context, [
+          seq([1, 2, 3]),
+          XPathSequence.empty,
+        ]),
+        XPathSequence.empty,
+      );
+      expect(
+        fnIndexOf(context, [
+          seq([1, 2, 3]),
+          XPathSequence.empty,
+          seq('collation'),
+        ]),
+        XPathSequence.empty,
+      );
+    });
   });
 
   group('fn:deep-equal', () {
@@ -363,6 +418,48 @@ void main() {
           seq([1, 2]),
         ]),
         isXPathSequence(XPathSequence.trueSequence),
+      );
+    });
+
+    test('accepts collation argument', () {
+      expect(
+        fnDeepEqual(context, [
+          seq(['a']),
+          seq(['a']),
+          seq('collation'),
+        ]),
+        isXPathSequence([true]),
+      );
+    });
+
+    test('XPathArray deep-equal comparison', () {
+      final arr1 = XPathArray([XPathSequence.single(XPathInteger.fromInt(1))]);
+      final arr2 = XPathArray([XPathSequence.single(XPathInteger.fromInt(1))]);
+      final arr3 = XPathArray([XPathSequence.single(XPathInteger.fromInt(2))]);
+      final arrDiffLen = XPathArray([
+        XPathSequence.single(XPathInteger.fromInt(1)),
+        XPathSequence.single(XPathInteger.fromInt(2)),
+      ]);
+      expect(
+        fnDeepEqual(context, [
+          XPathSequence.single(arr1),
+          XPathSequence.single(arr2),
+        ]),
+        isXPathSequence([true]),
+      );
+      expect(
+        fnDeepEqual(context, [
+          XPathSequence.single(arr1),
+          XPathSequence.single(arr3),
+        ]),
+        isXPathSequence([false]),
+      );
+      expect(
+        fnDeepEqual(context, [
+          XPathSequence.single(arr1),
+          XPathSequence.single(arrDiffLen),
+        ]),
+        isXPathSequence([false]),
       );
     });
     test('returns false for different items', () {
@@ -601,6 +698,12 @@ void main() {
         () => fnAvg(context, [seq(const XPathDuration(months: 1, days: 1))]),
         throwsA(isXPathEvaluationException()),
       );
+      expect(
+        () => fnAvg(context, [
+          const XPathSequence.single(XPathUntypedAtomic('invalid')),
+        ]),
+        throwsA(isXPathEvaluationException()),
+      );
     });
 
     test('integration via xpathEvaluate', () {
@@ -616,6 +719,31 @@ void main() {
           seq([1, 3, 2]),
         ]),
         isXPathSequence([3]),
+      );
+    });
+
+    test('accepts collation argument', () {
+      expect(
+        fnMax(context, [
+          seq(['a', 'c', 'b']),
+          seq('http://www.w3.org/2005/xpath-functions/collation/codepoint'),
+        ]),
+        isXPathSequence(['c']),
+      );
+    });
+
+    test('throws for invalid untypedAtomic and mixed types', () {
+      expect(
+        () => fnMax(context, [
+          const XPathSequence.single(XPathUntypedAtomic('not-a-number')),
+        ]),
+        throwsA(isXPathEvaluationException()),
+      );
+      expect(
+        () => fnMax(context, [
+          seq([1, 'a']),
+        ]),
+        throwsA(isXPathEvaluationException()),
       );
     });
 
@@ -686,6 +814,16 @@ void main() {
           seq([3, 1, 2]),
         ]),
         isXPathSequence([1]),
+      );
+    });
+
+    test('accepts collation argument', () {
+      expect(
+        fnMin(context, [
+          seq(['c', 'a', 'b']),
+          seq('http://www.w3.org/2005/xpath-functions/collation/codepoint'),
+        ]),
+        isXPathSequence(['a']),
       );
     });
 

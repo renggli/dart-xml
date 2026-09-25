@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/operators/general.dart';
+import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
 import '../../utils/matchers.dart';
@@ -125,6 +126,14 @@ void main() {
         XPathSequence.trueSequence,
       );
     });
+    test('QName order comparison throws XPTY0004', () {
+      const q1 = XPathSequence.single(XPathQName(XmlName('a')));
+      const q2 = XPathSequence.single(XPathQName(XmlName('b')));
+      expect(
+        () => opGeneralLessThan(q1, q2),
+        throwsA(isXPathEvaluationException()),
+      );
+    });
   });
 
   group('opGeneralGreaterThan', () {
@@ -132,6 +141,14 @@ void main() {
       expect(
         opGeneralGreaterThan(intSeq([1, 2]), intSeq([0, 3])),
         XPathSequence.trueSequence,
+      );
+    });
+    test('QName order comparison throws XPTY0004', () {
+      const q1 = XPathSequence.single(XPathQName(XmlName('a')));
+      const q2 = XPathSequence.single(XPathQName(XmlName('b')));
+      expect(
+        () => opGeneralGreaterThan(q1, q2),
+        throwsA(isXPathEvaluationException()),
       );
     });
   });
@@ -143,6 +160,14 @@ void main() {
         XPathSequence.trueSequence,
       );
     });
+    test('QName order comparison throws XPTY0004', () {
+      const q1 = XPathSequence.single(XPathQName(XmlName('a')));
+      const q2 = XPathSequence.single(XPathQName(XmlName('b')));
+      expect(
+        () => opGeneralLessThanOrEqual(q1, q2),
+        throwsA(isXPathEvaluationException()),
+      );
+    });
   });
 
   group('opGeneralGreaterThanOrEqual', () {
@@ -151,6 +176,62 @@ void main() {
         opGeneralGreaterThanOrEqual(intSeq([1, 2]), intSeq([0, 3])),
         XPathSequence.trueSequence,
       );
+    });
+    test('QName order comparison throws XPTY0004', () {
+      const q1 = XPathSequence.single(XPathQName(XmlName('a')));
+      const q2 = XPathSequence.single(XPathQName(XmlName('b')));
+      expect(
+        () => opGeneralGreaterThanOrEqual(q1, q2),
+        throwsA(isXPathEvaluationException()),
+      );
+    });
+  });
+
+  group('general comparison with QName, Duration, Binary, Untyped', () {
+    test('QName equality and inequality', () {
+      const q1 = XPathSequence.single(XPathQName(XmlName('foo')));
+      const q2 = XPathSequence.single(XPathQName(XmlName('foo')));
+      const q3 = XPathSequence.single(XPathQName(XmlName('bar')));
+      expect(opGeneralEqual(q1, q2), XPathSequence.trueSequence);
+      expect(opGeneralEqual(q1, q3), XPathSequence.falseSequence);
+      expect(opGeneralNotEqual(q1, q2), XPathSequence.falseSequence);
+      expect(opGeneralNotEqual(q1, q3), XPathSequence.trueSequence);
+    });
+
+    test('Duration equality and inequality', () {
+      const d1 = XPathSequence.single(XPathDuration.dayTime(1000));
+      const d2 = XPathSequence.single(XPathDuration.dayTime(1000));
+      const d3 = XPathSequence.single(XPathDuration.dayTime(2000));
+      expect(opGeneralEqual(d1, d2), XPathSequence.trueSequence);
+      expect(opGeneralEqual(d1, d3), XPathSequence.falseSequence);
+      expect(opGeneralNotEqual(d1, d2), XPathSequence.falseSequence);
+      expect(opGeneralNotEqual(d1, d3), XPathSequence.trueSequence);
+    });
+
+    test('Binary equality and inequality', () {
+      final b1 = XPathSequence.single(XPathBinary.fromHex('0102'));
+      final b2 = XPathSequence.single(XPathBinary.fromHex('0102'));
+      final b3 = XPathSequence.single(XPathBinary.fromHex('0304'));
+      expect(opGeneralEqual(b1, b2), XPathSequence.trueSequence);
+      expect(opGeneralEqual(b1, b3), XPathSequence.falseSequence);
+      expect(opGeneralNotEqual(b1, b2), XPathSequence.falseSequence);
+      expect(opGeneralNotEqual(b1, b3), XPathSequence.trueSequence);
+    });
+
+    test('untypedAtomic comparisons', () {
+      const u1 = XPathSequence.single(XPathUntypedAtomic('abc'));
+      const u2 = XPathSequence.single(XPathUntypedAtomic('abc'));
+      const u3 = XPathSequence.single(XPathUntypedAtomic('def'));
+      expect(opGeneralEqual(u1, u2), XPathSequence.trueSequence);
+      expect(opGeneralEqual(u1, u3), XPathSequence.falseSequence);
+
+      const uDate = XPathSequence.single(
+        XPathUntypedAtomic('2024-01-01T00:00:00Z'),
+      );
+      final date = XPathSequence.single(
+        XPathDateTime.fromDateTime(DateTime.utc(2024, 1, 1), 0),
+      );
+      expect(opGeneralEqual(uDate, date), XPathSequence.trueSequence);
     });
   });
 }

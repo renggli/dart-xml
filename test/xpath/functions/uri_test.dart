@@ -440,5 +440,91 @@ void main() {
       expect(result, isXPathSequence(['http://example.com/d.xml']));
       expect(result.first.type, equals(xsAnyURI));
     });
+
+    test('1-argument uri-collection with empty or resolved URI', () {
+      final doc = XmlDocument.parse('<d/>');
+      final colContext = XPathConfiguration.raw(
+        baseUri: 'http://example.com/dir/',
+        documents: {'http://example.com/d.xml': doc},
+        collections: {
+          '': [doc],
+          'http://example.com/dir/col': [doc],
+        },
+      ).context(XPathSequence.empty);
+
+      expect(
+        fnUriCollection(colContext, [XPathSequence.empty]),
+        isXPathSequence(['http://example.com/d.xml']),
+      );
+      expect(
+        fnUriCollection(colContext, [seq('')]),
+        isXPathSequence(['http://example.com/d.xml']),
+      );
+      expect(
+        fnUriCollection(colContext, [seq('col')]),
+        isXPathSequence(['http://example.com/d.xml']),
+      );
+      expect(
+        () => fnUriCollection(colContext, [seq('missing')]),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FODC0002)),
+      );
+    });
+
+    test('fn:doc invalid URI syntax and percent encoding errors FODC0005', () {
+      void expectDocUriError(String uri) {
+        expect(
+          () => fnDoc(emptyContext, [seq(uri)]),
+          throwsA(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FODC0005),
+          ),
+        );
+      }
+
+      expectDocUriError('http://example.com/bad path');
+      expectDocUriError(r'http://example.com\bad');
+      expectDocUriError('http://example.com/<tag>');
+      expectDocUriError('http://example.com/test%');
+      expectDocUriError('http://example.com/test%2');
+      expectDocUriError('http://example.com/test%2G');
+      expectDocUriError(':/invalid');
+    });
+
+    test('2-argument fn:unparsed-text-lines and unparsed-text-available', () {
+      final textContext = XPathConfiguration.raw(
+        baseUri: 'http://example.com/',
+        unparsedTextLoader: (uri, encoding) {
+          if (uri == 'http://example.com/lines.txt') {
+            return 'line1\r\nline2\nline3\n';
+          }
+          return null;
+        },
+      ).context(XPathSequence.empty);
+
+      expect(
+        fnUnparsedTextLines(textContext, [
+          seq('http://example.com/lines.txt'),
+          seq('utf-8'),
+        ]),
+        isXPathSequence(['line1', 'line2', 'line3']),
+      );
+      expect(
+        fnUnparsedTextLines(textContext, [XPathSequence.empty]),
+        isXPathSequence(isEmpty),
+      );
+      expect(
+        fnUnparsedTextAvailable(textContext, [
+          seq('http://example.com/lines.txt'),
+          seq('utf-8'),
+        ]),
+        isXPathSequence([true]),
+      );
+      expect(
+        fnUnparsedTextAvailable(textContext, [
+          seq('http://example.com/missing.txt'),
+          seq('utf-8'),
+        ]),
+        isXPathSequence([false]),
+      );
+    });
   });
 }

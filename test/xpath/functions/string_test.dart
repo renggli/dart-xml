@@ -549,10 +549,73 @@ void main() {
       expect(fnCompare(context, [seq('a'), seq('b')]), isXPathSequence([-1]));
     });
 
+    test('3-argument collation compares strings', () {
+      expect(
+        fnCompare(context, [
+          seq('a'),
+          seq('b'),
+          seq('http://www.w3.org/2005/xpath-functions/collation/codepoint'),
+        ]),
+        isXPathSequence([-1]),
+      );
+    });
+
     test('handles empty sequence', () {
       expect(
         fnCompare(context, [XPathSequence.empty, seq('a')]),
         isXPathSequence(isEmpty),
+      );
+    });
+  });
+
+  group('collation overloads for string matching functions', () {
+    const collation =
+        'http://www.w3.org/2005/xpath-functions/collation/codepoint';
+
+    test('fn:contains with 3 arguments', () {
+      expect(
+        fnContains(context, [seq('hello world'), seq('world'), seq(collation)]),
+        isXPathSequence([true]),
+      );
+    });
+
+    test('fn:starts-with with 3 arguments', () {
+      expect(
+        fnStartsWith(context, [
+          seq('hello world'),
+          seq('hello'),
+          seq(collation),
+        ]),
+        isXPathSequence([true]),
+      );
+    });
+
+    test('fn:ends-with with 3 arguments', () {
+      expect(
+        fnEndsWith(context, [seq('hello world'), seq('world'), seq(collation)]),
+        isXPathSequence([true]),
+      );
+    });
+
+    test('fn:substring-before with 3 arguments', () {
+      expect(
+        fnSubstringBefore(context, [
+          seq('hello world'),
+          seq(' '),
+          seq(collation),
+        ]),
+        isXPathSequence(['hello']),
+      );
+    });
+
+    test('fn:substring-after with 3 arguments', () {
+      expect(
+        fnSubstringAfter(context, [
+          seq('hello world'),
+          seq(' '),
+          seq(collation),
+        ]),
+        isXPathSequence(['world']),
       );
     });
   });

@@ -4,6 +4,7 @@ import 'package:xml/src/xpath/functions/node.dart';
 import 'package:xml/src/xpath/xdm/atomic.dart';
 import 'package:xml/src/xpath/xdm/function_item.dart';
 import 'package:xml/src/xpath/xdm/functions/array.dart';
+import 'package:xml/src/xpath/xdm/functions/map.dart';
 import 'package:xml/src/xpath/xdm/sequence.dart';
 import 'package:xml/src/xpath/xdm/types.dart';
 
@@ -397,6 +398,74 @@ void main() {
         ),
       );
       expect(wrongReturnType.matchesItem(fnName1), isFalse);
+    });
+
+    test('equality and hashCode on XPathFunctionType', () {
+      const fn1 = XPathFunctionType();
+      const fn2 = XPathFunctionType();
+      expect(fn1 == fn2, isTrue);
+      expect(fn1.hashCode, equals(fn2.hashCode));
+    });
+  });
+
+  group('xsEmptySequenceType', () {
+    test('isSubtypeOf sequence types with optional cardinality', () {
+      const optStr = XPathSequenceType(
+        itemType: xsString,
+        cardinality: XPathCardinality.zeroOrOne,
+      );
+      const starStr = XPathSequenceType(
+        itemType: xsString,
+        cardinality: XPathCardinality.zeroOrMore,
+      );
+      const oneStr = XPathSequenceType(
+        itemType: xsString,
+        cardinality: XPathCardinality.exactlyOne,
+      );
+
+      expect(xsEmptySequence.isSubtypeOf(optStr), isTrue);
+      expect(xsEmptySequence.isSubtypeOf(starStr), isTrue);
+      expect(xsEmptySequence.isSubtypeOf(oneStr), isFalse);
+      expect(xsEmptySequence.isSubtypeOf(xsItem), isFalse);
+      expect(xsEmptySequence.isSubtypeOf(xsEmptySequence), isTrue);
+    });
+
+    test('matchesItem and matchesSequence', () {
+      expect(xsEmptySequence.matchesItem(XPathInteger.fromInt(1)), isFalse);
+      expect(xsEmptySequence.matchesSequence(XPathSequence.empty), isTrue);
+      expect(
+        xsEmptySequence.matchesSequence(
+          XPathSequence.single(XPathInteger.fromInt(1)),
+        ),
+        isFalse,
+      );
+    });
+  });
+
+  group('XPathMapType matchesItem and equality', () {
+    test('matchesItem validates key and value types', () {
+      const intStrMapType = XPathMapType(xsInteger, xsString);
+      final validMap = XPathMap({
+        XPathInteger.fromInt(1): const XPathSequence.single(XPathString('one')),
+      });
+      final invalidKeyMap = XPathMap({
+        const XPathString('1'): const XPathSequence.single(XPathString('one')),
+      });
+      final invalidValMap = XPathMap({
+        XPathInteger.fromInt(1): XPathSequence.single(XPathInteger.fromInt(1)),
+      });
+
+      expect(intStrMapType.matchesItem(validMap), isTrue);
+      expect(intStrMapType.matchesItem(invalidKeyMap), isFalse);
+      expect(intStrMapType.matchesItem(invalidValMap), isFalse);
+      expect(intStrMapType.matchesItem(XPathInteger.fromInt(1)), isFalse);
+    });
+
+    test('equality and hashCode', () {
+      const map1 = XPathMapType(xsInteger, xsString);
+      const map2 = XPathMapType(xsInteger, xsString);
+      expect(map1 == map2, isTrue);
+      expect(map1.hashCode, equals(map2.hashCode));
     });
   });
 }

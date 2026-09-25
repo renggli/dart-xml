@@ -159,5 +159,40 @@ void main() {
       expect(XPathDateTime.tryParseDay('---15'), isNotNull);
       expect(XPathDateTime.tryParseDay('---32'), isNull);
     });
+
+    test('toLocal conversion and negative timezone offsets', () {
+      final dtUtc = XPathDateTime.tryParse('2021-01-01T12:00:00Z')!;
+      final dtLocal = dtUtc.toLocal();
+      expect(dtLocal.timezoneOffsetMinutes, isNotNull);
+      // toLocal on same offset returns itself
+      expect(
+        dtLocal.toLocal().timezoneOffsetMinutes,
+        equals(dtLocal.timezoneOffsetMinutes),
+      );
+
+      const dtNeg = XPathDateTime.date(2021, 5, 20, -300);
+      expect(dtNeg.toString(), equals('2021-05-20-05:00'));
+
+      const timeNeg = XPathDateTime.time(12, 30, 0, 0, 0, -330);
+      expect(timeNeg.toString(), equals('12:30:00-05:30'));
+    });
+
+    test('hashCode and equality', () {
+      final dt1 = XPathDateTime.tryParse('2021-01-01T12:00:00Z')!;
+      final dt1Clone = XPathDateTime.tryParse('2021-01-01T12:00:00Z')!;
+      final dt2 = XPathDateTime.tryParse('2021-01-01T14:00:00+02:00')!;
+      expect(dt1.hashCode, equals(dt1Clone.hashCode));
+      expect(dt1 == dt2, isTrue);
+    });
+
+    test('calendar validations for days in months', () {
+      expect(XPathDateTime.tryParseDate('2021-04-30'), isNotNull);
+      expect(XPathDateTime.tryParseDate('2021-04-31'), isNull);
+      expect(XPathDateTime.tryParseDate('2020-02-29'), isNotNull);
+      expect(XPathDateTime.tryParseDate('2021-02-29'), isNull);
+      expect(XPathDateTime.tryParseDate('2021-06-31'), isNull);
+      expect(XPathDateTime.tryParseDate('2021-09-31'), isNull);
+      expect(XPathDateTime.tryParseDate('2021-11-31'), isNull);
+    });
   });
 }

@@ -219,5 +219,121 @@ void main() {
       expect(d2.compareTo(d1), greaterThan(0));
       expect(d1.compareTo(const XPathDouble(1.0)), equals(0));
     });
+
+    test('toBigInt conversions and errors', () {
+      expect(const XPathDouble(42.0).toBigInt(), equals(BigInt.from(42)));
+      expect(
+        () => XPathDouble.nan.toBigInt(),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOCA0002)),
+      );
+      expect(
+        () => XPathDouble.infinity.toBigInt(),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOCA0002)),
+      );
+      expect(
+        () => const XPathDouble(1e25).toBigInt(),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOCA0003)),
+      );
+    });
+
+    test('toDecimal conversions and errors', () {
+      expect(const XPathDouble(12.34).toDecimal().stringValue, equals('12.34'));
+      expect(
+        () => XPathDouble.nan.toDecimal(),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOCA0002)),
+      );
+      expect(
+        () => XPathDouble.infinity.toDecimal(),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOCA0002)),
+      );
+      expect(
+        () => const XPathDouble(1e105).toDecimal(),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOCA0001)),
+      );
+    });
+
+    test('cross-type idiv and mod on XPathInteger', () {
+      final i10 = XPathInteger.fromInt(10);
+      expect(
+        i10.idiv(XPathDecimal.parse('2.5')),
+        equals(XPathInteger.fromInt(4)),
+      );
+      expect(i10.idiv(const XPathDouble(3.0)), equals(XPathInteger.fromInt(3)));
+      expect(
+        () => i10.idiv(XPathInteger.fromInt(0)),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOAR0001)),
+      );
+      expect(
+        () => i10.idiv(XPathDecimal.zero),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOAR0001)),
+      );
+      expect(
+        () => i10.idiv(const XPathDouble(0.0)),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOAR0001)),
+      );
+      expect(
+        () => i10.idiv(XPathDouble.nan),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOAR0002)),
+      );
+      expect(i10.idiv(XPathDouble.infinity), equals(XPathInteger(BigInt.zero)));
+
+      // mod
+      expect(i10 % XPathDecimal.parse('3.5'), isA<XPathDecimal>());
+      expect(i10 % const XPathDouble(3.0), isA<XPathDouble>());
+      expect(
+        () => i10 % XPathInteger.fromInt(0),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOAR0001)),
+      );
+      expect(
+        () => i10 % XPathDecimal.zero,
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOAR0001)),
+      );
+      expect(
+        () => const XPathDouble(10.0) % const XPathDouble(0.0),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOAR0001)),
+      );
+    });
+
+    test('cross-type idiv and mod on XPathDecimal', () {
+      final d10 = XPathDecimal.parse('10.5');
+      expect(
+        d10.idiv(XPathInteger.fromInt(2)),
+        equals(XPathInteger.fromInt(5)),
+      );
+      expect(
+        d10.idiv(XPathDecimal.parse('2.0')),
+        equals(XPathInteger.fromInt(5)),
+      );
+      expect(d10.idiv(const XPathDouble(2.0)), equals(XPathInteger.fromInt(5)));
+      expect(
+        () => d10.idiv(XPathDecimal.zero),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOAR0001)),
+      );
+      expect(
+        () => d10.idiv(const XPathDouble(0.0)),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOAR0001)),
+      );
+      expect(
+        () => d10.idiv(XPathDouble.nan),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOAR0002)),
+      );
+      expect(d10.idiv(XPathDouble.infinity), equals(XPathInteger(BigInt.zero)));
+
+      // mod
+      expect(d10 % XPathInteger.fromInt(3), isA<XPathDecimal>());
+      expect(d10 % const XPathDouble(3.0), isA<XPathDouble>());
+      expect(
+        () => d10 % XPathDecimal.zero,
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOAR0001)),
+      );
+
+      // compareTo with Double
+      expect(d10.compareTo(XPathDouble.nan), equals(-1));
+      expect(d10.compareTo(const XPathDouble(10.5)), equals(0));
+      expect(d10.compareTo(const XPathDouble(20.0)), lessThan(0));
+      expect(d10.compareTo(const XPathDouble(5.0)), greaterThan(0));
+      expect(d10 == const XPathDouble(10.5), isTrue);
+      expect(d10 == XPathDouble.nan, isFalse);
+    });
   });
 }
