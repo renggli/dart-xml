@@ -128,6 +128,24 @@ final fnFormatInteger = XPathFunctionItem.overloaded(
   },
 );
 
+XPathNumeric? _coerceNumeric(XPathSequence seq) {
+  final item = seq.atomize().firstOrNull;
+  if (item == null) return null;
+  if (item is XPathNumeric) return item;
+  if (item is XPathUntypedAtomic) {
+    final d = XPathDouble.tryParse(item.stringValue);
+    if (d != null) return d;
+    throw XPathEvaluationException(
+      XPathErrorCode.FORG0001,
+      'Cannot convert untypedAtomic "${item.stringValue}" to xs:double',
+    );
+  }
+  throw XPathEvaluationException(
+    XPathErrorCode.XPTY0004,
+    'Expected numeric value, got ${item.type}',
+  );
+}
+
 /// https://www.w3.org/TR/xpath-functions-31/#func-format-number
 final fnFormatNumber = XPathFunctionItem.overloaded(
   const XmlName.qualified('fn:format-number'),
@@ -137,7 +155,7 @@ final fnFormatNumber = XPathFunctionItem.overloaded(
       value,
       picture,
     ) {
-      final val = value.atomize().firstOrNull as XPathNumeric?;
+      final val = _coerceNumeric(value);
       if (val == null) return XPathSequence.empty;
       return XPathSequence.single(XPathString(val.stringValue));
     }),
@@ -147,7 +165,7 @@ final fnFormatNumber = XPathFunctionItem.overloaded(
       picture,
       decimalFormatName,
     ) {
-      final val = value.atomize().firstOrNull as XPathNumeric?;
+      final val = _coerceNumeric(value);
       if (val == null) return XPathSequence.empty;
       return XPathSequence.single(XPathString(val.stringValue));
     }),
@@ -160,18 +178,15 @@ final fnSubsequence = XPathFunctionItem.overloaded(
   {
     2: XPathFunctionItem.fn2(
       const XmlName.qualified('fn:subsequence'),
-      (context, sourceSeq, startingLoc) => _evalSubsequence(
-        sourceSeq,
-        startingLoc.atomize().firstOrNull as XPathNumeric?,
-        null,
-      ),
+      (context, sourceSeq, startingLoc) =>
+          _evalSubsequence(sourceSeq, _coerceNumeric(startingLoc), null),
     ),
     3: XPathFunctionItem.fn3(
       const XmlName.qualified('fn:subsequence'),
       (context, sourceSeq, startingLoc, length) => _evalSubsequence(
         sourceSeq,
-        startingLoc.atomize().firstOrNull as XPathNumeric?,
-        length.atomize().firstOrNull as XPathNumeric?,
+        _coerceNumeric(startingLoc),
+        _coerceNumeric(length),
       ),
     ),
   },

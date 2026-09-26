@@ -6,7 +6,6 @@ import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/atomic/numeric.dart';
 import '../xdm/atomic/qname.dart';
-import '../xdm/atomic/string.dart';
 import '../xdm/function_item.dart';
 import '../xdm/functions/array.dart';
 import '../xdm/item.dart';
@@ -222,7 +221,7 @@ XPathSequence _fnSort2(
   XPathContext context,
   XPathSequence seq,
   XPathSequence collationSeq,
-) => _evalSort(context, seq, collationSeq.firstOrNull as XPathString?, null);
+) => _evalSort(context, seq, collationSeq.firstOrNull, null);
 
 XPathSequence _fnSort3(
   XPathContext context,
@@ -232,14 +231,14 @@ XPathSequence _fnSort3(
 ) => _evalSort(
   context,
   seq,
-  collationSeq.firstOrNull as XPathString?,
+  collationSeq.firstOrNull,
   keySeq.firstOrNull as XPathFunctionItem?,
 );
 
 XPathSequence _evalSort(
   XPathContext context,
   XPathSequence seq,
-  XPathString? collation,
+  XPathItem? collation,
   XPathFunctionItem? key,
 ) {
   final list = seq.toList();

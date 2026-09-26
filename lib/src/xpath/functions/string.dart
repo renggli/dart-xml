@@ -1,4 +1,3 @@
-import '../../xml/utils/cache.dart';
 import '../../xml/utils/name.dart';
 import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
@@ -8,6 +7,7 @@ import '../xdm/atomic/string.dart';
 import '../xdm/function_item.dart';
 import '../xdm/item.dart';
 import '../xdm/sequence.dart';
+import 'regex.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-codepoints-to-string
 final fnCodepointsToString = XPathFunctionItem.fn1(
@@ -476,7 +476,7 @@ final fnMatches = XPathFunctionItem.overloaded(
 
 XPathSequence _evalMatches(String? input, String? pattern, String? flags) {
   if (input == null || pattern == null) return XPathSequence.falseSequence;
-  final regex = _regexpCache[(pattern: pattern, flags: flags)];
+  final regex = getCachedXPathRegex(pattern, flags);
   return XPathSequence.single(XPathBoolean.fromBool(regex.hasMatch(input)));
 }
 
@@ -514,10 +514,15 @@ XPathSequence _evalReplace(
 ) {
   if (input == null) return const XPathSequence.single(XPathString.empty);
   if (pattern == null || replacement == null) return XPathSequence.empty;
-  final regex = _regexpCache[(pattern: pattern, flags: flags)];
-  return XPathSequence.single(
-    XPathString(input.replaceAll(regex, replacement)),
+  final regex = getCachedXPathRegex(pattern, flags);
+  final isLiteral = flags != null && flags.contains('q');
+  final result = applyXPathReplace(
+    input,
+    regex,
+    replacement,
+    isLiteral: isLiteral,
   );
+  return XPathSequence.single(XPathString(result));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-tokenize
@@ -549,7 +554,7 @@ final fnTokenize = XPathFunctionItem.overloaded(
 );
 
 XPathSequence _evalTokenize(String? input, String? pattern, String? flags) {
-  if (input == null) return XPathSequence.empty;
+  if (input == null || input.isEmpty) return XPathSequence.empty;
   if (pattern == null) {
     return XPathSequence(
       input
@@ -559,7 +564,13 @@ XPathSequence _evalTokenize(String? input, String? pattern, String? flags) {
           .map(XPathString.new),
     );
   }
-  final regex = _regexpCache[(pattern: pattern, flags: flags)];
+  final regex = getCachedXPathRegex(pattern, flags);
+  if (regex.hasMatch('')) {
+    throw XPathEvaluationException(
+      XPathErrorCode.FORX0003,
+      'Regular expression matches zero-length string',
+    );
+  }
   return XPathSequence(input.split(regex).map(XPathString.new));
 }
 
@@ -567,20 +578,40 @@ XPathSequence _evalTokenize(String? input, String? pattern, String? flags) {
 final fnAnalyzeString = XPathFunctionItem.overloaded(
   const XmlName.qualified('fn:analyze-string'),
   {
-    2: XPathFunctionItem.fn2(
-      const XmlName.qualified('fn:analyze-string'),
-      (context, input, pattern) => throw XPathEvaluationException(
-        XPathErrorCode.FOER0000,
-        'Not implemented: fn:analyze-string',
-      ),
-    ),
-    3: XPathFunctionItem.fn3(
-      const XmlName.qualified('fn:analyze-string'),
-      (context, input, pattern, flags) => throw XPathEvaluationException(
-        XPathErrorCode.FOER0000,
-        'Not implemented: fn:analyze-string',
-      ),
-    ),
+    2: XPathFunctionItem.fn2(const XmlName.qualified('fn:analyze-string'), (
+      context,
+      input,
+      pattern,
+    ) {
+      final patternStr = _asString(pattern.atomize().firstOrNull);
+      if (patternStr == null) {
+        throw XPathEvaluationException(
+          XPathErrorCode.XPTY0004,
+          'fn:analyze-string pattern must be a string',
+        );
+      }
+      final inputStr = _asString(input.atomize().firstOrNull) ?? '';
+      return XPathSequence.single(analyzeXPathString(inputStr, patternStr));
+    }),
+    3: XPathFunctionItem.fn3(const XmlName.qualified('fn:analyze-string'), (
+      context,
+      input,
+      pattern,
+      flags,
+    ) {
+      final patternStr = _asString(pattern.atomize().firstOrNull);
+      if (patternStr == null) {
+        throw XPathEvaluationException(
+          XPathErrorCode.XPTY0004,
+          'fn:analyze-string pattern must be a string',
+        );
+      }
+      final inputStr = _asString(input.atomize().firstOrNull) ?? '';
+      final flagsStr = _asString(flags.atomize().firstOrNull);
+      return XPathSequence.single(
+        analyzeXPathString(inputStr, patternStr, flags: flagsStr),
+      );
+    }),
   },
 );
 
@@ -631,71 +662,3 @@ XPathSequence _evalContainsToken(String? input, String? token) {
 }
 
 final _whitespaceRegExp = RegExp(r'\s+');
-
-final _regexpCache = XmlCache<({String pattern, String? flags}), RegExp>(
-  (args) => _compileRegex(args.pattern, args.flags),
-  25,
-);
-
-RegExp _compileRegex(String pattern, String? flags) {
-  var isMultiLine = false;
-  var isCaseSensitive = true;
-  var isDotAll = false;
-  var isLiteral = false;
-  if (flags != null) {
-    for (var i = 0; i < flags.length; i++) {
-      final flag = flags[i];
-      if (flag == 'm') {
-        isMultiLine = true;
-      } else if (flag == 'i') {
-        isCaseSensitive = false;
-      } else if (flag == 's') {
-        isDotAll = true;
-      } else if (flag == 'q') {
-        isLiteral = true;
-      } else if (flag != 'x') {
-        throw XPathEvaluationException(
-          XPathErrorCode.FORX0001,
-          'Invalid regex flag: $flag',
-        );
-      }
-    }
-  }
-  try {
-    return RegExp(
-      isLiteral ? RegExp.escape(pattern) : _translateXPathRegex(pattern),
-      multiLine: isMultiLine,
-      caseSensitive: isCaseSensitive,
-      dotAll: isDotAll,
-      unicode: true,
-    );
-  } on FormatException catch (error) {
-    throw XPathEvaluationException(
-      XPathErrorCode.FORX0002,
-      'Invalid regex: ${error.message}',
-    );
-  }
-}
-
-// Regex matching character class subtraction: `[X-[Y]]`.
-final _charClassSubtraction = RegExp(
-  r'\[(\^?)' // opening `[` with optional negation
-  r'((?:[^\]\\]|\\.)*)' // base class content
-  r'-\[(\^?)' // subtraction `-[` with optional negation
-  r'((?:[^\]\\]|\\.)*)' // subtracted class content
-  r'\]\]', // closing `]]`
-);
-
-String _translateXPathRegex(String pattern) {
-  // Character class subtraction: [X-[Y]] → (?:(?![Y])[X])
-  pattern = pattern.replaceAllMapped(
-    _charClassSubtraction,
-    (m) => '(?:(?![${m[3]}${m[4]}])[${m[1]}${m[2]}])',
-  );
-  // XML character class escapes.
-  return pattern
-      .replaceAll(r'\i', r'[\p{L}_:]')
-      .replaceAll(r'\I', r'[^\p{L}_:]')
-      .replaceAll(r'\c', r'[\p{L}\p{N}.\-_:\p{M}]')
-      .replaceAll(r'\C', r'[^\p{L}\p{N}.\-_:\p{M}]');
-}

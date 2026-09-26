@@ -720,22 +720,77 @@ void main() {
   });
 
   group('fn:analyze-string', () {
-    test('throws not implemented', () {
+    test('analyzes string with matching and non-matching parts', () {
+      final res = fnAnalyzeString(context, [seq('banana'), seq('a')]);
+      expect(res, hasLength(1));
       expect(
-        () => fnAnalyzeString(context, [seq(''), seq('')]),
-        throwsA(
-          isXPathEvaluationException(
-            message: 'Not implemented: fn:analyze-string',
-          ),
-        ),
+        (res.first as XPathNode).node.toXmlString(),
+        '<fn:analyze-string-result xmlns:fn="http://www.w3.org/2005/xpath-functions">'
+        '<fn:non-match>b</fn:non-match>'
+        '<fn:match>a</fn:match>'
+        '<fn:non-match>n</fn:non-match>'
+        '<fn:match>a</fn:match>'
+        '<fn:non-match>n</fn:non-match>'
+        '<fn:match>a</fn:match>'
+        '</fn:analyze-string-result>',
       );
+    });
+
+    test('analyzes string with groups', () {
+      final res = fnAnalyzeString(context, [seq('banana'), seq('a(n)')]);
+      expect(res, hasLength(1));
       expect(
-        () => fnAnalyzeString(context, [seq(''), seq(''), seq('i')]),
-        throwsA(
-          isXPathEvaluationException(
-            message: 'Not implemented: fn:analyze-string',
-          ),
-        ),
+        (res.first as XPathNode).node.toXmlString(),
+        '<fn:analyze-string-result xmlns:fn="http://www.w3.org/2005/xpath-functions">'
+        '<fn:non-match>b</fn:non-match>'
+        '<fn:match>a<fn:group nr="1">n</fn:group></fn:match>'
+        '<fn:match>a<fn:group nr="1">n</fn:group></fn:match>'
+        '<fn:non-match>a</fn:non-match>'
+        '</fn:analyze-string-result>',
+      );
+    });
+
+    test('handles empty input', () {
+      final res = fnAnalyzeString(context, [seq(''), seq('abc')]);
+      expect(
+        (res.first as XPathNode).node.toXmlString(),
+        '<fn:analyze-string-result xmlns:fn="http://www.w3.org/2005/xpath-functions"/>',
+      );
+    });
+
+    test('handles empty sequence as input', () {
+      final res = fnAnalyzeString(context, [XPathSequence.empty, seq('abc')]);
+      expect(
+        (res.first as XPathNode).node.toXmlString(),
+        '<fn:analyze-string-result xmlns:fn="http://www.w3.org/2005/xpath-functions"/>',
+      );
+    });
+
+    test('throws for empty sequence pattern', () {
+      expect(
+        () => fnAnalyzeString(context, [seq('banana'), XPathSequence.empty]),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+    });
+
+    test('throws for invalid flags', () {
+      expect(
+        () => fnAnalyzeString(context, [seq('abc'), seq('abc'), seq('w')]),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORX0001)),
+      );
+    });
+
+    test('throws for invalid regex pattern', () {
+      expect(
+        () => fnAnalyzeString(context, [seq('abc'), seq(')-(')]),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002)),
+      );
+    });
+
+    test('throws for pattern matching zero-length string', () {
+      expect(
+        () => fnAnalyzeString(context, [seq('abc'), seq('a|b|c?')]),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORX0003)),
       );
     });
   });
