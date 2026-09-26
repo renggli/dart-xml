@@ -264,10 +264,125 @@ final _defaultGroupParser = const _XPathRegexGroupGrammar(isFlagX: false)
     .build();
 final _flagXGroupParser = const _XPathRegexGroupGrammar(isFlagX: true).build();
 
+String _validateAndNormalizeBackreferences(String pattern) {
+  if (!pattern.contains(r'\')) return pattern;
+
+  final buffer = StringBuffer();
+  var classDepth = 0;
+  var openedCount = 0;
+  final openStack = <int>[];
+  final closedGroups = <int>{};
+
+  var i = 0;
+  while (i < pattern.length) {
+    final c = pattern[i];
+
+    if (classDepth > 0) {
+      buffer.write(c);
+      if (c == r'\') {
+        if (i + 1 < pattern.length) {
+          buffer.write(pattern[i + 1]);
+          i += 2;
+          continue;
+        }
+      } else if (c == '[') {
+        classDepth++;
+      } else if (c == ']') {
+        classDepth--;
+      }
+      i++;
+      continue;
+    }
+
+    if (c == r'\') {
+      if (i + 1 < pattern.length) {
+        final nextChar = pattern[i + 1];
+        final nextCode = nextChar.codeUnitAt(0);
+        if (nextCode >= 0x31 && nextCode <= 0x39) {
+          var j = i + 1;
+          while (j < pattern.length &&
+              pattern.codeUnitAt(j) >= 0x30 &&
+              pattern.codeUnitAt(j) <= 0x39) {
+            j++;
+          }
+          final digitStr = pattern.substring(i + 1, j);
+          var refNum = int.parse(digitStr);
+          var refLen = digitStr.length;
+          while (refLen > 1 && refNum > openedCount) {
+            refLen--;
+            refNum = int.parse(digitStr.substring(0, refLen));
+          }
+          if (!closedGroups.contains(refNum)) {
+            throw XPathEvaluationException(
+              XPathErrorCode.FORX0002,
+              'Invalid back-reference: \\$refNum',
+            );
+          }
+          buffer.write(r'\');
+          buffer.write(refNum);
+          if (refLen < digitStr.length) {
+            buffer.write('(?:)');
+            buffer.write(digitStr.substring(refLen));
+          }
+          i = j;
+          continue;
+        } else {
+          buffer.write(c);
+          buffer.write(pattern[i + 1]);
+          i += 2;
+          continue;
+        }
+      }
+    }
+
+    if (c == '[') {
+      classDepth++;
+      buffer.write(c);
+      i++;
+      continue;
+    }
+
+    if (c == '(') {
+      buffer.write(c);
+      if (i + 2 < pattern.length &&
+          pattern[i + 1] == '?' &&
+          pattern[i + 2] == ':') {
+        openStack.add(-1);
+        buffer.write('?:');
+        i += 3;
+        continue;
+      } else {
+        openedCount++;
+        openStack.add(openedCount);
+        i++;
+        continue;
+      }
+    }
+
+    if (c == ')') {
+      buffer.write(c);
+      if (openStack.isNotEmpty) {
+        final group = openStack.removeLast();
+        if (group != -1) {
+          closedGroups.add(group);
+        }
+      }
+      i++;
+      continue;
+    }
+
+    buffer.write(c);
+    i++;
+  }
+
+  return buffer.toString();
+}
+
 /// Translates W3C XML Schema regular expressions to ECMAScript/Dart compatible patterns using PetitParser.
 String translateXPathRegex(String pattern, {bool isFlagX = false}) {
+  final normalized = _validateAndNormalizeBackreferences(pattern);
   final parser = isFlagX ? _flagXRegexParser : _defaultRegexParser;
-  final result = parser.parse(pattern);
+  final result = parser.parse(normalized);
   if (result is Failure) {
     throw XPathEvaluationException(
       XPathErrorCode.FORX0002,
@@ -438,7 +553,7 @@ class XPathRegexTransformGrammar extends GrammarDefinition<String> {
   }
 
   Parser<String> escapes() => [
-    string(r'\ ').map((_) => r'\x20'),
+    if (!isFlagX) string(r'\ ').map((_) => r'\x20'),
     string(r'\-').map((_) => r'\x2D'),
     string(r'\:').map((_) => ':'),
     string(r'\#').map((_) => '#'),
@@ -449,19 +564,16 @@ class XPathRegexTransformGrammar extends GrammarDefinition<String> {
     string(r'\I').map((_) => r'[^\p{L}_:]'),
     string(r'\c').map((_) => r'[\p{L}\p{N}.\-_:\p{M}]'),
     string(r'\C').map((_) => r'[^\p{L}\p{N}.\-_:\p{M}]'),
-    seq2(char(r'\'), pattern('dDsSwW')).flatten(),
+    seq2(char(r'\').trim(ref0(ws)), pattern('dDsSwW')).map2((_, c) => r'\' + c),
     ref0(backreference),
     ref0(unicodeProperty),
     seq2(char(r'\'), anyOf(r'()[]{}^$|.?*+\')).flatten(),
   ].toChoiceParser();
 
-  Parser<String> backreference() => seq2(char(r'\'), pattern('1-9'))
-      .map2((slash, digit) => '$slash$digit')
-      .then(digit().and().optional())
-      .map2((ref, nextDigit) {
-        if (nextDigit != null) return '$ref(?:)';
-        return ref;
-      });
+  Parser<String> backreference() => seq2(
+    char(r'\'),
+    pattern('1-9').seq(digit().starString()).flatten(),
+  ).map2((slash, digit) => '$slash$digit');
 
   Parser<String> unicodeProperty() =>
       seq3(
@@ -528,7 +640,7 @@ class XPathRegexTransformGrammar extends GrammarDefinition<String> {
       });
 
   Parser<String> charClassBody() =>
-      ref0(charClassItem).star().map((items) => items.join());
+      ref0(charClassItem).plus().map((items) => items.join());
 
   Parser<String> charClassItem() => [
     ref0(charClassSub),
@@ -540,7 +652,7 @@ class XPathRegexTransformGrammar extends GrammarDefinition<String> {
     ref0(unicodePropertyInClass),
     seq2(char(r'\'), anyOf(r'-[]\nrt')).flatten(),
     seq2(char(r'\'), anyOf(r'()[]{}^$|.?*+')).flatten(),
-    pattern(r'^\]\\'),
+    anyOf(r'[]\').neg(),
   ].toChoiceParser();
 
   Parser<String> charClassSub() =>

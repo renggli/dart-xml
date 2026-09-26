@@ -113,8 +113,25 @@ void main() {
     });
 
     test('translates backreferences', () {
-      expect(translateXPathRegex(r'\1'), r'\1');
-      expect(translateXPathRegex(r'\19'), r'\1(?:)9');
+      expect(translateXPathRegex(r'(a)\1'), r'(a)\1');
+      expect(translateXPathRegex(r'^(#)abc\11$'), r'^(#)abc\1(?:)1$');
+      expect(
+        translateXPathRegex(r'(a)(b)(c)(d)(e)(f)(g)(h)(i)(j)\10'),
+        r'(a)(b)(c)(d)(e)(f)(g)(h)(i)(j)\10',
+      );
+      expect(
+        translateXPathRegex(r'(a)(b)(c)(d)(e)(f)(g)(h)(i)(j)\101'),
+        r'(a)(b)(c)(d)(e)(f)(g)(h)(i)(j)\10(?:)1',
+      );
+      expect(translateXPathRegex(r'(?:a)(b)\1'), r'(?:a)(b)\1');
+      expect(
+        () => translateXPathRegex(r'\1'),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002)),
+      );
+      expect(
+        () => translateXPathRegex(r'((a)\1)'),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002)),
+      );
     });
 
     test('translates unicode property escapes', () {

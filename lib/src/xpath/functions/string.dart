@@ -455,27 +455,47 @@ XPathSequence _evalSubstringAfter(String? arg1, String? arg2) {
 final fnMatches = XPathFunctionItem.overloaded(
   const XmlName.qualified('fn:matches'),
   {
-    2: XPathFunctionItem.fn2(
-      const XmlName.qualified('fn:matches'),
-      (context, input, pattern) => _evalMatches(
-        _asString(input.atomize().firstOrNull),
-        _asString(pattern.atomize().firstOrNull),
-        null,
-      ),
-    ),
-    3: XPathFunctionItem.fn3(
-      const XmlName.qualified('fn:matches'),
-      (context, input, pattern, flags) => _evalMatches(
-        _asString(input.atomize().firstOrNull),
-        _asString(pattern.atomize().firstOrNull),
-        _asString(flags.atomize().firstOrNull),
-      ),
-    ),
+    2: XPathFunctionItem.fn2(const XmlName.qualified('fn:matches'), (
+      context,
+      input,
+      pattern,
+    ) {
+      final p = _asString(pattern.atomize().firstOrNull);
+      if (p == null) {
+        throw XPathEvaluationException(
+          XPathErrorCode.XPTY0004,
+          'Pattern cannot be the empty sequence',
+        );
+      }
+      return _evalMatches(_asString(input.atomize().firstOrNull), p, null);
+    }),
+    3: XPathFunctionItem.fn3(const XmlName.qualified('fn:matches'), (
+      context,
+      input,
+      pattern,
+      flags,
+    ) {
+      final p = _asString(pattern.atomize().firstOrNull);
+      if (p == null) {
+        throw XPathEvaluationException(
+          XPathErrorCode.XPTY0004,
+          'Pattern cannot be the empty sequence',
+        );
+      }
+      final f = _asString(flags.atomize().firstOrNull);
+      if (f == null) {
+        throw XPathEvaluationException(
+          XPathErrorCode.XPTY0004,
+          'Flags cannot be the empty sequence',
+        );
+      }
+      return _evalMatches(_asString(input.atomize().firstOrNull), p, f);
+    }),
   },
 );
 
-XPathSequence _evalMatches(String? input, String? pattern, String? flags) {
-  if (input == null || pattern == null) return XPathSequence.falseSequence;
+XPathSequence _evalMatches(String? input, String pattern, String? flags) {
+  if (input == null) return XPathSequence.falseSequence;
   final regex = getCachedXPathRegex(pattern, flags);
   return XPathSequence.single(XPathBoolean.fromBool(regex.hasMatch(input)));
 }
@@ -484,40 +504,69 @@ XPathSequence _evalMatches(String? input, String? pattern, String? flags) {
 final fnReplace = XPathFunctionItem.overloaded(
   const XmlName.qualified('fn:replace'),
   {
-    3: XPathFunctionItem.fn3(
-      const XmlName.qualified('fn:replace'),
-      (context, input, pattern, replacement) => _evalReplace(
-        _asString(input.atomize().firstOrNull),
-        _asString(pattern.atomize().firstOrNull),
-        _asString(replacement.atomize().firstOrNull),
-        null,
-      ),
-    ),
-    4: XPathFunctionItem.fnN(
-      const XmlName.qualified('fn:replace'),
-      4,
-      (context, args) => _evalReplace(
-        _asString(args[0].atomize().firstOrNull),
-        _asString(args[1].atomize().firstOrNull),
-        _asString(args[2].atomize().firstOrNull),
-        _asString(args[3].atomize().firstOrNull),
-      ),
-    ),
+    3: XPathFunctionItem.fn3(const XmlName.qualified('fn:replace'), (
+      context,
+      input,
+      pattern,
+      replacement,
+    ) {
+      final p = _asString(pattern.atomize().firstOrNull);
+      if (p == null) {
+        throw XPathEvaluationException(
+          XPathErrorCode.XPTY0004,
+          'Pattern cannot be the empty sequence',
+        );
+      }
+      final r = _asString(replacement.atomize().firstOrNull);
+      if (r == null) {
+        throw XPathEvaluationException(
+          XPathErrorCode.XPTY0004,
+          'Replacement cannot be the empty sequence',
+        );
+      }
+      return _evalReplace(_asString(input.atomize().firstOrNull), p, r, null);
+    }),
+    4: XPathFunctionItem.fnN(const XmlName.qualified('fn:replace'), 4, (
+      context,
+      args,
+    ) {
+      final p = _asString(args[1].atomize().firstOrNull);
+      if (p == null) {
+        throw XPathEvaluationException(
+          XPathErrorCode.XPTY0004,
+          'Pattern cannot be the empty sequence',
+        );
+      }
+      final r = _asString(args[2].atomize().firstOrNull);
+      if (r == null) {
+        throw XPathEvaluationException(
+          XPathErrorCode.XPTY0004,
+          'Replacement cannot be the empty sequence',
+        );
+      }
+      final f = _asString(args[3].atomize().firstOrNull);
+      if (f == null) {
+        throw XPathEvaluationException(
+          XPathErrorCode.XPTY0004,
+          'Flags cannot be the empty sequence',
+        );
+      }
+      return _evalReplace(_asString(args[0].atomize().firstOrNull), p, r, f);
+    }),
   },
 );
 
 XPathSequence _evalReplace(
   String? input,
-  String? pattern,
-  String? replacement,
+  String pattern,
+  String replacement,
   String? flags,
 ) {
-  if (input == null) return const XPathSequence.single(XPathString.empty);
-  if (pattern == null || replacement == null) return XPathSequence.empty;
+  final target = input ?? '';
   final regex = getCachedXPathRegex(pattern, flags);
   final isLiteral = flags != null && flags.contains('q');
   final result = applyXPathReplace(
-    input,
+    target,
     regex,
     replacement,
     isLiteral: isLiteral,
@@ -534,22 +583,42 @@ final fnTokenize = XPathFunctionItem.overloaded(
       (context, input) =>
           _evalTokenize(_asString(input.atomize().firstOrNull), null, null),
     ),
-    2: XPathFunctionItem.fn2(
-      const XmlName.qualified('fn:tokenize'),
-      (context, input, pattern) => _evalTokenize(
-        _asString(input.atomize().firstOrNull),
-        _asString(pattern.atomize().firstOrNull),
-        null,
-      ),
-    ),
-    3: XPathFunctionItem.fn3(
-      const XmlName.qualified('fn:tokenize'),
-      (context, input, pattern, flags) => _evalTokenize(
-        _asString(input.atomize().firstOrNull),
-        _asString(pattern.atomize().firstOrNull),
-        _asString(flags.atomize().firstOrNull),
-      ),
-    ),
+    2: XPathFunctionItem.fn2(const XmlName.qualified('fn:tokenize'), (
+      context,
+      input,
+      pattern,
+    ) {
+      final p = _asString(pattern.atomize().firstOrNull);
+      if (p == null) {
+        throw XPathEvaluationException(
+          XPathErrorCode.XPTY0004,
+          'Pattern cannot be the empty sequence',
+        );
+      }
+      return _evalTokenize(_asString(input.atomize().firstOrNull), p, null);
+    }),
+    3: XPathFunctionItem.fn3(const XmlName.qualified('fn:tokenize'), (
+      context,
+      input,
+      pattern,
+      flags,
+    ) {
+      final p = _asString(pattern.atomize().firstOrNull);
+      if (p == null) {
+        throw XPathEvaluationException(
+          XPathErrorCode.XPTY0004,
+          'Pattern cannot be the empty sequence',
+        );
+      }
+      final f = _asString(flags.atomize().firstOrNull);
+      if (f == null) {
+        throw XPathEvaluationException(
+          XPathErrorCode.XPTY0004,
+          'Flags cannot be the empty sequence',
+        );
+      }
+      return _evalTokenize(_asString(input.atomize().firstOrNull), p, f);
+    }),
   },
 );
 

@@ -434,6 +434,17 @@ void main() {
         isXPathSequence([false]),
       );
     });
+
+    test('throws for empty sequence pattern or flags', () {
+      expect(
+        () => fnMatches(context, [seq('a'), XPathSequence.empty]),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+      expect(
+        () => fnMatches(context, [seq('a'), seq('a'), XPathSequence.empty]),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+    });
   });
 
   group('fn:replace', () {
@@ -462,6 +473,44 @@ void main() {
       expect(
         fnReplace(context, [XPathSequence.empty, seq('a'), seq('b')]),
         isXPathSequence(['']),
+      );
+    });
+
+    test('throws for empty sequence pattern, replacement, or flags', () {
+      expect(
+        () => fnReplace(context, [seq('a'), XPathSequence.empty, seq('b')]),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+      expect(
+        () => fnReplace(context, [seq('a'), seq('a'), XPathSequence.empty]),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+      expect(
+        () => fnReplace(context, [
+          seq('a'),
+          XPathSequence.empty,
+          seq('b'),
+          seq('q'),
+        ]),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+      expect(
+        () => fnReplace(context, [
+          seq('a'),
+          seq('a'),
+          XPathSequence.empty,
+          seq('q'),
+        ]),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+      expect(
+        () => fnReplace(context, [
+          seq('a'),
+          seq('a'),
+          seq('b'),
+          XPathSequence.empty,
+        ]),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
       );
     });
 
@@ -715,6 +764,21 @@ void main() {
       expect(
         fnTokenize(context, [XPathSequence.empty, seq('a')]),
         isXPathSequence(isEmpty),
+      );
+    });
+
+    test('throws for empty sequence pattern or flags', () {
+      expect(
+        () => fnTokenize(context, [seq('a'), XPathSequence.empty]),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+      expect(
+        () => fnTokenize(context, [seq('a'), XPathSequence.empty, seq('q')]),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+      expect(
+        () => fnTokenize(context, [seq('a'), seq('a'), XPathSequence.empty]),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
       );
     });
   });
