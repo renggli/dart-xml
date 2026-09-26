@@ -1,6 +1,5 @@
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/xdm/atomic/boolean.dart';
-import 'package:xml/src/xpath/xdm/types.dart';
+import 'package:xml/xpath.dart';
 
 void main() {
   group('XPathBoolean', () {
@@ -32,6 +31,18 @@ void main() {
       expect(f.compareTo(t), equals(-1));
       expect(t.compareTo(f), equals(1));
       expect(t.compareTo(XPathBoolean(true)), equals(0));
+      expect(
+        () => t.compareTo(XPathInteger.fromInt(1)),
+        throwsA(isA<XPathEvaluationException>()),
+      );
+    });
+
+    test('compareTo incompatible type throws', () {
+      const t = XPathBoolean.trueInstance;
+      expect(
+        () => t.compareTo(const XPathString('true')),
+        throwsA(isA<Exception>()),
+      );
     });
 
     test('equality with bool and Object', () {

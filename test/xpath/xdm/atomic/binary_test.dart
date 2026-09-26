@@ -1,8 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/xdm/atomic/binary.dart';
-import 'package:xml/src/xpath/xdm/types.dart';
+import 'package:xml/xpath.dart';
 
 import '../../../utils/matchers.dart';
 
@@ -74,6 +73,10 @@ void main() {
       expect(h1.compareTo(h2), equals(0));
       expect(h1.compareTo(h3), lessThan(0));
       expect(h3.compareTo(h1), greaterThan(0));
+      expect(
+        () => h1.compareTo(const XPathString('00')),
+        throwsA(isA<Exception>()),
+      );
     });
   });
 }

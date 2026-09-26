@@ -187,6 +187,22 @@ void main() {
         ),
       );
     });
+    test('duration values', () {
+      expect(
+        opValueEqual(
+          const XPathSequence.single(shortDuration),
+          const XPathSequence.single(shortDuration),
+        ),
+        isXPathSequence([true]),
+      );
+      expect(
+        opValueEqual(
+          const XPathSequence.single(shortDuration),
+          const XPathSequence.single(longDuration),
+        ),
+        isXPathSequence([false]),
+      );
+    });
   });
 
   group('opValueNotEqual', () {
@@ -215,6 +231,22 @@ void main() {
           XPathSequence.single(XPathInteger.fromInt(1)),
         ),
         isXPathSequence(isEmpty),
+      );
+    });
+    test('duration values', () {
+      expect(
+        opValueNotEqual(
+          const XPathSequence.single(shortDuration),
+          const XPathSequence.single(longDuration),
+        ),
+        isXPathSequence([true]),
+      );
+      expect(
+        opValueNotEqual(
+          const XPathSequence.single(shortDuration),
+          const XPathSequence.single(shortDuration),
+        ),
+        isXPathSequence([false]),
       );
     });
   });

@@ -225,5 +225,18 @@ void main() {
         equals(['a', 1]),
       );
     });
+
+    test('ebv on single-element range sequence', () {
+      final range = XPathSequence.range(
+        XPathInteger.fromInt(1),
+        XPathInteger.fromInt(1),
+      );
+      expect(range.ebv, isTrue);
+      final rangeZero = XPathSequence.range(
+        XPathInteger.fromInt(0),
+        XPathInteger.fromInt(0),
+      );
+      expect(rangeZero.ebv, isFalse);
+    });
   });
 }

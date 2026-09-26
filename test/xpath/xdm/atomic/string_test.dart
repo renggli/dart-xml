@@ -1,6 +1,7 @@
 import 'package:test/test.dart';
-import 'package:xml/src/xpath/xdm/atomic/string.dart';
-import 'package:xml/src/xpath/xdm/types.dart';
+import 'package:xml/xpath.dart';
+
+import '../../../utils/matchers.dart';
 
 void main() {
   group('XPathString', () {
@@ -33,6 +34,10 @@ void main() {
       expect(s.compareTo(const XPathString('abd')), lessThan(0));
       expect(s.compareTo(u), equals(0));
       expect(s.compareTo(uri), equals(0));
+      expect(
+        () => s.compareTo(XPathInteger.fromInt(1)),
+        throwsA(isXPathEvaluationException()),
+      );
     });
   });
 
@@ -53,9 +58,14 @@ void main() {
       expect(u == const XPathString('xyz'), isTrue);
       expect(u == const XPathAnyUri('xyz'), isTrue);
       expect(u == const XPathUntypedAtomic('xyz'), isTrue);
+      expect(u.hashCode, equals('xyz'.hashCode));
       expect(u.compareTo(const XPathUntypedAtomic('xyz')), equals(0));
       expect(u.compareTo(const XPathString('xya')), greaterThan(0));
       expect(u.compareTo(const XPathAnyUri('xyz')), equals(0));
+      expect(
+        () => u.compareTo(XPathInteger.fromInt(1)),
+        throwsA(isXPathEvaluationException()),
+      );
     });
   });
 
@@ -76,9 +86,14 @@ void main() {
       expect(uri == const XPathString('test'), isTrue);
       expect(uri == const XPathUntypedAtomic('test'), isTrue);
       expect(uri == const XPathAnyUri('test'), isTrue);
+      expect(uri.hashCode, equals('test'.hashCode));
       expect(uri.compareTo(const XPathAnyUri('test')), equals(0));
       expect(uri.compareTo(const XPathString('test')), equals(0));
       expect(uri.compareTo(const XPathUntypedAtomic('test')), equals(0));
+      expect(
+        () => uri.compareTo(XPathInteger.fromInt(1)),
+        throwsA(isXPathEvaluationException()),
+      );
     });
   });
 }

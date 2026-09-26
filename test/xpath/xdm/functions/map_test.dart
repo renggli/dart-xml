@@ -108,6 +108,7 @@ void main() {
       const m4 = XPathMap({});
 
       expect(m1, equals(m2));
+      expect(m1.hashCode, equals(m2.hashCode));
       expect(m1 == m3, isFalse);
       expect(m1 == m4, isFalse);
       expect(m1 == Object(), isFalse);

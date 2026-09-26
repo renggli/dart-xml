@@ -464,8 +464,101 @@ void main() {
     test('equality and hashCode', () {
       const map1 = XPathMapType(xsInteger, xsString);
       const map2 = XPathMapType(xsInteger, xsString);
+      const map3 = XPathMapType(xsInteger, xsInteger);
       expect(map1 == map2, isTrue);
+      expect(map1 == map3, isFalse);
       expect(map1.hashCode, equals(map2.hashCode));
+    });
+  });
+
+  group('Additional type hierarchy edge cases', () {
+    test('XPathSequenceType exactlyOne isSubtypeOf atomic type and matchesItem/hashCode', () {
+      const seqType = XPathSequenceType(
+        itemType: xsInteger,
+        cardinality: XPathCardinality.exactlyOne,
+      );
+      expect(seqType.isSubtypeOf(xsNumeric), isTrue);
+      expect(seqType.isSubtypeOf(xsString), isFalse);
+      expect(seqType.matchesItem(XPathInteger.fromInt(42)), isTrue);
+      expect(seqType.matchesItem(const XPathString('abc')), isFalse);
+      expect(seqType.hashCode, isA<int>());
+    });
+
+    test('XPathArrayType hashCode', () {
+      const arrType = XPathArrayType(xsInteger);
+      expect(arrType.hashCode, equals(xsInteger.hashCode));
+    });
+
+    test('XPathFunctionType matching XPathMap', () {
+      final mapItem = XPathMap({
+        const XPathString('key'): const XPathSequence.single(
+          XPathString('val'),
+        ),
+      });
+      const validFnType = XPathFunctionType(
+        parameterTypes: [xsString],
+        returnType: XPathSequenceType(
+          itemType: xsString,
+          cardinality: XPathCardinality.zeroOrOne,
+        ),
+      );
+      expect(validFnType.matchesItem(mapItem), isTrue);
+
+      // Return type does not accept empty sequence
+      const invalidEmptyReturnFnType = XPathFunctionType(
+        parameterTypes: [xsString],
+        returnType: xsString,
+      );
+      expect(invalidEmptyReturnFnType.matchesItem(mapItem), isFalse);
+
+      // Invalid param type (non-atomic)
+      const invalidParamFnType = XPathFunctionType(
+        parameterTypes: [xsNode],
+        returnType: XPathSequenceType(
+          itemType: xsString,
+          cardinality: XPathCardinality.zeroOrOne,
+        ),
+      );
+      expect(invalidParamFnType.matchesItem(mapItem), isFalse);
+    });
+
+    test('XPathFunctionType matching XPathArray', () {
+      const arrItem = XPathArray([XPathSequence.single(XPathString('first'))]);
+      const validArrFnType = XPathFunctionType(
+        parameterTypes: [xsInteger],
+        returnType: xsString,
+      );
+      expect(validArrFnType.matchesItem(arrItem), isTrue);
+
+      const invalidParamArrFnType = XPathFunctionType(
+        parameterTypes: [xsString],
+        returnType: xsString,
+      );
+      expect(invalidParamArrFnType.matchesItem(arrItem), isFalse);
+
+      const invalidReturnArrFnType = XPathFunctionType(
+        parameterTypes: [xsInteger],
+        returnType: xsInteger,
+      );
+      expect(invalidReturnArrFnType.matchesItem(arrItem), isFalse);
+    });
+
+    test('XPathFunctionType equality and hashCode with parameterTypes', () {
+      const fn1 = XPathFunctionType(
+        parameterTypes: [xsString],
+        returnType: xsInteger,
+      );
+      const fn2 = XPathFunctionType(
+        parameterTypes: [xsString],
+        returnType: xsInteger,
+      );
+      const fn3 = XPathFunctionType(
+        parameterTypes: [xsString],
+        returnType: xsString,
+      );
+      expect(fn1 == fn2, isTrue);
+      expect(fn1 == fn3, isFalse);
+      expect(fn1.hashCode, equals(fn2.hashCode));
     });
   });
 }

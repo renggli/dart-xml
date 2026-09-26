@@ -194,5 +194,33 @@ void main() {
       expect(XPathDateTime.tryParseDate('2021-09-31'), isNull);
       expect(XPathDateTime.tryParseDate('2021-11-31'), isNull);
     });
+
+    test('fromDateTime with xsTime, value getter, and negative year', () {
+      final now = DateTime.utc(2023, 5, 10, 14, 30, 45, 12, 34);
+      final t = XPathDateTime.fromDateTime(now, 0, xsTime);
+      expect(t.type, equals(xsTime));
+      expect(t.value, equals(t));
+
+      const negDate = XPathDateTime.date(-42, 1, 1);
+      expect(negDate.toString(), equals('-0042-01-01'));
+    });
+
+    test('xsDateTime and xsDateTimeStamp comparison and hashCode fallback', () {
+      final dt = XPathDateTime.tryParse('2021-01-01T12:00:00Z')!;
+      final dtStamp = XPathDateTime.tryParse(
+        '2021-01-01T12:00:00Z',
+        xsDateTimeStamp,
+      )!;
+      expect(dt == dtStamp, isTrue);
+      expect(dt.compareTo(dtStamp), equals(0));
+
+      final date = XPathDateTime.tryParseDate('2021-01-01')!;
+      final time = XPathDateTime.tryParseTime('12:00:00')!;
+      expect(date == time, isFalse);
+      expect(() => date.compareTo(time), throwsA(isXPathEvaluationException()));
+
+      const largeYear = XPathDateTime(300000, 1, 1);
+      expect(largeYear.hashCode, isA<int>());
+    });
   });
 }

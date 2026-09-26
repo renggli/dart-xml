@@ -404,5 +404,38 @@ void main() {
         ]),
       );
     });
+
+    test('sorts items with 2 arguments', () {
+      final array = ['b', 'a'];
+      final result = fnArraySort(context, [
+        arraySeq(array),
+        const XPathSequence.single(
+          XPathString(
+            'http://www.w3.org/2005/xpath-functions/collation/codepoint',
+          ),
+        ),
+      ]);
+      expect(
+        result,
+        isXPathSequence([
+          ['a', 'b'],
+        ]),
+      );
+    });
+
+    test('sorts items with empty sequence key', () {
+      final array = XPathArray([
+        XPathSequence.single(XPathInteger.fromInt(2)),
+        XPathSequence.empty,
+        XPathSequence.single(XPathInteger.fromInt(1)),
+      ]);
+      final result = fnArraySort(context, [XPathSequence.single(array)]);
+      expect(
+        result,
+        isXPathSequence([
+          [isNull, 1, 2],
+        ]),
+      );
+    });
   });
 }

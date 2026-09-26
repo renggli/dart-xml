@@ -13,12 +13,6 @@ XPathFunctionItem _atomicConstructor(XmlName name, XPathType targetType) =>
       1: XPathFunctionItem.fn1(name, (context, arg) {
         final value = arg.atomize().firstOrNull;
         if (value == null) return XPathSequence.empty;
-        if (targetType == xsError) {
-          throw XPathEvaluationException(
-            XPathErrorCode.FORG0001,
-            'Cannot cast to xs:error',
-          );
-        }
         return XPathSequence.single(castAtomic(value, targetType));
       }),
     });

@@ -47,6 +47,18 @@ void main() {
     final node = XmlDocument([]);
     expect(node.xpathGenerate(), '/');
   });
+  test('declaration', () {
+    final node = XmlDeclaration();
+    expect(node.xpathGenerate(), 'node()');
+  });
+  test('doctype', () {
+    final node = XmlDoctype('root');
+    expect(node.xpathGenerate(), 'node()');
+  });
+  test('fragment', () {
+    final node = XmlDocumentFragment();
+    expect(node.xpathGenerate(), 'node()');
+  });
   test('nested structure', () {
     final document = XmlDocument.parse('''
         <root>

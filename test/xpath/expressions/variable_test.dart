@@ -6,11 +6,32 @@ import 'package:xml/xpath.dart';
 import '../../utils/matchers.dart';
 
 void main() {
-  test('ContextItemExpression', () {
-    final node = XmlElement.tag('root');
-    final context = const XPathConfiguration.raw().context(node);
-    const expr = ContextItemExpression();
-    expect(expr(context), isXPathSequence([node]));
+  group('ContextItemExpression', () {
+    test('node context item', () {
+      final node = XmlElement.tag('root');
+      final context = const XPathConfiguration.raw().context(node);
+      const expr = ContextItemExpression();
+      expect(expr(context), isXPathSequence([node]));
+    });
+    test('sequence context item', () {
+      final seq = XPathSequence([XPathInteger.fromInt(42)]);
+      final context = const XPathConfiguration.raw().context()..item = seq;
+      const expr = ContextItemExpression();
+      expect(expr(context), seq);
+    });
+    test('undefined context item', () {
+      final context = const XPathConfiguration.raw().context();
+      const expr = ContextItemExpression();
+      expect(
+        () => expr(context),
+        throwsA(
+          isXPathEvaluationException(
+            errorCode: XPathErrorCode.XPDY0002,
+            message: contains('Context item is undefined'),
+          ),
+        ),
+      );
+    });
   });
   group('VariableExpression', () {
     test('evaluate existing variable', () {

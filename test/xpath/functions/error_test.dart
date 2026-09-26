@@ -59,6 +59,49 @@ void main() {
         throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
       );
     });
+
+    test('throws with multiple codes', () {
+      expect(
+        () => fnError(context, [
+          XPathSequence(const [
+            XPathQName(XmlName('c1')),
+            XPathQName(XmlName('c2')),
+          ]),
+        ]),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+    });
+
+    test('throws with known code in custom namespace', () {
+      expect(
+        () => fnError(context, [
+          const XPathSequence.single(
+            XPathQName(
+              XmlName.parts('FOER0000', namespaceUri: 'http://custom'),
+            ),
+          ),
+        ]),
+        throwsA(isXPathEvaluationException(message: 'FOER0000')),
+      );
+    });
+
+    test('throws with multiple descriptions', () {
+      expect(
+        () => fnError(context, [
+          XPathSequence.empty,
+          XPathSequence(const [XPathString('a'), XPathString('b')]),
+        ]),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+      expect(
+        () => fnError(context, [
+          XPathSequence.empty,
+          XPathSequence(const [XPathString('a'), XPathString('b')]),
+          XPathSequence.empty,
+        ]),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+    });
   });
 
   group('fn:trace', () {

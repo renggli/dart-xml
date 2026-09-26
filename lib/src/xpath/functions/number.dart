@@ -207,12 +207,10 @@ XPathSequence _evalRound(XPathNumeric? arg, XPathInteger? precision) {
     if (val.abs() >= 9007199254740992.0 && p >= 0) {
       return XPathSequence.single(arg);
     }
-    final factor = math.pow(10, p).toDouble();
+    final factor = math.pow(10.0, p);
     final scaled = val * factor;
     if (scaled.isInfinite) {
-      return XPathSequence.single(
-        p > 0 ? arg : XPathDouble(val.isNegative ? -0.0 : 0.0, arg.type),
-      );
+      return XPathSequence.single(arg);
     }
     final floor = scaled.floorToDouble();
     final diff = scaled - floor;
@@ -242,14 +240,15 @@ XPathSequence _evalRound(XPathNumeric? arg, XPathInteger? precision) {
       roundedQ = ((-r) * BigInt.two > factor) ? q - BigInt.one : q;
     }
     return XPathSequence.single(XPathInteger(roundedQ * factor, arg.type));
-  } else if (arg is XPathDecimal) {
-    final shift = arg.scale - p;
-    if (shift <= 0) return XPathSequence.single(arg);
+  } else {
+    final d = arg as XPathDecimal;
+    final shift = d.scale - p;
+    if (shift <= 0) return XPathSequence.single(d);
     if (shift > 100) {
       return XPathSequence.single(XPathDecimal.zero);
     }
     final factor = BigInt.from(10).pow(shift);
-    final v = arg.unscaledValue;
+    final v = d.unscaledValue;
     final q = v ~/ factor;
     final r = v.remainder(factor);
     final BigInt roundedQ;
@@ -264,7 +263,6 @@ XPathSequence _evalRound(XPathNumeric? arg, XPathInteger? precision) {
     }
     return XPathSequence.single(XPathDecimal(roundedQ, p));
   }
-  return XPathSequence.single(arg);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-round-half-to-even
@@ -315,12 +313,10 @@ XPathSequence _evalRoundHalfToEven(XPathNumeric? arg, XPathInteger? precision) {
     if (val.abs() >= 9007199254740992.0 && p >= 0) {
       return XPathSequence.single(arg);
     }
-    final factor = math.pow(10, p).toDouble();
+    final factor = math.pow(10.0, p);
     final scaled = val * factor;
     if (scaled.isInfinite) {
-      return XPathSequence.single(
-        p > 0 ? arg : XPathDouble(val.isNegative ? -0.0 : 0.0, arg.type),
-      );
+      return XPathSequence.single(arg);
     }
     final floor = scaled.floorToDouble();
     final diff = scaled - floor;
@@ -372,14 +368,15 @@ XPathSequence _evalRoundHalfToEven(XPathNumeric? arg, XPathInteger? precision) {
       }
     }
     return XPathSequence.single(XPathInteger(roundedQ * factor, arg.type));
-  } else if (arg is XPathDecimal) {
-    final shift = arg.scale - p;
-    if (shift <= 0) return XPathSequence.single(arg);
+  } else {
+    final d = arg as XPathDecimal;
+    final shift = d.scale - p;
+    if (shift <= 0) return XPathSequence.single(d);
     if (shift > 100) {
       return XPathSequence.single(XPathDecimal.zero);
     }
     final factor = BigInt.from(10).pow(shift);
-    final v = arg.unscaledValue;
+    final v = d.unscaledValue;
     final q = v ~/ factor;
     final r = v.remainder(factor);
     final BigInt roundedQ;
@@ -408,7 +405,6 @@ XPathSequence _evalRoundHalfToEven(XPathNumeric? arg, XPathInteger? precision) {
     }
     return XPathSequence.single(XPathDecimal(roundedQ, p));
   }
-  return XPathSequence.single(arg);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-random-number-generator

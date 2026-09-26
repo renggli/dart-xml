@@ -1,6 +1,7 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/expressions/node.dart';
 import 'package:xml/xml.dart';
+import 'package:xml/xpath.dart';
 
 import '../helpers.dart';
 
@@ -143,5 +144,15 @@ void main() {
   test('schema-attribute() is unimplemented', () {
     const test = SchemaAttributeTypeTest();
     expect(() => test.matches(current), throwsUnimplementedError);
+  });
+  group('NodeTestType', () {
+    test('matchesItem and properties', () {
+      const type = NodeTestType(ElementTypeTest());
+      expect(type.name, equals('node-test'));
+      expect(type.parent, equals(xsNode));
+      expect(type.isAtomic, isFalse);
+      expect(type.matchesItem(XPathNode(current)), isTrue);
+      expect(type.matchesItem(const XPathString('not-a-node')), isFalse);
+    });
   });
 }

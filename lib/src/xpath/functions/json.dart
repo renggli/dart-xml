@@ -27,8 +27,10 @@ XPathString? _expectOptionalString(XPathSequence seq, String funcName) {
   if (item == null) return null;
   if (item is XPathString) return item;
   final atomized = XPathSequence.single(item).atomize();
-  if (atomized.length == 1 && atomized.first is XPathString) {
-    return atomized.first as XPathString;
+  if (atomized.length == 1) {
+    final first = atomized.first;
+    if (first is XPathString) return first;
+    if (first is XPathUntypedAtomic) return XPathString(first.value);
   }
   throw XPathEvaluationException(
     XPathErrorCode.XPTY0004,
@@ -1616,14 +1618,7 @@ class _XmlToJsonSerializer {
             : '';
         return '$sign${value.abs().toInt()}';
       }
-      var s = value.toString();
-      if (s.contains('e') || s.contains('E')) {
-        final sign = value < 0 ? '-' : '';
-        s = '$sign${absVal.toStringAsFixed(6)}'
-            .replaceAll(RegExp(r'0+$'), '')
-            .replaceAll(RegExp(r'\.$'), '');
-      }
-      return s;
+      return value.toString();
     } else {
       final s = value.toStringAsExponential().toUpperCase();
       final parts = s.split('E');

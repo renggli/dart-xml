@@ -182,6 +182,24 @@ void main() {
         );
       },
     );
+    test(
+      'non-node items on path step with order preserved throws Exception',
+      () {
+        final path = PathExpression([
+          const LiteralExpression(XPathSequence.single(XPathString('text'))),
+          const StepExpression(ChildAxis()),
+        ], isOrderPreserved: true);
+        expect(path.isOrderPreserved, isTrue);
+        expect(
+          () => path(context),
+          throwsA(
+            isXPathEvaluationException(
+              message: 'Path operator / requires sequence of nodes, but got text [err:XPTY0019]',
+            ),
+          ),
+        );
+      },
+    );
     test('sort and deduplicate with non-nodes', () {
       final xml = XmlDocument.parse('<root><a><b/></a></root>');
       final path = PathExpression([

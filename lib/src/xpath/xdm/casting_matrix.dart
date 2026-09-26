@@ -331,9 +331,6 @@ XPathAtomic _performCast(
   if (targetPrimitive == xsUntypedAtomic) {
     return XPathUntypedAtomic(item.stringValue);
   }
-  if (targetPrimitive == xsAnyURI) {
-    return XPathAnyUri(item.stringValue);
-  }
 
   // Cast from string or untypedAtomic
   if (item is XPathString ||
@@ -409,26 +406,18 @@ XPathAtomic _performCast(
   }
 
   // Duration conversions
-  if (item is XPathDuration) {
-    if (targetPrimitive == xsDuration) {
-      return XPathDuration.fromValues(
-        item.totalMonths,
-        item.totalMicroseconds,
-        xsDuration,
-      );
-    }
-    if (targetPrimitive == xsYearMonthDuration) {
-      return XPathDuration.yearMonth(item.totalMonths);
-    }
-    if (targetPrimitive == xsDayTimeDuration) {
-      return XPathDuration.dayTime(item.totalMicroseconds);
-    }
+  final duration = item as XPathDuration;
+  if (targetPrimitive == xsDuration) {
+    return XPathDuration.fromValues(
+      duration.totalMonths,
+      duration.totalMicroseconds,
+      xsDuration,
+    );
   }
-
-  throw XPathEvaluationException(
-    XPathErrorCode.FORG0001,
-    'Cannot cast ${item.type.name} to ${targetType.name}',
-  );
+  if (targetPrimitive == xsYearMonthDuration) {
+    return XPathDuration.yearMonth(duration.totalMonths);
+  }
+  return XPathDuration.dayTime(duration.totalMicroseconds);
 }
 
 XPathAtomic _castFromString(
@@ -597,6 +586,7 @@ XPathAtomic _castFromString(
           (name.prefix == 'xml' ? xmlXmlNamespace : null);
       return XPathQName(uri != null ? name.withNamespaceUri(uri) : name);
     }
+    return XPathAnyUri(trimmed);
   } catch (e) {
     if (e is XPathEvaluationException) rethrow;
     throw XPathEvaluationException(
@@ -604,11 +594,6 @@ XPathAtomic _castFromString(
       'Invalid literal for ${targetType.name}: "$text"',
     );
   }
-
-  throw XPathEvaluationException(
-    XPathErrorCode.FORG0001,
-    'Cannot cast string to ${targetType.name}',
-  );
 }
 
 void _validateTargetConstraints(XPathAtomic item, XPathType targetType) {

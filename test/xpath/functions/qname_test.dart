@@ -73,6 +73,28 @@ void main() {
         throwsA(isXPathEvaluationException()),
       );
     });
+
+    test('throws for non-element node', () {
+      expect(
+        () => fnResolveQName(context, [seq('p:local'), seq(document)]),
+        throwsA(
+          isXPathEvaluationException(
+            errorCode: XPathErrorCode.XPTY0004,
+            message: contains('Expected element'),
+          ),
+        ),
+      );
+    });
+
+    test('resolves with untypedAtomic', () {
+      expect(
+        fnResolveQName(context, [
+          const XPathSequence.single(XPathUntypedAtomic('p:local')),
+          seq(document.rootElement),
+        ]),
+        isXPathSequence([isA<XmlName>()]),
+      );
+    });
   });
 
   group('fn:QName', () {
@@ -146,6 +168,49 @@ void main() {
           seq('foo'),
         ]),
         throwsA(isXPathEvaluationException(message: contains('FOCA0002'))),
+      );
+      expect(
+        () => fnQName(context, [
+          seq('http://www.w3.org/XML/1998/namespace'),
+          seq('foo'),
+        ]),
+        throwsA(
+          isXPathEvaluationException(
+            errorCode: XPathErrorCode.FOCA0002,
+            message: contains('must have prefix "xml"'),
+          ),
+        ),
+      );
+    });
+
+    test('throws XPTY0004 for sequence cardinality violations', () {
+      expect(
+        () => fnQName(context, [
+          XPathSequence(const [XPathString('a'), XPathString('b')]),
+          seq('c'),
+        ]),
+        throwsA(
+          isXPathEvaluationException(
+            errorCode: XPathErrorCode.XPTY0004,
+            message: contains(
+              'Argument 1 to fn:QName accepts at most one item',
+            ),
+          ),
+        ),
+      );
+      expect(
+        () => fnQName(context, [
+          seq('a'),
+          XPathSequence(const [XPathString('b'), XPathString('c')]),
+        ]),
+        throwsA(
+          isXPathEvaluationException(
+            errorCode: XPathErrorCode.XPTY0004,
+            message: contains(
+              'Argument 2 to fn:QName must be exactly one item',
+            ),
+          ),
+        ),
       );
     });
 

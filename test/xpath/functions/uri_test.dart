@@ -237,6 +237,12 @@ void main() {
         ),
       );
     });
+    test('throws FORG0002 on invalid URI', () {
+      expect(
+        () => fnResolveUri(baseContext, [seq('http://[invalid')]),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORG0002)),
+      );
+    });
   });
 
   group('fn:encode-for-uri', () {
@@ -487,7 +493,69 @@ void main() {
       expectDocUriError('http://example.com/test%2');
       expectDocUriError('http://example.com/test%2G');
       expectDocUriError(':/invalid');
+      expectDocUriError('http://[');
+      expect(
+        () => fnDoc(emptyContext, [seq('http://example.com/file%20name.xml')]),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FODC0002)),
+      );
     });
+
+    test('fn:collection 1-argument with empty or relative URI', () {
+      final doc = XmlDocument.parse('<d/>');
+      final colContext = XPathConfiguration.raw(
+        baseUri: 'http://example.com/dir/',
+        documents: {'http://example.com/d.xml': doc},
+        collections: {
+          '': [doc],
+          'http://example.com/dir/col': [doc],
+        },
+      ).context(XPathSequence.empty);
+
+      expect(fnCollection(colContext, [XPathSequence.empty]), hasLength(1));
+      expect(fnCollection(colContext, [seq('')]), hasLength(1));
+      expect(fnCollection(colContext, [seq('col')]), hasLength(1));
+    });
+
+    test(
+      'unparsed-text errors on invalid URI, fragment, scheme, and null loader',
+      () {
+        expect(
+          () => fnUnparsedText(emptyContext, [seq('http://[invalid')]),
+          throwsA(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FOUT1170),
+          ),
+        );
+        expect(
+          () => fnUnparsedText(emptyContext, [
+            seq('http://example.com/file#frag'),
+          ]),
+          throwsA(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FOUT1170),
+          ),
+        );
+        expect(
+          () => fnUnparsedText(emptyContext, [seq('ftp://example.com/file')]),
+          throwsA(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FOUT1170),
+          ),
+        );
+        final invalidBaseContext = const XPathConfiguration.raw(
+          baseUri: 'http://[',
+        ).context(XPathSequence.empty);
+        expect(
+          () => fnUnparsedText(invalidBaseContext, [seq('file.txt')]),
+          throwsA(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FOUT1170),
+          ),
+        );
+        expect(
+          () => fnUnparsedText(emptyContext, [seq('http://example.com/file')]),
+          throwsA(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FOUT1200),
+          ),
+        );
+      },
+    );
 
     test('2-argument fn:unparsed-text-lines and unparsed-text-available', () {
       final textContext = XPathConfiguration.raw(

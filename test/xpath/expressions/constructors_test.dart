@@ -22,6 +22,17 @@ void main() {
         throwsA(isXPathEvaluationException()),
       );
     });
+    test('duplicate key', () {
+      expect(
+        () => xml.xpathEvaluate('map { "a": 1, "a": 2 }'),
+        throwsA(
+          isXPathEvaluationException(
+            errorCode: XPathErrorCode.XQDY0137,
+            message: contains('Duplicate key in map constructor: a'),
+          ),
+        ),
+      );
+    });
   });
   group('array', () {
     test('square empty', () {

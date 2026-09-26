@@ -44,6 +44,45 @@ void main() {
         isXPathSequence(['be', 'cat', 'apple']),
       );
     });
+
+    test('sorts with 2 arguments (collation)', () {
+      expect(
+        fnSort(context, [
+          seq(['b', 'a']),
+          const XPathSequence.single(
+            XPathString(
+              'http://www.w3.org/2005/xpath-functions/collation/codepoint',
+            ),
+          ),
+        ]),
+        isXPathSequence(['a', 'b']),
+      );
+    });
+
+    test('sorts with key function returning empty', () {
+      expect(
+        fnSort(context, [
+          seq([2, 1]),
+          XPathSequence.empty,
+          seq((XPathContext context, List<XPathSequence> args) {
+            final arg = (args[0].first as XPathInteger).asInt;
+            return arg == 2 ? XPathSequence.empty : seq(arg);
+          }),
+        ]),
+        isXPathSequence([2, 1]),
+      );
+      expect(
+        fnSort(context, [
+          seq([1, 2, 3]),
+          XPathSequence.empty,
+          seq((XPathContext context, List<XPathSequence> args) {
+            final arg = (args[0].first as XPathInteger).asInt;
+            return arg == 2 ? XPathSequence.empty : seq(arg);
+          }),
+        ]),
+        isXPathSequence([2, 1, 3]),
+      );
+    });
   });
 
   group('fn:apply', () {
@@ -213,6 +252,34 @@ void main() {
           'function-lookup((xs:QName("fn:abs"), xs:QName("fn:abs")), 1)',
         ),
         throwsA(isXPathEvaluationException(message: contains('XPTY0004'))),
+      );
+      expect(
+        () => document.xpathEvaluate('function-lookup(xs:QName("fn:abs"), ())'),
+        throwsA(isXPathEvaluationException(message: contains('XPTY0004'))),
+      );
+    });
+
+    test('invalid argument types throw XPTY0004', () {
+      expect(
+        () => fnFunctionLookup(context, [
+          const XPathSequence.single(XPathString('fn:abs')),
+          XPathSequence.single(XPathInteger.fromInt(1)),
+        ]),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+      expect(
+        () => fnFunctionLookup(context, [
+          const XPathSequence.single(XPathQName(XmlName('abs', 'fn'))),
+          const XPathSequence.single(XPathString('1')),
+        ]),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+    });
+
+    test('lookup and call arity 0 function', () {
+      expect(
+        document.xpathEvaluate('function-lookup(xs:QName("fn:true"), 0)()'),
+        isXPathSequence([true]),
       );
     });
 

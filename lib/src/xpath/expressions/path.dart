@@ -13,12 +13,15 @@ import 'node.dart';
 import 'step.dart';
 
 class PathExpression implements XPathExpression {
-  factory(List<XPathExpression> steps) {
+  factory(List<XPathExpression> steps, {bool? isOrderPreserved}) {
     if (steps.isEmpty) {
       throw ArgumentError('PathExpression must have at least one step');
     }
     if (steps.length == 1) {
-      return PathExpression._(steps, isOrderPreserved: true);
+      return PathExpression._(
+        steps,
+        isOrderPreserved: isOrderPreserved ?? true,
+      );
     }
     final optimizedSteps = <XPathExpression>[steps.first];
     for (var i = 1; i < steps.length; i++) {
@@ -53,7 +56,7 @@ class PathExpression implements XPathExpression {
     }
     return PathExpression._(
       optimizedSteps,
-      isOrderPreserved: _isOrderPreserved(optimizedSteps),
+      isOrderPreserved: isOrderPreserved ?? _isOrderPreserved(optimizedSteps),
     );
   }
 

@@ -131,6 +131,36 @@ void main() {
         throwsA(isXPathEvaluationException(message: 'Division by zero')),
       );
     });
+    test('divide yearMonth by zero throws', () {
+      expect(
+        () => opDivideDurationByDuration(
+          seq(const XPathDuration.yearMonth(12)),
+          seq(const XPathDuration.yearMonth(0)),
+        ),
+        throwsA(
+          isXPathEvaluationException(
+            errorCode: XPathErrorCode.FOAR0001,
+            message: 'Division by zero',
+          ),
+        ),
+      );
+    });
+    test('divide incompatible duration types throws XPTY0004', () {
+      expect(
+        () => opDivideDurationByDuration(
+          seq(const XPathDuration.yearMonth(12)),
+          seq(d1Dtd),
+        ),
+        throwsA(
+          isXPathEvaluationException(
+            errorCode: XPathErrorCode.XPTY0004,
+            message: contains(
+              'Cannot divide xs:yearMonthDuration by xs:dayTimeDuration',
+            ),
+          ),
+        ),
+      );
+    });
   });
 
   group('empty input returns empty', () {

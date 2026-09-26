@@ -35,6 +35,19 @@ void main() {
         ),
       );
     });
+    test('merges maps with options', () {
+      final map1 = {'a': 1};
+      final map2 = {'a': 2};
+      expect(
+        fnMapMerge(context, [
+          XPathSequence([toXPathItem(map1), toXPathItem(map2)]),
+          seq({'duplicates': 'use-last'}),
+        ]),
+        isXPathSequence([
+          {'a': 2},
+        ]),
+      );
+    });
   });
 
   group('map:size', () {
@@ -106,6 +119,28 @@ void main() {
         result,
         isXPathSequence([
           [1, 2],
+        ]),
+      );
+    });
+
+    test('finds value in XPathArray', () {
+      final array = XPathArray([
+        XPathSequence.single(
+          XPathMap({
+            const XPathString('a'): XPathSequence.single(
+              XPathInteger.fromInt(42),
+            ),
+          }),
+        ),
+      ]);
+      final result = fnMapFind(context, [
+        XPathSequence.single(array),
+        const XPathSequence.single(XPathString('a')),
+      ]);
+      expect(
+        result,
+        isXPathSequence([
+          [42],
         ]),
       );
     });

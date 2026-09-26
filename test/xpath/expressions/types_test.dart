@@ -1,4 +1,6 @@
 import 'package:test/test.dart';
+import 'package:xml/src/xpath/expressions/types.dart';
+import 'package:xml/src/xpath/expressions/variable.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -253,6 +255,57 @@ void main() {
         () => xml.xpathEvaluate('1 instance of integer'),
         throwsA(isA<XPathParserException>()),
       );
+    });
+  });
+
+  group('cast empty sequence', () {
+    test('optional sequence type returns empty', () {
+      expectEvaluate(xml, '() cast as xs:integer?', isEmpty);
+    });
+
+    test('required sequence type throws XPTY0004', () {
+      expect(
+        () => xml.xpathEvaluate('() cast as xs:integer'),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+    });
+  });
+
+  group('direct CastExpression and CastableExpression', () {
+    final context = XPathConfiguration.standard().context();
+    test('CastExpression with atomic type', () {
+      const expr = CastExpression(
+        LiteralExpression(XPathSequence.single(XPathString('42'))),
+        xsInteger,
+      );
+      expect(expr(context), isXPathSequence([42]));
+
+      final multiExpr = CastExpression(
+        LiteralExpression(
+          XPathSequence([XPathInteger.fromInt(1), XPathInteger.fromInt(2)]),
+        ),
+        xsInteger,
+      );
+      expect(
+        () => multiExpr(context),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+    });
+
+    test('CastableExpression with atomic type', () {
+      const expr = CastableExpression(
+        LiteralExpression(XPathSequence.single(XPathString('42'))),
+        xsInteger,
+      );
+      expect(expr(context), isXPathSequence([true]));
+
+      final multiExpr = CastableExpression(
+        LiteralExpression(
+          XPathSequence([XPathInteger.fromInt(1), XPathInteger.fromInt(2)]),
+        ),
+        xsInteger,
+      );
+      expect(multiExpr(context), isXPathSequence([false]));
     });
   });
 }

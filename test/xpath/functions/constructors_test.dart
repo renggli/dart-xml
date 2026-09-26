@@ -495,6 +495,30 @@ void main() {
     });
   });
 
+  group('xs:numeric', () {
+    test('no arguments', () {
+      expectEval('xs:numeric()', isXPathSequence(isEmpty));
+    });
+    test('numeric', () {
+      expectEval('xs:numeric(42)', isXPathSequence([42]));
+    });
+  });
+
+  group('list constructors', () {
+    test('xs:NMTOKENS', () {
+      expectEval('xs:NMTOKENS()', isXPathSequence(isEmpty));
+      expectEval('xs:NMTOKENS(())', isXPathSequence(isEmpty));
+      expectEval('xs:NMTOKENS("   ")', isXPathSequence(isEmpty));
+      expectEval('xs:NMTOKENS("a b c")', isXPathSequence(['a', 'b', 'c']));
+    });
+    test('xs:IDREFS', () {
+      expectEval('xs:IDREFS("id1 id2")', isXPathSequence(['id1', 'id2']));
+    });
+    test('xs:ENTITIES', () {
+      expectEval('xs:ENTITIES("e1 e2")', isXPathSequence(['e1', 'e2']));
+    });
+  });
+
   group('namespace resolution', () {
     test('fn prefix', () {
       expectEval('fn:string("test")', isXPathSequence(['test']));

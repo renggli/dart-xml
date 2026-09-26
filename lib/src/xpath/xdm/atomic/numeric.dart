@@ -446,12 +446,9 @@ final class XPathDouble extends XPathNumeric {
   static const negativeInfinity = XPathDouble(double.negativeInfinity);
   static const zero = XPathDouble(0.0);
 
-  factory parse(String text, [XPathType type = xsDouble]) {
-    final res = tryParse(text, type);
-    if (res != null) return res;
-    final val = double.parse(text.trim());
-    return XPathDouble(type == xsFloat ? roundToFloat(val) : val, type);
-  }
+  factory parse(String text, [XPathType type = xsDouble]) =>
+      tryParse(text, type) ??
+      (throw FormatException('Invalid float/double: "$text"'));
 
   static XPathDouble? tryParse(String text, [XPathType type = xsDouble]) {
     final trimmed = text.trim();
@@ -645,24 +642,9 @@ String _toXPathScientific(double value) {
   final intPart = dot == -1 ? absStr : absStr.substring(0, dot);
   final fracPart = dot == -1 ? '' : absStr.substring(dot + 1);
 
-  if (intPart != '0') {
-    final exp = intPart.length - 1;
-    final firstDigit = intPart[0];
-    final rest = (intPart.substring(1) + fracPart).replaceAll(
-      RegExp(r'0+$'),
-      '',
-    );
-    final mantissa = rest.isEmpty ? '$firstDigit.0' : '$firstDigit.$rest';
-    return '$sign${mantissa}E$exp';
-  } else {
-    final firstNonZero = fracPart.indexOf(RegExp(r'[1-9]'));
-    if (firstNonZero == -1) return '${sign}0.0E0';
-    final exp = -(firstNonZero + 1);
-    final firstDigit = fracPart[firstNonZero];
-    final rest = fracPart
-        .substring(firstNonZero + 1)
-        .replaceAll(RegExp(r'0+$'), '');
-    final mantissa = rest.isEmpty ? '$firstDigit.0' : '$firstDigit.$rest';
-    return '$sign${mantissa}E$exp';
-  }
+  final exp = intPart.length - 1;
+  final firstDigit = intPart[0];
+  final rest = (intPart.substring(1) + fracPart).replaceAll(RegExp(r'0+$'), '');
+  final mantissa = rest.isEmpty ? '$firstDigit.0' : '$firstDigit.$rest';
+  return '$sign${mantissa}E$exp';
 }

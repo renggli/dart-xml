@@ -26,6 +26,11 @@ void main() {
       expect(fnName(context, [seq(attr)]), isXPathSequence(['xml:lang']));
     });
 
+    test('returns name of attribute without prefix', () {
+      final attr = XmlAttribute(const XmlName('id'), '1');
+      expect(fnName(context, [seq(attr)]), isXPathSequence(['id']));
+    });
+
     test('throws XPDY0002 on absent context item', () {
       final emptyCtx = context.copy(item: XPathSequence.empty);
       expect(
@@ -268,6 +273,20 @@ void main() {
       expect(
         () => fnElementWithId(context, [seq('a'), XPathSequence.empty]),
         throwsA(isXPathEvaluationException()),
+      );
+    });
+
+    test('throws for non-node sequence node argument', () {
+      expect(
+        () => fnElementWithId(context, [seq('a'), seq(123)]),
+        throwsA(
+          isXPathEvaluationException(
+            errorCode: XPathErrorCode.XPTY0004,
+            message: contains(
+              'Expected a node for the argument of fn:element-with-id, got xs:integer',
+            ),
+          ),
+        ),
       );
     });
 

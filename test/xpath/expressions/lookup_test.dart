@@ -124,5 +124,27 @@ void main() {
         },
       );
     });
+    test('unary lookup without context item throws XPDY0002', () {
+      expect(
+        () => const XPathConfiguration.raw().context().evaluate('?*'),
+        throwsA(
+          isXPathEvaluationException(
+            errorCode: XPathErrorCode.XPDY0002,
+            message: contains('Context item is undefined'),
+          ),
+        ),
+      );
+    });
+    test('array lookup with non-numeric key throws XPTY0004', () {
+      expect(
+        () => xml.xpathEvaluate('[1, 2]?("a")'),
+        throwsA(
+          isXPathEvaluationException(
+            errorCode: XPathErrorCode.XPTY0004,
+            message: contains('Array lookup key must be an integer'),
+          ),
+        ),
+      );
+    });
   });
 }

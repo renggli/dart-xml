@@ -153,5 +153,36 @@ void main() {
         expectEvaluate(start, 'lang("en")', isXPathSequence([false]));
       }
     });
+
+    test('two-argument lang(testlang, node)', () {
+      final doc = XmlDocument.parse('<r xml:lang="en"><c/></r>');
+      expectEvaluate(doc, 'fn:lang("en", //c)', isXPathSequence([true]));
+      expectEvaluate(doc, 'fn:lang("fr", //c)', isXPathSequence([false]));
+    });
+
+    test('missing context node throws XPDY0002', () {
+      final emptyContext = const XPathConfiguration.raw().context();
+      expect(
+        () => fnLang(emptyContext, [
+          const XPathSequence.single(XPathString('en')),
+        ]),
+        throwsA(
+          isXPathEvaluationException(
+            errorCode: XPathErrorCode.XPDY0002,
+            message: contains('fn:lang requires a context node'),
+          ),
+        ),
+      );
+    });
+
+    test('non-string testlang uses stringValue', () {
+      final doc = XmlDocument.parse('<r xml:lang="123"><c/></r>');
+      final c = doc.rootElement.children.whereType<XmlElement>().first;
+      final newContext = const XPathConfiguration.raw().context(c);
+      expect(
+        fnLang(newContext, [XPathSequence.single(XPathInteger.fromInt(123))]),
+        isXPathSequence([true]),
+      );
+    });
   });
 }

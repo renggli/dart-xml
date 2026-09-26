@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/xdm/atomic/duration.dart';
+import 'package:xml/src/xpath/xdm/atomic/string.dart';
 import 'package:xml/src/xpath/xdm/types.dart';
 
 import '../../../utils/matchers.dart';
@@ -66,9 +67,21 @@ void main() {
 
       expect(d1, equals(d2));
       expect(d1.hashCode, equals(d2.hashCode));
+      expect(d1.value, equals(d1));
       expect(d1 == d3, isFalse);
       expect(d1.compareTo(d2), equals(0));
       expect(d1.compareTo(d3), lessThan(0));
+      expect(
+        () => d1.compareTo(const XPathString('invalid')),
+        throwsA(isXPathEvaluationException()),
+      );
+    });
+
+    test('tryParse with xsDayTimeDuration type', () {
+      final d = XPathDuration.tryParse('PT1H', xsDayTimeDuration);
+      expect(d, isNotNull);
+      expect(d!.type, equals(xsDayTimeDuration));
+      expect(d.inHours, equals(1));
     });
   });
 

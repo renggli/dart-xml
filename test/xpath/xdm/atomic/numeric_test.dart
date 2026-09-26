@@ -1,6 +1,7 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/exceptions/error_code.dart';
 import 'package:xml/src/xpath/xdm/atomic/numeric.dart';
+import 'package:xml/src/xpath/xdm/atomic/string.dart';
 import 'package:xml/src/xpath/xdm/types.dart';
 
 import '../../../utils/matchers.dart';
@@ -335,5 +336,68 @@ void main() {
       expect(d10 == const XPathDouble(10.5), isTrue);
       expect(d10 == XPathDouble.nan, isFalse);
     });
+
+    test(
+      'additional XPathInteger, XPathDecimal, and XPathDouble operations',
+      () {
+        final i = XPathInteger.fromInt(10);
+        final d = XPathDecimal.parse('2.5');
+        const dbl = XPathDouble(2.5);
+
+        // XPathInteger cross-type
+        expect(i + dbl, equals(const XPathDouble(12.5)));
+        expect(i - d, equals(XPathDecimal.parse('7.5')));
+        expect(i - dbl, equals(const XPathDouble(7.5)));
+        expect(i * dbl, equals(const XPathDouble(25.0)));
+        expect(i / d, equals(XPathDecimal.parse('4')));
+        expect(i / dbl, equals(const XPathDouble(4.0)));
+        expect(i.compareTo(const XPathDouble(5.0)), greaterThan(0));
+        expect(
+          () => i.compareTo(const XPathString('abc')),
+          throwsA(isXPathEvaluationException()),
+        );
+        expect(i == const XPathDouble(10.0), isTrue);
+
+        // XPathDecimal edge cases
+        final bigD = XPathDecimal.fromBigInt(BigInt.from(123));
+        expect(bigD.value, equals(bigD));
+        expect(bigD.toDecimal(), same(bigD));
+        expect(d + dbl, equals(const XPathDouble(5.0)));
+        expect(d - dbl, equals(const XPathDouble(0.0)));
+        expect(
+          d - XPathDecimal.parse('1.25'),
+          equals(XPathDecimal.parse('1.25')),
+        );
+        expect(d * dbl, equals(const XPathDouble(6.25)));
+        expect(d / dbl, equals(const XPathDouble(1.0)));
+        final tinyD = XPathDecimal(BigInt.one, 25);
+        expect(tinyD / XPathDecimal.fromInt(1), isA<XPathDecimal>());
+        expect(d.compareTo(XPathDecimal.parse('2.25')), greaterThan(0));
+        expect(
+          () => d.compareTo(const XPathString('abc')),
+          throwsA(isXPathEvaluationException()),
+        );
+        expect(d == XPathDecimal.parse('2.5'), isTrue);
+        expect(d.hashCode, isA<int>());
+
+        // XPathDouble edge cases
+        final parsedDbl = XPathDouble.parse('3.14');
+        expect(parsedDbl.value, equals(3.14));
+        expect(() => XPathDouble.parse('abc'), throwsFormatException);
+        expect(dbl - i, equals(const XPathDouble(-7.5)));
+        expect(dbl * i, equals(const XPathDouble(25.0)));
+        expect(dbl % i, equals(const XPathDouble(2.5)));
+        expect(
+          () => dbl.compareTo(const XPathString('abc')),
+          throwsA(isXPathEvaluationException()),
+        );
+        expect(dbl.hashCode, isA<int>());
+
+        // _toXPathScientific
+        expect(const XPathDouble(1e7).stringValue, equals('1.0E7'));
+        expect(const XPathDouble(-1250000.0).stringValue, equals('-1.25E6'));
+        expect(const XPathDouble(1e20).stringValue, equals('1.0E20'));
+      },
+    );
   });
 }

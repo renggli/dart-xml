@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:xml/src/xpath/evaluation/configuration.dart';
+import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/evaluation/functions.dart';
 import 'package:xml/src/xpath/xdm/atomic.dart';
 import 'package:xml/src/xpath/xdm/function_item.dart';
@@ -193,12 +194,14 @@ void main() {
       );
     });
 
-    test('item methods throw', () {
+    test('item methods and toValue', () {
       final f = XPathFunctionItem.fn0(
         anonymousFunctionName,
         (ctx) => XPathSequence.empty,
       );
       expect(f.toString(), '(anonymous)#0');
+      expect(f.toValue(), same(f));
+      expect(f.returnType, isNull);
       expect(f.atomize, throwsA(isXPathEvaluationException()));
       expect(() => f.stringValue, throwsA(isXPathEvaluationException()));
       expect(
@@ -206,5 +209,38 @@ void main() {
         throwsA(isXPathEvaluationException()),
       );
     });
+
+    test('typed function and overloaded signatures', () {
+      final typedFn = XPathFunctionItem.fn1(
+        const XmlName.qualified('typed'),
+        (ctx, a) => a,
+        parameterTypes: [xsInteger],
+        returnType: xsInteger,
+      );
+      expect(typedFn.returnType, xsInteger);
+      expect(typedFn.parameterTypes, [xsInteger]);
+      expect(typedFn.type, isA<XPathFunctionType>());
+
+      final overloadedTyped = XPathOverloadedFunction(
+        const XmlName.qualified('overloaded-typed'),
+        {1: typedFn},
+      );
+      expect(overloadedTyped.parameterTypes, [xsInteger]);
+      expect(overloadedTyped.returnType, xsInteger);
+    });
+
+    test('default returnType on base XPathFunctionItem', () {
+      final custom = _CustomFunctionItem();
+      expect(custom.returnType, isNull);
+    });
   });
+}
+
+class _CustomFunctionItem extends XPathFunctionItem {
+  @override
+  int get arity => 0;
+
+  @override
+  XPathSequence call(XPathContext context, List<XPathSequence> arguments) =>
+      XPathSequence.empty;
 }

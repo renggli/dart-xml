@@ -589,4 +589,68 @@ void main() {
       );
     });
   });
+
+  group('fn:dateTime and adjust-to-timezone edge cases', () {
+    test('fn:dateTime throws FORG0008 on conflicting timezones', () {
+      expect(
+        () => fnDateTime(context, [
+          seq(const XPathDateTime.date(2020, 1, 1, 60)),
+          seq(const XPathDateTime.time(10, 0, 0, 0, 0, 120)),
+        ]),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORG0008)),
+      );
+    });
+
+    test('fn:adjust-date-to-timezone and fn:adjust-time-to-timezone with 2 arguments', () {
+      final adjustedDate = fnAdjustDateToTimezone(context, [
+        seq(const XPathDateTime.date(2020, 1, 1)),
+        seq(const XPathDuration.dayTime(0)),
+      ]);
+      expect(adjustedDate.first.stringValue, equals('2020-01-01Z'));
+
+      final adjustedTime = fnAdjustTimeToTimezone(context, [
+        seq(const XPathDateTime.time(10, 0, 0)),
+        seq(const XPathDuration.dayTime(0)),
+      ]);
+      expect(adjustedTime.first.stringValue, equals('10:00:00Z'));
+    });
+  });
+
+  group('fn:parse-ietf-date edge cases', () {
+    test('handles fractional seconds, leap and non-leap February', () {
+      final res = fnParseIetfDate(context, [
+        seq('Wed, 06 Jun 1994 07:29:35.123 GMT'),
+      ]);
+      expect(res.first.stringValue, contains('.123'));
+
+      final nonLeap = fnParseIetfDate(context, [
+        seq('Sun, 28 Feb 1993 07:29:35 GMT'),
+      ]);
+      expect(nonLeap.first.stringValue, contains('1993-02-28'));
+
+      final leap = fnParseIetfDate(context, [
+        seq('Thu, 29 Feb 1996 07:29:35 GMT'),
+      ]);
+      expect(leap.first.stringValue, contains('1996-02-29'));
+    });
+
+    test('throws FORG0010 on empty or invalid inputs', () {
+      void expectIetfError(String dateStr) {
+        expect(
+          () => fnParseIetfDate(context, [seq(dateStr)]),
+          throwsA(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FORG0010),
+          ),
+        );
+      }
+
+      expectIetfError('');
+      expectIetfError('Wed, 06 Foo 1994 07:29:35 GMT');
+      expectIetfError('Wed, 06 Jun 1994 07:29:35 +1500');
+      expectIetfError('Wed, 06 Jun 1994 07:29:35 +0000 (BAD)');
+      expectIetfError('Wed, 06 Jun 1994 07:29:35 UNK');
+      expectIetfError('Wed, 31 Apr 1994 07:29:35 GMT');
+      expectIetfError('Wed, 06 Jun 1994 25:00:00 GMT');
+    });
+  });
 }

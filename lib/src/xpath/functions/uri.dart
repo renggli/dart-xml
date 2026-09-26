@@ -330,14 +330,8 @@ XPathSequence _evalUnparsedText(
     );
   }
 
-  // Check fragment identifier and scheme.
+  // Check scheme.
   final parsedResolved = Uri.parse(resolved);
-  if (parsedResolved.hasFragment) {
-    throw XPathEvaluationException(
-      XPathErrorCode.FOUT1170,
-      'URI contains a fragment identifier: $resolved',
-    );
-  }
   if (parsedResolved.hasScheme &&
       !['file', 'http', 'https', 'data'].contains(parsedResolved.scheme)) {
     throw XPathEvaluationException(

@@ -13,6 +13,10 @@ void main() {
   group('fn:collation-key', () {
     test('returns collation key', () {
       expect(fnCollationKey(context, [seq('abc')]), isXPathSequence(['abc']));
+      expect(
+        fnCollationKey(context, [seq('abc'), seq('http://example.com/col')]),
+        isXPathSequence(['abc']),
+      );
     });
   });
 
@@ -370,6 +374,14 @@ void main() {
         fnTranslate(context, [XPathSequence.empty, seq('a'), seq('b')]),
         isXPathSequence(['']),
       );
+      expect(
+        fnTranslate(context, [seq('bar'), XPathSequence.empty, seq('ABC')]),
+        isXPathSequence(['bar']),
+      );
+      expect(
+        fnTranslate(context, [seq('bar'), seq('abc'), XPathSequence.empty]),
+        isXPathSequence(['bar']),
+      );
     });
 
     test('integration via xpathEvaluate', () {
@@ -650,16 +662,35 @@ void main() {
         isXPathSequence([false]),
       );
     });
+
+    test('supports collation argument', () {
+      expect(
+        fnContainsToken(context, [
+          seq('a b c'),
+          seq('b'),
+          seq('http://example.com/col'),
+        ]),
+        isXPathSequence([true]),
+      );
+    });
   });
 
   group('fn:normalize-unicode', () {
     test('normalizes unicode', () {
       expect(fnNormalizeUnicode(context, [seq('a')]), isXPathSequence(['a']));
+      expect(
+        fnNormalizeUnicode(context, [seq('a'), seq('NFC')]),
+        isXPathSequence(['a']),
+      );
     });
 
     test('handles empty sequence', () {
       expect(
         fnNormalizeUnicode(context, [XPathSequence.empty]),
+        isXPathSequence(['']),
+      );
+      expect(
+        fnNormalizeUnicode(context, [XPathSequence.empty, seq('NFC')]),
         isXPathSequence(['']),
       );
     });
@@ -692,6 +723,14 @@ void main() {
     test('throws not implemented', () {
       expect(
         () => fnAnalyzeString(context, [seq(''), seq('')]),
+        throwsA(
+          isXPathEvaluationException(
+            message: 'Not implemented: fn:analyze-string',
+          ),
+        ),
+      );
+      expect(
+        () => fnAnalyzeString(context, [seq(''), seq(''), seq('i')]),
         throwsA(
           isXPathEvaluationException(
             message: 'Not implemented: fn:analyze-string',

@@ -417,18 +417,11 @@ final fnParseIetfDate = XPathFunctionItem.fn1(
       year += 1900;
     }
 
-    final hr = int.tryParse(match.namedGroup('hour') ?? '');
-    final mn = int.tryParse(match.namedGroup('min') ?? '');
+    final hr = int.parse(match.namedGroup('hour')!);
+    final mn = int.parse(match.namedGroup('min')!);
     final secStr = match.namedGroup('sec');
-    final sec = secStr != null ? int.tryParse(secStr) : 0;
+    final sec = secStr != null ? int.parse(secStr) : 0;
     final fracStr = match.namedGroup('frac');
-
-    if (hr == null || mn == null || sec == null) {
-      throw XPathEvaluationException(
-        XPathErrorCode.FORG0010,
-        'Invalid time components in IETF date: $value',
-      );
-    }
 
     var ms = 0;
     var us = 0;

@@ -633,6 +633,10 @@ void _writeXmlItemNode(
   XmlNode node,
   SerializationParameters params,
 ) {
+  if (params.cdataSectionElements.isNotEmpty) {
+    _writeNodeWithCdata(sb, node, params.cdataSectionElements);
+    return;
+  }
   if (node is XmlDocument) {
     for (final child in node.children) {
       if (child is XmlDeclaration) continue;
@@ -640,9 +644,7 @@ void _writeXmlItemNode(
     }
     return;
   }
-  if (params.cdataSectionElements.isNotEmpty) {
-    _writeNodeWithCdata(sb, node, params.cdataSectionElements);
-  } else if (params.indent) {
+  if (params.indent) {
     sb.write(
       node.toXmlString(
         pretty: true,

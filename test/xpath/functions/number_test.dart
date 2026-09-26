@@ -507,4 +507,181 @@ void main() {
       expectEvaluate(xml, 'xs:numeric("42")', isXPathSequence([42]));
     });
   });
+
+  group('coercion and rounding edge cases', () {
+    test(
+      '_coerceNumericArg and _coerceIntegerArg with untypedAtomic and errors',
+      () {
+        expect(
+          fnAbs(context, [
+            const XPathSequence.single(XPathUntypedAtomic('42')),
+          ]),
+          isXPathSequence([42.0]),
+        );
+        expect(
+          () => fnAbs(context, [
+            const XPathSequence.single(XPathUntypedAtomic('not_num')),
+          ]),
+          throwsA(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FORG0001),
+          ),
+        );
+        expect(
+          () => fnRound(context, [
+            seq(1.234),
+            XPathSequence([XPathInteger.fromInt(1), XPathInteger.fromInt(2)]),
+          ]),
+          throwsA(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          ),
+        );
+        expect(
+          fnRound(context, [
+            seq(1.234),
+            const XPathSequence.single(XPathUntypedAtomic('2')),
+          ]),
+          isXPathSequence([1.23]),
+        );
+        expect(
+          () => fnRound(context, [
+            seq(1.234),
+            const XPathSequence.single(XPathUntypedAtomic('abc')),
+          ]),
+          throwsA(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FORG0001),
+          ),
+        );
+      },
+    );
+
+    test('fn:abs on Decimal and Double', () {
+      expect(
+        fnAbs(context, [seq(XPathDecimal.parse('-3.14'))]).single.stringValue,
+        equals('3.14'),
+      );
+      expect(
+        fnAbs(context, [seq(const XPathDouble(-2.5))]).single.stringValue,
+        equals('2.5'),
+      );
+    });
+
+    test('fn:round edge cases and extremes', () {
+      expect(
+        fnRound(context, [seq(12.34), seq(2000)]),
+        isXPathSequence([12.34]),
+      );
+      expect(
+        fnRound(context, [seq(12.34), seq(-2000)]),
+        isXPathSequence([0.0]),
+      );
+      expect(
+        fnRound(context, [seq(-12.34), seq(-2000)]).first.stringValue,
+        equals('-0'),
+      );
+      expect(fnRound(context, [seq(12), seq(-2000)]), isXPathSequence([0]));
+      expect(
+        fnRound(context, [
+          seq(XPathDecimal.parse('12.34')),
+          seq(-2000),
+        ]).single.stringValue,
+        equals('0'),
+      );
+      expect(fnRound(context, [seq(12.34), seq(-400)]), isXPathSequence([0.0]));
+      expect(fnRound(context, [seq(1e17), seq(2)]), isXPathSequence([1e17]));
+      expect(fnRound(context, [seq(1e3), seq(306)]), isXPathSequence([1e3]));
+      expect(
+        fnRound(context, [
+          seq(const XPathDouble(1.234, xsFloat)),
+          seq(2),
+        ]).single.type,
+        equals(xsFloat),
+      );
+      expect(fnRound(context, [seq(12345), seq(-2)]), isXPathSequence([12300]));
+      expect(
+        fnRound(context, [seq(-12345), seq(-2)]),
+        isXPathSequence([-12300]),
+      );
+      expect(fnRound(context, [seq(12345), seq(-150)]), isXPathSequence([0]));
+
+      expect(
+        fnRound(context, [
+          seq(XPathDecimal.parse('-12.345')),
+          seq(1),
+        ]).single.stringValue,
+        equals('-12.3'),
+      );
+      expect(
+        fnRound(context, [
+          seq(XPathDecimal.parse('12345.67')),
+          seq(-2),
+        ]).single.stringValue,
+        equals('12300'),
+      );
+      expect(
+        fnRound(context, [
+          seq(XPathDecimal.parse('12345.67')),
+          seq(-150),
+        ]).single.stringValue,
+        equals('0'),
+      );
+    });
+
+    test('fn:round-half-to-even edge cases and extremes', () {
+      expect(
+        fnRoundHalfToEven(context, [seq(12.34), seq(2000)]),
+        isXPathSequence([12.34]),
+      );
+      expect(
+        fnRoundHalfToEven(context, [seq(12.34), seq(-2000)]),
+        isXPathSequence([0.0]),
+      );
+      expect(
+        fnRoundHalfToEven(context, [seq(-12.34), seq(-2000)]).first.stringValue,
+        equals('-0'),
+      );
+      expect(
+        fnRoundHalfToEven(context, [seq(12), seq(-2000)]),
+        isXPathSequence([0]),
+      );
+      expect(
+        fnRoundHalfToEven(context, [
+          seq(XPathDecimal.parse('12.34')),
+          seq(-2000),
+        ]).single.stringValue,
+        equals('0'),
+      );
+      expect(
+        fnRoundHalfToEven(context, [seq(12.34), seq(-400)]),
+        isXPathSequence([0.0]),
+      );
+      expect(
+        fnRoundHalfToEven(context, [seq(1e17), seq(2)]),
+        isXPathSequence([1e17]),
+      );
+      expect(
+        fnRoundHalfToEven(context, [seq(1e3), seq(306)]),
+        isXPathSequence([1e3]),
+      );
+      expect(
+        fnRoundHalfToEven(context, [seq(-0.01), seq(0)]).first.stringValue,
+        equals('-0'),
+      );
+      expect(
+        fnRoundHalfToEven(context, [
+          seq(const XPathDouble(1.234, xsFloat)),
+          seq(2),
+        ]).single.type,
+        equals(xsFloat),
+      );
+      expect(
+        fnRoundHalfToEven(context, [seq(double.nan)]),
+        isXPathSequence([isNaN]),
+      );
+      expect(
+        fnRoundHalfToEven(context, [seq(double.infinity)]),
+        isXPathSequence([double.infinity]),
+      );
+      expect(fnRoundHalfToEven(context, [seq(0.0)]), isXPathSequence([0.0]));
+    });
+  });
 }

@@ -286,11 +286,47 @@ void main() {
       expectLexicalError('invalid', xsGDay);
       expectLexicalError('invalid', xsDate);
       expectLexicalError('invalid', xsDateTime);
+      expectLexicalError('invalid', xsGYearMonth);
+      expectLexicalError('invalid', xsGYear);
+      expectLexicalError('maybe', xsBoolean);
+      expectLexicalError('2020-01-01T12:00:00', xsDateTimeStamp);
 
       expect(
         () => castAtomic(const XPathString('1:2:3'), xsQName),
         throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOCA0002)),
       );
+    });
+
+    test('additional casting branches', () {
+      // Line 354: numeric to xsDecimal
+      expect(
+        castAtomic(XPathInteger.fromInt(42), xsDecimal).stringValue,
+        equals('42'),
+      );
+      expect(
+        castAtomic(const XPathDouble(42.5), xsDecimal).stringValue,
+        equals('42.5'),
+      );
+
+      // Line 390-391: xsDateTime without timezone to xsDateTimeStamp
+      expect(
+        () => castAtomic(
+          XPathDateTime.tryParse('2020-01-01T12:00:00')!,
+          xsDateTimeStamp,
+        ),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORG0001)),
+      );
+
+      // Line 414-416: duration to xsDuration
+      final ymd = XPathDuration.tryParse('P1Y2M', xsYearMonthDuration)!;
+      final dur = castAtomic(ymd, xsDuration);
+      expect(dur.type, equals(xsDuration));
+      expect(dur.stringValue, equals('P1Y2M'));
+
+      // string to xsAnyURI
+      final uri = castAtomic(const XPathString('http://example.com'), xsAnyURI);
+      expect(uri.type, equals(xsAnyURI));
+      expect(uri.stringValue, equals('http://example.com'));
     });
 
     test('duration disallowed casts throw XPTY0004', () {

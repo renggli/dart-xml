@@ -125,6 +125,14 @@ void main() {
       () => staticContext.getFunction(const XmlName.qualified('other')),
       throwsA(isXPathEvaluationException(message: 'Unknown function: other')),
     );
+    expect(
+      () => standard.getFunctionByString('round', 5),
+      throwsA(
+        isXPathEvaluationException(
+          message: 'Function "round" does not support arity 5 [err:XPST0017]',
+        ),
+      ),
+    );
   });
   test('getFunctionByString', () {
     final staticContext = XPathConfiguration(
