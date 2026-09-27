@@ -127,6 +127,13 @@ void main() {
       );
       expect(rEmpty, same(XPathSequence.empty));
 
+      final rSingle = XPathSequence.range(
+        XPathInteger.fromInt(5),
+        XPathInteger.fromInt(5),
+      );
+      expect(rSingle.singleOrNull, equals(XPathInteger.fromInt(5)));
+      expect(r.singleOrNull, isNull);
+
       expect(
         () => XPathSequence.range(
           XPathInteger.fromInt(1),

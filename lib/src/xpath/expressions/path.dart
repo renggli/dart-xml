@@ -210,15 +210,7 @@ List<XPathItem> _sortAndDeduplicate(Iterable<XPathItem> iter) {
       }
     }
     if (nsNodes != null) {
-      nsNodes.sort((a, b) {
-        var cmp = a.prefix.compareTo(b.prefix);
-        if (cmp == 0) cmp = a.uri.compareTo(b.uri);
-        if (cmp == 0) {
-          cmp = identityHashCode(a).compareTo(identityHashCode(b));
-          if (cmp == 0) cmp = 1;
-        }
-        return cmp;
-      });
+      nsNodes.sort((a, b) => a.prefix.compareTo(b.prefix));
       sorted.addAll(nsNodes);
     }
     if (sorted.length < nodes.length) {
@@ -282,17 +274,7 @@ List<XPathItem> _sortAndDeduplicate(Iterable<XPathItem> iter) {
     if (map == null) {
       map = <(String, String), int>{};
       final list = parent.namespaces.toList();
-      list.sort((a, b) {
-        var cmp = a.prefix.compareTo(b.prefix);
-        if (cmp == 0) {
-          cmp = a.uri.compareTo(b.uri);
-        }
-        if (cmp == 0) {
-          cmp = identityHashCode(a).compareTo(identityHashCode(b));
-          if (cmp == 0) cmp = 1;
-        }
-        return cmp;
-      });
+      list.sort((a, b) => a.prefix.compareTo(b.prefix));
       for (var i = 0; i < list.length; i++) {
         map[(list[i].prefix, list[i].uri)] = i;
       }

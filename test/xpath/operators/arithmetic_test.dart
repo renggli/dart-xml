@@ -381,5 +381,27 @@ void main() {
         throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
       );
     });
+
+    test('operand sequence length and array atomization', () {
+      expect(
+        () => opAdd(XPathSequence.from([1, 2]), XPathSequence.from([3])),
+        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      );
+      expect(
+        opAdd(XPathSequence.from([XPathArray.empty]), XPathSequence.from([1])),
+        isEmpty,
+      );
+      expect(
+        opAdd(
+          XPathSequence.from([
+            XPathArray([
+              XPathSequence.from([1]),
+            ]),
+          ]),
+          XPathSequence.from([2]),
+        ),
+        isXPathSequence([3]),
+      );
+    });
   });
 }

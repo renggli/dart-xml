@@ -1,4 +1,10 @@
 import 'package:test/test.dart';
+import 'package:xml/src/xpath/expressions/predicate.dart';
+import 'package:xml/src/xpath/expressions/sequence.dart';
+import 'package:xml/src/xpath/expressions/variable.dart';
+import 'package:xml/src/xpath/grammars/parser.dart';
+import 'package:xml/src/xpath/xdm/atomic/numeric.dart';
+import 'package:xml/src/xpath/xdm/sequence.dart';
 import 'package:xml/xml.dart';
 
 import '../helpers.dart';
@@ -85,6 +91,83 @@ void main() {
 
     test('compound predicate with early-exit: item[@id = "500"][1]', () {
       expectXPath(largeDoc, '/root/item[@id = "500"][1]', ['<item id="500"/>']);
+    });
+  });
+
+  group('predicate static analysis and constant indices', () {
+    test('parenthesized constant index', () {
+      expectXPath(current, 'e1[(1)]', ['<e1 a="1"/>']);
+      expectXPath(current, 'e1[(2)]', []);
+    });
+
+    test('double constant indices', () {
+      expectXPath(current, 'e1[1.0e0]', ['<e1 a="1"/>']);
+      expectXPath(current, 'e1[2.0e0]', []);
+      expectXPath(current, 'e1[1.5e0]', []);
+      expectXPath(current, 'e1[-1.0e0]', []);
+      expectXPath(current, 'e1[xs:double("NaN")]', []);
+    });
+
+    test('decimal and runtime numeric matches', () {
+      expectXPath(current, 'e1[xs:decimal(1)]', ['<e1 a="1"/>']);
+      expectXPath(current, 'e1[xs:decimal(2)]', []);
+      expectXPath(current, 'e1[xs:decimal(1.5)]', []);
+    });
+
+    test('step collapsing with complex predicate expressions', () {
+      expect(Predicate(parseExpression('(1, 2)')).isPositional, isTrue);
+      expect(Predicate(parseExpression('(@a, @b)')).isPositional, isFalse);
+      expect(
+        Predicate(parseExpression('if (@a) then 1 else 2')).isPositional,
+        isTrue,
+      );
+      expect(
+        Predicate(parseExpression('if (@a) then true() else false()'))
+            .isPositional,
+        isFalse,
+      );
+      expect(Predicate(parseExpression('(1)[1]')).isPositional, isTrue);
+      expect(Predicate(parseExpression('@a[@b]')).isPositional, isFalse);
+      expect(Predicate(parseExpression('-position()')).isPositional, isTrue);
+      expect(
+        Predicate(parseExpression('@a || position()')).isPositional,
+        isTrue,
+      );
+      expect(
+        Predicate(parseExpression('(position(), 1)')).isPositional,
+        isTrue,
+      );
+      expect(
+        Predicate(parseExpression('if (position() = 1) then @a else @b'))
+            .isPositional,
+        isTrue,
+      );
+      expect(
+        Predicate(parseExpression('(e1)[position() = 1]')).isPositional,
+        isTrue,
+      );
+      expect(
+        Predicate(parseExpression('-position() = -1')).isPositional,
+        isTrue,
+      );
+      expect(
+        Predicate(
+          SequenceExpression([
+            LiteralExpression(XPathSequence.single(XPathInteger.fromInt(1))),
+          ]),
+        ).constantIndex,
+        equals(1),
+      );
+
+      expectXPath(document, '//e1[(@a, @a)]', ['<e1 a="1"/>']);
+      expectXPath(document, '//e1[if (@a) then true() else false()]', [
+        '<e1 a="1"/>',
+      ]);
+      expectXPath(document, '/r/*[-position() = -1]', ['<e1 a="1"/>']);
+      expectXPath(document, '//e1[@a || "x" = "1x"]', ['<e1 a="1"/>']);
+      expectXPath(document, '//r[e1[position() = 1]]', [
+        '<r><e1 a="1"/><e2 a="2" b="3"/><e3 b="4"/></r>',
+      ]);
     });
   });
 }

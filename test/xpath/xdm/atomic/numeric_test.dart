@@ -58,6 +58,18 @@ void main() {
       expect(a.compareTo(XPathInteger.fromInt(5)), isZero);
       expect(a == XPathInteger.fromInt(5), isTrue);
       expect(a == Object(), isFalse);
+
+      final big1 = XPathInteger(
+        BigInt.parse('1000000000000000000000000000000'),
+      );
+      final big2 = XPathInteger(
+        BigInt.parse('1000000000000000000000000000001'),
+      );
+      expect(big1.compareTo(big2), isNegative);
+      expect(big2.compareTo(big1), isPositive);
+      expect(big1.compareTo(big1), isZero);
+      expect(big1 == big1, isTrue);
+      expect(big1 == big2, isFalse);
     });
 
     test('EBV for zero is false', () {

@@ -362,5 +362,19 @@ void main() {
       final ymd2 = XPathDuration.tryParseYearMonth('P2Y')!;
       expect(compare(ymd1, ymd2), lessThan(0));
     });
+
+    test('untypedAtomic value comparisons', () {
+      const u = XPathUntypedAtomic('foo');
+      const s = XPathString('foo');
+      expect(opValueEqual(seq(u), seq(s)), isXPathSequence([true]));
+      expect(
+        opValueNotEqual(seq(u), seq(const XPathString('bar'))),
+        isXPathSequence([true]),
+      );
+      expect(
+        opValueLessThan(seq(u), seq(const XPathString('zoo'))),
+        isXPathSequence([true]),
+      );
+    });
   });
 }

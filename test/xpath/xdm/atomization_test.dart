@@ -50,7 +50,16 @@ void main() {
     test('single sequence of atomic returns self or equivalent atomic', () {
       final i = XPathInteger.fromInt(42);
       final s = XPathSequence.single(i);
-      final atomized = s.atomize().toList();
+      final singleAtomized = s.atomize();
+      expect(singleAtomized.isNotEmpty, isTrue);
+      expect(singleAtomized.last, same(i));
+      expect(singleAtomized.single, same(i));
+      expect(singleAtomized.elementAt(0), same(i));
+      expect(() => singleAtomized.elementAt(1), throwsRangeError);
+      expect(singleAtomized.contains(i), isTrue);
+      expect(singleAtomized.contains(XPathInteger.fromInt(99)), isFalse);
+
+      final atomized = singleAtomized.toList();
       expect(atomized.length, equals(1));
       expect(atomized.first, same(i));
 

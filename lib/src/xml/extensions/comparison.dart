@@ -210,18 +210,6 @@ extension XmlComparisonExtension on XmlNode {
     }
 
     // Compare sibling order of the ancestors under the common parent.
-    if (ancestorThis is XmlAttribute || ancestorOther is XmlAttribute) {
-      final attributes = parent.attributes;
-      for (var i = 0; i < attributes.length; i++) {
-        final attribute = attributes[i];
-        if (identical(attribute, ancestorThis)) {
-          return const XmlDocumentPosition(XmlDocumentPosition._following);
-        }
-        if (identical(attribute, ancestorOther)) {
-          return const XmlDocumentPosition(XmlDocumentPosition._preceding);
-        }
-      }
-    }
     final children = parent.children;
     for (var i = 0; i < children.length; i++) {
       final child = children[i];

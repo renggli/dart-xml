@@ -95,6 +95,38 @@ void main() {
       expect(attrToRoot.isFollowing, isFalse);
     });
 
+    test('attribute and sibling child element under same parent', () {
+      final doc = XmlDocument.parse('<root a="1"><child/></root>');
+      final root = doc.rootElement;
+      final a = root.attributes.first;
+      final child = root.children.first;
+
+      final aToChild = a.compareDocumentPosition(child);
+      expect(aToChild.isFollowing, isTrue);
+      expect(aToChild.isPreceding, isFalse);
+
+      final childToA = child.compareDocumentPosition(a);
+      expect(childToA.isPreceding, isTrue);
+      expect(childToA.isFollowing, isFalse);
+    });
+
+    test('attribute and grandchild element under common parent', () {
+      final doc = XmlDocument.parse(
+        '<root a="1"><child><grandchild/></child></root>',
+      );
+      final root = doc.rootElement;
+      final a = root.attributes.first;
+      final grandchild = root.findAllElements('grandchild').single;
+
+      final aToGrandchild = a.compareDocumentPosition(grandchild);
+      expect(aToGrandchild.isFollowing, isTrue);
+      expect(aToGrandchild.isPreceding, isFalse);
+
+      final grandchildToA = grandchild.compareDocumentPosition(a);
+      expect(grandchildToA.isPreceding, isTrue);
+      expect(grandchildToA.isFollowing, isFalse);
+    });
+
     test('attributes on same element', () {
       final doc = XmlDocument.parse('<root a="1" b="2" c="3"/>');
       final root = doc.rootElement;

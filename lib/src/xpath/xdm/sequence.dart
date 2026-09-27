@@ -113,13 +113,7 @@ abstract class XPathSequence extends Iterable<XPathItem> {
   Iterable<XPathAtomic> atomize() => _AtomizeIterable(this);
 
   /// Single item if length is 1, null otherwise.
-  XPathItem? get singleOrNull {
-    final it = iterator;
-    if (!it.moveNext()) return null;
-    final item = it.current;
-    if (it.moveNext()) return null;
-    return item;
-  }
+  XPathItem? get singleOrNull;
 
   /// Effective Boolean Value (EBV) per W3C XPath 3.1 §2.4.3.
   bool get ebv {
@@ -391,10 +385,6 @@ class _SingleAtomicIterable extends Iterable<XPathAtomic> {
   @override
   XPathAtomic get single => _item;
 
-  XPathAtomic? get firstOrNull => _item;
-
-  XPathAtomic? get singleOrNull => _item;
-
   @override
   XPathAtomic elementAt(int index) =>
       index == 0 ? _item : throw RangeError.index(index, this);
@@ -427,11 +417,6 @@ class _AtomizeIterable extends Iterable<XPathAtomic> {
 
   @override
   Iterator<XPathAtomic> get iterator => _AtomizeIterator(_sequence.iterator);
-
-  XPathAtomic? get firstOrNull {
-    final it = iterator;
-    return it.moveNext() ? it.current : null;
-  }
 
   @override
   List<XPathAtomic> toList({bool growable = true}) {

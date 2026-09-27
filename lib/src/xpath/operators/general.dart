@@ -499,18 +499,6 @@ XPathSequence _compareGeneral(
 ) {
   if (left.isEmpty || right.isEmpty) return XPathSequence.falseSequence;
 
-  final item1 = left.singleOrNull;
-  final item2 = right.singleOrNull;
-  if (item1 != null &&
-      item2 != null &&
-      item1 is! XPathArray &&
-      item2 is! XPathArray) {
-    final a = item1.atomize();
-    final b = item2.atomize();
-    final match = _comparePair(a, b, comparator);
-    return match ? XPathSequence.trueSequence : XPathSequence.falseSequence;
-  }
-
   final seq1 = left.atomize().toList();
   final seq2 = right.atomize().toList();
   if (seq1.isEmpty || seq2.isEmpty) return XPathSequence.falseSequence;

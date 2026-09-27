@@ -591,6 +591,10 @@ void main() {
       expect(evalIds(doc, '//node/ancestor::node'), ['1', '1.1', '2']);
       // //node/.. deduplicates parents:
       expect(evalIds(doc, '//node/..'), ['0', '1', '1.1', '2']);
+
+      final attrDoc = XmlDocument.parse('<root a="1" b="2"><child/></root>');
+      final res = attrDoc.xpath('//child/../@*').map((i) => i.value).toList();
+      expect(res, ['1', '2']);
     });
   });
 

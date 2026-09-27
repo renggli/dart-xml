@@ -92,8 +92,7 @@ XPathAtomic? _atomizeSingle(XPathSequence seq) {
     if (single is XPathAtomic) {
       return single;
     }
-    final item = single.atomize();
-    return item is XPathUntypedAtomic ? XPathString(item.value) : item;
+    return single.atomize();
   }
   final it = seq.atomize().iterator;
   if (!it.moveNext()) return null;
