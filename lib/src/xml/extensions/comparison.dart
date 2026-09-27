@@ -134,6 +134,27 @@ extension XmlComparisonExtension on XmlNode {
       }
     }
 
+    // Direct siblings sharing the same non-null parent.
+    final thisParent = thisNode.parent;
+    final otherParent = otherNode.parent;
+    if (thisParent != null && identical(thisParent, otherParent)) {
+      final children = thisParent.children;
+      for (var i = 0; i < children.length; i++) {
+        final child = children[i];
+        if (identical(child, thisNode)) {
+          return const XmlDocumentPosition(XmlDocumentPosition._following);
+        }
+        if (identical(child, otherNode)) {
+          return const XmlDocumentPosition(XmlDocumentPosition._preceding);
+        }
+      }
+      return const XmlDocumentPosition(
+        XmlDocumentPosition._disconnected |
+            XmlDocumentPosition._implementationSpecific |
+            XmlDocumentPosition._preceding,
+      );
+    }
+
     var ancestorThis = thisNode;
     var ancestorOther = otherNode;
     var depthThis = ancestorThis.depth;
@@ -189,19 +210,25 @@ extension XmlComparisonExtension on XmlNode {
     }
 
     // Compare sibling order of the ancestors under the common parent.
-    for (final attribute in parent.attributes) {
-      if (attribute == ancestorThis) {
-        return const XmlDocumentPosition(XmlDocumentPosition._following);
-      }
-      if (attribute == ancestorOther) {
-        return const XmlDocumentPosition(XmlDocumentPosition._preceding);
+    if (ancestorThis is XmlAttribute || ancestorOther is XmlAttribute) {
+      final attributes = parent.attributes;
+      for (var i = 0; i < attributes.length; i++) {
+        final attribute = attributes[i];
+        if (identical(attribute, ancestorThis)) {
+          return const XmlDocumentPosition(XmlDocumentPosition._following);
+        }
+        if (identical(attribute, ancestorOther)) {
+          return const XmlDocumentPosition(XmlDocumentPosition._preceding);
+        }
       }
     }
-    for (final child in parent.children) {
-      if (child == ancestorThis) {
+    final children = parent.children;
+    for (var i = 0; i < children.length; i++) {
+      final child = children[i];
+      if (identical(child, ancestorThis)) {
         return const XmlDocumentPosition(XmlDocumentPosition._following);
       }
-      if (child == ancestorOther) {
+      if (identical(child, ancestorOther)) {
         return const XmlDocumentPosition(XmlDocumentPosition._preceding);
       }
     }

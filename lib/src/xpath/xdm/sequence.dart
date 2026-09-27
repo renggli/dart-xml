@@ -23,6 +23,13 @@ abstract class XPathSequence extends Iterable<XPathItem> {
   /// Singleton false sequence.
   static const falseSequence = _XPathSingleSequence(XPathBoolean.falseInstance);
 
+  static const _trueAtomicIterable = _SingleAtomicIterable(
+    XPathBoolean.trueInstance,
+  );
+  static const _falseAtomicIterable = _SingleAtomicIterable(
+    XPathBoolean.falseInstance,
+  );
+
   /// Singleton empty map sequence.
   static const emptyMap = _XPathSingleSequence(XPathMap.empty);
 
@@ -43,7 +50,8 @@ abstract class XPathSequence extends Iterable<XPathItem> {
 
   /// Creates a sequence from an iterable, flattening any nested sequences.
   factory from(Iterable<Object?> items) {
-    final flat = _flatten(items).toList();
+    final flat = <XPathItem>[];
+    _flattenInto(items, flat);
     if (flat.isEmpty) return empty;
     if (flat.length == 1) return _XPathSingleSequence(flat.first);
     return _XPathListSequence(flat);
@@ -88,26 +96,21 @@ abstract class XPathSequence extends Iterable<XPathItem> {
     return XPathSequence.single(toItem(value));
   }
 
-  static Iterable<XPathItem> _flatten(Iterable<Object?> objects) sync* {
+  static void _flattenInto(Iterable<Object?> objects, List<XPathItem> result) {
     for (final obj in objects) {
       if (obj == null) continue;
       if (obj is XPathSequence) {
-        yield* obj;
+        result.addAll(obj);
       } else if (obj is Iterable<Object?>) {
-        yield* _flatten(obj);
+        _flattenInto(obj, result);
       } else {
-        yield toItem(obj);
+        result.add(toItem(obj));
       }
     }
   }
 
   /// Atomizes this sequence into a list of atomic items.
-  Iterable<XPathAtomic> atomize() => expand((item) {
-    if (item is XPathArray) {
-      return item.members.expand((member) => member.atomize());
-    }
-    return [item.atomize()];
-  });
+  Iterable<XPathAtomic> atomize() => _AtomizeIterable(this);
 
   /// Single item if length is 1, null otherwise.
   XPathItem? get singleOrNull {
@@ -202,6 +205,9 @@ class _XPathRangeSequence extends XPathSequence {
   bool get isNotEmpty => _start <= _end;
 
   @override
+  XPathItem? get singleOrNull => _start == _end ? XPathInteger(_start) : null;
+
+  @override
   Iterator<XPathItem> get iterator => _RangeIterator(_start, _end);
 }
 
@@ -240,6 +246,12 @@ class _XPathEmptySequence extends XPathSequence {
   bool get isNotEmpty => false;
 
   @override
+  XPathItem? get singleOrNull => null;
+
+  @override
+  Iterable<XPathAtomic> atomize() => const <XPathAtomic>[];
+
+  @override
   bool get ebv => false;
 
   @override
@@ -273,6 +285,27 @@ class _XPathSingleSequence extends XPathSequence {
 
   @override
   XPathItem? get singleOrNull => _item;
+
+  @override
+  Iterable<XPathAtomic> atomize() {
+    final item = _item;
+    if (item is XPathAtomic) {
+      if (identical(item, XPathBoolean.trueInstance)) {
+        return XPathSequence._trueAtomicIterable;
+      }
+      if (identical(item, XPathBoolean.falseInstance)) {
+        return XPathSequence._falseAtomicIterable;
+      }
+      return _SingleAtomicIterable(item);
+    }
+    if (item is XPathNode) {
+      return _SingleAtomicIterable(item.atomize());
+    }
+    if (item is XPathArray) {
+      return item.members.expand((member) => member.atomize());
+    }
+    return _SingleAtomicIterable(item.atomize());
+  }
 
   @override
   Object? toValue() => _item.toValue();
@@ -317,5 +350,134 @@ class _XPathListSequence extends XPathSequence {
   bool get isNotEmpty => _items.isNotEmpty;
 
   @override
+  XPathItem? get singleOrNull => _items.length == 1 ? _items.first : null;
+
+  @override
+  Iterable<XPathAtomic> atomize() {
+    final items = _items;
+    if (items is List<XPathAtomic>) {
+      return items;
+    }
+    return _AtomizeIterable(this);
+  }
+
+  @override
   String toString() => '(${_items.join(', ')})';
+}
+
+class _SingleAtomicIterable extends Iterable<XPathAtomic> {
+  const new(this._item);
+
+  final XPathAtomic _item;
+
+  @override
+  Iterator<XPathAtomic> get iterator => _SingleAtomicIterator(_item);
+
+  @override
+  int get length => 1;
+
+  @override
+  bool get isEmpty => false;
+
+  @override
+  bool get isNotEmpty => true;
+
+  @override
+  XPathAtomic get first => _item;
+
+  @override
+  XPathAtomic get last => _item;
+
+  @override
+  XPathAtomic get single => _item;
+
+  XPathAtomic? get firstOrNull => _item;
+
+  XPathAtomic? get singleOrNull => _item;
+
+  @override
+  XPathAtomic elementAt(int index) =>
+      index == 0 ? _item : throw RangeError.index(index, this);
+
+  @override
+  List<XPathAtomic> toList({bool growable = true}) =>
+      growable ? <XPathAtomic>[_item] : List<XPathAtomic>.unmodifiable([_item]);
+
+  @override
+  bool contains(Object? element) => _item == element;
+}
+
+class _SingleAtomicIterator implements Iterator<XPathAtomic> {
+  new(this._item);
+
+  final XPathAtomic _item;
+  int _idx = -1;
+
+  @override
+  XPathAtomic get current => _item;
+
+  @override
+  bool moveNext() => ++_idx == 0;
+}
+
+class _AtomizeIterable extends Iterable<XPathAtomic> {
+  const new(this._sequence);
+
+  final XPathSequence _sequence;
+
+  @override
+  Iterator<XPathAtomic> get iterator => _AtomizeIterator(_sequence.iterator);
+
+  XPathAtomic? get firstOrNull {
+    final it = iterator;
+    return it.moveNext() ? it.current : null;
+  }
+
+  @override
+  List<XPathAtomic> toList({bool growable = true}) {
+    final result = <XPathAtomic>[];
+    for (final item in _sequence) {
+      if (item is XPathArray) {
+        result.addAll(item.members.expand((m) => m.atomize()));
+      } else {
+        result.add(item.atomize());
+      }
+    }
+    return result;
+  }
+}
+
+class _AtomizeIterator implements Iterator<XPathAtomic> {
+  new(this._source);
+
+  final Iterator<XPathItem> _source;
+  Iterator<XPathAtomic>? _nested;
+  XPathAtomic? _current;
+
+  @override
+  XPathAtomic get current => _current!;
+
+  @override
+  bool moveNext() {
+    while (true) {
+      if (_nested != null) {
+        if (_nested!.moveNext()) {
+          _current = _nested!.current;
+          return true;
+        }
+        _nested = null;
+      }
+      if (!_source.moveNext()) {
+        _current = null;
+        return false;
+      }
+      final item = _source.current;
+      if (item is XPathArray) {
+        _nested = item.members.expand((m) => m.atomize()).iterator;
+      } else {
+        _current = item.atomize();
+        return true;
+      }
+    }
+  }
 }

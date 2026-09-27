@@ -23,6 +23,12 @@
   - Integrated maps and arrays into dynamic function calls.
   - Added duration support in aggregation functions (`fn:avg`, `fn:sum`).
   - Protected arithmetic and math functions (`fn:ceiling`, `fn:floor`, duration operations) against `Infinity` and `NaN`.
+  - Significant XPath evaluation performance optimizations:
+    - Preserved document order on absolute paths (`/`, `//`), avoiding redundant $O(N^2 \log N)$ sorting and deduplication fallbacks. Yields up to 775x speedup on large documents (e.g., at $N=10,000$, `//*` is ~775x faster dropping from 3.75s to 4.8ms; `/root/item/name` is ~609x faster dropping from 840ms to 1.38ms; `//item` is ~307x faster dropping from 870ms to 2.84ms).
+    - Introduced two-tier node sorting with direct sibling indexing in DOM position comparisons for queries requiring deduplication.
+    - Collapsed `DescendantOrSelfAxis` + `ChildAxis` into `DescendantAxis` for steps with non-positional predicates (e.g., `//item[@id=100]` is ~5.75x faster).
+    - Cached small `XPathInteger` instances (`0..128`) and unboxed integer comparisons for zero-allocation positional predicate matching with early-exit loop termination.
+    - Optimized sequence atomization with zero-allocation fast paths for empty and single-item sequences, along with primitive 1-vs-1 comparison fast paths.
   - Fix short-circuit evaluation for `!=` general comparisons ([#207](https://github.com/renggli/dart-xml/issues/207)).
 
 ## 7.0.1

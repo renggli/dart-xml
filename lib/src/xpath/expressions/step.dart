@@ -40,17 +40,45 @@ class StepExpression implements XPathExpression {
         'Step expression requires a node, but got ${item.runtimeType}',
       );
     }
+    final isReverseIndexed = axis is ReverseAxis;
+    final firstConstantIndex = predicates.isNotEmpty
+        ? predicates.first.constantIndex
+        : null;
+
+    final findLimit = (!isReverseIndexed && firstConstantIndex != null)
+        ? firstConstantIndex
+        : null;
+
+    if (findLimit != null && findLimit <= 0) {
+      return XPathSequence.empty;
+    }
+
     var result = <XmlNode>[];
     for (final node in axis.find(item.node)) {
       if (nodeTest.matches(node)) {
         result.add(node);
+        if (findLimit != null && result.length >= findLimit) {
+          break;
+        }
       }
     }
+    if (result.isEmpty) {
+      return XPathSequence.empty;
+    }
     if (predicates.isNotEmpty) {
-      final isReverseIndexed = axis is ReverseAxis;
       var current = isReverseIndexed ? result.reversed.toList() : result;
       final inner = context.copy();
       for (final predicate in predicates) {
+        if (current.isEmpty) break;
+        final constantIndex = predicate.constantIndex;
+        if (constantIndex != null) {
+          if (constantIndex <= 0 || constantIndex > current.length) {
+            current = const [];
+            break;
+          }
+          current = [current[constantIndex - 1]];
+          continue;
+        }
         inner.last = current.length;
         final matched = <XmlNode>[];
         for (var i = 0; i < current.length; i++) {
@@ -65,7 +93,9 @@ class StepExpression implements XPathExpression {
       }
       result = isReverseIndexed ? current.reversed.toList() : current;
     }
-    return XPathSequence(result.map(XPathNode.new));
+    return result.isEmpty
+        ? XPathSequence.empty
+        : XPathSequence(result.map(XPathNode.new));
   }
 }
 

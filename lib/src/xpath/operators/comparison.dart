@@ -1,6 +1,8 @@
 import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/atomic.dart';
+import '../xdm/functions/array.dart';
+import '../xdm/item.dart';
 import '../xdm/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-31/#id-value-comparisons
@@ -78,19 +80,31 @@ XPathSequence opValueGreaterThanOrEqual(
 ) => _compareValue(left, right, (c) => c >= 0);
 
 XPathAtomic? _atomizeSingle(XPathSequence seq) {
-  final data = seq.atomize().toList();
-  if (data.isEmpty) return null;
-  if (data.length > 1) {
+  if (seq.isEmpty) return null;
+  final single = seq.singleOrNull;
+  if (single != null && single is! XPathArray) {
+    if (single is XPathUntypedAtomic) {
+      return XPathString(single.value);
+    }
+    if (single is XPathNode) {
+      return XPathString(single.stringValue);
+    }
+    if (single is XPathAtomic) {
+      return single;
+    }
+    final item = single.atomize();
+    return item is XPathUntypedAtomic ? XPathString(item.value) : item;
+  }
+  final it = seq.atomize().iterator;
+  if (!it.moveNext()) return null;
+  final first = it.current;
+  if (it.moveNext()) {
     throw XPathEvaluationException(
       XPathErrorCode.XPTY0004,
-      'Sequence contains more than one item: (${data.join(', ')})',
+      'Sequence contains more than one item',
     );
   }
-  final item = data.first;
-  if (item is XPathUntypedAtomic) {
-    return XPathString(item.value);
-  }
-  return item;
+  return first is XPathUntypedAtomic ? XPathString(first.value) : first;
 }
 
 XPathSequence _compareValue(

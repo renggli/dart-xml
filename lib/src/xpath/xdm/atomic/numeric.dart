@@ -36,21 +36,45 @@ sealed class XPathNumeric extends XPathAtomic {
 
 /// Arbitrary-precision integer (xs:integer and subtypes).
 final class XPathInteger extends XPathNumeric {
-  new(this.value, [this.type = xsInteger]);
+  new(this.value, [this.type = xsInteger, int? intValue])
+    : intValue = intValue ?? (value.isValidInt ? value.toInt() : null);
 
-  factory fromInt(int val, [XPathType type = xsInteger]) =>
-      XPathInteger(BigInt.from(val), type);
+  factory fromInt(int val, [XPathType type = xsInteger]) {
+    if (type == xsInteger && val >= 0 && val <= 128) {
+      return _smallIntegers[val];
+    }
+    return XPathInteger(BigInt.from(val), type, val);
+  }
 
-  factory parse(String text, [XPathType type = xsInteger]) =>
-      XPathInteger(BigInt.parse(text.trim()), type);
+  factory parse(String text, [XPathType type = xsInteger]) {
+    final trimmed = text.trim();
+    final digits = trimmed.startsWith('-') || trimmed.startsWith('+')
+        ? trimmed.length - 1
+        : trimmed.length;
+    if (digits <= 15) {
+      final intVal = int.tryParse(trimmed);
+      if (intVal != null) {
+        return XPathInteger.fromInt(intVal, type);
+      }
+    }
+    return XPathInteger(BigInt.parse(trimmed), type);
+  }
 
-  static final zero = XPathInteger(BigInt.zero);
+  static final _smallIntegers = List<XPathInteger>.generate(
+    129,
+    (i) => XPathInteger(BigInt.from(i), xsInteger, i),
+  );
+
+  static final zero = _smallIntegers[0];
 
   @override
   final BigInt value;
 
   @override
   final XPathType type;
+
+  /// Cached 64-bit integer value, or `null` if the value overflows a 64-bit signed int.
+  final int? intValue;
 
   @override
   String get stringValue => value.toString();
@@ -59,16 +83,19 @@ final class XPathInteger extends XPathNumeric {
   bool get effectiveBooleanValue => value != BigInt.zero;
 
   @override
-  double toDouble() => value.toDouble();
+  double toDouble() => intValue?.toDouble() ?? value.toDouble();
 
   @override
   BigInt toBigInt() => value;
 
   /// Returns the value as a Dart [int].
-  int get asInt => value.toInt();
+  int get asInt => intValue ?? value.toInt();
+
+  /// Checks whether this integer equals the 64-bit integer [other] without BigInt allocation.
+  bool equalsInt(int other) => intValue == other;
 
   @override
-  Object toValue() => value.isValidInt ? value.toInt() : value;
+  Object toValue() => intValue ?? value;
 
   @override
   XPathDecimal toDecimal() => XPathDecimal(value, 0);
@@ -145,7 +172,12 @@ final class XPathInteger extends XPathNumeric {
 
   @override
   int compareTo(XPathAtomic other) {
-    if (other is XPathInteger) return value.compareTo(other.value);
+    if (other is XPathInteger) {
+      if (intValue != null && other.intValue != null) {
+        return intValue!.compareTo(other.intValue!);
+      }
+      return value.compareTo(other.value);
+    }
     if (other is XPathDecimal) return toDecimal().compareTo(other);
     if (other is XPathDouble) {
       if (other.value.isNaN) return -1;
@@ -159,7 +191,12 @@ final class XPathInteger extends XPathNumeric {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    if (other is XPathInteger) return value == other.value;
+    if (other is XPathInteger) {
+      if (intValue != null && other.intValue != null) {
+        return intValue == other.intValue;
+      }
+      return value == other.value;
+    }
     if (other is XPathDecimal) return toDecimal() == other;
     if (other is XPathDouble) {
       return !other.value.isNaN && toDouble() == other.value;

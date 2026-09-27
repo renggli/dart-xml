@@ -30,5 +30,61 @@ void main() {
       '<e3 b="4"/>',
     ]);
     expectXPath(current, '*[last()]', ['<e3 b="4"/>']);
+    expectXPath(current, 'e1[0]', []);
+    expectXPath(current, 'e1[-1]', []);
+    expectXPath(current, 'e1[1][2]', []);
+  });
+
+  group('Milestone 2: positional predicate early-exit and edge cases', () {
+    final largeDoc = XmlDocument.build((builder) {
+      builder.element(
+        'root',
+        nest: () {
+          for (var i = 0; i < 1000; i++) {
+            builder.element('item', attributes: {'id': '$i'});
+          }
+        },
+      );
+    });
+
+    test('first index [1]', () {
+      expectXPath(largeDoc, '/root/item[1]', ['<item id="0"/>']);
+    });
+
+    test('mid index [50]', () {
+      expectXPath(largeDoc, '/root/item[50]', ['<item id="49"/>']);
+    });
+
+    test('last index [1000]', () {
+      expectXPath(largeDoc, '/root/item[1000]', ['<item id="999"/>']);
+    });
+
+    test('out-of-bounds index [1001]', () {
+      expectXPath(largeDoc, '/root/item[1001]', []);
+    });
+
+    test('zero index [0]', () {
+      expectXPath(largeDoc, '/root/item[0]', []);
+    });
+
+    test('negative index [-5]', () {
+      expectXPath(largeDoc, '/root/item[-5]', []);
+    });
+
+    test('fractional index [1.5]', () {
+      expectXPath(largeDoc, '/root/item[1.5]', []);
+    });
+
+    test('integer float [1.0]', () {
+      expectXPath(largeDoc, '/root/item[1.0]', ['<item id="0"/>']);
+    });
+
+    test('enormous BigInt index', () {
+      expectXPath(largeDoc, '/root/item[999999999999999999999999999999]', []);
+    });
+
+    test('compound predicate with early-exit: item[@id = "500"][1]', () {
+      expectXPath(largeDoc, '/root/item[@id = "500"][1]', ['<item id="500"/>']);
+    });
   });
 }

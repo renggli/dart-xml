@@ -4,6 +4,7 @@ import '../xdm/atomic/date_time.dart';
 import '../xdm/atomic/duration.dart';
 import '../xdm/atomic/numeric.dart';
 import '../xdm/atomic/string.dart';
+import '../xdm/functions/array.dart';
 import '../xdm/item.dart';
 import '../xdm/sequence.dart';
 import '../xdm/types.dart';
@@ -212,28 +213,30 @@ XPathSequence opDivide(XPathSequence left, XPathSequence right) {
   XPathSequence right,
   String opName,
 ) {
-  final leftAtom = left.atomize();
-  final rightAtom = right.atomize();
-  if (leftAtom.isEmpty || rightAtom.isEmpty) return null;
-  if (leftAtom.length > 1 || rightAtom.length > 1) {
-    throw XPathEvaluationException(
-      XPathErrorCode.XPTY0004,
-      'Operator $opName expects sequence of length <= 1',
-    );
-  }
-  return (leftAtom.first, rightAtom.first);
+  if (left.isEmpty || right.isEmpty) return null;
+  final a = _atomizeSingle(left, opName);
+  if (a == null) return null;
+  final b = _atomizeSingle(right, opName);
+  if (b == null) return null;
+  return (a, b);
 }
 
 XPathItem? _atomizeSingle(XPathSequence arg, String opName) {
-  final atom = arg.atomize();
-  if (atom.isEmpty) return null;
-  if (atom.length > 1) {
+  if (arg.isEmpty) return null;
+  final single = arg.singleOrNull;
+  if (single != null && single is! XPathArray) {
+    return single.atomize();
+  }
+  final it = arg.atomize().iterator;
+  if (!it.moveNext()) return null;
+  final first = it.current;
+  if (it.moveNext()) {
     throw XPathEvaluationException(
       XPathErrorCode.XPTY0004,
       'Operator $opName expects sequence of length <= 1',
     );
   }
-  return atom.first;
+  return first;
 }
 
 XPathNumeric _toNumeric(XPathItem item) {
