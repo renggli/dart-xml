@@ -6,7 +6,7 @@ import '../utils/namespace.dart' as ns;
 
 /// Namespace interface for nodes.
 mixin XmlNamespacesBase {
-  /// Return the in-scope namespaces of this node.
+  /// The in-scope namespaces of this node.
   Iterable<XmlNamespace> get namespaces => const [];
 }
 

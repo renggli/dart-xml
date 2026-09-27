@@ -43,7 +43,7 @@ export 'src/xml_events/streams/with_parent.dart'
 export 'src/xml_events/utils/event_attribute.dart' show XmlEventAttribute;
 export 'src/xml_events/visitor.dart' show XmlEventVisitor;
 
-/// Returns an [Iterable] of [XmlEvent] instances over the provided [String].
+/// Returns an [Iterable] of [XmlEvent] instances over the provided [input] string.
 ///
 /// Iteration can throw an [XmlParserException], if the input is malformed and
 /// cannot be properly parsed. In case of an error iteration can be resumed and
@@ -73,18 +73,18 @@ export 'src/xml_events/visitor.dart' show XmlEventVisitor;
 /// - If [withParent] is `true`, each event is annotated with its logical
 ///   parent event.
 ///
-/// Iteration is lazy, meaning that none of the `input` is parsed and none of
+/// Iteration is lazy, meaning that none of the [input] is parsed and none of
 /// the events are created unless requested. This technique is also called
 /// pull-parsing.
 ///
-/// The iterator terminates when the complete `input` is consumed.
+/// The iterator terminates when the complete [input] is consumed.
 ///
-/// For example, to print all trimmed non-empty text elements one would write:
+/// For example, to print all trimmed non-empty text elements:
 ///
 /// ```dart
-/// parseEvents(bookstoreXml)
+/// parseEvents(bookshelfXml)
 ///     .whereType<XmlTextEvent>()
-///     .map((event) => event.text.trim())
+///     .map((event) => event.value.trim())
 ///     .where((text) => text.isNotEmpty)
 ///     .forEach(print);
 /// ```

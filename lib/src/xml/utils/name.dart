@@ -10,7 +10,7 @@ import 'token.dart';
 /// XML entity name.
 @immutable
 class XmlName with XmlHasVisitor, XmlHasWriter {
-  /// Creates a [XmlName] with the given [qualified] name and an optional
+  /// Creates an [XmlName] with the given [qualified] name and an optional
   /// [namespaceUri].
   const new qualified(this.qualified, {this.namespaceUri});
 
@@ -72,7 +72,7 @@ class XmlName with XmlHasVisitor, XmlHasWriter {
           : '$namespacePrefix${XmlToken.namespace}$localName',
       namespaceUri = null;
 
-  /// Create a [XmlName] by parsing the provided [qualified] name.
+  /// Creates an [XmlName] by parsing the provided [qualified] name.
   @Deprecated('Use `XmlName.qualified` instead')
   const new fromString(this.qualified) : namespaceUri = null;
 

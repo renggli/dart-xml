@@ -31,6 +31,7 @@ extension XmlNodeEncoderExtension on Stream<List<XmlNode>> {
 /// A converter that encodes a forest of [XmlNode] objects to a sequence of
 /// [XmlEvent] objects.
 class XmlNodeEncoder extends XmlListConverter<XmlNode, XmlEvent> {
+  /// Creates a converter that encodes XML nodes to events.
   const new();
 
   @override

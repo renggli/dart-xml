@@ -3,6 +3,7 @@ import '../utils/token.dart';
 
 /// Describes the decoding and encoding of character entities.
 abstract class XmlEntityMapping {
+  /// Abstract const constructor.
   const new();
 
   /// Decodes a string, resolving all possible entities.
@@ -42,17 +43,17 @@ abstract class XmlEntityMapping {
     return buffer.toString();
   }
 
-  /// Decodes a single character entity, returns the decoded entity or `null` if
+  /// Decodes a single character entity, returning the decoded entity or `null` if
   /// the input is invalid.
   String? decodeEntity(String input);
 
   /// Encodes a string to be serialized as XML text.
   String encodeText(String input);
 
-  /// Encodes a string to be serialized as XML attribute value.
+  /// Encodes a string to be serialized as an XML attribute value.
   String encodeAttributeValue(String input, XmlAttributeType type);
 
-  /// Encodes a string to be serialized as XML attribute value together with
+  /// Encodes a string to be serialized as an XML attribute value together with
   /// its corresponding quotes.
   String encodeAttributeValueWithQuotes(String input, XmlAttributeType type) =>
       '${type.token}${encodeAttributeValue(input, type)}${type.token}';

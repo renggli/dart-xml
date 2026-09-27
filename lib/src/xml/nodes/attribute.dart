@@ -9,7 +9,7 @@ import 'node.dart';
 
 /// XML attribute node.
 class XmlAttribute extends XmlNode with XmlHasName, XmlHasParent<XmlNode> {
-  /// Create an attribute with `name` and `value`.
+  /// Creates an attribute with [name] and [value].
   new(
     this.name,
     this.value, [
@@ -23,10 +23,10 @@ class XmlAttribute extends XmlNode with XmlHasName, XmlHasParent<XmlNode> {
   @override
   String value;
 
-  /// Return the quote type.
+  /// The quote type.
   final XmlAttributeType attributeType;
 
-  /// Return `true` if this attribute is a namespace declaration (`xmlns` or
+  /// Whether this attribute is a namespace declaration (`xmlns` or
   /// `xmlns:*`).
   bool get isNamespaceDeclaration =>
       name.prefix == xmlns || name.local == xmlns;

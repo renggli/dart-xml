@@ -2,7 +2,7 @@ import 'package:meta/meta.dart';
 
 import '../../xml/utils/token.dart';
 
-/// Mixin with information about the parent event.
+/// Mixin with information about the name of an event.
 mixin XmlHasName {
   /// The fully qualified name.
   String get name;
@@ -25,7 +25,7 @@ mixin XmlHasName {
   /// Hold an optional reference to the namespace URI.
   String? _namespaceUri;
 
-  /// Return the namespace URI.
+  /// The namespace URI, or `null`.
   String? get namespaceUri => _namespaceUri;
 
   /// Internal helper to attach the namespace to the event.

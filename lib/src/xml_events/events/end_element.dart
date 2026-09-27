@@ -3,8 +3,9 @@ import '../annotations/has_name.dart';
 import '../event.dart';
 import '../visitor.dart';
 
-/// Event of an closing XML element node.
+/// Event of a closing XML element node.
 class XmlEndElementEvent extends XmlEvent with XmlHasName {
+  /// Creates a closing element event with [name].
   new(this.name);
 
   @override

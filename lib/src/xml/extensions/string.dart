@@ -7,13 +7,15 @@ import 'descendants.dart';
 import 'mutator.dart';
 
 extension XmlStringExtension on XmlNode {
-  /// Return the concatenated text value its descendants.
+  /// The concatenated text value of this node and its descendants.
+  ///
+  /// Setting this property replaces the children of this node with the provided
+  /// text content.
   String get innerText => descendants
       .where((node) => node is XmlText || node is XmlCDATA)
       .map((node) => node.value)
       .join();
 
-  /// Replaces the children of this node with text contents.
   set innerText(String value) {
     XmlNodeTypeException.checkHasChildren(this);
     children.clear();
@@ -22,16 +24,18 @@ extension XmlStringExtension on XmlNode {
     }
   }
 
-  /// Return the markup representing this node and all its child nodes.
+  /// The markup representing this node and all its child nodes.
+  ///
+  /// Setting this property replaces this node with the parsed XML markup.
   String get outerXml => toXmlString();
 
-  /// Replaces the markup representing this node and all its child nodes.
   set outerXml(String value) => replace(XmlDocumentFragment.parse(value));
 
-  /// Return the markup representing the child nodes of this node.
+  /// The markup representing the child nodes of this node.
+  ///
+  /// Setting this property replaces the child nodes with the parsed XML markup.
   String get innerXml => children.map((node) => node.toXmlString()).join();
 
-  /// Replaces the markup representing the child nodes of this node.
   set innerXml(String value) {
     XmlNodeTypeException.checkHasChildren(this);
     children.clear();

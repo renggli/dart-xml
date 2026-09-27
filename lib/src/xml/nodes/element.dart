@@ -46,7 +46,7 @@ class XmlElement extends XmlNode
          isSelfClosing,
        );
 
-  /// Defines whether the element should be self-closing when empty.
+  /// Whether the element should be self-closing when empty.
   bool isSelfClosing;
 
   @override

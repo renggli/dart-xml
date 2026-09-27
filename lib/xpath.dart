@@ -29,6 +29,11 @@ extension XPathExtension on XmlNode {
   ///
   /// An optional [configuration] can be provided to customize the evaluation
   /// context. The returned nodes are a lazy iterable of [XmlNode] instances.
+  ///
+  /// ```dart
+  /// final document = XmlDocument.parse('<books><book title="Dart"/></books>');
+  /// final titles = document.xpath('//book/@title');
+  /// ```
   Iterable<XmlNode> xpath(
     String expression, {
     XPathConfiguration? configuration,
@@ -43,10 +48,15 @@ extension XPathExtension on XmlNode {
     functions: functions,
   ).whereType<XPathNode>().map((item) => item.node);
 
-  /// Returns the value resulting from evaluating the given XPath [expression].
+  /// Evaluates the given XPath [expression] and returns the resulting sequence.
   ///
   /// An optional [configuration] can be provided to customize the evaluation
   /// context. The returned value is of type [XPathSequence].
+  ///
+  /// ```dart
+  /// final document = XmlDocument.parse('<books><book title="Dart"/></books>');
+  /// final count = document.xpathEvaluate('count(//book)');
+  /// ```
   XPathSequence xpathEvaluate(
     String expression, {
     XPathConfiguration? configuration,

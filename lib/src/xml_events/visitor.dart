@@ -10,30 +10,30 @@ import 'events/text.dart';
 
 /// Basic visitor over [XmlEvent] nodes.
 mixin XmlEventVisitor {
-  /// Helper to dispatch the provided [event] onto this visitor.
+  /// Dispatches the provided [event] onto this visitor.
   void visit(XmlEvent event) => event.accept(this);
 
-  /// Visit an [XmlCDATAEvent] event.
+  /// Visits an [XmlCDATAEvent] event.
   void visitCDATAEvent(XmlCDATAEvent event) {}
 
-  /// Visit an [XmlCommentEvent] event.
+  /// Visits an [XmlCommentEvent] event.
   void visitCommentEvent(XmlCommentEvent event) {}
 
-  /// Visit an [XmlDeclarationEvent] event.
+  /// Visits an [XmlDeclarationEvent] event.
   void visitDeclarationEvent(XmlDeclarationEvent event) {}
 
-  /// Visit an [XmlDoctypeEvent] event.
+  /// Visits an [XmlDoctypeEvent] event.
   void visitDoctypeEvent(XmlDoctypeEvent event) {}
 
-  /// Visit an [XmlEndElementEvent] event.
+  /// Visits an [XmlEndElementEvent] event.
   void visitEndElementEvent(XmlEndElementEvent event) {}
 
-  /// Visit an [XmlProcessingEvent] event.
+  /// Visits an [XmlProcessingEvent] event.
   void visitProcessingEvent(XmlProcessingEvent event) {}
 
-  /// Visit an [XmlStartElementEvent] event.
+  /// Visits an [XmlStartElementEvent] event.
   void visitStartElementEvent(XmlStartElementEvent event) {}
 
-  /// Visit an [XmlTextEvent] event.
+  /// Visits an [XmlTextEvent] event.
   void visitTextEvent(XmlTextEvent event) {}
 }

@@ -33,7 +33,7 @@ import 'node.dart';
 /// final document = builder.buildDocument();
 /// ```
 class XmlBuilder {
-  /// Construct a new [XmlBuilder].
+  /// Constructs a new [XmlBuilder].
   ///
   /// For the meaning of the [optimizeNamespaces] parameter, read the
   /// documentation of the [optimizeNamespaces] property.
@@ -50,17 +50,16 @@ class XmlBuilder {
   // The namespece definitions by URI.
   final _namespaceUris = <String?, List<NamespaceDefinition>>{};
 
-  /// If [optimizeNamespaces] is true, the builder will perform some
-  /// namespace optimization.
+  /// Whether the builder should perform namespace optimization.
   ///
-  /// This means that
-  ///  - namespaces that are defined in an element but are never used in this
-  ///    element or its children will not be included in the document;
-  ///  - namespaces that are defined in an element but are already defined in
-  ///    one of the ancestors of the element will not be included again.
+  /// When `true`:
+  /// - Namespaces that are defined in an element but are never used in this
+  ///   element or its children will not be included in the document.
+  /// - Namespaces that are defined in an element but are already defined in
+  ///   one of the ancestors of the element will not be included again.
   final bool optimizeNamespaces;
 
-  /// Adds a [XmlText] node with the provided [text].
+  /// Adds an [XmlText] node with the provided [text].
   ///
   /// For example, to generate the text `Hello World` one would write:
   ///
@@ -80,7 +79,7 @@ class XmlBuilder {
     children.add(XmlText(text.toString()));
   }
 
-  /// Adds a [XmlCDATA] node with the provided [text].
+  /// Adds an [XmlCDATA] node with the provided [text].
   ///
   /// For example, to generate an XML CDATA element `<![CDATA[Hello World]]>`
   /// one would write:
@@ -92,7 +91,7 @@ class XmlBuilder {
     _nodes.last.children.add(XmlCDATA(text.toString()));
   }
 
-  /// Adds a [XmlDeclaration] node.
+  /// Adds an [XmlDeclaration] node.
   ///
   /// For example, to generate an XML declaration `<?xml version="1.0"
   /// encoding="utf-8"?>` one would write:
@@ -114,7 +113,7 @@ class XmlBuilder {
     _nodes.last.children.add(declaration);
   }
 
-  /// Adds a [XmlDoctype] node.
+  /// Adds an [XmlDoctype] node.
   ///
   /// For example, to generate an XML doctype element `<!DOCTYPE note SYSTEM
   /// "note.dtd">` one would write:
@@ -146,7 +145,7 @@ class XmlBuilder {
     _nodes.last.children.add(XmlDoctype(name, externalId, internalSubset));
   }
 
-  /// Adds a [XmlProcessing] node with the provided [target] and [text].
+  /// Adds an [XmlProcessing] node with the provided [target] and [text].
   ///
   /// For example, to generate an XML processing element `<?xml-stylesheet
   /// href="/style.css"?>` one would write:
@@ -158,7 +157,7 @@ class XmlBuilder {
     _nodes.last.children.add(XmlProcessing(target, text.toString()));
   }
 
-  /// Adds a [XmlComment] node with the provided [text].
+  /// Adds an [XmlComment] node with the provided [text].
   ///
   /// For example, to generate an XML comment `<!--Hello World-->` one would
   /// write:
@@ -170,7 +169,7 @@ class XmlBuilder {
     _nodes.last.children.add(XmlComment(text.toString()));
   }
 
-  /// Adds a [XmlElement] node with the provided tag [name].
+  /// Adds an [XmlElement] node with the provided tag [name].
   ///
   /// For the namespace either a [namespacePrefix] or a [namespaceUri] can be
   /// provided, but not both.
@@ -249,7 +248,7 @@ class XmlBuilder {
     _nodes.last.children.add(nodeDefinition.buildElement());
   }
 
-  /// Adds a [XmlAttribute] node with the provided [name] and [value].
+  /// Adds an [XmlAttribute] node with the provided [name] and [value].
   ///
   /// For the namespace either a previously defined [namespacePrefix] or
   /// [namespaceUri] can be provided, but not both.
@@ -288,8 +287,11 @@ class XmlBuilder {
     }
   }
 
-  /// Adds a raw XML string. The string will be parsed as [XmlDocumentFragment]
-  /// and throws an [XmlParserException] if the input is invalid.
+  /// Adds a raw XML string.
+  ///
+  /// The string is parsed as an [XmlDocumentFragment].
+  ///
+  /// Throws an [XmlParserException] if the input is invalid.
   ///
   /// To generate a bookshelf element with two predefined book elements, one
   /// would write:
@@ -349,9 +351,11 @@ class XmlBuilder {
     _namespaceUris.putIfAbsent(uri, () => []).add(definition);
   }
 
-  /// Binds a namespace [prefix] to the provided [uri]. The [prefix] can be
-  /// omitted to declare a default namespace. Throws an [ArgumentError] if
-  /// the [prefix] is invalid or conflicts with an existing declaration.
+  /// Binds a namespace [prefix] to the provided [uri].
+  ///
+  /// The [prefix] can be omitted to declare a default namespace. Throws an
+  /// [ArgumentError] if the [prefix] is invalid or conflicts with an existing
+  /// declaration.
   ///
   /// For example, to bind the `xsd` prefix:
   ///
@@ -365,8 +369,9 @@ class XmlBuilder {
     namespaceUri(prefix, uri);
   }
 
-  /// Builds and returns the resulting [XmlDocument]; resets the builder to its
-  /// initial empty state.
+  /// Builds and returns the resulting [XmlDocument].
+  ///
+  /// Resets the builder to its initial empty state.
   ///
   /// For example:
   ///
@@ -375,8 +380,9 @@ class XmlBuilder {
   /// ```
   XmlDocument buildDocument() => _build((builder) => builder.buildDocument());
 
-  /// Builds and returns the resulting [XmlDocumentFragment]; resets the builder
-  /// to its initial empty state.
+  /// Builds and returns the resulting [XmlDocumentFragment].
+  ///
+  /// Resets the builder to its initial empty state.
   ///
   /// For example:
   ///

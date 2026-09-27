@@ -12,12 +12,13 @@ export 'atomic/string.dart';
 
 /// Base class for all atomic values in the XDM 3.1 data model.
 abstract class XPathAtomic implements XPathItem, Comparable<XPathAtomic> {
+  /// Creates an atomic value.
   const new();
 
-  /// Underlying Dart value representation.
+  /// The underlying Dart value representation.
   Object get value;
 
-  /// Returns `true` if this atomic value is numeric.
+  /// Whether this atomic value is numeric.
   bool get isNumeric => false;
 
   @override

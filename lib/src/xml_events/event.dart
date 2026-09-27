@@ -10,10 +10,10 @@ abstract class XmlEvent with XmlHasParent, XmlHasLocation, XmlHasBuffer {
   /// Default constructor for an event.
   new();
 
-  /// Return the node type of this node.
+  /// The node type of this node.
   XmlNodeType get nodeType;
 
-  /// Dispatch to the [visitor] based on event type.
+  /// Dispatches to the [visitor] based on event type.
   void accept(XmlEventVisitor visitor);
 
   @override

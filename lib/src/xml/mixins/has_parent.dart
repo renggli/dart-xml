@@ -5,10 +5,10 @@ import '../nodes/node.dart';
 
 /// Parent interface for nodes.
 mixin XmlParentBase {
-  /// Return the parent node of this node, or `null` if there is none.
+  /// The parent node of this node, or `null` if there is none.
   XmlNode? get parent => null;
 
-  /// Test whether the node has a parent or not.
+  /// Whether the node has a parent.
   bool get hasParent => false;
 
   /// Internal helper to attach a child to this parent, do not call directly.

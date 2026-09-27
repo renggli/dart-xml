@@ -5,7 +5,7 @@ mixin XmlHasBuffer {
   /// Hold a reference to the start in the input buffer.
   String? _buffer;
 
-  /// Return the underlying buffer.
+  /// The underlying buffer.
   String? get buffer => _buffer;
 
   /// Internal helper to attach the buffer to the event, do not call directly.

@@ -31,6 +31,7 @@ typedef XPathFunctionN = XPathSequence Function(
 
 /// Base class for all function items (functions, maps, arrays) in XDM 3.1.
 abstract class XPathFunctionItem implements XPathItem {
+  /// Creates a function item.
   const new();
 
   /// Creates a general function item taking a list of arguments.
@@ -101,7 +102,7 @@ abstract class XPathFunctionItem implements XPathItem {
   /// The arity (number of required arguments) of the function item.
   int get arity;
 
-  /// Returns `true` if this function accepts variable arguments (at least [arity]).
+  /// Whether this function accepts variable arguments (at least [arity]).
   bool get isVariadic => false;
 
   /// The parameter types of the function, if statically known.

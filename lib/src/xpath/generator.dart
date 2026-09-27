@@ -9,10 +9,10 @@ import '../xml/nodes/processing.dart';
 import '../xml/nodes/text.dart';
 
 extension XPathGenerator on XmlNode {
-  /// Returns an XPath string that can be used to query for this [XmlNode].
+  /// Generates an XPath expression that selects this node.
   ///
-  /// If [byId] is giving a fully qualified attribute name, the presence of
-  /// the attribute causes the generation of a shorter lookup expression.
+  /// If [byId] specifies a fully qualified attribute name, the presence of
+  /// that attribute causes the generation of a shorter lookup expression.
   String xpathGenerate({String? byId}) {
     final result = <String>[];
     for (XmlNode? current = this; current != null; current = current.parent) {

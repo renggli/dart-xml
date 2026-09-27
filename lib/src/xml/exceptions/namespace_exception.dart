@@ -6,7 +6,7 @@ class XmlNamespaceException extends XmlException with XmlFormatException {
   /// Creates a new [XmlNamespaceException].
   new(super.message, {this.buffer, this.position});
 
-  /// Creates a new XmlTagException where [namespacePrefix] could not be
+  /// Creates a new [XmlNamespaceException] where [namespacePrefix] could not be
   /// resolved.
   factory unknownNamespacePrefix(
     String namespacePrefix, {

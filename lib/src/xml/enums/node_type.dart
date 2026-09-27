@@ -5,7 +5,7 @@ enum XmlNodeType {
   /// An attribute like `id="123"`.
   ATTRIBUTE,
 
-  /// A CDATA section like `<!CDATA[[...]]>`.
+  /// A CDATA section like `<![CDATA[...]]>`.
   CDATA,
 
   /// A comment like `<!-- comment -->`.

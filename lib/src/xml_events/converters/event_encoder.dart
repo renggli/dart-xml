@@ -24,9 +24,11 @@ extension XmlEventEncoderExtension on Stream<List<XmlEvent>> {
 
 /// A converter that encodes a sequence of [XmlEvent] objects to a [String].
 class XmlEventEncoder extends Converter<List<XmlEvent>, String> {
+  /// Creates a converter that encodes XML events to a string.
   new({XmlEntityMapping? entityMapping})
     : entityMapping = entityMapping ?? defaultEntityMapping;
 
+  /// The entity mapping used to encode text and attribute values.
   final XmlEntityMapping entityMapping;
 
   @override

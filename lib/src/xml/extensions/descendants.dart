@@ -4,12 +4,11 @@ import '../nodes/element.dart';
 import '../nodes/node.dart';
 
 extension XmlDescendantsExtension on XmlNode {
-  /// Return a lazy [Iterable] of the descendants of this node (attributes,
-  /// children, grandchildren, ...) in document order.
+  /// A lazy [Iterable] of the descendants of this node in document order.
   Iterable<XmlNode> get descendants => XmlDescendantsIterable(this);
 
-  /// Return a lazy [Iterable] of the descendants [XmlElement] nodes of this
-  /// node (attributes, children, grandchildren, ...) in document order.
+  /// A lazy [Iterable] of the descendant [XmlElement] nodes of this node in
+  /// document order.
   Iterable<XmlElement> get descendantElements =>
       descendants.whereType<XmlElement>();
 }

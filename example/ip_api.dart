@@ -62,11 +62,11 @@ final args.ArgParser _argumentParser = args.ArgParser()
     help: 'Displays the help text',
   );
 
-void _printUsage() {
+void _printUsage([int exitCode = 0]) {
   stdout.writeln('Usage: ip_lookup -s [query]');
   stdout.writeln();
   stdout.writeln(_argumentParser.usage);
-  exit(1);
+  exit(exitCode);
 }
 
 Future<void> _lookupIp(args.ArgResults results, [String query = '']) async {
@@ -91,7 +91,7 @@ Future<void> _lookupIp(args.ArgResults results, [String query = '']) async {
     // Decode the input stream, normalize it, attach parent information,
     // select the events we are interested in, then print the information.
     // This approach uses less memory and is emitting results incrementally;
-    // thought the implementation is more involved.
+    // though the implementation is more involved.
     await stream
         .toXmlEvents(withParent: true)
         .normalizeEvents()
@@ -104,7 +104,7 @@ Future<void> _lookupIp(args.ArgResults results, [String query = '']) async {
     // Wait until we have the full response body, then parse the input to a
     // XML DOM tree and extract the information to be printed. This approach
     // uses more memory and waits for the complete data to be downloaded
-    // and parsed before printing any results; thought the implementation is
+    // and parsed before printing any results; though the implementation is
     // simpler.
     final input = await stream.join();
     final document = XmlDocument.parse(input);
@@ -115,10 +115,17 @@ Future<void> _lookupIp(args.ArgResults results, [String query = '']) async {
 }
 
 Future<void> main(List<String> arguments) async {
-  final results = _argumentParser.parse(arguments);
+  final args.ArgResults results;
+  try {
+    results = _argumentParser.parse(arguments);
+  } on FormatException catch (error) {
+    stderr.writeln(error.message);
+    _printUsage(1);
+    return;
+  }
 
   if (results['help'] as bool) {
-    _printUsage();
+    _printUsage(0);
   }
 
   if (results.rest.isEmpty) {

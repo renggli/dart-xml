@@ -9,6 +9,7 @@ import 'sequence.dart';
 
 /// XDM 3.1 type descriptor hierarchy.
 abstract class XPathType {
+  /// Creates a type descriptor.
   const new({
     required this.name,
     this.parent,
@@ -25,10 +26,10 @@ abstract class XPathType {
   /// Aliases for parsing (e.g. URI-qualified names, short names).
   final Iterable<String> aliases;
 
-  /// Returns `true` if this type is an atomic type.
+  /// Whether this type is an atomic type.
   final bool isAtomic;
 
-  /// Returns `true` if this type is equal to or a subtype of [other].
+  /// Whether this type is equal to or a subtype of [other].
   bool isSubtypeOf(XPathType other) {
     if (identical(this, other) || this == other) return true;
     if (other is XPathSequenceType) {
@@ -42,10 +43,10 @@ abstract class XPathType {
     return false;
   }
 
-  /// Returns `true` if the [item] matches this type.
+  /// Whether the [item] matches this type.
   bool matchesItem(XPathItem item) => item.type.isSubtypeOf(this);
 
-  /// Returns `true` if the [sequence] matches this type.
+  /// Whether the [sequence] matches this type.
   bool matchesSequence(XPathSequence sequence) {
     if (sequence.length != 1) return false;
     return matchesItem(sequence.single);
@@ -57,6 +58,7 @@ abstract class XPathType {
 
 /// Sequence type with item type and cardinality constraint.
 class XPathSequenceType extends XPathType {
+  /// Creates a sequence type with [itemType] and [cardinality].
   const new({
     required this.itemType,
     this.cardinality = XPathCardinality.zeroOrMore,
@@ -88,7 +90,7 @@ class XPathSequenceType extends XPathType {
   @override
   bool matchesItem(XPathItem item) => itemType.matchesItem(item);
 
-  /// Returns `true` if the [sequence] matches this sequence type.
+  /// Whether the [sequence] matches this sequence type.
   @override
   bool matchesSequence(XPathSequence sequence) {
     if (!sequence.hasCardinality(cardinality)) return false;
@@ -123,7 +125,7 @@ class _XPathEmptySequenceType extends XPathType {
   @override
   bool matchesItem(XPathItem item) => false;
 
-  /// Returns `true` if the [sequence] is empty.
+  /// Whether the [sequence] is empty.
   @override
   bool matchesSequence(XPathSequence sequence) => sequence.isEmpty;
 }
@@ -136,6 +138,7 @@ const xsSequence = XPathSequenceType(itemType: xsItem);
 
 /// XDM 3.1 array type descriptor (e.g. `array(*)`, `array(xs:string)`).
 class XPathArrayType extends XPathType {
+  /// Creates an array type with [memberType].
   const new([this.memberType = xsSequence])
     : super(name: 'array(*)', parent: xsArray, isAtomic: false);
 
@@ -173,6 +176,7 @@ class XPathArrayType extends XPathType {
 
 /// XDM 3.1 map type descriptor (e.g. `map(*)`, `map(xs:string, xs:integer)`).
 class XPathMapType extends XPathType {
+  /// Creates a map type with [keyType] and [valueType].
   const new([this.keyType = xsAnyAtomicType, this.valueType = xsSequence])
     : super(name: 'map(*)', parent: xsMap, isAtomic: false);
 
@@ -233,6 +237,7 @@ class XPathMapType extends XPathType {
 
 /// XDM 3.1 function type descriptor (e.g. `function(*)`, `function(xs:string) as xs:integer`).
 class XPathFunctionType extends XPathType {
+  /// Creates a function type with optional [parameterTypes] and [returnType].
   const new({this.parameterTypes, this.returnType})
     : super(name: 'function(*)', parent: xsFunction, isAtomic: false);
 
@@ -242,7 +247,7 @@ class XPathFunctionType extends XPathType {
   /// Expected return type, if specified.
   final XPathType? returnType;
 
-  /// Returns `true` if this is the generic unconstrained `function(*)`.
+  /// Whether this is the generic unconstrained `function(*)`.
   bool get isAny => parameterTypes == null;
 
   @override

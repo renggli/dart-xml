@@ -7,17 +7,16 @@ import '../utils/predicate.dart';
 import 'visitor.dart';
 
 extension XmlNormalizerExtension on XmlNode {
-  /// Puts all child nodes into a "normalized" form, that is
+  /// Puts all child nodes into a normalized form.
   ///
-  /// - combine adjacent text nodes, and
-  /// - remove empty text nodes.
+  /// Combines adjacent text nodes and removes empty text nodes.
   ///
   /// Optionally, the following (possibly destructive) normalization operations
   /// can be either performed selectively on text nodes satisfying a predicate,
   /// or on all nodes:
   ///
   /// - If the predicate [collapseWhitespace] is `true`, consecutive whitespace
-  ///   are replace with a single space-character.
+  ///   are replaced with a single space-character.
   /// - If the predicate [normalizeNewline] is `true`, line endings are
   ///   combined according to https://www.w3.org/TR/xml11/#sec-line-ends.
   /// - If the predicate [trimWhitespace] is `true`, leading and trailing
@@ -41,6 +40,7 @@ extension XmlNormalizerExtension on XmlNode {
 
 /// Normalizes a node tree in-place.
 class XmlNormalizer with XmlVisitor {
+  /// Creates a new [XmlNormalizer].
   const new({
     required this.collapseWhitespace,
     required this.normalizeNewline,

@@ -3,7 +3,7 @@ import 'node.dart';
 
 /// Abstract XML data node.
 abstract class XmlData extends XmlNode with XmlHasParent<XmlNode> {
-  /// Create a data section with `value`.
+  /// Creates a data node with [value].
   new(this.value);
 
   /// The textual value of this node.

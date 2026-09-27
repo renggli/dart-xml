@@ -3,6 +3,7 @@ import '../utils/token.dart';
 
 /// Immutable external ID.
 class DtdExternalId {
+  /// Creates an external ID with a public identifier and a system identifier.
   new public(
     String this.publicId,
     XmlAttributeType this.publicIdType,
@@ -10,6 +11,7 @@ class DtdExternalId {
     this.systemIdType,
   );
 
+  /// Creates an external ID with a system identifier.
   new system(this.systemId, this.systemIdType)
     : publicId = null,
       publicIdType = null;

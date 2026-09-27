@@ -9,27 +9,25 @@ import 'node.dart';
 /// XML document declaration.
 class XmlDeclaration extends XmlNode
     with XmlHasParent<XmlNode>, XmlHasAttributes {
+  /// Creates a document declaration with [attributes].
   new([Iterable<XmlAttribute> attributes = const []]) {
     this.attributes.initialize(this, attributeNodeTypes);
     this.attributes.addAll(attributes);
   }
 
-  /// Return the XML version of the document, or `null`.
+  /// The XML version of the document, or `null`.
   String? get version => getAttribute(versionAttribute);
 
-  /// Set the XML version of the document.
   set version(String? value) => setAttribute(versionAttribute, value);
 
-  /// Return the encoding of the document, or `null`.
+  /// The encoding of the document, or `null`.
   String? get encoding => getAttribute(encodingAttribute);
 
-  /// Set the encoding of the document.
   set encoding(String? value) => setAttribute(encodingAttribute, value);
 
-  /// Return the value of the standalone directive.
+  /// Whether the document is standalone.
   bool get standalone => getAttribute(standaloneAttribute) == 'yes';
 
-  /// Set the value of the standalone directive.
   set standalone(bool? value) => setAttribute(
     standaloneAttribute,
     value == null

@@ -21,6 +21,7 @@ import 'visitor.dart';
 
 /// A visitor that writes XML nodes exactly as they were parsed.
 class XmlWriter with XmlVisitor {
+  /// Creates an [XmlWriter] writing to [buffer].
   new(this.buffer, {XmlEntityMapping? entityMapping})
     : entityMapping = entityMapping ?? defaultEntityMapping;
 

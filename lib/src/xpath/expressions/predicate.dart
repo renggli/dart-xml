@@ -30,14 +30,14 @@ class Predicate {
   /// - `null`: dynamic or non-numeric expression
   final int? constantIndex;
 
-  /// 1-based index if this predicate is a static numeric constant, or `null` otherwise.
+  /// The 1-based index if this predicate is a static numeric constant, or `null` otherwise.
   int? get staticPosition => constantIndex;
 
-  /// Returns whether this predicate depends on context position or size,
+  /// Whether this predicate depends on context position or size,
   /// or can evaluate to a numeric value.
   bool get isPositional => _isPositional(expression);
 
-  /// Returns whether this predicate is provably independent of context position or size,
+  /// Whether this predicate is provably independent of context position or size,
   /// and does not evaluate to a numeric value.
   bool get isDefinitelyNonPositional => !isPositional;
 

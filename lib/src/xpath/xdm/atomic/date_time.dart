@@ -253,7 +253,7 @@ final class XPathDateTime extends XPathAtomic {
     );
   }
 
-  /// Returns the UTC instant for comparison.
+  /// The UTC instant for comparison.
   DateTime get utcInstant {
     final offset = timezoneOffsetMinutes != null
         ? Duration(minutes: timezoneOffsetMinutes!)

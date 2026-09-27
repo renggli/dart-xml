@@ -88,10 +88,10 @@ final class XPathInteger extends XPathNumeric {
   @override
   BigInt toBigInt() => value;
 
-  /// Returns the value as a Dart [int].
+  /// The value as a Dart [int].
   int get asInt => intValue ?? value.toInt();
 
-  /// Checks whether this integer equals the 64-bit integer [other] without BigInt allocation.
+  /// Whether this integer equals the 64-bit integer [other] without BigInt allocation.
   bool equalsInt(int other) => intValue == other;
 
   @override

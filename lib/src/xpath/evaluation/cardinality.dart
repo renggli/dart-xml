@@ -12,13 +12,13 @@ enum XPathCardinality {
   /// The sequence can have any number of values `*`.
   zeroOrMore('*');
 
-  /// The cardinality of the sequence.
+  /// Creates a cardinality with [suffix].
   new(this.suffix);
 
   /// The suffix of the cardinality.
   final String suffix;
 
-  /// Returns `true` if this cardinality is a subset of [other].
+  /// Whether this cardinality is a subset of [other].
   bool isSubtypeOf(XPathCardinality other) => switch (this) {
     XPathCardinality.exactlyOne => true,
     XPathCardinality.zeroOrOne =>

@@ -67,7 +67,7 @@ print(document.toXmlString(pretty: true, indent: '\t'));
 To read XML from a file use the [dart:io](https://api.dart.dev/dart-io/dart-io-library.html) library:
 
 ```dart
-final file = new File('bookshelf.xml');
+final file = File('bookshelf.xml');
 final document = XmlDocument.parse(file.readAsStringSync());
 ```
 
@@ -277,7 +277,7 @@ Various more ad-hoc transformations are provided to simplify processing complex 
 - Flattens a chunked stream of objects to a stream of objects. \
   `Stream<T> flatten()` on `Stream<Iterable<T>>`
 - Executes the provided callbacks on each event of this stream. \
-  `Future forEachEvent({onText: ...})` on `Stream<XmlEvent>`.
+  `Future<void> forEachEvent({onText: ...})` on `Stream<XmlEvent>`.
 - Executes the provided callbacks on each event of this stream as a side-effect. \
   `Stream<XmlEvent> tapEachEvent({onText: ...})` on `Stream<XmlEvent>`.
 

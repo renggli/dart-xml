@@ -8,7 +8,7 @@ import 'has_visitor.dart';
 
 /// Mixin to serialize XML to a [StringBuffer].
 mixin XmlHasWriter implements XmlHasVisitor {
-  /// Return an XML string of this object.
+  /// Returns an XML string of this object.
   ///
   /// If [pretty] is set to `true` the output is nicely reformatted, otherwise
   /// the tree is emitted verbatim.

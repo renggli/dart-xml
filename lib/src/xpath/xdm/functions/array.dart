@@ -8,11 +8,13 @@ import '../types.dart';
 
 /// Represents an XDM 3.1 array item (array(*)).
 final class XPathArray extends XPathFunctionItem {
+  /// Creates an array item with [members].
   const new([this.members = const []]);
 
+  /// The canonical empty array.
   static const empty = XPathArray();
 
-  /// Ordered members of the array (each member is an XPathSequence).
+  /// The ordered members of the array (each member is an XPathSequence).
   final List<XPathSequence> members;
 
   @override
@@ -21,12 +23,16 @@ final class XPathArray extends XPathFunctionItem {
   @override
   int get arity => 1;
 
+  /// The number of members in the array.
   int get length => members.length;
 
+  /// Whether this array contains no members.
   bool get isEmpty => members.isEmpty;
 
+  /// Whether this array contains at least one member.
   bool get isNotEmpty => members.isNotEmpty;
 
+  /// Returns the member at the 0-based [index].
   XPathSequence operator [](int index) => members[index];
 
   @override

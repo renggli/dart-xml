@@ -116,23 +116,23 @@ final class XPathDuration extends XPathAtomic {
   /// The number of microseconds in the duration (0-999).
   int get microseconds => totalMicroseconds.abs() % 1000;
 
-  /// Returns the duration in days.
+  /// The duration in days.
   int get inDays => totalMicroseconds ~/ Duration.microsecondsPerDay;
 
-  /// Returns the duration in hours.
+  /// The duration in hours.
   int get inHours => totalMicroseconds ~/ Duration.microsecondsPerHour;
 
-  /// Returns the duration in minutes.
+  /// The duration in minutes.
   int get inMinutes => totalMicroseconds ~/ Duration.microsecondsPerMinute;
 
-  /// Returns the duration in seconds.
+  /// The duration in seconds.
   int get inSeconds => totalMicroseconds ~/ Duration.microsecondsPerSecond;
 
-  /// Returns the duration in milliseconds.
+  /// The duration in milliseconds.
   int get inMilliseconds =>
       totalMicroseconds ~/ Duration.microsecondsPerMillisecond;
 
-  /// Returns the duration in microseconds.
+  /// The duration in microseconds.
   int get inMicroseconds => totalMicroseconds;
 
   /// Converts this object to a standard Dart [Duration] representation.

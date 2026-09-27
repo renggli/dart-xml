@@ -8,8 +8,10 @@ import '../types.dart';
 
 /// Represents an XDM 3.1 map item (map(*)).
 final class XPathMap extends XPathFunctionItem {
+  /// Creates a map item with [entries].
   const new([this.entries = const {}]);
 
+  /// The canonical empty map.
   static const empty = XPathMap();
 
   /// Key-value map entries where values are sequences.
@@ -21,14 +23,19 @@ final class XPathMap extends XPathFunctionItem {
   @override
   int get arity => 1;
 
+  /// The number of entries in the map.
   int get length => entries.length;
 
+  /// Whether this map contains no entries.
   bool get isEmpty => entries.isEmpty;
 
+  /// Whether this map contains at least one entry.
   bool get isNotEmpty => entries.isNotEmpty;
 
+  /// The keys of this map.
   Iterable<XPathAtomic> get keys => entries.keys;
 
+  /// Returns the sequence associated with [key], or `null` if not found.
   XPathSequence? get(XPathAtomic key) {
     for (final entry in entries.entries) {
       if (sameKey(entry.key, key)) return entry.value;

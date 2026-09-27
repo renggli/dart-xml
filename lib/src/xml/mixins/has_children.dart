@@ -5,17 +5,17 @@ import '../utils/node_list.dart';
 
 /// Children interface for nodes.
 mixin XmlChildrenBase {
-  /// Return the direct children of this node in document order.
+  /// The direct children of this node in document order.
   List<XmlNode> get children => const [];
 
-  /// Return an [Iterable] over the [XmlElement] children of this node.
+  /// An [Iterable] over the [XmlElement] children of this node.
   Iterable<XmlElement> get childElements => const [];
 
-  /// Return the first child element with the given `name`, or `null`.
+  /// Finds the first child element with the given [name], or `null`.
   ///
-  /// Both `name` and `namespaceUri` can be a specific [String]; or `'*'` to
-  /// match anything. If no `namespace` is provided, the _fully qualified_ name
-  /// is compared; otherwise only the _local name_ is considered.
+  /// Both [name] and [namespaceUri] can be a specific [String]; or `'*'` to
+  /// match anything. If no [namespaceUri] is provided, the fully qualified name
+  /// is compared; otherwise only the local name is considered.
   ///
   /// For example:
   /// - `element.getElement('xsd:name')` returns the first element with the
@@ -31,16 +31,16 @@ mixin XmlChildrenBase {
     String? namespaceUri,
   }) => null;
 
-  /// Return the first child of this node, or `null` if there are no children.
+  /// The first child of this node, or `null` if there are no children.
   XmlNode? get firstChild => null;
 
-  /// Return the first child [XmlElement], or `null` if there are none.
+  /// The first child [XmlElement], or `null` if there are none.
   XmlElement? get firstElementChild => null;
 
-  /// Return the last child of this node, or `null` if there are no children.
+  /// The last child of this node, or `null` if there are no children.
   XmlNode? get lastChild => null;
 
-  /// Return the last child [XmlElement], or `null` if there are none.
+  /// The last child [XmlElement], or `null` if there are none.
   XmlElement? get lastElementChild => null;
 }
 

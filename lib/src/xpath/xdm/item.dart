@@ -23,7 +23,7 @@ abstract interface class XPathItem {
   /// Canonical string representation of this item.
   String get stringValue;
 
-  /// Effective boolean value (EBV) of this item.
+  /// The effective boolean value (EBV) of this item.
   bool get effectiveBooleanValue;
 
   /// Converts this item to a native Dart value.
@@ -32,6 +32,7 @@ abstract interface class XPathItem {
 
 /// Represents an XML node item in the XDM 3.1 data model.
 final class XPathNode implements XPathItem {
+  /// Creates an XPath node wrapping [node].
   const new(this.node);
 
   /// The underlying XML DOM node.

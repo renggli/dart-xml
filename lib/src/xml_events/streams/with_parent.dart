@@ -19,7 +19,7 @@ extension XmlWithParentEventsExtension on Stream<List<XmlEvent>> {
   /// events are thereafter accessible through [XmlHasParent.parent].
   ///
   /// [XmlEndElementEvent] are parented to their corresponding
-  /// [XmlStartElementEvent]. Throws an [XmlTagException] is the nesting
+  /// [XmlStartElementEvent]. Throws an [XmlTagException] if the nesting
   /// is invalid.
   @Deprecated(
     'Use `parseEvents(String input, withParent: true)` '
@@ -31,6 +31,7 @@ extension XmlWithParentEventsExtension on Stream<List<XmlEvent>> {
 
 /// A converter that annotates [XmlEvent] objects with their parent events.
 class XmlWithParentEvents extends XmlListConverter<XmlEvent, XmlEvent> {
+  /// Creates a converter that annotates XML events with their parent events.
   const new();
 
   @override

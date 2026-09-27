@@ -2,10 +2,10 @@ import '../nodes/node.dart';
 import 'sibling.dart';
 
 extension XmlMutatorExtension on XmlNode {
-  /// Remove this node from parent.
+  /// Removes this node from its parent.
   void remove() => siblings.remove(this);
 
-  /// Replace this node with `other`.
+  /// Replaces this node with [other].
   void replace(XmlNode other) {
     final siblings = this.siblings;
     for (var i = 0; i < siblings.length; i++) {

@@ -1,9 +1,9 @@
 import '../extensions/string.dart';
 import '../nodes/node.dart';
 
-/// Parent interface for nodes.
+/// Value interface for nodes.
 mixin XmlValueBase {
-  /// Returns the value of the node, or `null`.
+  /// The value of the node, or `null`.
   ///
   /// The returned value depends on the type of the node:
   /// - attributes return their attribute value;
@@ -12,7 +12,7 @@ mixin XmlValueBase {
   /// All other nodes return `null`.
   String? get value => null;
 
-  /// Returns the concatenated text of this node or its descendants, for
+  /// The concatenated text of this node or its descendants.
   /// text, CDATA, and comment nodes return the textual value of the node.
   @Deprecated(
     'Use [value] to access the textual content of this node, or '

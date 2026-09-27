@@ -14,42 +14,42 @@ import '../utils/name.dart';
 
 /// Basic visitor over [XmlHasVisitor] nodes.
 mixin XmlVisitor {
-  /// Helper to dispatch the provided [node] onto this visitor.
+  /// Dispatches the provided [node] onto this visitor.
   void visit(XmlHasVisitor node) => node.accept(this);
 
-  /// Visit an [XmlName].
+  /// Visits an [XmlName].
   void visitName(XmlName name) {}
 
-  /// Visit an [XmlAttribute] node.
+  /// Visits an [XmlAttribute] node.
   void visitAttribute(XmlAttribute node) {}
 
-  /// Visit an [XmlDeclaration] node.
+  /// Visits an [XmlDeclaration] node.
   void visitDeclaration(XmlDeclaration node) {}
 
-  /// Visit an [XmlDocument] node.
+  /// Visits an [XmlDocument] node.
   void visitDocument(XmlDocument node) {}
 
-  /// Visit an [XmlDocumentFragment] node.
+  /// Visits an [XmlDocumentFragment] node.
   void visitDocumentFragment(XmlDocumentFragment node) {}
 
-  /// Visit an [XmlElement] node.
+  /// Visits an [XmlElement] node.
   void visitElement(XmlElement node) {}
 
-  /// Visit an [XmlCDATA] node.
+  /// Visits an [XmlCDATA] node.
   void visitCDATA(XmlCDATA node) {}
 
-  /// Visit an [XmlComment] node.
+  /// Visits an [XmlComment] node.
   void visitComment(XmlComment node) {}
 
-  /// Visit an [XmlDoctype] node.
+  /// Visits an [XmlDoctype] node.
   void visitDoctype(XmlDoctype node) {}
 
-  /// Visit an [XmlProcessing] node.
+  /// Visits an [XmlProcessing] node.
   void visitProcessing(XmlProcessing node) {}
 
-  /// Visit an [XmlText] node.
+  /// Visits an [XmlText] node.
   void visitText(XmlText node) {}
 
-  /// Visit an [XmlNamespace] node.
+  /// Visits an [XmlNamespace] node.
   void visitNamespace(XmlNamespace node) {}
 }

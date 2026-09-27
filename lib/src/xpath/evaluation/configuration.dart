@@ -47,7 +47,7 @@ class XPathConfiguration {
   /// Creates a standard static configuration.
   factory standard() => _standard;
 
-  /// Creates a static configuration from scratch not including any of the
+  /// Creates a static configuration from scratch without any of the
   /// standard functions or namespaces.
   const new raw({
     this.variables = const {},
@@ -74,7 +74,7 @@ class XPathConfiguration {
   /// Namespace mapping from prefix to URIs.
   final Map<String, String> namespaceUris;
 
-  /// Document definitions
+  /// Document definitions.
   final Map<String, XmlNode> documents;
 
   /// Collection definitions.
@@ -92,7 +92,7 @@ class XPathConfiguration {
   /// Callback to trace evaluation.
   final XPathTraceCallback? onTraceCallback;
 
-  /// Looks up a XPath function with the given [name] and optional [arity].
+  /// Looks up an XPath function with the given [name] and optional [arity].
   XPathFunctionItem getFunction(XmlName name, [int? arity]) {
     if (name.prefix != null && name.namespaceUri == null) {
       throw XPathEvaluationException(
@@ -130,7 +130,7 @@ class XPathConfiguration {
     );
   }
 
-  /// Looks up a XPath function with the given [name] (string) and optional [arity].
+  /// Looks up an XPath function by [name] (string) and optional [arity].
   XPathFunctionItem getFunctionByString(String name, [int? arity]) {
     final isPrefixed = !name.startsWith('Q{') && name.contains(':');
     return getFunction(

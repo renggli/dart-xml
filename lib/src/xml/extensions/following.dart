@@ -5,12 +5,11 @@ import '../nodes/element.dart';
 import '../nodes/node.dart';
 
 extension XmlFollowingExtension on XmlNode {
-  /// Return a lazy [Iterable] of the nodes following this node in document
-  /// order.
+  /// A lazy [Iterable] of the nodes following this node in document order.
   Iterable<XmlNode> get following => XmlFollowingIterable(this);
 
-  /// Return a lazy [Iterable] of the [XmlElement] nodes following this node
-  /// in document order.
+  /// A lazy [Iterable] of the [XmlElement] nodes following this node in
+  /// document order.
   Iterable<XmlElement> get followingElements =>
       following.whereType<XmlElement>();
 }

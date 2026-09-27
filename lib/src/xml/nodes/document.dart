@@ -12,13 +12,14 @@ import 'node.dart';
 
 /// XML document node.
 class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
-  /// Returns an [XmlDocument] for the given [input] string, or throws an
-  /// [XmlParserException] or [XmlTagException] if the input is invalid.
+  /// Parses an [XmlDocument] from the given [input] string.
+  ///
+  /// Throws an [XmlParserException] or [XmlTagException] if the input is invalid.
   ///
   /// For example, the following code prints `Hello World`:
   ///
   /// ```dart
-  /// final document = new XmlDocument.parse('<?xml?><root message="Hello World" />');
+  /// final document = XmlDocument.parse('<?xml?><root message="Hello World" />');
   /// print(document.rootElement.getAttribute('message'));
   /// ```
   ///
@@ -35,8 +36,7 @@ class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
     return XmlDocument(const XmlNodeDecoder().convertIterable(events));
   }
 
-  /// Returns an [XmlDocument] built from calling the provided `callback` with an
-  /// [XmlBuilder].
+  /// Builds an [XmlDocument] using a [callback] with an [XmlBuilder].
   ///
   /// For example, the following code creates a document with a single root element
   /// and textual contents:
@@ -54,19 +54,19 @@ class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
     return builder.buildDocument();
   }
 
-  /// Create a document node with `children`.
+  /// Creates a document node with [children].
   new([Iterable<XmlNode> children = const []]) {
     this.children.initialize(this, childrenNodeTypes);
     this.children.addAll(children);
   }
 
-  /// Return the [XmlDeclaration] element, or `null` if not defined.
+  /// The [XmlDeclaration] element, or `null` if not defined.
   ///
-  /// For example the following code prints `<?xml version="1.0">`:
+  /// For example the following code prints `<?xml version="1.0"?>`:
   ///
   /// ```dart
-  /// var xml = '<?xml version="1.0">'
-  ///           '<shelf></shelf>';
+  /// const xml = '<?xml version="1.0"?>'
+  ///             '<shelf></shelf>';
   /// print(XmlDocument.parse(xml).declaration);
   /// ```
   XmlDeclaration? get declaration {
@@ -78,13 +78,13 @@ class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
     return null;
   }
 
-  /// Return the [XmlDoctype] element, or `null` if not defined.
+  /// The [XmlDoctype] element, or `null` if not defined.
   ///
   /// For example, the following code prints `<!DOCTYPE html>`:
   ///
   /// ```dart
-  /// var xml = '<!DOCTYPE html>'
-  ///           '<html><body></body></html>';
+  /// const xml = '<!DOCTYPE html>'
+  ///             '<html><body></body></html>';
   /// print(XmlDocument.parse(xml).doctypeElement);
   /// ```
   XmlDoctype? get doctypeElement {
@@ -96,14 +96,15 @@ class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
     return null;
   }
 
-  /// Return the root [XmlElement] of the document, or throw a [StateError] if
-  /// the document has no such element.
+  /// The root [XmlElement] of the document.
+  ///
+  /// Throws a [StateError] if the document has no such element.
   ///
   /// For example, the following code prints `<books />`:
   ///
   /// ```dart
-  /// var xml = '<?xml version="1.0"?>'
-  ///           '<books />';
+  /// const xml = '<?xml version="1.0"?>'
+  ///             '<books />';
   /// print(XmlDocument.parse(xml).rootElement);
   /// ```
   XmlElement get rootElement {

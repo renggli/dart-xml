@@ -5,13 +5,13 @@ mixin XmlHasLocation {
   /// Hold an optional reference to the start in the input buffer.
   int? _start;
 
-  /// Return the start location in the input buffer, or `null`.
+  /// The start location in the input buffer, or `null`.
   int? get start => _start;
 
   /// Hold an optional reference to the end in the input buffer.
   int? _stop;
 
-  /// Return the start location in the input buffer, or `null`.
+  /// The stop location in the input buffer, or `null`.
   int? get stop => _stop;
 
   /// Internal helper to attach the location to the event, do not call directly.

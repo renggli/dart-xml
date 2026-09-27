@@ -112,10 +112,10 @@ abstract class XPathSequence extends Iterable<XPathItem> {
   /// Atomizes this sequence into a list of atomic items.
   Iterable<XPathAtomic> atomize() => _AtomizeIterable(this);
 
-  /// Single item if length is 1, null otherwise.
+  /// The single item if this sequence has length 1, or `null` otherwise.
   XPathItem? get singleOrNull;
 
-  /// Effective Boolean Value (EBV) per W3C XPath 3.1 §2.4.3.
+  /// The effective boolean value (EBV) per W3C XPath 3.1 §2.4.3.
   bool get ebv {
     final it = iterator;
     if (!it.moveNext()) return false;
@@ -130,10 +130,10 @@ abstract class XPathSequence extends Iterable<XPathItem> {
     );
   }
 
-  /// Alias for [ebv].
+  /// The effective boolean value (EBV) of this sequence.
   bool get effectiveBooleanValue => ebv;
 
-  /// Returns all XML nodes in this sequence.
+  /// The XML nodes contained in this sequence.
   Iterable<XmlNode> get nodes => whereType<XPathNode>().map((n) => n.node);
 
   /// Converts this sequence to a native Dart value:
@@ -158,7 +158,7 @@ abstract class XPathSequence extends Iterable<XPathItem> {
     return _XPathRangeSequence(start.value, stop.value);
   }
 
-  /// Cardinality validation.
+  /// Whether this sequence satisfies [cardinality].
   bool hasCardinality(XPathCardinality cardinality) => switch (cardinality) {
     XPathCardinality.zeroOrMore => true,
     XPathCardinality.oneOrMore => isNotEmpty,

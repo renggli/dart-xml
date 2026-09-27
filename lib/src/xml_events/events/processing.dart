@@ -4,10 +4,13 @@ import '../visitor.dart';
 
 /// Event of an XML processing node.
 class XmlProcessingEvent extends XmlEvent {
+  /// Creates a processing event with [target] and [value].
   new(this.target, this.value);
 
+  /// The processing target.
   final String target;
 
+  /// The processing value.
   final String value;
 
   @Deprecated('Use `XmlProcessingEvent.value` instead.')

@@ -6,19 +6,19 @@ import '../utils/node_list.dart';
 
 /// Attribute interface for nodes.
 mixin XmlAttributesBase {
-  /// Return the attribute nodes of this node in document order.
+  /// The attribute nodes of this node in document order.
   List<XmlAttribute> get attributes => const [];
 
-  /// Return the attribute nodes of this node in document order, excluding
-  /// namespace declarations.
+  /// The attribute nodes of this node in document order, excluding namespace
+  /// declarations.
   Iterable<XmlAttribute> get elementAttributes =>
       attributes.where((attribute) => !attribute.isNamespaceDeclaration);
 
-  /// Return the attribute value with the given `name`, or `null`.
+  /// Returns the attribute value with the given [name], or `null`.
   ///
-  /// Both `name` and `namespaceUri` can be a specific [String]; or `'*'` to
-  /// match anything. If no `namespaceUri` is provided, the _fully qualified_
-  /// name is compared; otherwise only the _local name_ is considered.
+  /// Both [name] and [namespaceUri] can be a specific [String]; or `'*'` to
+  /// match anything. If no [namespaceUri] is provided, the fully qualified
+  /// name is compared; otherwise only the local name is considered.
   ///
   /// For example:
   /// - `element.getAttribute('xsd:name')` returns the first attribute value
@@ -35,11 +35,11 @@ mixin XmlAttributesBase {
     @Deprecated('Use `namespaceUri` instead') String? namespace,
   }) => null;
 
-  /// Return the attribute node with the given `name`, or `null`.
+  /// Returns the attribute node with the given [name], or `null`.
   ///
-  /// Both `name` and `namespaceUri` can be a specific [String]; or `'*'` to
-  /// match anything. If no `namespaceUri` is provided, the _fully qualified_
-  /// name is compared; otherwise only the _local name_ is considered.
+  /// Both [name] and [namespaceUri] can be a specific [String]; or `'*'` to
+  /// match anything. If no [namespaceUri] is provided, the fully qualified
+  /// name is compared; otherwise only the local name is considered.
   ///
   /// For example:
   /// - `element.getAttributeNode('xsd:name')` returns the first attribute node
@@ -56,13 +56,14 @@ mixin XmlAttributesBase {
     @Deprecated('Use `namespaceUri` instead') String? namespace,
   }) => null;
 
-  /// Set the attribute value with the given fully qualified `name` to `value`.
-  /// If an attribute with the name already exist, its value is updated.
+  /// Sets the attribute value with the given fully qualified [name] to [value].
+  ///
+  /// If an attribute with the name already exists, its value is updated.
   /// If the value is `null`, the attribute is removed.
   ///
-  /// Both `name` and `namespaceUri` can be a specific [String]; or `'*'` to match
-  /// anything. If no `namespaceUri` is provided, the _fully qualified_ name is
-  /// compared; otherwise only the _local name_ is considered.
+  /// Both [name] and [namespaceUri] can be a specific [String]; or `'*'` to match
+  /// anything. If no [namespaceUri] is provided, the fully qualified name is
+  /// compared; otherwise only the local name is considered.
   ///
   /// For example:
   /// - `element.setAttribute('xsd:name', 'value')` updates the attribute with
@@ -80,11 +81,11 @@ mixin XmlAttributesBase {
     @Deprecated('Use `namespaceUri` instead') String? namespace,
   }) => throw UnsupportedError('$this has no attributes');
 
-  /// Removes the attribute value with the given fully qualified `name`.
+  /// Removes the attribute with the given fully qualified [name].
   ///
-  /// Both `name` and `namespaceUri` can be a specific [String]; or `'*'` to match
-  /// anything. If no `namespaceUri` is provided, the _fully qualified_ name is
-  /// compared; otherwise only the _local name_ is considered.
+  /// Both [name] and [namespaceUri] can be a specific [String]; or `'*'` to match
+  /// anything. If no [namespaceUri] is provided, the fully qualified name is
+  /// compared; otherwise only the local name is considered.
   ///
   /// For example:
   /// - `element.removeAttribute('xsd:name')` removes the attribute with the

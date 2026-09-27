@@ -8,7 +8,7 @@ import '../nodes/processing.dart';
 import 'parent.dart';
 
 extension XmlComparisonExtension on XmlNode {
-  /// Tests whether this node is equal to [other].
+  /// Whether this node is equal to [other].
   ///
   /// The two nodes are equal when they have the same type, name, defining
   /// characteristics, attributes, and children.
@@ -20,8 +20,9 @@ extension XmlComparisonExtension on XmlNode {
           _compareList(attributes, other.attributes) &&
           _compareList(children, other.children));
 
-  /// Test whether [other] is contained in this node, that is whether this node
-  /// is an ancestor of [other].
+  /// Whether [other] is contained in this node.
+  ///
+  /// That is, whether this node is an ancestor of [other].
   bool contains(XmlNode other) {
     for (XmlNode? node = other; node != null; node = node.parent) {
       if (this == node) {

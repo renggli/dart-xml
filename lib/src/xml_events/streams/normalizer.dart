@@ -14,6 +14,7 @@ extension XmlNormalizeEventsExtension on Stream<List<XmlEvent>> {
 /// A converter that normalizes sequences of [XmlEvent] objects, namely combines
 /// adjacent and removes empty text events.
 class XmlNormalizeEvents extends XmlListConverter<XmlEvent, XmlEvent> {
+  /// Creates a converter that normalizes sequences of [XmlEvent] objects.
   const new();
 
   @override

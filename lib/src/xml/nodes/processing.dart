@@ -4,10 +4,10 @@ import 'data.dart';
 
 /// XML processing instruction.
 class XmlProcessing extends XmlData {
-  /// Create a processing node with `target` and `value`.
+  /// Creates a processing node with [target] and [value].
   new(this.target, super.value);
 
-  /// Return the processing target.
+  /// The processing target.
   final String target;
 
   @override

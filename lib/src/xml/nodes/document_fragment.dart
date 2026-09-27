@@ -8,8 +8,9 @@ import 'node.dart';
 
 /// XML document fragment node.
 class XmlDocumentFragment extends XmlNode with XmlHasChildren<XmlNode> {
-  /// Return an [XmlDocumentFragment] for the given [input] string, or throws an
-  /// [XmlParserException] if the input is invalid.
+  /// Parses an [XmlDocumentFragment] from the given [input] string.
+  ///
+  /// Throws an [XmlParserException] if the input is invalid.
   ///
   /// Note: It is the responsibility of the caller to provide a standard Dart
   /// [String] using the default UTF-16 encoding.
@@ -23,15 +24,14 @@ class XmlDocumentFragment extends XmlNode with XmlHasChildren<XmlNode> {
     return XmlDocumentFragment(const XmlNodeDecoder().convertIterable(events));
   }
 
-  /// Returns an [XmlDocumentFragment] built from calling the provided `callback`
-  /// with an [XmlBuilder].
+  /// Builds an [XmlDocumentFragment] using a [callback] with an [XmlBuilder].
   factory build(CallbackWithBuilder callback) {
     final builder = XmlBuilder();
     callback(builder);
     return builder.buildFragment();
   }
 
-  /// Create a document fragment node with `children`.
+  /// Creates a document fragment node with [children].
   new([Iterable<XmlNode> children = const []]) {
     this.children.initialize(this, childrenNodeTypes);
     this.children.addAll(children);

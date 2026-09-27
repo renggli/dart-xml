@@ -3,6 +3,7 @@ import 'error_code.dart';
 
 /// Exception thrown when calling an XPath function or evaluating an expression fails.
 class XPathEvaluationException extends XmlException {
+  /// Creates an evaluation exception with [errorCode] and optional [details].
   new(this.errorCode, [this.details]) : super(errorCode.format(details));
 
   /// The XPath error code.

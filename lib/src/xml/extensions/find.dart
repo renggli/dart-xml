@@ -4,12 +4,12 @@ import '../utils/name_matcher.dart';
 import 'descendants.dart';
 
 extension XmlFindExtension on XmlNode {
-  /// Return a lazy [Iterable] of the _direct_ child elements in document
-  /// order with the specified tag `name` and `namespace`.
+  /// Returns a lazy [Iterable] of the direct child elements in document
+  /// order with the specified tag [name] and [namespaceUri].
   ///
-  /// Both `name` and `namespace` can be a specific [String]; or `'*'` to match
-  /// anything. If no `namespace` is provided, the _fully qualified_ name is
-  /// compared; otherwise only the _local name_ is considered.
+  /// Both [name] and [namespaceUri] can be a specific [String]; or `'*'` to
+  /// match anything. If no [namespaceUri] is provided, the fully qualified
+  /// name is compared; otherwise only the local name is considered.
   ///
   /// For example:
   /// - `element.findElements('xsd:name')` finds all direct child elements with
@@ -26,12 +26,12 @@ extension XmlFindExtension on XmlNode {
   }) =>
       _filterElements(children, name, namespaceUri: namespaceUri ?? namespace);
 
-  /// Return a lazy [Iterable] of the _recursive_ child elements in document
-  /// order with the specified tag `name`.
+  /// Returns a lazy [Iterable] of the recursive child elements in document
+  /// order with the specified tag [name] and [namespaceUri].
   ///
-  /// Both `name` and `namespace` can be a specific [String]; or `'*'` to match
-  /// anything. If no `namespace` is provided, the _fully qualified_ name is
-  /// compared; otherwise only the _local name_ is considered.
+  /// Both [name] and [namespaceUri] can be a specific [String]; or `'*'` to
+  /// match anything. If no [namespaceUri] is provided, the fully qualified
+  /// name is compared; otherwise only the local name is considered.
   ///
   /// For example:
   /// - `document.findAllElements('xsd:name')` finds all elements with the fully

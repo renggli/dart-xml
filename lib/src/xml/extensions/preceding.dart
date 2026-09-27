@@ -5,11 +5,10 @@ import '../nodes/node.dart';
 import 'parent.dart';
 
 extension XmlPrecedingExtension on XmlNode {
-  /// Return a lazy [Iterable] of the nodes preceding this node in document
-  /// order.
+  /// A lazy [Iterable] of the nodes preceding this node in document order.
   Iterable<XmlNode> get preceding => XmlPrecedingIterable(this);
 
-  /// Return a lazy [Iterable] of the [XmlElement] nodes preceding this node in
+  /// A lazy [Iterable] of the [XmlElement] nodes preceding this node in
   /// document order.
   Iterable<XmlElement> get precedingElements =>
       preceding.whereType<XmlElement>();

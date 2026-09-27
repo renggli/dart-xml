@@ -11,13 +11,13 @@ final class XPathBoolean extends XPathAtomic {
   /// The singleton false instance.
   static const falseInstance = XPathBoolean._(false);
 
-  /// Returns a boolean singleton for [val].
+  /// Creates a boolean atomic value from [val].
   factory(bool val) => val ? trueInstance : falseInstance;
 
-  /// Returns a boolean singleton for [val].
+  /// Creates a boolean atomic value from [val].
   factory from(bool val) => val ? trueInstance : falseInstance;
 
-  /// Returns a boolean singleton for [val].
+  /// Creates a boolean atomic value from [val].
   factory fromBool(bool val) => val ? trueInstance : falseInstance;
 
   @override

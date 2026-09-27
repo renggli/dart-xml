@@ -4,10 +4,10 @@ import 'exception.dart';
 
 /// Exception thrown when the parent relationship between nodes is invalid.
 class XmlParentException extends XmlException {
-  /// Creates a new XmlParentException.
+  /// Creates a new [XmlParentException].
   new(super.message, {required this.node, this.parent});
 
-  /// Ensure that [node] has a parent and returns that node.
+  /// Ensures that [node] has a parent and returns that node.
   static XmlNode checkParent(XmlParentBase node) {
     final parent = node.parent;
     if (parent == null) {
@@ -16,7 +16,7 @@ class XmlParentException extends XmlException {
     return parent;
   }
 
-  /// Ensure that [node] has no parent.
+  /// Ensures that [node] has no parent.
   static void checkNoParent(XmlParentBase node) {
     if (node.parent != null) {
       throw XmlParentException(
@@ -27,7 +27,7 @@ class XmlParentException extends XmlException {
     }
   }
 
-  /// Ensure that [node] has a matching parent.
+  /// Ensures that [node] has a matching parent.
   static void checkMatchingParent(XmlParentBase node, XmlNode parent) {
     if (node.parent != parent) {
       // If this exception is ever thrown, this is likely a bug in the internal

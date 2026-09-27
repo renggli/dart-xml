@@ -3,7 +3,7 @@ import 'format_exception.dart';
 
 /// Exception thrown when the end tag does not match the open tag.
 class XmlTagException extends XmlException with XmlFormatException {
-  /// Creates a new XmlTagException.
+  /// Creates a new [XmlTagException].
   new(
     super.message, {
     this.expectedName,
@@ -12,8 +12,8 @@ class XmlTagException extends XmlException with XmlFormatException {
     this.position,
   });
 
-  /// Creates a new XmlTagException where [expectedName] was expected, but
-  /// instead we found [actualName].
+  /// Creates a new [XmlTagException] where [expectedName] was expected, but
+  /// instead [actualName] was found.
   factory mismatchClosingTag(
     String expectedName,
     String actualName, {
@@ -27,7 +27,7 @@ class XmlTagException extends XmlException with XmlFormatException {
     position: position,
   );
 
-  /// Creates a new XmlTagException for an unexpected closing tag.
+  /// Creates a new [XmlTagException] for an unexpected closing tag [actualName].
   factory unexpectedClosingTag(
     String actualName, {
     String? buffer,
@@ -39,7 +39,7 @@ class XmlTagException extends XmlException with XmlFormatException {
     position: position,
   );
 
-  /// Creates a new XmlTagException for a missing closing tag.
+  /// Creates a new [XmlTagException] for a missing closing tag [expectedName].
   factory missingClosingTag(
     String expectedName, {
     String? buffer,
@@ -51,7 +51,7 @@ class XmlTagException extends XmlException with XmlFormatException {
     position: position,
   );
 
-  /// Ensure that the expected tag matches the actual one.
+  /// Ensures that the expected tag matches the actual one.
   static void checkClosingTag(
     String expectedName,
     String actualName, {

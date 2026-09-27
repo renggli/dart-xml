@@ -11,7 +11,7 @@ import '../../xml/nodes/element.dart';
 import '../../xml/nodes/node.dart';
 import '../../xml/nodes/text.dart';
 
-/// Determines whether [node] is a recognized node in the XPath 3.1 Data Model (XDM).
+/// Whether [node] is a recognized node in the XPath 3.1 Data Model (XDM).
 bool isXPathNode(XmlNode node) => switch (node.nodeType) {
   XmlNodeType.DECLARATION ||
   XmlNodeType.DOCUMENT_TYPE ||
@@ -22,7 +22,7 @@ bool isXPathNode(XmlNode node) => switch (node.nodeType) {
 
 @immutable
 sealed class Axis {
-  /// Return all nodes selected by this axis in document order.
+  /// Returns all nodes selected by this axis in document order.
   Iterable<XmlNode> find(XmlNode node);
 }
 

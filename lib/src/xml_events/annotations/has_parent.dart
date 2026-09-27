@@ -7,10 +7,10 @@ mixin XmlHasParent {
   /// Hold a lazy reference to the parent event.
   XmlStartElementEvent? _parent;
 
-  /// Return the parent event of type [XmlStartElementEvent], or `null`.
+  /// The parent event of type [XmlStartElementEvent], or `null`.
   XmlStartElementEvent? get parent => _parent;
 
-  /// Return the parent event of type [XmlStartElementEvent], or `null`.
+  /// The parent event of type [XmlStartElementEvent], or `null`.
   @Deprecated('Use `XmlEvent.parent` instead')
   XmlStartElementEvent? get parentEvent => _parent;
 
