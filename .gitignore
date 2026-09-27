@@ -6,6 +6,6 @@
 .packages
 .pub/
 .opencode/
+.qt3tests/
 *.iml
-petitparser_examples/build
 pubspec.lock

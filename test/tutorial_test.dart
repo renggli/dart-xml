@@ -97,6 +97,14 @@ void main() {
           .reduce((a, b) => a + b);
       expect(total, closeTo(69.94, 0.1));
     });
+    test('evaluate xpath expression', () {
+      final result = document.xpathEvaluate('sum(//book/price)').single;
+      expect(result.toValue(), closeTo(69.94, 0.01));
+    });
+    test('generate xpath expression', () {
+      final title = document.findAllElements('title').first;
+      expect(title.xpathGenerate(), '/bookshelf/book[1]/title');
+    });
   });
   group('building', () {
     test('a document', () {

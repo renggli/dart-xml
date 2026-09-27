@@ -8,177 +8,222 @@
 [![GitHub Stars](https://img.shields.io/github/stars/renggli/dart-xml.svg)](https://github.com/renggli/dart-xml/stargazers)
 [![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/renggli/dart-xml/main/LICENSE)
 
-Dart XML is a lightweight library for parsing, traversing, querying, transforming and building XML documents.
+Dart XML is a lightweight, full-featured XML and XPath library for Dart and Flutter.
 
-This library provides a [DOM-based](#reading-and-writing) object model for accessing and manipulating XML documents, as
-well as an [event-based](#event-driven) (comparable to SAX) for incremental reading and processing of XML streams.
-Furthermore, it supports querying the DOM using [XPath 3.1](#xpath) to simplify the querying of large documents.
+- **DOM Model**: In-memory document tree with navigation, querying, mutation, standard W3C position comparison, and customizable serialization.
+- **XPath 3.1 & XDM**: W3C-compliant query engine supporting expressions, standard functions and operators, serialization (`fn:serialize`), XML Schema regular expressions, JSON integration, and native maps and arrays.
+- **Event-Driven Streaming (SAX)**: Push- and pull-based event streaming via Dart `Iterable` and `Stream` APIs for memory-efficient processing of arbitrary large documents.
+- **Fluent Builder**: Declarative, type-safe builder API for constructing XML documents and fragments.
+- **Zero Overhead**: Fast and portable across Dart VM, Flutter, and Web (Wasm & JavaScript), built on [PetitParser](https://github.com/petitparser/dart-petitparser).
 
-This library is open source, stable and well tested. Development happens
-on [GitHub](https://github.com/renggli/dart-xml). Feel free to report issues or create a pull-request there. General
-questions are best asked on [StackOverflow](https://stackoverflow.com/questions/tagged/xml+dart).
+## Installation
 
-The package is hosted on [dart packages](https://pub.dev/packages/xml).
-Up-to-date [class documentation](https://pub.dev/documentation/xml/latest/) is created with every release.
+Add `xml` as a dependency to your `pubspec.yaml` or run:
 
-## Tutorial
+```bash
+dart pub add xml
+```
 
-### Installation
-
-Follow the installation instructions on [dart packages](https://pub.dev/packages/xml/install).
-
-Import the library into your Dart code using:
+Import the primary XML library:
 
 ```dart
 import 'package:xml/xml.dart';
 ```
 
-:warning: This library makes extensive use of [static extension methods](https://dart.dev/guides/language/extension-methods). If you [import the library](https://dart.dev/guides/language/language-tour#using-libraries) using a _library prefix_ or only _selectively show classes_ you might miss some of its functionality. For historical reasons public classes have an `Xml` prefix, so conflicts with other code should be rare.
+> [!TIP]
+> This library makes extensive use of [static extension methods](https://dart.dev/language/extension-methods). Avoid using import prefixes or selective `show` clauses that hide extension members. For collision avoidance, public DOM classes carry an `Xml` prefix.
 
-### Reading and Writing
+## Reading and Writing
 
-To read XML input use the factory method `XmlDocument.parse(String input)`:
+Parse XML into an `XmlDocument` tree using `XmlDocument.parse()`:
 
 ```dart
 final bookshelfXml = '''<?xml version="1.0"?>
-    <bookshelf>
-      <book>
-        <title lang="en">Growing a Language</title>
-        <price>29.99</price>
-      </book>
-      <book>
-        <title lang="en">Learning XML</title>
-        <price>39.95</price>
-      </book>
-      <price>132.00</price>
-    </bookshelf>''';
+<bookshelf>
+  <book>
+    <title lang="en">Growing a Language</title>
+    <price>29.99</price>
+  </book>
+  <book>
+    <title lang="en">Learning XML</title>
+    <price>39.95</price>
+  </book>
+  <price>132.00</price>
+</bookshelf>''';
+
 final document = XmlDocument.parse(bookshelfXml);
 ```
 
-The resulting object is an instance of `XmlDocument`. In case the document cannot be parsed, a `XmlException` is thrown.
+If the document is malformed, an `XmlParserException` (subclass of `XmlException`) is thrown with exact line and column coordinates.
 
-To write back the parsed XML document, simply call `toString()` or `toXmlString(...)` if you need more control:
+### Serialization and Pretty Printing
+
+Serialize any node back to XML using `toString()` or `toXmlString()`:
 
 ```dart
+// Compact serialization:
 print(document.toString());
-print(document.toXmlString(pretty: true, indent: '\t'));
+
+// Formatted pretty printing with custom indentation:
+print(document.toXmlString(pretty: true, indent: '  '));
 ```
 
-To read XML from a file use the [dart:io](https://api.dart.dev/dart-io/dart-io-library.html) library:
+### File I/O
+
+Read files using [`dart:io`](https://api.dart.dev/stable/dart-io/dart-io-library.html):
 
 ```dart
+import 'dart:io';
+
 final file = File('bookshelf.xml');
 final document = XmlDocument.parse(file.readAsStringSync());
 ```
 
-If your file is not _UTF-8_ encoded pass the correct encoding to `readAsStringSync`. It is the responsibility of the caller to provide a standard Dart [String] using the default UTF-16 encoding. To read and write large files you might want to use the [event-driven API](#event-driven) instead.
+For large files that should not be fully buffered into memory, use the [streaming event-driven API](#event-driven-streaming).
 
-### Traversing and Querying
+## Traversing and Querying
 
-Accessors allow accessing nodes in the XML tree:
+### Accessors and Mutation
 
-- `attributes` returns the attributes of the node.
-- `children` returns the direct children of the node.
+Nodes provide mutable lists for structural manipulation:
 
-Both lists are mutable and support all common `List` methods, such as `add(XmlNode)`, `addAll(Iterable<XmlNode>)`, `insert(int, XmlNode)`, and `insertAll(int, Iterable<XmlNode>)`. Trying to add a `null` value or an unsupported node type throws an `XmlNodeTypeException` error. Nodes that are already part of a tree _are_ automatically moved from their previous parent to the new location. `XmlDocumentFragment` nodes are automatically expanded and their children are added to the list.
+- `attributes`: Attributes declared on this node.
+- `elementAttributes`: Attributes excluding namespace declarations (`xmlns` or `xmlns:*`).
+- `children`: Direct child nodes of this node.
 
-There are methods to traverse the XML tree along different axes:
+Lists support standard `List` methods (`add`, `addAll`, `insert`, `remove`). Inserting nodes automatically detaches them from any existing parent and moves them into position. Fragments (`XmlDocumentFragment`) are expanded in-place.
 
-- `siblings` returns an iterable over the nodes at the same level that proceed and follow this node in document order.
-- `preceding` returns an iterable over nodes preceding the opening tag of the current node in document order.
-- `descendants` returns an iterable over the descendants of the current node in document order. This includes the attributes of the current node, its children, the grandchildren, and so on.
-- `following` the nodes following the closing tag of the current node in document order.
-- `ancestors` returns an iterable over the ancestor nodes of the current node, that is the parent, the grandparent, and so on. Note that this is the only iterable that traverses nodes in reverse document order.
+### Traversal Axes
 
-For example, the `descendants` iterator could be used to extract all textual contents from an XML tree:
+Navigate the DOM along document order axes:
+
+- `descendants`: All descendants in document order (attributes, child elements, text, etc.).
+- `ancestors`: Preceding ancestor chain up to the root (reverse document order).
+- `siblings`: Sibling nodes at the same tree level.
+- `preceding`: Nodes preceding the opening tag of the current node in document order.
+- `following`: Nodes following the closing tag of the current node in document order.
+
+Convenience getters filter these axes for element nodes only: `childElements`, `descendantElements`, `ancestorElements`, `siblingElements`, `precedingElements`, and `followingElements`.
 
 ```dart
-final textual = document.descendants
+// Extract all text content from the document:
+final text = document.descendants
     .whereType<XmlText>()
-    .map((text) => text.value.trim())
-    .where((string) => string.isNotEmpty)
+    .map((node) => node.value.trim())
+    .where((str) => str.isNotEmpty)
     .join('\n');
-print(textual);   // prints 'Growing a Language', '29.99', 'Learning XML', '39.95', and '132.00'
 ```
 
-There are convenience helpers to filter by element nodes only: `childElements`, `siblingElements`, `precedingElements`, `descendantElements`, `followingElements`, and `ancestorElements`.
+### Element Searching
 
-Additionally, there are helpers to find elements with a specific tag:
+Find elements by tag name:
 
-- `getElement(String name)` finds the first direct child with the provided tag `name`, or `null`.
-- `findElements(String name)` finds direct children of the current node with the provided tag `name`.
-- `findAllElements(String name)` finds direct and indirect children of the current node with the provided tag `name`.
-
-For example, to find all the nodes with the _&lt;title&gt;_ tag you could write:
+- `getElement(String name)`: First direct child element with matching name, or `null`.
+- `findElements(String name)`: Direct child elements matching name.
+- `findAllElements(String name)`: Recursive descendants matching name.
 
 ```dart
-final titles = document.findAllElements('title');
-```
+// Find all titles:
+final titles = document.findAllElements('title')
+    .map((element) => element.innerText);
+// ['Growing a Language', 'Learning XML']
 
-The above code returns a lazy iterator that recursively walks the XML document and yields all the element nodes with the requested tag name. To extract the textual contents of an element call `innerText`:
-
-```dart
-titles
-    .map((element) => element.innerText)
-    .forEach(print);   // prints 'Growing a Language' and 'Learning XML'
-```
-
-This prints _Growing a Language_ and _Learning XML_.
-
-Similarly, to compute the total price of all the books one could write the following expression:
-
-```dart
+// Calculate the total book prices:
 final total = document.findAllElements('book')
-    .map((element) => double.parse(element
-        .findElements('price')
-        .single
-        .innerText))
+    .map((book) => double.parse(book.findElements('price').single.innerText))
     .reduce((a, b) => a + b);
-print(total);   // prints 69.94
+print(total); // 69.94
 ```
 
-Note that this first finds all the books, and then extracts the price to avoid counting the price tag that is included
-in the bookshelf.
+### Node Comparison & Document Position
 
-#### XPath
+Compare nodes using standard DOM Level 3 / DOM 4 semantics:
 
-To simplify accessing and extracting specific parts of a DOM document, this library supports [XPath 3.1](https://www.w3.org/TR/xpath-31/) expressions.
+```dart
+// Structural equality comparison:
+final isSame = nodeA.isEqualNode(nodeB);
 
-To get started import the XPath library:
+// Bitmask position comparison:
+final position = nodeA.compareDocumentPosition(nodeB);
+if (position.isPreceding) {
+  print('nodeA precedes nodeB in document order');
+}
+```
+
+## XPath 3.1 & XDM
+
+PetitXml includes a comprehensive, high-performance W3C [XPath 3.1](https://www.w3.org/TR/xpath-31/) implementation.
+
+To enable XPath on DOM nodes, import:
 
 ```dart
 import 'package:xml/xpath.dart';
 ```
 
-This exposes the static extension method `XmlNode.xpath(String expression)` that can be used on documents, and any other
-XML DOM node. The method returns an iterable over the matching XML DOM nodes. Using the `bookshelf` data defined above
-we can write:
+### Node Selection (`xpath`)
+
+`XmlNode.xpath(String expression)` evaluates an expression and returns a lazy `Iterable<XmlNode>`:
 
 ```dart
-// Find all the books in the bookshelf.
-print(document.xpath('/bookshelf/book'));
+// Find all books:
+final books = document.xpath('/bookshelf/book');
 
-// Find the second book in the bookshelf.
-print(document.xpath('/bookshelf/book[2]'));
+// Find the second book (1-based index):
+final secondBook = document.xpath('/bookshelf/book[2]');
 
-// Find all the english titles anywhere in the document.
-print(document.xpath('//title[@lang="en"]'));
+// Find elements by attribute value:
+final englishTitles = document.xpath('//title[@lang="en"]');
 
-// Find all the books with an english title.
-print(document.xpath('//book[title/@lang="en"]'));
-
-// Sum up the prices of all the books.
-final total = document.xpath('//book/price/text()')
-        .map((node) => double.parse(node.value!))
-        .reduce((a, b) => a + b);
-print(total);   // prints 69.94
+// Predicate with relative path:
+final englishBooks = document.xpath('//book[title/@lang="en"]');
 ```
 
-### Building
+### Full XDM Evaluation (`xpathEvaluate`)
 
-While it is possible to instantiate and compose `XmlDocument`, `XmlElement` and `XmlText` nodes manually,
-the `XmlBuilder` provides a simple fluent API to build complete XML trees. To create the above bookshelf example one
-would write:
+`XmlNode.xpathEvaluate(String expression)` evaluates expressions returning an `XPathSequence` containing nodes, atomic values, functions, maps, or arrays:
+
+```dart
+// Evaluate XPath functions directly:
+final totalPrice = document.xpathEvaluate('sum(//book/price)').single;
+print(totalPrice.toValue()); // 69.94
+
+// Count matching nodes:
+final bookCount = document.xpathEvaluate('count(//book)').single;
+print(bookCount.toValue()); // 2
+
+// String and regex operations:
+final joined = document.xpathEvaluate('string-join(//title, ", ")').single;
+print(joined.toValue()); // 'Growing a Language, Learning XML'
+```
+
+### Reverse XPath Generation
+
+Generate a canonical XPath expression leading to any node in the document:
+
+```dart
+final title = document.findAllElements('title').first;
+print(title.xpathGenerate()); // /bookshelf/book[1]/title
+```
+
+### Configuration and Extensibility
+
+Pass an `XPathConfiguration` to customize variables, extension functions, namespaces, and document loaders:
+
+```dart
+final config = XPathConfiguration.standard(
+  variables: {'taxRate': 0.08},
+  namespaces: {'bk': 'https://example.com/books'},
+);
+
+final result = document.xpathEvaluate(
+  '//book/price * (1 + \$taxRate)',
+  configuration: config,
+);
+```
+
+## Building XML
+
+The `XmlBuilder` class provides a declarative, fluent API to construct XML structures programmatically:
 
 ```dart
 final builder = XmlBuilder();
@@ -198,51 +243,44 @@ builder.element('bookshelf', nest: () {
     });
     builder.element('price', nest: 39.95);
   });
-  builder.element('price', nest: '132.00');
+  builder.element('price', nest: 132.00);
 });
+
 final document = builder.buildDocument();
 ```
 
-The `element` method supports optional named arguments:
-
-- The most common is the `nest:` argument which is used to insert contents into the element. In most cases this will be a function that calls more methods on the builder to define attributes, declare namespaces and add child elements. However, the argument can also be a string or an arbitrary Dart object that is converted to a string and added as a text node.
-- While attributes can be defined from within the element, for simplicity there is also an argument `attributes:` that takes a map to define simple name-value pairs.
-- Furthermore, we can provide a URI as the namespace of the element using `namespaceUri:` and declare new namespace prefixes using `namespaceUris:`. For details see the documentation of the method.
-
-The builder pattern allows you to easily extract repeated parts into specific methods. In the example above, one could put the part writing a book into a separate method as follows:
+Modular builder methods can be composed to assemble nested document fragments:
 
 ```dart
-void buildBook(XmlBuilder builder, String title, String language, num price) {
+void buildBook(XmlBuilder builder, String title, String lang, num price) {
   builder.element('book', nest: () {
     builder.element('title', nest: () {
-      builder.attribute('lang', language);
+      builder.attribute('lang', lang);
       builder.text(title);
     });
     builder.element('price', nest: price);
   });
 }
-```
 
-The above `buildDocument()` method returns the built document. To attach built nodes into an existing XML document, use `buildFragment()`. Once the builder returns the built node, its internal state is reset.
-
-```dart
 final builder = XmlBuilder();
 buildBook(builder, 'The War of the Worlds', 'en', 12.50);
-buildBook(builder, 'Voyages extraordinaries', 'fr', 18.20);
+buildBook(builder, 'Voyages extraordinaires', 'fr', 18.20);
+
+// Attach the generated fragment into an existing tree:
 document.rootElement.children.add(builder.buildFragment());
 ```
 
-### Event-driven
+## Event-Driven Streaming
 
-Reading large XML files and instantiating their DOM into the memory can be expensive. As an alternative this library provides the possibility to read and transform XML documents as a sequence of events using Dart Iterables or [Streams](https://dart.dev/tutorials/language/streams). These approaches are comparable to event-driven SAX parsing known from other libraries.
+For large files or streaming network sources where buffering an entire DOM tree in memory is impractical, use the event-driven SAX parser:
 
 ```dart
 import 'package:xml/xml_events.dart';
 ```
 
-#### Iterables
+### Lazy Iterables
 
-In the simplest case you can get a `Iterable<XmlEvent>` over the input string using the following code. This parses the input lazily, and only parses input when requested:
+Parse an XML string incrementally on-demand:
 
 ```dart
 parseEvents(bookshelfXml)
@@ -252,52 +290,13 @@ parseEvents(bookshelfXml)
     .forEach(print);
 ```
 
-The function `parseEvents` supports various other options, see [the documentation](https://pub.dev/documentation/xml/latest/xml_events/parseEvents.html) for further examples.
+### Asynchronous Streams
 
-This approach requires the whole input to be available at the beginning and does not work if the data itself is only available asynchronous, such as coming from a slow network connection. A more flexible, but also more complicated API is provided with [Dart Streams](https://dart.dev/tutorials/language/streams).
-
-#### Streams
-
-To asynchronously parse and process events directly from a file or HTTP stream use the provided extension methods on `Stream` to convert between streams of strings, events and DOM tree nodes:
-
-![Stream Extensions Methods](https://raw.githubusercontent.com/renggli/dart-xml/HEAD/doc/stream-ext.png)
-
-For more control the underlying `Codec` and `Converter` implementations can be used:
-
-![Stream Codec and Converter](https://raw.githubusercontent.com/renggli/dart-xml/HEAD/doc/stream-codec.png)
-
-`Stream<String>.toXmlEvents()`, `XmlEventDecoder()`, and `XmlEventCodec()` are highly configurable in how they process and validate the input, see [the documentation](https://pub.dev/documentation/xml/latest/xml_events/XmlEventDecoder/XmlEventDecoder.html) for more information.
-
-Various more ad-hoc transformations are provided to simplify processing complex streams:
-
-- Normalizes a sequence of `XmlEvent` objects by removing empty and combining adjacent text events. \
-  `Stream<List<XmlEvent>> normalizeEvents()` on `Stream<List<XmlEvent>>`
-- From a sequence of `XmlEvent` objects filter the event sequences that form sub-trees for which a predicate returns `true`. \
-  `Stream<List<XmlEvent>> selectSubtreeEvents(Predicate<XmlStartElementEvent>)` on `Stream<List<XmlEvent>>`
-- Flattens a chunked stream of objects to a stream of objects. \
-  `Stream<T> flatten()` on `Stream<Iterable<T>>`
-- Executes the provided callbacks on each event of this stream. \
-  `Future<void> forEachEvent({onText: ...})` on `Stream<XmlEvent>`.
-- Executes the provided callbacks on each event of this stream as a side-effect. \
-  `Stream<XmlEvent> tapEachEvent({onText: ...})` on `Stream<XmlEvent>`.
-
-For example, the following snippet downloads data from the Internet, converts the UTF-8 input to a Dart `String`, decodes the stream of characters to `XmlEvent`s, and finally normalizes and prints the events:
+Process asynchronous streams from files or HTTP connections using stream transformers:
 
 ```dart
-final url = Uri.parse('http://ip-api.com/xml/');
-final request = await HttpClient().getUrl(url);
-final response = await request.close();
-await response
-    .transform(utf8.decoder)
-    .toXmlEvents()
-    .normalizeEvents()
-    .forEachEvent(onText: (event) => print(event.value));
-```
+final file = File('large_sitemap.xml');
 
-Similarly, the following snippet extracts sub-trees with location information from a `sitemap.xml` file, converts the XML events to XML nodes, and finally prints out the containing text:
-
-```dart
-final file = File('sitemap.xml');
 await file.openRead()
     .transform(utf8.decoder)
     .toXmlEvents()
@@ -308,9 +307,22 @@ await file.openRead()
     .forEach((node) => print(node.innerText));
 ```
 
-A common challenge when processing XML event streams is the lack of hierarchical information, thus it is hard to figure out parent dependencies such as looking up a namespace URI. Enabling `withParent: true` and `withNamespace: true` when decoding the stream validates the hierarchy and annotates the events with their parent event. This enables features (such as `parentEvent` and the `namespaceUri` accessor) and makes mapping and selecting events considerably simpler. For example:
+### Hierarchical Context & Namespaces
+
+Enable `withParent: true` and `withNamespace: true` to annotate events with parent linkages and resolved namespace URIs:
 
 ```dart
+const shiporderXsd = '''<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="shiporder">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="orderperson" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>''';
+
 await Stream.fromIterable([shiporderXsd])
     .toXmlEvents(withNamespace: true, withParent: true)
     .normalizeEvents()
@@ -322,43 +334,49 @@ await Stream.fromIterable([shiporderXsd])
     .forEach((node) => print(node.toXmlString(pretty: true)));
 ```
 
-## Misc
+## Command-Line Tools & Examples
 
-### Examples
+The repository includes runnable command-line applications in the [`example/`](https://github.com/renggli/dart-xml/tree/main/example) directory:
 
-This package comes with several [examples](https://github.com/renggli/dart-xml/tree/main/example), as well as a [web demo](https://petitparser.github.io/examples/xml/xml.html).
+- **XPath Query Tool**: Evaluate XPath 3.1 expressions against files or inline computations:
 
-Furthermore, there are [numerous packages](https://pub.dev/packages?q=dependency%3Axml) depending on this package.
+  ```bash
+  dart run example/xml_xpath.dart -x "//book/title" example/books.xml
+  dart run example/xml_xpath.dart "1 + 2 * 3"
+  ```
 
-### Supports
+- **Pretty Printer & Highlighter**: Format and colorize XML files in the terminal:
 
-- ☑ Standard well-formed XML (and HTML).
-- ☑ Reading documents using an event based API (SAX).
-- ☑ Decodes and encodes commonly used character entities.
-- ☑ Querying, traversing, and mutating API using Dart principles.
-- ☑ Querying the DOM using XPath 3.1.
-- ☑ Building XML trees using a builder API.
-- ☑ Validates namespace declarations.
+  ```bash
+  dart run example/xml_pp.dart example/books.xml
+  ```
 
-### Limitations
+- **Source Position Locator**: Determine character positions and line numbers for DOM nodes:
 
-- ☐ Doesn't validate schema declarations.
-- ☐ Doesn't parse, apply or enforce the DTD.
-- ☐ Doesn't support XSL or XSLT.
-- ☐ Doesn't support XQuery.
+  ```bash
+  dart run example/xml_pos.dart example/books.xml
+  ```
 
-### Standards
+- **Online Demo**: Try the interactive parser in your browser at the [PetitParser Web Demo](https://petitparser.github.io/examples/xml/xml.html).
 
-- [Extensible Markup Language (XML) 1.0](https://www.w3.org/TR/xml/)
-- [Namespaces in XML 1.0](https://www.w3.org/TR/xml-names/)
-- [XPath 3.1 Language](https://www.w3.org/TR/xpath-31/)
-- [XPath Functions and Operators 3.1](https://www.w3.org/TR/xpath-functions-31/)
-- [W3C DOM4](https://www.w3.org/TR/domcore/)
+## Standards Compliance
 
-### History
+PetitXml conforms to the following official W3C specifications:
 
-This library started as an example of the [PetitParser](https://github.com/renggli/PetitParserDart) library. To my own surprise various people started to use it to read XML files. In April 2014 I was asked to replace the original [dart-xml](https://github.com/prujohn/dart-xml) library from John Evans.
+- [Extensible Markup Language (XML) 1.0 (Fifth Edition)](https://www.w3.org/TR/xml/)
+- [Namespaces in XML 1.0 (Third Edition)](https://www.w3.org/TR/xml-names/)
+- [XML Path Language (XPath) 3.1](https://www.w3.org/TR/xpath-31/)
+- [XPath and XQuery Functions and Operators 3.1](https://www.w3.org/TR/xpath-functions-31/)
+- [W3C DOM4](https://www.w3.org/TR/domcore/) / [DOM Level 3 Core](https://www.w3.org/TR/DOM-Level-3-Core/)
 
-### License
+### Scope and Limitations
 
-The MIT License, see [LICENSE](https://github.com/renggli/dart-xml/raw/main/LICENSE).
+- **Schema Validation**: Does not validate against XML Schema (XSD) definitions.
+- **DTD Enforcement**: Basic DTD parsing is supported (`XmlDoctype`), but external DTD entity resolution and validation are not enforced.
+- **XSLT / XQuery**: XSLT transformations and full XQuery modules are outside the scope of this package.
+
+## History & License
+
+Dart XML originated as an example parser for the [PetitParser](https://github.com/petitparser/dart-petitparser) framework and replaced the original `dart-xml` package in April 2014.
+
+Released under the [MIT License](https://raw.githubusercontent.com/renggli/dart-xml/main/LICENSE).

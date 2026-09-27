@@ -1,8 +1,8 @@
 # Changelog
 
-## 7.1.0 (unpublished)
+## 7.1.0
 
-- Dart 3.13 requirement.
+- Dart 3.13 and PetitParser 7.1.0 requirement.
 - Standard-compliant DOM position comparison:
   - Introduced `XmlNode.compareDocumentPosition` returning `XmlDocumentPosition` bitmask flags (`isSame`, `isDisconnected`, `isPreceding`, `isFollowing`, `isContains`, `isContainedBy`, `isImplementationSpecific`), matching W3C DOM Level 3 / DOM 4.
   - Deprecated `XmlNode.compareNodePosition` in favor of `compareDocumentPosition`.
@@ -15,6 +15,10 @@
   - Implemented canonical EQName path generation in `fn:path` (`/Q{uri}name[idx]`, `@Q{uri}name`, `text()[idx]`).
   - Improved ID and IDREF resolution in `fn:id`, `fn:idref`, and `fn:element-with-id` with `xml:id` and DTD `<!ATTLIST ... ID/IDREF>` attribute declarations.
   - Introduced `XPathConfiguration` to configure evaluation contexts (custom variables, functions, namespaces, documents, environment variables, base URI, unparsed text loader, and trace callback). Deprecated passing `variables` and `functions` directly to `xpath` and `xpathEvaluate`.
+  - Added XML serialization (`fn:serialize`) supporting XML, HTML, XHTML, text, JSON, and adaptive output methods with serialization parameters.
+  - Added PetitParser-based regular expression transformer for XML Schema regex syntax supporting `fn:matches`, `fn:replace`, `fn:tokenize`, and `fn:analyze-string`.
+  - Added `fn:parse-ietf-date`.
+  - Standardized error handling with `XPathErrorCode` and W3C error codes.
   - Redesigned date, time, and duration types (`xs:duration`, `xs:dayTimeDuration`, `xs:yearMonthDuration`, `xs:dateTime`, `xs:date`, `xs:time`, and Gregorian date types) for strict W3C compliance.
   - Added support for `xs:anyAtomicType`, `xs:error`, and string-derived XML Schema constructors.
   - Added support for unparsed text and JSON document retrieval (`fn:unparsed-text`, `fn:unparsed-text-lines`, `fn:unparsed-text-available`, `fn:json-doc`) via `unparsedTextLoader`.
@@ -30,6 +34,8 @@
     - Cached small `XPathInteger` instances (`0..128`) and unboxed integer comparisons for zero-allocation positional predicate matching with early-exit loop termination.
     - Optimized sequence atomization with zero-allocation fast paths for empty and single-item sequences, along with primitive 1-vs-1 comparison fast paths.
   - Fix short-circuit evaluation for `!=` general comparisons ([#207](https://github.com/renggli/dart-xml/issues/207)).
+  - Removed `@experimental` annotation from XPath API.
+- Add command-line XPath evaluation example tool (`example/xml_xpath.dart`).
 
 ## 7.0.1
 
