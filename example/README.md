@@ -59,3 +59,13 @@ This example contains a command-line application that reads XML documents from t
 ```bash
 dart run example/xml_pp.dart example/books.xml
 ```
+
+## xml_xpath
+
+This example contains a command-line application that evaluates XPath expressions against XML documents from the file-system, or performs standalone computations if no file is provided. For example:
+
+```bash
+dart run example/xml_xpath.dart -x "//book/title" example/books.xml
+dart run example/xml_xpath.dart "1 + 2 * 3"
+```
+
