@@ -1,7 +1,6 @@
-import 'dart:convert'
-    show Converter, StringConversionSink, StringConversionSinkBase;
+import 'dart:convert' show Converter, StringConversionSink;
 
-import 'package:petitparser/petitparser.dart';
+import 'package:petitparser/stream.dart';
 
 import '../../xml/entities/default_mapping.dart';
 import '../../xml/entities/entity_mapping.dart';
@@ -91,85 +90,29 @@ class XmlEventDecoder extends Converter<String, List<XmlEvent>> {
   }
 
   @override
-  StringConversionSink startChunkedConversion(Sink<List<XmlEvent>> sink) =>
-      _XmlEventDecoderSink(
-        sink,
-        entityMapping,
-        XmlAnnotator(
-          validateDocument: validateDocument,
-          validateNamespace: validateNamespace,
-          validateNesting: validateNesting,
-          withBuffer: false,
-          withLocation: withLocation,
-          withNamespace: withNamespace,
-          withParent: withParent,
-        ),
-      );
-}
-
-class _XmlEventDecoderSink extends StringConversionSinkBase {
-  new(this.sink, XmlEntityMapping entityMapping, this.annotator)
-    : eventParser = eventParserCache[entityMapping];
-
-  final Sink<List<XmlEvent>> sink;
-  final Parser<XmlEvent> eventParser;
-  final XmlAnnotator annotator;
-
-  String carry = '';
-  int offset = 0;
-
-  @override
-  void addSlice(String str, int start, int end, bool isLast) {
-    end = RangeError.checkValidRange(start, end, str.length);
-    if (start == end) {
-      if (isLast) {
-        close();
-      }
-      return;
-    }
-    final result = <XmlEvent>[];
-    Result<XmlEvent> previous = Failure(
-      carry + str.substring(start, end),
-      0,
-      '',
+  StringConversionSink startChunkedConversion(Sink<List<XmlEvent>> sink) {
+    final annotator = XmlAnnotator(
+      validateDocument: validateDocument,
+      validateNamespace: validateNamespace,
+      validateNesting: validateNesting,
+      withBuffer: false,
+      withLocation: withLocation,
+      withNamespace: withNamespace,
+      withParent: withParent,
     );
-    for (;;) {
-      final current = eventParser.parseOn(previous);
-      if (current is Success) {
-        final event = current.value;
-        annotator.annotate(
-          event,
-          start: offset + previous.position,
-          stop: offset + current.position,
-        );
-        result.add(event);
-        previous = current;
-      } else {
-        carry = previous.buffer.substring(previous.position);
-        offset += previous.position;
-        break;
-      }
-    }
-    if (result.isNotEmpty) {
-      sink.add(result);
-    }
-    if (isLast) {
-      close();
-    }
-  }
-
-  @override
-  void close() {
-    if (carry.isNotEmpty) {
-      final context = eventParser.parseOn(Failure(carry, 0, ''));
-      if (context is Failure) {
-        throw XmlParserException(
-          context.message,
-          position: offset + context.position,
-        );
-      }
-    }
-    annotator.close(position: offset);
-    sink.close();
+    return ParseDecoderSink<XmlEvent>(
+      eventParserCache[entityMapping],
+      sink,
+      contiguous: true,
+      onMatch: (event, {required start, required stop, required buffer}) {
+        annotator.annotate(event, start: start, stop: stop);
+      },
+      onError: (failure) {
+        throw XmlParserException(failure.message, position: failure.position);
+      },
+      onClose: ({required position, required buffer}) {
+        annotator.close(position: position);
+      },
+    );
   }
 }

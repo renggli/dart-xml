@@ -1,5 +1,9 @@
 # Changelog
 
+## 7.2.0 (Unpublished)
+
+- Delegate `XmlEventIterator` and `XmlEventDecoder` to the generic streaming and iteration infrastructure in `package:petitparser/stream.dart`.
+
 ## 7.1.0
 
 - Dart 3.13 and PetitParser 7.1.0 requirement.

@@ -1,4 +1,4 @@
-import 'package:petitparser/core.dart';
+import 'package:petitparser/stream.dart';
 
 import '../xml/entities/entity_mapping.dart';
 import '../xml/exceptions/parser_exception.dart';
@@ -7,51 +7,31 @@ import 'event.dart';
 import 'parser.dart';
 
 class XmlEventIterator implements Iterator<XmlEvent> {
-  new(String input, XmlEntityMapping entityMapping, this._annotator)
-    : _eventParser = eventParserCache[entityMapping],
-      _context = Failure(input, 0, '');
+  new(String input, XmlEntityMapping entityMapping, XmlAnnotator annotator)
+    : _iterator = ParseIterator<XmlEvent>(
+        eventParserCache[entityMapping],
+        input,
+        contiguous: true,
+        onMatch: (event, {required start, required stop, required buffer}) {
+          annotator.annotate(event, buffer: buffer, start: start, stop: stop);
+        },
+        onError: (failure) {
+          throw XmlParserException(
+            failure.message,
+            buffer: failure.buffer,
+            position: failure.position,
+          );
+        },
+        onClose: ({required position, required buffer}) {
+          annotator.close(buffer: buffer, position: position);
+        },
+      );
 
-  final Parser<XmlEvent> _eventParser;
-  final XmlAnnotator _annotator;
-
-  Result<XmlEvent>? _context;
-  XmlEvent? _current;
+  final ParseIterator<XmlEvent> _iterator;
 
   @override
-  XmlEvent get current => _current!;
+  XmlEvent get current => _iterator.current;
 
   @override
-  bool moveNext() {
-    final context = _context;
-    if (context != null) {
-      final result = _eventParser.parseOn(context);
-      if (result is Success) {
-        _context = result;
-        _current = result.value;
-        _annotator.annotate(
-          result.value,
-          buffer: context.buffer,
-          start: context.position,
-          stop: result.position,
-        );
-        return true;
-      } else if (context.position < context.buffer.length) {
-        // In case of an error, skip one character and throw an exception.
-        _context = context.failure(result.message, context.position + 1);
-        _current = null;
-        throw XmlParserException(
-          result.message,
-          buffer: result.buffer,
-          position: result.position,
-        );
-      } else {
-        // In case of reaching the end, terminate the iterator.
-        _context = null;
-        _current = null;
-        _annotator.close(buffer: context.buffer, position: context.position);
-        return false;
-      }
-    }
-    return false;
-  }
+  bool moveNext() => _iterator.moveNext();
 }
