@@ -1,9 +1,9 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/functions/node.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
@@ -13,46 +13,48 @@ void main() {
   group('fn:name', () {
     test('returns name of element', () {
       final a = document.findAllElements('a').first;
-      expect(fnName(context, [seq(a)]), isXPathSequence(['a']));
+      check(fnName(context, [seq(a)])).isXPathSequence(['a']);
     });
 
     test('returns target of processing instruction', () {
       final pi = XmlProcessing('target', 'data');
-      expect(fnName(context, [seq(pi)]), isXPathSequence(['target']));
+      check(fnName(context, [seq(pi)])).isXPathSequence(['target']);
     });
 
     test('returns name of attribute with prefix', () {
       final attr = XmlAttribute(const XmlName('lang', 'xml'), 'en');
-      expect(fnName(context, [seq(attr)]), isXPathSequence(['xml:lang']));
+      check(fnName(context, [seq(attr)])).isXPathSequence(['xml:lang']);
     });
 
     test('returns name of attribute without prefix', () {
       final attr = XmlAttribute(const XmlName('id'), '1');
-      expect(fnName(context, [seq(attr)]), isXPathSequence(['id']));
+      check(fnName(context, [seq(attr)])).isXPathSequence(['id']);
     });
 
     test('throws XPDY0002 on absent context item', () {
       final emptyCtx = context.copy(item: XPathSequence.empty);
-      expect(
-        () => fnName(emptyCtx, []),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPDY0002)),
-      );
+      check(() => fnName(emptyCtx, []))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPDY0002),
+          );
     });
 
     test('throws XPTY0004 on non-node context item', () {
       final nonNodeCtx = context.copy(item: XPathInteger.fromInt(42));
-      expect(
-        () => fnName(nonNodeCtx, []),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
+      check(() => fnName(nonNodeCtx, []))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
     });
 
     test('returns empty string for document', () {
-      expect(fnName(context, [seq(document)]), isXPathSequence(['']));
+      check(fnName(context, [seq(document)])).isXPathSequence(['']);
     });
 
     test('returns empty string for empty sequence', () {
-      expect(fnName(context, [XPathSequence.empty]), isXPathSequence(['']));
+      check(fnName(context, [XPathSequence.empty])).isXPathSequence(['']);
     });
 
     test('integration via xpathEvaluate', () {
@@ -69,24 +71,21 @@ void main() {
   group('fn:local-name', () {
     test('returns local name of element', () {
       final a = document.findAllElements('a').first;
-      expect(fnLocalName(context, [seq(a)]), isXPathSequence(['a']));
+      check(fnLocalName(context, [seq(a)])).isXPathSequence(['a']);
     });
 
     test('returns target of processing instruction', () {
       final pi = XmlProcessing('target', 'data');
-      expect(fnLocalName(context, [seq(pi)]), isXPathSequence(['target']));
+      check(fnLocalName(context, [seq(pi)])).isXPathSequence(['target']);
     });
 
     test('returns local name of attribute', () {
       final attr = XmlAttribute(const XmlName('a'), '1');
-      expect(fnLocalName(context, [seq(attr)]), isXPathSequence(['a']));
+      check(fnLocalName(context, [seq(attr)])).isXPathSequence(['a']);
     });
 
     test('returns empty string for empty sequence', () {
-      expect(
-        fnLocalName(context, [XPathSequence.empty]),
-        isXPathSequence(['']),
-      );
+      check(fnLocalName(context, [XPathSequence.empty])).isXPathSequence(['']);
     });
 
     test('integration via xpathEvaluate', () {
@@ -103,19 +102,17 @@ void main() {
   group('fn:namespace-uri', () {
     test('returns namespace uri of element', () {
       final a = document.findAllElements('a').first;
-      expect(fnNamespaceUri(context, [seq(a)]), isXPathSequence(['']));
+      check(fnNamespaceUri(context, [seq(a)])).isXPathSequence(['']);
     });
 
     test('returns namespace uri of attribute', () {
       final attr = XmlAttribute(const XmlName('a'), '1');
-      expect(fnNamespaceUri(context, [seq(attr)]), isXPathSequence(['']));
+      check(fnNamespaceUri(context, [seq(attr)])).isXPathSequence(['']);
     });
 
     test('returns empty string for empty sequence', () {
-      expect(
-        fnNamespaceUri(context, [XPathSequence.empty]),
-        isXPathSequence(['']),
-      );
+      check(fnNamespaceUri(context, [XPathSequence.empty]))
+          .isXPathSequence(['']);
     });
 
     test('integration via xpathEvaluate', () {
@@ -132,62 +129,60 @@ void main() {
   group('fn:root', () {
     test('returns root node', () {
       final a = document.findAllElements('a').first;
-      expect(fnRoot(context, [seq(a)]), isXPathSequence([document]));
+      check(fnRoot(context, [seq(a)])).isXPathSequence([document]);
     });
 
     test('returns empty sequence for empty sequence', () {
-      expect(fnRoot(context, [XPathSequence.empty]), isXPathSequence(isEmpty));
+      check(fnRoot(context, [XPathSequence.empty])).isXPathSequence(isEmpty);
     });
   });
 
   group('fn:innermost', () {
     test('returns innermost nodes', () {
       final a = document.findAllElements('a').first;
-      expect(
+      check(
         fnInnermost(context, [
           seq([document, a]),
         ]),
-        isXPathSequence([a]),
-      );
+      ).isXPathSequence([a]);
     });
   });
 
   group('fn:outermost', () {
     test('returns outermost nodes', () {
       final a = document.findAllElements('a').first;
-      expect(
+      check(
         fnOutermost(context, [
           seq([document, a]),
         ]),
-        isXPathSequence([document]),
-      );
+      ).isXPathSequence([document]);
     });
   });
 
   group('fn:path', () {
     test('returns path of element', () {
       final a = document.findAllElements('a').first;
-      expect(fnPath(context, [seq(a)]), isXPathSequence(['/Q{}r[1]/Q{}a[1]']));
+      check(fnPath(context, [seq(a)])).isXPathSequence(['/Q{}r[1]/Q{}a[1]']);
     });
 
     test('returns / for document', () {
-      expect(fnPath(context, [seq(document)]), isXPathSequence(['/']));
+      check(fnPath(context, [seq(document)])).isXPathSequence(['/']);
     });
 
     test('returns empty sequence for empty sequence', () {
-      expect(fnPath(context, [XPathSequence.empty]), isXPathSequence(isEmpty));
+      check(fnPath(context, [XPathSequence.empty])).isXPathSequence(isEmpty);
     });
 
     test('handles multiple elements with same name', () {
       final doc2 = XmlDocument.parse('<r><a>1</a><a>2</a></r>');
       final a2 = doc2.findAllElements('a').last;
-      expect(fnPath(context, [seq(a2)]), isXPathSequence(['/Q{}r[1]/Q{}a[2]']));
+      check(fnPath(context, [seq(a2)])).isXPathSequence(['/Q{}r[1]/Q{}a[2]']);
     });
 
     test('handles attribute node', () {
       final doc3 = XmlDocument.parse('<r a="1"/>');
       final attr = doc3.rootElement.attributes.first;
-      expect(fnPath(context, [seq(attr)]), isXPathSequence(['/Q{}r[1]/@a']));
+      check(fnPath(context, [seq(attr)])).isXPathSequence(['/Q{}r[1]/@a']);
     });
   });
 
@@ -197,42 +192,36 @@ void main() {
           .map((node) => fnGenerateId(context, [seq(node)]))
           .map((sequence) => sequence.single)
           .toList();
-      expect(ids, unorderedEquals(ids.toSet()));
+      check(ids).unorderedEquals(ids.toSet());
     });
 
     test('returns empty string for empty sequence', () {
-      expect(
-        fnGenerateId(context, [XPathSequence.empty]),
-        isXPathSequence(['']),
-      );
+      check(fnGenerateId(context, [XPathSequence.empty])).isXPathSequence(['']);
     });
   });
 
   group('fn:has-children', () {
     test('returns true if has children', () {
       final a = document.findAllElements('a').first; // has 1 text child
-      expect(fnHasChildren(context, [seq(a)]), isXPathSequence([true]));
+      check(fnHasChildren(context, [seq(a)])).isXPathSequence([true]);
     });
 
     test('returns false if empty element', () {
       final emptyEl = XmlElement(const XmlName('e'));
-      expect(fnHasChildren(context, [seq(emptyEl)]), isXPathSequence([false]));
+      check(fnHasChildren(context, [seq(emptyEl)])).isXPathSequence([false]);
     });
 
     test('returns false for empty sequence', () {
-      expect(
-        fnHasChildren(context, [XPathSequence.empty]),
-        isXPathSequence([false]),
-      );
+      check(fnHasChildren(context, [XPathSequence.empty]))
+          .isXPathSequence([false]);
     });
   });
 
   group('fn:id', () {
     test('throws for empty sequence node argument', () {
-      expect(
-        () => fnId(context, [seq('a'), XPathSequence.empty]),
-        throwsA(isXPathEvaluationException()),
-      );
+      check(() => fnId(context, [seq('a'), XPathSequence.empty]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
     });
 
     test('integration via xpathEvaluate with DTD', () {
@@ -270,24 +259,20 @@ void main() {
 
   group('fn:element-with-id', () {
     test('throws for empty sequence node argument', () {
-      expect(
-        () => fnElementWithId(context, [seq('a'), XPathSequence.empty]),
-        throwsA(isXPathEvaluationException()),
-      );
+      check(() => fnElementWithId(context, [seq('a'), XPathSequence.empty]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
     });
 
     test('throws for non-node sequence node argument', () {
-      expect(
-        () => fnElementWithId(context, [seq('a'), seq(123)]),
-        throwsA(
-          isXPathEvaluationException(
-            errorCode: XPathErrorCode.XPTY0004,
-            message: contains(
-              'Expected a node for the argument of fn:element-with-id, got xs:integer',
+      check(() => fnElementWithId(context, [seq('a'), seq(123)]))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(
+              errorCode: XPathErrorCode.XPTY0004,
+              message: 'Expected a node for the argument of fn:element-with-id, got xs:integer',
             ),
-          ),
-        ),
-      );
+          );
     });
 
     test('integration via xpathEvaluate', () {
@@ -313,10 +298,9 @@ void main() {
 
   group('fn:idref', () {
     test('throws for empty sequence node argument', () {
-      expect(
-        () => fnIdref(context, [seq('a'), XPathSequence.empty]),
-        throwsA(isXPathEvaluationException()),
-      );
+      check(() => fnIdref(context, [seq('a'), XPathSequence.empty]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
     });
 
     test('integration via xpathEvaluate with DTD', () {
@@ -431,10 +415,11 @@ void main() {
     });
 
     test('throws XPTY0004 on non-node item', () {
-      expect(
-        () => xml.xpathEvaluate('fn:innermost((//*, 1))'),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
+      check(() => xml.xpathEvaluate('fn:innermost((//*, 1))'))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
     });
   });
 
@@ -462,10 +447,11 @@ void main() {
     });
 
     test('throws XPTY0004 on non-node item', () {
-      expect(
-        () => xml.xpathEvaluate('fn:outermost((//*, "string"))'),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
+      check(() => xml.xpathEvaluate('fn:outermost((//*, "string"))'))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
     });
   });
 
@@ -546,10 +532,8 @@ void main() {
       final docWithNs = XmlDocument.parse(
         '<r xmlns:p="http://example.com" p:attr="1"/>',
       );
-      expect(
-        docWithNs.xpathEvaluate('fn:path(/*/@*:attr)'),
-        isXPathSequence(['/Q{}r[1]/@Q{http://example.com}attr']),
-      );
+      check(docWithNs.xpathEvaluate('fn:path(/*/@*:attr)'))
+          .isXPathSequence(['/Q{}r[1]/@Q{http://example.com}attr']);
     });
 
     test(
@@ -558,18 +542,13 @@ void main() {
         final complexDoc = XmlDocument.parse(
           '<r>first<mid/><!--c1--><child/><!--c2--><?pi a?><sub/><?pi b?>last</r>',
         );
-        expect(
-          complexDoc.xpathEvaluate('fn:path(/r/text()[2])'),
-          isXPathSequence(['/Q{}r[1]/text()[2]']),
-        );
-        expect(
-          complexDoc.xpathEvaluate('fn:path(/r/comment()[2])'),
-          isXPathSequence(['/Q{}r[1]/comment()[2]']),
-        );
-        expect(
+        check(complexDoc.xpathEvaluate('fn:path(/r/text()[2])'))
+            .isXPathSequence(['/Q{}r[1]/text()[2]']);
+        check(complexDoc.xpathEvaluate('fn:path(/r/comment()[2])'))
+            .isXPathSequence(['/Q{}r[1]/comment()[2]']);
+        check(
           complexDoc.xpathEvaluate('fn:path(/r/processing-instruction(pi)[2])'),
-          isXPathSequence(['/Q{}r[1]/processing-instruction(pi)[2]']),
-        );
+        ).isXPathSequence(['/Q{}r[1]/processing-instruction(pi)[2]']);
       },
     );
 
@@ -578,10 +557,11 @@ void main() {
     });
 
     test('throws XPTY0004 on non-node item', () {
-      expect(
-        () => xml.xpathEvaluate('fn:path(123)'),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
+      check(() => xml.xpathEvaluate('fn:path(123)'))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
     });
   });
 
@@ -598,7 +578,7 @@ void main() {
 
     test('isolated element returns itself', () {
       final elem = XmlElement(const XmlName('isolated'));
-      expect(elem.xpathEvaluate('fn:root()'), isXPathSequence([elem]));
+      check(elem.xpathEvaluate('fn:root()')).isXPathSequence([elem]);
     });
 
     test('empty sequence returns empty', () {
@@ -606,10 +586,11 @@ void main() {
     });
 
     test('throws XPTY0004 on non-node item', () {
-      expect(
-        () => xml.xpathEvaluate('fn:root("not-a-node")'),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
+      check(() => xml.xpathEvaluate('fn:root("not-a-node")'))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
     });
   });
 
@@ -621,22 +602,19 @@ void main() {
       final b = xml.findAllElements('b').first;
       final idA = fnGenerateId(context, [seq(a)]).first.stringValue;
       final idB = fnGenerateId(context, [seq(b)]).first.stringValue;
-      expect(idA, startsWith('autoId'));
-      expect(idB, startsWith('autoId'));
-      expect(idA, isNot(equals(idB)));
+      check(idA).startsWith('autoId');
+      check(idB).startsWith('autoId');
+      check(idA).not((it) => it.equals(idB));
     });
 
     test('0-argument uses context node', () {
       final elem = xml.findAllElements('a').first;
       final elemCtx = const XPathConfiguration.raw().context(elem);
-      expect(fnGenerateId(elemCtx, []).first.stringValue, startsWith('autoId'));
+      check(fnGenerateId(elemCtx, []).first.stringValue).startsWith('autoId');
     });
 
     test('empty sequence returns empty string', () {
-      expect(
-        fnGenerateId(context, [XPathSequence.empty]),
-        isXPathSequence(['']),
-      );
+      check(fnGenerateId(context, [XPathSequence.empty])).isXPathSequence(['']);
     });
   });
 

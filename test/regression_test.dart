@@ -1,4 +1,5 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xml_events.dart';
 import 'package:xml/xpath.dart';
@@ -47,8 +48,7 @@ void main() {
         )
         .map((element) => element.getAttribute('href'))
         .single;
-    expect(
-      href,
+    check(href).equals(
       'https://covers.feedbooks.net/book/2936.jpg?size=large&t=1549045871',
     );
   });
@@ -62,18 +62,18 @@ void main() {
     test('transformation class', () {
       final document = XmlDocument.parse(input);
       TrimTextVisitor().visit(document);
-      expect(document.rootElement.children[1].innerText, 'left');
-      expect(document.rootElement.children[3].innerText, 'both');
-      expect(document.rootElement.children[5].innerText, 'right');
+      check(document.rootElement.children[1].innerText).equals('left');
+      check(document.rootElement.children[3].innerText).equals('both');
+      check(document.rootElement.children[5].innerText).equals('right');
     });
     test('transformation function', () {
       final document = XmlDocument.parse(input);
       for (final node in document.descendants.whereType<XmlText>()) {
         node.replace(XmlText(node.value.trim()));
       }
-      expect(document.rootElement.children[1].innerText, 'left');
-      expect(document.rootElement.children[3].innerText, 'both');
-      expect(document.rootElement.children[5].innerText, 'right');
+      check(document.rootElement.children[1].innerText).equals('left');
+      check(document.rootElement.children[3].innerText).equals('both');
+      check(document.rootElement.children[5].innerText).equals('right');
     });
   });
   test('https://github.com/renggli/dart-xml/issues/100', () {
@@ -84,9 +84,12 @@ void main() {
           <os:itemsPerPage>50</os:itemsPerPage>
           <os:startIndex>1</os:startIndex>
         </feed>''');
-    expect(document.rootElement.getElement('os:totalResults')?.innerText, '0');
-    expect(document.rootElement.getElement('os:itemsPerPage')?.innerText, '50');
-    expect(document.rootElement.getElement('os:startIndex')?.innerText, '1');
+    check(document.rootElement.getElement('os:totalResults')?.innerText)
+        .equals('0');
+    check(document.rootElement.getElement('os:itemsPerPage')?.innerText)
+        .equals('50');
+    check(document.rootElement.getElement('os:startIndex')?.innerText)
+        .equals('1');
   });
   test('https://github.com/renggli/dart-xml/issues/104', () {
     final document = XmlDocument.parse('''
@@ -98,16 +101,12 @@ void main() {
         ]>
         <TEI.2></TEI.2>
     ''');
-    expect(document.doctypeElement, isNotNull);
-    expect(document.doctypeElement!.name, 'TEI.2');
-    expect(
-      document.doctypeElement!.externalId!.publicId,
-      '-//TEI P4//DTD Main DTD Driver File//EN',
-    );
-    expect(
-      document.doctypeElement!.externalId!.systemId,
-      'http://www.tei-c.org/Guidelines/DTD/tei2.dtd',
-    );
+    check(document.doctypeElement).isNotNull();
+    check(document.doctypeElement!.name).equals('TEI.2');
+    check(document.doctypeElement!.externalId!.publicId)
+        .equals('-//TEI P4//DTD Main DTD Driver File//EN');
+    check(document.doctypeElement!.externalId!.systemId)
+        .equals('http://www.tei-c.org/Guidelines/DTD/tei2.dtd');
   });
   test('https://stackoverflow.com/questions/68100391', () {
     const number = 20;
@@ -119,7 +118,7 @@ void main() {
         </Alarm>
     ''');
     document.findAllElements('AlarmVolume').first.innerText = number.toString();
-    expect(document.toXmlString(), '''
+    check(document.toXmlString()).equals('''
         <Alarm>
           <Settings>
               <AlarmVolume type="int" min="0" max="100" unit="%">20</AlarmVolume>
@@ -170,10 +169,8 @@ void main() {
   <head><title>Alice's Adventures in Wonderland by Lewis Carroll</title></head>
   <body>&O;Who are <i>you</i>?&C; said the Caterpillar.</body>
 </html>''', entityMapping: entityMapping);
-    expect(
-      document.findAllElements('body').first.innerText,
-      '“Who are you?” said the Caterpillar.',
-    );
+    check(document.findAllElements('body').first.innerText)
+        .equals('“Who are you?” said the Caterpillar.');
   });
   group('https://github.com/renggli/dart-xml/discussions/154', () {
     final document = XmlDocument.parse(
@@ -191,7 +188,7 @@ void main() {
           .where(predicate)
           // Exclude the nodes that have parents satisfying the condition.
           .where((node) => !node.ancestors.any(predicate));
-      expect(nodes.map((node) => node.innerText), ['1', '2', '3']);
+      check(nodes.map((node) => node.innerText)).deepEquals(['1', '2', '3']);
     });
     test('recursive', () {
       List<XmlNode> find(XmlNode node, bool Function(XmlNode) predicate) {
@@ -208,7 +205,7 @@ void main() {
       }
 
       final nodes = find(document, predicate);
-      expect(nodes.map((node) => node.innerText), ['1', '2', '3']);
+      check(nodes.map((node) => node.innerText)).deepEquals(['1', '2', '3']);
     });
     test('iterative', () {
       List<XmlNode> find(XmlNode node, bool Function(XmlNode) predicate) {
@@ -226,7 +223,7 @@ void main() {
       }
 
       final nodes = find(document, predicate);
-      expect(nodes.map((node) => node.innerText), ['1', '2', '3']);
+      check(nodes.map((node) => node.innerText)).deepEquals(['1', '2', '3']);
     });
   });
   test('https://github.com/renggli/dart-xml/issues/156', () {
@@ -235,11 +232,11 @@ void main() {
       </car>''';
     final document = XmlDocument.parse(bookshelfXml);
     final carElement = document.rootElement;
-    expect(carElement.getAttribute('color:name'), equals('blue'));
+    check(carElement.getAttribute('color:name')).equals('blue');
     // In 6.2.1, this creates another color:name
     // attribute instead of overwriting the existing one.
     carElement.setAttribute('color:name', 'red');
-    expect(carElement.getAttribute('color:name'), equals('red'));
+    check(carElement.getAttribute('color:name')).equals('red');
   });
   test('https://github.com/renggli/dart-xml/issues/160', () {
     const xml =
@@ -251,8 +248,8 @@ void main() {
     // https://www.w3.org/TR/xml11/#sec-line-ends
     doc.normalize(normalizeAllNewline: true);
     final textNode = doc.rootElement.firstChild!;
-    expect(textNode.nodeType, XmlNodeType.TEXT);
-    expect(textNode.value, equals('\n  '));
+    check(textNode.nodeType).equals(XmlNodeType.TEXT);
+    check(textNode.value).equals('\n  ');
   });
   test('https://github.com/renggli/dart-xml/discussions/168', () {
     final actual = XmlDocument.parse(
@@ -266,7 +263,7 @@ void main() {
     final expected = XmlDocument.parse(
       '<XML><BOX><BLUR><IMG><URL value="./" /></IMG></BLUR></BOX></XML>',
     );
-    expect(expected.toXmlString(), actual.toXmlString());
+    check(expected.toXmlString()).equals(actual.toXmlString());
   });
   group('https://github.com/renggli/dart-xml/discussions/177', () {
     const input = '<rss><items><item>a</item><item>b</item></items></rss>';
@@ -282,7 +279,7 @@ void main() {
           found.add(event); // an event that is part of `<item>...</item>`
         }
       }
-      expect(found, [XmlTextEvent('a'), XmlTextEvent('b')]);
+      check(found).deepEquals([XmlTextEvent('a'), XmlTextEvent('b')]);
     });
     test('stream', () async {
       final result = await Stream.value(input)
@@ -292,41 +289,35 @@ void main() {
           .toXmlNodes()
           .expand((nodes) => nodes)
           .toList();
-      expect(result.map((each) => each.toString()), [
-        '<item>a</item>',
-        '<item>b</item>',
-      ]);
+      check(result.map((each) => each.toString()))
+          .deepEquals(['<item>a</item>', '<item>b</item>']);
     });
   });
   test('https://stackoverflow.com/questions/77055363', () {
     final xml = XmlDocument.parse(booksXml);
     final result = xml.xpath('//book[contains(@id, "106")]/title');
-    expect(result.map((each) => each.innerText), ['Lover Birds']);
+    check(result.map((each) => each.innerText)).deepEquals(['Lover Birds']);
   });
   test('https://github.com/renggli/dart-xml/issues/207', () {
     final doc = XmlDocument.parse('<root><x xmlns="ns" id="_0"/></root>');
     const url = 'https://github.com/renggli/dart-xml/issues/207';
-    expect(
-      doc.xpath("//*[local-name()='x' and '_0' = @*[local-name()='id']]"),
-      hasLength(1),
-    );
-    expect(
+    check(doc.xpath("//*[local-name()='x' and '_0' = @*[local-name()='id']]"))
+        .length
+        .equals(1);
+    check(
       doc.xpath(
         "//*[local-name()='x' and '_0'=@*[local-name()='id' and namespace-uri()='ns']]",
       ),
-      hasLength(1),
-    );
-    expect(
+    ).length.equals(1);
+    check(
       doc.xpath(
         "//*[local-name()='x' and '_0'=@*[local-name()='id' and not(namespace-uri()='$url')]]",
       ),
-      hasLength(1),
-    );
-    expect(
+    ).length.equals(1);
+    check(
       doc.xpath(
         "//*[local-name()='x' and '_0'=@*[local-name()='id' and namespace-uri()!='$url']]",
       ),
-      hasLength(1),
-    );
+    ).length.equals(1);
   });
 }

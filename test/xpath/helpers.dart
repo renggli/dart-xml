@@ -1,8 +1,10 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
-import '../utils/matchers.dart';
+import '../utils/checks.dart';
+
+export '../utils/checks.dart';
 
 enum AxisDirection { none, forward, reverse }
 
@@ -18,11 +20,11 @@ void expectXPath(
     variables: variables,
     functions: functions,
   );
-  expect(
-    node!.xpath(expression, configuration: configuration),
-    orderedEquals(matchers.map(isXmlNode)),
-    reason: expression,
-  );
+  final result = node!.xpath(expression, configuration: configuration);
+  check(
+    because: expression,
+    result,
+  ).pairwiseMatches(matchers.toList(), isXmlNode, 'matches xml node');
   // Indexed access works correctly across axis directions.
   if (axisDirection != AxisDirection.none) {
     for (var i = 0; i < matchers.length; i++) {
@@ -30,14 +32,19 @@ void expectXPath(
       final indexedMatcher = axisDirection == AxisDirection.forward
           ? matchers.elementAt(i)
           : matchers.elementAt(matchers.length - i - 1);
-      expect(
-        node.xpath(indexedExpression, configuration: configuration),
-        orderedEquals([isXmlNode(indexedMatcher)]),
-        reason: indexedExpression,
+      final indexedResult = node.xpath(
+        indexedExpression,
+        configuration: configuration,
       );
+      check(
+        because: indexedExpression,
+        indexedResult,
+      ).pairwiseMatches([indexedMatcher], isXmlNode, 'matches xml node');
     }
   }
 }
+
+const checkXPath = expectXPath;
 
 void expectEvaluate(
   XmlNode? node,
@@ -50,12 +57,11 @@ void expectEvaluate(
     variables: variables,
     functions: functions,
   );
-  expect(
-    node!.xpathEvaluate(expression, configuration: configuration),
-    isXPathSequence(matcher),
-    reason: expression,
-  );
+  final result = node!.xpathEvaluate(expression, configuration: configuration);
+  check(because: expression, result).isXPathSequence(matcher);
 }
+
+const checkEvaluate = expectEvaluate;
 
 XPathSequence seq(Object? value) {
   if (value == null) return XPathSequence.empty;

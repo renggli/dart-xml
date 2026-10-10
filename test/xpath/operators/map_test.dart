@@ -1,35 +1,33 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/operators/map.dart';
 import 'package:xml/xpath.dart';
 
 void main() {
   group('opSameKey', () {
     test('same string', () {
-      expect(
+      check(
         opSameKey(
           const XPathSequence.single(XPathString('a')),
           const XPathSequence.single(XPathString('a')),
         ),
-        XPathSequence.trueSequence,
-      );
+      ).equals(XPathSequence.trueSequence);
     });
     test('same NaN', () {
-      expect(
+      check(
         opSameKey(
           const XPathSequence.single(XPathDouble(double.nan)),
           const XPathSequence.single(XPathDouble(double.nan)),
         ),
-        XPathSequence.trueSequence,
-      );
+      ).equals(XPathSequence.trueSequence);
     });
     test('different string', () {
-      expect(
+      check(
         opSameKey(
           const XPathSequence.single(XPathString('a')),
           const XPathSequence.single(XPathString('b')),
         ),
-        XPathSequence.falseSequence,
-      );
+      ).equals(XPathSequence.falseSequence);
     });
   });
 }

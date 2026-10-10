@@ -1,11 +1,11 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/functions/constructors.dart';
 import 'package:xml/src/xpath/functions/sequence.dart';
 import 'package:xml/src/xpath/functions/uri.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
@@ -14,422 +14,371 @@ final context = const XPathConfiguration.raw().context(document);
 void main() {
   group('fn:empty', () {
     test('returns true for empty sequence', () {
-      expect(fnEmpty(context, [XPathSequence.empty]), isXPathSequence([true]));
+      check(fnEmpty(context, [XPathSequence.empty])).isXPathSequence([true]);
     });
 
     test('returns false for non-empty sequence', () {
-      expect(fnEmpty(context, [seq(1)]), isXPathSequence([false]));
+      check(fnEmpty(context, [seq(1)])).isXPathSequence([false]);
     });
   });
 
   group('fn:exists', () {
     test('returns false for empty sequence', () {
-      expect(
-        fnExists(context, [XPathSequence.empty]),
-        isXPathSequence([false]),
-      );
+      check(fnExists(context, [XPathSequence.empty])).isXPathSequence([false]);
     });
 
     test('returns true for non-empty sequence', () {
-      expect(fnExists(context, [seq(1)]), isXPathSequence([true]));
+      check(fnExists(context, [seq(1)])).isXPathSequence([true]);
     });
   });
 
   group('fn:head', () {
     test('returns empty for empty sequence', () {
-      expect(fnHead(context, [XPathSequence.empty]), isXPathSequence(isEmpty));
+      check(fnHead(context, [XPathSequence.empty])).isXPathSequence(isEmpty);
     });
 
     test('returns first item', () {
-      expect(
+      check(
         fnHead(context, [
           seq([1, 2, 3]),
         ]),
-        isXPathSequence([1]),
-      );
+      ).isXPathSequence([1]);
     });
   });
 
   group('fn:tail', () {
     test('returns empty for empty sequence', () {
-      expect(fnTail(context, [XPathSequence.empty]), isXPathSequence(isEmpty));
+      check(fnTail(context, [XPathSequence.empty])).isXPathSequence(isEmpty);
     });
 
     test('returns empty for single item sequence', () {
-      expect(
+      check(
         fnTail(context, [
           seq([1]),
         ]),
-        isXPathSequence(isEmpty),
-      );
+      ).isXPathSequence(isEmpty);
     });
 
     test('returns remaining items', () {
-      expect(
+      check(
         fnTail(context, [
           seq([1, 2, 3]),
         ]),
-        isXPathSequence([2, 3]),
-      );
+      ).isXPathSequence([2, 3]);
     });
   });
 
   group('fn:insert-before', () {
     test('inserts at beginning', () {
-      expect(
+      check(
         fnInsertBefore(context, [
           seq([1, 2]),
           seq(1),
           seq(0),
         ]),
-        isXPathSequence([0, 1, 2]),
-      );
+      ).isXPathSequence([0, 1, 2]);
     });
 
     test('inserts in middle', () {
-      expect(
+      check(
         fnInsertBefore(context, [
           seq([1, 2]),
           seq(2),
           seq(0),
         ]),
-        isXPathSequence([1, 0, 2]),
-      );
+      ).isXPathSequence([1, 0, 2]);
     });
 
     test('inserts at end', () {
-      expect(
+      check(
         fnInsertBefore(context, [
           seq([1, 2]),
           seq(3),
           seq(0),
         ]),
-        isXPathSequence([1, 2, 0]),
-      );
+      ).isXPathSequence([1, 2, 0]);
     });
 
     test('handles zero index', () {
-      expect(
+      check(
         fnInsertBefore(context, [
           seq([1, 2]),
           seq(0),
           seq(0),
         ]),
-        isXPathSequence([0, 1, 2]),
-      );
+      ).isXPathSequence([0, 1, 2]);
     });
 
     test('handles out of bounds index', () {
-      expect(
+      check(
         fnInsertBefore(context, [
           seq([1, 2]),
           seq(10),
           seq(0),
         ]),
-        isXPathSequence([1, 2, 0]),
-      );
+      ).isXPathSequence([1, 2, 0]);
     });
   });
 
   group('fn:remove', () {
     test('removes item at index', () {
-      expect(
+      check(
         fnRemove(context, [
           seq([1, 2, 3]),
           seq(2),
         ]),
-        isXPathSequence([1, 3]),
-      );
+      ).isXPathSequence([1, 3]);
     });
 
     test('handles zero index', () {
-      expect(
+      check(
         fnRemove(context, [
           seq([1, 2, 3]),
           seq(0),
         ]),
-        isXPathSequence([1, 2, 3]),
-      );
+      ).isXPathSequence([1, 2, 3]);
     });
 
     test('handles out of bounds index', () {
-      expect(
+      check(
         fnRemove(context, [
           seq([1, 2, 3]),
           seq(4),
         ]),
-        isXPathSequence([1, 2, 3]),
-      );
+      ).isXPathSequence([1, 2, 3]);
     });
   });
 
   group('fn:reverse', () {
     test('reverses sequence', () {
-      expect(
+      check(
         fnReverse(context, [
           seq([1, 2, 3]),
         ]),
-        isXPathSequence([3, 2, 1]),
-      );
+      ).isXPathSequence([3, 2, 1]);
     });
 
     test('handles empty sequence', () {
-      expect(
-        fnReverse(context, [XPathSequence.empty]),
-        isXPathSequence(XPathSequence.empty),
-      );
+      check(fnReverse(context, [XPathSequence.empty]))
+          .isXPathSequence(XPathSequence.empty);
     });
   });
 
   group('fn:subsequence', () {
     test('returns remaining items from starting position', () {
-      expect(
+      check(
         fnSubsequence(context, [
           seq([1, 2, 3, 4, 5]),
           seq(2),
         ]),
-        isXPathSequence([2, 3, 4, 5]),
-      );
+      ).isXPathSequence([2, 3, 4, 5]);
     });
 
     test('returns items within length limit', () {
-      expect(
+      check(
         fnSubsequence(context, [
           seq([1, 2, 3, 4, 5]),
           seq(2),
           seq(2),
         ]),
-        isXPathSequence([2, 3]),
-      );
+      ).isXPathSequence([2, 3]);
     });
 
     test('handles zero starting position', () {
-      expect(
+      check(
         fnSubsequence(context, [
           seq([1, 2, 3, 4, 5]),
           seq(0),
           seq(2),
         ]),
-        isXPathSequence([1]),
-      );
+      ).isXPathSequence([1]);
     });
 
     test('handles negative starting position', () {
-      expect(
+      check(
         fnSubsequence(context, [
           seq([1, 2, 3, 4, 5]),
           seq(-1),
           seq(3),
         ]),
-        isXPathSequence([1]),
-      );
+      ).isXPathSequence([1]);
     });
   });
 
   group('fn:unordered', () {
     test('returns sequence unchanged', () {
       final sequence = seq([1, 2, 3]);
-      expect(fnUnordered(context, [sequence]), isXPathSequence(sequence));
+      check(fnUnordered(context, [sequence])).isXPathSequence(sequence);
     });
   });
 
   group('fn:format-integer', () {
     test('formats integer', () {
-      expect(
-        fnFormatInteger(context, [seq(123), seq('#')]),
-        isXPathSequence(['123']),
-      );
-      expect(
-        fnFormatInteger(context, [seq(123), seq('#'), seq('en')]),
-        isXPathSequence(['123']),
-      );
+      check(fnFormatInteger(context, [seq(123), seq('#')]))
+          .isXPathSequence(['123']);
+      check(fnFormatInteger(context, [seq(123), seq('#'), seq('en')]))
+          .isXPathSequence(['123']);
     });
 
     test('returns empty for empty sequence', () {
-      expect(
-        fnFormatInteger(context, [XPathSequence.empty, seq('#')]),
-        isXPathSequence(isEmpty),
-      );
-      expect(
+      check(fnFormatInteger(context, [XPathSequence.empty, seq('#')]))
+          .isXPathSequence(isEmpty);
+      check(
         fnFormatInteger(context, [XPathSequence.empty, seq('#'), seq('en')]),
-        isXPathSequence(isEmpty),
-      );
+      ).isXPathSequence(isEmpty);
     });
   });
 
   group('fn:format-number', () {
     test('formats number', () {
-      expect(
-        fnFormatNumber(context, [seq(123.45), seq('#')]),
-        isXPathSequence(['123.45']),
-      );
-      expect(
-        fnFormatNumber(context, [seq(123.45), seq('#'), seq('df')]),
-        isXPathSequence(['123.45']),
-      );
+      check(fnFormatNumber(context, [seq(123.45), seq('#')]))
+          .isXPathSequence(['123.45']);
+      check(fnFormatNumber(context, [seq(123.45), seq('#'), seq('df')]))
+          .isXPathSequence(['123.45']);
     });
 
     test('returns empty for empty sequence', () {
-      expect(
-        fnFormatNumber(context, [XPathSequence.empty, seq('#')]),
-        isXPathSequence(isEmpty),
-      );
-      expect(
-        fnFormatNumber(context, [XPathSequence.empty, seq('#'), seq('df')]),
-        isXPathSequence(isEmpty),
-      );
+      check(fnFormatNumber(context, [XPathSequence.empty, seq('#')]))
+          .isXPathSequence(isEmpty);
+      check(fnFormatNumber(context, [XPathSequence.empty, seq('#'), seq('df')]))
+          .isXPathSequence(isEmpty);
     });
   });
 
   group('fn:zero-or-one', () {
     test('returns empty for empty sequence', () {
-      expect(
-        fnZeroOrOne(context, [XPathSequence.empty]),
-        isXPathSequence(isEmpty),
-      );
+      check(fnZeroOrOne(context, [XPathSequence.empty]))
+          .isXPathSequence(isEmpty);
     });
 
     test('returns item for single item sequence', () {
-      expect(fnZeroOrOne(context, [seq(1)]), isXPathSequence([1]));
+      check(fnZeroOrOne(context, [seq(1)])).isXPathSequence([1]);
     });
 
     test('throws for multiple items', () {
-      expect(
+      check(
         () => fnZeroOrOne(context, [
           seq([1, 2]),
         ]),
-        throwsA(isXPathEvaluationException()),
-      );
+      ).throws<XPathEvaluationException>().which(isXPathEvaluationException());
     });
   });
 
   group('fn:one-or-more', () {
     test('returns sequence with items', () {
-      expect(fnOneOrMore(context, [seq(1)]), isXPathSequence([1]));
+      check(fnOneOrMore(context, [seq(1)])).isXPathSequence([1]);
     });
 
     test('throws for empty sequence', () {
-      expect(
-        () => fnOneOrMore(context, [XPathSequence.empty]),
-        throwsA(isXPathEvaluationException()),
-      );
+      check(() => fnOneOrMore(context, [XPathSequence.empty]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
     });
   });
 
   group('fn:exactly-one', () {
     test('returns single item sequence', () {
-      expect(fnExactlyOne(context, [seq(1)]), isXPathSequence([1]));
+      check(fnExactlyOne(context, [seq(1)])).isXPathSequence([1]);
     });
 
     test('throws for empty sequence', () {
-      expect(
-        () => fnExactlyOne(context, [XPathSequence.empty]),
-        throwsA(isXPathEvaluationException()),
-      );
+      check(() => fnExactlyOne(context, [XPathSequence.empty]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
     });
 
     test('throws for multiple items', () {
-      expect(
+      check(
         () => fnExactlyOne(context, [
           seq([1, 2]),
         ]),
-        throwsA(isXPathEvaluationException()),
-      );
+      ).throws<XPathEvaluationException>().which(isXPathEvaluationException());
     });
   });
 
   group('fn:distinct-values', () {
     test('returns unique values', () {
-      expect(
+      check(
         fnDistinctValues(context, [
           seq([1, 2, 1, 3, 2]),
         ]),
-        isXPathSequence([1, 2, 3]),
-      );
+      ).isXPathSequence([1, 2, 3]);
     });
 
     test('accepts collation argument', () {
-      expect(
+      check(
         fnDistinctValues(context, [
           seq(['a', 'b', 'a']),
           seq('http://www.w3.org/2005/xpath-functions/collation/codepoint'),
         ]),
-        isXPathSequence(['a', 'b']),
-      );
+      ).isXPathSequence(['a', 'b']);
     });
   });
 
   group('fn:index-of', () {
     test('returns indices of item', () {
-      expect(
+      check(
         fnIndexOf(context, [
           seq([1, 2, 1, 3]),
           seq(1),
         ]),
-        isXPathSequence([1, 3]),
-      );
+      ).isXPathSequence([1, 3]);
     });
 
     test('returns empty if item not found', () {
-      expect(
+      check(
         fnIndexOf(context, [
           seq([1, 2, 3]),
           seq(4),
         ]),
-        XPathSequence.empty,
-      );
+      ).equals(XPathSequence.empty);
     });
 
     test('accepts collation argument', () {
-      expect(
+      check(
         fnIndexOf(context, [
           seq(['a', 'b', 'a']),
           seq('a'),
           seq('http://www.w3.org/2005/xpath-functions/collation/codepoint'),
         ]),
-        isXPathSequence([1, 3]),
-      );
+      ).isXPathSequence([1, 3]);
     });
 
     test('returns empty if search target is empty', () {
-      expect(
+      check(
         fnIndexOf(context, [
           seq([1, 2, 3]),
           XPathSequence.empty,
         ]),
-        XPathSequence.empty,
-      );
-      expect(
+      ).equals(XPathSequence.empty);
+      check(
         fnIndexOf(context, [
           seq([1, 2, 3]),
           XPathSequence.empty,
           seq('collation'),
         ]),
-        XPathSequence.empty,
-      );
+      ).equals(XPathSequence.empty);
     });
   });
 
   group('fn:deep-equal', () {
     test('returns true for same items', () {
-      expect(
+      check(
         fnDeepEqual(context, [
           seq([1, 2]),
           seq([1, 2]),
         ]),
-        isXPathSequence(XPathSequence.trueSequence),
-      );
+      ).isXPathSequence(XPathSequence.trueSequence);
     });
 
     test('accepts collation argument', () {
-      expect(
+      check(
         fnDeepEqual(context, [
           seq(['a']),
           seq(['a']),
           seq('collation'),
         ]),
-        isXPathSequence([true]),
-      );
+      ).isXPathSequence([true]);
     });
 
     test('XPathArray deep-equal comparison', () {
@@ -440,112 +389,98 @@ void main() {
         XPathSequence.single(XPathInteger.fromInt(1)),
         XPathSequence.single(XPathInteger.fromInt(2)),
       ]);
-      expect(
+      check(
         fnDeepEqual(context, [
           XPathSequence.single(arr1),
           XPathSequence.single(arr2),
         ]),
-        isXPathSequence([true]),
-      );
-      expect(
+      ).isXPathSequence([true]);
+      check(
         fnDeepEqual(context, [
           XPathSequence.single(arr1),
           XPathSequence.single(arr3),
         ]),
-        isXPathSequence([false]),
-      );
-      expect(
+      ).isXPathSequence([false]);
+      check(
         fnDeepEqual(context, [
           XPathSequence.single(arr1),
           XPathSequence.single(arrDiffLen),
         ]),
-        isXPathSequence([false]),
-      );
+      ).isXPathSequence([false]);
     });
     test('returns false for different items', () {
-      expect(
+      check(
         fnDeepEqual(context, [
           seq([1, 2]),
           seq([1, 3]),
         ]),
-        isXPathSequence([false]),
-      );
+      ).isXPathSequence([false]);
     });
     test('returns false for different length', () {
-      expect(
+      check(
         fnDeepEqual(context, [
           seq([1, 2]),
           seq([1, 2, 3]),
         ]),
-        isXPathSequence([false]),
-      );
+      ).isXPathSequence([false]);
     });
     test('lists and maps comparison', () {
-      expect(
+      check(
         fnDeepEqual(context, [
           seq([1, 2]),
           seq([1, 2]),
         ]),
-        isXPathSequence([true]),
-      );
-      expect(
+      ).isXPathSequence([true]);
+      check(
         fnDeepEqual(context, [
           seq([1, 2]),
           seq([1, 3]),
         ]),
-        isXPathSequence([false]),
-      );
-      expect(
+      ).isXPathSequence([false]);
+      check(
         fnDeepEqual(context, [
           seq([1, 2]),
           seq([1, 2, 3]),
         ]),
-        isXPathSequence([false]),
-      );
-      expect(
+      ).isXPathSequence([false]);
+      check(
         fnDeepEqual(context, [
           seq({'a': 1}),
           seq({'a': 1}),
         ]),
-        isXPathSequence([true]),
-      );
-      expect(
+      ).isXPathSequence([true]);
+      check(
         fnDeepEqual(context, [
           seq({'a': 1}),
           seq({'a': 2}),
         ]),
-        isXPathSequence([false]),
-      );
-      expect(
+      ).isXPathSequence([false]);
+      check(
         fnDeepEqual(context, [
           seq({'a': 1}),
           seq({'b': 1}),
         ]),
-        isXPathSequence([false]),
-      );
-      expect(
+      ).isXPathSequence([false]);
+      check(
         fnDeepEqual(context, [
           seq({'a': 1}),
           seq({'a': 1, 'b': 2}),
         ]),
-        isXPathSequence([false]),
-      );
+      ).isXPathSequence([false]);
     });
     test('NaN values are equal per IEEE 754 rule', () {
-      expect(
+      check(
         fnDeepEqual(context, [
           seq([double.nan]),
           seq([double.nan]),
         ]),
-        isXPathSequence([true]),
-      );
-      expect(
+      ).isXPathSequence([true]);
+      check(
         fnDeepEqual(context, [
           seq({'a': double.nan}),
           seq({'a': double.nan}),
         ]),
-        isXPathSequence([true]),
-      );
+      ).isXPathSequence([true]);
     });
     test('XmlNodes comparison', () {
       final doc1 = XmlDocument.parse('<r a="1">text</r>');
@@ -553,59 +488,51 @@ void main() {
       final doc3 = XmlDocument.parse('<r a="2">text</r>');
       final doc4 = XmlDocument.parse('<r a="1">other</r>');
       final doc5 = XmlDocument.parse('<diff>text</diff>');
-      expect(
+      check(
         fnDeepEqual(context, [seq(doc1.rootElement), seq(doc2.rootElement)]),
-        isXPathSequence([true]),
-      );
-      expect(
+      ).isXPathSequence([true]);
+      check(
         fnDeepEqual(context, [seq(doc1.rootElement), seq(doc3.rootElement)]),
-        isXPathSequence([false]),
-      );
-      expect(
+      ).isXPathSequence([false]);
+      check(
         fnDeepEqual(context, [seq(doc1.rootElement), seq(doc4.rootElement)]),
-        isXPathSequence([false]),
-      );
-      expect(
+      ).isXPathSequence([false]);
+      check(
         fnDeepEqual(context, [seq(doc1.rootElement), seq(doc5.rootElement)]),
-        isXPathSequence([false]),
-      );
-      expect(
+      ).isXPathSequence([false]);
+      check(
         fnDeepEqual(context, [
           seq(doc1.rootElement.attributes.first),
           seq(doc2.rootElement.attributes.first),
         ]),
-        isXPathSequence([true]),
-      );
-      expect(
+      ).isXPathSequence([true]);
+      check(
         fnDeepEqual(context, [
           seq(doc1.rootElement.attributes.first),
           seq(doc3.rootElement.attributes.first),
         ]),
-        isXPathSequence([false]),
-      );
+      ).isXPathSequence([false]);
     });
     test('functions throw exception', () {
-      expect(
-        () => fnDeepEqual(context, [
-          seq(xsNumericConstructor),
-          seq(xsNumericConstructor),
-        ]),
-        throwsA(
-          isXPathEvaluationException(message: contains('Cannot compare')),
-        ),
-      );
+      check(
+            () => fnDeepEqual(context, [
+              seq(xsNumericConstructor),
+              seq(xsNumericConstructor),
+            ]),
+          )
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException(message: 'Cannot compare'));
     });
   });
 
   group('fn:count', () {
     test('returns item count', () {
-      expect(fnCount(context, [XPathSequence.empty]), isXPathSequence([0]));
-      expect(
+      check(fnCount(context, [XPathSequence.empty])).isXPathSequence([0]);
+      check(
         fnCount(context, [
           seq([1, 2, 3]),
         ]),
-        isXPathSequence([3]),
-      );
+      ).isXPathSequence([3]);
     });
 
     test('integration via xpathEvaluate', () {
@@ -616,94 +543,84 @@ void main() {
 
   group('fn:avg', () {
     test('returns average', () {
-      expect(
+      check(
         fnAvg(context, [
           seq([1, 2, 3]),
         ]),
-        isXPathSequence([2.0]),
-      );
+      ).isXPathSequence([2.0]);
     });
 
     test('returns empty for empty sequence', () {
-      expect(fnAvg(context, [XPathSequence.empty]), isXPathSequence(isEmpty));
+      check(fnAvg(context, [XPathSequence.empty])).isXPathSequence(isEmpty);
     });
 
     test('returns average of yearMonthDurations', () {
       const d1 = XPathDuration.yearMonth(14); // P1Y2M
       const d2 = XPathDuration.yearMonth(10); // P10M
       // Average: 12 months (P1Y)
-      expect(
+      check(
         fnAvg(context, [
           seq([d1, d2]),
         ]),
-        isXPathSequence([const XPathDuration.yearMonth(12)]),
-      );
+      ).isXPathSequence([const XPathDuration.yearMonth(12)]);
     });
 
     test('returns average of dayTimeDurations with round-half-to-even', () {
       const d1 = XPathDuration.dayTime(86400000000); // 24 hours
       const d2 = XPathDuration.dayTime(7200000000); // 2 hours
       // Average: 13 hours
-      expect(
+      check(
         fnAvg(context, [
           seq([d1, d2]),
         ]),
-        isXPathSequence([const XPathDuration.dayTime(46800000000)]),
-      );
+      ).isXPathSequence([const XPathDuration.dayTime(46800000000)]);
 
       // Testing round-half-to-even:
       // 5 months / 2 = 2.5 months. Round half-to-even -> 2 months.
-      expect(
+      check(
         fnAvg(context, [
           seq([
             const XPathDuration.yearMonth(5),
             const XPathDuration.yearMonth(0),
           ]),
         ]),
-        isXPathSequence([const XPathDuration.yearMonth(2)]),
-      );
+      ).isXPathSequence([const XPathDuration.yearMonth(2)]);
       // 7 months / 2 = 3.5 months. Round half-to-even -> 4 months.
-      expect(
+      check(
         fnAvg(context, [
           seq([
             const XPathDuration.yearMonth(7),
             const XPathDuration.yearMonth(0),
           ]),
         ]),
-        isXPathSequence([const XPathDuration.yearMonth(4)]),
-      );
+      ).isXPathSequence([const XPathDuration.yearMonth(4)]);
     });
 
     test('throws error for mixed sequence or invalid types', () {
-      expect(
+      check(
         () => fnAvg(context, [
           seq([1, const XPathDuration.dayTime(86400000000)]),
         ]),
-        throwsA(isXPathEvaluationException()),
-      );
-      expect(
+      ).throws<XPathEvaluationException>().which(isXPathEvaluationException());
+      check(
         () => fnAvg(context, [
           seq([
             const XPathDuration.yearMonth(1),
             const XPathDuration.dayTime(86400000000),
           ]),
         ]),
-        throwsA(isXPathEvaluationException()),
-      );
-      expect(
-        () => fnAvg(context, [seq('not a number')]),
-        throwsA(isXPathEvaluationException()),
-      );
-      expect(
+      ).throws<XPathEvaluationException>().which(isXPathEvaluationException());
+      check(() => fnAvg(context, [seq('not a number')]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
+      check(
         () => fnAvg(context, [seq(const XPathDuration(months: 1, days: 1))]),
-        throwsA(isXPathEvaluationException()),
-      );
-      expect(
+      ).throws<XPathEvaluationException>().which(isXPathEvaluationException());
+      check(
         () => fnAvg(context, [
           const XPathSequence.single(XPathUntypedAtomic('invalid')),
         ]),
-        throwsA(isXPathEvaluationException()),
-      );
+      ).throws<XPathEvaluationException>().which(isXPathEvaluationException());
     });
 
     test('integration via xpathEvaluate', () {
@@ -714,41 +631,37 @@ void main() {
 
   group('fn:max', () {
     test('returns maximum for numbers', () {
-      expect(
+      check(
         fnMax(context, [
           seq([1, 3, 2]),
         ]),
-        isXPathSequence([3]),
-      );
+      ).isXPathSequence([3]);
     });
 
     test('accepts collation argument', () {
-      expect(
+      check(
         fnMax(context, [
           seq(['a', 'c', 'b']),
           seq('http://www.w3.org/2005/xpath-functions/collation/codepoint'),
         ]),
-        isXPathSequence(['c']),
-      );
+      ).isXPathSequence(['c']);
     });
 
     test('throws for invalid untypedAtomic and mixed types', () {
-      expect(
+      check(
         () => fnMax(context, [
           const XPathSequence.single(XPathUntypedAtomic('not-a-number')),
         ]),
-        throwsA(isXPathEvaluationException()),
-      );
-      expect(
+      ).throws<XPathEvaluationException>().which(isXPathEvaluationException());
+      check(
         () => fnMax(context, [
           seq([1, 'a']),
         ]),
-        throwsA(isXPathEvaluationException()),
-      );
+      ).throws<XPathEvaluationException>().which(isXPathEvaluationException());
     });
 
     test('returns maximum for dates', () {
-      expect(
+      check(
         fnMax(context, [
           seq([
             DateTime.utc(2022, 1, 1),
@@ -756,21 +669,19 @@ void main() {
             DateTime.utc(2022, 1, 2),
           ]),
         ]),
-        isXPathSequence([DateTime.utc(2022, 1, 3)]),
-      );
+      ).isXPathSequence([DateTime.utc(2022, 1, 3)]);
     });
 
     test('returns maximum for strings', () {
-      expect(
+      check(
         fnMax(context, [
           seq(['a', 'c', 'b']),
         ]),
-        isXPathSequence(['c']),
-      );
+      ).isXPathSequence(['c']);
     });
 
     test('returns maximum for durations', () {
-      expect(
+      check(
         fnMax(context, [
           seq([
             const XPathDuration.dayTime(86400000000),
@@ -778,27 +689,24 @@ void main() {
             const XPathDuration.dayTime(172800000000),
           ]),
         ]),
-        isXPathSequence([const XPathDuration.dayTime(259200000000)]),
-      );
+      ).isXPathSequence([const XPathDuration.dayTime(259200000000)]);
     });
 
     test('handles NaN', () {
-      expect(
+      check(
         fnMax(context, [
           seq([double.nan, 1.0, 2.0]),
         ]),
-        isXPathSequence([isNaN]),
-      );
-      expect(
+      ).isXPathSequence([isNaN]);
+      check(
         fnMax(context, [
           seq([1.0, double.nan, 2.0]),
         ]),
-        isXPathSequence([isNaN]),
-      );
+      ).isXPathSequence([isNaN]);
     });
 
     test('returns empty for empty sequence', () {
-      expect(fnMax(context, [XPathSequence.empty]), isXPathSequence(isEmpty));
+      check(fnMax(context, [XPathSequence.empty])).isXPathSequence(isEmpty);
     });
 
     test('integration via xpathEvaluate', () {
@@ -809,26 +717,24 @@ void main() {
 
   group('fn:min', () {
     test('returns minimum for numbers', () {
-      expect(
+      check(
         fnMin(context, [
           seq([3, 1, 2]),
         ]),
-        isXPathSequence([1]),
-      );
+      ).isXPathSequence([1]);
     });
 
     test('accepts collation argument', () {
-      expect(
+      check(
         fnMin(context, [
           seq(['c', 'a', 'b']),
           seq('http://www.w3.org/2005/xpath-functions/collation/codepoint'),
         ]),
-        isXPathSequence(['a']),
-      );
+      ).isXPathSequence(['a']);
     });
 
     test('returns minimum for dates', () {
-      expect(
+      check(
         fnMin(context, [
           seq([
             DateTime.utc(2022, 1, 3),
@@ -836,21 +742,19 @@ void main() {
             DateTime.utc(2022, 1, 2),
           ]),
         ]),
-        isXPathSequence([DateTime.utc(2022, 1, 1)]),
-      );
+      ).isXPathSequence([DateTime.utc(2022, 1, 1)]);
     });
 
     test('returns minimum for strings', () {
-      expect(
+      check(
         fnMin(context, [
           seq(['c', 'a', 'b']),
         ]),
-        isXPathSequence(['a']),
-      );
+      ).isXPathSequence(['a']);
     });
 
     test('returns minimum for durations', () {
-      expect(
+      check(
         fnMin(context, [
           seq([
             const XPathDuration.dayTime(259200000000),
@@ -858,27 +762,24 @@ void main() {
             const XPathDuration.dayTime(172800000000),
           ]),
         ]),
-        isXPathSequence([const XPathDuration.dayTime(86400000000)]),
-      );
+      ).isXPathSequence([const XPathDuration.dayTime(86400000000)]);
     });
 
     test('handles NaN', () {
-      expect(
+      check(
         fnMin(context, [
           seq([double.nan, 1.0, 2.0]),
         ]),
-        isXPathSequence([isNaN]),
-      );
-      expect(
+      ).isXPathSequence([isNaN]);
+      check(
         fnMin(context, [
           seq([1.0, double.nan, 2.0]),
         ]),
-        isXPathSequence([isNaN]),
-      );
+      ).isXPathSequence([isNaN]);
     });
 
     test('returns empty for empty sequence', () {
-      expect(fnMin(context, [XPathSequence.empty]), isXPathSequence(isEmpty));
+      check(fnMin(context, [XPathSequence.empty])).isXPathSequence(isEmpty);
     });
 
     test('integration via xpathEvaluate', () {
@@ -889,21 +790,16 @@ void main() {
 
   group('fn:sum', () {
     test('returns sum of numbers', () {
-      expect(fnSum(context, [XPathSequence.empty]), isXPathSequence([0]));
-      expect(
-        fnSum(context, [XPathSequence.empty, seq(42)]),
-        isXPathSequence([42]),
-      );
-      expect(
-        fnSum(context, [XPathSequence.empty, XPathSequence.empty]),
-        isXPathSequence(isEmpty),
-      );
-      expect(
+      check(fnSum(context, [XPathSequence.empty])).isXPathSequence([0]);
+      check(fnSum(context, [XPathSequence.empty, seq(42)]))
+          .isXPathSequence([42]);
+      check(fnSum(context, [XPathSequence.empty, XPathSequence.empty]))
+          .isXPathSequence(isEmpty);
+      check(
         fnSum(context, [
           seq([1, 2, 3]),
         ]),
-        isXPathSequence([6.0]),
-      );
+      ).isXPathSequence([6.0]);
     });
 
     test('returns sum of durations', () {
@@ -911,49 +807,43 @@ void main() {
       const d2 = XPathDuration.dayTime(172800000000);
       const d3 = XPathDuration.dayTime(259200000000);
       const sum = XPathDuration.dayTime(518400000000);
-      expect(
+      check(
         fnSum(context, [
           seq([d1, d2, d3]),
         ]),
-        isXPathSequence([sum]),
-      );
+      ).isXPathSequence([sum]);
     });
 
     test('returns sum of yearMonthDurations', () {
       const d1 = XPathDuration.yearMonth(12); // P1Y
       const d2 = XPathDuration.yearMonth(10); // P10M
-      expect(
+      check(
         fnSum(context, [
           seq([d1, d2]),
         ]),
-        isXPathSequence([const XPathDuration.yearMonth(22)]),
-      );
+      ).isXPathSequence([const XPathDuration.yearMonth(22)]);
     });
 
     test('throws error for mixed sequence or invalid types', () {
-      expect(
+      check(
         () => fnSum(context, [
           seq([1, const XPathDuration.dayTime(86400000000)]),
         ]),
-        throwsA(isXPathEvaluationException()),
-      );
-      expect(
+      ).throws<XPathEvaluationException>().which(isXPathEvaluationException());
+      check(
         () => fnSum(context, [
           seq([
             const XPathDuration.yearMonth(1),
             const XPathDuration.dayTime(86400000000),
           ]),
         ]),
-        throwsA(isXPathEvaluationException()),
-      );
-      expect(
-        () => fnSum(context, [seq('not a number')]),
-        throwsA(isXPathEvaluationException()),
-      );
-      expect(
+      ).throws<XPathEvaluationException>().which(isXPathEvaluationException());
+      check(() => fnSum(context, [seq('not a number')]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
+      check(
         () => fnSum(context, [seq(const XPathDuration(months: 1, days: 1))]),
-        throwsA(isXPathEvaluationException()),
-      );
+      ).throws<XPathEvaluationException>().which(isXPathEvaluationException());
     });
 
     test('integration via xpathEvaluate', () {
@@ -963,45 +853,36 @@ void main() {
     test('atomization of XmlNode, Map, Function', () {
       final xmlNum = XmlDocument.parse('<r>42</r>');
       final xmlNotNum = XmlDocument.parse('<r>not a number</r>');
-      expect(
-        fnSum(context, [seq(xmlNum.rootElement)]),
-        isXPathSequence([42.0]),
-      );
-      expect(
-        () => fnSum(context, [seq(xmlNotNum.rootElement)]),
-        throwsA(
-          isXPathEvaluationException(
-            message: contains('Cannot cast untypedAtomic'),
-          ),
-        ),
-      );
-      expect(
-        () => fnSum(context, [
-          seq({'key': 'value'}),
-        ]),
-        throwsA(
-          isXPathEvaluationException(message: contains('Cannot atomize')),
-        ),
-      );
-      expect(
-        () => fnSum(context, [seq(xsNumericConstructor)]),
-        throwsA(
-          isXPathEvaluationException(message: contains('Cannot atomize')),
-        ),
-      );
+      check(fnSum(context, [seq(xmlNum.rootElement)])).isXPathSequence([42.0]);
+      check(() => fnSum(context, [seq(xmlNotNum.rootElement)]))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(message: 'Cannot cast untypedAtomic'),
+          );
+      check(
+            () => fnSum(context, [
+              seq({'key': 'value'}),
+            ]),
+          )
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException(message: 'Cannot atomize'));
+      check(() => fnSum(context, [seq(xsNumericConstructor)]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException(message: 'Cannot atomize'));
     });
   });
 
   group('fn:doc', () {
     test('throws for missing document', () {
-      expect(
-        () => fnDoc(context, [seq('uri')]),
-        throwsA(isXPathEvaluationException(message: 'Document not found: uri')),
-      );
+      check(() => fnDoc(context, [seq('uri')]))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(message: 'Document not found: uri'),
+          );
     });
 
     test('returns empty for empty sequence', () {
-      expect(fnDoc(context, [XPathSequence.empty]), isXPathSequence(isEmpty));
+      check(fnDoc(context, [XPathSequence.empty])).isXPathSequence(isEmpty);
     });
 
     test('returns document when registered', () {
@@ -1010,23 +891,19 @@ void main() {
           .copy(documents: {'http://example.com/doc': doc})
           .context(context.item)
           .copy(variables: context.variables);
-      expect(
-        fnDoc(contextWithDoc, [seq('http://example.com/doc')]),
-        isXPathSequence([doc]),
-      );
+      check(fnDoc(contextWithDoc, [seq('http://example.com/doc')]))
+          .isXPathSequence([doc]);
     });
   });
 
   group('fn:doc-available', () {
     test('returns false if not available', () {
-      expect(fnDocAvailable(context, [seq('uri')]), isXPathSequence([false]));
+      check(fnDocAvailable(context, [seq('uri')])).isXPathSequence([false]);
     });
 
     test('returns false for empty sequence', () {
-      expect(
-        fnDocAvailable(context, [XPathSequence.empty]),
-        isXPathSequence([false]),
-      );
+      check(fnDocAvailable(context, [XPathSequence.empty]))
+          .isXPathSequence([false]);
     });
 
     test('returns true if available', () {
@@ -1035,28 +912,24 @@ void main() {
           .copy(documents: {'http://example.com/doc': doc})
           .context(context.item)
           .copy(variables: context.variables);
-      expect(
-        fnDocAvailable(contextWithDoc, [seq('http://example.com/doc')]),
-        isXPathSequence([true]),
-      );
+      check(fnDocAvailable(contextWithDoc, [seq('http://example.com/doc')]))
+          .isXPathSequence([true]);
     });
   });
 
   group('fn:collection', () {
     test('throws FODC0002 when no default collection', () {
-      expect(
-        () => fnCollection(context, []),
-        throwsA(isXPathEvaluationException(message: contains('FODC0002'))),
-      );
+      check(() => fnCollection(context, []))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException(message: 'FODC0002'));
     });
   });
 
   group('fn:uri-collection', () {
     test('throws FODC0002 when no default collection', () {
-      expect(
-        () => fnUriCollection(context, []),
-        throwsA(isXPathEvaluationException(message: contains('FODC0002'))),
-      );
+      check(() => fnUriCollection(context, []))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException(message: 'FODC0002'));
     });
   });
 }

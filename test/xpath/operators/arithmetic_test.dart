@@ -1,9 +1,9 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/operators/arithmetic.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 XPathSequence intSeq(int val) =>
@@ -14,7 +14,7 @@ void main() {
 
   group('op:numeric-add', () {
     test('numbers', () {
-      expect(opNumericAdd(intSeq(1), intSeq(2)), isXPathSequence([3]));
+      check(opNumericAdd(intSeq(1), intSeq(2))).isXPathSequence([3]);
     });
     test('integration numbers', () {
       expectEvaluate(xml, '1 + 2', [3]);
@@ -45,7 +45,7 @@ void main() {
 
   group('op:numeric-subtract', () {
     test('numbers', () {
-      expect(opNumericSubtract(intSeq(2), intSeq(1)), isXPathSequence([1]));
+      check(opNumericSubtract(intSeq(2), intSeq(1))).isXPathSequence([1]);
     });
     test('integration numbers', () {
       expectEvaluate(xml, '1 - 2', [-1]);
@@ -76,7 +76,7 @@ void main() {
 
   group('op:numeric-multiply', () {
     test('numbers', () {
-      expect(opNumericMultiply(intSeq(2), intSeq(3)), isXPathSequence([6]));
+      check(opNumericMultiply(intSeq(2), intSeq(3))).isXPathSequence([6]);
     });
     test('integration numbers', () {
       expectEvaluate(xml, '2 * 3', [6]);
@@ -96,7 +96,7 @@ void main() {
 
   group('op:numeric-divide', () {
     test('numbers', () {
-      expect(opNumericDivide(intSeq(6), intSeq(2)), isXPathSequence([3.0]));
+      check(opNumericDivide(intSeq(6), intSeq(2))).isXPathSequence([3.0]);
     });
     test('integration numbers', () {
       expectEvaluate(xml, '6 div 3', [2]);
@@ -118,24 +118,20 @@ void main() {
 
   group('op:numeric-integer-divide', () {
     test('numbers', () {
-      expect(
-        opNumericIntegerDivide(intSeq(6), intSeq(2)),
-        isXPathSequence([3]),
-      );
+      check(opNumericIntegerDivide(intSeq(6), intSeq(2))).isXPathSequence([3]);
     });
     test('integration numbers', () {
       expectEvaluate(xml, '5 idiv 2', [2]);
       expectEvaluate(xml, '8 idiv 2', [4]);
-      expect(
-        () => xml.xpathEvaluate('5 idiv 0'),
-        throwsA(isXPathEvaluationException()),
-      );
+      check(() => xml.xpathEvaluate('5 idiv 0'))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
     });
   });
 
   group('op:numeric-mod', () {
     test('numbers', () {
-      expect(opNumericMod(intSeq(5), intSeq(2)), isXPathSequence([1]));
+      check(opNumericMod(intSeq(5), intSeq(2))).isXPathSequence([1]);
     });
     test('integration numbers', () {
       expectEvaluate(xml, '5 mod 2', [1]);
@@ -143,16 +139,15 @@ void main() {
       expectEvaluate(xml, '-5 mod 3', [-2]);
       expectEvaluate(xml, '5 mod -3', [2]);
       expectEvaluate(xml, '-5 mod -3', [-2]);
-      expect(
-        () => xml.xpathEvaluate('5 mod 0'),
-        throwsA(isXPathEvaluationException()),
-      );
+      check(() => xml.xpathEvaluate('5 mod 0'))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
     });
   });
 
   group('op:numeric-unary-plus', () {
     test('numbers', () {
-      expect(opNumericUnaryPlus(intSeq(1)), isXPathSequence([1]));
+      check(opNumericUnaryPlus(intSeq(1))).isXPathSequence([1]);
     });
     test('integration numbers', () {
       expectEvaluate(xml, '+1', [1]);
@@ -163,7 +158,7 @@ void main() {
 
   group('op:numeric-unary-minus', () {
     test('numbers', () {
-      expect(opNumericUnaryMinus(intSeq(1)), isXPathSequence([-1]));
+      check(opNumericUnaryMinus(intSeq(1))).isXPathSequence([-1]);
     });
     test('integration numbers', () {
       expectEvaluate(xml, '-1', [-1]);
@@ -242,7 +237,7 @@ void main() {
       ]);
     });
     test('empty inputs return empty', () {
-      expect(opAdd(XPathSequence.empty, intSeq(1)), isEmpty);
+      check(opAdd(XPathSequence.empty, intSeq(1))).isEmpty();
     });
   });
 
@@ -289,7 +284,7 @@ void main() {
       );
     });
     test('empty inputs return empty', () {
-      expect(opSubtract(XPathSequence.empty, intSeq(1)), isEmpty);
+      check(opSubtract(XPathSequence.empty, intSeq(1))).isEmpty();
     });
   });
 
@@ -305,7 +300,7 @@ void main() {
       ]);
     });
     test('empty inputs return empty', () {
-      expect(opMultiply(XPathSequence.empty, intSeq(1)), isEmpty);
+      check(opMultiply(XPathSequence.empty, intSeq(1))).isEmpty();
     });
   });
 
@@ -323,36 +318,40 @@ void main() {
       ]);
     });
     test('empty inputs return empty', () {
-      expect(opDivide(XPathSequence.empty, intSeq(1)), isEmpty);
+      check(opDivide(XPathSequence.empty, intSeq(1))).isEmpty();
     });
   });
 
   group('type errors in arithmetic dispatch', () {
     test('non-numeric operands throw XPTY0004 or FORG0001', () {
-      expect(
-        () => opNumericAdd(seq('abc'), intSeq(1)),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
-      expect(
+      check(() => opNumericAdd(seq('abc'), intSeq(1)))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
+      check(
         () => opNumericAdd(
           seq(const XPathUntypedAtomic('not-a-number')),
           intSeq(1),
         ),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORG0001)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.FORG0001),
       );
     });
 
     test('incompatible duration additions and subtractions throw XPTY0004', () {
       final ymd = XPathDuration.tryParseYearMonth('P1Y')!;
       final dtd = XPathDuration.tryParseDayTime('P1D')!;
-      expect(
-        () => opAdd(seq(ymd), seq(dtd)),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
-      expect(
-        () => opSubtract(seq(ymd), seq(dtd)),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
+      check(() => opAdd(seq(ymd), seq(dtd)))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
+      check(() => opSubtract(seq(ymd), seq(dtd)))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
     });
 
     test('incompatible date/time and duration additions throw XPTY0004', () {
@@ -362,36 +361,40 @@ void main() {
       final ymd = XPathDuration.tryParseYearMonth('P1Y')!;
 
       // Cannot add generic xs:duration to xs:date
-      expect(
-        () => opAdd(seq(date), seq(genericDuration)),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
-      expect(
-        () => opSubtract(seq(date), seq(genericDuration)),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
+      check(() => opAdd(seq(date), seq(genericDuration)))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
+      check(() => opSubtract(seq(date), seq(genericDuration)))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
 
       // Cannot add xs:yearMonthDuration to xs:time
-      expect(
-        () => opAdd(seq(time), seq(ymd)),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
-      expect(
-        () => opSubtract(seq(time), seq(ymd)),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
+      check(() => opAdd(seq(time), seq(ymd)))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
+      check(() => opSubtract(seq(time), seq(ymd)))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
     });
 
     test('operand sequence length and array atomization', () {
-      expect(
-        () => opAdd(XPathSequence.from([1, 2]), XPathSequence.from([3])),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
-      expect(
+      check(() => opAdd(XPathSequence.from([1, 2]), XPathSequence.from([3])))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
+      check(
         opAdd(XPathSequence.from([XPathArray.empty]), XPathSequence.from([1])),
-        isEmpty,
-      );
-      expect(
+      ).isEmpty();
+      check(
         opAdd(
           XPathSequence.from([
             XPathArray([
@@ -400,8 +403,7 @@ void main() {
           ]),
           XPathSequence.from([2]),
         ),
-        isXPathSequence([3]),
-      );
+      ).isXPathSequence([3]);
     });
   });
 }

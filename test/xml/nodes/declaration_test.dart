@@ -1,4 +1,5 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/xml.dart';
 
 void main() {
@@ -7,52 +8,52 @@ void main() {
       '<?xml version="1.0" encoding="UTF-8"?><data/>',
     );
     final node = document.declaration!;
-    expect(node.value, 'version="1.0" encoding="UTF-8"');
-    expect(node.version, '1.0');
-    expect(node.encoding, 'UTF-8');
-    expect(node.standalone, isFalse);
-    expect(node.parent, same(document));
-    expect(node.parentElement, isNull);
-    expect(node.root, same(document));
-    expect(node.document, same(document));
-    expect(node.depth, 1);
-    expect(node.attributes, hasLength(2));
-    expect(node.elementAttributes, hasLength(2));
-    expect(node.namespaces, isEmpty);
-    expect(node.children, isEmpty);
-    expect(node.nodeType, XmlNodeType.DECLARATION);
-    expect(node.toString(), '<?xml version="1.0" encoding="UTF-8"?>');
+    check(node.value).equals('version="1.0" encoding="UTF-8"');
+    check(node.version).equals('1.0');
+    check(node.encoding).equals('UTF-8');
+    check(node.standalone).isFalse();
+    check(node.parent).identicalTo(document);
+    check(node.parentElement).isNull();
+    check(node.root).identicalTo(document);
+    check(node.document).identicalTo(document);
+    check(node.depth).equals(1);
+    check(node.attributes).length.equals(2);
+    check(node.elementAttributes).length.equals(2);
+    check(node.namespaces).isEmpty();
+    check(node.children).isEmpty();
+    check(node.nodeType).equals(XmlNodeType.DECLARATION);
+    check(node.toString()).equals('<?xml version="1.0" encoding="UTF-8"?>');
   });
   test('empty', () {
     final document = XmlDocument.parse('<?xml?><data/>');
     final node = document.declaration!;
-    expect(node.value, '');
-    expect(node.version, isNull);
-    expect(node.encoding, isNull);
-    expect(node.standalone, isFalse);
-    expect(node.parent, same(document));
-    expect(node.parentElement, isNull);
-    expect(node.root, same(document));
-    expect(node.document, same(document));
-    expect(node.depth, 1);
-    expect(node.attributes, isEmpty);
-    expect(node.elementAttributes, isEmpty);
-    expect(node.namespaces, isEmpty);
-    expect(node.children, isEmpty);
-    expect(node.nodeType, XmlNodeType.DECLARATION);
-    expect(node.toString(), '<?xml?>');
+    check(node.value).equals('');
+    check(node.version).isNull();
+    check(node.encoding).isNull();
+    check(node.standalone).isFalse();
+    check(node.parent).identicalTo(document);
+    check(node.parentElement).isNull();
+    check(node.root).identicalTo(document);
+    check(node.document).identicalTo(document);
+    check(node.depth).equals(1);
+    check(node.attributes).isEmpty();
+    check(node.elementAttributes).isEmpty();
+    check(node.namespaces).isEmpty();
+    check(node.children).isEmpty();
+    check(node.nodeType).equals(XmlNodeType.DECLARATION);
+    check(node.toString()).equals('<?xml?>');
   });
   test('add attribute', () {
     final document = XmlDocument.parse('<?xml?><data/>');
     final node = document.declaration!;
     node.setAttribute('other', 'value');
-    expect(node.toString(), '<?xml other="value"?>');
+    check(node.toString()).equals('<?xml other="value"?>');
   });
   test('update attribute', () {
     final document = XmlDocument.parse('<?xml other="value"?><data/>');
     final node = document.declaration!;
     node.setAttribute('other', 'some');
-    expect(node.toString(), '<?xml other="some"?>');
+    check(node.toString()).equals('<?xml other="some"?>');
   });
   test('remove attribute', () {
     final document = XmlDocument.parse(
@@ -60,41 +61,41 @@ void main() {
     );
     final node = document.declaration!;
     node.removeAttribute('other');
-    expect(node.toString(), '<?xml version="1.0"?>');
+    check(node.toString()).equals('<?xml version="1.0"?>');
   });
   test('version', () {
     final document = XmlDocument.parse('<?xml?><data/>');
     final node = document.declaration!;
-    expect(node.version, isNull);
+    check(node.version).isNull();
     node.version = '1.1';
-    expect(node.version, '1.1');
-    expect(node.toString(), '<?xml version="1.1"?>');
+    check(node.version).equals('1.1');
+    check(node.toString()).equals('<?xml version="1.1"?>');
     node.version = null;
-    expect(node.version, isNull);
-    expect(node.toString(), '<?xml?>');
+    check(node.version).isNull();
+    check(node.toString()).equals('<?xml?>');
   });
   test('encoding', () {
     final document = XmlDocument.parse('<?xml?><data/>');
     final node = document.declaration!;
-    expect(node.encoding, isNull);
+    check(node.encoding).isNull();
     node.encoding = 'utf-16';
-    expect(node.encoding, 'utf-16');
-    expect(node.toString(), '<?xml encoding="utf-16"?>');
+    check(node.encoding).equals('utf-16');
+    check(node.toString()).equals('<?xml encoding="utf-16"?>');
     node.encoding = null;
-    expect(node.encoding, isNull);
-    expect(node.toString(), '<?xml?>');
+    check(node.encoding).isNull();
+    check(node.toString()).equals('<?xml?>');
   });
   test('standalone', () {
     final document = XmlDocument.parse('<?xml?><data/>');
     final node = document.declaration!;
     node.standalone = true;
-    expect(node.standalone, isTrue);
-    expect(node.toString(), '<?xml standalone="yes"?>');
+    check(node.standalone).isTrue();
+    check(node.toString()).equals('<?xml standalone="yes"?>');
     node.standalone = false;
-    expect(node.standalone, isFalse);
-    expect(node.toString(), '<?xml standalone="no"?>');
+    check(node.standalone).isFalse();
+    check(node.toString()).equals('<?xml standalone="no"?>');
     node.standalone = null;
-    expect(node.standalone, isFalse);
-    expect(node.toString(), '<?xml?>');
+    check(node.standalone).isFalse();
+    check(node.toString()).equals('<?xml?>');
   });
 }

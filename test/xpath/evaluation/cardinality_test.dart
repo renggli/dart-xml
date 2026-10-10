@@ -1,94 +1,79 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/evaluation/cardinality.dart';
 
 void main() {
   group('XPathCardinality', () {
     test('toString returns occurrence suffix', () {
-      expect('${XPathCardinality.exactlyOne}', '');
-      expect('${XPathCardinality.zeroOrOne}', '?');
-      expect('${XPathCardinality.oneOrMore}', '+');
-      expect('${XPathCardinality.zeroOrMore}', '*');
+      check('${XPathCardinality.exactlyOne}').equals('');
+      check('${XPathCardinality.zeroOrOne}').equals('?');
+      check('${XPathCardinality.oneOrMore}').equals('+');
+      check('${XPathCardinality.zeroOrMore}').equals('*');
     });
 
     group('isSubtypeOf', () {
       // exactlyOne (∅) is the most specific: subtype of everything.
       test('exactlyOne is subtype of every cardinality', () {
-        expect(
+        check(
           XPathCardinality.exactlyOne.isSubtypeOf(XPathCardinality.exactlyOne),
-          isTrue,
-        );
-        expect(
+        ).isTrue();
+        check(
           XPathCardinality.exactlyOne.isSubtypeOf(XPathCardinality.zeroOrOne),
-          isTrue,
-        );
-        expect(
+        ).isTrue();
+        check(
           XPathCardinality.exactlyOne.isSubtypeOf(XPathCardinality.oneOrMore),
-          isTrue,
-        );
-        expect(
+        ).isTrue();
+        check(
           XPathCardinality.exactlyOne.isSubtypeOf(XPathCardinality.zeroOrMore),
-          isTrue,
-        );
+        ).isTrue();
       });
 
       // zeroOrOne (?) is subtype of ? and * only.
       test('zeroOrOne subtype relations', () {
-        expect(
+        check(
           XPathCardinality.zeroOrOne.isSubtypeOf(XPathCardinality.exactlyOne),
-          isFalse,
-        );
-        expect(
+        ).isFalse();
+        check(
           XPathCardinality.zeroOrOne.isSubtypeOf(XPathCardinality.zeroOrOne),
-          isTrue,
-        );
-        expect(
+        ).isTrue();
+        check(
           XPathCardinality.zeroOrOne.isSubtypeOf(XPathCardinality.oneOrMore),
-          isFalse,
-        );
-        expect(
+        ).isFalse();
+        check(
           XPathCardinality.zeroOrOne.isSubtypeOf(XPathCardinality.zeroOrMore),
-          isTrue,
-        );
+        ).isTrue();
       });
 
       // oneOrMore (+) is subtype of + and * only.
       test('oneOrMore subtype relations', () {
-        expect(
+        check(
           XPathCardinality.oneOrMore.isSubtypeOf(XPathCardinality.exactlyOne),
-          isFalse,
-        );
-        expect(
+        ).isFalse();
+        check(
           XPathCardinality.oneOrMore.isSubtypeOf(XPathCardinality.zeroOrOne),
-          isFalse,
-        );
-        expect(
+        ).isFalse();
+        check(
           XPathCardinality.oneOrMore.isSubtypeOf(XPathCardinality.oneOrMore),
-          isTrue,
-        );
-        expect(
+        ).isTrue();
+        check(
           XPathCardinality.oneOrMore.isSubtypeOf(XPathCardinality.zeroOrMore),
-          isTrue,
-        );
+        ).isTrue();
       });
 
       // zeroOrMore (*) is the most general: only subtype of itself.
       test('zeroOrMore is only subtype of itself', () {
-        expect(
+        check(
           XPathCardinality.zeroOrMore.isSubtypeOf(XPathCardinality.exactlyOne),
-          isFalse,
-        );
-        expect(
+        ).isFalse();
+        check(
           XPathCardinality.zeroOrMore.isSubtypeOf(XPathCardinality.zeroOrOne),
-          isFalse,
-        );
-        expect(
+        ).isFalse();
+        check(
           XPathCardinality.zeroOrMore.isSubtypeOf(XPathCardinality.oneOrMore),
-          isFalse,
-        );
-        expect(
+        ).isFalse();
+        check(
           XPathCardinality.zeroOrMore.isSubtypeOf(XPathCardinality.zeroOrMore),
-          isTrue,
-        );
+        ).isTrue();
       });
     });
   });

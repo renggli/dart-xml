@@ -1,4 +1,4 @@
-import 'package:test/test.dart';
+import 'package:test/scaffolding.dart';
 
 import 'utils/assertions.dart';
 import 'utils/examples.dart';

@@ -1,58 +1,55 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/xpath.dart';
 
 void main() {
   group('XPathBoolean', () {
     test('constants and singletons', () {
-      expect(XPathBoolean.trueInstance.value, isTrue);
-      expect(XPathBoolean.falseInstance.value, isFalse);
-      expect(XPathBoolean(true), same(XPathBoolean.trueInstance));
-      expect(XPathBoolean(false), same(XPathBoolean.falseInstance));
-      expect(XPathBoolean.from(true), same(XPathBoolean.trueInstance));
-      expect(XPathBoolean.fromBool(false), same(XPathBoolean.falseInstance));
+      check(XPathBoolean.trueInstance.value).isTrue();
+      check(XPathBoolean.falseInstance.value).isFalse();
+      check(XPathBoolean(true)).identicalTo(XPathBoolean.trueInstance);
+      check(XPathBoolean(false)).identicalTo(XPathBoolean.falseInstance);
+      check(XPathBoolean.from(true)).identicalTo(XPathBoolean.trueInstance);
+      check(XPathBoolean.fromBool(false))
+          .identicalTo(XPathBoolean.falseInstance);
     });
 
     test('properties', () {
       const t = XPathBoolean.trueInstance;
-      expect(t.type, equals(xsBoolean));
-      expect(t.stringValue, equals('true'));
-      expect(t.effectiveBooleanValue, isTrue);
+      check(t.type).equals(xsBoolean);
+      check(t.stringValue).equals('true');
+      check(t.effectiveBooleanValue).isTrue();
 
       const f = XPathBoolean.falseInstance;
-      expect(f.type, equals(xsBoolean));
-      expect(f.stringValue, equals('false'));
-      expect(f.effectiveBooleanValue, isFalse);
+      check(f.type).equals(xsBoolean);
+      check(f.stringValue).equals('false');
+      check(f.effectiveBooleanValue).isFalse();
     });
 
     test('compareTo', () {
       const t = XPathBoolean.trueInstance;
       const f = XPathBoolean.falseInstance;
 
-      expect(f.compareTo(t), equals(-1));
-      expect(t.compareTo(f), equals(1));
-      expect(t.compareTo(XPathBoolean(true)), equals(0));
-      expect(
-        () => t.compareTo(XPathInteger.fromInt(1)),
-        throwsA(isA<XPathEvaluationException>()),
-      );
+      check(f.compareTo(t)).equals(-1);
+      check(t.compareTo(f)).equals(1);
+      check(t.compareTo(XPathBoolean(true))).equals(0);
+      check(() => t.compareTo(XPathInteger.fromInt(1)))
+          .throws<XPathEvaluationException>();
     });
 
     test('compareTo incompatible type throws', () {
       const t = XPathBoolean.trueInstance;
-      expect(
-        () => t.compareTo(const XPathString('true')),
-        throwsA(isA<Exception>()),
-      );
+      check(() => t.compareTo(const XPathString('true'))).throws<Exception>();
     });
 
     test('equality with bool and Object', () {
       const t = XPathBoolean.trueInstance;
-      expect(t == (true as Object), isTrue);
-      expect(t == (false as Object), isFalse);
-      expect(t == XPathBoolean(true), isTrue);
-      expect(t == XPathBoolean(false), isFalse);
-      expect(t == Object(), isFalse);
-      expect(t.hashCode, equals(true.hashCode));
+      check(t == (true as Object)).isTrue();
+      check(t == (false as Object)).isFalse();
+      check(t == XPathBoolean(true)).isTrue();
+      check(t == XPathBoolean(false)).isFalse();
+      check(t == Object()).isFalse();
+      check(t.hashCode).equals(true.hashCode);
     });
   });
 }

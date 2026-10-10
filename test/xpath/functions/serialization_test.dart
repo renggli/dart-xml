@@ -1,9 +1,9 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/functions/serialization.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
@@ -12,7 +12,7 @@ final context = const XPathConfiguration.raw().context(document);
 void main() {
   group('fn:serialize', () {
     test('serializes sequence', () {
-      expect(
+      check(
         fnSerialize(context, [
           seq([
             document.findAllElements('a').first,
@@ -20,15 +20,11 @@ void main() {
             document.findAllElements('b').first,
           ]),
         ]),
-        isXPathSequence(['<a>1</a>text<b>2</b>']),
-      );
+      ).isXPathSequence(['<a>1</a>text<b>2</b>']);
     });
 
     test('returns empty string for empty sequence in XML method', () {
-      expect(
-        fnSerialize(context, [XPathSequence.empty]),
-        isXPathSequence(['']),
-      );
+      check(fnSerialize(context, [XPathSequence.empty])).isXPathSequence(['']);
     });
 
     test('serializes with omit-xml-declaration = false', () {
@@ -44,9 +40,9 @@ void main() {
         seq(document.findAllElements('a').first),
         XPathSequence.single(params),
       ]).first.stringValue;
-      expect(res, contains('<?xml'));
-      expect(res, contains('standalone="yes"'));
-      expect(res, contains('<a>1</a>'));
+      check(res).contains('<?xml');
+      check(res).contains('standalone="yes"');
+      check(res).contains('<a>1</a>');
     });
 
     test('serializes with cdata-section-elements', () {
@@ -60,9 +56,9 @@ void main() {
         seq(doc),
         XPathSequence.single(params),
       ]).first.stringValue;
-      expect(res, contains('<![CDATA[bold]]>'));
-      expect(res, contains('italic'));
-      expect(res, isNot(contains('<![CDATA[italic]]>')));
+      check(res).contains('<![CDATA[bold]]>');
+      check(res).contains('italic');
+      check(res).not((it) => it.contains('<![CDATA[italic]]>'));
     });
 
     test('serializes with use-character-maps', () {
@@ -76,7 +72,7 @@ void main() {
         seq(r'Price is $100'),
         XPathSequence.single(params),
       ]).first.stringValue;
-      expect(res, 'Price is £100');
+      check(res).equals('Price is £100');
     });
 
     test('serializes with item-separator', () {
@@ -89,7 +85,7 @@ void main() {
         seq([1, 2, 3]),
         XPathSequence.single(params),
       ]).first.stringValue;
-      expect(res, '1|2|3');
+      check(res).equals('1|2|3');
     });
 
     test('serializes text method', () {
@@ -108,7 +104,7 @@ void main() {
         ]),
         XPathSequence.single(params),
       ]).first.stringValue;
-      expect(res, '1,2');
+      check(res).equals('1,2');
     });
 
     test('serializes html method', () {
@@ -121,8 +117,8 @@ void main() {
         seq(XmlDocument.parse('<html><body><p>Hi</p></body></html>')),
         XPathSequence.single(params),
       ]).first.stringValue;
-      expect(res, contains('<!DOCTYPE html>'));
-      expect(res, contains('<p>Hi</p>'));
+      check(res).contains('<!DOCTYPE html>');
+      check(res).contains('<p>Hi</p>');
     });
 
     test('serializes json method', () {
@@ -131,13 +127,12 @@ void main() {
           XPathString('json'),
         ),
       });
-      expect(
+      check(
         fnSerialize(context, [
           XPathSequence.empty,
           XPathSequence.single(params),
         ]).first.stringValue,
-        'null',
-      );
+      ).equals('null');
 
       final mapItem = XPathMap({
         const XPathString('name'): const XPathSequence.single(
@@ -154,32 +149,30 @@ void main() {
         XPathSequence.single(mapItem),
         XPathSequence.single(params),
       ]).first.stringValue;
-      expect(jsonRes, contains('"name":"Antigravity"'));
-      expect(jsonRes, contains('"count":42'));
-      expect(jsonRes, contains('"active":true'));
+      check(jsonRes).contains('"name":"Antigravity"');
+      check(jsonRes).contains('"count":42');
+      check(jsonRes).contains('"active":true');
 
       final arrayItem = XPathArray([
         XPathSequence.single(XPathInteger.fromInt(1)),
         const XPathSequence.single(XPathString('two')),
         const XPathSequence.single(XPathBoolean.falseInstance),
       ]);
-      expect(
+      check(
         fnSerialize(context, [
           XPathSequence.single(arrayItem),
           XPathSequence.single(params),
         ]).first.stringValue,
-        '[1,"two",false]',
-      );
+      ).equals('[1,"two",false]');
 
       // Node in JSON method
       final commentItem = XPathNode(XmlComment(' hello '));
-      expect(
+      check(
         fnSerialize(context, [
           XPathSequence.single(commentItem),
           XPathSequence.single(params),
         ]).first.stringValue,
-        '"<!-- hello -->"',
-      );
+      ).equals('"<!-- hello -->"');
     });
 
     test('serializes adaptive method', () {
@@ -198,15 +191,13 @@ void main() {
         seq([1, 'foo', mapItem]),
         XPathSequence.single(params),
       ]).first.stringValue;
-      expect(res, '1;foo;map{a:1}');
+      check(res).equals('1;foo;map{a:1}');
     });
 
     test('throws on free-standing attribute in XML method', () {
       final attr = XmlAttribute(const XmlName('foo'), 'bar');
-      expect(
-        () => fnSerialize(context, [seq(attr)]),
-        throwsA(isA<XPathEvaluationException>()),
-      );
+      check(() => fnSerialize(context, [seq(attr)]))
+          .throws<XPathEvaluationException>();
     });
 
     test(
@@ -221,7 +212,7 @@ void main() {
           seq('test'),
           XPathSequence.single(params),
         ]).first.stringValue;
-        expect(res, 'test');
+        check(res).equals('test');
       },
     );
 
@@ -237,7 +228,7 @@ void main() {
         seq(document.findAllElements('a').first),
         seq(paramDoc.rootElement),
       ]).first.stringValue;
-      expect(res, '1');
+      check(res).equals('1');
     });
 
     test(
@@ -264,7 +255,7 @@ void main() {
           seq(xmlDoc),
           seq(paramDoc.rootElement),
         ]).first.stringValue;
-        expect(res, contains('[AND]'));
+        check(res).contains('[AND]');
       },
     );
 
@@ -273,10 +264,9 @@ void main() {
       () {
         void expectParamError(String xml, XPathErrorCode code) {
           final doc = XmlDocument.parse(xml);
-          expect(
-            () => fnSerialize(context, [seq('test'), seq(doc.rootElement)]),
-            throwsA(isXPathEvaluationException(errorCode: code)),
-          );
+          check(() => fnSerialize(context, [seq('test'), seq(doc.rootElement)]))
+              .throws<XPathEvaluationException>()
+              .which(isXPathEvaluationException(errorCode: code));
         }
 
         // Disallowed element outside output namespace with no prefix
@@ -380,28 +370,30 @@ void main() {
         seq(XmlDocument.parse('<r><a/></r>')),
         XPathSequence.single(mapWithUntyped),
       ]).first.stringValue;
-      expect(res, contains('<?xml'));
+      check(res).contains('<?xml');
 
       // Invalid boolean type throws XPTY0004
-      expect(
+      check(
         () => fnSerialize(context, [
           seq('test'),
           XPathSequence.single(
             XPathMap({const XPathString('indent'): seq(123)}),
           ),
         ]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
       );
 
       // Invalid string type throws XPTY0004
-      expect(
+      check(
         () => fnSerialize(context, [
           seq('test'),
           XPathSequence.single(
             XPathMap({const XPathString('method'): seq(false)}),
           ),
         ]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
       );
     });
 
@@ -425,9 +417,9 @@ void main() {
         seq(htmlDoc),
         XPathSequence.single(params),
       ]).first.stringValue;
-      expect(res, contains('<br/>'));
-      expect(res, contains('<hr/>'));
-      expect(res, contains('<meta http-equiv="Content-Type"'));
+      check(res).contains('<br/>');
+      check(res).contains('<hr/>');
+      check(res).contains('<meta http-equiv="Content-Type"');
     });
 
     test('throws on duplicate parameter element', () {
@@ -438,76 +430,80 @@ void main() {
           <output:indent value="no"/>
         </output:serialization-parameters>
       ''');
-      expect(
+      check(
         () => fnSerialize(context, [seq('test'), seq(paramDoc.rootElement)]),
-        throwsA(isA<XPathEvaluationException>()),
-      );
+      ).throws<XPathEvaluationException>();
     });
 
     test('fromSequence edge cases', () {
       final defaultParams = SerializationParameters.fromSequence(
         XPathSequence.empty,
       );
-      expect(defaultParams.method, 'xml');
+      check(defaultParams.method).equals('xml');
 
-      expect(
-        () => SerializationParameters.fromSequence(seq(123)),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
+      check(() => SerializationParameters.fromSequence(seq(123)))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
     });
 
     test('fromMap parameter validation', () {
       // Invalid key type
-      expect(
+      check(
         () => SerializationParameters.fromMap(
           XPathMap({const XPathDouble(123): seq('val')}),
         ),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
       );
 
       // Unknown method
-      expect(
+      check(
         () => SerializationParameters.fromMap(
           XPathMap({const XPathString('method'): seq('unknown-method')}),
         ),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.SEPM0016)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.SEPM0016),
       );
 
       // Standalone variations
       final pEmpty = SerializationParameters.fromMap(
         XPathMap({const XPathString('standalone'): XPathSequence.empty}),
       );
-      expect(pEmpty.standalone, isNull);
+      check(pEmpty.standalone).isNull();
 
       final pYes = SerializationParameters.fromMap(
         XPathMap({const XPathString('standalone'): seq('yes')}),
       );
-      expect(pYes.standalone, isTrue);
+      check(pYes.standalone).equals(true);
 
       final pNo = SerializationParameters.fromMap(
         XPathMap({const XPathString('standalone'): seq('no')}),
       );
-      expect(pNo.standalone, isFalse);
+      check(pNo.standalone).equals(false);
 
       final pOmit = SerializationParameters.fromMap(
         XPathMap({const XPathString('standalone'): seq('omit')}),
       );
-      expect(pOmit.standalone, isNull);
+      check(pOmit.standalone).isNull();
 
-      expect(
+      check(
         () => SerializationParameters.fromMap(
           XPathMap({const XPathString('standalone'): seq('maybe')}),
         ),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
       );
 
-      expect(
+      check(
         () => SerializationParameters.fromMap(
           XPathMap({
             const XPathString('standalone'): seq(['yes', 'no']),
           }),
         ),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
       );
 
       // string and number options
@@ -521,12 +517,12 @@ void main() {
           const XPathString('undeclare-prefixes'): seq(true),
         }),
       );
-      expect(pOpts.version, '1.1');
-      expect(pOpts.htmlVersion, 5.0);
-      expect(pOpts.encoding, 'iso-8859-1');
-      expect(pOpts.jsonNodeOutputMethod, 'xml');
-      expect(pOpts.allowDuplicateNames, isTrue);
-      expect(pOpts.undeclarePrefixes, isTrue);
+      check(pOpts.version).equals('1.1');
+      check(pOpts.htmlVersion).equals(5.0);
+      check(pOpts.encoding).equals('iso-8859-1');
+      check(pOpts.jsonNodeOutputMethod).equals('xml');
+      check(pOpts.allowDuplicateNames).isTrue();
+      check(pOpts.undeclarePrefixes).isTrue();
 
       // cdata-section-elements with XPathArray, string, and invalid items
       final pCdata = SerializationParameters.fromMap(
@@ -536,7 +532,7 @@ void main() {
           ),
         }),
       );
-      expect(pCdata.cdataSectionElements.length, 2);
+      check(pCdata.cdataSectionElements.length).equals(2);
 
       final pCdataAtomic = SerializationParameters.fromMap(
         XPathMap({
@@ -545,13 +541,14 @@ void main() {
           ]),
         }),
       );
-      expect(pCdataAtomic.cdataSectionElements.length, 1);
+      check(pCdataAtomic.cdataSectionElements.length).equals(1);
 
-      expect(
+      check(
         () => SerializationParameters.fromMap(
           XPathMap({const XPathString('cdata-section-elements'): seq(123)}),
         ),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
       );
 
       // suppress-indentation with XPathArray, QName, string, untyped, and invalid items
@@ -566,24 +563,26 @@ void main() {
           ),
         }),
       );
-      expect(pSuppress.suppressIndentation.length, 3);
+      check(pSuppress.suppressIndentation.length).equals(3);
 
-      expect(
+      check(
         () => SerializationParameters.fromMap(
           XPathMap({const XPathString('suppress-indentation'): seq(123)}),
         ),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
       );
 
       // use-character-maps error handling
-      expect(
+      check(
         () => SerializationParameters.fromMap(
           XPathMap({const XPathString('use-character-maps'): seq('not-a-map')}),
         ),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
       );
 
-      expect(
+      check(
         () => SerializationParameters.fromMap(
           XPathMap({
             const XPathString('use-character-maps'): XPathSequence.single(
@@ -591,10 +590,11 @@ void main() {
             ),
           }),
         ),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
       );
 
-      expect(
+      check(
         () => SerializationParameters.fromMap(
           XPathMap({
             const XPathString('use-character-maps'): XPathSequence.single(
@@ -602,10 +602,11 @@ void main() {
             ),
           }),
         ),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.SEPM0016)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.SEPM0016),
       );
 
-      expect(
+      check(
         () => SerializationParameters.fromMap(
           XPathMap({
             const XPathString('use-character-maps'): XPathSequence.single(
@@ -615,10 +616,11 @@ void main() {
             ),
           }),
         ),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
       );
 
-      expect(
+      check(
         () => SerializationParameters.fromMap(
           XPathMap({
             const XPathString('use-character-maps'): XPathSequence.single(
@@ -626,28 +628,31 @@ void main() {
             ),
           }),
         ),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
       );
 
       // json method with item-separator throws SERE0023
-      expect(
+      check(
         () => SerializationParameters.fromMap(
           XPathMap({
             const XPathString('method'): seq('json'),
             const XPathString('item-separator'): seq(','),
           }),
         ),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.SERE0023)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.SERE0023),
       );
     });
 
     test('fromElement error and feature handling', () {
       // Outermost element wrong name or namespace
       final wrongDoc1 = XmlDocument.parse('<wrong-name/>');
-      expect(
-        () => SerializationParameters.fromElement(wrongDoc1.rootElement),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
+      check(() => SerializationParameters.fromElement(wrongDoc1.rootElement))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
 
       // Non-xmlns attribute on serialization-parameters
       final invalidAttrDoc = XmlDocument.parse('''
@@ -655,9 +660,10 @@ void main() {
              xmlns:output="http://www.w3.org/2010/xslt-xquery-serialization"
              invalid="true"/>
       ''');
-      expect(
+      check(
         () => SerializationParameters.fromElement(invalidAttrDoc.rootElement),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.SEPM0017)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.SEPM0017),
       );
 
       // use-character-maps non-xmlns attribute
@@ -667,10 +673,11 @@ void main() {
           <output:use-character-maps foo="bar"/>
         </output:serialization-parameters>
       ''');
-      expect(
-        () => SerializationParameters.fromElement(cmAttrDoc.rootElement),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.SEPM0017)),
-      );
+      check(() => SerializationParameters.fromElement(cmAttrDoc.rootElement))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.SEPM0017),
+          );
 
       // use-character-maps invalid child
       final cmInvalidChildDoc = XmlDocument.parse('''
@@ -681,10 +688,11 @@ void main() {
           </output:use-character-maps>
         </output:serialization-parameters>
       ''');
-      expect(
+      check(
         () =>
             SerializationParameters.fromElement(cmInvalidChildDoc.rootElement),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.SEPM0017)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.SEPM0017),
       );
 
       // character-map missing character or map-string
@@ -696,9 +704,10 @@ void main() {
           </output:use-character-maps>
         </output:serialization-parameters>
       ''');
-      expect(
+      check(
         () => SerializationParameters.fromElement(cmMissingAttrDoc.rootElement),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.SEPM0017)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.SEPM0017),
       );
 
       // Parameter element with invalid attribute (not value)
@@ -708,10 +717,11 @@ void main() {
           <output:method value="xml" extra="123"/>
         </output:serialization-parameters>
       ''');
-      expect(
-        () => SerializationParameters.fromElement(paramBadAttr.rootElement),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.SEPM0017)),
-      );
+      check(() => SerializationParameters.fromElement(paramBadAttr.rootElement))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.SEPM0017),
+          );
 
       // Various parameter element settings from element
       final allParamsDoc = XmlDocument.parse('''
@@ -728,37 +738,40 @@ void main() {
       final pElem = SerializationParameters.fromElement(
         allParamsDoc.rootElement,
       );
-      expect(pElem.itemSeparator, ',');
-      expect(pElem.version, '1.1');
-      expect(pElem.undeclarePrefixes, isTrue);
-      expect(pElem.encoding, 'iso-8859-1');
-      expect(pElem.cdataSectionElements.length, 2);
-      expect(pElem.suppressIndentation.length, 2);
+      check(pElem.itemSeparator).equals(',');
+      check(pElem.version).equals('1.1');
+      check(pElem.undeclarePrefixes).isTrue();
+      check(pElem.encoding).equals('iso-8859-1');
+      check(pElem.cdataSectionElements.length).equals(2);
+      check(pElem.suppressIndentation.length).equals(2);
     });
 
     test('option helper functions validation', () {
       // _getStringOption with empty or multiple
-      expect(
+      check(
         () => SerializationParameters.fromMap(
           XPathMap({const XPathString('method'): XPathSequence.empty}),
         ),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
       );
 
       // _getBooleanOption with empty or multiple
-      expect(
+      check(
         () => SerializationParameters.fromMap(
           XPathMap({const XPathString('indent'): XPathSequence.empty}),
         ),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
       );
 
       // _getNumberOption with empty or multiple, valid number, valid untyped, invalid untyped, invalid type
-      expect(
+      check(
         () => SerializationParameters.fromMap(
           XPathMap({const XPathString('html-version'): XPathSequence.empty}),
         ),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
       );
 
       final pNum = SerializationParameters.fromMap(
@@ -768,9 +781,9 @@ void main() {
           ),
         }),
       );
-      expect(pNum.htmlVersion, 5.0);
+      check(pNum.htmlVersion).equals(5.0);
 
-      expect(
+      check(
         () => SerializationParameters.fromMap(
           XPathMap({
             const XPathString('html-version'): seq(
@@ -778,14 +791,16 @@ void main() {
             ),
           }),
         ),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
       );
 
-      expect(
+      check(
         () => SerializationParameters.fromMap(
           XPathMap({const XPathString('html-version'): seq(true)}),
         ),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
       );
     });
 
@@ -793,14 +808,14 @@ void main() {
       // Unknown method in SerializationParameters instance defaults to XML
       final pUnknown = SerializationParameters(method: 'custom-unknown');
       final sUnknown = serializeSequence(seq('hello'), pUnknown);
-      expect(sUnknown, 'hello');
+      check(sUnknown).equals('hello');
 
       // XML: consecutive atomics without item separator write space
       final sConsecutive = serializeSequence(
         seq([1, 2, 3]),
         SerializationParameters(method: 'xml'),
       );
-      expect(sConsecutive, '1 2 3');
+      check(sConsecutive).equals('1 2 3');
 
       // XML suppress-indentation with namespace
       final docNs = XmlDocument.parse(
@@ -814,7 +829,7 @@ void main() {
         ],
       );
       final sSuppress = serializeSequence(seq(docNs), pSuppressNs);
-      expect(sSuppress, contains(' preserved '));
+      check(sSuppress).contains(' preserved ');
 
       // CDATA with namespace and self-closing empty element and XmlDeclaration
       final docCdataNs = XmlDocument.parse(
@@ -827,9 +842,9 @@ void main() {
         ],
       );
       final sCdata = serializeSequence(seq(docCdataNs), pCdataNs);
-      expect(sCdata, contains('<![CDATA[text]]>'));
-      expect(sCdata, contains('attr="val"'));
-      expect(sCdata, contains('<br/>'));
+      check(sCdata).contains('<![CDATA[text]]>');
+      check(sCdata).contains('attr="val"');
+      check(sCdata).contains('<br/>');
 
       // HTML with sequence containing html element
       final htmlElem = XmlElement(const XmlName.qualified('html'), [], [
@@ -839,22 +854,23 @@ void main() {
         seq(htmlElem),
         SerializationParameters(method: 'html'),
       );
-      expect(sHtmlElem, contains('<!DOCTYPE html>'));
+      check(sHtmlElem).contains('<!DOCTYPE html>');
 
       // HTML with sequence containing atomic item
       final sHtmlAtomic = serializeSequence(
         seq('plain text'),
         SerializationParameters(method: 'html'),
       );
-      expect(sHtmlAtomic, 'plain text');
+      check(sHtmlAtomic).equals('plain text');
 
       // JSON: sequence length > 1
-      expect(
+      check(
         () => serializeSequence(
           seq([1, 2]),
           SerializationParameters(method: 'json'),
         ),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.SERE0023)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.SERE0023),
       );
 
       // JSON: duplicate keys without allowDuplicateNames
@@ -862,12 +878,13 @@ void main() {
         XPathInteger.fromInt(1): seq('first'),
         const XPathString('1'): seq('second'),
       });
-      expect(
+      check(
         () => serializeSequence(
           XPathSequence.single(mapDup),
           SerializationParameters(method: 'json', allowDuplicateNames: false),
         ),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.SERE0022)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.SERE0022),
       );
 
       // JSON: empty sequence inside map/array becomes null
@@ -878,36 +895,38 @@ void main() {
         XPathSequence.single(mapWithEmpty),
         SerializationParameters(method: 'json'),
       );
-      expect(sMapEmpty, '{"empty":null}');
+      check(sMapEmpty).equals('{"empty":null}');
 
       const arrWithEmpty = XPathArray([XPathSequence.empty]);
       final sArrEmpty = serializeSequence(
         const XPathSequence.single(arrWithEmpty),
         SerializationParameters(method: 'json'),
       );
-      expect(sArrEmpty, '[null]');
+      check(sArrEmpty).equals('[null]');
 
       // JSON: sequence length > 1 inside map/array throws SERE0023
       final mapWithMulti = XPathMap({
         const XPathString('k'): seq([1, 2]),
       });
-      expect(
+      check(
         () => serializeSequence(
           XPathSequence.single(mapWithMulti),
           SerializationParameters(method: 'json'),
         ),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.SERE0023)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.SERE0023),
       );
 
       final arrWithMulti = XPathArray([
         seq([1, 2]),
       ]);
-      expect(
+      check(
         () => serializeSequence(
           XPathSequence.single(arrWithMulti),
           SerializationParameters(method: 'json'),
         ),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.SERE0023)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.SERE0023),
       );
 
       // JSON: XmlDocument and XmlText inside JSON
@@ -918,22 +937,23 @@ void main() {
         seq(docChild),
         SerializationParameters(method: 'json'),
       );
-      expect(sDocJson, contains(r'<child>val<\/child>'));
+      check(sDocJson).contains(r'<child>val<\/child>');
 
       final textNode = XmlText('simple text');
       final sTextJson = serializeSequence(
         seq(textNode),
         SerializationParameters(method: 'json'),
       );
-      expect(sTextJson, '"simple text"');
+      check(sTextJson).equals('"simple text"');
 
       // JSON: NaN and Infinity throw SERE0020
-      expect(
+      check(
         () => serializeSequence(
           seq(double.nan),
           SerializationParameters(method: 'json'),
         ),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.SERE0020)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.SERE0020),
       );
 
       // Adaptive serialization: array, attribute, boolean
@@ -942,7 +962,7 @@ void main() {
         XPathSequence.single(arrAdaptive),
         SerializationParameters(method: 'adaptive'),
       );
-      expect(sArrAdaptive, '[1,2]');
+      check(sArrAdaptive).equals('[1,2]');
 
       final elemWithAttr = XmlElement(const XmlName.qualified('el'), [
         XmlAttribute(const XmlName.qualified('id'), 'test'),
@@ -952,19 +972,19 @@ void main() {
         seq(attrNode),
         SerializationParameters(method: 'adaptive'),
       );
-      expect(sAttrAdaptive, 'id="test"');
+      check(sAttrAdaptive).equals('id="test"');
 
       final sElemAdaptiveIndent = serializeSequence(
         seq(elemWithAttr),
         SerializationParameters(method: 'adaptive', indent: true),
       );
-      expect(sElemAdaptiveIndent, contains('<el id="test"/>'));
+      check(sElemAdaptiveIndent).contains('<el id="test"/>');
 
       final sBoolAdaptive = serializeSequence(
         seq(true),
         SerializationParameters(method: 'adaptive'),
       );
-      expect(sBoolAdaptive, 'true()');
+      check(sBoolAdaptive).equals('true()');
 
       // JSON string escaping: ", \, /, \b, \f, \n, \r, \t, control < 0x20, 0x7F-0x9F, iso-8859-1
       const rawStr = '"quote" /slash/ \\backslash\\ \b \f \n \r \t \x01 \x85';
@@ -972,22 +992,22 @@ void main() {
         seq(rawStr),
         SerializationParameters(method: 'json'),
       );
-      expect(sEscaped, contains(r'\"quote\"'));
-      expect(sEscaped, contains(r'\/slash\/'));
-      expect(sEscaped, contains(r'\\backslash\\'));
-      expect(sEscaped, contains(r'\b'));
-      expect(sEscaped, contains(r'\f'));
-      expect(sEscaped, contains(r'\n'));
-      expect(sEscaped, contains(r'\r'));
-      expect(sEscaped, contains(r'\t'));
-      expect(sEscaped, contains(r'\u0001'));
-      expect(sEscaped, contains(r'\u0085'));
+      check(sEscaped).contains(r'\"quote\"');
+      check(sEscaped).contains(r'\/slash\/');
+      check(sEscaped).contains(r'\\backslash\\');
+      check(sEscaped).contains(r'\b');
+      check(sEscaped).contains(r'\f');
+      check(sEscaped).contains(r'\n');
+      check(sEscaped).contains(r'\r');
+      check(sEscaped).contains(r'\t');
+      check(sEscaped).contains(r'\u0001');
+      check(sEscaped).contains(r'\u0085');
 
       final sIso = serializeSequence(
         seq('euro: \u20ac'),
         SerializationParameters(method: 'json', encoding: 'iso-8859-1'),
       );
-      expect(sIso, contains(r'\u20AC'));
+      check(sIso).contains(r'\u20AC');
     });
   });
 }

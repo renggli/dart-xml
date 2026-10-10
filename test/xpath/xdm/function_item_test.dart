@@ -1,14 +1,12 @@
-import 'package:test/test.dart';
-import 'package:xml/src/xpath/evaluation/configuration.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/evaluation/functions.dart';
-import 'package:xml/src/xpath/xdm/atomic.dart';
 import 'package:xml/src/xpath/xdm/function_item.dart';
-import 'package:xml/src/xpath/xdm/sequence.dart';
-import 'package:xml/src/xpath/xdm/types.dart';
 import 'package:xml/xml.dart';
+import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
+import '../../utils/checks.dart';
 
 final document = XmlDocument.parse('<r/>');
 final context = const XPathConfiguration.raw().context(document);
@@ -20,16 +18,15 @@ void main() {
         const XmlName.qualified('my:zero'),
         (ctx) => XPathSequence.single(XPathInteger.fromInt(1)),
       );
-      expect(f.name, const XmlName.qualified('my:zero'));
-      expect(f.arity, 0);
-      expect(f.isVariadic, isFalse);
-      expect(f.type, xsFunction);
-      expect(f.toString(), 'my:zero#0');
-      expect(f(context, []), isXPathSequence([1]));
-      expect(
-        () => f(context, [XPathSequence.empty]),
-        throwsA(isXPathEvaluationException()),
-      );
+      check(f.name).equals(const XmlName.qualified('my:zero'));
+      check(f.arity).equals(0);
+      check(f.isVariadic).isFalse();
+      check(f.type).equals(xsFunction);
+      check(f.toString()).equals('my:zero#0');
+      check(f(context, [])).isXPathSequence([1]);
+      check(() => f(context, [XPathSequence.empty]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
     });
 
     test('fn1', () {
@@ -37,19 +34,18 @@ void main() {
         const XmlName.qualified('my:one'),
         (ctx, a1) => a1,
       );
-      expect(f.name, const XmlName.qualified('my:one'));
-      expect(f.arity, 1);
-      expect(f.isVariadic, isFalse);
-      expect(f.toString(), 'my:one#1');
-      expect(
-        f(context, [const XPathSequence.single(XPathString('hello'))]),
-        isXPathSequence(['hello']),
-      );
-      expect(() => f(context, []), throwsA(isXPathEvaluationException()));
-      expect(
-        () => f(context, [XPathSequence.empty, XPathSequence.empty]),
-        throwsA(isXPathEvaluationException()),
-      );
+      check(f.name).equals(const XmlName.qualified('my:one'));
+      check(f.arity).equals(1);
+      check(f.isVariadic).isFalse();
+      check(f.toString()).equals('my:one#1');
+      check(f(context, [const XPathSequence.single(XPathString('hello'))]))
+          .isXPathSequence(['hello']);
+      check(() => f(context, []))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
+      check(() => f(context, [XPathSequence.empty, XPathSequence.empty]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
     });
 
     test('fn2', () {
@@ -57,22 +53,22 @@ void main() {
         const XmlName.qualified('my:two'),
         (ctx, a1, a2) => XPathSequence([...a1, ...a2]),
       );
-      expect(f.name, const XmlName.qualified('my:two'));
-      expect(f.arity, 2);
-      expect(f.isVariadic, isFalse);
-      expect(f.toString(), 'my:two#2');
-      expect(
+      check(f.name).equals(const XmlName.qualified('my:two'));
+      check(f.arity).equals(2);
+      check(f.isVariadic).isFalse();
+      check(f.toString()).equals('my:two#2');
+      check(
         f(context, [
           XPathSequence.single(XPathInteger.fromInt(1)),
           XPathSequence.single(XPathInteger.fromInt(2)),
         ]),
-        isXPathSequence([1, 2]),
-      );
-      expect(() => f(context, []), throwsA(isXPathEvaluationException()));
-      expect(
-        () => f(context, [XPathSequence.empty]),
-        throwsA(isXPathEvaluationException()),
-      );
+      ).isXPathSequence([1, 2]);
+      check(() => f(context, []))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
+      check(() => f(context, [XPathSequence.empty]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
     });
 
     test('fn3', () {
@@ -80,22 +76,20 @@ void main() {
         const XmlName.qualified('my:three'),
         (ctx, a1, a2, a3) => XPathSequence([...a1, ...a2, ...a3]),
       );
-      expect(f.name, const XmlName.qualified('my:three'));
-      expect(f.arity, 3);
-      expect(f.isVariadic, isFalse);
-      expect(f.toString(), 'my:three#3');
-      expect(
+      check(f.name).equals(const XmlName.qualified('my:three'));
+      check(f.arity).equals(3);
+      check(f.isVariadic).isFalse();
+      check(f.toString()).equals('my:three#3');
+      check(
         f(context, [
           XPathSequence.single(XPathInteger.fromInt(1)),
           XPathSequence.single(XPathInteger.fromInt(2)),
           XPathSequence.single(XPathInteger.fromInt(0)),
         ]),
-        isXPathSequence([1, 2, 0]),
-      );
-      expect(
-        () => f(context, [XPathSequence.empty, XPathSequence.empty]),
-        throwsA(isXPathEvaluationException()),
-      );
+      ).isXPathSequence([1, 2, 0]);
+      check(() => f(context, [XPathSequence.empty, XPathSequence.empty]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
     });
 
     test('fnN and function factory', () {
@@ -104,34 +98,30 @@ void main() {
         4,
         (ctx, args) => XPathSequence(args.expand((s) => s)),
       );
-      expect(f.name, const XmlName.qualified('my:four'));
-      expect(f.arity, 4);
-      expect(f.isVariadic, isFalse);
-      expect(f.toString(), 'my:four#4');
-      expect(
+      check(f.name).equals(const XmlName.qualified('my:four'));
+      check(f.arity).equals(4);
+      check(f.isVariadic).isFalse();
+      check(f.toString()).equals('my:four#4');
+      check(
         f(context, [
           XPathSequence.single(XPathInteger.fromInt(1)),
           XPathSequence.single(XPathInteger.fromInt(2)),
           XPathSequence.single(XPathInteger.fromInt(0)),
           XPathSequence.single(XPathInteger.fromInt(1)),
         ]),
-        isXPathSequence([1, 2, 0, 1]),
-      );
-      expect(
-        () => f(context, [XPathSequence.empty]),
-        throwsA(isXPathEvaluationException()),
-      );
+      ).isXPathSequence([1, 2, 0, 1]);
+      check(() => f(context, [XPathSequence.empty]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
 
       final fNamed = XPathFunctionItem.function(
         name: const XmlName.qualified('my:custom'),
         arity: 1,
         function: (ctx, args) => args.first,
       );
-      expect(fNamed.arity, 1);
-      expect(
-        fNamed(context, [const XPathSequence.single(XPathString('ok'))]),
-        isXPathSequence(['ok']),
-      );
+      check(fNamed.arity).equals(1);
+      check(fNamed(context, [const XPathSequence.single(XPathString('ok'))]))
+          .isXPathSequence(['ok']);
     });
 
     test('variadic', () {
@@ -140,22 +130,20 @@ void main() {
         2,
         (ctx, args) => XPathSequence(args.expand((s) => s)),
       );
-      expect(f.name, const XmlName.qualified('my:concat'));
-      expect(f.arity, 2);
-      expect(f.isVariadic, isTrue);
-      expect(f.toString(), 'my:concat#2');
-      expect(
+      check(f.name).equals(const XmlName.qualified('my:concat'));
+      check(f.arity).equals(2);
+      check(f.isVariadic).isTrue();
+      check(f.toString()).equals('my:concat#2');
+      check(
         f(context, [
           const XPathSequence.single(XPathString('a')),
           const XPathSequence.single(XPathString('b')),
           const XPathSequence.single(XPathString('c')),
         ]),
-        isXPathSequence(['a', 'b', 'c']),
-      );
-      expect(
-        () => f(context, [const XPathSequence.single(XPathString('a'))]),
-        throwsA(isXPathEvaluationException()),
-      );
+      ).isXPathSequence(['a', 'b', 'c']);
+      check(() => f(context, [const XPathSequence.single(XPathString('a'))]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
     });
 
     test('overloaded', () {
@@ -172,26 +160,23 @@ void main() {
           ),
         },
       );
-      expect(f.name, const XmlName.qualified('my:overloaded'));
-      expect(f.arity, 0);
-      expect(f.isVariadic, isFalse);
+      check(f.name).equals(const XmlName.qualified('my:overloaded'));
+      check(f.arity).equals(0);
+      check(f.isVariadic).isFalse();
       if (f is XPathOverloadedFunction) {
-        expect(f.getForArity(0), isNotNull);
-        expect(f.getForArity(1), isNotNull);
-        expect(f.getForArity(2), isNull);
+        check(f.getForArity(0)).isNotNull();
+        check(f.getForArity(1)).isNotNull();
+        check(f.getForArity(2)).isNull();
       }
-      expect(f(context, []), isXPathSequence(['zero']));
-      expect(
-        f(context, [XPathSequence.single(XPathInteger.fromInt(1))]),
-        isXPathSequence(['one']),
-      );
-      expect(
+      check(f(context, [])).isXPathSequence(['zero']);
+      check(f(context, [XPathSequence.single(XPathInteger.fromInt(1))]))
+          .isXPathSequence(['one']);
+      check(
         () => f(context, [
           XPathSequence.single(XPathInteger.fromInt(1)),
           XPathSequence.single(XPathInteger.fromInt(2)),
         ]),
-        throwsA(isXPathEvaluationException()),
-      );
+      ).throws<XPathEvaluationException>().which(isXPathEvaluationException());
     });
 
     test('item methods and toValue', () {
@@ -199,15 +184,18 @@ void main() {
         anonymousFunctionName,
         (ctx) => XPathSequence.empty,
       );
-      expect(f.toString(), '(anonymous)#0');
-      expect(f.toValue(), same(f));
-      expect(f.returnType, isNull);
-      expect(f.atomize, throwsA(isXPathEvaluationException()));
-      expect(() => f.stringValue, throwsA(isXPathEvaluationException()));
-      expect(
-        () => f.effectiveBooleanValue,
-        throwsA(isXPathEvaluationException()),
-      );
+      check(f.toString()).equals('(anonymous)#0');
+      check(f.toValue()).identicalTo(f);
+      check(f.returnType).isNull();
+      check(f.atomize)
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
+      check(() => f.stringValue)
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
+      check(() => f.effectiveBooleanValue)
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
     });
 
     test('typed function and overloaded signatures', () {
@@ -217,21 +205,21 @@ void main() {
         parameterTypes: [xsInteger],
         returnType: xsInteger,
       );
-      expect(typedFn.returnType, xsInteger);
-      expect(typedFn.parameterTypes, [xsInteger]);
-      expect(typedFn.type, isA<XPathFunctionType>());
+      check(typedFn.returnType).equals(xsInteger);
+      check(typedFn.parameterTypes).isNotNull().deepEquals([xsInteger]);
+      check(typedFn.type).isA<XPathFunctionType>();
 
       final overloadedTyped = XPathOverloadedFunction(
         const XmlName.qualified('overloaded-typed'),
         {1: typedFn},
       );
-      expect(overloadedTyped.parameterTypes, [xsInteger]);
-      expect(overloadedTyped.returnType, xsInteger);
+      check(overloadedTyped.parameterTypes).isNotNull().deepEquals([xsInteger]);
+      check(overloadedTyped.returnType).equals(xsInteger);
     });
 
     test('default returnType on base XPathFunctionItem', () {
       final custom = _CustomFunctionItem();
-      expect(custom.returnType, isNull);
+      check(custom.returnType).isNull();
     });
   });
 }

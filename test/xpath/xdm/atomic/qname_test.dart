@@ -1,27 +1,26 @@
-import 'package:test/test.dart';
-import 'package:xml/src/xpath/xdm/atomic/qname.dart';
-import 'package:xml/src/xpath/xdm/types.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/xml.dart';
+import 'package:xml/xpath.dart';
 
-import '../../../utils/matchers.dart';
+import '../../../utils/checks.dart';
 
 void main() {
   group('XPathQName', () {
     test('construction and basic properties', () {
       const name = XmlName('elem', 'ns');
       const qname = XPathQName(name);
-      expect(qname.type, equals(xsQName));
-      expect(qname.value, equals(name));
-      expect(qname.stringValue, equals('ns:elem'));
-      expect(qname.toString(), equals('ns:elem'));
+      check(qname.type).equals(xsQName);
+      check(qname.value).equals(name);
+      check(qname.stringValue).equals('ns:elem');
+      check(qname.toString()).equals('ns:elem');
     });
 
     test('effectiveBooleanValue throws', () {
       const qname = XPathQName(XmlName('elem'));
-      expect(
-        () => qname.effectiveBooleanValue,
-        throwsA(isXPathEvaluationException()),
-      );
+      check(() => qname.effectiveBooleanValue)
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
     });
 
     test('equality and hashCode', () {
@@ -30,11 +29,11 @@ void main() {
       const q3 = XPathQName(XmlName.qualified('p:elem', namespaceUri: 'other'));
       const q4 = XPathQName(XmlName.qualified('p:other', namespaceUri: 'ns'));
 
-      expect(q1, equals(q2));
-      expect(q1.hashCode, equals(q2.hashCode));
-      expect(q1 == q3, isFalse);
-      expect(q1 == q4, isFalse);
-      expect(q1 == Object(), isFalse);
+      check(q1).equals(q2);
+      check(q1.hashCode).equals(q2.hashCode);
+      check(q1 == q3).isFalse();
+      check(q1 == q4).isFalse();
+      check(q1 == Object()).isFalse();
     });
   });
 }

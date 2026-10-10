@@ -1,9 +1,10 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xml/nodes/element.dart';
 import 'package:xml/src/xpath/expressions/variable.dart';
 import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
+import '../../utils/checks.dart';
 
 void main() {
   group('ContextItemExpression', () {
@@ -11,24 +12,21 @@ void main() {
       final node = XmlElement.tag('root');
       final context = const XPathConfiguration.raw().context(node);
       const expr = ContextItemExpression();
-      expect(expr(context), isXPathSequence([node]));
+      check(expr(context)).isXPathSequence([node]);
     });
     test('sequence context item', () {
       final seq = XPathSequence([XPathInteger.fromInt(42)]);
       final context = const XPathConfiguration.raw().context()..item = seq;
       const expr = ContextItemExpression();
-      expect(expr(context), seq);
+      check(expr(context)).equals(seq);
     });
     test('undefined context item', () {
       final context = const XPathConfiguration.raw().context();
       const expr = ContextItemExpression();
-      expect(
-        () => expr(context),
-        throwsA(
-          isXPathEvaluationException(
-            errorCode: XPathErrorCode.XPDY0002,
-            message: contains('Context item is undefined'),
-          ),
+      check(() => expr(context)).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(
+          errorCode: XPathErrorCode.XPDY0002,
+          message: 'Context item is undefined',
         ),
       );
     });
@@ -40,17 +38,16 @@ void main() {
           .context(XmlElement.tag('root'))
           .copy(variables: const {'var': value});
       const expr = VariableExpression('var');
-      expect(expr(context), value);
+      check(expr(context)).equals(value);
     });
     test('evaluate missing variable', () {
       final context = const XPathConfiguration.raw().context(
         XmlElement.tag('root'),
       );
       const expr = VariableExpression('var');
-      expect(
-        () => expr(context),
-        throwsA(isXPathEvaluationException(message: 'Unknown variable: var')),
-      );
+      check(() => expr(context))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException(message: 'Unknown variable: var'));
     });
   });
   test('LiteralExpression', () {
@@ -59,6 +56,6 @@ void main() {
     final context = const XPathConfiguration.raw().context(
       XmlElement.tag('root'),
     );
-    expect(expr(context), value);
+    check(expr(context)).equals(value);
   });
 }

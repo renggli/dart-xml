@@ -1,8 +1,8 @@
-import 'package:test/test.dart';
-import 'package:xml/src/xpath/xdm/atomic.dart';
-import 'package:xml/src/xpath/xdm/types.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
+import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
+import '../../utils/checks.dart';
 
 class _CustomAtomic extends XPathAtomic {
   const new(this.value);
@@ -24,23 +24,25 @@ void main() {
   group('XPathAtomic base', () {
     test('atomize returns itself', () {
       const atomic = _CustomAtomic('foo');
-      expect(atomic.atomize(), same(atomic));
+      check(atomic.atomize()).identicalTo(atomic);
     });
 
     test('isNumeric defaults to false', () {
       const atomic = _CustomAtomic('foo');
-      expect(atomic.isNumeric, isFalse);
+      check(atomic.isNumeric).isFalse();
     });
 
     test('compareTo default throws evaluation exception', () {
       const a = _CustomAtomic('a');
       const b = _CustomAtomic('b');
-      expect(() => a.compareTo(b), throwsA(isXPathEvaluationException()));
+      check(() => a.compareTo(b))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
     });
 
     test('toString delegates to stringValue', () {
       const atomic = _CustomAtomic('hello');
-      expect(atomic.toString(), equals('hello'));
+      check(atomic.toString()).equals('hello');
     });
   });
 }

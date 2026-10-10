@@ -1,9 +1,10 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/functions/duration.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
+import '../../utils/checks.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
 final context = const XPathConfiguration.raw().context(document);
@@ -15,64 +16,56 @@ void main() {
   group('fn:years-from-duration', () {
     test('returns years from dayTimeDuration', () {
       const d1 = XPathDuration.dayTime(86400000000);
-      expect(fnYearsFromDuration(context, [seq(d1)]), isXPathSequence([0]));
+      check(fnYearsFromDuration(context, [seq(d1)])).isXPathSequence([0]);
     });
     test('returns years from yearMonthDuration', () {
       const d = XPathDuration.yearMonth(14); // 1 year 2 months
-      expect(fnYearsFromDuration(context, [seq(d)]), isXPathSequence([1]));
+      check(fnYearsFromDuration(context, [seq(d)])).isXPathSequence([1]);
     });
     test('returns empty for empty sequence', () {
-      expect(
-        fnYearsFromDuration(context, [XPathSequence.empty]),
-        isXPathSequence(isEmpty),
-      );
+      check(fnYearsFromDuration(context, [XPathSequence.empty]))
+          .isXPathSequence(isEmpty);
     });
   });
 
   group('fn:months-from-duration', () {
     test('returns months from dayTimeDuration', () {
       const d1 = XPathDuration.dayTime(86400000000);
-      expect(fnMonthsFromDuration(context, [seq(d1)]), isXPathSequence([0]));
+      check(fnMonthsFromDuration(context, [seq(d1)])).isXPathSequence([0]);
     });
     test('returns months from yearMonthDuration P1Y2M', () {
       const d = XPathDuration.yearMonth(14); // 1 year 2 months → remainder 2
-      expect(fnMonthsFromDuration(context, [seq(d)]), isXPathSequence([2]));
+      check(fnMonthsFromDuration(context, [seq(d)])).isXPathSequence([2]);
     });
     test('returns empty for empty sequence', () {
-      expect(
-        fnMonthsFromDuration(context, [XPathSequence.empty]),
-        isXPathSequence(isEmpty),
-      );
+      check(fnMonthsFromDuration(context, [XPathSequence.empty]))
+          .isXPathSequence(isEmpty);
     });
   });
 
   group('fn:days-from-duration', () {
     test('returns days from dayTimeDuration', () {
       const d1 = XPathDuration.dayTime(86400000000);
-      expect(fnDaysFromDuration(context, [seq(d1)]), isXPathSequence([1]));
+      check(fnDaysFromDuration(context, [seq(d1)])).isXPathSequence([1]);
     });
     test('returns 0 from yearMonthDuration', () {
       const d = XPathDuration.yearMonth(12); // 1 year
-      expect(fnDaysFromDuration(context, [seq(d)]), isXPathSequence([0]));
+      check(fnDaysFromDuration(context, [seq(d)])).isXPathSequence([0]);
     });
     test('returns empty for empty sequence', () {
-      expect(
-        fnDaysFromDuration(context, [XPathSequence.empty]),
-        isXPathSequence(isEmpty),
-      );
+      check(fnDaysFromDuration(context, [XPathSequence.empty]))
+          .isXPathSequence(isEmpty);
     });
   });
 
   group('fn:hours-from-duration', () {
     test('returns hours', () {
       const d3 = XPathDuration.dayTime(3600000000);
-      expect(fnHoursFromDuration(context, [seq(d3)]), isXPathSequence([1]));
+      check(fnHoursFromDuration(context, [seq(d3)])).isXPathSequence([1]);
     });
     test('returns empty for empty sequence', () {
-      expect(
-        fnHoursFromDuration(context, [XPathSequence.empty]),
-        isXPathSequence(isEmpty),
-      );
+      check(fnHoursFromDuration(context, [XPathSequence.empty]))
+          .isXPathSequence(isEmpty);
     });
   });
 
@@ -80,13 +73,11 @@ void main() {
     test('returns minutes', () {
       // 90 minutes = 1 hour 30 minutes; fn:minutes-from-duration returns 30.
       const d = XPathDuration.dayTime(5400000000);
-      expect(fnMinutesFromDuration(context, [seq(d)]), isXPathSequence([30]));
+      check(fnMinutesFromDuration(context, [seq(d)])).isXPathSequence([30]);
     });
     test('returns empty for empty sequence', () {
-      expect(
-        fnMinutesFromDuration(context, [XPathSequence.empty]),
-        isXPathSequence(isEmpty),
-      );
+      check(fnMinutesFromDuration(context, [XPathSequence.empty]))
+          .isXPathSequence(isEmpty);
     });
   });
 
@@ -94,13 +85,11 @@ void main() {
     test('returns seconds', () {
       // 90 seconds = 1 min 30 sec; fn:seconds-from-duration returns 30.0.
       const d = XPathDuration.dayTime(90000000);
-      expect(fnSecondsFromDuration(context, [seq(d)]), isXPathSequence([30.0]));
+      check(fnSecondsFromDuration(context, [seq(d)])).isXPathSequence([30.0]);
     });
     test('returns empty for empty sequence', () {
-      expect(
-        fnSecondsFromDuration(context, [XPathSequence.empty]),
-        isXPathSequence(isEmpty),
-      );
+      check(fnSecondsFromDuration(context, [XPathSequence.empty]))
+          .isXPathSequence(isEmpty);
     });
   });
 }

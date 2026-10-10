@@ -1,12 +1,9 @@
-import 'package:test/test.dart';
-import 'package:xml/src/xpath/evaluation/configuration.dart';
-import 'package:xml/src/xpath/xdm/atomic.dart';
-import 'package:xml/src/xpath/xdm/functions/array.dart';
-import 'package:xml/src/xpath/xdm/sequence.dart';
-import 'package:xml/src/xpath/xdm/types.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/xml.dart';
+import 'package:xml/xpath.dart';
 
-import '../../../utils/matchers.dart';
+import '../../../utils/checks.dart';
 
 final document = XmlDocument.parse('<r/>');
 final context = const XPathConfiguration.raw().context(document);
@@ -18,21 +15,21 @@ void main() {
         XPathSequence.single(XPathString('first')),
         XPathSequence.single(XPathString('second')),
       ]);
-      expect(arr.type, equals(xsArray));
-      expect(arr.arity, equals(1));
-      expect(arr.length, equals(2));
-      expect(arr.isEmpty, isFalse);
-      expect(arr.isNotEmpty, isTrue);
-      expect(arr[0], isXPathSequence(['first']));
-      expect(arr[1], isXPathSequence(['second']));
-      expect(arr.toString(), equals('[(first), (second)]'));
+      check(arr.type).equals(xsArray);
+      check(arr.arity).equals(1);
+      check(arr.length).equals(2);
+      check(arr.isEmpty).isFalse();
+      check(arr.isNotEmpty).isTrue();
+      check(arr[0]).isXPathSequence(['first']);
+      check(arr[1]).isXPathSequence(['second']);
+      check(arr.toString()).equals('[(first), (second)]');
     });
 
     test('empty array', () {
       const arr = XPathArray.empty;
-      expect(arr.isEmpty, isTrue);
-      expect(arr.length, equals(0));
-      expect(arr.toString(), equals('[]'));
+      check(arr.isEmpty).isTrue();
+      check(arr.length).equals(0);
+      check(arr.toString()).equals('[]');
     });
 
     test('callable as function with 1-based indexing', () {
@@ -43,34 +40,32 @@ void main() {
       final res1 = arr(context, [
         XPathSequence.single(XPathInteger.fromInt(1)),
       ]);
-      expect(res1, isXPathSequence(['a']));
+      check(res1).isXPathSequence(['a']);
 
       final res2 = arr(context, [
         XPathSequence.single(XPathInteger.fromInt(2)),
       ]);
-      expect(res2, isXPathSequence(['b']));
+      check(res2).isXPathSequence(['b']);
 
-      expect(
-        () => arr(context, [XPathSequence.single(XPathInteger.fromInt(0))]),
-        throwsA(isXPathEvaluationException()),
-      );
-      expect(
-        () => arr(context, [XPathSequence.single(XPathInteger.fromInt(3))]),
-        throwsA(isXPathEvaluationException()),
-      );
-      expect(
+      check(() => arr(context, [XPathSequence.single(XPathInteger.fromInt(0))]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
+      check(() => arr(context, [XPathSequence.single(XPathInteger.fromInt(3))]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
+      check(
         () =>
             arr(context, [const XPathSequence.single(XPathString('invalid'))]),
-        throwsA(isXPathEvaluationException()),
-      );
-      expect(() => arr(context, []), throwsA(isXPathEvaluationException()));
-      expect(
+      ).throws<XPathEvaluationException>().which(isXPathEvaluationException());
+      check(() => arr(context, []))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
+      check(
         () => arr(context, [
           XPathSequence.single(XPathInteger.fromInt(1)),
           XPathSequence.single(XPathInteger.fromInt(2)),
         ]),
-        throwsA(isXPathEvaluationException()),
-      );
+      ).throws<XPathEvaluationException>().which(isXPathEvaluationException());
     });
 
     test('equality and hashCode', () {
@@ -79,11 +74,11 @@ void main() {
       const a3 = XPathArray([XPathSequence.single(XPathString('y'))]);
       const a4 = XPathArray([]);
 
-      expect(a1, equals(a2));
-      expect(a1.hashCode, equals(a2.hashCode));
-      expect(a1 == a3, isFalse);
-      expect(a1 == a4, isFalse);
-      expect(a1 == Object(), isFalse);
+      check(a1).equals(a2);
+      check(a1.hashCode).equals(a2.hashCode);
+      check(a1 == a3).isFalse();
+      check(a1 == a4).isFalse();
+      check(a1 == Object()).isFalse();
     });
   });
 }

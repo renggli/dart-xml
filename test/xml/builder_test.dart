@@ -1,8 +1,9 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/xml.dart';
 
 import '../utils/assertions.dart';
-import '../utils/matchers.dart';
+import '../utils/checks.dart';
 
 void main() {
   test('basic', () {
@@ -44,7 +45,7 @@ void main() {
         '<price>29.99</price>'
         '</book>'
         '</bookstore>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(document);
   });
   test('all', () {
@@ -85,7 +86,7 @@ void main() {
         '<![CDATA[cdata]]>'
         'textual'
         '</element1>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('self-closing', () {
@@ -112,7 +113,7 @@ void main() {
         '<self-closing-true-with-children>!</self-closing-true-with-children>'
         '<self-closing-false></self-closing-false>'
         '</element>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('nested callback', () {
@@ -126,7 +127,7 @@ void main() {
     final xml = builder.buildDocument();
     final actual = xml.toString();
     const expected = '<element><nested/></element>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('nested callback with inner builder', () {
@@ -134,14 +135,14 @@ void main() {
     builder.element(
       'element',
       nest: (XmlBuilder innerBuilder) {
-        expect(innerBuilder, same(builder));
+        check(innerBuilder).identicalTo(builder);
         innerBuilder.element('nested');
       },
     );
     final xml = builder.buildDocument();
     final actual = xml.toString();
     const expected = '<element><nested/></element>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('nested string', () {
@@ -150,7 +151,7 @@ void main() {
     final xml = builder.buildDocument();
     final actual = xml.toString();
     const expected = '<element>string</element>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('nested iterable', () {
@@ -166,7 +167,7 @@ void main() {
     final xml = builder.buildDocument();
     final actual = xml.toString();
     const expected = '<element>string</element>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('nested node (element)', () {
@@ -174,11 +175,12 @@ void main() {
     final nested = XmlElement(const XmlName.qualified('nested'));
     builder.element('element', nest: nested);
     final xml = builder.buildDocument();
-    expect(xml.children[0].children[0].toXmlString(), nested.toXmlString());
-    expect(xml.children[0].children[0], isNot(same(nested)));
+    check(xml.children[0].children[0].toXmlString())
+        .equals(nested.toXmlString());
+    check(xml.children[0].children[0]).not((it) => it.identicalTo(nested));
     final actual = xml.toString();
     const expected = '<element><nested/></element>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('nested node (element, repeated)', () {
@@ -186,13 +188,15 @@ void main() {
     final nested = XmlElement(const XmlName.qualified('nested'));
     builder.element('element', nest: [nested, nested]);
     final xml = builder.buildDocument();
-    expect(xml.children[0].children[0].toXmlString(), nested.toXmlString());
-    expect(xml.children[0].children[0], isNot(same(nested)));
-    expect(xml.children[0].children[1].toXmlString(), nested.toXmlString());
-    expect(xml.children[0].children[1], isNot(same(nested)));
+    check(xml.children[0].children[0].toXmlString())
+        .equals(nested.toXmlString());
+    check(xml.children[0].children[0]).not((it) => it.identicalTo(nested));
+    check(xml.children[0].children[1].toXmlString())
+        .equals(nested.toXmlString());
+    check(xml.children[0].children[1]).not((it) => it.identicalTo(nested));
     final actual = xml.toString();
     const expected = '<element><nested/><nested/></element>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('nested node (text)', () {
@@ -200,11 +204,12 @@ void main() {
     final nested = XmlText('text');
     builder.element('element', nest: nested);
     final xml = builder.buildDocument();
-    expect(xml.children[0].children[0].toXmlString(), nested.toXmlString());
-    expect(xml.children[0].children[0], isNot(same(nested)));
+    check(xml.children[0].children[0].toXmlString())
+        .equals(nested.toXmlString());
+    check(xml.children[0].children[0]).not((it) => it.identicalTo(nested));
     final actual = xml.toString();
     const expected = '<element>text</element>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('nested node (text, repeated)', () {
@@ -212,11 +217,11 @@ void main() {
     final nested = XmlText('text');
     builder.element('element', nest: [nested, nested]);
     final xml = builder.buildDocument();
-    expect(xml.children[0].children[0].value, 'texttext');
-    expect(xml.children[0].children[0], isNot(same(nested)));
+    check(xml.children[0].children[0].value).equals('texttext');
+    check(xml.children[0].children[0]).not((it) => it.identicalTo(nested));
     final actual = xml.toString();
     const expected = '<element>texttext</element>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('nested node (data)', () {
@@ -224,11 +229,12 @@ void main() {
     final nested = XmlComment('abc');
     builder.element('element', nest: nested);
     final xml = builder.buildDocument();
-    expect(xml.children[0].children[0].toXmlString(), nested.toXmlString());
-    expect(xml.children[0].children[0], isNot(same(nested)));
+    check(xml.children[0].children[0].toXmlString())
+        .equals(nested.toXmlString());
+    check(xml.children[0].children[0]).not((it) => it.identicalTo(nested));
     final actual = xml.toString();
     const expected = '<element><!--abc--></element>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('nested node (attribute)', () {
@@ -236,36 +242,36 @@ void main() {
     final nested = XmlAttribute(const XmlName.qualified('foo'), 'bar');
     builder.element('element', nest: nested);
     final xml = builder.buildDocument();
-    expect(xml.children[0].attributes[0].toXmlString(), nested.toXmlString());
-    expect(xml.children[0].attributes[0], isNot(same(nested)));
+    check(xml.children[0].attributes[0].toXmlString())
+        .equals(nested.toXmlString());
+    check(xml.children[0].attributes[0]).not((it) => it.identicalTo(nested));
     final actual = xml.toString();
     const expected = '<element foo="bar"/>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('nested node (document)', () {
     final builder = XmlBuilder();
     final nested = XmlDocument([]);
-    expect(() => builder.element('element', nest: nested), throwsArgumentError);
+    check(() => builder.element('element', nest: nested))
+        .throws<ArgumentError>();
   });
   test('nested node (document fragment)', () {
     final builder = XmlBuilder();
     final nested = XmlDocumentFragment([XmlText('foo'), XmlComment('bar')]);
     builder.element('element', nest: nested);
     final xml = builder.buildDocument();
-    expect(
-      xml.children[0].children[0].toXmlString(),
-      nested.children[0].toXmlString(),
-    );
-    expect(xml.children[0].children[0], isNot(same(nested.children[0])));
-    expect(
-      xml.children[0].children[1].toXmlString(),
-      nested.children[1].toXmlString(),
-    );
-    expect(xml.children[0].children[1], isNot(same(nested.children[1])));
+    check(xml.children[0].children[0].toXmlString())
+        .equals(nested.children[0].toXmlString());
+    check(xml.children[0].children[0])
+        .not((it) => it.identicalTo(nested.children[0]));
+    check(xml.children[0].children[1].toXmlString())
+        .equals(nested.children[1].toXmlString());
+    check(xml.children[0].children[1])
+        .not((it) => it.identicalTo(nested.children[1]));
     final actual = xml.toString();
     const expected = '<element>foo<!--bar--></element>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('text', () {
@@ -281,7 +287,7 @@ void main() {
     final xml = builder.buildDocument();
     final actual = xml.toString();
     const expected = '<text>abcdef</text>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('doctype (plain)', () {
@@ -291,7 +297,7 @@ void main() {
     final xml = builder.buildDocument();
     final actual = xml.toString();
     const expected = '<!DOCTYPE note><root/>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('doctype (system ID)', () {
@@ -301,7 +307,7 @@ void main() {
     final xml = builder.buildDocument();
     final actual = xml.toString();
     const expected = '<!DOCTYPE note SYSTEM "system.dtd"><root/>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('doctype (public ID)', () {
@@ -311,7 +317,7 @@ void main() {
     final xml = builder.buildDocument();
     final actual = xml.toString();
     const expected = '<!DOCTYPE note PUBLIC "public.dtd" "system.dtd"><root/>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('doctype (internal subset)', () {
@@ -321,15 +327,13 @@ void main() {
     final xml = builder.buildDocument();
     final actual = xml.toString();
     const expected = '<!DOCTYPE note [<!ELEMENT br EMPTY>]><root/>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('doctype (error)', () {
     final builder = XmlBuilder();
-    expect(
-      () => builder.doctype('note', publicId: 'public.dtd'),
-      throwsArgumentError,
-    );
+    check(() => builder.doctype('note', publicId: 'public.dtd'))
+        .throws<ArgumentError>();
   });
   test('attribute', () {
     final builder = XmlBuilder();
@@ -341,7 +345,7 @@ void main() {
     );
     final xml = builder.buildDocument();
     final actual = xml.toString();
-    expect(actual, '<element foo="bar"/>');
+    check(actual).equals('<element foo="bar"/>');
     assertDocumentInvariants(xml);
   });
   test('attribute (single quote)', () {
@@ -358,7 +362,7 @@ void main() {
     );
     final xml = builder.buildDocument();
     final actual = xml.toString();
-    expect(actual, '<element foo=\'bar\'/>');
+    check(actual).equals('<element foo=\'bar\'/>');
     assertDocumentInvariants(xml);
   });
   test('attribute (replaced)', () {
@@ -372,7 +376,7 @@ void main() {
     );
     final xml = builder.buildDocument();
     final actual = xml.toString();
-    expect(actual, '<element foo="zork"/>');
+    check(actual).equals('<element foo="zork"/>');
     assertDocumentInvariants(xml);
   });
   test('attribute (removed)', () {
@@ -386,7 +390,7 @@ void main() {
     );
     final xml = builder.buildDocument();
     final actual = xml.toString();
-    expect(actual, '<element/>');
+    check(actual).equals('<element/>');
     assertDocumentInvariants(xml);
   });
   test('attribute (multiple)', () {
@@ -401,7 +405,7 @@ void main() {
     );
     final xml = builder.buildDocument();
     final actual = xml.toString();
-    expect(actual, '<element a1="1" a2="2" a3="3" a4="4" a5="5"/>');
+    check(actual).equals('<element a1="1" a2="2" a3="3" a4="4" a5="5"/>');
     assertDocumentInvariants(xml);
   });
   test('attribute (update)', () {
@@ -416,7 +420,7 @@ void main() {
     final xml = builder.buildDocument();
     final actual = xml.toString();
     const expected = '<element lang="de"/>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('attribute (update with namespace)', () {
@@ -444,7 +448,7 @@ void main() {
         'xmlns:xhtml="http://www.w3.org/1999/xhtml" '
         'xmlns:xlink="http://www.w3.org/1999/xlink" '
         'xhtml:lang="de" xlink:lang="de"/>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('attribute (update with namespace, deprecated)', () {
@@ -475,7 +479,7 @@ void main() {
         'xmlns:xhtml="http://www.w3.org/1999/xhtml" '
         'xmlns:xlink="http://www.w3.org/1999/xlink" '
         'xhtml:lang="de" xlink:lang="de"/>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('attribute (update with unknown namespace)', () {
@@ -490,7 +494,7 @@ void main() {
     final xml = builder.buildDocument();
     final actual = xml.toString();
     const expected = '<element xhtml:lang="de"/>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('xml', () {
@@ -499,7 +503,7 @@ void main() {
     final xml = builder.buildDocument();
     final actual = xml.toString();
     const expected = '<element attr="value"/>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('xml (nested)', () {
@@ -513,7 +517,7 @@ void main() {
     final xml = builder.buildDocument();
     final actual = xml.toString();
     const expected = '<outer><inner attr="value"/></outer>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('xml (multiple)', () {
@@ -528,7 +532,7 @@ void main() {
     final xml = builder.buildDocument();
     final actual = xml.toString();
     const expected = '<outer><inner1/><inner2>hello</inner2></outer>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('xml (invalid)', () {
@@ -536,24 +540,18 @@ void main() {
     builder.element(
       'outer',
       nest: () {
-        expect(
-          () => builder.xml('<broken>'),
-          throwsA(
-            isXmlTagException(
-              message: 'Missing closing tag </broken>',
-              expectedName: 'broken',
-              actualName: isNull,
-              buffer: '<broken>',
-              position: 8,
-            ),
-          ),
-        );
+        check(() => builder.xml('<broken>')).throws<XmlTagException>()
+          ..message.contains('Missing closing tag </broken>')
+          ..expectedName.equals('broken')
+          ..actualName.isNull()
+          ..buffer.equals('<broken>')
+          ..position.equals(8);
       },
     );
     final xml = builder.buildDocument();
     final actual = xml.toString();
     const expected = '<outer/>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('namespace binding', () {
@@ -577,7 +575,7 @@ void main() {
         '<xsd:element1/>'
         '<xsd:element2/>'
         '</xsd:schema>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('namespace binding (deprecated)', () {
@@ -602,7 +600,7 @@ void main() {
         '<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsd:lang="en">'
         '<xsd:element/>'
         '</xsd:schema>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('default namespace binding', () {
@@ -626,7 +624,7 @@ void main() {
         '<element1/>'
         '<element2/>'
         '</schema>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('default namespace binding (deprecated)', () {
@@ -651,102 +649,81 @@ void main() {
         '<schema xmlns="http://www.w3.org/2001/XMLSchema" lang="en">'
         '<element/>'
         '</schema>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('undefined namespace', () {
     final builder = XmlBuilder();
-    expect(
-      () => builder.element('element', namespaceUri: 'http://foo.com/'),
-      throwsArgumentError,
-    );
-    expect(
-      () => builder.element('element', namespacePrefix: 'http://foo.com/'),
-      throwsArgumentError,
-    );
+    check(() => builder.element('element', namespaceUri: 'http://foo.com/'))
+        .throws<ArgumentError>();
+    check(() => builder.element('element', namespacePrefix: 'http://foo.com/'))
+        .throws<ArgumentError>();
   });
   test('both prefix and uri', () {
     final builder = XmlBuilder();
-    expect(
+    check(
       () => builder.element(
         'element',
         namespacePrefix: 'foo',
         namespaceUri: 'http://foo.com/',
       ),
-      throwsArgumentError,
-    );
+    ).throws<ArgumentError>();
     builder.element(
       'element',
       nest: () {
-        expect(
+        check(
           () => builder.attribute(
             'attr',
             'value',
             namespacePrefix: 'foo',
             namespaceUri: 'http://foo.com/',
           ),
-          throwsArgumentError,
-        );
+        ).throws<ArgumentError>();
       },
     );
   });
   test('undefined namespace (deprecated)', () {
     final builder = XmlBuilder();
-    expect(
-      // ignore: deprecated_member_use_from_same_package
-      () => builder.element('element', namespace: 'http://foo.com/'),
-      throwsArgumentError,
-    );
+    check(() => builder.element('element', namespace: 'http://foo.com/'))
+        .throws<ArgumentError>();
   });
   test('invalid namespace', () {
     final builder = XmlBuilder();
     builder.element(
       'element',
       nest: () {
-        expect(
-          () => builder.namespaceUri('xml', 'http://foo.com/'),
-          throwsArgumentError,
-        );
-        expect(
-          () => builder.namespaceUri('xmlns', 'http://2.foo.com/'),
-          throwsArgumentError,
-        );
+        check(() => builder.namespaceUri('xml', 'http://foo.com/'))
+            .throws<ArgumentError>();
+        check(() => builder.namespaceUri('xmlns', 'http://2.foo.com/'))
+            .throws<ArgumentError>();
       },
     );
     final xml = builder.buildDocument();
     final actual = xml.toString();
     const expected = '<element/>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('invalid namespace prefix (URL)', () {
     final builder = XmlBuilder();
-    expect(
-      () => builder.namespaceUri('http://foo.com/', 'uri'),
-      throwsA(isA<AssertionError>()),
-    );
+    check(() => builder.namespaceUri('http://foo.com/', 'uri'))
+        .throws<AssertionError>();
   }, skip: !hasAssertionsEnabled());
   test('invalid namespace (deprecated)', () {
     final builder = XmlBuilder();
     builder.element(
       'element',
       nest: () {
-        expect(
-          // ignore: deprecated_member_use_from_same_package
-          () => builder.namespace('http://foo.com/', 'xml'),
-          throwsArgumentError,
-        );
-        expect(
-          // ignore: deprecated_member_use_from_same_package
-          () => builder.namespace('http://2.foo.com/', 'xmlns'),
-          throwsArgumentError,
-        );
+        check(() => builder.namespace('http://foo.com/', 'xml'))
+            .throws<ArgumentError>();
+        check(() => builder.namespace('http://2.foo.com/', 'xmlns'))
+            .throws<ArgumentError>();
       },
     );
     final xml = builder.buildDocument();
     final actual = xml.toString();
     const expected = '<element/>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('conflicting namespace', () {
@@ -755,17 +732,15 @@ void main() {
       'element',
       nest: () {
         builder.namespaceUri('foo', 'http://foo.com/');
-        expect(
-          () => builder.namespaceUri('foo', 'http://2.foo.com/'),
-          throwsArgumentError,
-        );
+        check(() => builder.namespaceUri('foo', 'http://2.foo.com/'))
+            .throws<ArgumentError>();
       },
       namespaceUri: 'http://foo.com/',
     );
     final xml = builder.buildDocument();
     final actual = xml.toString();
     const expected = '<foo:element xmlns:foo="http://foo.com/"/>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('conflicting namespace (deprecated)', () {
@@ -775,11 +750,8 @@ void main() {
       nest: () {
         // ignore: deprecated_member_use_from_same_package
         builder.namespace('http://foo.com/', 'foo');
-        expect(
-          // ignore: deprecated_member_use_from_same_package
-          () => builder.namespace('http://2.foo.com/', 'foo'),
-          throwsArgumentError,
-        );
+        check(() => builder.namespace('http://2.foo.com/', 'foo'))
+            .throws<ArgumentError>();
       },
       // ignore: deprecated_member_use_from_same_package
       namespace: 'http://foo.com/',
@@ -787,7 +759,7 @@ void main() {
     final xml = builder.buildDocument();
     final actual = xml.toString();
     const expected = '<foo:element xmlns:foo="http://foo.com/"/>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('unused namespace', () {
@@ -801,7 +773,7 @@ void main() {
     final xml = builder.buildDocument();
     final actual = xml.toString();
     const expected = '<element xmlns:foo="http://foo.com/"/>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('unused namespace (deprecated)', () {
@@ -816,7 +788,7 @@ void main() {
     final xml = builder.buildDocument();
     final actual = xml.toString();
     const expected = '<element xmlns:foo="http://foo.com/"/>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('unused namespace (optimized)', () {
@@ -830,7 +802,7 @@ void main() {
     final xml = builder.buildDocument();
     final actual = xml.toString();
     const expected = '<element/>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('unused namespace (optimized, deprecated)', () {
@@ -845,7 +817,7 @@ void main() {
     final xml = builder.buildDocument();
     final actual = xml.toString();
     const expected = '<element/>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('duplicate namespace', () {
@@ -877,7 +849,7 @@ void main() {
         '<inner xmlns:foo="http://foo.com/" foo:lang="en"/>'
         '</outer>'
         '</element>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('duplicate namespace (deprecated)', () {
@@ -913,7 +885,7 @@ void main() {
         '<inner xmlns:foo="http://foo.com/" foo:lang="en"/>'
         '</outer>'
         '</element>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('duplicate namespace on attribute (optimized)', () {
@@ -945,7 +917,7 @@ void main() {
         '<inner foo:lang="en"/>'
         '</outer>'
         '</element>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('duplicate namespace on attribute (optimized, deprecated)', () {
@@ -981,7 +953,7 @@ void main() {
         '<inner foo:lang="en"/>'
         '</outer>'
         '</element>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('duplicate namespace on element (optimized)', () {
@@ -1006,7 +978,7 @@ void main() {
         '<foo:inner/>'
         '</outer>'
         '</element>';
-    expect(actual, expected);
+    check(actual).equals(expected);
   });
   test('duplicate namespace on element (optimized, deprecated)', () {
     final builder = XmlBuilder(optimizeNamespaces: true);
@@ -1033,7 +1005,7 @@ void main() {
         '<foo:inner/>'
         '</outer>'
         '</element>';
-    expect(actual, expected);
+    check(actual).equals(expected);
   });
   test('namespace defined with element', () {
     final builder = XmlBuilder();
@@ -1046,7 +1018,7 @@ void main() {
     const expected =
         '<element xmlns:foo="http://foo.com/" '
         'xmlns="http://bar.com/"/>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('namespace defined with element (deprecated)', () {
@@ -1061,7 +1033,7 @@ void main() {
     const expected =
         '<element xmlns:foo="http://foo.com/" '
         'xmlns="http://bar.com/"/>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('entities cdata escape', () {
@@ -1071,7 +1043,7 @@ void main() {
     final actual = xml.toString();
     const expected =
         '<element>&lt;test>&lt;![CDATA[string]]&gt;&lt;/test></element>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('declaration', () {
@@ -1088,61 +1060,55 @@ void main() {
     const expected =
         '<?xml version="0.5" encoding="ASCII" standalone="yes" foo="bar"?>'
         '<data/>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('declaration outside of document', () {
     final builder = XmlBuilder();
-    expect(
-      () => builder.element('data', nest: builder.declaration),
-      throwsA(
-        isXmlNodeTypeException(
-          message: startsWith('Got XmlNodeType.DECLARATION'),
-          node: isNotNull,
-          types: contains(XmlNodeType.ELEMENT),
-        ),
-      ),
-    );
+    check(() => builder.element('data', nest: builder.declaration))
+        .throws<XmlNodeTypeException>()
+      ..message.startsWith('Got XmlNodeType.DECLARATION')
+      ..node.isNotNull()
+      ..types.contains(XmlNodeType.ELEMENT);
   });
   test('exception during nesting', () {
     final builder = XmlBuilder();
     builder.element(
       'outer',
       nest: () {
-        expect(
+        check(
           () =>
               builder.element('inner', nest: () => throw UnimplementedError()),
-          throwsUnsupportedError,
-        );
+        ).throws<UnsupportedError>();
       },
     );
     final document = builder.buildDocument();
     final actual = document.toString();
     const expected = '<outer/>';
-    expect(actual, expected);
+    check(actual).equals(expected);
   });
   test('incomplete builder', () {
     final builder = XmlBuilder();
     builder.element(
       'element',
       nest: () {
-        expect(builder.buildDocument, throwsStateError);
+        check(builder.buildDocument).throws<StateError>();
       },
     );
     final xml = builder.buildDocument();
     final actual = xml.toString();
     const expected = '<element/>';
-    expect(actual, expected);
+    check(actual).equals(expected);
     assertDocumentTreeInvariants(xml);
   });
   test('reused builder', () {
     final builder = XmlBuilder();
     builder.element('element-one');
     final firstDocument = builder.buildDocument();
-    expect(firstDocument.toString(), '<element-one/>');
+    check(firstDocument.toString()).equals('<element-one/>');
     builder.element('element-two');
     final secondDocument = builder.buildDocument();
-    expect(secondDocument.toString(), '<element-two/>');
+    check(secondDocument.toString()).equals('<element-two/>');
   });
   test('fragment builder', () {
     final builder = XmlBuilder();

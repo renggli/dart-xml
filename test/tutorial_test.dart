@@ -1,4 +1,5 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xml_events.dart';
 import 'package:xml/xpath.dart';
@@ -24,11 +25,9 @@ void main() {
       assertDocumentInvariants(document);
     });
     test('printing document', () {
-      expect(document.toString(), bookshelfXml);
-      expect(
-        document.toXmlString(pretty: true, indent: '\t'),
-        startsWith('<?xml version="1.0"?>'),
-      );
+      check(document.toString()).equals(bookshelfXml);
+      check(document.toXmlString(pretty: true, indent: '\t'))
+          .startsWith('<?xml version="1.0"?>');
     });
   });
   group('traversing and querying', () {
@@ -38,16 +37,14 @@ void main() {
           .map((text) => text.value.trim())
           .where((string) => string.isNotEmpty)
           .join('\n');
-      expect(
-        textual,
+      check(textual).equals(
         'Growing a Language\n'
         '29.99\n'
         'Learning XML\n'
         '39.95\n'
         '132.00',
       );
-      expect(
-        document.innerText,
+      check(document.innerText).equals(
         '\n'
         '    \n'
         '      \n'
@@ -66,7 +63,7 @@ void main() {
       final titles = document
           .findAllElements('title')
           .map((element) => element.innerText);
-      expect(titles, ['Growing a Language', 'Learning XML']);
+      check(titles).deepEquals(['Growing a Language', 'Learning XML']);
     });
     test('nested find elements', () {
       final total = document
@@ -76,34 +73,34 @@ void main() {
                 double.parse(element.findElements('price').single.innerText),
           )
           .reduce((a, b) => a + b);
-      expect(total, closeTo(69.94, 0.1));
+      check(total).isCloseTo(69.94, 0.1);
     });
     test('find all the books in the bookshelf', () {
-      expect(document.xpath('/bookshelf/book'), hasLength(2));
+      check(document.xpath('/bookshelf/book')).length.equals(2);
     });
     test('find the second book in the bookshelf', () {
-      expect(document.xpath('/bookshelf/book[2]'), hasLength(1));
+      check(document.xpath('/bookshelf/book[2]')).length.equals(1);
     });
     test('find all the english titles anywhere', () {
-      expect(document.xpath('//title[@lang="en"]'), hasLength(2));
+      check(document.xpath('//title[@lang="en"]')).length.equals(2);
     });
     test('find all the books with an english title', () {
-      expect(document.xpath('//book[title/@lang="en"]'), hasLength(2));
+      check(document.xpath('//book[title/@lang="en"]')).length.equals(2);
     });
     test('sum up the prices of all the books', () {
       final total = document
           .xpath('//book/price/text()')
           .map((node) => double.parse(node.value!))
           .reduce((a, b) => a + b);
-      expect(total, closeTo(69.94, 0.1));
+      check(total).isCloseTo(69.94, 0.1);
     });
     test('evaluate xpath expression', () {
       final result = document.xpathEvaluate('sum(//book/price)').single;
-      expect(result.toValue(), closeTo(69.94, 0.01));
+      check(result.toValue() as num).isCloseTo(69.94, 0.01);
     });
     test('generate xpath expression', () {
       final title = document.findAllElements('title').first;
-      expect(title.xpathGenerate(), '/bookshelf/book[1]/title');
+      check(title.xpathGenerate()).equals('/bookshelf/book[1]/title');
     });
   });
   group('building', () {
@@ -143,10 +140,8 @@ void main() {
         },
       );
       final builtDocument = builder.buildDocument();
-      expect(
-        document.toXmlString(pretty: true),
-        builtDocument.toXmlString(pretty: true),
-      );
+      check(document.toXmlString(pretty: true))
+          .equals(builtDocument.toXmlString(pretty: true));
     });
     test('a fragment', () {
       void buildBook(
@@ -178,7 +173,7 @@ void main() {
       final titles = builtDocument
           .findAllElements('title')
           .map((node) => node.innerText);
-      expect(titles, [
+      check(titles).deepEquals([
         'Growing a Language',
         'Learning XML',
         'The War of the Worlds',
@@ -193,8 +188,7 @@ void main() {
           .map((event) => event.value.trim())
           .where((text) => text.isNotEmpty)
           .join('\n');
-      expect(
-        result,
+      check(result).equals(
         'Growing a Language\n'
         '29.99\n'
         'Learning XML\n'
@@ -214,8 +208,7 @@ void main() {
                 .where((text) => text.isNotEmpty),
           )
           .join('\n');
-      expect(
-        result,
+      check(result).equals(
         'Growing a Language\n'
         '29.99\n'
         'Learning XML\n'
@@ -233,8 +226,7 @@ void main() {
           .expand((nodes) => nodes)
           .map((node) => node.innerText)
           .join('\n');
-      expect(
-        result,
+      check(result).equals(
         'Growing a Language\n'
         'Learning XML',
       );
@@ -264,8 +256,8 @@ void main() {
           .expand((nodes) => nodes)
           .forEach((node) => list.add(node.toXmlString(pretty: true)));
 
-      expect(list, isNotEmpty);
-      expect(list.first, contains('orderperson'));
+      check(list).isNotEmpty();
+      check(list.first).contains('orderperson');
     });
   });
 }

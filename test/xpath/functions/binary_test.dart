@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/functions/binary.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
+import '../../utils/checks.dart';
 
 final context = const XPathConfiguration.raw().context(XmlDocument());
 
@@ -15,19 +16,16 @@ void main() {
     test('converts string to bytes', () {
       const input = 'SGVsbG8gV29ybGQ=';
       final expected = Uint8List.fromList(utf8.encode('Hello World'));
-      expect(
+      check(
         fnBase64BinaryFromString(context, [
           const XPathSequence.single(XPathString(input)),
         ]),
-        isXPathSequence([expected]),
-      );
+      ).isXPathSequence([expected]);
     });
 
     test('returns empty for empty sequence', () {
-      expect(
-        fnBase64BinaryFromString(context, [XPathSequence.empty]),
-        isXPathSequence(isEmpty),
-      );
+      check(fnBase64BinaryFromString(context, [XPathSequence.empty]))
+          .isXPathSequence(isEmpty);
     });
   });
 
@@ -35,19 +33,16 @@ void main() {
     test('converts string to bytes', () {
       const input = '48656C6C6F20576F726C64';
       final expected = Uint8List.fromList(utf8.encode('Hello World'));
-      expect(
+      check(
         fnHexBinaryFromString(context, [
           const XPathSequence.single(XPathString(input)),
         ]),
-        isXPathSequence([expected]),
-      );
+      ).isXPathSequence([expected]);
     });
 
     test('returns empty for empty sequence', () {
-      expect(
-        fnHexBinaryFromString(context, [XPathSequence.empty]),
-        isXPathSequence(isEmpty),
-      );
+      check(fnHexBinaryFromString(context, [XPathSequence.empty]))
+          .isXPathSequence(isEmpty);
     });
   });
 }

@@ -1,14 +1,12 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xml/nodes/document.dart';
 import 'package:xml/src/xml/utils/name.dart';
-import 'package:xml/src/xpath/evaluation/configuration.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/evaluation/namespaces.dart';
-import 'package:xml/src/xpath/xdm/functions/function.dart';
-import 'package:xml/src/xpath/xdm/item.dart';
-import 'package:xml/src/xpath/xdm/sequence.dart';
+import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
+import '../../utils/checks.dart';
 
 final standard = XPathConfiguration.standard();
 
@@ -44,15 +42,15 @@ void main() {
   group('constructor', () {
     test('default', () {
       final context = XPathConfiguration();
-      expect(context.variables, standard.variables);
-      expect(context.functions, standard.functions);
-      expect(context.namespaceUri, standard.namespaceUri);
-      expect(context.namespaceUris, standard.namespaceUris);
-      expect(context.documents, standard.documents);
-      expect(context.environment, standard.environment);
-      expect(context.baseUri, standard.baseUri);
-      expect(context.unparsedTextLoader, standard.unparsedTextLoader);
-      expect(context.onTraceCallback, standard.onTraceCallback);
+      check(context.variables).equals(standard.variables);
+      check(context.functions).equals(standard.functions);
+      check(context.namespaceUri).equals(standard.namespaceUri);
+      check(context.namespaceUris).equals(standard.namespaceUris);
+      check(context.documents).equals(standard.documents);
+      check(context.environment).equals(standard.environment);
+      check(context.baseUri).equals(standard.baseUri);
+      check(context.unparsedTextLoader).equals(standard.unparsedTextLoader);
+      check(context.onTraceCallback).equals(standard.onTraceCallback);
     });
     test('custom', () {
       final context = XPathConfiguration(
@@ -66,31 +64,34 @@ void main() {
         unparsedTextLoader: textLoader1,
         onTraceCallback: trace1,
       );
-      expect(context.variables, {
+      check(context.variables).deepEquals({
         ...standard.variables,
         'var': XPathSequence.fromObject(42),
       });
-      expect(context.functions, {...standard.functions, name1: fun1});
-      expect(context.namespaceUri, 'namespaceUri');
-      expect(context.namespaceUris, {...standard.namespaceUris, 'ns': 'uri'});
-      expect(context.documents, {...standard.documents, 'doc': document});
-      expect(context.environment, {...standard.environment, 'env': 'value'});
-      expect(context.baseUri, 'baseUri');
-      expect(context.unparsedTextLoader, textLoader1);
-      expect(context.onTraceCallback, trace1);
+      check(context.functions).deepEquals({...standard.functions, name1: fun1});
+      check(context.namespaceUri).equals('namespaceUri');
+      check(context.namespaceUris)
+          .deepEquals({...standard.namespaceUris, 'ns': 'uri'});
+      check(context.documents)
+          .deepEquals({...standard.documents, 'doc': document});
+      check(context.environment)
+          .deepEquals({...standard.environment, 'env': 'value'});
+      check(context.baseUri).equals('baseUri');
+      check(context.unparsedTextLoader).equals(textLoader1);
+      check(context.onTraceCallback).equals(trace1);
     });
     test('standard', () {
       final context = XPathConfiguration.standard();
-      expect(context, same(standard));
-      expect(context.variables, isEmpty);
-      expect(context.functions, isNotEmpty);
-      expect(context.namespaceUri, xpathFnNamespace);
-      expect(context.namespaceUris, xpathNamespaceUris);
-      expect(context.documents, isEmpty);
-      expect(context.environment, isEmpty);
-      expect(context.baseUri, isNull);
-      expect(context.unparsedTextLoader, isNull);
-      expect(context.onTraceCallback, isNull);
+      check(context).identicalTo(standard);
+      check(context.variables).isEmpty();
+      check(context.functions).isNotEmpty();
+      check(context.namespaceUri).equals(xpathFnNamespace);
+      check(context.namespaceUris).equals(xpathNamespaceUris);
+      check(context.documents).isEmpty();
+      check(context.environment).isEmpty();
+      check(context.baseUri).isNull();
+      check(context.unparsedTextLoader).isNull();
+      check(context.onTraceCallback).isNull();
     });
     test('raw', () {
       final context = XPathConfiguration.raw(
@@ -104,62 +105,60 @@ void main() {
         unparsedTextLoader: textLoader1,
         onTraceCallback: trace1,
       );
-      expect(context.variables, {'var': XPathSequence.fromObject(42)});
-      expect(context.functions, {name1: fun1});
-      expect(context.namespaceUri, 'namespaceUri');
-      expect(context.namespaceUris, {'ns': 'uri'});
-      expect(context.documents, {'doc': document});
-      expect(context.environment, {'env': 'value'});
-      expect(context.baseUri, 'baseUri');
-      expect(context.unparsedTextLoader, textLoader1);
-      expect(context.onTraceCallback, trace1);
+      check(context.variables)
+          .deepEquals({'var': XPathSequence.fromObject(42)});
+      check(context.functions).deepEquals({name1: fun1});
+      check(context.namespaceUri).equals('namespaceUri');
+      check(context.namespaceUris).deepEquals({'ns': 'uri'});
+      check(context.documents).deepEquals({'doc': document});
+      check(context.environment).deepEquals({'env': 'value'});
+      check(context.baseUri).equals('baseUri');
+      check(context.unparsedTextLoader).equals(textLoader1);
+      check(context.onTraceCallback).equals(trace1);
     });
   });
   test('getFunction', () {
     final staticContext = XPathConfiguration(
       functions: {name1: fun1, name2: fun2},
     );
-    expect(staticContext.getFunction(name1), fun1);
-    expect(staticContext.getFunction(name2), fun2);
-    expect(
-      () => staticContext.getFunction(const XmlName.qualified('other')),
-      throwsA(isXPathEvaluationException(message: 'Unknown function: other')),
-    );
-    expect(
-      () => standard.getFunctionByString('round', 5),
-      throwsA(
-        isXPathEvaluationException(
-          message: 'Function "round" does not support arity 5 [err:XPST0017]',
-        ),
-      ),
-    );
+    check(staticContext.getFunction(name1)).equals(fun1);
+    check(staticContext.getFunction(name2)).equals(fun2);
+    check(() => staticContext.getFunction(const XmlName.qualified('other')))
+        .throws<XPathEvaluationException>()
+        .which(isXPathEvaluationException(message: 'Unknown function: other'));
+    check(() => standard.getFunctionByString('round', 5))
+        .throws<XPathEvaluationException>()
+        .which(
+          isXPathEvaluationException(
+            message: 'Function "round" does not support arity 5 [err:XPST0017]',
+          ),
+        );
   });
   test('getFunctionByString', () {
     final staticContext = XPathConfiguration(
       functions: {name1: fun1, name2: fun2},
     );
-    expect(staticContext.getFunctionByString('fun1'), fun1);
-    expect(staticContext.getFunctionByString('fn:fun1'), fun1);
-    expect(staticContext.getFunctionByString('array:fun2'), fun2);
-    expect(
-      () => staticContext.getFunctionByString('fun2'),
-      throwsA(isXPathEvaluationException(message: 'Unknown function: fun2')),
-    );
+    check(staticContext.getFunctionByString('fun1')).equals(fun1);
+    check(staticContext.getFunctionByString('fn:fun1')).equals(fun1);
+    check(staticContext.getFunctionByString('array:fun2')).equals(fun2);
+    check(() => staticContext.getFunctionByString('fun2'))
+        .throws<XPathEvaluationException>()
+        .which(isXPathEvaluationException(message: 'Unknown function: fun2'));
   });
   group('context', () {
     test('default', () {
       final context = standard.context();
-      expect(context.item, isXPathSequence(isEmpty));
-      expect(context.configuration, same(standard));
+      check(context.item).isA<XPathSequence>().isEmpty();
+      check(context.configuration).identicalTo(standard);
     });
     test('context', () {
       final context = standard.context(document);
-      expect(context.item, XPathNode(document));
-      expect(context.configuration, same(standard));
+      check(context.item).equals(XPathNode(document));
+      check(context.configuration).identicalTo(standard);
     });
     test('evaluate', () {
       final result = standard.context().evaluate('1 + 2');
-      expect(result, isXPathSequence([3]));
+      check(result).isXPathSequence([3]);
     });
   });
   group('copy', () {
@@ -176,15 +175,15 @@ void main() {
     );
     test('without overrides', () {
       final copy = base.copy();
-      expect(copy.variables, {'var1': XPathSequence.fromObject(41)});
-      expect(copy.functions, {name1: fun1});
-      expect(copy.namespaceUri, 'namespaceUri1');
-      expect(copy.namespaceUris, {'ns1': 'uri1'});
-      expect(copy.documents, {'doc1': document});
-      expect(copy.environment, {'env1': 'value1'});
-      expect(copy.baseUri, 'baseUri1');
-      expect(copy.unparsedTextLoader, textLoader1);
-      expect(copy.onTraceCallback, trace1);
+      check(copy.variables).deepEquals({'var1': XPathSequence.fromObject(41)});
+      check(copy.functions).deepEquals({name1: fun1});
+      check(copy.namespaceUri).equals('namespaceUri1');
+      check(copy.namespaceUris).deepEquals({'ns1': 'uri1'});
+      check(copy.documents).deepEquals({'doc1': document});
+      check(copy.environment).deepEquals({'env1': 'value1'});
+      check(copy.baseUri).equals('baseUri1');
+      check(copy.unparsedTextLoader).equals(textLoader1);
+      check(copy.onTraceCallback).equals(trace1);
     });
     test('with overrides', () {
       final copy = base.copy(
@@ -198,18 +197,18 @@ void main() {
         unparsedTextLoader: textLoader2,
         onTraceCallback: trace2,
       );
-      expect(copy.variables, {
+      check(copy.variables).deepEquals({
         'var1': XPathSequence.fromObject(41),
         'var2': XPathSequence.fromObject(42),
       });
-      expect(copy.functions, {name1: fun1, name2: fun2});
-      expect(copy.namespaceUri, 'namespaceUri2');
-      expect(copy.namespaceUris, {'ns1': 'uri1', 'ns2': 'uri2'});
-      expect(copy.documents, {'doc1': document, 'doc2': document});
-      expect(copy.environment, {'env1': 'value1', 'env2': 'value2'});
-      expect(copy.baseUri, 'baseUri2');
-      expect(copy.unparsedTextLoader, textLoader2);
-      expect(copy.onTraceCallback, trace2);
+      check(copy.functions).deepEquals({name1: fun1, name2: fun2});
+      check(copy.namespaceUri).equals('namespaceUri2');
+      check(copy.namespaceUris).deepEquals({'ns1': 'uri1', 'ns2': 'uri2'});
+      check(copy.documents).deepEquals({'doc1': document, 'doc2': document});
+      check(copy.environment).deepEquals({'env1': 'value1', 'env2': 'value2'});
+      check(copy.baseUri).equals('baseUri2');
+      check(copy.unparsedTextLoader).equals(textLoader2);
+      check(copy.onTraceCallback).equals(trace2);
     });
   });
 }

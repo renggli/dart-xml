@@ -1,8 +1,8 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 final root = XmlDocument.parse('<root/>');
@@ -47,18 +47,12 @@ void main() {
     });
 
     test('invalid integer lexical value', () {
-      expect(
-        () => expectEval('xs:integer("12.34")', []),
-        throwsA(isA<XPathEvaluationException>()),
-      );
-      expect(
-        () => expectEval('xs:integer("INF")', []),
-        throwsA(isA<XPathEvaluationException>()),
-      );
-      expect(
-        () => expectEval('xs:integer("- 1")', []),
-        throwsA(isA<XPathEvaluationException>()),
-      );
+      check(() => expectEval('xs:integer("12.34")', []))
+          .throws<XPathEvaluationException>();
+      check(() => expectEval('xs:integer("INF")', []))
+          .throws<XPathEvaluationException>();
+      check(() => expectEval('xs:integer("- 1")', []))
+          .throws<XPathEvaluationException>();
     });
 
     test('float/decimal cast to integer', () {
@@ -190,14 +184,10 @@ void main() {
       expectEval('xs:duration("P1Y2M3DT4H5M6.7S")', isXPathSequence([d]));
     });
     test('invalid cast throws', () {
-      expect(
-        () => expectEval('xs:duration("P")', []),
-        throwsA(isA<XPathEvaluationException>()),
-      );
-      expect(
-        () => expectEval('xs:duration("1Y")', []),
-        throwsA(isA<XPathEvaluationException>()),
-      );
+      check(() => expectEval('xs:duration("P")', []))
+          .throws<XPathEvaluationException>();
+      check(() => expectEval('xs:duration("1Y")', []))
+          .throws<XPathEvaluationException>();
     });
   });
 
@@ -218,14 +208,10 @@ void main() {
       );
     });
     test('invalid cast throws', () {
-      expect(
-        () => expectEval('xs:dayTimeDuration("P1Y2M3D")', []),
-        throwsA(isA<XPathEvaluationException>()),
-      );
-      expect(
-        () => expectEval('xs:dayTimeDuration("P3DT4H5M6.7S1")', []),
-        throwsA(isA<XPathEvaluationException>()),
-      );
+      check(() => expectEval('xs:dayTimeDuration("P1Y2M3D")', []))
+          .throws<XPathEvaluationException>();
+      check(() => expectEval('xs:dayTimeDuration("P3DT4H5M6.7S1")', []))
+          .throws<XPathEvaluationException>();
     });
   });
 
@@ -245,14 +231,10 @@ void main() {
       );
     });
     test('invalid cast throws', () {
-      expect(
-        () => expectEval('xs:yearMonthDuration("P1Y2M3D")', []),
-        throwsA(isA<XPathEvaluationException>()),
-      );
-      expect(
-        () => expectEval('xs:yearMonthDuration("invalid")', []),
-        throwsA(isA<XPathEvaluationException>()),
-      );
+      check(() => expectEval('xs:yearMonthDuration("P1Y2M3D")', []))
+          .throws<XPathEvaluationException>();
+      check(() => expectEval('xs:yearMonthDuration("invalid")', []))
+          .throws<XPathEvaluationException>();
     });
   });
 
@@ -262,7 +244,8 @@ void main() {
       () => expectEval(
         'xs:hexBinary("FF00")',
         isXPathSequence([
-          predicate((object) => object.toString() == '[255, 0]'),
+          (Subject<Object?> s) =>
+              s.has((o) => o.toString(), 'toString()').equals('[255, 0]'),
         ]),
       ),
     );
@@ -274,7 +257,8 @@ void main() {
       () => expectEval(
         'xs:base64Binary("AP8=")',
         isXPathSequence([
-          predicate((object) => object.toString() == '[0, 255]'),
+          (Subject<Object?> s) =>
+              s.has((o) => o.toString(), 'toString()').equals('[0, 255]'),
         ]),
       ),
     );
@@ -295,7 +279,8 @@ void main() {
       expectEval(
         'xs:QName("foo:bar")',
         isXPathSequence([
-          predicate((object) => object.toString() == 'foo:bar'),
+          (Subject<Object?> s) =>
+              s.has((o) => o.toString(), 'toString()').equals('foo:bar'),
         ]),
       );
     });
@@ -343,10 +328,8 @@ void main() {
       );
     });
     test('invalid language', () {
-      expect(
-        () => expectEval('xs:language("invalid_123")', []),
-        throwsA(isA<XPathEvaluationException>()),
-      );
+      check(() => expectEval('xs:language("invalid_123")', []))
+          .throws<XPathEvaluationException>();
     });
     test('empty sequence', () {
       expectEval('xs:language(())', isXPathSequence(isEmpty));
@@ -361,10 +344,8 @@ void main() {
       );
     });
     test('invalid NMTOKEN', () {
-      expect(
-        () => expectEval('xs:NMTOKEN("invalid token")', []),
-        throwsA(isA<XPathEvaluationException>()),
-      );
+      check(() => expectEval('xs:NMTOKEN("invalid token")', []))
+          .throws<XPathEvaluationException>();
     });
     test('empty sequence', () {
       expectEval('xs:NMTOKEN(())', isXPathSequence(isEmpty));
@@ -380,14 +361,10 @@ void main() {
       expectEval('xs:Name("prefix:local")', isXPathSequence(['prefix:local']));
     });
     test('invalid Name', () {
-      expect(
-        () => expectEval('xs:Name("-invalid")', []),
-        throwsA(isA<XPathEvaluationException>()),
-      );
-      expect(
-        () => expectEval('xs:Name("invalid name")', []),
-        throwsA(isA<XPathEvaluationException>()),
-      );
+      check(() => expectEval('xs:Name("-invalid")', []))
+          .throws<XPathEvaluationException>();
+      check(() => expectEval('xs:Name("invalid name")', []))
+          .throws<XPathEvaluationException>();
     });
     test('empty sequence', () {
       expectEval('xs:Name(())', isXPathSequence(isEmpty));
@@ -402,10 +379,8 @@ void main() {
       );
     });
     test('invalid NCName', () {
-      expect(
-        () => expectEval('xs:NCName("prefix:local")', []),
-        throwsA(isA<XPathEvaluationException>()),
-      );
+      check(() => expectEval('xs:NCName("prefix:local")', []))
+          .throws<XPathEvaluationException>();
     });
     test('empty sequence', () {
       expectEval('xs:NCName(())', isXPathSequence(isEmpty));
@@ -417,10 +392,8 @@ void main() {
       expectEval('xs:ID("my-id")', isXPathSequence(['my-id']));
     });
     test('invalid ID', () {
-      expect(
-        () => expectEval('xs:ID("invalid:id")', []),
-        throwsA(isA<XPathEvaluationException>()),
-      );
+      check(() => expectEval('xs:ID("invalid:id")', []))
+          .throws<XPathEvaluationException>();
     });
     test('empty sequence', () {
       expectEval('xs:ID(())', isXPathSequence(isEmpty));
@@ -432,10 +405,8 @@ void main() {
       expectEval('xs:IDREF("my-idref")', isXPathSequence(['my-idref']));
     });
     test('invalid IDREF', () {
-      expect(
-        () => expectEval('xs:IDREF("invalid:idref")', []),
-        throwsA(isA<XPathEvaluationException>()),
-      );
+      check(() => expectEval('xs:IDREF("invalid:idref")', []))
+          .throws<XPathEvaluationException>();
     });
     test('empty sequence', () {
       expectEval('xs:IDREF(())', isXPathSequence(isEmpty));
@@ -447,10 +418,8 @@ void main() {
       expectEval('xs:ENTITY("my-entity")', isXPathSequence(['my-entity']));
     });
     test('invalid ENTITY', () {
-      expect(
-        () => expectEval('xs:ENTITY("invalid:entity")', []),
-        throwsA(isA<XPathEvaluationException>()),
-      );
+      check(() => expectEval('xs:ENTITY("invalid:entity")', []))
+          .throws<XPathEvaluationException>();
     });
     test('empty sequence', () {
       expectEval('xs:ENTITY(())', isXPathSequence(isEmpty));
@@ -462,32 +431,22 @@ void main() {
       expectEval('xs:error(())', isXPathSequence(isEmpty));
     });
     test('invalid arity 0 throws', () {
-      expect(
-        () => root.xpathEvaluate('xs:error()').toList(),
-        throwsA(isA<XPathEvaluationException>()),
-      );
+      check(() => root.xpathEvaluate('xs:error()').toList())
+          .throws<XPathEvaluationException>();
     });
     test('invalid arity 2 throws', () {
-      expect(
-        () => root.xpathEvaluate('xs:error((), ())').toList(),
-        throwsA(isA<XPathEvaluationException>()),
-      );
+      check(() => root.xpathEvaluate('xs:error((), ())').toList())
+          .throws<XPathEvaluationException>();
     });
     test('non-empty argument throws', () {
-      expect(
-        () => root.xpathEvaluate('xs:error(1)').toList(),
-        throwsA(isA<XPathEvaluationException>()),
-      );
-      expect(
-        () => root.xpathEvaluate('xs:error("test")').toList(),
-        throwsA(isA<XPathEvaluationException>()),
-      );
+      check(() => root.xpathEvaluate('xs:error(1)').toList())
+          .throws<XPathEvaluationException>();
+      check(() => root.xpathEvaluate('xs:error("test")').toList())
+          .throws<XPathEvaluationException>();
     });
     test('cast to xs:error throws', () {
-      expect(
-        () => root.xpathEvaluate('1 cast as xs:error').toList(),
-        throwsA(isA<XPathEvaluationException>()),
-      );
+      check(() => root.xpathEvaluate('1 cast as xs:error').toList())
+          .throws<XPathEvaluationException>();
     });
     test('castable as xs:error', () {
       expectEval('1 castable as xs:error', isXPathSequence([false]));
@@ -530,7 +489,8 @@ void main() {
       expectEval('string("test")', isXPathSequence(['test']));
     });
     test('unknown prefix', () {
-      expect(() => root.xpathEvaluate('unknown:func()'), throwsA(anything));
+      check(() => root.xpathEvaluate('unknown:func()'))
+          .throws<XPathEvaluationException>();
     });
   });
 }

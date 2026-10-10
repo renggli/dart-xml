@@ -1,76 +1,85 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xml_events/annotations/has_name.dart';
 import 'package:xml/xml.dart' hide XmlHasName;
 import 'package:xml/xml_events.dart';
 
-import '../utils/matchers.dart';
+import '../utils/checks.dart';
 
-void verify(
+Future<void> verify(
   String input, {
   Iterable<XmlEvent> Function(String input)? iterable,
   Stream<List<XmlEvent>> Function(Stream<String> input)? stream,
   XmlEventCodec? codec,
   required List<String> Function(XmlEvent event) formatter,
   required List<String> exected,
-}) {
+}) async {
   if (iterable != null) {
     final events = iterable(input);
-    expect(events.expand(formatter), exected, reason: 'parseEvents');
+    check(because: 'parseEvents', events.expand(formatter)).deepEquals(exected);
   }
   if (stream != null) {
-    final events = stream(Stream.value(input))
+    final events = await stream(Stream.value(input))
         .expand((each) => each)
-        .expand(formatter);
-    expect(events, emitsInOrder(exected), reason: 'toXmlEvents');
+        .expand(formatter)
+        .toList();
+    check(because: 'toXmlEvents', events).deepEquals(exected);
   }
   if (codec != null) {
     final events = codec.decode(input);
-    expect(events.expand(formatter), exected, reason: 'XmlEventCodec');
+    check(
+      because: 'XmlEventCodec',
+      events.expand(formatter),
+    ).deepEquals(exected);
   }
 }
 
-void verifyError(
+Future<void> verifyError<T extends XmlException>(
   String input, {
   Iterable<XmlEvent> Function(String input)? iterable,
   Stream<List<XmlEvent>> Function(Stream<String> input)? stream,
   XmlEventCodec? codec,
-  Matcher? matcher,
-}) {
+  Condition<T>? matcher,
+}) async {
   if (iterable != null) {
-    expect(
+    final checkSub = check(
+      because: 'parseEvents',
       () => iterable(input).toList(),
-      throwsA(matcher),
-      reason: 'parseEvents',
-    );
-    expect(
+    ).throws<T>();
+    if (matcher != null) {
+      checkSub.which(matcher);
+    }
+    check(
+      because: 'parseEvents',
       () => parseEvents(input).toList(),
-      returnsNormally,
-      reason: 'parseEvents',
-    );
+    ).returnsNormally();
   }
   if (stream != null) {
-    expect(
-      stream(Stream.value(input)),
-      emitsInOrder([mayEmitMultiple(anything), emitsError(matcher)]),
-      reason: 'toXmlEvents',
-    );
-    expect(
-      Stream.value(input).toXmlEvents(),
-      emitsInOrder([mayEmitMultiple(anything), emitsDone]),
-      reason: 'toXmlEvents',
-    );
+    await check(
+      because: 'toXmlEvents',
+      stream(Stream.value(input)).drain<void>(),
+    ).throws<T>((it) {
+      if (matcher != null) {
+        it.which(matcher);
+      }
+    });
+    await check(
+      because: 'toXmlEvents',
+      Stream.value(input).toXmlEvents().drain<void>(),
+    ).completes();
   }
   if (codec != null) {
-    expect(
+    final checkSub = check(
+      because: 'XmlEventCodec',
       () => codec.decode(input),
-      throwsA(matcher),
-      reason: 'XmlEventCodec',
-    );
-    expect(
+    ).throws<T>();
+    if (matcher != null) {
+      checkSub.which(matcher);
+    }
+    check(
+      because: 'XmlEventCodec',
       () => XmlEventCodec().decode(input),
-      returnsNormally,
-      reason: 'XmlEventCodec',
-    );
+    ).returnsNormally();
   }
 }
 
@@ -82,8 +91,8 @@ void main() {
       if (event is XmlStartElementEvent)
         ...event.attributes.map((attr) => attr.value),
     ];
-    test('default', () {
-      verify(
+    test('default', () async {
+      await verify(
         input,
         iterable: parseEvents,
         stream: (input) => input.toXmlEvents(),
@@ -92,8 +101,8 @@ void main() {
         exected: ['&', '&Aacute;&Abreve;'],
       );
     });
-    test('null', () {
-      verify(
+    test('null', () async {
+      await verify(
         input,
         iterable: (input) =>
             parseEvents(input, entityMapping: const XmlNullEntityMapping()),
@@ -104,8 +113,8 @@ void main() {
         exected: ['&amp;', '&Aacute;&Abreve;'],
       );
     });
-    test('html5', () {
-      verify(
+    test('html5', () async {
+      await verify(
         input,
         iterable: (input) => parseEvents(
           input,
@@ -123,8 +132,8 @@ void main() {
     });
   });
   group('validateNesting', () {
-    test('missing closing tag', () {
-      verifyError(
+    test('missing closing tag', () async {
+      await verifyError(
         '<a>',
         iterable: (input) => parseEvents(input, validateNesting: true),
         stream: (input) => input.toXmlEvents(validateNesting: true),
@@ -135,8 +144,8 @@ void main() {
         ),
       );
     });
-    test('unexpected closing tag', () {
-      verifyError(
+    test('unexpected closing tag', () async {
+      await verifyError(
         '</a>',
         iterable: (input) => parseEvents(input, validateNesting: true),
         stream: (input) => input.toXmlEvents(validateNesting: true),
@@ -147,8 +156,8 @@ void main() {
         ),
       );
     });
-    test('mismatched closing tag', () {
-      verifyError(
+    test('mismatched closing tag', () async {
+      await verifyError(
         '<a></b>',
         iterable: (input) => parseEvents(input, validateNesting: true),
         stream: (input) => input.toXmlEvents(validateNesting: true),
@@ -161,8 +170,8 @@ void main() {
     });
   });
   group('validateNamespace', () {
-    test('unknown namespace prefix', () {
-      verifyError(
+    test('unknown namespace prefix', () async {
+      await verifyError(
         '<ns:root/>',
         iterable: (input) => parseEvents(input, validateNamespace: true),
         stream: (input) => input.toXmlEvents(validateNamespace: true),
@@ -173,8 +182,8 @@ void main() {
         ),
       );
     });
-    test('undefined namespace prefix', () {
-      verifyError(
+    test('undefined namespace prefix', () async {
+      await verifyError(
         '<ns:root xmlns:ns="http://example.com"><ns:child xmlns:ns=""/></root>',
         iterable: (input) => parseEvents(input, validateNamespace: true),
         stream: (input) => input.toXmlEvents(validateNamespace: true),
@@ -187,8 +196,8 @@ void main() {
     });
   });
   group('validateDocument', () {
-    test('at most one XML declaration', () {
-      verifyError(
+    test('at most one XML declaration', () async {
+      await verifyError(
         '<?xml version="1.0"?><?xml encoding="utf-8"?>',
         iterable: (input) => parseEvents(input, validateDocument: true),
         stream: (input) => input.toXmlEvents(validateDocument: true),
@@ -199,8 +208,8 @@ void main() {
         ),
       );
     });
-    test('unexpected XML declaration', () {
-      verifyError(
+    test('unexpected XML declaration', () async {
+      await verifyError(
         '<root/><?xml version="1.0"?>',
         iterable: (input) => parseEvents(input, validateDocument: true),
         stream: (input) => input.toXmlEvents(validateDocument: true),
@@ -211,8 +220,8 @@ void main() {
         ),
       );
     });
-    test('at most one doctype declaration', () {
-      verifyError(
+    test('at most one doctype declaration', () async {
+      await verifyError(
         '<!DOCTYPE note><!DOCTYPE note>',
         iterable: (input) => parseEvents(input, validateDocument: true),
         stream: (input) => input.toXmlEvents(validateDocument: true),
@@ -223,8 +232,8 @@ void main() {
         ),
       );
     });
-    test('unexpected doctype declaration', () {
-      verifyError(
+    test('unexpected doctype declaration', () async {
+      await verifyError(
         '<root/><!DOCTYPE note>',
         iterable: (input) => parseEvents(input, validateDocument: true),
         stream: (input) => input.toXmlEvents(validateDocument: true),
@@ -235,8 +244,8 @@ void main() {
         ),
       );
     });
-    test('unexpected root element', () {
-      verifyError(
+    test('unexpected root element', () async {
+      await verifyError(
         '<r1/><r2/>',
         iterable: (input) => parseEvents(input, validateDocument: true),
         stream: (input) => input.toXmlEvents(validateDocument: true),
@@ -247,8 +256,8 @@ void main() {
         ),
       );
     });
-    test('missing root element', () {
-      verifyError(
+    test('missing root element', () async {
+      await verifyError(
         '<?xml version="1.0"?>',
         iterable: (input) => parseEvents(input, validateDocument: true),
         stream: (input) => input.toXmlEvents(validateDocument: true),
@@ -259,8 +268,8 @@ void main() {
         ),
       );
     });
-    test('missing root element (empty document)', () {
-      verifyError(
+    test('missing root element (empty document)', () async {
+      await verifyError(
         '',
         iterable: (input) => parseEvents(input, validateDocument: true),
         stream: (input) => input.toXmlEvents(validateDocument: true),
@@ -275,8 +284,8 @@ void main() {
   group('withBuffer', () {
     const input = '<a><b c="d"/><e:f>g</e:f></h>';
     List<String> formatter(XmlEvent event) => ['$event: ${event.buffer}'];
-    test('false', () {
-      verify(
+    test('false', () async {
+      await verify(
         input,
         iterable: (input) => parseEvents(input, withBuffer: false),
         formatter: formatter,
@@ -290,8 +299,8 @@ void main() {
         ],
       );
     });
-    test('true', () {
-      verify(
+    test('true', () async {
+      await verify(
         input,
         iterable: (input) => parseEvents(input, withBuffer: true),
         formatter: formatter,
@@ -311,8 +320,8 @@ void main() {
     List<String> formatter(XmlEvent event) => [
       '$event: ${event.start}-${event.stop}',
     ];
-    test('false', () {
-      verify(
+    test('false', () async {
+      await verify(
         input,
         iterable: (input) => parseEvents(input, withLocation: false),
         stream: (input) => input.toXmlEvents(withLocation: false),
@@ -328,8 +337,8 @@ void main() {
         ],
       );
     });
-    test('true', () {
-      verify(
+    test('true', () async {
+      await verify(
         input,
         iterable: (input) => parseEvents(input, withLocation: true),
         stream: (input) => input.toXmlEvents(withLocation: true),
@@ -440,8 +449,8 @@ void main() {
   group('withParent', () {
     const input = '<a><b c="d"/><e:f>g</e:f></h>';
     List<String> formatter(XmlEvent event) => ['$event: ${event.parent}'];
-    test('false', () {
-      verify(
+    test('false', () async {
+      await verify(
         input,
         iterable: (input) => parseEvents(input, withParent: false),
         stream: (input) => input.toXmlEvents(withParent: false),
@@ -457,8 +466,8 @@ void main() {
         ],
       );
     });
-    test('true', () {
-      verify(
+    test('true', () async {
+      await verify(
         input,
         iterable: (input) => parseEvents(input, withParent: true),
         stream: (input) => input.toXmlEvents(withParent: true),

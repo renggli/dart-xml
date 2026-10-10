@@ -1,4 +1,5 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/xml.dart';
 
 import '../../utils/assertions.dart';
@@ -7,38 +8,38 @@ void main() {
   test('basic', () {
     final node = XmlDocumentFragment.parse('<!--Am I a joke to you?-->No');
     assertFragmentInvariants(node);
-    expect(node.parent, isNull);
-    expect(node.parentElement, isNull);
-    expect(node.root, node);
-    expect(node.document, isNull);
-    expect(node.depth, 0);
-    expect(node.attributes, isEmpty);
-    expect(node.elementAttributes, isEmpty);
-    expect(node.namespaces, isEmpty);
-    expect(node.children, hasLength(2));
-    expect(node.value, isNull);
+    check(node.parent).isNull();
+    check(node.parentElement).isNull();
+    check(node.root).equals(node);
+    check(node.document).isNull();
+    check(node.depth).equals(0);
+    check(node.attributes).isEmpty();
+    check(node.elementAttributes).isEmpty();
+    check(node.namespaces).isEmpty();
+    check(node.children).length.equals(2);
+    check(node.value).isNull();
     // ignore: deprecated_member_use_from_same_package
-    expect(node.text, 'No');
-    expect(node.nodeType, XmlNodeType.DOCUMENT_FRAGMENT);
-    expect(node.toString(), '#document-fragment');
+    check(node.text).equals('No');
+    check(node.nodeType).equals(XmlNodeType.DOCUMENT_FRAGMENT);
+    check(node.toString()).equals('#document-fragment');
   });
   test('empty', () {
     final node = XmlDocumentFragment();
     assertFragmentInvariants(node);
-    expect(node.parent, isNull);
-    expect(node.parentElement, isNull);
-    expect(node.root, node);
-    expect(node.document, isNull);
-    expect(node.depth, 0);
-    expect(node.attributes, isEmpty);
-    expect(node.elementAttributes, isEmpty);
-    expect(node.namespaces, isEmpty);
-    expect(node.children, isEmpty);
-    expect(node.value, isNull);
+    check(node.parent).isNull();
+    check(node.parentElement).isNull();
+    check(node.root).equals(node);
+    check(node.document).isNull();
+    check(node.depth).equals(0);
+    check(node.attributes).isEmpty();
+    check(node.elementAttributes).isEmpty();
+    check(node.namespaces).isEmpty();
+    check(node.children).isEmpty();
+    check(node.value).isNull();
     // ignore: deprecated_member_use_from_same_package
-    expect(node.text, '');
-    expect(node.nodeType, XmlNodeType.DOCUMENT_FRAGMENT);
-    expect(node.toString(), '#document-fragment');
+    check(node.text).equals('');
+    check(node.nodeType).equals(XmlNodeType.DOCUMENT_FRAGMENT);
+    check(node.toString()).equals('#document-fragment');
   });
   test('builder', () {
     final node = XmlDocumentFragment.build((builder) {
@@ -46,14 +47,14 @@ void main() {
       builder.element('two');
     });
     assertFragmentInvariants(node);
-    expect(node.innerXml, '<one/><two/>');
+    check(node.innerXml).equals('<one/><two/>');
   });
   test('empties on insertion', () {
     final fragment = XmlDocumentFragment.parse('<one/><two/>');
-    expect(fragment.children, hasLength(2));
+    check(fragment.children).length.equals(2);
     final element = XmlElement(const XmlName('root'));
     element.children.add(fragment);
-    expect(fragment.children, isEmpty);
-    expect(element.children, hasLength(2));
+    check(fragment.children).isEmpty();
+    check(element.children).length.equals(2);
   });
 }

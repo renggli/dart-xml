@@ -1,4 +1,5 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/operators/qname.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
@@ -6,25 +7,23 @@ import 'package:xml/xpath.dart';
 void main() {
   group('opQNameEqual', () {
     test('empty sequences', () {
-      expect(opQNameEqual(XPathSequence.empty, XPathSequence.empty), isEmpty);
+      check(opQNameEqual(XPathSequence.empty, XPathSequence.empty)).isEmpty();
     });
     test('equal QNames', () {
-      expect(
+      check(
         opQNameEqual(
           const XPathSequence.single(XPathQName(XmlName('a'))),
           const XPathSequence.single(XPathQName(XmlName('a'))),
         ),
-        XPathSequence.trueSequence,
-      );
+      ).equals(XPathSequence.trueSequence);
     });
     test('different QNames', () {
-      expect(
+      check(
         opQNameEqual(
           const XPathSequence.single(XPathQName(XmlName('a'))),
           const XPathSequence.single(XPathQName(XmlName('b'))),
         ),
-        XPathSequence.falseSequence,
-      );
+      ).equals(XPathSequence.falseSequence);
     });
   });
 }

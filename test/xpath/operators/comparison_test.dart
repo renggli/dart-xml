@@ -1,47 +1,46 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/operators/comparison.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 void main() {
   group('compare', () {
     test('numbers', () {
-      expect(compare(XPathInteger.fromInt(1), XPathInteger.fromInt(2)), -1);
-      expect(compare(XPathInteger.fromInt(2), XPathInteger.fromInt(2)), 0);
-      expect(compare(XPathInteger.fromInt(2), XPathInteger.fromInt(1)), 1);
-      expect(compare(const XPathDouble(1.0), const XPathDouble(2.0)), -1);
-      expect(compare(XPathInteger.fromInt(1), const XPathDouble(1.0)), 0);
+      check(compare(XPathInteger.fromInt(1), XPathInteger.fromInt(2)))
+          .equals(-1);
+      check(compare(XPathInteger.fromInt(2), XPathInteger.fromInt(2)))
+          .equals(0);
+      check(compare(XPathInteger.fromInt(2), XPathInteger.fromInt(1)))
+          .equals(1);
+      check(compare(const XPathDouble(1.0), const XPathDouble(2.0))).equals(-1);
+      check(compare(XPathInteger.fromInt(1), const XPathDouble(1.0))).equals(0);
     });
     test('strings', () {
-      expect(compare(const XPathString('a'), const XPathString('b')), -1);
-      expect(compare(const XPathString('b'), const XPathString('b')), 0);
-      expect(compare(const XPathString('b'), const XPathString('a')), 1);
+      check(compare(const XPathString('a'), const XPathString('b'))).equals(-1);
+      check(compare(const XPathString('b'), const XPathString('b'))).equals(0);
+      check(compare(const XPathString('b'), const XPathString('a'))).equals(1);
     });
     test('booleans', () {
-      expect(
-        compare(XPathBoolean.falseInstance, XPathBoolean.trueInstance),
-        -1,
-      );
-      expect(compare(XPathBoolean.trueInstance, XPathBoolean.trueInstance), 0);
-      expect(
-        compare(XPathBoolean.falseInstance, XPathBoolean.falseInstance),
-        0,
-      );
-      expect(compare(XPathBoolean.trueInstance, XPathBoolean.falseInstance), 1);
+      check(compare(XPathBoolean.falseInstance, XPathBoolean.trueInstance))
+          .equals(-1);
+      check(compare(XPathBoolean.trueInstance, XPathBoolean.trueInstance))
+          .equals(0);
+      check(compare(XPathBoolean.falseInstance, XPathBoolean.falseInstance))
+          .equals(0);
+      check(compare(XPathBoolean.trueInstance, XPathBoolean.falseInstance))
+          .equals(1);
     });
     test('incompatible types throw', () {
-      expect(
-        () => compare(XPathInteger.fromInt(1), const XPathString('2')),
-        throwsA(isXPathEvaluationException()),
-      );
-      expect(
-        () => compare(const XPathString('2'), XPathInteger.fromInt(1)),
-        throwsA(isXPathEvaluationException()),
-      );
+      check(() => compare(XPathInteger.fromInt(1), const XPathString('2')))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
+      check(() => compare(const XPathString('2'), XPathInteger.fromInt(1)))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
     });
   });
 
@@ -52,125 +51,113 @@ void main() {
 
   group('opValueLessThan', () {
     test('DateTime values', () {
-      expect(
+      check(
         opValueLessThan(
           XPathSequence.single(earlier),
           XPathSequence.single(later),
         ),
-        isXPathSequence([true]),
-      );
+      ).isXPathSequence([true]);
     });
     test('Duration values', () {
-      expect(
+      check(
         opValueLessThan(
           const XPathSequence.single(shortDuration),
           const XPathSequence.single(longDuration),
         ),
-        isXPathSequence([true]),
-      );
+      ).isXPathSequence([true]);
     });
     test('bool values', () {
-      expect(
+      check(
         opValueLessThan(
           const XPathSequence.single(XPathBoolean.falseInstance),
           const XPathSequence.single(XPathBoolean.trueInstance),
         ),
-        isXPathSequence([true]),
-      );
+      ).isXPathSequence([true]);
     });
     test('empty sequence returns empty', () {
-      expect(
+      check(
         opValueLessThan(
           XPathSequence.empty,
           XPathSequence.single(XPathInteger.fromInt(1)),
         ),
-        isXPathSequence(isEmpty),
-      );
+      ).isXPathSequence(isEmpty);
     });
   });
 
   group('opValueGreaterThanOrEqual', () {
     test('DateTime values', () {
-      expect(
+      check(
         opValueGreaterThanOrEqual(
           XPathSequence.single(earlier),
           XPathSequence.single(later),
         ),
-        isXPathSequence([false]),
-      );
+      ).isXPathSequence([false]);
     });
     test('bool values', () {
-      expect(
+      check(
         opValueGreaterThanOrEqual(
           const XPathSequence.single(XPathBoolean.trueInstance),
           const XPathSequence.single(XPathBoolean.trueInstance),
         ),
-        isXPathSequence([true]),
-      );
+      ).isXPathSequence([true]);
     });
   });
 
   group('opValueLessThanOrEqual', () {
     test('DateTime values', () {
-      expect(
+      check(
         opValueLessThanOrEqual(
           XPathSequence.single(earlier),
           XPathSequence.single(earlier),
         ),
-        isXPathSequence([true]),
-      );
+      ).isXPathSequence([true]);
     });
   });
 
   group('opValueGreaterThan', () {
     test('Duration values', () {
-      expect(
+      check(
         opValueGreaterThan(
           const XPathSequence.single(shortDuration),
           const XPathSequence.single(longDuration),
         ),
-        isXPathSequence([false]),
-      );
+      ).isXPathSequence([false]);
     });
   });
 
   group('opValueEqual', () {
     test('equal numbers', () {
-      expect(
+      check(
         opValueEqual(
           XPathSequence.single(XPathInteger.fromInt(1)),
           XPathSequence.single(XPathInteger.fromInt(1)),
         ),
-        isXPathSequence([true]),
-      );
+      ).isXPathSequence([true]);
     });
     test('not equal numbers', () {
-      expect(
+      check(
         opValueEqual(
           XPathSequence.single(XPathInteger.fromInt(1)),
           XPathSequence.single(XPathInteger.fromInt(2)),
         ),
-        isXPathSequence([false]),
-      );
+      ).isXPathSequence([false]);
     });
     test('atomize node', () {
       final node = XmlElement(const XmlName('a'), [], [XmlText('foo')]);
-      expect(
+      check(
         opValueEqual(
           XPathSequence.single(XPathNode(node)),
           const XPathSequence.single(XPathString('foo')),
         ),
-        isXPathSequence([true]),
-      );
+      ).isXPathSequence([true]);
     });
     test('empty sequence returns empty', () {
-      expect(
+      check(
         opValueEqual(
           XPathSequence.empty,
           XPathSequence.single(XPathInteger.fromInt(1)),
         ),
-        isXPathSequence(isEmpty),
-      );
+      ).isXPathSequence(isEmpty);
     });
     test('sequence with more than one item throws', () {
       final multiple = XPathSequence([
@@ -178,94 +165,85 @@ void main() {
         XPathInteger.fromInt(2),
       ]);
       final single = XPathSequence.single(XPathInteger.fromInt(1));
-      expect(
-        () => opValueEqual(multiple, single),
-        throwsA(
-          isXPathEvaluationException(
-            message: contains('Sequence contains more than one item'),
-          ),
-        ),
-      );
+      check(() => opValueEqual(multiple, single))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(
+              message: 'Sequence contains more than one item',
+            ),
+          );
     });
     test('duration values', () {
-      expect(
+      check(
         opValueEqual(
           const XPathSequence.single(shortDuration),
           const XPathSequence.single(shortDuration),
         ),
-        isXPathSequence([true]),
-      );
-      expect(
+      ).isXPathSequence([true]);
+      check(
         opValueEqual(
           const XPathSequence.single(shortDuration),
           const XPathSequence.single(longDuration),
         ),
-        isXPathSequence([false]),
-      );
+      ).isXPathSequence([false]);
     });
   });
 
   group('opValueNotEqual', () {
     test('not equal numbers', () {
-      expect(
+      check(
         opValueNotEqual(
           XPathSequence.single(XPathInteger.fromInt(1)),
           XPathSequence.single(XPathInteger.fromInt(2)),
         ),
-        isXPathSequence([true]),
-      );
+      ).isXPathSequence([true]);
     });
     test('equal numbers', () {
-      expect(
+      check(
         opValueNotEqual(
           XPathSequence.single(XPathInteger.fromInt(1)),
           XPathSequence.single(XPathInteger.fromInt(1)),
         ),
-        isXPathSequence([false]),
-      );
+      ).isXPathSequence([false]);
     });
     test('empty sequence returns empty', () {
-      expect(
+      check(
         opValueNotEqual(
           XPathSequence.empty,
           XPathSequence.single(XPathInteger.fromInt(1)),
         ),
-        isXPathSequence(isEmpty),
-      );
+      ).isXPathSequence(isEmpty);
     });
     test('duration values', () {
-      expect(
+      check(
         opValueNotEqual(
           const XPathSequence.single(shortDuration),
           const XPathSequence.single(longDuration),
         ),
-        isXPathSequence([true]),
-      );
-      expect(
+      ).isXPathSequence([true]);
+      check(
         opValueNotEqual(
           const XPathSequence.single(shortDuration),
           const XPathSequence.single(shortDuration),
         ),
-        isXPathSequence([false]),
-      );
+      ).isXPathSequence([false]);
     });
   });
 
   group('atomization of maps, arrays, and functions', () {
     test('atomize array', () {
-      expect(
+      check(
         opValueEqual(
           XPathSequence.single(
             XPathArray([XPathSequence.single(XPathInteger.fromInt(1))]),
           ),
           XPathSequence.single(XPathInteger.fromInt(1)),
         ),
-        isXPathSequence([true]),
-      );
+      ).isXPathSequence([true]);
     });
 
     test('atomize nested array', () {
-      expect(
+      check(
         opValueEqual(
           XPathSequence.single(
             XPathArray([
@@ -276,23 +254,21 @@ void main() {
           ),
           XPathSequence.single(XPathInteger.fromInt(1)),
         ),
-        isXPathSequence([true]),
-      );
+      ).isXPathSequence([true]);
     });
 
     test('atomizing map throws FOTY0013', () {
       final map = XPathMap({
         const XPathString('a'): XPathSequence.single(XPathInteger.fromInt(1)),
       });
-      expect(
+      check(
         () => opValueEqual(
           XPathSequence.single(map),
           XPathSequence.single(XPathInteger.fromInt(1)),
         ),
-        throwsA(
-          isXPathEvaluationException(
-            message: contains('Cannot atomize a map or function item'),
-          ),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(
+          message: 'Cannot atomize a map or function item',
         ),
       );
     });
@@ -300,15 +276,14 @@ void main() {
     test('atomizing function throws FOTY0013', () {
       XPathSequence dummy(XPathContext context, List<XPathSequence> args) =>
           XPathSequence.empty;
-      expect(
+      check(
         () => opValueEqual(
           XPathSequence.single(dummy.toXPathFunction()),
           XPathSequence.single(XPathInteger.fromInt(1)),
         ),
-        throwsA(
-          isXPathEvaluationException(
-            message: contains('Cannot atomize a map or function item'),
-          ),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(
+          message: 'Cannot atomize a map or function item',
         ),
       );
     });
@@ -318,25 +293,28 @@ void main() {
       const q2 = XPathQName(XmlName('foo'));
       const q3 = XPathQName(XmlName('bar'));
 
-      expect(opValueEqual(seq(q1), seq(q2)), isXPathSequence([true]));
-      expect(opValueEqual(seq(q1), seq(q3)), isXPathSequence([false]));
-      expect(opValueNotEqual(seq(q1), seq(q3)), isXPathSequence([true]));
+      check(opValueEqual(seq(q1), seq(q2))).isXPathSequence([true]);
+      check(opValueEqual(seq(q1), seq(q3))).isXPathSequence([false]);
+      check(opValueNotEqual(seq(q1), seq(q3))).isXPathSequence([true]);
 
       // Comparing QName with non-QName throws XPTY0004
-      expect(
-        () => opValueEqual(seq(q1), seq(1)),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
-      expect(
-        () => opValueNotEqual(seq(q1), seq(1)),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
+      check(() => opValueEqual(seq(q1), seq(1)))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
+      check(() => opValueNotEqual(seq(q1), seq(1)))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
 
       // Order comparisons on QNames throw XPTY0004
-      expect(
-        () => opValueLessThan(seq(q1), seq(q2)),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
+      check(() => opValueLessThan(seq(q1), seq(q2)))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
     });
 
     test('AnyURI and String comparisons', () {
@@ -344,9 +322,9 @@ void main() {
       const u2 = XPathAnyUri('http://example.com/b');
       const s1 = XPathString('http://example.com/a');
 
-      expect(compare(u1, u2), lessThan(0));
-      expect(compare(s1, u2), lessThan(0));
-      expect(compare(u2, s1), greaterThan(0));
+      check(compare(u1, u2)).isLessThan(0);
+      check(compare(s1, u2)).isLessThan(0);
+      check(compare(u2, s1)).isGreaterThan(0);
     });
 
     test('Binary and Duration value comparisons', () {
@@ -354,27 +332,23 @@ void main() {
       final b2 = XPathBinary.fromHex('0102');
       final b3 = XPathBinary.fromHex('0103');
 
-      expect(opValueEqual(seq(b1), seq(b2)), isXPathSequence([true]));
-      expect(opValueNotEqual(seq(b1), seq(b3)), isXPathSequence([true]));
-      expect(compare(b1, b3), lessThan(0));
+      check(opValueEqual(seq(b1), seq(b2))).isXPathSequence([true]);
+      check(opValueNotEqual(seq(b1), seq(b3))).isXPathSequence([true]);
+      check(compare(b1, b3)).isLessThan(0);
 
       final ymd1 = XPathDuration.tryParseYearMonth('P1Y')!;
       final ymd2 = XPathDuration.tryParseYearMonth('P2Y')!;
-      expect(compare(ymd1, ymd2), lessThan(0));
+      check(compare(ymd1, ymd2)).isLessThan(0);
     });
 
     test('untypedAtomic value comparisons', () {
       const u = XPathUntypedAtomic('foo');
       const s = XPathString('foo');
-      expect(opValueEqual(seq(u), seq(s)), isXPathSequence([true]));
-      expect(
-        opValueNotEqual(seq(u), seq(const XPathString('bar'))),
-        isXPathSequence([true]),
-      );
-      expect(
-        opValueLessThan(seq(u), seq(const XPathString('zoo'))),
-        isXPathSequence([true]),
-      );
+      check(opValueEqual(seq(u), seq(s))).isXPathSequence([true]);
+      check(opValueNotEqual(seq(u), seq(const XPathString('bar'))))
+          .isXPathSequence([true]);
+      check(opValueLessThan(seq(u), seq(const XPathString('zoo'))))
+          .isXPathSequence([true]);
     });
   });
 }

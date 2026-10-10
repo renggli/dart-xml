@@ -1,11 +1,11 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/functions/accessor.dart';
 import 'package:xml/src/xpath/functions/higher_order.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
@@ -14,25 +14,23 @@ final context = XPathConfiguration().context(document);
 void main() {
   group('fn:sort', () {
     test('sorts numbers', () {
-      expect(
+      check(
         fnSort(context, [
           seq([3, 1, 2]),
         ]),
-        isXPathSequence([1, 2, 3]),
-      );
+      ).isXPathSequence([1, 2, 3]);
     });
 
     test('sorts strings', () {
-      expect(
+      check(
         fnSort(context, [
           seq(['b', 'a', 'c']),
         ]),
-        isXPathSequence(['a', 'b', 'c']),
-      );
+      ).isXPathSequence(['a', 'b', 'c']);
     });
 
     test('sorts with key function', () {
-      expect(
+      check(
         fnSort(context, [
           seq(['apple', 'be', 'cat']),
           XPathSequence.empty, // collation
@@ -41,12 +39,11 @@ void main() {
             return seq(arg.length);
           }),
         ]),
-        isXPathSequence(['be', 'cat', 'apple']),
-      );
+      ).isXPathSequence(['be', 'cat', 'apple']);
     });
 
     test('sorts with 2 arguments (collation)', () {
-      expect(
+      check(
         fnSort(context, [
           seq(['b', 'a']),
           const XPathSequence.single(
@@ -55,12 +52,11 @@ void main() {
             ),
           ),
         ]),
-        isXPathSequence(['a', 'b']),
-      );
+      ).isXPathSequence(['a', 'b']);
     });
 
     test('sorts with key function returning empty', () {
-      expect(
+      check(
         fnSort(context, [
           seq([2, 1]),
           XPathSequence.empty,
@@ -69,9 +65,8 @@ void main() {
             return arg == 2 ? XPathSequence.empty : seq(arg);
           }),
         ]),
-        isXPathSequence([2, 1]),
-      );
-      expect(
+      ).isXPathSequence([2, 1]);
+      check(
         fnSort(context, [
           seq([1, 2, 3]),
           XPathSequence.empty,
@@ -80,8 +75,7 @@ void main() {
             return arg == 2 ? XPathSequence.empty : seq(arg);
           }),
         ]),
-        isXPathSequence([2, 1, 3]),
-      );
+      ).isXPathSequence([2, 1, 3]);
     });
   });
 
@@ -93,17 +87,16 @@ void main() {
         return seq(a + b);
       }
 
-      expect(
+      check(
         fnApply(context, [
           seq(add),
           XPathSequence.single(toXPathItem([1, 2])),
         ]),
-        isXPathSequence([3]),
-      );
+      ).isXPathSequence([3]);
     });
 
     test('apply with nested array and data#1 (fn-apply-11)', () {
-      expect(
+      check(
         fnApply(context, [
           XPathSequence.single(fnData),
           XPathSequence.single(
@@ -112,8 +105,7 @@ void main() {
             ]),
           ),
         ]),
-        isXPathSequence([1, 2, 3]),
-      );
+      ).isXPathSequence([1, 2, 3]);
     });
   });
 
@@ -124,13 +116,12 @@ void main() {
         return seq(arg * 2);
       }
 
-      expect(
+      check(
         fnForEach(context, [
           seq([1, 2, 3]),
           seq(double),
         ]),
-        isXPathSequence([2, 4, 6]),
-      );
+      ).isXPathSequence([2, 4, 6]);
     });
   });
 
@@ -141,13 +132,12 @@ void main() {
         return seq(arg % 2 == 0);
       }
 
-      expect(
+      check(
         fnFilter(context, [
           seq([1, 2, 3, 4]),
           seq(isEven),
         ]),
-        isXPathSequence([2, 4]),
-      );
+      ).isXPathSequence([2, 4]);
     });
   });
 
@@ -159,14 +149,13 @@ void main() {
         return seq(acc + item);
       }
 
-      expect(
+      check(
         fnFoldLeft(context, [
           seq([1, 2, 3, 4, 5]),
           seq(0),
           seq(add),
         ]),
-        isXPathSequence([15]),
-      );
+      ).isXPathSequence([15]);
     });
   });
 
@@ -178,14 +167,13 @@ void main() {
         return seq(item - acc);
       }
 
-      expect(
+      check(
         fnFoldRight(context, [
           seq([1, 2, 3, 4, 5]),
           seq(0),
           seq(sub),
         ]),
-        isXPathSequence([3]),
-      );
+      ).isXPathSequence([3]);
     });
   });
 
@@ -197,14 +185,13 @@ void main() {
         return seq('$a$b');
       }
 
-      expect(
+      check(
         fnForEachPair(context, [
           seq(['a', 'b', 'c']),
           seq(['1', '2', '3']),
           seq(concat),
         ]),
-        isXPathSequence(['a1', 'b2', 'c3']),
-      );
+      ).isXPathSequence(['a1', 'b2', 'c3']);
     });
   });
 
@@ -214,14 +201,14 @@ void main() {
         seq(const XmlName.qualified('fn:abs')),
         seq(1),
       ]);
-      expect(result, isXPathSequence([isA<XPathFunctionItem>()]));
+      check(result).isXPathSequence([isA<XPathFunctionItem>()]);
     });
     test('known function by short name', () {
       final result = fnFunctionLookup(context, [
         seq(const XmlName.qualified('abs')),
         seq(1),
       ]);
-      expect(result, isXPathSequence([isA<XPathFunctionItem>()]));
+      check(result).isXPathSequence([isA<XPathFunctionItem>()]);
     });
 
     test('unknown function returns empty', () {
@@ -229,140 +216,127 @@ void main() {
         seq(const XmlName.qualified('nonexistent')),
         seq(1),
       ]);
-      expect(result, isEmpty);
+      check(result).isEmpty();
     });
 
     test('absent namespace does not match standard function', () {
-      expect(
-        document.xpathEvaluate('function-lookup(QName("", "round"), 2)'),
-        isEmpty,
-      );
+      check(document.xpathEvaluate('function-lookup(QName("", "round"), 2)'))
+          .isEmpty();
     });
 
     test('negative arity returns empty', () {
-      expect(
-        document.xpathEvaluate('function-lookup(xs:QName("fn:abs"), -1)'),
-        isEmpty,
-      );
+      check(document.xpathEvaluate('function-lookup(xs:QName("fn:abs"), -1)'))
+          .isEmpty();
     });
 
     test('invalid argument cardinality throws XPTY0004', () {
-      expect(
-        () => document.xpathEvaluate(
-          'function-lookup((xs:QName("fn:abs"), xs:QName("fn:abs")), 1)',
-        ),
-        throwsA(isXPathEvaluationException(message: contains('XPTY0004'))),
-      );
-      expect(
+      check(
+            () => document.xpathEvaluate(
+              'function-lookup((xs:QName("fn:abs"), xs:QName("fn:abs")), 1)',
+            ),
+          )
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException(message: 'XPTY0004'));
+      check(
         () => document.xpathEvaluate('function-lookup(xs:QName("fn:abs"), ())'),
-        throwsA(isXPathEvaluationException(message: contains('XPTY0004'))),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(message: 'XPTY0004'),
       );
     });
 
     test('invalid argument types throw XPTY0004', () {
-      expect(
+      check(
         () => fnFunctionLookup(context, [
           const XPathSequence.single(XPathString('fn:abs')),
           XPathSequence.single(XPathInteger.fromInt(1)),
         ]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
       );
-      expect(
+      check(
         () => fnFunctionLookup(context, [
           const XPathSequence.single(XPathQName(XmlName('abs', 'fn'))),
           const XPathSequence.single(XPathString('1')),
         ]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
       );
     });
 
     test('lookup and call arity 0 function', () {
-      expect(
-        document.xpathEvaluate('function-lookup(xs:QName("fn:true"), 0)()'),
-        isXPathSequence([true]),
-      );
+      check(document.xpathEvaluate('function-lookup(xs:QName("fn:true"), 0)()'))
+          .isXPathSequence([true]);
     });
 
     test('integration via xpathEvaluate', () {
-      expect(
+      check(
         document.xpathEvaluate('function-lookup(xs:QName("fn:abs"), 1)(-42)'),
-        isXPathSequence([42]),
-      );
+      ).isXPathSequence([42]);
     });
   });
 
   group('fn:function-name', () {
     test('returns empty for anonymous function', () {
-      expect(
+      check(
         fnFunctionName(context, [
           seq(
             (XPathContext context, List<XPathSequence> args) =>
                 XPathSequence.empty,
           ),
         ]),
-        isXPathSequence(isEmpty),
-      );
+      ).isXPathSequence(isEmpty);
     });
 
     test('returns empty for inline function', () {
-      expect(
-        document.xpathEvaluate('function-name(function(\$x) { \$x })'),
-        isEmpty,
-      );
+      check(document.xpathEvaluate('function-name(function(\$x) { \$x })'))
+          .isEmpty();
     });
 
     test('returns QName with namespace for named function ref', () {
       final result = document.xpathEvaluate('function-name(fn:abs#1)');
-      expect(result.length, equals(1));
+      check(result.length).equals(1);
       final qname = result.first as XPathQName;
-      expect(qname.value.local, equals('abs'));
-      expect(
-        qname.value.namespaceUri,
-        equals('http://www.w3.org/2005/xpath-functions'),
-      );
+      check(qname.value.local).equals('abs');
+      check(qname.value.namespaceUri)
+          .equals('http://www.w3.org/2005/xpath-functions');
     });
   });
 
   group('fn:function-arity', () {
     test('returns arity', () {
-      expect(
+      check(
         fnFunctionArity(context, [
           seq(
             (XPathContext context, List<XPathSequence> args) =>
                 XPathSequence.empty,
           ),
         ]),
-        isXPathSequence([0]),
-      );
+      ).isXPathSequence([0]);
     });
   });
 
   group('fn:load-xquery-module', () {
     test('unimplemented without options', () {
-      expect(
-        () => fnLoadXqueryModule(context, [seq('uri')]),
-        throwsA(isA<UnimplementedError>()),
-      );
+      check(() => fnLoadXqueryModule(context, [seq('uri')]))
+          .throws<UnimplementedError>();
     });
 
     test('unimplemented with options', () {
-      expect(
+      check(
         () => fnLoadXqueryModule(context, [
           seq('uri'),
           const XPathSequence.single(XPathMap.empty),
         ]),
-        throwsA(isA<UnimplementedError>()),
-      );
+      ).throws<UnimplementedError>();
     });
   });
 
   group('fn:transform', () {
     test('unimplemented', () {
-      expect(
+      check(
         () =>
             fnTransform(context, [const XPathSequence.single(XPathMap.empty)]),
-        throwsA(isA<UnimplementedError>()),
-      );
+      ).throws<UnimplementedError>();
     });
   });
 }

@@ -1,31 +1,31 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/xml.dart';
 
 void main() {
   test('basic', () {
     final node = XmlDocument.parse('<data/>');
-    expect(node.parent, isNull);
-    expect(node.parentElement, isNull);
-    expect(node.root, same(node));
-    expect(node.document, same(node));
-    expect(node.depth, 0);
-    expect(node.attributes, isEmpty);
-    expect(node.elementAttributes, isEmpty);
-    expect(node.children, hasLength(1));
-    expect(node.value, isNull);
+    check(node.parent).isNull();
+    check(node.parentElement).isNull();
+    check(node.root).identicalTo(node);
+    check(node.document).identicalTo(node);
+    check(node.depth).equals(0);
+    check(node.attributes).isEmpty();
+    check(node.elementAttributes).isEmpty();
+    check(node.children).length.equals(1);
+    check(node.value).isNull();
     // ignore: deprecated_member_use_from_same_package
-    expect(node.text, isEmpty);
-    expect(node.nodeType, XmlNodeType.DOCUMENT);
-    expect(node.toString(), '<data/>');
+    check(node.text).isEmpty();
+    check(node.nodeType).equals(XmlNodeType.DOCUMENT);
+    check(node.toString()).equals('<data/>');
   });
   test('definition', () {
     final node = XmlDocument.parse(
       '<?xml version="1.0" encoding="UTF-8"?>'
       '<element/>',
     );
-    expect(node.children, hasLength(2));
-    expect(
-      node.toString(),
+    check(node.children).length.equals(2);
+    check(node.toString()).equals(
       '<?xml version="1.0" encoding="UTF-8"?>'
       '<element/>',
     );
@@ -35,42 +35,37 @@ void main() {
       '<?xml version="1.0" encoding="UTF-8"?> '
       '<!-- before -->\n<element/>\t<!-- after -->',
     );
-    expect(node.attributes, isEmpty);
-    expect(node.elementAttributes, isEmpty);
-    expect(node.children, hasLength(7));
-    expect(
-      node.toString(),
+    check(node.attributes).isEmpty();
+    check(node.elementAttributes).isEmpty();
+    check(node.children).length.equals(7);
+    check(node.toString()).equals(
       '<?xml version="1.0" encoding="UTF-8"?> '
       '<!-- before -->\n<element/>\t<!-- after -->',
     );
-    expect(
-      node.toXmlString(pretty: true),
+    check(node.toXmlString(pretty: true)).equals(
       '<?xml version="1.0" encoding="UTF-8"?>\n'
       '<!-- before -->\n<element/>\n<!-- after -->',
     );
   });
   test('empty', () {
     final document = XmlDocument();
-    expect(document.declaration, isNull);
-    expect(document.doctypeElement, isNull);
-    expect(() => document.rootElement, throwsStateError);
+    check(document.declaration).isNull();
+    check(document.doctypeElement).isNull();
+    check(() => document.rootElement).throws<StateError>();
   });
   test('attributes', () {
     final document = XmlDocument();
-    expect(document.attributes, isEmpty);
-    expect(document.elementAttributes, isEmpty);
-    expect(document.getAttribute('attr'), isNull);
-    expect(document.getAttributeNode('attr'), isNull);
-    expect(
-      () => document.setAttribute('attr', 'value'),
-      throwsUnsupportedError,
-    );
-    expect(() => document.removeAttribute('attr'), throwsUnsupportedError);
-    expect(
+    check(document.attributes).isEmpty();
+    check(document.elementAttributes).isEmpty();
+    check(document.getAttribute('attr')).isNull();
+    check(document.getAttributeNode('attr')).isNull();
+    check(() => document.setAttribute('attr', 'value'))
+        .throws<UnsupportedError>();
+    check(() => document.removeAttribute('attr')).throws<UnsupportedError>();
+    check(
       () => document.attributes.add(
         XmlAttribute(const XmlName.qualified('attr'), 'value'),
       ),
-      throwsUnsupportedError,
-    );
+    ).throws<UnsupportedError>();
   });
 }

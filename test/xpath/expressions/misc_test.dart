@@ -1,4 +1,4 @@
-import 'package:test/test.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/xml.dart';
 
 import '../helpers.dart';

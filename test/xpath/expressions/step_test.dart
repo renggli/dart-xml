@@ -1,6 +1,7 @@
 import 'dart:math';
 
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/expressions/axis.dart';
 import 'package:xml/src/xpath/expressions/name.dart';
 import 'package:xml/src/xpath/expressions/path.dart';
@@ -9,7 +10,6 @@ import 'package:xml/src/xpath/grammars/parser.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 void main() {
@@ -52,18 +52,18 @@ void main() {
 
     test('StepExpression throws XPDY0002 when context item is absent', () {
       const step = StepExpression(ChildAxis(), nodeTest: NodeNameTest());
-      expect(
-        () => step(emptyContext),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPDY0002)),
+      check(() => step(emptyContext)).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPDY0002),
       );
     });
 
     test('RootNodeExpression throws XPDY0002 when context item is absent', () {
       const rootStep = RootNodeExpression();
-      expect(
-        () => rootStep(emptyContext),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPDY0002)),
-      );
+      check(() => rootStep(emptyContext))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPDY0002),
+          );
     });
   });
 
@@ -71,19 +71,19 @@ void main() {
     test('step throws XPTY0019 when context item is not a node', () {
       final intContext = const XPathConfiguration.raw().context(42);
       const step = StepExpression(ChildAxis(), nodeTest: NodeNameTest());
-      expect(
-        () => step(intContext),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0019)),
+      check(() => step(intContext)).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0019),
       );
     });
 
     test('root throws XPTY0019 when context item is not a node', () {
       final intContext = const XPathConfiguration.raw().context(42);
       const rootStep = RootNodeExpression();
-      expect(
-        () => rootStep(intContext),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0019)),
-      );
+      check(() => rootStep(intContext))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0019),
+          );
     });
   });
 
@@ -112,243 +112,238 @@ void main() {
         .toList();
 
     test('//item[1] returns first item of EVERY parent category', () {
-      expect(getIds('//item[1]'), ['a1', 'b1', 'c1']);
+      check(getIds('//item[1]')).deepEquals(['a1', 'b1', 'c1']);
     });
 
     test('(//item)[1] returns ONLY first item in entire document', () {
-      expect(getIds('(//item)[1]'), ['a1']);
+      check(getIds('(//item)[1]')).deepEquals(['a1']);
     });
 
     test('descendant::item[1] returns ONLY first item in entire document', () {
-      expect(getIds('/descendant::item[1]'), ['a1']);
+      check(getIds('/descendant::item[1]')).deepEquals(['a1']);
     });
 
     test('//item[last()] returns last item of EVERY parent category', () {
-      expect(getIds('//item[last()]'), ['a2', 'b2', 'c2']);
+      check(getIds('//item[last()]')).deepEquals(['a2', 'b2', 'c2']);
     });
 
     test('(//item)[last()] returns ONLY last item in entire document', () {
-      expect(getIds('(//item)[last()]'), ['c2']);
+      check(getIds('(//item)[last()]')).deepEquals(['c2']);
     });
 
     test('//item[2] returns second item of EVERY parent category', () {
-      expect(getIds('//item[2]'), ['a2', 'b2', 'c2']);
+      check(getIds('//item[2]')).deepEquals(['a2', 'b2', 'c2']);
     });
 
     test('//item[3] returns empty because no parent has 3 items', () {
-      expect(getIds('//item[3]'), isEmpty);
+      check(getIds('//item[3]')).isEmpty();
     });
 
     test(
       '//item[position() > 1] returns second items across all categories',
       () {
-        expect(getIds('//item[position() > 1]'), ['a2', 'b2', 'c2']);
+        check(getIds('//item[position() > 1]')).deepEquals(['a2', 'b2', 'c2']);
       },
     );
 
     test('//item[@price > 18] collapses and returns matching items in document order', () {
-      expect(getIds('//item[@price > 18]'), ['a2', 'b2', 'c1', 'c2']);
-      expect(getIds('/descendant::item[@price > 18]'), [
-        'a2',
-        'b2',
-        'c1',
-        'c2',
-      ]);
+      check(getIds('//item[@price > 18]')).deepEquals(['a2', 'b2', 'c1', 'c2']);
+      check(getIds('/descendant::item[@price > 18]'))
+          .deepEquals(['a2', 'b2', 'c1', 'c2']);
     });
 
     test('//item[@price > 12][1] returns 1st matching item PER category', () {
-      expect(getIds('//item[@price > 12][1]'), ['a2', 'b1', 'c1']);
-      expect(getIds('(//item[@price > 12])[1]'), ['a2']);
+      check(getIds('//item[@price > 12][1]')).deepEquals(['a2', 'b1', 'c1']);
+      check(getIds('(//item[@price > 12])[1]')).deepEquals(['a2']);
     });
   });
 
   group('XPathInteger intValue and pooling', () {
     test('intValue is cached on construction for valid 64-bit int', () {
       final a = XPathInteger.fromInt(42);
-      expect(a.intValue, 42);
-      expect(a.asInt, 42);
+      check(a.intValue).equals(42);
+      check(a.asInt).equals(42);
 
       final b = XPathInteger(BigInt.from(1000));
-      expect(b.intValue, 1000);
-      expect(b.asInt, 1000);
+      check(b.intValue).equals(1000);
+      check(b.asInt).equals(1000);
     });
 
     test('intValue is null for values exceeding 64-bit signed int', () {
       final huge = BigInt.parse('999999999999999999999999999999');
       final val = XPathInteger(huge);
-      expect(val.intValue, isNull);
-      expect(val.equalsInt(42), isFalse);
+      check(val.intValue).isNull();
+      check(val.equalsInt(42)).isFalse();
     });
 
     test('pools small integers 0 through 128 in fromInt for xsInteger', () {
       for (var i = 0; i <= 128; i++) {
         final a = XPathInteger.fromInt(i);
         final b = XPathInteger.fromInt(i);
-        expect(identical(a, b), isTrue);
-        expect(a.intValue, i);
+        check(identical(a, b)).isTrue();
+        check(a.intValue).equals(i);
       }
-      expect(identical(XPathInteger.fromInt(0), XPathInteger.zero), isTrue);
+      check(identical(XPathInteger.fromInt(0), XPathInteger.zero)).isTrue();
 
       final over = XPathInteger.fromInt(129);
       final over2 = XPathInteger.fromInt(129);
-      expect(identical(over, over2), isFalse);
-      expect(over, equals(over2));
-      expect(over.intValue, 129);
+      check(identical(over, over2)).isFalse();
+      check(over).equals(over2);
+      check(over.intValue).equals(129);
     });
 
     test('fromInt with non-xsInteger type does not use pool', () {
       final a = XPathInteger.fromInt(5, xsPositiveInteger);
       final b = XPathInteger.fromInt(5, xsPositiveInteger);
-      expect(identical(a, b), isFalse);
-      expect(a.type, xsPositiveInteger);
-      expect(a.intValue, 5);
+      check(identical(a, b)).isFalse();
+      check(a.type).equals(xsPositiveInteger);
+      check(a.intValue).equals(5);
     });
 
     test('parse fast path uses int.tryParse', () {
       final p1 = XPathInteger.parse('  42  ');
-      expect(identical(p1, XPathInteger.fromInt(42)), isTrue);
-      expect(p1.intValue, 42);
+      check(identical(p1, XPathInteger.fromInt(42))).isTrue();
+      check(p1.intValue).equals(42);
 
       final p2 = XPathInteger.parse('-999');
-      expect(p2.intValue, -999);
+      check(p2.intValue).equals(-999);
 
       final pHuge = XPathInteger.parse('123456789012345678901234567890');
-      expect(pHuge.intValue, isNull);
-      expect(pHuge.value, BigInt.parse('123456789012345678901234567890'));
+      check(pHuge.intValue).isNull();
+      check(pHuge.value).equals(BigInt.parse('123456789012345678901234567890'));
     });
 
     test('equalsInt compares primitive int directly without BigInt alloc', () {
       final a = XPathInteger.fromInt(100);
-      expect(a.equalsInt(100), isTrue);
-      expect(a.equalsInt(99), isFalse);
+      check(a.equalsInt(100)).isTrue();
+      check(a.equalsInt(99)).isFalse();
 
       final huge = XPathInteger(BigInt.parse('999999999999999999999999999999'));
-      expect(huge.equalsInt(100), isFalse);
+      check(huge.equalsInt(100)).isFalse();
     });
 
     test('operator == fast path when both have intValue', () {
       final a = XPathInteger.fromInt(500);
       final b = XPathInteger.fromInt(500);
-      expect(a == b, isTrue);
-      expect(a == XPathInteger.fromInt(501), isFalse);
+      check(a == b).isTrue();
+      check(a == XPathInteger.fromInt(501)).isFalse();
     });
   });
 
   group('Predicate staticPosition and isDefinitelyNonPositional', () {
     test('staticPosition correctly detects integer literals', () {
       final p1 = parseExpression('item[1]') as StepExpression;
-      expect(p1.predicates.first.staticPosition, 1);
+      check(p1.predicates.first.staticPosition).equals(1);
 
       final p100 = parseExpression('item[100]') as StepExpression;
-      expect(p100.predicates.first.staticPosition, 100);
+      check(p100.predicates.first.staticPosition).equals(100);
     });
 
     test('staticPosition detects whole double literals', () {
       final pFloat = parseExpression('item[1.0]') as StepExpression;
-      expect(pFloat.predicates.first.staticPosition, 1);
+      check(pFloat.predicates.first.staticPosition).equals(1);
     });
 
     test('staticPosition returns 0 for non-matching numeric constants', () {
       final pZero = parseExpression('item[0]') as StepExpression;
-      expect(pZero.predicates.first.staticPosition, 0);
+      check(pZero.predicates.first.staticPosition).equals(0);
 
       final pNeg = parseExpression('item[-1]') as StepExpression;
-      expect(
+      check(
         pNeg.predicates.first.staticPosition == null ||
             pNeg.predicates.first.staticPosition! <= 0,
-        isTrue,
-      );
+      ).isTrue();
 
       final pFrac = parseExpression('item[1.5]') as StepExpression;
-      expect(pFrac.predicates.first.staticPosition, 0);
+      check(pFrac.predicates.first.staticPosition).equals(0);
     });
 
     test(
       'staticPosition returns null for non-constant or non-numeric expressions',
       () {
         final pAttr = parseExpression('item[@id = "1"]') as StepExpression;
-        expect(pAttr.predicates.first.staticPosition, isNull);
+        check(pAttr.predicates.first.staticPosition).isNull();
 
         final pPos = parseExpression('item[position() = 1]') as StepExpression;
-        expect(pPos.predicates.first.staticPosition, isNull);
+        check(pPos.predicates.first.staticPosition).isNull();
 
         final pLast = parseExpression('item[last()]') as StepExpression;
-        expect(pLast.predicates.first.staticPosition, isNull);
+        check(pLast.predicates.first.staticPosition).isNull();
 
         final pVar = parseExpression('item[\$x]') as StepExpression;
-        expect(pVar.predicates.first.staticPosition, isNull);
+        check(pVar.predicates.first.staticPosition).isNull();
       },
     );
 
     test('isDefinitelyNonPositional returns true for attribute comparisons and booleans', () {
       final pEq = parseExpression('item[@id = "100"]') as StepExpression;
-      expect(pEq.predicates.first.isDefinitelyNonPositional, isTrue);
-      expect(pEq.predicates.first.isPositional, isFalse);
+      check(pEq.predicates.first.isDefinitelyNonPositional).isTrue();
+      check(pEq.predicates.first.isPositional).isFalse();
 
       final pComp = parseExpression('item[@price > 50]') as StepExpression;
-      expect(pComp.predicates.first.isDefinitelyNonPositional, isTrue);
+      check(pComp.predicates.first.isDefinitelyNonPositional).isTrue();
 
       final pAnd = parseExpression('item[@a and @b]') as StepExpression;
-      expect(pAnd.predicates.first.isDefinitelyNonPositional, isTrue);
+      check(pAnd.predicates.first.isDefinitelyNonPositional).isTrue();
 
       final pOr = parseExpression('item[@a or @b]') as StepExpression;
-      expect(pOr.predicates.first.isDefinitelyNonPositional, isTrue);
+      check(pOr.predicates.first.isDefinitelyNonPositional).isTrue();
 
       final pNot = parseExpression('item[not(@disabled)]') as StepExpression;
-      expect(pNot.predicates.first.isDefinitelyNonPositional, isTrue);
+      check(pNot.predicates.first.isDefinitelyNonPositional).isTrue();
 
       final pContains =
           parseExpression('item[contains(@name, "x")]') as StepExpression;
-      expect(pContains.predicates.first.isDefinitelyNonPositional, isTrue);
+      check(pContains.predicates.first.isDefinitelyNonPositional).isTrue();
 
       final pStarts =
           parseExpression('item[starts-with(@id, "a")]') as StepExpression;
-      expect(pStarts.predicates.first.isDefinitelyNonPositional, isTrue);
+      check(pStarts.predicates.first.isDefinitelyNonPositional).isTrue();
 
       final pEnds =
           parseExpression('item[ends-with(@id, "z")]') as StepExpression;
-      expect(pEnds.predicates.first.isDefinitelyNonPositional, isTrue);
+      check(pEnds.predicates.first.isDefinitelyNonPositional).isTrue();
 
       final pEmpty = parseExpression('item[empty(@opt)]') as StepExpression;
-      expect(pEmpty.predicates.first.isDefinitelyNonPositional, isTrue);
+      check(pEmpty.predicates.first.isDefinitelyNonPositional).isTrue();
 
       final pExists = parseExpression('item[exists(@opt)]') as StepExpression;
-      expect(pExists.predicates.first.isDefinitelyNonPositional, isTrue);
+      check(pExists.predicates.first.isDefinitelyNonPositional).isTrue();
 
       final pAttrExists = parseExpression('item[@id]') as StepExpression;
-      expect(pAttrExists.predicates.first.isDefinitelyNonPositional, isTrue);
+      check(pAttrExists.predicates.first.isDefinitelyNonPositional).isTrue();
 
       final pChildExists = parseExpression('item[title]') as StepExpression;
-      expect(pChildExists.predicates.first.isDefinitelyNonPositional, isTrue);
+      check(pChildExists.predicates.first.isDefinitelyNonPositional).isTrue();
     });
 
     test(
       'isDefinitelyNonPositional returns false for positional predicates',
       () {
         final p1 = parseExpression('item[1]') as StepExpression;
-        expect(p1.predicates.first.isDefinitelyNonPositional, isFalse);
-        expect(p1.predicates.first.isPositional, isTrue);
+        check(p1.predicates.first.isDefinitelyNonPositional).isFalse();
+        check(p1.predicates.first.isPositional).isTrue();
 
         final pPos = parseExpression('item[position() = 1]') as StepExpression;
-        expect(pPos.predicates.first.isDefinitelyNonPositional, isFalse);
-        expect(pPos.predicates.first.isPositional, isTrue);
+        check(pPos.predicates.first.isDefinitelyNonPositional).isFalse();
+        check(pPos.predicates.first.isPositional).isTrue();
 
         final pLast = parseExpression('item[last()]') as StepExpression;
-        expect(pLast.predicates.first.isDefinitelyNonPositional, isFalse);
-        expect(pLast.predicates.first.isPositional, isTrue);
+        check(pLast.predicates.first.isDefinitelyNonPositional).isFalse();
+        check(pLast.predicates.first.isPositional).isTrue();
 
         final pPosComp =
             parseExpression('item[position() > 2]') as StepExpression;
-        expect(pPosComp.predicates.first.isDefinitelyNonPositional, isFalse);
-        expect(pPosComp.predicates.first.isPositional, isTrue);
+        check(pPosComp.predicates.first.isDefinitelyNonPositional).isFalse();
+        check(pPosComp.predicates.first.isPositional).isTrue();
 
         final pVar = parseExpression('item[\$v]') as StepExpression;
-        expect(pVar.predicates.first.isDefinitelyNonPositional, isFalse);
-        expect(pVar.predicates.first.isPositional, isTrue);
+        check(pVar.predicates.first.isDefinitelyNonPositional).isFalse();
+        check(pVar.predicates.first.isPositional).isTrue();
 
         final pArith = parseExpression('item[1 + 1]') as StepExpression;
-        expect(pArith.predicates.first.isDefinitelyNonPositional, isFalse);
-        expect(pArith.predicates.first.isPositional, isTrue);
+        check(pArith.predicates.first.isDefinitelyNonPositional).isFalse();
+        check(pArith.predicates.first.isPositional).isTrue();
       },
     );
   });
@@ -356,83 +351,71 @@ void main() {
   group('Step collapsing and order preservation', () {
     test('collapses //item[@id="100"] to DescendantAxis with predicates', () {
       final expr = parseExpression('//item[@id="100"]') as PathExpression;
-      expect(expr.steps, hasLength(2));
-      expect(expr.steps[0], isA<RootNodeExpression>());
+      check(expr.steps).length.equals(2);
+      check(expr.steps[0]).isA<RootNodeExpression>();
       final step = expr.steps[1] as StepExpression;
-      expect(step.axis, isA<DescendantAxis>());
-      expect(step.predicates, hasLength(1));
-      expect(expr.isOrderPreserved, isTrue);
+      check(step.axis).isA<DescendantAxis>();
+      check(step.predicates).length.equals(1);
+      check(expr.isOrderPreserved).isTrue();
     });
 
     test('collapses //*[@id="100"] to DescendantAxis', () {
       final expr = parseExpression('//*[@id="100"]') as PathExpression;
-      expect(expr.steps, hasLength(2));
+      check(expr.steps).length.equals(2);
       final step = expr.steps[1] as StepExpression;
-      expect(step.axis, isA<DescendantAxis>());
-      expect(expr.isOrderPreserved, isTrue);
+      check(step.axis).isA<DescendantAxis>();
+      check(expr.isOrderPreserved).isTrue();
     });
 
     test('collapses //self::item[@id="100"] to DescendantOrSelfAxis', () {
       final expr = parseExpression('//self::item[@id="100"]') as PathExpression;
-      expect(expr.steps, hasLength(2));
+      check(expr.steps).length.equals(2);
       final step = expr.steps[1] as StepExpression;
-      expect(step.axis, isA<DescendantOrSelfAxis>());
-      expect(step.predicates, hasLength(1));
+      check(step.axis).isA<DescendantOrSelfAxis>();
+      check(step.predicates).length.equals(1);
     });
 
     test('collapses relative path div//item[@id="100"]', () {
       final expr = parseExpression('div//item[@id="100"]') as PathExpression;
-      expect(expr.steps, hasLength(2));
-      expect((expr.steps[0] as StepExpression).axis, isA<ChildAxis>());
-      expect((expr.steps[1] as StepExpression).axis, isA<DescendantAxis>());
-      expect((expr.steps[1] as StepExpression).predicates, hasLength(1));
+      check(expr.steps).length.equals(2);
+      check((expr.steps[0] as StepExpression).axis).isA<ChildAxis>();
+      check((expr.steps[1] as StepExpression).axis).isA<DescendantAxis>();
+      check((expr.steps[1] as StepExpression).predicates).length.equals(1);
     });
 
     test('strictly avoids collapsing positional predicates', () {
       final p1 = parseExpression('//item[1]') as PathExpression;
-      expect(p1.steps, hasLength(3));
-      expect((p1.steps[1] as StepExpression).axis, isA<DescendantOrSelfAxis>());
-      expect((p1.steps[2] as StepExpression).axis, isA<ChildAxis>());
+      check(p1.steps).length.equals(3);
+      check((p1.steps[1] as StepExpression).axis).isA<DescendantOrSelfAxis>();
+      check((p1.steps[2] as StepExpression).axis).isA<ChildAxis>();
 
       final pLast = parseExpression('//item[last()]') as PathExpression;
-      expect(pLast.steps, hasLength(3));
-      expect(
-        (pLast.steps[1] as StepExpression).axis,
-        isA<DescendantOrSelfAxis>(),
-      );
-      expect((pLast.steps[2] as StepExpression).axis, isA<ChildAxis>());
+      check(pLast.steps).length.equals(3);
+      check((pLast.steps[1] as StepExpression).axis)
+          .isA<DescendantOrSelfAxis>();
+      check((pLast.steps[2] as StepExpression).axis).isA<ChildAxis>();
 
       final pPos = parseExpression('//item[position() = 1]') as PathExpression;
-      expect(pPos.steps, hasLength(3));
-      expect(
-        (pPos.steps[1] as StepExpression).axis,
-        isA<DescendantOrSelfAxis>(),
-      );
-      expect((pPos.steps[2] as StepExpression).axis, isA<ChildAxis>());
+      check(pPos.steps).length.equals(3);
+      check((pPos.steps[1] as StepExpression).axis).isA<DescendantOrSelfAxis>();
+      check((pPos.steps[2] as StepExpression).axis).isA<ChildAxis>();
 
       final pMixed1 = parseExpression('//item[@id="1"][1]') as PathExpression;
-      expect(pMixed1.steps, hasLength(3));
-      expect(
-        (pMixed1.steps[1] as StepExpression).axis,
-        isA<DescendantOrSelfAxis>(),
-      );
-      expect((pMixed1.steps[2] as StepExpression).axis, isA<ChildAxis>());
+      check(pMixed1.steps).length.equals(3);
+      check((pMixed1.steps[1] as StepExpression).axis)
+          .isA<DescendantOrSelfAxis>();
+      check((pMixed1.steps[2] as StepExpression).axis).isA<ChildAxis>();
 
       final pMixed2 = parseExpression('//item[1][@id="1"]') as PathExpression;
-      expect(pMixed2.steps, hasLength(3));
-      expect(
-        (pMixed2.steps[1] as StepExpression).axis,
-        isA<DescendantOrSelfAxis>(),
-      );
-      expect((pMixed2.steps[2] as StepExpression).axis, isA<ChildAxis>());
+      check(pMixed2.steps).length.equals(3);
+      check((pMixed2.steps[1] as StepExpression).axis)
+          .isA<DescendantOrSelfAxis>();
+      check((pMixed2.steps[2] as StepExpression).axis).isA<ChildAxis>();
 
       final pVar = parseExpression('//item[\$idx]') as PathExpression;
-      expect(pVar.steps, hasLength(3));
-      expect(
-        (pVar.steps[1] as StepExpression).axis,
-        isA<DescendantOrSelfAxis>(),
-      );
-      expect((pVar.steps[2] as StepExpression).axis, isA<ChildAxis>());
+      check(pVar.steps).length.equals(3);
+      check((pVar.steps[1] as StepExpression).axis).isA<DescendantOrSelfAxis>();
+      check((pVar.steps[2] as StepExpression).axis).isA<ChildAxis>();
     });
   });
 
@@ -521,40 +504,40 @@ void main() {
       final minInt = int.parse('-9223372036854775808');
 
       final maxVal = XPathInteger.fromInt(maxInt);
-      expect(maxVal.intValue, maxInt);
-      expect(maxVal.asInt, maxInt);
-      expect(maxVal.equalsInt(maxInt), isTrue);
+      check(maxVal.intValue).equals(maxInt);
+      check(maxVal.asInt).equals(maxInt);
+      check(maxVal.equalsInt(maxInt)).isTrue();
 
       final minVal = XPathInteger.fromInt(minInt);
-      expect(minVal.intValue, minInt);
-      expect(minVal.asInt, minInt);
-      expect(minVal.equalsInt(minInt), isTrue);
+      check(minVal.intValue).equals(minInt);
+      check(minVal.asInt).equals(minInt);
+      check(minVal.equalsInt(minInt)).isTrue();
 
       final overflowPos = BigInt.parse('9223372036854775808');
       final valOver = XPathInteger(overflowPos);
-      expect(valOver.intValue, isNull);
-      expect(valOver.equalsInt(maxInt), isFalse);
+      check(valOver.intValue).isNull();
+      check(valOver.equalsInt(maxInt)).isFalse();
 
       final overflowNeg = BigInt.parse('-9223372036854775809');
       final valUnder = XPathInteger(overflowNeg);
-      expect(valUnder.intValue, isNull);
-      expect(valUnder.equalsInt(minInt), isFalse);
+      check(valUnder.intValue).isNull();
+      check(valUnder.equalsInt(minInt)).isFalse();
     });
 
     test('Small integer pool boundary 128 vs 129', () {
       final p128a = XPathInteger.fromInt(128);
       final p128b = XPathInteger.fromInt(128);
-      expect(identical(p128a, p128b), isTrue);
+      check(identical(p128a, p128b)).isTrue();
 
       final p129a = XPathInteger.fromInt(129);
       final p129b = XPathInteger.fromInt(129);
-      expect(identical(p129a, p129b), isFalse);
-      expect(p129a == p129b, isTrue);
+      check(identical(p129a, p129b)).isFalse();
+      check(p129a == p129b).isTrue();
 
       final pNeg = XPathInteger.fromInt(-1);
       final pNeg2 = XPathInteger.fromInt(-1);
-      expect(identical(pNeg, pNeg2), isFalse);
-      expect(pNeg == pNeg2, isTrue);
+      check(identical(pNeg, pNeg2)).isFalse();
+      check(pNeg == pNeg2).isTrue();
     });
 
     test('Cross-type equality with cached intValue', () {
@@ -563,9 +546,9 @@ void main() {
       const dbl42 = XPathDouble(42.0);
       const dbl42_5 = XPathDouble(42.5);
 
-      expect(int42 == dec42, isTrue);
-      expect(int42 == dbl42, isTrue);
-      expect(int42 == dbl42_5, isFalse);
+      check(int42 == dec42).isTrue();
+      check(int42 == dbl42).isTrue();
+      check(int42 == dbl42_5).isFalse();
     });
 
     test('Floating and special numeric predicates in execution', () {
@@ -576,46 +559,42 @@ void main() {
   <e id="3"/>
 </root>''');
 
-      expect(doc.xpath('//e[0]'), isEmpty);
-      expect(doc.xpath('//e[-1]'), isEmpty);
-      expect(doc.xpath('//e[-99999999999999999999]'), isEmpty);
-      expect(doc.xpath('//e[99999999999999999999]'), isEmpty);
-      expect(doc.xpath('//e[1.5]'), isEmpty);
-      expect(doc.xpath('//e[2.7]'), isEmpty);
+      check(doc.xpath('//e[0]')).isEmpty();
+      check(doc.xpath('//e[-1]')).isEmpty();
+      check(doc.xpath('//e[-99999999999999999999]')).isEmpty();
+      check(doc.xpath('//e[99999999999999999999]')).isEmpty();
+      check(doc.xpath('//e[1.5]')).isEmpty();
+      check(doc.xpath('//e[2.7]')).isEmpty();
 
       final e1 = doc.xpath('//e[1.0]').toList();
-      expect(e1, hasLength(1));
-      expect((e1.first as XmlElement).getAttribute('id'), '1');
+      check(e1).length.equals(1);
+      check((e1.first as XmlElement).getAttribute('id')).equals('1');
 
       final e2 = doc.xpath('//e[2.0]').toList();
-      expect(e2, hasLength(1));
-      expect((e2.first as XmlElement).getAttribute('id'), '2');
+      check(e2).length.equals(1);
+      check((e2.first as XmlElement).getAttribute('id')).equals('2');
     });
   });
 
   group('Adversarial - Step Collapsing Soundness Verification', () {
     void verifyCollapsing(String query, {required bool shouldCollapse}) {
       final expr = parseExpression(query);
-      expect(expr, isA<PathExpression>());
+      check(expr).isA<PathExpression>();
       final path = expr as PathExpression;
       if (shouldCollapse) {
-        expect(
+        check(
+          because: 'Expected $query to collapse into 2 steps',
           path.steps.length,
-          2,
-          reason: 'Expected $query to collapse into 2 steps',
-        );
-        expect(path.steps.first, isA<RootNodeExpression>());
+        ).equals(2);
+        check(path.steps.first).isA<RootNodeExpression>();
         final step = path.steps[1] as StepExpression;
-        expect(
-          step.axis,
-          anyOf(isA<DescendantAxis>(), isA<DescendantOrSelfAxis>()),
-        );
+        check(step.axis is DescendantAxis || step.axis is DescendantOrSelfAxis)
+            .isTrue();
       } else {
-        expect(
+        check(
+          because: 'Expected $query NOT to collapse',
           path.steps.length,
-          greaterThanOrEqualTo(3),
-          reason: 'Expected $query NOT to collapse',
-        );
+        ).isGreaterOrEqual(3);
       }
     }
 
@@ -689,30 +668,30 @@ void main() {
       () {
         final p3 = doc.xpath('//para[@id="p3"]').single as XmlElement;
         final prev1 = p3.xpath('preceding-sibling::para[1]').toList();
-        expect(prev1, hasLength(1));
-        expect((prev1.first as XmlElement).getAttribute('id'), 'p2');
+        check(prev1).length.equals(1);
+        check((prev1.first as XmlElement).getAttribute('id')).equals('p2');
 
         final prev2 = p3.xpath('preceding-sibling::para[2]').toList();
-        expect(prev2, hasLength(1));
-        expect((prev2.first as XmlElement).getAttribute('id'), 'p1');
+        check(prev2).length.equals(1);
+        check((prev2.first as XmlElement).getAttribute('id')).equals('p1');
 
         final prev3 = p3.xpath('preceding-sibling::para[3]').toList();
-        expect(prev3, isEmpty);
+        check(prev3).isEmpty();
       },
     );
 
     test('ancestor with positional predicate returns nearest ancestor', () {
       final p1 = doc.xpath('//para[@id="p1"]').single as XmlElement;
       final anc1 = p1.xpath('ancestor::*[1]').toList();
-      expect(anc1, hasLength(1));
-      expect((anc1.first as XmlElement).name.local, 'section');
+      check(anc1).length.equals(1);
+      check((anc1.first as XmlElement).name.local).equals('section');
 
       final anc2 = p1.xpath('ancestor::*[2]').toList();
-      expect(anc2, hasLength(1));
-      expect((anc2.first as XmlElement).name.local, 'doc');
+      check(anc2).length.equals(1);
+      check((anc2.first as XmlElement).name.local).equals('doc');
 
       final anc3 = p1.xpath('ancestor::*[3]').toList();
-      expect(anc3, isEmpty);
+      check(anc3).isEmpty();
     });
   });
 
@@ -789,22 +768,20 @@ void main() {
 
           final unoptimizedResult = doc.xpath(unoptimizedQuery).toList();
 
-          expect(
-            optimizedResult.length,
-            unoptimizedResult.length,
-            reason:
+          check(
+            because:
                 'Tree $treeIdx: Query "$q" mismatch with unoptimized "$unoptimizedQuery"',
-          );
+            optimizedResult.length,
+          ).equals(unoptimizedResult.length);
 
           for (var k = 0; k < optimizedResult.length; k++) {
             final optNode = optimizedResult[k];
             final unoptNode = unoptimizedResult[k];
-            expect(
-              identical(optNode, unoptNode),
-              isTrue,
-              reason:
+            check(
+              because:
                   'Tree $treeIdx, query "$q", item $k: identity mismatch between optimized and unoptimized',
-            );
+              identical(optNode, unoptNode),
+            ).isTrue();
           }
         }
       }
@@ -818,13 +795,11 @@ void main() {
         final singleFirstItem = doc.xpath('/descendant::item[1]').toList();
 
         if (multiParentItems.isNotEmpty) {
-          expect(singleFirstItem, hasLength(1));
-          expect(
-            identical(multiParentItems.first, singleFirstItem.first),
-            isTrue,
-          );
+          check(singleFirstItem).length.equals(1);
+          check(identical(multiParentItems.first, singleFirstItem.first))
+              .isTrue();
         } else {
-          expect(singleFirstItem, isEmpty);
+          check(singleFirstItem).isEmpty();
         }
 
         final allItems = doc.xpath('//item').toList();
@@ -835,11 +810,10 @@ void main() {
               .length;
           if (parentCount > 1) {
             // //item[1] MUST have selected more than 1 item if multiple parents exist
-            expect(
+            check(
+              because: 'Tree $treeIdx: //item[1] must return 1 item per parent',
               multiParentItems.length,
-              greaterThan(1),
-              reason: 'Tree $treeIdx: //item[1] must return 1 item per parent',
-            );
+            ).isGreaterThan(1);
           }
         }
       }

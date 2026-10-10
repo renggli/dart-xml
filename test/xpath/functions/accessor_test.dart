@@ -1,9 +1,9 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/functions/accessor.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
@@ -13,116 +13,99 @@ void main() {
   group('fn:node-name', () {
     test('returns name of element', () {
       final a = document.findAllElements('a').first;
-      expect(
-        fnNodeName(const XPathConfiguration.raw().context(a), []),
-        isXPathSequence([a.name]),
-      );
-      expect(fnNodeName(context, [seq(a)]), isXPathSequence([a.name]));
+      check(fnNodeName(const XPathConfiguration.raw().context(a), []))
+          .isXPathSequence([a.name]);
+      check(fnNodeName(context, [seq(a)])).isXPathSequence([a.name]);
     });
 
     test('returns name of processing-instruction', () {
       final pi = XmlProcessing('target', 'value');
-      expect(
-        fnNodeName(context, [seq(pi)]),
-        isXPathSequence([
-          isA<XmlName>().having((name) => name.local, 'localName', 'target'),
-        ]),
-      );
+      check(fnNodeName(context, [seq(pi)])).isXPathSequence([
+        (Subject<Object?> s) =>
+            s.isA<XmlName>().has((n) => n.local, 'local').equals('target'),
+      ]);
     });
 
     test('returns empty for empty sequence', () {
-      expect(
-        fnNodeName(context, [XPathSequence.empty]),
-        isXPathSequence(isEmpty),
-      );
+      check(fnNodeName(context, [XPathSequence.empty]))
+          .isXPathSequence(isEmpty);
     });
   });
 
   group('fn:nilled', () {
     test('returns empty for document', () {
-      expect(fnNilled(context, [seq(document)]), isXPathSequence(isEmpty));
+      check(fnNilled(context, [seq(document)])).isXPathSequence(isEmpty);
     });
 
     test('returns false for element', () {
-      expect(
-        fnNilled(context, [seq(document.rootElement)]),
-        isXPathSequence([false]),
-      );
+      check(fnNilled(context, [seq(document.rootElement)]))
+          .isXPathSequence([false]);
     });
 
     test('returns false for context element (0-arg)', () {
       final elemContext = const XPathConfiguration.raw().context(
         document.rootElement,
       );
-      expect(fnNilled(elemContext, []), isXPathSequence([false]));
+      check(fnNilled(elemContext, [])).isXPathSequence([false]);
     });
 
     test('returns empty for empty sequence', () {
-      expect(
-        fnNilled(context, [XPathSequence.empty]),
-        isXPathSequence(isEmpty),
-      );
+      check(fnNilled(context, [XPathSequence.empty])).isXPathSequence(isEmpty);
     });
   });
 
   group('fn:string', () {
     test('returns string value', () {
-      expect(fnString(context, [seq('foo')]), isXPathSequence(['foo']));
+      check(fnString(context, [seq('foo')])).isXPathSequence(['foo']);
     });
 
     test('returns empty for empty sequence', () {
-      expect(fnString(context, [XPathSequence.empty]), isXPathSequence(['']));
+      check(fnString(context, [XPathSequence.empty])).isXPathSequence(['']);
     });
 
     test('returns string value of context node', () {
-      expect(
+      check(
         fnString(
           const XPathConfiguration.raw().context(
             document.findAllElements('a').first,
           ),
           [],
         ),
-        isXPathSequence(['1']),
-      );
+      ).isXPathSequence(['1']);
     });
   });
 
   group('fn:data', () {
     test('returns empty for empty sequence', () {
-      expect(fnData(context, [XPathSequence.empty]), isXPathSequence(isEmpty));
+      check(fnData(context, [XPathSequence.empty])).isXPathSequence(isEmpty);
     });
 
     test('returns atomic value', () {
-      expect(fnData(context, [seq(123)]), isXPathSequence([123]));
+      check(fnData(context, [seq(123)])).isXPathSequence([123]);
     });
 
     test('returns list value', () {
-      expect(
+      check(
         fnData(context, [
           seq([1, 2, 3]),
         ]),
-        isXPathSequence([1, 2, 3]),
-      );
+      ).isXPathSequence([1, 2, 3]);
     });
 
     test('returns string value of context node', () {
-      expect(
-        fnData(context, []),
-        isXPathSequence([const XPathUntypedAtomic('12')]),
-      );
+      check(fnData(context, []))
+          .isXPathSequence([const XPathUntypedAtomic('12')]);
     });
   });
 
   group('fn:base-uri', () {
     test('returns empty for empty sequence', () {
-      expect(
-        fnBaseUri(context, const <XPathSequence>[]),
-        isXPathSequence(isEmpty),
-      );
+      check(fnBaseUri(context, const <XPathSequence>[]))
+          .isXPathSequence(isEmpty);
     });
 
     test('returns empty for document', () {
-      expect(fnBaseUri(context, [seq(document)]), isXPathSequence(isEmpty));
+      check(fnBaseUri(context, [seq(document)])).isXPathSequence(isEmpty);
     });
 
     test('resolves xml:base attributes hierarchy and document base', () {
@@ -132,10 +115,8 @@ void main() {
         '</doc>',
       );
       final subElem = baseDoc.findAllElements('sub').first;
-      expect(
-        fnBaseUri(context, [seq(subElem)]),
-        isXPathSequence(['http://example.com/dir/sub/']),
-      );
+      check(fnBaseUri(context, [seq(subElem)]))
+          .isXPathSequence(['http://example.com/dir/sub/']);
     });
 
     test('uses document URI from configuration', () {
@@ -144,23 +125,19 @@ void main() {
         documents: {'http://example.com/test.xml': doc},
       );
       final ctx = config.context(doc.rootElement);
-      expect(
-        fnBaseUri(ctx, [seq(doc.findAllElements('item').first)]),
-        isXPathSequence(['http://example.com/test.xml']),
-      );
+      check(fnBaseUri(ctx, [seq(doc.findAllElements('item').first)]))
+          .isXPathSequence(['http://example.com/test.xml']);
     });
   });
 
   group('fn:document-uri', () {
     test('returns empty for empty sequence', () {
-      expect(
-        fnDocumentUri(context, const <XPathSequence>[]),
-        isXPathSequence(isEmpty),
-      );
+      check(fnDocumentUri(context, const <XPathSequence>[]))
+          .isXPathSequence(isEmpty);
     });
 
     test('returns empty for document', () {
-      expect(fnDocumentUri(context, [seq(document)]), isXPathSequence(isEmpty));
+      check(fnDocumentUri(context, [seq(document)])).isXPathSequence(isEmpty);
     });
 
     test('returns URI for registered document', () {
@@ -169,56 +146,42 @@ void main() {
         documents: {'https://example.com/doc.xml': doc},
       );
       final ctx = config.context(doc);
-      expect(
-        fnDocumentUri(ctx, [seq(doc)]),
-        isXPathSequence(['https://example.com/doc.xml']),
-      );
+      check(fnDocumentUri(ctx, [seq(doc)]))
+          .isXPathSequence(['https://example.com/doc.xml']);
     });
   });
 
   group('fn:parse-xml', () {
     test('parses xml string', () {
-      expect(
-        fnParseXml(context, [seq('<r><a>1</a></r>')]),
-        isXPathSequence([isA<XmlDocument>()]),
-      );
+      check(fnParseXml(context, [seq('<r><a>1</a></r>')]))
+          .isXPathSequence([isA<XmlDocument>()]);
     });
 
     test('returns empty for empty sequence', () {
-      expect(
-        fnParseXml(context, [XPathSequence.empty]),
-        isXPathSequence(isEmpty),
-      );
+      check(fnParseXml(context, [XPathSequence.empty]))
+          .isXPathSequence(isEmpty);
     });
 
     test('throws exception on invalid xml', () {
-      expect(
-        () => fnParseXml(context, [seq('<r>unclosed')]),
-        throwsA(isA<XmlException>()),
-      );
+      check(() => fnParseXml(context, [seq('<r>unclosed')]))
+          .throws<XmlException>();
     });
   });
 
   group('fn:parse-xml-fragment', () {
     test('parses xml fragment string', () {
-      expect(
-        fnParseXmlFragment(context, [seq('<a>1</a><b>2</b>')]),
-        isXPathSequence([isA<XmlDocumentFragment>()]),
-      );
+      check(fnParseXmlFragment(context, [seq('<a>1</a><b>2</b>')]))
+          .isXPathSequence([isA<XmlDocumentFragment>()]);
     });
 
     test('returns empty for empty sequence', () {
-      expect(
-        fnParseXmlFragment(context, [XPathSequence.empty]),
-        isXPathSequence(isEmpty),
-      );
+      check(fnParseXmlFragment(context, [XPathSequence.empty]))
+          .isXPathSequence(isEmpty);
     });
 
     test('throws exception on invalid xml fragment', () {
-      expect(
-        () => fnParseXmlFragment(context, [seq('<r>unclosed')]),
-        throwsA(isA<XmlException>()),
-      );
+      check(() => fnParseXmlFragment(context, [seq('<r>unclosed')]))
+          .throws<XmlException>();
     });
   });
 }

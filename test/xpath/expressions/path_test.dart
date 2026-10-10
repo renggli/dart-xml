@@ -1,4 +1,5 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/expressions/axis.dart';
 import 'package:xml/src/xpath/expressions/name.dart';
 import 'package:xml/src/xpath/expressions/node.dart';
@@ -10,7 +11,7 @@ import 'package:xml/src/xpath/grammars/parser.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
+import '../../utils/checks.dart';
 
 void main() {
   group('step optimization', () {
@@ -21,11 +22,11 @@ void main() {
           const StepExpression(DescendantOrSelfAxis()),
           StepExpression(stepAxis, nodeTest: const QualifiedNameTest('x')),
         ]);
-        expect(path.steps, hasLength(1));
+        check(path.steps).length.equals(1);
         final actualStep = path.steps.single as StepExpression;
-        expect(actualStep.axis.runtimeType, newAxis.runtimeType);
-        expect(actualStep.nodeTest, const QualifiedNameTest('x'));
-        expect(actualStep.predicates, isEmpty);
+        check(actualStep.axis.runtimeType).equals(newAxis.runtimeType);
+        check(actualStep.nodeTest).equals(const QualifiedNameTest('x'));
+        check(actualStep.predicates).isEmpty();
       }
       {
         // Incompatible initial step.
@@ -33,7 +34,7 @@ void main() {
           const StepExpression(SelfAxis()),
           StepExpression(stepAxis, nodeTest: const QualifiedNameTest('x')),
         ]);
-        expect(path.steps, hasLength(2));
+        check(path.steps).length.equals(2);
       }
       {
         // Incompatible node test.
@@ -44,7 +45,7 @@ void main() {
           ),
           StepExpression(stepAxis, nodeTest: const QualifiedNameTest('x')),
         ]);
-        expect(path.steps, hasLength(2));
+        check(path.steps).length.equals(2);
       }
       {
         // Incompatible predicate.
@@ -62,7 +63,7 @@ void main() {
             ],
           ),
         ]);
-        expect(path.steps, hasLength(2));
+        check(path.steps).length.equals(2);
       }
     }
 
@@ -88,30 +89,27 @@ void main() {
   });
   group('order preservation', () {
     test('anyStep (selfStep | attributeStep)*', () {
-      expect(
+      check(
         PathExpression(const [StepExpression(AncestorOrSelfAxis())])
             .isOrderPreserved,
-        isTrue,
-      );
-      expect(
+      ).isTrue();
+      check(
         PathExpression(const [
           StepExpression(AncestorOrSelfAxis()),
           StepExpression(SelfAxis()),
           StepExpression(SelfAxis()),
           StepExpression(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
         ]).isOrderPreserved,
-        isTrue,
-      );
-      expect(
+      ).isTrue();
+      check(
         PathExpression(const [
           StepExpression(AncestorOrSelfAxis()),
           StepExpression(DescendantAxis()),
         ]).isOrderPreserved,
-        isFalse,
-      );
+      ).isFalse();
     });
     test('(selfStep | childStep)+ (descendantStep | descendantOrSelfStep)? (selfStep | attributeStep)*', () {
-      expect(
+      check(
         PathExpression(const [
           StepExpression(ChildAxis()),
           StepExpression(ChildAxis()),
@@ -121,9 +119,8 @@ void main() {
           StepExpression(SelfAxis()),
           StepExpression(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
         ]).isOrderPreserved,
-        isTrue,
-      );
-      expect(
+      ).isTrue();
+      check(
         PathExpression(const [
           StepExpression(ChildAxis()),
           StepExpression(ChildAxis()),
@@ -131,9 +128,8 @@ void main() {
           StepExpression(SelfAxis()),
           StepExpression(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
         ]).isOrderPreserved,
-        isTrue,
-      );
-      expect(
+      ).isTrue();
+      check(
         PathExpression(const [
           StepExpression(ChildAxis()),
           StepExpression(ChildAxis()),
@@ -143,9 +139,8 @@ void main() {
           StepExpression(SelfAxis()),
           StepExpression(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
         ]).isOrderPreserved,
-        isTrue,
-      );
-      expect(
+      ).isTrue();
+      check(
         PathExpression(const [
           StepExpression(ChildAxis()),
           StepExpression(ChildAxis()),
@@ -155,15 +150,14 @@ void main() {
           StepExpression(SelfAxis()),
           StepExpression(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
         ]).isOrderPreserved,
-        isFalse,
-      );
+      ).isFalse();
     });
   });
 
   group('evaluation edge cases', () {
     final context = XPathConfiguration().context(XmlDocument.parse('<root/>'));
     test('empty steps throw ArgumentError', () {
-      expect(() => PathExpression([]), throwsArgumentError);
+      check(() => PathExpression([])).throws<ArgumentError>();
     });
     test(
       'non-node items on path step without order preserved throws Exception',
@@ -172,13 +166,10 @@ void main() {
           const LiteralExpression(XPathSequence.single(XPathString('text'))),
           const StepExpression(ChildAxis()),
         ]);
-        expect(path.isOrderPreserved, isFalse);
-        expect(
-          () => path(context),
-          throwsA(
-            isXPathEvaluationException(
-              message: 'Path operator / requires sequence of nodes, but got text [err:XPTY0019]',
-            ),
+        check(path.isOrderPreserved).isFalse();
+        check(() => path(context)).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(
+            message: 'Path operator / requires sequence of nodes, but got text [err:XPTY0019]',
           ),
         );
       },
@@ -190,13 +181,10 @@ void main() {
           const LiteralExpression(XPathSequence.single(XPathString('text'))),
           const StepExpression(ChildAxis()),
         ], isOrderPreserved: true);
-        expect(path.isOrderPreserved, isTrue);
-        expect(
-          () => path(context),
-          throwsA(
-            isXPathEvaluationException(
-              message: 'Path operator / requires sequence of nodes, but got text [err:XPTY0019]',
-            ),
+        check(path.isOrderPreserved).isTrue();
+        check(() => path(context)).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(
+            message: 'Path operator / requires sequence of nodes, but got text [err:XPTY0019]',
           ),
         );
       },
@@ -207,11 +195,11 @@ void main() {
         const StepExpression(AncestorAxis()),
         LiteralExpression(XPathSequence.single(XPathInteger.fromInt(1))),
       ]);
-      expect(path.isOrderPreserved, isFalse);
+      check(path.isOrderPreserved).isFalse();
       final evalContext = XPathConfiguration().context(
         xml.rootElement.children.first,
       );
-      expect(path(evalContext), isXPathSequence([1]));
+      check(path(evalContext)).isXPathSequence([1]);
     });
     test('sort and deduplicate with large node sets', () {
       final xml = XmlDocument.parse(
@@ -221,13 +209,13 @@ void main() {
         const StepExpression(AncestorAxis()),
         const StepExpression(ChildAxis()),
       ]);
-      expect(path.isOrderPreserved, isFalse);
+      check(path.isOrderPreserved).isFalse();
       // Evaluate starting at a 'b' node
       final evalContext = XPathConfiguration().context(
         xml.findAllElements('b').first,
       );
       final result = path(evalContext);
-      expect(result, hasLength(62));
+      check(result).length.equals(62);
     });
     test('sort and deduplicate with nodes from multiple documents', () {
       final xml1 = XmlDocument.parse(
@@ -243,259 +231,212 @@ void main() {
         ),
         const StepExpression(SelfAxis()),
       ]);
-      expect(path.isOrderPreserved, isFalse);
+      check(path.isOrderPreserved).isFalse();
       final result = path(context);
       // Expected to find 55 elements from xml1 + 2 elements from xml2 = 57
-      expect(result, hasLength(57));
+      check(result).length.equals(57);
     });
   });
 
   group('order preservation with RootNodeExpression', () {
     test('RootNodeExpression alone', () {
-      expect(
-        PathExpression(const [RootNodeExpression()]).isOrderPreserved,
-        isTrue,
-      );
+      check(PathExpression(const [RootNodeExpression()]).isOrderPreserved)
+          .isTrue();
     });
 
     test('RootNodeExpression followed by any single step', () {
-      expect(
+      check(
         PathExpression(const [
           RootNodeExpression(),
           StepExpression(ChildAxis()),
         ]).isOrderPreserved,
-        isTrue,
-      );
-      expect(
+      ).isTrue();
+      check(
         PathExpression(const [
           RootNodeExpression(),
           StepExpression(DescendantAxis()),
         ]).isOrderPreserved,
-        isTrue,
-      );
-      expect(
+      ).isTrue();
+      check(
         PathExpression(const [
           RootNodeExpression(),
           StepExpression(DescendantOrSelfAxis()),
         ]).isOrderPreserved,
-        isTrue,
-      );
-      expect(
+      ).isTrue();
+      check(
         PathExpression(const [
           RootNodeExpression(),
           StepExpression(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
         ]).isOrderPreserved,
-        isTrue,
-      );
+      ).isTrue();
     });
 
     test('RootNodeExpression (childStep)+', () {
-      expect(
+      check(
         PathExpression(const [
           RootNodeExpression(),
           StepExpression(ChildAxis()),
           StepExpression(ChildAxis()),
           StepExpression(ChildAxis()),
         ]).isOrderPreserved,
-        isTrue,
-      );
+      ).isTrue();
     });
 
     test('RootNodeExpression (childStep)* (descendantStep)? (selfStep | attributeStep)*', () {
-      expect(
+      check(
         PathExpression(const [
           RootNodeExpression(),
           StepExpression(ChildAxis()),
           StepExpression(DescendantAxis()),
         ]).isOrderPreserved,
-        isTrue,
-      );
-      expect(
+      ).isTrue();
+      check(
         PathExpression(const [
           RootNodeExpression(),
           StepExpression(ChildAxis()),
           StepExpression(DescendantAxis()),
           StepExpression(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
         ]).isOrderPreserved,
-        isTrue,
-      );
-      expect(
+      ).isTrue();
+      check(
         PathExpression(const [
           RootNodeExpression(),
           StepExpression(DescendantAxis()),
           StepExpression(SelfAxis()),
           StepExpression(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
         ]).isOrderPreserved,
-        isTrue,
-      );
+      ).isTrue();
     });
 
     test('RootNodeExpression followed by non-order-preserving steps', () {
-      expect(
+      check(
         PathExpression(const [
           RootNodeExpression(),
           StepExpression(ChildAxis()),
           StepExpression(ParentAxis()),
         ]).isOrderPreserved,
-        isFalse,
-      );
-      expect(
+      ).isFalse();
+      check(
         PathExpression(const [
           RootNodeExpression(),
           StepExpression(ChildAxis()),
           StepExpression(AncestorAxis()),
         ]).isOrderPreserved,
-        isFalse,
-      );
-      expect(
+      ).isFalse();
+      check(
         PathExpression(const [
           RootNodeExpression(),
           StepExpression(ChildAxis()),
           StepExpression(PrecedingAxis()),
         ]).isOrderPreserved,
-        isFalse,
-      );
-      expect(
+      ).isFalse();
+      check(
         PathExpression(const [
           RootNodeExpression(),
           StepExpression(ChildAxis()),
           StepExpression(FollowingAxis()),
         ]).isOrderPreserved,
-        isFalse,
-      );
-      expect(
+      ).isFalse();
+      check(
         PathExpression(const [
           RootNodeExpression(),
           StepExpression(ChildAxis()),
           StepExpression(PrecedingSiblingAxis()),
         ]).isOrderPreserved,
-        isFalse,
-      );
-      expect(
+      ).isFalse();
+      check(
         PathExpression(const [
           RootNodeExpression(),
           StepExpression(ChildAxis()),
           StepExpression(FollowingSiblingAxis()),
         ]).isOrderPreserved,
-        isFalse,
-      );
-      expect(
+      ).isFalse();
+      check(
         PathExpression(const [
           RootNodeExpression(),
           StepExpression(DescendantAxis()),
           StepExpression(ChildAxis()),
         ]).isOrderPreserved,
-        isFalse,
-      );
-      expect(
+      ).isFalse();
+      check(
         PathExpression([
           const RootNodeExpression(),
           LiteralExpression(XPathSequence.single(XPathInteger.fromInt(1))),
         ]).isOrderPreserved,
-        isFalse,
-      );
+      ).isFalse();
     });
   });
 
   group('order preservation of parsed absolute paths', () {
     test('common absolute queries are order-preserved', () {
-      expect(
+      check(
         (parseExpression('/root/item/name') as PathExpression).isOrderPreserved,
-        isTrue,
-      );
-      expect(
-        (parseExpression('/root/item') as PathExpression).isOrderPreserved,
-        isTrue,
-      );
-      expect(
-        (parseExpression('/root') as PathExpression).isOrderPreserved,
-        isTrue,
-      );
-      expect(
-        (parseExpression('/root/@id') as PathExpression).isOrderPreserved,
-        isTrue,
-      );
-      expect(
+      ).isTrue();
+      check((parseExpression('/root/item') as PathExpression).isOrderPreserved)
+          .isTrue();
+      check((parseExpression('/root') as PathExpression).isOrderPreserved)
+          .isTrue();
+      check((parseExpression('/root/@id') as PathExpression).isOrderPreserved)
+          .isTrue();
+      check(
         (parseExpression('/root/item/@id') as PathExpression).isOrderPreserved,
-        isTrue,
-      );
-      expect(
-        (parseExpression('//item') as PathExpression).isOrderPreserved,
-        isTrue,
-      );
-      expect(
-        (parseExpression('//*') as PathExpression).isOrderPreserved,
-        isTrue,
-      );
-      expect(
-        (parseExpression('/root//item') as PathExpression).isOrderPreserved,
-        isTrue,
-      );
-      expect(
-        (parseExpression('//item/@id') as PathExpression).isOrderPreserved,
-        isTrue,
-      );
-      expect(
-        (parseExpression('//item/.') as PathExpression).isOrderPreserved,
-        isTrue,
-      );
-      expect(
+      ).isTrue();
+      check((parseExpression('//item') as PathExpression).isOrderPreserved)
+          .isTrue();
+      check((parseExpression('//*') as PathExpression).isOrderPreserved)
+          .isTrue();
+      check((parseExpression('/root//item') as PathExpression).isOrderPreserved)
+          .isTrue();
+      check((parseExpression('//item/@id') as PathExpression).isOrderPreserved)
+          .isTrue();
+      check((parseExpression('//item/.') as PathExpression).isOrderPreserved)
+          .isTrue();
+      check(
         (parseExpression(
           '/root/item[1]/name',
         ) as PathExpression).isOrderPreserved,
-        isTrue,
-      );
+      ).isTrue();
     });
 
     test('absolute queries with reverse or non-preserving axes are not order-preserved', () {
-      expect(
+      check(
         (parseExpression('/root/item/..') as PathExpression).isOrderPreserved,
-        isFalse,
-      );
-      expect(
+      ).isFalse();
+      check(
         (parseExpression(
           '/root/item/ancestor::*',
         ) as PathExpression).isOrderPreserved,
-        isFalse,
-      );
-      expect(
+      ).isFalse();
+      check(
         (parseExpression(
           '/root/item/preceding::*',
         ) as PathExpression).isOrderPreserved,
-        isFalse,
-      );
-      expect(
+      ).isFalse();
+      check(
         (parseExpression(
           '/root/item/following::*',
         ) as PathExpression).isOrderPreserved,
-        isFalse,
-      );
-      expect(
+      ).isFalse();
+      check(
         (parseExpression(
           '/root/item/preceding-sibling::*',
         ) as PathExpression).isOrderPreserved,
-        isFalse,
-      );
-      expect(
+      ).isFalse();
+      check(
         (parseExpression(
           '/root/item/following-sibling::*',
         ) as PathExpression).isOrderPreserved,
-        isFalse,
-      );
-      expect(
+      ).isFalse();
+      check(
         (parseExpression('//root//item') as PathExpression).isOrderPreserved,
-        isFalse,
-      );
-      expect(
-        (parseExpression('//item/*') as PathExpression).isOrderPreserved,
-        isFalse,
-      );
-      expect(
+      ).isFalse();
+      check((parseExpression('//item/*') as PathExpression).isOrderPreserved)
+          .isFalse();
+      check(
         (parseExpression(
           '//item/child::name',
         ) as PathExpression).isOrderPreserved,
-        isFalse,
-      );
+      ).isFalse();
     });
   });
 
@@ -531,39 +472,21 @@ void main() {
 
     test('preserves strict document order for absolute child paths', () {
       final doc = XmlDocument.parse(xmlContent);
-      expect(evalIds(doc, '/tree/node'), ['1', '2']);
-      expect(evalIds(doc, '/tree/node/node'), ['1.1', '1.2', '2.1']);
-      expect(evalIds(doc, '/tree/node/node/node'), ['1.1.1']);
+      check(evalIds(doc, '/tree/node')).deepEquals(['1', '2']);
+      check(evalIds(doc, '/tree/node/node')).deepEquals(['1.1', '1.2', '2.1']);
+      check(evalIds(doc, '/tree/node/node/node')).deepEquals(['1.1.1']);
     });
 
     test('preserves strict document order for descendant queries', () {
       final doc = XmlDocument.parse(xmlContent);
-      expect(evalIds(doc, '//node'), ['1', '1.1', '1.1.1', '1.2', '2', '2.1']);
-      expect(evalIds(doc, '//*'), [
-        '0',
-        '1',
-        '1.1',
-        '1.1.1',
-        '1.2',
-        '2',
-        '2.1',
-      ]);
-      expect(evalIds(doc, '/tree//node'), [
-        '1',
-        '1.1',
-        '1.1.1',
-        '1.2',
-        '2',
-        '2.1',
-      ]);
-      expect(evalIds(doc, '//node/@id'), [
-        '1',
-        '1.1',
-        '1.1.1',
-        '1.2',
-        '2',
-        '2.1',
-      ]);
+      check(evalIds(doc, '//node'))
+          .deepEquals(['1', '1.1', '1.1.1', '1.2', '2', '2.1']);
+      check(evalIds(doc, '//*'))
+          .deepEquals(['0', '1', '1.1', '1.1.1', '1.2', '2', '2.1']);
+      check(evalIds(doc, '/tree//node'))
+          .deepEquals(['1', '1.1', '1.1.1', '1.2', '2', '2.1']);
+      check(evalIds(doc, '//node/@id'))
+          .deepEquals(['1', '1.1', '1.1.1', '1.2', '2', '2.1']);
     });
 
     test('re-roots correctly when evaluated from a deep context node', () {
@@ -571,30 +494,27 @@ void main() {
       final deepNode = doc
           .findAllElements('node')
           .firstWhere((e) => e.getAttribute('id') == '1.1.1');
-      expect(evalIds(doc, '/tree/node', contextNode: deepNode), ['1', '2']);
-      expect(evalIds(doc, '//node/@id', contextNode: deepNode), [
-        '1',
-        '1.1',
-        '1.1.1',
-        '1.2',
-        '2',
-        '2.1',
-      ]);
+      check(evalIds(doc, '/tree/node', contextNode: deepNode))
+          .deepEquals(['1', '2']);
+      check(evalIds(doc, '//node/@id', contextNode: deepNode))
+          .deepEquals(['1', '1.1', '1.1.1', '1.2', '2', '2.1']);
     });
 
     test('deduplicates and sorts non-order-preserving paths', () {
       final doc = XmlDocument.parse(xmlContent);
       // //node/node without sorting would yield: 1.1, 1.2, 1.1.1, 2.1 (1.2 before 1.1.1).
       // Correct document order places 1.1.1 before 1.2:
-      expect(evalIds(doc, '//node/node'), ['1.1', '1.1.1', '1.2', '2.1']);
+      check(evalIds(doc, '//node/node'))
+          .deepEquals(['1.1', '1.1.1', '1.2', '2.1']);
       // //node/ancestor::node deduplicates shared ancestors (node 1 is shared by 1.1, 1.1.1, 1.2):
-      expect(evalIds(doc, '//node/ancestor::node'), ['1', '1.1', '2']);
+      check(evalIds(doc, '//node/ancestor::node'))
+          .deepEquals(['1', '1.1', '2']);
       // //node/.. deduplicates parents:
-      expect(evalIds(doc, '//node/..'), ['0', '1', '1.1', '2']);
+      check(evalIds(doc, '//node/..')).deepEquals(['0', '1', '1.1', '2']);
 
       final attrDoc = XmlDocument.parse('<root a="1" b="2"><child/></root>');
       final res = attrDoc.xpath('//child/../@*').map((i) => i.value).toList();
-      expect(res, ['1', '2']);
+      check(res).deepEquals(['1', '2']);
     });
   });
 
@@ -615,20 +535,19 @@ void main() {
       final list = nodes.toList();
       for (var i = 0; i < list.length - 1; i++) {
         final pos = list[i].compareDocumentPosition(list[i + 1]);
-        expect(
-          pos.isFollowing,
-          isTrue,
-          reason:
+        check(
+          because:
               'Node at index $i (${list[i]}) must precede node at index '
               '${i + 1} (${list[i + 1]}), but compareDocumentPosition returned $pos',
-        );
+          pos.isFollowing,
+        ).isTrue();
       }
     }
 
     test('sorts multiple namespaces on single element in DOM prefix order', () {
       final doc = XmlDocument.parse(nsXmlContent);
       final result = doc.xpath('/root/namespace::*').toList();
-      expect(evalNsWithParent(doc, '/root/namespace::*'), [
+      check(evalNsWithParent(doc, '/root/namespace::*')).deepEquals([
         'root:xmlns="http://example.com/default"',
         'root:xmlns:a="http://example.com/a"',
         'root:xmlns:b="http://example.com/b"',
@@ -642,7 +561,7 @@ void main() {
       () {
         final doc = XmlDocument.parse(nsXmlContent);
         final result = doc.xpath('//namespace::*').toList();
-        expect(evalNsWithParent(doc, '//namespace::*'), [
+        check(evalNsWithParent(doc, '//namespace::*')).deepEquals([
           'root:xmlns="http://example.com/default"',
           'root:xmlns:a="http://example.com/a"',
           'root:xmlns:b="http://example.com/b"',
@@ -665,34 +584,78 @@ void main() {
         final result = doc
             .xpath('(/root/namespace::* | /root/namespace::*)/.')
             .toList();
-        expect(
+        check(
           evalNsWithParent(doc, '(/root/namespace::* | /root/namespace::*)/.'),
-          [
-            'root:xmlns="http://example.com/default"',
-            'root:xmlns:a="http://example.com/a"',
-            'root:xmlns:b="http://example.com/b"',
-            'root:xmlns:xml="http://www.w3.org/XML/1998/namespace"',
-          ],
-        );
+        ).deepEquals([
+          'root:xmlns="http://example.com/default"',
+          'root:xmlns:a="http://example.com/a"',
+          'root:xmlns:b="http://example.com/b"',
+          'root:xmlns:xml="http://www.w3.org/XML/1998/namespace"',
+        ]);
         expectStrictDocumentOrder(result);
       },
     );
 
     test('deduplicates overlapping namespace sets under path operations', () {
       final doc = XmlDocument.parse(nsXmlContent);
-      expect(
+      check(
         evalNsWithParent(doc, '(/root/namespace::* | /root/namespace::a)/.'),
-        [
-          'root:xmlns="http://example.com/default"',
-          'root:xmlns:a="http://example.com/a"',
-          'root:xmlns:b="http://example.com/b"',
-          'root:xmlns:xml="http://www.w3.org/XML/1998/namespace"',
-        ],
-      );
+      ).deepEquals([
+        'root:xmlns="http://example.com/default"',
+        'root:xmlns:a="http://example.com/a"',
+        'root:xmlns:b="http://example.com/b"',
+        'root:xmlns:xml="http://www.w3.org/XML/1998/namespace"',
+      ]);
       final unionDescendant = doc
           .xpath('(//namespace::* | /root/namespace::*)/.')
           .toList();
-      expect(evalNsWithParent(doc, '(//namespace::* | /root/namespace::*)/.'), [
+      check(evalNsWithParent(doc, '(//namespace::* | /root/namespace::*)/.'))
+          .deepEquals([
+            'root:xmlns="http://example.com/default"',
+            'root:xmlns:a="http://example.com/a"',
+            'root:xmlns:b="http://example.com/b"',
+            'root:xmlns:xml="http://www.w3.org/XML/1998/namespace"',
+            'child:xmlns="http://example.com/default"',
+            'child:xmlns:a="http://example.com/a"',
+            'child:xmlns:b="http://example.com/b"',
+            'child:xmlns:c="http://example.com/c"',
+            'child:xmlns:d="http://example.com/d"',
+            'child:xmlns:xml="http://www.w3.org/XML/1998/namespace"',
+          ]);
+      expectStrictDocumentOrder(unionDescendant);
+    });
+
+    test(
+      'sorts disjoint namespaces under union operations in prefix order',
+      () {
+        final doc = XmlDocument.parse(nsXmlContent);
+        check(evalNsWithParent(doc, '/root/namespace::b | /root/namespace::a'))
+            .deepEquals([
+              'root:xmlns:a="http://example.com/a"',
+              'root:xmlns:b="http://example.com/b"',
+            ]);
+        check(
+          evalNsWithParent(
+            doc,
+            '/root/namespace::xml | /root/namespace::b | /root/namespace::a',
+          ),
+        ).deepEquals([
+          'root:xmlns:a="http://example.com/a"',
+          'root:xmlns:b="http://example.com/b"',
+          'root:xmlns:xml="http://www.w3.org/XML/1998/namespace"',
+        ]);
+      },
+    );
+
+    test('preserves distinct namespace identity across parent elements under union', () {
+      final doc = XmlDocument.parse(nsXmlContent);
+      final result = doc
+          .xpath('/root/namespace::* | /root/child/namespace::*')
+          .toList();
+      check(result).length.equals(10);
+      check(
+        evalNsWithParent(doc, '/root/namespace::* | /root/child/namespace::*'),
+      ).deepEquals([
         'root:xmlns="http://example.com/default"',
         'root:xmlns:a="http://example.com/a"',
         'root:xmlns:b="http://example.com/b"',
@@ -704,67 +667,19 @@ void main() {
         'child:xmlns:d="http://example.com/d"',
         'child:xmlns:xml="http://www.w3.org/XML/1998/namespace"',
       ]);
-      expectStrictDocumentOrder(unionDescendant);
-    });
-
-    test(
-      'sorts disjoint namespaces under union operations in prefix order',
-      () {
-        final doc = XmlDocument.parse(nsXmlContent);
-        expect(
-          evalNsWithParent(doc, '/root/namespace::b | /root/namespace::a'),
-          [
-            'root:xmlns:a="http://example.com/a"',
-            'root:xmlns:b="http://example.com/b"',
-          ],
-        );
-        expect(
-          evalNsWithParent(
-            doc,
-            '/root/namespace::xml | /root/namespace::b | /root/namespace::a',
-          ),
-          [
-            'root:xmlns:a="http://example.com/a"',
-            'root:xmlns:b="http://example.com/b"',
-            'root:xmlns:xml="http://www.w3.org/XML/1998/namespace"',
-          ],
-        );
-      },
-    );
-
-    test('preserves distinct namespace identity across parent elements under union', () {
-      final doc = XmlDocument.parse(nsXmlContent);
-      final result = doc
-          .xpath('/root/namespace::* | /root/child/namespace::*')
-          .toList();
-      expect(result, hasLength(10));
-      expect(
-        evalNsWithParent(doc, '/root/namespace::* | /root/child/namespace::*'),
-        [
-          'root:xmlns="http://example.com/default"',
-          'root:xmlns:a="http://example.com/a"',
-          'root:xmlns:b="http://example.com/b"',
-          'root:xmlns:xml="http://www.w3.org/XML/1998/namespace"',
-          'child:xmlns="http://example.com/default"',
-          'child:xmlns:a="http://example.com/a"',
-          'child:xmlns:b="http://example.com/b"',
-          'child:xmlns:c="http://example.com/c"',
-          'child:xmlns:d="http://example.com/d"',
-          'child:xmlns:xml="http://www.w3.org/XML/1998/namespace"',
-        ],
-      );
       expectStrictDocumentOrder(result);
     });
 
     test('deduplicates namespaces across multi-step paths converging on same element', () {
       final doc = XmlDocument.parse(nsXmlContent);
-      expect(evalNsWithParent(doc, '(/root/child/.. | /root)/namespace::*'), [
-        'root:xmlns="http://example.com/default"',
-        'root:xmlns:a="http://example.com/a"',
-        'root:xmlns:b="http://example.com/b"',
-        'root:xmlns:xml="http://www.w3.org/XML/1998/namespace"',
-      ]);
-      expect(evalNsWithParent(doc, '(/root | /root)/namespace::*'), [
+      check(evalNsWithParent(doc, '(/root/child/.. | /root)/namespace::*'))
+          .deepEquals([
+            'root:xmlns="http://example.com/default"',
+            'root:xmlns:a="http://example.com/a"',
+            'root:xmlns:b="http://example.com/b"',
+            'root:xmlns:xml="http://www.w3.org/XML/1998/namespace"',
+          ]);
+      check(evalNsWithParent(doc, '(/root | /root)/namespace::*')).deepEquals([
         'root:xmlns="http://example.com/default"',
         'root:xmlns:a="http://example.com/a"',
         'root:xmlns:b="http://example.com/b"',
@@ -776,80 +691,67 @@ void main() {
   group('step collapsing with predicates', () {
     test('collapses //child::x with non-positional attribute predicate', () {
       final path = parseExpression('//item[@id="100"]') as PathExpression;
-      expect(path.steps, hasLength(2));
+      check(path.steps).length.equals(2);
       final step = path.steps[1] as StepExpression;
-      expect(step.axis, isA<DescendantAxis>());
-      expect(step.predicates, hasLength(1));
+      check(step.axis).isA<DescendantAxis>();
+      check(step.predicates).length.equals(1);
     });
 
     test('collapses //child::x with multiple non-positional predicates', () {
       final path = parseExpression('//item[@a="1"][@b="2"]') as PathExpression;
-      expect(path.steps, hasLength(2));
+      check(path.steps).length.equals(2);
       final step = path.steps[1] as StepExpression;
-      expect(step.axis, isA<DescendantAxis>());
-      expect(step.predicates, hasLength(2));
+      check(step.axis).isA<DescendantAxis>();
+      check(step.predicates).length.equals(2);
     });
 
     test('collapses //child::x with non-positional function predicate', () {
       final path = parseExpression('//item[not(@disabled)]') as PathExpression;
-      expect(path.steps, hasLength(2));
+      check(path.steps).length.equals(2);
       final step = path.steps[1] as StepExpression;
-      expect(step.axis, isA<DescendantAxis>());
+      check(step.axis).isA<DescendantAxis>();
     });
 
     test('collapses //* with non-positional attribute predicate', () {
       final path = parseExpression('//*[@id="100"]') as PathExpression;
-      expect(path.steps, hasLength(2));
+      check(path.steps).length.equals(2);
       final step = path.steps[1] as StepExpression;
-      expect(step.axis, isA<DescendantAxis>());
+      check(step.axis).isA<DescendantAxis>();
     });
 
     test('does NOT collapse //child::x with integer literal predicate', () {
       final path = parseExpression('//item[1]') as PathExpression;
-      expect(path.steps, hasLength(3));
-      expect(path.steps[1], isA<StepExpression>());
-      expect(
-        (path.steps[1] as StepExpression).axis,
-        isA<DescendantOrSelfAxis>(),
-      );
-      expect(path.steps[2], isA<StepExpression>());
-      expect((path.steps[2] as StepExpression).axis, isA<ChildAxis>());
+      check(path.steps).length.equals(3);
+      check(path.steps[1]).isA<StepExpression>();
+      check((path.steps[1] as StepExpression).axis).isA<DescendantOrSelfAxis>();
+      check(path.steps[2]).isA<StepExpression>();
+      check((path.steps[2] as StepExpression).axis).isA<ChildAxis>();
     });
 
     test('does NOT collapse //child::x with last() predicate', () {
       final path = parseExpression('//item[last()]') as PathExpression;
-      expect(path.steps, hasLength(3));
-      expect(
-        (path.steps[1] as StepExpression).axis,
-        isA<DescendantOrSelfAxis>(),
-      );
-      expect((path.steps[2] as StepExpression).axis, isA<ChildAxis>());
+      check(path.steps).length.equals(3);
+      check((path.steps[1] as StepExpression).axis).isA<DescendantOrSelfAxis>();
+      check((path.steps[2] as StepExpression).axis).isA<ChildAxis>();
     });
 
     test('does NOT collapse //child::x with position() comparison', () {
       final path = parseExpression('//item[position() > 1]') as PathExpression;
-      expect(path.steps, hasLength(3));
-      expect(
-        (path.steps[1] as StepExpression).axis,
-        isA<DescendantOrSelfAxis>(),
-      );
-      expect((path.steps[2] as StepExpression).axis, isA<ChildAxis>());
+      check(path.steps).length.equals(3);
+      check((path.steps[1] as StepExpression).axis).isA<DescendantOrSelfAxis>();
+      check((path.steps[2] as StepExpression).axis).isA<ChildAxis>();
     });
 
     test('does NOT collapse //child::x with mixed compound predicates', () {
       final path1 = parseExpression('//item[@id="100"][1]') as PathExpression;
-      expect(path1.steps, hasLength(3));
-      expect(
-        (path1.steps[1] as StepExpression).axis,
-        isA<DescendantOrSelfAxis>(),
-      );
+      check(path1.steps).length.equals(3);
+      check((path1.steps[1] as StepExpression).axis)
+          .isA<DescendantOrSelfAxis>();
 
       final path2 = parseExpression('//item[1][@id="100"]') as PathExpression;
-      expect(path2.steps, hasLength(3));
-      expect(
-        (path2.steps[1] as StepExpression).axis,
-        isA<DescendantOrSelfAxis>(),
-      );
+      check(path2.steps).length.equals(3);
+      check((path2.steps[1] as StepExpression).axis)
+          .isA<DescendantOrSelfAxis>();
     });
   });
 }

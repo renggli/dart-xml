@@ -1,8 +1,8 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 void main() {
@@ -17,21 +17,19 @@ void main() {
       ]);
     });
     test('invalid key', () {
-      expect(
-        () => xml.xpathEvaluate('map { (1, 2): "value" }'),
-        throwsA(isXPathEvaluationException()),
-      );
+      check(() => xml.xpathEvaluate('map { (1, 2): "value" }'))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
     });
     test('duplicate key', () {
-      expect(
-        () => xml.xpathEvaluate('map { "a": 1, "a": 2 }'),
-        throwsA(
-          isXPathEvaluationException(
-            errorCode: XPathErrorCode.XQDY0137,
-            message: contains('Duplicate key in map constructor: a'),
-          ),
-        ),
-      );
+      check(() => xml.xpathEvaluate('map { "a": 1, "a": 2 }'))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(
+              errorCode: XPathErrorCode.XQDY0137,
+              message: 'Duplicate key in map constructor: a',
+            ),
+          );
     });
   });
   group('array', () {

@@ -1,14 +1,15 @@
 import 'dart:async';
 import 'dart:math' show Random, min;
 
+import 'package:checks/checks.dart';
 import 'package:meta/meta.dart';
-import 'package:test/test.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xml_events.dart';
 
 import '../utils/assertions.dart';
+import '../utils/checks.dart';
 import '../utils/examples.dart';
-import '../utils/matchers.dart';
 
 @isTestGroup
 void chunkedTests<T>(
@@ -65,80 +66,82 @@ void main() {
         });
         chunkedTests<String>('string -> events', () => source, stringChunker, (
           stream,
-        ) {
-          final actual = stream
+        ) async {
+          final actual = await stream
               .toXmlEvents(withNamespace: true)
               .normalizeEvents()
-              .flatten();
-          expect(actual, emitsInOrder([...events, emitsDone]));
+              .flatten()
+              .toList();
+          check(actual).deepEquals(events);
         });
         chunkedTests<List<XmlEvent>>(
           'events -> nodes',
           () => events,
           listChunker,
-          (stream) {
-            final actual = stream.toXmlNodes().flatten();
-            final expected = document.children.map(
-              (node) => predicate<XmlNode>((actual) {
-                compareNode(actual, node);
-                return true;
-              }, 'matches $node'),
-            );
-            expect(actual, emitsInOrder([...expected, emitsDone]));
+          (stream) async {
+            final actual = await stream.toXmlNodes().flatten().toList();
+            check(actual).length.equals(document.children.length);
+            for (var i = 0; i < actual.length; i++) {
+              compareNode(actual[i], document.children[i]);
+            }
           },
         );
         chunkedTests<List<XmlNode>>(
           'nodes -> events',
           () => document.children,
           listChunker,
-          (stream) {
-            final actual = stream.toXmlEvents().flatten();
-            expect(actual, emitsInOrder([...events, emitsDone]));
+          (stream) async {
+            final actual = await stream.toXmlEvents().flatten().toList();
+            check(actual).deepEquals(events);
           },
         );
         chunkedTests<List<XmlEvent>>(
           'events -> string',
           () => events,
           listChunker,
-          (stream) {
-            final actual = stream.toXmlString().join();
-            expect(actual, completion(source));
+          (stream) async {
+            final actual = await stream.toXmlString().join();
+            check(actual).equals(source);
           },
         );
         chunkedTests<String>(
           'string -> events -> string',
           () => source,
           stringChunker,
-          (stream) {
-            final actual = stream
+          (stream) async {
+            final actual = await stream
                 .toXmlEvents(withNamespace: true)
                 .normalizeEvents()
                 .toXmlString()
                 .join();
-            expect(actual, completion(source));
+            check(actual).equals(source);
           },
         );
         chunkedTests<List<XmlEvent>>(
           'events -> string -> events',
           () => events,
           listChunker,
-          (stream) {
-            final actual = stream
+          (stream) async {
+            final actual = await stream
                 .toXmlString()
                 .toXmlEvents(withNamespace: true)
                 .normalizeEvents()
                 .flatten()
                 .toList();
-            expect(actual, completion(events));
+            check(actual).deepEquals(events);
           },
         );
         chunkedTests<List<XmlEvent>>(
           'events -> nodes -> events',
           () => events,
           listChunker,
-          (stream) {
-            final actual = stream.toXmlNodes().toXmlEvents().flatten().toList();
-            expect(actual, completion(events));
+          (stream) async {
+            final actual = await stream
+                .toXmlNodes()
+                .toXmlEvents()
+                .flatten()
+                .toList();
+            check(actual).deepEquals(events);
           },
         );
         chunkedTests<List<XmlNode>>(
@@ -151,16 +154,10 @@ void main() {
                 .toXmlNodes()
                 .flatten()
                 .toList();
-            expect(
-              actual,
-              pairwiseCompare<XmlNode, XmlNode>(document.children, (
-                actual,
-                expected,
-              ) {
-                compareNode(actual, expected);
-                return true;
-              }, 'not matching'),
-            );
+            check(actual).length.equals(document.children.length);
+            for (var i = 0; i < actual.length; i++) {
+              compareNode(actual[i], document.children[i]);
+            }
           },
         );
         if (entry.value == shiporderXsd) {
@@ -182,13 +179,10 @@ void main() {
                     ),
                   )
                   .toList();
-              expect(
-                actual,
-                pairwiseCompare<XmlNode, XmlNode>(expected, (actual, expected) {
-                  compareNode(actual, expected);
-                  return true;
-                }, 'not matching'),
-              );
+              check(actual).length.equals(expected.length);
+              for (var i = 0; i < actual.length; i++) {
+                compareNode(actual[i], expected[i]);
+              }
             },
           );
           chunkedTests<List<XmlEvent>>(
@@ -211,22 +205,18 @@ void main() {
                     ),
                   )
                   .toList();
-              expect(
-                actual,
-                pairwiseCompare<XmlNode, XmlNode>(expected, (actual, expected) {
-                  compareNode(actual, expected);
-                  return true;
-                }, 'not matching'),
-              );
+              check(actual).length.equals(expected.length);
+              for (var i = 0; i < actual.length; i++) {
+                compareNode(actual[i], expected[i]);
+              }
               actual
                   .expand((node) => [node, ...node.descendants])
                   .whereType<XmlHasName>()
                   .where((node) => node.name.prefix == 'xsd')
                   .forEach(
-                    (node) => expect(
-                      node.name.namespaceUri,
-                      'http://www.w3.org/2001/XMLSchema',
-                    ),
+                    (node) =>
+                        check(node.name.namespaceUri)
+                            .equals('http://www.w3.org/2001/XMLSchema'),
                   );
             },
           );
@@ -254,14 +244,18 @@ void main() {
               onStartElement: startElement.add,
               onText: text.add,
             );
-            expect(cdata, events.whereType<XmlCDATAEvent>());
-            expect(comment, events.whereType<XmlCommentEvent>());
-            expect(declaration, events.whereType<XmlDeclarationEvent>());
-            expect(doctype, events.whereType<XmlDoctypeEvent>());
-            expect(endElement, events.whereType<XmlEndElementEvent>());
-            expect(processing, events.whereType<XmlProcessingEvent>());
-            expect(startElement, events.whereType<XmlStartElementEvent>());
-            expect(text, events.whereType<XmlTextEvent>());
+            check(cdata).deepEquals(events.whereType<XmlCDATAEvent>());
+            check(comment).deepEquals(events.whereType<XmlCommentEvent>());
+            check(declaration)
+                .deepEquals(events.whereType<XmlDeclarationEvent>());
+            check(doctype).deepEquals(events.whereType<XmlDoctypeEvent>());
+            check(endElement)
+                .deepEquals(events.whereType<XmlEndElementEvent>());
+            check(processing)
+                .deepEquals(events.whereType<XmlProcessingEvent>());
+            check(startElement)
+                .deepEquals(events.whereType<XmlStartElementEvent>());
+            check(text).deepEquals(events.whereType<XmlTextEvent>());
           },
         );
         chunkedTests<List<XmlEvent>>(
@@ -290,14 +284,18 @@ void main() {
                   onText: text.add,
                 )
                 .drain<void>();
-            expect(cdata, events.whereType<XmlCDATAEvent>());
-            expect(comment, events.whereType<XmlCommentEvent>());
-            expect(declaration, events.whereType<XmlDeclarationEvent>());
-            expect(doctype, events.whereType<XmlDoctypeEvent>());
-            expect(endElement, events.whereType<XmlEndElementEvent>());
-            expect(processing, events.whereType<XmlProcessingEvent>());
-            expect(startElement, events.whereType<XmlStartElementEvent>());
-            expect(text, events.whereType<XmlTextEvent>());
+            check(cdata).deepEquals(events.whereType<XmlCDATAEvent>());
+            check(comment).deepEquals(events.whereType<XmlCommentEvent>());
+            check(declaration)
+                .deepEquals(events.whereType<XmlDeclarationEvent>());
+            check(doctype).deepEquals(events.whereType<XmlDoctypeEvent>());
+            check(endElement)
+                .deepEquals(events.whereType<XmlEndElementEvent>());
+            check(processing)
+                .deepEquals(events.whereType<XmlProcessingEvent>());
+            check(startElement)
+                .deepEquals(events.whereType<XmlStartElementEvent>());
+            check(text).deepEquals(events.whereType<XmlTextEvent>());
           },
         );
         chunkedTests<List<XmlEvent>>(
@@ -323,14 +321,18 @@ void main() {
               onStartElement: startElement.add,
               onText: text.add,
             );
-            expect(cdata, events.whereType<XmlCDATAEvent>());
-            expect(comment, events.whereType<XmlCommentEvent>());
-            expect(declaration, events.whereType<XmlDeclarationEvent>());
-            expect(doctype, events.whereType<XmlDoctypeEvent>());
-            expect(endElement, events.whereType<XmlEndElementEvent>());
-            expect(processing, events.whereType<XmlProcessingEvent>());
-            expect(startElement, events.whereType<XmlStartElementEvent>());
-            expect(text, events.whereType<XmlTextEvent>());
+            check(cdata).deepEquals(events.whereType<XmlCDATAEvent>());
+            check(comment).deepEquals(events.whereType<XmlCommentEvent>());
+            check(declaration)
+                .deepEquals(events.whereType<XmlDeclarationEvent>());
+            check(doctype).deepEquals(events.whereType<XmlDoctypeEvent>());
+            check(endElement)
+                .deepEquals(events.whereType<XmlEndElementEvent>());
+            check(processing)
+                .deepEquals(events.whereType<XmlProcessingEvent>());
+            check(startElement)
+                .deepEquals(events.whereType<XmlStartElementEvent>());
+            check(text).deepEquals(events.whereType<XmlTextEvent>());
           },
         );
         chunkedTests<List<XmlEvent>>(
@@ -358,14 +360,18 @@ void main() {
                   onText: text.add,
                 )
                 .drain<void>();
-            expect(cdata, events.whereType<XmlCDATAEvent>());
-            expect(comment, events.whereType<XmlCommentEvent>());
-            expect(declaration, events.whereType<XmlDeclarationEvent>());
-            expect(doctype, events.whereType<XmlDoctypeEvent>());
-            expect(endElement, events.whereType<XmlEndElementEvent>());
-            expect(processing, events.whereType<XmlProcessingEvent>());
-            expect(startElement, events.whereType<XmlStartElementEvent>());
-            expect(text, events.whereType<XmlTextEvent>());
+            check(cdata).deepEquals(events.whereType<XmlCDATAEvent>());
+            check(comment).deepEquals(events.whereType<XmlCommentEvent>());
+            check(declaration)
+                .deepEquals(events.whereType<XmlDeclarationEvent>());
+            check(doctype).deepEquals(events.whereType<XmlDoctypeEvent>());
+            check(endElement)
+                .deepEquals(events.whereType<XmlEndElementEvent>());
+            check(processing)
+                .deepEquals(events.whereType<XmlProcessingEvent>());
+            check(startElement)
+                .deepEquals(events.whereType<XmlStartElementEvent>());
+            check(text).deepEquals(events.whereType<XmlTextEvent>());
           },
         );
         chunkedTests<List<XmlEvent>>(
@@ -390,7 +396,7 @@ void main() {
                   return stack;
                 })
                 .toList();
-            expect(stacks.map((events) => events.last), events);
+            check(stacks.map((events) => events.last)).deepEquals(events);
           },
         );
       });
@@ -399,44 +405,38 @@ void main() {
   group('errors', () {
     chunkedTests<String>('missing tag closing', () => '<hello', stringChunker, (
       stream,
-    ) {
-      expect(
-        stream.toXmlEvents(withLocation: true),
-        emitsThrough(
-          emitsError(
-            isXmlParserException(message: '">" expected', position: 6),
-          ),
-        ),
-      );
+    ) async {
+      await check(stream.toXmlEvents(withLocation: true).drain<void>())
+          .throws<XmlParserException>(
+            (it) => it.which(
+              isXmlParserException(message: '">" expected', position: 6),
+            ),
+          );
     });
     chunkedTests<String>(
       'missing attribute closing',
       () => '<foo bar="abc',
       stringChunker,
-      (stream) {
-        expect(
-          stream.toXmlEvents(withLocation: true),
-          emitsThrough(
-            emitsError(
-              isXmlParserException(message: '">" expected', position: 8),
-            ),
-          ),
-        );
+      (stream) async {
+        await check(stream.toXmlEvents(withLocation: true).drain<void>())
+            .throws<XmlParserException>(
+              (it) => it.which(
+                isXmlParserException(message: '">" expected', position: 8),
+              ),
+            );
       },
     );
     chunkedTests<String>(
       'missing comment closing',
       () => '<!-- comment',
       stringChunker,
-      (stream) {
-        expect(
-          stream.toXmlEvents(withLocation: true),
-          emitsThrough(
-            emitsError(
-              isXmlParserException(message: '"-->" expected', position: 4),
-            ),
-          ),
-        );
+      (stream) async {
+        await check(stream.toXmlEvents(withLocation: true).drain<void>())
+            .throws<XmlParserException>(
+              (it) => it.which(
+                isXmlParserException(message: '"-->" expected', position: 4),
+              ),
+            );
       },
     );
     group('tags not validated', () {
@@ -444,35 +444,37 @@ void main() {
         'unexpected end tag',
         () => '</foo>',
         stringChunker,
-        (stream) {
-          expect(
-            stream.toXmlEvents(withLocation: true).flatten(),
-            emitsInOrder([XmlEndElementEvent('foo'), emitsDone]),
-          );
+        (stream) async {
+          final actual = await stream
+              .toXmlEvents(withLocation: true)
+              .flatten()
+              .toList();
+          check(actual).deepEquals([XmlEndElementEvent('foo')]);
         },
       );
       chunkedTests<String>('missing end tag', () => '<foo>', stringChunker, (
         stream,
-      ) {
-        expect(
-          stream.toXmlEvents(withLocation: true).flatten(),
-          emitsInOrder([XmlStartElementEvent('foo', [], false), emitsDone]),
-        );
+      ) async {
+        final actual = await stream
+            .toXmlEvents(withLocation: true)
+            .flatten()
+            .toList();
+        check(actual).deepEquals([XmlStartElementEvent('foo', [], false)]);
       });
       chunkedTests<String>(
         'not matching end tag',
         () => '<foo></bar></foo>',
         stringChunker,
-        (stream) {
-          expect(
-            stream.toXmlEvents(withLocation: true).flatten(),
-            emitsInOrder([
-              XmlStartElementEvent('foo', [], false),
-              XmlEndElementEvent('bar'),
-              XmlEndElementEvent('foo'),
-              emitsDone,
-            ]),
-          );
+        (stream) async {
+          final actual = await stream
+              .toXmlEvents(withLocation: true)
+              .flatten()
+              .toList();
+          check(actual).deepEquals([
+            XmlStartElementEvent('foo', [], false),
+            XmlEndElementEvent('bar'),
+            XmlEndElementEvent('foo'),
+          ]);
         },
       );
     });
@@ -481,45 +483,45 @@ void main() {
         'unexpected end tag',
         () => '</foo>',
         stringChunker,
-        (stream) {
-          expect(
+        (stream) async {
+          await check(
             stream
                 .toXmlEvents(validateNesting: true, withLocation: true)
-                .flatten(),
-            emitsThrough(
-              emitsError(isXmlTagException(actualName: 'foo', position: 0)),
-            ),
+                .flatten()
+                .drain<void>(),
+          ).throws<XmlTagException>(
+            (it) => it.which(isXmlTagException(actualName: 'foo', position: 0)),
           );
         },
       );
       chunkedTests<String>('missing end tag', () => '<foo>', stringChunker, (
         stream,
-      ) {
-        expect(
+      ) async {
+        await check(
           stream
               .toXmlEvents(validateNesting: true, withLocation: true)
-              .flatten(),
-          emitsThrough(
-            emitsError(isXmlTagException(expectedName: 'foo', position: 5)),
-          ),
+              .flatten()
+              .drain<void>(),
+        ).throws<XmlTagException>(
+          (it) => it.which(isXmlTagException(expectedName: 'foo', position: 5)),
         );
       });
       chunkedTests<String>(
         'not matching end tag',
         () => '<foo></bar></foo>',
         stringChunker,
-        (stream) {
-          expect(
+        (stream) async {
+          await check(
             stream
                 .toXmlEvents(validateNesting: true, withLocation: true)
-                .flatten(),
-            emitsThrough(
-              emitsError(
-                isXmlTagException(
-                  expectedName: 'foo',
-                  actualName: 'bar',
-                  position: 5,
-                ),
+                .flatten()
+                .drain<void>(),
+          ).throws<XmlTagException>(
+            (it) => it.which(
+              isXmlTagException(
+                expectedName: 'foo',
+                actualName: 'bar',
+                position: 5,
               ),
             ),
           );
@@ -529,43 +531,40 @@ void main() {
     group('node decoder', () {
       const decoder = XmlNodeDecoder();
       test('mismatch closing tag', () {
-        expect(
+        check(
           () => decoder.convert([
             XmlStartElementEvent('foo', [], false),
             XmlEndElementEvent('bar'),
           ]),
-          throwsA(
-            isXmlTagException(
-              message: 'Expected </foo>, but found </bar>',
-              expectedName: 'foo',
-              actualName: 'bar',
-            ),
+        ).throws<XmlTagException>().which(
+          isXmlTagException(
+            message: 'Expected </foo>, but found </bar>',
+            expectedName: 'foo',
+            actualName: 'bar',
           ),
         );
       });
       test('unexpected closing tag', () {
-        expect(
-          () => decoder.convert([XmlEndElementEvent('foo')]),
-          throwsA(
-            isXmlTagException(
-              message: 'Unexpected closing tag </foo>',
-              expectedName: isNull,
-              actualName: 'foo',
-            ),
-          ),
-        );
+        check(() => decoder.convert([XmlEndElementEvent('foo')]))
+            .throws<XmlTagException>()
+            .which(
+              isXmlTagException(
+                message: 'Unexpected closing tag </foo>',
+                expectedNameCondition: (n) => n.isNull(),
+                actualName: 'foo',
+              ),
+            );
       });
       test('missing closing tag', () {
-        expect(
-          () => decoder.convert([XmlStartElementEvent('foo', [], false)]),
-          throwsA(
-            isXmlTagException(
-              message: 'Missing closing tag </foo>',
-              expectedName: 'foo',
-              actualName: isNull,
-            ),
-          ),
-        );
+        check(() => decoder.convert([XmlStartElementEvent('foo', [], false)]))
+            .throws<XmlTagException>()
+            .which(
+              isXmlTagException(
+                message: 'Missing closing tag </foo>',
+                expectedName: 'foo',
+                actualNameCondition: (n) => n.isNull(),
+              ),
+            );
       });
     });
   });
@@ -577,7 +576,7 @@ void main() {
           .flatten()
           .toList();
       const expected = <XmlEvent>[];
-      expect(output, expected);
+      check(output).deepEquals(expected);
     });
     test('whitespace', () async {
       final input = <XmlEvent>[XmlTextEvent(' \n\t')];
@@ -586,7 +585,7 @@ void main() {
           .flatten()
           .toList();
       final expected = <XmlEvent>[XmlTextEvent(' \n\t')];
-      expect(actual, expected);
+      check(actual).deepEquals(expected);
     });
     test('combine two', () async {
       final input = <XmlEvent>[XmlTextEvent('a'), XmlTextEvent('b')];
@@ -595,7 +594,7 @@ void main() {
           .flatten()
           .toList();
       final expected = <XmlEvent>[XmlTextEvent('ab')];
-      expect(actual, expected);
+      check(actual).deepEquals(expected);
     });
     test('combine many', () async {
       final input = <XmlEvent>[
@@ -610,7 +609,7 @@ void main() {
           .flatten()
           .toList();
       final expected = <XmlEvent>[XmlTextEvent('abcde')];
-      expect(actual, expected);
+      check(actual).deepEquals(expected);
     });
     test('chunked up', () async {
       final input = <XmlEvent>[
@@ -630,7 +629,7 @@ void main() {
         XmlStartElementEvent('br', [], true),
         XmlTextEvent('de'),
       ];
-      expect(actual, expected);
+      check(actual).deepEquals(expected);
     });
   });
   group('withParentEvents', () {
@@ -648,9 +647,12 @@ void main() {
         input,
         // ignore: deprecated_member_use_from_same_package
       ]).withParentEvents().flatten().toList();
-      expect(output, input, reason: 'equality is unaffected');
+      check(because: 'equality is unaffected', output).deepEquals(input);
       for (var i = 0; i < input.length; i++) {
-        expect(input[i], same(output[i]), reason: 'root element is identical');
+        check(
+          because: 'root element is identical',
+          input[i],
+        ).identicalTo(output[i]);
       }
     });
     test('basic parented', () async {
@@ -669,10 +671,10 @@ void main() {
         input,
         // ignore: deprecated_member_use_from_same_package
       ]).withParentEvents().flatten().toList();
-      expect(output, input, reason: 'equality is unaffected');
+      check(because: 'equality is unaffected', output).deepEquals(input);
       for (var i = 1; i < input.length; i++) {
-        expect(output[i].parent, same(output[0]));
-        expect(output[i].parent, same(input[0]));
+        check(output[i].parent).identicalTo(output[0] as XmlStartElementEvent);
+        check(output[i].parent).identicalTo(input[0] as XmlStartElementEvent);
       }
     });
     test('deeply parented', () async {
@@ -688,16 +690,19 @@ void main() {
         input,
         // ignore: deprecated_member_use_from_same_package
       ]).withParentEvents().flatten().toList();
-      expect(output, input, reason: 'equality is unaffected');
-      expect(output[0], same(input[0]), reason: 'root element is identical');
-      expect(output[0].parent, isNull);
-      expect(output[1].parent, same(output[0]));
-      expect(output[2].parent, same(output[1]));
-      expect(output[3].parent, same(output[2]));
-      expect(output[4].parent, same(output[1]));
-      expect(output[5].parent, same(output[0]));
+      check(because: 'equality is unaffected', output).deepEquals(input);
+      check(
+        because: 'root element is identical',
+        output[0],
+      ).identicalTo(input[0]);
+      check(output[0].parent).isNull();
+      check(output[1].parent).identicalTo(output[0] as XmlStartElementEvent);
+      check(output[2].parent).identicalTo(output[1] as XmlStartElementEvent);
+      check(output[3].parent).identicalTo(output[2] as XmlStartElementEvent);
+      check(output[4].parent).identicalTo(output[1] as XmlStartElementEvent);
+      check(output[5].parent).identicalTo(output[0] as XmlStartElementEvent);
     });
-    test('closing tag mismatch', () {
+    test('closing tag mismatch', () async {
       final input = <List<XmlEvent>>[
         [XmlStartElementEvent('open', [], false)],
         [XmlEndElementEvent('close')],
@@ -705,40 +710,32 @@ void main() {
       ];
       // ignore: deprecated_member_use_from_same_package
       final stream = Stream.fromIterable(input).withParentEvents().flatten();
-      expect(
-        stream,
-        emitsInOrder([
-          input[0][0],
-          emitsError(
-            isXmlTagException(message: 'Expected </open>, but found </close>'),
-          ),
-        ]),
+      await check(stream.drain<void>()).throws<XmlTagException>(
+        (it) => it.which(
+          isXmlTagException(message: 'Expected </open>, but found </close>'),
+        ),
       );
     });
-    test('closing tag missing', () {
+    test('closing tag missing', () async {
       final input = <List<XmlEvent>>[
         [XmlStartElementEvent('open', [], false)],
       ];
       // ignore: deprecated_member_use_from_same_package
       final stream = Stream.fromIterable(input).withParentEvents().flatten();
-      expect(
-        stream,
-        emitsInOrder([
-          input[0][0],
-          emitsError(isXmlTagException(message: 'Missing closing tag </open>')),
-        ]),
+      await check(stream.drain<void>()).throws<XmlTagException>(
+        (it) =>
+            it.which(isXmlTagException(message: 'Missing closing tag </open>')),
       );
     });
-    test('closing tag unexpected', () {
+    test('closing tag unexpected', () async {
       final input = <List<XmlEvent>>[
         [XmlEndElementEvent('close')],
         [XmlTextEvent('after')],
       ];
       // ignore: deprecated_member_use_from_same_package
       final stream = Stream.fromIterable(input).withParentEvents().flatten();
-      expect(
-        stream,
-        emitsError(
+      await check(stream.drain<void>()).throws<XmlTagException>(
+        (it) => it.which(
           isXmlTagException(message: 'Unexpected closing tag </close>'),
         ),
       );
@@ -754,9 +751,9 @@ void main() {
       final actual = const XmlWithParentEvents().convert(
         const XmlNormalizeEvents().convert(input),
       );
-      expect(actual, hasLength(3));
-      expect(actual[1].parent, same(actual[0]));
-      expect(actual[2].parent, same(actual[0]));
+      check(actual).length.equals(3);
+      check(actual[1].parent).identicalTo(actual[0] as XmlStartElementEvent);
+      check(actual[2].parent).identicalTo(actual[0] as XmlStartElementEvent);
     });
     test('before normalization', () {
       final input = [
@@ -769,9 +766,9 @@ void main() {
       final actual = const XmlNormalizeEvents().convert(
         const XmlWithParentEvents().convert(input),
       );
-      expect(actual, hasLength(3));
-      expect(actual[1].parent, same(actual[0]));
-      expect(actual[2].parent, same(actual[0]));
+      check(actual).length.equals(3);
+      check(actual[1].parent).identicalTo(actual[0] as XmlStartElementEvent);
+      check(actual[2].parent).identicalTo(actual[0] as XmlStartElementEvent);
     });
     test('default namespace', () async {
       const url = 'http://www.w3.org/1999/xhtml';
@@ -782,12 +779,14 @@ void main() {
       ]).toXmlEvents(withNamespace: true).withParentEvents().flatten().toList();
       for (final event in events) {
         if (event is XmlStartElementEvent) {
-          expect(event.namespaceUri, url);
+          check(event.namespaceUri).equals(url);
           event.attributes
               .where((attribute) => attribute.localName != 'xmlns')
-              .forEach((attribute) => expect(attribute.namespaceUri, url));
+              .forEach(
+                (attribute) => check(attribute.namespaceUri).equals(url),
+              );
         } else if (event is XmlEndElementEvent) {
-          expect(event.namespaceUri, url);
+          check(event.namespaceUri).equals(url);
         }
       }
     });
@@ -803,12 +802,14 @@ void main() {
       ]).toXmlEvents(withNamespace: true).withParentEvents().flatten().toList();
       for (final event in events) {
         if (event is XmlStartElementEvent) {
-          expect(event.namespaceUri, url);
+          check(event.namespaceUri).equals(url);
           event.attributes
               .where((attribute) => attribute.namespacePrefix != 'xmlns')
-              .forEach((attribute) => expect(attribute.namespaceUri, url));
+              .forEach(
+                (attribute) => check(attribute.namespaceUri).equals(url),
+              );
         } else if (event is XmlEndElementEvent) {
-          expect(event.namespaceUri, url);
+          check(event.namespaceUri).equals(url);
         }
       }
     });

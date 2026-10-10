@@ -1,4 +1,5 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
@@ -7,57 +8,57 @@ import '../utils/examples.dart';
 void main() {
   test('attribute', () {
     final node = XmlAttribute(const XmlName.qualified('foo'), 'bar');
-    expect(node.xpathGenerate(), '@foo');
+    check(node.xpathGenerate()).equals('@foo');
   });
   test('element', () {
     final node = XmlElement(const XmlName.qualified('foo'));
-    expect(node.xpathGenerate(), 'foo');
+    check(node.xpathGenerate()).equals('foo');
   });
   test('element with parent', () {
     final node = XmlElement(const XmlName.qualified('foo'));
     final parent = XmlElement(const XmlName.qualified('bar'));
     parent.children.add(node);
-    expect(node.xpathGenerate(), 'bar/foo');
+    check(node.xpathGenerate()).equals('bar/foo');
   });
   test('element with siblings', () {
     final node1 = XmlElement(const XmlName.qualified('foo'));
     final node2 = XmlElement(const XmlName.qualified('foo'));
     final parent = XmlElement(const XmlName.qualified('bar'));
     parent.children.addAll([node1, node2]);
-    expect(node1.xpathGenerate(), 'bar/foo[1]');
-    expect(node2.xpathGenerate(), 'bar/foo[2]');
+    check(node1.xpathGenerate()).equals('bar/foo[1]');
+    check(node2.xpathGenerate()).equals('bar/foo[2]');
   });
   test('text', () {
     final node = XmlText('foo');
-    expect(node.xpathGenerate(), 'text()');
+    check(node.xpathGenerate()).equals('text()');
   });
   test('cdata', () {
     final node = XmlCDATA('foo');
-    expect(node.xpathGenerate(), 'text()');
+    check(node.xpathGenerate()).equals('text()');
   });
   test('comment', () {
     final node = XmlComment('foo');
-    expect(node.xpathGenerate(), 'comment()');
+    check(node.xpathGenerate()).equals('comment()');
   });
   test('processing', () {
     final node = XmlProcessing('foo', 'bar');
-    expect(node.xpathGenerate(), 'processing-instruction()');
+    check(node.xpathGenerate()).equals('processing-instruction()');
   });
   test('document', () {
     final node = XmlDocument([]);
-    expect(node.xpathGenerate(), '/');
+    check(node.xpathGenerate()).equals('/');
   });
   test('declaration', () {
     final node = XmlDeclaration();
-    expect(node.xpathGenerate(), 'node()');
+    check(node.xpathGenerate()).equals('node()');
   });
   test('doctype', () {
     final node = XmlDoctype('root');
-    expect(node.xpathGenerate(), 'node()');
+    check(node.xpathGenerate()).equals('node()');
   });
   test('fragment', () {
     final node = XmlDocumentFragment();
-    expect(node.xpathGenerate(), 'node()');
+    check(node.xpathGenerate()).equals('node()');
   });
   test('nested structure', () {
     final document = XmlDocument.parse('''
@@ -74,10 +75,10 @@ void main() {
     final bNode = root.findElements('b').first;
     final cNode = bNode.findElements('c').first;
 
-    expect(root.xpathGenerate(), '/root');
-    expect(aNode.xpathGenerate(), '/root/a');
-    expect(bNode.xpathGenerate(), '/root/b');
-    expect(cNode.xpathGenerate(), '/root/b/c');
+    check(root.xpathGenerate()).equals('/root');
+    check(aNode.xpathGenerate()).equals('/root/a');
+    check(bNode.xpathGenerate()).equals('/root/b');
+    check(cNode.xpathGenerate()).equals('/root/b/c');
   });
   test('byId', () {
     final document = XmlDocument.parse('''
@@ -92,9 +93,9 @@ void main() {
     final aNode = root.findElements('a').first;
     final bNode = root.findElements('b').first;
     final cNode = bNode.findElements('c').first;
-    expect(aNode.xpathGenerate(byId: 'id'), '//*[@id="1"]');
-    expect(bNode.xpathGenerate(byId: 'id'), '//*[@id="2"]');
-    expect(cNode.xpathGenerate(byId: 'id'), '//*[@id="2"]/c');
+    check(aNode.xpathGenerate(byId: 'id')).equals('//*[@id="1"]');
+    check(bNode.xpathGenerate(byId: 'id')).equals('//*[@id="2"]');
+    check(cNode.xpathGenerate(byId: 'id')).equals('//*[@id="2"]/c');
   });
   group('examples', () {
     for (final MapEntry(key: key, value: value) in allXml.entries) {
@@ -112,7 +113,7 @@ void main() {
 
           final expression = node.xpathGenerate(byId: 'id');
           final result = document.xpath(expression);
-          expect(result.single, node, reason: expression);
+          check(because: expression, result.single).equals(node);
         }
       });
     }

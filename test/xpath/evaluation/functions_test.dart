@@ -1,4 +1,5 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xml/utils/name.dart';
 import 'package:xml/src/xpath/evaluation/functions.dart';
 import 'package:xml/src/xpath/evaluation/namespaces.dart';
@@ -8,12 +9,11 @@ void main() {
     test('functions have unique names', () {
       final names = <XmlName>{};
       for (final definition in standardFunctionDefinitions) {
-        expect(definition.name, isNotNull);
-        expect(
+        check(definition.name).isNotNull();
+        check(
+          because: 'Function name "${definition.name}" is not unique',
           names.add(definition.name),
-          isTrue,
-          reason: 'Function name "${definition.name}" is not unique',
-        );
+        ).isTrue();
       }
     });
     test('functions contains all functions', () {
@@ -22,11 +22,10 @@ void main() {
         final name = defName.withNamespaceUri(
           xpathNamespaceUris[defName.prefix],
         );
-        expect(
+        check(
+          because: 'Function "$name" is missing',
           standardFunctions[name],
-          definition,
-          reason: 'Function "$name" is missing',
-        );
+        ).equals(definition);
       }
     });
   });

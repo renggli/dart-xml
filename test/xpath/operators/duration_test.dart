@@ -1,8 +1,9 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/operators/duration.dart';
 import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
+import '../../utils/checks.dart';
 
 XPathSequence seq(Object value) => XPathSequence.single(switch (value) {
   final XPathItem item => item,
@@ -25,8 +26,8 @@ void main() {
                 seq(const XPathDuration(months: 2, days: 3)),
               ).first
               as XPathDuration;
-      expect(result.months, 3);
-      expect(result.days, 4);
+      check(result.months).equals(3);
+      check(result.days).equals(4);
     });
   });
 
@@ -38,8 +39,8 @@ void main() {
                 seq(const XPathDuration(months: 1, days: 1)),
               ).first
               as XPathDuration;
-      expect(result.months, 2);
-      expect(result.days, 3);
+      check(result.months).equals(2);
+      check(result.days).equals(3);
     });
   });
 
@@ -51,26 +52,24 @@ void main() {
                 seq(3),
               ).first
               as XPathDuration;
-      expect(result.months, 6);
-      expect(result.days, 3);
+      check(result.months).equals(6);
+      check(result.days).equals(3);
     });
     test('multiply by NaN throws', () {
-      expect(
+      check(
         () => opMultiplyDuration(
           seq(const XPathDuration(months: 2, days: 1)),
           seq(double.nan),
         ),
-        throwsA(isXPathEvaluationException()),
-      );
+      ).throws<XPathEvaluationException>().which(isXPathEvaluationException());
     });
     test('multiply by Infinity throws', () {
-      expect(
+      check(
         () => opMultiplyDuration(
           seq(const XPathDuration(months: 2, days: 1)),
           seq(double.infinity),
         ),
-        throwsA(isXPathEvaluationException()),
-      );
+      ).throws<XPathEvaluationException>().which(isXPathEvaluationException());
     });
   });
 
@@ -82,26 +81,26 @@ void main() {
                 seq(3),
               ).first
               as XPathDuration;
-      expect(result.months, 2);
-      expect(result.days, 1);
+      check(result.months).equals(2);
+      check(result.days).equals(1);
     });
     test('divide by zero throws', () {
-      expect(
-        () => opDivideDuration(
-          seq(const XPathDuration(months: 1, days: 1)),
-          seq(0),
-        ),
-        throwsA(isXPathEvaluationException(message: 'Division by zero')),
-      );
+      check(
+            () => opDivideDuration(
+              seq(const XPathDuration(months: 1, days: 1)),
+              seq(0),
+            ),
+          )
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException(message: 'Division by zero'));
     });
     test('divide by NaN throws', () {
-      expect(
+      check(
         () => opDivideDuration(
           seq(const XPathDuration(months: 6, days: 3)),
           seq(double.nan),
         ),
-        throwsA(isXPathEvaluationException()),
-      );
+      ).throws<XPathEvaluationException>().which(isXPathEvaluationException());
     });
     test('divide by Infinity returns zero duration', () {
       final result =
@@ -110,54 +109,49 @@ void main() {
                 seq(double.infinity),
               ).first
               as XPathDuration;
-      expect(result.months, 0);
-      expect(result.days, 0);
+      check(result.months).equals(0);
+      check(result.days).equals(0);
     });
   });
 
   group('opDivideDurationByDuration', () {
     test('divide', () {
-      expect(
-        opDivideDurationByDuration(seq(d2Dtd), seq(d1Dtd)),
-        isXPathSequence([2.0]),
-      );
+      check(opDivideDurationByDuration(seq(d2Dtd), seq(d1Dtd)))
+          .isXPathSequence([2.0]);
     });
     test('divide by zero throws', () {
-      expect(
-        () => opDivideDurationByDuration(
-          seq(d1Dtd),
-          seq(const XPathDuration.dayTime(0)),
-        ),
-        throwsA(isXPathEvaluationException(message: 'Division by zero')),
-      );
+      check(
+            () => opDivideDurationByDuration(
+              seq(d1Dtd),
+              seq(const XPathDuration.dayTime(0)),
+            ),
+          )
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException(message: 'Division by zero'));
     });
     test('divide yearMonth by zero throws', () {
-      expect(
+      check(
         () => opDivideDurationByDuration(
           seq(const XPathDuration.yearMonth(12)),
           seq(const XPathDuration.yearMonth(0)),
         ),
-        throwsA(
-          isXPathEvaluationException(
-            errorCode: XPathErrorCode.FOAR0001,
-            message: 'Division by zero',
-          ),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(
+          errorCode: XPathErrorCode.FOAR0001,
+          message: 'Division by zero',
         ),
       );
     });
     test('divide incompatible duration types throws XPTY0004', () {
-      expect(
+      check(
         () => opDivideDurationByDuration(
           seq(const XPathDuration.yearMonth(12)),
           seq(d1Dtd),
         ),
-        throwsA(
-          isXPathEvaluationException(
-            errorCode: XPathErrorCode.XPTY0004,
-            message: contains(
-              'Cannot divide xs:yearMonthDuration by xs:dayTimeDuration',
-            ),
-          ),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(
+          errorCode: XPathErrorCode.XPTY0004,
+          message: 'Cannot divide xs:yearMonthDuration by xs:dayTimeDuration',
         ),
       );
     });
@@ -165,16 +159,16 @@ void main() {
 
   group('empty input returns empty', () {
     test('opAddDurations', () {
-      expect(opAddDurations(XPathSequence.empty, seq(d1)), isEmpty);
+      check(opAddDurations(XPathSequence.empty, seq(d1))).isEmpty();
     });
     test('opSubtractDurations', () {
-      expect(opSubtractDurations(XPathSequence.empty, seq(d1)), isEmpty);
+      check(opSubtractDurations(XPathSequence.empty, seq(d1))).isEmpty();
     });
     test('opMultiplyDuration', () {
-      expect(opMultiplyDuration(XPathSequence.empty, seq(1)), isEmpty);
+      check(opMultiplyDuration(XPathSequence.empty, seq(1))).isEmpty();
     });
     test('opDivideDuration', () {
-      expect(opDivideDuration(XPathSequence.empty, seq(1)), isEmpty);
+      check(opDivideDuration(XPathSequence.empty, seq(1))).isEmpty();
     });
   });
 }

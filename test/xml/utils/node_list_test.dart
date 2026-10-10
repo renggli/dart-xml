@@ -1,4 +1,5 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/xml.dart';
 
 import '../../utils/assertions.dart';
@@ -14,9 +15,9 @@ void main() {
       final target = XmlElement(const XmlName.qualified('target'));
       target.children.add(a);
 
-      expect(root.children, [b]);
-      expect(target.children, [a]);
-      expect(a.parent, target);
+      check(root.children).deepEquals([b]);
+      check(target.children).deepEquals([a]);
+      check(a.parent).equals(target);
       assertDocumentTreeInvariants(doc);
     });
 
@@ -27,9 +28,9 @@ void main() {
 
       doc2.rootElement.children.add(child);
 
-      expect(doc1.rootElement.children, isEmpty);
-      expect(doc2.rootElement.children.length, 1);
-      expect(child.parent, doc2.rootElement);
+      check(doc1.rootElement.children).isEmpty();
+      check(doc2.rootElement.children.length).equals(1);
+      check(child.parent).equals(doc2.rootElement);
       assertDocumentTreeInvariants(doc1);
       assertDocumentTreeInvariants(doc2);
     });
@@ -44,9 +45,9 @@ void main() {
 
       target.rootElement.children.addAll([a, b, c]);
 
-      expect(doc1.rootElement.children, isEmpty);
-      expect(doc2.rootElement.children, isEmpty);
-      expect(target.rootElement.children, [a, b, c]);
+      check(doc1.rootElement.children).isEmpty();
+      check(doc2.rootElement.children).isEmpty();
+      check(target.rootElement.children).deepEquals([a, b, c]);
       assertDocumentTreeInvariants(doc1);
       assertDocumentTreeInvariants(doc2);
       assertDocumentTreeInvariants(target);
@@ -62,10 +63,10 @@ void main() {
       // Replace <b> (slot 0) in doc2 with <a> from doc1.
       doc2.rootElement.children[0] = a;
 
-      expect(doc1.rootElement.children, isEmpty);
-      expect(doc2.rootElement.children, [a, c]);
-      expect(a.parent, doc2.rootElement);
-      expect(b.parent, isNull);
+      check(doc1.rootElement.children).isEmpty();
+      check(doc2.rootElement.children).deepEquals([a, c]);
+      check(a.parent).equals(doc2.rootElement);
+      check(b.parent).isNull();
       assertDocumentTreeInvariants(doc1);
       assertDocumentTreeInvariants(doc2);
     });
@@ -79,7 +80,7 @@ void main() {
 
       root.children.insert(1, c); // c is at index 2, moved to 1
 
-      expect(root.children, [a, c, b]);
+      check(root.children).deepEquals([a, c, b]);
       assertDocumentTreeInvariants(doc);
     });
 
@@ -95,7 +96,7 @@ void main() {
       // After removing c and d, list is [a, b]; adjusted index = 1-0 = 1.
       root.children.insertAll(1, [c, d]);
 
-      expect(root.children, [a, c, d, b]);
+      check(root.children).deepEquals([a, c, d, b]);
       assertDocumentTreeInvariants(doc);
     });
 
@@ -108,9 +109,9 @@ void main() {
 
       b.attributes.add(attr); // move attr from <a> to <b>
 
-      expect(a.attributes, isEmpty);
-      expect(b.attributes, [attr]);
-      expect(attr.parent, b);
+      check(a.attributes).isEmpty();
+      check(b.attributes).deepEquals([attr]);
+      check(attr.parent).equals(b);
       assertDocumentTreeInvariants(doc);
     });
   });
@@ -124,7 +125,7 @@ void main() {
 
       root.children.add(a);
 
-      expect(root.children, [b, a]);
+      check(root.children).deepEquals([b, a]);
       assertDocumentTreeInvariants(doc);
     });
 
@@ -138,7 +139,7 @@ void main() {
       // Move <a> (idx 0) to position 2; after removal adjusted index is 1.
       root.children.insert(2, a);
 
-      expect(root.children, [b, a, c]);
+      check(root.children).deepEquals([b, a, c]);
       assertDocumentTreeInvariants(doc);
     });
 
@@ -151,7 +152,7 @@ void main() {
 
       root.children.insert(0, c);
 
-      expect(root.children, [c, a, b]);
+      check(root.children).deepEquals([c, a, b]);
       assertDocumentTreeInvariants(doc);
     });
 
@@ -162,7 +163,7 @@ void main() {
 
       root.children[0] = a;
 
-      expect(root.children, [a]);
+      check(root.children).deepEquals([a]);
       assertDocumentTreeInvariants(doc);
     });
 
@@ -173,7 +174,7 @@ void main() {
 
       root.children[0] = b; // <a> is removed, <b> moves to slot 0
 
-      expect(root.children, [b]);
+      check(root.children).deepEquals([b]);
       assertDocumentTreeInvariants(doc);
     });
 
@@ -186,7 +187,7 @@ void main() {
       // Replace [a, b] with [b]: b (index 1) is inside range [0,2).
       root.children.replaceRange(0, 2, [b]);
 
-      expect(root.children, [b, c]);
+      check(root.children).deepEquals([b, c]);
       assertDocumentTreeInvariants(doc);
     });
 
@@ -201,7 +202,7 @@ void main() {
       // → replaceRange(0, 1, [a]) → [a, c].
       root.children.replaceRange(1, 2, [a]);
 
-      expect(root.children, [a, c]);
+      check(root.children).deepEquals([a, c]);
       assertDocumentTreeInvariants(doc);
     });
 
@@ -216,7 +217,7 @@ void main() {
       // → replaceRange(0, 1, [c]) → [c, b].
       root.children.replaceRange(0, 1, [c]);
 
-      expect(root.children, [c, b]);
+      check(root.children).deepEquals([c, b]);
       assertDocumentTreeInvariants(doc);
     });
 
@@ -231,7 +232,7 @@ void main() {
         // Replace [b, c, d] (range 1..4) with [e, a].
         root.children.replaceRange(1, 4, [e, a]);
 
-        expect(root.children, [e, a]);
+        check(root.children).deepEquals([e, a]);
         assertDocumentTreeInvariants(doc);
       },
     );
@@ -247,7 +248,7 @@ void main() {
       // Replace [c, d] (range 2..4) with [e, c, a].
       root.children.replaceRange(2, 4, [e, c, a]);
 
-      expect(root.children, [b, e, c, a]);
+      check(root.children).deepEquals([b, e, c, a]);
       assertDocumentTreeInvariants(doc);
     });
 
@@ -265,7 +266,7 @@ void main() {
         // insert at index 2 (before c). nodes to insert: e (after), a (before).
         root.children.insertAll(2, [e, a]);
 
-        expect(root.children, [b, e, a, c, d]);
+        check(root.children).deepEquals([b, e, a, c, d]);
         assertDocumentTreeInvariants(doc);
       },
     );
@@ -282,7 +283,7 @@ void main() {
         // Replace [b, c] (range 1..3) with [e, a, e, a].
         root.children.replaceRange(1, 3, [e, a, e, a]);
 
-        expect(root.children, [e, a, d]);
+        check(root.children).deepEquals([e, a, d]);
         assertDocumentTreeInvariants(doc);
       },
     );
@@ -296,8 +297,8 @@ void main() {
 
       root.children.addAll([a, a]);
 
-      expect(root.children, [a]);
-      expect(a.parent, root);
+      check(root.children).deepEquals([a]);
+      check(a.parent).equals(root);
       assertDocumentTreeInvariants(doc);
     });
 
@@ -309,7 +310,7 @@ void main() {
 
       root.children.addAll([b, a, a]); // second <a> is duplicate
 
-      expect(root.children, [b, a]);
+      check(root.children).deepEquals([b, a]);
       assertDocumentTreeInvariants(doc);
     });
 
@@ -324,8 +325,8 @@ void main() {
 
         root.children.addAll([fragment, fragment]);
 
-        expect(root.children.length, 1);
-        expect((root.children[0] as XmlElement).localName, 'a');
+        check(root.children.length).equals(1);
+        check((root.children[0] as XmlElement).localName).equals('a');
         assertDocumentTreeInvariants(doc);
       },
     );
@@ -340,7 +341,7 @@ void main() {
       root.children.add(fragment);
       root.children.add(fragment); // now empty
 
-      expect(root.children.length, 1);
+      check(root.children.length).equals(1);
       assertDocumentTreeInvariants(doc);
     });
   });
@@ -352,14 +353,12 @@ void main() {
       final a = root.children[0];
       final wrongType = XmlAttribute(const XmlName.qualified('x'), 'y');
 
-      expect(
-        () => root.children.addAll([a, wrongType]),
-        throwsA(isA<XmlNodeTypeException>()),
-      );
+      check(() => root.children.addAll([a, wrongType]))
+          .throws<XmlNodeTypeException>();
 
       // <a> must NOT have been moved; list is unchanged.
-      expect(root.children, [a]);
-      expect(a.parent, root);
+      check(root.children).deepEquals([a]);
+      check(a.parent).equals(root);
       assertDocumentTreeInvariants(doc);
     });
 
@@ -368,15 +367,14 @@ void main() {
       final root = doc.rootElement;
       final wrongType = XmlAttribute(const XmlName.qualified('x'), 'y');
 
-      expect(
+      check(
         () => root.children.insertAll(0, [
           XmlElement(const XmlName.qualified('ok')),
           wrongType,
         ]),
-        throwsA(isA<XmlNodeTypeException>()),
-      );
+      ).throws<XmlNodeTypeException>();
 
-      expect(root.children.length, 1);
+      check(root.children.length).equals(1);
       assertDocumentTreeInvariants(doc);
     });
 
@@ -387,12 +385,10 @@ void main() {
       final b = root.children[1];
       final wrongType = XmlAttribute(const XmlName.qualified('x'), 'y');
 
-      expect(
-        () => root.children.replaceRange(0, 1, [wrongType]),
-        throwsA(isA<XmlNodeTypeException>()),
-      );
+      check(() => root.children.replaceRange(0, 1, [wrongType]))
+          .throws<XmlNodeTypeException>();
 
-      expect(root.children, [a, b]);
+      check(root.children).deepEquals([a, b]);
       assertDocumentTreeInvariants(doc);
     });
 
@@ -406,14 +402,11 @@ void main() {
           XmlDeclaration(), // invalid for element children
         ]);
 
-        expect(
-          () => root.children.add(fragment),
-          throwsA(isA<XmlNodeTypeException>()),
-        );
+        check(() => root.children.add(fragment)).throws<XmlNodeTypeException>();
 
-        expect(root.children, isEmpty);
+        check(root.children).isEmpty();
         // Fragment children must still be in the fragment.
-        expect(fragment.children.length, 2);
+        check(fragment.children.length).equals(2);
         assertDocumentTreeInvariants(doc);
       },
     );

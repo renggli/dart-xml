@@ -1,4 +1,5 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/expressions/node.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
@@ -139,20 +140,20 @@ void main() {
   });
   test('schema-element() is unimplemented', () {
     const test = SchemaElementTypeTest();
-    expect(() => test.matches(current), throwsUnimplementedError);
+    check(() => test.matches(current)).throws<UnimplementedError>();
   });
   test('schema-attribute() is unimplemented', () {
     const test = SchemaAttributeTypeTest();
-    expect(() => test.matches(current), throwsUnimplementedError);
+    check(() => test.matches(current)).throws<UnimplementedError>();
   });
   group('NodeTestType', () {
     test('matchesItem and properties', () {
       const type = NodeTestType(ElementTypeTest());
-      expect(type.name, equals('node-test'));
-      expect(type.parent, equals(xsNode));
-      expect(type.isAtomic, isFalse);
-      expect(type.matchesItem(XPathNode(current)), isTrue);
-      expect(type.matchesItem(const XPathString('not-a-node')), isFalse);
+      check(type.name).equals('node-test');
+      check(type.parent).equals(xsNode);
+      check(type.isAtomic).isFalse();
+      check(type.matchesItem(XPathNode(current))).isTrue();
+      check(type.matchesItem(const XPathString('not-a-node'))).isFalse();
     });
   });
 }

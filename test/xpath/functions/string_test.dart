@@ -1,9 +1,9 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/functions/string.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
@@ -12,33 +12,28 @@ final context = const XPathConfiguration.raw().context(document);
 void main() {
   group('fn:collation-key', () {
     test('returns collation key', () {
-      expect(fnCollationKey(context, [seq('abc')]), isXPathSequence(['abc']));
-      expect(
+      check(fnCollationKey(context, [seq('abc')])).isXPathSequence(['abc']);
+      check(
         fnCollationKey(context, [seq('abc'), seq('http://example.com/col')]),
-        isXPathSequence(['abc']),
-      );
+      ).isXPathSequence(['abc']);
     });
   });
 
   group('fn:concat', () {
     test('concatenates strings', () {
-      expect(fnConcat(context, [seq('a'), seq('b')]), isXPathSequence(['ab']));
-      expect(
-        fnConcat(context, [seq('a'), seq('b'), seq('c')]),
-        isXPathSequence(['abc']),
-      );
+      check(fnConcat(context, [seq('a'), seq('b')])).isXPathSequence(['ab']);
+      check(fnConcat(context, [seq('a'), seq('b'), seq('c')]))
+          .isXPathSequence(['abc']);
     });
 
     test('integration via xpathEvaluate', () {
       final xml = XmlDocument.parse('<r/>');
-      expect(
-        () => expectEvaluate(xml, 'concat()', anything),
-        throwsA(isXPathEvaluationException()),
-      );
-      expect(
-        () => expectEvaluate(xml, 'concat("a")', anything),
-        throwsA(isXPathEvaluationException()),
-      );
+      check(() => xml.xpathEvaluate('concat()'))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
+      check(() => xml.xpathEvaluate('concat("a")'))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
       expectEvaluate(xml, 'concat("a", "b")', isXPathSequence(['ab']));
       expectEvaluate(xml, 'concat("a", "b", "c")', isXPathSequence(['abc']));
     });
@@ -46,77 +41,59 @@ void main() {
 
   group('fn:string-join', () {
     test('joins strings with separator', () {
-      expect(
+      check(
         fnStringJoin(context, [
           seq(['a', 'b']),
           seq(','),
         ]),
-        isXPathSequence(['a,b']),
-      );
-      expect(
+      ).isXPathSequence(['a,b']);
+      check(
         fnStringJoin(context, [
           seq(['a', 'b', 'c']),
           seq('-'),
         ]),
-        isXPathSequence(['a-b-c']),
-      );
+      ).isXPathSequence(['a-b-c']);
     });
 
     test('joins strings without separator', () {
-      expect(
+      check(
         fnStringJoin(context, [
           seq(['a', 'b', 'c']),
         ]),
-        isXPathSequence(['abc']),
-      );
+      ).isXPathSequence(['abc']);
     });
 
     test('handles empty sequence', () {
-      expect(
-        fnStringJoin(context, [XPathSequence.empty]),
-        isXPathSequence(['']),
-      );
-      expect(
-        fnStringJoin(context, [XPathSequence.empty, seq(',')]),
-        isXPathSequence(['']),
-      );
+      check(fnStringJoin(context, [XPathSequence.empty])).isXPathSequence(['']);
+      check(fnStringJoin(context, [XPathSequence.empty, seq(',')]))
+          .isXPathSequence(['']);
     });
   });
 
   group('fn:substring', () {
     test('returns substring with start position', () {
-      expect(
-        fnSubstring(context, [seq('motor car'), seq(6)]),
-        isXPathSequence([' car']),
-      );
+      check(fnSubstring(context, [seq('motor car'), seq(6)]))
+          .isXPathSequence([' car']);
     });
 
     test('returns substring with start and length', () {
-      expect(
-        fnSubstring(context, [seq('metadata'), seq(4), seq(3)]),
-        isXPathSequence(['ada']),
-      );
+      check(fnSubstring(context, [seq('metadata'), seq(4), seq(3)]))
+          .isXPathSequence(['ada']);
     });
 
     test('handles floating point positions', () {
-      expect(
-        fnSubstring(context, [seq('12345'), seq(1.5), seq(2.6)]),
-        isXPathSequence(['234']),
-      );
+      check(fnSubstring(context, [seq('12345'), seq(1.5), seq(2.6)]))
+          .isXPathSequence(['234']);
     });
 
     test('handles zero index', () {
-      expect(
-        fnSubstring(context, [seq('12345'), seq(0), seq(3)]),
-        isXPathSequence(['12']),
-      );
+      check(fnSubstring(context, [seq('12345'), seq(0), seq(3)]))
+          .isXPathSequence(['12']);
     });
 
     test('handles empty sequence', () {
-      expect(
-        fnSubstring(context, [XPathSequence.empty, seq(1)]),
-        isXPathSequence(['']),
-      );
+      check(fnSubstring(context, [XPathSequence.empty, seq(1)]))
+          .isXPathSequence(['']);
     });
 
     test('integration via xpathEvaluate', () {
@@ -150,29 +127,26 @@ void main() {
         'substring("12345", -xs:double(1) div xs:double(0), xs:double(1) div xs:double(0))',
         isXPathSequence(['']),
       );
-      expect(
-        () => xml.xpathEvaluate('substring("12345", 0 div 0, 3)'),
-        throwsA(isXPathEvaluationException()),
-      );
+      check(() => xml.xpathEvaluate('substring("12345", 0 div 0, 3)'))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
     });
   });
 
   group('fn:string-length', () {
     test('returns string length', () {
-      expect(fnStringLength(context, [seq('abc')]), isXPathSequence([3]));
+      check(fnStringLength(context, [seq('abc')])).isXPathSequence([3]);
     });
 
     test('returns zero for empty sequence', () {
-      expect(
-        fnStringLength(context, [XPathSequence.empty]),
-        isXPathSequence([0]),
-      );
+      check(fnStringLength(context, [XPathSequence.empty]))
+          .isXPathSequence([0]);
     });
 
     test('uses context item if no arguments', () {
       final textNode = XmlText('hello');
       final contextWithNode = const XPathConfiguration.raw().context(textNode);
-      expect(fnStringLength(contextWithNode, []), isXPathSequence([5]));
+      check(fnStringLength(contextWithNode, [])).isXPathSequence([5]);
     });
 
     test('integration via xpathEvaluate', () {
@@ -185,16 +159,14 @@ void main() {
 
   group('fn:normalize-space', () {
     test('normalizes spaces', () {
-      expect(
-        fnNormalizeSpace(context, [seq('  a  b   c  ')]),
-        isXPathSequence(['a b c']),
-      );
+      check(fnNormalizeSpace(context, [seq('  a  b   c  ')]))
+          .isXPathSequence(['a b c']);
     });
 
     test('uses context item if no arguments', () {
       final textNode = XmlText('  hello   ');
       final contextWithNode = const XPathConfiguration.raw().context(textNode);
-      expect(fnNormalizeSpace(contextWithNode, []), isXPathSequence(['hello']));
+      check(fnNormalizeSpace(contextWithNode, [])).isXPathSequence(['hello']);
     });
 
     test('integration via xpathEvaluate', () {
@@ -211,47 +183,35 @@ void main() {
 
   group('fn:upper-case', () {
     test('converts to upper case', () {
-      expect(fnUpperCase(context, [seq('abc')]), isXPathSequence(['ABC']));
+      check(fnUpperCase(context, [seq('abc')])).isXPathSequence(['ABC']);
     });
 
     test('returns empty for empty sequence', () {
-      expect(
-        fnUpperCase(context, [XPathSequence.empty]),
-        isXPathSequence(['']),
-      );
+      check(fnUpperCase(context, [XPathSequence.empty])).isXPathSequence(['']);
     });
   });
 
   group('fn:lower-case', () {
     test('converts to lower case', () {
-      expect(fnLowerCase(context, [seq('ABC')]), isXPathSequence(['abc']));
+      check(fnLowerCase(context, [seq('ABC')])).isXPathSequence(['abc']);
     });
 
     test('returns empty for empty sequence', () {
-      expect(
-        fnLowerCase(context, [XPathSequence.empty]),
-        isXPathSequence(['']),
-      );
+      check(fnLowerCase(context, [XPathSequence.empty])).isXPathSequence(['']);
     });
   });
 
   group('fn:contains', () {
     test('returns true if contains substring', () {
-      expect(
-        fnContains(context, [seq('abc'), seq('b')]),
-        isXPathSequence([true]),
-      );
+      check(fnContains(context, [seq('abc'), seq('b')]))
+          .isXPathSequence([true]);
     });
 
     test('handles empty sequence', () {
-      expect(
-        fnContains(context, [XPathSequence.empty, seq('a')]),
-        isXPathSequence([false]),
-      );
-      expect(
-        fnContains(context, [seq('a'), XPathSequence.empty]),
-        isXPathSequence([true]),
-      );
+      check(fnContains(context, [XPathSequence.empty, seq('a')]))
+          .isXPathSequence([false]);
+      check(fnContains(context, [seq('a'), XPathSequence.empty]))
+          .isXPathSequence([true]);
     });
 
     test('integration via xpathEvaluate', () {
@@ -264,17 +224,13 @@ void main() {
 
   group('fn:starts-with', () {
     test('returns true if starts with', () {
-      expect(
-        fnStartsWith(context, [seq('tattoo'), seq('tat')]),
-        isXPathSequence([true]),
-      );
+      check(fnStartsWith(context, [seq('tattoo'), seq('tat')]))
+          .isXPathSequence([true]);
     });
 
     test('handles empty sequence', () {
-      expect(
-        fnStartsWith(context, [XPathSequence.empty, seq('a')]),
-        isXPathSequence([false]),
-      );
+      check(fnStartsWith(context, [XPathSequence.empty, seq('a')]))
+          .isXPathSequence([false]);
     });
 
     test('integration via xpathEvaluate', () {
@@ -287,33 +243,25 @@ void main() {
 
   group('fn:ends-with', () {
     test('returns true if ends with', () {
-      expect(
-        fnEndsWith(context, [seq('tattoo'), seq('too')]),
-        isXPathSequence([true]),
-      );
+      check(fnEndsWith(context, [seq('tattoo'), seq('too')]))
+          .isXPathSequence([true]);
     });
 
     test('handles empty sequence', () {
-      expect(
-        fnEndsWith(context, [XPathSequence.empty, seq('a')]),
-        isXPathSequence([false]),
-      );
+      check(fnEndsWith(context, [XPathSequence.empty, seq('a')]))
+          .isXPathSequence([false]);
     });
   });
 
   group('fn:substring-before', () {
     test('returns substring before match', () {
-      expect(
-        fnSubstringBefore(context, [seq('tattoo'), seq('too')]),
-        isXPathSequence(['tat']),
-      );
+      check(fnSubstringBefore(context, [seq('tattoo'), seq('too')]))
+          .isXPathSequence(['tat']);
     });
 
     test('handles empty sequence', () {
-      expect(
-        fnSubstringBefore(context, [XPathSequence.empty, seq('a')]),
-        isXPathSequence(['']),
-      );
+      check(fnSubstringBefore(context, [XPathSequence.empty, seq('a')]))
+          .isXPathSequence(['']);
     });
 
     test('integration via xpathEvaluate', () {
@@ -333,17 +281,13 @@ void main() {
 
   group('fn:substring-after', () {
     test('returns substring after match', () {
-      expect(
-        fnSubstringAfter(context, [seq('tattoo'), seq('tat')]),
-        isXPathSequence(['too']),
-      );
+      check(fnSubstringAfter(context, [seq('tattoo'), seq('tat')]))
+          .isXPathSequence(['too']);
     });
 
     test('handles empty sequence', () {
-      expect(
-        fnSubstringAfter(context, [XPathSequence.empty, seq('a')]),
-        isXPathSequence(['']),
-      );
+      check(fnSubstringAfter(context, [XPathSequence.empty, seq('a')]))
+          .isXPathSequence(['']);
     });
 
     test('integration via xpathEvaluate', () {
@@ -363,25 +307,17 @@ void main() {
 
   group('fn:translate', () {
     test('translates characters', () {
-      expect(
-        fnTranslate(context, [seq('bar'), seq('abc'), seq('ABC')]),
-        isXPathSequence(['BAr']),
-      );
+      check(fnTranslate(context, [seq('bar'), seq('abc'), seq('ABC')]))
+          .isXPathSequence(['BAr']);
     });
 
     test('handles empty sequence', () {
-      expect(
-        fnTranslate(context, [XPathSequence.empty, seq('a'), seq('b')]),
-        isXPathSequence(['']),
-      );
-      expect(
-        fnTranslate(context, [seq('bar'), XPathSequence.empty, seq('ABC')]),
-        isXPathSequence(['bar']),
-      );
-      expect(
-        fnTranslate(context, [seq('bar'), seq('abc'), XPathSequence.empty]),
-        isXPathSequence(['bar']),
-      );
+      check(fnTranslate(context, [XPathSequence.empty, seq('a'), seq('b')]))
+          .isXPathSequence(['']);
+      check(fnTranslate(context, [seq('bar'), XPathSequence.empty, seq('ABC')]))
+          .isXPathSequence(['bar']);
+      check(fnTranslate(context, [seq('bar'), seq('abc'), XPathSequence.empty]))
+          .isXPathSequence(['bar']);
     });
 
     test('integration via xpathEvaluate', () {
@@ -401,165 +337,150 @@ void main() {
 
   group('fn:matches', () {
     test('returns true if matches regex', () {
-      expect(
-        fnMatches(context, [seq('abc'), seq('b')]),
-        isXPathSequence([true]),
-      );
+      check(fnMatches(context, [seq('abc'), seq('b')])).isXPathSequence([true]);
     });
 
     test('handles flags', () {
-      expect(
-        fnMatches(context, [seq('a\nb'), seq('^b'), seq('m')]),
-        isXPathSequence([true]),
-      );
+      check(fnMatches(context, [seq('a\nb'), seq('^b'), seq('m')]))
+          .isXPathSequence([true]);
     });
 
     test('handles escapes', () {
-      expect(
-        fnMatches(context, [seq('a'), seq(r'^\i$')]),
-        isXPathSequence([true]),
-      );
+      check(fnMatches(context, [seq('a'), seq(r'^\i$')]))
+          .isXPathSequence([true]);
     });
 
     test('handles class subtraction', () {
-      expect(
-        fnMatches(context, [seq('b'), seq(r'^[a-z-[aeiou]]$')]),
-        isXPathSequence([true]),
-      );
+      check(fnMatches(context, [seq('b'), seq(r'^[a-z-[aeiou]]$')]))
+          .isXPathSequence([true]);
     });
 
     test('handles empty sequence', () {
-      expect(
-        fnMatches(context, [XPathSequence.empty, seq('a')]),
-        isXPathSequence([false]),
-      );
+      check(fnMatches(context, [XPathSequence.empty, seq('a')]))
+          .isXPathSequence([false]);
     });
 
     test('throws for empty sequence pattern or flags', () {
-      expect(
-        () => fnMatches(context, [seq('a'), XPathSequence.empty]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
-      expect(
-        () => fnMatches(context, [seq('a'), seq('a'), XPathSequence.empty]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
+      check(() => fnMatches(context, [seq('a'), XPathSequence.empty]))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
+      check(() => fnMatches(context, [seq('a'), seq('a'), XPathSequence.empty]))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
     });
   });
 
   group('fn:replace', () {
     test('replaces matches', () {
-      expect(
-        fnReplace(context, [seq('abracadabra'), seq('bra'), seq('*')]),
-        isXPathSequence(['a*cada*']),
-      );
+      check(fnReplace(context, [seq('abracadabra'), seq('bra'), seq('*')]))
+          .isXPathSequence(['a*cada*']);
     });
 
     test('handles flags', () {
-      expect(
-        fnReplace(context, [seq('a.b'), seq('.'), seq('-'), seq('q')]),
-        isXPathSequence(['a-b']),
-      );
+      check(fnReplace(context, [seq('a.b'), seq('.'), seq('-'), seq('q')]))
+          .isXPathSequence(['a-b']);
     });
 
     test('throws for invalid flags', () {
-      expect(
-        () => fnReplace(context, [seq('a'), seq('a'), seq('b'), seq('Z')]),
-        throwsA(isXPathEvaluationException(message: 'Invalid regex flag: Z')),
-      );
+      check(() => fnReplace(context, [seq('a'), seq('a'), seq('b'), seq('Z')]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException(message: 'Invalid regex flag: Z'));
     });
 
     test('handles empty sequence', () {
-      expect(
-        fnReplace(context, [XPathSequence.empty, seq('a'), seq('b')]),
-        isXPathSequence(['']),
-      );
+      check(fnReplace(context, [XPathSequence.empty, seq('a'), seq('b')]))
+          .isXPathSequence(['']);
     });
 
     test('throws for empty sequence pattern, replacement, or flags', () {
-      expect(
-        () => fnReplace(context, [seq('a'), XPathSequence.empty, seq('b')]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
-      expect(
-        () => fnReplace(context, [seq('a'), seq('a'), XPathSequence.empty]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
-      expect(
+      check(() => fnReplace(context, [seq('a'), XPathSequence.empty, seq('b')]))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
+      check(() => fnReplace(context, [seq('a'), seq('a'), XPathSequence.empty]))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
+      check(
         () => fnReplace(context, [
           seq('a'),
           XPathSequence.empty,
           seq('b'),
           seq('q'),
         ]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
       );
-      expect(
+      check(
         () => fnReplace(context, [
           seq('a'),
           seq('a'),
           XPathSequence.empty,
           seq('q'),
         ]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
       );
-      expect(
+      check(
         () => fnReplace(context, [
           seq('a'),
           seq('a'),
           seq('b'),
           XPathSequence.empty,
         ]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
       );
     });
 
     test('throws for invalid regex pattern', () {
-      expect(
-        () => fnReplace(context, [seq('a'), seq('['), seq('b')]),
-        throwsA(isXPathEvaluationException()),
-      );
+      check(() => fnReplace(context, [seq('a'), seq('['), seq('b')]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
     });
   });
 
   group('fn:codepoints-to-string', () {
     test('converts codepoints to string', () {
-      expect(
+      check(
         fnCodepointsToString(context, [
           seq([97, 98, 99]),
         ]),
-        isXPathSequence(['abc']),
-      );
+      ).isXPathSequence(['abc']);
     });
 
     test('throws for invalid codepoint', () {
-      expect(
-        () => fnCodepointsToString(context, [seq(-1)]),
-        throwsA(
-          isXPathEvaluationException(message: 'Invalid character code: -1'),
-        ),
-      );
+      check(() => fnCodepointsToString(context, [seq(-1)]))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(message: 'Invalid character code: -1'),
+          );
     });
 
     test('converts valid boundary codepoints to string', () {
-      expect(
+      check(
         fnCodepointsToString(context, [
           seq([0x9, 0xA, 0xD, 0x20, 0xD7FF, 0xE000, 0xFFFD, 0x10000, 0x10FFFF]),
         ]),
-        isXPathSequence([
-          String.fromCharCodes([
-            0x9,
-            0xA,
-            0xD,
-            0x20,
-            0xD7FF,
-            0xE000,
-            0xFFFD,
-            0x10000,
-            0x10FFFF,
-          ]),
+      ).isXPathSequence([
+        String.fromCharCodes([
+          0x9,
+          0xA,
+          0xD,
+          0x20,
+          0xD7FF,
+          0xE000,
+          0xFFFD,
+          0x10000,
+          0x10FFFF,
         ]),
-      );
+      ]);
     });
 
     test('throws for invalid XML codepoints', () {
@@ -577,55 +498,47 @@ void main() {
         0x110000,
       ];
       for (final codepoint in invalidCodepoints) {
-        expect(
-          () => fnCodepointsToString(context, [seq(codepoint)]),
-          throwsA(
-            isXPathEvaluationException(
-              message: 'Invalid character code: $codepoint',
-            ),
-          ),
-        );
+        check(() => fnCodepointsToString(context, [seq(codepoint)]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(
+                message: 'Invalid character code: $codepoint',
+              ),
+            );
       }
     });
   });
 
   group('fn:string-to-codepoints', () {
     test('converts string to codepoints', () {
-      expect(
-        fnStringToCodepoints(context, [seq('abc')]),
-        isXPathSequence([97, 98, 99]),
-      );
+      check(fnStringToCodepoints(context, [seq('abc')]))
+          .isXPathSequence([97, 98, 99]);
     });
 
     test('handles empty sequence', () {
-      expect(
-        fnStringToCodepoints(context, [XPathSequence.empty]),
-        isXPathSequence(isEmpty),
-      );
+      check(fnStringToCodepoints(context, [XPathSequence.empty]))
+          .isXPathSequence(isEmpty);
     });
   });
 
   group('fn:compare', () {
     test('compares strings', () {
-      expect(fnCompare(context, [seq('a'), seq('b')]), isXPathSequence([-1]));
+      check(fnCompare(context, [seq('a'), seq('b')])).isXPathSequence([-1]);
     });
 
     test('3-argument collation compares strings', () {
-      expect(
+      check(
         fnCompare(context, [
           seq('a'),
           seq('b'),
           seq('http://www.w3.org/2005/xpath-functions/collation/codepoint'),
         ]),
-        isXPathSequence([-1]),
-      );
+      ).isXPathSequence([-1]);
     });
 
     test('handles empty sequence', () {
-      expect(
-        fnCompare(context, [XPathSequence.empty, seq('a')]),
-        isXPathSequence(isEmpty),
-      );
+      check(fnCompare(context, [XPathSequence.empty, seq('a')]))
+          .isXPathSequence(isEmpty);
     });
   });
 
@@ -634,151 +547,128 @@ void main() {
         'http://www.w3.org/2005/xpath-functions/collation/codepoint';
 
     test('fn:contains with 3 arguments', () {
-      expect(
+      check(
         fnContains(context, [seq('hello world'), seq('world'), seq(collation)]),
-        isXPathSequence([true]),
-      );
+      ).isXPathSequence([true]);
     });
 
     test('fn:starts-with with 3 arguments', () {
-      expect(
+      check(
         fnStartsWith(context, [
           seq('hello world'),
           seq('hello'),
           seq(collation),
         ]),
-        isXPathSequence([true]),
-      );
+      ).isXPathSequence([true]);
     });
 
     test('fn:ends-with with 3 arguments', () {
-      expect(
+      check(
         fnEndsWith(context, [seq('hello world'), seq('world'), seq(collation)]),
-        isXPathSequence([true]),
-      );
+      ).isXPathSequence([true]);
     });
 
     test('fn:substring-before with 3 arguments', () {
-      expect(
+      check(
         fnSubstringBefore(context, [
           seq('hello world'),
           seq(' '),
           seq(collation),
         ]),
-        isXPathSequence(['hello']),
-      );
+      ).isXPathSequence(['hello']);
     });
 
     test('fn:substring-after with 3 arguments', () {
-      expect(
+      check(
         fnSubstringAfter(context, [
           seq('hello world'),
           seq(' '),
           seq(collation),
         ]),
-        isXPathSequence(['world']),
-      );
+      ).isXPathSequence(['world']);
     });
   });
 
   group('fn:codepoint-equal', () {
     test('returns true if codepoints equal', () {
-      expect(
-        fnCodepointEqual(context, [seq('a'), seq('a')]),
-        isXPathSequence([true]),
-      );
+      check(fnCodepointEqual(context, [seq('a'), seq('a')]))
+          .isXPathSequence([true]);
     });
 
     test('handles empty sequence', () {
-      expect(
-        fnCodepointEqual(context, [XPathSequence.empty, seq('a')]),
-        isXPathSequence(isEmpty),
-      );
+      check(fnCodepointEqual(context, [XPathSequence.empty, seq('a')]))
+          .isXPathSequence(isEmpty);
     });
   });
 
   group('fn:contains-token', () {
     test('returns true if contains token', () {
-      expect(
-        fnContainsToken(context, [seq('a b c'), seq('b')]),
-        isXPathSequence([true]),
-      );
+      check(fnContainsToken(context, [seq('a b c'), seq('b')]))
+          .isXPathSequence([true]);
     });
 
     test('handles empty sequence', () {
-      expect(
-        fnContainsToken(context, [XPathSequence.empty, seq('a')]),
-        isXPathSequence([false]),
-      );
+      check(fnContainsToken(context, [XPathSequence.empty, seq('a')]))
+          .isXPathSequence([false]);
     });
 
     test('supports collation argument', () {
-      expect(
+      check(
         fnContainsToken(context, [
           seq('a b c'),
           seq('b'),
           seq('http://example.com/col'),
         ]),
-        isXPathSequence([true]),
-      );
+      ).isXPathSequence([true]);
     });
   });
 
   group('fn:normalize-unicode', () {
     test('normalizes unicode', () {
-      expect(fnNormalizeUnicode(context, [seq('a')]), isXPathSequence(['a']));
-      expect(
-        fnNormalizeUnicode(context, [seq('a'), seq('NFC')]),
-        isXPathSequence(['a']),
-      );
+      check(fnNormalizeUnicode(context, [seq('a')])).isXPathSequence(['a']);
+      check(fnNormalizeUnicode(context, [seq('a'), seq('NFC')]))
+          .isXPathSequence(['a']);
     });
 
     test('handles empty sequence', () {
-      expect(
-        fnNormalizeUnicode(context, [XPathSequence.empty]),
-        isXPathSequence(['']),
-      );
-      expect(
-        fnNormalizeUnicode(context, [XPathSequence.empty, seq('NFC')]),
-        isXPathSequence(['']),
-      );
+      check(fnNormalizeUnicode(context, [XPathSequence.empty]))
+          .isXPathSequence(['']);
+      check(fnNormalizeUnicode(context, [XPathSequence.empty, seq('NFC')]))
+          .isXPathSequence(['']);
     });
   });
 
   group('fn:tokenize', () {
     test('tokenizes string', () {
-      expect(
-        fnTokenize(context, [seq('a b c')]),
-        isXPathSequence(['a', 'b', 'c']),
-      );
+      check(fnTokenize(context, [seq('a b c')]))
+          .isXPathSequence(['a', 'b', 'c']);
     });
 
     test('handles flags', () {
-      expect(
-        fnTokenize(context, [seq('a.b.c'), seq('.'), seq('q')]),
-        isXPathSequence(['a', 'b', 'c']),
-      );
+      check(fnTokenize(context, [seq('a.b.c'), seq('.'), seq('q')]))
+          .isXPathSequence(['a', 'b', 'c']);
     });
 
     test('handles empty sequence', () {
-      expect(
-        fnTokenize(context, [XPathSequence.empty, seq('a')]),
-        isXPathSequence(isEmpty),
-      );
+      check(fnTokenize(context, [XPathSequence.empty, seq('a')]))
+          .isXPathSequence(isEmpty);
     });
 
     test('throws for empty sequence pattern or flags', () {
-      expect(
-        () => fnTokenize(context, [seq('a'), XPathSequence.empty]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
-      expect(
+      check(() => fnTokenize(context, [seq('a'), XPathSequence.empty]))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
+      check(
         () => fnTokenize(context, [seq('a'), XPathSequence.empty, seq('q')]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
       );
-      expect(
+      check(
         () => fnTokenize(context, [seq('a'), seq('a'), XPathSequence.empty]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
       );
     });
   });
@@ -786,9 +676,8 @@ void main() {
   group('fn:analyze-string', () {
     test('analyzes string with matching and non-matching parts', () {
       final res = fnAnalyzeString(context, [seq('banana'), seq('a')]);
-      expect(res, hasLength(1));
-      expect(
-        (res.first as XPathNode).node.toXmlString(),
+      check(res).length.equals(1);
+      check((res.first as XPathNode).node.toXmlString()).equals(
         '<fn:analyze-string-result xmlns:fn="http://www.w3.org/2005/xpath-functions">'
         '<fn:non-match>b</fn:non-match>'
         '<fn:match>a</fn:match>'
@@ -802,9 +691,8 @@ void main() {
 
     test('analyzes string with groups', () {
       final res = fnAnalyzeString(context, [seq('banana'), seq('a(n)')]);
-      expect(res, hasLength(1));
-      expect(
-        (res.first as XPathNode).node.toXmlString(),
+      check(res).length.equals(1);
+      check((res.first as XPathNode).node.toXmlString()).equals(
         '<fn:analyze-string-result xmlns:fn="http://www.w3.org/2005/xpath-functions">'
         '<fn:non-match>b</fn:non-match>'
         '<fn:match>a<fn:group nr="1">n</fn:group></fn:match>'
@@ -816,46 +704,48 @@ void main() {
 
     test('handles empty input', () {
       final res = fnAnalyzeString(context, [seq(''), seq('abc')]);
-      expect(
-        (res.first as XPathNode).node.toXmlString(),
+      check((res.first as XPathNode).node.toXmlString()).equals(
         '<fn:analyze-string-result xmlns:fn="http://www.w3.org/2005/xpath-functions"/>',
       );
     });
 
     test('handles empty sequence as input', () {
       final res = fnAnalyzeString(context, [XPathSequence.empty, seq('abc')]);
-      expect(
-        (res.first as XPathNode).node.toXmlString(),
+      check((res.first as XPathNode).node.toXmlString()).equals(
         '<fn:analyze-string-result xmlns:fn="http://www.w3.org/2005/xpath-functions"/>',
       );
     });
 
     test('throws for empty sequence pattern', () {
-      expect(
+      check(
         () => fnAnalyzeString(context, [seq('banana'), XPathSequence.empty]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
       );
     });
 
     test('throws for invalid flags', () {
-      expect(
-        () => fnAnalyzeString(context, [seq('abc'), seq('abc'), seq('w')]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORX0001)),
-      );
+      check(() => fnAnalyzeString(context, [seq('abc'), seq('abc'), seq('w')]))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FORX0001),
+          );
     });
 
     test('throws for invalid regex pattern', () {
-      expect(
-        () => fnAnalyzeString(context, [seq('abc'), seq(')-(')]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002)),
-      );
+      check(() => fnAnalyzeString(context, [seq('abc'), seq(')-(')]))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002),
+          );
     });
 
     test('throws for pattern matching zero-length string', () {
-      expect(
-        () => fnAnalyzeString(context, [seq('abc'), seq('a|b|c?')]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORX0003)),
-      );
+      check(() => fnAnalyzeString(context, [seq('abc'), seq('a|b|c?')]))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FORX0003),
+          );
     });
   });
 

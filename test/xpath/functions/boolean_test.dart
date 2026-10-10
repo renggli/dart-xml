@@ -1,9 +1,9 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/functions/boolean.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
@@ -12,24 +12,18 @@ final context = const XPathConfiguration.raw().context(document);
 void main() {
   group('fn:boolean', () {
     test('returns true for true', () {
-      expect(
-        fnBoolean(context, [XPathSequence.trueSequence]),
-        XPathSequence.trueSequence,
-      );
+      check(fnBoolean(context, [XPathSequence.trueSequence]))
+          .equals(XPathSequence.trueSequence);
     });
 
     test('returns false for empty sequence', () {
-      expect(
-        fnBoolean(context, [XPathSequence.empty]),
-        XPathSequence.falseSequence,
-      );
+      check(fnBoolean(context, [XPathSequence.empty]))
+          .equals(XPathSequence.falseSequence);
     });
 
     test('returns true for number 1', () {
-      expect(
-        fnBoolean(context, [XPathSequence.single(XPathInteger.fromInt(1))]),
-        XPathSequence.trueSequence,
-      );
+      check(fnBoolean(context, [XPathSequence.single(XPathInteger.fromInt(1))]))
+          .equals(XPathSequence.trueSequence);
     });
 
     test('evaluation with nodes', () {
@@ -72,10 +66,8 @@ void main() {
 
   group('fn:not', () {
     test('negates boolean value', () {
-      expect(
-        fnNot(context, [XPathSequence.trueSequence]),
-        XPathSequence.falseSequence,
-      );
+      check(fnNot(context, [XPathSequence.trueSequence]))
+          .equals(XPathSequence.falseSequence);
     });
 
     test('evaluation', () {
@@ -87,7 +79,7 @@ void main() {
 
   group('fn:true', () {
     test('returns true', () {
-      expect(fnTrue(context, []), isXPathSequence([true]));
+      check(fnTrue(context, [])).isXPathSequence([true]);
     });
 
     test('evaluation', () {
@@ -98,7 +90,7 @@ void main() {
 
   group('fn:false', () {
     test('returns false', () {
-      expect(fnFalse(context, []), isXPathSequence([false]));
+      check(fnFalse(context, [])).isXPathSequence([false]);
     });
 
     test('evaluation', () {
@@ -112,22 +104,14 @@ void main() {
       final doc = XmlDocument.parse('<r xml:lang="en"><c/></r>');
       final c = doc.rootElement.children.whereType<XmlElement>().first;
       final newContext = const XPathConfiguration.raw().context(c);
-      expect(
-        fnLang(newContext, [const XPathSequence.single(XPathString('en'))]),
-        isXPathSequence([true]),
-      );
-      expect(
-        fnLang(newContext, [const XPathSequence.single(XPathString('fr'))]),
-        isXPathSequence([false]),
-      );
-      expect(
+      check(fnLang(newContext, [const XPathSequence.single(XPathString('en'))]))
+          .isXPathSequence([true]);
+      check(fnLang(newContext, [const XPathSequence.single(XPathString('fr'))]))
+          .isXPathSequence([false]);
+      check(
         fnLang(newContext, [const XPathSequence.single(XPathString('EN-US'))]),
-        isXPathSequence([false]),
-      );
-      expect(
-        fnLang(newContext, [XPathSequence.empty]),
-        isXPathSequence([false]),
-      );
+      ).isXPathSequence([false]);
+      check(fnLang(newContext, [XPathSequence.empty])).isXPathSequence([false]);
     });
 
     test('evaluation', () {
@@ -162,15 +146,14 @@ void main() {
 
     test('missing context node throws XPDY0002', () {
       final emptyContext = const XPathConfiguration.raw().context();
-      expect(
+      check(
         () => fnLang(emptyContext, [
           const XPathSequence.single(XPathString('en')),
         ]),
-        throwsA(
-          isXPathEvaluationException(
-            errorCode: XPathErrorCode.XPDY0002,
-            message: contains('fn:lang requires a context node'),
-          ),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(
+          errorCode: XPathErrorCode.XPDY0002,
+          message: 'fn:lang requires a context node',
         ),
       );
     });
@@ -179,10 +162,9 @@ void main() {
       final doc = XmlDocument.parse('<r xml:lang="123"><c/></r>');
       final c = doc.rootElement.children.whereType<XmlElement>().first;
       final newContext = const XPathConfiguration.raw().context(c);
-      expect(
+      check(
         fnLang(newContext, [XPathSequence.single(XPathInteger.fromInt(123))]),
-        isXPathSequence([true]),
-      );
+      ).isXPathSequence([true]);
     });
   });
 }

@@ -1,198 +1,180 @@
+import 'package:checks/checks.dart';
 import 'package:petitparser/core.dart';
-import 'package:petitparser/matcher.dart';
-import 'package:test/test.dart';
+import 'package:petitparser/matcher.dart' show AcceptParser;
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xml/utils/character_data_parser.dart';
 import 'package:xml/xml.dart';
 
 void testDefaultMapping(XmlEntityMapping entityMapping) {
   group('decode', () {
     test('&#xHHHH;', () {
-      expect(entityMapping.decode('&#X41;'), 'A');
-      expect(entityMapping.decode('&#x61;'), 'a');
-      expect(entityMapping.decode('&#x7A;'), 'z');
+      check(entityMapping.decode('&#X41;')).equals('A');
+      check(entityMapping.decode('&#x61;')).equals('a');
+      check(entityMapping.decode('&#x7A;')).equals('z');
     });
     test('&#dddd;', () {
-      expect(entityMapping.decode('&#65;'), 'A');
-      expect(entityMapping.decode('&#97;'), 'a');
-      expect(entityMapping.decode('&#122;'), 'z');
+      check(entityMapping.decode('&#65;')).equals('A');
+      check(entityMapping.decode('&#97;')).equals('a');
+      check(entityMapping.decode('&#122;')).equals('z');
     });
     test('&named;', () {
-      expect(entityMapping.decode('&lt;'), '<');
-      expect(entityMapping.decode('&gt;'), '>');
-      expect(entityMapping.decode('&amp;'), '&');
-      expect(entityMapping.decode('&apos;'), '\'');
-      expect(entityMapping.decode('&quot;'), '"');
+      check(entityMapping.decode('&lt;')).equals('<');
+      check(entityMapping.decode('&gt;')).equals('>');
+      check(entityMapping.decode('&amp;')).equals('&');
+      check(entityMapping.decode('&apos;')).equals('\'');
+      check(entityMapping.decode('&quot;')).equals('"');
     });
     test('invalid', () {
-      expect(entityMapping.decode('&Invalid;'), '&Invalid;');
-      expect(entityMapping.decode('&#Invalid;'), '&#Invalid;');
-      expect(entityMapping.decode('&#xInvalid;'), '&#xInvalid;');
-      expect(entityMapping.decode('&#XInvalid;'), '&#XInvalid;');
+      check(entityMapping.decode('&Invalid;')).equals('&Invalid;');
+      check(entityMapping.decode('&#Invalid;')).equals('&#Invalid;');
+      check(entityMapping.decode('&#xInvalid;')).equals('&#xInvalid;');
+      check(entityMapping.decode('&#XInvalid;')).equals('&#XInvalid;');
     });
     test('unicode', () {
       // https://www.compart.com/en/unicode/U+0000
-      expect(entityMapping.decode('&#0;'), '\u0000');
-      expect(entityMapping.decode('&#x0000;'), '\u0000');
+      check(entityMapping.decode('&#0;')).equals('\u0000');
+      check(entityMapping.decode('&#x0000;')).equals('\u0000');
       // https://www.compart.com/en/unicode/U+10FFFF
-      expect(entityMapping.decode('&#1114111;'), '\uDBFF\uDFFF');
-      expect(entityMapping.decode('&#x10FFFF;'), '\uDBFF\uDFFF');
+      check(entityMapping.decode('&#1114111;')).equals('\uDBFF\uDFFF');
+      check(entityMapping.decode('&#x10FFFF;')).equals('\uDBFF\uDFFF');
     });
     test('unicode invalid', () {
-      expect(entityMapping.decode('&#-1;'), '&#-1;');
-      expect(entityMapping.decode('&#x-1;'), '&#x-1;');
-      expect(entityMapping.decode('&#1114112;'), '&#1114112;');
-      expect(entityMapping.decode('&#x110000;'), '&#x110000;');
+      check(entityMapping.decode('&#-1;')).equals('&#-1;');
+      check(entityMapping.decode('&#x-1;')).equals('&#x-1;');
+      check(entityMapping.decode('&#1114112;')).equals('&#1114112;');
+      check(entityMapping.decode('&#x110000;')).equals('&#x110000;');
     });
     test('incomplete', () {
-      expect(entityMapping.decode('&'), '&');
-      expect(entityMapping.decode('&amp'), '&amp');
-      expect(entityMapping.decode('a&b'), 'a&b');
-      expect(entityMapping.decode('&&gt;'), '&>');
+      check(entityMapping.decode('&')).equals('&');
+      check(entityMapping.decode('&amp')).equals('&amp');
+      check(entityMapping.decode('a&b')).equals('a&b');
+      check(entityMapping.decode('&&gt;')).equals('&>');
     });
     test('empty', () {
-      expect(entityMapping.decode('&;'), '&;');
+      check(entityMapping.decode('&;')).equals('&;');
     });
     test('none', () {
-      expect(entityMapping.decode(''), '');
-      expect(entityMapping.decode('Hello'), 'Hello');
-      expect(entityMapping.decode('Hello World'), 'Hello World');
+      check(entityMapping.decode('')).equals('');
+      check(entityMapping.decode('Hello')).equals('Hello');
+      check(entityMapping.decode('Hello World')).equals('Hello World');
     });
     test('surrounded', () {
-      expect(entityMapping.decode('a&amp;b'), 'a&b');
-      expect(entityMapping.decode('&amp;a&amp;'), '&a&');
-      expect(entityMapping.decode('a&amp;b&amp;c'), 'a&b&c');
-      expect(entityMapping.decode('&amp;a&amp;b&amp;'), '&a&b&');
-      expect(entityMapping.decode('a&amp;b&amp;c&amp;d'), 'a&b&c&d');
+      check(entityMapping.decode('a&amp;b')).equals('a&b');
+      check(entityMapping.decode('&amp;a&amp;')).equals('&a&');
+      check(entityMapping.decode('a&amp;b&amp;c')).equals('a&b&c');
+      check(entityMapping.decode('&amp;a&amp;b&amp;')).equals('&a&b&');
+      check(entityMapping.decode('a&amp;b&amp;c&amp;d')).equals('a&b&c&d');
     });
     test('sequence', () {
-      expect(entityMapping.decode('&amp;&amp;'), '&&');
-      expect(entityMapping.decode('&lt;&amp;&gt;'), '<&>');
+      check(entityMapping.decode('&amp;&amp;')).equals('&&');
+      check(entityMapping.decode('&lt;&amp;&gt;')).equals('<&>');
     });
     test('document', () {
       final document = XmlDocument.parse(
         '<xml>a&amp;b</xml>',
         entityMapping: entityMapping,
       );
-      expect(document.rootElement.innerText, 'a&b');
+      check(document.rootElement.innerText).equals('a&b');
     });
     test('fragment', () {
       final fragment = XmlDocumentFragment.parse(
         'a&amp;b',
         entityMapping: entityMapping,
       );
-      expect(fragment.innerText, 'a&b');
+      check(fragment.innerText).equals('a&b');
     });
   });
   group('encode', () {
     test('text', () {
-      expect(entityMapping.encodeText('<'), '&lt;');
-      expect(entityMapping.encodeText('&'), '&amp;');
-      expect(
-        entityMapping.encodeText('\u0000\u0008\u0009\u0084\u0085\u0086'),
-        '\u0000&#x8;\u0009&#x84;\u0085&#x86;',
-      );
-      expect(entityMapping.encodeText('hello'), 'hello');
-      expect(entityMapping.encodeText('<foo &amp;>'), '&lt;foo &amp;amp;>');
+      check(entityMapping.encodeText('<')).equals('&lt;');
+      check(entityMapping.encodeText('&')).equals('&amp;');
+      check(entityMapping.encodeText('\u0000\u0008\u0009\u0084\u0085\u0086'))
+          .equals('\u0000&#x8;\u0009&#x84;\u0085&#x86;');
+      check(entityMapping.encodeText('hello')).equals('hello');
+      check(entityMapping.encodeText('<foo &amp;>'))
+          .equals('&lt;foo &amp;amp;>');
     });
     test('attribute (single quote)', () {
-      expect(
+      check(
         entityMapping.encodeAttributeValue("'", XmlAttributeType.SINGLE_QUOTE),
-        '&apos;',
-      );
-      expect(
+      ).equals('&apos;');
+      check(
         entityMapping.encodeAttributeValue('"', XmlAttributeType.SINGLE_QUOTE),
-        '"',
-      );
-      expect(
+      ).equals('"');
+      check(
         entityMapping.encodeAttributeValue('\t', XmlAttributeType.SINGLE_QUOTE),
-        '&#x9;',
-      );
-      expect(
+      ).equals('&#x9;');
+      check(
         entityMapping.encodeAttributeValue('\n', XmlAttributeType.SINGLE_QUOTE),
-        '&#xA;',
-      );
-      expect(
+      ).equals('&#xA;');
+      check(
         entityMapping.encodeAttributeValue('\r', XmlAttributeType.SINGLE_QUOTE),
-        '&#xD;',
-      );
-      expect(
+      ).equals('&#xD;');
+      check(
         entityMapping.encodeAttributeValue(
           '\u0000\u0008\u0009\u0084\u0085\u0086',
           XmlAttributeType.SINGLE_QUOTE,
         ),
-        '\u0000&#x8;&#x9;&#x84;\u0085&#x86;',
-      );
-      expect(
+      ).equals('\u0000&#x8;&#x9;&#x84;\u0085&#x86;');
+      check(
         entityMapping.encodeAttributeValue(
           'hello',
           XmlAttributeType.SINGLE_QUOTE,
         ),
-        'hello',
-      );
-      expect(
+      ).equals('hello');
+      check(
         entityMapping.encodeAttributeValue(
           "'hello'",
           XmlAttributeType.SINGLE_QUOTE,
         ),
-        '&apos;hello&apos;',
-      );
-      expect(
+      ).equals('&apos;hello&apos;');
+      check(
         entityMapping.encodeAttributeValue(
           '"hello"',
           XmlAttributeType.SINGLE_QUOTE,
         ),
-        '"hello"',
-      );
+      ).equals('"hello"');
     });
     test('encode attribute (double quote)', () {
-      expect(
+      check(
         entityMapping.encodeAttributeValue("'", XmlAttributeType.DOUBLE_QUOTE),
-        "'",
-      );
-      expect(
+      ).equals("'");
+      check(
         entityMapping.encodeAttributeValue('"', XmlAttributeType.DOUBLE_QUOTE),
-        '&quot;',
-      );
-      expect(
+      ).equals('&quot;');
+      check(
         entityMapping.encodeAttributeValue('\t', XmlAttributeType.DOUBLE_QUOTE),
-        '&#x9;',
-      );
-      expect(
+      ).equals('&#x9;');
+      check(
         entityMapping.encodeAttributeValue('\n', XmlAttributeType.DOUBLE_QUOTE),
-        '&#xA;',
-      );
-      expect(
+      ).equals('&#xA;');
+      check(
         entityMapping.encodeAttributeValue('\r', XmlAttributeType.DOUBLE_QUOTE),
-        '&#xD;',
-      );
-      expect(
+      ).equals('&#xD;');
+      check(
         entityMapping.encodeAttributeValue(
           '\u0000\u0008\u0009\u0084\u0085\u0086',
           XmlAttributeType.DOUBLE_QUOTE,
         ),
-        '\u0000&#x8;&#x9;&#x84;\u0085&#x86;',
-      );
-      expect(
+      ).equals('\u0000&#x8;&#x9;&#x84;\u0085&#x86;');
+      check(
         entityMapping.encodeAttributeValue(
           'hello',
           XmlAttributeType.DOUBLE_QUOTE,
         ),
-        'hello',
-      );
-      expect(
+      ).equals('hello');
+      check(
         entityMapping.encodeAttributeValue(
           "'hello'",
           XmlAttributeType.DOUBLE_QUOTE,
         ),
-        "'hello'",
-      );
-      expect(
+      ).equals("'hello'");
+      check(
         entityMapping.encodeAttributeValue(
           '"hello"',
           XmlAttributeType.DOUBLE_QUOTE,
         ),
-        '&quot;hello&quot;',
-      );
+      ).equals('&quot;hello&quot;');
     });
   });
 }
@@ -205,90 +187,88 @@ void main() {
     const entityMapping = XmlDefaultEntityMapping.html();
     testDefaultMapping(entityMapping);
     test('special', () {
-      expect(entityMapping.decode('&eacute;'), 'é');
-      expect(entityMapping.decode('&Eacute;'), 'É');
+      check(entityMapping.decode('&eacute;')).equals('é');
+      check(entityMapping.decode('&Eacute;')).equals('É');
     });
   });
   group('html5', () {
     const entityMapping = XmlDefaultEntityMapping.html5();
     testDefaultMapping(entityMapping);
     test('special', () {
-      expect(entityMapping.decode('&bigstar;'), '★');
-      expect(entityMapping.decode('&block;'), '█');
+      check(entityMapping.decode('&bigstar;')).equals('★');
+      check(entityMapping.decode('&block;')).equals('█');
     });
   });
   group('custom', () {
     const entityMapping = XmlDefaultEntityMapping({'joy': '😂', 'tears': '😢'});
     test('basic', () {
-      expect(entityMapping.decodeEntity('joy'), '😂');
-      expect(entityMapping.decodeEntity('tears'), '😢');
+      check(entityMapping.decodeEntity('joy')).equals('😂');
+      check(entityMapping.decodeEntity('tears')).equals('😢');
     });
     test('entities', () {
-      expect(entityMapping.decode('&joy;'), '😂');
-      expect(entityMapping.decode('&tears;'), '😢');
+      check(entityMapping.decode('&joy;')).equals('😂');
+      check(entityMapping.decode('&tears;')).equals('😢');
     });
     test('document', () {
       final document = XmlDocument.parse(
         '<xml>&joy; and &tears;</xml>',
         entityMapping: entityMapping,
       );
-      expect(document.rootElement.innerText, '😂 and 😢');
+      check(document.rootElement.innerText).equals('😂 and 😢');
     });
     test('fragment', () {
       final fragment = XmlDocumentFragment.parse(
         '&joy; and &tears;',
         entityMapping: entityMapping,
       );
-      expect(fragment.innerText, '😂 and 😢');
+      check(fragment.innerText).equals('😂 and 😢');
     });
   });
   group('null', () {
     const entityMapping = XmlNullEntityMapping();
     group('decode', () {
       test('basic', () {
-        expect(entityMapping.decodeEntity(''), isNull);
-        expect(entityMapping.decodeEntity('amp'), isNull);
-        expect(entityMapping.decodeEntity('#X41'), isNull);
-        expect(entityMapping.decodeEntity('#65'), isNull);
+        check(entityMapping.decodeEntity('')).isNull();
+        check(entityMapping.decodeEntity('amp')).isNull();
+        check(entityMapping.decodeEntity('#X41')).isNull();
+        check(entityMapping.decodeEntity('#65')).isNull();
       });
       test('entities', () {
-        expect(entityMapping.decode('&#X41;'), '&#X41;');
-        expect(entityMapping.decode('&#65;'), '&#65;');
-        expect(entityMapping.decode('&amp;'), '&amp;');
+        check(entityMapping.decode('&#X41;')).equals('&#X41;');
+        check(entityMapping.decode('&#65;')).equals('&#65;');
+        check(entityMapping.decode('&amp;')).equals('&amp;');
       });
       test('invalid entities', () {
-        expect(entityMapping.decode('&;'), '&;');
-        expect(entityMapping.decode('&invalid;'), '&invalid;');
-        expect(entityMapping.decode('&incomplete'), '&incomplete');
+        check(entityMapping.decode('&;')).equals('&;');
+        check(entityMapping.decode('&invalid;')).equals('&invalid;');
+        check(entityMapping.decode('&incomplete')).equals('&incomplete');
       });
       test('combinations', () {
-        expect(entityMapping.decode('a&amp;b'), 'a&amp;b');
-        expect(entityMapping.decode('&amp;x&amp;'), '&amp;x&amp;');
-        expect(entityMapping.decode('&amp;&amp;'), '&amp;&amp;');
+        check(entityMapping.decode('a&amp;b')).equals('a&amp;b');
+        check(entityMapping.decode('&amp;x&amp;')).equals('&amp;x&amp;');
+        check(entityMapping.decode('&amp;&amp;')).equals('&amp;&amp;');
       });
     });
     group('encode', () {
       test('text', () {
-        expect(entityMapping.encodeText('<'), '<');
-        expect(entityMapping.encodeText('&'), '&');
-        expect(entityMapping.encodeText('hello'), 'hello');
-        expect(entityMapping.encodeText('<foo &amp;>'), '<foo &amp;>');
+        check(entityMapping.encodeText('<')).equals('<');
+        check(entityMapping.encodeText('&')).equals('&');
+        check(entityMapping.encodeText('hello')).equals('hello');
+        check(entityMapping.encodeText('<foo &amp;>')).equals('<foo &amp;>');
       });
       test('attribute', () {
-        expect(
+        check(
           entityMapping.encodeAttributeValue(
             '<>&\'"',
             XmlAttributeType.SINGLE_QUOTE,
           ),
-          '<>&\'"',
-        );
-        expect(
+        ).equals('<>&\'"');
+        check(
           entityMapping.encodeAttributeValue(
             '<>&\'"',
             XmlAttributeType.DOUBLE_QUOTE,
           ),
-          '<>&\'"',
-        );
+        ).equals('<>&\'"');
       });
     });
   });
@@ -296,49 +276,49 @@ void main() {
     final parser = XmlCharacterDataParser('*', 1);
     test('parse without stopper', () {
       final result1 = parser.parse('');
-      expect(result1 is Failure, isTrue);
-      expect(result1.position, 0);
+      check(result1 is Failure).isTrue();
+      check(result1.position).equals(0);
 
       final result2 = parser.parse('a');
-      expect(result2 is Success, isTrue);
-      expect(result2.position, 1);
-      expect(result2.value, 'a');
+      check(result2 is Success).isTrue();
+      check(result2.position).equals(1);
+      check(result2.value).equals('a');
 
       final result3 = parser.parse('ab');
-      expect(result3 is Success, isTrue);
-      expect(result3.position, 2);
-      expect(result3.value, 'ab');
+      check(result3 is Success).isTrue();
+      check(result3.position).equals(2);
+      check(result3.value).equals('ab');
     });
     test('parse with stopper', () {
       final result1 = parser.parse('*');
-      expect(result1 is Failure, isTrue);
-      expect(result1.position, 0);
+      check(result1 is Failure).isTrue();
+      check(result1.position).equals(0);
 
       final result2 = parser.parse('a*');
-      expect(result2 is Success, isTrue);
-      expect(result2.position, 1);
-      expect(result2.value, 'a');
+      check(result2 is Success).isTrue();
+      check(result2.position).equals(1);
+      check(result2.value).equals('a');
 
       final result3 = parser.parse('ab*');
-      expect(result3 is Success, isTrue);
-      expect(result3.position, 2);
-      expect(result3.value, 'ab');
+      check(result3 is Success).isTrue();
+      check(result3.position).equals(2);
+      check(result3.value).equals('ab');
     });
     test('fast parse without stopper', () {
-      expect(parser.accept(''), isFalse);
-      expect(parser.accept('a'), isTrue);
-      expect(parser.accept('ab'), isTrue);
+      check(parser.accept('')).isFalse();
+      check(parser.accept('a')).isTrue();
+      check(parser.accept('ab')).isTrue();
     });
     test('fast parse with stopper', () {
-      expect(parser.accept('*'), isFalse);
-      expect(parser.accept('a*'), isTrue);
-      expect(parser.accept('ab*'), isTrue);
+      check(parser.accept('*')).isFalse();
+      check(parser.accept('a*')).isTrue();
+      check(parser.accept('ab*')).isTrue();
     });
     test('copy and equality', () {
-      expect(parser.isEqualTo(parser), isTrue);
-      expect(parser.isEqualTo(parser.copy()), isTrue);
-      expect(parser.isEqualTo(XmlCharacterDataParser('%', 1)), isFalse);
-      expect(parser.isEqualTo(XmlCharacterDataParser('*', 2)), isFalse);
+      check(parser.isEqualTo(parser)).isTrue();
+      check(parser.isEqualTo(parser.copy())).isTrue();
+      check(parser.isEqualTo(XmlCharacterDataParser('%', 1))).isFalse();
+      check(parser.isEqualTo(XmlCharacterDataParser('*', 2))).isFalse();
     });
   });
 }

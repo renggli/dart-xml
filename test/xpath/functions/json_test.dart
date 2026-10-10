@@ -1,9 +1,9 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/functions/json.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
@@ -12,72 +12,61 @@ final context = const XPathConfiguration.raw().context(document);
 void main() {
   group('fn:parse-json', () {
     test('null', () {
-      expect(fnParseJson(context, [seq('null')]), isXPathSequence(isEmpty));
+      check(fnParseJson(context, [seq('null')])).isXPathSequence(isEmpty);
     });
     test('boolean', () {
-      expect(fnParseJson(context, [seq('true')]), isXPathSequence([true]));
-      expect(fnParseJson(context, [seq('false')]), isXPathSequence([false]));
+      check(fnParseJson(context, [seq('true')])).isXPathSequence([true]);
+      check(fnParseJson(context, [seq('false')])).isXPathSequence([false]);
     });
     test('number', () {
-      expect(fnParseJson(context, [seq('123')]), isXPathSequence([123.0]));
-      expect(fnParseJson(context, [seq('12.34')]), isXPathSequence([12.34]));
+      check(fnParseJson(context, [seq('123')])).isXPathSequence([123.0]);
+      check(fnParseJson(context, [seq('12.34')])).isXPathSequence([12.34]);
     });
     test('string', () {
-      expect(fnParseJson(context, [seq('"abc"')]), isXPathSequence(['abc']));
+      check(fnParseJson(context, [seq('"abc"')])).isXPathSequence(['abc']);
     });
     test('array', () {
-      expect(
-        fnParseJson(context, [seq('[1, 2]')]),
-        isXPathSequence([
-          [1.0, 2.0],
-        ]),
-      );
+      check(fnParseJson(context, [seq('[1, 2]')])).isXPathSequence([
+        [1.0, 2.0],
+      ]);
     });
     test('map', () {
-      expect(
-        fnParseJson(context, [seq('{"a": 1}')]),
-        isXPathSequence([
-          {'a': 1.0},
-        ]),
-      );
+      check(fnParseJson(context, [seq('{"a": 1}')])).isXPathSequence([
+        {'a': 1.0},
+      ]);
     });
     test('invalid', () {
-      expect(() => fnParseJson(context, [seq('{')]), throwsA(isA<Exception>()));
+      check(() => fnParseJson(context, [seq('{')])).throws<Exception>();
     });
     test('empty', () {
-      expect(
-        fnParseJson(context, [XPathSequence.empty]),
-        isXPathSequence(isEmpty),
-      );
+      check(fnParseJson(context, [XPathSequence.empty]))
+          .isXPathSequence(isEmpty);
     });
     test('options duplicates reject', () {
-      expect(
+      check(
         () => fnParseJson(context, [
           seq('{"a": 1, "a": 2}'),
           seq(XPathMap({const XPathString('duplicates'): seq('reject')})),
         ]),
-        throwsA(isXPathEvaluationException()),
-      );
+      ).throws<XPathEvaluationException>().which(isXPathEvaluationException());
     });
     test('options duplicates use-last', () {
       final result = fnParseJson(context, [
         seq('{"a": 1, "a": 2}'),
         seq(XPathMap({const XPathString('duplicates'): seq('use-last')})),
       ]);
-      expect(
-        (result.first as XPathMap).get(const XPathString('a')),
-        isXPathSequence([2]),
-      );
+      check((result.first as XPathMap).get(const XPathString('a')))
+          .isNotNull()
+          .isXPathSequence([2]);
     });
     test('options liberal', () {
       final result = fnParseJson(context, [
         seq('{"a": 1,}'),
         seq(XPathMap({const XPathString('liberal'): seq(true)})),
       ]);
-      expect(
-        (result.first as XPathMap).get(const XPathString('a')),
-        isXPathSequence([1]),
-      );
+      check((result.first as XPathMap).get(const XPathString('a')))
+          .isNotNull()
+          .isXPathSequence([1]);
     });
     test('options escape and fallback', () {
       final fallbackFn = XPathFunctionItem.fn1(
@@ -92,24 +81,26 @@ void main() {
           }),
         ),
       ]);
-      expect(result, isXPathSequence(['?']));
+      check(result).isXPathSequence(['?']);
     });
     test('options duplicates retain throws in parse-json', () {
-      expect(
+      check(
         () => fnParseJson(context, [
           seq('{"a": 1}'),
           seq(XPathMap({const XPathString('duplicates'): seq('retain')})),
         ]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0005)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0005),
       );
     });
     test('options duplicates invalid value', () {
-      expect(
+      check(
         () => fnParseJson(context, [
           seq('{"a": 1}'),
           seq(XPathMap({const XPathString('duplicates'): seq('unknown')})),
         ]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0005)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0005),
       );
     });
     test('options escape and fallback conflict', () {
@@ -117,7 +108,7 @@ void main() {
         const XmlName.qualified('local:fallback'),
         (ctx, arg) => seq('?'),
       );
-      expect(
+      check(
         () => fnParseJson(context, [
           seq(r'"\u0000"'),
           seq(
@@ -127,16 +118,18 @@ void main() {
             }),
           ),
         ]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0005)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0005),
       );
     });
     test('options unknown key', () {
-      expect(
+      check(
         () => fnParseJson(context, [
           seq('123'),
           seq(XPathMap({const XPathString('foo'): seq('bar')})),
         ]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0005)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0005),
       );
     });
     test('options liberal comments and trailing commas', () {
@@ -144,83 +137,88 @@ void main() {
         seq('{"a": 10, "b": [1, 2,],}'),
         seq(XPathMap({const XPathString('liberal'): seq(true)})),
       ]);
-      expect(result.first, isA<XPathMap>());
+      check(result.first).isA<XPathMap>();
     });
     test('options liberal trailing commas in array', () {
       final result = fnParseJson(context, [
         seq('[1, 2, 3,]'),
         seq(XPathMap({const XPathString('liberal'): seq(true)})),
       ]);
-      expect(
-        result,
-        isXPathSequence([
-          [1.0, 2.0, 3.0],
-        ]),
-      );
+      check(result).isXPathSequence([
+        [1.0, 2.0, 3.0],
+      ]);
     });
     test('multi-item argument throws XPTY0004', () {
-      expect(
+      check(
         () => fnParseJson(context, [
           seq(['1', '2']),
         ]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
       );
     });
     test('type errors for options types', () {
-      expect(
+      check(
         () => fnParseJson(context, [
           seq('1'),
           seq(XPathMap({const XPathString('liberal'): seq('not-a-bool')})),
         ]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
       );
-      expect(
+      check(
         () => fnParseJson(context, [
           seq('1'),
           seq(XPathMap({const XPathString('duplicates'): seq(123)})),
         ]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
       );
-      expect(
+      check(
         () => fnParseJson(context, [
           seq('1'),
           seq(XPathMap({const XPathString('fallback'): seq('not-a-func')})),
         ]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
       );
     });
     test('BOM prefix in parse-json', () {
       final res = fnParseJson(context, [seq('\uFEFF{"a": 1}')]);
-      expect(
-        (res.first as XPathMap).get(const XPathString('a')),
-        isXPathSequence([1.0]),
-      );
+      check((res.first as XPathMap).get(const XPathString('a')))
+          .isNotNull()
+          .isXPathSequence([1.0]);
     });
 
     test('empty JSON input throws FOJS0001', () {
-      expect(
-        () => fnParseJson(context, [seq('')]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001)),
-      );
-      expect(
-        () => fnParseJson(context, [seq('   ')]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001)),
-      );
-      expect(
-        () => fnJsonToXml(context, [seq('')]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001)),
-      );
+      check(() => fnParseJson(context, [seq('')]))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+          );
+      check(() => fnParseJson(context, [seq('   ')]))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+          );
+      check(() => fnJsonToXml(context, [seq('')]))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+          );
     });
 
     test('trailing junk after JSON value throws FOJS0001', () {
-      expect(
-        () => fnParseJson(context, [seq('123 trailing')]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001)),
-      );
-      expect(
-        () => fnJsonToXml(context, [seq('123 trailing')]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001)),
-      );
+      check(() => fnParseJson(context, [seq('123 trailing')]))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+          );
+      check(() => fnJsonToXml(context, [seq('123 trailing')]))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+          );
     });
   });
   group('fn:json-doc', () {
@@ -246,95 +244,79 @@ void main() {
         seq('http://example.com/json/map.json'),
         seq(options),
       ]);
-      expect(
-        res,
-        isXPathSequence([
-          {'a': 1.0, 'b': true},
-        ]),
-      );
+      check(res).isXPathSequence([
+        {'a': 1.0, 'b': true},
+      ]);
     });
 
     test('returns empty sequence for empty href', () {
-      expect(
-        fnJsonDoc(jsonDocContext, [XPathSequence.empty]),
-        isXPathSequence(isEmpty),
-      );
+      check(fnJsonDoc(jsonDocContext, [XPathSequence.empty]))
+          .isXPathSequence(isEmpty);
     });
 
     test('loads and decodes map from absolute URI', () {
-      expect(
+      check(
         fnJsonDoc(jsonDocContext, [seq('http://example.com/json/map.json')]),
-        isXPathSequence([
-          {'a': 1.0, 'b': true},
-        ]),
-      );
+      ).isXPathSequence([
+        {'a': 1.0, 'b': true},
+      ]);
     });
 
     test('resolves relative URI against baseUri', () {
-      expect(
-        fnJsonDoc(jsonDocContext, [seq('array.json')]),
-        isXPathSequence([
-          [1.0, 2.0, 3.0],
-        ]),
-      );
+      check(fnJsonDoc(jsonDocContext, [seq('array.json')])).isXPathSequence([
+        [1.0, 2.0, 3.0],
+      ]);
     });
 
     test('throws when static base URI is undefined for relative URI', () {
-      expect(
-        () => fnJsonDoc(context, [seq('map.json')]),
-        throwsA(isXPathEvaluationException()),
-      );
+      check(() => fnJsonDoc(context, [seq('map.json')]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
     });
 
     test('throws when URI contains fragment identifier', () {
-      expect(
-        () => fnJsonDoc(jsonDocContext, [seq('map.json#frag')]),
-        throwsA(isXPathEvaluationException()),
-      );
+      check(() => fnJsonDoc(jsonDocContext, [seq('map.json#frag')]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
     });
 
     test('throws when resource is not found', () {
-      expect(
-        () => fnJsonDoc(jsonDocContext, [seq('missing.json')]),
-        throwsA(isXPathEvaluationException()),
-      );
+      check(() => fnJsonDoc(jsonDocContext, [seq('missing.json')]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
     });
 
     test('throws when resource is invalid JSON', () {
-      expect(
-        () => fnJsonDoc(jsonDocContext, [seq('invalid.json')]),
-        throwsA(isXPathEvaluationException()),
-      );
+      check(() => fnJsonDoc(jsonDocContext, [seq('invalid.json')]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
     });
   });
   group('fn:json-to-xml', () {
     test('basic', () {
       const input = '{"a": 1, "b": [null, true, 2, "c"]}';
       final result = fnJsonToXml(context, [seq(input)]);
-      expect(
-        ((result.single as XPathNode).node as XmlDocument).toXmlString(),
-        '<map xmlns="http://www.w3.org/2005/xpath-functions">'
-        '<number key="a">1</number>'
-        '<array key="b">'
-        '<null/>'
-        '<boolean>true</boolean>'
-        '<number>2</number>'
-        '<string>c</string>'
-        '</array>'
-        '</map>',
-      );
+      check(((result.single as XPathNode).node as XmlDocument).toXmlString())
+          .equals(
+            '<map xmlns="http://www.w3.org/2005/xpath-functions">'
+            '<number key="a">1</number>'
+            '<array key="b">'
+            '<null/>'
+            '<boolean>true</boolean>'
+            '<number>2</number>'
+            '<string>c</string>'
+            '</array>'
+            '</map>',
+          );
     });
     test('empty', () {
-      expect(
-        fnJsonToXml(context, [XPathSequence.empty]),
-        isXPathSequence(isEmpty),
-      );
+      check(fnJsonToXml(context, [XPathSequence.empty]))
+          .isXPathSequence(isEmpty);
     });
     test('invalid', () {
-      expect(
-        () => fnJsonToXml(context, [seq('{')]),
-        throwsA(isXPathEvaluationException()),
-      );
+      check(() => fnJsonToXml(context, [seq('{')]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
     });
     test('options duplicates use-first skips nested structures', () {
       const input = '''
@@ -349,7 +331,7 @@ void main() {
         seq(XPathMap({const XPathString('duplicates'): seq('use-first')})),
       ]);
       final doc = (result.single as XPathNode).node as XmlDocument;
-      expect(doc.findAllElements('array').length, equals(2));
+      check(doc.findAllElements('array').length).equals(2);
     });
 
     test('options duplicates use-first and reject', () {
@@ -358,18 +340,19 @@ void main() {
         seq(XPathMap({const XPathString('duplicates'): seq('use-first')})),
       ]);
       final doc = (result.single as XPathNode).node as XmlDocument;
-      expect(doc.findAllElements('number').length, 1);
+      check(doc.findAllElements('number').length).equals(1);
 
-      expect(
+      check(
         () => fnJsonToXml(context, [
           seq('{"a": 1, "a": 2}'),
           seq(XPathMap({const XPathString('duplicates'): seq('reject')})),
         ]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0003)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0003),
       );
     });
     test('options duplicates retain with validate throws FOJS0005', () {
-      expect(
+      check(
         () => fnJsonToXml(context, [
           seq('{"a": 1}'),
           seq(
@@ -379,7 +362,8 @@ void main() {
             }),
           ),
         ]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0005)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0005),
       );
     });
     test('options escape true escapes controls', () {
@@ -389,8 +373,8 @@ void main() {
       ]);
       final doc = (result.single as XPathNode).node as XmlDocument;
       final strEl = doc.findAllElements('string').first;
-      expect(strEl.getAttribute('escaped'), equals('true'));
-      expect(strEl.innerText, equals(r'\u0007'));
+      check(strEl.getAttribute('escaped')).equals('true');
+      check(strEl.innerText).equals(r'\u0007');
     });
     test('options fallback function on characters', () {
       final fallbackFn = XPathFunctionItem.fn1(
@@ -406,7 +390,7 @@ void main() {
         ),
       ]);
       final doc = (result.single as XPathNode).node as XmlDocument;
-      expect(doc.findAllElements('string').first.innerText, equals('[char]'));
+      check(doc.findAllElements('string').first.innerText).equals('[char]');
     });
   });
   group('fn:xml-to-json', () {
@@ -424,13 +408,11 @@ void main() {
           '</map>';
       final document = XmlDocument.parse(input);
       final result = fnXmlToJson(context, [seq(document)]);
-      expect(result, isXPathSequence(['{"a":1,"b":[null,true,2,"c"]}']));
+      check(result).isXPathSequence(['{"a":1,"b":[null,true,2,"c"]}']);
     });
     test('empty', () {
-      expect(
-        fnXmlToJson(context, [XPathSequence.empty]),
-        isXPathSequence(isEmpty),
-      );
+      check(fnXmlToJson(context, [XPathSequence.empty]))
+          .isXPathSequence(isEmpty);
     });
     test('options indent', () {
       const input =
@@ -442,25 +424,27 @@ void main() {
         seq(document),
         seq(XPathMap({const XPathString('indent'): seq(true)})),
       ]);
-      expect(result, isXPathSequence(['{\n  "a" : 1\n}']));
+      check(result).isXPathSequence(['{\n  "a" : 1\n}']);
     });
     test('options invalid options', () {
       final doc = XmlDocument.parse(
         '<null xmlns="http://www.w3.org/2005/xpath-functions"/>',
       );
-      expect(
+      check(
         () => fnXmlToJson(context, [
           seq(doc),
           seq(XPathMap({const XPathString('unknown'): seq(true)})),
         ]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0005)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0005),
       );
-      expect(
+      check(
         () => fnXmlToJson(context, [
           seq(doc),
           seq(XPathMap({const XPathString('indent'): seq('yes')})),
         ]),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
       );
     });
     test('escaped text and surrogate pairs', () {
@@ -468,7 +452,7 @@ void main() {
           '<string xmlns="http://www.w3.org/2005/xpath-functions" escaped="true">\\u0041\\uD83D\\uDE00\\n\\t\\r\\\\\\/\\"\\b\\f</string>';
       final document = XmlDocument.parse(input);
       final result = fnXmlToJson(context, [seq(document)]);
-      expect(result.first.stringValue, contains(r'\u0041\uD83D\uDE00'));
+      check(result.first.stringValue).contains(r'\u0041\uD83D\uDE00');
     });
     test('escaped-key unescaping and surrogate pairs', () {
       const input =
@@ -477,7 +461,7 @@ void main() {
           '</map>';
       final document = XmlDocument.parse(input);
       final result = fnXmlToJson(context, [seq(document)]);
-      expect(result.first.stringValue, contains(r'\uD83D\uDE00'));
+      check(result.first.stringValue).contains(r'\uD83D\uDE00');
     });
     test('unescapeJsonString errors FOJS0007', () {
       void expectEscapeError(String keyContent) {
@@ -486,12 +470,11 @@ void main() {
           '<null key="$keyContent" escaped-key="true"/>'
           '</map>',
         );
-        expect(
-          () => fnXmlToJson(context, [seq(doc)]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0007),
-          ),
-        );
+        check(() => fnXmlToJson(context, [seq(doc)]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0007),
+            );
       }
 
       expectEscapeError(r'\');
@@ -504,12 +487,11 @@ void main() {
     test('validation errors FOJS0006', () {
       void expectValidationError(String xml) {
         final doc = XmlDocument.parse(xml);
-        expect(
-          () => fnXmlToJson(context, [seq(doc)]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0006),
-          ),
-        );
+        check(() => fnXmlToJson(context, [seq(doc)]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0006),
+            );
       }
 
       // Wrong namespace
@@ -565,103 +547,92 @@ void main() {
       ''');
       final result = fnXmlToJson(context, [seq(doc)]);
       final str = result.first.stringValue;
-      expect(str, contains('0'));
-      expect(str, contains('-0'));
-      expect(str, contains('42'));
-      expect(str, contains('-17'));
-      expect(str, contains('12.34'));
-      expect(str, contains('E'));
+      check(str).contains('0');
+      check(str).contains('-0');
+      check(str).contains('42');
+      check(str).contains('-17');
+      check(str).contains('12.34');
+      check(str).contains('E');
     });
 
     group('edge cases and coverage completion', () {
       test('argument type checking', () {
         // _expectOptionalString
-        expect(
+        check(
           () => fnParseJson(context, [
             seq(['a', 'b']),
           ]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
-          ),
+        ).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
         );
-        expect(
-          () => fnParseJson(context, [seq(123)]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
-          ),
-        );
+        check(() => fnParseJson(context, [seq(123)]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+            );
         // Untyped atomic string argument
-        expect(
-          fnParseJson(context, [seq(const XPathUntypedAtomic('123'))]),
-          isXPathSequence([123.0]),
-        );
+        check(fnParseJson(context, [seq(const XPathUntypedAtomic('123'))]))
+            .isXPathSequence([123.0]);
 
         // _expectOptionalMap
-        expect(
+        check(
           () => fnParseJson(context, [
             seq('null'),
             seq([const XPathMap({}), const XPathMap({})]),
           ]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
-          ),
+        ).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
         );
-        expect(
-          () => fnParseJson(context, [seq('null'), seq('not-a-map')]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
-          ),
-        );
+        check(() => fnParseJson(context, [seq('null'), seq('not-a-map')]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+            );
 
         // _expectOptionalNode in fnXmlToJson
-        expect(
+        check(
           () => fnXmlToJson(context, [
             seq([XmlDocument(), XmlDocument()]),
           ]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
-          ),
+        ).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
         );
-        expect(
-          () => fnXmlToJson(context, [seq(123)]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
-          ),
-        );
+        check(() => fnXmlToJson(context, [seq(123)]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+            );
       });
 
       test('options validation', () {
         // duplicates in json-to-xml invalid value
-        expect(
+        check(
           () => fnJsonToXml(context, [
             seq('{"a": 1}'),
             seq(XPathMap({const XPathString('duplicates'): seq('use-last')})),
           ]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0005),
-          ),
+        ).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0005),
         );
 
         // escape not boolean
-        expect(
+        check(
           () => fnJsonToXml(context, [
             seq('{"a": 1}'),
             seq(XPathMap({const XPathString('escape'): seq('yes')})),
           ]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
-          ),
+        ).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
         );
 
         // validate not boolean
-        expect(
+        check(
           () => fnJsonToXml(context, [
             seq('{"a": 1}'),
             seq(XPathMap({const XPathString('validate'): seq('yes')})),
           ]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
-          ),
+        ).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
         );
 
         // fallback arity != 1
@@ -669,7 +640,7 @@ void main() {
           const XmlName.qualified('local:fallback2'),
           (ctx, a, b) => seq('?'),
         );
-        expect(
+        check(
           () => fnParseJson(context, [
             seq(r'"\u0000"'),
             seq(
@@ -680,158 +651,139 @@ void main() {
               }),
             ),
           ]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
-          ),
+        ).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
         );
       });
 
       test('JSON parser syntax errors and edge cases in parse-json', () {
         // Unexpected end of JSON
-        expect(
-          () => fnParseJson(context, [seq('{"a": ')]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
-        );
+        check(() => fnParseJson(context, [seq('{"a": ')]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+            );
         // Unexpected character
-        expect(
-          () => fnParseJson(context, [seq('@')]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
-        );
+        check(() => fnParseJson(context, [seq('@')]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+            );
         // Empty object and array
-        expect(
-          fnParseJson(context, [seq('{}')]),
-          isXPathSequence([isA<XPathMap>()]),
-        );
-        expect(
-          fnParseJson(context, [seq('[]')]),
-          isXPathSequence([isA<XPathArray>()]),
-        );
+        check(fnParseJson(context, [seq('{}')]))
+            .isXPathSequence([isA<XPathMap>()]);
+        check(fnParseJson(context, [seq('[]')]))
+            .isXPathSequence([isA<XPathArray>()]);
 
         // Object missing colon
-        expect(
-          () => fnParseJson(context, [seq('{"a" 1}')]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
-        );
+        check(() => fnParseJson(context, [seq('{"a" 1}')]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+            );
         // Object trailing comma without liberal
-        expect(
-          () => fnParseJson(context, [seq('{"a": 1,}')]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
-        );
+        check(() => fnParseJson(context, [seq('{"a": 1,}')]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+            );
         // Object missing comma or brace
-        expect(
-          () => fnParseJson(context, [seq('{"a": 1 "b": 2}')]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
-        );
+        check(() => fnParseJson(context, [seq('{"a": 1 "b": 2}')]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+            );
         // Array trailing comma without liberal
-        expect(
-          () => fnParseJson(context, [seq('[1,]')]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
-        );
+        check(() => fnParseJson(context, [seq('[1,]')]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+            );
         // Array missing comma or bracket
-        expect(
-          () => fnParseJson(context, [seq('[1 2]')]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
-        );
+        check(() => fnParseJson(context, [seq('[1 2]')]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+            );
       });
 
       test('JSON parser syntax errors and edge cases in json-to-xml', () {
         // BOM handling
         final resBom = fnJsonToXml(context, [seq('\uFEFF{"a": 1}')]);
-        expect(resBom, isNotEmpty);
+        check(resBom).isNotEmpty();
 
         // Unexpected end of JSON
-        expect(
-          () => fnJsonToXml(context, [seq('{"a": ')]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
-        );
+        check(() => fnJsonToXml(context, [seq('{"a": ')]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+            );
         // Unexpected character
-        expect(
-          () => fnJsonToXml(context, [seq('@')]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
-        );
+        check(() => fnJsonToXml(context, [seq('@')]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+            );
         // Boolean false
-        expect(fnJsonToXml(context, [seq('false')]).first.stringValue, 'false');
+        check(fnJsonToXml(context, [seq('false')]).first.stringValue)
+            .equals('false');
         // Empty string
-        expect(fnJsonToXml(context, [seq('""')]).first.stringValue, '');
+        check(fnJsonToXml(context, [seq('""')]).first.stringValue).equals('');
 
         // Empty array in XML
         final resArr = fnJsonToXml(context, [seq('[]')]);
-        expect(resArr.first, isA<XPathNode>());
+        check(resArr.first).isA<XPathNode>();
 
         // Trailing comma with liberal: true in array
         final resLibArr = fnJsonToXml(context, [
           seq('[1,]'),
           seq(XPathMap({const XPathString('liberal'): seq(true)})),
         ]);
-        expect(resLibArr.first, isA<XPathNode>());
+        check(resLibArr.first).isA<XPathNode>();
 
         // Trailing comma without liberal in array
-        expect(
-          () => fnJsonToXml(context, [seq('[1,]')]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
-        );
+        check(() => fnJsonToXml(context, [seq('[1,]')]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+            );
 
         // Array missing comma or bracket in XML
-        expect(
-          () => fnJsonToXml(context, [seq('[1 2]')]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
-        );
+        check(() => fnJsonToXml(context, [seq('[1 2]')]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+            );
 
         // Object missing colon
-        expect(
-          () => fnJsonToXml(context, [seq('{"a" 1}')]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
-        );
+        check(() => fnJsonToXml(context, [seq('{"a" 1}')]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+            );
 
         // Object trailing comma without liberal
-        expect(
-          () => fnJsonToXml(context, [seq('{"a": 1,}')]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
-        );
+        check(() => fnJsonToXml(context, [seq('{"a": 1,}')]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+            );
 
         // Object missing comma or brace
-        expect(
-          () => fnJsonToXml(context, [seq('{"a": 1 "b": 2}')]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
-        );
+        check(() => fnJsonToXml(context, [seq('{"a": 1 "b": 2}')]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+            );
 
         // Duplicate key with validate=true
-        expect(
+        check(
           () => fnJsonToXml(context, [
             seq('{"a": 1, "a": 2}'),
             seq(XPathMap({const XPathString('validate'): seq(true)})),
           ]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0003),
-          ),
+        ).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0003),
         );
 
         // Escaped key attribute
@@ -840,35 +792,33 @@ void main() {
           seq(XPathMap({const XPathString('escape'): seq(true)})),
         ]);
         final escXml = (resEsc.first as XPathNode).node.toXmlString();
-        expect(escXml, contains('key="a"'));
+        check(escXml).contains('key="a"');
 
         // Skip json value when duplicate with use-first
         final resSkip = fnJsonToXml(context, [
           seq('{"a": 1, "a": [true, false, null, "str", {"k": 2}, []]}'),
           seq(XPathMap({const XPathString('duplicates'): seq('use-first')})),
         ]);
-        expect(resSkip.first, isA<XPathNode>());
+        check(resSkip.first).isA<XPathNode>();
       });
 
       test('escape and unicode handling', () {
         // Unterminated escape
-        expect(
-          () => fnParseJson(context, [seq('"abc\\')]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
-        );
+        check(() => fnParseJson(context, [seq('"abc\\')]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+            );
 
         // Escapes: \", \\, \/
-        expect(fnParseJson(context, [seq(r'"\""')]), isXPathSequence(['"']));
-        expect(fnParseJson(context, [seq(r'"\/"')]), isXPathSequence(['/']));
-        expect(
+        check(fnParseJson(context, [seq(r'"\""')])).isXPathSequence(['"']);
+        check(fnParseJson(context, [seq(r'"\/"')])).isXPathSequence(['/']);
+        check(
           fnParseJson(context, [
             seq(r'"\\"'),
             seq(XPathMap({const XPathString('escape'): seq(true)})),
           ]),
-          isXPathSequence([r'\\']),
-        );
+        ).isXPathSequence([r'\\']);
 
         // Control escapes with escape: true
         final resEscControls = fnJsonToXml(context, [
@@ -876,74 +826,59 @@ void main() {
           seq(XPathMap({const XPathString('escape'): seq(true)})),
         ]);
         final xmlEsc = (resEscControls.first as XPathNode).node.toXmlString();
-        expect(xmlEsc, contains('escaped="true"'));
+        check(xmlEsc).contains('escaped="true"');
 
         // Invalid escape char
-        expect(
-          () => fnParseJson(context, [seq(r'"\x"')]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
-        );
+        check(() => fnParseJson(context, [seq(r'"\x"')]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+            );
 
         // Raw unescaped control char
-        expect(
-          () => fnParseJson(context, [seq('"\x01"')]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
-        );
+        check(() => fnParseJson(context, [seq('"\x01"')]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+            );
 
         // Unterminated string
-        expect(
-          () => fnParseJson(context, [seq('"unterminated')]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
-        );
+        check(() => fnParseJson(context, [seq('"unterminated')]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+            );
 
         // Hex digits insufficient or invalid
-        expect(
-          () => fnParseJson(context, [seq(r'"\u12"')]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
-        );
-        expect(
-          () => fnParseJson(context, [seq(r'"\u12G4"')]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
-        );
+        check(() => fnParseJson(context, [seq(r'"\u12"')]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+            );
+        check(() => fnParseJson(context, [seq(r'"\u12G4"')]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+            );
 
         // Surrogate pairs & unpaired surrogates
-        expect(
-          fnParseJson(context, [seq(r'"\uD83D\uDE00"')]),
-          isXPathSequence(['\u{1F600}']),
-        );
-        expect(
-          fnParseJson(context, [seq(r'"\uD800"')]),
-          isXPathSequence(['\uFFFD']),
-        );
-        expect(
-          fnParseJson(context, [seq(r'"\uDC00"')]),
-          isXPathSequence(['\uFFFD']),
-        );
-        expect(
-          fnParseJson(context, [seq(r'"\uFFFE"')]),
-          isXPathSequence(['\uFFFD']),
-        );
-        expect(
-          fnParseJson(context, [seq(r'"\uFFFF"')]),
-          isXPathSequence(['\uFFFD']),
-        );
+        check(fnParseJson(context, [seq(r'"\uD83D\uDE00"')]))
+            .isXPathSequence(['\u{1F600}']);
+        check(fnParseJson(context, [seq(r'"\uD800"')]))
+            .isXPathSequence(['\uFFFD']);
+        check(fnParseJson(context, [seq(r'"\uDC00"')]))
+            .isXPathSequence(['\uFFFD']);
+        check(fnParseJson(context, [seq(r'"\uFFFE"')]))
+            .isXPathSequence(['\uFFFD']);
+        check(fnParseJson(context, [seq(r'"\uFFFF"')]))
+            .isXPathSequence(['\uFFFD']);
 
         // Fallback returning non-string or throwing error
         final badFallback = XPathFunctionItem.fn1(
           const XmlName.qualified('local:badFallback'),
           (ctx, arg) => seq(123),
         );
-        expect(
+        check(
           () => fnParseJson(context, [
             seq(r'"\u0000"'),
             seq(
@@ -954,16 +889,15 @@ void main() {
               }),
             ),
           ]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0005),
-          ),
+        ).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0005),
         );
 
         final throwingFallback = XPathFunctionItem.fn1(
           const XmlName.qualified('local:throwingFallback'),
           (ctx, arg) => throw StateError('boom'),
         );
-        expect(
+        check(
           () => fnParseJson(context, [
             seq(r'"\u0000"'),
             seq(
@@ -974,93 +908,81 @@ void main() {
               }),
             ),
           ]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0005),
-          ),
+        ).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0005),
         );
       });
 
       test('number and literal parser branches', () {
         // Minus without digits
-        expect(
-          () => fnParseJson(context, [seq('-')]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
-        );
-        expect(
-          () => fnParseJson(context, [seq('-a')]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
-        );
+        check(() => fnParseJson(context, [seq('-')]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+            );
+        check(() => fnParseJson(context, [seq('-a')]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+            );
         // Leading zero
-        expect(
-          () => fnParseJson(context, [seq('01')]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
-        );
+        check(() => fnParseJson(context, [seq('01')]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+            );
         // Decimal without digits
-        expect(
-          () => fnParseJson(context, [seq('1.')]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
-        );
+        check(() => fnParseJson(context, [seq('1.')]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+            );
         // Exponents
-        expect(fnParseJson(context, [seq('1e+2')]), isXPathSequence([100.0]));
-        expect(fnParseJson(context, [seq('1e-2')]), isXPathSequence([0.01]));
-        expect(
-          () => fnParseJson(context, [seq('1e')]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
-        );
-        expect(
-          () => fnParseJson(context, [seq('1e+')]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
-        );
+        check(fnParseJson(context, [seq('1e+2')])).isXPathSequence([100.0]);
+        check(fnParseJson(context, [seq('1e-2')])).isXPathSequence([0.01]);
+        check(() => fnParseJson(context, [seq('1e')]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+            );
+        check(() => fnParseJson(context, [seq('1e+')]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+            );
 
         // Literal mismatch
-        expect(
-          () => fnParseJson(context, [seq('trux')]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
-        );
+        check(() => fnParseJson(context, [seq('trux')]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
+            );
       });
 
       test('xml-to-json edge cases and serialization validation', () {
         // Input node is neither document nor element
         final comment = XmlComment('comment');
-        expect(
-          () => fnXmlToJson(context, [seq(comment)]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0006),
-          ),
-        );
+        check(() => fnXmlToJson(context, [seq(comment)]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0006),
+            );
 
         // Empty XML document
         final emptyDoc = XmlDocument();
-        expect(
-          () => fnXmlToJson(context, [seq(emptyDoc)]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0006),
-          ),
-        );
+        check(() => fnXmlToJson(context, [seq(emptyDoc)]))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0006),
+            );
 
         // xml:space="preserve" allowed
         final docSpace = XmlDocument.parse('''
           <string xmlns="http://www.w3.org/2005/xpath-functions"
                   xml:space="preserve">  hello  </string>
         ''');
-        expect(
-          fnXmlToJson(context, [seq(docSpace)]).first.stringValue,
-          '"  hello  "',
-        );
+        check(fnXmlToJson(context, [seq(docSpace)]).first.stringValue)
+            .equals('"  hello  "');
 
         // Array with indent
         final docArrIndent = XmlDocument.parse('''
@@ -1073,10 +995,10 @@ void main() {
           seq(docArrIndent),
           seq(XPathMap({const XPathString('indent'): seq(true)})),
         ]);
-        expect(resArrIndent.first.stringValue, contains('\n'));
+        check(resArrIndent.first.stringValue).contains('\n');
 
         // String, number, boolean, null with child elements throw FOJS0006
-        expect(
+        check(
           () => fnXmlToJson(context, [
             seq(
               XmlDocument.parse('''
@@ -1086,12 +1008,11 @@ void main() {
             '''),
             ),
           ]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0006),
-          ),
+        ).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0006),
         );
 
-        expect(
+        check(
           () => fnXmlToJson(context, [
             seq(
               XmlDocument.parse('''
@@ -1101,12 +1022,11 @@ void main() {
             '''),
             ),
           ]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0006),
-          ),
+        ).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0006),
         );
 
-        expect(
+        check(
           () => fnXmlToJson(context, [
             seq(
               XmlDocument.parse('''
@@ -1116,12 +1036,11 @@ void main() {
             '''),
             ),
           ]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0006),
-          ),
+        ).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0006),
         );
 
-        expect(
+        check(
           () => fnXmlToJson(context, [
             seq(
               XmlDocument.parse('''
@@ -1131,13 +1050,12 @@ void main() {
             '''),
             ),
           ]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0006),
-          ),
+        ).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0006),
         );
 
         // Null element with text throws FOJS0006
-        expect(
+        check(
           () => fnXmlToJson(context, [
             seq(
               XmlDocument.parse('''
@@ -1145,13 +1063,12 @@ void main() {
             '''),
             ),
           ]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0006),
-          ),
+        ).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0006),
         );
 
         // Boolean values '1' and '0'
-        expect(
+        check(
           fnXmlToJson(context, [
             seq(
               XmlDocument.parse('''
@@ -1159,9 +1076,8 @@ void main() {
             '''),
             ),
           ]).first.stringValue,
-          'true',
-        );
-        expect(
+        ).equals('true');
+        check(
           fnXmlToJson(context, [
             seq(
               XmlDocument.parse('''
@@ -1169,11 +1085,10 @@ void main() {
             '''),
             ),
           ]).first.stringValue,
-          'false',
-        );
+        ).equals('false');
 
         // Invalid boolean content
-        expect(
+        check(
           () => fnXmlToJson(context, [
             seq(
               XmlDocument.parse('''
@@ -1181,9 +1096,8 @@ void main() {
             '''),
             ),
           ]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0006),
-          ),
+        ).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0006),
         );
 
         // Escaped attribute validation on string
@@ -1193,10 +1107,10 @@ void main() {
         final resEscContent = fnXmlToJson(context, [
           seq(docEscapes),
         ]).first.stringValue;
-        expect(resEscContent, contains(r'\"'));
+        check(resEscContent).contains(r'\"');
 
         // Unterminated escape in escaped string
-        expect(
+        check(
           () => fnXmlToJson(context, [
             seq(
               XmlDocument.parse(r'''
@@ -1204,13 +1118,12 @@ void main() {
             '''),
             ),
           ]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0007),
-          ),
+        ).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0007),
         );
 
         // Incomplete \u in escaped string
-        expect(
+        check(
           () => fnXmlToJson(context, [
             seq(
               XmlDocument.parse(r'''
@@ -1218,13 +1131,12 @@ void main() {
             '''),
             ),
           ]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0007),
-          ),
+        ).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0007),
         );
 
         // Invalid hex in \u in escaped string
-        expect(
+        check(
           () => fnXmlToJson(context, [
             seq(
               XmlDocument.parse(r'''
@@ -1232,13 +1144,12 @@ void main() {
             '''),
             ),
           ]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0007),
-          ),
+        ).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0007),
         );
 
         // Invalid escape sequence \x in escaped string
-        expect(
+        check(
           () => fnXmlToJson(context, [
             seq(
               XmlDocument.parse(r'''
@@ -1246,9 +1157,8 @@ void main() {
             '''),
             ),
           ]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0007),
-          ),
+        ).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0007),
         );
 
         // Escaped-key unescaping in map
@@ -1260,10 +1170,10 @@ void main() {
         final resEscKey = fnXmlToJson(context, [
           seq(docEscKey),
         ]).first.stringValue;
-        expect(resEscKey, contains('1'));
+        check(resEscKey).contains('1');
 
         // Unpaired surrogates in escaped-key
-        expect(
+        check(
           () => fnXmlToJson(context, [
             seq(
               XmlDocument.parse(r'''
@@ -1273,12 +1183,11 @@ void main() {
             '''),
             ),
           ]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0007),
-          ),
+        ).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0007),
         );
 
-        expect(
+        check(
           () => fnXmlToJson(context, [
             seq(
               XmlDocument.parse(r'''
@@ -1288,13 +1197,12 @@ void main() {
             '''),
             ),
           ]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0007),
-          ),
+        ).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0007),
         );
 
         // Invalid boolean attribute value
-        expect(
+        check(
           () => fnXmlToJson(context, [
             seq(
               XmlDocument.parse(r'''
@@ -1302,9 +1210,8 @@ void main() {
             '''),
             ),
           ]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0006),
-          ),
+        ).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0006),
         );
 
         // Unescaped string characters in xml-to-json: ", \, /, \b, \f, \n, \r, \t, control < 0x20
@@ -1314,21 +1221,21 @@ void main() {
         final resRaw = fnXmlToJson(context, [
           seq(docRawChars),
         ]).first.stringValue;
-        expect(resRaw, contains(r'\"quote\"'));
-        expect(resRaw, contains(r'\/slash\/'));
-        expect(resRaw, contains(r'\\backslash\\'));
-        expect(resRaw, contains(r'\b'));
-        expect(resRaw, contains(r'\f'));
-        expect(resRaw, contains(r'\n'));
-        expect(resRaw, contains(r'\r'));
-        expect(resRaw, contains(r'\t'));
-        expect(resRaw, contains(r'\u0001'));
-        expect(resRaw, contains(r'\u0085'));
+        check(resRaw).contains(r'\"quote\"');
+        check(resRaw).contains(r'\/slash\/');
+        check(resRaw).contains(r'\\backslash\\');
+        check(resRaw).contains(r'\b');
+        check(resRaw).contains(r'\f');
+        check(resRaw).contains(r'\n');
+        check(resRaw).contains(r'\r');
+        check(resRaw).contains(r'\t');
+        check(resRaw).contains(r'\u0001');
+        check(resRaw).contains(r'\u0085');
       });
 
       test('additional json-to-xml and xml-to-json edge cases', () {
         // validate: true with duplicates: 'use-first'
-        expect(
+        check(
           () => fnJsonToXml(context, [
             seq('{"a": 1, "a": 2}'),
             seq(
@@ -1338,9 +1245,8 @@ void main() {
               }),
             ),
           ]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0003),
-          ),
+        ).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0003),
         );
 
         // escaped-key attribute on XML element
@@ -1348,69 +1254,63 @@ void main() {
           seq(r'{"\\": 1}'),
           seq(XPathMap({const XPathString('escape'): seq(true)})),
         ]);
-        expect(
-          (resEscBackslash.first as XPathNode).node.toXmlString(),
-          contains('escaped-key="true"'),
-        );
+        check((resEscBackslash.first as XPathNode).node.toXmlString())
+            .contains('escaped-key="true"');
 
         // Trailing comma in object with liberal: true in json-to-xml
         final resObjLib = fnJsonToXml(context, [
           seq('{"a": 1,}'),
           seq(XPathMap({const XPathString('liberal'): seq(true)})),
         ]);
-        expect(resObjLib.first, isA<XPathNode>());
+        check(resObjLib.first).isA<XPathNode>();
 
         // _skipJsonValue syntax errors
-        expect(
+        check(
           () => fnJsonToXml(context, [
             seq('{"a": 1, "a": '),
             seq(XPathMap({const XPathString('duplicates'): seq('use-first')})),
           ]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
+        ).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
         );
 
-        expect(
+        check(
           () => fnJsonToXml(context, [
             seq('{"a": 1, "a": {"k" 2}}'),
             seq(XPathMap({const XPathString('duplicates'): seq('use-first')})),
           ]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
+        ).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
         );
 
         final resSkipObjComma = fnJsonToXml(context, [
           seq('{"a": 1, "a": {"k": 2,}}'),
           seq(XPathMap({const XPathString('duplicates'): seq('use-first')})),
         ]);
-        expect(resSkipObjComma.first, isA<XPathNode>());
+        check(resSkipObjComma.first).isA<XPathNode>();
 
-        expect(
+        check(
           () => fnJsonToXml(context, [
             seq('{"a": 1, "a": {"k": 2 "j": 3}}'),
             seq(XPathMap({const XPathString('duplicates'): seq('use-first')})),
           ]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
+        ).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
         );
 
         final resSkipArrComma = fnJsonToXml(context, [
           seq('{"a": 1, "a": [1,]}'),
           seq(XPathMap({const XPathString('duplicates'): seq('use-first')})),
         ]);
-        expect(resSkipArrComma.first, isA<XPathNode>());
+        check(resSkipArrComma.first).isA<XPathNode>();
 
-        expect(
+        check(
           () => fnJsonToXml(context, [
             seq('{"a": 1, "a": [1 2]}'),
             seq(XPathMap({const XPathString('duplicates'): seq('use-first')})),
           ]),
-          throwsA(
-            isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
-          ),
+        ).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0001),
         );
 
         // Control escape handling with escape: false in json-to-xml
@@ -1419,14 +1319,14 @@ void main() {
           seq(r'"\n\r\t"'),
           seq(XPathMap({const XPathString('escape'): seq(false)})),
         ]);
-        expect(resXmlValidControls.first.stringValue, '\n\r\t');
+        check(resXmlValidControls.first.stringValue).equals('\n\r\t');
 
         // xml10Valid == false (\b, \f) without fallback produces \uFFFD
         final resXmlInvalidControls = fnJsonToXml(context, [
           seq(r'"\b\f"'),
           seq(XPathMap({const XPathString('escape'): seq(false)})),
         ]);
-        expect(resXmlInvalidControls.first.stringValue, '\uFFFD\uFFFD');
+        check(resXmlInvalidControls.first.stringValue).equals('\uFFFD\uFFFD');
 
         // xml10Valid == false (\b, \f) with fallback
         final fallbackFn = XPathFunctionItem.fn1(
@@ -1442,17 +1342,15 @@ void main() {
             }),
           ),
         ]);
-        expect(resXmlInvalidFallback.first.stringValue, '[FB][FB]');
+        check(resXmlInvalidFallback.first.stringValue).equals('[FB][FB]');
 
         // options.escape == true and \u0009\u000A\u000D
         final resEscapedTabs = fnJsonToXml(context, [
           seq(r'"\u0009\u000A\u000D"'),
           seq(XPathMap({const XPathString('escape'): seq(true)})),
         ]);
-        expect(
-          (resEscapedTabs.first as XPathNode).node.toXmlString(),
-          contains('escaped="true"'),
-        );
+        check((resEscapedTabs.first as XPathNode).node.toXmlString())
+            .contains('escaped="true"');
 
         // escaped: true element with raw control characters
         final rawControlElem = XmlElement(
@@ -1466,13 +1364,13 @@ void main() {
         final resEscRawControls = fnXmlToJson(context, [
           seq(rawControlElem),
         ]).first.stringValue;
-        expect(resEscRawControls, contains(r'\b'));
-        expect(resEscRawControls, contains(r'\f'));
-        expect(resEscRawControls, contains(r'\n'));
-        expect(resEscRawControls, contains(r'\r'));
-        expect(resEscRawControls, contains(r'\t'));
-        expect(resEscRawControls, contains(r'\u0001'));
-        expect(resEscRawControls, contains(r'\u0085'));
+        check(resEscRawControls).contains(r'\b');
+        check(resEscRawControls).contains(r'\f');
+        check(resEscRawControls).contains(r'\n');
+        check(resEscRawControls).contains(r'\r');
+        check(resEscRawControls).contains(r'\t');
+        check(resEscRawControls).contains(r'\u0001');
+        check(resEscRawControls).contains(r'\u0085');
 
         // _unescapeJsonString regular character before escape
         final docUnescapeChar = XmlDocument.parse(r'''
@@ -1483,7 +1381,7 @@ void main() {
         final resUnescapeChar = fnXmlToJson(context, [
           seq(docUnescapeChar),
         ]).first.stringValue;
-        expect(resUnescapeChar, contains('prefix'));
+        check(resUnescapeChar).contains('prefix');
       });
     });
   });

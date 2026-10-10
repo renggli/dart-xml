@@ -1,10 +1,10 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/evaluation/namespaces.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 void main() {
@@ -53,10 +53,9 @@ void main() {
     expectEvaluate(xml, r'$a', ['hello'], variables: {'a': 'hello'});
     expectEvaluate(xml, r'$a', [123], variables: {'a': 123});
     expectEvaluate(xml, r'$a', [false], variables: {'a': false});
-    expect(
-      () => expectEvaluate(xml, r'$unknown', anything),
-      throwsA(isXPathEvaluationException()),
-    );
+    check(() => expectEvaluate(xml, r'$unknown', null))
+        .throws<XPathEvaluationException>()
+        .which(isXPathEvaluationException());
   });
   test('function', () {
     expectEvaluate(
@@ -68,21 +67,18 @@ void main() {
           'custom',
           namespaceUri: xpathFnNamespace,
         ): ((XPathContext context, List<XPathSequence> arguments) {
-          expect((context.item as XPathNode).node, same(xml));
-          expect(context.position, 1);
-          expect(context.last, 1);
-          expect(arguments, [
-            isXPathSequence(['hello']),
-            isXPathSequence([42]),
-            isXPathSequence([true]),
-          ]);
+          check((context.item as XPathNode).node).identicalTo(xml);
+          check(context.position).equals(1);
+          check(context.last).equals(1);
+          check(arguments[0]).isXPathSequence(['hello']);
+          check(arguments[1]).isXPathSequence([42]);
+          check(arguments[2]).isXPathSequence([true]);
           return const XPathSequence.single(XPathString('ok'));
         }).toXPathFunction(arity: 3),
       },
     );
-    expect(
-      () => expectEvaluate(xml, 'unknown()', anything),
-      throwsA(isXPathEvaluationException()),
-    );
+    check(() => expectEvaluate(xml, 'unknown()', null))
+        .throws<XPathEvaluationException>()
+        .which(isXPathEvaluationException());
   });
 }

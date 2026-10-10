@@ -1,4 +1,5 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/evaluation/configuration.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/xdm/atomic.dart';
@@ -6,7 +7,7 @@ import 'package:xml/src/xpath/xdm/functions/function.dart';
 import 'package:xml/src/xpath/xdm/sequence.dart';
 import 'package:xml/xml.dart';
 
-import '../../../utils/matchers.dart';
+import '../../../utils/checks.dart';
 
 final document = XmlDocument.parse('<r/>');
 final context = const XPathConfiguration.raw().context(document);
@@ -20,15 +21,14 @@ void main() {
         function: (ctx, args) =>
             XPathSequence.single(XPathInteger.fromInt(args.length)),
       );
-      expect(f.name, const XmlName.qualified('my:fn'));
-      expect(f.arity, equals(2));
-      expect(
+      check(f.name).equals(const XmlName.qualified('my:fn'));
+      check(f.arity).equals(2);
+      check(
         f(context, [
           const XPathSequence.single(XPathString('a')),
           const XPathSequence.single(XPathString('b')),
         ]),
-        isXPathSequence([2]),
-      );
+      ).isXPathSequence([2]);
     });
 
     test('toXPathFunction extension on Function', () {
@@ -39,9 +39,9 @@ void main() {
         name: const XmlName.qualified('test:custom'),
         arity: 0,
       );
-      expect(f.name, const XmlName.qualified('test:custom'));
-      expect(f.arity, equals(0));
-      expect(f(context, []), isXPathSequence(['success']));
+      check(f.name).equals(const XmlName.qualified('test:custom'));
+      check(f.arity).equals(0);
+      check(f(context, [])).isXPathSequence(['success']);
     });
   });
 }

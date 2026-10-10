@@ -1,4 +1,5 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/xml.dart';
 
 import '../utils/examples.dart';
@@ -10,39 +11,39 @@ void main() {
     const xsd = 'http://www.w3.org/2001/XMLSchema';
     test('name defined, namespace undefined', () {
       final books = bookstore.findElements('book');
-      expect(books, hasLength(2));
+      check(books).length.equals(2);
       final orders = shiporder.findElements('element');
-      expect(orders, hasLength(0));
+      check(orders).length.equals(0);
     });
     test('name defined, namespace wildcard', () {
       final books = bookstore.findElements('book', namespaceUri: '*');
-      expect(books, hasLength(2));
+      check(books).length.equals(2);
       final orders = shiporder.findElements('element', namespaceUri: '*');
-      expect(orders, hasLength(2));
+      check(orders).length.equals(2);
     });
     test('name defined, namespace defined', () {
       final books = bookstore.findElements('book', namespaceUri: xsd);
-      expect(books, hasLength(0));
+      check(books).length.equals(0);
       final orders = shiporder.findElements('element', namespaceUri: xsd);
-      expect(orders, hasLength(2));
+      check(orders).length.equals(2);
     });
     test('name wildcard, namespace undefined', () {
       final books = bookstore.findElements('*');
-      expect(books, hasLength(2));
+      check(books).length.equals(2);
       final orders = shiporder.findElements('*');
-      expect(orders, hasLength(7));
+      check(orders).length.equals(7);
     });
     test('name wildcard, namespace wildcard', () {
       final books = bookstore.findElements('*', namespaceUri: '*');
-      expect(books, hasLength(2));
+      check(books).length.equals(2);
       final orders = shiporder.findElements('*', namespaceUri: '*');
-      expect(orders, hasLength(7));
+      check(orders).length.equals(7);
     });
     test('name wildcard, namespace defined', () {
       final books = bookstore.findElements('*', namespaceUri: xsd);
-      expect(books, hasLength(0));
+      check(books).length.equals(0);
       final orders = shiporder.findElements('*', namespaceUri: xsd);
-      expect(orders, hasLength(7));
+      check(orders).length.equals(7);
     });
   });
   group('all elements', () {
@@ -51,39 +52,39 @@ void main() {
     const xsd = 'http://www.w3.org/2001/XMLSchema';
     test('name defined, namespace undefined', () {
       final books = bookstore.findAllElements('book');
-      expect(books, hasLength(2));
+      check(books).length.equals(2);
       final orders = shiporder.findAllElements('element');
-      expect(orders, hasLength(0));
+      check(orders).length.equals(0);
     });
     test('name defined, namespace wildcard', () {
       final books = bookstore.findAllElements('book', namespaceUri: '*');
-      expect(books, hasLength(2));
+      check(books).length.equals(2);
       final orders = shiporder.findAllElements('element', namespaceUri: '*');
-      expect(orders, hasLength(17));
+      check(orders).length.equals(17);
     });
     test('name defined, namespace defined', () {
       final books = bookstore.findAllElements('book', namespaceUri: xsd);
-      expect(books, hasLength(0));
+      check(books).length.equals(0);
       final orders = shiporder.findAllElements('element', namespaceUri: xsd);
-      expect(orders, hasLength(17));
+      check(orders).length.equals(17);
     });
     test('name wildcard, namespace undefined', () {
       final books = bookstore.findAllElements('*');
-      expect(books, hasLength(7));
+      check(books).length.equals(7);
       final orders = shiporder.findAllElements('*');
-      expect(orders, hasLength(37));
+      check(orders).length.equals(37);
     });
     test('name wildcard, namespace wildcard', () {
       final books = bookstore.findAllElements('*', namespaceUri: '*');
-      expect(books, hasLength(7));
+      check(books).length.equals(7);
       final orders = shiporder.findAllElements('*', namespaceUri: '*');
-      expect(orders, hasLength(37));
+      check(orders).length.equals(37);
     });
     test('name wildcard, namespace defined', () {
       final books = bookstore.findAllElements('*', namespaceUri: xsd);
-      expect(books, hasLength(0));
+      check(books).length.equals(0);
       final orders = shiporder.findAllElements('*', namespaceUri: xsd);
-      expect(orders, hasLength(37));
+      check(orders).length.equals(37);
     });
   });
 }

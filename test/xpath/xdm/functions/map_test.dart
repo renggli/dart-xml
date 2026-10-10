@@ -1,12 +1,9 @@
-import 'package:test/test.dart';
-import 'package:xml/src/xpath/evaluation/configuration.dart';
-import 'package:xml/src/xpath/xdm/atomic.dart';
-import 'package:xml/src/xpath/xdm/functions/map.dart';
-import 'package:xml/src/xpath/xdm/sequence.dart';
-import 'package:xml/src/xpath/xdm/types.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/xml.dart';
+import 'package:xml/xpath.dart';
 
-import '../../../utils/matchers.dart';
+import '../../../utils/checks.dart';
 
 final document = XmlDocument.parse('<r/>');
 final context = const XPathConfiguration.raw().context(document);
@@ -18,22 +15,22 @@ void main() {
         const XPathString('a'): XPathSequence.single(XPathInteger.fromInt(1)),
         const XPathString('b'): XPathSequence.single(XPathInteger.fromInt(2)),
       });
-      expect(map.type, equals(xsMap));
-      expect(map.arity, equals(1));
-      expect(map.length, equals(2));
-      expect(map.isEmpty, isFalse);
-      expect(map.isNotEmpty, isTrue);
-      expect(map.keys.map((k) => k.stringValue).toSet(), equals({'a', 'b'}));
-      expect(map.get(const XPathString('a')), isXPathSequence([1]));
-      expect(map.get(const XPathString('missing')), isNull);
-      expect(map.toString(), contains('a: (1)'));
+      check(map.type).equals(xsMap);
+      check(map.arity).equals(1);
+      check(map.length).equals(2);
+      check(map.isEmpty).isFalse();
+      check(map.isNotEmpty).isTrue();
+      check(map.keys.map((k) => k.stringValue).toSet()).deepEquals({'a', 'b'});
+      check(map.get(const XPathString('a'))).isNotNull().isXPathSequence([1]);
+      check(map.get(const XPathString('missing'))).isNull();
+      check(map.toString()).contains('a: (1)');
     });
 
     test('empty map', () {
       const map = XPathMap.empty;
-      expect(map.isEmpty, isTrue);
-      expect(map.length, equals(0));
-      expect(map.toString(), equals('map{}'));
+      check(map.isEmpty).isTrue();
+      check(map.length).equals(0);
+      check(map.toString()).equals('map{}');
     });
 
     test('callable as function with key lookup', () {
@@ -46,53 +43,41 @@ void main() {
         ),
       });
 
-      expect(
-        map(context, [const XPathSequence.single(XPathString('name'))]),
-        isXPathSequence(['Antigravity']),
-      );
-      expect(
-        map(context, [XPathSequence.single(XPathInteger.fromInt(10))]),
-        isXPathSequence(['ten']),
-      );
-      expect(
+      check(map(context, [const XPathSequence.single(XPathString('name'))]))
+          .isXPathSequence(['Antigravity']);
+      check(map(context, [XPathSequence.single(XPathInteger.fromInt(10))]))
+          .isXPathSequence(['ten']);
+      check(
         map(context, [const XPathSequence.single(XPathString('not-found'))]),
-        isXPathSequence(isEmpty),
-      );
+      ).isXPathSequence(isEmpty);
 
-      expect(
-        () => map(context, [XPathSequence.empty]),
-        throwsA(isXPathEvaluationException()),
-      );
-      expect(() => map(context, []), throwsA(isXPathEvaluationException()));
-      expect(
+      check(() => map(context, [XPathSequence.empty]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
+      check(() => map(context, []))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
+      check(
         () => map(context, [
           const XPathSequence.single(XPathString('a')),
           const XPathSequence.single(XPathString('b')),
         ]),
-        throwsA(isXPathEvaluationException()),
-      );
+      ).throws<XPathEvaluationException>().which(isXPathEvaluationException());
     });
 
     test('sameKey logic for numeric equivalence and NaN', () {
-      expect(
-        XPathMap.sameKey(XPathInteger.fromInt(1), const XPathDouble(1.0)),
-        isTrue,
-      );
-      expect(
+      check(XPathMap.sameKey(XPathInteger.fromInt(1), const XPathDouble(1.0)))
+          .isTrue();
+      check(
         XPathMap.sameKey(
           const XPathDouble(double.nan),
           const XPathDouble(double.nan),
         ),
-        isTrue,
-      );
-      expect(
-        XPathMap.sameKey(const XPathString('x'), const XPathString('x')),
-        isTrue,
-      );
-      expect(
-        XPathMap.sameKey(const XPathString('x'), const XPathString('y')),
-        isFalse,
-      );
+      ).isTrue();
+      check(XPathMap.sameKey(const XPathString('x'), const XPathString('x')))
+          .isTrue();
+      check(XPathMap.sameKey(const XPathString('x'), const XPathString('y')))
+          .isFalse();
     });
 
     test('equality and hashCode', () {
@@ -107,11 +92,11 @@ void main() {
       });
       const m4 = XPathMap({});
 
-      expect(m1, equals(m2));
-      expect(m1.hashCode, equals(m2.hashCode));
-      expect(m1 == m3, isFalse);
-      expect(m1 == m4, isFalse);
-      expect(m1 == Object(), isFalse);
+      check(m1).equals(m2);
+      check(m1.hashCode).equals(m2.hashCode);
+      check(m1 == m3).isFalse();
+      check(m1 == m4).isFalse();
+      check(m1 == Object()).isFalse();
     });
   });
 }

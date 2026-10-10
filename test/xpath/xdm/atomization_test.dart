@@ -1,11 +1,11 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/operators/comparison.dart';
 import 'package:xml/src/xpath/operators/general.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 void main() {
@@ -15,8 +15,8 @@ void main() {
       () {
         const empty = XPathSequence.empty;
         final atomized = empty.atomize();
-        expect(atomized.isEmpty, isTrue);
-        expect(atomized.toList(), isEmpty);
+        check(atomized.isEmpty).isTrue();
+        check(atomized.toList()).isEmpty();
       },
     );
 
@@ -26,11 +26,11 @@ void main() {
         const emptyArr = XPathArray([]);
         final seq = XPathSequence([emptyArr, emptyArr]);
         final atomized = seq.atomize();
-        expect(atomized.isEmpty, isTrue);
-        expect(atomized.isNotEmpty, isFalse);
-        expect(atomized.toList(), isEmpty);
-        expect(atomized.length, equals(0));
-        expect(atomized.iterator.moveNext(), isFalse);
+        check(atomized.isEmpty).isTrue();
+        check(atomized.isNotEmpty).isFalse();
+        check(atomized.toList()).isEmpty();
+        check(atomized.length).equals(0);
+        check(atomized.iterator.moveNext()).isFalse();
       },
     );
 
@@ -41,9 +41,9 @@ void main() {
         final item = XPathInteger.fromInt(42);
         final seq = XPathSequence([emptyArr, item, emptyArr]);
         final atomized = seq.atomize();
-        expect(atomized.isEmpty, isFalse);
-        expect(atomized.isNotEmpty, isTrue);
-        expect(atomized.toList(), equals([item]));
+        check(atomized.isEmpty).isFalse();
+        check(atomized.isNotEmpty).isTrue();
+        check(atomized.toList()).deepEquals([item]);
       },
     );
 
@@ -51,29 +51,29 @@ void main() {
       final i = XPathInteger.fromInt(42);
       final s = XPathSequence.single(i);
       final singleAtomized = s.atomize();
-      expect(singleAtomized.isNotEmpty, isTrue);
-      expect(singleAtomized.last, same(i));
-      expect(singleAtomized.single, same(i));
-      expect(singleAtomized.elementAt(0), same(i));
-      expect(() => singleAtomized.elementAt(1), throwsRangeError);
-      expect(singleAtomized.contains(i), isTrue);
-      expect(singleAtomized.contains(XPathInteger.fromInt(99)), isFalse);
+      check(singleAtomized.isNotEmpty).isTrue();
+      check(singleAtomized.last).identicalTo(i);
+      check(singleAtomized.single).identicalTo(i);
+      check(singleAtomized.elementAt(0)).identicalTo(i);
+      check(() => singleAtomized.elementAt(1)).throws<RangeError>();
+      check(singleAtomized.contains(i)).isTrue();
+      check(singleAtomized.contains(XPathInteger.fromInt(99))).isFalse();
 
       final atomized = singleAtomized.toList();
-      expect(atomized.length, equals(1));
-      expect(atomized.first, same(i));
+      check(atomized.length).equals(1);
+      check(atomized.first).identicalTo(i);
 
       const str = XPathString('hello');
       const sStr = XPathSequence.single(str);
-      expect(sStr.atomize().first, same(str));
+      check(sStr.atomize().first).identicalTo(str);
 
       const b = XPathBoolean.trueInstance;
       const sBool = XPathSequence.single(b);
-      expect(sBool.atomize().first, same(b));
+      check(sBool.atomize().first).identicalTo(b);
 
       const d = XPathDouble(3.14);
       const sDouble = XPathSequence.single(d);
-      expect(sDouble.atomize().first, same(d));
+      check(sDouble.atomize().first).identicalTo(d);
     });
 
     test('single sequence of element node produces single untypedAtomic', () {
@@ -82,9 +82,9 @@ void main() {
       );
       final elem = doc.rootElement;
       final atomized = XPathSequence.single(XPathNode(elem)).atomize().toList();
-      expect(atomized.length, equals(1));
-      expect(atomized.first, isA<XPathUntypedAtomic>());
-      expect(atomized.first.stringValue, equals('Hello world and more'));
+      check(atomized.length).equals(1);
+      check(atomized.first).isA<XPathUntypedAtomic>();
+      check(atomized.first.stringValue).equals('Hello world and more');
     });
 
     test('empty element node produces untypedAtomic with empty string', () {
@@ -92,9 +92,9 @@ void main() {
       final atomized = XPathSequence.single(XPathNode(doc.rootElement))
           .atomize()
           .toList();
-      expect(atomized.length, equals(1));
-      expect(atomized.first, isA<XPathUntypedAtomic>());
-      expect(atomized.first.stringValue, equals(''));
+      check(atomized.length).equals(1);
+      check(atomized.first).isA<XPathUntypedAtomic>();
+      check(atomized.first.stringValue).equals('');
     });
 
     test('attribute and text nodes atomize to untypedAtomic', () {
@@ -103,12 +103,12 @@ void main() {
       final text = doc.rootElement.children.first;
 
       final attrAtom = XPathSequence.single(XPathNode(attr)).atomize().first;
-      expect(attrAtom, isA<XPathUntypedAtomic>());
-      expect(attrAtom.stringValue, equals('test'));
+      check(attrAtom).isA<XPathUntypedAtomic>();
+      check(attrAtom.stringValue).equals('test');
 
       final textAtom = XPathSequence.single(XPathNode(text)).atomize().first;
-      expect(textAtom, isA<XPathUntypedAtomic>());
-      expect(textAtom.stringValue, equals('content'));
+      check(textAtom).isA<XPathUntypedAtomic>();
+      check(textAtom.stringValue).equals('content');
     });
 
     test('range sequence atomization yields sequence of XPathInteger', () {
@@ -117,10 +117,10 @@ void main() {
         XPathInteger.fromInt(3),
       );
       final atomized = range.atomize().toList();
-      expect(atomized.length, equals(3));
-      expect(atomized[0], equals(XPathInteger.fromInt(1)));
-      expect(atomized[1], equals(XPathInteger.fromInt(2)));
-      expect(atomized[2], equals(XPathInteger.fromInt(3)));
+      check(atomized.length).equals(3);
+      check(atomized[0]).equals(XPathInteger.fromInt(1));
+      check(atomized[1]).equals(XPathInteger.fromInt(2));
+      check(atomized[2]).equals(XPathInteger.fromInt(3));
     });
 
     test('nested array atomization recursively flattens', () {
@@ -132,384 +132,315 @@ void main() {
         XPathSequence.single(XPathInteger.fromInt(3)),
       ]);
       final atomized = XPathSequence.single(arr).atomize().toList();
-      expect(atomized.map((a) => a.toValue()).toList(), equals([1, 2, 3]));
+      check(atomized.map((a) => a.toValue()).toList()).deepEquals([1, 2, 3]);
     });
 
     test('map and function item atomization throws FOTY0013', () {
       final map = XPathMap({const XPathString('k'): seq(1)});
-      expect(
-        () => XPathSequence.single(map).atomize().toList(),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOTY0013)),
-      );
+      check(() => XPathSequence.single(map).atomize().toList())
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FOTY0013),
+          );
 
       XPathSequence dummy(XPathContext c, List<XPathSequence> a) =>
           XPathSequence.empty;
       final fn = dummy.toXPathFunction();
-      expect(
-        () => XPathSequence.single(fn).atomize().toList(),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FOTY0013)),
-      );
+      check(() => XPathSequence.single(fn).atomize().toList())
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FOTY0013),
+          );
     });
   });
 
   group('General Comparison Fast Paths (1-vs-1)', () {
     test('opGeneralEqual 1-vs-1 identical and different types', () {
-      expect(opGeneralEqual(seq(42), seq(42)), XPathSequence.trueSequence);
-      expect(opGeneralEqual(seq(42), seq(43)), XPathSequence.falseSequence);
-      expect(opGeneralEqual(seq(42), seq(42.0)), XPathSequence.trueSequence);
-      expect(
-        opGeneralEqual(seq('abc'), seq('abc')),
-        XPathSequence.trueSequence,
-      );
-      expect(
-        opGeneralEqual(seq('abc'), seq('def')),
-        XPathSequence.falseSequence,
-      );
-      expect(opGeneralEqual(seq(true), seq(true)), XPathSequence.trueSequence);
-      expect(
-        opGeneralEqual(seq(true), seq(false)),
-        XPathSequence.falseSequence,
-      );
+      check(opGeneralEqual(seq(42), seq(42)))
+          .equals(XPathSequence.trueSequence);
+      check(opGeneralEqual(seq(42), seq(43)))
+          .equals(XPathSequence.falseSequence);
+      check(opGeneralEqual(seq(42), seq(42.0)))
+          .equals(XPathSequence.trueSequence);
+      check(opGeneralEqual(seq('abc'), seq('abc')))
+          .equals(XPathSequence.trueSequence);
+      check(opGeneralEqual(seq('abc'), seq('def')))
+          .equals(XPathSequence.falseSequence);
+      check(opGeneralEqual(seq(true), seq(true)))
+          .equals(XPathSequence.trueSequence);
+      check(opGeneralEqual(seq(true), seq(false)))
+          .equals(XPathSequence.falseSequence);
     });
 
     test('opGeneralNotEqual 1-vs-1', () {
-      expect(opGeneralNotEqual(seq(42), seq(42)), XPathSequence.falseSequence);
-      expect(opGeneralNotEqual(seq(42), seq(43)), XPathSequence.trueSequence);
-      expect(
-        opGeneralNotEqual(seq('a'), seq('a')),
-        XPathSequence.falseSequence,
-      );
-      expect(opGeneralNotEqual(seq('a'), seq('b')), XPathSequence.trueSequence);
+      check(opGeneralNotEqual(seq(42), seq(42)))
+          .equals(XPathSequence.falseSequence);
+      check(opGeneralNotEqual(seq(42), seq(43)))
+          .equals(XPathSequence.trueSequence);
+      check(opGeneralNotEqual(seq('a'), seq('a')))
+          .equals(XPathSequence.falseSequence);
+      check(opGeneralNotEqual(seq('a'), seq('b')))
+          .equals(XPathSequence.trueSequence);
     });
 
     test('opGeneralLessThan and opGeneralLessThanOrEqual 1-vs-1', () {
-      expect(opGeneralLessThan(seq(1), seq(2)), XPathSequence.trueSequence);
-      expect(opGeneralLessThan(seq(2), seq(1)), XPathSequence.falseSequence);
-      expect(opGeneralLessThan(seq(2), seq(2)), XPathSequence.falseSequence);
+      check(opGeneralLessThan(seq(1), seq(2)))
+          .equals(XPathSequence.trueSequence);
+      check(opGeneralLessThan(seq(2), seq(1)))
+          .equals(XPathSequence.falseSequence);
+      check(opGeneralLessThan(seq(2), seq(2)))
+          .equals(XPathSequence.falseSequence);
 
-      expect(
-        opGeneralLessThanOrEqual(seq(1), seq(2)),
-        XPathSequence.trueSequence,
-      );
-      expect(
-        opGeneralLessThanOrEqual(seq(2), seq(2)),
-        XPathSequence.trueSequence,
-      );
-      expect(
-        opGeneralLessThanOrEqual(seq(3), seq(2)),
-        XPathSequence.falseSequence,
-      );
+      check(opGeneralLessThanOrEqual(seq(1), seq(2)))
+          .equals(XPathSequence.trueSequence);
+      check(opGeneralLessThanOrEqual(seq(2), seq(2)))
+          .equals(XPathSequence.trueSequence);
+      check(opGeneralLessThanOrEqual(seq(3), seq(2)))
+          .equals(XPathSequence.falseSequence);
 
-      expect(opGeneralLessThan(seq('a'), seq('b')), XPathSequence.trueSequence);
-      expect(
-        opGeneralLessThan(seq('b'), seq('a')),
-        XPathSequence.falseSequence,
-      );
+      check(opGeneralLessThan(seq('a'), seq('b')))
+          .equals(XPathSequence.trueSequence);
+      check(opGeneralLessThan(seq('b'), seq('a')))
+          .equals(XPathSequence.falseSequence);
     });
 
     test('opGeneralGreaterThan and opGeneralGreaterThanOrEqual 1-vs-1', () {
-      expect(opGeneralGreaterThan(seq(2), seq(1)), XPathSequence.trueSequence);
-      expect(opGeneralGreaterThan(seq(1), seq(2)), XPathSequence.falseSequence);
-      expect(opGeneralGreaterThan(seq(2), seq(2)), XPathSequence.falseSequence);
+      check(opGeneralGreaterThan(seq(2), seq(1)))
+          .equals(XPathSequence.trueSequence);
+      check(opGeneralGreaterThan(seq(1), seq(2)))
+          .equals(XPathSequence.falseSequence);
+      check(opGeneralGreaterThan(seq(2), seq(2)))
+          .equals(XPathSequence.falseSequence);
 
-      expect(
-        opGeneralGreaterThanOrEqual(seq(2), seq(1)),
-        XPathSequence.trueSequence,
-      );
-      expect(
-        opGeneralGreaterThanOrEqual(seq(2), seq(2)),
-        XPathSequence.trueSequence,
-      );
-      expect(
-        opGeneralGreaterThanOrEqual(seq(1), seq(2)),
-        XPathSequence.falseSequence,
-      );
+      check(opGeneralGreaterThanOrEqual(seq(2), seq(1)))
+          .equals(XPathSequence.trueSequence);
+      check(opGeneralGreaterThanOrEqual(seq(2), seq(2)))
+          .equals(XPathSequence.trueSequence);
+      check(opGeneralGreaterThanOrEqual(seq(1), seq(2)))
+          .equals(XPathSequence.falseSequence);
     });
   });
 
   group('Untyped Atomic Conversions', () {
     test('untyped vs numeric converts untyped to xsDouble', () {
-      expect(
-        opGeneralEqual(seq(const XPathUntypedAtomic('100')), seq(100)),
-        XPathSequence.trueSequence,
-      );
-      expect(
-        opGeneralEqual(seq(const XPathUntypedAtomic('0100')), seq(100)),
-        XPathSequence.trueSequence,
-      );
-      expect(
-        opGeneralEqual(seq(const XPathUntypedAtomic('100.5')), seq(100.5)),
-        XPathSequence.trueSequence,
-      );
-      expect(
-        opGeneralLessThan(seq(const XPathUntypedAtomic('99')), seq(100)),
-        XPathSequence.trueSequence,
-      );
-      expect(
+      check(opGeneralEqual(seq(const XPathUntypedAtomic('100')), seq(100)))
+          .equals(XPathSequence.trueSequence);
+      check(opGeneralEqual(seq(const XPathUntypedAtomic('0100')), seq(100)))
+          .equals(XPathSequence.trueSequence);
+      check(opGeneralEqual(seq(const XPathUntypedAtomic('100.5')), seq(100.5)))
+          .equals(XPathSequence.trueSequence);
+      check(opGeneralLessThan(seq(const XPathUntypedAtomic('99')), seq(100)))
+          .equals(XPathSequence.trueSequence);
+      check(
         opGeneralGreaterThan(seq(const XPathUntypedAtomic('101')), seq(100)),
-        XPathSequence.trueSequence,
-      );
+      ).equals(XPathSequence.trueSequence);
     });
 
     test('invalid untyped string to numeric throws FORG0001', () {
-      expect(
+      check(
         () =>
             opGeneralEqual(seq(const XPathUntypedAtomic('not_num')), seq(100)),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORG0001)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.FORG0001),
       );
-      expect(
+      check(
         () => opGeneralLessThan(
           seq(const XPathUntypedAtomic('not_num')),
           seq(100),
         ),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORG0001)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.FORG0001),
       );
     });
 
     test('untyped vs untyped strictly performs string comparison', () {
-      expect(
+      check(
         opGeneralEqual(
           seq(const XPathUntypedAtomic('01')),
           seq(const XPathUntypedAtomic('1')),
         ),
-        XPathSequence.falseSequence,
-      );
-      expect(
+      ).equals(XPathSequence.falseSequence);
+      check(
         opGeneralEqual(
           seq(const XPathUntypedAtomic('1')),
           seq(const XPathUntypedAtomic('1')),
         ),
-        XPathSequence.trueSequence,
-      );
-      expect(
+      ).equals(XPathSequence.trueSequence);
+      check(
         opGeneralLessThan(
           seq(const XPathUntypedAtomic('10')),
           seq(const XPathUntypedAtomic('2')),
         ),
-        XPathSequence.trueSequence, // '10' < '2' in ASCII lexicographical order
-      );
+      ).equals(XPathSequence.trueSequence);
     });
 
     test('untyped vs string or anyURI compares as string', () {
-      expect(
-        opGeneralEqual(seq(const XPathUntypedAtomic('foo')), seq('foo')),
-        XPathSequence.trueSequence,
-      );
-      expect(
-        opGeneralLessThan(seq(const XPathUntypedAtomic('bar')), seq('foo')),
-        XPathSequence.trueSequence,
-      );
-      expect(
+      check(opGeneralEqual(seq(const XPathUntypedAtomic('foo')), seq('foo')))
+          .equals(XPathSequence.trueSequence);
+      check(opGeneralLessThan(seq(const XPathUntypedAtomic('bar')), seq('foo')))
+          .equals(XPathSequence.trueSequence);
+      check(
         opGeneralEqual(
           seq(const XPathUntypedAtomic('http://x')),
           seq(const XPathAnyUri('http://x')),
         ),
-        XPathSequence.trueSequence,
-      );
+      ).equals(XPathSequence.trueSequence);
     });
 
     test('untyped vs boolean converts to boolean', () {
-      expect(
-        opGeneralEqual(seq(const XPathUntypedAtomic('true')), seq(true)),
-        XPathSequence.trueSequence,
-      );
-      expect(
-        opGeneralEqual(seq(const XPathUntypedAtomic('false')), seq(false)),
-        XPathSequence.trueSequence,
-      );
-      expect(
-        opGeneralEqual(seq(const XPathUntypedAtomic('1')), seq(true)),
-        XPathSequence.trueSequence,
-      );
-      expect(
+      check(opGeneralEqual(seq(const XPathUntypedAtomic('true')), seq(true)))
+          .equals(XPathSequence.trueSequence);
+      check(opGeneralEqual(seq(const XPathUntypedAtomic('false')), seq(false)))
+          .equals(XPathSequence.trueSequence);
+      check(opGeneralEqual(seq(const XPathUntypedAtomic('1')), seq(true)))
+          .equals(XPathSequence.trueSequence);
+      check(
         () => opGeneralEqual(seq(const XPathUntypedAtomic('yes')), seq(true)),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORG0001)),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.FORG0001),
       );
     });
   });
 
   group('Empty Sequence Divergence (General vs Value)', () {
     test('general comparisons with empty sequence return falseSequence', () {
-      expect(
-        opGeneralEqual(XPathSequence.empty, seq(1)),
-        XPathSequence.falseSequence,
-      );
-      expect(
-        opGeneralEqual(seq(1), XPathSequence.empty),
-        XPathSequence.falseSequence,
-      );
-      expect(
-        opGeneralEqual(XPathSequence.empty, XPathSequence.empty),
-        XPathSequence.falseSequence,
-      );
+      check(opGeneralEqual(XPathSequence.empty, seq(1)))
+          .equals(XPathSequence.falseSequence);
+      check(opGeneralEqual(seq(1), XPathSequence.empty))
+          .equals(XPathSequence.falseSequence);
+      check(opGeneralEqual(XPathSequence.empty, XPathSequence.empty))
+          .equals(XPathSequence.falseSequence);
 
-      expect(
-        opGeneralNotEqual(XPathSequence.empty, seq(1)),
-        XPathSequence.falseSequence,
-      );
-      expect(
-        opGeneralNotEqual(seq(1), XPathSequence.empty),
-        XPathSequence.falseSequence,
-      );
-      expect(
-        opGeneralNotEqual(XPathSequence.empty, XPathSequence.empty),
-        XPathSequence.falseSequence,
-      );
+      check(opGeneralNotEqual(XPathSequence.empty, seq(1)))
+          .equals(XPathSequence.falseSequence);
+      check(opGeneralNotEqual(seq(1), XPathSequence.empty))
+          .equals(XPathSequence.falseSequence);
+      check(opGeneralNotEqual(XPathSequence.empty, XPathSequence.empty))
+          .equals(XPathSequence.falseSequence);
 
-      expect(
-        opGeneralLessThan(XPathSequence.empty, seq(1)),
-        XPathSequence.falseSequence,
-      );
-      expect(
-        opGeneralGreaterThan(XPathSequence.empty, seq(1)),
-        XPathSequence.falseSequence,
-      );
-      expect(
-        opGeneralLessThanOrEqual(XPathSequence.empty, seq(1)),
-        XPathSequence.falseSequence,
-      );
-      expect(
-        opGeneralGreaterThanOrEqual(XPathSequence.empty, seq(1)),
-        XPathSequence.falseSequence,
-      );
+      check(opGeneralLessThan(XPathSequence.empty, seq(1)))
+          .equals(XPathSequence.falseSequence);
+      check(opGeneralGreaterThan(XPathSequence.empty, seq(1)))
+          .equals(XPathSequence.falseSequence);
+      check(opGeneralLessThanOrEqual(XPathSequence.empty, seq(1)))
+          .equals(XPathSequence.falseSequence);
+      check(opGeneralGreaterThanOrEqual(XPathSequence.empty, seq(1)))
+          .equals(XPathSequence.falseSequence);
     });
 
     test('value comparisons with empty sequence return empty sequence', () {
-      expect(opValueEqual(XPathSequence.empty, seq(1)), XPathSequence.empty);
-      expect(opValueEqual(seq(1), XPathSequence.empty), XPathSequence.empty);
-      expect(
-        opValueEqual(XPathSequence.empty, XPathSequence.empty),
-        XPathSequence.empty,
-      );
+      check(opValueEqual(XPathSequence.empty, seq(1)))
+          .equals(XPathSequence.empty);
+      check(opValueEqual(seq(1), XPathSequence.empty))
+          .equals(XPathSequence.empty);
+      check(opValueEqual(XPathSequence.empty, XPathSequence.empty))
+          .equals(XPathSequence.empty);
 
-      expect(opValueNotEqual(XPathSequence.empty, seq(1)), XPathSequence.empty);
-      expect(opValueLessThan(XPathSequence.empty, seq(1)), XPathSequence.empty);
-      expect(
-        opValueGreaterThan(XPathSequence.empty, seq(1)),
-        XPathSequence.empty,
-      );
-      expect(
-        opValueLessThanOrEqual(XPathSequence.empty, seq(1)),
-        XPathSequence.empty,
-      );
-      expect(
-        opValueGreaterThanOrEqual(XPathSequence.empty, seq(1)),
-        XPathSequence.empty,
-      );
+      check(opValueNotEqual(XPathSequence.empty, seq(1)))
+          .equals(XPathSequence.empty);
+      check(opValueLessThan(XPathSequence.empty, seq(1)))
+          .equals(XPathSequence.empty);
+      check(opValueGreaterThan(XPathSequence.empty, seq(1)))
+          .equals(XPathSequence.empty);
+      check(opValueLessThanOrEqual(XPathSequence.empty, seq(1)))
+          .equals(XPathSequence.empty);
+      check(opValueGreaterThanOrEqual(XPathSequence.empty, seq(1)))
+          .equals(XPathSequence.empty);
     });
   });
 
   group('Multi-Item Existential Semantics', () {
     test('overlapping sequence comparison', () {
-      expect(
-        opGeneralEqual(seq([1, 2]), seq([2, 3])),
-        XPathSequence.trueSequence,
-      );
-      expect(
-        opGeneralEqual(seq([1, 2]), seq([3, 4])),
-        XPathSequence.falseSequence,
-      );
+      check(opGeneralEqual(seq([1, 2]), seq([2, 3])))
+          .equals(XPathSequence.trueSequence);
+      check(opGeneralEqual(seq([1, 2]), seq([3, 4])))
+          .equals(XPathSequence.falseSequence);
     });
 
     test('asymmetric != semantics', () {
-      expect(
-        opGeneralNotEqual(seq([1, 2]), seq([2, 3])),
-        XPathSequence.trueSequence,
-      );
-      expect(
-        opGeneralNotEqual(seq([1, 2]), seq(1)),
-        XPathSequence.trueSequence,
-      );
-      expect(
-        opGeneralNotEqual(seq(1), seq([1, 2])),
-        XPathSequence.trueSequence,
-      );
-      expect(
-        opGeneralNotEqual(seq([1, 1]), seq(1)),
-        XPathSequence.falseSequence,
-      );
+      check(opGeneralNotEqual(seq([1, 2]), seq([2, 3])))
+          .equals(XPathSequence.trueSequence);
+      check(opGeneralNotEqual(seq([1, 2]), seq(1)))
+          .equals(XPathSequence.trueSequence);
+      check(opGeneralNotEqual(seq(1), seq([1, 2])))
+          .equals(XPathSequence.trueSequence);
+      check(opGeneralNotEqual(seq([1, 1]), seq(1)))
+          .equals(XPathSequence.falseSequence);
     });
 
     test('multi-item order comparison', () {
-      expect(
-        opGeneralLessThan(seq([5, 1]), seq([2, 0])),
-        XPathSequence.trueSequence,
-      ); // 1 < 2
-      expect(
-        opGeneralGreaterThan(seq([1, 2]), seq([5, 6])),
-        XPathSequence.falseSequence,
-      );
+      check(opGeneralLessThan(seq([5, 1]), seq([2, 0])))
+          .equals(XPathSequence.trueSequence); // 1 < 2
+      check(opGeneralGreaterThan(seq([1, 2]), seq([5, 6])))
+          .equals(XPathSequence.falseSequence);
     });
   });
 
   group('Type Incompatibility & Error Handling', () {
     test('incompatible types in general comparison throw XPTY0004', () {
-      expect(
-        () => opGeneralEqual(seq(1), seq('1')),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
-      expect(
-        () => opGeneralNotEqual(seq(1), seq('1')),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
-      expect(
-        () => opGeneralEqual(seq(true), seq(1)),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
+      check(() => opGeneralEqual(seq(1), seq('1')))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
+      check(() => opGeneralNotEqual(seq(1), seq('1')))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
+      check(() => opGeneralEqual(seq(true), seq(1)))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
     });
 
     test('ordering on QNames throws XPTY0004', () {
       const q1 = XPathQName(XmlName('a'));
       const q2 = XPathQName(XmlName('b'));
-      expect(
-        () => opGeneralLessThan(seq(q1), seq(q2)),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
-      expect(
-        () => opGeneralGreaterThan(seq(q1), seq(q2)),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
+      check(() => opGeneralLessThan(seq(q1), seq(q2)))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
+      check(() => opGeneralGreaterThan(seq(q1), seq(q2)))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
       // Equality is permitted
-      expect(opGeneralEqual(seq(q1), seq(q1)), XPathSequence.trueSequence);
-      expect(opGeneralEqual(seq(q1), seq(q2)), XPathSequence.falseSequence);
+      check(opGeneralEqual(seq(q1), seq(q1)))
+          .equals(XPathSequence.trueSequence);
+      check(opGeneralEqual(seq(q1), seq(q2)))
+          .equals(XPathSequence.falseSequence);
     });
 
     test('value comparison with > 1 items throws XPTY0004', () {
-      expect(
-        () => opValueEqual(seq([1, 2]), seq(1)),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
-      expect(
-        () => opValueEqual(seq(1), seq([1, 2])),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004)),
-      );
+      check(() => opValueEqual(seq([1, 2]), seq(1)))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
+      check(() => opValueEqual(seq(1), seq([1, 2])))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
     });
 
     test('NaN general comparisons return expected IEEE 754 results', () {
-      expect(
-        opGeneralEqual(seq(double.nan), seq(double.nan)),
-        XPathSequence.falseSequence,
-      );
-      expect(
-        opGeneralNotEqual(seq(double.nan), seq(double.nan)),
-        XPathSequence.trueSequence,
-      );
-      expect(
-        opGeneralLessThan(seq(double.nan), seq(1.0)),
-        XPathSequence.falseSequence,
-      );
-      expect(
-        opGeneralGreaterThan(seq(double.nan), seq(1.0)),
-        XPathSequence.falseSequence,
-      );
-      expect(
-        opGeneralLessThanOrEqual(seq(double.nan), seq(1.0)),
-        XPathSequence.falseSequence,
-      );
-      expect(
-        opGeneralGreaterThanOrEqual(seq(double.nan), seq(1.0)),
-        XPathSequence.falseSequence,
-      );
+      check(opGeneralEqual(seq(double.nan), seq(double.nan)))
+          .equals(XPathSequence.falseSequence);
+      check(opGeneralNotEqual(seq(double.nan), seq(double.nan)))
+          .equals(XPathSequence.trueSequence);
+      check(opGeneralLessThan(seq(double.nan), seq(1.0)))
+          .equals(XPathSequence.falseSequence);
+      check(opGeneralGreaterThan(seq(double.nan), seq(1.0)))
+          .equals(XPathSequence.falseSequence);
+      check(opGeneralLessThanOrEqual(seq(double.nan), seq(1.0)))
+          .equals(XPathSequence.falseSequence);
+      check(opGeneralGreaterThanOrEqual(seq(double.nan), seq(1.0)))
+          .equals(XPathSequence.falseSequence);
     });
   });
 

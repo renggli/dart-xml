@@ -1,4 +1,5 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/xml.dart';
 
 void main() {
@@ -9,40 +10,38 @@ void main() {
       '</data>',
     );
     final node = document.rootElement.children.single;
-    expect(node.value, 'Methinks <word> it <word> is like a weasel!');
+    check(node.value).equals('Methinks <word> it <word> is like a weasel!');
     // ignore: deprecated_member_use_from_same_package
-    expect(node.text, 'Methinks <word> it <word> is like a weasel!');
-    expect(node.parent, same(document.rootElement));
-    expect(node.parentElement, same(document.rootElement));
-    expect(node.root, same(document));
-    expect(node.document, same(document));
-    expect(node.depth, 2);
-    expect(node.attributes, isEmpty);
-    expect(node.elementAttributes, isEmpty);
-    expect(node.namespaces, isEmpty);
-    expect(node.children, isEmpty);
-    expect(node.nodeType, XmlNodeType.CDATA);
-    expect(
-      node.toString(),
-      '<![CDATA[Methinks <word> it <word> is like a weasel!]]>',
-    );
+    check(node.text).equals('Methinks <word> it <word> is like a weasel!');
+    check(node.parent).identicalTo(document.rootElement);
+    check(node.parentElement).identicalTo(document.rootElement);
+    check(node.root).identicalTo(document);
+    check(node.document).identicalTo(document);
+    check(node.depth).equals(2);
+    check(node.attributes).isEmpty();
+    check(node.elementAttributes).isEmpty();
+    check(node.namespaces).isEmpty();
+    check(node.children).isEmpty();
+    check(node.nodeType).equals(XmlNodeType.CDATA);
+    check(node.toString())
+        .equals('<![CDATA[Methinks <word> it <word> is like a weasel!]]>');
   });
   test('empty', () {
     final document = XmlDocument.parse('<data><![CDATA[]]></data>');
     final node = document.rootElement.children.single;
-    expect(node.value, isEmpty);
+    check(node.value).isNotNull().isEmpty();
     // ignore: deprecated_member_use_from_same_package
-    expect(node.text, isEmpty);
-    expect(node.parent, same(document.rootElement));
-    expect(node.parentElement, same(document.rootElement));
-    expect(node.root, same(document));
-    expect(node.document, same(document));
-    expect(node.depth, 2);
-    expect(node.attributes, isEmpty);
-    expect(node.elementAttributes, isEmpty);
-    expect(node.namespaces, isEmpty);
-    expect(node.children, isEmpty);
-    expect(node.nodeType, XmlNodeType.CDATA);
-    expect(node.toString(), '<![CDATA[]]>');
+    check(node.text).isNotNull().isEmpty();
+    check(node.parent).identicalTo(document.rootElement);
+    check(node.parentElement).identicalTo(document.rootElement);
+    check(node.root).identicalTo(document);
+    check(node.document).identicalTo(document);
+    check(node.depth).equals(2);
+    check(node.attributes).isEmpty();
+    check(node.elementAttributes).isEmpty();
+    check(node.namespaces).isEmpty();
+    check(node.children).isEmpty();
+    check(node.nodeType).equals(XmlNodeType.CDATA);
+    check(node.toString()).equals('<![CDATA[]]>');
   });
 }

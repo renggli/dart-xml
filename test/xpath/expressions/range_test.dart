@@ -1,8 +1,8 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 void main() {
@@ -22,47 +22,37 @@ void main() {
       expectEvaluate(xml, '1 to ()', isEmpty);
     });
     test('double operand', () {
-      expect(
-        () => xml.xpathEvaluate('1.0 to 3.0'),
-        throwsA(isXPathEvaluationException()),
-      );
+      check(() => xml.xpathEvaluate('1.0 to 3.0'))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
     });
     test('multi-item operand throws XPTY0004', () {
-      expect(
-        () => xml.xpathEvaluate('(1, 2) to 3'),
-        throwsA(
-          isXPathEvaluationException(
-            errorCode: XPathErrorCode.XPTY0004,
-            message: contains(
-              'Range expression operands must be single integer items',
+      check(() => xml.xpathEvaluate('(1, 2) to 3'))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(
+              errorCode: XPathErrorCode.XPTY0004,
+              message: 'Range expression operands must be single integer items',
             ),
-          ),
-        ),
-      );
+          );
     });
     test('untypedAtomic operands', () {
       expectEvaluate(xml, 'xs:untypedAtomic("1") to 3', [1, 2, 3]);
-      expect(
-        () => xml.xpathEvaluate('xs:untypedAtomic("abc") to 3'),
-        throwsA(
-          isXPathEvaluationException(
-            errorCode: XPathErrorCode.FORG0001,
-            message: contains(
-              'Cannot convert untypedAtomic "abc" to xs:integer',
+      check(() => xml.xpathEvaluate('xs:untypedAtomic("abc") to 3'))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(
+              errorCode: XPathErrorCode.FORG0001,
+              message: 'Cannot convert untypedAtomic "abc" to xs:integer',
             ),
-          ),
-        ),
-      );
+          );
     });
     test('exceeds size limit', () {
-      expect(
-        () => xml.xpathEvaluate('1 to 10000002'),
-        throwsA(
-          isXPathEvaluationException(
-            message: contains('Sequence size limit exceeded'),
-          ),
-        ),
-      );
+      check(() => xml.xpathEvaluate('1 to 10000002'))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(message: 'Sequence size limit exceeded'),
+          );
     });
   });
 }

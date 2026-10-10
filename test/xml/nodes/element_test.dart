@@ -1,4 +1,5 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/xml.dart';
 
 import '../../utils/assertions.dart';
@@ -9,83 +10,81 @@ void main() {
       '<ns:data key="value">Am I or are the other crazy?</ns:data>',
     );
     final node = document.rootElement;
-    expect(node.qualifiedName, 'ns:data');
-    expect(node.namespacePrefix, 'ns');
-    expect(node.localName, 'data');
-    expect(node.name.qualified, 'ns:data');
-    expect(node.name.prefix, 'ns');
-    expect(node.name.local, 'data');
-    expect(node.parent, same(document));
-    expect(node.parentElement, isNull);
-    expect(node.root, same(document));
-    expect(node.document, same(document));
-    expect(node.depth, 1);
-    expect(node.attributes, hasLength(1));
-    expect(node.elementAttributes, hasLength(1));
-    expect(node.children, hasLength(1));
-    expect(node.descendants, hasLength(2));
-    expect(node.value, isNull);
+    check(node.qualifiedName).equals('ns:data');
+    check(node.namespacePrefix).equals('ns');
+    check(node.localName).equals('data');
+    check(node.name.qualified).equals('ns:data');
+    check(node.name.prefix).equals('ns');
+    check(node.name.local).equals('data');
+    check(node.parent).identicalTo(document);
+    check(node.parentElement).isNull();
+    check(node.root).identicalTo(document);
+    check(node.document).identicalTo(document);
+    check(node.depth).equals(1);
+    check(node.attributes).length.equals(1);
+    check(node.elementAttributes).length.equals(1);
+    check(node.children).length.equals(1);
+    check(node.descendants).length.equals(2);
+    check(node.value).isNull();
     // ignore: deprecated_member_use_from_same_package
-    expect(node.text, 'Am I or are the other crazy?');
-    expect(node.innerText, 'Am I or are the other crazy?');
-    expect(node.nodeType, XmlNodeType.ELEMENT);
-    expect(node.isSelfClosing, isTrue);
-    expect(
-      node.toString(),
-      '<ns:data key="value">Am I or are the other crazy?</ns:data>',
-    );
+    check(node.text).equals('Am I or are the other crazy?');
+    check(node.innerText).equals('Am I or are the other crazy?');
+    check(node.nodeType).equals(XmlNodeType.ELEMENT);
+    check(node.isSelfClosing).isTrue();
+    check(node.toString())
+        .equals('<ns:data key="value">Am I or are the other crazy?</ns:data>');
   });
   test('self-closing', () {
     final document = XmlDocument.parse('<data/>');
     final node = document.rootElement;
-    expect(node.qualifiedName, 'data');
-    expect(node.namespacePrefix, isNull);
-    expect(node.localName, 'data');
-    expect(node.name.qualified, 'data');
-    expect(node.name.prefix, isNull);
-    expect(node.name.local, 'data');
-    expect(node.parent, same(document));
-    expect(node.parentElement, isNull);
-    expect(node.root, same(document));
-    expect(node.document, same(document));
-    expect(node.depth, 1);
-    expect(node.attributes, isEmpty);
-    expect(node.elementAttributes, isEmpty);
-    expect(node.children, isEmpty);
-    expect(node.descendants, isEmpty);
-    expect(node.value, isNull);
+    check(node.qualifiedName).equals('data');
+    check(node.namespacePrefix).isNull();
+    check(node.localName).equals('data');
+    check(node.name.qualified).equals('data');
+    check(node.name.prefix).isNull();
+    check(node.name.local).equals('data');
+    check(node.parent).identicalTo(document);
+    check(node.parentElement).isNull();
+    check(node.root).identicalTo(document);
+    check(node.document).identicalTo(document);
+    check(node.depth).equals(1);
+    check(node.attributes).isEmpty();
+    check(node.elementAttributes).isEmpty();
+    check(node.children).isEmpty();
+    check(node.descendants).isEmpty();
+    check(node.value).isNull();
     // ignore: deprecated_member_use_from_same_package
-    expect(node.text, isEmpty);
-    expect(node.innerText, isEmpty);
-    expect(node.nodeType, XmlNodeType.ELEMENT);
-    expect(node.isSelfClosing, isTrue);
-    expect(node.toString(), '<data/>');
+    check(node.text).isEmpty();
+    check(node.innerText).isEmpty();
+    check(node.nodeType).equals(XmlNodeType.ELEMENT);
+    check(node.isSelfClosing).isTrue();
+    check(node.toString()).equals('<data/>');
   });
   test('empty', () {
     final document = XmlDocument.parse('<data></data>');
     final node = document.rootElement;
-    expect(node.name.qualified, 'data');
-    expect(node.namespacePrefix, isNull);
-    expect(node.localName, 'data');
-    expect(node.name.qualified, 'data');
-    expect(node.name.prefix, isNull);
-    expect(node.name.local, 'data');
-    expect(node.parent, same(document));
-    expect(node.parentElement, isNull);
-    expect(node.root, same(document));
-    expect(node.document, same(document));
-    expect(node.depth, 1);
-    expect(node.attributes, isEmpty);
-    expect(node.elementAttributes, isEmpty);
-    expect(node.children, isEmpty);
-    expect(node.descendants, isEmpty);
-    expect(node.value, isNull);
+    check(node.name.qualified).equals('data');
+    check(node.namespacePrefix).isNull();
+    check(node.localName).equals('data');
+    check(node.name.qualified).equals('data');
+    check(node.name.prefix).isNull();
+    check(node.name.local).equals('data');
+    check(node.parent).identicalTo(document);
+    check(node.parentElement).isNull();
+    check(node.root).identicalTo(document);
+    check(node.document).identicalTo(document);
+    check(node.depth).equals(1);
+    check(node.attributes).isEmpty();
+    check(node.elementAttributes).isEmpty();
+    check(node.children).isEmpty();
+    check(node.descendants).isEmpty();
+    check(node.value).isNull();
     // ignore: deprecated_member_use_from_same_package
-    expect(node.text, isEmpty);
-    expect(node.innerText, isEmpty);
-    expect(node.nodeType, XmlNodeType.ELEMENT);
-    expect(node.isSelfClosing, isFalse);
-    expect(node.toString(), '<data></data>');
+    check(node.text).isEmpty();
+    check(node.innerText).isEmpty();
+    check(node.nodeType).equals(XmlNodeType.ELEMENT);
+    check(node.isSelfClosing).isFalse();
+    check(node.toString()).equals('<data></data>');
   });
   test('builder', () {
     final document = XmlDocument.build((builder) {
@@ -93,19 +92,17 @@ void main() {
       builder.element('root', nest: 'Hello World');
     });
     assertDocumentInvariants(document);
-    expect(
-      document.toXmlString(),
-      '<?xml version="1.0"?><root>Hello World</root>',
-    );
+    check(document.toXmlString())
+        .equals('<?xml version="1.0"?><root>Hello World</root>');
   });
   test('nested', () {
     final document = XmlDocument.parse('<outer><inner/></outer>');
     final outer = document.rootElement;
-    expect(outer.toString(), '<outer><inner/></outer>');
-    final inner = outer.firstChild!;
-    expect(outer.getElement('inner'), same(inner));
-    expect(inner.parentElement, same(outer));
-    expect(inner.toString(), '<inner/>');
+    check(outer.toString()).equals('<outer><inner/></outer>');
+    final inner = outer.firstElementChild!;
+    check(outer.getElement('inner')).identicalTo(inner);
+    check(inner.parentElement).identicalTo(outer);
+    check(inner.toString()).equals('<inner/>');
   });
   test('move constructor', () {
     final document = XmlDocument.parse('<element attr="value1">text</element>');
@@ -113,88 +110,93 @@ void main() {
     final attr = node.attributes.first;
     final child = node.children.first;
     final data = XmlElement.tag('data', attributes: node.attributes);
-    expect(data.attributes, contains(attr));
-    expect(node.attributes, isEmpty); // moved out
-    expect(node.elementAttributes, isEmpty);
+    check(data.attributes).contains(attr);
+    check(node.attributes).isEmpty(); // moved out
+    check(node.elementAttributes).isEmpty();
     final data2 = XmlElement.tag('data2', children: node.children);
-    expect(data2.children, contains(child));
-    expect(node.children, isEmpty); // moved out
+    check(data2.children).contains(child);
+    check(node.children).isEmpty(); // moved out
   });
   test('add attribute', () {
     final document = XmlDocument.parse('<data/>');
     final node = document.rootElement;
-    expect(node.getAttribute('attr'), isNull);
-    expect(node.getAttributeNode('attr'), isNull);
+    check(node.getAttribute('attr')).isNull();
+    check(node.getAttributeNode('attr')).isNull();
     node.setAttribute('attr', 'value');
-    expect(node.getAttribute('attr'), 'value');
-    expect(node.getAttributeNode('attr')?.value, 'value');
-    expect(node.toString(), '<data attr="value"/>');
+    check(node.getAttribute('attr')).equals('value');
+    check(node.getAttributeNode('attr')?.value).equals('value');
+    check(node.toString()).equals('<data attr="value"/>');
   });
   test('add attribute with namespace', () {
     final document = XmlDocument.parse('<data xmlns:ns="uri" />');
     final node = document.rootElement;
-    expect(node.getAttribute('attr', namespaceUri: 'uri'), isNull);
-    expect(node.getAttributeNode('attr', namespaceUri: 'uri'), isNull);
+    check(node.getAttribute('attr', namespaceUri: 'uri')).isNull();
+    check(node.getAttributeNode('attr', namespaceUri: 'uri')).isNull();
     node.setAttribute('ns:attr', 'value', namespaceUri: 'uri');
-    expect(node.getAttribute('attr', namespaceUri: 'uri'), 'value');
-    expect(node.getAttributeNode('attr', namespaceUri: 'uri')?.value, 'value');
-    expect(node.toString(), '<data xmlns:ns="uri" ns:attr="value"/>');
+    check(node.getAttribute('attr', namespaceUri: 'uri')).equals('value');
+    check(node.getAttributeNode('attr', namespaceUri: 'uri')?.value)
+        .equals('value');
+    check(node.toString()).equals('<data xmlns:ns="uri" ns:attr="value"/>');
   });
   test('add attribute with namespace (deprecated)', () {
     final document = XmlDocument.parse('<data xmlns:ns="uri" />');
     final node = document.rootElement;
     // ignore: deprecated_member_use_from_same_package
-    expect(node.getAttribute('attr', namespace: 'uri'), isNull);
+    check(node.getAttribute('attr', namespace: 'uri')).isNull();
     // ignore: deprecated_member_use_from_same_package
-    expect(node.getAttributeNode('attr', namespace: 'uri'), isNull);
+    check(node.getAttributeNode('attr', namespace: 'uri')).isNull();
     // ignore: deprecated_member_use_from_same_package
     node.setAttribute('ns:attr', 'value', namespace: 'uri');
     // ignore: deprecated_member_use_from_same_package
-    expect(node.getAttribute('attr', namespace: 'uri'), 'value');
+    check(node.getAttribute('attr', namespace: 'uri')).equals('value');
     // ignore: deprecated_member_use_from_same_package
-    expect(node.getAttributeNode('attr', namespace: 'uri')?.value, 'value');
-    expect(node.toString(), '<data xmlns:ns="uri" ns:attr="value"/>');
+    check(node.getAttributeNode('attr', namespace: 'uri')?.value)
+        .equals('value');
+    check(node.toString()).equals('<data xmlns:ns="uri" ns:attr="value"/>');
   });
   test('add attribute with default namespace', () {
     final document = XmlDocument.parse('<data xmlns="uri" />');
     final node = document.rootElement;
-    expect(node.getAttribute('attr', namespaceUri: 'uri'), isNull);
-    expect(node.getAttributeNode('attr', namespaceUri: 'uri'), isNull);
+    check(node.getAttribute('attr', namespaceUri: 'uri')).isNull();
+    check(node.getAttributeNode('attr', namespaceUri: 'uri')).isNull();
     node.setAttribute('attr', 'value', namespaceUri: 'uri');
-    expect(node.getAttribute('attr', namespaceUri: 'uri'), 'value');
-    expect(node.getAttributeNode('attr', namespaceUri: 'uri')?.value, 'value');
-    expect(node.toString(), '<data xmlns="uri" attr="value"/>');
+    check(node.getAttribute('attr', namespaceUri: 'uri')).equals('value');
+    check(node.getAttributeNode('attr', namespaceUri: 'uri')?.value)
+        .equals('value');
+    check(node.toString()).equals('<data xmlns="uri" attr="value"/>');
   });
   test('add attribute with default namespace (deprecated)', () {
     final document = XmlDocument.parse('<data xmlns="uri" />');
     final node = document.rootElement;
     // ignore: deprecated_member_use_from_same_package
-    expect(node.getAttribute('attr', namespace: 'uri'), isNull);
+    check(node.getAttribute('attr', namespace: 'uri')).isNull();
     // ignore: deprecated_member_use_from_same_package
-    expect(node.getAttributeNode('attr', namespace: 'uri'), isNull);
+    check(node.getAttributeNode('attr', namespace: 'uri')).isNull();
     // ignore: deprecated_member_use_from_same_package
     node.setAttribute('attr', 'value', namespace: 'uri');
     // ignore: deprecated_member_use_from_same_package
-    expect(node.getAttribute('attr', namespace: 'uri'), 'value');
+    check(node.getAttribute('attr', namespace: 'uri')).equals('value');
     // ignore: deprecated_member_use_from_same_package
-    expect(node.getAttributeNode('attr', namespace: 'uri')?.value, 'value');
-    expect(node.toString(), '<data xmlns="uri" attr="value"/>');
+    check(node.getAttributeNode('attr', namespace: 'uri')?.value)
+        .equals('value');
+    check(node.toString()).equals('<data xmlns="uri" attr="value"/>');
   });
   test('update attribute', () {
     final document = XmlDocument.parse('<data attr="old"/>');
     final node = document.rootElement;
     node.setAttribute('attr', 'new');
-    expect(node.getAttribute('attr'), 'new');
-    expect(node.getAttributeNode('attr')?.value, 'new');
-    expect(node.toString(), '<data attr="new"/>');
+    check(node.getAttribute('attr')).equals('new');
+    check(node.getAttributeNode('attr')?.value).equals('new');
+    check(node.toString()).equals('<data attr="new"/>');
   });
   test('update attribute with namespace', () {
     final document = XmlDocument.parse('<data xmlns:ns="uri" ns:attr="old"/>');
     final node = document.rootElement;
     node.setAttribute('attr', 'new', namespaceUri: 'uri');
-    expect(node.getAttribute('attr', namespaceUri: 'uri'), 'new');
-    expect(node.getAttributeNode('attr', namespaceUri: 'uri')?.value, 'new');
-    expect(node.toString(), '<data xmlns:ns="uri" ns:attr="new"/>');
+    check(node.getAttribute('attr', namespaceUri: 'uri')).equals('new');
+    check(node.getAttributeNode('attr', namespaceUri: 'uri')?.value)
+        .equals('new');
+    check(node.toString()).equals('<data xmlns:ns="uri" ns:attr="new"/>');
   });
   test('update attribute with namespace (deprecated)', () {
     final document = XmlDocument.parse('<data xmlns:ns="uri" ns:attr="old"/>');
@@ -202,18 +204,19 @@ void main() {
     // ignore: deprecated_member_use_from_same_package
     node.setAttribute('attr', 'new', namespace: 'uri');
     // ignore: deprecated_member_use_from_same_package
-    expect(node.getAttribute('attr', namespace: 'uri'), 'new');
+    check(node.getAttribute('attr', namespace: 'uri')).equals('new');
     // ignore: deprecated_member_use_from_same_package
-    expect(node.getAttributeNode('attr', namespace: 'uri')?.value, 'new');
-    expect(node.toString(), '<data xmlns:ns="uri" ns:attr="new"/>');
+    check(node.getAttributeNode('attr', namespace: 'uri')?.value).equals('new');
+    check(node.toString()).equals('<data xmlns:ns="uri" ns:attr="new"/>');
   });
   test('update attribute with default namespace', () {
     final document = XmlDocument.parse('<data xmlns="uri" attr="old"/>');
     final node = document.rootElement;
     node.setAttribute('attr', 'new', namespaceUri: 'uri');
-    expect(node.getAttribute('attr', namespaceUri: 'uri'), 'new');
-    expect(node.getAttributeNode('attr', namespaceUri: 'uri')?.value, 'new');
-    expect(node.toString(), '<data xmlns="uri" attr="new"/>');
+    check(node.getAttribute('attr', namespaceUri: 'uri')).equals('new');
+    check(node.getAttributeNode('attr', namespaceUri: 'uri')?.value)
+        .equals('new');
+    check(node.toString()).equals('<data xmlns="uri" attr="new"/>');
   });
   test('update attribute with default namespace (deprecated)', () {
     final document = XmlDocument.parse('<data xmlns="uri" attr="old"/>');
@@ -221,26 +224,26 @@ void main() {
     // ignore: deprecated_member_use_from_same_package
     node.setAttribute('attr', 'new', namespace: 'uri');
     // ignore: deprecated_member_use_from_same_package
-    expect(node.getAttribute('attr', namespace: 'uri'), 'new');
+    check(node.getAttribute('attr', namespace: 'uri')).equals('new');
     // ignore: deprecated_member_use_from_same_package
-    expect(node.getAttributeNode('attr', namespace: 'uri')?.value, 'new');
-    expect(node.toString(), '<data xmlns="uri" attr="new"/>');
+    check(node.getAttributeNode('attr', namespace: 'uri')?.value).equals('new');
+    check(node.toString()).equals('<data xmlns="uri" attr="new"/>');
   });
   test('remove attribute', () {
     final document = XmlDocument.parse('<data attr="old"/>');
     final node = document.rootElement;
     node.removeAttribute('attr');
-    expect(node.getAttribute('attr'), isNull);
-    expect(node.getAttributeNode('attr'), isNull);
-    expect(node.toString(), '<data/>');
+    check(node.getAttribute('attr')).isNull();
+    check(node.getAttributeNode('attr')).isNull();
+    check(node.toString()).equals('<data/>');
   });
   test('remove attribute with namespace', () {
     final document = XmlDocument.parse('<data xmlns:ns="uri" ns:attr="old"/>');
     final node = document.rootElement;
     node.removeAttribute('attr', namespaceUri: 'uri');
-    expect(node.getAttribute('attr', namespaceUri: 'uri'), isNull);
-    expect(node.getAttributeNode('attr', namespaceUri: 'uri'), isNull);
-    expect(node.toString(), '<data xmlns:ns="uri"/>');
+    check(node.getAttribute('attr', namespaceUri: 'uri')).isNull();
+    check(node.getAttributeNode('attr', namespaceUri: 'uri')).isNull();
+    check(node.toString()).equals('<data xmlns:ns="uri"/>');
   });
   test('remove attribute with namespace (deprecated)', () {
     final document = XmlDocument.parse('<data xmlns:ns="uri" ns:attr="old"/>');
@@ -248,18 +251,18 @@ void main() {
     // ignore: deprecated_member_use_from_same_package
     node.removeAttribute('attr', namespace: 'uri');
     // ignore: deprecated_member_use_from_same_package
-    expect(node.getAttribute('attr', namespace: 'uri'), isNull);
+    check(node.getAttribute('attr', namespace: 'uri')).isNull();
     // ignore: deprecated_member_use_from_same_package
-    expect(node.getAttributeNode('attr', namespace: 'uri'), isNull);
-    expect(node.toString(), '<data xmlns:ns="uri"/>');
+    check(node.getAttributeNode('attr', namespace: 'uri')).isNull();
+    check(node.toString()).equals('<data xmlns:ns="uri"/>');
   });
   test('remove attribute with default namespace', () {
     final document = XmlDocument.parse('<data xmlns="uri" attr="old"/>');
     final node = document.rootElement;
     node.removeAttribute('attr', namespaceUri: 'uri');
-    expect(node.getAttribute('attr', namespaceUri: 'uri'), isNull);
-    expect(node.getAttributeNode('attr', namespaceUri: 'uri'), isNull);
-    expect(node.toString(), '<data xmlns="uri"/>');
+    check(node.getAttribute('attr', namespaceUri: 'uri')).isNull();
+    check(node.getAttributeNode('attr', namespaceUri: 'uri')).isNull();
+    check(node.toString()).equals('<data xmlns="uri"/>');
   });
   test('remove attribute with default namespace (deprecated)', () {
     final document = XmlDocument.parse('<data xmlns="uri" attr="old"/>');
@@ -267,24 +270,24 @@ void main() {
     // ignore: deprecated_member_use_from_same_package
     node.removeAttribute('attr', namespace: 'uri');
     // ignore: deprecated_member_use_from_same_package
-    expect(node.getAttribute('attr', namespace: 'uri'), isNull);
+    check(node.getAttribute('attr', namespace: 'uri')).isNull();
     // ignore: deprecated_member_use_from_same_package
-    expect(node.getAttributeNode('attr', namespace: 'uri'), isNull);
-    expect(node.toString(), '<data xmlns="uri"/>');
+    check(node.getAttributeNode('attr', namespace: 'uri')).isNull();
+    check(node.toString()).equals('<data xmlns="uri"/>');
   });
   test('elementAttributes and isNamespaceDeclaration', () {
     final document = XmlDocument.parse(
       '<data xmlns="default-uri" xmlns:p="prefix-uri" regular="value"/>',
     );
     final node = document.rootElement;
-    expect(node.attributes, hasLength(3));
-    expect(node.attributes[0].isNamespaceDeclaration, isTrue);
-    expect(node.attributes[1].isNamespaceDeclaration, isTrue);
-    expect(node.attributes[2].isNamespaceDeclaration, isFalse);
+    check(node.attributes).length.equals(3);
+    check(node.attributes[0].isNamespaceDeclaration).isTrue();
+    check(node.attributes[1].isNamespaceDeclaration).isTrue();
+    check(node.attributes[2].isNamespaceDeclaration).isFalse();
 
     final elementAttrs = node.elementAttributes.toList();
-    expect(elementAttrs, hasLength(1));
-    expect(elementAttrs.first.name.qualified, 'regular');
-    expect(elementAttrs.first.value, 'value');
+    check(elementAttrs).length.equals(1);
+    check(elementAttrs.first.name.qualified).equals('regular');
+    check(elementAttrs.first.value).equals('value');
   });
 }

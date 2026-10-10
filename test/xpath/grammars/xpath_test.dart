@@ -1,11 +1,11 @@
+import 'package:checks/checks.dart';
 import 'package:petitparser/reflection.dart';
-import 'package:test/test.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/evaluation/expression.dart';
 import 'package:xml/src/xpath/grammars/xpath.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 void main() {
@@ -13,7 +13,7 @@ void main() {
   final xml = XmlDocument.parse('<?xml version="1.0"?><r><a/></r>');
   test('linter', () {
     final issues = linter(parser);
-    expect(issues, isEmpty);
+    check(issues).isEmpty();
   });
   group('whitespace', () {
     test('space', () {
@@ -159,7 +159,7 @@ void main() {
         for (final expression in expressions) {
           test(expression, () {
             final result = parser.parse(expression);
-            expect(result.value, isA<XPathExpression>());
+            check(result.value).isA<XPathExpression>();
           });
         }
       });
@@ -174,10 +174,7 @@ void main() {
     ];
     for (final expression in expressions) {
       test(expression, () {
-        expect(
-          () => parser.parse(expression),
-          throwsA(isA<UnimplementedError>()),
-        );
+        check(() => parser.parse(expression)).throws<UnimplementedError>();
       });
     }
   });
@@ -186,10 +183,7 @@ void main() {
     final expressions = ['1 instance of xs:unknownType'];
     for (final expression in expressions) {
       test(expression, () {
-        expect(
-          () => parser.parse(expression),
-          throwsA(isA<XPathParserException>()),
-        );
+        check(() => parser.parse(expression)).throws<XPathParserException>();
       });
     }
   });
@@ -226,16 +220,15 @@ void main() {
         in cases.entries) {
       test(
         path,
-        () => expect(
-          () => xml.xpathEvaluate(path),
-          throwsA(
-            isXPathParserException(
-              message: message,
-              buffer: path,
-              position: position,
+        () => check(() => xml.xpathEvaluate(path))
+            .throws<XPathParserException>()
+            .which(
+              isXPathParserException(
+                message: message,
+                buffer: path,
+                position: position,
+              ),
             ),
-          ),
-        ),
       );
     }
   });
@@ -272,14 +265,15 @@ void main() {
     });
 
     test('reserved namespace URI throws XQST0070', () {
-      expect(
-        () => nsXml.xpathEvaluate('/Q{http://www.w3.org/2000/xmlns/}foo'),
-        throwsA(isXPathEvaluationException(message: contains('XQST0070'))),
-      );
-      expect(
-        () => nsXml.xpathEvaluate('/Q{ http://www.w3.org/2000/xmlns/  }foo'),
-        throwsA(isXPathEvaluationException(message: contains('XQST0070'))),
-      );
+      check(() => nsXml.xpathEvaluate('/Q{http://www.w3.org/2000/xmlns/}foo'))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException(message: 'XQST0070'));
+      check(
+            () =>
+                nsXml.xpathEvaluate('/Q{ http://www.w3.org/2000/xmlns/  }foo'),
+          )
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException(message: 'XQST0070'));
     });
 
     test('EQName wildcard with empty URI matches no-namespace nodes', () {

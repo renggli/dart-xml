@@ -1,9 +1,10 @@
+import 'package:checks/checks.dart';
 import 'package:meta/meta.dart';
-import 'package:test/test.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/xml.dart';
 
 import '../utils/assertions.dart';
-import '../utils/matchers.dart';
+import '../utils/checks.dart';
 
 @isTest
 void mutatingTest<T extends XmlNode>(
@@ -20,7 +21,7 @@ void mutatingTest<T extends XmlNode>(
         .first;
     action(node);
     document.normalize();
-    expect(document.toXmlString(), after, reason: 'should be modified');
+    check(because: 'should be modified', document.toXmlString()).equals(after);
     assertDocumentTreeInvariants(document);
   });
 }
@@ -30,7 +31,7 @@ void throwingTest<T extends XmlNode>(
   String description,
   String before,
   void Function(T node) action,
-  Matcher matcher,
+  void Function(Subject<void Function()>) assertion,
 ) {
   test(description, () {
     final document = XmlDocument.parse(before);
@@ -38,8 +39,11 @@ void throwingTest<T extends XmlNode>(
         .followedBy(document.descendants)
         .whereType<T>()
         .first;
-    expect(() => action(node), matcher);
-    expect(document.toXmlString(), before, reason: 'should not be modified');
+    assertion(check(() => action(node)));
+    check(
+      because: 'should not be modified',
+      document.toXmlString(),
+    ).equals(before);
     assertDocumentTreeInvariants(document);
   });
 }
@@ -191,10 +195,10 @@ void main() {
       'element (attribute children)',
       '<element/>',
       (node) => node.children.add(wrong),
-      throwsA(
+      (it) => it.throws<XmlNodeTypeException>().which(
         isXmlNodeTypeException(
           node: wrong,
-          types: contains(XmlNodeType.ELEMENT),
+          typesCondition: (t) => t.contains(XmlNodeType.ELEMENT),
         ),
       ),
     );
@@ -259,10 +263,10 @@ void main() {
       'element (attribute children)',
       '<element/>',
       (node) => node.children.addAll([wrong]),
-      throwsA(
+      (it) => it.throws<XmlNodeTypeException>().which(
         isXmlNodeTypeException(
           node: wrong,
-          types: contains(XmlNodeType.ELEMENT),
+          typesCondition: (t) => t.contains(XmlNodeType.ELEMENT),
         ),
       ),
     );
@@ -275,63 +279,63 @@ void main() {
   });
   group('innerText', () {
     mutatingTest<XmlElement>('empty with text', '<element/>', (node) {
-      expect(node.innerText, '');
+      check(node.innerText).equals('');
       node.innerText = 'inner text';
-      expect(node.innerText, 'inner text');
+      check(node.innerText).equals('inner text');
     }, '<element>inner text</element>');
     mutatingTest<XmlElement>('empty with text (encoded)', '<element/>', (node) {
-      expect(node.innerText, '');
+      check(node.innerText).equals('');
       node.innerText = '<child>';
-      expect(node.innerText, '<child>');
+      check(node.innerText).equals('<child>');
     }, '<element>&lt;child></element>');
     mutatingTest<XmlElement>(
       'multiple with text',
       '<element>multiple <child/>nodes</element>',
       (node) {
-        expect(node.innerText, 'multiple nodes');
+        check(node.innerText).equals('multiple nodes');
         node.innerText = 'replaced';
-        expect(node.innerText, 'replaced');
+        check(node.innerText).equals('replaced');
       },
       '<element>replaced</element>',
     );
     mutatingTest<XmlElement>('text with empty', '<element>contents</element>', (
       node,
     ) {
-      expect(node.innerText, 'contents');
+      check(node.innerText).equals('contents');
       node.innerText = '';
-      expect(node.children, isEmpty);
-      expect(node.innerText, '');
+      check(node.children).isEmpty();
+      check(node.innerText).equals('');
     }, '<element/>');
     throwingTest<XmlElement>(
       'unsupported text node',
       '<element>contents</element>',
       (node) {
-        expect(node.firstChild, isA<XmlText>());
+        check(node.firstChild).isA<XmlText>();
         node.firstChild!.innerText = 'error';
       },
-      throwsA(
+      (it) => it.throws<XmlNodeTypeException>().which(
         isXmlNodeTypeException(
           message: 'XmlNodeType.TEXT cannot have child nodes.',
-          node: isA<XmlText>(),
-          types: isEmpty,
+          nodeCondition: (n) => n.isA<XmlText>(),
+          typesCondition: (t) => t.isEmpty(),
         ),
       ),
     );
   });
   group('innerXml', () {
     mutatingTest<XmlElement>('empty with multiple', '<element/>', (node) {
-      expect(node.innerXml, '');
+      check(node.innerXml).equals('');
       node.innerXml = '<child1/> and <child2/>';
-      expect(node.innerXml, '<child1/> and <child2/>');
+      check(node.innerXml).equals('<child1/> and <child2/>');
     }, '<element><child1/> and <child2/></element>');
     mutatingTest<XmlElement>(
       'multiple with empty',
       '<element><child1/> and <child2/></element>',
       (node) {
-        expect(node.innerXml, '<child1/> and <child2/>');
+        check(node.innerXml).equals('<child1/> and <child2/>');
         node.innerXml = '';
-        expect(node.children, isEmpty);
-        expect(node.innerXml, '');
+        check(node.children).isEmpty();
+        check(node.innerXml).equals('');
       },
       '<element/>',
     );
@@ -339,14 +343,14 @@ void main() {
       'unsupported text node',
       '<element>contents</element>',
       (node) {
-        expect(node.firstChild, isA<XmlText>());
+        check(node.firstChild).isA<XmlText>();
         node.firstChild!.innerXml = 'error';
       },
-      throwsA(
+      (it) => it.throws<XmlNodeTypeException>().which(
         isXmlNodeTypeException(
           message: 'XmlNodeType.TEXT cannot have child nodes.',
-          node: isA<XmlText>(),
-          types: isEmpty,
+          nodeCondition: (n) => n.isA<XmlText>(),
+          typesCondition: (t) => t.isEmpty(),
         ),
       ),
     );
@@ -356,9 +360,9 @@ void main() {
       'single with other',
       '<element><child/></element>',
       (node) {
-        expect(node.firstChild!.outerXml, '<child/>');
+        check(node.firstChild!.outerXml).equals('<child/>');
         node.firstChild!.outerXml = '<other/>';
-        expect(node.firstChild!.outerXml, '<other/>');
+        check(node.firstChild!.outerXml).equals('<other/>');
       },
       '<element><other/></element>',
     );
@@ -367,7 +371,7 @@ void main() {
       '<element><child/></element>',
       (node) {
         final child = node.firstChild!;
-        expect(child.outerXml, '<child/>');
+        check(child.outerXml).equals('<child/>');
         child.outerXml = '<child1/> and <child2/>';
       },
       '<element><child1/> and <child2/></element>',
@@ -376,9 +380,9 @@ void main() {
       'multiple with empty',
       '<element><child1/> and <child2/></element>',
       (node) {
-        expect(node.children[1].outerXml, ' and ');
+        check(node.children[1].outerXml).equals(' and ');
         node.children[1].outerXml = '';
-        expect(node.children.length, 2);
+        check(node.children.length).equals(2);
       },
       '<element><child1/><child2/></element>',
     );
@@ -460,10 +464,10 @@ void main() {
       'element (attribute children)',
       '<element/>',
       (node) => node.children.insert(0, wrong),
-      throwsA(
+      (it) => it.throws<XmlNodeTypeException>().which(
         isXmlNodeTypeException(
           node: wrong,
-          types: contains(XmlNodeType.ELEMENT),
+          typesCondition: (t) => t.contains(XmlNodeType.ELEMENT),
         ),
       ),
     );
@@ -546,10 +550,10 @@ void main() {
       'element (attribute children)',
       '<element/>',
       (node) => node.children.insertAll(0, [wrong]),
-      throwsA(
+      (it) => it.throws<XmlNodeTypeException>().which(
         isXmlNodeTypeException(
           node: wrong,
-          types: contains(XmlNodeType.ELEMENT),
+          typesCondition: (t) => t.contains(XmlNodeType.ELEMENT),
         ),
       ),
     );
@@ -596,10 +600,10 @@ void main() {
       'element (attribute children)',
       '<element1><element2/></element1>',
       (node) => node.children[0] = wrong,
-      throwsA(
+      (it) => it.throws<XmlNodeTypeException>().which(
         isXmlNodeTypeException(
           node: wrong,
-          types: contains(XmlNodeType.ELEMENT),
+          typesCondition: (t) => t.contains(XmlNodeType.ELEMENT),
         ),
       ),
     );

@@ -1,4 +1,5 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/xml.dart';
 
 void main() {
@@ -15,11 +16,9 @@ void main() {
         ],
       );
       element.normalize();
-      expect(element.children.length, 2);
-      expect(
-        element.toXmlString(),
-        '<element><element1/><element2/></element>',
-      );
+      check(element.children.length).equals(2);
+      check(element.toXmlString())
+          .equals('<element><element1/><element2/></element>');
     });
     test('join adjacent text', () {
       final element = XmlElement.tag(
@@ -27,8 +26,8 @@ void main() {
         children: [XmlText('aaa'), XmlText('bbb'), XmlText('ccc')],
       );
       element.normalize();
-      expect(element.children.length, 1);
-      expect(element.toXmlString(), '<element>aaabbbccc</element>');
+      check(element.children.length).equals(1);
+      check(element.toXmlString()).equals('<element>aaabbbccc</element>');
     });
     test('trim whitespace', () {
       final element = XmlElement.tag(
@@ -36,8 +35,8 @@ void main() {
         children: [XmlText(' a '), XmlText(' b ')],
       );
       element.normalize(trimAllWhitespace: true);
-      expect(element.children.length, 1);
-      expect(element.toXmlString(), '<element>a  b</element>');
+      check(element.children.length).equals(1);
+      check(element.toXmlString()).equals('<element>a  b</element>');
     });
     test('selectively trim whitespace', () {
       final element = XmlElement.tag(
@@ -48,7 +47,8 @@ void main() {
         ],
       );
       element.normalize(trimWhitespace: (node) => node.value == ' 2 ');
-      expect(element.toXmlString(), '<element><a> 1 </a><b>2</b></element>');
+      check(element.toXmlString())
+          .equals('<element><a> 1 </a><b>2</b></element>');
     });
     test('collapse whitespace', () {
       final element = XmlElement.tag(
@@ -56,8 +56,8 @@ void main() {
         children: [XmlText(' a '), XmlText(' b ')],
       );
       element.normalize(collapseAllWhitespace: true);
-      expect(element.children.length, 1);
-      expect(element.toXmlString(), '<element> a b </element>');
+      check(element.children.length).equals(1);
+      check(element.toXmlString()).equals('<element> a b </element>');
     });
     test('selectively collapse whitespace', () {
       final element = XmlElement.tag(
@@ -68,7 +68,8 @@ void main() {
         ],
       );
       element.normalize(collapseWhitespace: (node) => node.value == '2  2');
-      expect(element.toXmlString(), '<element><a>1  1</a><b>2 2</b></element>');
+      check(element.toXmlString())
+          .equals('<element><a>1  1</a><b>2 2</b></element>');
     });
     test('normalize newlines', () {
       final element = XmlElement.tag(
@@ -82,10 +83,8 @@ void main() {
         ],
       );
       element.normalize(normalizeAllNewline: true);
-      expect(
-        element.children.map((child) => child.innerText),
-        everyElement('\n'),
-      );
+      check(element.children.map((child) => child.innerText))
+          .every((it) => it.equals('\n'));
     });
     test('selectively normalize newlines', () {
       final element = XmlElement.tag(
@@ -99,13 +98,8 @@ void main() {
         ],
       );
       element.normalize(normalizeNewline: (node) => node.value.length > 1);
-      expect(element.children.map((child) => child.innerText), [
-        '\r',
-        '\n',
-        '\n',
-        '\u0085',
-        '\u2028',
-      ]);
+      check(element.children.map((child) => child.innerText))
+          .deepEquals(['\r', '\n', '\n', '\u0085', '\u2028']);
     });
     test('document fragment', () {
       final fragment = XmlDocumentFragment([
@@ -126,11 +120,9 @@ void main() {
       fragment.normalize();
       final element = XmlElement(const XmlName.qualified('element'));
       element.children.add(fragment);
-      expect(element.children.length, 5);
-      expect(
-        element.toXmlString(),
-        '<element>aaa<element1/>bbbccc<element2/>ddd</element>',
-      );
+      check(element.children.length).equals(5);
+      check(element.toXmlString())
+          .equals('<element>aaa<element1/>bbbccc<element2/>ddd</element>');
     });
   });
   group('writer', () {
@@ -142,8 +134,7 @@ void main() {
     );
     test('default', () {
       final output = document.toXmlString();
-      expect(
-        output,
+      check(output).equals(
         '<body>\n'
         '  <a>\tWhat\r the  heck?\n</a>\n'
         '  <b>\tWhat\r the  heck?\n</b>\n'
@@ -152,8 +143,7 @@ void main() {
     });
     test('pretty', () {
       final output = document.toXmlString(pretty: true);
-      expect(
-        output,
+      check(output).equals(
         '<body>\n'
         '  <a>What the heck?</a>\n'
         '  <b>What the heck?</b>\n'
@@ -162,8 +152,7 @@ void main() {
     });
     test('indent', () {
       final output = document.toXmlString(pretty: true, indent: '\t');
-      expect(
-        output,
+      check(output).equals(
         '<body>\n'
         '\t<a>What the heck?</a>\n'
         '\t<b>What the heck?</b>\n'
@@ -172,8 +161,7 @@ void main() {
     });
     test('newline', () {
       final output = document.toXmlString(pretty: true, newLine: '\r\n');
-      expect(
-        output,
+      check(output).equals(
         '<body>\r\n'
         '  <a>What the heck?</a>\r\n'
         '  <b>What the heck?</b>\r\n'
@@ -186,8 +174,7 @@ void main() {
           pretty: true,
           preserveWhitespace: (node) => true,
         );
-        expect(
-          output,
+        check(output).equals(
           '<body>\n'
           '  <a>\tWhat\r the  heck?\n</a>\n'
           '  <b>\tWhat\r the  heck?\n</b>\n'
@@ -200,8 +187,7 @@ void main() {
           preserveWhitespace: (node) =>
               node is XmlElement && node.localName == 'b',
         );
-        expect(
-          output,
+        check(output).equals(
           '<body>\n'
           '  <a>What the heck?</a>\n'
           '  <b>\tWhat\r the  heck?\n</b>\n'
@@ -219,8 +205,7 @@ void main() {
           preserveWhitespace: (node) =>
               node is XmlElement && node.localName == 'p',
         );
-        expect(
-          output,
+        check(output).equals(
           '<html>\n'
           '  <body>\n'
           '    <p><b>bold</b>, <i>italic</i> and <b><i>both</i></b>.</p>\n'
@@ -241,7 +226,7 @@ void main() {
           ),
         ]);
         final output = input.toXmlString(pretty: true);
-        expect(output, '<contents>Hello World</contents>');
+        check(output).equals('<contents>Hello World</contents>');
       });
     });
     group('attributes', () {
@@ -253,19 +238,17 @@ void main() {
           '</body>';
       final document = XmlDocument.parse(input);
       tearDown(
-        () => expect(
+        () => check(
+          because: 'Modified the original DOM.',
           document.toXmlString(),
-          input,
-          reason: 'Modified the original DOM.',
-        ),
+        ).equals(input),
       );
       test('indent none', () {
         final output = document.toXmlString(
           pretty: true,
           indentAttribute: (node) => false,
         );
-        expect(
-          output,
+        check(output).equals(
           '<body>\n'
           '  <a a="1">AAA</a>\n'
           '  <b a="1" b="2">BBB</b>\n'
@@ -278,8 +261,7 @@ void main() {
           pretty: true,
           indentAttribute: (node) => true,
         );
-        expect(
-          output,
+        check(output).equals(
           '<body>\n'
           '  <a\n'
           '    a="1">AAA</a>\n'
@@ -298,8 +280,7 @@ void main() {
           pretty: true,
           indentAttribute: (node) => node.parent!.attributes.first != node,
         );
-        expect(
-          output,
+        check(output).equals(
           '<body>\n'
           '  <a a="1">AAA</a>\n'
           '  <b a="1"\n'
@@ -315,8 +296,7 @@ void main() {
           pretty: true,
           indentAttribute: (node) => node.parent!.attributes.length > 1,
         );
-        expect(
-          output,
+        check(output).equals(
           '<body>\n'
           '  <a a="1">AAA</a>\n'
           '  <b\n'
@@ -337,8 +317,7 @@ void main() {
             return index > 0 && index.isEven;
           },
         );
-        expect(
-          output,
+        check(output).equals(
           '<body>\n'
           '  <a a="1">AAA</a>\n'
           '  <b a="1" b="2">BBB</b>\n'
@@ -353,8 +332,7 @@ void main() {
           preserveWhitespace: (node) => true,
           indentAttribute: (node) => true,
         );
-        expect(
-          output,
+        check(output).equals(
           '<body>'
           '<a a="1">AAA</a>'
           '<b a="1" b="2">BBB</b>'
@@ -368,8 +346,7 @@ void main() {
           sortAttributes: (a, b) =>
               b.name.qualified.compareTo(a.name.qualified),
         );
-        expect(
-          output,
+        check(output).equals(
           '<body>\n'
           '  <a a="1">AAA</a>\n'
           '  <b b="2" a="1">BBB</b>\n'
@@ -384,8 +361,7 @@ void main() {
           sortAttributes: (a, b) =>
               b.name.qualified.compareTo(a.name.qualified),
         );
-        expect(
-          output,
+        check(output).equals(
           '<body>'
           '<a a="1">AAA</a>'
           '<b b="2" a="1">BBB</b>'
@@ -413,8 +389,7 @@ void main() {
           spaceBeforeSelfClose: (node) =>
               node is XmlElement && node.localName != 'do-not-add',
         );
-        expect(
-          output,
+        check(output).equals(
           '<base>\n'
           '  <simple />\n'
           '  <with-attributes attr="val" />\n'
@@ -426,15 +401,15 @@ void main() {
     group('namespaces', () {
       test('default', () {
         final namespace = XmlNamespace('prefix', 'http://uri.com');
-        expect(namespace.toXmlString(), 'xmlns:prefix="http://uri.com"');
+        check(namespace.toXmlString()).equals('xmlns:prefix="http://uri.com"');
       });
       test('empty prefix', () {
         final namespace = XmlNamespace('', 'http://uri.com');
-        expect(namespace.toXmlString(), 'xmlns="http://uri.com"');
+        check(namespace.toXmlString()).equals('xmlns="http://uri.com"');
       });
       test('namespace prefix', () {
         final namespace = XmlNamespace('xmlns', 'http://uri.com');
-        expect(namespace.toXmlString(), 'xmlns:xmlns="http://uri.com"');
+        check(namespace.toXmlString()).equals('xmlns:xmlns="http://uri.com"');
       });
     });
   });

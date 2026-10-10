@@ -1,8 +1,8 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 void main() {
@@ -142,7 +142,7 @@ void main() {
 
     test('descendant axis from document excludes declaration and doctype', () {
       final nodes = doc.xpath('//node()');
-      expect(nodes.any((n) => n is XmlDeclaration || n is XmlDoctype), isFalse);
+      check(nodes.any((n) => n is XmlDeclaration || n is XmlDoctype)).isFalse();
     });
 
     test('preceding-sibling and following-sibling on root element ignore non-xpath nodes', () {
@@ -162,27 +162,24 @@ void main() {
 
     test('parent of namespace node is the element itself', () {
       final parentOfNs = root.xpath('namespace::*[local-name()="ns"]/..');
-      expect(parentOfNs.single, root);
+      check(parentOfNs.single).equals(root);
     });
 
     test('parent of inherited namespace node is the inheriting element', () {
       final parentOfInheritedNs = child.xpath(
         'namespace::*[local-name()="ns"]/..',
       );
-      expect(parentOfInheritedNs.single, child);
+      check(parentOfInheritedNs.single).equals(child);
     });
 
     test('node comparison "is" on namespace nodes', () {
-      expect(
-        doc.xpathEvaluate('/*[1]/namespace::ns is /*[1]/namespace::ns'),
-        isXPathSequence([true]),
-      );
-      expect(
+      check(doc.xpathEvaluate('/*[1]/namespace::ns is /*[1]/namespace::ns'))
+          .isXPathSequence([true]);
+      check(
         doc.xpathEvaluate(
           '/*[1]/namespace::ns is /*[1]/child[1]/namespace::ns',
         ),
-        isXPathSequence([false]),
-      );
+      ).isXPathSequence([false]);
     });
   });
 }

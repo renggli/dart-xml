@@ -1,10 +1,10 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/src/xpath/functions/map.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
 import '../helpers.dart';
 
 final document = XmlDocument.parse('<r><a>1</a><b>2</b></r>');
@@ -15,97 +15,85 @@ void main() {
     test('merges maps', () {
       final map1 = {'a': 1, 'b': 2};
       final map2 = {'b': 3, 'c': 4};
-      expect(
+      check(
         fnMapMerge(context, [
           XPathSequence([toXPathItem(map1), toXPathItem(map2)]),
         ]),
-        isXPathSequence([
-          {'a': 1, 'b': 3, 'c': 4},
-        ]),
-      );
+      ).isXPathSequence([
+        {'a': 1, 'b': 3, 'c': 4},
+      ]);
     });
 
     test('throws for non-map item', () {
-      expect(
-        () => fnMapMerge(context, [seq(123)]),
-        throwsA(
-          isXPathEvaluationException(
-            message: 'Unsupported cast from 123 to map(*)',
-          ),
-        ),
-      );
+      check(() => fnMapMerge(context, [seq(123)]))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(
+              message: 'Unsupported cast from 123 to map(*)',
+            ),
+          );
     });
     test('merges maps with options', () {
       final map1 = {'a': 1};
       final map2 = {'a': 2};
-      expect(
+      check(
         fnMapMerge(context, [
           XPathSequence([toXPathItem(map1), toXPathItem(map2)]),
           seq({'duplicates': 'use-last'}),
         ]),
-        isXPathSequence([
-          {'a': 2},
-        ]),
-      );
+      ).isXPathSequence([
+        {'a': 2},
+      ]);
     });
   });
 
   group('map:size', () {
     test('returns size', () {
       final map = {'a': 1, 'b': 2};
-      expect(fnMapSize(context, [seq(map)]), isXPathSequence([2]));
+      check(fnMapSize(context, [seq(map)])).isXPathSequence([2]);
     });
   });
 
   group('map:keys', () {
     test('returns keys', () {
       final map = {'a': 1, 'b': 2};
-      expect(
-        fnMapKeys(context, [seq(map)]),
-        isXPathSequence(containsAll(['a', 'b'])),
-      );
+      check(fnMapKeys(context, [seq(map)])).unwrapped
+          .unorderedEquals(['a', 'b']);
     });
   });
 
   group('map:contains', () {
     test('returns true if contains', () {
       final map = {'a': 1};
-      expect(
-        fnMapContains(context, [seq(map), seq('a')]),
-        isXPathSequence([true]),
-      );
+      check(fnMapContains(context, [seq(map), seq('a')]))
+          .isXPathSequence([true]);
     });
 
     test('returns false if not contains', () {
       final map = {'a': 1};
-      expect(
-        fnMapContains(context, [seq(map), seq('b')]),
-        isXPathSequence([false]),
-      );
+      check(fnMapContains(context, [seq(map), seq('b')]))
+          .isXPathSequence([false]);
     });
   });
 
   group('map:get', () {
     test('returns value for key', () {
       final map = {'a': 1};
-      expect(fnMapGet(context, [seq(map), seq('a')]), isXPathSequence([1]));
+      check(fnMapGet(context, [seq(map), seq('a')])).isXPathSequence([1]);
     });
 
     test('returns empty for missing key', () {
       final map = {'a': 1};
-      expect(fnMapGet(context, [seq(map), seq('b')]), isXPathSequence(isEmpty));
+      check(fnMapGet(context, [seq(map), seq('b')])).isXPathSequence(isEmpty);
     });
   });
 
   group('map:find', () {
     test('finds value', () {
       final map = {'a': 1};
-      expect(
-        fnMapFind(context, [seq(map), seq('a')]),
-        isXPathSequence([
-          [1],
-        ]),
-      );
+      check(fnMapFind(context, [seq(map), seq('a')])).isXPathSequence([
+        [1],
+      ]);
     });
 
     test('finds value in nested list', () {
@@ -115,12 +103,9 @@ void main() {
         {'a': 2},
       ];
       final result = fnMapFind(context, [seq(list), seq('a')]);
-      expect(
-        result,
-        isXPathSequence([
-          [1, 2],
-        ]),
-      );
+      check(result).isXPathSequence([
+        [1, 2],
+      ]);
     });
 
     test('finds value in XPathArray', () {
@@ -137,58 +122,45 @@ void main() {
         XPathSequence.single(array),
         const XPathSequence.single(XPathString('a')),
       ]);
-      expect(
-        result,
-        isXPathSequence([
-          [42],
-        ]),
-      );
+      check(result).isXPathSequence([
+        [42],
+      ]);
     });
   });
 
   group('map:put', () {
     test('adds entry', () {
       final map = {'a': 1};
-      expect(
-        fnMapPut(context, [seq(map), seq('b'), seq(2)]),
-        isXPathSequence([
-          {'a': 1, 'b': 2},
-        ]),
-      );
+      check(fnMapPut(context, [seq(map), seq('b'), seq(2)])).isXPathSequence([
+        {'a': 1, 'b': 2},
+      ]);
     });
   });
 
   group('map:entry', () {
     test('creates entry', () {
-      expect(
-        fnMapEntry(context, [seq('a'), seq(1)]),
-        isXPathSequence([
-          {'a': 1},
-        ]),
-      );
+      check(fnMapEntry(context, [seq('a'), seq(1)])).isXPathSequence([
+        {'a': 1},
+      ]);
     });
   });
 
   group('map:remove', () {
     test('removes entry', () {
       final map = {'a': 1, 'b': 2};
-      expect(
-        fnMapRemove(context, [seq(map), seq('a')]),
-        isXPathSequence([
-          {'b': 2},
-        ]),
-      );
+      check(fnMapRemove(context, [seq(map), seq('a')])).isXPathSequence([
+        {'b': 2},
+      ]);
     });
 
     test('removes multiple entries', () {
       final map = {'a': 1, 'b': 2};
-      expect(
+      check(
         fnMapRemove(context, [
           seq(map),
           seq(['a', 'b']),
         ]),
-        isXPathSequence([isEmpty]),
-      );
+      ).isXPathSequence([isEmpty]);
     });
   });
 
@@ -201,10 +173,8 @@ void main() {
         return seq('$key$value');
       }
 
-      expect(
-        fnMapForEach(context, [seq(map), seq(concat)]),
-        isXPathSequence(containsAll(['a1', 'b2'])),
-      );
+      check(fnMapForEach(context, [seq(map), seq(concat)])).unwrapped
+          .unorderedEquals(['a1', 'b2']);
     });
   });
 }

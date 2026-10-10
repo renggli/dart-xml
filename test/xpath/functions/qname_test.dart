@@ -1,9 +1,10 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/functions/qname.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
+import '../../utils/checks.dart';
 
 final document = XmlDocument.parse('<r xmlns:p="uri"><a>1</a><b>2</b></r>');
 final context = const XPathConfiguration.raw().context(document);
@@ -19,295 +20,265 @@ XPathSequence seq(Object value) => XPathSequence.single(switch (value) {
 void main() {
   group('fn:namespace-uri-for-prefix', () {
     test('throws for invalid element', () {
-      expect(
+      check(
         () => fnNamespaceUriForPrefix(context, [
           XPathSequence.empty,
           seq(document),
         ]),
-        throwsA(isXPathEvaluationException()),
-      );
+      ).throws<XPathEvaluationException>().which(isXPathEvaluationException());
     });
 
     test('returns uri for prefix', () {
-      expect(
+      check(
         fnNamespaceUriForPrefix(context, [seq('p'), seq(document.rootElement)]),
-        isXPathSequence(['uri']),
-      );
+      ).isXPathSequence(['uri']);
     });
 
     test('returns empty for unknown prefix', () {
-      expect(
+      check(
         fnNamespaceUriForPrefix(context, [
           seq('unknown'),
           seq(document.rootElement),
         ]),
-        isXPathSequence(isEmpty),
-      );
+      ).isXPathSequence(isEmpty);
     });
   });
 
   group('fn:resolve-QName', () {
     test('resolves QName', () {
-      expect(
+      check(
         fnResolveQName(context, [seq('p:local'), seq(document.rootElement)]),
-        isXPathSequence([isA<XmlName>()]),
-      );
+      ).isXPathSequence([isA<XmlName>()]);
     });
 
     test('returns empty for empty sequence', () {
-      expect(
+      check(
         fnResolveQName(context, [
           XPathSequence.empty,
           seq(document.rootElement),
         ]),
-        isXPathSequence(isEmpty),
-      );
+      ).isXPathSequence(isEmpty);
     });
 
     test('throws for unknown prefix', () {
-      expect(
+      check(
         () => fnResolveQName(context, [
           seq('unknown:local'),
           seq(document.rootElement),
         ]),
-        throwsA(isXPathEvaluationException()),
-      );
+      ).throws<XPathEvaluationException>().which(isXPathEvaluationException());
     });
 
     test('throws for non-element node', () {
-      expect(
-        () => fnResolveQName(context, [seq('p:local'), seq(document)]),
-        throwsA(
-          isXPathEvaluationException(
-            errorCode: XPathErrorCode.XPTY0004,
-            message: contains('Expected element'),
-          ),
-        ),
-      );
+      check(() => fnResolveQName(context, [seq('p:local'), seq(document)]))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(
+              errorCode: XPathErrorCode.XPTY0004,
+              message: 'Expected element',
+            ),
+          );
     });
 
     test('resolves with untypedAtomic', () {
-      expect(
+      check(
         fnResolveQName(context, [
           const XPathSequence.single(XPathUntypedAtomic('p:local')),
           seq(document.rootElement),
         ]),
-        isXPathSequence([isA<XmlName>()]),
-      );
+      ).isXPathSequence([isA<XmlName>()]);
     });
   });
 
   group('fn:QName', () {
     test('creates QName with prefix and uri', () {
       final result = fnQName(context, [seq('uri'), seq('p:local')]);
-      expect(result, isXPathSequence([isA<XmlName>()]));
+      check(result).isXPathSequence([isA<XmlName>()]);
       final qname = result.single as XPathQName;
-      expect(qname.value.prefix, 'p');
-      expect(qname.value.local, 'local');
-      expect(qname.value.namespaceUri, 'uri');
+      check(qname.value.prefix).equals('p');
+      check(qname.value.local).equals('local');
+      check(qname.value.namespaceUri).equals('uri');
     });
 
     test('creates QName without prefix', () {
       final result = fnQName(context, [seq('uri'), seq('local')]);
-      expect(result, isXPathSequence([isA<XmlName>()]));
+      check(result).isXPathSequence([isA<XmlName>()]);
       final qname = result.single as XPathQName;
-      expect(qname.value.prefix, isNull);
-      expect(qname.value.local, 'local');
-      expect(qname.value.namespaceUri, 'uri');
+      check(qname.value.prefix).isNull();
+      check(qname.value.local).equals('local');
+      check(qname.value.namespaceUri).equals('uri');
     });
 
     test('creates QName with empty uri matching absent namespace', () {
       final result = fnQName(context, [seq(''), seq('local')]);
       final qname = result.single as XPathQName;
-      expect(qname.value.namespaceUri, isEmpty);
-      expect(qname == const XPathQName(XmlName.qualified('local')), isTrue);
+      check(qname.value.namespaceUri).equals('');
+      check(qname == const XPathQName(XmlName.qualified('local'))).isTrue();
     });
 
     test('throws FOCA0002 for invalid lexical QName', () {
-      expect(
-        () => fnQName(context, [seq('uri'), seq('1invalid')]),
-        throwsA(isXPathEvaluationException(message: contains('FOCA0002'))),
-      );
-      expect(
-        () => fnQName(context, [seq('uri'), seq(':local')]),
-        throwsA(isXPathEvaluationException(message: contains('FOCA0002'))),
-      );
-      expect(
-        () => fnQName(context, [seq('uri'), seq('prefix:')]),
-        throwsA(isXPathEvaluationException(message: contains('FOCA0002'))),
-      );
-      expect(
-        () => fnQName(context, [seq('uri'), seq('a:b:c')]),
-        throwsA(isXPathEvaluationException(message: contains('FOCA0002'))),
-      );
-      expect(
-        () => fnQName(context, [seq('uri'), seq('invalid name')]),
-        throwsA(isXPathEvaluationException(message: contains('FOCA0002'))),
-      );
+      check(() => fnQName(context, [seq('uri'), seq('1invalid')]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException(message: 'FOCA0002'));
+      check(() => fnQName(context, [seq('uri'), seq(':local')]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException(message: 'FOCA0002'));
+      check(() => fnQName(context, [seq('uri'), seq('prefix:')]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException(message: 'FOCA0002'));
+      check(() => fnQName(context, [seq('uri'), seq('a:b:c')]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException(message: 'FOCA0002'));
+      check(() => fnQName(context, [seq('uri'), seq('invalid name')]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException(message: 'FOCA0002'));
     });
 
     test('throws FOCA0002 when prefix is given with empty or null uri', () {
-      expect(
-        () => fnQName(context, [XPathSequence.empty, seq('p:local')]),
-        throwsA(isXPathEvaluationException(message: contains('FOCA0002'))),
-      );
-      expect(
-        () => fnQName(context, [seq(''), seq('p:local')]),
-        throwsA(isXPathEvaluationException(message: contains('FOCA0002'))),
-      );
+      check(() => fnQName(context, [XPathSequence.empty, seq('p:local')]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException(message: 'FOCA0002'));
+      check(() => fnQName(context, [seq(''), seq('p:local')]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException(message: 'FOCA0002'));
     });
 
     test('throws FOCA0002 for xmlns prefix or reserved xmlns uri', () {
-      expect(
-        () => fnQName(context, [seq('http://example.com'), seq('xmlns:foo')]),
-        throwsA(isXPathEvaluationException(message: contains('FOCA0002'))),
-      );
-      expect(
-        () => fnQName(context, [
-          seq('http://www.w3.org/2000/xmlns/'),
-          seq('foo'),
-        ]),
-        throwsA(isXPathEvaluationException(message: contains('FOCA0002'))),
-      );
-      expect(
+      check(
+            () =>
+                fnQName(context, [seq('http://example.com'), seq('xmlns:foo')]),
+          )
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException(message: 'FOCA0002'));
+      check(
+            () => fnQName(context, [
+              seq('http://www.w3.org/2000/xmlns/'),
+              seq('foo'),
+            ]),
+          )
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException(message: 'FOCA0002'));
+      check(
         () => fnQName(context, [
           seq('http://www.w3.org/XML/1998/namespace'),
           seq('foo'),
         ]),
-        throwsA(
-          isXPathEvaluationException(
-            errorCode: XPathErrorCode.FOCA0002,
-            message: contains('must have prefix "xml"'),
-          ),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(
+          errorCode: XPathErrorCode.FOCA0002,
+          message: 'must have prefix "xml"',
         ),
       );
     });
 
     test('throws XPTY0004 for sequence cardinality violations', () {
-      expect(
+      check(
         () => fnQName(context, [
           XPathSequence(const [XPathString('a'), XPathString('b')]),
           seq('c'),
         ]),
-        throwsA(
-          isXPathEvaluationException(
-            errorCode: XPathErrorCode.XPTY0004,
-            message: contains(
-              'Argument 1 to fn:QName accepts at most one item',
-            ),
-          ),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(
+          errorCode: XPathErrorCode.XPTY0004,
+          message: 'Argument 1 to fn:QName accepts at most one item',
         ),
       );
-      expect(
+      check(
         () => fnQName(context, [
           seq('a'),
           XPathSequence(const [XPathString('b'), XPathString('c')]),
         ]),
-        throwsA(
-          isXPathEvaluationException(
-            errorCode: XPathErrorCode.XPTY0004,
-            message: contains(
-              'Argument 2 to fn:QName must be exactly one item',
-            ),
-          ),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(
+          errorCode: XPathErrorCode.XPTY0004,
+          message: 'Argument 2 to fn:QName must be exactly one item',
         ),
       );
     });
 
     test('throws FOCA0002 for xml prefix mismatch', () {
-      expect(
-        () => fnQName(context, [seq('http://wrong.uri'), seq('xml:foo')]),
-        throwsA(isXPathEvaluationException(message: contains('FOCA0002'))),
-      );
-      expect(
-        () => fnQName(context, [
-          seq('http://www.w3.org/XML/1998/namespace'),
-          seq('other:foo'),
-        ]),
-        throwsA(isXPathEvaluationException(message: contains('FOCA0002'))),
-      );
+      check(() => fnQName(context, [seq('http://wrong.uri'), seq('xml:foo')]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException(message: 'FOCA0002'));
+      check(
+            () => fnQName(context, [
+              seq('http://www.w3.org/XML/1998/namespace'),
+              seq('other:foo'),
+            ]),
+          )
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException(message: 'FOCA0002'));
     });
 
     test('throws XPTY0004 for non-string arguments', () {
-      expect(
-        () => fnQName(context, [
-          XPathSequence.single(XPathInteger.fromInt(100)),
-          seq('foo'),
-        ]),
-        throwsA(isXPathEvaluationException(message: contains('XPTY0004'))),
-      );
-      expect(
-        () => fnQName(context, [
-          seq('uri'),
-          XPathSequence.single(XPathInteger.fromInt(100)),
-        ]),
-        throwsA(isXPathEvaluationException(message: contains('XPTY0004'))),
-      );
+      check(
+            () => fnQName(context, [
+              XPathSequence.single(XPathInteger.fromInt(100)),
+              seq('foo'),
+            ]),
+          )
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException(message: 'XPTY0004'));
+      check(
+            () => fnQName(context, [
+              seq('uri'),
+              XPathSequence.single(XPathInteger.fromInt(100)),
+            ]),
+          )
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException(message: 'XPTY0004'));
     });
   });
 
   group('fn:prefix-from-QName', () {
     test('returns prefix', () {
       const qname = XmlName.qualified('p:local');
-      expect(fnPrefixFromQName(context, [seq(qname)]), isXPathSequence(['p']));
+      check(fnPrefixFromQName(context, [seq(qname)])).isXPathSequence(['p']);
     });
 
     test('returns empty for empty sequence', () {
-      expect(
-        fnPrefixFromQName(context, [XPathSequence.empty]),
-        isXPathSequence(isEmpty),
-      );
+      check(fnPrefixFromQName(context, [XPathSequence.empty]))
+          .isXPathSequence(isEmpty);
     });
   });
 
   group('fn:local-name-from-qname', () {
     test('returns local name', () {
       const qname = XmlName.qualified('p:local');
-      expect(
-        fnLocalNameFromQName(context, [seq(qname)]),
-        isXPathSequence(['local']),
-      );
+      check(fnLocalNameFromQName(context, [seq(qname)]))
+          .isXPathSequence(['local']);
     });
 
     test('returns empty for empty sequence', () {
-      expect(
-        fnLocalNameFromQName(context, [XPathSequence.empty]),
-        isXPathSequence(isEmpty),
-      );
+      check(fnLocalNameFromQName(context, [XPathSequence.empty]))
+          .isXPathSequence(isEmpty);
     });
   });
 
   group('fn:namespace-uri-from-QName', () {
     test('returns empty if no namespace', () {
       const qname = XmlName.qualified('p:local');
-      expect(
-        fnNamespaceUriFromQName(context, [seq(qname)]),
-        isXPathSequence(isEmpty),
-      );
+      check(fnNamespaceUriFromQName(context, [seq(qname)]))
+          .isXPathSequence(isEmpty);
     });
 
     test('returns namespace uri', () {
       final qnameWithUri = XmlName.parse('p:local', namespaceUri: 'uri');
-      expect(
-        fnNamespaceUriFromQName(context, [seq(qnameWithUri)]),
-        isXPathSequence(['uri']),
-      );
+      check(fnNamespaceUriFromQName(context, [seq(qnameWithUri)]))
+          .isXPathSequence(['uri']);
     });
   });
 
   group('fn:in-scope-prefixes', () {
     test('throws for non-element', () {
-      expect(
-        () => fnInScopePrefixes(context, [seq(document)]),
-        throwsA(isXPathEvaluationException()),
-      );
+      check(() => fnInScopePrefixes(context, [seq(document)]))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
     });
 
     test('returns in-scope prefixes', () {
-      expect(
-        fnInScopePrefixes(context, [seq(document.rootElement)]),
-        isXPathSequence(['p', 'xml']),
-      );
+      check(fnInScopePrefixes(context, [seq(document.rootElement)]))
+          .isXPathSequence(['p', 'xml']);
     });
   });
 }

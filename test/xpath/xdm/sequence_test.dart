@@ -1,69 +1,66 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/evaluation/cardinality.dart';
-import 'package:xml/src/xpath/xdm/atomic.dart';
-import 'package:xml/src/xpath/xdm/functions/array.dart';
-import 'package:xml/src/xpath/xdm/functions/map.dart';
-import 'package:xml/src/xpath/xdm/item.dart';
-import 'package:xml/src/xpath/xdm/sequence.dart';
 import 'package:xml/xml.dart';
+import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
+import '../../utils/checks.dart';
 
 void main() {
   group('XPathSequence', () {
     test('empty sequence constants and properties', () {
       const empty = XPathSequence.empty;
-      expect(empty.isEmpty, isTrue);
-      expect(empty.isNotEmpty, isFalse);
-      expect(empty.length, equals(0));
-      expect(empty.singleOrNull, isNull);
-      expect(empty.ebv, isFalse);
-      expect(empty.effectiveBooleanValue, isFalse);
-      expect(empty.hasCardinality(XPathCardinality.zeroOrMore), isTrue);
-      expect(empty.hasCardinality(XPathCardinality.zeroOrOne), isTrue);
-      expect(empty.hasCardinality(XPathCardinality.oneOrMore), isFalse);
-      expect(empty.hasCardinality(XPathCardinality.exactlyOne), isFalse);
-      expect(empty.toString(), equals('()'));
-      expect(empty.nodes, isEmpty);
-      expect(empty.atomize(), isEmpty);
+      check(empty.isEmpty).isTrue();
+      check(empty.isNotEmpty).isFalse();
+      check(empty.length).equals(0);
+      check(empty.singleOrNull).isNull();
+      check(empty.ebv).isFalse();
+      check(empty.effectiveBooleanValue).isFalse();
+      check(empty.hasCardinality(XPathCardinality.zeroOrMore)).isTrue();
+      check(empty.hasCardinality(XPathCardinality.zeroOrOne)).isTrue();
+      check(empty.hasCardinality(XPathCardinality.oneOrMore)).isFalse();
+      check(empty.hasCardinality(XPathCardinality.exactlyOne)).isFalse();
+      check(empty.toString()).equals('()');
+      check(empty.nodes).isEmpty();
+      check(empty.atomize()).isEmpty();
     });
 
     test('single sequence properties', () {
       const item = XPathString('test');
       const seq = XPathSequence.single(item);
-      expect(seq.isEmpty, isFalse);
-      expect(seq.isNotEmpty, isTrue);
-      expect(seq.length, equals(1));
-      expect(seq.singleOrNull, equals(item));
-      expect(seq.ebv, isTrue);
-      expect(seq.effectiveBooleanValue, isTrue);
-      expect(seq.hasCardinality(XPathCardinality.zeroOrMore), isTrue);
-      expect(seq.hasCardinality(XPathCardinality.zeroOrOne), isTrue);
-      expect(seq.hasCardinality(XPathCardinality.oneOrMore), isTrue);
-      expect(seq.hasCardinality(XPathCardinality.exactlyOne), isTrue);
-      expect(seq.toString(), equals('(test)'));
-      expect(seq.atomize(), equals([item]));
+      check(seq.isEmpty).isFalse();
+      check(seq.isNotEmpty).isTrue();
+      check(seq.length).equals(1);
+      check(seq.singleOrNull).equals(item);
+      check(seq.ebv).isTrue();
+      check(seq.effectiveBooleanValue).isTrue();
+      check(seq.hasCardinality(XPathCardinality.zeroOrMore)).isTrue();
+      check(seq.hasCardinality(XPathCardinality.zeroOrOne)).isTrue();
+      check(seq.hasCardinality(XPathCardinality.oneOrMore)).isTrue();
+      check(seq.hasCardinality(XPathCardinality.exactlyOne)).isTrue();
+      check(seq.toString()).equals('(test)');
+      check(seq.atomize()).deepEquals([item]);
     });
 
     test('singletons', () {
-      expect(XPathSequence.trueSequence.ebv, isTrue);
-      expect(XPathSequence.falseSequence.ebv, isFalse);
-      expect(XPathSequence.emptyMap.singleOrNull, equals(XPathMap.empty));
-      expect(XPathSequence.emptyArray.singleOrNull, equals(XPathArray.empty));
+      check(XPathSequence.trueSequence.ebv).isTrue();
+      check(XPathSequence.falseSequence.ebv).isFalse();
+      check(XPathSequence.emptyMap.singleOrNull).equals(XPathMap.empty);
+      check(XPathSequence.emptyArray.singleOrNull).equals(XPathArray.empty);
     });
 
     test('factory([items]) creates empty, single, or list sequence', () {
-      expect(XPathSequence(), same(XPathSequence.empty));
-      expect(XPathSequence([]), same(XPathSequence.empty));
+      check(XPathSequence()).identicalTo(XPathSequence.empty);
+      check(XPathSequence([])).identicalTo(XPathSequence.empty);
       final single = XPathSequence([const XPathString('a')]);
-      expect(single.length, equals(1));
+      check(single.length).equals(1);
       final multi = XPathSequence([
         const XPathString('a'),
         const XPathString('b'),
       ]);
-      expect(multi.length, equals(2));
-      expect(multi.toString(), equals('(a, b)'));
-      expect(multi.singleOrNull, isNull);
+      check(multi.length).equals(2);
+      check(multi.toString()).equals('(a, b)');
+      check(multi.singleOrNull).isNull();
     });
 
     test('from(items) flattens nested sequences and converts primitives', () {
@@ -79,33 +76,26 @@ void main() {
         [const XPathString('nested')],
         XPathSequence([const XPathString('inner')]),
       ]);
-      expect(seq.length, equals(8));
-      expect(seq.nodes, equals([el]));
-      expect(
-        seq.atomize().map((a) => a.stringValue).toList(),
-        equals(['1', 'str', 'true', '5', '2.5', '', 'nested', 'inner']),
-      );
+      check(seq.length).equals(8);
+      check(seq.nodes).deepEquals([el]);
+      check(seq.atomize().map((a) => a.stringValue).toList())
+          .deepEquals(['1', 'str', 'true', '5', '2.5', '', 'nested', 'inner']);
     });
 
     test('toItem converts types or throws', () {
-      expect(XPathSequence.toItem(42), equals(XPathInteger.fromInt(42)));
-      expect(
-        XPathSequence.toItem(BigInt.from(42)),
-        equals(XPathInteger.fromInt(42)),
-      );
-      expect(XPathSequence.toItem(3.14), equals(const XPathDouble(3.14)));
-      expect(XPathSequence.toItem('hi'), equals(const XPathString('hi')));
-      expect(XPathSequence.toItem(true), equals(XPathBoolean.trueInstance));
+      check(XPathSequence.toItem(42)).equals(XPathInteger.fromInt(42));
+      check(XPathSequence.toItem(BigInt.from(42)))
+          .equals(XPathInteger.fromInt(42));
+      check(XPathSequence.toItem(3.14)).equals(const XPathDouble(3.14));
+      check(XPathSequence.toItem('hi')).equals(const XPathString('hi'));
+      check(XPathSequence.toItem(true)).equals(XPathBoolean.trueInstance);
       final el = XmlElement(const XmlName.qualified('a'));
-      expect(XPathSequence.toItem(el), equals(XPathNode(el)));
-      expect(
-        XPathSequence.toItem(const XPathString('item')),
-        equals(const XPathString('item')),
-      );
-      expect(
-        () => XPathSequence.toItem(Object()),
-        throwsA(isXPathEvaluationException()),
-      );
+      check(XPathSequence.toItem(el)).equals(XPathNode(el));
+      check(XPathSequence.toItem(const XPathString('item')))
+          .equals(const XPathString('item'));
+      check(() => XPathSequence.toItem(Object()))
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
     });
 
     test('range sequence', () {
@@ -113,34 +103,31 @@ void main() {
         XPathInteger.fromInt(1),
         XPathInteger.fromInt(3),
       );
-      expect(r.length, equals(3));
-      expect(
-        r.toList().map((i) => (i as XPathInteger).value.toInt()).toList(),
-        equals([1, 2, 3]),
-      );
-      expect(r.isEmpty, isFalse);
-      expect(r.isNotEmpty, isTrue);
+      check(r.length).equals(3);
+      check(r.toList().map((i) => (i as XPathInteger).value.toInt()).toList())
+          .deepEquals([1, 2, 3]);
+      check(r.isEmpty).isFalse();
+      check(r.isNotEmpty).isTrue();
 
       final rEmpty = XPathSequence.range(
         XPathInteger.fromInt(5),
         XPathInteger.fromInt(3),
       );
-      expect(rEmpty, same(XPathSequence.empty));
+      check(rEmpty).identicalTo(XPathSequence.empty);
 
       final rSingle = XPathSequence.range(
         XPathInteger.fromInt(5),
         XPathInteger.fromInt(5),
       );
-      expect(rSingle.singleOrNull, equals(XPathInteger.fromInt(5)));
-      expect(r.singleOrNull, isNull);
+      check(rSingle.singleOrNull).equals(XPathInteger.fromInt(5));
+      check(r.singleOrNull).isNull();
 
-      expect(
+      check(
         () => XPathSequence.range(
           XPathInteger.fromInt(1),
           XPathInteger.fromInt(20000000),
         ),
-        throwsA(isXPathEvaluationException()),
-      );
+      ).throws<XPathEvaluationException>().which(isXPathEvaluationException());
     });
 
     test('atomize flattens arrays', () {
@@ -149,22 +136,22 @@ void main() {
         XPathSequence.single(XPathString('b')),
       ]);
       final seq = XPathSequence([arr, const XPathString('c')]);
-      expect(
-        seq.atomize().map((a) => a.stringValue).toList(),
-        equals(['a', 'b', 'c']),
-      );
+      check(seq.atomize().map((a) => a.stringValue).toList())
+          .deepEquals(['a', 'b', 'c']);
     });
 
     test('ebv with node sequence and multi-item error', () {
       final node = XPathNode(XmlElement(const XmlName.qualified('a')));
       final nodeSeq = XPathSequence([node, node]);
-      expect(nodeSeq.ebv, isTrue);
+      check(nodeSeq.ebv).isTrue();
 
       final strSeq = XPathSequence([
         const XPathString('a'),
         const XPathString('b'),
       ]);
-      expect(() => strSeq.ebv, throwsA(isXPathEvaluationException()));
+      check(() => strSeq.ebv)
+          .throws<XPathEvaluationException>()
+          .which(isXPathEvaluationException());
     });
 
     test('cardinality checks for multi-item sequence', () {
@@ -172,10 +159,10 @@ void main() {
         const XPathString('a'),
         const XPathString('b'),
       ]);
-      expect(multi.hasCardinality(XPathCardinality.zeroOrMore), isTrue);
-      expect(multi.hasCardinality(XPathCardinality.oneOrMore), isTrue);
-      expect(multi.hasCardinality(XPathCardinality.zeroOrOne), isFalse);
-      expect(multi.hasCardinality(XPathCardinality.exactlyOne), isFalse);
+      check(multi.hasCardinality(XPathCardinality.zeroOrMore)).isTrue();
+      check(multi.hasCardinality(XPathCardinality.oneOrMore)).isTrue();
+      check(multi.hasCardinality(XPathCardinality.zeroOrOne)).isFalse();
+      check(multi.hasCardinality(XPathCardinality.exactlyOne)).isFalse();
     });
 
     test('equality and hashCode', () {
@@ -193,44 +180,40 @@ void main() {
         const XPathString('c'),
       ]);
 
-      expect(s1, equals(s2));
-      expect(s1.hashCode, equals(s2.hashCode));
-      expect(s1 == s3, isFalse);
-      expect(s1 == s4, isFalse);
-      expect(s1 == Object(), isFalse);
+      check(s1).equals(s2);
+      check(s1.hashCode).equals(s2.hashCode);
+      check(s1 == s3).isFalse();
+      check(s1 == s4).isFalse();
+      check(s1 == Object()).isFalse();
     });
 
     test('fromObject converts various types', () {
-      expect(XPathSequence.fromObject(null), same(XPathSequence.empty));
-      expect(
-        XPathSequence.fromObject(XPathSequence.empty),
-        same(XPathSequence.empty),
-      );
-      expect(XPathSequence.fromObject(42).toValue(), equals(42));
-      expect(XPathSequence.fromObject('hello').toValue(), equals('hello'));
-      expect(XPathSequence.fromObject(true).toValue(), isTrue);
-      expect(XPathSequence.fromObject([1, 2, 3]).toValue(), equals([1, 2, 3]));
-      expect(
-        XPathSequence.fromObject({'a': 1, 'b': 2}).toValue(),
-        equals({'a': 1, 'b': 2}),
-      );
+      check(XPathSequence.fromObject(null)).identicalTo(XPathSequence.empty);
+      check(XPathSequence.fromObject(XPathSequence.empty))
+          .identicalTo(XPathSequence.empty);
+      check(XPathSequence.fromObject(42).toValue()).equals(42);
+      check(XPathSequence.fromObject('hello').toValue()).equals('hello');
+      check(XPathSequence.fromObject(true).toValue()).equals(true);
+      check(XPathSequence.fromObject([1, 2, 3]).toValue())
+          .isA<Iterable<dynamic>>()
+          .deepEquals([1, 2, 3]);
+      check(XPathSequence.fromObject({'a': 1, 'b': 2}).toValue())
+          .isA<Map<dynamic, dynamic>>()
+          .deepEquals({'a': 1, 'b': 2});
       final now = DateTime.utc(2025, 1, 1);
-      expect(XPathSequence.fromObject(now).toValue(), equals(now));
+      check(XPathSequence.fromObject(now).toValue()).equals(now);
       const dur = Duration(seconds: 30);
-      expect(XPathSequence.fromObject(dur).toValue(), equals(dur));
+      check(XPathSequence.fromObject(dur).toValue()).equals(dur);
     });
 
     test('toValue unwraps empty, single, and multiple items', () {
-      expect(XPathSequence.empty.toValue(), isNull);
-      expect(
-        const XPathSequence.single(XPathString('abc')).toValue(),
-        equals('abc'),
-      );
-      expect(
+      check(XPathSequence.empty.toValue()).isNull();
+      check(const XPathSequence.single(XPathString('abc')).toValue())
+          .equals('abc');
+      check(
         XPathSequence([const XPathString('a'), XPathInteger.fromInt(1)])
             .toValue(),
-        equals(['a', 1]),
-      );
+      ).isA<Iterable<dynamic>>().deepEquals(['a', 1]);
     });
 
     test('ebv on single-element range sequence', () {
@@ -238,12 +221,12 @@ void main() {
         XPathInteger.fromInt(1),
         XPathInteger.fromInt(1),
       );
-      expect(range.ebv, isTrue);
+      check(range.ebv).isTrue();
       final rangeZero = XPathSequence.range(
         XPathInteger.fromInt(0),
         XPathInteger.fromInt(0),
       );
-      expect(rangeZero.ebv, isFalse);
+      check(rangeZero.ebv).isFalse();
     });
   });
 }

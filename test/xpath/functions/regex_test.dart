@@ -1,332 +1,337 @@
-import 'package:test/test.dart';
-import 'package:xml/src/xpath/exceptions/error_code.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/functions/regex.dart';
+import 'package:xml/xpath.dart';
 
-import '../../utils/matchers.dart';
+import '../../utils/checks.dart';
 
 void main() {
   group('validateXPathRegexFlags', () {
     test('valid flags', () {
-      expect(() => validateXPathRegexFlags(null), returnsNormally);
-      expect(() => validateXPathRegexFlags(''), returnsNormally);
-      expect(() => validateXPathRegexFlags('smixq'), returnsNormally);
-      expect(() => validateXPathRegexFlags('i'), returnsNormally);
+      check(() => validateXPathRegexFlags(null)).returnsNormally();
+      check(() => validateXPathRegexFlags('')).returnsNormally();
+      check(() => validateXPathRegexFlags('smixq')).returnsNormally();
+      check(() => validateXPathRegexFlags('i')).returnsNormally();
     });
 
     test('invalid flag', () {
-      expect(
-        () => validateXPathRegexFlags('z'),
-        throwsA(
-          isXPathEvaluationException(
-            errorCode: XPathErrorCode.FORX0001,
-            message: 'Invalid regex flag: z',
-          ),
-        ),
-      );
+      check(() => validateXPathRegexFlags('z'))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(
+              errorCode: XPathErrorCode.FORX0001,
+              message: 'Invalid regex flag: z',
+            ),
+          );
     });
 
     test('duplicate flag', () {
-      expect(
-        () => validateXPathRegexFlags('ii'),
-        throwsA(
-          isXPathEvaluationException(
-            errorCode: XPathErrorCode.FORX0001,
-            message: 'Duplicate regular expression flag: i',
-          ),
-        ),
-      );
+      check(() => validateXPathRegexFlags('ii'))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(
+              errorCode: XPathErrorCode.FORX0001,
+              message: 'Duplicate regular expression flag: i',
+            ),
+          );
     });
   });
 
   group('compileXPathRegex', () {
     test('compiles with all flags', () {
-      expect(compileXPathRegex('abc', 'i').isCaseSensitive, isFalse);
-      expect(compileXPathRegex('^abc', 'm').isMultiLine, isTrue);
-      expect(compileXPathRegex('.*', 's').isDotAll, isTrue);
-      expect(compileXPathRegex('a.b', 'q').pattern, 'a\\.b');
-      expect(compileXPathRegex(' a b ', 'x').pattern, 'ab');
+      check(compileXPathRegex('abc', 'i').isCaseSensitive).isFalse();
+      check(compileXPathRegex('^abc', 'm').isMultiLine).isTrue();
+      check(compileXPathRegex('.*', 's').isDotAll).isTrue();
+      check(compileXPathRegex('a.b', 'q').pattern).equals('a\\.b');
+      check(compileXPathRegex(' a b ', 'x').pattern).equals('ab');
     });
 
     test('cached regex returns same instance', () {
       final reg1 = getCachedXPathRegex('abc', 'i');
       final reg2 = getCachedXPathRegex('abc', 'i');
-      expect(identical(reg1, reg2), isTrue);
+      check(identical(reg1, reg2)).isTrue();
     });
 
     test('throws for invalid pattern syntax', () {
-      expect(
-        () => compileXPathRegex(')-(', null),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002)),
-      );
+      check(() => compileXPathRegex(')-(', null))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002),
+          );
     });
 
     test('throws for invalid range quantifier order', () {
-      expect(
-        () => compileXPathRegex('a{5,2}', null),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002)),
-      );
+      check(() => compileXPathRegex('a{5,2}', null))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002),
+          );
     });
   });
 
   group('translateXPathRegex', () {
     test('translates branches and pieces', () {
-      expect(translateXPathRegex('a|b|c'), 'a|b|c');
-      expect(translateXPathRegex('ab+c*d?'), 'ab+c*d?');
-      expect(translateXPathRegex('a*?b+?c??'), 'a*?b+?c??');
-      expect(
-        translateXPathRegex('a{2}b{2,}c{2,4}d{2}?e{2,}?f{2,4}?'),
-        'a{2}b{2,}c{2,4}d{2}?e{2,}?f{2,4}?',
-      );
+      check(translateXPathRegex('a|b|c')).equals('a|b|c');
+      check(translateXPathRegex('ab+c*d?')).equals('ab+c*d?');
+      check(translateXPathRegex('a*?b+?c??')).equals('a*?b+?c??');
+      check(translateXPathRegex('a{2}b{2,}c{2,4}d{2}?e{2,}?f{2,4}?'))
+          .equals('a{2}b{2,}c{2,4}d{2}?e{2,}?f{2,4}?');
     });
 
     test('translates quantified anchors', () {
-      expect(translateXPathRegex('^?'), '(?:^)?');
-      expect(translateXPathRegex(r'$+'), r'(?:$)+');
+      check(translateXPathRegex('^?')).equals('(?:^)?');
+      check(translateXPathRegex(r'$+')).equals(r'(?:$)+');
     });
 
     test('translates wildcard and anchors', () {
-      expect(translateXPathRegex(r'^.+$'), r'^.+$');
+      check(translateXPathRegex(r'^.+$')).equals(r'^.+$');
     });
 
     test('translates groups', () {
-      expect(translateXPathRegex('(abc)'), '(abc)');
-      expect(translateXPathRegex('(?:abc)'), '(?:abc)');
-      expect(translateXPathRegex('(a(b(c)))'), '(a(b(c)))');
+      check(translateXPathRegex('(abc)')).equals('(abc)');
+      check(translateXPathRegex('(?:abc)')).equals('(?:abc)');
+      check(translateXPathRegex('(a(b(c)))')).equals('(a(b(c)))');
     });
 
     test('translates escapes', () {
-      expect(translateXPathRegex(r'\ '), r'\x20');
-      expect(translateXPathRegex(r'\-'), r'\x2D');
-      expect(translateXPathRegex(r'\:'), ':');
-      expect(translateXPathRegex(r'\#'), '#');
-      expect(translateXPathRegex(r'\n\r\t'), r'\n\r\t');
-      expect(translateXPathRegex(r'\i'), r'[\p{L}_:]');
-      expect(translateXPathRegex(r'\I'), r'[^\p{L}_:]');
-      expect(translateXPathRegex(r'\c'), r'[\p{L}\p{N}.\-_:\p{M}]');
-      expect(translateXPathRegex(r'\C'), r'[^\p{L}\p{N}.\-_:\p{M}]');
-      expect(translateXPathRegex(r'\d\D\s\S\w\W'), r'\d\D\s\S\w\W');
-      expect(translateXPathRegex(r'\\'), r'\\');
-      expect(
-        translateXPathRegex(r'\(\)\[\]\{\}\^\$\|\.\?\*\+'),
-        r'\(\)\[\]\{\}\^\$\|\.\?\*\+',
-      );
+      check(translateXPathRegex(r'\ ')).equals(r'\x20');
+      check(translateXPathRegex(r'\-')).equals(r'\x2D');
+      check(translateXPathRegex(r'\:')).equals(':');
+      check(translateXPathRegex(r'\#')).equals('#');
+      check(translateXPathRegex(r'\n\r\t')).equals(r'\n\r\t');
+      check(translateXPathRegex(r'\i')).equals(r'[\p{L}_:]');
+      check(translateXPathRegex(r'\I')).equals(r'[^\p{L}_:]');
+      check(translateXPathRegex(r'\c')).equals(r'[\p{L}\p{N}.\-_:\p{M}]');
+      check(translateXPathRegex(r'\C')).equals(r'[^\p{L}\p{N}.\-_:\p{M}]');
+      check(translateXPathRegex(r'\d\D\s\S\w\W')).equals(r'\d\D\s\S\w\W');
+      check(translateXPathRegex(r'\\')).equals(r'\\');
+      check(translateXPathRegex(r'\(\)\[\]\{\}\^\$\|\.\?\*\+'))
+          .equals(r'\(\)\[\]\{\}\^\$\|\.\?\*\+');
     });
 
     test('translates backreferences', () {
-      expect(translateXPathRegex(r'(a)\1'), r'(a)\1');
-      expect(translateXPathRegex(r'^(#)abc\11$'), r'^(#)abc\1(?:)1$');
-      expect(
-        translateXPathRegex(r'(a)(b)(c)(d)(e)(f)(g)(h)(i)(j)\10'),
-        r'(a)(b)(c)(d)(e)(f)(g)(h)(i)(j)\10',
-      );
-      expect(
-        translateXPathRegex(r'(a)(b)(c)(d)(e)(f)(g)(h)(i)(j)\101'),
-        r'(a)(b)(c)(d)(e)(f)(g)(h)(i)(j)\10(?:)1',
-      );
-      expect(translateXPathRegex(r'(?:a)(b)\1'), r'(?:a)(b)\1');
-      expect(
-        () => translateXPathRegex(r'\1'),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002)),
-      );
-      expect(
-        () => translateXPathRegex(r'((a)\1)'),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002)),
-      );
+      check(translateXPathRegex(r'(a)\1')).equals(r'(a)\1');
+      check(translateXPathRegex(r'^(#)abc\11$')).equals(r'^(#)abc\1(?:)1$');
+      check(translateXPathRegex(r'(a)(b)(c)(d)(e)(f)(g)(h)(i)(j)\10'))
+          .equals(r'(a)(b)(c)(d)(e)(f)(g)(h)(i)(j)\10');
+      check(translateXPathRegex(r'(a)(b)(c)(d)(e)(f)(g)(h)(i)(j)\101'))
+          .equals(r'(a)(b)(c)(d)(e)(f)(g)(h)(i)(j)\10(?:)1');
+      check(translateXPathRegex(r'(?:a)(b)\1')).equals(r'(?:a)(b)\1');
+      check(() => translateXPathRegex(r'\1'))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002),
+          );
+      check(() => translateXPathRegex(r'((a)\1)'))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002),
+          );
     });
 
     test('translates unicode property escapes', () {
-      expect(translateXPathRegex(r'\p{IsBasicLatin}'), r'[\u{0}-\u{7f}]');
-      expect(translateXPathRegex(r'\P{IsBasicLatin}'), r'[^\u{0}-\u{7f}]');
-      expect(translateXPathRegex(r'\p{L}'), r'\p{L}');
-      expect(translateXPathRegex(r'\P{Nd}'), r'\P{Nd}');
-      expect(
-        () => translateXPathRegex(r'\p{IsInvalidBlock}'),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002)),
-      );
-      expect(
-        () => translateXPathRegex(r'\p{InvalidCategory}'),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002)),
-      );
-      expect(
-        () => translateXPathRegex(r'\p{}'),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002)),
-      );
+      check(translateXPathRegex(r'\p{IsBasicLatin}')).equals(r'[\u{0}-\u{7f}]');
+      check(translateXPathRegex(r'\P{IsBasicLatin}'))
+          .equals(r'[^\u{0}-\u{7f}]');
+      check(translateXPathRegex(r'\p{L}')).equals(r'\p{L}');
+      check(translateXPathRegex(r'\P{Nd}')).equals(r'\P{Nd}');
+      check(() => translateXPathRegex(r'\p{IsInvalidBlock}'))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002),
+          );
+      check(() => translateXPathRegex(r'\p{InvalidCategory}'))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002),
+          );
+      check(() => translateXPathRegex(r'\p{}'))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002),
+          );
     });
 
     test('translates character classes', () {
-      expect(translateXPathRegex('[abc]'), '[abc]');
-      expect(translateXPathRegex('[^abc]'), '[^abc]');
-      expect(translateXPathRegex('[a-z]'), '[a-z]');
-      expect(translateXPathRegex(r'[^\P{IsBasicLatin}]'), r'[\u{0}-\u{7f}]');
-      expect(translateXPathRegex('[a-z-[aeiou]]'), '(?:(?![aeiou])[a-z])');
-      expect(translateXPathRegex('[^a-z-[aeiou]]'), '(?:(?![aeiou])[^a-z])');
-      expect(translateXPathRegex(r'[\C]'), r'[^\p{L}\p{N}.\-_:\p{M}]');
-      expect(translateXPathRegex(r'[\I]'), r'[^\p{L}_:]');
-      expect(translateXPathRegex(r'[\C\d]'), r'(?:[^\p{L}\p{N}.\-_:\p{M}]|\d)');
-      expect(translateXPathRegex(r'[\I_]'), r'(?:[^\p{L}_:]|_)');
-      expect(
-        translateXPathRegex(r'[\i\c\d\n\-]'),
-        r'[\p{L}_:\p{L}\p{N}.\-_:\p{M}\d\n\-]',
-      );
-      expect(translateXPathRegex(r'[\-\[\]\n\r\t]'), r'[\-\[\]\n\r\t]');
-      expect(
-        translateXPathRegex(r'[\(\)\{\}\^\$\|\.\?\*\+]'),
-        r'[\(\)\{\}\^\$\|\.\?\*\+]',
-      );
-      expect(translateXPathRegex(r'[\p{IsBasicLatin}]'), r'[\u{0}-\u{7f}]');
-      expect(translateXPathRegex(r'[\P{IsBasicLatin}]'), r'[^\u{0}-\u{7f}]');
-      expect(translateXPathRegex(r'[\p{L}]'), r'[\p{L}]');
-      expect(
-        () => translateXPathRegex(r'[\p{IsInvalidBlock}]'),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002)),
-      );
-      expect(
-        () => translateXPathRegex(r'[\p{InvalidCategory}]'),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002)),
-      );
-      expect(
-        () => translateXPathRegex(r'[\p{}]'),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002)),
-      );
+      check(translateXPathRegex('[abc]')).equals('[abc]');
+      check(translateXPathRegex('[^abc]')).equals('[^abc]');
+      check(translateXPathRegex('[a-z]')).equals('[a-z]');
+      check(translateXPathRegex(r'[^\P{IsBasicLatin}]'))
+          .equals(r'[\u{0}-\u{7f}]');
+      check(translateXPathRegex('[a-z-[aeiou]]'))
+          .equals('(?:(?![aeiou])[a-z])');
+      check(translateXPathRegex('[^a-z-[aeiou]]'))
+          .equals('(?:(?![aeiou])[^a-z])');
+      check(translateXPathRegex(r'[\C]')).equals(r'[^\p{L}\p{N}.\-_:\p{M}]');
+      check(translateXPathRegex(r'[\I]')).equals(r'[^\p{L}_:]');
+      check(translateXPathRegex(r'[\C\d]'))
+          .equals(r'(?:[^\p{L}\p{N}.\-_:\p{M}]|\d)');
+      check(translateXPathRegex(r'[\I_]')).equals(r'(?:[^\p{L}_:]|_)');
+      check(translateXPathRegex(r'[\i\c\d\n\-]'))
+          .equals(r'[\p{L}_:\p{L}\p{N}.\-_:\p{M}\d\n\-]');
+      check(translateXPathRegex(r'[\-\[\]\n\r\t]')).equals(r'[\-\[\]\n\r\t]');
+      check(translateXPathRegex(r'[\(\)\{\}\^\$\|\.\?\*\+]'))
+          .equals(r'[\(\)\{\}\^\$\|\.\?\*\+]');
+      check(translateXPathRegex(r'[\p{IsBasicLatin}]'))
+          .equals(r'[\u{0}-\u{7f}]');
+      check(translateXPathRegex(r'[\P{IsBasicLatin}]'))
+          .equals(r'[^\u{0}-\u{7f}]');
+      check(translateXPathRegex(r'[\p{L}]')).equals(r'[\p{L}]');
+      check(() => translateXPathRegex(r'[\p{IsInvalidBlock}]'))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002),
+          );
+      check(() => translateXPathRegex(r'[\p{InvalidCategory}]'))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002),
+          );
+      check(() => translateXPathRegex(r'[\p{}]'))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002),
+          );
     });
 
     test('translates with flag x', () {
-      expect(translateXPathRegex(' a ( b | c ) d ', isFlagX: true), 'a(b|c)d');
-      expect(translateXPathRegex('[ a b ]', isFlagX: true), '[ a b ]');
-      expect(
-        translateXPathRegex(r'\p{ IsBasicLatin }', isFlagX: true),
-        r'[\u{0}-\u{7f}]',
-      );
-      expect(
-        translateXPathRegex(r'[\p{ IsBasicLatin }]', isFlagX: true),
-        r'[\u{0}-\u{7f}]',
-      );
+      check(translateXPathRegex(' a ( b | c ) d ', isFlagX: true))
+          .equals('a(b|c)d');
+      check(translateXPathRegex('[ a b ]', isFlagX: true)).equals('[ a b ]');
+      check(translateXPathRegex(r'\p{ IsBasicLatin }', isFlagX: true))
+          .equals(r'[\u{0}-\u{7f}]');
+      check(translateXPathRegex(r'[\p{ IsBasicLatin }]', isFlagX: true))
+          .equals(r'[\u{0}-\u{7f}]');
     });
 
     test('fails on syntax errors', () {
-      expect(
-        () => translateXPathRegex(r'abc\'),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002)),
-      );
-      expect(
-        () => translateXPathRegex('(abc'),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002)),
-      );
-      expect(
-        () => translateXPathRegex('[abc'),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002)),
-      );
+      check(() => translateXPathRegex(r'abc\'))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002),
+          );
+      check(() => translateXPathRegex('(abc'))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002),
+          );
+      check(() => translateXPathRegex('[abc'))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002),
+          );
     });
   });
 
   group('parseRegexGroups', () {
     test('parses nested capturing groups', () {
       final root = parseRegexGroups('((a)(b))');
-      expect(root.nr, 0);
-      expect(root.parentNr, -1);
-      expect(root.children, hasLength(1));
-      expect(root.children[0].nr, 1);
-      expect(root.children[0].parentNr, 0);
-      expect(root.children[0].children, hasLength(2));
-      expect(root.children[0].children[0].nr, 2);
-      expect(root.children[0].children[0].parentNr, 1);
-      expect(root.children[0].children[1].nr, 3);
-      expect(root.children[0].children[1].parentNr, 1);
+      check(root.nr).equals(0);
+      check(root.parentNr).equals(-1);
+      check(root.children).length.equals(1);
+      check(root.children[0].nr).equals(1);
+      check(root.children[0].parentNr).equals(0);
+      check(root.children[0].children).length.equals(2);
+      check(root.children[0].children[0].nr).equals(2);
+      check(root.children[0].children[0].parentNr).equals(1);
+      check(root.children[0].children[1].nr).equals(3);
+      check(root.children[0].children[1].parentNr).equals(1);
     });
 
     test('ignores non-capturing groups and character classes', () {
       final root = parseRegexGroups('(?:[(])(a)');
-      expect(root.children, hasLength(1));
-      expect(root.children[0].nr, 1);
-      expect(root.children[0].children, isEmpty);
+      check(root.children).length.equals(1);
+      check(root.children[0].nr).equals(1);
+      check(root.children[0].children).isEmpty();
     });
 
     test('parses with flag x', () {
       final root = parseRegexGroups(' ( a ) | ( b ) ', isFlagX: true);
-      expect(root.children, hasLength(2));
-      expect(root.children[0].nr, 1);
-      expect(root.children[1].nr, 2);
+      check(root.children).length.equals(2);
+      check(root.children[0].nr).equals(1);
+      check(root.children[1].nr).equals(2);
     });
 
     test('returns empty root group on syntax error', () {
       final root = parseRegexGroups('(');
-      expect(root.children, isEmpty);
+      check(root.children).isEmpty();
     });
   });
 
   group('applyXPathReplace', () {
     test('literal replacement', () {
       final reg = RegExp('a');
-      expect(
-        applyXPathReplace('banana', reg, r'$1', isLiteral: true),
-        r'b$1n$1n$1',
-      );
+      check(applyXPathReplace('banana', reg, r'$1', isLiteral: true))
+          .equals(r'b$1n$1n$1');
     });
 
     test('throws FORX0003 on zero-length match', () {
       final reg = RegExp('.*');
-      expect(
-        () => applyXPathReplace('banana', reg, 'x'),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORX0003)),
-      );
+      check(() => applyXPathReplace('banana', reg, 'x'))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FORX0003),
+          );
     });
 
     test('substitutes matched groups', () {
       final reg = RegExp('(b)(a)');
-      expect(applyXPathReplace('banana', reg, r'[$0-$1-$2]'), '[ba-b-a]nana');
+      check(applyXPathReplace('banana', reg, r'[$0-$1-$2]'))
+          .equals('[ba-b-a]nana');
     });
 
     test('escapes dollar and backslash', () {
       final reg = RegExp('(a)');
-      expect(applyXPathReplace('banana', reg, r'\$$1'), r'b$an$an$a');
-      expect(applyXPathReplace('banana', reg, r'\\$1'), r'b\an\an\a');
-      expect(applyXPathReplace('banana', reg, r'\$$1\\'), r'b$a\n$a\n$a\');
+      check(applyXPathReplace('banana', reg, r'\$$1')).equals(r'b$an$an$a');
+      check(applyXPathReplace('banana', reg, r'\\$1')).equals(r'b\an\an\a');
+      check(applyXPathReplace('banana', reg, r'\$$1\\'))
+          .equals(r'b$a\n$a\n$a\');
     });
 
     test('resolves multi-digit group resolution', () {
       final pattern =
           '${List.filled(15, '(').join()}a${List.filled(15, ')').join()}';
       final reg = RegExp(pattern);
-      expect(
-        applyXPathReplace('abracadabra', reg, r'$1520'),
-        'a20bra20ca20da20bra20',
-      );
+      check(applyXPathReplace('abracadabra', reg, r'$1520'))
+          .equals('a20bra20ca20da20bra20');
     });
 
     test('throws FORX0004 for invalid template syntax', () {
       final reg = RegExp('(a)');
-      expect(
-        () => applyXPathReplace('banana', reg, r'\'),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORX0004)),
-      );
-      expect(
-        () => applyXPathReplace('banana', reg, r'\x'),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORX0004)),
-      );
-      expect(
-        () => applyXPathReplace('banana', reg, r'$'),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORX0004)),
-      );
-      expect(
-        () => applyXPathReplace('banana', reg, r'$9'),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORX0004)),
-      );
+      check(() => applyXPathReplace('banana', reg, r'\'))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FORX0004),
+          );
+      check(() => applyXPathReplace('banana', reg, r'\x'))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FORX0004),
+          );
+      check(() => applyXPathReplace('banana', reg, r'$'))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FORX0004),
+          );
+      check(() => applyXPathReplace('banana', reg, r'$9'))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FORX0004),
+          );
     });
   });
 
   group('analyzeXPathString', () {
     test('handles empty input string', () {
       final node = analyzeXPathString('', 'abc');
-      expect(
-        node.node.toXmlString(),
+      check(node.node.toXmlString()).equals(
         '<fn:analyze-string-result xmlns:fn="http://www.w3.org/2005/xpath-functions"/>',
       );
     });
 
     test('handles non-matching string only', () {
       final node = analyzeXPathString('banana', 'xyz');
-      expect(
-        node.node.toXmlString(),
+      check(node.node.toXmlString()).equals(
         '<fn:analyze-string-result xmlns:fn="http://www.w3.org/2005/xpath-functions">'
         '<fn:non-match>banana</fn:non-match>'
         '</fn:analyze-string-result>',
@@ -335,8 +340,7 @@ void main() {
 
     test('handles matching string only', () {
       final node = analyzeXPathString('banana', '.+');
-      expect(
-        node.node.toXmlString(),
+      check(node.node.toXmlString()).equals(
         '<fn:analyze-string-result xmlns:fn="http://www.w3.org/2005/xpath-functions">'
         '<fn:match>banana</fn:match>'
         '</fn:analyze-string-result>',
@@ -345,8 +349,7 @@ void main() {
 
     test('handles literal mode with q flag', () {
       final node = analyzeXPathString('((banana))', '(banana)', flags: 'q');
-      expect(
-        node.node.toXmlString(),
+      check(node.node.toXmlString()).equals(
         '<fn:analyze-string-result xmlns:fn="http://www.w3.org/2005/xpath-functions">'
         '<fn:non-match>(</fn:non-match>'
         '<fn:match>(banana)</fn:match>'
@@ -361,8 +364,7 @@ void main() {
         ' (how) | (now) ',
         flags: 'x',
       );
-      expect(
-        node.node.toXmlString(),
+      check(node.node.toXmlString()).equals(
         '<fn:analyze-string-result xmlns:fn="http://www.w3.org/2005/xpath-functions">'
         '<fn:match><fn:group nr="1">how</fn:group></fn:match>'
         '<fn:non-match> </fn:non-match>'
@@ -374,8 +376,7 @@ void main() {
 
     test('handles empty group inside match', () {
       final node = analyzeXPathString('banana', '(b(x?))');
-      expect(
-        node.node.toXmlString(),
+      check(node.node.toXmlString()).equals(
         '<fn:analyze-string-result xmlns:fn="http://www.w3.org/2005/xpath-functions">'
         '<fn:match><fn:group nr="1">b<fn:group nr="2"/></fn:group></fn:match>'
         '<fn:non-match>anana</fn:non-match>'
@@ -388,8 +389,7 @@ void main() {
         'start-foo-mid-bar-end',
         'start-(foo)-mid-(bar)-end',
       );
-      expect(
-        node.node.toXmlString(),
+      check(node.node.toXmlString()).equals(
         '<fn:analyze-string-result xmlns:fn="http://www.w3.org/2005/xpath-functions">'
         '<fn:match>start-<fn:group nr="1">foo</fn:group>-mid-<fn:group nr="2">bar</fn:group>-end</fn:match>'
         '</fn:analyze-string-result>',
@@ -397,24 +397,27 @@ void main() {
     });
 
     test('throws FORX0001 for invalid flags', () {
-      expect(
-        () => analyzeXPathString('abc', 'abc', flags: 'w'),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORX0001)),
-      );
+      check(() => analyzeXPathString('abc', 'abc', flags: 'w'))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FORX0001),
+          );
     });
 
     test('throws FORX0002 for invalid pattern', () {
-      expect(
-        () => analyzeXPathString('abc', ')-('),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002)),
-      );
+      check(() => analyzeXPathString('abc', ')-('))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FORX0002),
+          );
     });
 
     test('throws FORX0003 for zero-length pattern match', () {
-      expect(
-        () => analyzeXPathString('abc', 'a?'),
-        throwsA(isXPathEvaluationException(errorCode: XPathErrorCode.FORX0003)),
-      );
+      check(() => analyzeXPathString('abc', 'a?'))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FORX0003),
+          );
     });
   });
 }

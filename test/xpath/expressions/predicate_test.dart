@@ -1,4 +1,5 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/expressions/predicate.dart';
 import 'package:xml/src/xpath/expressions/sequence.dart';
 import 'package:xml/src/xpath/expressions/variable.dart';
@@ -115,49 +116,36 @@ void main() {
     });
 
     test('step collapsing with complex predicate expressions', () {
-      expect(Predicate(parseExpression('(1, 2)')).isPositional, isTrue);
-      expect(Predicate(parseExpression('(@a, @b)')).isPositional, isFalse);
-      expect(
-        Predicate(parseExpression('if (@a) then 1 else 2')).isPositional,
-        isTrue,
-      );
-      expect(
+      check(Predicate(parseExpression('(1, 2)')).isPositional).isTrue();
+      check(Predicate(parseExpression('(@a, @b)')).isPositional).isFalse();
+      check(Predicate(parseExpression('if (@a) then 1 else 2')).isPositional)
+          .isTrue();
+      check(
         Predicate(parseExpression('if (@a) then true() else false()'))
             .isPositional,
-        isFalse,
-      );
-      expect(Predicate(parseExpression('(1)[1]')).isPositional, isTrue);
-      expect(Predicate(parseExpression('@a[@b]')).isPositional, isFalse);
-      expect(Predicate(parseExpression('-position()')).isPositional, isTrue);
-      expect(
-        Predicate(parseExpression('@a || position()')).isPositional,
-        isTrue,
-      );
-      expect(
-        Predicate(parseExpression('(position(), 1)')).isPositional,
-        isTrue,
-      );
-      expect(
+      ).isFalse();
+      check(Predicate(parseExpression('(1)[1]')).isPositional).isTrue();
+      check(Predicate(parseExpression('@a[@b]')).isPositional).isFalse();
+      check(Predicate(parseExpression('-position()')).isPositional).isTrue();
+      check(Predicate(parseExpression('@a || position()')).isPositional)
+          .isTrue();
+      check(Predicate(parseExpression('(position(), 1)')).isPositional)
+          .isTrue();
+      check(
         Predicate(parseExpression('if (position() = 1) then @a else @b'))
             .isPositional,
-        isTrue,
-      );
-      expect(
-        Predicate(parseExpression('(e1)[position() = 1]')).isPositional,
-        isTrue,
-      );
-      expect(
-        Predicate(parseExpression('-position() = -1')).isPositional,
-        isTrue,
-      );
-      expect(
+      ).isTrue();
+      check(Predicate(parseExpression('(e1)[position() = 1]')).isPositional)
+          .isTrue();
+      check(Predicate(parseExpression('-position() = -1')).isPositional)
+          .isTrue();
+      check(
         Predicate(
           SequenceExpression([
             LiteralExpression(XPathSequence.single(XPathInteger.fromInt(1))),
           ]),
         ).constantIndex,
-        equals(1),
-      );
+      ).equals(1);
 
       expectXPath(document, '//e1[(@a, @a)]', ['<e1 a="1"/>']);
       expectXPath(document, '//e1[if (@a) then true() else false()]', [

@@ -1,4 +1,5 @@
-import 'package:test/test.dart';
+import 'package:checks/checks.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xml/xml.dart';
 
 void main() {
@@ -8,8 +9,8 @@ void main() {
       final root = doc.rootElement;
       final child = root.children.first;
 
-      expect(root.compareDocumentPosition(root).value, 0);
-      expect(child.compareDocumentPosition(child).value, 0);
+      check(root.compareDocumentPosition(root).value).equals(0);
+      check(child.compareDocumentPosition(child).value).equals(0);
     });
 
     test('ancestor / descendant', () {
@@ -20,21 +21,21 @@ void main() {
       // root contains child, child is contained by root
       // root.compareDocumentPosition(child) -> child is descendant of root (following, containedBy)
       final rootToChild = root.compareDocumentPosition(child);
-      expect(rootToChild.isContainedBy, isTrue);
-      expect(rootToChild.isContains, isFalse);
-      expect(rootToChild.isFollowing, isTrue);
-      expect(rootToChild.isPreceding, isFalse);
-      expect(rootToChild.isDisconnected, isFalse);
-      expect(rootToChild.isImplementationSpecific, isFalse);
+      check(rootToChild.isContainedBy).isTrue();
+      check(rootToChild.isContains).isFalse();
+      check(rootToChild.isFollowing).isTrue();
+      check(rootToChild.isPreceding).isFalse();
+      check(rootToChild.isDisconnected).isFalse();
+      check(rootToChild.isImplementationSpecific).isFalse();
 
       // child.compareDocumentPosition(root) -> root is ancestor of child (preceding, contains)
       final childToRoot = child.compareDocumentPosition(root);
-      expect(childToRoot.isContains, isTrue);
-      expect(childToRoot.isContainedBy, isFalse);
-      expect(childToRoot.isPreceding, isTrue);
-      expect(childToRoot.isFollowing, isFalse);
-      expect(childToRoot.isDisconnected, isFalse);
-      expect(childToRoot.isImplementationSpecific, isFalse);
+      check(childToRoot.isContains).isTrue();
+      check(childToRoot.isContainedBy).isFalse();
+      check(childToRoot.isPreceding).isTrue();
+      check(childToRoot.isFollowing).isFalse();
+      check(childToRoot.isDisconnected).isFalse();
+      check(childToRoot.isImplementationSpecific).isFalse();
     });
 
     test('siblings preceding / following', () {
@@ -44,16 +45,16 @@ void main() {
       final c = doc.rootElement.children[2];
 
       final aToB = a.compareDocumentPosition(b);
-      expect(aToB.isFollowing, isTrue);
-      expect(aToB.isPreceding, isFalse);
+      check(aToB.isFollowing).isTrue();
+      check(aToB.isPreceding).isFalse();
 
       final bToA = b.compareDocumentPosition(a);
-      expect(bToA.isPreceding, isTrue);
-      expect(bToA.isFollowing, isFalse);
+      check(bToA.isPreceding).isTrue();
+      check(bToA.isFollowing).isFalse();
 
       final aToC = a.compareDocumentPosition(c);
-      expect(aToC.isFollowing, isTrue);
-      expect(aToC.isPreceding, isFalse);
+      check(aToC.isFollowing).isTrue();
+      check(aToC.isPreceding).isFalse();
     });
 
     test('disconnected trees', () {
@@ -63,15 +64,15 @@ void main() {
       final r2 = doc2.rootElement;
 
       final p1 = r1.compareDocumentPosition(r2);
-      expect(p1.isDisconnected, isTrue);
-      expect(p1.isImplementationSpecific, isTrue);
-      expect(p1.isPreceding || p1.isFollowing, isTrue);
+      check(p1.isDisconnected).isTrue();
+      check(p1.isImplementationSpecific).isTrue();
+      check(p1.isPreceding || p1.isFollowing).isTrue();
 
       final p2 = r2.compareDocumentPosition(r1);
-      expect(p2.isDisconnected, isTrue);
-      expect(p2.isImplementationSpecific, isTrue);
-      expect(p2.isPreceding || p2.isFollowing, isTrue);
-      expect(p1.isPreceding, isNot(p2.isPreceding));
+      check(p2.isDisconnected).isTrue();
+      check(p2.isImplementationSpecific).isTrue();
+      check(p2.isPreceding || p2.isFollowing).isTrue();
+      check(p1.isPreceding).not((it) => it.equals(p2.isPreceding));
     });
 
     test('attribute and owner element', () {
@@ -82,17 +83,17 @@ void main() {
       // ownerElement contains attribute, attribute is contained by ownerElement
       // root.compareDocumentPosition(attr) -> attr is contained by root (following, containedBy)
       final rootToAttr = root.compareDocumentPosition(attr);
-      expect(rootToAttr.isContainedBy, isTrue);
-      expect(rootToAttr.isContains, isFalse);
-      expect(rootToAttr.isFollowing, isTrue);
-      expect(rootToAttr.isPreceding, isFalse);
+      check(rootToAttr.isContainedBy).isTrue();
+      check(rootToAttr.isContains).isFalse();
+      check(rootToAttr.isFollowing).isTrue();
+      check(rootToAttr.isPreceding).isFalse();
 
       // attr.compareDocumentPosition(root) -> root is ancestor of attr (preceding, contains)
       final attrToRoot = attr.compareDocumentPosition(root);
-      expect(attrToRoot.isContains, isTrue);
-      expect(attrToRoot.isContainedBy, isFalse);
-      expect(attrToRoot.isPreceding, isTrue);
-      expect(attrToRoot.isFollowing, isFalse);
+      check(attrToRoot.isContains).isTrue();
+      check(attrToRoot.isContainedBy).isFalse();
+      check(attrToRoot.isPreceding).isTrue();
+      check(attrToRoot.isFollowing).isFalse();
     });
 
     test('attribute and sibling child element under same parent', () {
@@ -102,12 +103,12 @@ void main() {
       final child = root.children.first;
 
       final aToChild = a.compareDocumentPosition(child);
-      expect(aToChild.isFollowing, isTrue);
-      expect(aToChild.isPreceding, isFalse);
+      check(aToChild.isFollowing).isTrue();
+      check(aToChild.isPreceding).isFalse();
 
       final childToA = child.compareDocumentPosition(a);
-      expect(childToA.isPreceding, isTrue);
-      expect(childToA.isFollowing, isFalse);
+      check(childToA.isPreceding).isTrue();
+      check(childToA.isFollowing).isFalse();
     });
 
     test('attribute and grandchild element under common parent', () {
@@ -119,12 +120,12 @@ void main() {
       final grandchild = root.findAllElements('grandchild').single;
 
       final aToGrandchild = a.compareDocumentPosition(grandchild);
-      expect(aToGrandchild.isFollowing, isTrue);
-      expect(aToGrandchild.isPreceding, isFalse);
+      check(aToGrandchild.isFollowing).isTrue();
+      check(aToGrandchild.isPreceding).isFalse();
 
       final grandchildToA = grandchild.compareDocumentPosition(a);
-      expect(grandchildToA.isPreceding, isTrue);
-      expect(grandchildToA.isFollowing, isFalse);
+      check(grandchildToA.isPreceding).isTrue();
+      check(grandchildToA.isFollowing).isFalse();
     });
 
     test('attributes on same element', () {
@@ -135,19 +136,19 @@ void main() {
       final c = root.attributes[2];
 
       final aToB = a.compareDocumentPosition(b);
-      expect(aToB.isImplementationSpecific, isTrue);
-      expect(aToB.isFollowing, isTrue);
-      expect(aToB.isPreceding, isFalse);
+      check(aToB.isImplementationSpecific).isTrue();
+      check(aToB.isFollowing).isTrue();
+      check(aToB.isPreceding).isFalse();
 
       final bToA = b.compareDocumentPosition(a);
-      expect(bToA.isImplementationSpecific, isTrue);
-      expect(bToA.isPreceding, isTrue);
-      expect(bToA.isFollowing, isFalse);
+      check(bToA.isImplementationSpecific).isTrue();
+      check(bToA.isPreceding).isTrue();
+      check(bToA.isFollowing).isFalse();
 
       final aToC = a.compareDocumentPosition(c);
-      expect(aToC.isImplementationSpecific, isTrue);
-      expect(aToC.isFollowing, isTrue);
-      expect(aToC.isPreceding, isFalse);
+      check(aToC.isImplementationSpecific).isTrue();
+      check(aToC.isFollowing).isTrue();
+      check(aToC.isPreceding).isFalse();
     });
 
     test('attributes on different elements', () {
@@ -159,16 +160,16 @@ void main() {
 
       // a is under el1, b is under el2. Since el1 precedes el2, a should precede b.
       final aToB = a.compareDocumentPosition(b);
-      expect(aToB.isPreceding, isFalse);
-      expect(aToB.isFollowing, isTrue);
-      expect(aToB.isDisconnected, isFalse);
-      expect(aToB.isImplementationSpecific, isFalse);
+      check(aToB.isPreceding).isFalse();
+      check(aToB.isFollowing).isTrue();
+      check(aToB.isDisconnected).isFalse();
+      check(aToB.isImplementationSpecific).isFalse();
 
       final bToA = b.compareDocumentPosition(a);
-      expect(bToA.isPreceding, isTrue);
-      expect(bToA.isFollowing, isFalse);
-      expect(bToA.isDisconnected, isFalse);
-      expect(bToA.isImplementationSpecific, isFalse);
+      check(bToA.isPreceding).isTrue();
+      check(bToA.isFollowing).isFalse();
+      check(bToA.isDisconnected).isFalse();
+      check(bToA.isImplementationSpecific).isFalse();
     });
 
     test('namespace and owner element', () {
@@ -178,20 +179,20 @@ void main() {
 
       // ownerElement contains namespace, namespace is contained by ownerElement
       final rootToNs = root.compareDocumentPosition(ns);
-      expect(rootToNs.isContainedBy, isTrue);
-      expect(rootToNs.isContains, isFalse);
-      expect(rootToNs.isFollowing, isTrue);
-      expect(rootToNs.isPreceding, isFalse);
-      expect(rootToNs.isDisconnected, isFalse);
-      expect(rootToNs.isImplementationSpecific, isFalse);
+      check(rootToNs.isContainedBy).isTrue();
+      check(rootToNs.isContains).isFalse();
+      check(rootToNs.isFollowing).isTrue();
+      check(rootToNs.isPreceding).isFalse();
+      check(rootToNs.isDisconnected).isFalse();
+      check(rootToNs.isImplementationSpecific).isFalse();
 
       final nsToRoot = ns.compareDocumentPosition(root);
-      expect(nsToRoot.isContains, isTrue);
-      expect(nsToRoot.isContainedBy, isFalse);
-      expect(nsToRoot.isPreceding, isTrue);
-      expect(nsToRoot.isFollowing, isFalse);
-      expect(nsToRoot.isDisconnected, isFalse);
-      expect(nsToRoot.isImplementationSpecific, isFalse);
+      check(nsToRoot.isContains).isTrue();
+      check(nsToRoot.isContainedBy).isFalse();
+      check(nsToRoot.isPreceding).isTrue();
+      check(nsToRoot.isFollowing).isFalse();
+      check(nsToRoot.isDisconnected).isFalse();
+      check(nsToRoot.isImplementationSpecific).isFalse();
     });
 
     test('namespaces on same element', () {
@@ -203,14 +204,14 @@ void main() {
       final nsB = XmlNamespace('b', 'http://b.com')..attachParent(root);
 
       final aToB = nsA.compareDocumentPosition(nsB);
-      expect(aToB.isImplementationSpecific, isTrue);
-      expect(aToB.isFollowing, isTrue);
-      expect(aToB.isPreceding, isFalse);
+      check(aToB.isImplementationSpecific).isTrue();
+      check(aToB.isFollowing).isTrue();
+      check(aToB.isPreceding).isFalse();
 
       final bToA = nsB.compareDocumentPosition(nsA);
-      expect(bToA.isImplementationSpecific, isTrue);
-      expect(bToA.isPreceding, isTrue);
-      expect(bToA.isFollowing, isFalse);
+      check(bToA.isImplementationSpecific).isTrue();
+      check(bToA.isPreceding).isTrue();
+      check(bToA.isFollowing).isFalse();
     });
 
     test('distinct namespace instances with same prefix on same element', () {
@@ -221,10 +222,10 @@ void main() {
 
       final p1 = ns1.compareDocumentPosition(ns2);
       final p2 = ns2.compareDocumentPosition(ns1);
-      expect(p1.isImplementationSpecific, isTrue);
-      expect(p2.isImplementationSpecific, isTrue);
-      expect(p1.isFollowing, isNot(p2.isFollowing));
-      expect(p1.isPreceding, isNot(p2.isPreceding));
+      check(p1.isImplementationSpecific).isTrue();
+      check(p2.isImplementationSpecific).isTrue();
+      check(p1.isFollowing).not((it) => it.equals(p2.isFollowing));
+      check(p1.isPreceding).not((it) => it.equals(p2.isPreceding));
     });
 
     test('namespace and attribute on same element', () {
@@ -237,14 +238,14 @@ void main() {
 
       // In document order, namespace nodes precede attribute nodes.
       final nsToAttr = ns.compareDocumentPosition(attr);
-      expect(nsToAttr.isImplementationSpecific, isTrue);
-      expect(nsToAttr.isFollowing, isTrue);
-      expect(nsToAttr.isPreceding, isFalse);
+      check(nsToAttr.isImplementationSpecific).isTrue();
+      check(nsToAttr.isFollowing).isTrue();
+      check(nsToAttr.isPreceding).isFalse();
 
       final attrToNs = attr.compareDocumentPosition(ns);
-      expect(attrToNs.isImplementationSpecific, isTrue);
-      expect(attrToNs.isPreceding, isTrue);
-      expect(attrToNs.isFollowing, isFalse);
+      check(attrToNs.isImplementationSpecific).isTrue();
+      check(attrToNs.isPreceding).isTrue();
+      check(attrToNs.isFollowing).isFalse();
     });
 
     test('attribute and child of same owner element', () {
@@ -255,16 +256,16 @@ void main() {
 
       // Attributes precede child nodes of their owner element.
       final attrToChild = attr.compareDocumentPosition(child);
-      expect(attrToChild.isFollowing, isTrue);
-      expect(attrToChild.isPreceding, isFalse);
-      expect(attrToChild.isContains, isFalse);
-      expect(attrToChild.isContainedBy, isFalse);
+      check(attrToChild.isFollowing).isTrue();
+      check(attrToChild.isPreceding).isFalse();
+      check(attrToChild.isContains).isFalse();
+      check(attrToChild.isContainedBy).isFalse();
 
       final childToAttr = child.compareDocumentPosition(attr);
-      expect(childToAttr.isPreceding, isTrue);
-      expect(childToAttr.isFollowing, isFalse);
-      expect(childToAttr.isContains, isFalse);
-      expect(childToAttr.isContainedBy, isFalse);
+      check(childToAttr.isPreceding).isTrue();
+      check(childToAttr.isFollowing).isFalse();
+      check(childToAttr.isContains).isFalse();
+      check(childToAttr.isContainedBy).isFalse();
     });
 
     test('namespace and child of same owner element', () {
@@ -277,16 +278,16 @@ void main() {
 
       // Namespaces precede child nodes of their owner element.
       final nsToChild = ns.compareDocumentPosition(child);
-      expect(nsToChild.isFollowing, isTrue);
-      expect(nsToChild.isPreceding, isFalse);
-      expect(nsToChild.isContains, isFalse);
-      expect(nsToChild.isContainedBy, isFalse);
+      check(nsToChild.isFollowing).isTrue();
+      check(nsToChild.isPreceding).isFalse();
+      check(nsToChild.isContains).isFalse();
+      check(nsToChild.isContainedBy).isFalse();
 
       final childToNs = child.compareDocumentPosition(ns);
-      expect(childToNs.isPreceding, isTrue);
-      expect(childToNs.isFollowing, isFalse);
-      expect(childToNs.isContains, isFalse);
-      expect(childToNs.isContainedBy, isFalse);
+      check(childToNs.isPreceding).isTrue();
+      check(childToNs.isFollowing).isFalse();
+      check(childToNs.isContains).isFalse();
+      check(childToNs.isContainedBy).isFalse();
     });
 
     test('namespaces on different elements', () {
@@ -300,16 +301,16 @@ void main() {
 
       // el1 precedes el2, so nsA precedes nsB.
       final aToB = nsA.compareDocumentPosition(nsB);
-      expect(aToB.isPreceding, isFalse);
-      expect(aToB.isFollowing, isTrue);
-      expect(aToB.isDisconnected, isFalse);
-      expect(aToB.isImplementationSpecific, isFalse);
+      check(aToB.isPreceding).isFalse();
+      check(aToB.isFollowing).isTrue();
+      check(aToB.isDisconnected).isFalse();
+      check(aToB.isImplementationSpecific).isFalse();
 
       final bToA = nsB.compareDocumentPosition(nsA);
-      expect(bToA.isPreceding, isTrue);
-      expect(bToA.isFollowing, isFalse);
-      expect(bToA.isDisconnected, isFalse);
-      expect(bToA.isImplementationSpecific, isFalse);
+      check(bToA.isPreceding).isTrue();
+      check(bToA.isFollowing).isFalse();
+      check(bToA.isDisconnected).isFalse();
+      check(bToA.isImplementationSpecific).isFalse();
     });
 
     test('namespace and attribute on different elements', () {
@@ -322,14 +323,14 @@ void main() {
       final attrB = el2.attributes.first;
 
       final aToB = nsA.compareDocumentPosition(attrB);
-      expect(aToB.isFollowing, isTrue);
-      expect(aToB.isPreceding, isFalse);
-      expect(aToB.isDisconnected, isFalse);
+      check(aToB.isFollowing).isTrue();
+      check(aToB.isPreceding).isFalse();
+      check(aToB.isDisconnected).isFalse();
 
       final bToA = attrB.compareDocumentPosition(nsA);
-      expect(bToA.isPreceding, isTrue);
-      expect(bToA.isFollowing, isFalse);
-      expect(bToA.isDisconnected, isFalse);
+      check(bToA.isPreceding).isTrue();
+      check(bToA.isFollowing).isFalse();
+      check(bToA.isDisconnected).isFalse();
     });
 
     test('unparented / disconnected namespace', () {
@@ -338,54 +339,54 @@ void main() {
       final detachedNs = XmlNamespace('ns', 'http://example.com');
 
       final nsToRoot = detachedNs.compareDocumentPosition(root);
-      expect(nsToRoot.isDisconnected, isTrue);
-      expect(nsToRoot.isImplementationSpecific, isTrue);
+      check(nsToRoot.isDisconnected).isTrue();
+      check(nsToRoot.isImplementationSpecific).isTrue();
 
       final rootToNs = root.compareDocumentPosition(detachedNs);
-      expect(rootToNs.isDisconnected, isTrue);
-      expect(rootToNs.isImplementationSpecific, isTrue);
+      check(rootToNs.isDisconnected).isTrue();
+      check(rootToNs.isImplementationSpecific).isTrue();
     });
 
     test('identical namespace', () {
       final ns = XmlNamespace('ns', 'http://example.com');
       final result = ns.compareDocumentPosition(ns);
-      expect(result.value, 0);
-      expect(result.isSame, isTrue);
+      check(result.value).equals(0);
+      check(result.isSame).isTrue();
     });
   });
 
   group('isEqualNode', () {
     test('identical nodes', () {
       final el = XmlElement(const XmlName('a'));
-      expect(el.isEqualNode(el), isTrue);
+      check(el.isEqualNode(el)).isTrue();
     });
 
     test('namespaces with same prefix and uri', () {
       final ns1 = XmlNamespace('p', 'http://example.com');
       final ns2 = XmlNamespace('p', 'http://example.com');
-      expect(ns1.isEqualNode(ns2), isTrue);
-      expect(ns2.isEqualNode(ns1), isTrue);
+      check(ns1.isEqualNode(ns2)).isTrue();
+      check(ns2.isEqualNode(ns1)).isTrue();
     });
 
     test('namespaces with different uri', () {
       final ns1 = XmlNamespace('p', 'http://example.com/1');
       final ns2 = XmlNamespace('p', 'http://example.com/2');
-      expect(ns1.isEqualNode(ns2), isFalse);
-      expect(ns2.isEqualNode(ns1), isFalse);
+      check(ns1.isEqualNode(ns2)).isFalse();
+      check(ns2.isEqualNode(ns1)).isFalse();
     });
 
     test('namespaces with different prefix', () {
       final ns1 = XmlNamespace('p1', 'http://example.com');
       final ns2 = XmlNamespace('p2', 'http://example.com');
-      expect(ns1.isEqualNode(ns2), isFalse);
-      expect(ns2.isEqualNode(ns1), isFalse);
+      check(ns1.isEqualNode(ns2)).isFalse();
+      check(ns2.isEqualNode(ns1)).isFalse();
     });
 
     test('namespace vs other node type', () {
       final ns = XmlNamespace('a', 'http://example.com');
       final el = XmlElement(const XmlName('a'));
-      expect(ns.isEqualNode(el), isFalse);
-      expect(el.isEqualNode(ns), isFalse);
+      check(ns.isEqualNode(el)).isFalse();
+      check(el.isEqualNode(ns)).isFalse();
     });
   });
 
@@ -396,13 +397,13 @@ void main() {
       final parent = root.children.first;
       final child = parent.children.first;
 
-      expect(root.contains(parent), isTrue);
-      expect(root.contains(child), isTrue);
-      expect(parent.contains(child), isTrue);
+      check(root.contains(parent)).isTrue();
+      check(root.contains(child)).isTrue();
+      check(parent.contains(child)).isTrue();
 
-      expect(child.contains(parent), isFalse);
-      expect(child.contains(root), isFalse);
-      expect(parent.contains(root), isFalse);
+      check(child.contains(parent)).isFalse();
+      check(child.contains(root)).isFalse();
+      check(parent.contains(root)).isFalse();
     });
 
     test('element and attribute', () {
@@ -410,8 +411,8 @@ void main() {
       final root = doc.rootElement;
       final attr = root.attributes.first;
 
-      expect(root.contains(attr), isTrue);
-      expect(attr.contains(root), isFalse);
+      check(root.contains(attr)).isTrue();
+      check(attr.contains(root)).isFalse();
     });
 
     test('element and namespace', () {
@@ -419,8 +420,8 @@ void main() {
       final root = doc.rootElement;
       final ns = XmlNamespace('ns', 'http://example.com')..attachParent(root);
 
-      expect(root.contains(ns), isTrue);
-      expect(ns.contains(root), isFalse);
+      check(root.contains(ns)).isTrue();
+      check(ns.contains(root)).isFalse();
     });
 
     test('attribute and child', () {
@@ -429,8 +430,8 @@ void main() {
       final attr = root.attributes.first;
       final child = root.children.first;
 
-      expect(attr.contains(child), isFalse);
-      expect(child.contains(attr), isFalse);
+      check(attr.contains(child)).isFalse();
+      check(child.contains(attr)).isFalse();
     });
 
     test('namespace and child', () {
@@ -441,15 +442,15 @@ void main() {
       final ns = XmlNamespace('ns', 'http://example.com')..attachParent(root);
       final child = root.children.first;
 
-      expect(ns.contains(child), isFalse);
-      expect(child.contains(ns), isFalse);
+      check(ns.contains(child)).isFalse();
+      check(child.contains(ns)).isFalse();
     });
 
     test('disconnected nodes', () {
       final el1 = XmlElement(const XmlName('a'));
       final el2 = XmlElement(const XmlName('b'));
-      expect(el1.contains(el2), isFalse);
-      expect(el2.contains(el1), isFalse);
+      check(el1.contains(el2)).isFalse();
+      check(el2.contains(el1)).isFalse();
     });
   });
 }
