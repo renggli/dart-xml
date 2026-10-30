@@ -659,6 +659,23 @@ void main() {
     check(() => builder.element('element', namespacePrefix: 'http://foo.com/'))
         .throws<ArgumentError>();
   });
+  test('autoDeclareNamespaces', () {
+    final builder = XmlBuilder(autoDeclareNamespaces: true);
+    builder.element(
+      'root',
+      namespaceUri: 'http://foo.com/',
+      nest: () {
+        builder.element('p:child', namespaceUri: 'http://bar.com/');
+        builder.attribute('attr', 'val', namespaceUri: 'http://baz.com/');
+      },
+    );
+    final doc = builder.buildDocument();
+    check(doc.toXmlString()).equals(
+      '<root xmlns:ns0="http://baz.com/" ns0:attr="val" xmlns="http://foo.com/">'
+      '<p:child xmlns:p="http://bar.com/"/>'
+      '</root>',
+    );
+  });
   test('both prefix and uri', () {
     final builder = XmlBuilder();
     check(

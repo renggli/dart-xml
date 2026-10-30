@@ -16,6 +16,7 @@ import '../nodes/processing.dart';
 import '../nodes/text.dart';
 import '../utils/name.dart';
 import '../utils/namespace.dart' as ns;
+import '../utils/token.dart';
 import 'namespace.dart';
 import 'node.dart';
 
@@ -37,7 +38,11 @@ class XmlBuilder {
   ///
   /// For the meaning of the [optimizeNamespaces] parameter, read the
   /// documentation of the [optimizeNamespaces] property.
-  new({this.optimizeNamespaces = false}) {
+  ///
+  /// If [autoDeclareNamespaces] is `true`, undeclared namespace URIs are
+  /// automatically declared on the enclosing element instead of throwing
+  /// an [ArgumentError].
+  new({this.optimizeNamespaces = false, this.autoDeclareNamespaces = false}) {
     _reset();
   }
 
@@ -58,6 +63,9 @@ class XmlBuilder {
   /// - Namespaces that are defined in an element but are already defined in
   ///   one of the ancestors of the element will not be included again.
   final bool optimizeNamespaces;
+
+  /// Whether undeclared namespace URIs are automatically declared on the element.
+  final bool autoDeclareNamespaces;
 
   /// Adds an [XmlText] node with the provided [text].
   ///
@@ -273,6 +281,7 @@ class XmlBuilder {
       name,
       prefix: namespacePrefix,
       uri: namespaceUri ?? namespace,
+      isAttribute: true,
     );
     final attributeNode = XmlAttribute(
       attributeName,
@@ -413,13 +422,21 @@ class XmlBuilder {
   }
 
   // Internal method to build a name.
-  XmlName _buildName(String name, {String? prefix, String? uri}) {
+  XmlName _buildName(
+    String name, {
+    String? prefix,
+    String? uri,
+    bool isAttribute = false,
+  }) {
     if (prefix != null && uri != null) {
       throw ArgumentError(
         'Both prefix and uri were specified: $prefix and $uri',
       );
     }
     NamespaceDefinition? definition;
+    final colon = name.indexOf(XmlToken.namespace);
+    final localName = colon > 0 ? name.substring(colon + 1) : name;
+    final namePrefix = colon > 0 ? name.substring(0, colon) : null;
     if (prefix != null) {
       definition = _namespacePrefixes[prefix]?.lastOrNull;
       if (definition == null) {
@@ -428,7 +445,24 @@ class XmlBuilder {
     } else if (uri != null) {
       definition = _namespaceUris[uri]?.lastOrNull;
       if (definition == null) {
-        throw ArgumentError('Undefined namespace URI: $uri');
+        if (!autoDeclareNamespaces) {
+          throw ArgumentError('Undefined namespace URI: $uri');
+        }
+        String? autoPrefix;
+        if (namePrefix != null) {
+          autoPrefix = namePrefix;
+        } else if (isAttribute ||
+            _namespacePrefixes[null]?.lastOrNull != null) {
+          var counter = 0;
+          while (_namespacePrefixes.containsKey('ns$counter')) {
+            counter++;
+          }
+          autoPrefix = 'ns$counter';
+        } else {
+          autoPrefix = null;
+        }
+        namespaceUri(autoPrefix, uri);
+        definition = _namespaceUris[uri]?.lastOrNull;
       }
     } else {
       definition = _namespacePrefixes[null]?.lastOrNull;
@@ -436,7 +470,7 @@ class XmlBuilder {
     if (definition != null) {
       definition.isUsed = true;
       return XmlName.parts(
-        name,
+        localName,
         prefix: definition.prefix,
         namespaceUri: definition.uri,
       );

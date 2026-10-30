@@ -382,11 +382,12 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: `XmlDocument` in core `package:xml` lacked a `getElementById(String id)` helper.
 - **Fix**: Added `XmlElement? getElementById(String id)` on `XmlDocument` supporting `id`, `xml:id`, and DTD `ID` attributes.
 
-### FEAT-7: `XmlBuilder` Namespace Auto-Declaration (`DOM-5`)
+### FEAT-7: `XmlBuilder` Namespace Auto-Declaration (`DOM-5`) [COMPLETED]
+- **Status**: Completed
 - **Severity**: Feature
 - **Location**: `lib/src/xml/builder/builder.dart:410-445`
-- **Problem**: Passing an undeclared `namespaceUri` to `XmlBuilder.element` or `XmlBuilder.attribute` without a separate `namespace(uri, prefix)` call throws `ArgumentError('Undefined namespace: $uri')`.
-- **Fix**: Allow `XmlBuilder` to automatically declare `xmlns="..."` or a generated prefix on the current element when an undeclared `namespaceUri` is provided.
+- **Problem**: Passing an undeclared `namespaceUri` to `XmlBuilder.element` or `XmlBuilder.attribute` without a separate `namespaceUri(prefix, uri)` call threw `ArgumentError('Undefined namespace URI: $uri')`.
+- **Fix**: Added `autoDeclareNamespaces` option to `XmlBuilder` allowing automatic declaration of `xmlns="..."` or generated prefix on elements when an undeclared `namespaceUri` is used.
 
 ### FEAT-8: Strict XML 1.0 Attribute Uniqueness Validation (`validateAttributes`) (`STD-1`)
 - **Severity**: Feature
