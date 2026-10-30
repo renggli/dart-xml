@@ -347,6 +347,22 @@ void main() {
           '</body>',
         );
       });
+      test(
+        'normalizeAttributes without sortAttributes returns original list',
+        () {
+          final buffer = StringBuffer();
+          final writer = _TestPrettyWriter(buffer);
+          final element = XmlElement(const XmlName('foo'), [
+            XmlAttribute(const XmlName('a'), '1'),
+          ]);
+          check(
+            identical(
+              writer.testNormalizeAttributes(element.attributes),
+              element.attributes,
+            ),
+          ).isTrue();
+        },
+      );
       test('sort reverse', () {
         final output = document.toXmlString(
           pretty: true,
@@ -437,4 +453,11 @@ void main() {
       });
     });
   });
+}
+
+class _TestPrettyWriter extends XmlPrettyWriter {
+  new(super.buffer);
+
+  List<XmlAttribute> testNormalizeAttributes(List<XmlAttribute> attributes) =>
+      normalizeAttributes(attributes);
 }

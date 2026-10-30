@@ -210,7 +210,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: `XPathMap.get` iterates through all `entries.entries` with `sameKey(entry.key, key)` on every map lookup ($O(N)$), and `fnMapRemove` copies the map and runs `entries.removeWhere` for each key ($O(N \cdot M)$).
 - **Fix**: Once `XPathAtomic` implements a consistent `hashCode` matching `XPathMap.sameKey` (or by using `HashMap<XPathAtomic, XPathSequence>(equals: XPathMap.sameKey, hashCode: XPathMap.keyHashCode)`), replace the linear loop in `XPathMap.get` with $O(1)$ hash table lookup.
 
-### PERF-3: `XmlPrettyWriter.normalizeAttributes` Copies Attribute List Even When `sortAttributes == null`
+### PERF-3: `XmlPrettyWriter.normalizeAttributes` Copies Attribute List Even When `sortAttributes == null` [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
 - **Location**: `lib/src/xml/visitors/pretty_writer.dart:157-164`
 - **Problem**: `normalizeAttributes` executes `final result = attributes.toList();` on every element encounter, even when neither `sortAttributes` nor custom attribute indenting is requested. For large documents with thousands of elements, this creates unnecessary intermediate list allocations.

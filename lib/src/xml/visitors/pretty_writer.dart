@@ -111,11 +111,12 @@ class XmlPrettyWriter extends XmlWriter {
 
   @protected
   List<XmlAttribute> normalizeAttributes(List<XmlAttribute> attributes) {
-    final result = attributes.toList();
     if (sortAttributes != null) {
+      final result = attributes.toList();
       result.sort(sortAttributes);
+      return result;
     }
-    return result;
+    return attributes;
   }
 
   // Normalizes the text nodes within a sequence of nodes. Trims leading and
