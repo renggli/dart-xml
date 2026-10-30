@@ -265,23 +265,26 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: `document.dart`, `document_fragment.dart`, and `builder/node.dart` import `package:xml/xml.dart` directly rather than using relative imports to internal source declarations. This violates the charter (*"Within `lib/`, prefer relative imports over package imports"*), causes circular import dependencies between root barrel files and `src/`, and masks private dependency boundaries.
 - **Fix**: Replace `import 'package:xml/xml.dart';` in those files with relative imports (e.g. `import '../builder.dart';`, `import '../entities/entity_mapping.dart';`).
 
-### STYLE-3: Monolithic Repetitive Arithmetic Operator Implementations in `lib/src/xpath/operators/numeric.dart`
+### STYLE-3: Monolithic Repetitive Arithmetic Operator Implementations in `lib/src/xpath/operators/numeric.dart` [COMPLETED]
+- **Status**: Completed (Unnecessary)
 - **Severity**: Warning
-- **Location**: `lib/src/xpath/operators/numeric.dart:38-74`, `lib/src/xpath/operators/numeric.dart:100-136`, `lib/src/xpath/operators/numeric.dart:160-196`, `lib/src/xpath/operators/numeric.dart:220-256`, `lib/src/xpath/operators/numeric.dart:280-316`
-- **Problem**: `opAdd`, `opSubtract`, `opMultiply`, `opDivide`, and `opIntegerDivide` each contain an identical 35-line `switch ((left, right))` pattern matching matrix across `(XPathInteger, XPathInteger)`, `(XPathDecimal, XPathDecimal)`, `(XPathDouble, XPathDouble)`, and their cross-type conversions.
-- **Fix**: Extract a unified binary numeric dispatcher helper `_applyNumericOp(XPathNumeric a, XPathNumeric b, ...)` or use type promotion methods on `XPathNumeric` to collapse 150+ lines of duplicated matrix boilerplate into a single DRY structure.
+- **Location**: `lib/src/xpath/operators/numeric.dart:38-74`
+- **Problem**: `opAdd`, `opSubtract`, `opMultiply`, `opDivide`, and `opIntegerDivide` were suspected to contain duplicated pattern matching matrices.
+- **Resolution**: Operators in `lib/src/xpath/operators/arithmetic.dart` already delegate directly to the overloaded operator methods on `XPathNumeric` (`+`, `-`, `*`, `/`, `idiv`, `%, -`), which cleanly encapsulate type promotion.
 
-### STYLE-4: `XmlBuilder` Redundant Constructor Signatures
+### STYLE-4: `XmlBuilder` Redundant Constructor Signatures [COMPLETED]
+- **Status**: Completed (Unnecessary)
 - **Severity**: Warning
-- **Location**: `lib/src/xml/builder.dart:65-103`
-- **Problem**: `XmlBuilder` defines two factory constructors `XmlBuilder()` and `XmlBuilder.optimized()` with overlapping default parameters (`optimizeNamespaces = false` vs `= true`), leading to cognitive overhead and duplication.
-- **Fix**: Provide a single primary constructor with `bool optimizeNamespaces = false` or consolidate initialization defaults.
+- **Location**: `lib/src/xml/builder/builder.dart:35-43`
+- **Problem**: Suspected duplicate/redundant constructor signatures on `XmlBuilder`.
+- **Resolution**: `XmlBuilder` already has a single unified constructor `XmlBuilder({this.optimizeNamespaces = false})`.
 
-### STYLE-5: Dead Parser Grammar Production `qualifiedNameToken` in `XmlEventParser`
+### STYLE-5: Dead Parser Grammar Production `qualifiedNameToken` in `XmlEventParser` [COMPLETED]
+- **Status**: Completed (Unnecessary)
 - **Severity**: Warning
-- **Location**: `lib/src/xml_events/parser.dart:109-110`, `lib/src/xml_events/parser.dart:266-271`
-- **Problem**: `XmlEventParser` defines `Parser<String> qualifiedNameToken()` which is completely unused inside `XmlEventParser` (all element and attribute parsers call `nameToken()` instead).
-- **Fix**: Remove `qualifiedNameToken()` from `XmlEventParser` or migrate external consumers to a dedicated lexical utility.
+- **Location**: `lib/src/xml_events/parser.dart:266-271`
+- **Problem**: Suspected dead grammar production `qualifiedNameToken()`.
+- **Resolution**: The production is actively used by `XPathParser` (`lib/src/xpath/grammars/xpath.dart:1085`) and `XPathQName` (`lib/src/xpath/xdm/atomic/qname.dart:45`).
 
 ---
 
