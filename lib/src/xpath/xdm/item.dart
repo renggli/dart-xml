@@ -10,6 +10,7 @@ import '../../xml/nodes/node.dart';
 import '../../xml/nodes/processing.dart';
 import '../../xml/nodes/text.dart';
 import 'atomic.dart';
+import 'atomic/string.dart';
 import 'types.dart';
 
 /// Base interface for all items in the XDM 3.1 data model.

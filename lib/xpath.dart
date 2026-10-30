@@ -14,6 +14,13 @@ export 'src/xpath/exceptions/evaluation_exception.dart';
 export 'src/xpath/exceptions/parser_exception.dart';
 export 'src/xpath/generator.dart';
 export 'src/xpath/xdm/atomic.dart';
+export 'src/xpath/xdm/atomic/binary.dart';
+export 'src/xpath/xdm/atomic/boolean.dart';
+export 'src/xpath/xdm/atomic/date_time.dart';
+export 'src/xpath/xdm/atomic/duration.dart';
+export 'src/xpath/xdm/atomic/numeric.dart';
+export 'src/xpath/xdm/atomic/qname.dart';
+export 'src/xpath/xdm/atomic/string.dart';
 export 'src/xpath/xdm/function_item.dart' show XPathFunctionItem;
 export 'src/xpath/xdm/functions/array.dart' show XPathArray;
 export 'src/xpath/xdm/functions/function.dart'

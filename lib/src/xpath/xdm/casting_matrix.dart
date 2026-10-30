@@ -4,6 +4,13 @@ import '../evaluation/namespaces.dart';
 import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import 'atomic.dart';
+import 'atomic/binary.dart';
+import 'atomic/boolean.dart';
+import 'atomic/date_time.dart';
+import 'atomic/duration.dart';
+import 'atomic/numeric.dart';
+import 'atomic/qname.dart';
+import 'atomic/string.dart';
 import 'types.dart';
 
 /// Validation bounds for integer subtypes.

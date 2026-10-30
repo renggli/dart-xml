@@ -251,7 +251,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 
 ## 3. Code Style and Readability
 
-### STYLE-1: Public Library Exports Inside `lib/src/xpath/xdm/atomic.dart` Violate Project Architecture Rules
+### STYLE-1: Public Library Exports Inside `lib/src/xpath/xdm/atomic.dart` Violate Project Architecture Rules [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
 - **Location**: `lib/src/xpath/xdm/atomic.dart:3-13`
 - **Problem**: `lib/src/xpath/xdm/atomic.dart` contains 10 `export '...';` directives. Per the project development charter: *"Exports are only allowed in `lib/*.dart`, and never in any files in `lib/src/...`."*

@@ -1,9 +1,7 @@
 import 'package:checks/checks.dart';
 import 'package:test/scaffolding.dart';
-import 'package:xml/src/xpath/xdm/atomic.dart';
-import 'package:xml/src/xpath/xdm/item.dart';
-import 'package:xml/src/xpath/xdm/types.dart';
 import 'package:xml/xml.dart';
+import 'package:xml/xpath.dart';
 
 void main() {
   group('XPathNode', () {

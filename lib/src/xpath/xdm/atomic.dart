@@ -2,14 +2,6 @@ import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import 'item.dart';
 
-export 'atomic/binary.dart';
-export 'atomic/boolean.dart';
-export 'atomic/date_time.dart';
-export 'atomic/duration.dart';
-export 'atomic/numeric.dart';
-export 'atomic/qname.dart';
-export 'atomic/string.dart';
-
 /// Base class for all atomic values in the XDM 3.1 data model.
 abstract class XPathAtomic implements XPathItem, Comparable<XPathAtomic> {
   /// Creates an atomic value.

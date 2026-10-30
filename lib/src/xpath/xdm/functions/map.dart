@@ -4,6 +4,7 @@ import '../../evaluation/context.dart';
 import '../../exceptions/error_code.dart';
 import '../../exceptions/evaluation_exception.dart';
 import '../atomic.dart';
+import '../atomic/numeric.dart';
 import '../function_item.dart';
 import '../sequence.dart';
 import '../types.dart';

@@ -1,6 +1,13 @@
 import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
 import '../xdm/atomic.dart';
+import '../xdm/atomic/binary.dart';
+import '../xdm/atomic/boolean.dart';
+import '../xdm/atomic/date_time.dart';
+import '../xdm/atomic/duration.dart';
+import '../xdm/atomic/numeric.dart';
+import '../xdm/atomic/qname.dart';
+import '../xdm/atomic/string.dart';
 import '../xdm/casting_matrix.dart';
 import '../xdm/functions/array.dart';
 import '../xdm/sequence.dart';

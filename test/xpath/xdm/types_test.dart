@@ -2,12 +2,8 @@ import 'package:checks/checks.dart';
 import 'package:test/scaffolding.dart';
 import 'package:xml/src/xpath/evaluation/cardinality.dart';
 import 'package:xml/src/xpath/functions/node.dart';
-import 'package:xml/src/xpath/xdm/atomic.dart';
 import 'package:xml/src/xpath/xdm/function_item.dart';
-import 'package:xml/src/xpath/xdm/functions/array.dart';
-import 'package:xml/src/xpath/xdm/functions/map.dart';
-import 'package:xml/src/xpath/xdm/sequence.dart';
-import 'package:xml/src/xpath/xdm/types.dart';
+import 'package:xml/xpath.dart';
 
 /// The arity-1 variant of `fn:name` with declared param `node()?` and return `xs:string`.
 XPathFunctionItem get fnName1 =>
