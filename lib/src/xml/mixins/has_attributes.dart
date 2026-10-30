@@ -139,23 +139,25 @@ mixin XmlHasAttributes implements XmlAttributesBase, XmlNode {
     String? namespaceUri,
     @Deprecated('Use `namespaceUri` instead') String? namespace,
   }) {
-    final index = attributes.indexWhere(
-      createNameLookup(name, namespaceUri: namespaceUri ?? namespace),
-    );
-    if (index < 0) {
-      if (value != null) {
+    final effectiveNamespaceUri = namespaceUri ?? namespace;
+    final tester = createNameMatcher(name, namespaceUri: effectiveNamespaceUri);
+    if (value == null) {
+      attributes.removeWhere(tester);
+    } else {
+      var updated = false;
+      for (final attribute in attributes) {
+        if (tester(attribute)) {
+          attribute.value = value;
+          updated = true;
+        }
+      }
+      if (!updated && name != '*' && effectiveNamespaceUri != '*') {
         attributes.add(
           XmlAttribute(
-            XmlName.parts(name, namespaceUri: namespaceUri ?? namespace),
+            XmlName.qualified(name, namespaceUri: effectiveNamespaceUri),
             value,
           ),
         );
-      }
-    } else {
-      if (value != null) {
-        attributes[index].value = value;
-      } else {
-        attributes.removeAt(index);
       }
     }
   }

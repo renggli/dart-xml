@@ -293,4 +293,40 @@ void main() {
     check(elementAttrs[1].name.qualified).equals('p:xmlns');
     check(elementAttrs[1].value).equals('not-a-ns');
   });
+  test('update attribute with wildcard namespace', () {
+    final document = XmlDocument.parse('<data xmlns:ns="uri" ns:attr="old"/>');
+    final node = document.rootElement;
+    node.setAttribute('attr', 'new', namespaceUri: '*');
+    check(node.getAttribute('attr', namespaceUri: 'uri')).equals('new');
+    check(node.toString()).equals('<data xmlns:ns="uri" ns:attr="new"/>');
+  });
+  test('update attribute with wildcard name', () {
+    final document = XmlDocument.parse(
+      '<data xmlns:ns="uri" ns:a="1" ns:b="2"/>',
+    );
+    final node = document.rootElement;
+    node.setAttribute('*', 'new', namespaceUri: 'uri');
+    check(node.getAttribute('a', namespaceUri: 'uri')).equals('new');
+    check(node.getAttribute('b', namespaceUri: 'uri')).equals('new');
+    check(node.toString())
+        .equals('<data xmlns:ns="uri" ns:a="new" ns:b="new"/>');
+  });
+  test('remove attribute with wildcard namespace', () {
+    final document = XmlDocument.parse('<data xmlns:ns="uri" ns:attr="old"/>');
+    final node = document.rootElement;
+    node.removeAttribute('attr', namespaceUri: '*');
+    check(node.getAttribute('attr', namespaceUri: 'uri')).isNull();
+    check(node.toString()).equals('<data xmlns:ns="uri"/>');
+  });
+  test('remove attribute with wildcard name', () {
+    final document = XmlDocument.parse(
+      '<data xmlns:ns="uri" ns:a="1" ns:b="2" other="3"/>',
+    );
+    final node = document.rootElement;
+    node.removeAttribute('*', namespaceUri: 'uri');
+    check(node.getAttribute('a', namespaceUri: 'uri')).isNull();
+    check(node.getAttribute('b', namespaceUri: 'uri')).isNull();
+    check(node.getAttribute('other')).equals('3');
+    check(node.toString()).equals('<data xmlns:ns="uri" other="3"/>');
+  });
 }

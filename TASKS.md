@@ -29,7 +29,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: `XmlAttribute.isNamespaceDeclaration` evaluates `name.prefix == xmlns || name.local == xmlns`. A prefixed attribute whose local name happens to be `xmlns` (e.g. `foo:xmlns="bar"`) has `name.local == 'xmlns'` and is falsely treated as an XML namespace declaration. Consequently, it is excluded from `elementAttributes` and XPath's `attribute::` axis. This also contradicts `XmlHasNamespaces` (`lib/src/xml/mixins/has_namespaces.dart:21-28`), which checks `attribute.name.prefix == ns.xmlns || (attribute.name.local == ns.xmlns && attribute.name.prefix == null)`.
 - **Fix**: Change `XmlAttribute.isNamespaceDeclaration` to `name.prefix == xmlns || (name.prefix == null && name.local == xmlns)`.
 
-### BUG-3: `setAttribute` and `removeAttribute` Ignore Documented `'*'` Wildcards and Misparse Prefixed Names
+### BUG-3: `setAttribute` and `removeAttribute` Ignore Documented `'*'` Wildcards and Misparse Prefixed Names [COMPLETED]
+- **Status**: Completed
 - **Severity**: Critical
 - **Location**: `lib/src/xml/mixins/has_attributes.dart:64-96`, `lib/src/xml/mixins/has_attributes.dart:136-161`
 - **Problem**: The doc comments on `setAttribute` and `removeAttribute` state that both `name` and `namespaceUri` can be the wildcard `'*'` (including examples like `element.setAttribute('*', 'value', namespaceUri: '...')` and `element.removeAttribute('name', namespaceUri: '*')`). However, `setAttribute` uses `createNameLookup` instead of `createNameMatcher`, which compares literal `'=='` against `'*'` and never matches existing attributes. Worse, when no match is found, `setAttribute` creates a new attribute using `XmlName.parts(name, namespaceUri: namespaceUri)`, which fails to split a prefixed `name` (e.g. `'ns:attr'`) into `prefix` and `local`, or creates an attribute literally named `'*'` with `namespaceUri: '*'`.
