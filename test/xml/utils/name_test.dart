@@ -43,6 +43,24 @@ void main() {
       ..extendedQualified.equals('Q{$namespaceUri}bar')
       ..asString.equals('foo:bar');
   });
+  test('XmlName.fromQualified without prefix', () {
+    check(XmlName.fromQualified('bar', namespaceUri: namespaceUri))
+      ..qualified.equals('bar')
+      ..prefix.isNull()
+      ..local.equals('bar')
+      ..namespaceUri.equals(namespaceUri)
+      ..extendedQualified.equals('Q{$namespaceUri}bar')
+      ..asString.equals('bar');
+  });
+  test('XmlName.fromQualified with prefix', () {
+    check(XmlName.fromQualified('foo:bar', namespaceUri: namespaceUri))
+      ..qualified.equals('foo:bar')
+      ..prefix.equals('foo')
+      ..local.equals('bar')
+      ..namespaceUri.equals(namespaceUri)
+      ..extendedQualified.equals('Q{$namespaceUri}bar')
+      ..asString.equals('foo:bar');
+  });
   test('XmlName.parse in extended form with prefix', () {
     check(XmlName.parse('Q{$namespaceUri}foo:bar'))
       ..qualified.equals('foo:bar')

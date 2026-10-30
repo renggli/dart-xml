@@ -196,7 +196,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 
 ## 2. Performance Issues
 
-### PERF-1: `XmlName.prefix` and `XmlName.local` Recompute `indexOf(':')` and `substring` on Every Access
+### PERF-1: `XmlName.prefix` and `XmlName.local` Recompute `indexOf(':')` and `substring` on Every Access [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
 - **Location**: `lib/src/xml/utils/name.dart:86-95`, `lib/src/xml_events/annotations/has_name.dart:14-23`
 - **Problem**: `XmlName` stores only `qualified` and `namespaceUri`. Every access to `.local` or `.prefix` executes `qualified.indexOf(':')` and `qualified.substring(...)`, allocating a new substring on the heap. Because `.local`, `.prefix`, `==`, and `hashCode` are called inside tight loops during `findElements`, `getAttribute`, XPath `QualifiedNameTest`, and `AttributeAxis`, this causes heavy string allocation churn. The same repeated `indexOf(':')` + `substring` pattern exists in `XmlHasName` (`lib/src/xml_events/annotations/has_name.dart:14-23`).

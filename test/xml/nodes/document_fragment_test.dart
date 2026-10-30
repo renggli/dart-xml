@@ -21,7 +21,7 @@ void main() {
     // ignore: deprecated_member_use_from_same_package
     check(node.text).equals('No');
     check(node.nodeType).equals(XmlNodeType.DOCUMENT_FRAGMENT);
-    check(node.toString()).equals('#document-fragment');
+    check(node.toString()).equals('<!--Am I a joke to you?-->No');
   });
   test('empty', () {
     final node = XmlDocumentFragment();
@@ -39,7 +39,7 @@ void main() {
     // ignore: deprecated_member_use_from_same_package
     check(node.text).equals('');
     check(node.nodeType).equals(XmlNodeType.DOCUMENT_FRAGMENT);
-    check(node.toString()).equals('#document-fragment');
+    check(node.toString()).equals('');
   });
   test('builder', () {
     final node = XmlDocumentFragment.build((builder) {

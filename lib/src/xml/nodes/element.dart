@@ -40,7 +40,7 @@ class XmlElement extends XmlNode
     Iterable<XmlNode> children = const [],
     bool isSelfClosing = true,
   }) : this(
-         XmlName.qualified(qualifiedName, namespaceUri: namespaceUri),
+         XmlName.fromQualified(qualifiedName, namespaceUri: namespaceUri),
          attributes,
          children,
          isSelfClosing,

@@ -10,16 +10,30 @@ mixin XmlHasName {
   /// The fully qualified name (alias for [name]).
   String get qualifiedName => name;
 
+  String? _cachedPrefix;
+  String? _cachedLocal;
+
   /// The namespace prefix, or `null`.
   String? get namespacePrefix {
-    final index = name.indexOf(XmlToken.namespace);
-    return index > 0 ? name.substring(0, index) : null;
+    if (_cachedLocal == null) _splitName();
+    return _cachedPrefix;
   }
 
   /// The local name, excluding the namespace prefix.
   String get localName {
+    if (_cachedLocal == null) _splitName();
+    return _cachedLocal!;
+  }
+
+  void _splitName() {
     final index = name.indexOf(XmlToken.namespace);
-    return index > 0 ? name.substring(index + 1) : name;
+    if (index > 0) {
+      _cachedPrefix = name.substring(0, index);
+      _cachedLocal = name.substring(index + 1);
+    } else {
+      _cachedPrefix = null;
+      _cachedLocal = name;
+    }
   }
 
   /// Hold an optional reference to the namespace URI.
