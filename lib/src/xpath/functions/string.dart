@@ -333,9 +333,9 @@ final fnContains = XPathFunctionItem.overloaded(
 );
 
 XPathSequence _evalContains(String? arg1, String? arg2) {
-  if (arg1 == null) return XPathSequence.falseSequence;
-  if (arg2 == null) return XPathSequence.trueSequence;
-  return arg1.contains(arg2)
+  final s1 = arg1 ?? '';
+  final s2 = arg2 ?? '';
+  return s1.contains(s2)
       ? XPathSequence.trueSequence
       : XPathSequence.falseSequence;
 }
@@ -362,9 +362,9 @@ final fnStartsWith = XPathFunctionItem.overloaded(
 );
 
 XPathSequence _evalStartsWith(String? arg1, String? arg2) {
-  if (arg1 == null) return XPathSequence.falseSequence;
-  if (arg2 == null) return XPathSequence.trueSequence;
-  return arg1.startsWith(arg2)
+  final s1 = arg1 ?? '';
+  final s2 = arg2 ?? '';
+  return s1.startsWith(s2)
       ? XPathSequence.trueSequence
       : XPathSequence.falseSequence;
 }
@@ -391,9 +391,9 @@ final fnEndsWith = XPathFunctionItem.overloaded(
 );
 
 XPathSequence _evalEndsWith(String? arg1, String? arg2) {
-  if (arg1 == null) return XPathSequence.falseSequence;
-  if (arg2 == null) return XPathSequence.trueSequence;
-  return arg1.endsWith(arg2)
+  final s1 = arg1 ?? '';
+  final s2 = arg2 ?? '';
+  return s1.endsWith(s2)
       ? XPathSequence.trueSequence
       : XPathSequence.falseSequence;
 }
@@ -420,12 +420,12 @@ final fnSubstringBefore = XPathFunctionItem.overloaded(
 );
 
 XPathSequence _evalSubstringBefore(String? arg1, String? arg2) {
-  if (arg1 == null || arg2 == null) {
-    return const XPathSequence.single(XPathString.empty);
-  }
-  final index = arg1.indexOf(arg2);
+  final s1 = arg1 ?? '';
+  final s2 = arg2 ?? '';
+  if (s2.isEmpty) return const XPathSequence.single(XPathString.empty);
+  final index = s1.indexOf(s2);
   if (index == -1) return const XPathSequence.single(XPathString.empty);
-  return XPathSequence.single(XPathString(arg1.substring(0, index)));
+  return XPathSequence.single(XPathString(s1.substring(0, index)));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-substring-after
@@ -450,12 +450,12 @@ final fnSubstringAfter = XPathFunctionItem.overloaded(
 );
 
 XPathSequence _evalSubstringAfter(String? arg1, String? arg2) {
-  if (arg1 == null || arg2 == null) {
-    return const XPathSequence.single(XPathString.empty);
-  }
-  final index = arg1.indexOf(arg2);
+  final s1 = arg1 ?? '';
+  final s2 = arg2 ?? '';
+  if (s2.isEmpty) return XPathSequence.single(XPathString(s1));
+  final index = s1.indexOf(s2);
   if (index == -1) return const XPathSequence.single(XPathString.empty);
-  return XPathSequence.single(XPathString(arg1.substring(index + arg2.length)));
+  return XPathSequence.single(XPathString(s1.substring(index + s2.length)));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-matches

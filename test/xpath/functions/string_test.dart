@@ -224,6 +224,10 @@ void main() {
           .isXPathSequence([false]);
       check(fnContains(context, [seq('a'), XPathSequence.empty]))
           .isXPathSequence([true]);
+      check(fnContains(context, [XPathSequence.empty, seq('')]))
+          .isXPathSequence([true]);
+      check(fnContains(context, [XPathSequence.empty, XPathSequence.empty]))
+          .isXPathSequence([true]);
     });
 
     test('integration via xpathEvaluate', () {
@@ -243,6 +247,10 @@ void main() {
     test('handles empty sequence', () {
       check(fnStartsWith(context, [XPathSequence.empty, seq('a')]))
           .isXPathSequence([false]);
+      check(fnStartsWith(context, [XPathSequence.empty, seq('')]))
+          .isXPathSequence([true]);
+      check(fnStartsWith(context, [XPathSequence.empty, XPathSequence.empty]))
+          .isXPathSequence([true]);
     });
 
     test('integration via xpathEvaluate', () {
@@ -262,6 +270,10 @@ void main() {
     test('handles empty sequence', () {
       check(fnEndsWith(context, [XPathSequence.empty, seq('a')]))
           .isXPathSequence([false]);
+      check(fnEndsWith(context, [XPathSequence.empty, seq('')]))
+          .isXPathSequence([true]);
+      check(fnEndsWith(context, [XPathSequence.empty, XPathSequence.empty]))
+          .isXPathSequence([true]);
     });
   });
 
@@ -300,6 +312,8 @@ void main() {
     test('handles empty sequence', () {
       check(fnSubstringAfter(context, [XPathSequence.empty, seq('a')]))
           .isXPathSequence(['']);
+      check(fnSubstringAfter(context, [seq('abc'), XPathSequence.empty]))
+          .isXPathSequence(['abc']);
     });
 
     test('integration via xpathEvaluate', () {

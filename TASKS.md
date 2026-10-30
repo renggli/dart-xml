@@ -134,7 +134,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
   3. When `lenVal == double.negativeInfinity`, line 169 (`lenVal.isFinite`) is `false`, so `end` becomes `double.infinity` and `fn:substring("abc", 1, -INF)` returns `"abc"` instead of `""`.
 - **Fix**: Implement W3C round-half-to-positive-infinity (`(v + 0.5).floorToDouble()`), handle non-positive/infinite lengths per W3C F&O §5.4.3, and slice using codepoints (`runes`).
 
-### BUG-16: `fn:contains`, `fn:starts-with`, `fn:ends-with`, `fn:substring-before`, and `fn:substring-after` Mishandle Empty First Argument
+### BUG-16: `fn:contains`, `fn:starts-with`, `fn:ends-with`, `fn:substring-before`, and `fn:substring-after` Mishandle Empty First Argument [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
 - **Location**: `lib/src/xpath/functions/string.dart:328-334`, `lib/src/xpath/functions/string.dart:357-363`, `lib/src/xpath/functions/string.dart:386-392`, `lib/src/xpath/functions/string.dart:415-422`, `lib/src/xpath/functions/string.dart:445-452`
 - **Problem**: Per W3C F&O §5.5, if the value of `$arg1` or `$arg2` is the empty sequence `()`, it is treated as the zero-length string `""`. Currently, `_evalContains(null, "")`, `_evalStartsWith(null, "")`, and `_evalEndsWith(null, "")` check `if (arg1 == null) return XPathSequence.falseSequence;` BEFORE checking if `arg2` is empty, so `contains((), "")` returns `false` instead of `true`. Similarly, `substring-after("abc", ())` returns `""` instead of `"abc"`.
