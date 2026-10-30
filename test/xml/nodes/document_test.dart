@@ -68,4 +68,21 @@ void main() {
       ),
     ).throws<UnsupportedError>();
   });
+  test('getElementById', () {
+    final document = XmlDocument.parse('''
+<!DOCTYPE root [
+  <!ATTLIST item customId ID #REQUIRED>
+]>
+<root>
+  <user id="u1" name="Alice"/>
+  <user xml:id="u2" name="Bob"/>
+  <item customId="i1" value="Widget"/>
+</root>
+''');
+    check(document.getElementById('u1')?.getAttribute('name')).equals('Alice');
+    check(document.getElementById('u2')?.getAttribute('name')).equals('Bob');
+    check(document.getElementById('i1')?.getAttribute('value'))
+        .equals('Widget');
+    check(document.getElementById('u3')).isNull();
+  });
 }

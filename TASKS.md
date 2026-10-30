@@ -375,11 +375,12 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: `XmlMutatorExtension` only provided `remove()` and `replace(XmlNode other)`. Inserting siblings or wrapping/unwrapping elements required manual index arithmetic.
 - **Fix**: Added `before(XmlNode node)`, `after(XmlNode node)`, `wrap(XmlElement wrapper)`, and `unwrap()` on `XmlNode` and `prepend(XmlNode node)` on `XmlElement`.
 
-### FEAT-6: Fast Document ID Lookup (`XmlDocument.getElementById`) (`DOM-2`)
+### FEAT-6: Fast Document ID Lookup (`XmlDocument.getElementById`) (`DOM-2`) [COMPLETED]
+- **Status**: Completed
 - **Severity**: Feature
-- **Location**: `lib/src/xml/nodes/document.dart:16-148`, `lib/src/xpath/functions/node.dart:191-208`
-- **Problem**: XPath implements `fn:id` with DTD `ID` and `xml:id` resolution in `lib/src/xpath/functions/node.dart`, but `XmlDocument` in core `package:xml` lacks a `getElementById(String id)` helper.
-- **Fix**: Add `XmlElement? getElementById(String id)` on `XmlDocument` (sharing the DTD `ID` / `xml:id` / `id` matching logic with `lib/src/xpath/functions/node.dart`).
+- **Location**: `lib/src/xml/nodes/document.dart:16-148`
+- **Problem**: `XmlDocument` in core `package:xml` lacked a `getElementById(String id)` helper.
+- **Fix**: Added `XmlElement? getElementById(String id)` on `XmlDocument` supporting `id`, `xml:id`, and DTD `ID` attributes.
 
 ### FEAT-7: `XmlBuilder` Namespace Auto-Declaration (`DOM-5`)
 - **Severity**: Feature

@@ -5,6 +5,7 @@ import '../entities/entity_mapping.dart';
 import '../enums/node_type.dart';
 import '../exceptions/parser_exception.dart';
 import '../exceptions/tag_exception.dart';
+import '../extensions/descendants.dart';
 import '../mixins/has_children.dart';
 import '../visitors/visitor.dart';
 import 'declaration.dart';
@@ -119,6 +120,38 @@ class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
       }
     }
     throw StateError('Empty XML document');
+  }
+
+  /// Returns the first [XmlElement] with an ID matching [id], or `null` if not found.
+  ///
+  /// Checks attributes named `id`, `xml:id`, or attributes declared with type `ID`
+  /// in the document type declaration's internal subset.
+  XmlElement? getElementById(String id) {
+    final dtdIds = <String, Set<String>>{};
+    final subset = doctypeElement?.internalSubset;
+    if (subset != null) {
+      final regExp = RegExp(
+        r'<!ATTLIST\s+([^\s>]+)\s+([^\s>]+)\s+ID\b',
+        caseSensitive: false,
+      );
+      for (final m in regExp.allMatches(subset)) {
+        dtdIds.putIfAbsent(m.group(1)!, () => {}).add(m.group(2)!);
+      }
+    }
+    for (final element in descendantElements) {
+      for (final attribute in element.attributes) {
+        final qName = attribute.name.qualified;
+        if (qName == 'id' ||
+            qName == 'xml:id' ||
+            (dtdIds[element.name.local]?.contains(attribute.name.local) ??
+                false)) {
+          if (attribute.value == id) {
+            return element;
+          }
+        }
+      }
+    }
+    return null;
   }
 
   @override
