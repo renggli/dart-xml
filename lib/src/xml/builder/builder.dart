@@ -447,10 +447,10 @@ class XmlBuilder {
   // Internal method to add children to the current element.
   void _insert(Object? value) {
     switch (value) {
-      case Callback():
-        value();
-      case CallbackWithBuilder():
-        value(this);
+      case final void Function() fn:
+        fn();
+      case final void Function(XmlBuilder) fn:
+        fn(this);
       case Iterable():
         value.forEach(_insert);
       case XmlNode():
@@ -478,5 +478,10 @@ class XmlBuilder {
   }
 }
 
+/// Callback function without arguments.
+@Deprecated('Use `void Function()` instead')
 typedef Callback = void Function();
+
+/// Callback function with an [XmlBuilder] argument.
+@Deprecated('Use `void Function(XmlBuilder builder)` instead')
 typedef CallbackWithBuilder = void Function(XmlBuilder builder);

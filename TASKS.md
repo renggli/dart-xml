@@ -322,16 +322,17 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 
 ## 5. Simplicity and Cleanness of Public APIs
 
-### API-1: Inline Callback/Predicate Typedefs and Export Essential Domain Types (`DtdExternalId`, `XPathContext`)
+### API-1: Inline Callback/Predicate Typedefs and Export Essential Domain Types (`DtdExternalId`, `XPathContext`) [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
 - **Location**: `lib/xml.dart:1-51`, `lib/xpath.dart:1-22`, `lib/src/xml/utils/predicate.dart:4`, `lib/src/xml/builder/builder.dart:481-482`
 - **Problem**:
-  1. `DtdExternalId` (`lib/src/xml/dtd/external_id.dart:4`) is the type of `XmlDoctype.externalId` and a constructor parameter of `XmlDoctype(...)`, and `XPathContext` (`lib/src/xpath/evaluation/context.dart:9`) is returned by `XPathConfiguration.context()` and passed to custom `XPathFunctionCallback`s, yet neither is exported from `lib/xml.dart` or `lib/xpath.dart`.
-  2. `Predicate<T>` (`lib/src/xml/utils/predicate.dart:4`), `Callback`, and `CallbackWithBuilder` (`lib/src/xml/builder/builder.dart:481-482`) are unnecessary typedef aliases for standard Dart function types (`bool Function(T)`, `void Function()`, `void Function(XmlBuilder)`), creating unneeded indirection in public signatures.
+  1. `DtdExternalId` was not exported from `lib/xml.dart` or `lib/xml_events.dart`, and `XPathContext` and `XPathFunctionCallback` were not exported from `lib/xpath.dart`.
+  2. `Predicate<T>`, `Callback`, and `CallbackWithBuilder` added unneeded typedef indirection to public signatures.
 - **Fix**:
-  - Export `src/xml/dtd/external_id.dart` (`DtdExternalId`) in `lib/xml.dart` (and `lib/xml_events.dart`).
-  - Export `src/xpath/evaluation/context.dart` (`XPathContext`) in `lib/xpath.dart`.
-  - Inline `void Function()` (replacing `Callback`), `void Function(XmlBuilder builder)` (replacing `CallbackWithBuilder`), and `bool Function(T value)` (replacing `Predicate<T>`) directly into method and constructor signatures across `lib/src/xml/builder/`, `lib/src/xml/visitors/`, `lib/src/xml/nodes/`, and `lib/src/xml_events/streams/subtree_selector.dart`, deprecating the typedefs.
+  - Exported `DtdExternalId` from `lib/xml.dart` and `lib/xml_events.dart`.
+  - Exported `XPathContext` and `XPathFunctionCallback` from `lib/xpath.dart`.
+  - Inlined `void Function()`, `void Function(XmlBuilder builder)`, and `bool Function(T value)` across `lib/src/xml/`, `lib/src/xml_events/`, and deprecated the old typedefs.
 
 ---
 

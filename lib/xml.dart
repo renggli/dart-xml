@@ -3,6 +3,7 @@
 library;
 
 export 'src/xml/builder/builder.dart' show XmlBuilder;
+export 'src/xml/dtd/external_id.dart' show DtdExternalId;
 export 'src/xml/entities/default_mapping.dart'
     show XmlDefaultEntityMapping, defaultEntityMapping;
 export 'src/xml/entities/entity_mapping.dart' show XmlEntityMapping;

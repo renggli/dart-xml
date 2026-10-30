@@ -27,7 +27,7 @@ class XmlDocumentFragment extends XmlNode with XmlHasChildren<XmlNode> {
   }
 
   /// Builds an [XmlDocumentFragment] using a [callback] with an [XmlBuilder].
-  factory build(CallbackWithBuilder callback) {
+  factory build(void Function(XmlBuilder builder) callback) {
     final builder = XmlBuilder();
     callback(builder);
     return builder.buildFragment();

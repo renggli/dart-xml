@@ -1,8 +1,10 @@
 import '../mixins/has_name.dart';
-import 'predicate.dart';
 
 /// Internal factory to create element lookups.
-Predicate<XmlHasName> createNameLookup(String name, {String? namespaceUri}) {
+bool Function(XmlHasName) createNameLookup(
+  String name, {
+  String? namespaceUri,
+}) {
   if (namespaceUri == null) {
     return (named) => named.qualifiedName == name;
   } else {
@@ -12,7 +14,10 @@ Predicate<XmlHasName> createNameLookup(String name, {String? namespaceUri}) {
 }
 
 /// Internal factory to create element matchers with wildcards.
-Predicate<XmlHasName> createNameMatcher(String name, {String? namespaceUri}) {
+bool Function(XmlHasName) createNameMatcher(
+  String name, {
+  String? namespaceUri,
+}) {
   if (name == '*') {
     if (namespaceUri == null || namespaceUri == '*') {
       return (named) => true;

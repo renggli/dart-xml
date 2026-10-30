@@ -1,7 +1,6 @@
 import 'dart:convert' show ChunkedConversionSink;
 
 import '../../xml/exceptions/tag_exception.dart';
-import '../../xml/utils/predicate.dart';
 import '../event.dart';
 import '../events/end_element.dart';
 import '../events/start_element.dart';
@@ -11,7 +10,7 @@ extension XmlSubtreeSelectorExtension on Stream<List<XmlEvent>> {
   /// Filters the event sequences that form sub-trees for which [predicate]
   /// returns `true`.
   Stream<List<XmlEvent>> selectSubtreeEvents(
-    Predicate<XmlStartElementEvent> predicate,
+    bool Function(XmlStartElementEvent) predicate,
   ) => transform(XmlSubtreeSelector(predicate));
 }
 
@@ -21,7 +20,7 @@ class XmlSubtreeSelector extends XmlListConverter<XmlEvent, XmlEvent> {
   /// Creates a converter that selects sub-tree events matching [predicate].
   const new(this.predicate);
 
-  final Predicate<XmlStartElementEvent> predicate;
+  final bool Function(XmlStartElementEvent) predicate;
 
   @override
   ChunkedConversionSink<List<XmlEvent>> startChunkedConversion(
@@ -33,7 +32,7 @@ class _XmlSubtreeSelectorSink implements ChunkedConversionSink<List<XmlEvent>> {
   new(this.sink, this.predicate);
 
   final Sink<List<XmlEvent>> sink;
-  final Predicate<XmlStartElementEvent> predicate;
+  final bool Function(XmlStartElementEvent) predicate;
   final List<XmlStartElementEvent> stack = [];
 
   @override

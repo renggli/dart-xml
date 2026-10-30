@@ -1,7 +1,6 @@
 import 'package:checks/checks.dart';
 import 'package:test/scaffolding.dart';
 import 'package:xml/src/xml/nodes/document.dart';
-import 'package:xml/src/xpath/evaluation/context.dart';
 import 'package:xml/xpath.dart';
 
 import '../../utils/checks.dart';

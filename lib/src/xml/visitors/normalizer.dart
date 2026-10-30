@@ -23,13 +23,13 @@ extension XmlNormalizerExtension on XmlNode {
   ///   whitespace are removed.
   void normalize({
     // Collapse whitespace:
-    Predicate<XmlText>? collapseWhitespace,
+    bool Function(XmlText)? collapseWhitespace,
     bool? collapseAllWhitespace,
     // Normalize newline:
-    Predicate<XmlText>? normalizeNewline,
+    bool Function(XmlText)? normalizeNewline,
     bool? normalizeAllNewline,
     // Trim whitespace:
-    Predicate<XmlText>? trimWhitespace,
+    bool Function(XmlText)? trimWhitespace,
     bool? trimAllWhitespace,
   }) => XmlNormalizer(
     collapseWhitespace: toPredicate(collapseWhitespace, collapseAllWhitespace),
@@ -47,9 +47,9 @@ class XmlNormalizer with XmlVisitor {
     required this.trimWhitespace,
   });
 
-  final Predicate<XmlText> collapseWhitespace;
-  final Predicate<XmlText> normalizeNewline;
-  final Predicate<XmlText> trimWhitespace;
+  final bool Function(XmlText) collapseWhitespace;
+  final bool Function(XmlText) normalizeNewline;
+  final bool Function(XmlText) trimWhitespace;
 
   @override
   void visitDocument(XmlDocument node) => _normalize(node.children);

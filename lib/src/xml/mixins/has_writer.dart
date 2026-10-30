@@ -1,7 +1,6 @@
 import '../entities/entity_mapping.dart';
 import '../nodes/attribute.dart';
 import '../nodes/node.dart';
-import '../utils/predicate.dart';
 import '../visitors/pretty_writer.dart';
 import '../visitors/writer.dart';
 import 'has_visitor.dart';
@@ -41,10 +40,10 @@ mixin XmlHasWriter implements XmlHasVisitor {
     int? level,
     String? indent,
     String? newLine,
-    Predicate<XmlNode>? preserveWhitespace,
-    Predicate<XmlAttribute>? indentAttribute,
+    bool Function(XmlNode)? preserveWhitespace,
+    bool Function(XmlAttribute)? indentAttribute,
     Comparator<XmlAttribute>? sortAttributes,
-    Predicate<XmlNode>? spaceBeforeSelfClose,
+    bool Function(XmlNode)? spaceBeforeSelfClose,
   }) {
     final buffer = StringBuffer();
     final writer = pretty

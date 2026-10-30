@@ -9,6 +9,7 @@ import 'src/xpath/xdm/item.dart';
 import 'src/xpath/xdm/sequence.dart';
 
 export 'src/xpath/evaluation/configuration.dart';
+export 'src/xpath/evaluation/context.dart' show XPathContext;
 export 'src/xpath/exceptions/error_code.dart';
 export 'src/xpath/exceptions/evaluation_exception.dart';
 export 'src/xpath/exceptions/parser_exception.dart';
@@ -24,7 +25,7 @@ export 'src/xpath/xdm/atomic/string.dart';
 export 'src/xpath/xdm/function_item.dart' show XPathFunctionItem;
 export 'src/xpath/xdm/functions/array.dart' show XPathArray;
 export 'src/xpath/xdm/functions/function.dart'
-    show XPathFunction, XPathWrappedFunctionExtension;
+    show XPathFunction, XPathFunctionCallback, XPathWrappedFunctionExtension;
 export 'src/xpath/xdm/functions/map.dart' show XPathMap;
 export 'src/xpath/xdm/item.dart' show XPathItem, XPathNode;
 export 'src/xpath/xdm/sequence.dart' show XPathSequence;

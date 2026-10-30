@@ -1,11 +1,12 @@
 import 'package:meta/meta.dart';
 
 /// Predicate function of type [T].
+@Deprecated('Use `bool Function(T value)` instead')
 typedef Predicate<T> = bool Function(T value);
 
 @internal
-Predicate<T> toPredicate<T>(
-  Predicate<T>? predicate,
+bool Function(T) toPredicate<T>(
+  bool Function(T)? predicate,
   bool? all, {
   bool otherwise = false,
 }) {

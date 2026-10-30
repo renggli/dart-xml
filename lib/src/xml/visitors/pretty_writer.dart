@@ -7,7 +7,6 @@ import '../nodes/document_fragment.dart';
 import '../nodes/element.dart';
 import '../nodes/node.dart';
 import '../nodes/text.dart';
-import '../utils/predicate.dart';
 import '../utils/token.dart';
 import 'writer.dart';
 
@@ -33,10 +32,10 @@ class XmlPrettyWriter extends XmlWriter {
   bool pretty = true;
   final String indent;
   final String newLine;
-  final Predicate<XmlNode>? preserveWhitespace;
-  final Predicate<XmlAttribute>? indentAttribute;
+  final bool Function(XmlNode)? preserveWhitespace;
+  final bool Function(XmlAttribute)? indentAttribute;
   final Comparator<XmlAttribute>? sortAttributes;
-  final Predicate<XmlNode>? spaceBeforeSelfClose;
+  final bool Function(XmlNode)? spaceBeforeSelfClose;
 
   @override
   void visitDocument(XmlDocument node) {
