@@ -1,5 +1,7 @@
 import 'package:checks/checks.dart';
+import 'package:petitparser/petitparser.dart';
 import 'package:test/scaffolding.dart';
+import 'package:xml/src/xml_events/parser.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xml_events.dart';
 
@@ -160,6 +162,14 @@ void main() {
       check(event.getAttributeNode('a')?.value).equals('1');
       check(event.getAttributeNode('c')).isNull();
       check(event.getAttribute('*')).equals('1');
+      check(event.getAttributeNode('*')?.value).equals('1');
+      check(event.getAttributeNode('*', namespaceUri: '*')?.value).equals('1');
+      check(event.getAttributeNode('*', namespaceUri: 'none')).isNull();
+      check(event.getAttributeNode('a', namespaceUri: '*')?.value).equals('1');
+      check(event.getAttributeNode('a', namespaceUri: 'none')).isNull();
+      check(event.hasAttribute('*')).isTrue();
+      check(event.hasAttribute('a', namespaceUri: '*')).isTrue();
+      check(event.hasAttribute('a', namespaceUri: 'none')).isFalse();
       final other = XmlStartElementEvent(
         event.name,
         event.attributes
@@ -376,6 +386,18 @@ void main() {
       ]) {
         check(genres).contains(expected);
       }
+    });
+  });
+  group('XmlEventParser name delegates', () {
+    final parser = XmlEventParser(defaultEntityMapping);
+    test('name token parsers', () {
+      check(resolve(parser.qualifiedNameToken()).parse('foo:bar').value)
+          .equals('foo:bar');
+      check(resolve(parser.nonColonizedNameToken()).parse('foo').value)
+          .equals('foo');
+      check(resolve(parser.nonColonizedStartChar()).parse('a').value)
+          .equals('a');
+      check(resolve(parser.nonColonizedChar()).parse('1').value).equals('1');
     });
   });
 }

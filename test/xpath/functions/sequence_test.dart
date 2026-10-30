@@ -243,6 +243,37 @@ void main() {
       check(fnFormatNumber(context, [XPathSequence.empty, seq('#'), seq('df')]))
           .isXPathSequence(isEmpty);
     });
+
+    test('coerces untypedAtomic to number', () {
+      check(
+        fnFormatNumber(context, [
+          const XPathSequence.single(XPathUntypedAtomic('456.78')),
+          seq('#'),
+        ]),
+      ).isXPathSequence(['456.78']);
+    });
+
+    test('throws FORG0001 on invalid untypedAtomic number', () {
+      check(
+        () => fnFormatNumber(context, [
+          const XPathSequence.single(XPathUntypedAtomic('abc')),
+          seq('#'),
+        ]),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.FORG0001),
+      );
+    });
+
+    test('throws XPTY0004 on non-numeric type', () {
+      check(
+        () => fnFormatNumber(context, [
+          const XPathSequence.single(XPathDateTime.date(2020, 1, 1)),
+          seq('#'),
+        ]),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+      );
+    });
   });
 
   group('fn:zero-or-one', () {
@@ -370,6 +401,18 @@ void main() {
           seq('collation'),
         ]),
       ).equals(XPathSequence.empty);
+    });
+
+    test('ignores items that throw on equality comparison', () {
+      check(
+        fnIndexOf(context, [
+          XPathSequence([
+            const XPathQName(XmlName('local')),
+            XPathInteger.fromInt(1),
+          ]),
+          seq(1),
+        ]),
+      ).isXPathSequence([2]);
     });
   });
 
@@ -516,6 +559,28 @@ void main() {
         fnDeepEqual(context, [
           seq(doc1.rootElement.attributes.first),
           seq(doc2.rootElement.attributes.first),
+        ]),
+      ).isXPathSequence([true]);
+      final pi1 = XmlProcessing('target', 'data');
+      final pi2 = XmlProcessing('target', 'data');
+      final pi3 = XmlProcessing('target', 'other');
+      check(fnDeepEqual(context, [seq(pi1), seq(pi2)])).isXPathSequence([true]);
+      check(fnDeepEqual(context, [seq(pi1), seq(pi3)]))
+          .isXPathSequence([false]);
+      final mixed1 = XmlDocument.parse('<r>hello<!--c-->world</r>');
+      final mixed2 = XmlDocument.parse('<r>hello<!--c-->world</r>');
+      check(
+        fnDeepEqual(context, [
+          seq(mixed1.rootElement),
+          seq(mixed2.rootElement),
+        ]),
+      ).isXPathSequence([true]);
+      final mixedElem1 = XmlDocument.parse('<r>hello<e/>world</r>');
+      final mixedElem2 = XmlDocument.parse('<r>hello<e/>world</r>');
+      check(
+        fnDeepEqual(context, [
+          seq(mixedElem1.rootElement),
+          seq(mixedElem2.rootElement),
         ]),
       ).isXPathSequence([true]);
       check(

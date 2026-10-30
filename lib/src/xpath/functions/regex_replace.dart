@@ -184,10 +184,7 @@ void _buildMatchChildren(
       final searchLimit = maxEnd >= childText.length
           ? maxEnd - childText.length
           : cursor;
-      var idx = parentText.lastIndexOf(childText, searchLimit);
-      if (idx < cursor) {
-        idx = parentText.indexOf(childText, cursor);
-      }
+      final idx = parentText.lastIndexOf(childText, searchLimit);
       if (idx > cursor) {
         builder.text(parentText.substring(cursor, idx));
       }

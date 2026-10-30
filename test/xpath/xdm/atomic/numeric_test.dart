@@ -425,6 +425,17 @@ void main() {
         check(i1.hashCode).equals(dbl1.hashCode);
         check(dec1.hashCode).equals(dbl1.hashCode);
         check(const XPathDouble(1e20).stringValue).equals('1.0E20');
+
+        final hugeInt = BigInt.parse('9007199254740993');
+        final xHugeInt = XPathInteger(hugeInt);
+        check(xHugeInt.hashCode).equals(hugeInt.hashCode);
+
+        final xHugeDec = XPathDecimal(hugeInt, 0);
+        check(xHugeDec.hashCode).equals(hugeInt.hashCode);
+
+        final hugeUnscaled = BigInt.parse('1${'0' * 399}1');
+        final xInfDec = XPathDecimal(hugeUnscaled, 10);
+        check(xInfDec.hashCode).isA<int>();
       },
     );
   });

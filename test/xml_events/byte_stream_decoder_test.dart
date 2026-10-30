@@ -56,6 +56,32 @@ void main() {
       check(decoded).equals(xml);
     });
 
+    test('ascii with encoding declaration', () async {
+      const xml = '<?xml version="1.0" encoding="us-ascii"?><root>test</root>';
+      final bytes = Stream.value(ascii.encode(xml));
+      final decoded = await bytes.decodeXmlStream().join();
+      check(decoded).equals(xml);
+    });
+
+    test('multi-chunk stream after initialization', () async {
+      const chunk1 = '<root>';
+      const chunk2 = 'content';
+      const chunk3 = '</root>';
+      final bytes = Stream.fromIterable([
+        utf8.encode(chunk1),
+        utf8.encode(chunk2),
+        utf8.encode(chunk3),
+      ]);
+      final decoded = await bytes.decodeXmlStream().join();
+      check(decoded).equals('$chunk1$chunk2$chunk3');
+    });
+
+    test('short stream with fewer than 4 bytes', () async {
+      final bytes = Stream.value(utf8.encode('<a'));
+      final decoded = await bytes.decodeXmlStream().join();
+      check(decoded).equals('<a');
+    });
+
     test('stream toXmlEvents', () async {
       const xml = '<root id="1">text</root>';
       final bytes = Stream.value(utf8.encode(xml));

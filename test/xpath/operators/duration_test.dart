@@ -102,6 +102,16 @@ void main() {
           .throws<XPathEvaluationException>()
           .which(isXPathEvaluationException(message: 'Division by zero'));
     });
+    test('divide overflow throws FODT0002', () {
+      check(
+        () => opDivideDuration(
+          seq(const XPathDuration(months: 1, days: 1)),
+          seq(1e-320),
+        ),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.FODT0002),
+      );
+    });
     test('divide by NaN throws', () {
       check(
         () => opDivideDuration(

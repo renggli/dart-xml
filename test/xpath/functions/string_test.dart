@@ -889,6 +889,86 @@ void main() {
             isXPathEvaluationException(errorCode: XPathErrorCode.FORX0003),
           );
     });
+
+    test('3-argument throws when pattern is empty sequence', () {
+      check(
+        () => fnAnalyzeString(context, [
+          seq('abc'),
+          XPathSequence.empty,
+          seq('i'),
+        ]),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+      );
+    });
+
+    test('3-argument with flags', () {
+      final res = fnAnalyzeString(context, [seq('ABC'), seq('b'), seq('i')]);
+      check((res.first as XPathNode).node.toXmlString())
+          .contains('<fn:match>B</fn:match>');
+    });
+
+    test('nested capturing groups with repeated content', () {
+      final res = fnAnalyzeString(context, [seq('abab'), seq('(a(b))+')]);
+      final xml = (res.first as XPathNode).node.toXmlString();
+      check(xml).contains('nr="1"');
+      check(xml).contains('nr="2"');
+    });
+  });
+
+  group('fn:normalize-unicode error cases', () {
+    test('1-argument throws on non-string', () {
+      check(
+        () => fnNormalizeUnicode(context, [
+          XPathSequence.single(XPathInteger.fromInt(42)),
+        ]),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+      );
+    });
+
+    test('2-argument throws on non-string', () {
+      check(
+        () => fnNormalizeUnicode(context, [
+          XPathSequence.single(XPathInteger.fromInt(42)),
+          seq('NFC'),
+        ]),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+      );
+    });
+  });
+
+  group('fn:matches and fn:tokenize edge cases', () {
+    test('fn:matches 3-argument throws on empty pattern', () {
+      check(
+        () => fnMatches(context, [seq('test'), XPathSequence.empty, seq('i')]),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+      );
+    });
+
+    test('fn:tokenize throws FORX0003 on pattern matching empty string', () {
+      check(() => fnTokenize(context, [seq('hello'), seq('^')]))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FORX0003),
+          );
+    });
+  });
+
+  group('fn:contains-token with html-ascii-case-insensitive collation', () {
+    test('matches token case-insensitively', () {
+      check(
+        fnContainsToken(context, [
+          seq('FOO bar'),
+          seq('foo'),
+          seq(
+            'http://www.w3.org/2005/xpath-functions/collation/html-ascii-case-insensitive',
+          ),
+        ]),
+      ).isXPathSequence([true]);
+    });
   });
 
   group('fn:string', () {

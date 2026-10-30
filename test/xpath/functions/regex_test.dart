@@ -60,6 +60,12 @@ void main() {
           );
     });
 
+    test('nested character class brackets', () {
+      final reg = compileXPathRegex(r'^[a-z-[aeiou]]\d+$', null);
+      check(reg.hasMatch('b1')).isTrue();
+      check(reg.hasMatch('a1')).isFalse();
+    });
+
     test('throws for invalid range quantifier order', () {
       check(() => compileXPathRegex('a{5,2}', null))
           .throws<XPathEvaluationException>()

@@ -44,6 +44,10 @@ void main() {
     final node = XmlProcessing('foo', 'bar');
     check(node.xpathGenerate()).equals('processing-instruction(foo)[1]');
   });
+  test('processing with empty target', () {
+    final node = XmlProcessing('', 'bar');
+    check(node.xpathGenerate()).equals('processing-instruction()[1]');
+  });
   test('document', () {
     final node = XmlDocument([]);
     check(node.xpathGenerate()).equals('/');

@@ -28,6 +28,16 @@ void main() {
         ..node.equals(document)
         ..parent.equals(document.firstChild);
     });
+    test('toString', () {
+      final document = XmlDocument([XmlComment('Comment')]);
+      final exception = XmlParentException(
+        'Node already has a parent',
+        node: document.firstChild!,
+        parent: document,
+      );
+      check(exception.toString())
+          .equals('XmlParentException: Node already has a parent');
+    });
   });
   group('XmlParserException', () {
     test('with properties', () {
@@ -42,6 +52,10 @@ void main() {
         ..position.equals(6)
         ..line.equals(2)
         ..column.equals(1);
+      check(exception.source).equals('hello\nworld');
+      check(exception.offset).equals(6);
+      check(exception.toString())
+          .equals('XmlParserException: Expected foo at 2:1');
     });
     test('without anything', () {
       final exception = XmlParserException('Expected foo');
@@ -51,6 +65,9 @@ void main() {
         ..position.isNull()
         ..line.equals(0)
         ..column.equals(0);
+      check(exception.source).isNull();
+      check(exception.offset).isNull();
+      check(exception.toString()).equals('XmlParserException: Expected foo');
     });
   });
   group('XmlNodeTypeException', () {
@@ -69,6 +86,15 @@ void main() {
         )
         ..node.equals(commentNode)
         ..types.deepEquals(otherNodeTypes);
+    });
+    test('toString', () {
+      final commentNode = XmlComment('Comment');
+      final exception = XmlNodeTypeException(
+        'Invalid type',
+        node: commentNode,
+        types: const [XmlNodeType.ELEMENT],
+      );
+      check(exception.toString()).equals('XmlNodeTypeException: Invalid type');
     });
   });
   group('XmlTagException', () {
@@ -135,6 +161,54 @@ void main() {
         ..position.equals(6)
         ..line.equals(2)
         ..column.equals(1);
+    });
+    test('toString', () {
+      final exceptionWithLoc = XmlTagException(
+        'Mismatched tag',
+        buffer: '<foo>',
+        position: 1,
+      );
+      check(exceptionWithLoc.toString())
+          .equals('XmlTagException: Mismatched tag at 1:2');
+      final exceptionWithoutLoc = XmlTagException('Mismatched tag');
+      check(exceptionWithoutLoc.toString())
+          .equals('XmlTagException: Mismatched tag');
+    });
+  });
+  group('XmlNamespaceException', () {
+    test('with properties', () {
+      final exception = XmlNamespaceException(
+        'Prefix error',
+        buffer: '<foo:bar/>',
+        position: 1,
+      );
+      check(exception)
+        ..message.equals('Prefix error')
+        ..buffer.equals('<foo:bar/>')
+        ..position.equals(1)
+        ..line.equals(1)
+        ..column.equals(2);
+      check(exception.source).equals('<foo:bar/>');
+      check(exception.offset).equals(1);
+      check(exception.toString())
+          .equals('XmlNamespaceException: Prefix error at 1:2');
+    });
+    test('unknownNamespacePrefix factory', () {
+      final exception = XmlNamespaceException.unknownNamespacePrefix(
+        'foo',
+        buffer: '<foo:bar/>',
+        position: 1,
+      );
+      check(exception.message).equals('Unknown namespace prefix: foo');
+      check(
+        exception.toString(),
+      ).equals('XmlNamespaceException: Unknown namespace prefix: foo at 1:2');
+    });
+    test('without location', () {
+      final exception = XmlNamespaceException('Prefix error');
+      check(exception.source).isNull();
+      check(exception.offset).isNull();
+      check(exception.toString()).equals('XmlNamespaceException: Prefix error');
     });
   });
 }

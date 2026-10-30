@@ -33,6 +33,10 @@ void main() {
 
       check(s.compareTo(const XPathString('abc'))).equals(0);
       check(s.compareTo(const XPathString('abd'))).isLessThan(0);
+      check(const XPathString('a').compareTo(const XPathString('ab')))
+          .isLessThan(0);
+      check(const XPathString('ab').compareTo(const XPathString('a')))
+          .isGreaterThan(0);
       check(s.compareTo(u)).equals(0);
       check(s.compareTo(uri)).equals(0);
       check(() => s.compareTo(XPathInteger.fromInt(1)))

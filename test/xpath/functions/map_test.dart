@@ -44,6 +44,18 @@ void main() {
         {'a': 2},
       ]);
     });
+
+    test('throws FOJS0005 for unrecognized option', () {
+      final map1 = {'a': 1};
+      check(
+        () => fnMapMerge(context, [
+          XPathSequence([toXPathItem(map1)]),
+          seq({'unknown': 'val'}),
+        ]),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0005),
+      );
+    });
   });
 
   group('map:size', () {

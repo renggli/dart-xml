@@ -562,6 +562,19 @@ void main() {
           check(element.toXmlString(repairNamespaces: true))
               .equals('<p:root xmlns:p="http://foo"/>');
         });
+        test('preserves existing default xmlns declaration on children', () {
+          final root = XmlElement(
+            const XmlName.parts('root', namespaceUri: 'http://foo'),
+            [XmlAttribute(const XmlName.parts('xmlns'), 'http://foo')],
+            [
+              XmlElement(
+                const XmlName.parts('child', namespaceUri: 'http://foo'),
+              ),
+            ],
+          );
+          check(root.toXmlString(repairNamespaces: true))
+              .equals('<root xmlns="http://foo"><child/></root>');
+        });
         test('xml prefix does not synthesize declaration', () {
           final element = XmlElement(const XmlName.qualified('root'), [
             XmlAttribute(

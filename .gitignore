@@ -8,4 +8,5 @@
 .opencode/
 .qt3tests/
 *.iml
+coverage/
 pubspec.lock

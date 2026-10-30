@@ -197,9 +197,6 @@ List<XPathItem> _sortAndDeduplicate(Iterable<XPathItem> iter) {
       others.add(item);
     }
   }
-  if (nodes.isNotEmpty && others.isNotEmpty) {
-    _throwPathOperatorMixedNodes();
-  }
   if (nodes.length <= 1) {
     return [...nodes.map(XPathNode.new), ...others];
   }

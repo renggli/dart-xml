@@ -209,6 +209,27 @@ void main() {
             isXPathEvaluationException(errorCode: XPathErrorCode.FORG0002),
           );
     });
+    test('coerces untypedAtomic and anyURI', () {
+      check(
+        fnResolveUri(baseContext, [
+          const XPathSequence.single(XPathUntypedAtomic('file.xml')),
+        ]),
+      ).isXPathSequence(['http://example.com/dir/file.xml']);
+      check(
+        fnResolveUri(baseContext, [
+          const XPathSequence.single(XPathAnyUri('file.xml')),
+        ]),
+      ).isXPathSequence(['http://example.com/dir/file.xml']);
+    });
+    test('throws XPTY0004 on invalid type', () {
+      check(
+        () => fnResolveUri(baseContext, [
+          XPathSequence.single(XPathInteger.fromInt(123)),
+        ]),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+      );
+    });
   });
 
   group('fn:encode-for-uri', () {

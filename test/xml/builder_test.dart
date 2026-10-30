@@ -997,6 +997,20 @@ void main() {
         '</element>';
     check(actual).equals(expected);
   });
+  test('auto prefix increments counter when ns0 is taken', () {
+    final builder = XmlBuilder(autoDeclareNamespaces: true);
+    builder.element(
+      'root',
+      nest: () {
+        builder.namespaceUri('ns0', 'http://first.com/');
+        builder.attribute('attr', 'val', namespaceUri: 'http://second.com/');
+      },
+    );
+    final actual = builder.buildDocument().toString();
+    const expected =
+        '<root xmlns:ns0="http://first.com/" xmlns:ns1="http://second.com/" ns1:attr="val"/>';
+    check(actual).equals(expected);
+  });
   test('duplicate namespace on element (optimized, deprecated)', () {
     final builder = XmlBuilder(optimizeNamespaces: true);
     builder.element(

@@ -327,13 +327,7 @@ Iterable<XPathInteger> _evalIndexOfSync(
 ) sync* {
   var index = 1;
   for (final item in seq.atomize()) {
-    var match = false;
-    try {
-      match = item == search;
-    } on Exception {
-      match = false;
-    }
-    if (match) {
+    if (item == search) {
       yield XPathInteger.fromInt(index);
     }
     index++;
