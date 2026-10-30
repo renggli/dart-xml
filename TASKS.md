@@ -217,7 +217,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: `normalizeAttributes` executes `final result = attributes.toList();` on every element encounter, even when neither `sortAttributes` nor custom attribute indenting is requested. For large documents with thousands of elements, this creates unnecessary intermediate list allocations.
 - **Fix**: Only call `attributes.toList()` when `sortAttributes != null`; otherwise iterate `attributes` directly.
 
-### PERF-4: `XmlNodesExtension.nodes` and `XmlFollowingIterator` Create Unnecessary Intermediate Lists
+### PERF-4: `XmlNodesExtension.nodes` and `XmlFollowingIterator` Create Unnecessary Intermediate Lists [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
 - **Location**: `lib/src/xml/extensions/nodes.dart:15-16`, `lib/src/xml/navigation/following.dart:18-20`
 - **Problem**:

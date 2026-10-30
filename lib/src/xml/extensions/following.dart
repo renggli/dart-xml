@@ -27,22 +27,33 @@ class XmlFollowingIterable extends IterableBase<XmlNode> {
 /// Iterator to walk over the followers of a node.
 class XmlFollowingIterator implements Iterator<XmlNode> {
   new(XmlNode start) {
-    final following = <XmlNode>[];
+    final ancestors = <(XmlNode, XmlNode)>[];
     for (
       var parent = start.parent, child = start;
       parent != null;
       parent = parent.parent, child = child.parent!
     ) {
+      ancestors.add((parent, child));
+    }
+    for (final (parent, child) in ancestors.reversed) {
       if (child is XmlAttribute) {
-        final attributesIndex = parent.attributes.indexOf(child);
-        following.addAll(parent.attributes.sublist(attributesIndex + 1));
-        following.addAll(parent.children);
+        final children = parent.children;
+        for (var i = children.length - 1; i >= 0; i--) {
+          _todo.add(children[i]);
+        }
+        final attributes = parent.attributes;
+        final attributesIndex = attributes.indexOf(child);
+        for (var i = attributes.length - 1; i > attributesIndex; i--) {
+          _todo.add(attributes[i]);
+        }
       } else {
-        final childrenIndex = parent.children.indexOf(child);
-        following.addAll(parent.children.sublist(childrenIndex + 1));
+        final children = parent.children;
+        final childrenIndex = children.indexOf(child);
+        for (var i = children.length - 1; i > childrenIndex; i--) {
+          _todo.add(children[i]);
+        }
       }
     }
-    _todo.addAll(following.reversed);
   }
 
   final List<XmlNode> _todo = [];
