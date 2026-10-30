@@ -205,7 +205,13 @@ final class XPathInteger extends XPathNumeric {
   }
 
   @override
-  int get hashCode => value.hashCode;
+  int get hashCode {
+    if (value.bitLength <= 53) {
+      final d = value.toDouble();
+      return (d == 0.0 ? 0.0 : d).hashCode;
+    }
+    return value.hashCode;
+  }
 }
 
 /// Arbitrary-precision decimal (xs:decimal).
@@ -471,7 +477,20 @@ final class XPathDecimal extends XPathNumeric {
   }
 
   @override
-  int get hashCode => Object.hash(unscaledValue, scale);
+  int get hashCode {
+    if (scale == 0) {
+      if (unscaledValue.bitLength <= 53) {
+        final d = unscaledValue.toDouble();
+        return (d == 0.0 ? 0.0 : d).hashCode;
+      }
+      return unscaledValue.hashCode;
+    }
+    final d = toDouble();
+    if (d.isFinite) {
+      return (d == 0.0 ? 0.0 : d).hashCode;
+    }
+    return Object.hash(unscaledValue, scale);
+  }
 }
 
 /// 64-bit IEEE 754 float (xs:double and xs:float).
@@ -659,7 +678,11 @@ final class XPathDouble extends XPathNumeric {
   }
 
   @override
-  int get hashCode => value.hashCode;
+  int get hashCode {
+    if (value.isNaN) return 0;
+    final d = value == 0.0 ? 0.0 : value;
+    return d.hashCode;
+  }
 }
 
 String _toXPathScientific(double value) {

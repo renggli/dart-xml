@@ -94,5 +94,11 @@ final class XPathMap extends XPathFunctionItem {
   }
 
   @override
-  int get hashCode => entries.length;
+  int get hashCode {
+    var hash = 0;
+    for (final entry in entries.entries) {
+      hash = (hash + Object.hash(entry.key, entry.value)) & 0x3fffffff;
+    }
+    return hash;
+  }
 }

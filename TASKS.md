@@ -93,7 +93,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
   2. `_isOrderPreserved` (`lib/src/xpath/expressions/path.dart:49-58`) returns `true` for `(1, 2)/.` (since `SequenceExpression` is step 0 and `ContextItemExpression` has `isOrderPreserved == true`), bypassing `_throwPathOperatorRequiresNodes` (`XPTY0019`) on the left-hand side of `/`.
 - **Fix**: Throw `XPathEvaluationException(XPathErrorCode.XPTY0018, ...)` in `_sortAndDeduplicate` (and in the `isOrderPreserved` fast path) when results contain both `XPathNode` and non-`XPathNode` items, and ensure `_isOrderPreserved` requires step 0 to be a node-producing expression when `steps.length > 1`.
 
-### BUG-11: `XPathNumeric` Violates `==` / `hashCode` Contract Across Numeric Subtypes
+### BUG-11: `XPathNumeric` Violates `==` / `hashCode` Contract Across Numeric Subtypes [COMPLETED]
+- **Status**: Completed
 - **Severity**: Critical
 - **Location**: `lib/src/xpath/xdm/atomic/numeric.dart:208`, `lib/src/xpath/xdm/atomic/numeric.dart:474`, `lib/src/xpath/xdm/atomic/numeric.dart:662`, `lib/src/xpath/xdm/functions/map.dart:39-44`, `lib/src/xpath/xdm/functions/map.dart:97`
 - **Problem**: `XPathInteger(1) == XPathDecimal(1, 0)` and `XPathInteger(1) == XPathDouble(1.0)` evaluate to `true`, but their `hashCode` getters return `BigInt.one.hashCode`, `Object.hash(BigInt.one, 0)`, and `1.0.hashCode` respectively, violating Dart's `==`/`hashCode` invariant. Consequently, `fnDistinctValues` (`lib/src/xpath/functions/sequence.dart:273-280`), which uses `Set<XPathAtomic>`, fails to deduplicate `1`, `1.0`, and `xs:decimal('1.00')`. In addition, `XPathMap.hashCode` (`lib/src/xpath/xdm/functions/map.dart:97`) is just `entries.length`.

@@ -313,6 +313,18 @@ void main() {
         ]),
       ).isXPathSequence(['a', 'b']);
     });
+
+    test('deduplicates across numeric types (integer, decimal, double)', () {
+      check(
+        fnDistinctValues(context, [
+          XPathSequence([
+            XPathInteger.fromInt(1),
+            const XPathDouble(1.0),
+            XPathDecimal.parse('1.00'),
+          ]),
+        ]),
+      ).length.equals(1);
+    });
   });
 
   group('fn:index-of', () {

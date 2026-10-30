@@ -413,6 +413,17 @@ void main() {
         // _toXPathScientific
         check(const XPathDouble(1e7).stringValue).equals('1.0E7');
         check(const XPathDouble(-1250000.0).stringValue).equals('-1.25E6');
+
+        // Cross-type == and hashCode contract
+        final i1 = XPathInteger.fromInt(1);
+        final dec1 = XPathDecimal.parse('1.00');
+        const dbl1 = XPathDouble(1.0);
+        check(i1 == dec1).isTrue();
+        check(i1 == dbl1).isTrue();
+        check(dec1 == dbl1).isTrue();
+        check(i1.hashCode).equals(dec1.hashCode);
+        check(i1.hashCode).equals(dbl1.hashCode);
+        check(dec1.hashCode).equals(dbl1.hashCode);
         check(const XPathDouble(1e20).stringValue).equals('1.0E20');
       },
     );
