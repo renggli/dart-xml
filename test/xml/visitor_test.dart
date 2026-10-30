@@ -228,6 +228,13 @@ void main() {
         final output = input.toXmlString(pretty: true);
         check(output).equals('<contents>Hello World</contents>');
       });
+      test('normalize adjacent text without spaces', () {
+        final input = XmlDocument([
+          XmlElement.tag('contents', children: [XmlText('Hel'), XmlText('lo')]),
+        ]);
+        final output = input.toXmlString(pretty: true);
+        check(output).equals('<contents>Hello</contents>');
+      });
     });
     group('attributes', () {
       const input =

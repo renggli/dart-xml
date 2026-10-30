@@ -65,9 +65,13 @@ class XmlPrettyWriter extends XmlWriter {
       if (node.children.isNotEmpty) {
         if (pretty) {
           if (preserveWhitespace != null && preserveWhitespace!(node)) {
+            final wasPretty = pretty;
             pretty = false;
-            writeIterable(node.children);
-            pretty = true;
+            try {
+              writeIterable(node.children);
+            } finally {
+              pretty = wasPretty;
+            }
           } else if (node.children.every((each) => each is XmlText)) {
             writeIterable(normalizeText(node.children));
           } else {
@@ -120,22 +124,19 @@ class XmlPrettyWriter extends XmlWriter {
   @protected
   List<XmlNode> normalizeText(List<XmlNode> nodes) {
     final result = <XmlNode>[];
-    for (final node in nodes) {
+    final textBuffer = StringBuffer();
+    for (var i = 0; i < nodes.length; i++) {
+      final node = nodes[i];
       if (node is XmlText) {
-        final text = node.value.trim().replaceAll(
-          _whitespaceOrLineTerminators,
-          ' ',
-        );
+        textBuffer.write(node.value);
+        if (i + 1 < nodes.length && nodes[i + 1] is XmlText) {
+          continue;
+        }
+        final raw = textBuffer.toString();
+        textBuffer.clear();
+        final text = raw.trim().replaceAll(_whitespaceOrLineTerminators, ' ');
         if (text.isNotEmpty) {
-          if (result.isNotEmpty && result.last is XmlText) {
-            result.last = XmlText(
-              '${result.last.value}${XmlToken.whitespace}$text',
-            );
-          } else if (node.value != text) {
-            result.add(XmlText(text));
-          } else {
-            result.add(node);
-          }
+          result.add(XmlText(text));
         }
       } else {
         result.add(node);

@@ -45,7 +45,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 
 *(Note on previous BUG-5: Withdrawn; extensive test suite in `test/xml_events/stream_test.dart` verifies that 1-character chunk splits across XML documents containing entities are properly handled because `XmlEventDecoder` produces `XmlRawTextEvent`s and `XmlNormalizeEvents` recombines raw text before resolving `.value`).*
 
-### BUG-5: `XmlPrettyWriter` Corrupts Adjacent `XmlText` Nodes and Fails to Restore `pretty` State on Error
+### BUG-5: `XmlPrettyWriter` Corrupts Adjacent `XmlText` Nodes and Fails to Restore `pretty` State on Error [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
 - **Location**: `lib/src/xml/visitors/pretty_writer.dart:60-64`, `lib/src/xml/visitors/pretty_writer.dart:114-127`
 - **Problem**:
