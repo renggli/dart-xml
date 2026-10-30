@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 import '../mixins/has_attributes.dart';
 import '../nodes/attribute.dart';
 import '../nodes/document.dart';
+import '../nodes/document_fragment.dart';
 import '../nodes/element.dart';
 import '../nodes/node.dart';
 import '../nodes/text.dart';
@@ -39,6 +40,12 @@ class XmlPrettyWriter extends XmlWriter {
 
   @override
   void visitDocument(XmlDocument node) {
+    buffer.write(indent * level);
+    writeIterable(normalizeText(node.children), newLine + indent * level);
+  }
+
+  @override
+  void visitDocumentFragment(XmlDocumentFragment node) {
     buffer.write(indent * level);
     writeIterable(normalizeText(node.children), newLine + indent * level);
   }

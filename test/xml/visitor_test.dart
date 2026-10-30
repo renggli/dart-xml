@@ -412,5 +412,22 @@ void main() {
         check(namespace.toXmlString()).equals('xmlns:xmlns="http://uri.com"');
       });
     });
+    group('document fragment', () {
+      test('default', () {
+        final fragment = XmlDocumentFragment([
+          XmlElement.tag('first'),
+          XmlText('text'),
+          XmlElement.tag('second'),
+        ]);
+        check(fragment.toXmlString()).equals('<first/>text<second/>');
+      });
+      test('pretty', () {
+        final fragment = XmlDocumentFragment([
+          XmlElement.tag('first'),
+          XmlElement.tag('second'),
+        ]);
+        check(fragment.toXmlString(pretty: true)).equals('<first/>\n<second/>');
+      });
+    });
   });
 }

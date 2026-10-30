@@ -86,7 +86,7 @@ class XmlWriter with XmlVisitor {
 
   @override
   void visitDocumentFragment(XmlDocumentFragment node) {
-    buffer.write('#document-fragment');
+    writeIterable(node.children);
   }
 
   @override
