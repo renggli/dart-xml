@@ -54,11 +54,18 @@ XPathSequence opDivideDuration(XPathSequence left, XPathSequence right) {
   if (divisor.isInfinite) {
     return XPathSequence.single(XPathDuration(type: duration.type));
   }
-  final rounded = divisor.round();
-  if (rounded == 0) {
-    throw XPathEvaluationException(XPathErrorCode.FOAR0001, 'Division by zero');
+  if (divisor == 0.0) {
+    throw XPathEvaluationException(XPathErrorCode.FODT0002, 'Division by zero');
   }
-  return XPathSequence.single(duration ~/ rounded);
+  final resMonths = duration.totalMonths / divisor;
+  final resMicroseconds = duration.totalMicroseconds / divisor;
+  if (resMonths.isInfinite || resMicroseconds.isInfinite) {
+    throw XPathEvaluationException(
+      XPathErrorCode.FODT0002,
+      'Overflow: duration division overflow',
+    );
+  }
+  return XPathSequence.single(duration / divisor);
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-divide-duration-by-duration

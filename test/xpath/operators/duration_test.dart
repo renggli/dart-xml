@@ -84,6 +84,14 @@ void main() {
       check(result.months).equals(2);
       check(result.days).equals(1);
     });
+    test('divide by fractional divisor', () {
+      final d1 = XPathDuration.tryParse('PT3H')!;
+      final r1 = opDivideDuration(seq(d1), seq(1.5)).first as XPathDuration;
+      check(r1.stringValue).equals('PT2H');
+
+      final r2 = opDivideDuration(seq(d1), seq(0.4)).first as XPathDuration;
+      check(r2.stringValue).equals('PT7H30M');
+    });
     test('divide by zero throws', () {
       check(
             () => opDivideDuration(

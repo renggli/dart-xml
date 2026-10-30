@@ -140,6 +140,9 @@ void main() {
       check(y1 + y1).equals(y2);
       check(y2 - y1).equals(y1);
       check(y1 * 2).equals(y2);
+      check(y2 / 2).equals(y1);
+      check(y2 / 1.5).equals(const XPathDuration.yearMonth(16));
+      check(() => y2 / 0).throws<ArgumentError>();
       check(y2 ~/ 2).equals(y1);
       check(-y1).equals(const XPathDuration.yearMonth(-12));
       check(y2.divideByDuration(y1)).equals(2.0);

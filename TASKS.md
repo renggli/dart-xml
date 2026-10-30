@@ -100,7 +100,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: `XPathInteger(1) == XPathDecimal(1, 0)` and `XPathInteger(1) == XPathDouble(1.0)` evaluate to `true`, but their `hashCode` getters return `BigInt.one.hashCode`, `Object.hash(BigInt.one, 0)`, and `1.0.hashCode` respectively, violating Dart's `==`/`hashCode` invariant. Consequently, `fnDistinctValues` (`lib/src/xpath/functions/sequence.dart:273-280`), which uses `Set<XPathAtomic>`, fails to deduplicate `1`, `1.0`, and `xs:decimal('1.00')`. In addition, `XPathMap.hashCode` (`lib/src/xpath/xdm/functions/map.dart:97`) is just `entries.length`.
 - **Fix**: Compute a unified canonical `hashCode` across `XPathInteger`, `XPathDecimal`, and `XPathDouble` (e.g. normalizing trailing decimal zeros and hashing via `toDouble().hashCode` for values within exact IEEE-754 integer range), and compute `XPathMap.hashCode` from its entries.
 
-### BUG-12: `opDivideDuration` Rounds Divisor to Integer Before Dividing
+### BUG-12: `opDivideDuration` Rounds Divisor to Integer Before Dividing [COMPLETED]
+- **Status**: Completed
 - **Severity**: Critical
 - **Location**: `lib/src/xpath/operators/duration.dart:40-62`
 - **Problem**: `opDivideDuration` computes `final rounded = divisor.round();` and then `duration ~/ rounded;`. Dividing `xs:dayTimeDuration('PT3H')` by `1.5` rounds `1.5` to `2` and returns `PT1H30M` instead of `PT2H`. Dividing by `0.4` rounds `0.4` to `0` and falsely throws `FOAR0001` (Division by zero).

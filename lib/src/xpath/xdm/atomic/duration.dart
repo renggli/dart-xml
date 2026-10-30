@@ -166,6 +166,18 @@ final class XPathDuration extends XPathAtomic {
     type: type,
   );
 
+  /// Divides this duration by a numeric divisor.
+  XPathDuration operator /(num divisor) {
+    if (divisor == 0) {
+      throw ArgumentError.value(divisor, 'divisor', 'Cannot divide by zero');
+    }
+    return XPathDuration(
+      totalMonths: (totalMonths / divisor).round(),
+      totalMicroseconds: (totalMicroseconds / divisor).round(),
+      type: type,
+    );
+  }
+
   /// Divides this duration by an integer quotient.
   XPathDuration operator ~/(int quotient) => XPathDuration(
     totalMonths: totalMonths ~/ quotient,
