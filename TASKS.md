@@ -421,7 +421,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: `childrenNodeTypes` and `attributeNodeTypes` (`Set<XmlNodeType>`) are redefined separately at the bottom of `declaration.dart`, `document.dart`, `document_fragment.dart`, and `element.dart` with overlapping definitions.
 - **Fix**: Consolidated `documentChildrenNodeTypes`, `elementChildrenNodeTypes`, and `attributeNodeTypes` in `lib/src/xml/enums/node_type.dart` and eliminated redundant duplicate set literals across node implementations.
 
-### ARCH-3: Oversized Monolithic XPath Files (`json.dart`, `xpath.dart`, `serialization.dart`, `regex.dart`, `numeric.dart`, `date_time.dart`)
+### ARCH-3: Oversized Monolithic XPath Files (`json.dart`, `xpath.dart`, `serialization.dart`, `regex.dart`, `numeric.dart`, `date_time.dart`) [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
 - **Location**:
   - `lib/src/xpath/functions/json.dart:1-1883` (1,883 lines)
@@ -436,10 +437,9 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
   - `lib/src/xpath/functions/regex.dart` (910 lines) bundles Unicode block tables, two separate PetitParser grammars (`_XPathRegexGroupGrammar` and `XPathRegexTransformGrammar`), backreference validation, `fn:replace` template parsing, and `fn:analyze-string` XML construction.
   - `lib/src/xpath/xdm/atomic/numeric.dart` (793 lines) combines `XPathNumeric`, `XPathInteger`, `XPathDecimal`, `XPathDouble`, and `roundToFloat` in a single file.
 - **Fix**:
-  - Split `lib/src/xpath/functions/json.dart` into `json.dart` (functions & options), `json_parser.dart` (`_JsonParser`), and `json_serializer.dart` (`_XmlToJsonSerializer`), sharing JSON string escaping with `serialization.dart`.
-  - Split `lib/src/xpath/functions/serialization.dart` into `serialization_parameters.dart` and `serialization_writers.dart`.
-  - Split `lib/src/xpath/functions/regex.dart` into regex translation grammar vs. `fn:replace` / `fn:analyze-string` evaluation.
-  - Split `lib/src/xpath/xdm/atomic/numeric.dart` into `numeric.dart`, `integer.dart`, `decimal.dart`, and `double.dart` (or keep internal parts modular).
+  - Split `lib/src/xpath/functions/json.dart` into `json.dart` (functions), `json_options.dart` (`JsonOptions`), `json_parser.dart` (`JsonParser`), `json_serializer.dart` (`XmlToJsonSerializer`), and `json_escape.dart` (`escapeJsonString`).
+  - Split `lib/src/xpath/functions/serialization.dart` into `serialization.dart` (function), `serialization_parameters.dart` (`SerializationParameters`), and `serialization_writers.dart` (format serializers).
+  - Split `lib/src/xpath/functions/regex.dart` into `regex.dart` (grammar and caching) and `regex_replace.dart` (`applyXPathReplace` and `analyzeXPathString`).
 
 ### ARCH-4: Distributed QName / EQName Parsing and Validation Logic
 - **Severity**: Warning
