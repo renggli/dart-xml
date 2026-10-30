@@ -2,6 +2,7 @@ import 'package:collection/collection.dart' show DelegatingList;
 import 'package:meta/meta.dart';
 
 import '../enums/node_type.dart';
+import '../exceptions/parent_exception.dart';
 import '../exceptions/type_exception.dart';
 import '../nodes/attribute.dart';
 import '../nodes/document_fragment.dart';
@@ -208,10 +209,25 @@ class _XmlNodeListOperation<E extends XmlNode> {
     }
   }
 
-  /// Validates every node in [source] against [XmlNodeList._nodeTypes].
+  /// Validates every node in [source] against [XmlNodeList._nodeTypes] and
+  /// ensures no ancestor cycles are created.
   void _validate() {
+    final targetParent = target._parent;
     for (final node in source) {
       XmlNodeTypeException.checkValidType(node, target._nodeTypes);
+      for (
+        XmlNode? current = targetParent;
+        current != null;
+        current = current.parent
+      ) {
+        if (identical(current, node)) {
+          throw XmlParentException(
+            'Cannot add an ancestor node as a child',
+            node: node,
+            parent: targetParent,
+          );
+        }
+      }
     }
   }
 

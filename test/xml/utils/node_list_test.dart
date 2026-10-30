@@ -410,5 +410,34 @@ void main() {
         assertDocumentTreeInvariants(doc);
       },
     );
+
+    test('add self throws XmlParentException', () {
+      final doc = XmlDocument.parse('<root><child/></root>');
+      final child = doc.rootElement.firstElementChild!;
+
+      check(() => child.children.add(child)).throws<XmlParentException>();
+      assertDocumentTreeInvariants(doc);
+    });
+
+    test('add ancestor throws XmlParentException', () {
+      final doc = XmlDocument.parse('<root><parent><child/></parent></root>');
+      final root = doc.rootElement;
+      final child = root.firstElementChild!.firstElementChild!;
+
+      check(() => child.children.add(root)).throws<XmlParentException>();
+      assertDocumentTreeInvariants(doc);
+    });
+
+    test('addAll with ancestor rolls back and throws XmlParentException', () {
+      final doc = XmlDocument.parse('<root><parent><child/></parent></root>');
+      final root = doc.rootElement;
+      final child = root.firstElementChild!.firstElementChild!;
+      final extra = XmlElement(const XmlName.qualified('extra'));
+
+      check(() => child.children.addAll([extra, root]))
+          .throws<XmlParentException>();
+      check(child.children).isEmpty();
+      assertDocumentTreeInvariants(doc);
+    });
   });
 }
