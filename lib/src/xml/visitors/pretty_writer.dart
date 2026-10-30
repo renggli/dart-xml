@@ -17,6 +17,7 @@ class XmlPrettyWriter extends XmlWriter {
   new(
     super.buffer, {
     super.entityMapping,
+    super.repairNamespaces,
     int? level,
     String? indent,
     String? newLine,
@@ -51,53 +52,55 @@ class XmlPrettyWriter extends XmlWriter {
 
   @override
   void visitElement(XmlElement node) {
-    buffer.write(XmlToken.openElement);
-    visit(node.name);
-    writeAttributes(node);
-    if (node.children.isEmpty && node.isSelfClosing) {
-      if (spaceBeforeSelfClose != null && spaceBeforeSelfClose!(node)) {
-        buffer.write(' ');
-      }
-      buffer.write(XmlToken.closeEndElement);
-    } else {
-      buffer.write(XmlToken.closeElement);
-      if (node.children.isNotEmpty) {
-        final xmlSpace =
-            node.getAttribute('xml:space') ??
-            node.getAttribute(
-              'space',
-              namespaceUri: 'http://www.w3.org/XML/1998/namespace',
-            );
-        final shouldPreserve =
-            (preserveWhitespace != null && preserveWhitespace!(node)) ||
-            xmlSpace == 'preserve';
-        final shouldDefault = xmlSpace == 'default';
-        if (shouldPreserve) {
-          final wasPretty = pretty;
-          pretty = false;
-          try {
-            writeIterable(node.children);
-          } finally {
-            pretty = wasPretty;
-          }
-        } else if (shouldDefault && !pretty) {
-          final wasPretty = pretty;
-          pretty = true;
-          try {
-            _writePrettyChildren(node);
-          } finally {
-            pretty = wasPretty;
-          }
-        } else if (pretty) {
-          _writePrettyChildren(node);
-        } else {
-          writeIterable(node.children);
-        }
-      }
-      buffer.write(XmlToken.openEndElement);
+    withNamespaceScope(node, () {
+      buffer.write(XmlToken.openElement);
       visit(node.name);
-      buffer.write(XmlToken.closeElement);
-    }
+      writeAttributes(node);
+      if (node.children.isEmpty && node.isSelfClosing) {
+        if (spaceBeforeSelfClose != null && spaceBeforeSelfClose!(node)) {
+          buffer.write(' ');
+        }
+        buffer.write(XmlToken.closeEndElement);
+      } else {
+        buffer.write(XmlToken.closeElement);
+        if (node.children.isNotEmpty) {
+          final xmlSpace =
+              node.getAttribute('xml:space') ??
+              node.getAttribute(
+                'space',
+                namespaceUri: 'http://www.w3.org/XML/1998/namespace',
+              );
+          final shouldPreserve =
+              (preserveWhitespace != null && preserveWhitespace!(node)) ||
+              xmlSpace == 'preserve';
+          final shouldDefault = xmlSpace == 'default';
+          if (shouldPreserve) {
+            final wasPretty = pretty;
+            pretty = false;
+            try {
+              writeIterable(node.children);
+            } finally {
+              pretty = wasPretty;
+            }
+          } else if (shouldDefault && !pretty) {
+            final wasPretty = pretty;
+            pretty = true;
+            try {
+              _writePrettyChildren(node);
+            } finally {
+              pretty = wasPretty;
+            }
+          } else if (pretty) {
+            _writePrettyChildren(node);
+          } else {
+            writeIterable(node.children);
+          }
+        }
+        buffer.write(XmlToken.openEndElement);
+        visit(node.name);
+        buffer.write(XmlToken.closeElement);
+      }
+    });
   }
 
   void _writePrettyChildren(XmlElement node) {
@@ -116,7 +119,7 @@ class XmlPrettyWriter extends XmlWriter {
 
   @override
   void writeAttributes(XmlHasAttributes node) {
-    for (final attribute in normalizeAttributes(node.attributes)) {
+    for (final attribute in normalizeAttributes(attributesFor(node))) {
       if (pretty && indentAttribute != null && indentAttribute!(attribute)) {
         buffer.write(newLine);
         buffer.write(indent * (level + 1));

@@ -33,6 +33,8 @@ mixin XmlHasWriter implements XmlHasVisitor {
   ///   using the provided [Comparator].
   /// - If the predicate [spaceBeforeSelfClose] returns `true`, self-closing
   ///   elements will be closed with a space before the slash (`<example />`).
+  /// - If [repairNamespaces] is `true`, in-scope namespaces are tracked and
+  ///   missing `xmlns` declarations are automatically synthesized on elements.
   ///
   String toXmlString({
     bool pretty = false,
@@ -44,6 +46,7 @@ mixin XmlHasWriter implements XmlHasVisitor {
     bool Function(XmlAttribute)? indentAttribute,
     Comparator<XmlAttribute>? sortAttributes,
     bool Function(XmlNode)? spaceBeforeSelfClose,
+    bool repairNamespaces = false,
   }) {
     final buffer = StringBuffer();
     final writer = pretty
@@ -57,8 +60,13 @@ mixin XmlHasWriter implements XmlHasVisitor {
             indentAttribute: indentAttribute,
             sortAttributes: sortAttributes,
             spaceBeforeSelfClose: spaceBeforeSelfClose,
+            repairNamespaces: repairNamespaces,
           )
-        : XmlWriter(buffer, entityMapping: entityMapping);
+        : XmlWriter(
+            buffer,
+            entityMapping: entityMapping,
+            repairNamespaces: repairNamespaces,
+          );
     writer.visit(this);
     return buffer.toString();
   }

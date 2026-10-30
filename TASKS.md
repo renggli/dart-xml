@@ -396,11 +396,12 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: Duplicate attributes on the same element were accepted by default.
 - **Fix**: Added `validateAttributes: bool = false` to `XmlAnnotator`, `XmlEventIterable`, `XmlEventDecoder`, `XmlEventCodec`, `parseEvents`, `toXmlEvents`, and `XmlDocument.parse` to reject duplicate attributes with `XmlTagException`.
 
-### FEAT-9: Namespace Prefix Repairing in `XmlWriter` (`SER-2`)
+### FEAT-9: Namespace Prefix Repairing in `XmlWriter` (`SER-2`) [COMPLETED]
+- **Status**: Completed
 - **Severity**: Feature
 - **Location**: `lib/src/xml/visitors/writer.dart:92-125`
 - **Problem**: Programmatically constructed `XmlElement`s or `XmlAttribute`s with `XmlName.parts(local, prefix: ..., namespaceUri: ...)` that lack a corresponding `xmlns:prefix="uri"` attribute serialize without the namespace declaration, producing namespace-ill-formed XML.
-- **Fix**: Add an optional `repairNamespaces: bool = false` flag to `XmlWriter` / `toXmlString` that tracks in-scope namespace declarations during serialization and emits missing `xmlns` attributes automatically.
+- **Fix**: Added optional `repairNamespaces: bool = false` flag to `XmlWriter`, `XmlPrettyWriter`, and `toXmlString` that tracks in-scope namespace declarations during serialization and emits missing `xmlns` attributes automatically.
 
 ---
 

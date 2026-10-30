@@ -467,6 +467,139 @@ void main() {
         final namespace = XmlNamespace('xmlns', 'http://uri.com');
         check(namespace.toXmlString()).equals('xmlns:xmlns="http://uri.com"');
       });
+      group('repair', () {
+        test('element with prefix and namespaceUri', () {
+          final element = XmlElement(
+            const XmlName.parts(
+              'child',
+              prefix: 'p',
+              namespaceUri: 'http://foo',
+            ),
+          );
+          check(element.toXmlString()).equals('<p:child/>');
+          check(element.toXmlString(repairNamespaces: true))
+              .equals('<p:child xmlns:p="http://foo"/>');
+        });
+        test('element with default namespaceUri', () {
+          final element = XmlElement(
+            const XmlName.parts('child', namespaceUri: 'http://foo'),
+          );
+          check(element.toXmlString()).equals('<child/>');
+          check(element.toXmlString(repairNamespaces: true))
+              .equals('<child xmlns="http://foo"/>');
+        });
+        test('attribute with prefix and namespaceUri', () {
+          final element = XmlElement(const XmlName.qualified('root'), [
+            XmlAttribute(
+              const XmlName.parts(
+                'attr',
+                prefix: 'a',
+                namespaceUri: 'http://bar',
+              ),
+              'value',
+            ),
+          ]);
+          check(element.toXmlString(repairNamespaces: true))
+              .equals('<root a:attr="value" xmlns:a="http://bar"/>');
+        });
+        test('nested elements share scope without duplicating declaration', () {
+          final child = XmlElement(
+            const XmlName.parts(
+              'child',
+              prefix: 'p',
+              namespaceUri: 'http://foo',
+            ),
+          );
+          final root = XmlElement(
+            const XmlName.parts(
+              'root',
+              prefix: 'p',
+              namespaceUri: 'http://foo',
+            ),
+            const [],
+            [child],
+          );
+          check(root.toXmlString(repairNamespaces: true))
+              .equals('<p:root xmlns:p="http://foo"><p:child/></p:root>');
+        });
+        test('nested element with new prefix', () {
+          final child = XmlElement(
+            const XmlName.parts(
+              'child',
+              prefix: 'c',
+              namespaceUri: 'http://child',
+            ),
+          );
+          final root = XmlElement(
+            const XmlName.parts(
+              'root',
+              prefix: 'p',
+              namespaceUri: 'http://root',
+            ),
+            const [],
+            [child],
+          );
+          check(root.toXmlString(repairNamespaces: true)).equals(
+            '<p:root xmlns:p="http://root">'
+            '<c:child xmlns:c="http://child"/>'
+            '</p:root>',
+          );
+        });
+        test('preserves existing explicit xmlns declarations', () {
+          final element = XmlElement(
+            const XmlName.parts(
+              'root',
+              prefix: 'p',
+              namespaceUri: 'http://foo',
+            ),
+            [
+              XmlAttribute(
+                const XmlName.parts('p', prefix: 'xmlns'),
+                'http://foo',
+              ),
+            ],
+          );
+          check(element.toXmlString(repairNamespaces: true))
+              .equals('<p:root xmlns:p="http://foo"/>');
+        });
+        test('xml prefix does not synthesize declaration', () {
+          final element = XmlElement(const XmlName.qualified('root'), [
+            XmlAttribute(
+              const XmlName.parts(
+                'space',
+                prefix: 'xml',
+                namespaceUri: 'http://www.w3.org/XML/1998/namespace',
+              ),
+              'preserve',
+            ),
+          ]);
+          check(element.toXmlString(repairNamespaces: true))
+              .equals('<root xml:space="preserve"/>');
+        });
+        test('pretty printing with repairNamespaces', () {
+          final child = XmlElement(
+            const XmlName.parts(
+              'child',
+              prefix: 'p',
+              namespaceUri: 'http://foo',
+            ),
+          );
+          final root = XmlElement(
+            const XmlName.parts(
+              'root',
+              prefix: 'p',
+              namespaceUri: 'http://foo',
+            ),
+            const [],
+            [child],
+          );
+          check(root.toXmlString(pretty: true, repairNamespaces: true)).equals(
+            '<p:root xmlns:p="http://foo">\n'
+            '  <p:child/>\n'
+            '</p:root>',
+          );
+        });
+      });
     });
     group('document fragment', () {
       test('default', () {

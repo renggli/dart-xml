@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+
 import '../entities/default_mapping.dart';
 import '../entities/entity_mapping.dart';
 import '../enums/attribute_type.dart';
@@ -22,11 +24,19 @@ import 'visitor.dart';
 /// A visitor that writes XML nodes exactly as they were parsed.
 class XmlWriter with XmlVisitor {
   /// Creates an [XmlWriter] writing to [buffer].
-  new(this.buffer, {XmlEntityMapping? entityMapping})
-    : entityMapping = entityMapping ?? defaultEntityMapping;
+  new(
+    this.buffer, {
+    XmlEntityMapping? entityMapping,
+    this.repairNamespaces = false,
+  }) : entityMapping = entityMapping ?? defaultEntityMapping;
 
   final StringSink buffer;
   final XmlEntityMapping entityMapping;
+  final bool repairNamespaces;
+
+  Map<String, String>? _namespaceScope;
+  List<XmlAttribute> _currentRepairs = const [];
+  static const _initialScope = {ns.xml: ns.xmlUri};
 
   @override
   void visitAttribute(XmlAttribute node) {
@@ -91,18 +101,20 @@ class XmlWriter with XmlVisitor {
 
   @override
   void visitElement(XmlElement node) {
-    buffer.write(XmlToken.openElement);
-    visit(node.name);
-    writeAttributes(node);
-    if (node.children.isEmpty && node.isSelfClosing) {
-      buffer.write(XmlToken.closeEndElement);
-    } else {
-      buffer.write(XmlToken.closeElement);
-      writeIterable(node.children);
-      buffer.write(XmlToken.openEndElement);
+    withNamespaceScope(node, () {
+      buffer.write(XmlToken.openElement);
       visit(node.name);
-      buffer.write(XmlToken.closeElement);
-    }
+      writeAttributes(node);
+      if (node.children.isEmpty && node.isSelfClosing) {
+        buffer.write(XmlToken.closeEndElement);
+      } else {
+        buffer.write(XmlToken.closeElement);
+        writeIterable(node.children);
+        buffer.write(XmlToken.openEndElement);
+        visit(node.name);
+        buffer.write(XmlToken.closeElement);
+      }
+    });
   }
 
   @override
@@ -143,10 +155,99 @@ class XmlWriter with XmlVisitor {
   }
 
   void writeAttributes(XmlHasAttributes node) {
-    if (node.attributes.isNotEmpty) {
+    final attributes = attributesFor(node);
+    if (attributes.isNotEmpty) {
       buffer.write(XmlToken.whitespace);
-      writeIterable(node.attributes, XmlToken.whitespace);
+      writeIterable(attributes, XmlToken.whitespace);
     }
+  }
+
+  @protected
+  void withNamespaceScope(XmlElement node, void Function() callback) {
+    if (!repairNamespaces) {
+      callback();
+      return;
+    }
+    final previousScope = _namespaceScope;
+    final previousRepairs = _currentRepairs;
+    _pushNamespaceScope(node);
+    try {
+      callback();
+    } finally {
+      _namespaceScope = previousScope;
+      _currentRepairs = previousRepairs;
+    }
+  }
+
+  List<XmlAttribute> attributesFor(XmlHasAttributes node) {
+    if (!repairNamespaces || _currentRepairs.isEmpty) {
+      return node.attributes;
+    }
+    return [...node.attributes, ..._currentRepairs];
+  }
+
+  void _pushNamespaceScope(XmlElement node) {
+    final currentScope = Map<String, String>.of(
+      _namespaceScope ?? _initialScope,
+    );
+    for (final attribute in node.attributes) {
+      if (attribute.name.prefix == ns.xmlns) {
+        currentScope[attribute.name.local] = attribute.value;
+      } else if (attribute.name.local == ns.xmlns &&
+          attribute.name.prefix == null) {
+        currentScope[''] = attribute.value;
+      }
+    }
+
+    final repairs = <XmlAttribute>[];
+
+    final elementUri = node.name.namespaceUri;
+    final elementPrefix = node.name.prefix ?? '';
+    if (elementUri != null && elementUri.isNotEmpty) {
+      if (currentScope[elementPrefix] != elementUri) {
+        final targetName = elementPrefix.isEmpty
+            ? ns.xmlns
+            : '${ns.xmlns}:$elementPrefix';
+        if (!node.attributes.any((attr) => attr.name.qualified == targetName)) {
+          currentScope[elementPrefix] = elementUri;
+          repairs.add(
+            XmlAttribute(
+              elementPrefix.isEmpty
+                  ? const XmlName.parts(ns.xmlns)
+                  : XmlName.parts(elementPrefix, prefix: ns.xmlns),
+              elementUri,
+            ),
+          );
+        }
+      }
+    }
+
+    for (final attribute in node.attributes) {
+      final attrUri = attribute.name.namespaceUri;
+      final attrPrefix = attribute.name.prefix;
+      if (attrUri != null &&
+          attrUri.isNotEmpty &&
+          attrPrefix != null &&
+          attrPrefix.isNotEmpty) {
+        if (attrPrefix == ns.xml || attrPrefix == ns.xmlns) continue;
+        if (currentScope[attrPrefix] != attrUri) {
+          final targetName = '${ns.xmlns}:$attrPrefix';
+          if (!node.attributes.any((a) => a.name.qualified == targetName) &&
+              !repairs.any((a) => a.name.qualified == targetName)) {
+            currentScope[attrPrefix] = attrUri;
+            repairs.add(
+              XmlAttribute(
+                XmlName.parts(attrPrefix, prefix: ns.xmlns),
+                attrUri,
+              ),
+            );
+          }
+        }
+      }
+    }
+
+    _namespaceScope = currentScope;
+    _currentRepairs = repairs;
   }
 
   void writeIterable(Iterable<XmlHasVisitor> nodes, [String? separator]) {
