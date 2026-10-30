@@ -441,11 +441,12 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
   - Split `lib/src/xpath/functions/serialization.dart` into `serialization.dart` (function), `serialization_parameters.dart` (`SerializationParameters`), and `serialization_writers.dart` (format serializers).
   - Split `lib/src/xpath/functions/regex.dart` into `regex.dart` (grammar and caching) and `regex_replace.dart` (`applyXPathReplace` and `analyzeXPathString`).
 
-### ARCH-4: Distributed QName / EQName Parsing and Validation Logic
+### ARCH-4: Distributed QName / EQName Parsing and Validation Logic [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
 - **Location**: `lib/src/xml/utils/name.dart:51-72`, `lib/src/xml_events/annotations/has_name.dart:14-23`, `lib/src/xpath/xdm/atomic/qname.dart:44-67`, `lib/src/xpath/functions/qname.dart:112-184`, `lib/src/xpath/grammars/xpath.dart:1142-1185`
 - **Problem**: Splitting qualified names (`prefix:local`), parsing `Q{uri}local` EQNames, and validating `NCName`s are re-implemented in five separate places with subtly different behaviors (e.g. `XmlName.parse` supports `Q{uri}local` and looks up `namespaceUris`, `_eqNameToNodeTest` in `xpath.dart` manually slices `Q{...}`, `fnQName` manually splits on `':'` and calls `isValidNCName`, and `XmlHasName` manually calls `indexOf(':')`).
-- **Fix**: Centralize `NCName` validation, `Q{uri}local` EQName parsing, and `prefix:local` splitting in `XmlName` (or a shared internal `qname_utils.dart` helper) and reuse it across `xml`, `xml_events`, and `xpath`.
+- **Fix**: Centralized `isValidNCName`, `isValidQName`, `splitQualifiedName`, and `parseEQNameParts` in `lib/src/xml/utils/name_parser.dart` and reused across `XmlName`, `XmlHasName`, `XPathQName`, `fnQName`, and XPath grammars.
 
 ---
 

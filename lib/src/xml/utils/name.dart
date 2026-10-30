@@ -6,6 +6,7 @@ import '../exceptions/parser_exception.dart';
 import '../mixins/has_visitor.dart';
 import '../mixins/has_writer.dart';
 import '../visitors/visitor.dart';
+import 'name_parser.dart';
 import 'namespace.dart' as ns;
 import 'token.dart';
 
@@ -31,19 +32,13 @@ class XmlName with XmlHasVisitor, XmlHasWriter {
 
   /// Creates an [XmlName] by splitting the [qualified] name into prefix and local.
   factory fromQualified(String qualified, {String? namespaceUri}) {
-    final index = qualified.indexOf(XmlToken.namespace);
-    return index > 0
-        ? XmlName.qualified(
-            qualified,
-            namespaceUri: namespaceUri,
-            prefix: qualified.substring(0, index),
-            local: qualified.substring(index + 1),
-          )
-        : XmlName.qualified(
-            qualified,
-            namespaceUri: namespaceUri,
-            local: qualified,
-          );
+    final (prefix, local) = splitQualifiedName(qualified);
+    return XmlName.qualified(
+      qualified,
+      namespaceUri: namespaceUri,
+      prefix: prefix,
+      local: local,
+    );
   }
 
   /// Creates an [XmlName] from a parsed string.
@@ -60,35 +55,19 @@ class XmlName with XmlHasVisitor, XmlHasWriter {
     String? namespaceUri,
     Map<String, String>? namespaceUris,
   }) {
-    String? uri;
-    // Handle the extended qualified name first.
-    if (name.startsWith(XmlToken.openQualifiedUrl)) {
-      final end = name.indexOf(XmlToken.closeQualifiedUrl);
-      if (end == -1) {
-        throw XmlParserException('Invalid extended qualified name: $name');
-      } else if (end > XmlToken.openQualifiedUrl.length) {
-        uri = name.substring(XmlToken.openQualifiedUrl.length, end);
-      }
-      name = name.substring(end + XmlToken.closeQualifiedUrl.length);
-    }
-    // Handle the prefix name lookup.
-    final index = name.indexOf(XmlToken.namespace);
-    final String? prefix;
-    final String local;
-    if (index > 0) {
-      prefix = name.substring(0, index);
-      local = name.substring(index + 1);
-      if (uri == null && namespaceUris != null) {
-        uri = namespaceUris[prefix];
-      }
-    } else {
-      prefix = null;
-      local = name;
-    }
-    // Handle the default namespace.
+    final (parsedUri, prefix, local) = parseEQNameParts(name);
+    final effectiveUri =
+        parsedUri ??
+        (prefix != null && namespaceUris != null
+            ? namespaceUris[prefix]
+            : null) ??
+        namespaceUri;
+    final qualified = prefix == null
+        ? local
+        : '$prefix${XmlToken.namespace}$local';
     return XmlName.qualified(
-      name,
-      namespaceUri: uri ?? namespaceUri,
+      qualified,
+      namespaceUri: effectiveUri,
       prefix: prefix,
       local: local,
     );

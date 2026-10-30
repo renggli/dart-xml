@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import '../../xml/utils/token.dart';
+import '../../xml/utils/name_parser.dart';
 
 /// Mixin with information about the name of an event.
 mixin XmlHasName {
@@ -26,14 +26,9 @@ mixin XmlHasName {
   }
 
   void _splitName() {
-    final index = name.indexOf(XmlToken.namespace);
-    if (index > 0) {
-      _cachedPrefix = name.substring(0, index);
-      _cachedLocal = name.substring(index + 1);
-    } else {
-      _cachedPrefix = null;
-      _cachedLocal = name;
-    }
+    final (prefix, local) = splitQualifiedName(name);
+    _cachedPrefix = prefix;
+    _cachedLocal = local;
   }
 
   /// Hold an optional reference to the namespace URI.

@@ -57,4 +57,40 @@ void main() {
       check(parser.parse('a:b:c') is Failure).isTrue();
     });
   });
+
+  group('validation helpers', () {
+    test('isValidNCName', () {
+      check(isValidNCName('foo')).isTrue();
+      check(isValidNCName('_foo123')).isTrue();
+      check(isValidNCName('foo:bar')).isFalse();
+      check(isValidNCName('123foo')).isFalse();
+      check(isValidNCName('')).isFalse();
+    });
+
+    test('isValidQName', () {
+      check(isValidQName('foo')).isTrue();
+      check(isValidQName('p:foo')).isTrue();
+      check(isValidQName('p:foo:bar')).isFalse();
+      check(isValidQName(':foo')).isFalse();
+      check(isValidQName('foo:')).isFalse();
+      check(isValidQName('123:foo')).isFalse();
+    });
+
+    test('splitQualifiedName', () {
+      check(splitQualifiedName('foo')).equals((null, 'foo'));
+      check(splitQualifiedName('prefix:local')).equals(('prefix', 'local'));
+      check(splitQualifiedName(':local')).equals((null, ':local'));
+    });
+
+    test('parseEQNameParts', () {
+      check(parseEQNameParts('foo')).equals((null, null, 'foo'));
+      check(parseEQNameParts('p:foo')).equals((null, 'p', 'foo'));
+      check(parseEQNameParts('Q{http://example.com}foo'))
+          .equals(('http://example.com', null, 'foo'));
+      check(parseEQNameParts('Q{http://example.com}p:foo'))
+          .equals(('http://example.com', 'p', 'foo'));
+      check(parseEQNameParts('Q{}foo')).equals((null, null, 'foo'));
+      check(() => parseEQNameParts('Q{unclosed')).throws<Exception>();
+    });
+  });
 }

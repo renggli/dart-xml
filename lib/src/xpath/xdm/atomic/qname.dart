@@ -1,11 +1,10 @@
-import 'package:petitparser/petitparser.dart';
-
 import '../../../xml/utils/name.dart';
-import '../../../xml/utils/name_parser.dart';
 import '../../exceptions/error_code.dart';
 import '../../exceptions/evaluation_exception.dart';
 import '../atomic.dart';
 import '../types.dart';
+
+export '../../../xml/utils/name_parser.dart' show isValidNCName, isValidQName;
 
 /// Represents an xs:QName atomic value.
 final class XPathQName extends XPathAtomic {
@@ -38,18 +37,4 @@ final class XPathQName extends XPathAtomic {
 
   @override
   int get hashCode => Object.hash(value.local, value.namespaceUri ?? '');
-}
-
-final _ncNameParser = nonColonizedNameToken.end();
-
-/// Checks whether [s] is a valid XML NCName.
-bool isValidNCName(String s) => _ncNameParser.parse(s) is! Failure;
-
-/// Checks whether [s] is a valid lexical QName (either `NCName` or `NCName:NCName`).
-bool isValidQName(String s) {
-  final colonIndex = s.indexOf(':');
-  if (colonIndex == -1) return isValidNCName(s);
-  if (s.indexOf(':', colonIndex + 1) != -1) return false;
-  return isValidNCName(s.substring(0, colonIndex)) &&
-      isValidNCName(s.substring(colonIndex + 1));
 }

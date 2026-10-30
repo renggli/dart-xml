@@ -1,5 +1,6 @@
 import '../../xml/nodes/element.dart';
 import '../../xml/utils/name.dart';
+import '../../xml/utils/name_parser.dart';
 import '../evaluation/cardinality.dart';
 import '../evaluation/context.dart';
 import '../exceptions/error_code.dart';
@@ -109,25 +110,16 @@ XPathSequence _fnQName(
   }
   final paramQName = paramQNameItem.stringValue;
 
-  final colonIndex = paramQName.indexOf(':');
-  final String? prefix;
-  final String local;
+  if (!isValidQName(paramQName)) {
+    throw XPathEvaluationException(
+      XPathErrorCode.FOCA0002,
+      'Invalid lexical QName: "$paramQName"',
+    );
+  }
 
-  if (colonIndex != -1) {
-    if (paramQName.indexOf(':', colonIndex + 1) != -1) {
-      throw XPathEvaluationException(
-        XPathErrorCode.FOCA0002,
-        'Invalid lexical QName: "$paramQName"',
-      );
-    }
-    prefix = paramQName.substring(0, colonIndex);
-    local = paramQName.substring(colonIndex + 1);
-    if (!isValidNCName(prefix) || !isValidNCName(local)) {
-      throw XPathEvaluationException(
-        XPathErrorCode.FOCA0002,
-        'Invalid lexical QName: "$paramQName"',
-      );
-    }
+  final (prefix, local) = splitQualifiedName(paramQName);
+
+  if (prefix != null) {
     if (paramURI == null || paramURI.isEmpty) {
       throw XPathEvaluationException(
         XPathErrorCode.FOCA0002,
@@ -153,14 +145,6 @@ XPathSequence _fnQName(
       );
     }
   } else {
-    prefix = null;
-    local = paramQName;
-    if (!isValidNCName(local)) {
-      throw XPathEvaluationException(
-        XPathErrorCode.FOCA0002,
-        'Invalid lexical QName: "$paramQName"',
-      );
-    }
     if (paramURI == 'http://www.w3.org/XML/1998/namespace') {
       throw XPathEvaluationException(
         XPathErrorCode.FOCA0002,
