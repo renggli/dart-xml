@@ -383,6 +383,19 @@ void main() {
       check(result.first.type).equals(xsAnyURI);
     });
 
+    test('returns relative URIs for collection documents', () {
+      final doc = XmlDocument.parse('<d/>');
+      final colContext = XPathConfiguration.raw(
+        documents: {'d.xml': doc},
+        collections: {
+          '': [doc],
+        },
+      ).context(XPathSequence.empty);
+      final result = fnUriCollection(colContext, []);
+      check(result).isXPathSequence(['d.xml']);
+      check(result.first.type).equals(xsAnyURI);
+    });
+
     test('1-argument uri-collection with empty or resolved URI', () {
       final doc = XmlDocument.parse('<d/>');
       final colContext = XPathConfiguration.raw(

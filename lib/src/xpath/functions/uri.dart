@@ -229,10 +229,8 @@ XPathSequence _fnUriCollection0(XPathContext context) {
     for (final node in nodes) {
       for (final entry in context.configuration.documents.entries) {
         if (identical(entry.value, node)) {
-          if (entry.key.contains('://') || entry.key.startsWith('/')) {
-            uris.add(XPathAnyUri(entry.key));
-            break;
-          }
+          uris.add(XPathAnyUri(entry.key));
+          break;
         }
       }
     }
@@ -253,9 +251,10 @@ XPathSequence _fnUriCollection1(XPathContext context, XPathSequence uriSeq) {
   final base = context.configuration.baseUri;
   var resolved = uriStr;
   if (base != null) {
-    try {
-      resolved = Uri.parse(base).resolve(uriStr).toString();
-    } catch (_) {}
+    final parsedBase = Uri.tryParse(base);
+    if (parsedBase != null) {
+      resolved = parsedBase.resolve(uriStr).toString();
+    }
   }
   final nodes =
       context.configuration.collections[resolved] ??
@@ -265,10 +264,8 @@ XPathSequence _fnUriCollection1(XPathContext context, XPathSequence uriSeq) {
     for (final node in nodes) {
       for (final entry in context.configuration.documents.entries) {
         if (identical(entry.value, node)) {
-          if (entry.key.contains('://') || entry.key.startsWith('/')) {
-            uris.add(XPathAnyUri(entry.key));
-            break;
-          }
+          uris.add(XPathAnyUri(entry.key));
+          break;
         }
       }
     }

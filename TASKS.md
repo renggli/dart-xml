@@ -178,7 +178,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
   2. `fnNormalizeUnicode` (`string.dart:230-251`) ignores its `$normalizationForm` argument and returns the input unchanged without validating the form name (`FOCH0003`).
 - **Fix**: In `_evalNilled`, check for `xsi:nil` (`namespaceUri == 'http://www.w3.org/2001/XMLSchema-instance'` and `local == 'nil'`) with trimmed value `'true'` or `'1'`. In `fnNormalizeUnicode`, validate the normalization form (`NFC`, `NFD`, `NFKC`, `NFKD`, `FULLY-NORMALIZED`, or `""`).
 
-### BUG-22: `fn:uri-collection` Drops Relative URIs
+### BUG-22: `fn:uri-collection` Drops Relative URIs [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
 - **Location**: `lib/src/xpath/functions/uri.dart:232-235`, `lib/src/xpath/functions/uri.dart:268-271`
 - **Problem**: `_fnUriCollection0` and `_fnUriCollection1` only include a document's URI if `entry.key.contains('://') || entry.key.startsWith('/')`, silently dropping relative document URIs registered in `context.configuration.documents`.
