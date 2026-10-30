@@ -114,7 +114,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: When `tryParseTime` parses `'24:00:00Z'` or `'24:00:00+02:00'`, line 601 returns `const XPathDateTime.time(0, 0, 0, 0, 0, null)`, discarding the parsed `offset`.
 - **Fix**: Return `XPathDateTime.time(0, 0, 0, 0, 0, offset)`.
 
-### BUG-14: `fn:deep-equal` Returns `true` for Any Two `XmlDocument` Nodes and Ignores Spec Rules for Children/Attributes
+### BUG-14: `fn:deep-equal` Returns `true` for Any Two `XmlDocument` Nodes and Ignores Spec Rules for Children/Attributes [COMPLETED]
+- **Status**: Completed
 - **Severity**: Critical
 - **Location**: `lib/src/xpath/functions/sequence.dart:379-403`
 - **Problem**:

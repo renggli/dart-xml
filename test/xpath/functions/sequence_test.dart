@@ -524,6 +524,27 @@ void main() {
           seq(doc3.rootElement.attributes.first),
         ]),
       ).isXPathSequence([false]);
+      check(fnDeepEqual(context, [seq(doc1), seq(doc2)]))
+          .isXPathSequence([true]);
+      check(fnDeepEqual(context, [seq(doc1), seq(doc3)]))
+          .isXPathSequence([false]);
+      final docWithComment = XmlDocument.parse(
+        '<r a="1"><!-- comment -->text</r>',
+      );
+      check(
+        fnDeepEqual(context, [
+          seq(docWithComment.rootElement),
+          seq(doc1.rootElement),
+        ]),
+      ).isXPathSequence([true]);
+      final docWithCData = XmlDocument.parse('<r>a<![CDATA[b]]></r>');
+      final docMerged = XmlDocument.parse('<r>ab</r>');
+      check(
+        fnDeepEqual(context, [
+          seq(docWithCData.rootElement),
+          seq(docMerged.rootElement),
+        ]),
+      ).isXPathSequence([true]);
     });
     test('functions throw exception', () {
       check(

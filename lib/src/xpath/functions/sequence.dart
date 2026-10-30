@@ -1,5 +1,13 @@
 import '../../xml/nodes/attribute.dart';
+import '../../xml/nodes/cdata.dart';
+import '../../xml/nodes/comment.dart';
+import '../../xml/nodes/declaration.dart';
+import '../../xml/nodes/doctype.dart';
+import '../../xml/nodes/document.dart';
 import '../../xml/nodes/element.dart';
+import '../../xml/nodes/node.dart';
+import '../../xml/nodes/processing.dart';
+import '../../xml/nodes/text.dart';
 import '../../xml/utils/name.dart';
 import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
@@ -380,23 +388,58 @@ bool _deepEqual(Object? a, Object? b) {
     final na = a.node;
     final nb = b.node;
     if (na.nodeType != nb.nodeType) return false;
+    if (na is XmlDocument && nb is XmlDocument) {
+      final childrenA = _deepEqualChildren(na);
+      final childrenB = _deepEqualChildren(nb);
+      if (childrenA.length != childrenB.length) return false;
+      for (var i = 0; i < childrenA.length; i++) {
+        if (!_deepEqual(XPathNode(childrenA[i]), XPathNode(childrenB[i]))) {
+          return false;
+        }
+      }
+      return true;
+    }
     if (na is XmlElement && nb is XmlElement) {
-      if (na.name != nb.name) return false;
-      if (na.attributes.length != nb.attributes.length) return false;
-      for (final attrA in na.attributes) {
-        final attrB = nb.getAttributeNode(attrA.name.qualified);
+      final uriA = na.name.namespaceUri ?? '';
+      final uriB = nb.name.namespaceUri ?? '';
+      if (na.name.local != nb.name.local || uriA != uriB) return false;
+      final attrsA = na.attributes
+          .where((a) => !a.isNamespaceDeclaration)
+          .toList();
+      final attrsB = nb.attributes
+          .where((a) => !a.isNamespaceDeclaration)
+          .toList();
+      if (attrsA.length != attrsB.length) return false;
+      for (final attrA in attrsA) {
+        final aUri = attrA.name.namespaceUri ?? '';
+        XmlAttribute? attrB;
+        for (final cand in attrsB) {
+          final candUri = cand.name.namespaceUri ?? '';
+          if (cand.name.local == attrA.name.local && candUri == aUri) {
+            attrB = cand;
+            break;
+          }
+        }
         if (attrB == null || attrB.value != attrA.value) return false;
       }
-      if (na.children.length != nb.children.length) return false;
-      for (var i = 0; i < na.children.length; i++) {
-        if (!_deepEqual(XPathNode(na.children[i]), XPathNode(nb.children[i]))) {
+      final childrenA = _deepEqualChildren(na);
+      final childrenB = _deepEqualChildren(nb);
+      if (childrenA.length != childrenB.length) return false;
+      for (var i = 0; i < childrenA.length; i++) {
+        if (!_deepEqual(XPathNode(childrenA[i]), XPathNode(childrenB[i]))) {
           return false;
         }
       }
       return true;
     }
     if (na is XmlAttribute && nb is XmlAttribute) {
-      return na.name == nb.name && na.value == nb.value;
+      final uriA = na.name.namespaceUri ?? '';
+      final uriB = nb.name.namespaceUri ?? '';
+      if (na.name.local != nb.name.local || uriA != uriB) return false;
+      return na.value == nb.value;
+    }
+    if (na is XmlProcessing && nb is XmlProcessing) {
+      return na.target == nb.target && na.value == nb.value;
     }
     return na.value == nb.value;
   }
@@ -424,6 +467,31 @@ XPathSequence _evalDeepEqual(
   } catch (_) {
     return XPathSequence.falseSequence;
   }
+}
+
+List<XmlNode> _deepEqualChildren(XmlNode parent) {
+  final result = <XmlNode>[];
+  var currentText = '';
+  for (final child in parent.children) {
+    if (child is XmlComment ||
+        child is XmlProcessing ||
+        child is XmlDeclaration ||
+        child is XmlDoctype) {
+      continue;
+    } else if (child is XmlText || child is XmlCDATA) {
+      currentText += child.value ?? '';
+    } else {
+      if (currentText.isNotEmpty) {
+        result.add(XmlText(currentText));
+        currentText = '';
+      }
+      result.add(child);
+    }
+  }
+  if (currentText.isNotEmpty) {
+    result.add(XmlText(currentText));
+  }
+  return result;
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-zero-or-one
