@@ -69,6 +69,14 @@ class _XmlSubtreeSelectorSink implements ChunkedConversionSink<List<XmlEvent>> {
 
   @override
   void close() {
+    if (stack.isNotEmpty) {
+      final unclosed = stack.last;
+      throw XmlTagException.missingClosingTag(
+        unclosed.name,
+        buffer: unclosed.buffer,
+        position: unclosed.start,
+      );
+    }
     sink.close();
   }
 }

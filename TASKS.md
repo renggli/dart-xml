@@ -185,7 +185,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: `_fnUriCollection0` and `_fnUriCollection1` only include a document's URI if `entry.key.contains('://') || entry.key.startsWith('/')`, silently dropping relative document URIs registered in `context.configuration.documents`.
 - **Fix**: Return all matching document keys from `context.configuration.documents` (or resolve relative keys against `context.configuration.baseUri`).
 
-### BUG-23: `XmlSubtreeSelectorSink.close` Does Not Clear Stack or Validate Unclosed Elements
+### BUG-23: `XmlSubtreeSelectorSink.close` Does Not Clear Stack or Validate Unclosed Elements [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
 - **Location**: `lib/src/xml_events/streams/subtree_selector.dart:70-73`
 - **Problem**: When an event stream closes prematurely while inside a selected subtree (`stack.isNotEmpty`), `_XmlSubtreeSelectorSink.close` closes `result` without clearing `stack` or throwing an `XmlTagException` (unlike `_XmlNodeDecoderSink.close` and `_XmlWithParentEventsSink.close`).

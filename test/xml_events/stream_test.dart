@@ -814,4 +814,18 @@ void main() {
       }
     });
   });
+  group('selectSubtreeEvents', () {
+    test('missing closing tag throws XmlTagException', () async {
+      final input = <List<XmlEvent>>[
+        [XmlStartElementEvent('item', [], false)],
+      ];
+      final stream = Stream.fromIterable(input)
+          .selectSubtreeEvents((event) => event.name == 'item')
+          .flatten();
+      await check(stream.drain<void>()).throws<XmlTagException>(
+        (it) =>
+            it.which(isXmlTagException(message: 'Missing closing tag </item>')),
+      );
+    });
+  });
 }
