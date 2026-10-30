@@ -84,7 +84,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: `XmlPrecedingIterator` stops when `identical(_current, _start)`, which is never reached when `_start` is an `XmlNamespace` because namespace nodes are synthesized on the fly and are not in `children` or `attributes`; consequently, `preceding::*` on a namespace node returns the entire document. Similarly, in `XmlFollowingIterator`, when `_start` is an `XmlNamespace`, `parent.children.indexOf(child)` is `-1`, which accidentally works for the first level via `-1 + 1 == 0`, but for `XmlAttribute` in `XmlPrecedingIterator`, attributes are pushed to the stack after children (so popped before children), meaning `preceding::*` on an attribute node fails to include nodes that precede the owner element properly if not normalized.
 - **Fix**: In `PrecedingAxis.find`, if `node is XmlAttribute || node is XmlNamespace`, substitute `node.parent` as the starting node (since attributes and namespaces have the same preceding nodes as their parent element). In `FollowingAxis.find`, if `node is XmlNamespace`, yield the parent element's `descendants` followed by `node.parent!.following`.
 
-### BUG-10: Path Operator `/` Fails to Raise `XPTY0018` on Mixed Node and Non-Node Results
+### BUG-10: Path Operator `/` Fails to Raise `XPTY0018` on Mixed Node and Non-Node Results [COMPLETED]
+- **Status**: Completed
 - **Severity**: Critical
 - **Location**: `lib/src/xpath/expressions/path.dart:75-104`, `lib/src/xpath/expressions/path.dart:158-178`
 - **Problem**:

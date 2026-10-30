@@ -75,10 +75,22 @@ class PathExpression implements XPathExpression {
       var nodes = <XPathItem>[...steps.first.call(context)];
       for (final step in steps.skip(1)) {
         final innerNodes = <XPathItem>[];
+        var hasNodes = false;
+        var hasNonNodes = false;
         for (final node in nodes) {
           if (node is XPathNode) {
             inner.item = node;
-            innerNodes.addAll(step(inner));
+            for (final item in step(inner)) {
+              if (item is XPathNode) {
+                hasNodes = true;
+              } else {
+                hasNonNodes = true;
+              }
+              if (hasNodes && hasNonNodes) {
+                _throwPathOperatorMixedNodes();
+              }
+              innerNodes.add(item);
+            }
           } else {
             _throwPathOperatorRequiresNodes(node);
           }
@@ -90,10 +102,22 @@ class PathExpression implements XPathExpression {
       var nodes = <XPathItem>{...steps.first.call(context)};
       for (final step in steps.skip(1)) {
         final innerNodes = <XPathItem>{};
+        var hasNodes = false;
+        var hasNonNodes = false;
         for (final node in nodes) {
           if (node is XPathNode) {
             inner.item = node;
-            innerNodes.addAll(step(inner));
+            for (final item in step(inner)) {
+              if (item is XPathNode) {
+                hasNodes = true;
+              } else {
+                hasNonNodes = true;
+              }
+              if (hasNodes && hasNonNodes) {
+                _throwPathOperatorMixedNodes();
+              }
+              innerNodes.add(item);
+            }
           } else {
             _throwPathOperatorRequiresNodes(node);
           }
@@ -172,6 +196,9 @@ List<XPathItem> _sortAndDeduplicate(Iterable<XPathItem> iter) {
     } else {
       others.add(item);
     }
+  }
+  if (nodes.isNotEmpty && others.isNotEmpty) {
+    _throwPathOperatorMixedNodes();
   }
   if (nodes.length <= 1) {
     return [...nodes.map(XPathNode.new), ...others];
@@ -330,3 +357,8 @@ Never _throwPathOperatorRequiresNodes(Object object) =>
       XPathErrorCode.XPTY0019,
       'Path operator / requires sequence of nodes, but got $object',
     );
+
+Never _throwPathOperatorMixedNodes() => throw XPathEvaluationException(
+  XPathErrorCode.XPTY0018,
+  'Path operator / resulted in a mix of nodes and non-nodes',
+);

@@ -5,6 +5,7 @@ import 'package:xml/src/xpath/expressions/name.dart';
 import 'package:xml/src/xpath/expressions/node.dart';
 import 'package:xml/src/xpath/expressions/path.dart';
 import 'package:xml/src/xpath/expressions/predicate.dart';
+import 'package:xml/src/xpath/expressions/sequence.dart';
 import 'package:xml/src/xpath/expressions/step.dart';
 import 'package:xml/src/xpath/expressions/variable.dart';
 import 'package:xml/src/xpath/grammars/parser.dart';
@@ -187,6 +188,42 @@ void main() {
             message: 'Path operator / requires sequence of nodes, but got text [err:XPTY0019]',
           ),
         );
+      },
+    );
+    test('mixed node and non-node items on path step throws XPTY0018', () {
+      final xml = XmlDocument.parse('<root><a/><b/></root>');
+      check(() => xml.xpath('/* / (., 1)'))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0018),
+          );
+    });
+    test(
+      'mixed node and non-node items on order-preserved path throws XPTY0018',
+      () {
+        final xml = XmlDocument.parse('<root><a/><b/></root>');
+        final path = PathExpression([
+          const StepExpression(ChildAxis()),
+          SequenceExpression([
+            const ContextItemExpression(),
+            LiteralExpression(XPathSequence.single(XPathInteger.fromInt(1))),
+          ]),
+        ], isOrderPreserved: true);
+        final evalContext = XPathConfiguration().context(xml);
+        check(() => path(evalContext)).throws<XPathEvaluationException>().which(
+          isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0018),
+        );
+      },
+    );
+    test(
+      'mixed node and non-node items across nodes on path step throws XPTY0018',
+      () {
+        final xml = XmlDocument.parse('<root><a/><b/></root>');
+        check(() => xml.xpath('/*/* / (if (local-name() = "a") then . else 1)'))
+            .throws<XPathEvaluationException>()
+            .which(
+              isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0018),
+            );
       },
     );
     test('sort and deduplicate with non-nodes', () {
