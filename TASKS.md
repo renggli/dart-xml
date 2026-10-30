@@ -68,7 +68,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: `xpathGenerate` duplicates tree-walking and path-formatting logic that already exists in W3C standard `fn:path` (`_evalPath` in `lib/src/xpath/functions/node.dart`). Furthermore, `byId` formats ID lookups using `attribute.toXmlString()` which applies XML entity escaping rather than standard XPath string syntax.
 - **Fix**: Replace the custom tree traversal in `xpathGenerate` with the standard XPath `fn:path` (`_evalPath`) logic. Breaking backward compatibility of the generated string format to align with standard XPath 3.1 `fn:path` (e.g., `Q{uri}local[index]`) is explicitly approved.
 
-### BUG-8: `FollowingSiblingAxis` and `PrecedingSiblingAxis` Crash or Return Wrong Nodes on Root, Attribute, and Namespace Nodes
+### BUG-8: `FollowingSiblingAxis` and `PrecedingSiblingAxis` Crash or Return Wrong Nodes on Root, Attribute, and Namespace Nodes [COMPLETED]
+- **Status**: Completed
 - **Severity**: Critical
 - **Location**: `lib/src/xpath/expressions/axis.dart:117-125`, `lib/src/xpath/expressions/axis.dart:168-176`
 - **Problem**:

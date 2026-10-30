@@ -6,8 +6,10 @@ import '../../xml/extensions/descendants.dart';
 import '../../xml/extensions/following.dart';
 import '../../xml/extensions/preceding.dart';
 import '../../xml/extensions/sibling.dart';
+import '../../xml/nodes/attribute.dart';
 import '../../xml/nodes/document.dart';
 import '../../xml/nodes/element.dart';
+import '../../xml/nodes/namespace.dart';
 import '../../xml/nodes/node.dart';
 import '../../xml/nodes/text.dart';
 
@@ -115,6 +117,9 @@ class FollowingSiblingAxis implements Axis {
 
   @override
   Iterable<XmlNode> find(XmlNode node) {
+    if (!node.hasParent || node is XmlAttribute || node is XmlNamespace) {
+      return const [];
+    }
     final siblings = node.siblings;
     final index = siblings.indexOf(node);
     final range = siblings.getRange(index + 1, siblings.length);
@@ -166,6 +171,9 @@ class PrecedingSiblingAxis implements Axis, ReverseAxis {
 
   @override
   Iterable<XmlNode> find(XmlNode node) {
+    if (!node.hasParent || node is XmlAttribute || node is XmlNamespace) {
+      return const [];
+    }
     final siblings = node.siblings;
     final index = siblings.indexOf(node);
     final range = siblings.getRange(0, index);

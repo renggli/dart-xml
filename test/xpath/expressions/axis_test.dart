@@ -150,6 +150,23 @@ void main() {
       expectXPath(root, 'preceding-sibling::node()', const []);
       expectXPath(root, 'following-sibling::node()', const []);
     });
+
+    test('sibling axes on document node return empty', () {
+      expectXPath(doc, 'following-sibling::node()', const []);
+      expectXPath(doc, 'preceding-sibling::node()', const []);
+    });
+
+    test('sibling axes on attribute node return empty', () {
+      final attr = current.attributes.first;
+      expectXPath(attr, 'following-sibling::node()', const []);
+      expectXPath(attr, 'preceding-sibling::node()', const []);
+    });
+
+    test('sibling axes on namespace node return empty', () {
+      final ns = current.namespaces.first;
+      expectXPath(ns, 'following-sibling::node()', const []);
+      expectXPath(ns, 'preceding-sibling::node()', const []);
+    });
   });
 
   group('namespace axis edge cases', () {
