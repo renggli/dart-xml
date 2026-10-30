@@ -240,7 +240,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: `fnInnermost` and `fnOutermost` evaluate `nodes.where((node) => !nodes.any((other) => other != node && other.descendants.contains(node)))`. For $N$ nodes each with $D$ descendants, this performs $O(N^2 \cdot D)$ identity comparisons and full subtree traversals.
 - **Fix**: Collect all node identities into a `Set<XmlNode>`, sort nodes in document order (which is already done by `_sortAndDeduplicate`), and determine containment by checking whether `node.ancestors` intersects the set in $O(N \cdot D_{\text{depth}})$.
 
-### PERF-7: `fn:index-of` Allocates Intermediate `atomize()` List and Boxing
+### PERF-7: `fn:index-of` Allocates Intermediate `atomize()` List and Boxing [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
 - **Location**: `lib/src/xpath/functions/sequence.dart:318-348`
 - **Problem**: `_evalIndexOf` calls `seq.atomize().toList()`, materializing the entire atomized sequence into a heap list before scanning, even if searching for the first element in a massive sequence.

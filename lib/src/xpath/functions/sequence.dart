@@ -315,21 +315,26 @@ final fnIndexOf = XPathFunctionItem.overloaded(
 );
 
 XPathSequence _evalIndexOf(XPathSequence seq, XPathAtomic search) =>
-    XPathSequence(
-      seq
-          .atomize()
-          .toList()
-          .asMap()
-          .entries
-          .where((e) {
-            try {
-              return e.value == search;
-            } catch (_) {
-              return false;
-            }
-          })
-          .map((e) => XPathInteger.fromInt(e.key + 1)),
-    );
+    XPathSequence(_evalIndexOfSync(seq, search));
+
+Iterable<XPathInteger> _evalIndexOfSync(
+  XPathSequence seq,
+  XPathAtomic search,
+) sync* {
+  var index = 1;
+  for (final item in seq.atomize()) {
+    var match = false;
+    try {
+      match = item == search;
+    } on Exception {
+      match = false;
+    }
+    if (match) {
+      yield XPathInteger.fromInt(index);
+    }
+    index++;
+  }
+}
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-deep-equal
 final fnDeepEqual = XPathFunctionItem.overloaded(
