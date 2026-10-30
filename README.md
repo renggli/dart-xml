@@ -202,7 +202,7 @@ Generate a canonical XPath expression leading to any node in the document:
 
 ```dart
 final title = document.findAllElements('title').first;
-print(title.xpathGenerate()); // /bookshelf/book[1]/title
+print(title.xpathGenerate()); // /Q{}bookshelf[1]/Q{}book[1]/Q{}title[1]
 ```
 
 ### Configuration and Extensibility

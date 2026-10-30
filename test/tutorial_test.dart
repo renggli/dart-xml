@@ -100,7 +100,8 @@ void main() {
     });
     test('generate xpath expression', () {
       final title = document.findAllElements('title').first;
-      check(title.xpathGenerate()).equals('/bookshelf/book[1]/title');
+      check(title.xpathGenerate())
+          .equals('/Q{}bookshelf[1]/Q{}book[1]/Q{}title[1]');
     });
   });
   group('building', () {

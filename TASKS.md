@@ -61,7 +61,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: `XmlName.operator ==` compares `local` and `namespaceUri` (ignoring `prefix` when `namespaceUri != null`), whereas `_compareName` in `lib/src/xml/extensions/comparison.dart:300-304` only checks `name1.qualified == name2.qualified` (ignoring `namespaceUri`, with a `// Do we actually have to compare namespace resolution?` comment). Two elements with the same prefix bound to different namespace URIs test equal under `isEqualNode`.
 - **Fix**: Compare `name1.qualified == name2.qualified && name1.namespaceUri == name2.namespaceUri` in `_compareName`.
 
-### BUG-7: Unify `xpathGenerate` with Standard XPath `fn:path` Implementation
+### BUG-7: Unify `xpathGenerate` with Standard XPath `fn:path` Implementation [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
 - **Location**: `lib/src/xpath/generator.dart:11-79`, `lib/src/xpath/functions/node.dart:420-514`
 - **Problem**: `xpathGenerate` duplicates tree-walking and path-formatting logic that already exists in W3C standard `fn:path` (`_evalPath` in `lib/src/xpath/functions/node.dart`). Furthermore, `byId` formats ID lookups using `attribute.toXmlString()` which applies XML entity escaping rather than standard XPath string syntax.

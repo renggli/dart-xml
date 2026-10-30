@@ -2,20 +2,18 @@ import '../../xml/extensions/ancestors.dart';
 import '../../xml/extensions/descendants.dart';
 import '../../xml/extensions/parent.dart';
 import '../../xml/nodes/attribute.dart';
-import '../../xml/nodes/cdata.dart';
-import '../../xml/nodes/comment.dart';
 import '../../xml/nodes/document.dart';
 import '../../xml/nodes/element.dart';
 import '../../xml/nodes/namespace.dart';
 import '../../xml/nodes/node.dart';
 import '../../xml/nodes/processing.dart';
-import '../../xml/nodes/text.dart';
 import '../../xml/utils/name.dart';
 import '../../xml/utils/namespace.dart';
 import '../evaluation/cardinality.dart';
 import '../evaluation/context.dart';
 import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
+import '../generator.dart';
 import '../xdm/atomic/string.dart';
 import '../xdm/function_item.dart';
 import '../xdm/item.dart';
@@ -434,83 +432,7 @@ final fnPath = XPathFunctionItem.overloaded(
 
 XPathSequence _evalPath(XPathNode? nodeItem) {
   if (nodeItem == null) return XPathSequence.empty;
-  final node = nodeItem.node;
-  if (node is XmlDocument) return const XPathSequence.single(XPathString('/'));
-  final components = <String>[];
-  XmlNode? current = node;
-  while (current != null && current is! XmlDocument) {
-    switch (current) {
-      case XmlElement():
-        final local = current.name.local;
-        final uri = current.name.namespaceUri ?? '';
-        final siblings =
-            current.parent?.children.whereType<XmlElement>() ?? const [];
-        var index = 1;
-        for (final sibling in siblings) {
-          if (identical(sibling, current)) break;
-          if (sibling.name.local == local &&
-              (sibling.name.namespaceUri ?? '') == uri) {
-            index++;
-          }
-        }
-        components.add('Q{$uri}$local[$index]');
-      case XmlAttribute():
-        final local = current.name.local;
-        final prefix = current.name.prefix;
-        final uri = prefix != null ? current.name.namespaceUri : null;
-        if (uri != null && uri.isNotEmpty) {
-          components.add('@Q{$uri}$local');
-        } else {
-          components.add('@$local');
-        }
-      case XmlText() || XmlCDATA():
-        final siblings =
-            current.parent?.children.where(
-              (e) => e is XmlText || e is XmlCDATA,
-            ) ??
-            const [];
-        var index = 1;
-        for (final sibling in siblings) {
-          if (identical(sibling, current)) break;
-          index++;
-        }
-        components.add('text()[$index]');
-      case XmlComment():
-        final siblings =
-            current.parent?.children.whereType<XmlComment>() ?? const [];
-        var index = 1;
-        for (final sibling in siblings) {
-          if (identical(sibling, current)) break;
-          index++;
-        }
-        components.add('comment()[$index]');
-      case XmlProcessing():
-        final target = current.target;
-        final siblings =
-            current.parent?.children.whereType<XmlProcessing>() ?? const [];
-        var index = 1;
-        for (final sibling in siblings) {
-          if (identical(sibling, current)) break;
-          if (sibling.target == target) index++;
-        }
-        components.add('processing-instruction($target)[$index]');
-      case XmlNamespace():
-        final prefix = current.prefix;
-        if (prefix.isNotEmpty) {
-          components.add('namespace::$prefix');
-        } else {
-          components.add(
-            'namespace::*[Q{http://www.w3.org/2005/xpath-functions}local-name()=""]',
-          );
-        }
-      case _:
-        break;
-    }
-    current = current.parent;
-  }
-  final isDocRoot = node.root is XmlDocument;
-  final path = components.reversed.join('/');
-  return XPathSequence.single(XPathString(isDocRoot ? '/$path' : path));
+  return XPathSequence.single(XPathString(xpathNodePath(nodeItem.node)));
 }
 
 final _whitespace = RegExp(r'\s+');

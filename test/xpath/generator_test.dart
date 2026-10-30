@@ -12,37 +12,37 @@ void main() {
   });
   test('element', () {
     final node = XmlElement(const XmlName.qualified('foo'));
-    check(node.xpathGenerate()).equals('foo');
+    check(node.xpathGenerate()).equals('Q{}foo[1]');
   });
   test('element with parent', () {
     final node = XmlElement(const XmlName.qualified('foo'));
     final parent = XmlElement(const XmlName.qualified('bar'));
     parent.children.add(node);
-    check(node.xpathGenerate()).equals('bar/foo');
+    check(node.xpathGenerate()).equals('Q{}bar[1]/Q{}foo[1]');
   });
   test('element with siblings', () {
     final node1 = XmlElement(const XmlName.qualified('foo'));
     final node2 = XmlElement(const XmlName.qualified('foo'));
     final parent = XmlElement(const XmlName.qualified('bar'));
     parent.children.addAll([node1, node2]);
-    check(node1.xpathGenerate()).equals('bar/foo[1]');
-    check(node2.xpathGenerate()).equals('bar/foo[2]');
+    check(node1.xpathGenerate()).equals('Q{}bar[1]/Q{}foo[1]');
+    check(node2.xpathGenerate()).equals('Q{}bar[1]/Q{}foo[2]');
   });
   test('text', () {
     final node = XmlText('foo');
-    check(node.xpathGenerate()).equals('text()');
+    check(node.xpathGenerate()).equals('text()[1]');
   });
   test('cdata', () {
     final node = XmlCDATA('foo');
-    check(node.xpathGenerate()).equals('text()');
+    check(node.xpathGenerate()).equals('text()[1]');
   });
   test('comment', () {
     final node = XmlComment('foo');
-    check(node.xpathGenerate()).equals('comment()');
+    check(node.xpathGenerate()).equals('comment()[1]');
   });
   test('processing', () {
     final node = XmlProcessing('foo', 'bar');
-    check(node.xpathGenerate()).equals('processing-instruction()');
+    check(node.xpathGenerate()).equals('processing-instruction(foo)[1]');
   });
   test('document', () {
     final node = XmlDocument([]);
@@ -50,15 +50,15 @@ void main() {
   });
   test('declaration', () {
     final node = XmlDeclaration();
-    check(node.xpathGenerate()).equals('node()');
+    check(node.xpathGenerate()).equals('');
   });
   test('doctype', () {
     final node = XmlDoctype('root');
-    check(node.xpathGenerate()).equals('node()');
+    check(node.xpathGenerate()).equals('');
   });
   test('fragment', () {
     final node = XmlDocumentFragment();
-    check(node.xpathGenerate()).equals('node()');
+    check(node.xpathGenerate()).equals('');
   });
   test('nested structure', () {
     final document = XmlDocument.parse('''
@@ -70,32 +70,14 @@ void main() {
         </root>
       ''');
     final root = document.rootElement;
-    // Better to query.
     final aNode = root.findElements('a').first;
     final bNode = root.findElements('b').first;
     final cNode = bNode.findElements('c').first;
 
-    check(root.xpathGenerate()).equals('/root');
-    check(aNode.xpathGenerate()).equals('/root/a');
-    check(bNode.xpathGenerate()).equals('/root/b');
-    check(cNode.xpathGenerate()).equals('/root/b/c');
-  });
-  test('byId', () {
-    final document = XmlDocument.parse('''
-        <root>
-          <a id="1"/>
-          <b id="2">
-            <c/>
-          </b>
-        </root>
-      ''');
-    final root = document.rootElement;
-    final aNode = root.findElements('a').first;
-    final bNode = root.findElements('b').first;
-    final cNode = bNode.findElements('c').first;
-    check(aNode.xpathGenerate(byId: 'id')).equals('//*[@id="1"]');
-    check(bNode.xpathGenerate(byId: 'id')).equals('//*[@id="2"]');
-    check(cNode.xpathGenerate(byId: 'id')).equals('//*[@id="2"]/c');
+    check(root.xpathGenerate()).equals('/Q{}root[1]');
+    check(aNode.xpathGenerate()).equals('/Q{}root[1]/Q{}a[1]');
+    check(bNode.xpathGenerate()).equals('/Q{}root[1]/Q{}b[1]');
+    check(cNode.xpathGenerate()).equals('/Q{}root[1]/Q{}b[1]/Q{}c[1]');
   });
   group('examples', () {
     for (final MapEntry(key: key, value: value) in allXml.entries) {
@@ -111,7 +93,7 @@ void main() {
             continue;
           }
 
-          final expression = node.xpathGenerate(byId: 'id');
+          final expression = node.xpathGenerate();
           final result = document.xpath(expression);
           check(because: expression, result.single).equals(node);
         }
