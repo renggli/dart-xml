@@ -115,7 +115,7 @@ void main() {
       check(copy.position).identicalTo(base.position);
       check(copy.last).identicalTo(base.last);
       check(copy.variables).identicalTo(base.variables);
-      check(copy.parentContext).identicalTo(base);
+      check(copy.parentContext).identicalTo(base.parentContext);
       check(copy.configuration).identicalTo(base.configuration);
       check(copy.currentDateTime).identicalTo(base.currentDateTime);
     });
@@ -132,8 +132,11 @@ void main() {
       check(copy.position).equals(2);
       check(copy.last).equals(3);
       check(copy.variables).identicalTo(variables);
+      check(copy.parentContext).identicalTo(base);
       check(copy.configuration).identicalTo(base.configuration);
       check(copy.currentDateTime).identicalTo(base.currentDateTime);
+      check(copy.getVariable('var2')).isXPathSequence([43]);
+      check(copy.getVariable('var1')).isXPathSequence([42]);
     });
   });
 }

@@ -71,13 +71,16 @@ class XPathContext {
     int? position,
     int? last,
     Map<String, XPathSequence>? variables,
-  }) => XPathContext(
-    configuration,
-    item ?? this.item,
-    position: position ?? this.position,
-    last: last ?? this.last,
-    variables: variables ?? this.variables,
-    parentContext: this,
-    currentDateTime: currentDateTime,
-  );
+  }) {
+    final hasNewVariables = variables != null && variables.isNotEmpty;
+    return XPathContext(
+      configuration,
+      item ?? this.item,
+      position: position ?? this.position,
+      last: last ?? this.last,
+      variables: variables ?? this.variables,
+      parentContext: hasNewVariables ? this : parentContext,
+      currentDateTime: currentDateTime,
+    );
+  }
 }

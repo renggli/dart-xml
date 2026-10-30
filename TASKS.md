@@ -226,7 +226,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
   2. `XmlFollowingIterator` initializes its stack with `[parent]`, allocating single-element lists during traversal steps.
 - **Fix**: Return `Iterable<XmlNode>` lazily from `XmlNodesExtension.nodes` (e.g. `sync* { yield this; yield* descendants; }`), and optimize stack management in `XmlFollowingIterator`.
 
-### PERF-5: `XPathContext.copy` Unconditionally Chains `parentContext` Even When No Local Variables Are Added
+### PERF-5: `XPathContext.copy` Unconditionally Chains `parentContext` Even When No Local Variables Are Added [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
 - **Location**: `lib/src/xpath/evaluation/context.dart:140-154`
 - **Problem**: `XPathContext.copy` always constructs a new `XPathContext` with `parentContext: this`, even when only `item`, `position`, or `last` changes (without new variable bindings). Long iterative evaluations (e.g. in `for` expressions, `some`/`every`, path steps, or large sequences) construct deep linked chains of `XPathContext` instances that make variable lookups traverse an $O(N)$ chain of ancestor contexts.
