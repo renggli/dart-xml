@@ -113,9 +113,47 @@ XPathSequence _fnMapMerge2(
   XPathContext context,
   XPathSequence maps,
   XPathSequence optionsSeq,
-) => _evalMapMerge(maps, optionsSeq.firstOrNull as XPathMap?);
+) {
+  final optionsItem = optionsSeq.firstOrNull;
+  if (optionsSeq.length != 1 || optionsItem is! XPathMap) {
+    throw XPathEvaluationException(
+      XPathErrorCode.XPTY0004,
+      'The second argument to map:merge must be a single map(*)',
+    );
+  }
+  return _evalMapMerge(maps, optionsItem);
+}
 
 XPathSequence _evalMapMerge(XPathSequence maps, XPathMap? options) {
+  var duplicates = 'use-first';
+  if (options != null) {
+    for (final entry in options.entries.entries) {
+      final key = entry.key.stringValue;
+      if (key == 'duplicates') {
+        final valSeq = entry.value.atomize();
+        final val = valSeq.firstOrNull?.stringValue;
+        if (valSeq.length != 1 ||
+            val == null ||
+            (val != 'use-first' &&
+                val != 'use-last' &&
+                val != 'combine' &&
+                val != 'reject' &&
+                val != 'use-any')) {
+          throw XPathEvaluationException(
+            XPathErrorCode.FOJS0005,
+            'Invalid duplicates option: $val',
+          );
+        }
+        duplicates = val;
+      } else {
+        throw XPathEvaluationException(
+          XPathErrorCode.FOJS0005,
+          'Unrecognized map:merge option: $key',
+        );
+      }
+    }
+  }
+
   final result = <XPathAtomic, XPathSequence>{};
   for (final item in maps) {
     if (item is! XPathMap) {
@@ -125,7 +163,29 @@ XPathSequence _evalMapMerge(XPathSequence maps, XPathMap? options) {
         'Unsupported cast from $val to map(*)',
       );
     }
-    result.addAll(item.entries);
+    for (final entry in item.entries.entries) {
+      final key = entry.key;
+      final value = entry.value;
+      if (result.containsKey(key)) {
+        switch (duplicates) {
+          case 'reject':
+            throw XPathEvaluationException(
+              XPathErrorCode.FOJS0003,
+              'Duplicate key: ${key.stringValue}',
+            );
+          case 'use-first':
+          case 'use-any':
+            break;
+          case 'use-last':
+            result[key] = value;
+          case 'combine':
+            final existing = result[key]!;
+            result[key] = XPathSequence([...existing, ...value]);
+        }
+      } else {
+        result[key] = value;
+      }
+    }
   }
   return XPathSequence.single(XPathMap(result));
 }

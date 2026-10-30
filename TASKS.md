@@ -162,7 +162,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: Because Dart's `RegExpMatch` does not expose start/end indices for sub-groups, `_buildMatchChildren` attempts to locate each capturing group's substring inside `parentText` using `lastIndexOf` and `indexOf`. When two sibling groups match identical text or when an empty capturing group precedes trailing text (lines 896-899 flush all remaining `parentText` before emitting `<group nr="..."/>`), the group elements are emitted at the wrong positions. Additionally, `analyzeXPathString` compiles a new `RegExp` on every call instead of using `getCachedXPathRegex`.
 - **Fix**: Cache the compiled `RegExp` and group structure, and instrument or match sub-groups deterministically (or advance `cursor` without flushing trailing text before an empty group when no preceding text was consumed).
 
-### BUG-20: `map:merge` Ignores the `$options` (`duplicates`) Parameter
+### BUG-20: `map:merge` Ignores the `$options` (`duplicates`) Parameter [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
 - **Location**: `lib/src/xpath/functions/map.dart:109-131`
 - **Problem**: `_evalMapMerge(XPathSequence maps, XPathMap? options)` accepts `options` from `map:merge($maps, $options)` but never inspects it, always overwriting earlier entries (`use-last`) instead of defaulting to `'use-first'` and supporting `'use-first'`, `'use-last'`, `'combine'`, `'reject'` (`FOJS0003`), and `'use-any'` per W3C F&O §17.1.3.

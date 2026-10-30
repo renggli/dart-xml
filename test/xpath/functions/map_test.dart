@@ -20,7 +20,7 @@ void main() {
           XPathSequence([toXPathItem(map1), toXPathItem(map2)]),
         ]),
       ).isXPathSequence([
-        {'a': 1, 'b': 3, 'c': 4},
+        {'a': 1, 'b': 2, 'c': 4},
       ]);
     });
 
@@ -161,6 +161,78 @@ void main() {
           seq(['a', 'b']),
         ]),
       ).isXPathSequence([isEmpty]);
+    });
+  });
+
+  group('map:merge', () {
+    test('defaults to use-first on duplicates', () {
+      final m1 = {'a': 1};
+      final m2 = {'a': 2};
+      final result = fnMapMerge(context, [
+        XPathSequence([seq(m1).first, seq(m2).first]),
+      ]);
+      check(fnMapGet(context, [result, seq('a')])).isXPathSequence([1]);
+    });
+
+    test('supports duplicates: use-last', () {
+      final m1 = {'a': 1};
+      final m2 = {'a': 2};
+      final options = {'duplicates': 'use-last'};
+      final result = fnMapMerge(context, [
+        XPathSequence([seq(m1).first, seq(m2).first]),
+        seq(options),
+      ]);
+      check(fnMapGet(context, [result, seq('a')])).isXPathSequence([2]);
+    });
+
+    test('supports duplicates: combine', () {
+      final m1 = {'a': 1};
+      final m2 = {'a': 2};
+      final options = {'duplicates': 'combine'};
+      final result = fnMapMerge(context, [
+        XPathSequence([seq(m1).first, seq(m2).first]),
+        seq(options),
+      ]);
+      check(fnMapGet(context, [result, seq('a')])).isXPathSequence([1, 2]);
+    });
+
+    test('supports duplicates: reject', () {
+      final m1 = {'a': 1};
+      final m2 = {'a': 2};
+      final options = {'duplicates': 'reject'};
+      check(
+        () => fnMapMerge(context, [
+          XPathSequence([seq(m1).first, seq(m2).first]),
+          seq(options),
+        ]),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0003),
+      );
+    });
+
+    test('throws FOJS0005 for invalid duplicate option', () {
+      final m1 = {'a': 1};
+      final options = {'duplicates': 'invalid-mode'};
+      check(
+        () => fnMapMerge(context, [
+          XPathSequence([seq(m1).first]),
+          seq(options),
+        ]),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.FOJS0005),
+      );
+    });
+
+    test('throws XPTY0004 for empty sequence options', () {
+      final m1 = {'a': 1};
+      check(
+        () => fnMapMerge(context, [
+          XPathSequence([seq(m1).first]),
+          XPathSequence.empty,
+        ]),
+      ).throws<XPathEvaluationException>().which(
+        isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+      );
     });
   });
 
