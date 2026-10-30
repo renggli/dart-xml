@@ -15,6 +15,8 @@ export 'src/xml/enums/attribute_type.dart' show XmlAttributeType;
 export 'src/xml/enums/node_type.dart' show XmlNodeType;
 export 'src/xml_events/codec/event_codec.dart' show XmlEventCodec;
 export 'src/xml_events/codec/node_codec.dart' show XmlNodeCodec;
+export 'src/xml_events/converters/byte_stream_decoder.dart'
+    show XmlByteStreamDecoder, XmlByteStreamDecoderExtension;
 export 'src/xml_events/converters/event_decoder.dart'
     show XmlEventDecoder, XmlEventDecoderExtension;
 export 'src/xml_events/converters/event_encoder.dart'

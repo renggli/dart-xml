@@ -361,11 +361,12 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: `XmlPrettyWriter` ignored standard `xml:space="preserve"` attributes unless a custom `preserveWhitespace` predicate was manually supplied by the caller.
 - **Fix**: Check `xml:space` on elements during `XmlPrettyWriter.visitElement` and automatically preserve whitespace inside subtrees with `xml:space="preserve"` unless overridden by nested `xml:space="default"`.
 
-### FEAT-4: Byte-Stream Decoding & BOM / Encoding Detection (`ENC-1`)
+### FEAT-4: Byte-Stream Decoding & BOM / Encoding Detection (`ENC-1`) [COMPLETED]
+- **Status**: Completed
 - **Severity**: Feature
-- **Location**: `lib/xml_events.dart`, `lib/src/xml_events/converters/`
-- **Problem**: `XmlEventDecoder` only accepts `Stream<String>`. Parsing `Stream<List<int>>` with `utf8.decoder` fails to strip UTF-8/UTF-16/UTF-32 Byte Order Marks (BOM) or sniff the `<?xml ... encoding="..."?>` declaration per W3C XML 1.0 Appendix F.
-- **Fix**: Add `XmlByteStreamDecoder` (`StreamTransformerBase<List<int>, String>`) and `Stream<List<int>>.decodeXmlStream(...)` that strips BOMs and resolves the declared encoding.
+- **Location**: `lib/xml_events.dart`, `lib/src/xml_events/converters/byte_stream_decoder.dart`
+- **Problem**: `XmlEventDecoder` only accepted `Stream<String>`. Parsing `Stream<List<int>>` failed to strip UTF-8/UTF-16 Byte Order Marks (BOM) or sniff `<?xml ... encoding="..."?>` declarations.
+- **Fix**: Added `XmlByteStreamDecoder`, `Stream<List<int>>.decodeXmlStream(...)`, and `Stream<List<int>>.toXmlEvents(...)` with BOM stripping and encoding detection, and stripped leading BOM from `XmlDocument.parse` and `XmlDocumentFragment.parse`.
 
 ### FEAT-5: DOM Sibling & Structural Mutation Helpers (`before`, `after`, `wrap`, `unwrap`, `prepend`) (`DOM-1`)
 - **Severity**: Feature
