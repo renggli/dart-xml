@@ -598,7 +598,7 @@ final class XPathDateTime extends XPathAtomic {
     if (!_validateDateTime(1970, 1, 1, hr, mn, scDouble)) return null;
 
     if (hr == 24) {
-      return const XPathDateTime.time(0, 0, 0, 0, 0, null);
+      return XPathDateTime.time(0, 0, 0, 0, 0, offset);
     }
 
     return XPathDateTime.time(hr, mn, sc, ms, us, offset);

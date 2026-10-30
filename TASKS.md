@@ -107,7 +107,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: `opDivideDuration` computes `final rounded = divisor.round();` and then `duration ~/ rounded;`. Dividing `xs:dayTimeDuration('PT3H')` by `1.5` rounds `1.5` to `2` and returns `PT1H30M` instead of `PT2H`. Dividing by `0.4` rounds `0.4` to `0` and falsely throws `FOAR0001` (Division by zero).
 - **Fix**: Check `divisor == 0.0` for `FOAR0001`, check `divisor.isInfinite` (returning zero duration), and compute `(duration.totalMonths / divisor).round()` for year-month durations and `(duration.inMicroseconds / divisor).round()` for day-time durations.
 
-### BUG-13: `XPathDateTime.tryParseTime` Discards Timezone Offset When Hour is `24`
+### BUG-13: `XPathDateTime.tryParseTime` Discards Timezone Offset When Hour is `24` [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
 - **Location**: `lib/src/xpath/xdm/atomic/date_time.dart:600-602`
 - **Problem**: When `tryParseTime` parses `'24:00:00Z'` or `'24:00:00+02:00'`, line 601 returns `const XPathDateTime.time(0, 0, 0, 0, 0, null)`, discarding the parsed `offset`.

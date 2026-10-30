@@ -102,6 +102,10 @@ void main() {
       check(XPathDateTime.tryParseTime('12:34:56')).isNotNull();
       check(XPathDateTime.tryParseTime('24:00:00')).isNotNull();
       check(XPathDateTime.tryParseTime('24:01:00')).isNull();
+      final t24Z = XPathDateTime.tryParseTime('24:00:00Z')!;
+      check(t24Z.timezoneOffsetMinutes).equals(0);
+      final t24Offset = XPathDateTime.tryParseTime('24:00:00+02:00')!;
+      check(t24Offset.timezoneOffsetMinutes).equals(120);
     });
   });
 
