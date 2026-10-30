@@ -243,16 +243,64 @@ final fnNormalizeUnicode = XPathFunctionItem.overloaded(
     ) {
       final item = arg.atomize().firstOrNull;
       if (item == null) return const XPathSequence.single(XPathString.empty);
-      return XPathSequence.single(item);
+      if (item is! XPathString &&
+          item is! XPathUntypedAtomic &&
+          item is! XPathAnyUri) {
+        throw XPathEvaluationException(
+          XPathErrorCode.XPTY0004,
+          'Expected xs:string for arg',
+        );
+      }
+      return XPathSequence.single(
+        item is XPathString ? item : XPathString(item.stringValue),
+      );
     }),
     2: XPathFunctionItem.fn2(const XmlName.qualified('fn:normalize-unicode'), (
       context,
       arg,
       form,
     ) {
+      final formSeq = form.atomize();
+      final formItem = formSeq.firstOrNull;
+      if (formSeq.length != 1 || formItem == null) {
+        throw XPathEvaluationException(
+          XPathErrorCode.XPTY0004,
+          'Expected single xs:string for normalizationForm',
+        );
+      }
+      if (formItem is! XPathString &&
+          formItem is! XPathUntypedAtomic &&
+          formItem is! XPathAnyUri) {
+        throw XPathEvaluationException(
+          XPathErrorCode.XPTY0004,
+          'Expected xs:string for normalizationForm',
+        );
+      }
+      final formStr = formItem.stringValue.trim().toUpperCase();
+      if (formStr.isNotEmpty &&
+          formStr != 'NFC' &&
+          formStr != 'NFD' &&
+          formStr != 'NFKC' &&
+          formStr != 'NFKD' &&
+          formStr != 'FULLY-NORMALIZED') {
+        throw XPathEvaluationException(
+          XPathErrorCode.FOCH0003,
+          'Unsupported normalization form: $formStr',
+        );
+      }
       final item = arg.atomize().firstOrNull;
       if (item == null) return const XPathSequence.single(XPathString.empty);
-      return XPathSequence.single(item);
+      if (item is! XPathString &&
+          item is! XPathUntypedAtomic &&
+          item is! XPathAnyUri) {
+        throw XPathEvaluationException(
+          XPathErrorCode.XPTY0004,
+          'Expected xs:string for arg',
+        );
+      }
+      return XPathSequence.single(
+        item is XPathString ? item : XPathString(item.stringValue),
+      );
     }),
   },
 );

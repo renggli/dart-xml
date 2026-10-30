@@ -37,9 +37,28 @@ void main() {
       check(fnNilled(context, [seq(document)])).isXPathSequence(isEmpty);
     });
 
-    test('returns false for element', () {
+    test('returns false for element without xsi:nil', () {
       check(fnNilled(context, [seq(document.rootElement)]))
           .isXPathSequence([false]);
+    });
+
+    test('returns true for element with xsi:nil="true" or xsi:nil="1"', () {
+      final doc = XmlDocument.parse(
+        '<r xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+        '<a xsi:nil="true"/>'
+        '<b xsi:nil="1"/>'
+        '<c xsi:nil="false"/>'
+        '<d xsi:nil="0"/>'
+        '</r>',
+      );
+      final a = doc.findAllElements('a').first;
+      final b = doc.findAllElements('b').first;
+      final c = doc.findAllElements('c').first;
+      final d = doc.findAllElements('d').first;
+      check(fnNilled(context, [seq(a)])).isXPathSequence([true]);
+      check(fnNilled(context, [seq(b)])).isXPathSequence([true]);
+      check(fnNilled(context, [seq(c)])).isXPathSequence([false]);
+      check(fnNilled(context, [seq(d)])).isXPathSequence([false]);
     });
 
     test('returns false for context element (0-arg)', () {

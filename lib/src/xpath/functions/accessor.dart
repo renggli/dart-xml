@@ -57,7 +57,16 @@ XPathSequence _evalNilled(XPathNode? nodeItem) {
   if (nodeItem == null) return XPathSequence.empty;
   final node = nodeItem.node;
   if (node is XmlElement) {
-    // TODO: Implement proper nilled check based on xsi:nil attribute
+    for (final attr in node.attributes) {
+      if (attr.name.local == 'nil' &&
+          attr.name.namespaceUri ==
+              'http://www.w3.org/2001/XMLSchema-instance') {
+        final val = attr.value.trim();
+        return val == 'true' || val == '1'
+            ? XPathSequence.trueSequence
+            : XPathSequence.falseSequence;
+      }
+    }
     return XPathSequence.falseSequence;
   }
   return XPathSequence.empty;

@@ -169,7 +169,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: `_evalMapMerge(XPathSequence maps, XPathMap? options)` accepts `options` from `map:merge($maps, $options)` but never inspects it, always overwriting earlier entries (`use-last`) instead of defaulting to `'use-first'` and supporting `'use-first'`, `'use-last'`, `'combine'`, `'reject'` (`FOJS0003`), and `'use-any'` per W3C F&O §17.1.3.
 - **Fix**: Parse the `'duplicates'` key from `options` (defaulting to `'use-first'`), validate allowed values (raising `FOJS0005` on invalid option values), and implement `'use-first'`, `'use-last'`, `'combine'`, and `'reject'`.
 
-### BUG-21: `fn:nilled` and `fn:normalize-unicode` Are Unimplemented Stubs
+### BUG-21: `fn:nilled` and `fn:normalize-unicode` Are Unimplemented Stubs [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
 - **Location**: `lib/src/xpath/functions/accessor.dart:57-64`, `lib/src/xpath/functions/string.dart:230-251`
 - **Problem**:

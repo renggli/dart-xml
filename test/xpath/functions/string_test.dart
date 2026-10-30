@@ -700,6 +700,37 @@ void main() {
       check(fnNormalizeUnicode(context, [seq('a')])).isXPathSequence(['a']);
       check(fnNormalizeUnicode(context, [seq('a'), seq('NFC')]))
           .isXPathSequence(['a']);
+      check(fnNormalizeUnicode(context, [seq('a'), seq('NFD')]))
+          .isXPathSequence(['a']);
+      check(fnNormalizeUnicode(context, [seq('a'), seq('NFKC')]))
+          .isXPathSequence(['a']);
+      check(fnNormalizeUnicode(context, [seq('a'), seq('NFKD')]))
+          .isXPathSequence(['a']);
+      check(fnNormalizeUnicode(context, [seq('a'), seq('FULLY-NORMALIZED')]))
+          .isXPathSequence(['a']);
+      check(fnNormalizeUnicode(context, [seq('a'), seq('')]))
+          .isXPathSequence(['a']);
+    });
+
+    test('throws FOCH0003 for unsupported normalization form', () {
+      check(() => fnNormalizeUnicode(context, [seq('a'), seq('invalid-form')]))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.FOCH0003),
+          );
+    });
+
+    test('throws XPTY0004 for non-string normalization form or empty', () {
+      check(() => fnNormalizeUnicode(context, [seq('a'), seq(123)]))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
+      check(() => fnNormalizeUnicode(context, [seq('a'), XPathSequence.empty]))
+          .throws<XPathEvaluationException>()
+          .which(
+            isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),
+          );
     });
 
     test('handles empty sequence', () {
