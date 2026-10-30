@@ -772,6 +772,12 @@ String applyXPathReplace(
   });
 }
 
+final _xpathRegexGroupsCache =
+    XmlCache<({String pattern, bool isFlagX}), XPathRegexGroup>(
+      (args) => parseRegexGroups(args.pattern, isFlagX: args.isFlagX),
+      50,
+    );
+
 /// Evaluates XPath 3.1 `fn:analyze-string` returning an [XPathNode] wrapping the `<fn:analyze-string-result>` element.
 XPathNode analyzeXPathString(String text, String pattern, {String? flags}) {
   validateXPathRegexFlags(flags);
@@ -779,21 +785,12 @@ XPathNode analyzeXPathString(String text, String pattern, {String? flags}) {
   final isLiteral = hasFlags && flags.contains('q');
   final isFlagX = hasFlags && flags.contains('x');
   final XPathRegexGroup rootGroup;
-  final String ecmaPattern;
   if (isLiteral) {
     rootGroup = XPathRegexGroup(nr: 0, parentNr: -1, children: []);
-    ecmaPattern = RegExp.escape(pattern);
   } else {
-    rootGroup = parseRegexGroups(pattern, isFlagX: isFlagX);
-    ecmaPattern = translateXPathRegex(pattern, isFlagX: isFlagX);
+    rootGroup = _xpathRegexGroupsCache[(pattern: pattern, isFlagX: isFlagX)];
   }
-  final regex = RegExp(
-    ecmaPattern,
-    multiLine: hasFlags && flags.contains('m'),
-    caseSensitive: !hasFlags || !flags.contains('i'),
-    dotAll: hasFlags && flags.contains('s'),
-    unicode: true,
-  );
+  final regex = getCachedXPathRegex(pattern, flags);
   if (regex.hasMatch('')) {
     throw XPathEvaluationException(
       XPathErrorCode.FORX0003,
@@ -861,18 +858,12 @@ void _buildMatchChildren(
   for (var i = 0; i < activeChildren.length; i++) {
     final child = activeChildren[i];
     final childText = match.group(child.nr)!;
+    var remainingMinLength = 0;
+    for (var j = i + 1; j < activeChildren.length; j++) {
+      remainingMinLength += match.group(activeChildren[j].nr)!.length;
+    }
+    final maxEnd = parentText.length - remainingMinLength;
     if (childText.isNotEmpty) {
-      var maxEnd = parentText.length;
-      for (var j = i + 1; j < activeChildren.length; j++) {
-        final nextText = match.group(activeChildren[j].nr)!;
-        if (nextText.isNotEmpty) {
-          final nextIdx = parentText.lastIndexOf(nextText);
-          if (nextIdx != -1 && nextIdx < maxEnd) {
-            maxEnd = nextIdx;
-          }
-          break;
-        }
-      }
       final searchLimit = maxEnd >= childText.length
           ? maxEnd - childText.length
           : cursor;
@@ -891,16 +882,20 @@ void _buildMatchChildren(
           _buildMatchChildren(builder, match, child, childText);
         },
       );
-      cursor = idx + childText.length;
+      cursor = (idx >= cursor ? idx : cursor) + childText.length;
     } else {
-      if (cursor < parentText.length) {
-        builder.text(parentText.substring(cursor));
-        cursor = parentText.length;
+      final idx = maxEnd < cursor ? cursor : maxEnd;
+      if (idx > cursor) {
+        builder.text(parentText.substring(cursor, idx));
+        cursor = idx;
       }
       builder.element(
         'group',
         namespace: 'http://www.w3.org/2005/xpath-functions',
         attributes: {'nr': child.nr.toString()},
+        nest: () {
+          _buildMatchChildren(builder, match, child, childText);
+        },
       );
     }
   }

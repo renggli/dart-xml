@@ -779,6 +779,40 @@ void main() {
       );
     });
 
+    test(
+      'analyzes string with empty capture group between non-empty groups',
+      () {
+        final res = fnAnalyzeString(context, [seq('ab'), seq('(a)()(b)')]);
+        check(res).length.equals(1);
+        check((res.first as XPathNode).node.toXmlString()).equals(
+          '<fn:analyze-string-result xmlns:fn="http://www.w3.org/2005/xpath-functions">'
+          '<fn:match>'
+          '<fn:group nr="1">a</fn:group>'
+          '<fn:group nr="2"/>'
+          '<fn:group nr="3">b</fn:group>'
+          '</fn:match>'
+          '</fn:analyze-string-result>',
+        );
+      },
+    );
+
+    test(
+      'analyzes string with repeated sibling groups matching identical text',
+      () {
+        final res = fnAnalyzeString(context, [seq('aaa'), seq('(a)(a)(a)')]);
+        check(res).length.equals(1);
+        check((res.first as XPathNode).node.toXmlString()).equals(
+          '<fn:analyze-string-result xmlns:fn="http://www.w3.org/2005/xpath-functions">'
+          '<fn:match>'
+          '<fn:group nr="1">a</fn:group>'
+          '<fn:group nr="2">a</fn:group>'
+          '<fn:group nr="3">a</fn:group>'
+          '</fn:match>'
+          '</fn:analyze-string-result>',
+        );
+      },
+    );
+
     test('handles empty input', () {
       final res = fnAnalyzeString(context, [seq(''), seq('abc')]);
       check((res.first as XPathNode).node.toXmlString()).equals(

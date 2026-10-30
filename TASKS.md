@@ -155,7 +155,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: `_evalNormalizeSpace`, `_evalTokenize`, and `_evalContainsToken` use `String.trim()` and `RegExp(r'\s+')`. In Dart, `.trim()` and `\s` match Unicode whitespace such as `U+00A0` (NO-BREAK SPACE), `U+2000..U+200A`, and `U+FEFF`, whereas XPath 3.1 defines whitespace strictly as `#x20`, `#x9`, `#xA`, and `#xD`.
 - **Fix**: Replace `_whitespaceRegExp` with `RegExp(r'[ \t\r\n]+')` and trim only `[ \t\r\n]` at the start and end of strings.
 
-### BUG-19: `fn:analyze-string` Uses `lastIndexOf` Heuristic That Misplaces Repeated or Empty Capture Groups
+### BUG-19: `fn:analyze-string` Uses `lastIndexOf` Heuristic That Misplaces Repeated or Empty Capture Groups [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
 - **Location**: `lib/src/xpath/functions/regex.dart:789-803`, `lib/src/xpath/functions/regex.dart:845-910`
 - **Problem**: Because Dart's `RegExpMatch` does not expose start/end indices for sub-groups, `_buildMatchChildren` attempts to locate each capturing group's substring inside `parentText` using `lastIndexOf` and `indexOf`. When two sibling groups match identical text or when an empty capturing group precedes trailing text (lines 896-899 flush all remaining `parentText` before emitting `<group nr="..."/>`), the group elements are emitted at the wrong positions. Additionally, `analyzeXPathString` compiles a new `RegExp` on every call instead of using `getCachedXPathRegex`.
