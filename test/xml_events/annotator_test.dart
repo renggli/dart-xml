@@ -281,6 +281,30 @@ void main() {
       );
     });
   });
+  group('validateAttributes', () {
+    test('duplicate element attribute', () async {
+      await verifyError(
+        '<user role="guest" role="admin"/>',
+        iterable: (input) => parseEvents(input, validateAttributes: true),
+        stream: (input) => input.toXmlEvents(validateAttributes: true),
+        codec: XmlEventCodec(validateAttributes: true),
+        matcher: isXmlTagException(
+          message: 'Duplicate attribute "role" on element <user>',
+        ),
+      );
+    });
+    test('duplicate declaration attribute', () async {
+      await verifyError(
+        '<?xml version="1.0" version="1.1"?><root/>',
+        iterable: (input) => parseEvents(input, validateAttributes: true),
+        stream: (input) => input.toXmlEvents(validateAttributes: true),
+        codec: XmlEventCodec(validateAttributes: true),
+        matcher: isXmlTagException(
+          message: 'Duplicate attribute "version" on element <xml>',
+        ),
+      );
+    });
+  });
   group('withBuffer', () {
     const input = '<a><b c="d"/><e:f>g</e:f></h>';
     List<String> formatter(XmlEvent event) => ['$event: ${event.buffer}'];

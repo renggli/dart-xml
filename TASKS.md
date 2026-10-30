@@ -389,11 +389,12 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: Passing an undeclared `namespaceUri` to `XmlBuilder.element` or `XmlBuilder.attribute` without a separate `namespaceUri(prefix, uri)` call threw `ArgumentError('Undefined namespace URI: $uri')`.
 - **Fix**: Added `autoDeclareNamespaces` option to `XmlBuilder` allowing automatic declaration of `xmlns="..."` or generated prefix on elements when an undeclared `namespaceUri` is used.
 
-### FEAT-8: Strict XML 1.0 Attribute Uniqueness Validation (`validateAttributes`) (`STD-1`)
+### FEAT-8: Strict XML 1.0 Attribute Uniqueness Validation (`validateAttributes`) (`STD-1`) [COMPLETED]
+- **Status**: Completed
 - **Severity**: Feature
 - **Location**: `lib/src/xml_events/annotations/annotator.dart:24-118`, `lib/src/xml/nodes/document.dart:36-74`
-- **Problem**: Duplicate attributes on the same element (e.g. `<user role="guest" role="admin"/>`) are accepted by default, which can enable XML attribute smuggling when downstream systems read a different occurrence than `getAttribute`.
-- **Fix**: Add `validateAttributes: bool = false` to `XmlAnnotator`, `XmlEventDecoder`, `parseEvents`, and `XmlDocument.parse` to reject duplicate qualified or expanded `(namespaceUri, localName)` attributes with `XmlParserException` / `XmlTagException`.
+- **Problem**: Duplicate attributes on the same element were accepted by default.
+- **Fix**: Added `validateAttributes: bool = false` to `XmlAnnotator`, `XmlEventIterable`, `XmlEventDecoder`, `XmlEventCodec`, `parseEvents`, `toXmlEvents`, and `XmlDocument.parse` to reject duplicate attributes with `XmlTagException`.
 
 ### FEAT-9: Namespace Prefix Repairing in `XmlWriter` (`SER-2`)
 - **Severity**: Feature

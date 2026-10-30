@@ -25,6 +25,7 @@ class XmlEventIterable extends Iterable<XmlEvent> {
     this.validateNesting = false,
     this.validateNamespace = false,
     this.validateDocument = false,
+    this.validateAttributes = false,
     this.withBuffer = false,
     this.withLocation = false,
     this.withNamespace = false,
@@ -36,6 +37,7 @@ class XmlEventIterable extends Iterable<XmlEvent> {
   final bool validateNesting;
   final bool validateNamespace;
   final bool validateDocument;
+  final bool validateAttributes;
   final bool withBuffer;
   final bool withLocation;
   final bool withNamespace;
@@ -49,6 +51,7 @@ class XmlEventIterable extends Iterable<XmlEvent> {
       validateNesting: validateNesting,
       validateNamespace: validateNamespace,
       validateDocument: validateDocument,
+      validateAttributes: validateAttributes,
       withBuffer: withBuffer,
       withLocation: withLocation,
       withNamespace: withNamespace,

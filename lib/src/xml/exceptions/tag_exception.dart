@@ -51,6 +51,20 @@ class XmlTagException extends XmlException with XmlFormatException {
     position: position,
   );
 
+  /// Creates a new [XmlTagException] for a duplicate attribute [attributeName] on [tagName].
+  factory duplicateAttribute(
+    String attributeName,
+    String tagName, {
+    String? buffer,
+    int? position,
+  }) => XmlTagException(
+    'Duplicate attribute "$attributeName" on element <$tagName>',
+    expectedName: tagName,
+    actualName: attributeName,
+    buffer: buffer,
+    position: position,
+  );
+
   /// Ensures that the expected tag matches the actual one.
   static void checkClosingTag(
     String expectedName,

@@ -28,7 +28,11 @@ class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
   ///
   /// Note: It is the responsibility of the caller to provide a standard Dart
   /// [String] using the default UTF-16 encoding.
-  factory parse(String input, {XmlEntityMapping? entityMapping}) {
+  factory parse(
+    String input, {
+    XmlEntityMapping? entityMapping,
+    bool validateAttributes = false,
+  }) {
     final sanitizedInput = input.startsWith('\uFEFF')
         ? input.substring(1)
         : input;
@@ -37,6 +41,7 @@ class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
       entityMapping: entityMapping,
       validateDocument: true,
       validateNesting: true,
+      validateAttributes: validateAttributes,
       withNamespace: true,
     );
     return XmlDocument(const XmlNodeDecoder().convertIterable(events));

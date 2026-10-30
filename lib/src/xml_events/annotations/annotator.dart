@@ -20,6 +20,7 @@ class XmlAnnotator {
     required this.validateNesting,
     required this.validateNamespace,
     required this.validateDocument,
+    this.validateAttributes = false,
     required this.withBuffer,
     required this.withLocation,
     required this.withNamespace,
@@ -29,6 +30,7 @@ class XmlAnnotator {
   final bool validateNesting;
   final bool validateNamespace;
   final bool validateDocument;
+  final bool validateAttributes;
   final bool withBuffer;
   final bool withLocation;
   final bool withNamespace;
@@ -61,7 +63,38 @@ class XmlAnnotator {
     if (validateDocument) {
       _handleDocument(event, buffer, start);
     }
+    if (validateAttributes) {
+      _handleAttributes(event, buffer, start);
+    }
     _handleParent(event, buffer, start);
+  }
+
+  void _handleAttributes(XmlEvent event, String? buffer, int? start) {
+    if (event is XmlStartElementEvent) {
+      final names = <String>{};
+      for (final attribute in event.attributes) {
+        if (!names.add(attribute.name)) {
+          throw XmlTagException.duplicateAttribute(
+            attribute.name,
+            event.name,
+            buffer: buffer,
+            position: start,
+          );
+        }
+      }
+    } else if (event is XmlDeclarationEvent) {
+      final names = <String>{};
+      for (final attribute in event.attributes) {
+        if (!names.add(attribute.name)) {
+          throw XmlTagException.duplicateAttribute(
+            attribute.name,
+            'xml',
+            buffer: buffer,
+            position: start,
+          );
+        }
+      }
+    }
   }
 
   void close({String? buffer, int? position}) {

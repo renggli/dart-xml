@@ -85,4 +85,14 @@ void main() {
         .equals('Widget');
     check(document.getElementById('u3')).isNull();
   });
+  test('validateAttributes', () {
+    check(
+      () => XmlDocument.parse(
+        '<user role="guest" role="admin"/>',
+        validateAttributes: true,
+      ),
+    ).throws<XmlTagException>();
+    check(() => XmlDocument.parse('<user role="guest" role="admin"/>'))
+        .returnsNormally();
+  });
 }

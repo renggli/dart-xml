@@ -21,6 +21,7 @@ extension XmlEventDecoderExtension on Stream<String> {
     bool validateDocument = false,
     bool validateNamespace = false,
     bool validateNesting = false,
+    bool validateAttributes = false,
     bool withLocation = false,
     bool withNamespace = false,
     bool withParent = false,
@@ -30,6 +31,7 @@ extension XmlEventDecoderExtension on Stream<String> {
       validateDocument: validateDocument,
       validateNamespace: validateNamespace,
       validateNesting: validateNesting,
+      validateAttributes: validateAttributes,
       withLocation: withLocation,
       withNamespace: withNamespace,
       withParent: withParent,
@@ -75,6 +77,7 @@ class XmlEventDecoder extends Converter<String, List<XmlEvent>> {
     this.validateDocument = false,
     this.validateNamespace = false,
     this.validateNesting = false,
+    this.validateAttributes = false,
     this.withLocation = false,
     this.withNamespace = false,
     this.withParent = false,
@@ -84,6 +87,7 @@ class XmlEventDecoder extends Converter<String, List<XmlEvent>> {
   final bool validateDocument;
   final bool validateNamespace;
   final bool validateNesting;
+  final bool validateAttributes;
   final bool withLocation;
   final bool withNamespace;
   final bool withParent;
@@ -103,6 +107,7 @@ class XmlEventDecoder extends Converter<String, List<XmlEvent>> {
       validateDocument: validateDocument,
       validateNamespace: validateNamespace,
       validateNesting: validateNesting,
+      validateAttributes: validateAttributes,
       withBuffer: false,
       withLocation: withLocation,
       withNamespace: withNamespace,
