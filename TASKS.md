@@ -203,7 +203,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: `XmlName` stores only `qualified` and `namespaceUri`. Every access to `.local` or `.prefix` executes `qualified.indexOf(':')` and `qualified.substring(...)`, allocating a new substring on the heap. Because `.local`, `.prefix`, `==`, and `hashCode` are called inside tight loops during `findElements`, `getAttribute`, XPath `QualifiedNameTest`, and `AttributeAxis`, this causes heavy string allocation churn. The same repeated `indexOf(':')` + `substring` pattern exists in `XmlHasName` (`lib/src/xml_events/annotations/has_name.dart:14-23`).
 - **Fix**: Store the colon offset (or `local` and `prefix` fields directly) on `XmlName`, or pre-split `prefix` and `local` in `XmlName.qualified` and `XmlName.parts`.
 
-### PERF-2: `XPathMap.get` Performs an $O(N)$ Linear Scan on Every Lookup
+### PERF-2: `XPathMap.get` Performs an $O(N)$ Linear Scan on Every Lookup [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
 - **Location**: `lib/src/xpath/xdm/functions/map.dart:39-44`, `lib/src/xpath/functions/map.dart:80-86`
 - **Problem**: `XPathMap.get` iterates through all `entries.entries` with `sameKey(entry.key, key)` on every map lookup ($O(N)$), and `fnMapRemove` copies the map and runs `entries.removeWhere` for each key ($O(N \cdot M)$).

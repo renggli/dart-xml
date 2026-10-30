@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import '../../evaluation/context.dart';
 import '../../exceptions/error_code.dart';
 import '../../exceptions/evaluation_exception.dart';
@@ -37,10 +39,37 @@ final class XPathMap extends XPathFunctionItem {
 
   /// Returns the sequence associated with [key], or `null` if not found.
   XPathSequence? get(XPathAtomic key) {
+    final direct = entries[key];
+    if (direct != null) return direct;
+    if (entries.containsKey(key)) return entries[key];
     for (final entry in entries.entries) {
       if (sameKey(entry.key, key)) return entry.value;
     }
     return null;
+  }
+
+  /// Creates a map entry store using [sameKey] and [keyHashCode].
+  static Map<XPathAtomic, XPathSequence> createEntries([
+    Map<XPathAtomic, XPathSequence>? entries,
+  ]) {
+    final map = LinkedHashMap<XPathAtomic, XPathSequence>(
+      equals: sameKey,
+      hashCode: keyHashCode,
+    );
+    if (entries != null && entries.isNotEmpty) {
+      map.addAll(entries);
+    }
+    return map;
+  }
+
+  /// Computes a hash code for [a] consistent with [sameKey].
+  static int keyHashCode(XPathAtomic a) {
+    if (a is XPathNumeric) {
+      final d = a.toDouble();
+      if (d.isNaN) return 0;
+      return (d == 0.0 ? 0.0 : d).hashCode;
+    }
+    return a.hashCode;
   }
 
   @override

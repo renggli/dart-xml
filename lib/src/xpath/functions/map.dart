@@ -44,7 +44,7 @@ XPathSequence _fnMapPut(
 ) {
   final map = mapSeq.first as XPathMap;
   final key = keySeq.atomize().first;
-  final entries = Map<XPathAtomic, XPathSequence>.from(map.entries);
+  final entries = XPathMap.createEntries(map.entries);
   entries[_normalizeKey(key)] = value;
   return XPathSequence.single(XPathMap(entries));
 }
@@ -78,10 +78,9 @@ XPathSequence _fnMapRemove(
   XPathSequence keys,
 ) {
   final map = mapSeq.first as XPathMap;
-  final entries = Map<XPathAtomic, XPathSequence>.from(map.entries);
+  final entries = XPathMap.createEntries(map.entries);
   for (final key in keys.atomize()) {
-    final norm = _normalizeKey(key);
-    entries.removeWhere((k, _) => XPathMap.sameKey(k, norm));
+    entries.remove(_normalizeKey(key));
   }
   return XPathSequence.single(XPathMap(entries));
 }
@@ -154,7 +153,7 @@ XPathSequence _evalMapMerge(XPathSequence maps, XPathMap? options) {
     }
   }
 
-  final result = <XPathAtomic, XPathSequence>{};
+  final result = XPathMap.createEntries();
   for (final item in maps) {
     if (item is! XPathMap) {
       final val = item is XPathAtomic ? item.value : item;

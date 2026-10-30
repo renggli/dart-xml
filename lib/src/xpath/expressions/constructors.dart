@@ -2,7 +2,6 @@ import '../evaluation/context.dart';
 import '../evaluation/expression.dart';
 import '../exceptions/error_code.dart';
 import '../exceptions/evaluation_exception.dart';
-import '../xdm/atomic.dart';
 import '../xdm/functions/array.dart';
 import '../xdm/functions/map.dart';
 import '../xdm/sequence.dart';
@@ -14,7 +13,7 @@ class MapConstructor implements XPathExpression {
 
   @override
   XPathSequence call(XPathContext context) {
-    final map = <XPathAtomic, XPathSequence>{};
+    final map = XPathMap.createEntries();
     for (final entry in entries) {
       final keySeq = entry.key(context).atomize().toList();
       if (keySeq.length != 1) {
@@ -24,13 +23,11 @@ class MapConstructor implements XPathExpression {
         );
       }
       final key = keySeq.single;
-      for (final existingKey in map.keys) {
-        if (XPathMap.sameKey(existingKey, key)) {
-          throw XPathEvaluationException(
-            XPathErrorCode.XQDY0137,
-            'Duplicate key in map constructor: $key',
-          );
-        }
+      if (map.containsKey(key)) {
+        throw XPathEvaluationException(
+          XPathErrorCode.XQDY0137,
+          'Duplicate key in map constructor: $key',
+        );
       }
       map[key] = entry.value(context);
     }
