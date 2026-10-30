@@ -72,7 +72,7 @@ final fnCompare = XPathFunctionItem.overloaded(
 XPathSequence _evalCompare(String? comparand1, String? comparand2) {
   if (comparand1 == null || comparand2 == null) return XPathSequence.empty;
   return XPathSequence.single(
-    XPathInteger.fromInt(comparand1.compareTo(comparand2)),
+    XPathInteger.fromInt(compareCodepoints(comparand1, comparand2)),
   );
 }
 

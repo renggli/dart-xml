@@ -22,9 +22,11 @@ final class XPathString extends XPathAtomic {
 
   @override
   int compareTo(XPathAtomic other) {
-    if (other is XPathString) return value.compareTo(other.value);
-    if (other is XPathUntypedAtomic) return value.compareTo(other.value);
-    if (other is XPathAnyUri) return value.compareTo(other.value);
+    if (other is XPathString) return compareCodepoints(value, other.value);
+    if (other is XPathUntypedAtomic) {
+      return compareCodepoints(value, other.value);
+    }
+    if (other is XPathAnyUri) return compareCodepoints(value, other.value);
     return super.compareTo(other);
   }
 
@@ -60,9 +62,11 @@ final class XPathUntypedAtomic extends XPathAtomic {
 
   @override
   int compareTo(XPathAtomic other) {
-    if (other is XPathUntypedAtomic) return value.compareTo(other.value);
-    if (other is XPathString) return value.compareTo(other.value);
-    if (other is XPathAnyUri) return value.compareTo(other.value);
+    if (other is XPathUntypedAtomic) {
+      return compareCodepoints(value, other.value);
+    }
+    if (other is XPathString) return compareCodepoints(value, other.value);
+    if (other is XPathAnyUri) return compareCodepoints(value, other.value);
     return super.compareTo(other);
   }
 
@@ -98,9 +102,11 @@ final class XPathAnyUri extends XPathAtomic {
 
   @override
   int compareTo(XPathAtomic other) {
-    if (other is XPathAnyUri) return value.compareTo(other.value);
-    if (other is XPathString) return value.compareTo(other.value);
-    if (other is XPathUntypedAtomic) return value.compareTo(other.value);
+    if (other is XPathAnyUri) return compareCodepoints(value, other.value);
+    if (other is XPathString) return compareCodepoints(value, other.value);
+    if (other is XPathUntypedAtomic) {
+      return compareCodepoints(value, other.value);
+    }
     return super.compareTo(other);
   }
 
@@ -116,4 +122,18 @@ final class XPathAnyUri extends XPathAtomic {
 
   @override
   int get hashCode => value.hashCode;
+}
+
+/// Compares two strings using Unicode codepoint order.
+int compareCodepoints(String a, String b) {
+  if (identical(a, b)) return 0;
+  final itA = a.runes.iterator;
+  final itB = b.runes.iterator;
+  while (itA.moveNext()) {
+    if (!itB.moveNext()) return 1;
+    final rA = itA.current;
+    final rB = itB.current;
+    if (rA != rB) return rA < rB ? -1 : 1;
+  }
+  return itB.moveNext() ? -1 : 0;
 }

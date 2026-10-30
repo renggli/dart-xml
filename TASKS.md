@@ -141,7 +141,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: Per W3C F&O §5.5, if the value of `$arg1` or `$arg2` is the empty sequence `()`, it is treated as the zero-length string `""`. Currently, `_evalContains(null, "")`, `_evalStartsWith(null, "")`, and `_evalEndsWith(null, "")` check `if (arg1 == null) return XPathSequence.falseSequence;` BEFORE checking if `arg2` is empty, so `contains((), "")` returns `false` instead of `true`. Similarly, `substring-after("abc", ())` returns `""` instead of `"abc"`.
 - **Fix**: Normalize both arguments via `final s1 = arg1 ?? ''; final s2 = arg2 ?? '';` at the start of `_evalContains`, `_evalStartsWith`, `_evalEndsWith`, `_evalSubstringBefore`, and `_evalSubstringAfter`.
 
-### BUG-17: `fn:compare` Uses UTF-16 Code Unit Order Instead of Unicode Codepoint Order
+### BUG-17: `fn:compare` Uses UTF-16 Code Unit Order Instead of Unicode Codepoint Order [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
 - **Location**: `lib/src/xpath/functions/string.dart:72-77`, `lib/src/xpath/xdm/atomic/string.dart:54`
 - **Problem**: `String.compareTo` compares UTF-16 code units, where surrogate pairs (`0xD800..0xDFFF`, representing codepoints `U+10000..U+10FFFF`) sort *before* BMP characters in `U+E000..U+FFFF`. Under the W3C Unicode codepoint collation, codepoints must be compared by rune value (`-1`, `0`, `1`). Also `fn:compare` must return strictly `-1`, `0`, or `1` (whereas `String.compareTo` is only guaranteed to return negative/zero/positive on all Dart platforms).

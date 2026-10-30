@@ -566,6 +566,13 @@ void main() {
       check(fnCompare(context, [XPathSequence.empty, seq('a')]))
           .isXPathSequence(isEmpty);
     });
+
+    test('Unicode codepoint ordering for supplementary characters', () {
+      check(fnCompare(context, [seq('\u{10000}'), seq('\uE000')]))
+          .isXPathSequence([1]);
+      check(fnCompare(context, [seq('\uE000'), seq('\u{10000}')]))
+          .isXPathSequence([-1]);
+    });
   });
 
   group('collation overloads for string matching functions', () {
