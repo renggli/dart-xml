@@ -152,6 +152,14 @@ void main() {
       check(event.attributes[1].attributeType)
           .equals(XmlAttributeType.SINGLE_QUOTE);
       check(event.isSelfClosing).isTrue();
+      check(event.getAttribute('a')).equals('1');
+      check(event.getAttribute('b')).equals('2');
+      check(event.getAttribute('c')).isNull();
+      check(event.hasAttribute('a')).isTrue();
+      check(event.hasAttribute('c')).isFalse();
+      check(event.getAttributeNode('a')?.value).equals('1');
+      check(event.getAttributeNode('c')).isNull();
+      check(event.getAttribute('*')).equals('1');
       final other = XmlStartElementEvent(
         event.name,
         event.attributes

@@ -340,11 +340,12 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 
 *(Note on previous FEAT-4 `XmlStreamWriter`: Withdrawn; `XmlEventEncoder` in `lib/src/xml_events/converters/event_encoder.dart` and `Stream<List<XmlEvent>>.toXmlString()` already provide streaming chunked encoding directly from XML event streams to `Sink<String>`.)*
 
-### FEAT-1: `XmlStartElementEvent` Attribute Accessors (`STR-6`)
+### FEAT-1: `XmlStartElementEvent` Attribute Accessors (`STR-6`) [COMPLETED]
+- **Status**: Completed
 - **Severity**: Feature
 - **Location**: `lib/src/xml_events/events/start_element.dart:10-63`
-- **Problem**: `XmlStartElementEvent` only exposes `List<XmlEventAttribute> attributes`. Filtering event streams (e.g. inside `selectSubtreeEvents`) requires verbose manual iteration over `event.attributes`.
-- **Fix**: Add `getAttribute(String name, {String? namespaceUri})`, `getAttributeNode(String name, {String? namespaceUri})`, and `hasAttribute(String name, {String? namespaceUri})` helper methods/extensions on `XmlStartElementEvent`.
+- **Problem**: `XmlStartElementEvent` only exposed `List<XmlEventAttribute> attributes`. Filtering event streams required verbose manual iteration over `event.attributes`.
+- **Fix**: Added `getAttribute(String name, {String? namespaceUri})`, `getAttributeNode(String name, {String? namespaceUri})`, and `hasAttribute(String name, {String? namespaceUri})` on `XmlStartElementEvent`.
 
 ### FEAT-2: Standard Namespace Resolution Helpers (`lookupPrefix` / `lookupNamespaceUri`) (`DOM-7`)
 - **Severity**: Feature
