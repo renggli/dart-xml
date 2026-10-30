@@ -347,11 +347,12 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: `XmlStartElementEvent` only exposed `List<XmlEventAttribute> attributes`. Filtering event streams required verbose manual iteration over `event.attributes`.
 - **Fix**: Added `getAttribute(String name, {String? namespaceUri})`, `getAttributeNode(String name, {String? namespaceUri})`, and `hasAttribute(String name, {String? namespaceUri})` on `XmlStartElementEvent`.
 
-### FEAT-2: Standard Namespace Resolution Helpers (`lookupPrefix` / `lookupNamespaceUri`) (`DOM-7`)
+### FEAT-2: Standard Namespace Resolution Helpers (`lookupPrefix` / `lookupNamespaceUri`) (`DOM-7`) [COMPLETED]
+- **Status**: Completed
 - **Severity**: Feature
 - **Location**: `lib/src/xml/mixins/has_namespaces.dart:10-40`
-- **Problem**: `XmlHasNamespaces` only exposes `Iterable<XmlNamespace> get namespaces`. Callers and internal XPath functions repeatedly write `.namespaces.where((ns) => ns.prefix == prefix).firstOrNull?.uri`.
-- **Fix**: Add `String? lookupPrefix(String namespaceUri)` and `String? lookupNamespaceUri(String? prefix)` on `XmlHasNamespaces`.
+- **Problem**: `XmlHasNamespaces` only exposed `Iterable<XmlNamespace> get namespaces`. Callers repeatedly had to filter in-scope namespaces manually.
+- **Fix**: Added `String? lookupPrefix(String namespaceUri)` and `String? lookupNamespaceUri(String? prefix)` on `XmlNamespacesBase` and `XmlHasNamespaces`.
 
 ### FEAT-3: Respect `xml:space="preserve"` Automatically in `XmlPrettyWriter` (`STD-3`)
 - **Severity**: Feature

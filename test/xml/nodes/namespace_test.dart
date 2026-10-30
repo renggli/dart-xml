@@ -148,4 +148,33 @@ void main() {
       ),
     ]);
   });
+  test('lookupNamespaceUri and lookupPrefix', () {
+    final document = XmlDocument.parse(
+      '<root xmlns="urn:default" xmlns:p="urn:p"><child xmlns:p="urn:shadow" xmlns:q="urn:q"/></root>',
+    );
+    final root = document.rootElement;
+    final child = root.firstElementChild!;
+
+    check(root.lookupNamespaceUri(null)).equals('urn:default');
+    check(root.lookupNamespaceUri('')).equals('urn:default');
+    check(root.lookupNamespaceUri('p')).equals('urn:p');
+    check(root.lookupNamespaceUri('unknown')).isNull();
+    check(root.lookupNamespaceUri('xml'))
+        .equals('http://www.w3.org/XML/1998/namespace');
+
+    check(root.lookupPrefix('urn:default')).equals('');
+    check(root.lookupPrefix('urn:p')).equals('p');
+    check(root.lookupPrefix('urn:unknown')).isNull();
+    check(root.lookupPrefix('http://www.w3.org/XML/1998/namespace'))
+        .equals('xml');
+
+    check(child.lookupNamespaceUri('p')).equals('urn:shadow');
+    check(child.lookupNamespaceUri('q')).equals('urn:q');
+    check(child.lookupPrefix('urn:shadow')).equals('p');
+    check(child.lookupPrefix('urn:q')).equals('q');
+
+    final fragment = XmlDocumentFragment();
+    check(fragment.lookupNamespaceUri('p')).isNull();
+    check(fragment.lookupPrefix('urn:p')).isNull();
+  });
 }
