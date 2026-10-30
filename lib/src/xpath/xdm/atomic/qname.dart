@@ -1,8 +1,7 @@
 import 'package:petitparser/petitparser.dart';
 
-import '../../../xml/entities/null_mapping.dart';
 import '../../../xml/utils/name.dart';
-import '../../../xml_events/parser.dart';
+import '../../../xml/utils/name_parser.dart';
 import '../../exceptions/error_code.dart';
 import '../../exceptions/evaluation_exception.dart';
 import '../atomic.dart';
@@ -41,9 +40,7 @@ final class XPathQName extends XPathAtomic {
   int get hashCode => Object.hash(value.local, value.namespaceUri ?? '');
 }
 
-final _ncNameParser = resolve<String>(
-  ref0(const XmlEventParser(XmlNullEntityMapping()).nonColonizedNameToken),
-).end();
+final _ncNameParser = nonColonizedNameToken.end();
 
 /// Checks whether [s] is a valid XML NCName.
 bool isValidNCName(String s) => _ncNameParser.parse(s) is! Failure;

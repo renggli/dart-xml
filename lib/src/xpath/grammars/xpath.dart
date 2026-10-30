@@ -1,8 +1,7 @@
 import 'package:petitparser/definition.dart';
 import 'package:petitparser/parser.dart';
 
-import '../../xml/entities/null_mapping.dart';
-import '../../xml_events/parser.dart';
+import '../../xml/utils/name_parser.dart';
 import '../evaluation/cardinality.dart';
 import '../evaluation/expression.dart';
 import '../evaluation/operators.dart';
@@ -1081,8 +1080,8 @@ class XPathGrammar {
   Parser<String> elementName() => ref0(eqName);
 
   // Different types of names.
-  Parser<String> ncName() => trim(ref0(xmlGrammar.nonColonizedNameToken));
-  Parser<String> qualifiedName() => trim(ref0(xmlGrammar.qualifiedNameToken));
+  Parser<String> ncName() => trim(nonColonizedNameToken);
+  Parser<String> qualifiedName() => trim(qualifiedNameToken);
   Parser<String> bracedUriLiteral() =>
       trim(seq3('Q{'.toParser(), pattern('^{}').starString(), '}'.toParser()))
           .map3((_, uri, _) {
@@ -1150,8 +1149,6 @@ NameTest _eqNameToNodeTest(String name) {
   }
   return QualifiedNameTest(name);
 }
-
-const xmlGrammar = XmlEventParser(XmlNullEntityMapping());
 
 const _reservedFunctionNames = {
   'array',

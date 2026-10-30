@@ -5,6 +5,7 @@ import '../xml/entities/entity_mapping.dart';
 import '../xml/enums/attribute_type.dart';
 import '../xml/utils/cache.dart';
 import '../xml/utils/character_data_parser.dart';
+import '../xml/utils/name_parser.dart' as name_parser;
 import '../xml/utils/token.dart';
 import 'event.dart';
 import 'events/cdata.dart';
@@ -263,25 +264,13 @@ class XmlEventParser {
 
   // Name tokens
 
-  Parser<String> qualifiedNameToken() => seq2(
-    ref0(nonColonizedNameToken),
-    seq2(char(XmlToken.namespace), ref0(nonColonizedNameToken)).optional(),
-  ).flatten(message: 'qualified name expected');
+  Parser<String> qualifiedNameToken() => name_parser.qualifiedNameToken;
 
-  Parser<String> nonColonizedNameToken() => seq2(
-    ref0(nonColonizedStartChar),
-    ref0(nonColonizedChar).star(),
-  ).flatten(message: 'non-colonized name expected');
+  Parser<String> nonColonizedNameToken() => name_parser.nonColonizedNameToken;
 
-  Parser<String> nonColonizedStartChar() => pattern(
-    XmlToken.nameStartChars.replaceFirst(XmlToken.namespace, ''),
-    unicode: true,
-  );
+  Parser<String> nonColonizedStartChar() => name_parser.nonColonizedStartChar;
 
-  Parser<String> nonColonizedChar() => pattern(
-    XmlToken.nameChars.replaceFirst(XmlToken.namespace, ''),
-    unicode: true,
-  );
+  Parser<String> nonColonizedChar() => name_parser.nonColonizedChar;
 
   Parser<String> nameToken() => seq2(
     ref0(nameStartChar),

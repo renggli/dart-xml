@@ -407,11 +407,12 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 
 ## 7. Large Files, Complex Structure, Distributed Responsibility, and Dead Code
 
-### ARCH-1: Dead Code in `XmlEventParser` (`qualifiedNameToken`) and Misplaced Grammar Dependency
+### ARCH-1: Dead Code in `XmlEventParser` (`qualifiedNameToken`) and Misplaced Grammar Dependency [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
 - **Location**: `lib/src/xml_events/parser.dart:266-284`, `lib/src/xpath/xdm/atomic/qname.dart:44-46`, `lib/src/xpath/grammars/xpath.dart:1084-1085`, `lib/src/xpath/grammars/xpath.dart:1154`
 - **Problem**: `XmlEventParser.qualifiedNameToken` (`lib/src/xml_events/parser.dart:266`) is never called by `XmlEventParser` (which uses `nameToken` instead). `XmlEventParser.nonColonizedNameToken` and `qualifiedNameToken` only exist in `XmlEventParser` because `lib/src/xpath/grammars/xpath.dart:1154` and `lib/src/xpath/xdm/atomic/qname.dart:44` instantiate `const XmlEventParser(XmlNullEntityMapping())` just to call `nonColonizedNameToken()` and `qualifiedNameToken()`.
-- **Fix**: Move `qualifiedNameToken`, `nonColonizedNameToken`, `nonColonizedStartChar`, and `nonColonizedChar` out of `XmlEventParser` into a dedicated lexical name parser utility (or `lib/src/xml/utils/character_data_parser.dart` / `name.dart`) so XPath does not need to instantiate `XmlEventParser`.
+- **Fix**: Moved `qualifiedNameToken`, `nonColonizedNameToken`, `nonColonizedStartChar`, and `nonColonizedChar` into a dedicated `lib/src/xml/utils/name_parser.dart` lexical name parser utility, removing the `XmlEventParser` dependency from XPath.
 
 ### ARCH-2: Duplicated `childrenNodeTypes` and `attributeNodeTypes` Constants Across DOM Node Files
 - **Severity**: Warning
