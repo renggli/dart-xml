@@ -62,29 +62,34 @@ class XmlPrettyWriter extends XmlWriter {
     } else {
       buffer.write(XmlToken.closeElement);
       if (node.children.isNotEmpty) {
-        if (pretty) {
-          if (preserveWhitespace != null && preserveWhitespace!(node)) {
-            final wasPretty = pretty;
-            pretty = false;
-            try {
-              writeIterable(node.children);
-            } finally {
-              pretty = wasPretty;
-            }
-          } else if (node.children.every((each) => each is XmlText)) {
-            writeIterable(normalizeText(node.children));
-          } else {
-            level++;
-            buffer.write(newLine);
-            buffer.write(indent * level);
-            writeIterable(
-              normalizeText(node.children),
-              newLine + indent * level,
+        final xmlSpace =
+            node.getAttribute('xml:space') ??
+            node.getAttribute(
+              'space',
+              namespaceUri: 'http://www.w3.org/XML/1998/namespace',
             );
-            level--;
-            buffer.write(newLine);
-            buffer.write(indent * level);
+        final shouldPreserve =
+            (preserveWhitespace != null && preserveWhitespace!(node)) ||
+            xmlSpace == 'preserve';
+        final shouldDefault = xmlSpace == 'default';
+        if (shouldPreserve) {
+          final wasPretty = pretty;
+          pretty = false;
+          try {
+            writeIterable(node.children);
+          } finally {
+            pretty = wasPretty;
           }
+        } else if (shouldDefault && !pretty) {
+          final wasPretty = pretty;
+          pretty = true;
+          try {
+            _writePrettyChildren(node);
+          } finally {
+            pretty = wasPretty;
+          }
+        } else if (pretty) {
+          _writePrettyChildren(node);
         } else {
           writeIterable(node.children);
         }
@@ -92,6 +97,20 @@ class XmlPrettyWriter extends XmlWriter {
       buffer.write(XmlToken.openEndElement);
       visit(node.name);
       buffer.write(XmlToken.closeElement);
+    }
+  }
+
+  void _writePrettyChildren(XmlElement node) {
+    if (node.children.every((each) => each is XmlText)) {
+      writeIterable(normalizeText(node.children));
+    } else {
+      level++;
+      buffer.write(newLine);
+      buffer.write(indent * level);
+      writeIterable(normalizeText(node.children), newLine + indent * level);
+      level--;
+      buffer.write(newLine);
+      buffer.write(indent * level);
     }
   }
 

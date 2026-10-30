@@ -354,11 +354,12 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: `XmlHasNamespaces` only exposed `Iterable<XmlNamespace> get namespaces`. Callers repeatedly had to filter in-scope namespaces manually.
 - **Fix**: Added `String? lookupPrefix(String namespaceUri)` and `String? lookupNamespaceUri(String? prefix)` on `XmlNamespacesBase` and `XmlHasNamespaces`.
 
-### FEAT-3: Respect `xml:space="preserve"` Automatically in `XmlPrettyWriter` (`STD-3`)
+### FEAT-3: Respect `xml:space="preserve"` Automatically in `XmlPrettyWriter` (`STD-3`) [COMPLETED]
+- **Status**: Completed
 - **Severity**: Feature
 - **Location**: `lib/src/xml/visitors/pretty_writer.dart:46-99`
-- **Problem**: `XmlPrettyWriter` ignores standard `xml:space="preserve"` attributes unless a custom `preserveWhitespace` predicate is manually supplied by the caller.
-- **Fix**: Check `xml:space` on elements during `XmlPrettyWriter.visitElement` and automatically preserve whitespace inside subtrees with `xml:space="preserve"` unless overridden by `xml:space="default"`.
+- **Problem**: `XmlPrettyWriter` ignored standard `xml:space="preserve"` attributes unless a custom `preserveWhitespace` predicate was manually supplied by the caller.
+- **Fix**: Check `xml:space` on elements during `XmlPrettyWriter.visitElement` and automatically preserve whitespace inside subtrees with `xml:space="preserve"` unless overridden by nested `xml:space="default"`.
 
 ### FEAT-4: Byte-Stream Decoding & BOM / Encoding Detection (`ENC-1`)
 - **Severity**: Feature

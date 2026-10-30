@@ -213,6 +213,39 @@ void main() {
           '</html>',
         );
       });
+      test('xml:space="preserve"', () {
+        final input = XmlDocument.parse(
+          '<html><body>'
+          '<pre xml:space="preserve">  line 1\n  line 2\n</pre>'
+          '</body></html>',
+        );
+        final output = input.toXmlString(pretty: true);
+        check(output).equals(
+          '<html>\n'
+          '  <body>\n'
+          '    <pre xml:space="preserve">  line 1\n  line 2\n</pre>\n'
+          '  </body>\n'
+          '</html>',
+        );
+      });
+      test('xml:space="default" nested in preserve', () {
+        final input = XmlDocument.parse(
+          '<root xml:space="preserve">'
+          '<raw>  keep  </raw>'
+          '<pretty xml:space="default"><a>1</a><b>2</b></pretty>'
+          '</root>',
+        );
+        final output = input.toXmlString(pretty: true);
+        check(output).equals(
+          '<root xml:space="preserve">'
+          '<raw>  keep  </raw>'
+          '<pretty xml:space="default">\n'
+          '  <a>1</a>\n'
+          '  <b>2</b>\n'
+          '</pretty>'
+          '</root>',
+        );
+      });
       test('normalize text', () {
         final input = XmlDocument([
           XmlElement.tag(
