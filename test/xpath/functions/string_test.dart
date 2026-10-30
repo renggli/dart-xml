@@ -175,6 +175,19 @@ void main() {
           .isXPathSequence(['a b c']);
     });
 
+    test('does not strip non-XML Unicode whitespace such as NBSP (U+00A0)', () {
+      check(fnNormalizeSpace(context, [seq('\u00A0hello\u00A0')]))
+          .isXPathSequence(['\u00A0hello\u00A0']);
+      check(fnTokenize(context, [seq('\u00A0hello\u00A0')]))
+          .isXPathSequence(['\u00A0hello\u00A0']);
+      check(
+        fnContainsToken(context, [
+          seq('\u00A0hello\u00A0'),
+          seq('\u00A0hello\u00A0'),
+        ]),
+      ).isXPathSequence([true]);
+    });
+
     test('uses context item if no arguments', () {
       final textNode = XmlText('  hello   ');
       final contextWithNode = const XPathConfiguration.raw().context(textNode);
@@ -654,6 +667,32 @@ void main() {
         ]),
       ).isXPathSequence([true]);
     });
+
+    test('returns false for empty token or whitespace-only token', () {
+      check(fnContainsToken(context, [seq(''), seq('')]))
+          .isXPathSequence([false]);
+      check(fnContainsToken(context, [seq('   '), seq('   ')]))
+          .isXPathSequence([false]);
+    });
+
+    test('does not treat non-XML Unicode whitespace as separator', () {
+      check(fnContainsToken(context, [seq('a\u00A0b'), seq('a')]))
+          .isXPathSequence([false]);
+      check(fnContainsToken(context, [seq('a\u00A0b'), seq('a\u00A0b')]))
+          .isXPathSequence([true]);
+    });
+
+    test('handles input sequence of multiple strings', () {
+      check(
+        fnContainsToken(context, [
+          XPathSequence([
+            const XPathString('abc def'),
+            const XPathString('ghi'),
+          ]),
+          seq('def'),
+        ]),
+      ).isXPathSequence([true]);
+    });
   });
 
   group('fn:normalize-unicode', () {
@@ -675,6 +714,11 @@ void main() {
     test('tokenizes string', () {
       check(fnTokenize(context, [seq('a b c')]))
           .isXPathSequence(['a', 'b', 'c']);
+    });
+
+    test('does not tokenize on non-XML Unicode whitespace', () {
+      check(fnTokenize(context, [seq('a\u00A0b c')]))
+          .isXPathSequence(['a\u00A0b', 'c']);
     });
 
     test('handles flags', () {

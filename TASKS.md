@@ -148,7 +148,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: `String.compareTo` compares UTF-16 code units, where surrogate pairs (`0xD800..0xDFFF`, representing codepoints `U+10000..U+10FFFF`) sort *before* BMP characters in `U+E000..U+FFFF`. Under the W3C Unicode codepoint collation, codepoints must be compared by rune value (`-1`, `0`, `1`). Also `fn:compare` must return strictly `-1`, `0`, or `1` (whereas `String.compareTo` is only guaranteed to return negative/zero/positive on all Dart platforms).
 - **Fix**: Compare strings by iterating their `runes` and returning `r1.compareTo(r2).sign`.
 
-### BUG-18: `fn:normalize-space`, `fn:tokenize`, and `fn:contains-token` Strip Non-XML Unicode Whitespace
+### BUG-18: `fn:normalize-space`, `fn:tokenize`, and `fn:contains-token` Strip Non-XML Unicode Whitespace [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
 - **Location**: `lib/src/xpath/functions/string.dart:225-227`, `lib/src/xpath/functions/string.dart:628-634`, `lib/src/xpath/functions/string.dart:727-733`
 - **Problem**: `_evalNormalizeSpace`, `_evalTokenize`, and `_evalContainsToken` use `String.trim()` and `RegExp(r'\s+')`. In Dart, `.trim()` and `\s` match Unicode whitespace such as `U+00A0` (NO-BREAK SPACE), `U+2000..U+200A`, and `U+FEFF`, whereas XPath 3.1 defines whitespace strictly as `#x20`, `#x9`, `#xA`, and `#xD`.

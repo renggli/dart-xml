@@ -230,7 +230,7 @@ final fnNormalizeSpace = XPathFunctionItem.overloaded(
 );
 
 XPathSequence _evalNormalizeSpace(String str) => XPathSequence.single(
-  XPathString(str.trim().replaceAll(_whitespaceRegExp, ' ')),
+  XPathString(_trimXmlWhitespace(str).replaceAll(_xmlWhitespaceRegExp, ' ')),
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-normalize-unicode
@@ -632,10 +632,11 @@ final fnTokenize = XPathFunctionItem.overloaded(
 XPathSequence _evalTokenize(String? input, String? pattern, String? flags) {
   if (input == null || input.isEmpty) return XPathSequence.empty;
   if (pattern == null) {
+    final trimmed = _trimXmlWhitespace(input);
+    if (trimmed.isEmpty) return XPathSequence.empty;
     return XPathSequence(
-      input
-          .trim()
-          .split(_whitespaceRegExp)
+      trimmed
+          .split(_xmlWhitespaceRegExp)
           .where((s) => s.isNotEmpty)
           .map(XPathString.new),
     );
@@ -713,28 +714,71 @@ final fnContainsToken = XPathFunctionItem.overloaded(
     2: XPathFunctionItem.fn2(
       const XmlName.qualified('fn:contains-token'),
       (context, input, token) => _evalContainsToken(
-        _asString(input.atomize().firstOrNull),
+        input.atomize().map((i) => i.stringValue),
         _asString(token.atomize().firstOrNull),
+        null,
       ),
     ),
     3: XPathFunctionItem.fn3(
       const XmlName.qualified('fn:contains-token'),
       (context, input, token, col) => _evalContainsToken(
-        _asString(input.atomize().firstOrNull),
+        input.atomize().map((i) => i.stringValue),
         _asString(token.atomize().firstOrNull),
+        _asString(col.atomize().firstOrNull),
       ),
     ),
   },
 );
 
-XPathSequence _evalContainsToken(String? input, String? token) {
-  if (input == null || token == null) {
+XPathSequence _evalContainsToken(
+  Iterable<String> input,
+  String? token,
+  String? collation,
+) {
+  if (token == null) {
     return XPathSequence.falseSequence;
   }
-  final tokens = input.trim().split(_whitespaceRegExp);
-  return XPathSequence.single(
-    XPathBoolean.fromBool(tokens.contains(token.trim())),
-  );
+  final trimmedToken = _trimXmlWhitespace(token);
+  if (trimmedToken.isEmpty || _xmlWhitespaceRegExp.hasMatch(trimmedToken)) {
+    return XPathSequence.falseSequence;
+  }
+  final caseInsensitive =
+      collation ==
+      'http://www.w3.org/2005/xpath-functions/collation/html-ascii-case-insensitive';
+  final targetToken = caseInsensitive
+      ? trimmedToken.toLowerCase()
+      : trimmedToken;
+
+  for (final str in input) {
+    final trimmedStr = _trimXmlWhitespace(str);
+    if (trimmedStr.isEmpty) continue;
+    final tokens = trimmedStr.split(_xmlWhitespaceRegExp);
+    for (final t in tokens) {
+      final comp = caseInsensitive ? t.toLowerCase() : t;
+      if (comp == targetToken) {
+        return XPathSequence.trueSequence;
+      }
+    }
+  }
+  return XPathSequence.falseSequence;
 }
 
-final _whitespaceRegExp = RegExp(r'\s+');
+bool _isXmlWhitespace(int codeUnit) =>
+    codeUnit == 0x20 ||
+    codeUnit == 0x09 ||
+    codeUnit == 0x0A ||
+    codeUnit == 0x0D;
+
+String _trimXmlWhitespace(String str) {
+  var start = 0;
+  while (start < str.length && _isXmlWhitespace(str.codeUnitAt(start))) {
+    start++;
+  }
+  var end = str.length;
+  while (end > start && _isXmlWhitespace(str.codeUnitAt(end - 1))) {
+    end--;
+  }
+  return start == 0 && end == str.length ? str : str.substring(start, end);
+}
+
+final _xmlWhitespaceRegExp = RegExp(r'[ \t\r\n]+');
