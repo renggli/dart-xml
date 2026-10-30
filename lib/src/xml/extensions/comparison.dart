@@ -299,8 +299,8 @@ extension type const XmlDocumentPosition(int value) {
 bool _compareName(XmlNode node1, XmlNode node2) {
   if (node1 case XmlHasName(name: final name1)) {
     if (node2 case XmlHasName(name: final name2)) {
-      // Do we actually have to compare namespace resolution?
-      return name1.qualified == name2.qualified;
+      return name1.qualified == name2.qualified &&
+          name1.namespaceUri == name2.namespaceUri;
     }
   }
   return true;

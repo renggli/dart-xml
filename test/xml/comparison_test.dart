@@ -388,6 +388,30 @@ void main() {
       check(ns.isEqualNode(el)).isFalse();
       check(el.isEqualNode(ns)).isFalse();
     });
+
+    test('elements with same qualified name but different namespace uri', () {
+      final el1 = XmlElement(
+        const XmlName.qualified('a', namespaceUri: 'http://example.com/1'),
+      );
+      final el2 = XmlElement(
+        const XmlName.qualified('a', namespaceUri: 'http://example.com/2'),
+      );
+      check(el1.isEqualNode(el2)).isFalse();
+      check(el2.isEqualNode(el1)).isFalse();
+    });
+
+    test('attributes with same qualified name but different namespace uri', () {
+      final a1 = XmlAttribute(
+        const XmlName.qualified('a', namespaceUri: 'http://example.com/1'),
+        'v',
+      );
+      final a2 = XmlAttribute(
+        const XmlName.qualified('a', namespaceUri: 'http://example.com/2'),
+        'v',
+      );
+      check(a1.isEqualNode(a2)).isFalse();
+      check(a2.isEqualNode(a1)).isFalse();
+    });
   });
 
   group('contains', () {

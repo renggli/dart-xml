@@ -54,7 +54,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
   2. When `preserveWhitespace!(node)` is `true`, `visitElement` sets `pretty = false; writeIterable(node.children); pretty = true;` without saving the previous `pretty` value or wrapping in `try`/`finally`, and `visitDocument` does not consult `preserveWhitespace`.
 - **Fix**: Concatenate adjacent `XmlText` node values before trimming and collapsing whitespace in `normalizeText`, and save/restore `pretty` inside a `try`/`finally` block.
 
-### BUG-6: Inconsistent Namespace Comparison Between `XmlName.==` and `isEqualNode`
+### BUG-6: Inconsistent Namespace Comparison Between `XmlName.==` and `isEqualNode` [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
 - **Location**: `lib/src/xml/utils/name.dart:111-123`, `lib/src/xml/extensions/comparison.dart:300-304`
 - **Problem**: `XmlName.operator ==` compares `local` and `namespaceUri` (ignoring `prefix` when `namespaceUri != null`), whereas `_compareName` in `lib/src/xml/extensions/comparison.dart:300-304` only checks `name1.qualified == name2.qualified` (ignoring `namespaceUri`, with a `// Do we actually have to compare namespace resolution?` comment). Two elements with the same prefix bound to different namespace URIs test equal under `isEqualNode`.
