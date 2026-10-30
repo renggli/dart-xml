@@ -1,6 +1,8 @@
-import '../../../xml_events.dart' show XmlNodeDecoder, XmlNodeType, parseEvents;
+import '../../xml_events/converters/node_decoder.dart';
+import '../../xml_events/iterable.dart';
 import '../builder/builder.dart';
 import '../entities/entity_mapping.dart';
+import '../enums/node_type.dart';
 import '../exceptions/parser_exception.dart';
 import '../mixins/has_children.dart';
 import '../visitors/visitor.dart';
@@ -15,7 +17,7 @@ class XmlDocumentFragment extends XmlNode with XmlHasChildren<XmlNode> {
   /// Note: It is the responsibility of the caller to provide a standard Dart
   /// [String] using the default UTF-16 encoding.
   factory parse(String input, {XmlEntityMapping? entityMapping}) {
-    final events = parseEvents(
+    final events = XmlEventIterable(
       input,
       entityMapping: entityMapping,
       validateNesting: true,

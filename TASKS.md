@@ -258,7 +258,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: `lib/src/xpath/xdm/atomic.dart` contains 10 `export '...';` directives. Per the project development charter: *"Exports are only allowed in `lib/*.dart`, and never in any files in `lib/src/...`."*
 - **Fix**: Remove the barrel exports from `lib/src/xpath/xdm/atomic.dart` and export individual atomic types directly from `lib/xpath.dart`, using direct relative imports across internal `lib/src/xpath/` files.
 
-### STYLE-2: Internal Source Files Import the Root Barrel File `package:xml/xml.dart`
+### STYLE-2: Internal Source Files Import the Root Barrel File `package:xml/xml.dart` [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
 - **Location**: `lib/src/xml/nodes/document.dart:6`, `lib/src/xml/nodes/document_fragment.dart:6`, `lib/src/xml/builder/node.dart:3`
 - **Problem**: `document.dart`, `document_fragment.dart`, and `builder/node.dart` import `package:xml/xml.dart` directly rather than using relative imports to internal source declarations. This violates the charter (*"Within `lib/`, prefer relative imports over package imports"*), causes circular import dependencies between root barrel files and `src/`, and masks private dependency boundaries.

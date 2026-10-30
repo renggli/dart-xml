@@ -1,3 +1,4 @@
+import '../xml/entities/default_mapping.dart';
 import '../xml/entities/entity_mapping.dart';
 import 'annotations/annotator.dart';
 import 'event.dart';
@@ -6,15 +7,15 @@ import 'iterator.dart';
 class XmlEventIterable extends Iterable<XmlEvent> {
   new(
     this.input, {
-    required this.entityMapping,
-    required this.validateNesting,
-    required this.validateNamespace,
-    required this.validateDocument,
-    required this.withBuffer,
-    required this.withLocation,
-    required this.withNamespace,
-    required this.withParent,
-  });
+    XmlEntityMapping? entityMapping,
+    this.validateNesting = false,
+    this.validateNamespace = false,
+    this.validateDocument = false,
+    this.withBuffer = false,
+    this.withLocation = false,
+    this.withNamespace = false,
+    this.withParent = false,
+  }) : entityMapping = entityMapping ?? defaultEntityMapping;
 
   final String input;
   final XmlEntityMapping entityMapping;

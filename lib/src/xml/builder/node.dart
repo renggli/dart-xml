@@ -1,6 +1,7 @@
-import '../../../xml.dart' show XmlDocumentFragment, XmlElement;
 import '../nodes/attribute.dart';
 import '../nodes/document.dart';
+import '../nodes/document_fragment.dart';
+import '../nodes/element.dart';
 import '../nodes/node.dart';
 import '../utils/name.dart';
 import 'namespace.dart';
