@@ -9,12 +9,31 @@ import '../xml/nodes/node.dart';
 import '../xml/nodes/processing.dart';
 import '../xml/nodes/text.dart';
 
+/// Extension providing XPath generator capabilities on [XmlNode].
 extension XPathGenerator on XmlNode {
-  /// Generates an XPath expression that selects this node.
+  /// Generates a canonical XPath 3.1 path expression that selects this node.
+  ///
+  /// The generated path conforms to the W3C XPath 3.1 `fn:path` specification.
+  /// Paths starting from an [XmlDocument] root begin with `/`. Elements without
+  /// an explicit namespace URI use `Q{}` notation, while elements with a
+  /// namespace URI use `Q{uri}` notation followed by a 1-based positional index
+  /// among matching sibling elements.
+  ///
+  /// For example:
+  ///
+  /// ```dart
+  /// final document = XmlDocument.parse('<root><item>first</item><item>second</item></root>');
+  /// final secondItem = document.findAllElements('item').last;
+  /// print(secondItem.xpathGenerate()); // /Q{}root[1]/Q{}item[2]
+  /// ```
   String xpathGenerate() => xpathNodePath(this);
 }
 
 /// Generates the canonical XPath 3.1 path for [node] per W3C `fn:path`.
+///
+/// Returns `/` for an [XmlDocument]. For elements, attributes, text nodes,
+/// comments, processing instructions, and namespaces, produces an absolute
+/// path if the root is an [XmlDocument], or a relative path otherwise.
 String xpathNodePath(XmlNode node) {
   if (node is XmlDocument) return '/';
   final components = <String>[];

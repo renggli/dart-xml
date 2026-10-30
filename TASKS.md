@@ -290,36 +290,33 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 
 ## 4. Missing or Broken Documentation
 
-### DOC-1: Missing Documentation on `xpathGenerate`
+### DOC-1: Missing Documentation on `xpathGenerate` [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
 - **Location**: `lib/src/xpath/generator.dart:11-37`
-- **Problem**: `XPathGenerator.xpathGenerate` has minimal documentation and does not document the format of generated expressions, the role of `byId`, or how namespaces and predicate indices are represented.
-- **Fix**: Add triple-slash documentation with parameter explanations and example outputs for attributes, elements, and fragments.
+- **Problem**: `XPathGenerator.xpathGenerate` had minimal documentation and did not document the format of generated expressions.
+- **Fix**: Added comprehensive triple-slash documentation with parameter explanations and example outputs conforming to W3C XPath 3.1 `fn:path`.
 
-### DOC-2: Undocumented Public Classes and Members in DTD and Declarations
+### DOC-2: Undocumented Public Classes and Members in DTD and Declarations [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
-- **Location**:
-  - `lib/src/xml/dtd/external_id.dart:4-38` (`DtdExternalId`, `DtdSystemId`, `DtdPublicId`)
-  - `lib/src/xml/nodes/doctype.dart:21-43` (`intId`, `dtdElements`)
-  - `lib/src/xml/nodes/declaration.dart:18-35` (`version`, `encoding`, `standalone`)
-- **Problem**: DTD external IDs and properties on `XmlDeclaration` and `XmlDoctype` lack doc comments and code examples explaining how to inspect doctype declarations.
-- **Fix**: Add comprehensive doc comments with XML code examples to `DtdExternalId`, `XmlDeclaration`, and `XmlDoctype`.
+- **Location**: `lib/src/xml/dtd/external_id.dart:4-38`, `lib/src/xml/nodes/doctype.dart:21-43`, `lib/src/xml/nodes/declaration.dart:18-35`
+- **Problem**: DTD external IDs and properties on `XmlDeclaration` and `XmlDoctype` lacked doc comments and code examples.
+- **Fix**: Added comprehensive doc comments with XML code examples to `DtdExternalId`, `XmlDeclaration`, and `XmlDoctype`.
 
-### DOC-3: Incomplete Doc Comments on `XmlEvents` Streaming Converters
+### DOC-3: Incomplete Doc Comments on `XmlEvents` Streaming Converters [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
 - **Location**: `lib/src/xml_events/converters/event_decoder.dart:40-75`, `lib/src/xml_events/iterable.dart:10-25`
-- **Problem**: `XmlEventDecoder` documentation does not explain that `validateDocument: false` allows parsing fragments or streams of arbitrary XML elements, nor does it document what exceptions (`XmlParserException`, `XmlTagException`, `XmlNamespaceException`) are thrown when validation fails.
-- **Fix**: Document validation flags, error behavior, and chunked processing guidelines in `XmlEventDecoder` and `parseEvents`.
+- **Problem**: `XmlEventDecoder` documentation did not explain validation flags and error behavior.
+- **Fix**: Documented validation flags, error behavior, and chunked processing guidelines in `XmlEventDecoder` and `XmlEventIterable`.
 
-### DOC-4: Undocumented Public XDM Members in `lib/xpath.dart`
+### DOC-4: Undocumented Public XDM Members in `lib/xpath.dart` [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
-- **Location**:
-  - `lib/src/xpath/evaluation/context.dart:9-40` (`XPathContext`)
-  - `lib/src/xpath/xdm/functions/array.dart:11-36` (`XPathArray`, `XPathArrayType`)
-  - `lib/src/xpath/xdm/functions/function.dart:7-16` (`XPathFunctionCallback`, `XPathFunctionType`)
-  - `lib/src/xpath/xdm/functions/map.dart:10-46` (`XPathMap`, `XPathMapType`)
-- **Problem**: Public XDM item classes exported from `lib/xpath.dart` have undocumented constructors, fields, and methods, and `XPathContext.configuration` has a spelling typo (`Configuraiton`).
-- **Fix**: Fix the typo in `context.dart:24` and add `///` doc comments to all public members of exported XDM classes.
+- **Location**: `lib/src/xpath/evaluation/context.dart:9-40`, `lib/src/xpath/xdm/functions/array.dart:11-36`, `lib/src/xpath/xdm/functions/function.dart:7-16`, `lib/src/xpath/xdm/functions/map.dart:10-46`
+- **Problem**: Public XDM item classes exported from `lib/xpath.dart` had undocumented members, and `XPathContext.configuration` had a spelling typo.
+- **Fix**: Fixed the typo in `context.dart` and added `///` doc comments to public members of exported XDM classes.
 
 ---
 

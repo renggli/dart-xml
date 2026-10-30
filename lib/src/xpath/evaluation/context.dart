@@ -21,7 +21,7 @@ class XPathContext {
   }) : currentDateTime =
            currentDateTime ?? parentContext?.currentDateTime ?? DateTime.now();
 
-  /// Configuraiton associated with the context.
+  /// Configuration associated with the context.
   final XPathConfiguration configuration;
 
   /// Mutable context item.

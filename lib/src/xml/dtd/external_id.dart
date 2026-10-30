@@ -1,7 +1,25 @@
 import '../enums/attribute_type.dart';
 import '../utils/token.dart';
 
-/// Immutable external ID.
+/// Immutable DTD external identifier.
+///
+/// An external identifier can be a `SYSTEM` identifier (specifying a system URI)
+/// or a `PUBLIC` identifier (specifying a public identifier along with a system URI).
+///
+/// For example:
+///
+/// ```dart
+/// // SYSTEM "note.dtd"
+/// final systemId = DtdExternalId.system('note.dtd', XmlAttributeType.DOUBLE_QUOTE);
+///
+/// // PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"
+/// final publicId = DtdExternalId.public(
+///   '-//W3C//DTD XHTML 1.0 Strict//EN',
+///   XmlAttributeType.DOUBLE_QUOTE,
+///   'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd',
+///   XmlAttributeType.DOUBLE_QUOTE,
+/// );
+/// ```
 class DtdExternalId {
   /// Creates an external ID with a public identifier and a system identifier.
   new public(
@@ -16,16 +34,16 @@ class DtdExternalId {
     : publicId = null,
       publicIdType = null;
 
-  /// The public identifier for the external subset of the document type
-  /// definition. This is a string, or `null`.
+  /// The public identifier for the external subset, or `null` if this is a `SYSTEM` ID.
   final String? publicId;
 
+  /// The quote type used for the [publicId], or `null`.
   final XmlAttributeType? publicIdType;
 
-  /// The system identifier for the external subset of the document type
-  /// definition. This is a URI as a string, or `null`.
+  /// The system identifier (URI) for the external subset.
   final String systemId;
 
+  /// The quote type used for the [systemId].
   final XmlAttributeType systemIdType;
 
   @override

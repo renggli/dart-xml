@@ -37,22 +37,30 @@ extension XmlEventDecoderExtension on Stream<String> {
   );
 }
 
-/// A converter that decodes a [String] to a sequence of [XmlEvent] objects.
+/// A converter that decodes a [String] stream or chunk to a sequence of [XmlEvent] objects.
+///
+/// Throws an [XmlParserException] when encountering malformed XML syntax that cannot
+/// be parsed.
+///
+/// When [validateDocument] is `false` (default), arbitrary XML fragments or multiple
+/// root elements can be decoded. When `true`, input must follow standard XML document
+/// constraints (optional declaration, optional doctype, exactly one root element).
 class XmlEventDecoder extends Converter<String, List<XmlEvent>> {
   /// Creates a new [XmlEventDecoder].
   ///
   /// If [validateDocument] is `true`, the parser validates that the root elements
   /// of the input follow the requirements of an XML document. This means the
   /// document consists of an optional declaration, an optional doctype, and a
-  /// single root element.
+  /// single root element. When `false` (default), fragments or continuous element
+  /// streams are accepted without error.
   ///
   /// If [validateNamespace] is `true`, the parser validates the declaration and
-  /// use of namespaces and throws a [XmlNamespaceException] if there is a
-  /// problem.
+  /// use of namespaces and throws an [XmlNamespaceException] if an undeclared
+  /// namespace prefix is used or a duplicate namespace declaration occurs.
   ///
   /// If [validateNesting] is `true`, the parser validates the nesting of tags and
   /// throws an [XmlTagException] if there is a mismatch or tags are not closed.
-  /// Again, in case of an error iteration can be resumed with the next event.
+  /// In case of an error, iteration can be resumed with the next event.
   ///
   /// Furthermore, the following annotations can be enabled if needed:
   ///

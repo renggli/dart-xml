@@ -97,6 +97,7 @@ final class XPathMap extends XPathFunctionItem {
     return get(key) ?? XPathSequence.empty;
   }
 
+  /// Determines if two map keys [a] and [b] are identical per the XPath 3.1 map key equality rules.
   static bool sameKey(XPathAtomic a, XPathAtomic b) {
     if (identical(a, b)) return true;
     if (a is XPathNumeric && b is XPathNumeric) {

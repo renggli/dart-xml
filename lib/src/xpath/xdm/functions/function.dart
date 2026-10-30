@@ -4,6 +4,7 @@ import '../../evaluation/functions.dart';
 import '../function_item.dart';
 import '../sequence.dart';
 
+/// Callback signature for an XPath dynamic function call.
 typedef XPathFunctionCallback = XPathSequence Function(
   XPathContext context,
   List<XPathSequence> arguments,
@@ -11,7 +12,7 @@ typedef XPathFunctionCallback = XPathSequence Function(
 
 /// A callable XPath function item (builtin, anonymous, or partial).
 final class XPathFunction extends XPathFunctionItem {
-  /// Creates a callable XPath function item.
+  /// Creates a callable XPath function item with the given [name], [arity], and [function] implementation.
   const new({required this.name, required this.arity, required this.function});
 
   @override
@@ -20,6 +21,7 @@ final class XPathFunction extends XPathFunctionItem {
   @override
   final int arity;
 
+  /// The underlying callback invoked when calling this function item.
   final XPathFunctionCallback function;
 
   @override
