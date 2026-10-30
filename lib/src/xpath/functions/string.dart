@@ -165,20 +165,27 @@ XPathSequence _evalSubstring(
   }
 
   if (startVal.isInfinite) return const XPathSequence.single(XPathString.empty);
-  final start = startVal.round();
-  final end = (lenVal != null && lenVal.isFinite)
-      ? start + lenVal.round()
-      : double.infinity;
+  if (lenVal != null && lenVal.isInfinite && lenVal.isNegative) {
+    return const XPathSequence.single(XPathString.empty);
+  }
+
+  int roundXPath(double val) => (val + 0.5).floor();
+
+  final start = roundXPath(startVal);
+  final hasFiniteLen = lenVal != null && lenVal.isFinite;
+  final end = hasFiniteLen ? start + roundXPath(lenVal) : null;
 
   var s = start - 1;
-  final str = sourceString;
-  var e = (lenVal != null && lenVal.isFinite) ? end.round() - 1 : str.length;
+  final runes = sourceString.runes.toList();
+  var e = end != null ? end - 1 : runes.length;
 
   if (s < 0) s = 0;
-  if (e > str.length) e = str.length;
+  if (e > runes.length) e = runes.length;
   if (s >= e) return const XPathSequence.single(XPathString.empty);
 
-  return XPathSequence.single(XPathString(str.substring(s, e)));
+  return XPathSequence.single(
+    XPathString(String.fromCharCodes(runes.sublist(s, e))),
+  );
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-string-length

@@ -124,7 +124,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
   3. For `XmlProcessing`, `na.value == nb.value` ignores `na.target == nb.target`.
 - **Fix**: Add `XmlDocument` comparison (comparing filtered `XmlElement` and `XmlText` children), filter out `XmlComment` and `XmlProcessing` from element/document child comparisons, compare attributes by `(local, namespaceUri)` excluding `isNamespaceDeclaration`, and compare `target` on `XmlProcessing`.
 
-### BUG-15: `fn:substring` Uses UTF-16 Code Units Instead of Unicode Codepoints and Misrounds Negative Halves
+### BUG-15: `fn:substring` Uses UTF-16 Code Units Instead of Unicode Codepoints and Misrounds Negative Halves [COMPLETED]
+- **Status**: Completed
 - **Severity**: Critical
 - **Location**: `lib/src/xpath/functions/string.dart:152-182`
 - **Problem**:

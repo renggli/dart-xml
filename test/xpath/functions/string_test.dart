@@ -96,6 +96,18 @@ void main() {
           .isXPathSequence(['']);
     });
 
+    test('handles Unicode codepoints beyond BMP (surrogate pairs)', () {
+      check(fnSubstring(context, [seq('😀hello'), seq(1), seq(1)]))
+          .isXPathSequence(['😀']);
+      check(fnSubstring(context, [seq('😀hello'), seq(2), seq(2)]))
+          .isXPathSequence(['he']);
+    });
+
+    test('XPath rounding for negative halves', () {
+      check(fnSubstring(context, [seq('12345'), seq(-1.5), seq(3.5)]))
+          .isXPathSequence(['12']);
+    });
+
     test('integration via xpathEvaluate', () {
       final xml = XmlDocument.parse('<r/>');
       expectEvaluate(xml, 'substring("12345", 3)', isXPathSequence(['345']));
