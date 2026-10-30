@@ -104,12 +104,25 @@ class FollowingAxis implements Axis {
   const new();
 
   @override
-  Iterable<XmlNode> find(XmlNode node) => node.following.where(
-    (XmlNode each) =>
-        each.nodeType != XmlNodeType.ATTRIBUTE &&
-        isXPathNode(each) &&
-        (each.parent is! XmlDocument || each is! XmlText),
-  );
+  Iterable<XmlNode> find(XmlNode node) {
+    if (node is XmlNamespace) {
+      final parent = node.parent;
+      if (parent == null) return const [];
+      return [
+        ...parent.descendants.where(
+          (XmlNode each) =>
+              each.nodeType != XmlNodeType.ATTRIBUTE && isXPathNode(each),
+        ),
+        ...find(parent),
+      ];
+    }
+    return node.following.where(
+      (XmlNode each) =>
+          each.nodeType != XmlNodeType.ATTRIBUTE &&
+          isXPathNode(each) &&
+          (each.parent is! XmlDocument || each is! XmlText),
+    );
+  }
 }
 
 class FollowingSiblingAxis implements Axis {
@@ -155,6 +168,11 @@ class PrecedingAxis implements Axis, ReverseAxis {
 
   @override
   Iterable<XmlNode> find(XmlNode node) {
+    if (node is XmlAttribute || node is XmlNamespace) {
+      final parent = node.parent;
+      if (parent == null) return const [];
+      return find(parent);
+    }
     final ancestors = node.ancestors.toSet();
     return node.preceding.where(
       (XmlNode each) =>

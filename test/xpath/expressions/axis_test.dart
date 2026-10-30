@@ -167,6 +167,45 @@ void main() {
       expectXPath(ns, 'following-sibling::node()', const []);
       expectXPath(ns, 'preceding-sibling::node()', const []);
     });
+
+    test(
+      'preceding axis on attribute node returns preceding nodes of parent',
+      () {
+        final attr = current.attributes.first;
+        expectXPath(attr, 'preceding::*', [
+          '<a0/>',
+          '<a1><b1/></a1>',
+          '<b1/>',
+        ], axisDirection: AxisDirection.reverse);
+      },
+    );
+
+    test(
+      'preceding axis on namespace node returns preceding nodes of parent',
+      () {
+        final ns = current.xpath('namespace::*').first;
+        expectXPath(ns, 'preceding::*', [
+          '<a0/>',
+          '<a1><b1/></a1>',
+          '<b1/>',
+        ], axisDirection: AxisDirection.reverse);
+      },
+    );
+
+    test(
+      'following axis on namespace node returns children and following nodes',
+      () {
+        final ns = current.xpath('namespace::*').first;
+        expectXPath(ns, 'following::*', [
+          '<c1/>',
+          '<c2><d1></d1></c2>',
+          '<d1></d1>',
+          '<a3><b2/></a3>',
+          '<b2/>',
+          '<a4/>',
+        ], axisDirection: AxisDirection.forward);
+      },
+    );
   });
 
   group('namespace axis edge cases', () {
