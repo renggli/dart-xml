@@ -73,9 +73,6 @@ class XmlDeclaration extends XmlNode
   void accept(XmlVisitor visitor) => visitor.visitDeclaration(this);
 }
 
-/// Supported attribute node types.
-const Set<XmlNodeType> attributeNodeTypes = {XmlNodeType.ATTRIBUTE};
-
 /// Known attribute names.
 const versionAttribute = 'version';
 const encodingAttribute = 'encoding';

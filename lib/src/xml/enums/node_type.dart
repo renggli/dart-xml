@@ -41,3 +41,26 @@ enum XmlNodeType {
   /// The text contents of a node.
   TEXT,
 }
+
+/// Supported child node types for document and document fragment nodes.
+const Set<XmlNodeType> documentChildrenNodeTypes = {
+  XmlNodeType.CDATA,
+  XmlNodeType.COMMENT,
+  XmlNodeType.DECLARATION,
+  XmlNodeType.DOCUMENT_TYPE,
+  XmlNodeType.ELEMENT,
+  XmlNodeType.PROCESSING,
+  XmlNodeType.TEXT,
+};
+
+/// Supported child node types for element nodes.
+const Set<XmlNodeType> elementChildrenNodeTypes = {
+  XmlNodeType.CDATA,
+  XmlNodeType.COMMENT,
+  XmlNodeType.ELEMENT,
+  XmlNodeType.PROCESSING,
+  XmlNodeType.TEXT,
+};
+
+/// Supported attribute node types.
+const Set<XmlNodeType> attributeNodeTypes = {XmlNodeType.ATTRIBUTE};

@@ -414,11 +414,12 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: `XmlEventParser.qualifiedNameToken` (`lib/src/xml_events/parser.dart:266`) is never called by `XmlEventParser` (which uses `nameToken` instead). `XmlEventParser.nonColonizedNameToken` and `qualifiedNameToken` only exist in `XmlEventParser` because `lib/src/xpath/grammars/xpath.dart:1154` and `lib/src/xpath/xdm/atomic/qname.dart:44` instantiate `const XmlEventParser(XmlNullEntityMapping())` just to call `nonColonizedNameToken()` and `qualifiedNameToken()`.
 - **Fix**: Moved `qualifiedNameToken`, `nonColonizedNameToken`, `nonColonizedStartChar`, and `nonColonizedChar` into a dedicated `lib/src/xml/utils/name_parser.dart` lexical name parser utility, removing the `XmlEventParser` dependency from XPath.
 
-### ARCH-2: Duplicated `childrenNodeTypes` and `attributeNodeTypes` Constants Across DOM Node Files
+### ARCH-2: Duplicated `childrenNodeTypes` and `attributeNodeTypes` Constants Across DOM Node Files [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
 - **Location**: `lib/src/xml/nodes/declaration.dart:61`, `lib/src/xml/nodes/document.dart:150-155`, `lib/src/xml/nodes/document_fragment.dart:91-99`, `lib/src/xml/nodes/element.dart:152-162`
 - **Problem**: `childrenNodeTypes` and `attributeNodeTypes` (`Set<XmlNodeType>`) are redefined separately at the bottom of `declaration.dart`, `document.dart`, `document_fragment.dart`, and `element.dart` with overlapping definitions.
-- **Fix**: Consolidate the allowed child/attribute `Set<XmlNodeType>` constants in `lib/src/xml/enums/node_type.dart` or `lib/src/xml/mixins/has_children.dart` and `lib/src/xml/mixins/has_attributes.dart`.
+- **Fix**: Consolidated `documentChildrenNodeTypes`, `elementChildrenNodeTypes`, and `attributeNodeTypes` in `lib/src/xml/enums/node_type.dart` and eliminated redundant duplicate set literals across node implementations.
 
 ### ARCH-3: Oversized Monolithic XPath Files (`json.dart`, `xpath.dart`, `serialization.dart`, `regex.dart`, `numeric.dart`, `date_time.dart`)
 - **Severity**: Warning

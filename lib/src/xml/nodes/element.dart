@@ -27,7 +27,7 @@ class XmlElement extends XmlNode
   ]) {
     this.attributes.initialize(this, attributeNodeTypes);
     this.attributes.addAll(attributes);
-    this.children.initialize(this, childrenNodeTypes);
+    this.children.initialize(this, elementChildrenNodeTypes);
     this.children.addAll(children);
   }
 
@@ -66,15 +66,3 @@ class XmlElement extends XmlNode
   @override
   void accept(XmlVisitor visitor) => visitor.visitElement(this);
 }
-
-/// Supported child node types.
-const Set<XmlNodeType> childrenNodeTypes = {
-  XmlNodeType.CDATA,
-  XmlNodeType.COMMENT,
-  XmlNodeType.ELEMENT,
-  XmlNodeType.PROCESSING,
-  XmlNodeType.TEXT,
-};
-
-/// Supported attribute node types.
-const Set<XmlNodeType> attributeNodeTypes = {XmlNodeType.ATTRIBUTE};

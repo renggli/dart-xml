@@ -67,7 +67,7 @@ class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
 
   /// Creates a document node with [children].
   new([Iterable<XmlNode> children = const []]) {
-    this.children.initialize(this, childrenNodeTypes);
+    this.children.initialize(this, documentChildrenNodeTypes);
     this.children.addAll(children);
   }
 
@@ -168,14 +168,3 @@ class XmlDocument extends XmlNode with XmlHasChildren<XmlNode> {
   @override
   void accept(XmlVisitor visitor) => visitor.visitDocument(this);
 }
-
-/// Supported child node types.
-const Set<XmlNodeType> childrenNodeTypes = {
-  XmlNodeType.CDATA,
-  XmlNodeType.COMMENT,
-  XmlNodeType.DECLARATION,
-  XmlNodeType.DOCUMENT_TYPE,
-  XmlNodeType.ELEMENT,
-  XmlNodeType.PROCESSING,
-  XmlNodeType.TEXT,
-};
