@@ -277,17 +277,20 @@ void main() {
   });
   test('elementAttributes and isNamespaceDeclaration', () {
     final document = XmlDocument.parse(
-      '<data xmlns="default-uri" xmlns:p="prefix-uri" regular="value"/>',
+      '<data xmlns="default-uri" xmlns:p="prefix-uri" regular="value" p:xmlns="not-a-ns"/>',
     );
     final node = document.rootElement;
-    check(node.attributes).length.equals(3);
+    check(node.attributes).length.equals(4);
     check(node.attributes[0].isNamespaceDeclaration).isTrue();
     check(node.attributes[1].isNamespaceDeclaration).isTrue();
     check(node.attributes[2].isNamespaceDeclaration).isFalse();
+    check(node.attributes[3].isNamespaceDeclaration).isFalse();
 
     final elementAttrs = node.elementAttributes.toList();
-    check(elementAttrs).length.equals(1);
-    check(elementAttrs.first.name.qualified).equals('regular');
-    check(elementAttrs.first.value).equals('value');
+    check(elementAttrs).length.equals(2);
+    check(elementAttrs[0].name.qualified).equals('regular');
+    check(elementAttrs[0].value).equals('value');
+    check(elementAttrs[1].name.qualified).equals('p:xmlns');
+    check(elementAttrs[1].value).equals('not-a-ns');
   });
 }

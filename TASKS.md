@@ -22,7 +22,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: `XmlWriter.visitDocumentFragment` writes the literal string `'#document-fragment'` instead of serializing the fragment's child nodes. Calling `fragment.toXmlString()` outputs invalid XML (`#document-fragment`), and `XmlPrettyWriter` lacks a `visitDocumentFragment` override.
 - **Fix**: Replace `buffer.write('#document-fragment')` with `writeIterable(node.children)` in `XmlWriter.visitDocumentFragment`, and override `visitDocumentFragment` in `XmlPrettyWriter` to format `node.children` identically to `visitDocument`.
 
-### BUG-2: `XmlAttribute.isNamespaceDeclaration` Misclassifies Prefixed Attributes Named `xmlns`
+### BUG-2: `XmlAttribute.isNamespaceDeclaration` Misclassifies Prefixed Attributes Named `xmlns` [COMPLETED]
+- **Status**: Completed
 - **Severity**: Critical
 - **Location**: `lib/src/xml/nodes/attribute.dart:31-33`
 - **Problem**: `XmlAttribute.isNamespaceDeclaration` evaluates `name.prefix == xmlns || name.local == xmlns`. A prefixed attribute whose local name happens to be `xmlns` (e.g. `foo:xmlns="bar"`) has `name.local == 'xmlns'` and is falsely treated as an XML namespace declaration. Consequently, it is excluded from `elementAttributes` and XPath's `attribute::` axis. This also contradicts `XmlHasNamespaces` (`lib/src/xml/mixins/has_namespaces.dart:21-28`), which checks `attribute.name.prefix == ns.xmlns || (attribute.name.local == ns.xmlns && attribute.name.prefix == null)`.

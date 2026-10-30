@@ -29,7 +29,7 @@ class XmlAttribute extends XmlNode with XmlHasName, XmlHasParent<XmlNode> {
   /// Whether this attribute is a namespace declaration (`xmlns` or
   /// `xmlns:*`).
   bool get isNamespaceDeclaration =>
-      name.prefix == xmlns || name.local == xmlns;
+      name.prefix == xmlns || (name.prefix == null && name.local == xmlns);
 
   @override
   XmlNodeType get nodeType => XmlNodeType.ATTRIBUTE;
