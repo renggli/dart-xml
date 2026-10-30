@@ -23,7 +23,8 @@ export 'src/xml/extensions/comparison.dart'
 export 'src/xml/extensions/descendants.dart' show XmlDescendantsExtension;
 export 'src/xml/extensions/find.dart' show XmlFindExtension;
 export 'src/xml/extensions/following.dart' show XmlFollowingExtension;
-export 'src/xml/extensions/mutator.dart' show XmlMutatorExtension;
+export 'src/xml/extensions/mutator.dart'
+    show XmlElementMutatorExtension, XmlMutatorExtension;
 export 'src/xml/extensions/nodes.dart' show XmlNodesExtension;
 export 'src/xml/extensions/parent.dart' show XmlParentExtension;
 export 'src/xml/extensions/preceding.dart' show XmlPrecedingExtension;

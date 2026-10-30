@@ -368,11 +368,12 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: `XmlEventDecoder` only accepted `Stream<String>`. Parsing `Stream<List<int>>` failed to strip UTF-8/UTF-16 Byte Order Marks (BOM) or sniff `<?xml ... encoding="..."?>` declarations.
 - **Fix**: Added `XmlByteStreamDecoder`, `Stream<List<int>>.decodeXmlStream(...)`, and `Stream<List<int>>.toXmlEvents(...)` with BOM stripping and encoding detection, and stripped leading BOM from `XmlDocument.parse` and `XmlDocumentFragment.parse`.
 
-### FEAT-5: DOM Sibling & Structural Mutation Helpers (`before`, `after`, `wrap`, `unwrap`, `prepend`) (`DOM-1`)
+### FEAT-5: DOM Sibling & Structural Mutation Helpers (`before`, `after`, `wrap`, `unwrap`, `prepend`) (`DOM-1`) [COMPLETED]
+- **Status**: Completed
 - **Severity**: Feature
 - **Location**: `lib/src/xml/extensions/mutator.dart:8-60`
-- **Problem**: `XmlMutatorExtension` only provides `remove()` and `replace(XmlNode other)`. Inserting siblings or wrapping/unwrapping elements requires manual index arithmetic on `node.parent!.children`.
-- **Fix**: Add `before(XmlNode node)`, `after(XmlNode node)`, `wrap(XmlElement wrapper)`, `unwrap()` on `XmlNode` and `prepend(XmlNode node)` on `XmlElement` in `lib/src/xml/extensions/mutator.dart`.
+- **Problem**: `XmlMutatorExtension` only provided `remove()` and `replace(XmlNode other)`. Inserting siblings or wrapping/unwrapping elements required manual index arithmetic.
+- **Fix**: Added `before(XmlNode node)`, `after(XmlNode node)`, `wrap(XmlElement wrapper)`, and `unwrap()` on `XmlNode` and `prepend(XmlNode node)` on `XmlElement`.
 
 ### FEAT-6: Fast Document ID Lookup (`XmlDocument.getElementById`) (`DOM-2`)
 - **Severity**: Feature

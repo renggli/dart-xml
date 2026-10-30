@@ -875,6 +875,47 @@ void main() {
       '<element>before<child1/><child2/>after</element>',
     );
   });
+  group('before and after', () {
+    mutatingTest<XmlElement>(
+      'before',
+      '<element><child/></element>',
+      (node) => node.firstChild!.before(
+        XmlElement(const XmlName.qualified('sibling')),
+      ),
+      '<element><sibling/><child/></element>',
+    );
+    mutatingTest<XmlElement>(
+      'after',
+      '<element><child/></element>',
+      (node) => node.firstChild!.after(
+        XmlElement(const XmlName.qualified('sibling')),
+      ),
+      '<element><child/><sibling/></element>',
+    );
+  });
+  group('wrap and unwrap', () {
+    mutatingTest<XmlElement>(
+      'wrap',
+      '<element><child/></element>',
+      (node) =>
+          node.firstChild!.wrap(XmlElement(const XmlName.qualified('wrapper'))),
+      '<element><wrapper><child/></wrapper></element>',
+    );
+    mutatingTest<XmlElement>(
+      'unwrap',
+      '<element><wrapper><child1/><child2/></wrapper></element>',
+      (node) => node.firstChild!.unwrap(),
+      '<element><child1/><child2/></element>',
+    );
+  });
+  group('prepend', () {
+    mutatingTest<XmlElement>(
+      'prepend',
+      '<element><child2/></element>',
+      (node) => node.prepend(XmlElement(const XmlName.qualified('child1'))),
+      '<element><child1/><child2/></element>',
+    );
+  });
   group('replaceRange', () {
     mutatingTest<XmlElement>(
       'element (attributes)',
