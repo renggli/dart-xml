@@ -367,15 +367,16 @@ final fnInnermost = XPathFunctionItem.fn1(
       }
       list.add(item);
     }
+    final ancestorsOfNodes = <XmlNode>{};
+    for (final nodeItem in list) {
+      ancestorsOfNodes.addAll(nodeItem.node.ancestors);
+    }
+    final seen = <XmlNode>{};
     final result = <XPathNode>[];
     for (final nodeItem in list) {
       final node = nodeItem.node;
-      if (!list.any(
-        (other) =>
-            node != other.node &&
-            node.descendants.any((desc) => desc == other.node),
-      )) {
-        if (!result.any((existing) => existing.node == node)) {
+      if (!ancestorsOfNodes.contains(node)) {
+        if (seen.add(node)) {
           result.add(nodeItem);
         }
       }
@@ -398,15 +399,13 @@ final fnOutermost = XPathFunctionItem.fn1(
       }
       list.add(item);
     }
+    final nodeSet = <XmlNode>{for (final item in list) item.node};
+    final seen = <XmlNode>{};
     final result = <XPathNode>[];
     for (final nodeItem in list) {
       final node = nodeItem.node;
-      if (!list.any(
-        (other) =>
-            node != other.node &&
-            node.ancestors.any((anc) => anc == other.node),
-      )) {
-        if (!result.any((existing) => existing.node == node)) {
+      if (!node.ancestors.any(nodeSet.contains)) {
+        if (seen.add(node)) {
           result.add(nodeItem);
         }
       }

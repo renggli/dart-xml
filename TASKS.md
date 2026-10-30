@@ -233,7 +233,8 @@ This document catalogs actionable issues and feature tasks across `package:xml` 
 - **Problem**: `XPathContext.copy` always constructs a new `XPathContext` with `parentContext: this`, even when only `item`, `position`, or `last` changes (without new variable bindings). Long iterative evaluations (e.g. in `for` expressions, `some`/`every`, path steps, or large sequences) construct deep linked chains of `XPathContext` instances that make variable lookups traverse an $O(N)$ chain of ancestor contexts.
 - **Fix**: If `variables` is null or empty, reuse the current context's variable map (or flatten parent contexts) rather than creating a deeper `parentContext` chain.
 
-### PERF-6: `fn:innermost` and `fn:outermost` Perform $O(N^2 \cdot D)$ Ancestor Scans
+### PERF-6: `fn:innermost` and `fn:outermost` Perform $O(N^2 \cdot D)$ Ancestor Scans [COMPLETED]
+- **Status**: Completed
 - **Severity**: Warning
 - **Location**: `lib/src/xpath/functions/sequence.dart:564-585`
 - **Problem**: `fnInnermost` and `fnOutermost` evaluate `nodes.where((node) => !nodes.any((other) => other != node && other.descendants.contains(node)))`. For $N$ nodes each with $D$ descendants, this performs $O(N^2 \cdot D)$ identity comparisons and full subtree traversals.
