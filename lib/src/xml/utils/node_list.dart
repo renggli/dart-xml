@@ -51,6 +51,17 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> {
 
   @override
   void add(E value) {
+    // The common parser case is a freshly created leaf. It cannot contain
+    // this list's parent, and needs neither expansion nor detachment.
+    if (value is! XmlDocumentFragment &&
+        !value.hasParent &&
+        value.children.isEmpty &&
+        !identical(value, _parent)) {
+      XmlNodeTypeException.checkValidType(value, _nodeTypes);
+      _inner.add(value);
+      value.attachParent(_parent);
+      return;
+    }
     final operation = _XmlNodeListOperation<E>(this);
     operation.expand(value);
     operation.commitAppend();
@@ -215,6 +226,11 @@ class _XmlNodeListOperation<E extends XmlNode> {
     final targetParent = target._parent;
     for (final node in source) {
       XmlNodeTypeException.checkValidType(node, target._nodeTypes);
+      // If an inserted node has no children, it cannot be an ancestor of
+      // the target parent. Still reject adding the parent to itself.
+      if (node.children.isEmpty && !identical(node, targetParent)) {
+        continue;
+      }
       for (
         XmlNode? current = targetParent;
         current != null;
