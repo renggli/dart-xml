@@ -208,6 +208,15 @@ void main() {
     );
   });
 
+  test('following axis on namespace retains nested document order', () {
+    final doc = XmlDocument.parse(
+      '<root xmlns:p="urn:p"><a><b><c/></b></a><d/></root>',
+    );
+    final nodes = doc.rootElement.xpath('namespace::p/following::*');
+    check(nodes.map((node) => (node as XmlElement).name.local).toList())
+        .deepEquals(['a', 'b', 'c', 'd']);
+  });
+
   group('namespace axis edge cases', () {
     const nsXml = '''<root xmlns="http://default.com" xmlns:ns="http://ns.com">
   <child xmlns:c="http://child.com"/>
