@@ -76,10 +76,11 @@ class XmlByteStreamDecoder extends StreamTransformerBase<List<int>, String> {
         firstAfterName != 0x0D) {
       return true;
     }
-    for (var i = 6; i < bytes.length - 1; i++) {
-      if (bytes[i] == 0x3F && bytes[i + 1] == 0x3E) return true;
-    }
-    return false;
+    // This is called after *each* appended byte: checking only the tail
+    // avoids a quadratic rescan of a long XML declaration.
+    return bytes.length >= 8 &&
+        bytes[bytes.length - 2] == 0x3F &&
+        bytes.last == 0x3E;
   }
 
   @override
