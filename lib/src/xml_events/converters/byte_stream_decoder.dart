@@ -45,6 +45,42 @@ class XmlByteStreamDecoder extends StreamTransformerBase<List<int>, String> {
   /// Fallback encoding when no BOM or declaration encoding is found.
   final Encoding? defaultEncoding;
 
+  // A declaration can span multiple byte chunks. Bound the amount buffered
+  // before falling back to the default encoding.
+  static const _maxPrologBytes = 4096;
+  static final _encodingPattern = RegExp(
+    r'''<\?xml[^>]+encoding\s*=\s*["']([^"']+)["']''',
+    caseSensitive: false,
+  );
+
+  static bool _readyToDecode(List<int> bytes) {
+    if (bytes.length < 4) return false;
+    if (bytes.length >= _maxPrologBytes) return true;
+
+    // An XML declaration is the only reason to delay decoding. Wait for its
+    // closing ?> even when it is divided into single-byte stream chunks.
+    if (bytes[0] != 0x3C ||
+        bytes[1] != 0x3F ||
+        bytes[2] != 0x78 ||
+        bytes[3] != 0x6D) {
+      return true;
+    }
+    if (bytes.length < 5) return false;
+    if (bytes[4] != 0x6C) return true;
+    if (bytes.length < 6) return false;
+    final firstAfterName = bytes[5];
+    if (firstAfterName != 0x20 &&
+        firstAfterName != 0x09 &&
+        firstAfterName != 0x0A &&
+        firstAfterName != 0x0D) {
+      return true;
+    }
+    for (var i = 6; i < bytes.length - 1; i++) {
+      if (bytes[i] == 0x3F && bytes[i + 1] == 0x3E) return true;
+    }
+    return false;
+  }
+
   @override
   Stream<String> bind(Stream<List<int>> stream) {
     late StreamSubscription<List<int>> subscription;
@@ -83,6 +119,16 @@ class XmlByteStreamDecoder extends StreamTransformerBase<List<int>, String> {
       }
     }
 
+    void processBytes(List<int> bytes, [int offset = 0]) {
+      if (offset >= bytes.length) return;
+      final data = offset == 0 ? bytes : bytes.sublist(offset);
+      if (isUtf16Be || isUtf16Le) {
+        processUtf16(data);
+      } else {
+        standardSink!.add(data);
+      }
+    }
+
     void initializeDecoder(List<int> bytes) {
       var sliceOffset = 0;
       if (bytes.length >= 3 &&
@@ -102,16 +148,27 @@ class XmlByteStreamDecoder extends StreamTransformerBase<List<int>, String> {
         // UTF-16 LE BOM
         sliceOffset = 2;
         isUtf16Le = true;
+      } else if (bytes.length >= 4 &&
+          bytes[0] == 0x00 &&
+          bytes[1] == 0x3C &&
+          bytes[2] == 0x00 &&
+          bytes[3] == 0x3F) {
+        // UTF-16 BE XML declaration without a BOM.
+        isUtf16Be = true;
+      } else if (bytes.length >= 4 &&
+          bytes[0] == 0x3C &&
+          bytes[1] == 0x00 &&
+          bytes[2] == 0x3F &&
+          bytes[3] == 0x00) {
+        // UTF-16 LE XML declaration without a BOM.
+        isUtf16Le = true;
       } else {
-        // Sniff <?xml ... encoding="..."?>
+        // The ASCII XML prolog may be longer than one byte-stream chunk.
         final header = ascii.decode(
-          bytes.take(128).where((b) => b > 0 && b < 128).toList(),
+          bytes.take(_maxPrologBytes).toList(),
           allowInvalid: true,
         );
-        final encodingMatch = RegExp(
-          r'''<\?xml[^>]+encoding\s*=\s*["']([^"']+)["']''',
-          caseSensitive: false,
-        ).firstMatch(header);
+        final encodingMatch = _encodingPattern.firstMatch(header);
         final encodingName = encodingMatch?.group(1)?.toLowerCase();
         if (encodingName == 'iso-8859-1' || encodingName == 'latin1') {
           standardSink = latin1.decoder.startChunkedConversion(
@@ -134,36 +191,36 @@ class XmlByteStreamDecoder extends StreamTransformerBase<List<int>, String> {
       }
 
       initialized = true;
-      final remaining = bytes.sublist(sliceOffset);
-      if (remaining.isNotEmpty) {
-        if (isUtf16Be || isUtf16Le) {
-          processUtf16(remaining);
-        } else {
-          standardSink!.add(remaining);
-        }
-      }
+      processBytes(bytes, sliceOffset);
     }
 
     controller.onListen = () {
       subscription = stream.listen(
         (data) {
-          if (!initialized) {
-            initialBuffer.addAll(data);
-            if (initialBuffer.length >= 4) {
+          if (initialized) {
+            processBytes(data);
+            return;
+          }
+          // Copy only as many bytes as are needed to recognize the prolog,
+          // not the entire first chunk (which may be several megabytes).
+          var index = 0;
+          while (!initialized && index < data.length) {
+            initialBuffer.add(data[index++]);
+            if (_readyToDecode(initialBuffer)) {
               initializeDecoder(initialBuffer);
             }
-          } else {
-            if (isUtf16Be || isUtf16Le) {
-              processUtf16(data);
-            } else {
-              standardSink!.add(data);
-            }
           }
+          if (initialized) processBytes(data, index);
         },
         onError: controller.addError,
         onDone: () {
           if (!initialized) {
             initializeDecoder(initialBuffer);
+          }
+          if (pendingByte != null) {
+            controller.addError(
+              const FormatException('Incomplete UTF-16 code unit'),
+            );
           }
           if (standardSink != null) {
             standardSink!.close();
