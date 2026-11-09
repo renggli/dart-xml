@@ -358,6 +358,13 @@ void main() {
       check(text.parent).identicalTo(root);
     });
 
+    test('appending an empty list leaves the tree unchanged', () {
+      final root = XmlElement(const XmlName.qualified('root'));
+      root.children.addAll(const <XmlNode>[]);
+      check(root.children).isEmpty();
+      check(root.parent).isNull();
+    });
+
     test('invalid detached leaf is rejected without mutation', () {
       final root = XmlElement(const XmlName.qualified('root'));
       final attribute = XmlAttribute(const XmlName.qualified('id'), '1');
