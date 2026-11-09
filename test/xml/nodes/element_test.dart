@@ -95,6 +95,25 @@ void main() {
     check(document.toXmlString())
         .equals('<?xml version="1.0"?><root>Hello World</root>');
   });
+  test('exact name lookups retain qualified and namespace matching', () {
+    final doc = XmlDocument.parse(
+      '<root xmlns:a="urn:a" xmlns:b="urn:b" a:id="A" b:id="B">'
+      '<a:item/><b:item/></root>',
+    );
+    final root = doc.rootElement;
+    check(root.getAttribute('a:id')).equals('A');
+    check(root.getAttribute('b:id')).equals('B');
+    check(root.getAttribute('id')).isNull();
+    check(root.getAttribute('id', namespaceUri: 'urn:b')).equals('B');
+    check(root.getAttribute('*')).equals('urn:a');
+    check(root.getElement('a:item')?.name.qualified).equals('a:item');
+    check(root.getElement('b:item')?.name.qualified).equals('b:item');
+    check(root.getElement('item')).isNull();
+    check(root.getElement('item', namespaceUri: 'urn:a')?.name.qualified)
+        .equals('a:item');
+    check(root.getElement('*')?.name.qualified).equals('a:item');
+  });
+
   test('nested', () {
     final document = XmlDocument.parse('<outer><inner/></outer>');
     final outer = document.rootElement;
