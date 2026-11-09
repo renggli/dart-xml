@@ -246,6 +246,31 @@ void main() {
           '</root>',
         );
       });
+      test('preserve non-XML Unicode spaces while pretty printing', () {
+        const input =
+            '<root>\\u00A0שלום\\u00A0עולם\\u2003שלום\\u00A0</root>';
+        final document = XmlDocument.parse(input);
+        check(document.toXmlString(pretty: true)).equals(input);
+      });
+      test('normalize XML whitespace without modifying Unicode spaces', () {
+        const input = '<root>  שלום\\u00A0   עולם\\u2003  </root>';
+        final document = XmlDocument.parse(input);
+        check(document.toXmlString(pretty: true))
+            .equals('<root>שלום\\u00A0 עולם\\u2003</root>');
+      });
+      test('format element-only trees without text normalization', () {
+        final document = XmlDocument.parse(
+          '<root><first/><second><third/></second></root>',
+        );
+        check(document.toXmlString(pretty: true)).equals(
+          '<root>\\n'
+          '  <first/>\\n'
+          '  <second>\\n'
+          '    <third/>\\n'
+          '  </second>\\n'
+          '</root>',
+        );
+      });
       test('normalize text', () {
         final input = XmlDocument([
           XmlElement.tag(
