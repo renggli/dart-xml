@@ -33,8 +33,16 @@ class XmlDescendantsIterator implements Iterator<XmlNode> {
   late XmlNode _current;
 
   void push(XmlNode node) {
-    _todo.addAll(node.children.reversed);
-    _todo.addAll(node.attributes.reversed);
+    // Push in reverse order so the LIFO stack still walks document order,
+    // without allocating reversed-iterable wrappers for every node.
+    final children = node.children;
+    for (var i = children.length - 1; i >= 0; i--) {
+      _todo.add(children[i]);
+    }
+    final attributes = node.attributes;
+    for (var i = attributes.length - 1; i >= 0; i--) {
+      _todo.add(attributes[i]);
+    }
   }
 
   @override
