@@ -17,6 +17,29 @@ void main() {
       '<description/>'
       '</book>';
   final book = XmlDocument.parse(bookXml);
+  test('deep traversal order includes attributes before children', () {
+    final doc = XmlDocument.parse(
+      '<root><a id="a"><a1/><a2/></a><b id="b"><b1/></b><c/></root>',
+    );
+    final root = doc.rootElement;
+    final all = root.descendants.toList();
+    check(all.map((node) => node.toXmlString()).toList()).deepEquals([
+      '<a id="a"><a1/><a2/></a>',
+      'id="a"',
+      '<a1/>',
+      '<a2/>',
+      '<b id="b"><b1/></b>',
+      'id="b"',
+      '<b1/>',
+      '<c/>',
+    ]);
+    final b = root.childElements.elementAt(1);
+    final beforeB = b.preceding.toList();
+    check(beforeB.last.toXmlString()).equals('<a2/>');
+    check(root.firstElementChild!.followingElements.map(
+      (element) => element.name.local,
+    ).toList()).deepEquals(['b', 'b1', 'c']);
+  });
   test('ancestors', () {
     check(book.ancestors).isEmpty();
     check(book.children[0].ancestors).deepEquals([book]);
