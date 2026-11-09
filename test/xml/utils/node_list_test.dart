@@ -346,6 +346,53 @@ void main() {
     });
   });
 
+
+  group('fresh leaf insertion', () {
+    test('appends detached elements and text with correct parents', () {
+      final root = XmlElement(const XmlName.qualified('root'));
+      final element = XmlElement(const XmlName.qualified('child'));
+      final text = XmlText('hello');
+      root.children.add(element);
+      root.children.add(text);
+      check(root.children).deepEquals([element, text]);
+      check(element.parent).identicalTo(root);
+      check(text.parent).identicalTo(root);
+    });
+
+    test('invalid detached leaf is rejected without mutation', () {
+      final root = XmlElement(const XmlName.qualified('root'));
+      final attribute = XmlAttribute(const XmlName.qualified('id'), '1');
+      check(() => root.children.add(attribute)).throws<XmlNodeTypeException>();
+      check(root.children).isEmpty();
+      check(attribute.parent).isNull();
+    });
+
+    test('empty element cannot be appended to itself', () {
+      final element = XmlElement(const XmlName.qualified('root'));
+      check(() => element.children.add(element)).throws<XmlParentException>();
+      check(element.children).isEmpty();
+    });
+
+    test('detached ancestor cannot be appended to a descendant', () {
+      final root = XmlElement(const XmlName.qualified('root'));
+      final child = XmlElement(const XmlName.qualified('child'));
+      root.children.add(child);
+      check(root.parent).isNull();
+      check(() => child.children.add(root)).throws<XmlParentException>();
+      check(root.children).deepEquals([child]);
+      check(child.parent).identicalTo(root);
+    });
+
+    test('parses deeply nested elements without changing tree structure', () {
+      final opening = List.filled(300, '<n>').join();
+      final closing = List.filled(300, '</n>').join();
+      final document = XmlDocument.parse('<root>${opening}<leaf/>${closing}</root>');
+      check(document.rootElement.descendantElements.length).equals(301);
+      check(document.rootElement.descendantElements.last.name.local)
+          .equals('leaf');
+    });
+  });
+
   group('atomicity', () {
     test('addAll rolls back on type error, no nodes moved', () {
       final doc = XmlDocument.parse('<root><a/></root>');
