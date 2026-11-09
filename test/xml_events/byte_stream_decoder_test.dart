@@ -57,7 +57,6 @@ void main() {
       check(decoded).equals(xml);
     });
 
-
     test('latin-1 declaration split across one-byte chunks', () async {
       const xml = '<?xml version="1.0" encoding="ISO-8859-1"?><root>©</root>';
       final bytes = Stream.fromIterable(latin1.encode(xml).map((b) => [b]));
@@ -113,7 +112,8 @@ void main() {
     });
 
     test('large Uint8List chunk with an XML declaration', () async {
-      final xml = '<?xml version="1.0"?><root>${'שלום' * 10000}</root>';
+      final xml =
+          '<?xml version="1.0"?><root>${'שלום' * 10000}</root>';
       final bytes = Uint8List.fromList(utf8.encode(xml));
       final decoded = await Stream.value(bytes).decodeXmlStream().join();
       check(decoded).equals(xml);
@@ -122,9 +122,7 @@ void main() {
     test('truncated utf-16 code unit raises FormatException', () async {
       var failed = false;
       try {
-        await Stream.value([0xFF, 0xFE, 0x3C])
-            .decodeXmlStream()
-            .join();
+        await Stream.value([0xFF, 0xFE, 0x3C]).decodeXmlStream().join();
       } on FormatException {
         failed = true;
       }
