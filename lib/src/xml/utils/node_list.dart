@@ -69,6 +69,9 @@ class XmlNodeList<E extends XmlNode> extends DelegatingList<E> {
 
   @override
   void addAll(Iterable<E> iterable) {
+    // XmlElement constructors frequently pass the default empty lists.
+    // There is no need to create and validate a transaction in that case.
+    if (iterable is List<E> && iterable.isEmpty) return;
     final operation = _XmlNodeListOperation<E>(this);
     operation.expandAll(iterable);
     operation.commitAppend();
