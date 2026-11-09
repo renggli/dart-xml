@@ -346,7 +346,6 @@ void main() {
     });
   });
 
-
   group('fresh leaf insertion', () {
     test('appends detached elements and text with correct parents', () {
       final root = XmlElement(const XmlName.qualified('root'));
@@ -386,7 +385,9 @@ void main() {
     test('parses deeply nested elements without changing tree structure', () {
       final opening = List.filled(300, '<n>').join();
       final closing = List.filled(300, '</n>').join();
-      final document = XmlDocument.parse('<root>${opening}<leaf/>${closing}</root>');
+      final document = XmlDocument.parse(
+        '<root>${opening}<leaf/>${closing}</root>',
+      );
       check(document.rootElement.descendantElements.length).equals(301);
       check(document.rootElement.descendantElements.last.name.local)
           .equals('leaf');
