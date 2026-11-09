@@ -247,8 +247,7 @@ void main() {
         );
       });
       test('preserve non-XML Unicode spaces while pretty printing', () {
-        const input =
-            '<root>\u00A0שלום\u00A0עולם\u2003שלום\u00A0</root>';
+        const input = '<root>\u00A0שלום\u00A0עולם\u2003שלום\u00A0</root>';
         final document = XmlDocument.parse(input);
         check(document.toXmlString(pretty: true)).equals(input);
       });
