@@ -36,9 +36,11 @@ void main() {
     final b = root.childElements.elementAt(1);
     final beforeB = b.preceding.toList();
     check(beforeB.last.toXmlString()).equals('<a2/>');
-    check(root.firstElementChild!.followingElements.map(
-      (element) => element.name.local,
-    ).toList()).deepEquals(['b', 'b1', 'c']);
+    check(
+      root.firstElementChild!.followingElements
+          .map((element) => element.name.local)
+          .toList(),
+    ).deepEquals(['b', 'b1', 'c']);
   });
   test('ancestors', () {
     check(book.ancestors).isEmpty();
