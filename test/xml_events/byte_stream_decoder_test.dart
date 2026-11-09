@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:checks/checks.dart';
 import 'package:test/scaffolding.dart';
@@ -94,6 +95,28 @@ void main() {
         ).decodeXmlStream().join();
         check(decoded).equals(xml);
       }
+    });
+
+    test('utf-16 root without a BOM or XML declaration', () async {
+      const xml = '<root>שלום</root>';
+      for (final littleEndian in [true, false]) {
+        final bytes = <int>[];
+        for (final unit in xml.codeUnits) {
+          bytes.add(littleEndian ? unit & 0xFF : unit >> 8);
+          bytes.add(littleEndian ? unit >> 8 : unit & 0xFF);
+        }
+        final decoded = await Stream.fromIterable(
+          bytes.map((byte) => [byte]),
+        ).decodeXmlStream().join();
+        check(decoded).equals(xml);
+      }
+    });
+
+    test('large Uint8List chunk with an XML declaration', () async {
+      final xml = '<?xml version="1.0"?><root>${'שלום' * 10000}</root>';
+      final bytes = Uint8List.fromList(utf8.encode(xml));
+      final decoded = await Stream.value(bytes).decodeXmlStream().join();
+      check(decoded).equals(xml);
     });
 
     test('truncated utf-16 code unit raises FormatException', () async {
