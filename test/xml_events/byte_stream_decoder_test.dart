@@ -56,6 +56,58 @@ void main() {
       check(decoded).equals(xml);
     });
 
+
+    test('latin-1 declaration split across one-byte chunks', () async {
+      const xml = '<?xml version="1.0" encoding="ISO-8859-1"?><root>©</root>';
+      final bytes = Stream.fromIterable(latin1.encode(xml).map((b) => [b]));
+      final decoded = await bytes.decodeXmlStream().join();
+      check(decoded).equals(xml);
+    });
+
+    test('latin-1 encoding declaration beyond 128 bytes', () async {
+      final xml =
+          '<?xml version="1.0" ${' ' * 200}encoding="ISO-8859-1"?><root>©</root>';
+      final bytes = Stream.fromIterable(latin1.encode(xml).map((b) => [b]));
+      final decoded = await bytes.decodeXmlStream().join();
+      check(decoded).equals(xml);
+    });
+
+    test('large initial chunk with Latin-1 declaration', () async {
+      final xml =
+          '<?xml version="1.0" encoding="ISO-8859-1"?><root>${'©' * 10000}</root>';
+      final decoded = await Stream.value(
+        latin1.encode(xml),
+      ).decodeXmlStream().join();
+      check(decoded).equals(xml);
+    });
+
+    test('utf-16 byte order detected without a BOM', () async {
+      const xml = '<?xml version="1.0"?><root>hello</root>';
+      for (final littleEndian in [true, false]) {
+        final bytes = <int>[];
+        for (final unit in xml.codeUnits) {
+          bytes.add(littleEndian ? unit & 0xFF : unit >> 8);
+          bytes.add(littleEndian ? unit >> 8 : unit & 0xFF);
+        }
+        final decoded = await Stream.fromIterable(
+          bytes.map((byte) => [byte]),
+        ).decodeXmlStream().join();
+        check(decoded).equals(xml);
+      }
+    });
+
+    test('truncated utf-16 code unit raises FormatException', () async {
+      var failed = false;
+      try {
+        await Stream.value([0xFF, 0xFE, 0x3C])
+            .decodeXmlStream()
+            .join();
+      } on FormatException {
+        failed = true;
+      }
+      check(failed).isTrue();
+    });
+
     test('ascii with encoding declaration', () async {
       const xml = '<?xml version="1.0" encoding="us-ascii"?><root>test</root>';
       final bytes = Stream.value(ascii.encode(xml));
