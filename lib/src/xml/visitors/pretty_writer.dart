@@ -162,9 +162,16 @@ class XmlPrettyWriter extends XmlWriter {
         buffer.clear();
         // Dart's String.trim and RegExp \\s also consume NBSP and other
         // Unicode spacing characters that XML does not define as whitespace.
-        final text = raw
-            .replaceAll(_xmlWhitespace, ' ')
-            .replaceAll(_edgeSpaces, '');
+        final collapsed = raw.replaceAll(_xmlWhitespace, ' ');
+        final start = collapsed.startsWith(' ') ? 1 : 0;
+        final end = collapsed.endsWith(' ')
+            ? collapsed.length - 1
+            : collapsed.length;
+        final text = start == 0 && end == collapsed.length
+            ? collapsed
+            : start >= end
+            ? ''
+            : collapsed.substring(start, end);
         if (text.isNotEmpty) {
           normalized.add(XmlText(text));
         }
@@ -176,5 +183,4 @@ class XmlPrettyWriter extends XmlWriter {
   }
 }
 
-final _xmlWhitespace = RegExp(r'[ \\t\\r\\n]+');
-final _edgeSpaces = RegExp(r'^ | );
+final _xmlWhitespace = RegExp(r'[ \t\r\n]+');
