@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import '../../xml/entities/entity_mapping.dart';
 import '../converters/event_decoder.dart';
@@ -121,7 +122,16 @@ class XmlByteStreamDecoder extends StreamTransformerBase<List<int>, String> {
 
     void processBytes(List<int> bytes, [int offset = 0]) {
       if (offset >= bytes.length) return;
-      final data = offset == 0 ? bytes : bytes.sublist(offset);
+      List<int> data = bytes;
+      if (offset != 0) {
+        // A large Uint8List first chunk should not be copied just to skip
+        // the XML declaration.
+        if (bytes is Uint8List) {
+          data = Uint8List.sublistView(bytes, offset);
+        } else {
+          data = bytes.sublist(offset);
+        }
+      }
       if (isUtf16Be || isUtf16Le) {
         processUtf16(data);
       } else {
@@ -150,17 +160,14 @@ class XmlByteStreamDecoder extends StreamTransformerBase<List<int>, String> {
         isUtf16Le = true;
       } else if (bytes.length >= 4 &&
           bytes[0] == 0x00 &&
-          bytes[1] == 0x3C &&
-          bytes[2] == 0x00 &&
-          bytes[3] == 0x3F) {
-        // UTF-16 BE XML declaration without a BOM.
+          bytes[1] == 0x3C) {
+        // UTF-16 BE starts with '<' even without an XML declaration.
         isUtf16Be = true;
       } else if (bytes.length >= 4 &&
           bytes[0] == 0x3C &&
           bytes[1] == 0x00 &&
-          bytes[2] == 0x3F &&
-          bytes[3] == 0x00) {
-        // UTF-16 LE XML declaration without a BOM.
+          (bytes[2] != 0x00 || bytes[3] != 0x00)) {
+        // UTF-16 LE starts with '<'. Exclude the UTF-32 LE signature.
         isUtf16Le = true;
       } else {
         // The ASCII XML prolog may be longer than one byte-stream chunk.
