@@ -108,13 +108,14 @@ class FollowingAxis implements Axis {
     if (node is XmlNamespace) {
       final parent = node.parent;
       if (parent == null) return const [];
-      return [
-        ...parent.descendants.where(
-          (XmlNode each) =>
-              each.nodeType != XmlNodeType.ATTRIBUTE && isXPathNode(each),
-        ),
-        ...find(parent),
-      ];
+      // Keep the axis lazy. Materializing both sequences eagerly can retain
+      // thousands of nodes when a namespace node is used as context.
+      return parent.descendants
+          .where(
+            (XmlNode each) =>
+                each.nodeType != XmlNodeType.ATTRIBUTE && isXPathNode(each),
+          )
+          .followedBy(find(parent));
     }
     return node.following.where(
       (XmlNode each) =>

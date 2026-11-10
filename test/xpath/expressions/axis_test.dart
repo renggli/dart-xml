@@ -208,6 +208,42 @@ void main() {
     );
   });
 
+  test('following axis on namespace retains nested document order', () {
+    final doc = XmlDocument.parse(
+      '<root xmlns:p="urn:p"><a><b><c/></b></a><d/></root>',
+    );
+    final nodes = doc.rootElement.xpath('namespace::p/following::*');
+    check(nodes.map((node) => (node as XmlElement).name.local).toList())
+        .deepEquals(['a', 'b', 'c', 'd']);
+  });
+
+  test(
+    'namespace followers cross ancestor boundaries and filter attributes',
+    () {
+      final doc = XmlDocument.parse(
+        '<root xmlns:p="urn:p"><before/><branch><context a="1">'
+        'text<!--inside--><child b="2"/></context><sibling/>'
+        '</branch><after c="3"><last/></after></root>',
+      );
+      final context = doc.findAllElements('context').single;
+      final namespace = context.xpath('namespace::p').single;
+      expectXPath(namespace, 'following::node()', [
+        'text',
+        '<!--inside-->',
+        '<child b="2"/>',
+        '<sibling/>',
+        '<after c="3"><last/></after>',
+        '<last/>',
+      ], axisDirection: AxisDirection.forward);
+      expectXPath(namespace, 'following::*[1]', ['<child b="2"/>']);
+      expectXPath(namespace, 'following::*[last()]', ['<last/>']);
+      final followers = namespace.xpath('following::*');
+      check(followers.toList()).deepEquals(followers.toList());
+      check(context.toXmlString())
+          .equals('<context a="1">text<!--inside--><child b="2"/></context>');
+    },
+  );
+
   group('namespace axis edge cases', () {
     const nsXml = '''<root xmlns="http://default.com" xmlns:ns="http://ns.com">
   <child xmlns:c="http://child.com"/>
