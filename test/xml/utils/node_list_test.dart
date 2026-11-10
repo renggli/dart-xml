@@ -393,7 +393,7 @@ void main() {
       final opening = List.filled(300, '<n>').join();
       final closing = List.filled(300, '</n>').join();
       final document = XmlDocument.parse(
-        '<root>${opening}<leaf/>${closing}</root>',
+        '<root>$opening<leaf/>$closing</root>',
       );
       check(document.rootElement.descendantElements.length).equals(301);
       check(document.rootElement.descendantElements.last.name.local)
