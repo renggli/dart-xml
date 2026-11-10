@@ -5,6 +5,20 @@ import 'package:xml/xml.dart';
 import '../../utils/assertions.dart';
 
 void main() {
+  test('exact lookups respect overridden qualified names', () {
+    final attribute = _NamedAttribute();
+    final child = _NamedElement();
+    final root = XmlElement.tag(
+      'root',
+      attributes: [attribute],
+      children: [child],
+    );
+    check(root.getAttributeNode('alias')).identicalTo(attribute);
+    check(root.getElement('alias')).identicalTo(child);
+    check(root.getAttributeNode('actual')).isNull();
+    check(root.getElement('actual')).isNull();
+  });
+
   test('basic', () {
     final document = XmlDocument.parse(
       '<ns:data key="value">Am I or are the other crazy?</ns:data>',
@@ -348,4 +362,18 @@ void main() {
     check(node.getAttribute('other')).equals('3');
     check(node.toString()).equals('<data xmlns:ns="uri" other="3"/>');
   });
+}
+
+class _NamedAttribute extends XmlAttribute {
+  new() : super(const XmlName('actual'), 'value');
+
+  @override
+  String get qualifiedName => 'alias';
+}
+
+class _NamedElement extends XmlElement {
+  new() : super(const XmlName('actual'));
+
+  @override
+  String get qualifiedName => 'alias';
 }

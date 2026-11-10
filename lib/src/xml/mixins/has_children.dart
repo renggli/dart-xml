@@ -62,14 +62,11 @@ mixin XmlHasChildren<T extends XmlNode> implements XmlChildrenBase {
     // Exact qualified names are the common case in OOXML/ODF conversions.
     if (effectiveNamespaceUri == null && name != '*') {
       for (final node in children) {
-        if (node is XmlElement && node.name.qualified == name) return node;
+        if (node is XmlElement && node.qualifiedName == name) return node;
       }
       return null;
     }
-    final tester = createNameMatcher(
-      name,
-      namespaceUri: effectiveNamespaceUri,
-    );
+    final tester = createNameMatcher(name, namespaceUri: effectiveNamespaceUri);
     for (final node in children) {
       if (node is XmlElement && tester(node)) {
         return node;

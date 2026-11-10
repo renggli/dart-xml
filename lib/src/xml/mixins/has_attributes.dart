@@ -125,14 +125,11 @@ mixin XmlHasAttributes implements XmlAttributesBase, XmlNode {
     // Compare it directly instead of allocating a predicate closure.
     if (effectiveNamespaceUri == null && name != '*') {
       for (final attribute in attributes) {
-        if (attribute.name.qualified == name) return attribute;
+        if (attribute.qualifiedName == name) return attribute;
       }
       return null;
     }
-    final tester = createNameMatcher(
-      name,
-      namespaceUri: effectiveNamespaceUri,
-    );
+    final tester = createNameMatcher(name, namespaceUri: effectiveNamespaceUri);
     for (final attribute in attributes) {
       if (tester(attribute)) {
         return attribute;
