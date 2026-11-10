@@ -1140,7 +1140,7 @@ XPathType _resolveAtomicType(String name) {
 
 NameTest _eqNameToNodeTest(String name) {
   if (name.startsWith('Q{')) {
-    final (uri, _, local) = parseEQNameParts(name);
+    final (:prefix, :local, :uri) = parseEQNameParts(name);
     return NamespaceUriAndLocalNameTest(uri?.trim() ?? '', local.trim());
   }
   return QualifiedNameTest(name);

@@ -77,19 +77,24 @@ void main() {
     });
 
     test('splitQualifiedName', () {
-      check(splitQualifiedName('foo')).equals((null, 'foo'));
-      check(splitQualifiedName('prefix:local')).equals(('prefix', 'local'));
-      check(splitQualifiedName(':local')).equals((null, ':local'));
+      check(splitQualifiedName('foo')).equals((prefix: null, local: 'foo'));
+      check(splitQualifiedName('prefix:local'))
+          .equals((prefix: 'prefix', local: 'local'));
+      check(splitQualifiedName(':local'))
+          .equals((prefix: null, local: ':local'));
     });
 
     test('parseEQNameParts', () {
-      check(parseEQNameParts('foo')).equals((null, null, 'foo'));
-      check(parseEQNameParts('p:foo')).equals((null, 'p', 'foo'));
+      check(parseEQNameParts('foo'))
+          .equals((prefix: null, local: 'foo', uri: null));
+      check(parseEQNameParts('p:foo'))
+          .equals((prefix: 'p', local: 'foo', uri: null));
       check(parseEQNameParts('Q{http://example.com}foo'))
-          .equals(('http://example.com', null, 'foo'));
+          .equals((prefix: null, local: 'foo', uri: 'http://example.com'));
       check(parseEQNameParts('Q{http://example.com}p:foo'))
-          .equals(('http://example.com', 'p', 'foo'));
-      check(parseEQNameParts('Q{}foo')).equals((null, null, 'foo'));
+          .equals((prefix: 'p', local: 'foo', uri: 'http://example.com'));
+      check(parseEQNameParts('Q{}foo'))
+          .equals((prefix: null, local: 'foo', uri: null));
       check(() => parseEQNameParts('Q{unclosed')).throws<Exception>();
     });
   });

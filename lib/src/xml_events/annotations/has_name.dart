@@ -10,26 +10,21 @@ mixin XmlHasName {
   /// The fully qualified name (alias for [name]).
   String get qualifiedName => name;
 
-  String? _cachedPrefix;
-  String? _cachedLocal;
-
   /// The namespace prefix, or `null`.
   String? get namespacePrefix {
-    if (_cachedLocal == null) _splitName();
-    return _cachedPrefix;
+    if (_localName == null) _splitName();
+    return _namespacePrefix;
   }
+
+  String? _namespacePrefix;
 
   /// The local name, excluding the namespace prefix.
   String get localName {
-    if (_cachedLocal == null) _splitName();
-    return _cachedLocal!;
+    if (_localName == null) _splitName();
+    return _localName!;
   }
 
-  void _splitName() {
-    final (prefix, local) = splitQualifiedName(name);
-    _cachedPrefix = prefix;
-    _cachedLocal = local;
-  }
+  String? _localName;
 
   /// Hold an optional reference to the namespace URI.
   String? _namespaceUri;
@@ -42,5 +37,11 @@ mixin XmlHasName {
   void attachNamespace(String namespaceUri) {
     assert(_namespaceUri == null, 'Namespace is already initialized.');
     _namespaceUri = namespaceUri;
+  }
+
+  void _splitName() {
+    final (:prefix, :local) = splitQualifiedName(name);
+    _namespacePrefix = prefix;
+    _localName = local;
   }
 }

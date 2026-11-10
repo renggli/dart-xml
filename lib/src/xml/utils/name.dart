@@ -32,7 +32,7 @@ class XmlName with XmlHasVisitor, XmlHasWriter {
 
   /// Creates an [XmlName] by splitting the [qualified] name into prefix and local.
   factory fromQualified(String qualified, {String? namespaceUri}) {
-    final (prefix, local) = splitQualifiedName(qualified);
+    final (:prefix, :local) = splitQualifiedName(qualified);
     return XmlName.qualified(
       qualified,
       namespaceUri: namespaceUri,
@@ -55,9 +55,9 @@ class XmlName with XmlHasVisitor, XmlHasWriter {
     String? namespaceUri,
     Map<String, String>? namespaceUris,
   }) {
-    final (parsedUri, prefix, local) = parseEQNameParts(name);
+    final (:prefix, :local, :uri) = parseEQNameParts(name);
     final effectiveUri =
-        parsedUri ??
+        uri ??
         (prefix != null && namespaceUris != null
             ? namespaceUris[prefix]
             : null) ??

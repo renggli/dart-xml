@@ -117,7 +117,7 @@ XPathSequence _fnQName(
     );
   }
 
-  final (prefix, local) = splitQualifiedName(paramQName);
+  final (:prefix, :local) = splitQualifiedName(paramQName);
 
   if (prefix != null) {
     if (paramURI == null || paramURI.isEmpty) {

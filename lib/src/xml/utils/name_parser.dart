@@ -42,21 +42,21 @@ bool isValidQName(String s) {
 }
 
 /// Splits [qualified] into `(prefix, local)` where `prefix` is `null` if no colon is present.
-(String? prefix, String local) splitQualifiedName(String qualified) {
+({String? prefix, String local}) splitQualifiedName(String qualified) {
   final colonIndex = qualified.indexOf(XmlToken.namespace);
   if (colonIndex > 0) {
     return (
-      qualified.substring(0, colonIndex),
-      qualified.substring(colonIndex + 1),
+      prefix: qualified.substring(0, colonIndex),
+      local: qualified.substring(colonIndex + 1),
     );
   }
-  return (null, qualified);
+  return (prefix: null, local: qualified);
 }
 
 /// Parses an EQName (`Q{uri}local` or `prefix:local` or `local`).
 ///
 /// Returns `(uri, prefix, local)` where `uri` or `prefix` may be `null`.
-(String? uri, String? prefix, String local) parseEQNameParts(String eqName) {
+({String? prefix, String local, String? uri}) parseEQNameParts(String eqName) {
   String? uri;
   var name = eqName;
   if (name.startsWith(XmlToken.openQualifiedUrl)) {
@@ -68,6 +68,6 @@ bool isValidQName(String s) {
     }
     name = name.substring(end + XmlToken.closeQualifiedUrl.length);
   }
-  final (prefix, local) = splitQualifiedName(name);
-  return (uri, prefix, local);
+  final (:prefix, :local) = splitQualifiedName(name);
+  return (prefix: prefix, local: local, uri: uri);
 }
