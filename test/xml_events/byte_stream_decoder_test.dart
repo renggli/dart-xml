@@ -75,9 +75,9 @@ void main() {
     test('large initial chunk with Latin-1 declaration', () async {
       final xml =
           '<?xml version="1.0" encoding="ISO-8859-1"?><root>${'©' * 10000}</root>';
-      final decoded = await Stream.value(
-        latin1.encode(xml),
-      ).decodeXmlStream().join();
+      final decoded = await Stream.value(latin1.encode(xml))
+          .decodeXmlStream()
+          .join();
       check(decoded).equals(xml);
     });
 
@@ -89,9 +89,9 @@ void main() {
           bytes.add(littleEndian ? unit & 0xFF : unit >> 8);
           bytes.add(littleEndian ? unit >> 8 : unit & 0xFF);
         }
-        final decoded = await Stream.fromIterable(
-          bytes.map((byte) => [byte]),
-        ).decodeXmlStream().join();
+        final decoded = await Stream.fromIterable(bytes.map((byte) => [byte]))
+            .decodeXmlStream()
+            .join();
         check(decoded).equals(xml);
       }
     });
@@ -104,16 +104,15 @@ void main() {
           bytes.add(littleEndian ? unit & 0xFF : unit >> 8);
           bytes.add(littleEndian ? unit >> 8 : unit & 0xFF);
         }
-        final decoded = await Stream.fromIterable(
-          bytes.map((byte) => [byte]),
-        ).decodeXmlStream().join();
+        final decoded = await Stream.fromIterable(bytes.map((byte) => [byte]))
+            .decodeXmlStream()
+            .join();
         check(decoded).equals(xml);
       }
     });
 
     test('large Uint8List chunk with an XML declaration', () async {
-      final xml =
-          '<?xml version="1.0"?><root>${'שלום' * 10000}</root>';
+      final xml = '<?xml version="1.0"?><root>${'שלום' * 10000}</root>';
       final bytes = Uint8List.fromList(utf8.encode(xml));
       final decoded = await Stream.value(bytes).decodeXmlStream().join();
       check(decoded).equals(xml);
@@ -127,6 +126,47 @@ void main() {
         failed = true;
       }
       check(failed).isTrue();
+    });
+
+    test('declaration decoding is independent of chunk boundaries', () async {
+      const xml = '<?xml version="1.0" encoding="ISO-8859-1"?><root>é</root>';
+      final encoded = latin1.encode(xml);
+      for (var split = 0; split <= encoded.length; split++) {
+        final decoded = await Stream.fromIterable([
+          encoded.sublist(0, split),
+          <int>[],
+          encoded.sublist(split),
+        ]).decodeXmlStream().join();
+        check(decoded).equals(xml);
+      }
+    });
+
+    test('xml-prefixed processing instruction preserves UTF-8', () async {
+      const xml = '<?xml-stylesheet href="style.xsl"?><root>שלום</root>';
+      final decoded = await Stream.fromIterable(
+        utf8.encode(xml).map((byte) => [byte]),
+      ).decodeXmlStream().join();
+      check(decoded).equals(xml);
+    });
+
+    test('UTF-16 supplementary text survives every split', () async {
+      const xml = '<root>😀שלום</root>';
+      for (final littleEndian in [true, false]) {
+        final encoded = <int>[
+          if (littleEndian) ...[0xFF, 0xFE] else ...[0xFE, 0xFF],
+        ];
+        for (final unit in xml.codeUnits) {
+          encoded.add(littleEndian ? unit & 0xFF : unit >> 8);
+          encoded.add(littleEndian ? unit >> 8 : unit & 0xFF);
+        }
+        for (var split = 0; split <= encoded.length; split++) {
+          final decoded = await Stream.fromIterable([
+            encoded.sublist(0, split),
+            encoded.sublist(split),
+          ]).decodeXmlStream().join();
+          check(decoded).equals(xml);
+        }
+      }
     });
 
     test('ascii with encoding declaration', () async {

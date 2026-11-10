@@ -123,7 +123,7 @@ class XmlByteStreamDecoder extends StreamTransformerBase<List<int>, String> {
 
     void processBytes(List<int> bytes, [int offset = 0]) {
       if (offset >= bytes.length) return;
-      List<int> data = bytes;
+      var data = bytes;
       if (offset != 0) {
         // A large Uint8List first chunk should not be copied just to skip
         // the XML declaration.
@@ -159,9 +159,7 @@ class XmlByteStreamDecoder extends StreamTransformerBase<List<int>, String> {
         // UTF-16 LE BOM
         sliceOffset = 2;
         isUtf16Le = true;
-      } else if (bytes.length >= 4 &&
-          bytes[0] == 0x00 &&
-          bytes[1] == 0x3C) {
+      } else if (bytes.length >= 4 && bytes[0] == 0x00 && bytes[1] == 0x3C) {
         // UTF-16 BE starts with '<' even without an XML declaration.
         isUtf16Be = true;
       } else if (bytes.length >= 4 &&
