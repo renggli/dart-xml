@@ -145,27 +145,45 @@ class XmlPrettyWriter extends XmlWriter {
   // duplicated whitespaces, drops empty nodes, and combines consecutive nodes.
   @protected
   List<XmlNode> normalizeText(List<XmlNode> nodes) {
-    final result = <XmlNode>[];
-    final textBuffer = StringBuffer();
+    // XML without text nodes is already normalized. Avoid allocating a
+    // replacement list and StringBuffer for element-only documents.
+    List<XmlNode>? result;
+    StringBuffer? textBuffer;
     for (var i = 0; i < nodes.length; i++) {
       final node = nodes[i];
       if (node is XmlText) {
-        textBuffer.write(node.value);
+        final normalized = result ??= nodes.sublist(0, i);
+        final buffer = textBuffer ??= StringBuffer();
+        buffer.write(node.value);
         if (i + 1 < nodes.length && nodes[i + 1] is XmlText) {
           continue;
         }
-        final raw = textBuffer.toString();
-        textBuffer.clear();
-        final text = raw.trim().replaceAll(_whitespaceOrLineTerminators, ' ');
+        final raw = buffer.toString();
+        buffer.clear();
+        // Unlike generic Unicode whitespace matching, XML only permits
+        // ASCII space, tab, carriage return and line feed as whitespace.
+        final collapsed = raw.replaceAll(_xmlWhitespace, ' ');
+        final start = collapsed.startsWith(' ') ? 1 : 0;
+        final end = collapsed.endsWith(' ')
+            ? collapsed.length - 1
+            : collapsed.length;
+        String text;
+        if (start == 0 && end == collapsed.length) {
+          text = collapsed;
+        } else if (start >= end) {
+          text = '';
+        } else {
+          text = collapsed.substring(start, end);
+        }
         if (text.isNotEmpty) {
-          result.add(XmlText(text));
+          normalized.add(XmlText(text));
         }
       } else {
-        result.add(node);
+        result?.add(node);
       }
     }
-    return result;
+    return result ?? nodes;
   }
 }
 
-final _whitespaceOrLineTerminators = RegExp(r'\s+');
+final _xmlWhitespace = RegExp(r'[ \t\r\n]+');
