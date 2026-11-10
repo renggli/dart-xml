@@ -270,6 +270,50 @@ void main() {
           '</root>',
         );
       });
+      test(
+        'preserve Unicode spaces across adjacent text and mixed content',
+        () {
+          final root = XmlElement.tag(
+            'root',
+            children: [
+              XmlElement.tag('first'),
+              XmlText(' \t\u00A0'),
+              XmlText('\u2003\r\n '),
+              XmlElement.tag('second'),
+              XmlText(' \t\r\n '),
+            ],
+          );
+          final original = root.toXmlString();
+          check(
+            root.toXmlString(pretty: true),
+          ).equals('<root>\n  <first/>\n  \u00A0\u2003\n  <second/>\n</root>');
+          check(root.toXmlString()).equals(original);
+        },
+      );
+      test('retain all non-XML Unicode whitespace', () {
+        const spaces =
+            '\u0085\u00A0\u1680\u2000\u2001\u2002\u2003\u2004'
+            '\u2005\u2006\u2007\u2008\u2009\u200A\u2028\u2029'
+            '\u202F\u205F\u3000\uFEFF';
+        final root = XmlElement.tag(
+          'root',
+          children: [XmlText(' \t\r\n$spaces \t\r\n')],
+        );
+        check(root.toXmlString(pretty: true)).equals('<root>$spaces</root>');
+      });
+      test('Unicode whitespace respects inherited xml:space and default', () {
+        const input =
+            '<root xml:space="preserve">'
+            '<raw> \t\u00A0\u2003 \n</raw>'
+            '<normal xml:space="default"> \t\u00A0\u2003 \n</normal>'
+            '</root>';
+        check(XmlDocument.parse(input).toXmlString(pretty: true)).equals(
+          '<root xml:space="preserve">'
+          '<raw> \t\u00A0\u2003 \n</raw>'
+          '<normal xml:space="default">\u00A0\u2003</normal>'
+          '</root>',
+        );
+      });
       test('normalize text', () {
         final input = XmlDocument([
           XmlElement.tag(
