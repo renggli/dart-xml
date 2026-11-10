@@ -12,8 +12,8 @@ import 'package:xml/xml.dart';
 /// The resulting duration is the average time measured to run [function] once.
 double benchmark(
   void Function() function, {
-  Duration warmup = const Duration(milliseconds: 200),
-  Duration measure = const Duration(seconds: 2),
+  Duration warmup = const Duration(milliseconds: 50),
+  Duration measure = const Duration(milliseconds: 250),
 }) {
   _benchmark(function, warmup);
   return _benchmark(function, measure);

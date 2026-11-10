@@ -101,7 +101,7 @@ void main(List<String> args) {
         );
         final copy = benchmark(document.copy);
         final builder = benchmark(() {
-          final builder = XmlBuilder();
+          final builder = XmlBuilder(autoDeclareNamespaces: true);
           for (final node in document.children) {
             buildRecursive(builder, node);
           }
