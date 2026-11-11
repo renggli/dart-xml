@@ -11,34 +11,31 @@ import '../xdm/item.dart';
 import '../xdm/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-boolean
-const fnBoolean = XPathFunctionItem.fn1(
-  XmlName.qualified('fn:boolean'),
-  _fnBoolean,
-);
+final fnBoolean = XPathFunctionItem.fn1(XmlName('fn:boolean'), _fnBoolean);
 
 XPathSequence _fnBoolean(XPathContext context, XPathSequence arg) =>
     XPathSequence.single(XPathBoolean.from(arg.ebv));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-not
-const fnNot = XPathFunctionItem.fn1(XmlName.qualified('fn:not'), _fnNot);
+final fnNot = XPathFunctionItem.fn1(XmlName('fn:not'), _fnNot);
 
 XPathSequence _fnNot(XPathContext context, XPathSequence arg) =>
     XPathSequence.single(XPathBoolean.from(!arg.ebv));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-true
-const fnTrue = XPathFunctionItem.fn0(XmlName.qualified('fn:true'), _fnTrue);
+final fnTrue = XPathFunctionItem.fn0(XmlName('fn:true'), _fnTrue);
 
 XPathSequence _fnTrue(XPathContext context) => XPathSequence.trueSequence;
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-false
-const fnFalse = XPathFunctionItem.fn0(XmlName.qualified('fn:false'), _fnFalse);
+final fnFalse = XPathFunctionItem.fn0(XmlName('fn:false'), _fnFalse);
 
 XPathSequence _fnFalse(XPathContext context) => XPathSequence.falseSequence;
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-lang
-const fnLang = XPathFunctionItem.overloaded(XmlName.qualified('fn:lang'), {
-  1: XPathFunctionItem.fn1(XmlName.qualified('fn:lang'), _fnLang1),
-  2: XPathFunctionItem.fn2(XmlName.qualified('fn:lang'), _fnLang2),
+final fnLang = XPathFunctionItem.overloaded(XmlName('fn:lang'), {
+  1: XPathFunctionItem.fn1(XmlName('fn:lang'), _fnLang1),
+  2: XPathFunctionItem.fn2(XmlName('fn:lang'), _fnLang2),
 });
 
 XPathSequence _fnLang1(XPathContext context, XPathSequence testlang) =>

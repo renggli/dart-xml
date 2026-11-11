@@ -5,8 +5,8 @@ import '../xdm/function_item.dart';
 import '../xdm/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-base64Binary-from-string
-const fnBase64BinaryFromString = XPathFunctionItem.fn1(
-  XmlName.qualified('xs:base64Binary'),
+final fnBase64BinaryFromString = XPathFunctionItem.fn1(
+  XmlName('xs:base64Binary'),
   _fnBase64BinaryFromString,
 );
 
@@ -20,8 +20,8 @@ XPathSequence _fnBase64BinaryFromString(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hexBinary-from-string
-const fnHexBinaryFromString = XPathFunctionItem.fn1(
-  XmlName.qualified('xs:hexBinary'),
+final fnHexBinaryFromString = XPathFunctionItem.fn1(
+  XmlName('xs:hexBinary'),
   _fnHexBinaryFromString,
 );
 

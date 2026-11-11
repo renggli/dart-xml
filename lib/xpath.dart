@@ -52,8 +52,8 @@ extension XPathExtension on XmlNode {
   }) => xpathEvaluate(
     expression,
     configuration: configuration,
-    variables: variables,
-    functions: functions,
+    variables: variables, // ignore: deprecated_member_use_from_same_package
+    functions: functions, // ignore: deprecated_member_use_from_same_package
   ).whereType<XPathNode>().map((item) => item.node);
 
   /// Evaluates the given XPath [expression] and returns the resulting sequence.

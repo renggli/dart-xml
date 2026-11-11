@@ -122,7 +122,7 @@ void main() {
     );
     check(staticContext.getFunction(name1)).equals(fun1);
     check(staticContext.getFunction(name2)).equals(fun2);
-    check(() => staticContext.getFunction(const XmlName.qualified('other')))
+    check(() => staticContext.getFunction(XmlName('other')))
         .throws<XPathEvaluationException>()
         .which(isXPathEvaluationException(message: 'Unknown function: other'));
     check(() => standard.getFunctionByString('round', 5))

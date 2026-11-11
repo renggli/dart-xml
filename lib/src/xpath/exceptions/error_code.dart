@@ -412,7 +412,7 @@ class XPathErrorCode {
   /// The qualified name of the error code in its error namespace.
   XPathQName get qname => XPathQName(
     namespaceUri == standardNamespaceUri
-        ? XmlName.qualified('err:$name', namespaceUri: namespaceUri)
+        ? XmlName('err:$name', namespaceUri: namespaceUri)
         : XmlName.parts(name, namespaceUri: namespaceUri),
   );
 

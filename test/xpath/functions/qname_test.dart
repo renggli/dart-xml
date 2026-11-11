@@ -113,7 +113,7 @@ void main() {
       final result = fnQName(context, [seq(''), seq('local')]);
       final qname = result.single as XPathQName;
       check(qname.value.namespaceUri).equals('');
-      check(qname == const XPathQName(XmlName.qualified('local'))).isTrue();
+      check(qname == XPathQName(XmlName('local'))).isTrue();
     });
 
     test('throws FOCA0002 for invalid lexical QName', () {
@@ -232,7 +232,7 @@ void main() {
 
   group('fn:prefix-from-QName', () {
     test('returns prefix', () {
-      const qname = XmlName.qualified('p:local');
+      final qname = XmlName('p:local');
       check(fnPrefixFromQName(context, [seq(qname)])).isXPathSequence(['p']);
     });
 
@@ -244,7 +244,7 @@ void main() {
 
   group('fn:local-name-from-qname', () {
     test('returns local name', () {
-      const qname = XmlName.qualified('p:local');
+      final qname = XmlName('p:local');
       check(fnLocalNameFromQName(context, [seq(qname)]))
           .isXPathSequence(['local']);
     });
@@ -257,7 +257,7 @@ void main() {
 
   group('fn:namespace-uri-from-QName', () {
     test('returns empty if no namespace', () {
-      const qname = XmlName.qualified('p:local');
+      final qname = XmlName('p:local');
       check(fnNamespaceUriFromQName(context, [seq(qname)]))
           .isXPathSequence(isEmpty);
     });

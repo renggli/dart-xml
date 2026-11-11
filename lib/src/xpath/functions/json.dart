@@ -73,13 +73,10 @@ XPathNode? _expectOptionalNode(XPathSequence seq, String funcName) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-parse-json
-const fnParseJson = XPathFunctionItem.overloaded(
-  XmlName.qualified('fn:parse-json'),
-  {
-    1: XPathFunctionItem.fn1(XmlName.qualified('fn:parse-json'), _fnParseJson1),
-    2: XPathFunctionItem.fn2(XmlName.qualified('fn:parse-json'), _fnParseJson2),
-  },
-);
+final fnParseJson = XPathFunctionItem.overloaded(XmlName('fn:parse-json'), {
+  1: XPathFunctionItem.fn1(XmlName('fn:parse-json'), _fnParseJson1),
+  2: XPathFunctionItem.fn2(XmlName('fn:parse-json'), _fnParseJson2),
+});
 
 XPathSequence _fnParseJson1(XPathContext context, XPathSequence jsonTextSeq) =>
     _evalParseJson(
@@ -115,13 +112,10 @@ XPathSequence _evalParseJson(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-json-doc
-const fnJsonDoc = XPathFunctionItem.overloaded(
-  XmlName.qualified('fn:json-doc'),
-  {
-    1: XPathFunctionItem.fn1(XmlName.qualified('fn:json-doc'), _fnJsonDoc1),
-    2: XPathFunctionItem.fn2(XmlName.qualified('fn:json-doc'), _fnJsonDoc2),
-  },
-);
+final fnJsonDoc = XPathFunctionItem.overloaded(XmlName('fn:json-doc'), {
+  1: XPathFunctionItem.fn1(XmlName('fn:json-doc'), _fnJsonDoc1),
+  2: XPathFunctionItem.fn2(XmlName('fn:json-doc'), _fnJsonDoc2),
+});
 
 XPathSequence _fnJsonDoc1(XPathContext context, XPathSequence hrefSeq) =>
     _evalJsonDoc(context, _expectOptionalString(hrefSeq, 'fn:json-doc'), null);
@@ -153,19 +147,10 @@ XPathSequence _evalJsonDoc(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-json-to-xml
-const fnJsonToXml = XPathFunctionItem.overloaded(
-  XmlName.qualified('fn:json-to-xml'),
-  {
-    1: XPathFunctionItem.fn1(
-      XmlName.qualified('fn:json-to-xml'),
-      _fnJsonToXml1,
-    ),
-    2: XPathFunctionItem.fn2(
-      XmlName.qualified('fn:json-to-xml'),
-      _fnJsonToXml2,
-    ),
-  },
-);
+final fnJsonToXml = XPathFunctionItem.overloaded(XmlName('fn:json-to-xml'), {
+  1: XPathFunctionItem.fn1(XmlName('fn:json-to-xml'), _fnJsonToXml1),
+  2: XPathFunctionItem.fn2(XmlName('fn:json-to-xml'), _fnJsonToXml2),
+});
 
 XPathSequence _fnJsonToXml1(XPathContext context, XPathSequence jsonTextSeq) =>
     _evalJsonToXml(
@@ -203,19 +188,10 @@ XPathSequence _evalJsonToXml(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-xml-to-json
-const fnXmlToJson = XPathFunctionItem.overloaded(
-  XmlName.qualified('fn:xml-to-json'),
-  {
-    1: XPathFunctionItem.fn1(
-      XmlName.qualified('fn:xml-to-json'),
-      _fnXmlToJson1,
-    ),
-    2: XPathFunctionItem.fn2(
-      XmlName.qualified('fn:xml-to-json'),
-      _fnXmlToJson2,
-    ),
-  },
-);
+final fnXmlToJson = XPathFunctionItem.overloaded(XmlName('fn:xml-to-json'), {
+  1: XPathFunctionItem.fn1(XmlName('fn:xml-to-json'), _fnXmlToJson1),
+  2: XPathFunctionItem.fn2(XmlName('fn:xml-to-json'), _fnXmlToJson2),
+});
 
 XPathSequence _fnXmlToJson1(XPathContext context, XPathSequence inputSeq) =>
     _evalXmlToJson(

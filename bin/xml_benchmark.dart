@@ -44,11 +44,11 @@ void buildRecursive(XmlBuilder builder, XmlNode node) {
       },
     );
   } else if (node is XmlText) {
-    builder.text(node.text);
+    builder.text(node.value);
   } else if (node is XmlCDATA) {
-    builder.cdata(node.text);
+    builder.cdata(node.value);
   } else if (node is XmlComment) {
-    builder.comment(node.text);
+    builder.comment(node.value);
   } else if (node is XmlProcessing) {
     builder.processing(node.target, node.value);
   } else if (node is XmlDoctype) {

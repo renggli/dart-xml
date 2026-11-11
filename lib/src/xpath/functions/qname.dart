@@ -13,8 +13,8 @@ import '../xdm/sequence.dart';
 import '../xdm/types.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-resolve-QName
-const fnResolveQName = XPathFunctionItem.fn2(
-  XmlName.qualified('fn:resolve-QName'),
+final fnResolveQName = XPathFunctionItem.fn2(
+  XmlName('fn:resolve-QName'),
   _fnResolveQName,
 );
 
@@ -54,10 +54,10 @@ XPathSequence _fnResolveQName(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-QName
-const fnQName = XPathFunctionItem.fn2(
-  XmlName.qualified('fn:QName'),
+final fnQName = XPathFunctionItem.fn2(
+  XmlName('fn:QName'),
   _fnQName,
-  parameterTypes: [
+  parameterTypes: const [
     XPathSequenceType(
       itemType: xsString,
       cardinality: XPathCardinality.zeroOrOne,
@@ -67,7 +67,7 @@ const fnQName = XPathFunctionItem.fn2(
       cardinality: XPathCardinality.exactlyOne,
     ),
   ],
-  returnType: XPathSequenceType(
+  returnType: const XPathSequenceType(
     itemType: xsQName,
     cardinality: XPathCardinality.exactlyOne,
   ),
@@ -162,15 +162,15 @@ XPathSequence _fnQName(
 
   final effectiveUri = paramURI;
   final xmlName = prefix != null
-      ? XmlName.qualified('$prefix:$local', namespaceUri: effectiveUri)
+      ? XmlName('$prefix:$local', namespaceUri: effectiveUri)
       : XmlName.parts(local, namespaceUri: effectiveUri);
 
   return XPathSequence.single(XPathQName(xmlName));
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-prefix-from-QName
-const fnPrefixFromQName = XPathFunctionItem.fn1(
-  XmlName.qualified('fn:prefix-from-QName'),
+final fnPrefixFromQName = XPathFunctionItem.fn1(
+  XmlName('fn:prefix-from-QName'),
   _fnPrefixFromQName,
 );
 
@@ -183,8 +183,8 @@ XPathSequence _fnPrefixFromQName(XPathContext context, XPathSequence argSeq) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-local-name-from-QName
-const fnLocalNameFromQName = XPathFunctionItem.fn1(
-  XmlName.qualified('fn:local-name-from-QName'),
+final fnLocalNameFromQName = XPathFunctionItem.fn1(
+  XmlName('fn:local-name-from-QName'),
   _fnLocalNameFromQName,
 );
 
@@ -198,8 +198,8 @@ XPathSequence _fnLocalNameFromQName(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-namespace-uri-from-QName
-const fnNamespaceUriFromQName = XPathFunctionItem.fn1(
-  XmlName.qualified('fn:namespace-uri-from-QName'),
+final fnNamespaceUriFromQName = XPathFunctionItem.fn1(
+  XmlName('fn:namespace-uri-from-QName'),
   _fnNamespaceUriFromQName,
 );
 
@@ -214,8 +214,8 @@ XPathSequence _fnNamespaceUriFromQName(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-namespace-uri-for-prefix
-const fnNamespaceUriForPrefix = XPathFunctionItem.fn2(
-  XmlName.qualified('fn:namespace-uri-for-prefix'),
+final fnNamespaceUriForPrefix = XPathFunctionItem.fn2(
+  XmlName('fn:namespace-uri-for-prefix'),
   _fnNamespaceUriForPrefix,
 );
 
@@ -242,8 +242,8 @@ XPathSequence _fnNamespaceUriForPrefix(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-in-scope-prefixes
-const fnInScopePrefixes = XPathFunctionItem.fn1(
-  XmlName.qualified('fn:in-scope-prefixes'),
+final fnInScopePrefixes = XPathFunctionItem.fn1(
+  XmlName('fn:in-scope-prefixes'),
   _fnInScopePrefixes,
 );
 

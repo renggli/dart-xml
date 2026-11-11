@@ -10,19 +10,10 @@ import '../xdm/item.dart';
 import '../xdm/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-resolve-uri
-const fnResolveUri = XPathFunctionItem.overloaded(
-  XmlName.qualified('fn:resolve-uri'),
-  {
-    1: XPathFunctionItem.fn1(
-      XmlName.qualified('fn:resolve-uri'),
-      _fnResolveUri1,
-    ),
-    2: XPathFunctionItem.fn2(
-      XmlName.qualified('fn:resolve-uri'),
-      _fnResolveUri2,
-    ),
-  },
-);
+final fnResolveUri = XPathFunctionItem.overloaded(XmlName('fn:resolve-uri'), {
+  1: XPathFunctionItem.fn1(XmlName('fn:resolve-uri'), _fnResolveUri1),
+  2: XPathFunctionItem.fn2(XmlName('fn:resolve-uri'), _fnResolveUri2),
+});
 
 String? _coerceString(XPathSequence seq) {
   final item = seq.atomize().firstOrNull;
@@ -124,7 +115,7 @@ bool _isValidUriReference(String s) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-doc
-const fnDoc = XPathFunctionItem.fn1(XmlName.qualified('fn:doc'), _fnDoc);
+final fnDoc = XPathFunctionItem.fn1(XmlName('fn:doc'), _fnDoc);
 
 XPathSequence _fnDoc(XPathContext context, XPathSequence uriSeq) {
   final uri = _coerceString(uriSeq);
@@ -144,8 +135,8 @@ XPathSequence _fnDoc(XPathContext context, XPathSequence uriSeq) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-doc-available
-const fnDocAvailable = XPathFunctionItem.fn1(
-  XmlName.qualified('fn:doc-available'),
+final fnDocAvailable = XPathFunctionItem.fn1(
+  XmlName('fn:doc-available'),
   _fnDocAvailable,
 );
 
@@ -157,19 +148,10 @@ XPathSequence _fnDocAvailable(XPathContext context, XPathSequence uriSeq) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-collection
-const fnCollection = XPathFunctionItem.overloaded(
-  XmlName.qualified('fn:collection'),
-  {
-    0: XPathFunctionItem.fn0(
-      XmlName.qualified('fn:collection'),
-      _fnCollection0,
-    ),
-    1: XPathFunctionItem.fn1(
-      XmlName.qualified('fn:collection'),
-      _fnCollection1,
-    ),
-  },
-);
+final fnCollection = XPathFunctionItem.overloaded(XmlName('fn:collection'), {
+  0: XPathFunctionItem.fn0(XmlName('fn:collection'), _fnCollection0),
+  1: XPathFunctionItem.fn1(XmlName('fn:collection'), _fnCollection1),
+});
 
 XPathSequence _fnCollection0(XPathContext context) {
   final nodes = context.configuration.collections[''];
@@ -208,17 +190,11 @@ XPathSequence _fnCollection1(XPathContext context, XPathSequence uriSeq) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-uri-collection
-const fnUriCollection = XPathFunctionItem.overloaded(
-  XmlName.qualified('fn:uri-collection'),
+final fnUriCollection = XPathFunctionItem.overloaded(
+  XmlName('fn:uri-collection'),
   {
-    0: XPathFunctionItem.fn0(
-      XmlName.qualified('fn:uri-collection'),
-      _fnUriCollection0,
-    ),
-    1: XPathFunctionItem.fn1(
-      XmlName.qualified('fn:uri-collection'),
-      _fnUriCollection1,
-    ),
+    0: XPathFunctionItem.fn0(XmlName('fn:uri-collection'), _fnUriCollection0),
+    1: XPathFunctionItem.fn1(XmlName('fn:uri-collection'), _fnUriCollection1),
   },
 );
 
@@ -278,17 +254,11 @@ XPathSequence _fnUriCollection1(XPathContext context, XPathSequence uriSeq) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-unparsed-text
-const fnUnparsedText = XPathFunctionItem.overloaded(
-  XmlName.qualified('fn:unparsed-text'),
+final fnUnparsedText = XPathFunctionItem.overloaded(
+  XmlName('fn:unparsed-text'),
   {
-    1: XPathFunctionItem.fn1(
-      XmlName.qualified('fn:unparsed-text'),
-      _fnUnparsedText1,
-    ),
-    2: XPathFunctionItem.fn2(
-      XmlName.qualified('fn:unparsed-text'),
-      _fnUnparsedText2,
-    ),
+    1: XPathFunctionItem.fn1(XmlName('fn:unparsed-text'), _fnUnparsedText1),
+    2: XPathFunctionItem.fn2(XmlName('fn:unparsed-text'), _fnUnparsedText2),
   },
 );
 
@@ -429,15 +399,15 @@ void _validateXmlCharacters(String text) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-unparsed-text-lines
-const fnUnparsedTextLines = XPathFunctionItem.overloaded(
-  XmlName.qualified('fn:unparsed-text-lines'),
+final fnUnparsedTextLines = XPathFunctionItem.overloaded(
+  XmlName('fn:unparsed-text-lines'),
   {
     1: XPathFunctionItem.fn1(
-      XmlName.qualified('fn:unparsed-text-lines'),
+      XmlName('fn:unparsed-text-lines'),
       _fnUnparsedTextLines1,
     ),
     2: XPathFunctionItem.fn2(
-      XmlName.qualified('fn:unparsed-text-lines'),
+      XmlName('fn:unparsed-text-lines'),
       _fnUnparsedTextLines2,
     ),
   },
@@ -477,15 +447,15 @@ XPathSequence _evalUnparsedTextLines(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-unparsed-text-available
-const fnUnparsedTextAvailable = XPathFunctionItem.overloaded(
-  XmlName.qualified('fn:unparsed-text-available'),
+final fnUnparsedTextAvailable = XPathFunctionItem.overloaded(
+  XmlName('fn:unparsed-text-available'),
   {
     1: XPathFunctionItem.fn1(
-      XmlName.qualified('fn:unparsed-text-available'),
+      XmlName('fn:unparsed-text-available'),
       _fnUnparsedTextAvailable1,
     ),
     2: XPathFunctionItem.fn2(
-      XmlName.qualified('fn:unparsed-text-available'),
+      XmlName('fn:unparsed-text-available'),
       _fnUnparsedTextAvailable2,
     ),
   },
@@ -521,8 +491,8 @@ XPathSequence _evalUnparsedTextAvailable(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-environment-variable
-const fnEnvironmentVariable = XPathFunctionItem.fn1(
-  XmlName.qualified('fn:environment-variable'),
+final fnEnvironmentVariable = XPathFunctionItem.fn1(
+  XmlName('fn:environment-variable'),
   _fnEnvironmentVariable,
 );
 
@@ -538,8 +508,8 @@ XPathSequence _fnEnvironmentVariable(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-available-environment-variables
-const fnAvailableEnvironmentVariables = XPathFunctionItem.fn0(
-  XmlName.qualified('fn:available-environment-variables'),
+final fnAvailableEnvironmentVariables = XPathFunctionItem.fn0(
+  XmlName('fn:available-environment-variables'),
   _fnAvailableEnvironmentVariables,
 );
 
@@ -547,8 +517,8 @@ XPathSequence _fnAvailableEnvironmentVariables(XPathContext context) =>
     XPathSequence(context.configuration.environment.keys.map(XPathString.new));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-encode-for-uri
-const fnEncodeForUri = XPathFunctionItem.fn1(
-  XmlName.qualified('fn:encode-for-uri'),
+final fnEncodeForUri = XPathFunctionItem.fn1(
+  XmlName('fn:encode-for-uri'),
   _fnEncodeForUri,
 );
 
@@ -559,10 +529,7 @@ XPathSequence _fnEncodeForUri(XPathContext context, XPathSequence uriPartSeq) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-iri-to-uri
-const fnIriToUri = XPathFunctionItem.fn1(
-  XmlName.qualified('fn:iri-to-uri'),
-  _fnIriToUri,
-);
+final fnIriToUri = XPathFunctionItem.fn1(XmlName('fn:iri-to-uri'), _fnIriToUri);
 
 XPathSequence _fnIriToUri(XPathContext context, XPathSequence iriSeq) {
   final iri = _coerceString(iriSeq);
@@ -571,8 +538,8 @@ XPathSequence _fnIriToUri(XPathContext context, XPathSequence iriSeq) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-escape-html-uri
-const fnEscapeHtmlUri = XPathFunctionItem.fn1(
-  XmlName.qualified('fn:escape-html-uri'),
+final fnEscapeHtmlUri = XPathFunctionItem.fn1(
+  XmlName('fn:escape-html-uri'),
   _fnEscapeHtmlUri,
 );
 

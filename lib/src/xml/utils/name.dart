@@ -64,7 +64,11 @@ abstract class XmlName with XmlHasVisitor, XmlHasWriter {
 
   /// Creates an [XmlName] with the given [qualified] name and an optional
   /// [namespaceUri].
-  @Deprecated('Use `XmlName(String qualified, {String? namespaceUri})` instead')
+  @Deprecated(
+    'Use `XmlName(String qualified, {String? namespaceUri})` instead, or if a '
+    'const constructor is needed `XmlName.parts(String local, {String? prefix, '
+    'String? namespaceUri}).',
+  )
   const factory qualified(String qualified, {String? namespaceUri}) =
       _DeprecatedXmlName;
 

@@ -58,7 +58,6 @@ final class XPathNode implements XPathItem {
   String get stringValue => switch (node) {
     XmlAttribute(:final value) => value,
     XmlData(:final value) => value,
-    XmlProcessing(:final text) => text,
     XmlNamespace(:final value) => value,
     _ => node.innerText,
   };

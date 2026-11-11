@@ -13,10 +13,7 @@ import '../xdm/item.dart';
 import '../xdm/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-size
-const fnMapSize = XPathFunctionItem.fn1(
-  XmlName.qualified('map:size'),
-  _fnMapSize,
-);
+final fnMapSize = XPathFunctionItem.fn1(XmlName('map:size'), _fnMapSize);
 
 XPathSequence _fnMapSize(XPathContext context, XPathSequence mapSeq) {
   final map = mapSeq.first as XPathMap;
@@ -24,7 +21,7 @@ XPathSequence _fnMapSize(XPathContext context, XPathSequence mapSeq) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-get
-const fnMapGet = XPathFunctionItem.fn2(XmlName.qualified('map:get'), _fnMapGet);
+final fnMapGet = XPathFunctionItem.fn2(XmlName('map:get'), _fnMapGet);
 
 XPathSequence _fnMapGet(
   XPathContext context,
@@ -37,7 +34,7 @@ XPathSequence _fnMapGet(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-put
-const fnMapPut = XPathFunctionItem.fn3(XmlName.qualified('map:put'), _fnMapPut);
+final fnMapPut = XPathFunctionItem.fn3(XmlName('map:put'), _fnMapPut);
 
 XPathSequence _fnMapPut(
   XPathContext context,
@@ -53,8 +50,8 @@ XPathSequence _fnMapPut(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-contains
-const fnMapContains = XPathFunctionItem.fn2(
-  XmlName.qualified('map:contains'),
+final fnMapContains = XPathFunctionItem.fn2(
+  XmlName('map:contains'),
   _fnMapContains,
 );
 
@@ -70,10 +67,7 @@ XPathSequence _fnMapContains(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-remove
-const fnMapRemove = XPathFunctionItem.fn2(
-  XmlName.qualified('map:remove'),
-  _fnMapRemove,
-);
+final fnMapRemove = XPathFunctionItem.fn2(XmlName('map:remove'), _fnMapRemove);
 
 XPathSequence _fnMapRemove(
   XPathContext context,
@@ -89,10 +83,7 @@ XPathSequence _fnMapRemove(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-keys
-const fnMapKeys = XPathFunctionItem.fn1(
-  XmlName.qualified('map:keys'),
-  _fnMapKeys,
-);
+final fnMapKeys = XPathFunctionItem.fn1(XmlName('map:keys'), _fnMapKeys);
 
 XPathSequence _fnMapKeys(XPathContext context, XPathSequence mapSeq) {
   final map = mapSeq.first as XPathMap;
@@ -100,13 +91,10 @@ XPathSequence _fnMapKeys(XPathContext context, XPathSequence mapSeq) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-merge
-const fnMapMerge = XPathFunctionItem.overloaded(
-  XmlName.qualified('map:merge'),
-  {
-    1: XPathFunctionItem.fn1(XmlName.qualified('map:merge'), _fnMapMerge1),
-    2: XPathFunctionItem.fn2(XmlName.qualified('map:merge'), _fnMapMerge2),
-  },
-);
+final fnMapMerge = XPathFunctionItem.overloaded(XmlName('map:merge'), {
+  1: XPathFunctionItem.fn1(XmlName('map:merge'), _fnMapMerge1),
+  2: XPathFunctionItem.fn2(XmlName('map:merge'), _fnMapMerge2),
+});
 
 XPathSequence _fnMapMerge1(XPathContext context, XPathSequence maps) =>
     _evalMapMerge(maps, null);
@@ -193,8 +181,8 @@ XPathSequence _evalMapMerge(XPathSequence maps, XPathMap? options) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-for-each
-const fnMapForEach = XPathFunctionItem.fn2(
-  XmlName.qualified('map:for-each'),
+final fnMapForEach = XPathFunctionItem.fn2(
+  XmlName('map:for-each'),
   _fnMapForEach,
 );
 
@@ -223,10 +211,7 @@ Iterable<XPathItem> _fnMapForEachSync(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-find
-const fnMapFind = XPathFunctionItem.fn2(
-  XmlName.qualified('map:find'),
-  _fnMapFind,
-);
+final fnMapFind = XPathFunctionItem.fn2(XmlName('map:find'), _fnMapFind);
 
 XPathSequence _fnMapFind(
   XPathContext context,
@@ -262,10 +247,7 @@ void _fnMapFindRecurse(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-map-entry
-const fnMapEntry = XPathFunctionItem.fn2(
-  XmlName.qualified('map:entry'),
-  _fnMapEntry,
-);
+final fnMapEntry = XPathFunctionItem.fn2(XmlName('map:entry'), _fnMapEntry);
 
 XPathSequence _fnMapEntry(
   XPathContext context,

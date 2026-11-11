@@ -9,9 +9,9 @@ void main() {
         'element',
         children: [
           XmlText(''),
-          XmlElement(const XmlName.qualified('element1')),
+          XmlElement(XmlName('element1')),
           XmlText(''),
-          XmlElement(const XmlName.qualified('element2')),
+          XmlElement(XmlName('element2')),
           XmlText(''),
         ],
       );
@@ -106,19 +106,19 @@ void main() {
         XmlText(''),
         XmlText('aaa'),
         XmlText(''),
-        XmlElement(const XmlName.qualified('element1')),
+        XmlElement(XmlName('element1')),
         XmlText(''),
         XmlText('bbb'),
         XmlText(''),
         XmlText('ccc'),
         XmlText(''),
-        XmlElement(const XmlName.qualified('element2')),
+        XmlElement(XmlName('element2')),
         XmlText(''),
         XmlText('ddd'),
         XmlText(''),
       ]);
       fragment.normalize();
-      final element = XmlElement(const XmlName.qualified('element'));
+      final element = XmlElement(XmlName('element'));
       element.children.add(fragment);
       check(element.children.length).equals(5);
       check(element.toXmlString())
@@ -497,14 +497,12 @@ void main() {
         final element = XmlElement.tag(
           'base',
           children: [
-            XmlElement(const XmlName.qualified('simple')),
+            XmlElement(XmlName('simple')),
             XmlElement.tag(
               'with-attributes',
-              attributes: [
-                XmlAttribute(const XmlName.qualified('attr'), 'val'),
-              ],
+              attributes: [XmlAttribute(XmlName('attr'), 'val')],
             ),
-            XmlElement(const XmlName.qualified('do-not-add')),
+            XmlElement(XmlName('do-not-add')),
           ],
         );
 
@@ -557,7 +555,7 @@ void main() {
               .equals('<child xmlns="http://foo"/>');
         });
         test('attribute with prefix and namespaceUri', () {
-          final element = XmlElement(const XmlName.qualified('root'), [
+          final element = XmlElement(XmlName('root'), [
             XmlAttribute(
               const XmlName.parts(
                 'attr',
@@ -644,7 +642,7 @@ void main() {
               .equals('<root xmlns="http://foo"><child/></root>');
         });
         test('xml prefix does not synthesize declaration', () {
-          final element = XmlElement(const XmlName.qualified('root'), [
+          final element = XmlElement(XmlName('root'), [
             XmlAttribute(
               const XmlName.parts(
                 'space',

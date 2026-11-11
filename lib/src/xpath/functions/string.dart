@@ -11,7 +11,7 @@ import 'regex.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-codepoints-to-string
 final fnCodepointsToString = XPathFunctionItem.fn1(
-  const XmlName.qualified('fn:codepoints-to-string'),
+  XmlName('fn:codepoints-to-string'),
   (context, arg) {
     final string = String.fromCharCodes(
       arg.atomize().map((item) {
@@ -40,7 +40,7 @@ String? _asString(XPathItem? item) => item?.stringValue;
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-string-to-codepoints
 final fnStringToCodepoints = XPathFunctionItem.fn1(
-  const XmlName.qualified('fn:string-to-codepoints'),
+  XmlName('fn:string-to-codepoints'),
   (context, arg) {
     final str = _asString(arg.atomize().firstOrNull);
     if (str == null) return XPathSequence.empty;
@@ -49,25 +49,22 @@ final fnStringToCodepoints = XPathFunctionItem.fn1(
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-compare
-final fnCompare = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:compare'),
-  {
-    2: XPathFunctionItem.fn2(
-      const XmlName.qualified('fn:compare'),
-      (context, c1, c2) => _evalCompare(
-        _asString(c1.atomize().firstOrNull),
-        _asString(c2.atomize().firstOrNull),
-      ),
+final fnCompare = XPathFunctionItem.overloaded(XmlName('fn:compare'), {
+  2: XPathFunctionItem.fn2(
+    XmlName('fn:compare'),
+    (context, c1, c2) => _evalCompare(
+      _asString(c1.atomize().firstOrNull),
+      _asString(c2.atomize().firstOrNull),
     ),
-    3: XPathFunctionItem.fn3(
-      const XmlName.qualified('fn:compare'),
-      (context, c1, c2, col) => _evalCompare(
-        _asString(c1.atomize().firstOrNull),
-        _asString(c2.atomize().firstOrNull),
-      ),
+  ),
+  3: XPathFunctionItem.fn3(
+    XmlName('fn:compare'),
+    (context, c1, c2, col) => _evalCompare(
+      _asString(c1.atomize().firstOrNull),
+      _asString(c2.atomize().firstOrNull),
     ),
-  },
-);
+  ),
+});
 
 XPathSequence _evalCompare(String? comparand1, String? comparand2) {
   if (comparand1 == null || comparand2 == null) return XPathSequence.empty;
@@ -77,77 +74,65 @@ XPathSequence _evalCompare(String? comparand1, String? comparand2) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-codepoint-equal
-final fnCodepointEqual = XPathFunctionItem.fn2(
-  const XmlName.qualified('fn:codepoint-equal'),
-  (context, c1, c2) {
-    final comparand1 = _asString(c1.atomize().firstOrNull);
-    final comparand2 = _asString(c2.atomize().firstOrNull);
-    if (comparand1 == null || comparand2 == null) return XPathSequence.empty;
-    return XPathSequence.single(
-      XPathBoolean.fromBool(comparand1 == comparand2),
-    );
-  },
-);
+final fnCodepointEqual = XPathFunctionItem.fn2(XmlName('fn:codepoint-equal'), (
+  context,
+  c1,
+  c2,
+) {
+  final comparand1 = _asString(c1.atomize().firstOrNull);
+  final comparand2 = _asString(c2.atomize().firstOrNull);
+  if (comparand1 == null || comparand2 == null) return XPathSequence.empty;
+  return XPathSequence.single(XPathBoolean.fromBool(comparand1 == comparand2));
+});
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-concat
-final fnConcat = XPathFunctionItem.variadic(
-  const XmlName.qualified('fn:concat'),
-  2,
-  (context, args) {
-    final result = StringBuffer();
-    for (final arg in args) {
-      final item = arg.atomize().firstOrNull;
-      if (item != null) result.write(item.stringValue);
-    }
-    return XPathSequence.single(XPathString(result.toString()));
-  },
-);
+final fnConcat = XPathFunctionItem.variadic(XmlName('fn:concat'), 2, (
+  context,
+  args,
+) {
+  final result = StringBuffer();
+  for (final arg in args) {
+    final item = arg.atomize().firstOrNull;
+    if (item != null) result.write(item.stringValue);
+  }
+  return XPathSequence.single(XPathString(result.toString()));
+});
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-string-join
-final fnStringJoin = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:string-join'),
-  {
-    1: XPathFunctionItem.fn1(
-      const XmlName.qualified('fn:string-join'),
-      (context, arg) => XPathSequence.single(
-        XPathString(arg.atomize().map((i) => i.stringValue).join('')),
-      ),
+final fnStringJoin = XPathFunctionItem.overloaded(XmlName('fn:string-join'), {
+  1: XPathFunctionItem.fn1(
+    XmlName('fn:string-join'),
+    (context, arg) => XPathSequence.single(
+      XPathString(arg.atomize().map((i) => i.stringValue).join('')),
     ),
-    2: XPathFunctionItem.fn2(const XmlName.qualified('fn:string-join'), (
-      context,
-      arg,
-      sep,
-    ) {
-      final separator = sep.atomize().firstOrNull?.stringValue ?? '';
-      return XPathSequence.single(
-        XPathString(arg.atomize().map((i) => i.stringValue).join(separator)),
-      );
-    }),
-  },
-);
+  ),
+  2: XPathFunctionItem.fn2(XmlName('fn:string-join'), (context, arg, sep) {
+    final separator = sep.atomize().firstOrNull?.stringValue ?? '';
+    return XPathSequence.single(
+      XPathString(arg.atomize().map((i) => i.stringValue).join(separator)),
+    );
+  }),
+});
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-substring
-final fnSubstring = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:substring'),
-  {
-    2: XPathFunctionItem.fn2(
-      const XmlName.qualified('fn:substring'),
-      (context, str, start) => _evalSubstring(
-        _asString(str.atomize().firstOrNull),
-        start.atomize().firstOrNull as XPathNumeric?,
-        null,
-      ),
+final fnSubstring = XPathFunctionItem.overloaded(XmlName('fn:substring'), {
+  2: XPathFunctionItem.fn2(
+    XmlName('fn:substring'),
+    (context, str, start) => _evalSubstring(
+      _asString(str.atomize().firstOrNull),
+      start.atomize().firstOrNull as XPathNumeric?,
+      null,
     ),
-    3: XPathFunctionItem.fn3(
-      const XmlName.qualified('fn:substring'),
-      (context, str, start, len) => _evalSubstring(
-        _asString(str.atomize().firstOrNull),
-        start.atomize().firstOrNull as XPathNumeric?,
-        len.atomize().firstOrNull as XPathNumeric?,
-      ),
+  ),
+  3: XPathFunctionItem.fn3(
+    XmlName('fn:substring'),
+    (context, str, start, len) => _evalSubstring(
+      _asString(str.atomize().firstOrNull),
+      start.atomize().firstOrNull as XPathNumeric?,
+      len.atomize().firstOrNull as XPathNumeric?,
     ),
-  },
-);
+  ),
+});
 
 XPathSequence _evalSubstring(
   String? sourceString,
@@ -190,20 +175,17 @@ XPathSequence _evalSubstring(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-string-length
 final fnStringLength = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:string-length'),
+  XmlName('fn:string-length'),
   {
     0: XPathFunctionItem.fn0(
-      const XmlName.qualified('fn:string-length'),
+      XmlName('fn:string-length'),
       (context) => XPathSequence.single(
         XPathInteger.fromInt(
           (context.item as XPathItem).stringValue.runes.length,
         ),
       ),
     ),
-    1: XPathFunctionItem.fn1(const XmlName.qualified('fn:string-length'), (
-      context,
-      arg,
-    ) {
+    1: XPathFunctionItem.fn1(XmlName('fn:string-length'), (context, arg) {
       final str = _asString(arg.atomize().firstOrNull);
       if (str == null) return XPathSequence.single(XPathInteger.fromInt(0));
       return XPathSequence.single(XPathInteger.fromInt(str.runes.length));
@@ -213,16 +195,13 @@ final fnStringLength = XPathFunctionItem.overloaded(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-normalize-space
 final fnNormalizeSpace = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:normalize-space'),
+  XmlName('fn:normalize-space'),
   {
     0: XPathFunctionItem.fn0(
-      const XmlName.qualified('fn:normalize-space'),
+      XmlName('fn:normalize-space'),
       (context) => _evalNormalizeSpace((context.item as XPathItem).stringValue),
     ),
-    1: XPathFunctionItem.fn1(const XmlName.qualified('fn:normalize-space'), (
-      context,
-      arg,
-    ) {
+    1: XPathFunctionItem.fn1(XmlName('fn:normalize-space'), (context, arg) {
       final item = arg.atomize().firstOrNull;
       return _evalNormalizeSpace(item?.stringValue ?? '');
     }),
@@ -235,12 +214,9 @@ XPathSequence _evalNormalizeSpace(String str) => XPathSequence.single(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-normalize-unicode
 final fnNormalizeUnicode = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:normalize-unicode'),
+  XmlName('fn:normalize-unicode'),
   {
-    1: XPathFunctionItem.fn1(const XmlName.qualified('fn:normalize-unicode'), (
-      context,
-      arg,
-    ) {
+    1: XPathFunctionItem.fn1(XmlName('fn:normalize-unicode'), (context, arg) {
       final item = arg.atomize().firstOrNull;
       if (item == null) return const XPathSequence.single(XPathString.empty);
       if (item is! XPathString &&
@@ -255,7 +231,7 @@ final fnNormalizeUnicode = XPathFunctionItem.overloaded(
         item is XPathString ? item : XPathString(item.stringValue),
       );
     }),
-    2: XPathFunctionItem.fn2(const XmlName.qualified('fn:normalize-unicode'), (
+    2: XPathFunctionItem.fn2(XmlName('fn:normalize-unicode'), (
       context,
       arg,
       form,
@@ -306,79 +282,78 @@ final fnNormalizeUnicode = XPathFunctionItem.overloaded(
 );
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-upper-case
-final fnUpperCase = XPathFunctionItem.fn1(
-  const XmlName.qualified('fn:upper-case'),
-  (context, arg) {
-    final str = _asString(arg.atomize().firstOrNull);
-    if (str == null) return const XPathSequence.single(XPathString.empty);
-    return XPathSequence.single(XPathString(str.toUpperCase()));
-  },
-);
+final fnUpperCase = XPathFunctionItem.fn1(XmlName('fn:upper-case'), (
+  context,
+  arg,
+) {
+  final str = _asString(arg.atomize().firstOrNull);
+  if (str == null) return const XPathSequence.single(XPathString.empty);
+  return XPathSequence.single(XPathString(str.toUpperCase()));
+});
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-lower-case
-final fnLowerCase = XPathFunctionItem.fn1(
-  const XmlName.qualified('fn:lower-case'),
-  (context, arg) {
-    final str = _asString(arg.atomize().firstOrNull);
-    if (str == null) return const XPathSequence.single(XPathString.empty);
-    return XPathSequence.single(XPathString(str.toLowerCase()));
-  },
-);
+final fnLowerCase = XPathFunctionItem.fn1(XmlName('fn:lower-case'), (
+  context,
+  arg,
+) {
+  final str = _asString(arg.atomize().firstOrNull);
+  if (str == null) return const XPathSequence.single(XPathString.empty);
+  return XPathSequence.single(XPathString(str.toLowerCase()));
+});
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-translate
-final fnTranslate = XPathFunctionItem.fn3(
-  const XmlName.qualified('fn:translate'),
-  (context, argSeq, mapSeq, transSeq) {
-    final arg = _asString(argSeq.atomize().firstOrNull);
-    final mapString = _asString(mapSeq.atomize().firstOrNull);
-    final transString = _asString(transSeq.atomize().firstOrNull);
-    if (arg == null) return const XPathSequence.single(XPathString.empty);
-    if (mapString == null || transString == null) {
-      return XPathSequence.single(XPathString(arg));
+final fnTranslate = XPathFunctionItem.fn3(XmlName('fn:translate'), (
+  context,
+  argSeq,
+  mapSeq,
+  transSeq,
+) {
+  final arg = _asString(argSeq.atomize().firstOrNull);
+  final mapString = _asString(mapSeq.atomize().firstOrNull);
+  final transString = _asString(transSeq.atomize().firstOrNull);
+  if (arg == null) return const XPathSequence.single(XPathString.empty);
+  if (mapString == null || transString == null) {
+    return XPathSequence.single(XPathString(arg));
+  }
+  final map = <int, int?>{};
+  final mapRunes = mapString.runes.toList();
+  final transRunes = transString.runes.toList();
+  for (var i = 0; i < mapRunes.length; i++) {
+    if (!map.containsKey(mapRunes[i])) {
+      map[mapRunes[i]] = i < transRunes.length ? transRunes[i] : null;
     }
-    final map = <int, int?>{};
-    final mapRunes = mapString.runes.toList();
-    final transRunes = transString.runes.toList();
-    for (var i = 0; i < mapRunes.length; i++) {
-      if (!map.containsKey(mapRunes[i])) {
-        map[mapRunes[i]] = i < transRunes.length ? transRunes[i] : null;
+  }
+  final result = <int>[];
+  for (final rune in arg.runes) {
+    if (map.containsKey(rune)) {
+      final trans = map[rune];
+      if (trans != null) {
+        result.add(trans);
       }
+    } else {
+      result.add(rune);
     }
-    final result = <int>[];
-    for (final rune in arg.runes) {
-      if (map.containsKey(rune)) {
-        final trans = map[rune];
-        if (trans != null) {
-          result.add(trans);
-        }
-      } else {
-        result.add(rune);
-      }
-    }
-    return XPathSequence.single(XPathString(String.fromCharCodes(result)));
-  },
-);
+  }
+  return XPathSequence.single(XPathString(String.fromCharCodes(result)));
+});
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-contains
-final fnContains = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:contains'),
-  {
-    2: XPathFunctionItem.fn2(
-      const XmlName.qualified('fn:contains'),
-      (context, a1, a2) => _evalContains(
-        _asString(a1.atomize().firstOrNull),
-        _asString(a2.atomize().firstOrNull),
-      ),
+final fnContains = XPathFunctionItem.overloaded(XmlName('fn:contains'), {
+  2: XPathFunctionItem.fn2(
+    XmlName('fn:contains'),
+    (context, a1, a2) => _evalContains(
+      _asString(a1.atomize().firstOrNull),
+      _asString(a2.atomize().firstOrNull),
     ),
-    3: XPathFunctionItem.fn3(
-      const XmlName.qualified('fn:contains'),
-      (context, a1, a2, col) => _evalContains(
-        _asString(a1.atomize().firstOrNull),
-        _asString(a2.atomize().firstOrNull),
-      ),
+  ),
+  3: XPathFunctionItem.fn3(
+    XmlName('fn:contains'),
+    (context, a1, a2, col) => _evalContains(
+      _asString(a1.atomize().firstOrNull),
+      _asString(a2.atomize().firstOrNull),
     ),
-  },
-);
+  ),
+});
 
 XPathSequence _evalContains(String? arg1, String? arg2) {
   final s1 = arg1 ?? '';
@@ -389,25 +364,22 @@ XPathSequence _evalContains(String? arg1, String? arg2) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-starts-with
-final fnStartsWith = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:starts-with'),
-  {
-    2: XPathFunctionItem.fn2(
-      const XmlName.qualified('fn:starts-with'),
-      (context, a1, a2) => _evalStartsWith(
-        _asString(a1.atomize().firstOrNull),
-        _asString(a2.atomize().firstOrNull),
-      ),
+final fnStartsWith = XPathFunctionItem.overloaded(XmlName('fn:starts-with'), {
+  2: XPathFunctionItem.fn2(
+    XmlName('fn:starts-with'),
+    (context, a1, a2) => _evalStartsWith(
+      _asString(a1.atomize().firstOrNull),
+      _asString(a2.atomize().firstOrNull),
     ),
-    3: XPathFunctionItem.fn3(
-      const XmlName.qualified('fn:starts-with'),
-      (context, a1, a2, col) => _evalStartsWith(
-        _asString(a1.atomize().firstOrNull),
-        _asString(a2.atomize().firstOrNull),
-      ),
+  ),
+  3: XPathFunctionItem.fn3(
+    XmlName('fn:starts-with'),
+    (context, a1, a2, col) => _evalStartsWith(
+      _asString(a1.atomize().firstOrNull),
+      _asString(a2.atomize().firstOrNull),
     ),
-  },
-);
+  ),
+});
 
 XPathSequence _evalStartsWith(String? arg1, String? arg2) {
   final s1 = arg1 ?? '';
@@ -418,25 +390,22 @@ XPathSequence _evalStartsWith(String? arg1, String? arg2) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-ends-with
-final fnEndsWith = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:ends-with'),
-  {
-    2: XPathFunctionItem.fn2(
-      const XmlName.qualified('fn:ends-with'),
-      (context, a1, a2) => _evalEndsWith(
-        _asString(a1.atomize().firstOrNull),
-        _asString(a2.atomize().firstOrNull),
-      ),
+final fnEndsWith = XPathFunctionItem.overloaded(XmlName('fn:ends-with'), {
+  2: XPathFunctionItem.fn2(
+    XmlName('fn:ends-with'),
+    (context, a1, a2) => _evalEndsWith(
+      _asString(a1.atomize().firstOrNull),
+      _asString(a2.atomize().firstOrNull),
     ),
-    3: XPathFunctionItem.fn3(
-      const XmlName.qualified('fn:ends-with'),
-      (context, a1, a2, col) => _evalEndsWith(
-        _asString(a1.atomize().firstOrNull),
-        _asString(a2.atomize().firstOrNull),
-      ),
+  ),
+  3: XPathFunctionItem.fn3(
+    XmlName('fn:ends-with'),
+    (context, a1, a2, col) => _evalEndsWith(
+      _asString(a1.atomize().firstOrNull),
+      _asString(a2.atomize().firstOrNull),
     ),
-  },
-);
+  ),
+});
 
 XPathSequence _evalEndsWith(String? arg1, String? arg2) {
   final s1 = arg1 ?? '';
@@ -448,17 +417,17 @@ XPathSequence _evalEndsWith(String? arg1, String? arg2) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-substring-before
 final fnSubstringBefore = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:substring-before'),
+  XmlName('fn:substring-before'),
   {
     2: XPathFunctionItem.fn2(
-      const XmlName.qualified('fn:substring-before'),
+      XmlName('fn:substring-before'),
       (context, a1, a2) => _evalSubstringBefore(
         _asString(a1.atomize().firstOrNull),
         _asString(a2.atomize().firstOrNull),
       ),
     ),
     3: XPathFunctionItem.fn3(
-      const XmlName.qualified('fn:substring-before'),
+      XmlName('fn:substring-before'),
       (context, a1, a2, col) => _evalSubstringBefore(
         _asString(a1.atomize().firstOrNull),
         _asString(a2.atomize().firstOrNull),
@@ -478,17 +447,17 @@ XPathSequence _evalSubstringBefore(String? arg1, String? arg2) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-substring-after
 final fnSubstringAfter = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:substring-after'),
+  XmlName('fn:substring-after'),
   {
     2: XPathFunctionItem.fn2(
-      const XmlName.qualified('fn:substring-after'),
+      XmlName('fn:substring-after'),
       (context, a1, a2) => _evalSubstringAfter(
         _asString(a1.atomize().firstOrNull),
         _asString(a2.atomize().firstOrNull),
       ),
     ),
     3: XPathFunctionItem.fn3(
-      const XmlName.qualified('fn:substring-after'),
+      XmlName('fn:substring-after'),
       (context, a1, a2, col) => _evalSubstringAfter(
         _asString(a1.atomize().firstOrNull),
         _asString(a2.atomize().firstOrNull),
@@ -507,47 +476,40 @@ XPathSequence _evalSubstringAfter(String? arg1, String? arg2) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-matches
-final fnMatches = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:matches'),
-  {
-    2: XPathFunctionItem.fn2(const XmlName.qualified('fn:matches'), (
-      context,
-      input,
-      pattern,
-    ) {
-      final p = _asString(pattern.atomize().firstOrNull);
-      if (p == null) {
-        throw XPathEvaluationException(
-          XPathErrorCode.XPTY0004,
-          'Pattern cannot be the empty sequence',
-        );
-      }
-      return _evalMatches(_asString(input.atomize().firstOrNull), p, null);
-    }),
-    3: XPathFunctionItem.fn3(const XmlName.qualified('fn:matches'), (
-      context,
-      input,
-      pattern,
-      flags,
-    ) {
-      final p = _asString(pattern.atomize().firstOrNull);
-      if (p == null) {
-        throw XPathEvaluationException(
-          XPathErrorCode.XPTY0004,
-          'Pattern cannot be the empty sequence',
-        );
-      }
-      final f = _asString(flags.atomize().firstOrNull);
-      if (f == null) {
-        throw XPathEvaluationException(
-          XPathErrorCode.XPTY0004,
-          'Flags cannot be the empty sequence',
-        );
-      }
-      return _evalMatches(_asString(input.atomize().firstOrNull), p, f);
-    }),
-  },
-);
+final fnMatches = XPathFunctionItem.overloaded(XmlName('fn:matches'), {
+  2: XPathFunctionItem.fn2(XmlName('fn:matches'), (context, input, pattern) {
+    final p = _asString(pattern.atomize().firstOrNull);
+    if (p == null) {
+      throw XPathEvaluationException(
+        XPathErrorCode.XPTY0004,
+        'Pattern cannot be the empty sequence',
+      );
+    }
+    return _evalMatches(_asString(input.atomize().firstOrNull), p, null);
+  }),
+  3: XPathFunctionItem.fn3(XmlName('fn:matches'), (
+    context,
+    input,
+    pattern,
+    flags,
+  ) {
+    final p = _asString(pattern.atomize().firstOrNull);
+    if (p == null) {
+      throw XPathEvaluationException(
+        XPathErrorCode.XPTY0004,
+        'Pattern cannot be the empty sequence',
+      );
+    }
+    final f = _asString(flags.atomize().firstOrNull);
+    if (f == null) {
+      throw XPathEvaluationException(
+        XPathErrorCode.XPTY0004,
+        'Flags cannot be the empty sequence',
+      );
+    }
+    return _evalMatches(_asString(input.atomize().firstOrNull), p, f);
+  }),
+});
 
 XPathSequence _evalMatches(String? input, String pattern, String? flags) {
   if (input == null) return XPathSequence.falseSequence;
@@ -556,60 +518,54 @@ XPathSequence _evalMatches(String? input, String pattern, String? flags) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-replace
-final fnReplace = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:replace'),
-  {
-    3: XPathFunctionItem.fn3(const XmlName.qualified('fn:replace'), (
-      context,
-      input,
-      pattern,
-      replacement,
-    ) {
-      final p = _asString(pattern.atomize().firstOrNull);
-      if (p == null) {
-        throw XPathEvaluationException(
-          XPathErrorCode.XPTY0004,
-          'Pattern cannot be the empty sequence',
-        );
-      }
-      final r = _asString(replacement.atomize().firstOrNull);
-      if (r == null) {
-        throw XPathEvaluationException(
-          XPathErrorCode.XPTY0004,
-          'Replacement cannot be the empty sequence',
-        );
-      }
-      return _evalReplace(_asString(input.atomize().firstOrNull), p, r, null);
-    }),
-    4: XPathFunctionItem.fnN(const XmlName.qualified('fn:replace'), 4, (
-      context,
-      args,
-    ) {
-      final p = _asString(args[1].atomize().firstOrNull);
-      if (p == null) {
-        throw XPathEvaluationException(
-          XPathErrorCode.XPTY0004,
-          'Pattern cannot be the empty sequence',
-        );
-      }
-      final r = _asString(args[2].atomize().firstOrNull);
-      if (r == null) {
-        throw XPathEvaluationException(
-          XPathErrorCode.XPTY0004,
-          'Replacement cannot be the empty sequence',
-        );
-      }
-      final f = _asString(args[3].atomize().firstOrNull);
-      if (f == null) {
-        throw XPathEvaluationException(
-          XPathErrorCode.XPTY0004,
-          'Flags cannot be the empty sequence',
-        );
-      }
-      return _evalReplace(_asString(args[0].atomize().firstOrNull), p, r, f);
-    }),
-  },
-);
+final fnReplace = XPathFunctionItem.overloaded(XmlName('fn:replace'), {
+  3: XPathFunctionItem.fn3(XmlName('fn:replace'), (
+    context,
+    input,
+    pattern,
+    replacement,
+  ) {
+    final p = _asString(pattern.atomize().firstOrNull);
+    if (p == null) {
+      throw XPathEvaluationException(
+        XPathErrorCode.XPTY0004,
+        'Pattern cannot be the empty sequence',
+      );
+    }
+    final r = _asString(replacement.atomize().firstOrNull);
+    if (r == null) {
+      throw XPathEvaluationException(
+        XPathErrorCode.XPTY0004,
+        'Replacement cannot be the empty sequence',
+      );
+    }
+    return _evalReplace(_asString(input.atomize().firstOrNull), p, r, null);
+  }),
+  4: XPathFunctionItem.fnN(XmlName('fn:replace'), 4, (context, args) {
+    final p = _asString(args[1].atomize().firstOrNull);
+    if (p == null) {
+      throw XPathEvaluationException(
+        XPathErrorCode.XPTY0004,
+        'Pattern cannot be the empty sequence',
+      );
+    }
+    final r = _asString(args[2].atomize().firstOrNull);
+    if (r == null) {
+      throw XPathEvaluationException(
+        XPathErrorCode.XPTY0004,
+        'Replacement cannot be the empty sequence',
+      );
+    }
+    final f = _asString(args[3].atomize().firstOrNull);
+    if (f == null) {
+      throw XPathEvaluationException(
+        XPathErrorCode.XPTY0004,
+        'Flags cannot be the empty sequence',
+      );
+    }
+    return _evalReplace(_asString(args[0].atomize().firstOrNull), p, r, f);
+  }),
+});
 
 XPathSequence _evalReplace(
   String? input,
@@ -630,52 +586,45 @@ XPathSequence _evalReplace(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-tokenize
-final fnTokenize = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:tokenize'),
-  {
-    1: XPathFunctionItem.fn1(
-      const XmlName.qualified('fn:tokenize'),
-      (context, input) =>
-          _evalTokenize(_asString(input.atomize().firstOrNull), null, null),
-    ),
-    2: XPathFunctionItem.fn2(const XmlName.qualified('fn:tokenize'), (
-      context,
-      input,
-      pattern,
-    ) {
-      final p = _asString(pattern.atomize().firstOrNull);
-      if (p == null) {
-        throw XPathEvaluationException(
-          XPathErrorCode.XPTY0004,
-          'Pattern cannot be the empty sequence',
-        );
-      }
-      return _evalTokenize(_asString(input.atomize().firstOrNull), p, null);
-    }),
-    3: XPathFunctionItem.fn3(const XmlName.qualified('fn:tokenize'), (
-      context,
-      input,
-      pattern,
-      flags,
-    ) {
-      final p = _asString(pattern.atomize().firstOrNull);
-      if (p == null) {
-        throw XPathEvaluationException(
-          XPathErrorCode.XPTY0004,
-          'Pattern cannot be the empty sequence',
-        );
-      }
-      final f = _asString(flags.atomize().firstOrNull);
-      if (f == null) {
-        throw XPathEvaluationException(
-          XPathErrorCode.XPTY0004,
-          'Flags cannot be the empty sequence',
-        );
-      }
-      return _evalTokenize(_asString(input.atomize().firstOrNull), p, f);
-    }),
-  },
-);
+final fnTokenize = XPathFunctionItem.overloaded(XmlName('fn:tokenize'), {
+  1: XPathFunctionItem.fn1(
+    XmlName('fn:tokenize'),
+    (context, input) =>
+        _evalTokenize(_asString(input.atomize().firstOrNull), null, null),
+  ),
+  2: XPathFunctionItem.fn2(XmlName('fn:tokenize'), (context, input, pattern) {
+    final p = _asString(pattern.atomize().firstOrNull);
+    if (p == null) {
+      throw XPathEvaluationException(
+        XPathErrorCode.XPTY0004,
+        'Pattern cannot be the empty sequence',
+      );
+    }
+    return _evalTokenize(_asString(input.atomize().firstOrNull), p, null);
+  }),
+  3: XPathFunctionItem.fn3(XmlName('fn:tokenize'), (
+    context,
+    input,
+    pattern,
+    flags,
+  ) {
+    final p = _asString(pattern.atomize().firstOrNull);
+    if (p == null) {
+      throw XPathEvaluationException(
+        XPathErrorCode.XPTY0004,
+        'Pattern cannot be the empty sequence',
+      );
+    }
+    final f = _asString(flags.atomize().firstOrNull);
+    if (f == null) {
+      throw XPathEvaluationException(
+        XPathErrorCode.XPTY0004,
+        'Flags cannot be the empty sequence',
+      );
+    }
+    return _evalTokenize(_asString(input.atomize().firstOrNull), p, f);
+  }),
+});
 
 XPathSequence _evalTokenize(String? input, String? pattern, String? flags) {
   if (input == null || input.isEmpty) return XPathSequence.empty;
@@ -701,9 +650,9 @@ XPathSequence _evalTokenize(String? input, String? pattern, String? flags) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-analyze-string
 final fnAnalyzeString = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:analyze-string'),
+  XmlName('fn:analyze-string'),
   {
-    2: XPathFunctionItem.fn2(const XmlName.qualified('fn:analyze-string'), (
+    2: XPathFunctionItem.fn2(XmlName('fn:analyze-string'), (
       context,
       input,
       pattern,
@@ -718,7 +667,7 @@ final fnAnalyzeString = XPathFunctionItem.overloaded(
       final inputStr = _asString(input.atomize().firstOrNull) ?? '';
       return XPathSequence.single(analyzeXPathString(inputStr, patternStr));
     }),
-    3: XPathFunctionItem.fn3(const XmlName.qualified('fn:analyze-string'), (
+    3: XPathFunctionItem.fn3(XmlName('fn:analyze-string'), (
       context,
       input,
       pattern,
@@ -742,14 +691,14 @@ final fnAnalyzeString = XPathFunctionItem.overloaded(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-collation-key
 final fnCollationKey = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:collation-key'),
+  XmlName('fn:collation-key'),
   {
     1: XPathFunctionItem.fn1(
-      const XmlName.qualified('fn:collation-key'),
+      XmlName('fn:collation-key'),
       (context, rel) => rel,
     ),
     2: XPathFunctionItem.fn2(
-      const XmlName.qualified('fn:collation-key'),
+      XmlName('fn:collation-key'),
       (context, rel, col) => rel,
     ),
   },
@@ -757,10 +706,10 @@ final fnCollationKey = XPathFunctionItem.overloaded(
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-contains-token
 final fnContainsToken = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:contains-token'),
+  XmlName('fn:contains-token'),
   {
     2: XPathFunctionItem.fn2(
-      const XmlName.qualified('fn:contains-token'),
+      XmlName('fn:contains-token'),
       (context, input, token) => _evalContainsToken(
         input.atomize().map((i) => i.stringValue),
         _asString(token.atomize().firstOrNull),
@@ -768,7 +717,7 @@ final fnContainsToken = XPathFunctionItem.overloaded(
       ),
     ),
     3: XPathFunctionItem.fn3(
-      const XmlName.qualified('fn:contains-token'),
+      XmlName('fn:contains-token'),
       (context, input, token, col) => _evalContainsToken(
         input.atomize().map((i) => i.stringValue),
         _asString(token.atomize().firstOrNull),

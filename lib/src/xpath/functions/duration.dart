@@ -6,8 +6,8 @@ import '../xdm/function_item.dart';
 import '../xdm/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-years-from-duration
-const fnYearsFromDuration = XPathFunctionItem.fn1(
-  XmlName.qualified('fn:years-from-duration'),
+final fnYearsFromDuration = XPathFunctionItem.fn1(
+  XmlName('fn:years-from-duration'),
   _fnYearsFromDuration,
 );
 
@@ -22,8 +22,8 @@ XPathSequence _fnYearsFromDuration(XPathContext context, XPathSequence arg) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-months-from-duration
-const fnMonthsFromDuration = XPathFunctionItem.fn1(
-  XmlName.qualified('fn:months-from-duration'),
+final fnMonthsFromDuration = XPathFunctionItem.fn1(
+  XmlName('fn:months-from-duration'),
   _fnMonthsFromDuration,
 );
 
@@ -38,8 +38,8 @@ XPathSequence _fnMonthsFromDuration(XPathContext context, XPathSequence arg) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-days-from-duration
-const fnDaysFromDuration = XPathFunctionItem.fn1(
-  XmlName.qualified('fn:days-from-duration'),
+final fnDaysFromDuration = XPathFunctionItem.fn1(
+  XmlName('fn:days-from-duration'),
   _fnDaysFromDuration,
 );
 
@@ -54,8 +54,8 @@ XPathSequence _fnDaysFromDuration(XPathContext context, XPathSequence arg) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-hours-from-duration
-const fnHoursFromDuration = XPathFunctionItem.fn1(
-  XmlName.qualified('fn:hours-from-duration'),
+final fnHoursFromDuration = XPathFunctionItem.fn1(
+  XmlName('fn:hours-from-duration'),
   _fnHoursFromDuration,
 );
 
@@ -70,8 +70,8 @@ XPathSequence _fnHoursFromDuration(XPathContext context, XPathSequence arg) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-minutes-from-duration
-const fnMinutesFromDuration = XPathFunctionItem.fn1(
-  XmlName.qualified('fn:minutes-from-duration'),
+final fnMinutesFromDuration = XPathFunctionItem.fn1(
+  XmlName('fn:minutes-from-duration'),
   _fnMinutesFromDuration,
 );
 
@@ -86,8 +86,8 @@ XPathSequence _fnMinutesFromDuration(XPathContext context, XPathSequence arg) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-seconds-from-duration
-const fnSecondsFromDuration = XPathFunctionItem.fn1(
-  XmlName.qualified('fn:seconds-from-duration'),
+final fnSecondsFromDuration = XPathFunctionItem.fn1(
+  XmlName('fn:seconds-from-duration'),
   _fnSecondsFromDuration,
 );
 

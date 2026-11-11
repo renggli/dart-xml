@@ -62,11 +62,8 @@ void main() {
     check(() => document.setAttribute('attr', 'value'))
         .throws<UnsupportedError>();
     check(() => document.removeAttribute('attr')).throws<UnsupportedError>();
-    check(
-      () => document.attributes.add(
-        XmlAttribute(const XmlName.qualified('attr'), 'value'),
-      ),
-    ).throws<UnsupportedError>();
+    check(() => document.attributes.add(XmlAttribute(XmlName('attr'), 'value')))
+        .throws<UnsupportedError>();
   });
   test('getElementById', () {
     final document = XmlDocument.parse('''

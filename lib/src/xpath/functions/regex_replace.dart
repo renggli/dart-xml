@@ -118,8 +118,8 @@ XPathNode analyzeXPathString(String text, String pattern, {String? flags}) {
   final builder = XmlBuilder();
   builder.element(
     'analyze-string-result',
-    namespace: 'http://www.w3.org/2005/xpath-functions',
-    namespaces: {'http://www.w3.org/2005/xpath-functions': 'fn'},
+    namespaceUri: 'http://www.w3.org/2005/xpath-functions',
+    namespaceUris: {'fn': 'http://www.w3.org/2005/xpath-functions'},
     nest: () {
       if (text.isEmpty) return;
       var lastIndex = 0;
@@ -127,7 +127,7 @@ XPathNode analyzeXPathString(String text, String pattern, {String? flags}) {
         if (match.start > lastIndex) {
           builder.element(
             'non-match',
-            namespace: 'http://www.w3.org/2005/xpath-functions',
+            namespaceUri: 'http://www.w3.org/2005/xpath-functions',
             nest: () {
               builder.text(text.substring(lastIndex, match.start));
             },
@@ -135,7 +135,7 @@ XPathNode analyzeXPathString(String text, String pattern, {String? flags}) {
         }
         builder.element(
           'match',
-          namespace: 'http://www.w3.org/2005/xpath-functions',
+          namespaceUri: 'http://www.w3.org/2005/xpath-functions',
           nest: () {
             _buildMatchChildren(builder, match, rootGroup, match[0]!);
           },
@@ -145,7 +145,7 @@ XPathNode analyzeXPathString(String text, String pattern, {String? flags}) {
       if (lastIndex < text.length) {
         builder.element(
           'non-match',
-          namespace: 'http://www.w3.org/2005/xpath-functions',
+          namespaceUri: 'http://www.w3.org/2005/xpath-functions',
           nest: () {
             builder.text(text.substring(lastIndex));
           },
@@ -190,7 +190,7 @@ void _buildMatchChildren(
       }
       builder.element(
         'group',
-        namespace: 'http://www.w3.org/2005/xpath-functions',
+        namespaceUri: 'http://www.w3.org/2005/xpath-functions',
         attributes: {'nr': child.nr.toString()},
         nest: () {
           _buildMatchChildren(builder, match, child, childText);
@@ -205,7 +205,7 @@ void _buildMatchChildren(
       }
       builder.element(
         'group',
-        namespace: 'http://www.w3.org/2005/xpath-functions',
+        namespaceUri: 'http://www.w3.org/2005/xpath-functions',
         attributes: {'nr': child.nr.toString()},
         nest: () {
           _buildMatchChildren(builder, match, child, childText);

@@ -7,13 +7,13 @@ import '../xdm/function_item.dart';
 import '../xdm/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-pi
-const mathPi = XPathFunctionItem.fn0(XmlName.qualified('math:pi'), _mathPi);
+final mathPi = XPathFunctionItem.fn0(XmlName('math:pi'), _mathPi);
 
 XPathSequence _mathPi(XPathContext context) =>
     const XPathSequence.single(XPathDouble(math.pi));
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-exp
-const mathExp = XPathFunctionItem.fn1(XmlName.qualified('math:exp'), _mathExp);
+final mathExp = XPathFunctionItem.fn1(XmlName('math:exp'), _mathExp);
 
 XPathSequence _mathExp(XPathContext context, XPathSequence arg) {
   final val = arg.firstOrNull;
@@ -24,10 +24,7 @@ XPathSequence _mathExp(XPathContext context, XPathSequence arg) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-exp10
-const mathExp10 = XPathFunctionItem.fn1(
-  XmlName.qualified('math:exp10'),
-  _mathExp10,
-);
+final mathExp10 = XPathFunctionItem.fn1(XmlName('math:exp10'), _mathExp10);
 
 XPathSequence _mathExp10(XPathContext context, XPathSequence arg) {
   final val = arg.firstOrNull;
@@ -38,7 +35,7 @@ XPathSequence _mathExp10(XPathContext context, XPathSequence arg) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-log
-const mathLog = XPathFunctionItem.fn1(XmlName.qualified('math:log'), _mathLog);
+final mathLog = XPathFunctionItem.fn1(XmlName('math:log'), _mathLog);
 
 XPathSequence _mathLog(XPathContext context, XPathSequence arg) {
   final val = arg.firstOrNull;
@@ -49,10 +46,7 @@ XPathSequence _mathLog(XPathContext context, XPathSequence arg) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-log10
-const mathLog10 = XPathFunctionItem.fn1(
-  XmlName.qualified('math:log10'),
-  _mathLog10,
-);
+final mathLog10 = XPathFunctionItem.fn1(XmlName('math:log10'), _mathLog10);
 
 XPathSequence _mathLog10(XPathContext context, XPathSequence arg) {
   final val = arg.firstOrNull;
@@ -63,7 +57,7 @@ XPathSequence _mathLog10(XPathContext context, XPathSequence arg) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-pow
-const mathPow = XPathFunctionItem.fn2(XmlName.qualified('math:pow'), _mathPow);
+final mathPow = XPathFunctionItem.fn2(XmlName('math:pow'), _mathPow);
 
 XPathSequence _mathPow(
   XPathContext context,
@@ -81,10 +75,7 @@ XPathSequence _mathPow(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-sqrt
-const mathSqrt = XPathFunctionItem.fn1(
-  XmlName.qualified('math:sqrt'),
-  _mathSqrt,
-);
+final mathSqrt = XPathFunctionItem.fn1(XmlName('math:sqrt'), _mathSqrt);
 
 XPathSequence _mathSqrt(XPathContext context, XPathSequence arg) {
   final val = arg.firstOrNull;
@@ -95,7 +86,7 @@ XPathSequence _mathSqrt(XPathContext context, XPathSequence arg) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-sin
-const mathSin = XPathFunctionItem.fn1(XmlName.qualified('math:sin'), _mathSin);
+final mathSin = XPathFunctionItem.fn1(XmlName('math:sin'), _mathSin);
 
 XPathSequence _mathSin(XPathContext context, XPathSequence arg) {
   final val = arg.firstOrNull;
@@ -106,7 +97,7 @@ XPathSequence _mathSin(XPathContext context, XPathSequence arg) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-cos
-const mathCos = XPathFunctionItem.fn1(XmlName.qualified('math:cos'), _mathCos);
+final mathCos = XPathFunctionItem.fn1(XmlName('math:cos'), _mathCos);
 
 XPathSequence _mathCos(XPathContext context, XPathSequence arg) {
   final val = arg.firstOrNull;
@@ -117,7 +108,7 @@ XPathSequence _mathCos(XPathContext context, XPathSequence arg) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-tan
-const mathTan = XPathFunctionItem.fn1(XmlName.qualified('math:tan'), _mathTan);
+final mathTan = XPathFunctionItem.fn1(XmlName('math:tan'), _mathTan);
 
 XPathSequence _mathTan(XPathContext context, XPathSequence arg) {
   final val = arg.firstOrNull;
@@ -128,10 +119,7 @@ XPathSequence _mathTan(XPathContext context, XPathSequence arg) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-asin
-const mathAsin = XPathFunctionItem.fn1(
-  XmlName.qualified('math:asin'),
-  _mathAsin,
-);
+final mathAsin = XPathFunctionItem.fn1(XmlName('math:asin'), _mathAsin);
 
 XPathSequence _mathAsin(XPathContext context, XPathSequence arg) {
   final val = arg.firstOrNull;
@@ -142,10 +130,7 @@ XPathSequence _mathAsin(XPathContext context, XPathSequence arg) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-acos
-const mathAcos = XPathFunctionItem.fn1(
-  XmlName.qualified('math:acos'),
-  _mathAcos,
-);
+final mathAcos = XPathFunctionItem.fn1(XmlName('math:acos'), _mathAcos);
 
 XPathSequence _mathAcos(XPathContext context, XPathSequence arg) {
   final val = arg.firstOrNull;
@@ -156,10 +141,7 @@ XPathSequence _mathAcos(XPathContext context, XPathSequence arg) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-atan
-const mathAtan = XPathFunctionItem.fn1(
-  XmlName.qualified('math:atan'),
-  _mathAtan,
-);
+final mathAtan = XPathFunctionItem.fn1(XmlName('math:atan'), _mathAtan);
 
 XPathSequence _mathAtan(XPathContext context, XPathSequence arg) {
   final val = arg.firstOrNull;
@@ -170,10 +152,7 @@ XPathSequence _mathAtan(XPathContext context, XPathSequence arg) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-math-atan2
-const mathAtan2 = XPathFunctionItem.fn2(
-  XmlName.qualified('math:atan2'),
-  _mathAtan2,
-);
+final mathAtan2 = XPathFunctionItem.fn2(XmlName('math:atan2'), _mathAtan2);
 
 XPathSequence _mathAtan2(
   XPathContext context,

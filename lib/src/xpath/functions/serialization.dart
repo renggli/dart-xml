@@ -9,22 +9,19 @@ export 'serialization_parameters.dart';
 export 'serialization_writers.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-serialize
-final fnSerialize = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:serialize'),
-  {
-    1: XPathFunctionItem.fn1(
-      const XmlName.qualified('fn:serialize'),
-      (context, arg) => XPathSequence.single(
-        XPathString(serializeSequence(arg, SerializationParameters())),
+final fnSerialize = XPathFunctionItem.overloaded(XmlName('fn:serialize'), {
+  1: XPathFunctionItem.fn1(
+    XmlName('fn:serialize'),
+    (context, arg) => XPathSequence.single(
+      XPathString(serializeSequence(arg, SerializationParameters())),
+    ),
+  ),
+  2: XPathFunctionItem.fn2(
+    XmlName('fn:serialize'),
+    (context, arg, params) => XPathSequence.single(
+      XPathString(
+        serializeSequence(arg, SerializationParameters.fromSequence(params)),
       ),
     ),
-    2: XPathFunctionItem.fn2(
-      const XmlName.qualified('fn:serialize'),
-      (context, arg, params) => XPathSequence.single(
-        XPathString(
-          serializeSequence(arg, SerializationParameters.fromSequence(params)),
-        ),
-      ),
-    ),
-  },
-);
+  ),
+});

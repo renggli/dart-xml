@@ -475,7 +475,7 @@ class XmlBuilder {
         namespaceUri: definition.uri,
       );
     }
-    return XmlName.qualified(name);
+    return XmlName(name);
   }
 
   // Internal method to add children to the current element.

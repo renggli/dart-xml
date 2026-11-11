@@ -14,10 +14,10 @@ void main() {
   group('XPathFunctionItem', () {
     test('fn0', () {
       final f = XPathFunctionItem.fn0(
-        const XmlName.qualified('my:zero'),
+        XmlName('my:zero'),
         (ctx) => XPathSequence.single(XPathInteger.fromInt(1)),
       );
-      check(f.name).equals(const XmlName.qualified('my:zero'));
+      check(f.name).equals(XmlName('my:zero'));
       check(f.arity).equals(0);
       check(f.isVariadic).isFalse();
       check(f.type).equals(xsFunction);
@@ -29,11 +29,8 @@ void main() {
     });
 
     test('fn1', () {
-      final f = XPathFunctionItem.fn1(
-        const XmlName.qualified('my:one'),
-        (ctx, a1) => a1,
-      );
-      check(f.name).equals(const XmlName.qualified('my:one'));
+      final f = XPathFunctionItem.fn1(XmlName('my:one'), (ctx, a1) => a1);
+      check(f.name).equals(XmlName('my:one'));
       check(f.arity).equals(1);
       check(f.isVariadic).isFalse();
       check(f.toString()).equals('my:one#1');
@@ -49,10 +46,10 @@ void main() {
 
     test('fn2', () {
       final f = XPathFunctionItem.fn2(
-        const XmlName.qualified('my:two'),
+        XmlName('my:two'),
         (ctx, a1, a2) => XPathSequence([...a1, ...a2]),
       );
-      check(f.name).equals(const XmlName.qualified('my:two'));
+      check(f.name).equals(XmlName('my:two'));
       check(f.arity).equals(2);
       check(f.isVariadic).isFalse();
       check(f.toString()).equals('my:two#2');
@@ -72,10 +69,10 @@ void main() {
 
     test('fn3', () {
       final f = XPathFunctionItem.fn3(
-        const XmlName.qualified('my:three'),
+        XmlName('my:three'),
         (ctx, a1, a2, a3) => XPathSequence([...a1, ...a2, ...a3]),
       );
-      check(f.name).equals(const XmlName.qualified('my:three'));
+      check(f.name).equals(XmlName('my:three'));
       check(f.arity).equals(3);
       check(f.isVariadic).isFalse();
       check(f.toString()).equals('my:three#3');
@@ -93,11 +90,11 @@ void main() {
 
     test('fnN and function factory', () {
       final f = XPathFunctionItem.fnN(
-        const XmlName.qualified('my:four'),
+        XmlName('my:four'),
         4,
         (ctx, args) => XPathSequence(args.expand((s) => s)),
       );
-      check(f.name).equals(const XmlName.qualified('my:four'));
+      check(f.name).equals(XmlName('my:four'));
       check(f.arity).equals(4);
       check(f.isVariadic).isFalse();
       check(f.toString()).equals('my:four#4');
@@ -114,7 +111,7 @@ void main() {
           .which(isXPathEvaluationException());
 
       final fNamed = XPathFunctionItem.function(
-        name: const XmlName.qualified('my:custom'),
+        name: XmlName('my:custom'),
         arity: 1,
         function: (ctx, args) => args.first,
       );
@@ -125,11 +122,11 @@ void main() {
 
     test('variadic', () {
       final f = XPathFunctionItem.variadic(
-        const XmlName.qualified('my:concat'),
+        XmlName('my:concat'),
         2,
         (ctx, args) => XPathSequence(args.expand((s) => s)),
       );
-      check(f.name).equals(const XmlName.qualified('my:concat'));
+      check(f.name).equals(XmlName('my:concat'));
       check(f.arity).equals(2);
       check(f.isVariadic).isTrue();
       check(f.toString()).equals('my:concat#2');
@@ -146,20 +143,17 @@ void main() {
     });
 
     test('overloaded', () {
-      final f = XPathFunctionItem.overloaded(
-        const XmlName.qualified('my:overloaded'),
-        {
-          0: XPathFunctionItem.fn0(
-            const XmlName.qualified('my:overloaded'),
-            (ctx) => const XPathSequence.single(XPathString('zero')),
-          ),
-          1: XPathFunctionItem.fn1(
-            const XmlName.qualified('my:overloaded'),
-            (ctx, a1) => const XPathSequence.single(XPathString('one')),
-          ),
-        },
-      );
-      check(f.name).equals(const XmlName.qualified('my:overloaded'));
+      final f = XPathFunctionItem.overloaded(XmlName('my:overloaded'), {
+        0: XPathFunctionItem.fn0(
+          XmlName('my:overloaded'),
+          (ctx) => const XPathSequence.single(XPathString('zero')),
+        ),
+        1: XPathFunctionItem.fn1(
+          XmlName('my:overloaded'),
+          (ctx, a1) => const XPathSequence.single(XPathString('one')),
+        ),
+      });
+      check(f.name).equals(XmlName('my:overloaded'));
       check(f.arity).equals(0);
       check(f.isVariadic).isFalse();
       if (f is XPathOverloadedFunction) {
@@ -199,7 +193,7 @@ void main() {
 
     test('typed function and overloaded signatures', () {
       final typedFn = XPathFunctionItem.fn1(
-        const XmlName.qualified('typed'),
+        XmlName('typed'),
         (ctx, a) => a,
         parameterTypes: [xsInteger],
         returnType: xsInteger,
@@ -209,7 +203,7 @@ void main() {
       check(typedFn.type).isA<XPathFunctionType>();
 
       final overloadedTyped = XPathOverloadedFunction(
-        const XmlName.qualified('overloaded-typed'),
+        XmlName('overloaded-typed'),
         {1: typedFn},
       );
       check(overloadedTyped.parameterTypes).isNotNull().deepEquals([xsInteger]);

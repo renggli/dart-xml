@@ -24,10 +24,10 @@ void main() {
     });
 
     test('equality and hashCode', () {
-      const q1 = XPathQName(XmlName.qualified('p:elem', namespaceUri: 'ns'));
-      const q2 = XPathQName(XmlName.qualified('p:elem', namespaceUri: 'ns'));
-      const q3 = XPathQName(XmlName.qualified('p:elem', namespaceUri: 'other'));
-      const q4 = XPathQName(XmlName.qualified('p:other', namespaceUri: 'ns'));
+      final q1 = XPathQName(XmlName('p:elem', namespaceUri: 'ns'));
+      final q2 = XPathQName(XmlName('p:elem', namespaceUri: 'ns'));
+      final q3 = XPathQName(XmlName('p:elem', namespaceUri: 'other'));
+      final q4 = XPathQName(XmlName('p:other', namespaceUri: 'ns'));
 
       check(q1).equals(q2);
       check(q1.hashCode).equals(q2.hashCode);

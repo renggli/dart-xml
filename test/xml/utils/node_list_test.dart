@@ -12,7 +12,7 @@ void main() {
       final a = root.children[0] as XmlElement;
       final b = root.children[1] as XmlElement;
 
-      final target = XmlElement(const XmlName.qualified('target'));
+      final target = XmlElement(XmlName('target'));
       target.children.add(a);
 
       check(root.children).deepEquals([b]);
@@ -293,7 +293,7 @@ void main() {
     test('repeated node in addAll is inserted only once', () {
       final doc = XmlDocument.parse('<root/>');
       final root = doc.rootElement;
-      final a = XmlElement(const XmlName.qualified('a'));
+      final a = XmlElement(XmlName('a'));
 
       root.children.addAll([a, a]);
 
@@ -319,9 +319,7 @@ void main() {
       () {
         final doc = XmlDocument.parse('<root/>');
         final root = doc.rootElement;
-        final fragment = XmlDocumentFragment([
-          XmlElement(const XmlName.qualified('a')),
-        ]);
+        final fragment = XmlDocumentFragment([XmlElement(XmlName('a'))]);
 
         root.children.addAll([fragment, fragment]);
 
@@ -334,9 +332,7 @@ void main() {
     test('same fragment used in two separate add calls: second is empty', () {
       final doc = XmlDocument.parse('<root/>');
       final root = doc.rootElement;
-      final fragment = XmlDocumentFragment([
-        XmlElement(const XmlName.qualified('a')),
-      ]);
+      final fragment = XmlDocumentFragment([XmlElement(XmlName('a'))]);
 
       root.children.add(fragment);
       root.children.add(fragment); // now empty
@@ -348,8 +344,8 @@ void main() {
 
   group('fresh leaf insertion', () {
     test('appends detached elements and text with correct parents', () {
-      final root = XmlElement(const XmlName.qualified('root'));
-      final element = XmlElement(const XmlName.qualified('child'));
+      final root = XmlElement(XmlName('root'));
+      final element = XmlElement(XmlName('child'));
       final text = XmlText('hello');
       root.children.add(element);
       root.children.add(text);
@@ -359,29 +355,29 @@ void main() {
     });
 
     test('appending an empty list leaves the tree unchanged', () {
-      final root = XmlElement(const XmlName.qualified('root'));
+      final root = XmlElement(XmlName('root'));
       root.children.addAll(const <XmlNode>[]);
       check(root.children).isEmpty();
       check(root.parent).isNull();
     });
 
     test('invalid detached leaf is rejected without mutation', () {
-      final root = XmlElement(const XmlName.qualified('root'));
-      final attribute = XmlAttribute(const XmlName.qualified('id'), '1');
+      final root = XmlElement(XmlName('root'));
+      final attribute = XmlAttribute(XmlName('id'), '1');
       check(() => root.children.add(attribute)).throws<XmlNodeTypeException>();
       check(root.children).isEmpty();
       check(attribute.parent).isNull();
     });
 
     test('empty element cannot be appended to itself', () {
-      final element = XmlElement(const XmlName.qualified('root'));
+      final element = XmlElement(XmlName('root'));
       check(() => element.children.add(element)).throws<XmlParentException>();
       check(element.children).isEmpty();
     });
 
     test('detached ancestor cannot be appended to a descendant', () {
-      final root = XmlElement(const XmlName.qualified('root'));
-      final child = XmlElement(const XmlName.qualified('child'));
+      final root = XmlElement(XmlName('root'));
+      final child = XmlElement(XmlName('child'));
       root.children.add(child);
       check(root.parent).isNull();
       check(() => child.children.add(root)).throws<XmlParentException>();
@@ -406,7 +402,7 @@ void main() {
       final doc = XmlDocument.parse('<root><a/></root>');
       final root = doc.rootElement;
       final a = root.children[0];
-      final wrongType = XmlAttribute(const XmlName.qualified('x'), 'y');
+      final wrongType = XmlAttribute(XmlName('x'), 'y');
 
       check(() => root.children.addAll([a, wrongType]))
           .throws<XmlNodeTypeException>();
@@ -420,13 +416,11 @@ void main() {
     test('insertAll rolls back on type error, no nodes moved', () {
       final doc = XmlDocument.parse('<root><a/></root>');
       final root = doc.rootElement;
-      final wrongType = XmlAttribute(const XmlName.qualified('x'), 'y');
+      final wrongType = XmlAttribute(XmlName('x'), 'y');
 
       check(
-        () => root.children.insertAll(0, [
-          XmlElement(const XmlName.qualified('ok')),
-          wrongType,
-        ]),
+        () =>
+            root.children.insertAll(0, [XmlElement(XmlName('ok')), wrongType]),
       ).throws<XmlNodeTypeException>();
 
       check(root.children.length).equals(1);
@@ -438,7 +432,7 @@ void main() {
       final root = doc.rootElement;
       final a = root.children[0];
       final b = root.children[1];
-      final wrongType = XmlAttribute(const XmlName.qualified('x'), 'y');
+      final wrongType = XmlAttribute(XmlName('x'), 'y');
 
       check(() => root.children.replaceRange(0, 1, [wrongType]))
           .throws<XmlNodeTypeException>();
@@ -453,7 +447,7 @@ void main() {
         final doc = XmlDocument.parse('<root/>');
         final root = doc.rootElement;
         final fragment = XmlDocumentFragment([
-          XmlElement(const XmlName.qualified('a')),
+          XmlElement(XmlName('a')),
           XmlDeclaration(), // invalid for element children
         ]);
 
@@ -487,7 +481,7 @@ void main() {
       final doc = XmlDocument.parse('<root><parent><child/></parent></root>');
       final root = doc.rootElement;
       final child = root.firstElementChild!.firstElementChild!;
-      final extra = XmlElement(const XmlName.qualified('extra'));
+      final extra = XmlElement(XmlName('extra'));
 
       check(() => child.children.addAll([extra, root]))
           .throws<XmlParentException>();

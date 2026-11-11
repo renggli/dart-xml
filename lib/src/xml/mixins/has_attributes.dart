@@ -154,7 +154,7 @@ mixin XmlHasAttributes implements XmlAttributesBase, XmlNode {
       if (!updated && name != '*' && effectiveNamespaceUri != '*') {
         attributes.add(
           XmlAttribute(
-            XmlName.qualified(name, namespaceUri: effectiveNamespaceUri),
+            XmlName(name, namespaceUri: effectiveNamespaceUri),
             value,
           ),
         );

@@ -121,9 +121,9 @@ void main() {
         ..asString.equals('xmlns');
     });
   });
-  group('XmlName.qualified', () {
-    test('XmlName.qualified without prefix', () {
-      check(const XmlName.qualified('bar', namespaceUri: namespaceUri))
+  group('XmlName', () {
+    test('XmlName without prefix', () {
+      check(XmlName('bar', namespaceUri: namespaceUri))
         ..qualified.equals('bar')
         ..prefix.isNull()
         ..local.equals('bar')
@@ -131,8 +131,8 @@ void main() {
         ..extendedQualified.equals('Q{$namespaceUri}bar')
         ..asString.equals('bar');
     });
-    test('XmlName.qualified with prefix', () {
-      check(const XmlName.qualified('foo:bar', namespaceUri: namespaceUri))
+    test('XmlName with prefix', () {
+      check(XmlName('foo:bar', namespaceUri: namespaceUri))
         ..qualified.equals('foo:bar')
         ..prefix.equals('foo')
         ..local.equals('bar')
@@ -142,16 +142,10 @@ void main() {
     });
   });
   group('comparison', () {
-    const original = XmlName.qualified('foo:bar', namespaceUri: namespaceUri);
-    const differentPrefix = XmlName.qualified(
-      'zork:bar',
-      namespaceUri: namespaceUri,
-    );
-    const noNamespace = XmlName.qualified('foo:bar');
-    const differentNamespace = XmlName.qualified(
-      'foo:bar',
-      namespaceUri: 'something',
-    );
+    final original = XmlName('foo:bar', namespaceUri: namespaceUri);
+    final differentPrefix = XmlName('zork:bar', namespaceUri: namespaceUri);
+    final noNamespace = XmlName('foo:bar');
+    final differentNamespace = XmlName('foo:bar', namespaceUri: 'something');
     test('self comparison', () {
       check(original == original).isTrue();
       check(differentPrefix == differentPrefix).isTrue();

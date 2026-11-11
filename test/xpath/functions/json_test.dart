@@ -70,7 +70,7 @@ void main() {
     });
     test('options escape and fallback', () {
       final fallbackFn = XPathFunctionItem.fn1(
-        const XmlName.qualified('local:fallback'),
+        XmlName('local:fallback'),
         (ctx, arg) => seq('?'),
       );
       final result = fnParseJson(context, [
@@ -105,7 +105,7 @@ void main() {
     });
     test('options escape and fallback conflict', () {
       final fallbackFn = XPathFunctionItem.fn1(
-        const XmlName.qualified('local:fallback'),
+        XmlName('local:fallback'),
         (ctx, arg) => seq('?'),
       );
       check(
@@ -378,7 +378,7 @@ void main() {
     });
     test('options fallback function on characters', () {
       final fallbackFn = XPathFunctionItem.fn1(
-        const XmlName.qualified('local:fallback'),
+        XmlName('local:fallback'),
         (ctx, arg) => seq('[char]'),
       );
       final result = fnJsonToXml(context, [
@@ -637,7 +637,7 @@ void main() {
 
         // fallback arity != 1
         final fallbackFn2 = XPathFunctionItem.fn2(
-          const XmlName.qualified('local:fallback2'),
+          XmlName('local:fallback2'),
           (ctx, a, b) => seq('?'),
         );
         check(
@@ -875,7 +875,7 @@ void main() {
 
         // Fallback returning non-string or throwing error
         final badFallback = XPathFunctionItem.fn1(
-          const XmlName.qualified('local:badFallback'),
+          XmlName('local:badFallback'),
           (ctx, arg) => seq(123),
         );
         check(
@@ -894,7 +894,7 @@ void main() {
         );
 
         final throwingFallback = XPathFunctionItem.fn1(
-          const XmlName.qualified('local:throwingFallback'),
+          XmlName('local:throwingFallback'),
           (ctx, arg) => throw StateError('boom'),
         );
         check(
@@ -1330,7 +1330,7 @@ void main() {
 
         // xml10Valid == false (\b, \f) with fallback
         final fallbackFn = XPathFunctionItem.fn1(
-          const XmlName.qualified('local:fallback'),
+          XmlName('local:fallback'),
           (ctx, arg) => seq('[FB]'),
         );
         final resXmlInvalidFallback = fnJsonToXml(context, [
@@ -1354,11 +1354,11 @@ void main() {
 
         // escaped: true element with raw control characters
         final rawControlElem = XmlElement(
-          const XmlName.qualified(
+          XmlName(
             'string',
             namespaceUri: 'http://www.w3.org/2005/xpath-functions',
           ),
-          [XmlAttribute(const XmlName.qualified('escaped'), 'true')],
+          [XmlAttribute(XmlName('escaped'), 'true')],
           [XmlText('\b\f\n\r\t\x01\x85')],
         );
         final resEscRawControls = fnXmlToJson(context, [

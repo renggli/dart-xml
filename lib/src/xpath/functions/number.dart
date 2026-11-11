@@ -16,19 +16,16 @@ import '../xdm/sequence.dart';
 import '../xdm/types.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-number
-final fnNumber = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:number'),
-  {
-    0: XPathFunctionItem.fn0(
-      const XmlName.qualified('fn:number'),
-      (context) => _evalNumber(context.item as XPathItem?),
-    ),
-    1: XPathFunctionItem.fn1(
-      const XmlName.qualified('fn:number'),
-      (context, arg) => _evalNumber(arg.atomize().firstOrNull),
-    ),
-  },
-);
+final fnNumber = XPathFunctionItem.overloaded(XmlName('fn:number'), {
+  0: XPathFunctionItem.fn0(
+    XmlName('fn:number'),
+    (context) => _evalNumber(context.item as XPathItem?),
+  ),
+  1: XPathFunctionItem.fn1(
+    XmlName('fn:number'),
+    (context, arg) => _evalNumber(arg.atomize().firstOrNull),
+  ),
+});
 
 XPathSequence _evalNumber(XPathItem? arg) {
   if (arg == null) return const XPathSequence.single(XPathDouble.nan);
@@ -95,10 +92,7 @@ XPathInteger? _coerceIntegerArg(XPathSequence arg) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-abs
-final fnAbs = XPathFunctionItem.fn1(const XmlName.qualified('fn:abs'), (
-  context,
-  arg,
-) {
+final fnAbs = XPathFunctionItem.fn1(XmlName('fn:abs'), (context, arg) {
   final item = _coerceNumericArg(arg);
   if (item == null) return XPathSequence.empty;
   return switch (item) {
@@ -115,10 +109,7 @@ final fnAbs = XPathFunctionItem.fn1(const XmlName.qualified('fn:abs'), (
 });
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-ceiling
-final fnCeiling = XPathFunctionItem.fn1(const XmlName.qualified('fn:ceiling'), (
-  context,
-  arg,
-) {
+final fnCeiling = XPathFunctionItem.fn1(XmlName('fn:ceiling'), (context, arg) {
   final item = _coerceNumericArg(arg);
   if (item == null) return XPathSequence.empty;
   return switch (item) {
@@ -140,10 +131,7 @@ final fnCeiling = XPathFunctionItem.fn1(const XmlName.qualified('fn:ceiling'), (
 });
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-floor
-final fnFloor = XPathFunctionItem.fn1(const XmlName.qualified('fn:floor'), (
-  context,
-  arg,
-) {
+final fnFloor = XPathFunctionItem.fn1(XmlName('fn:floor'), (context, arg) {
   final item = _coerceNumericArg(arg);
   if (item == null) return XPathSequence.empty;
   return switch (item) {
@@ -165,20 +153,17 @@ final fnFloor = XPathFunctionItem.fn1(const XmlName.qualified('fn:floor'), (
 });
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-round
-final fnRound = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:round'),
-  {
-    1: XPathFunctionItem.fn1(
-      const XmlName.qualified('fn:round'),
-      (context, arg) => _evalRound(_coerceNumericArg(arg), null),
-    ),
-    2: XPathFunctionItem.fn2(
-      const XmlName.qualified('fn:round'),
-      (context, arg, precision) =>
-          _evalRound(_coerceNumericArg(arg), _coerceIntegerArg(precision)),
-    ),
-  },
-);
+final fnRound = XPathFunctionItem.overloaded(XmlName('fn:round'), {
+  1: XPathFunctionItem.fn1(
+    XmlName('fn:round'),
+    (context, arg) => _evalRound(_coerceNumericArg(arg), null),
+  ),
+  2: XPathFunctionItem.fn2(
+    XmlName('fn:round'),
+    (context, arg, precision) =>
+        _evalRound(_coerceNumericArg(arg), _coerceIntegerArg(precision)),
+  ),
+});
 
 XPathSequence _evalRound(XPathNumeric? arg, XPathInteger? precision) {
   if (arg == null) return XPathSequence.empty;
@@ -270,14 +255,14 @@ XPathSequence _evalRound(XPathNumeric? arg, XPathInteger? precision) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-round-half-to-even
 final fnRoundHalfToEven = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:round-half-to-even'),
+  XmlName('fn:round-half-to-even'),
   {
     1: XPathFunctionItem.fn1(
-      const XmlName.qualified('fn:round-half-to-even'),
+      XmlName('fn:round-half-to-even'),
       (context, arg) => _evalRoundHalfToEven(_coerceNumericArg(arg), null),
     ),
     2: XPathFunctionItem.fn2(
-      const XmlName.qualified('fn:round-half-to-even'),
+      XmlName('fn:round-half-to-even'),
       (context, arg, precision) => _evalRoundHalfToEven(
         _coerceNumericArg(arg),
         _coerceIntegerArg(precision),
@@ -412,14 +397,14 @@ XPathSequence _evalRoundHalfToEven(XPathNumeric? arg, XPathInteger? precision) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-random-number-generator
 final fnRandomNumberGenerator = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:random-number-generator'),
+  XmlName('fn:random-number-generator'),
   {
     0: XPathFunctionItem.fn0(
-      const XmlName.qualified('fn:random-number-generator'),
+      XmlName('fn:random-number-generator'),
       (context) => _evalRandomNumberGenerator(null),
     ),
     1: XPathFunctionItem.fn1(
-      const XmlName.qualified('fn:random-number-generator'),
+      XmlName('fn:random-number-generator'),
       (context, seed) => _evalRandomNumberGenerator(seed.atomize().firstOrNull),
     ),
   },

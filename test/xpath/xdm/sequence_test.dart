@@ -64,7 +64,7 @@ void main() {
     });
 
     test('from(items) flattens nested sequences and converts primitives', () {
-      final el = XmlElement(const XmlName.qualified('x'));
+      final el = XmlElement(XmlName('x'));
       final seq = XPathSequence.from([
         1,
         'str',
@@ -89,7 +89,7 @@ void main() {
       check(XPathSequence.toItem(3.14)).equals(const XPathDouble(3.14));
       check(XPathSequence.toItem('hi')).equals(const XPathString('hi'));
       check(XPathSequence.toItem(true)).equals(XPathBoolean.trueInstance);
-      final el = XmlElement(const XmlName.qualified('a'));
+      final el = XmlElement(XmlName('a'));
       check(XPathSequence.toItem(el)).equals(XPathNode(el));
       check(XPathSequence.toItem(const XPathString('item')))
           .equals(const XPathString('item'));
@@ -141,7 +141,7 @@ void main() {
     });
 
     test('ebv with node sequence and multi-item error', () {
-      final node = XPathNode(XmlElement(const XmlName.qualified('a')));
+      final node = XPathNode(XmlElement(XmlName('a')));
       final nodeSeq = XPathSequence([node, node]);
       check(nodeSeq.ebv).isTrue();
 

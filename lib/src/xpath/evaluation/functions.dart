@@ -30,7 +30,7 @@ final Map<XmlName, XPathFunctionItem> standardFunctions = {
 };
 
 /// The name of the anonymous function.
-const anonymousFunctionName = XmlName.qualified('(anonymous)');
+const anonymousFunctionName = XmlName.parts('(anonymous)');
 
 /// Internal list of standard function definitions.
 final standardFunctionDefinitions = <XPathFunctionItem>[

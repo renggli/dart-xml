@@ -353,14 +353,14 @@ void assertIteratorInvariants(XmlNode xml) {
 void assertComparatorInvariants(XmlNode xml) {
   const unique = 'unique-2404879675441';
   final uniqueNodes = [
-    XmlAttribute(const XmlName.qualified(unique), unique),
+    XmlAttribute(XmlName(unique), unique),
     XmlCDATA(unique),
     XmlComment(unique),
-    XmlDeclaration([XmlAttribute(const XmlName.qualified(unique), unique)]),
+    XmlDeclaration([XmlAttribute(XmlName(unique), unique)]),
     XmlDoctype(unique),
-    XmlDocument([XmlElement(const XmlName.qualified(unique))]),
-    XmlDocumentFragment([XmlElement(const XmlName.qualified(unique))]),
-    XmlElement(const XmlName.qualified(unique)),
+    XmlDocument([XmlElement(XmlName(unique))]),
+    XmlDocumentFragment([XmlElement(XmlName(unique))]),
+    XmlElement(XmlName(unique)),
     XmlNamespace(unique, unique),
     XmlProcessing(unique, unique),
     XmlText(unique),
@@ -382,13 +382,18 @@ void assertComparatorInvariants(XmlNode xml) {
       check(uniqueNode.contains(node)).isFalse();
     }
     // compareNodePosition
+    // ignore: deprecated_member_use_from_same_package
     check(node.preceding.map(node.compareNodePosition))
         .every((it) => it.equals(1));
+    // ignore: deprecated_member_use_from_same_package
     check(node.compareNodePosition(node)).equals(0);
+    // ignore: deprecated_member_use_from_same_package
     check(node.following.map(node.compareNodePosition))
         .every((it) => it.equals(-1));
     for (final uniqueNode in uniqueNodes) {
+      // ignore: deprecated_member_use_from_same_package
       check(() => node.compareNodePosition(uniqueNode)).throws<StateError>();
+      // ignore: deprecated_member_use_from_same_package
       check(() => uniqueNode.compareNodePosition(node)).throws<StateError>();
     }
     // compareDocumentPosition

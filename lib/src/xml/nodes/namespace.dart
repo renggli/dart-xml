@@ -18,7 +18,7 @@ class XmlNamespace extends XmlNode with XmlHasName, XmlHasParent {
 
   /// The namespace name.
   @override
-  XmlName get name => XmlName.qualified(prefix);
+  XmlName get name => XmlName(prefix);
 
   @override
   String get value => uri;

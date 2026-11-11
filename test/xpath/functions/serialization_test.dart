@@ -48,8 +48,8 @@ void main() {
     test('serializes with cdata-section-elements', () {
       final doc = XmlDocument.parse('<doc><b>bold</b><i>italic</i></doc>');
       final params = XPathMap({
-        const XPathString('cdata-section-elements'): const XPathSequence.single(
-          XPathQName(XmlName.qualified('b')),
+        const XPathString('cdata-section-elements'): XPathSequence.single(
+          XPathQName(XmlName('b')),
         ),
       });
       final res = fnSerialize(context, [
@@ -556,7 +556,7 @@ void main() {
         XPathMap({
           const XPathString('suppress-indentation'): XPathSequence.single(
             XPathArray([
-              seq(const XPathQName(XmlName.qualified('q1'))),
+              seq(XPathQName(XmlName('q1'))),
               seq('str1'),
               seq(const XPathUntypedAtomic('untyped1')),
             ]),
@@ -825,7 +825,7 @@ void main() {
         method: 'xml',
         indent: true,
         suppressIndentation: [
-          const XmlName.qualified('pre', namespaceUri: 'http://example.com'),
+          XmlName('pre', namespaceUri: 'http://example.com'),
         ],
       );
       final sSuppress = serializeSequence(seq(docNs), pSuppressNs);
@@ -838,7 +838,7 @@ void main() {
       final pCdataNs = SerializationParameters(
         method: 'xml',
         cdataSectionElements: [
-          const XmlName.qualified('b', namespaceUri: 'http://example.com'),
+          XmlName('b', namespaceUri: 'http://example.com'),
         ],
       );
       final sCdata = serializeSequence(seq(docCdataNs), pCdataNs);
@@ -847,8 +847,8 @@ void main() {
       check(sCdata).contains('<br/>');
 
       // HTML with sequence containing html element
-      final htmlElem = XmlElement(const XmlName.qualified('html'), [], [
-        XmlElement(const XmlName.qualified('body')),
+      final htmlElem = XmlElement(XmlName('html'), [], [
+        XmlElement(XmlName('body')),
       ]);
       final sHtmlElem = serializeSequence(
         seq(htmlElem),
@@ -964,8 +964,8 @@ void main() {
       );
       check(sArrAdaptive).equals('[1,2]');
 
-      final elemWithAttr = XmlElement(const XmlName.qualified('el'), [
-        XmlAttribute(const XmlName.qualified('id'), 'test'),
+      final elemWithAttr = XmlElement(XmlName('el'), [
+        XmlAttribute(XmlName('id'), 'test'),
       ]);
       final attrNode = elemWithAttr.attributes.first;
       final sAttrAdaptive = serializeSequence(

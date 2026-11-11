@@ -197,22 +197,19 @@ void main() {
   group('fn:function-lookup', () {
     test('known function by prefixed name', () {
       final result = fnFunctionLookup(context, [
-        seq(const XmlName.qualified('fn:abs')),
+        seq(XmlName('fn:abs')),
         seq(1),
       ]);
       check(result).isXPathSequence([isA<XPathFunctionItem>()]);
     });
     test('known function by short name', () {
-      final result = fnFunctionLookup(context, [
-        seq(const XmlName.qualified('abs')),
-        seq(1),
-      ]);
+      final result = fnFunctionLookup(context, [seq(XmlName('abs')), seq(1)]);
       check(result).isXPathSequence([isA<XPathFunctionItem>()]);
     });
 
     test('unknown function returns empty', () {
       final result = fnFunctionLookup(context, [
-        seq(const XmlName.qualified('nonexistent')),
+        seq(XmlName('nonexistent')),
         seq(1),
       ]);
       check(result).isEmpty();

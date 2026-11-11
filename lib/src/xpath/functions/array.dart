@@ -9,10 +9,7 @@ import '../xdm/item.dart';
 import '../xdm/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-size
-const fnArraySize = XPathFunctionItem.fn1(
-  XmlName.qualified('array:size'),
-  _fnArraySize,
-);
+final fnArraySize = XPathFunctionItem.fn1(XmlName('array:size'), _fnArraySize);
 
 XPathSequence _fnArraySize(XPathContext context, XPathSequence arraySeq) {
   final array = arraySeq.first as XPathArray;
@@ -20,10 +17,7 @@ XPathSequence _fnArraySize(XPathContext context, XPathSequence arraySeq) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-get
-const fnArrayGet = XPathFunctionItem.fn2(
-  XmlName.qualified('array:get'),
-  _fnArrayGet,
-);
+final fnArrayGet = XPathFunctionItem.fn2(XmlName('array:get'), _fnArrayGet);
 
 XPathSequence _fnArrayGet(
   XPathContext context,
@@ -43,10 +37,7 @@ XPathSequence _fnArrayGet(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-put
-const fnArrayPut = XPathFunctionItem.fn3(
-  XmlName.qualified('array:put'),
-  _fnArrayPut,
-);
+final fnArrayPut = XPathFunctionItem.fn3(XmlName('array:put'), _fnArrayPut);
 
 XPathSequence _fnArrayPut(
   XPathContext context,
@@ -69,8 +60,8 @@ XPathSequence _fnArrayPut(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-append
-const fnArrayAppend = XPathFunctionItem.fn2(
-  XmlName.qualified('array:append'),
+final fnArrayAppend = XPathFunctionItem.fn2(
+  XmlName('array:append'),
   _fnArrayAppend,
 );
 
@@ -84,17 +75,11 @@ XPathSequence _fnArrayAppend(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-subarray
-const fnArraySubarray = XPathFunctionItem.overloaded(
-  XmlName.qualified('array:subarray'),
+final fnArraySubarray = XPathFunctionItem.overloaded(
+  XmlName('array:subarray'),
   {
-    2: XPathFunctionItem.fn2(
-      XmlName.qualified('array:subarray'),
-      _fnArraySubarray2,
-    ),
-    3: XPathFunctionItem.fn3(
-      XmlName.qualified('array:subarray'),
-      _fnArraySubarray3,
-    ),
+    2: XPathFunctionItem.fn2(XmlName('array:subarray'), _fnArraySubarray2),
+    3: XPathFunctionItem.fn3(XmlName('array:subarray'), _fnArraySubarray3),
   },
 );
 
@@ -136,8 +121,8 @@ XPathSequence _evalSubarray(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-remove
-const fnArrayRemove = XPathFunctionItem.fn2(
-  XmlName.qualified('array:remove'),
+final fnArrayRemove = XPathFunctionItem.fn2(
+  XmlName('array:remove'),
   _fnArrayRemove,
 );
 
@@ -169,8 +154,8 @@ XPathSequence _fnArrayRemove(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-insert-before
-const fnArrayInsertBefore = XPathFunctionItem.fn3(
-  XmlName.qualified('array:insert-before'),
+final fnArrayInsertBefore = XPathFunctionItem.fn3(
+  XmlName('array:insert-before'),
   _fnArrayInsertBefore,
 );
 
@@ -195,10 +180,7 @@ XPathSequence _fnArrayInsertBefore(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-head
-const fnArrayHead = XPathFunctionItem.fn1(
-  XmlName.qualified('array:head'),
-  _fnArrayHead,
-);
+final fnArrayHead = XPathFunctionItem.fn1(XmlName('array:head'), _fnArrayHead);
 
 XPathSequence _fnArrayHead(XPathContext context, XPathSequence arraySeq) {
   final array = arraySeq.first as XPathArray;
@@ -209,10 +191,7 @@ XPathSequence _fnArrayHead(XPathContext context, XPathSequence arraySeq) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-tail
-const fnArrayTail = XPathFunctionItem.fn1(
-  XmlName.qualified('array:tail'),
-  _fnArrayTail,
-);
+final fnArrayTail = XPathFunctionItem.fn1(XmlName('array:tail'), _fnArrayTail);
 
 XPathSequence _fnArrayTail(XPathContext context, XPathSequence arraySeq) {
   final array = arraySeq.first as XPathArray;
@@ -223,8 +202,8 @@ XPathSequence _fnArrayTail(XPathContext context, XPathSequence arraySeq) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-reverse
-const fnArrayReverse = XPathFunctionItem.fn1(
-  XmlName.qualified('array:reverse'),
+final fnArrayReverse = XPathFunctionItem.fn1(
+  XmlName('array:reverse'),
   _fnArrayReverse,
 );
 
@@ -234,10 +213,7 @@ XPathSequence _fnArrayReverse(XPathContext context, XPathSequence arraySeq) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-join
-const fnArrayJoin = XPathFunctionItem.fn1(
-  XmlName.qualified('array:join'),
-  _fnArrayJoin,
-);
+final fnArrayJoin = XPathFunctionItem.fn1(XmlName('array:join'), _fnArrayJoin);
 
 XPathSequence _fnArrayJoin(XPathContext context, XPathSequence arrays) {
   final result = <XPathSequence>[];
@@ -248,8 +224,8 @@ XPathSequence _fnArrayJoin(XPathContext context, XPathSequence arrays) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-flatten
-const fnArrayFlatten = XPathFunctionItem.fn1(
-  XmlName.qualified('array:flatten'),
+final fnArrayFlatten = XPathFunctionItem.fn1(
+  XmlName('array:flatten'),
   _fnArrayFlatten,
 );
 
@@ -272,8 +248,8 @@ Iterable<XPathItem> _fnArrayFlattenSync(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-for-each
-const fnArrayForEach = XPathFunctionItem.fn2(
-  XmlName.qualified('array:for-each'),
+final fnArrayForEach = XPathFunctionItem.fn2(
+  XmlName('array:for-each'),
   _fnArrayForEach,
 );
 
@@ -293,8 +269,8 @@ XPathSequence _fnArrayForEach(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-filter
-const fnArrayFilter = XPathFunctionItem.fn2(
-  XmlName.qualified('array:filter'),
+final fnArrayFilter = XPathFunctionItem.fn2(
+  XmlName('array:filter'),
   _fnArrayFilter,
 );
 
@@ -314,8 +290,8 @@ XPathSequence _fnArrayFilter(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-fold-left
-const fnArrayFoldLeft = XPathFunctionItem.fn3(
-  XmlName.qualified('array:fold-left'),
+final fnArrayFoldLeft = XPathFunctionItem.fn3(
+  XmlName('array:fold-left'),
   _fnArrayFoldLeft,
 );
 
@@ -335,8 +311,8 @@ XPathSequence _fnArrayFoldLeft(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-fold-right
-const fnArrayFoldRight = XPathFunctionItem.fn3(
-  XmlName.qualified('array:fold-right'),
+final fnArrayFoldRight = XPathFunctionItem.fn3(
+  XmlName('array:fold-right'),
   _fnArrayFoldRight,
 );
 
@@ -356,8 +332,8 @@ XPathSequence _fnArrayFoldRight(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-for-each-pair
-const fnArrayForEachPair = XPathFunctionItem.fn3(
-  XmlName.qualified('array:for-each-pair'),
+final fnArrayForEachPair = XPathFunctionItem.fn3(
+  XmlName('array:for-each-pair'),
   _fnArrayForEachPair,
 );
 
@@ -380,14 +356,11 @@ XPathSequence _fnArrayForEachPair(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-array-sort
-const fnArraySort = XPathFunctionItem.overloaded(
-  XmlName.qualified('array:sort'),
-  {
-    1: XPathFunctionItem.fn1(XmlName.qualified('array:sort'), _fnArraySort1),
-    2: XPathFunctionItem.fn2(XmlName.qualified('array:sort'), _fnArraySort2),
-    3: XPathFunctionItem.fn3(XmlName.qualified('array:sort'), _fnArraySort3),
-  },
-);
+final fnArraySort = XPathFunctionItem.overloaded(XmlName('array:sort'), {
+  1: XPathFunctionItem.fn1(XmlName('array:sort'), _fnArraySort1),
+  2: XPathFunctionItem.fn2(XmlName('array:sort'), _fnArraySort2),
+  3: XPathFunctionItem.fn3(XmlName('array:sort'), _fnArraySort3),
+});
 
 XPathSequence _fnArraySort1(XPathContext context, XPathSequence arraySeq) =>
     _evalArraySort(context, arraySeq.first as XPathArray, null, null);

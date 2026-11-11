@@ -172,7 +172,7 @@ void main() {
   });
   test('nested node (element)', () {
     final builder = XmlBuilder();
-    final nested = XmlElement(const XmlName.qualified('nested'));
+    final nested = XmlElement(XmlName('nested'));
     builder.element('element', nest: nested);
     final xml = builder.buildDocument();
     check(xml.children[0].children[0].toXmlString())
@@ -185,7 +185,7 @@ void main() {
   });
   test('nested node (element, repeated)', () {
     final builder = XmlBuilder();
-    final nested = XmlElement(const XmlName.qualified('nested'));
+    final nested = XmlElement(XmlName('nested'));
     builder.element('element', nest: [nested, nested]);
     final xml = builder.buildDocument();
     check(xml.children[0].children[0].toXmlString())
@@ -239,7 +239,7 @@ void main() {
   });
   test('nested node (attribute)', () {
     final builder = XmlBuilder();
-    final nested = XmlAttribute(const XmlName.qualified('foo'), 'bar');
+    final nested = XmlAttribute(XmlName('foo'), 'bar');
     builder.element('element', nest: nested);
     final xml = builder.buildDocument();
     check(xml.children[0].attributes[0].toXmlString())
@@ -701,6 +701,7 @@ void main() {
   });
   test('undefined namespace (deprecated)', () {
     final builder = XmlBuilder();
+    // ignore: deprecated_member_use_from_same_package
     check(() => builder.element('element', namespace: 'http://foo.com/'))
         .throws<ArgumentError>();
   });
@@ -731,8 +732,10 @@ void main() {
     builder.element(
       'element',
       nest: () {
+        // ignore: deprecated_member_use_from_same_package
         check(() => builder.namespace('http://foo.com/', 'xml'))
             .throws<ArgumentError>();
+        // ignore: deprecated_member_use_from_same_package
         check(() => builder.namespace('http://2.foo.com/', 'xmlns'))
             .throws<ArgumentError>();
       },
@@ -767,6 +770,7 @@ void main() {
       nest: () {
         // ignore: deprecated_member_use_from_same_package
         builder.namespace('http://foo.com/', 'foo');
+        // ignore: deprecated_member_use_from_same_package
         check(() => builder.namespace('http://2.foo.com/', 'foo'))
             .throws<ArgumentError>();
       },

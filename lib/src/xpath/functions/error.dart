@@ -8,11 +8,11 @@ import '../xdm/function_item.dart';
 import '../xdm/sequence.dart';
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-error
-const fnError = XPathFunctionItem.overloaded(XmlName.qualified('fn:error'), {
-  0: XPathFunctionItem.fn0(XmlName.qualified('fn:error'), _fnError0),
-  1: XPathFunctionItem.fn1(XmlName.qualified('fn:error'), _fnError1),
-  2: XPathFunctionItem.fn2(XmlName.qualified('fn:error'), _fnError2),
-  3: XPathFunctionItem.fn3(XmlName.qualified('fn:error'), _fnError3),
+final fnError = XPathFunctionItem.overloaded(XmlName('fn:error'), {
+  0: XPathFunctionItem.fn0(XmlName('fn:error'), _fnError0),
+  1: XPathFunctionItem.fn1(XmlName('fn:error'), _fnError1),
+  2: XPathFunctionItem.fn2(XmlName('fn:error'), _fnError2),
+  3: XPathFunctionItem.fn3(XmlName('fn:error'), _fnError3),
 });
 
 XPathSequence _fnError0(XPathContext context) =>
@@ -80,9 +80,9 @@ XPathSequence _fnError3(
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-trace
-const fnTrace = XPathFunctionItem.overloaded(XmlName.qualified('fn:trace'), {
-  1: XPathFunctionItem.fn1(XmlName.qualified('fn:trace'), _fnTrace1),
-  2: XPathFunctionItem.fn2(XmlName.qualified('fn:trace'), _fnTrace2),
+final fnTrace = XPathFunctionItem.overloaded(XmlName('fn:trace'), {
+  1: XPathFunctionItem.fn1(XmlName('fn:trace'), _fnTrace1),
+  2: XPathFunctionItem.fn2(XmlName('fn:trace'), _fnTrace2),
 });
 
 XPathSequence _fnTrace1(XPathContext context, XPathSequence value) {

@@ -6,9 +6,7 @@ import 'package:xml/xpath.dart';
 void main() {
   group('XPathNode', () {
     test('element node type, atomize, stringValue, ebv', () {
-      final el = XmlElement(const XmlName.qualified('root'), [], [
-        XmlText('hello'),
-      ]);
+      final el = XmlElement(XmlName('root'), [], [XmlText('hello')]);
       final node = XPathNode(el);
       check(node.type).equals(xsElement);
       check(node.node).identicalTo(el);
@@ -21,7 +19,7 @@ void main() {
     });
 
     test('attribute node type and stringValue', () {
-      final attr = XmlAttribute(const XmlName.qualified('id'), '123');
+      final attr = XmlAttribute(XmlName('id'), '123');
       final node = XPathNode(attr);
       check(node.type).equals(xsAttribute);
       check(node.stringValue).equals('123');
@@ -64,8 +62,8 @@ void main() {
     });
 
     test('equality and hashCode', () {
-      final el1 = XmlElement(const XmlName.qualified('a'));
-      final el2 = XmlElement(const XmlName.qualified('a'));
+      final el1 = XmlElement(XmlName('a'));
+      final el2 = XmlElement(XmlName('a'));
       final n1 = XPathNode(el1);
       final n1Same = XPathNode(el1);
       final n2 = XPathNode(el2);

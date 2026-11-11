@@ -70,29 +70,26 @@ XPathNode _requiredNodeArg(XPathSequence arg, String fnName) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-name
-final fnName = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:name'),
-  {
-    0: XPathFunctionItem.fn0(
-      const XmlName.qualified('fn:name'),
-      (context) => _evalName(_optionalNodeArg(context, null, 'fn:name')),
-    ),
-    1: XPathFunctionItem.fn1(
-      const XmlName.qualified('fn:name'),
-      (context, arg) => _evalName(_optionalNodeArg(context, arg, 'fn:name')),
-      parameterTypes: const [
-        XPathSequenceType(
-          itemType: xsNode,
-          cardinality: XPathCardinality.zeroOrOne,
-        ),
-      ],
-      returnType: const XPathSequenceType(
-        itemType: xsString,
-        cardinality: XPathCardinality.exactlyOne,
+final fnName = XPathFunctionItem.overloaded(XmlName('fn:name'), {
+  0: XPathFunctionItem.fn0(
+    XmlName('fn:name'),
+    (context) => _evalName(_optionalNodeArg(context, null, 'fn:name')),
+  ),
+  1: XPathFunctionItem.fn1(
+    XmlName('fn:name'),
+    (context, arg) => _evalName(_optionalNodeArg(context, arg, 'fn:name')),
+    parameterTypes: const [
+      XPathSequenceType(
+        itemType: xsNode,
+        cardinality: XPathCardinality.zeroOrOne,
       ),
+    ],
+    returnType: const XPathSequenceType(
+      itemType: xsString,
+      cardinality: XPathCardinality.exactlyOne,
     ),
-  },
-);
+  ),
+});
 
 XPathSequence _evalName(XPathNode? nodeItem) {
   if (nodeItem == null) return const XPathSequence.single(XPathString.empty);
@@ -113,21 +110,18 @@ XPathSequence _evalName(XPathNode? nodeItem) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-local-name
-final fnLocalName = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:local-name'),
-  {
-    0: XPathFunctionItem.fn0(
-      const XmlName.qualified('fn:local-name'),
-      (context) =>
-          _evalLocalName(_optionalNodeArg(context, null, 'fn:local-name')),
-    ),
-    1: XPathFunctionItem.fn1(
-      const XmlName.qualified('fn:local-name'),
-      (context, arg) =>
-          _evalLocalName(_optionalNodeArg(context, arg, 'fn:local-name')),
-    ),
-  },
-);
+final fnLocalName = XPathFunctionItem.overloaded(XmlName('fn:local-name'), {
+  0: XPathFunctionItem.fn0(
+    XmlName('fn:local-name'),
+    (context) =>
+        _evalLocalName(_optionalNodeArg(context, null, 'fn:local-name')),
+  ),
+  1: XPathFunctionItem.fn1(
+    XmlName('fn:local-name'),
+    (context, arg) =>
+        _evalLocalName(_optionalNodeArg(context, arg, 'fn:local-name')),
+  ),
+});
 
 XPathSequence _evalLocalName(XPathNode? nodeItem) {
   if (nodeItem == null) return const XPathSequence.single(XPathString.empty);
@@ -143,16 +137,16 @@ XPathSequence _evalLocalName(XPathNode? nodeItem) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-namespace-uri
 final fnNamespaceUri = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:namespace-uri'),
+  XmlName('fn:namespace-uri'),
   {
     0: XPathFunctionItem.fn0(
-      const XmlName.qualified('fn:namespace-uri'),
+      XmlName('fn:namespace-uri'),
       (context) => _evalNamespaceUri(
         _optionalNodeArg(context, null, 'fn:namespace-uri'),
       ),
     ),
     1: XPathFunctionItem.fn1(
-      const XmlName.qualified('fn:namespace-uri'),
+      XmlName('fn:namespace-uri'),
       (context, arg) =>
           _evalNamespaceUri(_optionalNodeArg(context, arg, 'fn:namespace-uri')),
     ),
@@ -175,13 +169,13 @@ XPathSequence _evalNamespaceUri(XPathNode? nodeItem) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-id
-final fnId = XPathFunctionItem.overloaded(const XmlName.qualified('fn:id'), {
+final fnId = XPathFunctionItem.overloaded(XmlName('fn:id'), {
   1: XPathFunctionItem.fn1(
-    const XmlName.qualified('fn:id'),
+    XmlName('fn:id'),
     (context, arg) => _evalId(arg, _optionalNodeArg(context, null, 'fn:id')),
   ),
   2: XPathFunctionItem.fn2(
-    const XmlName.qualified('fn:id'),
+    XmlName('fn:id'),
     (context, arg, node) => _evalId(arg, _requiredNodeArg(node, 'fn:id')),
   ),
 });
@@ -207,17 +201,17 @@ XPathSequence _evalId(XPathSequence arg, XPathNode? nodeItem) {
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-element-with-id
 final fnElementWithId = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:element-with-id'),
+  XmlName('fn:element-with-id'),
   {
     1: XPathFunctionItem.fn1(
-      const XmlName.qualified('fn:element-with-id'),
+      XmlName('fn:element-with-id'),
       (context, arg) => _evalElementWithId(
         arg,
         _optionalNodeArg(context, null, 'fn:element-with-id'),
       ),
     ),
     2: XPathFunctionItem.fn2(
-      const XmlName.qualified('fn:element-with-id'),
+      XmlName('fn:element-with-id'),
       (context, arg, node) =>
           _evalElementWithId(arg, _requiredNodeArg(node, 'fn:element-with-id')),
     ),
@@ -246,21 +240,17 @@ XPathSequence _evalElementWithId(XPathSequence arg, XPathNode? nodeItem) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-idref
-final fnIdref = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:idref'),
-  {
-    1: XPathFunctionItem.fn1(
-      const XmlName.qualified('fn:idref'),
-      (context, arg) =>
-          _evalIdref(arg, _optionalNodeArg(context, null, 'fn:idref')),
-    ),
-    2: XPathFunctionItem.fn2(
-      const XmlName.qualified('fn:idref'),
-      (context, arg, node) =>
-          _evalIdref(arg, _requiredNodeArg(node, 'fn:idref')),
-    ),
-  },
-);
+final fnIdref = XPathFunctionItem.overloaded(XmlName('fn:idref'), {
+  1: XPathFunctionItem.fn1(
+    XmlName('fn:idref'),
+    (context, arg) =>
+        _evalIdref(arg, _optionalNodeArg(context, null, 'fn:idref')),
+  ),
+  2: XPathFunctionItem.fn2(
+    XmlName('fn:idref'),
+    (context, arg, node) => _evalIdref(arg, _requiredNodeArg(node, 'fn:idref')),
+  ),
+});
 
 XPathSequence _evalIdref(XPathSequence arg, XPathNode? nodeItem) {
   final ids = _parseIdStrings(arg);
@@ -282,21 +272,18 @@ XPathSequence _evalIdref(XPathSequence arg, XPathNode? nodeItem) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-generate-id
-final fnGenerateId = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:generate-id'),
-  {
-    0: XPathFunctionItem.fn0(
-      const XmlName.qualified('fn:generate-id'),
-      (context) =>
-          _evalGenerateId(_optionalNodeArg(context, null, 'fn:generate-id')),
-    ),
-    1: XPathFunctionItem.fn1(
-      const XmlName.qualified('fn:generate-id'),
-      (context, arg) =>
-          _evalGenerateId(_optionalNodeArg(context, arg, 'fn:generate-id')),
-    ),
-  },
-);
+final fnGenerateId = XPathFunctionItem.overloaded(XmlName('fn:generate-id'), {
+  0: XPathFunctionItem.fn0(
+    XmlName('fn:generate-id'),
+    (context) =>
+        _evalGenerateId(_optionalNodeArg(context, null, 'fn:generate-id')),
+  ),
+  1: XPathFunctionItem.fn1(
+    XmlName('fn:generate-id'),
+    (context, arg) =>
+        _evalGenerateId(_optionalNodeArg(context, arg, 'fn:generate-id')),
+  ),
+});
 
 XPathSequence _evalGenerateId(XPathNode? nodeItem) {
   if (nodeItem == null) return const XPathSequence.single(XPathString.empty);
@@ -308,19 +295,16 @@ XPathSequence _evalGenerateId(XPathNode? nodeItem) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-root
-final fnRoot = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:root'),
-  {
-    0: XPathFunctionItem.fn0(
-      const XmlName.qualified('fn:root'),
-      (context) => _evalRoot(_optionalNodeArg(context, null, 'fn:root')),
-    ),
-    1: XPathFunctionItem.fn1(
-      const XmlName.qualified('fn:root'),
-      (context, arg) => _evalRoot(_optionalNodeArg(context, arg, 'fn:root')),
-    ),
-  },
-);
+final fnRoot = XPathFunctionItem.overloaded(XmlName('fn:root'), {
+  0: XPathFunctionItem.fn0(
+    XmlName('fn:root'),
+    (context) => _evalRoot(_optionalNodeArg(context, null, 'fn:root')),
+  ),
+  1: XPathFunctionItem.fn1(
+    XmlName('fn:root'),
+    (context, arg) => _evalRoot(_optionalNodeArg(context, arg, 'fn:root')),
+  ),
+});
 
 XPathSequence _evalRoot(XPathNode? nodeItem) {
   if (nodeItem == null) return XPathSequence.empty;
@@ -328,21 +312,18 @@ XPathSequence _evalRoot(XPathNode? nodeItem) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-has-children
-final fnHasChildren = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:has-children'),
-  {
-    0: XPathFunctionItem.fn0(
-      const XmlName.qualified('fn:has-children'),
-      (context) =>
-          _evalHasChildren(_optionalNodeArg(context, null, 'fn:has-children')),
-    ),
-    1: XPathFunctionItem.fn1(
-      const XmlName.qualified('fn:has-children'),
-      (context, arg) =>
-          _evalHasChildren(_optionalNodeArg(context, arg, 'fn:has-children')),
-    ),
-  },
-);
+final fnHasChildren = XPathFunctionItem.overloaded(XmlName('fn:has-children'), {
+  0: XPathFunctionItem.fn0(
+    XmlName('fn:has-children'),
+    (context) =>
+        _evalHasChildren(_optionalNodeArg(context, null, 'fn:has-children')),
+  ),
+  1: XPathFunctionItem.fn1(
+    XmlName('fn:has-children'),
+    (context, arg) =>
+        _evalHasChildren(_optionalNodeArg(context, arg, 'fn:has-children')),
+  ),
+});
 
 XPathSequence _evalHasChildren(XPathNode? nodeItem) {
   if (nodeItem == null) {
@@ -354,80 +335,77 @@ XPathSequence _evalHasChildren(XPathNode? nodeItem) {
 }
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-innermost
-final fnInnermost = XPathFunctionItem.fn1(
-  const XmlName.qualified('fn:innermost'),
-  (context, nodes) {
-    final list = <XPathNode>[];
-    for (final item in nodes) {
-      if (item is! XPathNode) {
-        throw XPathEvaluationException(
-          XPathErrorCode.XPTY0004,
-          'Argument to fn:innermost must be a sequence of nodes, but got ${item.runtimeType}',
-        );
+final fnInnermost = XPathFunctionItem.fn1(XmlName('fn:innermost'), (
+  context,
+  nodes,
+) {
+  final list = <XPathNode>[];
+  for (final item in nodes) {
+    if (item is! XPathNode) {
+      throw XPathEvaluationException(
+        XPathErrorCode.XPTY0004,
+        'Argument to fn:innermost must be a sequence of nodes, but got ${item.runtimeType}',
+      );
+    }
+    list.add(item);
+  }
+  final ancestorsOfNodes = <XmlNode>{};
+  for (final nodeItem in list) {
+    ancestorsOfNodes.addAll(nodeItem.node.ancestors);
+  }
+  final seen = <XmlNode>{};
+  final result = <XPathNode>[];
+  for (final nodeItem in list) {
+    final node = nodeItem.node;
+    if (!ancestorsOfNodes.contains(node)) {
+      if (seen.add(node)) {
+        result.add(nodeItem);
       }
-      list.add(item);
     }
-    final ancestorsOfNodes = <XmlNode>{};
-    for (final nodeItem in list) {
-      ancestorsOfNodes.addAll(nodeItem.node.ancestors);
-    }
-    final seen = <XmlNode>{};
-    final result = <XPathNode>[];
-    for (final nodeItem in list) {
-      final node = nodeItem.node;
-      if (!ancestorsOfNodes.contains(node)) {
-        if (seen.add(node)) {
-          result.add(nodeItem);
-        }
-      }
-    }
-    return XPathSequence(result);
-  },
-);
+  }
+  return XPathSequence(result);
+});
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-outermost
-final fnOutermost = XPathFunctionItem.fn1(
-  const XmlName.qualified('fn:outermost'),
-  (context, nodes) {
-    final list = <XPathNode>[];
-    for (final item in nodes) {
-      if (item is! XPathNode) {
-        throw XPathEvaluationException(
-          XPathErrorCode.XPTY0004,
-          'Argument to fn:outermost must be a sequence of nodes, but got ${item.runtimeType}',
-        );
-      }
-      list.add(item);
+final fnOutermost = XPathFunctionItem.fn1(XmlName('fn:outermost'), (
+  context,
+  nodes,
+) {
+  final list = <XPathNode>[];
+  for (final item in nodes) {
+    if (item is! XPathNode) {
+      throw XPathEvaluationException(
+        XPathErrorCode.XPTY0004,
+        'Argument to fn:outermost must be a sequence of nodes, but got ${item.runtimeType}',
+      );
     }
-    final nodeSet = <XmlNode>{for (final item in list) item.node};
-    final seen = <XmlNode>{};
-    final result = <XPathNode>[];
-    for (final nodeItem in list) {
-      final node = nodeItem.node;
-      if (!node.ancestors.any(nodeSet.contains)) {
-        if (seen.add(node)) {
-          result.add(nodeItem);
-        }
+    list.add(item);
+  }
+  final nodeSet = <XmlNode>{for (final item in list) item.node};
+  final seen = <XmlNode>{};
+  final result = <XPathNode>[];
+  for (final nodeItem in list) {
+    final node = nodeItem.node;
+    if (!node.ancestors.any(nodeSet.contains)) {
+      if (seen.add(node)) {
+        result.add(nodeItem);
       }
     }
-    return XPathSequence(result);
-  },
-);
+  }
+  return XPathSequence(result);
+});
 
 /// https://www.w3.org/TR/xpath-functions-31/#func-path
-final fnPath = XPathFunctionItem.overloaded(
-  const XmlName.qualified('fn:path'),
-  {
-    0: XPathFunctionItem.fn0(
-      const XmlName.qualified('fn:path'),
-      (context) => _evalPath(_optionalNodeArg(context, null, 'fn:path')),
-    ),
-    1: XPathFunctionItem.fn1(
-      const XmlName.qualified('fn:path'),
-      (context, arg) => _evalPath(_optionalNodeArg(context, arg, 'fn:path')),
-    ),
-  },
-);
+final fnPath = XPathFunctionItem.overloaded(XmlName('fn:path'), {
+  0: XPathFunctionItem.fn0(
+    XmlName('fn:path'),
+    (context) => _evalPath(_optionalNodeArg(context, null, 'fn:path')),
+  ),
+  1: XPathFunctionItem.fn1(
+    XmlName('fn:path'),
+    (context, arg) => _evalPath(_optionalNodeArg(context, arg, 'fn:path')),
+  ),
+});
 
 XPathSequence _evalPath(XPathNode? nodeItem) {
   if (nodeItem == null) return XPathSequence.empty;

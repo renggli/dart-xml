@@ -12,12 +12,12 @@ void main() {
   group('XPathFunction', () {
     test('construction and invocation', () {
       final f = XPathFunction(
-        name: const XmlName.qualified('my:fn'),
+        name: XmlName('my:fn'),
         arity: 2,
         function: (ctx, args) =>
             XPathSequence.single(XPathInteger.fromInt(args.length)),
       );
-      check(f.name).equals(const XmlName.qualified('my:fn'));
+      check(f.name).equals(XmlName('my:fn'));
       check(f.arity).equals(2);
       check(
         f(context, [
@@ -31,11 +31,8 @@ void main() {
       XPathSequence custom(XPathContext ctx, List<XPathSequence> args) =>
           const XPathSequence.single(XPathString('success'));
 
-      final f = custom.toXPathFunction(
-        name: const XmlName.qualified('test:custom'),
-        arity: 0,
-      );
-      check(f.name).equals(const XmlName.qualified('test:custom'));
+      final f = custom.toXPathFunction(name: XmlName('test:custom'), arity: 0);
+      check(f.name).equals(XmlName('test:custom'));
       check(f.arity).equals(0);
       check(f(context, [])).isXPathSequence(['success']);
     });

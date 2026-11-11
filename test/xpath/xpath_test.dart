@@ -25,17 +25,17 @@ void main() {
       check(results).deepEquals([document.findAllElements('b').first]);
     });
     test('supports deprecated variables argument', () {
-      // ignore: deprecated_member_use_from_same_package
       final results = document.xpath(
         r'/r/*[local-name() = $target]',
+        // ignore: deprecated_member_use_from_same_package
         variables: {'target': 'c'},
       );
       check(results).deepEquals([document.findAllElements('c').first]);
     });
     test('supports deprecated functions argument', () {
-      // ignore: deprecated_member_use_from_same_package
       final results = document.xpath(
         r'/r/*[custom:is-c(.)]',
+        // ignore: deprecated_member_use_from_same_package
         functions: {
           const XmlName.parts(
             'is-c',
@@ -82,6 +82,7 @@ void main() {
       check(
         document.xpathEvaluate(
           'custom:double(5)',
+          // ignore: deprecated_member_use_from_same_package
           functions: {
             const XmlName.parts(
               'double',
