@@ -12,16 +12,16 @@ void main() {
     test('equal QNames', () {
       check(
         opQNameEqual(
-          const XPathSequence.single(XPathQName(XmlName('a'))),
-          const XPathSequence.single(XPathQName(XmlName('a'))),
+          XPathSequence.single(XPathQName(XmlName('a'))),
+          XPathSequence.single(XPathQName(XmlName('a'))),
         ),
       ).equals(XPathSequence.trueSequence);
     });
     test('different QNames', () {
       check(
         opQNameEqual(
-          const XPathSequence.single(XPathQName(XmlName('a'))),
-          const XPathSequence.single(XPathQName(XmlName('b'))),
+          XPathSequence.single(XPathQName(XmlName('a'))),
+          XPathSequence.single(XPathQName(XmlName('b'))),
         ),
       ).equals(XPathSequence.falseSequence);
     });

@@ -254,7 +254,9 @@ void main() {
       );
       check(
         () => fnFunctionLookup(context, [
-          const XPathSequence.single(XPathQName(XmlName('abs', 'fn'))),
+          const XPathSequence.single(
+            XPathQName(XmlName.parts('abs', prefix: 'fn')),
+          ),
           const XPathSequence.single(XPathString('1')),
         ]),
       ).throws<XPathEvaluationException>().which(

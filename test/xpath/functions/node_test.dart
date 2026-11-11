@@ -22,12 +22,12 @@ void main() {
     });
 
     test('returns name of attribute with prefix', () {
-      final attr = XmlAttribute(const XmlName('lang', 'xml'), 'en');
+      final attr = XmlAttribute(XmlName('xml:lang'), 'en');
       check(fnName(context, [seq(attr)])).isXPathSequence(['xml:lang']);
     });
 
     test('returns name of attribute without prefix', () {
-      final attr = XmlAttribute(const XmlName('id'), '1');
+      final attr = XmlAttribute(XmlName('id'), '1');
       check(fnName(context, [seq(attr)])).isXPathSequence(['id']);
     });
 
@@ -80,7 +80,7 @@ void main() {
     });
 
     test('returns local name of attribute', () {
-      final attr = XmlAttribute(const XmlName('a'), '1');
+      final attr = XmlAttribute(XmlName('a'), '1');
       check(fnLocalName(context, [seq(attr)])).isXPathSequence(['a']);
     });
 
@@ -106,7 +106,7 @@ void main() {
     });
 
     test('returns namespace uri of attribute', () {
-      final attr = XmlAttribute(const XmlName('a'), '1');
+      final attr = XmlAttribute(XmlName('a'), '1');
       check(fnNamespaceUri(context, [seq(attr)])).isXPathSequence(['']);
     });
 
@@ -207,7 +207,7 @@ void main() {
     });
 
     test('returns false if empty element', () {
-      final emptyEl = XmlElement(const XmlName('e'));
+      final emptyEl = XmlElement(XmlName('e'));
       check(fnHasChildren(context, [seq(emptyEl)])).isXPathSequence([false]);
     });
 
@@ -577,7 +577,7 @@ void main() {
     });
 
     test('isolated element returns itself', () {
-      final elem = XmlElement(const XmlName('isolated'));
+      final elem = XmlElement(XmlName('isolated'));
       check(elem.xpathEvaluate('fn:root()')).isXPathSequence([elem]);
     });
 

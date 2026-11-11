@@ -8,8 +8,8 @@ import '../../../utils/checks.dart';
 void main() {
   group('XPathQName', () {
     test('construction and basic properties', () {
-      const name = XmlName('elem', 'ns');
-      const qname = XPathQName(name);
+      final name = XmlName('ns:elem');
+      final qname = XPathQName(name);
       check(qname.type).equals(xsQName);
       check(qname.value).equals(name);
       check(qname.stringValue).equals('ns:elem');
@@ -17,7 +17,7 @@ void main() {
     });
 
     test('effectiveBooleanValue throws', () {
-      const qname = XPathQName(XmlName('elem'));
+      final qname = XPathQName(XmlName('elem'));
       check(() => qname.effectiveBooleanValue)
           .throws<XPathEvaluationException>()
           .which(isXPathEvaluationException());

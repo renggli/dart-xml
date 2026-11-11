@@ -453,8 +453,8 @@ void main() {
         () {
           final buffer = StringBuffer();
           final writer = _TestPrettyWriter(buffer);
-          final element = XmlElement(const XmlName('foo'), [
-            XmlAttribute(const XmlName('a'), '1'),
+          final element = XmlElement(XmlName('foo'), [
+            XmlAttribute(XmlName('a'), '1'),
           ]);
           check(
             identical(

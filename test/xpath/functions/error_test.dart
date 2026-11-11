@@ -20,7 +20,7 @@ void main() {
     test('throws with code', () {
       check(
             () => fnError(context, [
-              const XPathSequence.single(XPathQName(XmlName('code'))),
+              XPathSequence.single(XPathQName(XmlName('code'))),
             ]),
           )
           .throws<XPathEvaluationException>()
@@ -30,7 +30,7 @@ void main() {
     test('throws with code and description', () {
       check(
             () => fnError(context, [
-              const XPathSequence.single(XPathQName(XmlName('code'))),
+              XPathSequence.single(XPathQName(XmlName('code'))),
               const XPathSequence.single(XPathString('description')),
             ]),
           )
@@ -41,7 +41,7 @@ void main() {
     test('throws with code, description, and value', () {
       check(
             () => fnError(context, [
-              const XPathSequence.single(XPathQName(XmlName('code'))),
+              XPathSequence.single(XPathQName(XmlName('code'))),
               const XPathSequence.single(XPathString('description')),
               XPathSequence([
                 XPathInteger.fromInt(1),
@@ -67,10 +67,7 @@ void main() {
     test('throws with multiple codes', () {
       check(
         () => fnError(context, [
-          XPathSequence(const [
-            XPathQName(XmlName('c1')),
-            XPathQName(XmlName('c2')),
-          ]),
+          XPathSequence([XPathQName(XmlName('c1')), XPathQName(XmlName('c2'))]),
         ]),
       ).throws<XPathEvaluationException>().which(
         isXPathEvaluationException(errorCode: XPathErrorCode.XPTY0004),

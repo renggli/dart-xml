@@ -357,7 +357,7 @@ void main() {
 
   group('isEqualNode', () {
     test('identical nodes', () {
-      final el = XmlElement(const XmlName('a'));
+      final el = XmlElement(XmlName('a'));
       check(el.isEqualNode(el)).isTrue();
     });
 
@@ -384,7 +384,7 @@ void main() {
 
     test('namespace vs other node type', () {
       final ns = XmlNamespace('a', 'http://example.com');
-      final el = XmlElement(const XmlName('a'));
+      final el = XmlElement(XmlName('a'));
       check(ns.isEqualNode(el)).isFalse();
       check(el.isEqualNode(ns)).isFalse();
     });
@@ -471,8 +471,8 @@ void main() {
     });
 
     test('disconnected nodes', () {
-      final el1 = XmlElement(const XmlName('a'));
-      final el2 = XmlElement(const XmlName('b'));
+      final el1 = XmlElement(XmlName('a'));
+      final el2 = XmlElement(XmlName('b'));
       check(el1.contains(el2)).isFalse();
       check(el2.contains(el1)).isFalse();
     });

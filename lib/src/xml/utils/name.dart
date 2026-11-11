@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_initializing_formals
-
 import 'package:meta/meta.dart';
 
 import '../exceptions/parser_exception.dart';
@@ -12,32 +10,15 @@ import 'token.dart';
 
 /// XML entity name.
 @immutable
-class XmlName with XmlHasVisitor, XmlHasWriter {
-  /// Creates an [XmlName] with the given [qualified] name and an optional
-  /// [namespaceUri].
-  const new qualified(
-    this.qualified, {
-    this.namespaceUri,
-    String? local,
-    String? prefix,
-  }) : _local = local,
-       _prefix = prefix;
-
-  /// Creates an [XmlName] from a [local] name and an optional [prefix] and
-  /// optional [namespaceUri].
-  const new parts(String local, {String? prefix, this.namespaceUri})
-    : qualified = prefix == null ? local : '$prefix${XmlToken.namespace}$local',
-      _local = local,
-      _prefix = prefix;
-
-  /// Creates an [XmlName] by splitting the [qualified] name into prefix and local.
-  factory fromQualified(String qualified, {String? namespaceUri}) {
+abstract class XmlName with XmlHasVisitor, XmlHasWriter {
+  /// Creates an [XmlName] from a [qualified] name and an optional [namespaceUri].
+  factory(String qualified, {String? namespaceUri}) {
     final (:prefix, :local) = splitQualifiedName(qualified);
-    return XmlName.qualified(
-      qualified,
-      namespaceUri: namespaceUri,
+    return _XmlName._(
+      qualified: qualified,
       prefix: prefix,
       local: local,
+      namespaceUri: namespaceUri,
     );
   }
 
@@ -65,79 +46,41 @@ class XmlName with XmlHasVisitor, XmlHasWriter {
     final qualified = prefix == null
         ? local
         : '$prefix${XmlToken.namespace}$local';
-    return XmlName.qualified(
-      qualified,
-      namespaceUri: effectiveUri,
+    return _XmlName._(
+      qualified: qualified,
       prefix: prefix,
       local: local,
+      namespaceUri: effectiveUri,
     );
   }
 
+  /// Creates an [XmlName] from a [local] name and an optional [prefix] and
+  /// optional [namespaceUri].
+  const factory parts(String local, {String? prefix, String? namespaceUri}) =
+      _XmlName.parts;
+
   /// Creates an [XmlName] for a namespace declaration with an optional [name].
-  const new namespace({String? name})
-    : this.qualified(
-        name == null ? ns.xmlns : '${ns.xmlns}${XmlToken.namespace}$name',
-        namespaceUri: ns.xmlnsUri,
-        prefix: name == null ? null : ns.xmlns,
-        local: name ?? ns.xmlns,
-      );
+  const factory namespace({String? name}) = _XmlName.namespace;
 
-  /// Creates a qualified [XmlName] from a [localName] name and an optional
-  /// [namespacePrefix].
-  @Deprecated('Use `XmlName.parts` instead')
-  const new(String localName, [String? namespacePrefix])
-    : qualified = namespacePrefix == null
-          ? localName
-          : '$namespacePrefix${XmlToken.namespace}$localName',
-      namespaceUri = null,
-      _local = localName,
-      _prefix = namespacePrefix;
+  /// Creates an [XmlName] with the given [qualified] name and an optional
+  /// [namespaceUri].
+  @Deprecated('Use `XmlName(String qualified, {String? namespaceUri})` instead')
+  const factory qualified(String qualified, {String? namespaceUri}) =
+      _DeprecatedXmlName;
 
-  /// Creates an [XmlName] by parsing the provided [qualified] name.
-  @Deprecated('Use `XmlName.qualified` instead')
-  const new fromString(this.qualified)
-    : namespaceUri = null,
-      _local = null,
-      _prefix = null;
+  const new _();
 
   /// The fully qualified name, including the namespace prefix.
-  final String qualified;
-
-  /// The namespace URI, or `null`.
-  final String? namespaceUri;
-
-  final String? _local;
-  final String? _prefix;
-
-  static final _cache = Expando<({String local, String? prefix})>();
+  String get qualified;
 
   /// The namespace prefix, or `null`.
-  String? get prefix {
-    if (_local != null) return _prefix;
-    final cached = _cache[this];
-    if (cached != null) return cached.prefix;
-    return _splitAndCache().prefix;
-  }
+  String? get prefix;
 
   /// The local name, excluding the namespace prefix.
-  String get local {
-    if (_local != null) return _local;
-    final cached = _cache[this];
-    if (cached != null) return cached.local;
-    return _splitAndCache().local;
-  }
+  String get local;
 
-  ({String local, String? prefix}) _splitAndCache() {
-    final index = qualified.indexOf(XmlToken.namespace);
-    final result = index > 0
-        ? (
-            local: qualified.substring(index + 1),
-            prefix: qualified.substring(0, index),
-          )
-        : (local: qualified, prefix: null);
-    _cache[this] = result;
-    return result;
-  }
+  /// The namespace URI, or `null`.
+  String? get namespaceUri;
 
   /// The Extended QName (EQName) in the form `Q{uri}local`, or the [qualified]
   /// name if the namespace URI is not defined or empty.
@@ -146,11 +89,11 @@ class XmlName with XmlHasVisitor, XmlHasWriter {
       : qualified;
 
   /// Returns a new [XmlName] with the given [namespaceUri].
-  XmlName withNamespaceUri(String? namespaceUri) => XmlName.qualified(
-    qualified,
+  XmlName withNamespaceUri(String? namespaceUri) => _XmlName._(
+    qualified: qualified,
+    prefix: prefix,
+    local: local,
     namespaceUri: namespaceUri,
-    local: _local,
-    prefix: _prefix,
   );
 
   @override
@@ -172,4 +115,71 @@ class XmlName with XmlHasVisitor, XmlHasWriter {
 
   @override
   void accept(XmlVisitor visitor) => visitor.visitName(this);
+}
+
+// Internal implementation to replace the current [XmlName]. It contains
+// precomputed qualified, prefix, local and name.
+class _XmlName extends XmlName {
+  const new _({
+    required this.qualified,
+    required this.prefix,
+    required this.local,
+    required this.namespaceUri,
+  }) : super._();
+
+  const new parts(String local, {String? prefix, String? namespaceUri})
+    : this._(
+        qualified: prefix == null
+            ? local
+            : '$prefix${XmlToken.namespace}$local',
+        local: local,
+        prefix: prefix,
+        namespaceUri: namespaceUri,
+      );
+
+  const new namespace({String? name})
+    : this._(
+        qualified: name == null
+            ? ns.xmlns
+            : '${ns.xmlns}${XmlToken.namespace}$name',
+        prefix: name == null ? null : ns.xmlns,
+        local: name ?? ns.xmlns,
+        namespaceUri: ns.xmlnsUri,
+      );
+
+  @override
+  final String qualified;
+
+  @override
+  final String? prefix;
+
+  @override
+  final String local;
+
+  @override
+  final String? namespaceUri;
+}
+
+// Old implementation of [XmlName] that can be const constructed, but requires
+// repeated splitting of prefix and local name.
+class _DeprecatedXmlName extends XmlName {
+  const new(this.qualified, {this.namespaceUri}) : super._();
+
+  @override
+  final String qualified;
+
+  @override
+  final String? namespaceUri;
+
+  @override
+  String? get prefix {
+    final index = qualified.indexOf(XmlToken.namespace);
+    return index > 0 ? qualified.substring(0, index) : null;
+  }
+
+  @override
+  String get local {
+    final index = qualified.indexOf(XmlToken.namespace);
+    return index > 0 ? qualified.substring(index + 1) : qualified;
+  }
 }

@@ -395,8 +395,8 @@ void main() {
     });
 
     test('ordering on QNames throws XPTY0004', () {
-      const q1 = XPathQName(XmlName('a'));
-      const q2 = XPathQName(XmlName('b'));
+      final q1 = XPathQName(XmlName('a'));
+      final q2 = XPathQName(XmlName('b'));
       check(() => opGeneralLessThan(seq(q1), seq(q2)))
           .throws<XPathEvaluationException>()
           .which(

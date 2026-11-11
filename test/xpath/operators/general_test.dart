@@ -100,8 +100,8 @@ void main() {
           .equals(XPathSequence.trueSequence);
     });
     test('QName order comparison throws XPTY0004', () {
-      const q1 = XPathSequence.single(XPathQName(XmlName('a')));
-      const q2 = XPathSequence.single(XPathQName(XmlName('b')));
+      final q1 = XPathSequence.single(XPathQName(XmlName('a')));
+      final q2 = XPathSequence.single(XPathQName(XmlName('b')));
       check(() => opGeneralLessThan(q1, q2))
           .throws<XPathEvaluationException>()
           .which(isXPathEvaluationException());
@@ -114,8 +114,8 @@ void main() {
           .equals(XPathSequence.trueSequence);
     });
     test('QName order comparison throws XPTY0004', () {
-      const q1 = XPathSequence.single(XPathQName(XmlName('a')));
-      const q2 = XPathSequence.single(XPathQName(XmlName('b')));
+      final q1 = XPathSequence.single(XPathQName(XmlName('a')));
+      final q2 = XPathSequence.single(XPathQName(XmlName('b')));
       check(() => opGeneralGreaterThan(q1, q2))
           .throws<XPathEvaluationException>()
           .which(isXPathEvaluationException());
@@ -128,8 +128,8 @@ void main() {
           .equals(XPathSequence.trueSequence);
     });
     test('QName order comparison throws XPTY0004', () {
-      const q1 = XPathSequence.single(XPathQName(XmlName('a')));
-      const q2 = XPathSequence.single(XPathQName(XmlName('b')));
+      final q1 = XPathSequence.single(XPathQName(XmlName('a')));
+      final q2 = XPathSequence.single(XPathQName(XmlName('b')));
       check(() => opGeneralLessThanOrEqual(q1, q2))
           .throws<XPathEvaluationException>()
           .which(isXPathEvaluationException());
@@ -142,8 +142,8 @@ void main() {
           .equals(XPathSequence.trueSequence);
     });
     test('QName order comparison throws XPTY0004', () {
-      const q1 = XPathSequence.single(XPathQName(XmlName('a')));
-      const q2 = XPathSequence.single(XPathQName(XmlName('b')));
+      final q1 = XPathSequence.single(XPathQName(XmlName('a')));
+      final q2 = XPathSequence.single(XPathQName(XmlName('b')));
       check(() => opGeneralGreaterThanOrEqual(q1, q2))
           .throws<XPathEvaluationException>()
           .which(isXPathEvaluationException());
@@ -152,9 +152,9 @@ void main() {
 
   group('general comparison with QName, Duration, Binary, Untyped', () {
     test('QName equality and inequality', () {
-      const q1 = XPathSequence.single(XPathQName(XmlName('foo')));
-      const q2 = XPathSequence.single(XPathQName(XmlName('foo')));
-      const q3 = XPathSequence.single(XPathQName(XmlName('bar')));
+      final q1 = XPathSequence.single(XPathQName(XmlName('foo')));
+      final q2 = XPathSequence.single(XPathQName(XmlName('foo')));
+      final q3 = XPathSequence.single(XPathQName(XmlName('bar')));
       check(opGeneralEqual(q1, q2)).equals(XPathSequence.trueSequence);
       check(opGeneralEqual(q1, q3)).equals(XPathSequence.falseSequence);
       check(opGeneralNotEqual(q1, q2)).equals(XPathSequence.falseSequence);
@@ -246,15 +246,15 @@ void main() {
     });
 
     test('QName order comparisons throw XPTY0004', () {
-      const q1 = XPathSequence.single(XPathQName(XmlName('a')));
-      const q2 = XPathSequence.single(XPathQName(XmlName('b')));
+      final q1 = XPathSequence.single(XPathQName(XmlName('a')));
+      final q2 = XPathSequence.single(XPathQName(XmlName('b')));
       final mq1 = XPathSequence([
-        const XPathQName(XmlName('a')),
-        const XPathQName(XmlName('a')),
+        XPathQName(XmlName('a')),
+        XPathQName(XmlName('a')),
       ]);
       final mq2 = XPathSequence([
-        const XPathQName(XmlName('b')),
-        const XPathQName(XmlName('b')),
+        XPathQName(XmlName('b')),
+        XPathQName(XmlName('b')),
       ]);
       check(() => opGeneralLessThan(q1, q2))
           .throws<XPathEvaluationException>()

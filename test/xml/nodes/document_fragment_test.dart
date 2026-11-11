@@ -52,7 +52,7 @@ void main() {
   test('empties on insertion', () {
     final fragment = XmlDocumentFragment.parse('<one/><two/>');
     check(fragment.children).length.equals(2);
-    final element = XmlElement(const XmlName('root'));
+    final element = XmlElement(XmlName('root'));
     element.children.add(fragment);
     check(fragment.children).isEmpty();
     check(element.children).length.equals(2);

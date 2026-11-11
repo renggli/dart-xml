@@ -587,7 +587,7 @@ XPathAtomic _castFromString(
           'Invalid lexical QName: "$trimmed"',
         );
       }
-      final name = XmlName.fromString(trimmed);
+      final name = XmlName(trimmed);
       final uri =
           xpathNamespaceUris[name.prefix] ??
           (name.prefix == 'xml' ? xmlXmlNamespace : null);

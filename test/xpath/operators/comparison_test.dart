@@ -142,7 +142,7 @@ void main() {
       ).isXPathSequence([false]);
     });
     test('atomize node', () {
-      final node = XmlElement(const XmlName('a'), [], [XmlText('foo')]);
+      final node = XmlElement(XmlName('a'), [], [XmlText('foo')]);
       check(
         opValueEqual(
           XPathSequence.single(XPathNode(node)),
@@ -288,9 +288,9 @@ void main() {
     });
 
     test('QName value comparisons and order restriction', () {
-      const q1 = XPathQName(XmlName('foo'));
-      const q2 = XPathQName(XmlName('foo'));
-      const q3 = XPathQName(XmlName('bar'));
+      final q1 = XPathQName(XmlName('foo'));
+      final q2 = XPathQName(XmlName('foo'));
+      final q3 = XPathQName(XmlName('bar'));
 
       check(opValueEqual(seq(q1), seq(q2))).isXPathSequence([true]);
       check(opValueEqual(seq(q1), seq(q3))).isXPathSequence([false]);

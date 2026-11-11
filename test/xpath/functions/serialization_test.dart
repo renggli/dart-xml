@@ -195,7 +195,7 @@ void main() {
     });
 
     test('throws on free-standing attribute in XML method', () {
-      final attr = XmlAttribute(const XmlName('foo'), 'bar');
+      final attr = XmlAttribute(XmlName('foo'), 'bar');
       check(() => fnSerialize(context, [seq(attr)]))
           .throws<XPathEvaluationException>();
     });
@@ -204,7 +204,7 @@ void main() {
       'ignores disallowed no-namespace QName parameter per option conventions',
       () {
         final params = XPathMap({
-          const XPathQName(XmlName('indent')): const XPathSequence.single(
+          XPathQName(XmlName('indent')): const XPathSequence.single(
             XPathBoolean.trueInstance,
           ),
         });

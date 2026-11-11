@@ -407,7 +407,7 @@ void main() {
       check(
         fnIndexOf(context, [
           XPathSequence([
-            const XPathQName(XmlName('local')),
+            XPathQName(XmlName('local')),
             XPathInteger.fromInt(1),
           ]),
           seq(1),

@@ -154,10 +154,7 @@ class _XmlNodeDecoderSink
     Iterable<XmlEventAttribute> attributes,
   ) => attributes.map(
     (attribute) => XmlAttribute(
-      XmlName.fromQualified(
-        attribute.name,
-        namespaceUri: attribute.namespaceUri,
-      ),
+      XmlName(attribute.name, namespaceUri: attribute.namespaceUri),
       attribute.value,
       attribute.attributeType,
     ),
