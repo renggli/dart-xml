@@ -58,10 +58,15 @@ mixin XmlHasChildren<T extends XmlNode> implements XmlChildrenBase {
     @Deprecated('Use `namespaceUri` instead') String? namespace,
     String? namespaceUri,
   }) {
-    final tester = createNameMatcher(
-      name,
-      namespaceUri: namespaceUri ?? namespace,
-    );
+    final effectiveNamespaceUri = namespaceUri ?? namespace;
+    // Exact qualified names are the common case in OOXML/ODF conversions.
+    if (effectiveNamespaceUri == null && name != '*') {
+      for (final node in children) {
+        if (node is XmlElement && node.qualifiedName == name) return node;
+      }
+      return null;
+    }
+    final tester = createNameMatcher(name, namespaceUri: effectiveNamespaceUri);
     for (final node in children) {
       if (node is XmlElement && tester(node)) {
         return node;

@@ -5,6 +5,20 @@ import 'package:xml/xml.dart';
 import '../../utils/assertions.dart';
 
 void main() {
+  test('exact lookups respect overridden qualified names', () {
+    final attribute = _NamedAttribute();
+    final child = _NamedElement();
+    final root = XmlElement.tag(
+      'root',
+      attributes: [attribute],
+      children: [child],
+    );
+    check(root.getAttributeNode('alias')).identicalTo(attribute);
+    check(root.getElement('alias')).identicalTo(child);
+    check(root.getAttributeNode('actual')).isNull();
+    check(root.getElement('actual')).isNull();
+  });
+
   test('basic', () {
     final document = XmlDocument.parse(
       '<ns:data key="value">Am I or are the other crazy?</ns:data>',
@@ -95,6 +109,25 @@ void main() {
     check(document.toXmlString())
         .equals('<?xml version="1.0"?><root>Hello World</root>');
   });
+  test('exact name lookups retain qualified and namespace matching', () {
+    final doc = XmlDocument.parse(
+      '<root xmlns:a="urn:a" xmlns:b="urn:b" a:id="A" b:id="B">'
+      '<a:item/><b:item/></root>',
+    );
+    final root = doc.rootElement;
+    check(root.getAttribute('a:id')).equals('A');
+    check(root.getAttribute('b:id')).equals('B');
+    check(root.getAttribute('id')).isNull();
+    check(root.getAttribute('id', namespaceUri: 'urn:b')).equals('B');
+    check(root.getAttribute('*')).equals('urn:a');
+    check(root.getElement('a:item')?.name.qualified).equals('a:item');
+    check(root.getElement('b:item')?.name.qualified).equals('b:item');
+    check(root.getElement('item')).isNull();
+    check(root.getElement('item', namespaceUri: 'urn:a')?.name.qualified)
+        .equals('a:item');
+    check(root.getElement('*')?.name.qualified).equals('a:item');
+  });
+
   test('nested', () {
     final document = XmlDocument.parse('<outer><inner/></outer>');
     final outer = document.rootElement;
@@ -329,4 +362,18 @@ void main() {
     check(node.getAttribute('other')).equals('3');
     check(node.toString()).equals('<data xmlns:ns="uri" other="3"/>');
   });
+}
+
+class _NamedAttribute extends XmlAttribute {
+  new() : super(const XmlName('actual'), 'value');
+
+  @override
+  String get qualifiedName => 'alias';
+}
+
+class _NamedElement extends XmlElement {
+  new() : super(const XmlName('actual'));
+
+  @override
+  String get qualifiedName => 'alias';
 }
