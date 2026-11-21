@@ -257,7 +257,7 @@ void main() {
           .expand((nodes) => nodes)
           .forEach((node) => list.add(node.toXmlString(pretty: true)));
 
-      check(list).isNotEmpty();
+      check(list).isNotEmpty;
       check(list.first).contains('orderperson');
     });
   });

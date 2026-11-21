@@ -10,7 +10,7 @@ void main() {
         check(
           because: 'Type name "${type.name}" is not unique',
           names.add(type.name),
-        ).isTrue();
+        ).isTrue;
       }
     });
     test('types contains all types and their aliases', () {

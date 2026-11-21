@@ -58,7 +58,7 @@ void main() {
       ]).first.stringValue;
       check(res).contains('<![CDATA[bold]]>');
       check(res).contains('italic');
-      check(res).not((it) => it.contains('<![CDATA[italic]]>'));
+      check(res).not(Condition.it()..contains('<![CDATA[italic]]>'));
     });
 
     test('serializes with use-character-maps', () {
@@ -471,7 +471,7 @@ void main() {
       final pEmpty = SerializationParameters.fromMap(
         XPathMap({const XPathString('standalone'): XPathSequence.empty}),
       );
-      check(pEmpty.standalone).isNull();
+      check(pEmpty.standalone).isNull;
 
       final pYes = SerializationParameters.fromMap(
         XPathMap({const XPathString('standalone'): seq('yes')}),
@@ -486,7 +486,7 @@ void main() {
       final pOmit = SerializationParameters.fromMap(
         XPathMap({const XPathString('standalone'): seq('omit')}),
       );
-      check(pOmit.standalone).isNull();
+      check(pOmit.standalone).isNull;
 
       check(
         () => SerializationParameters.fromMap(
@@ -521,8 +521,8 @@ void main() {
       check(pOpts.htmlVersion).equals(5.0);
       check(pOpts.encoding).equals('iso-8859-1');
       check(pOpts.jsonNodeOutputMethod).equals('xml');
-      check(pOpts.allowDuplicateNames).isTrue();
-      check(pOpts.undeclarePrefixes).isTrue();
+      check(pOpts.allowDuplicateNames).isTrue;
+      check(pOpts.undeclarePrefixes).isTrue;
 
       // cdata-section-elements with XPathArray, string, and invalid items
       final pCdata = SerializationParameters.fromMap(
@@ -740,7 +740,7 @@ void main() {
       );
       check(pElem.itemSeparator).equals(',');
       check(pElem.version).equals('1.1');
-      check(pElem.undeclarePrefixes).isTrue();
+      check(pElem.undeclarePrefixes).isTrue;
       check(pElem.encoding).equals('iso-8859-1');
       check(pElem.cdataSectionElements.length).equals(2);
       check(pElem.suppressIndentation.length).equals(2);

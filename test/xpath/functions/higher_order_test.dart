@@ -212,17 +212,17 @@ void main() {
         seq(XmlName('nonexistent')),
         seq(1),
       ]);
-      check(result).isEmpty();
+      check(result).isEmpty;
     });
 
     test('absent namespace does not match standard function', () {
       check(document.xpathEvaluate('function-lookup(QName("", "round"), 2)'))
-          .isEmpty();
+          .isEmpty;
     });
 
     test('negative arity returns empty', () {
       check(document.xpathEvaluate('function-lookup(xs:QName("fn:abs"), -1)'))
-          .isEmpty();
+          .isEmpty;
     });
 
     test('invalid argument cardinality throws XPTY0004', () {
@@ -287,7 +287,7 @@ void main() {
 
     test('returns empty for inline function', () {
       check(document.xpathEvaluate('function-name(function(\$x) { \$x })'))
-          .isEmpty();
+          .isEmpty;
     });
 
     test('returns QName with namespace for named function ref', () {

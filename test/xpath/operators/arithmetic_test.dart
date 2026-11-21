@@ -237,7 +237,7 @@ void main() {
       ]);
     });
     test('empty inputs return empty', () {
-      check(opAdd(XPathSequence.empty, intSeq(1))).isEmpty();
+      check(opAdd(XPathSequence.empty, intSeq(1))).isEmpty;
     });
   });
 
@@ -284,7 +284,7 @@ void main() {
       );
     });
     test('empty inputs return empty', () {
-      check(opSubtract(XPathSequence.empty, intSeq(1))).isEmpty();
+      check(opSubtract(XPathSequence.empty, intSeq(1))).isEmpty;
     });
   });
 
@@ -300,7 +300,7 @@ void main() {
       ]);
     });
     test('empty inputs return empty', () {
-      check(opMultiply(XPathSequence.empty, intSeq(1))).isEmpty();
+      check(opMultiply(XPathSequence.empty, intSeq(1))).isEmpty;
     });
   });
 
@@ -318,7 +318,7 @@ void main() {
       ]);
     });
     test('empty inputs return empty', () {
-      check(opDivide(XPathSequence.empty, intSeq(1))).isEmpty();
+      check(opDivide(XPathSequence.empty, intSeq(1))).isEmpty;
     });
   });
 
@@ -393,7 +393,7 @@ void main() {
           );
       check(
         opAdd(XPathSequence.from([XPathArray.empty]), XPathSequence.from([1])),
-      ).isEmpty();
+      ).isEmpty;
       check(
         opAdd(
           XPathSequence.from([

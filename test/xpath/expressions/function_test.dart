@@ -323,7 +323,7 @@ void main() {
       );
       check(() => expr(context))
           .throws<StateError>()
-          .has((e) => e.message, 'message')
+          .has('message', (e) => e.message)
           .equals('Invalid arrow function specifier: 123');
     });
     test('evaluate with Map', () {
@@ -473,7 +473,7 @@ void main() {
       const expr = ArgumentPlaceholderExpression();
       check(() => expr(context))
           .throws<StateError>()
-          .has((e) => e.message, 'message')
+          .has('message', (e) => e.message)
           .equals('Argument placeholder cannot be evaluated');
     });
   });

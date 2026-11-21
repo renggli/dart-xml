@@ -196,7 +196,7 @@ void main() {
         (fnNumber(context, [XPathSequence.empty]).first as XPathDouble)
             .value
             .isNaN,
-      ).isTrue();
+      ).isTrue;
     });
 
     test('uses context item if no arguments', () {
@@ -246,7 +246,7 @@ void main() {
               .value;
       check(secondValue).isGreaterOrEqual(0.0);
       check(secondValue).isLessThan(1.0);
-      check(secondValue).not((it) => it.equals(firstValue));
+      check(secondValue).not(Condition.it()..equals(firstValue));
 
       final firstPermutation =
           (first.get(const XPathString('permute'))!.single
@@ -259,7 +259,7 @@ void main() {
 
     test('handles seed', () {
       final result = fnRandomNumberGenerator(context, [seq(123)]);
-      check(result).isNotEmpty();
+      check(result).isNotEmpty;
       // Check determinism
       final result2 = fnRandomNumberGenerator(context, [seq(123)]);
       final map1 = result.first as XPathMap;
@@ -289,7 +289,7 @@ void main() {
         (fnCeiling(context, [seq(double.nan)]).single as XPathDouble)
             .value
             .isNaN,
-      ).isTrue();
+      ).isTrue;
       check(fnCeiling(context, [seq(double.infinity)]))
           .isXPathSequence([double.infinity]);
       check(fnCeiling(context, [seq(double.negativeInfinity)]))
@@ -336,7 +336,7 @@ void main() {
     test('handles NaN and Infinity', () {
       check(
         (fnFloor(context, [seq(double.nan)]).single as XPathDouble).value.isNaN,
-      ).isTrue();
+      ).isTrue;
       check(fnFloor(context, [seq(double.infinity)]))
           .isXPathSequence([double.infinity]);
       check(fnFloor(context, [seq(double.negativeInfinity)]))

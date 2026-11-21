@@ -116,29 +116,26 @@ void main() {
     });
 
     test('step collapsing with complex predicate expressions', () {
-      check(Predicate(parseExpression('(1, 2)')).isPositional).isTrue();
-      check(Predicate(parseExpression('(@a, @b)')).isPositional).isFalse();
+      check(Predicate(parseExpression('(1, 2)')).isPositional).isTrue;
+      check(Predicate(parseExpression('(@a, @b)')).isPositional).isFalse;
       check(Predicate(parseExpression('if (@a) then 1 else 2')).isPositional)
-          .isTrue();
+          .isTrue;
       check(
         Predicate(parseExpression('if (@a) then true() else false()'))
             .isPositional,
-      ).isFalse();
-      check(Predicate(parseExpression('(1)[1]')).isPositional).isTrue();
-      check(Predicate(parseExpression('@a[@b]')).isPositional).isFalse();
-      check(Predicate(parseExpression('-position()')).isPositional).isTrue();
-      check(Predicate(parseExpression('@a || position()')).isPositional)
-          .isTrue();
-      check(Predicate(parseExpression('(position(), 1)')).isPositional)
-          .isTrue();
+      ).isFalse;
+      check(Predicate(parseExpression('(1)[1]')).isPositional).isTrue;
+      check(Predicate(parseExpression('@a[@b]')).isPositional).isFalse;
+      check(Predicate(parseExpression('-position()')).isPositional).isTrue;
+      check(Predicate(parseExpression('@a || position()')).isPositional).isTrue;
+      check(Predicate(parseExpression('(position(), 1)')).isPositional).isTrue;
       check(
         Predicate(parseExpression('if (position() = 1) then @a else @b'))
             .isPositional,
-      ).isTrue();
+      ).isTrue;
       check(Predicate(parseExpression('(e1)[position() = 1]')).isPositional)
-          .isTrue();
-      check(Predicate(parseExpression('-position() = -1')).isPositional)
-          .isTrue();
+          .isTrue;
+      check(Predicate(parseExpression('-position() = -1')).isPositional).isTrue;
       check(
         Predicate(
           SequenceExpression([

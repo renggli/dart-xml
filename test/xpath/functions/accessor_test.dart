@@ -21,8 +21,8 @@ void main() {
     test('returns name of processing-instruction', () {
       final pi = XmlProcessing('target', 'value');
       check(fnNodeName(context, [seq(pi)])).isXPathSequence([
-        (Subject<Object?> s) =>
-            s.isA<XmlName>().has((n) => n.local, 'local').equals('target'),
+        Condition.it<Object?>()
+          ..isA<XmlName>().has('local', (n) => n.local).equals('target'),
       ]);
     });
 

@@ -151,9 +151,9 @@ void main() {
       const type = NodeTestType(ElementTypeTest());
       check(type.name).equals('node-test');
       check(type.parent).equals(xsNode);
-      check(type.isAtomic).isFalse();
-      check(type.matchesItem(XPathNode(current))).isTrue();
-      check(type.matchesItem(const XPathString('not-a-node'))).isFalse();
+      check(type.isAtomic).isFalse;
+      check(type.matchesItem(XPathNode(current))).isTrue;
+      check(type.matchesItem(const XPathString('not-a-node'))).isFalse;
     });
   });
 }

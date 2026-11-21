@@ -16,8 +16,8 @@ void main() {
       check(context.item).equals(XPathNode(element));
       check(context.position).equals(1);
       check(context.last).equals(1);
-      check(context.variables).isEmpty();
-      check(context.parentContext).isNull();
+      check(context.variables).isEmpty;
+      check(context.parentContext).isNull;
       check(context.configuration).identicalTo(configuration);
       check(context.currentDateTime).isNotNull();
     });
@@ -109,7 +109,7 @@ void main() {
     );
     test('without overrides', () {
       final copy = base.copy();
-      check(copy).not((it) => it.identicalTo(base));
+      check(copy).not(Condition.it()..identicalTo(base));
       check(copy.item).identicalTo(base.item);
       check(copy.position).identicalTo(base.position);
       check(copy.last).identicalTo(base.last);
@@ -126,7 +126,7 @@ void main() {
         last: 3,
         variables: variables,
       );
-      check(copy).not((it) => it.identicalTo(base));
+      check(copy).not(Condition.it()..identicalTo(base));
       check(copy.item).equals(XPathNode(document));
       check(copy.position).equals(2);
       check(copy.last).equals(3);

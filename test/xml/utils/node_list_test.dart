@@ -28,7 +28,7 @@ void main() {
 
       doc2.rootElement.children.add(child);
 
-      check(doc1.rootElement.children).isEmpty();
+      check(doc1.rootElement.children).isEmpty;
       check(doc2.rootElement.children.length).equals(1);
       check(child.parent).equals(doc2.rootElement);
       assertDocumentTreeInvariants(doc1);
@@ -45,8 +45,8 @@ void main() {
 
       target.rootElement.children.addAll([a, b, c]);
 
-      check(doc1.rootElement.children).isEmpty();
-      check(doc2.rootElement.children).isEmpty();
+      check(doc1.rootElement.children).isEmpty;
+      check(doc2.rootElement.children).isEmpty;
       check(target.rootElement.children).deepEquals([a, b, c]);
       assertDocumentTreeInvariants(doc1);
       assertDocumentTreeInvariants(doc2);
@@ -63,10 +63,10 @@ void main() {
       // Replace <b> (slot 0) in doc2 with <a> from doc1.
       doc2.rootElement.children[0] = a;
 
-      check(doc1.rootElement.children).isEmpty();
+      check(doc1.rootElement.children).isEmpty;
       check(doc2.rootElement.children).deepEquals([a, c]);
       check(a.parent).equals(doc2.rootElement);
-      check(b.parent).isNull();
+      check(b.parent).isNull;
       assertDocumentTreeInvariants(doc1);
       assertDocumentTreeInvariants(doc2);
     });
@@ -109,7 +109,7 @@ void main() {
 
       b.attributes.add(attr); // move attr from <a> to <b>
 
-      check(a.attributes).isEmpty();
+      check(a.attributes).isEmpty;
       check(b.attributes).deepEquals([attr]);
       check(attr.parent).equals(b);
       assertDocumentTreeInvariants(doc);
@@ -357,29 +357,29 @@ void main() {
     test('appending an empty list leaves the tree unchanged', () {
       final root = XmlElement(XmlName('root'));
       root.children.addAll(const <XmlNode>[]);
-      check(root.children).isEmpty();
-      check(root.parent).isNull();
+      check(root.children).isEmpty;
+      check(root.parent).isNull;
     });
 
     test('invalid detached leaf is rejected without mutation', () {
       final root = XmlElement(XmlName('root'));
       final attribute = XmlAttribute(XmlName('id'), '1');
       check(() => root.children.add(attribute)).throws<XmlNodeTypeException>();
-      check(root.children).isEmpty();
-      check(attribute.parent).isNull();
+      check(root.children).isEmpty;
+      check(attribute.parent).isNull;
     });
 
     test('empty element cannot be appended to itself', () {
       final element = XmlElement(XmlName('root'));
       check(() => element.children.add(element)).throws<XmlParentException>();
-      check(element.children).isEmpty();
+      check(element.children).isEmpty;
     });
 
     test('detached ancestor cannot be appended to a descendant', () {
       final root = XmlElement(XmlName('root'));
       final child = XmlElement(XmlName('child'));
       root.children.add(child);
-      check(root.parent).isNull();
+      check(root.parent).isNull;
       check(() => child.children.add(root)).throws<XmlParentException>();
       check(root.children).deepEquals([child]);
       check(child.parent).identicalTo(root);
@@ -453,7 +453,7 @@ void main() {
 
         check(() => root.children.add(fragment)).throws<XmlNodeTypeException>();
 
-        check(root.children).isEmpty();
+        check(root.children).isEmpty;
         // Fragment children must still be in the fragment.
         check(fragment.children.length).equals(2);
         assertDocumentTreeInvariants(doc);
@@ -485,7 +485,7 @@ void main() {
 
       check(() => child.children.addAll([extra, root]))
           .throws<XmlParentException>();
-      check(child.children).isEmpty();
+      check(child.children).isEmpty;
       assertDocumentTreeInvariants(doc);
     });
   });

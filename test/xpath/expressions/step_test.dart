@@ -136,7 +136,7 @@ void main() {
     });
 
     test('//item[3] returns empty because no parent has 3 items', () {
-      check(getIds('//item[3]')).isEmpty();
+      check(getIds('//item[3]')).isEmpty;
     });
 
     test(
@@ -172,22 +172,22 @@ void main() {
     test('intValue is null for values exceeding 64-bit signed int', () {
       final huge = BigInt.parse('999999999999999999999999999999');
       final val = XPathInteger(huge);
-      check(val.intValue).isNull();
-      check(val.equalsInt(42)).isFalse();
+      check(val.intValue).isNull;
+      check(val.equalsInt(42)).isFalse;
     });
 
     test('pools small integers 0 through 128 in fromInt for xsInteger', () {
       for (var i = 0; i <= 128; i++) {
         final a = XPathInteger.fromInt(i);
         final b = XPathInteger.fromInt(i);
-        check(identical(a, b)).isTrue();
+        check(identical(a, b)).isTrue;
         check(a.intValue).equals(i);
       }
-      check(identical(XPathInteger.fromInt(0), XPathInteger.zero)).isTrue();
+      check(identical(XPathInteger.fromInt(0), XPathInteger.zero)).isTrue;
 
       final over = XPathInteger.fromInt(129);
       final over2 = XPathInteger.fromInt(129);
-      check(identical(over, over2)).isFalse();
+      check(identical(over, over2)).isFalse;
       check(over).equals(over2);
       check(over.intValue).equals(129);
     });
@@ -195,38 +195,38 @@ void main() {
     test('fromInt with non-xsInteger type does not use pool', () {
       final a = XPathInteger.fromInt(5, xsPositiveInteger);
       final b = XPathInteger.fromInt(5, xsPositiveInteger);
-      check(identical(a, b)).isFalse();
+      check(identical(a, b)).isFalse;
       check(a.type).equals(xsPositiveInteger);
       check(a.intValue).equals(5);
     });
 
     test('parse fast path uses int.tryParse', () {
       final p1 = XPathInteger.parse('  42  ');
-      check(identical(p1, XPathInteger.fromInt(42))).isTrue();
+      check(identical(p1, XPathInteger.fromInt(42))).isTrue;
       check(p1.intValue).equals(42);
 
       final p2 = XPathInteger.parse('-999');
       check(p2.intValue).equals(-999);
 
       final pHuge = XPathInteger.parse('123456789012345678901234567890');
-      check(pHuge.intValue).isNull();
+      check(pHuge.intValue).isNull;
       check(pHuge.value).equals(BigInt.parse('123456789012345678901234567890'));
     });
 
     test('equalsInt compares primitive int directly without BigInt alloc', () {
       final a = XPathInteger.fromInt(100);
-      check(a.equalsInt(100)).isTrue();
-      check(a.equalsInt(99)).isFalse();
+      check(a.equalsInt(100)).isTrue;
+      check(a.equalsInt(99)).isFalse;
 
       final huge = XPathInteger(BigInt.parse('999999999999999999999999999999'));
-      check(huge.equalsInt(100)).isFalse();
+      check(huge.equalsInt(100)).isFalse;
     });
 
     test('operator == fast path when both have intValue', () {
       final a = XPathInteger.fromInt(500);
       final b = XPathInteger.fromInt(500);
-      check(a == b).isTrue();
-      check(a == XPathInteger.fromInt(501)).isFalse();
+      check(a == b).isTrue;
+      check(a == XPathInteger.fromInt(501)).isFalse;
     });
   });
 
@@ -252,7 +252,7 @@ void main() {
       check(
         pNeg.predicates.first.staticPosition == null ||
             pNeg.predicates.first.staticPosition! <= 0,
-      ).isTrue();
+      ).isTrue;
 
       final pFrac = parseExpression('item[1.5]') as StepExpression;
       check(pFrac.predicates.first.staticPosition).equals(0);
@@ -262,88 +262,88 @@ void main() {
       'staticPosition returns null for non-constant or non-numeric expressions',
       () {
         final pAttr = parseExpression('item[@id = "1"]') as StepExpression;
-        check(pAttr.predicates.first.staticPosition).isNull();
+        check(pAttr.predicates.first.staticPosition).isNull;
 
         final pPos = parseExpression('item[position() = 1]') as StepExpression;
-        check(pPos.predicates.first.staticPosition).isNull();
+        check(pPos.predicates.first.staticPosition).isNull;
 
         final pLast = parseExpression('item[last()]') as StepExpression;
-        check(pLast.predicates.first.staticPosition).isNull();
+        check(pLast.predicates.first.staticPosition).isNull;
 
         final pVar = parseExpression('item[\$x]') as StepExpression;
-        check(pVar.predicates.first.staticPosition).isNull();
+        check(pVar.predicates.first.staticPosition).isNull;
       },
     );
 
     test('isDefinitelyNonPositional returns true for attribute comparisons and booleans', () {
       final pEq = parseExpression('item[@id = "100"]') as StepExpression;
-      check(pEq.predicates.first.isDefinitelyNonPositional).isTrue();
-      check(pEq.predicates.first.isPositional).isFalse();
+      check(pEq.predicates.first.isDefinitelyNonPositional).isTrue;
+      check(pEq.predicates.first.isPositional).isFalse;
 
       final pComp = parseExpression('item[@price > 50]') as StepExpression;
-      check(pComp.predicates.first.isDefinitelyNonPositional).isTrue();
+      check(pComp.predicates.first.isDefinitelyNonPositional).isTrue;
 
       final pAnd = parseExpression('item[@a and @b]') as StepExpression;
-      check(pAnd.predicates.first.isDefinitelyNonPositional).isTrue();
+      check(pAnd.predicates.first.isDefinitelyNonPositional).isTrue;
 
       final pOr = parseExpression('item[@a or @b]') as StepExpression;
-      check(pOr.predicates.first.isDefinitelyNonPositional).isTrue();
+      check(pOr.predicates.first.isDefinitelyNonPositional).isTrue;
 
       final pNot = parseExpression('item[not(@disabled)]') as StepExpression;
-      check(pNot.predicates.first.isDefinitelyNonPositional).isTrue();
+      check(pNot.predicates.first.isDefinitelyNonPositional).isTrue;
 
       final pContains =
           parseExpression('item[contains(@name, "x")]') as StepExpression;
-      check(pContains.predicates.first.isDefinitelyNonPositional).isTrue();
+      check(pContains.predicates.first.isDefinitelyNonPositional).isTrue;
 
       final pStarts =
           parseExpression('item[starts-with(@id, "a")]') as StepExpression;
-      check(pStarts.predicates.first.isDefinitelyNonPositional).isTrue();
+      check(pStarts.predicates.first.isDefinitelyNonPositional).isTrue;
 
       final pEnds =
           parseExpression('item[ends-with(@id, "z")]') as StepExpression;
-      check(pEnds.predicates.first.isDefinitelyNonPositional).isTrue();
+      check(pEnds.predicates.first.isDefinitelyNonPositional).isTrue;
 
       final pEmpty = parseExpression('item[empty(@opt)]') as StepExpression;
-      check(pEmpty.predicates.first.isDefinitelyNonPositional).isTrue();
+      check(pEmpty.predicates.first.isDefinitelyNonPositional).isTrue;
 
       final pExists = parseExpression('item[exists(@opt)]') as StepExpression;
-      check(pExists.predicates.first.isDefinitelyNonPositional).isTrue();
+      check(pExists.predicates.first.isDefinitelyNonPositional).isTrue;
 
       final pAttrExists = parseExpression('item[@id]') as StepExpression;
-      check(pAttrExists.predicates.first.isDefinitelyNonPositional).isTrue();
+      check(pAttrExists.predicates.first.isDefinitelyNonPositional).isTrue;
 
       final pChildExists = parseExpression('item[title]') as StepExpression;
-      check(pChildExists.predicates.first.isDefinitelyNonPositional).isTrue();
+      check(pChildExists.predicates.first.isDefinitelyNonPositional).isTrue;
     });
 
     test(
       'isDefinitelyNonPositional returns false for positional predicates',
       () {
         final p1 = parseExpression('item[1]') as StepExpression;
-        check(p1.predicates.first.isDefinitelyNonPositional).isFalse();
-        check(p1.predicates.first.isPositional).isTrue();
+        check(p1.predicates.first.isDefinitelyNonPositional).isFalse;
+        check(p1.predicates.first.isPositional).isTrue;
 
         final pPos = parseExpression('item[position() = 1]') as StepExpression;
-        check(pPos.predicates.first.isDefinitelyNonPositional).isFalse();
-        check(pPos.predicates.first.isPositional).isTrue();
+        check(pPos.predicates.first.isDefinitelyNonPositional).isFalse;
+        check(pPos.predicates.first.isPositional).isTrue;
 
         final pLast = parseExpression('item[last()]') as StepExpression;
-        check(pLast.predicates.first.isDefinitelyNonPositional).isFalse();
-        check(pLast.predicates.first.isPositional).isTrue();
+        check(pLast.predicates.first.isDefinitelyNonPositional).isFalse;
+        check(pLast.predicates.first.isPositional).isTrue;
 
         final pPosComp =
             parseExpression('item[position() > 2]') as StepExpression;
-        check(pPosComp.predicates.first.isDefinitelyNonPositional).isFalse();
-        check(pPosComp.predicates.first.isPositional).isTrue();
+        check(pPosComp.predicates.first.isDefinitelyNonPositional).isFalse;
+        check(pPosComp.predicates.first.isPositional).isTrue;
 
         final pVar = parseExpression('item[\$v]') as StepExpression;
-        check(pVar.predicates.first.isDefinitelyNonPositional).isFalse();
-        check(pVar.predicates.first.isPositional).isTrue();
+        check(pVar.predicates.first.isDefinitelyNonPositional).isFalse;
+        check(pVar.predicates.first.isPositional).isTrue;
 
         final pArith = parseExpression('item[1 + 1]') as StepExpression;
-        check(pArith.predicates.first.isDefinitelyNonPositional).isFalse();
-        check(pArith.predicates.first.isPositional).isTrue();
+        check(pArith.predicates.first.isDefinitelyNonPositional).isFalse;
+        check(pArith.predicates.first.isPositional).isTrue;
       },
     );
   });
@@ -356,7 +356,7 @@ void main() {
       final step = expr.steps[1] as StepExpression;
       check(step.axis).isA<DescendantAxis>();
       check(step.predicates).length.equals(1);
-      check(expr.isOrderPreserved).isTrue();
+      check(expr.isOrderPreserved).isTrue;
     });
 
     test('collapses //*[@id="100"] to DescendantAxis', () {
@@ -364,7 +364,7 @@ void main() {
       check(expr.steps).length.equals(2);
       final step = expr.steps[1] as StepExpression;
       check(step.axis).isA<DescendantAxis>();
-      check(expr.isOrderPreserved).isTrue();
+      check(expr.isOrderPreserved).isTrue;
     });
 
     test('collapses //self::item[@id="100"] to DescendantOrSelfAxis', () {
@@ -506,38 +506,38 @@ void main() {
       final maxVal = XPathInteger.fromInt(maxInt);
       check(maxVal.intValue).equals(maxInt);
       check(maxVal.asInt).equals(maxInt);
-      check(maxVal.equalsInt(maxInt)).isTrue();
+      check(maxVal.equalsInt(maxInt)).isTrue;
 
       final minVal = XPathInteger.fromInt(minInt);
       check(minVal.intValue).equals(minInt);
       check(minVal.asInt).equals(minInt);
-      check(minVal.equalsInt(minInt)).isTrue();
+      check(minVal.equalsInt(minInt)).isTrue;
 
       final overflowPos = BigInt.parse('9223372036854775808');
       final valOver = XPathInteger(overflowPos);
-      check(valOver.intValue).isNull();
-      check(valOver.equalsInt(maxInt)).isFalse();
+      check(valOver.intValue).isNull;
+      check(valOver.equalsInt(maxInt)).isFalse;
 
       final overflowNeg = BigInt.parse('-9223372036854775809');
       final valUnder = XPathInteger(overflowNeg);
-      check(valUnder.intValue).isNull();
-      check(valUnder.equalsInt(minInt)).isFalse();
+      check(valUnder.intValue).isNull;
+      check(valUnder.equalsInt(minInt)).isFalse;
     });
 
     test('Small integer pool boundary 128 vs 129', () {
       final p128a = XPathInteger.fromInt(128);
       final p128b = XPathInteger.fromInt(128);
-      check(identical(p128a, p128b)).isTrue();
+      check(identical(p128a, p128b)).isTrue;
 
       final p129a = XPathInteger.fromInt(129);
       final p129b = XPathInteger.fromInt(129);
-      check(identical(p129a, p129b)).isFalse();
-      check(p129a == p129b).isTrue();
+      check(identical(p129a, p129b)).isFalse;
+      check(p129a == p129b).isTrue;
 
       final pNeg = XPathInteger.fromInt(-1);
       final pNeg2 = XPathInteger.fromInt(-1);
-      check(identical(pNeg, pNeg2)).isFalse();
-      check(pNeg == pNeg2).isTrue();
+      check(identical(pNeg, pNeg2)).isFalse;
+      check(pNeg == pNeg2).isTrue;
     });
 
     test('Cross-type equality with cached intValue', () {
@@ -546,9 +546,9 @@ void main() {
       const dbl42 = XPathDouble(42.0);
       const dbl42_5 = XPathDouble(42.5);
 
-      check(int42 == dec42).isTrue();
-      check(int42 == dbl42).isTrue();
-      check(int42 == dbl42_5).isFalse();
+      check(int42 == dec42).isTrue;
+      check(int42 == dbl42).isTrue;
+      check(int42 == dbl42_5).isFalse;
     });
 
     test('Floating and special numeric predicates in execution', () {
@@ -559,12 +559,12 @@ void main() {
   <e id="3"/>
 </root>''');
 
-      check(doc.xpath('//e[0]')).isEmpty();
-      check(doc.xpath('//e[-1]')).isEmpty();
-      check(doc.xpath('//e[-99999999999999999999]')).isEmpty();
-      check(doc.xpath('//e[99999999999999999999]')).isEmpty();
-      check(doc.xpath('//e[1.5]')).isEmpty();
-      check(doc.xpath('//e[2.7]')).isEmpty();
+      check(doc.xpath('//e[0]')).isEmpty;
+      check(doc.xpath('//e[-1]')).isEmpty;
+      check(doc.xpath('//e[-99999999999999999999]')).isEmpty;
+      check(doc.xpath('//e[99999999999999999999]')).isEmpty;
+      check(doc.xpath('//e[1.5]')).isEmpty;
+      check(doc.xpath('//e[2.7]')).isEmpty;
 
       final e1 = doc.xpath('//e[1.0]').toList();
       check(e1).length.equals(1);
@@ -589,7 +589,7 @@ void main() {
         check(path.steps.first).isA<RootNodeExpression>();
         final step = path.steps[1] as StepExpression;
         check(step.axis is DescendantAxis || step.axis is DescendantOrSelfAxis)
-            .isTrue();
+            .isTrue;
       } else {
         check(
           because: 'Expected $query NOT to collapse',
@@ -676,7 +676,7 @@ void main() {
         check((prev2.first as XmlElement).getAttribute('id')).equals('p1');
 
         final prev3 = p3.xpath('preceding-sibling::para[3]').toList();
-        check(prev3).isEmpty();
+        check(prev3).isEmpty;
       },
     );
 
@@ -691,7 +691,7 @@ void main() {
       check((anc2.first as XmlElement).name.local).equals('doc');
 
       final anc3 = p1.xpath('ancestor::*[3]').toList();
-      check(anc3).isEmpty();
+      check(anc3).isEmpty;
     });
   });
 
@@ -781,7 +781,7 @@ void main() {
               because:
                   'Tree $treeIdx, query "$q", item $k: identity mismatch between optimized and unoptimized',
               identical(optNode, unoptNode),
-            ).isTrue();
+            ).isTrue;
           }
         }
       }
@@ -797,9 +797,9 @@ void main() {
         if (multiParentItems.isNotEmpty) {
           check(singleFirstItem).length.equals(1);
           check(identical(multiParentItems.first, singleFirstItem.first))
-              .isTrue();
+              .isTrue;
         } else {
-          check(singleFirstItem).isEmpty();
+          check(singleFirstItem).isEmpty;
         }
 
         final allItems = doc.xpath('//item').toList();

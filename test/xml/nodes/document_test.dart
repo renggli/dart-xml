@@ -5,17 +5,17 @@ import 'package:xml/xml.dart';
 void main() {
   test('basic', () {
     final node = XmlDocument.parse('<data/>');
-    check(node.parent).isNull();
-    check(node.parentElement).isNull();
+    check(node.parent).isNull;
+    check(node.parentElement).isNull;
     check(node.root).identicalTo(node);
     check(node.document).identicalTo(node);
     check(node.depth).equals(0);
-    check(node.attributes).isEmpty();
-    check(node.elementAttributes).isEmpty();
+    check(node.attributes).isEmpty;
+    check(node.elementAttributes).isEmpty;
     check(node.children).length.equals(1);
-    check(node.value).isNull();
+    check(node.value).isNull;
     // ignore: deprecated_member_use_from_same_package
-    check(node.text).isEmpty();
+    check(node.text).isEmpty;
     check(node.nodeType).equals(XmlNodeType.DOCUMENT);
     check(node.toString()).equals('<data/>');
   });
@@ -35,8 +35,8 @@ void main() {
       '<?xml version="1.0" encoding="UTF-8"?> '
       '<!-- before -->\n<element/>\t<!-- after -->',
     );
-    check(node.attributes).isEmpty();
-    check(node.elementAttributes).isEmpty();
+    check(node.attributes).isEmpty;
+    check(node.elementAttributes).isEmpty;
     check(node.children).length.equals(7);
     check(node.toString()).equals(
       '<?xml version="1.0" encoding="UTF-8"?> '
@@ -49,16 +49,16 @@ void main() {
   });
   test('empty', () {
     final document = XmlDocument();
-    check(document.declaration).isNull();
-    check(document.doctypeElement).isNull();
+    check(document.declaration).isNull;
+    check(document.doctypeElement).isNull;
     check(() => document.rootElement).throws<StateError>();
   });
   test('attributes', () {
     final document = XmlDocument();
-    check(document.attributes).isEmpty();
-    check(document.elementAttributes).isEmpty();
-    check(document.getAttribute('attr')).isNull();
-    check(document.getAttributeNode('attr')).isNull();
+    check(document.attributes).isEmpty;
+    check(document.elementAttributes).isEmpty;
+    check(document.getAttribute('attr')).isNull;
+    check(document.getAttributeNode('attr')).isNull;
     check(() => document.setAttribute('attr', 'value'))
         .throws<UnsupportedError>();
     check(() => document.removeAttribute('attr')).throws<UnsupportedError>();
@@ -80,7 +80,7 @@ void main() {
     check(document.getElementById('u2')?.getAttribute('name')).equals('Bob');
     check(document.getElementById('i1')?.getAttribute('value'))
         .equals('Widget');
-    check(document.getElementById('u3')).isNull();
+    check(document.getElementById('u3')).isNull;
   });
   test('validateAttributes', () {
     check(

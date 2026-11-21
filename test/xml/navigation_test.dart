@@ -7,7 +7,7 @@ void verifyIterator<T>(Iterable<T> iterable) {
   while (iterator.moveNext()) {
     check(iterator.current).isNotNull();
   }
-  check(iterator.moveNext()).isFalse();
+  check(iterator.moveNext()).isFalse;
 }
 
 void main() {
@@ -18,7 +18,7 @@ void main() {
       '</book>';
   final book = XmlDocument.parse(bookXml);
   test('ancestors', () {
-    check(book.ancestors).isEmpty();
+    check(book.ancestors).isEmpty;
     check(book.children[0].ancestors).deepEquals([book]);
     check(book.children[0].children[0].ancestors)
         .deepEquals([book.children[0], book]);
@@ -33,8 +33,8 @@ void main() {
     verifyIterator(book.children[0].children[1].ancestors);
   });
   test('ancestorElements', () {
-    check(book.ancestorElements).isEmpty();
-    check(book.children[0].ancestorElements).isEmpty();
+    check(book.ancestorElements).isEmpty;
+    check(book.children[0].ancestorElements).isEmpty;
     check(book.children[0].children[0].ancestorElements)
         .deepEquals([book.children[0]]);
     check(book.children[0].children[0].attributes[0].ancestorElements)
@@ -48,7 +48,7 @@ void main() {
     verifyIterator(book.children[0].children[1].ancestorElements);
   });
   test('preceding', () {
-    check(book.preceding).isEmpty();
+    check(book.preceding).isEmpty;
     check(book.children[0].preceding).deepEquals([book]);
     check(book.children[0].children[0].preceding)
         .deepEquals([book, book.children[0]]);
@@ -78,8 +78,8 @@ void main() {
     verifyIterator(book.children[0].children[1].preceding);
   });
   test('precedingElements', () {
-    check(book.precedingElements).isEmpty();
-    check(book.children[0].precedingElements).isEmpty();
+    check(book.precedingElements).isEmpty;
+    check(book.children[0].precedingElements).isEmpty;
     check(book.children[0].children[0].precedingElements)
         .deepEquals([book.children[0]]);
     check(book.children[0].children[0].attributes[0].precedingElements)
@@ -113,10 +113,10 @@ void main() {
       book.children[0].children[0].attributes[1],
       book.children[0].children[0].children[0],
     ]);
-    check(book.children[0].children[0].attributes[0].descendants).isEmpty();
-    check(book.children[0].children[0].attributes[1].descendants).isEmpty();
-    check(book.children[0].children[0].children[0].descendants).isEmpty();
-    check(book.children[0].children[1].descendants).isEmpty();
+    check(book.children[0].children[0].attributes[0].descendants).isEmpty;
+    check(book.children[0].children[0].attributes[1].descendants).isEmpty;
+    check(book.children[0].children[0].children[0].descendants).isEmpty;
+    check(book.children[0].children[1].descendants).isEmpty;
     verifyIterator(book.descendants);
   });
   test('descendantElements', () {
@@ -128,19 +128,18 @@ void main() {
     check(
       book.children[0].descendantElements,
     ).deepEquals([book.children[0].children[0], book.children[0].children[1]]);
-    check(book.children[0].children[0].descendantElements).isEmpty();
+    check(book.children[0].children[0].descendantElements).isEmpty;
     check(book.children[0].children[0].attributes[0].descendantElements)
-        .isEmpty();
+        .isEmpty;
     check(book.children[0].children[0].attributes[1].descendantElements)
-        .isEmpty();
-    check(book.children[0].children[0].children[0].descendantElements)
-        .isEmpty();
-    check(book.children[0].children[1].descendantElements).isEmpty();
+        .isEmpty;
+    check(book.children[0].children[0].children[0].descendantElements).isEmpty;
+    check(book.children[0].children[1].descendantElements).isEmpty;
     verifyIterator(book.descendantElements);
   });
   test('following', () {
-    check(book.following).isEmpty();
-    check(book.children[0].following).isEmpty();
+    check(book.following).isEmpty;
+    check(book.children[0].following).isEmpty;
     check(book.children[0].children[0].following)
         .deepEquals([book.children[0].children[1]]);
     check(book.children[0].children[0].attributes[0].following).deepEquals([
@@ -154,12 +153,12 @@ void main() {
     ]);
     check(book.children[0].children[0].children[0].following)
         .deepEquals([book.children[0].children[1]]);
-    check(book.children[0].children[1].following).isEmpty();
+    check(book.children[0].children[1].following).isEmpty;
     verifyIterator(book.following);
   });
   test('followingElements', () {
-    check(book.followingElements).isEmpty();
-    check(book.children[0].followingElements).isEmpty();
+    check(book.followingElements).isEmpty;
+    check(book.children[0].followingElements).isEmpty;
     check(book.children[0].children[0].followingElements)
         .deepEquals([book.children[0].children[1]]);
     check(book.children[0].children[0].attributes[0].followingElements)
@@ -168,7 +167,7 @@ void main() {
         .deepEquals([book.children[0].children[1]]);
     check(book.children[0].children[0].children[0].followingElements)
         .deepEquals([book.children[0].children[1]]);
-    check(book.children[0].children[1].followingElements).isEmpty();
+    check(book.children[0].children[1].followingElements).isEmpty;
     verifyIterator(book.followingElements);
   });
   test('nodes', () {
@@ -181,10 +180,10 @@ void main() {
       book.children[0].children[0].attributes[1],
       book.children[0].children[0].children[0],
     ]);
-    check(book.children[0].children[0].attributes[0].nodes).isEmpty();
-    check(book.children[0].children[0].attributes[1].nodes).isEmpty();
-    check(book.children[0].children[0].children[0].nodes).isEmpty();
-    check(book.children[0].children[1].nodes).isEmpty();
+    check(book.children[0].children[0].attributes[0].nodes).isEmpty;
+    check(book.children[0].children[0].attributes[1].nodes).isEmpty;
+    check(book.children[0].children[0].children[0].nodes).isEmpty;
+    check(book.children[0].children[1].nodes).isEmpty;
     verifyIterator(book.nodes);
   });
 }

@@ -18,10 +18,10 @@ void main() {
     check(node.root).identicalTo(document);
     check(node.document).identicalTo(document);
     check(node.depth).equals(2);
-    check(node.attributes).isEmpty();
-    check(node.elementAttributes).isEmpty();
-    check(node.namespaces).isEmpty();
-    check(node.children).isEmpty();
+    check(node.attributes).isEmpty;
+    check(node.elementAttributes).isEmpty;
+    check(node.namespaces).isEmpty;
+    check(node.children).isEmpty;
     check(node.nodeType).equals(XmlNodeType.CDATA);
     check(node.toString())
         .equals('<![CDATA[Methinks <word> it <word> is like a weasel!]]>');
@@ -29,18 +29,18 @@ void main() {
   test('empty', () {
     final document = XmlDocument.parse('<data><![CDATA[]]></data>');
     final node = document.rootElement.children.single;
-    check(node.value).isNotNull().isEmpty();
+    check(node.value).isNotNull().isEmpty;
     // ignore: deprecated_member_use_from_same_package
-    check(node.text).isNotNull().isEmpty();
+    check(node.text).isNotNull().isEmpty;
     check(node.parent).identicalTo(document.rootElement);
     check(node.parentElement).identicalTo(document.rootElement);
     check(node.root).identicalTo(document);
     check(node.document).identicalTo(document);
     check(node.depth).equals(2);
-    check(node.attributes).isEmpty();
-    check(node.elementAttributes).isEmpty();
-    check(node.namespaces).isEmpty();
-    check(node.children).isEmpty();
+    check(node.attributes).isEmpty;
+    check(node.elementAttributes).isEmpty;
+    check(node.namespaces).isEmpty;
+    check(node.children).isEmpty;
     check(node.nodeType).equals(XmlNodeType.CDATA);
     check(node.toString()).equals('<![CDATA[]]>');
   });

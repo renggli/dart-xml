@@ -11,7 +11,7 @@ void main() {
     test('without prefix', () {
       check(XmlName('bar', namespaceUri: namespaceUri))
         ..qualified.equals('bar')
-        ..prefix.isNull()
+        ..prefix.isNull
         ..local.equals('bar')
         ..namespaceUri.equals(namespaceUri)
         ..extendedQualified.equals('Q{$namespaceUri}bar')
@@ -40,7 +40,7 @@ void main() {
     test('in extended form without prefix', () {
       check(XmlName.parse('Q{$namespaceUri}bar'))
         ..qualified.equals('bar')
-        ..prefix.isNull()
+        ..prefix.isNull
         ..local.equals('bar')
         ..namespaceUri.equals(namespaceUri)
         ..extendedQualified.equals('Q{$namespaceUri}bar')
@@ -49,9 +49,9 @@ void main() {
     test('with empty extended form', () {
       check(XmlName.parse('Q{}bar'))
         ..qualified.equals('bar')
-        ..prefix.isNull()
+        ..prefix.isNull
         ..local.equals('bar')
-        ..namespaceUri.isNull()
+        ..namespaceUri.isNull
         ..extendedQualified.equals('bar')
         ..asString.equals('bar');
     });
@@ -83,7 +83,7 @@ void main() {
     test('without prefix', () {
       check(const XmlName.parts('bar', namespaceUri: namespaceUri))
         ..qualified.equals('bar')
-        ..prefix.isNull()
+        ..prefix.isNull
         ..local.equals('bar')
         ..namespaceUri.equals(namespaceUri)
         ..extendedQualified.equals('Q{$namespaceUri}bar')
@@ -114,7 +114,7 @@ void main() {
     test('XmlName.namespace without name', () {
       check(const XmlName.namespace())
         ..qualified.equals('xmlns')
-        ..prefix.isNull()
+        ..prefix.isNull
         ..local.equals('xmlns')
         ..namespaceUri.equals('http://www.w3.org/2000/xmlns/')
         ..extendedQualified.equals('Q{http://www.w3.org/2000/xmlns/}xmlns')
@@ -125,7 +125,7 @@ void main() {
     test('XmlName without prefix', () {
       check(XmlName('bar', namespaceUri: namespaceUri))
         ..qualified.equals('bar')
-        ..prefix.isNull()
+        ..prefix.isNull
         ..local.equals('bar')
         ..namespaceUri.equals(namespaceUri)
         ..extendedQualified.equals('Q{$namespaceUri}bar')
@@ -147,25 +147,25 @@ void main() {
     final noNamespace = XmlName('foo:bar');
     final differentNamespace = XmlName('foo:bar', namespaceUri: 'something');
     test('self comparison', () {
-      check(original == original).isTrue();
-      check(differentPrefix == differentPrefix).isTrue();
-      check(noNamespace == noNamespace).isTrue();
-      check(differentNamespace == differentNamespace).isTrue();
+      check(original == original).isTrue;
+      check(differentPrefix == differentPrefix).isTrue;
+      check(noNamespace == noNamespace).isTrue;
+      check(differentNamespace == differentNamespace).isTrue;
     });
     test('different prefix', () {
-      check(original == differentPrefix).isTrue();
-      check(differentPrefix == original).isTrue();
-      check(original.hashCode == differentPrefix.hashCode).isTrue();
+      check(original == differentPrefix).isTrue;
+      check(differentPrefix == original).isTrue;
+      check(original.hashCode == differentPrefix.hashCode).isTrue;
     });
     test('no namespace', () {
-      check(original == noNamespace).isFalse();
-      check(noNamespace == original).isFalse();
-      check(original.hashCode == noNamespace.hashCode).isFalse();
+      check(original == noNamespace).isFalse;
+      check(noNamespace == original).isFalse;
+      check(original.hashCode == noNamespace.hashCode).isFalse;
     });
     test('different namespace', () {
-      check(original == differentNamespace).isFalse();
-      check(differentNamespace == original).isFalse();
-      check(original.hashCode == differentNamespace.hashCode).isFalse();
+      check(original == differentNamespace).isFalse;
+      check(differentNamespace == original).isFalse;
+      check(original.hashCode == differentNamespace.hashCode).isFalse;
     });
   });
 }

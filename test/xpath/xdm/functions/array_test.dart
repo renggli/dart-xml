@@ -18,8 +18,8 @@ void main() {
       check(arr.type).equals(xsArray);
       check(arr.arity).equals(1);
       check(arr.length).equals(2);
-      check(arr.isEmpty).isFalse();
-      check(arr.isNotEmpty).isTrue();
+      check(arr.isEmpty).isFalse;
+      check(arr.isNotEmpty).isTrue;
       check(arr[0]).isXPathSequence(['first']);
       check(arr[1]).isXPathSequence(['second']);
       check(arr.toString()).equals('[(first), (second)]');
@@ -27,7 +27,7 @@ void main() {
 
     test('empty array', () {
       const arr = XPathArray.empty;
-      check(arr.isEmpty).isTrue();
+      check(arr.isEmpty).isTrue;
       check(arr.length).equals(0);
       check(arr.toString()).equals('[]');
     });
@@ -76,9 +76,9 @@ void main() {
 
       check(a1).equals(a2);
       check(a1.hashCode).equals(a2.hashCode);
-      check(a1 == a3).isFalse();
-      check(a1 == a4).isFalse();
-      check(a1 == Object()).isFalse();
+      check(a1 == a3).isFalse;
+      check(a1 == a4).isFalse;
+      check(a1 == Object()).isFalse;
     });
   });
 }

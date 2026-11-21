@@ -13,7 +13,7 @@ void main() {
       check(documentChildrenNodeTypes).contains(XmlNodeType.CDATA);
       check(documentChildrenNodeTypes).contains(XmlNodeType.TEXT);
       check(documentChildrenNodeTypes)
-          .not((s) => s.contains(XmlNodeType.ATTRIBUTE));
+          .not(Condition.it()..contains(XmlNodeType.ATTRIBUTE));
     });
 
     test('elementChildrenNodeTypes excludes declaration and doctype', () {
@@ -23,11 +23,11 @@ void main() {
       check(elementChildrenNodeTypes).contains(XmlNodeType.CDATA);
       check(elementChildrenNodeTypes).contains(XmlNodeType.TEXT);
       check(elementChildrenNodeTypes)
-          .not((s) => s.contains(XmlNodeType.DECLARATION));
+          .not(Condition.it()..contains(XmlNodeType.DECLARATION));
       check(elementChildrenNodeTypes)
-          .not((s) => s.contains(XmlNodeType.DOCUMENT_TYPE));
+          .not(Condition.it()..contains(XmlNodeType.DOCUMENT_TYPE));
       check(elementChildrenNodeTypes)
-          .not((s) => s.contains(XmlNodeType.ATTRIBUTE));
+          .not(Condition.it()..contains(XmlNodeType.ATTRIBUTE));
     });
 
     test('attributeNodeTypes contains only ATTRIBUTE', () {

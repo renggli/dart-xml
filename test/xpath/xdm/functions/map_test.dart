@@ -18,17 +18,17 @@ void main() {
       check(map.type).equals(xsMap);
       check(map.arity).equals(1);
       check(map.length).equals(2);
-      check(map.isEmpty).isFalse();
-      check(map.isNotEmpty).isTrue();
+      check(map.isEmpty).isFalse;
+      check(map.isNotEmpty).isTrue;
       check(map.keys.map((k) => k.stringValue).toSet()).deepEquals({'a', 'b'});
       check(map.get(const XPathString('a'))).isNotNull().isXPathSequence([1]);
-      check(map.get(const XPathString('missing'))).isNull();
+      check(map.get(const XPathString('missing'))).isNull;
       check(map.toString()).contains('a: (1)');
     });
 
     test('empty map', () {
       const map = XPathMap.empty;
-      check(map.isEmpty).isTrue();
+      check(map.isEmpty).isTrue;
       check(map.length).equals(0);
       check(map.toString()).equals('map{}');
     });
@@ -67,17 +67,17 @@ void main() {
 
     test('sameKey logic for numeric equivalence and NaN', () {
       check(XPathMap.sameKey(XPathInteger.fromInt(1), const XPathDouble(1.0)))
-          .isTrue();
+          .isTrue;
       check(
         XPathMap.sameKey(
           const XPathDouble(double.nan),
           const XPathDouble(double.nan),
         ),
-      ).isTrue();
+      ).isTrue;
       check(XPathMap.sameKey(const XPathString('x'), const XPathString('x')))
-          .isTrue();
+          .isTrue;
       check(XPathMap.sameKey(const XPathString('x'), const XPathString('y')))
-          .isFalse();
+          .isFalse;
     });
 
     test('keyHashCode is consistent with sameKey', () {
@@ -132,9 +132,9 @@ void main() {
 
       check(m1).equals(m2);
       check(m1.hashCode).equals(m2.hashCode);
-      check(m1 == m3).isFalse();
-      check(m1 == m4).isFalse();
-      check(m1 == Object()).isFalse();
+      check(m1 == m3).isFalse;
+      check(m1 == m4).isFalse;
+      check(m1 == Object()).isFalse;
     });
   });
 }

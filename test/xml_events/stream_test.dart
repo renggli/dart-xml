@@ -408,9 +408,7 @@ void main() {
     ) async {
       await check(stream.toXmlEvents(withLocation: true).drain<void>())
           .throws<XmlParserException>(
-            (it) => it.which(
-              isXmlParserException(message: '">" expected', position: 6),
-            ),
+            isXmlParserException(message: '">" expected', position: 6),
           );
     });
     chunkedTests<String>(
@@ -420,9 +418,7 @@ void main() {
       (stream) async {
         await check(stream.toXmlEvents(withLocation: true).drain<void>())
             .throws<XmlParserException>(
-              (it) => it.which(
-                isXmlParserException(message: '">" expected', position: 8),
-              ),
+              isXmlParserException(message: '">" expected', position: 8),
             );
       },
     );
@@ -433,9 +429,7 @@ void main() {
       (stream) async {
         await check(stream.toXmlEvents(withLocation: true).drain<void>())
             .throws<XmlParserException>(
-              (it) => it.which(
-                isXmlParserException(message: '"-->" expected', position: 4),
-              ),
+              isXmlParserException(message: '"-->" expected', position: 4),
             );
       },
     );
@@ -490,7 +484,7 @@ void main() {
                 .flatten()
                 .drain<void>(),
           ).throws<XmlTagException>(
-            (it) => it.which(isXmlTagException(actualName: 'foo', position: 0)),
+            isXmlTagException(actualName: 'foo', position: 0),
           );
         },
       );
@@ -503,7 +497,7 @@ void main() {
               .flatten()
               .drain<void>(),
         ).throws<XmlTagException>(
-          (it) => it.which(isXmlTagException(expectedName: 'foo', position: 5)),
+          isXmlTagException(expectedName: 'foo', position: 5),
         );
       });
       chunkedTests<String>(
@@ -517,12 +511,10 @@ void main() {
                 .flatten()
                 .drain<void>(),
           ).throws<XmlTagException>(
-            (it) => it.which(
-              isXmlTagException(
-                expectedName: 'foo',
-                actualName: 'bar',
-                position: 5,
-              ),
+            isXmlTagException(
+              expectedName: 'foo',
+              actualName: 'bar',
+              position: 5,
             ),
           );
         },
@@ -550,7 +542,7 @@ void main() {
             .which(
               isXmlTagException(
                 message: 'Unexpected closing tag </foo>',
-                expectedNameCondition: (n) => n.isNull(),
+                expectedNameCondition: Condition.it()..isNull,
                 actualName: 'foo',
               ),
             );
@@ -562,7 +554,7 @@ void main() {
               isXmlTagException(
                 message: 'Missing closing tag </foo>',
                 expectedName: 'foo',
-                actualNameCondition: (n) => n.isNull(),
+                actualNameCondition: Condition.it()..isNull,
               ),
             );
       });
@@ -695,7 +687,7 @@ void main() {
         because: 'root element is identical',
         output[0],
       ).identicalTo(input[0]);
-      check(output[0].parent).isNull();
+      check(output[0].parent).isNull;
       check(output[1].parent).identicalTo(output[0] as XmlStartElementEvent);
       check(output[2].parent).identicalTo(output[1] as XmlStartElementEvent);
       check(output[3].parent).identicalTo(output[2] as XmlStartElementEvent);
@@ -711,9 +703,7 @@ void main() {
       // ignore: deprecated_member_use_from_same_package
       final stream = Stream.fromIterable(input).withParentEvents().flatten();
       await check(stream.drain<void>()).throws<XmlTagException>(
-        (it) => it.which(
-          isXmlTagException(message: 'Expected </open>, but found </close>'),
-        ),
+        isXmlTagException(message: 'Expected </open>, but found </close>'),
       );
     });
     test('closing tag missing', () async {
@@ -723,8 +713,7 @@ void main() {
       // ignore: deprecated_member_use_from_same_package
       final stream = Stream.fromIterable(input).withParentEvents().flatten();
       await check(stream.drain<void>()).throws<XmlTagException>(
-        (it) =>
-            it.which(isXmlTagException(message: 'Missing closing tag </open>')),
+        isXmlTagException(message: 'Missing closing tag </open>'),
       );
     });
     test('closing tag unexpected', () async {
@@ -735,9 +724,7 @@ void main() {
       // ignore: deprecated_member_use_from_same_package
       final stream = Stream.fromIterable(input).withParentEvents().flatten();
       await check(stream.drain<void>()).throws<XmlTagException>(
-        (it) => it.which(
-          isXmlTagException(message: 'Unexpected closing tag </close>'),
-        ),
+        isXmlTagException(message: 'Unexpected closing tag </close>'),
       );
     });
     test('after normalization', () {
@@ -823,8 +810,7 @@ void main() {
           .selectSubtreeEvents((event) => event.name == 'item')
           .flatten();
       await check(stream.drain<void>()).throws<XmlTagException>(
-        (it) =>
-            it.which(isXmlTagException(message: 'Missing closing tag </item>')),
+        isXmlTagException(message: 'Missing closing tag </item>'),
       );
     });
   });

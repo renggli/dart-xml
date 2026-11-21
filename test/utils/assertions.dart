@@ -78,22 +78,22 @@ void assertDocumentInvariants(XmlNode xml) {
   if (declaration != null) {
     check(document.children).contains(declaration);
     if (declaration.version != null) {
-      check(declaration.version!).isNotEmpty();
+      check(declaration.version!).isNotEmpty;
     }
     if (declaration.encoding != null) {
-      check(declaration.encoding!).isNotEmpty();
+      check(declaration.encoding!).isNotEmpty;
     }
     check(declaration.standalone).isNotNull();
   }
   final doctypeElement = document.doctypeElement;
   if (doctypeElement != null) {
     check(document.children).contains(doctypeElement);
-    check(doctypeElement.name).isNotEmpty();
+    check(doctypeElement.name).isNotEmpty;
     final externalId = doctypeElement.externalId;
     if (externalId != null) {
-      check(externalId.systemId).isNotEmpty();
+      check(externalId.systemId).isNotEmpty;
       if (externalId.publicId != null) {
-        check(externalId.publicId!).isNotEmpty();
+        check(externalId.publicId!).isNotEmpty;
       }
     }
     if (doctypeElement.internalSubset != null) {
@@ -107,7 +107,7 @@ void assertFragmentInvariants(XmlNode xml) {
   final root = xml.root;
   for (final child in [xml, ...xml.descendants]) {
     check(child.root).identicalTo(root);
-    check(child.document).isNull();
+    check(child.document).isNull;
   }
   check(root.depth).equals(0);
 }
@@ -115,8 +115,8 @@ void assertFragmentInvariants(XmlNode xml) {
 void assertParentInvariants(XmlNode xml) {
   for (final node in [xml, ...xml.descendants]) {
     if (node is XmlDocument || node is XmlDocumentFragment) {
-      check(node.parent).isNull();
-      check(node.hasParent).isFalse();
+      check(node.parent).isNull;
+      check(node.hasParent).isFalse;
       check(node.remove)
           .throws<XmlParentException>()
           .which(isXmlParentException(node: node));
@@ -127,7 +127,7 @@ void assertParentInvariants(XmlNode xml) {
       check(() => node.detachParent(XmlDocument())).throws<UnsupportedError>();
     } else {
       check(node.parent).isNotNull();
-      check(node.hasParent).isTrue();
+      check(node.hasParent).isTrue;
     }
     for (final child in node.children) {
       check(child.parent).identicalTo(node);
@@ -212,13 +212,13 @@ void assertNamedInvariant(XmlHasName named) {
   check(named.localName).equals(named.name.local);
   check(named.namespacePrefix).equals(named.name.prefix);
   check(named.namespaceUri).equals(named.name.namespaceUri);
-  check(named.name.local).isNotEmpty();
+  check(named.name.local).isNotEmpty;
   check(named.name.qualified).endsWith(named.name.local);
   if (named.name.prefix != null) {
     check(named.name.qualified).startsWith(named.name.prefix!);
   }
   if (named.name.namespaceUri != null) {
-    check(named.name.namespaceUri!).isNotEmpty();
+    check(named.name.namespaceUri!).isNotEmpty;
   }
   check(named.name.qualified).equals(named.name.toString());
 }
@@ -241,8 +241,8 @@ void assertAttributeInvariants(XmlNode xml) {
             .identicalTo(attribute.value);
       }
       if (node.attributes.isEmpty) {
-        check(node.getAttribute('foo')).isNull();
-        check(node.getAttributeNode('foo')).isNull();
+        check(node.getAttribute('foo')).isNull;
+        check(node.getAttributeNode('foo')).isNull;
       }
     }
   }
@@ -254,12 +254,12 @@ void assertNamespaceInvariants(XmlNode xml) {
       check(namespace.nodeType).equals(XmlNodeType.NAMESPACE);
       check(namespace.parent).isNotNull();
       check(namespace.prefix).isA<String>();
-      check(namespace.uri).isNotEmpty();
+      check(namespace.uri).isNotEmpty;
       check(namespace.name.qualified).equals(namespace.prefix);
       check(namespace.value).equals(namespace.uri);
-      check(namespace.namespaces).isEmpty();
-      check(namespace.attributes).isEmpty();
-      check(namespace.children).isEmpty();
+      check(namespace.namespaces).isEmpty;
+      check(namespace.attributes).isEmpty;
+      check(namespace.children).isEmpty;
       check(namespace.document).identicalTo(node.document);
     }
   }
@@ -268,18 +268,18 @@ void assertNamespaceInvariants(XmlNode xml) {
 void assertChildrenInvariants(XmlNode xml) {
   for (final node in [xml, ...xml.descendants]) {
     if (node.children.isEmpty) {
-      check(node.firstChild).isNull();
-      check(node.lastChild).isNull();
-      check(node.firstElementChild).isNull();
-      check(node.lastElementChild).isNull();
-      check(node.getElement('foo')).isNull();
+      check(node.firstChild).isNull;
+      check(node.lastChild).isNull;
+      check(node.firstElementChild).isNull;
+      check(node.lastElementChild).isNull;
+      check(node.getElement('foo')).isNull;
     } else {
       check(node.firstChild).identicalTo(node.children.first);
       check(node.lastChild).identicalTo(node.children.last);
       final elements = node.children.whereType<XmlElement>();
       if (elements.isEmpty) {
-        check(node.firstElementChild).isNull();
-        check(node.lastElementChild).isNull();
+        check(node.firstElementChild).isNull;
+        check(node.lastElementChild).isNull;
       } else {
         check(node.firstElementChild).identicalTo(elements.first);
         check(node.lastElementChild).identicalTo(elements.last);
@@ -310,7 +310,7 @@ void assertTextInvariants(XmlNode xml) {
         node is XmlText) {
       check(because: 'Values cannot be empty.', node.value).isA<String>();
     } else {
-      check(node.value).isNull();
+      check(node.value).isNull;
     }
     XmlNodeType? previousType;
     final nodeTypes = node.children.map((node) => node.nodeType);
@@ -318,7 +318,7 @@ void assertTextInvariants(XmlNode xml) {
       check(
         because: 'Consecutive text nodes detected: $nodeTypes',
         previousType == XmlNodeType.TEXT && currentType == XmlNodeType.TEXT,
-      ).isFalse();
+      ).isFalse;
       previousType = currentType;
     }
   }
@@ -367,29 +367,29 @@ void assertComparatorInvariants(XmlNode xml) {
   ];
   for (final node in [xml, ...xml.descendants]) {
     // compare
-    check(node.isEqualNode(node)).isTrue();
+    check(node.isEqualNode(node)).isTrue;
     for (final uniqueNode in uniqueNodes) {
-      check(node.isEqualNode(uniqueNode)).isFalse();
-      check(uniqueNode.isEqualNode(node)).isFalse();
+      check(node.isEqualNode(uniqueNode)).isFalse;
+      check(uniqueNode.isEqualNode(node)).isFalse;
     }
     // contains
-    check(node.contains(node)).isTrue();
-    check(node.descendants.map(node.contains)).every((it) => it.isTrue());
-    check(node.ancestors.map(node.contains)).every((it) => it.isFalse());
-    check(node.following.map(node.contains)).every((it) => it.isFalse());
+    check(node.contains(node)).isTrue;
+    check(node.descendants.map(node.contains)).every(Condition.it()..isTrue);
+    check(node.ancestors.map(node.contains)).every(Condition.it()..isFalse);
+    check(node.following.map(node.contains)).every(Condition.it()..isFalse);
     for (final uniqueNode in uniqueNodes) {
-      check(node.contains(uniqueNode)).isFalse();
-      check(uniqueNode.contains(node)).isFalse();
+      check(node.contains(uniqueNode)).isFalse;
+      check(uniqueNode.contains(node)).isFalse;
     }
     // compareNodePosition
     // ignore: deprecated_member_use_from_same_package
     check(node.preceding.map(node.compareNodePosition))
-        .every((it) => it.equals(1));
+        .every(Condition.it()..equals(1));
     // ignore: deprecated_member_use_from_same_package
     check(node.compareNodePosition(node)).equals(0);
     // ignore: deprecated_member_use_from_same_package
     check(node.following.map(node.compareNodePosition))
-        .every((it) => it.equals(-1));
+        .every(Condition.it()..equals(-1));
     for (final uniqueNode in uniqueNodes) {
       // ignore: deprecated_member_use_from_same_package
       check(() => node.compareNodePosition(uniqueNode)).throws<StateError>();
@@ -397,17 +397,17 @@ void assertComparatorInvariants(XmlNode xml) {
       check(() => uniqueNode.compareNodePosition(node)).throws<StateError>();
     }
     // compareDocumentPosition
-    check(node.compareDocumentPosition(node).isSame).isTrue();
+    check(node.compareDocumentPosition(node).isSame).isTrue;
     for (final other in node.preceding) {
       final pos = node.compareDocumentPosition(other);
       final sameElementAttributes =
           node is XmlAttribute &&
           other is XmlAttribute &&
           node.parent == other.parent;
-      check(pos.isSame).isFalse();
-      check(pos.isPreceding).isTrue();
-      check(pos.isFollowing).isFalse();
-      check(pos.isDisconnected).isFalse();
+      check(pos.isSame).isFalse;
+      check(pos.isPreceding).isTrue;
+      check(pos.isFollowing).isFalse;
+      check(pos.isDisconnected).isFalse;
       check(pos.isImplementationSpecific).equals(sameElementAttributes);
     }
     for (final other in node.following) {
@@ -416,10 +416,10 @@ void assertComparatorInvariants(XmlNode xml) {
           node is XmlAttribute &&
           other is XmlAttribute &&
           node.parent == other.parent;
-      check(pos.isSame).isFalse();
-      check(pos.isDisconnected).isFalse();
-      check(pos.isPreceding).isFalse();
-      check(pos.isFollowing).isTrue();
+      check(pos.isSame).isFalse;
+      check(pos.isDisconnected).isFalse;
+      check(pos.isPreceding).isFalse;
+      check(pos.isFollowing).isTrue;
       check(pos.isImplementationSpecific).equals(sameElementAttributes);
     }
     for (final other in node.descendants) {
@@ -428,41 +428,41 @@ void assertComparatorInvariants(XmlNode xml) {
           node is XmlAttribute &&
           other is XmlAttribute &&
           node.parent == other.parent;
-      check(pos.isSame).isFalse();
-      check(pos.isDisconnected).isFalse();
-      check(pos.isPreceding).isFalse();
-      check(pos.isFollowing).isTrue();
-      check(pos.isContains).isFalse();
-      check(pos.isContainedBy).isTrue();
+      check(pos.isSame).isFalse;
+      check(pos.isDisconnected).isFalse;
+      check(pos.isPreceding).isFalse;
+      check(pos.isFollowing).isTrue;
+      check(pos.isContains).isFalse;
+      check(pos.isContainedBy).isTrue;
       check(pos.isImplementationSpecific).equals(sameElementAttributes);
     }
     for (final other in node.ancestors) {
       final pos = node.compareDocumentPosition(other);
-      check(pos.isSame).isFalse();
-      check(pos.isDisconnected).isFalse();
-      check(pos.isPreceding).isTrue();
-      check(pos.isFollowing).isFalse();
-      check(pos.isContains).isTrue();
-      check(pos.isContainedBy).isFalse();
-      check(pos.isImplementationSpecific).isFalse();
+      check(pos.isSame).isFalse;
+      check(pos.isDisconnected).isFalse;
+      check(pos.isPreceding).isTrue;
+      check(pos.isFollowing).isFalse;
+      check(pos.isContains).isTrue;
+      check(pos.isContainedBy).isFalse;
+      check(pos.isImplementationSpecific).isFalse;
     }
     for (final uniqueNode in uniqueNodes) {
       final pos1 = node.compareDocumentPosition(uniqueNode);
-      check(pos1.isSame).isFalse();
-      check(pos1.isDisconnected).isTrue();
-      check(pos1.isContains).isFalse();
-      check(pos1.isContainedBy).isFalse();
-      check(pos1.isImplementationSpecific).isTrue();
-      check(pos1.isPreceding || pos1.isFollowing).isTrue();
+      check(pos1.isSame).isFalse;
+      check(pos1.isDisconnected).isTrue;
+      check(pos1.isContains).isFalse;
+      check(pos1.isContainedBy).isFalse;
+      check(pos1.isImplementationSpecific).isTrue;
+      check(pos1.isPreceding || pos1.isFollowing).isTrue;
 
       final pos2 = uniqueNode.compareDocumentPosition(node);
-      check(pos2.isSame).isFalse();
-      check(pos2.isDisconnected).isTrue();
-      check(pos2.isContains).isFalse();
-      check(pos2.isContainedBy).isFalse();
-      check(pos2.isImplementationSpecific).isTrue();
-      check(pos2.isPreceding || pos2.isFollowing).isTrue();
-      check(pos1.isPreceding).not((it) => it.equals(pos2.isPreceding));
+      check(pos2.isSame).isFalse;
+      check(pos2.isDisconnected).isTrue;
+      check(pos2.isContains).isFalse;
+      check(pos2.isContainedBy).isFalse;
+      check(pos2.isImplementationSpecific).isTrue;
+      check(pos2.isPreceding || pos2.isFollowing).isTrue;
+      check(pos1.isPreceding).not(Condition.it()..equals(pos2.isPreceding));
     }
   }
 }
@@ -472,15 +472,15 @@ void assertCopyInvariants(XmlNode xml) {
   check(
     because: 'The copied node should not be equal.',
     xml,
-  ).not((it) => it.equals(copy));
+  ).not(Condition.it()..equals(copy));
   check(
     because: 'The copied node should not be identical.',
     xml,
-  ).not((it) => it.identicalTo(copy));
+  ).not(Condition.it()..identicalTo(copy));
   check(
     because: 'The copied node should be equal',
     xml.isEqualNode(copy),
-  ).isTrue();
+  ).isTrue;
   assertParentInvariants(copy);
   assertNameInvariants(copy);
 }
@@ -641,8 +641,8 @@ void assertIteratorEventInvariants(String input, XmlNode node) {
     }
     visitor.visit(event);
   }
-  check(because: '$nodes were not closed.', nodes).isEmpty();
-  check(iterator.moveNext()).isFalse();
+  check(because: '$nodes were not closed.', nodes).isEmpty;
+  check(iterator.moveNext()).isFalse;
 }
 
 void assertStreamEventInvariants(String input, XmlNode node) {

@@ -27,7 +27,7 @@ void main() {
       check(d.seconds).equals(6);
       check(d.milliseconds).equals(7);
       check(d.microseconds).equals(8);
-      check(d.isNegative).isTrue();
+      check(d.isNegative).isTrue;
       check(d.totalMonths).equals(-14);
     });
 
@@ -42,8 +42,8 @@ void main() {
       check(XPathDuration.tryParse('P1Y2M3DT4H5M6S')).isNotNull();
       check(XPathDuration.tryParse('-P1Y2M')).isNotNull();
       check(XPathDuration.tryParse('PT0S')).isNotNull();
-      check(XPathDuration.tryParse('invalid')).isNull();
-      check(XPathDuration.tryParse('P')).isNull();
+      check(XPathDuration.tryParse('invalid')).isNull;
+      check(XPathDuration.tryParse('P')).isNull;
     });
 
     test('stringValue and toString formatting', () {
@@ -63,7 +63,7 @@ void main() {
       check(d1).equals(d2);
       check(d1.hashCode).equals(d2.hashCode);
       check(d1.value).equals(d1);
-      check(d1 == d3).isFalse();
+      check(d1 == d3).isFalse;
       check(d1.compareTo(d2)).equals(0);
       check(d1.compareTo(d3)).isLessThan(0);
       check(() => d1.compareTo(const XPathString('invalid')))
@@ -94,8 +94,8 @@ void main() {
     test('parsing tryParseDayTime', () {
       check(XPathDuration.tryParseDayTime('P1DT2H3M4S')).isNotNull();
       check(XPathDuration.tryParseDayTime('PT0.5S')).isNotNull();
-      check(XPathDuration.tryParseDayTime('P1Y')).isNull();
-      check(XPathDuration.tryParseDayTime('invalid')).isNull();
+      check(XPathDuration.tryParseDayTime('P1Y')).isNull;
+      check(XPathDuration.tryParseDayTime('invalid')).isNull;
     });
 
     test('arithmetic operators', () {
@@ -108,10 +108,10 @@ void main() {
       check(d2 ~/ 2).equals(d1);
       check(-d1).equals(const XPathDuration.dayTime(-86400000000));
       check(const XPathDuration.dayTime(-86400000000).abs()).equals(d1);
-      check(d1 < d2).isTrue();
-      check(d2 > d1).isTrue();
-      check(d1 <= d1).isTrue();
-      check(d2 >= d2).isTrue();
+      check(d1 < d2).isTrue;
+      check(d2 > d1).isTrue;
+      check(d1 <= d1).isTrue;
+      check(d2 >= d2).isTrue;
     });
 
     test('formatting stringValue', () {
@@ -129,8 +129,8 @@ void main() {
       check(ym.totalMonths).equals(14);
       check(XPathDuration.tryParseYearMonth('P1Y2M')).isNotNull();
       check(XPathDuration.tryParseYearMonth('-P2Y')).isNotNull();
-      check(XPathDuration.tryParseYearMonth('P1D')).isNull();
-      check(XPathDuration.tryParseYearMonth('invalid')).isNull();
+      check(XPathDuration.tryParseYearMonth('P1D')).isNull;
+      check(XPathDuration.tryParseYearMonth('invalid')).isNull;
     });
 
     test('arithmetic operators', () {
@@ -146,8 +146,8 @@ void main() {
       check(y2 ~/ 2).equals(y1);
       check(-y1).equals(const XPathDuration.yearMonth(-12));
       check(y2.divideByDuration(y1)).equals(2.0);
-      check(y1 < y2).isTrue();
-      check(y2 > y1).isTrue();
+      check(y1 < y2).isTrue;
+      check(y2 > y1).isTrue;
     });
 
     test('formatting stringValue', () {

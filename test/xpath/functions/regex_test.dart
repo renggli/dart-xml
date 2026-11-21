@@ -39,9 +39,9 @@ void main() {
 
   group('compileXPathRegex', () {
     test('compiles with all flags', () {
-      check(compileXPathRegex('abc', 'i').isCaseSensitive).isFalse();
-      check(compileXPathRegex('^abc', 'm').isMultiLine).isTrue();
-      check(compileXPathRegex('.*', 's').isDotAll).isTrue();
+      check(compileXPathRegex('abc', 'i').isCaseSensitive).isFalse;
+      check(compileXPathRegex('^abc', 'm').isMultiLine).isTrue;
+      check(compileXPathRegex('.*', 's').isDotAll).isTrue;
       check(compileXPathRegex('a.b', 'q').pattern).equals('a\\.b');
       check(compileXPathRegex(' a b ', 'x').pattern).equals('ab');
     });
@@ -49,7 +49,7 @@ void main() {
     test('cached regex returns same instance', () {
       final reg1 = getCachedXPathRegex('abc', 'i');
       final reg2 = getCachedXPathRegex('abc', 'i');
-      check(identical(reg1, reg2)).isTrue();
+      check(identical(reg1, reg2)).isTrue;
     });
 
     test('throws for invalid pattern syntax', () {
@@ -62,8 +62,8 @@ void main() {
 
     test('nested character class brackets', () {
       final reg = compileXPathRegex(r'^[a-z-[aeiou]]\d+$', null);
-      check(reg.hasMatch('b1')).isTrue();
-      check(reg.hasMatch('a1')).isFalse();
+      check(reg.hasMatch('b1')).isTrue;
+      check(reg.hasMatch('a1')).isFalse;
     });
 
     test('throws for invalid range quantifier order', () {
@@ -248,7 +248,7 @@ void main() {
       final root = parseRegexGroups('(?:[(])(a)');
       check(root.children).length.equals(1);
       check(root.children[0].nr).equals(1);
-      check(root.children[0].children).isEmpty();
+      check(root.children[0].children).isEmpty;
     });
 
     test('parses with flag x', () {
@@ -260,7 +260,7 @@ void main() {
 
     test('returns empty root group on syntax error', () {
       final root = parseRegexGroups('(');
-      check(root.children).isEmpty();
+      check(root.children).isEmpty;
     });
   });
 

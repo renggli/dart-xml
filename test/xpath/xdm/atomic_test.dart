@@ -29,7 +29,7 @@ void main() {
 
     test('isNumeric defaults to false', () {
       const atomic = _CustomAtomic('foo');
-      check(atomic.isNumeric).isFalse();
+      check(atomic.isNumeric).isFalse;
     });
 
     test('compareTo default throws evaluation exception', () {

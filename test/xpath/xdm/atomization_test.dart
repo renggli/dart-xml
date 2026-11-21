@@ -14,8 +14,8 @@ void main() {
       () {
         const empty = XPathSequence.empty;
         final atomized = empty.atomize();
-        check(atomized.isEmpty).isTrue();
-        check(atomized.toList()).isEmpty();
+        check(atomized.isEmpty).isTrue;
+        check(atomized.toList()).isEmpty;
       },
     );
 
@@ -25,11 +25,11 @@ void main() {
         const emptyArr = XPathArray([]);
         final seq = XPathSequence([emptyArr, emptyArr]);
         final atomized = seq.atomize();
-        check(atomized.isEmpty).isTrue();
-        check(atomized.isNotEmpty).isFalse();
-        check(atomized.toList()).isEmpty();
+        check(atomized.isEmpty).isTrue;
+        check(atomized.isNotEmpty).isFalse;
+        check(atomized.toList()).isEmpty;
         check(atomized.length).equals(0);
-        check(atomized.iterator.moveNext()).isFalse();
+        check(atomized.iterator.moveNext()).isFalse;
       },
     );
 
@@ -40,8 +40,8 @@ void main() {
         final item = XPathInteger.fromInt(42);
         final seq = XPathSequence([emptyArr, item, emptyArr]);
         final atomized = seq.atomize();
-        check(atomized.isEmpty).isFalse();
-        check(atomized.isNotEmpty).isTrue();
+        check(atomized.isEmpty).isFalse;
+        check(atomized.isNotEmpty).isTrue;
         check(atomized.toList()).deepEquals([item]);
       },
     );
@@ -50,13 +50,13 @@ void main() {
       final i = XPathInteger.fromInt(42);
       final s = XPathSequence.single(i);
       final singleAtomized = s.atomize();
-      check(singleAtomized.isNotEmpty).isTrue();
+      check(singleAtomized.isNotEmpty).isTrue;
       check(singleAtomized.last).identicalTo(i);
       check(singleAtomized.single).identicalTo(i);
       check(singleAtomized.elementAt(0)).identicalTo(i);
       check(() => singleAtomized.elementAt(1)).throws<RangeError>();
-      check(singleAtomized.contains(i)).isTrue();
-      check(singleAtomized.contains(XPathInteger.fromInt(99))).isFalse();
+      check(singleAtomized.contains(i)).isTrue;
+      check(singleAtomized.contains(XPathInteger.fromInt(99))).isFalse;
 
       final atomized = singleAtomized.toList();
       check(atomized.length).equals(1);

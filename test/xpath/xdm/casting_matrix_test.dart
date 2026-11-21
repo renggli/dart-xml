@@ -8,20 +8,20 @@ import '../../utils/checks.dart';
 void main() {
   group('canCastType', () {
     test('allowed and disallowed casts', () {
-      check(canCastType(xsString, xsInteger)).isTrue();
-      check(canCastType(xsInteger, xsString)).isTrue();
-      check(canCastType(xsBoolean, xsInteger)).isTrue();
-      check(canCastType(xsInteger, xsBoolean)).isTrue();
-      check(canCastType(xsUntypedAtomic, xsDouble)).isTrue();
-      check(canCastType(xsBase64Binary, xsHexBinary)).isTrue();
-      check(canCastType(xsHexBinary, xsBase64Binary)).isTrue();
+      check(canCastType(xsString, xsInteger)).isTrue;
+      check(canCastType(xsInteger, xsString)).isTrue;
+      check(canCastType(xsBoolean, xsInteger)).isTrue;
+      check(canCastType(xsInteger, xsBoolean)).isTrue;
+      check(canCastType(xsUntypedAtomic, xsDouble)).isTrue;
+      check(canCastType(xsBase64Binary, xsHexBinary)).isTrue;
+      check(canCastType(xsHexBinary, xsBase64Binary)).isTrue;
 
       // Disallowed casts
-      check(canCastType(xsBoolean, xsDate)).isFalse();
-      check(canCastType(xsDate, xsInteger)).isFalse();
-      check(canCastType(xsString, xsNOTATION)).isFalse();
-      check(canCastType(xsString, xsAnyAtomicType)).isFalse();
-      check(canCastType(xsString, xsItem)).isFalse();
+      check(canCastType(xsBoolean, xsDate)).isFalse;
+      check(canCastType(xsDate, xsInteger)).isFalse;
+      check(canCastType(xsString, xsNOTATION)).isFalse;
+      check(canCastType(xsString, xsAnyAtomicType)).isFalse;
+      check(canCastType(xsString, xsItem)).isFalse;
     });
   });
 

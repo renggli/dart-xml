@@ -16,10 +16,10 @@ void main() {
     check(node.root).identicalTo(document);
     check(node.document).identicalTo(document);
     check(node.depth).equals(2);
-    check(node.attributes).isEmpty();
-    check(node.elementAttributes).isEmpty();
-    check(node.namespaces).isEmpty();
-    check(node.children).isEmpty();
+    check(node.attributes).isEmpty;
+    check(node.elementAttributes).isEmpty;
+    check(node.namespaces).isEmpty;
+    check(node.children).isEmpty;
     check(node.nodeType).equals(XmlNodeType.TEXT);
     check(node.toString()).equals('Am I or are the other crazy?');
   });
@@ -37,7 +37,7 @@ void main() {
     final root = XmlDocument.parse(
       '<p>Am <i>I</i> or are the <b>other</b><!-- very --> crazy?</p>',
     );
-    check(root.rootElement.value).isNull();
+    check(root.rootElement.value).isNull;
     // ignore: deprecated_member_use_from_same_package
     check(root.rootElement.text).equals('Am I or are the other crazy?');
     check(root.rootElement.innerText).equals('Am I or are the other crazy?');

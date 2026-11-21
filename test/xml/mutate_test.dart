@@ -31,7 +31,7 @@ void throwingTest<T extends XmlNode>(
   String description,
   String before,
   void Function(T node) action,
-  void Function(Subject<void Function()>) assertion,
+  Condition<void Function()> assertion,
 ) {
   test(description, () {
     final document = XmlDocument.parse(before);
@@ -39,7 +39,7 @@ void throwingTest<T extends XmlNode>(
         .followedBy(document.descendants)
         .whereType<T>()
         .first;
-    assertion(check(() => action(node)));
+    check(() => action(node)).which(assertion);
     check(
       because: 'should not be modified',
       document.toXmlString(),
@@ -191,12 +191,13 @@ void main() {
       'element (attribute children)',
       '<element/>',
       (node) => node.children.add(wrong),
-      (it) => it.throws<XmlNodeTypeException>().which(
-        isXmlNodeTypeException(
-          node: wrong,
-          typesCondition: (t) => t.contains(XmlNodeType.ELEMENT),
+      Condition.it()
+        ..throws<XmlNodeTypeException>().which(
+          isXmlNodeTypeException(
+            node: wrong,
+            typesCondition: Condition.it()..contains(XmlNodeType.ELEMENT),
+          ),
         ),
-      ),
     );
     mutatingTest<XmlDocument>(
       'element (parent move)',
@@ -256,12 +257,13 @@ void main() {
       'element (attribute children)',
       '<element/>',
       (node) => node.children.addAll([wrong]),
-      (it) => it.throws<XmlNodeTypeException>().which(
-        isXmlNodeTypeException(
-          node: wrong,
-          typesCondition: (t) => t.contains(XmlNodeType.ELEMENT),
+      Condition.it()
+        ..throws<XmlNodeTypeException>().which(
+          isXmlNodeTypeException(
+            node: wrong,
+            typesCondition: Condition.it()..contains(XmlNodeType.ELEMENT),
+          ),
         ),
-      ),
     );
     mutatingTest<XmlDocument>(
       'element (parent move)',
@@ -296,7 +298,7 @@ void main() {
     ) {
       check(node.innerText).equals('contents');
       node.innerText = '';
-      check(node.children).isEmpty();
+      check(node.children).isEmpty;
       check(node.innerText).equals('');
     }, '<element/>');
     throwingTest<XmlElement>(
@@ -306,13 +308,14 @@ void main() {
         check(node.firstChild).isA<XmlText>();
         node.firstChild!.innerText = 'error';
       },
-      (it) => it.throws<XmlNodeTypeException>().which(
-        isXmlNodeTypeException(
-          message: 'XmlNodeType.TEXT cannot have child nodes.',
-          nodeCondition: (n) => n.isA<XmlText>(),
-          typesCondition: (t) => t.isEmpty(),
+      Condition.it()
+        ..throws<XmlNodeTypeException>().which(
+          isXmlNodeTypeException(
+            message: 'XmlNodeType.TEXT cannot have child nodes.',
+            nodeCondition: Condition.it()..isA<XmlText>(),
+            typesCondition: Condition.it()..isEmpty,
+          ),
         ),
-      ),
     );
   });
   group('innerXml', () {
@@ -327,7 +330,7 @@ void main() {
       (node) {
         check(node.innerXml).equals('<child1/> and <child2/>');
         node.innerXml = '';
-        check(node.children).isEmpty();
+        check(node.children).isEmpty;
         check(node.innerXml).equals('');
       },
       '<element/>',
@@ -339,13 +342,14 @@ void main() {
         check(node.firstChild).isA<XmlText>();
         node.firstChild!.innerXml = 'error';
       },
-      (it) => it.throws<XmlNodeTypeException>().which(
-        isXmlNodeTypeException(
-          message: 'XmlNodeType.TEXT cannot have child nodes.',
-          nodeCondition: (n) => n.isA<XmlText>(),
-          typesCondition: (t) => t.isEmpty(),
+      Condition.it()
+        ..throws<XmlNodeTypeException>().which(
+          isXmlNodeTypeException(
+            message: 'XmlNodeType.TEXT cannot have child nodes.',
+            nodeCondition: Condition.it()..isA<XmlText>(),
+            typesCondition: Condition.it()..isEmpty,
+          ),
         ),
-      ),
     );
   });
   group('outerXml', () {
@@ -451,12 +455,13 @@ void main() {
       'element (attribute children)',
       '<element/>',
       (node) => node.children.insert(0, wrong),
-      (it) => it.throws<XmlNodeTypeException>().which(
-        isXmlNodeTypeException(
-          node: wrong,
-          typesCondition: (t) => t.contains(XmlNodeType.ELEMENT),
+      Condition.it()
+        ..throws<XmlNodeTypeException>().which(
+          isXmlNodeTypeException(
+            node: wrong,
+            typesCondition: Condition.it()..contains(XmlNodeType.ELEMENT),
+          ),
         ),
-      ),
     );
     mutatingTest<XmlDocument>(
       'element (parent move)',
@@ -535,12 +540,13 @@ void main() {
       'element (attribute children)',
       '<element/>',
       (node) => node.children.insertAll(0, [wrong]),
-      (it) => it.throws<XmlNodeTypeException>().which(
-        isXmlNodeTypeException(
-          node: wrong,
-          typesCondition: (t) => t.contains(XmlNodeType.ELEMENT),
+      Condition.it()
+        ..throws<XmlNodeTypeException>().which(
+          isXmlNodeTypeException(
+            node: wrong,
+            typesCondition: Condition.it()..contains(XmlNodeType.ELEMENT),
+          ),
         ),
-      ),
     );
     mutatingTest<XmlDocument>(
       'element (parent move)',
@@ -579,12 +585,13 @@ void main() {
       'element (attribute children)',
       '<element1><element2/></element1>',
       (node) => node.children[0] = wrong,
-      (it) => it.throws<XmlNodeTypeException>().which(
-        isXmlNodeTypeException(
-          node: wrong,
-          typesCondition: (t) => t.contains(XmlNodeType.ELEMENT),
+      Condition.it()
+        ..throws<XmlNodeTypeException>().which(
+          isXmlNodeTypeException(
+            node: wrong,
+            typesCondition: Condition.it()..contains(XmlNodeType.ELEMENT),
+          ),
         ),
-      ),
     );
     mutatingTest<XmlDocument>(
       'element (parent move, same index)',

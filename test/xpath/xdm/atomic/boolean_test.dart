@@ -5,8 +5,8 @@ import 'package:xml/xpath.dart';
 void main() {
   group('XPathBoolean', () {
     test('constants and singletons', () {
-      check(XPathBoolean.trueInstance.value).isTrue();
-      check(XPathBoolean.falseInstance.value).isFalse();
+      check(XPathBoolean.trueInstance.value).isTrue;
+      check(XPathBoolean.falseInstance.value).isFalse;
       check(XPathBoolean(true)).identicalTo(XPathBoolean.trueInstance);
       check(XPathBoolean(false)).identicalTo(XPathBoolean.falseInstance);
       check(XPathBoolean.from(true)).identicalTo(XPathBoolean.trueInstance);
@@ -18,12 +18,12 @@ void main() {
       const t = XPathBoolean.trueInstance;
       check(t.type).equals(xsBoolean);
       check(t.stringValue).equals('true');
-      check(t.effectiveBooleanValue).isTrue();
+      check(t.effectiveBooleanValue).isTrue;
 
       const f = XPathBoolean.falseInstance;
       check(f.type).equals(xsBoolean);
       check(f.stringValue).equals('false');
-      check(f.effectiveBooleanValue).isFalse();
+      check(f.effectiveBooleanValue).isFalse;
     });
 
     test('compareTo', () {
@@ -44,11 +44,11 @@ void main() {
 
     test('equality with bool and Object', () {
       const t = XPathBoolean.trueInstance;
-      check(t == (true as Object)).isTrue();
-      check(t == (false as Object)).isFalse();
-      check(t == XPathBoolean(true)).isTrue();
-      check(t == XPathBoolean(false)).isFalse();
-      check(t == Object()).isFalse();
+      check(t == (true as Object)).isTrue;
+      check(t == (false as Object)).isFalse;
+      check(t == XPathBoolean(true)).isTrue;
+      check(t == XPathBoolean(false)).isFalse;
+      check(t == Object()).isFalse;
       check(t.hashCode).equals(true.hashCode);
     });
   });

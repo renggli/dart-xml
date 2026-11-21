@@ -15,8 +15,8 @@ void main() {
       check(a.toDouble()).equals(42.0);
       check(a.toBigInt()).equals(BigInt.from(42));
       check(a.stringValue).equals('42');
-      check(a.effectiveBooleanValue).isTrue();
-      check(a.isNumeric).isTrue();
+      check(a.effectiveBooleanValue).isTrue;
+      check(a.isNumeric).isTrue;
       check(a.type).equals(xsInteger);
     });
 
@@ -45,7 +45,7 @@ void main() {
 
       final div = a / b;
       check(div).isA<XPathDecimal>();
-      check(div.stringValue.startsWith('3.333333')).isTrue();
+      check(div.stringValue.startsWith('3.333333')).isTrue;
     });
 
     test('comparisons and equality', () {
@@ -54,8 +54,8 @@ void main() {
       check(a.compareTo(b)).isLessThan(0);
       check(b.compareTo(a)).isGreaterThan(0);
       check(a.compareTo(XPathInteger.fromInt(5))).equals(0);
-      check(a == XPathInteger.fromInt(5)).isTrue();
-      check(a == Object()).isFalse();
+      check(a == XPathInteger.fromInt(5)).isTrue;
+      check(a == Object()).isFalse;
 
       final big1 = XPathInteger(
         BigInt.parse('1000000000000000000000000000000'),
@@ -66,13 +66,13 @@ void main() {
       check(big1.compareTo(big2)).isLessThan(0);
       check(big2.compareTo(big1)).isGreaterThan(0);
       check(big1.compareTo(big1)).equals(0);
-      check(big1 == big1).isTrue();
-      check(big1 == big2).isFalse();
+      check(big1 == big1).isTrue;
+      check(big1 == big2).isFalse;
     });
 
     test('EBV for zero is false', () {
-      check(XPathInteger.fromInt(0).effectiveBooleanValue).isFalse();
-      check(XPathInteger.fromInt(-1).effectiveBooleanValue).isTrue();
+      check(XPathInteger.fromInt(0).effectiveBooleanValue).isFalse;
+      check(XPathInteger.fromInt(-1).effectiveBooleanValue).isTrue;
     });
   });
 
@@ -82,7 +82,7 @@ void main() {
       check(d1.scale).equals(2);
       check(d1.unscaledValue).equals(BigInt.from(1234));
       check(d1.stringValue).equals('12.34');
-      check(d1.isNumeric).isTrue();
+      check(d1.isNumeric).isTrue;
       check(d1.type).equals(xsDecimal);
 
       final d2 = XPathDecimal.parse('0.0050');
@@ -92,8 +92,8 @@ void main() {
 
       final d3 = XPathDecimal.parse('-0.5');
       check(d3.stringValue).equals('-0.5');
-      check(d3.effectiveBooleanValue).isTrue();
-      check(XPathDecimal.fromInt(0).effectiveBooleanValue).isFalse();
+      check(d3.effectiveBooleanValue).isTrue;
+      check(XPathDecimal.fromInt(0).effectiveBooleanValue).isFalse;
     });
 
     test('exact addition and subtraction without float drift', () {
@@ -152,9 +152,9 @@ void main() {
     test('constants and parsing', () {
       check(XPathDouble.parse('INF')).equals(XPathDouble.infinity);
       check(XPathDouble.parse('-INF')).equals(XPathDouble.negativeInfinity);
-      check(XPathDouble.parse('NaN').value.isNaN).isTrue();
+      check(XPathDouble.parse('NaN').value.isNaN).isTrue;
       check(XPathDouble.parse('12.5').value).equals(12.5);
-      check(const XPathDouble(12.5).isNumeric).isTrue();
+      check(const XPathDouble(12.5).isNumeric).isTrue;
       check(const XPathDouble(12.5).type).equals(xsDouble);
     });
 
@@ -175,7 +175,7 @@ void main() {
     test('negative zero equality and comparisons', () {
       const negZero = XPathDouble(-0.0);
       const posZero = XPathDouble(0.0);
-      check(negZero == posZero).isTrue();
+      check(negZero == posZero).isTrue;
       check(negZero.compareTo(posZero)).equals(0);
       check(posZero.compareTo(negZero)).equals(0);
       check(negZero.compareTo(XPathInteger.zero)).equals(0);
@@ -219,10 +219,10 @@ void main() {
     });
 
     test('EBV', () {
-      check(const XPathDouble(1.0).effectiveBooleanValue).isTrue();
-      check(const XPathDouble(0.0).effectiveBooleanValue).isFalse();
-      check(const XPathDouble(-0.0).effectiveBooleanValue).isFalse();
-      check(XPathDouble.nan.effectiveBooleanValue).isFalse();
+      check(const XPathDouble(1.0).effectiveBooleanValue).isTrue;
+      check(const XPathDouble(0.0).effectiveBooleanValue).isFalse;
+      check(const XPathDouble(-0.0).effectiveBooleanValue).isFalse;
+      check(XPathDouble.nan.effectiveBooleanValue).isFalse;
     });
 
     test('compareTo', () {
@@ -355,8 +355,8 @@ void main() {
       check(d10.compareTo(const XPathDouble(10.5))).equals(0);
       check(d10.compareTo(const XPathDouble(20.0))).isLessThan(0);
       check(d10.compareTo(const XPathDouble(5.0))).isGreaterThan(0);
-      check(d10 == const XPathDouble(10.5)).isTrue();
-      check(d10 == XPathDouble.nan).isFalse();
+      check(d10 == const XPathDouble(10.5)).isTrue;
+      check(d10 == XPathDouble.nan).isFalse;
     });
 
     test(
@@ -377,7 +377,7 @@ void main() {
         check(() => i.compareTo(const XPathString('abc')))
             .throws<XPathEvaluationException>()
             .which(isXPathEvaluationException());
-        check(i == const XPathDouble(10.0)).isTrue();
+        check(i == const XPathDouble(10.0)).isTrue;
 
         // XPathDecimal edge cases
         final bigD = XPathDecimal.fromBigInt(BigInt.from(123));
@@ -395,7 +395,7 @@ void main() {
         check(() => d.compareTo(const XPathString('abc')))
             .throws<XPathEvaluationException>()
             .which(isXPathEvaluationException());
-        check(d == XPathDecimal.parse('2.5')).isTrue();
+        check(d == XPathDecimal.parse('2.5')).isTrue;
         check(d.hashCode).isA<int>();
 
         // XPathDouble edge cases
@@ -418,9 +418,9 @@ void main() {
         final i1 = XPathInteger.fromInt(1);
         final dec1 = XPathDecimal.parse('1.00');
         const dbl1 = XPathDouble(1.0);
-        check(i1 == dec1).isTrue();
-        check(i1 == dbl1).isTrue();
-        check(dec1 == dbl1).isTrue();
+        check(i1 == dec1).isTrue;
+        check(i1 == dbl1).isTrue;
+        check(dec1 == dbl1).isTrue;
         check(i1.hashCode).equals(dec1.hashCode);
         check(i1.hashCode).equals(dbl1.hashCode);
         check(dec1.hashCode).equals(dbl1.hashCode);

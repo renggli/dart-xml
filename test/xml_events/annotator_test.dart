@@ -58,11 +58,7 @@ Future<void> verifyError<T extends XmlException>(
     await check(
       because: 'toXmlEvents',
       stream(Stream.value(input)).drain<void>(),
-    ).throws<T>((it) {
-      if (matcher != null) {
-        it.which(matcher);
-      }
-    });
+    ).throws<T>(matcher);
     await check(
       because: 'toXmlEvents',
       Stream.value(input).toXmlEvents().drain<void>(),

@@ -177,7 +177,7 @@ void main() {
     final xml = builder.buildDocument();
     check(xml.children[0].children[0].toXmlString())
         .equals(nested.toXmlString());
-    check(xml.children[0].children[0]).not((it) => it.identicalTo(nested));
+    check(xml.children[0].children[0]).not(Condition.it()..identicalTo(nested));
     final actual = xml.toString();
     const expected = '<element><nested/></element>';
     check(actual).equals(expected);
@@ -190,10 +190,10 @@ void main() {
     final xml = builder.buildDocument();
     check(xml.children[0].children[0].toXmlString())
         .equals(nested.toXmlString());
-    check(xml.children[0].children[0]).not((it) => it.identicalTo(nested));
+    check(xml.children[0].children[0]).not(Condition.it()..identicalTo(nested));
     check(xml.children[0].children[1].toXmlString())
         .equals(nested.toXmlString());
-    check(xml.children[0].children[1]).not((it) => it.identicalTo(nested));
+    check(xml.children[0].children[1]).not(Condition.it()..identicalTo(nested));
     final actual = xml.toString();
     const expected = '<element><nested/><nested/></element>';
     check(actual).equals(expected);
@@ -206,7 +206,7 @@ void main() {
     final xml = builder.buildDocument();
     check(xml.children[0].children[0].toXmlString())
         .equals(nested.toXmlString());
-    check(xml.children[0].children[0]).not((it) => it.identicalTo(nested));
+    check(xml.children[0].children[0]).not(Condition.it()..identicalTo(nested));
     final actual = xml.toString();
     const expected = '<element>text</element>';
     check(actual).equals(expected);
@@ -218,7 +218,7 @@ void main() {
     builder.element('element', nest: [nested, nested]);
     final xml = builder.buildDocument();
     check(xml.children[0].children[0].value).equals('texttext');
-    check(xml.children[0].children[0]).not((it) => it.identicalTo(nested));
+    check(xml.children[0].children[0]).not(Condition.it()..identicalTo(nested));
     final actual = xml.toString();
     const expected = '<element>texttext</element>';
     check(actual).equals(expected);
@@ -231,7 +231,7 @@ void main() {
     final xml = builder.buildDocument();
     check(xml.children[0].children[0].toXmlString())
         .equals(nested.toXmlString());
-    check(xml.children[0].children[0]).not((it) => it.identicalTo(nested));
+    check(xml.children[0].children[0]).not(Condition.it()..identicalTo(nested));
     final actual = xml.toString();
     const expected = '<element><!--abc--></element>';
     check(actual).equals(expected);
@@ -244,7 +244,8 @@ void main() {
     final xml = builder.buildDocument();
     check(xml.children[0].attributes[0].toXmlString())
         .equals(nested.toXmlString());
-    check(xml.children[0].attributes[0]).not((it) => it.identicalTo(nested));
+    check(xml.children[0].attributes[0])
+        .not(Condition.it()..identicalTo(nested));
     final actual = xml.toString();
     const expected = '<element foo="bar"/>';
     check(actual).equals(expected);
@@ -264,11 +265,11 @@ void main() {
     check(xml.children[0].children[0].toXmlString())
         .equals(nested.children[0].toXmlString());
     check(xml.children[0].children[0])
-        .not((it) => it.identicalTo(nested.children[0]));
+        .not(Condition.it()..identicalTo(nested.children[0]));
     check(xml.children[0].children[1].toXmlString())
         .equals(nested.children[1].toXmlString());
     check(xml.children[0].children[1])
-        .not((it) => it.identicalTo(nested.children[1]));
+        .not(Condition.it()..identicalTo(nested.children[1]));
     final actual = xml.toString();
     const expected = '<element>foo<!--bar--></element>';
     check(actual).equals(expected);
@@ -543,7 +544,7 @@ void main() {
         check(() => builder.xml('<broken>')).throws<XmlTagException>()
           ..message.contains('Missing closing tag </broken>')
           ..expectedName.equals('broken')
-          ..actualName.isNull()
+          ..actualName.isNull
           ..buffer.equals('<broken>')
           ..position.equals(8);
       },

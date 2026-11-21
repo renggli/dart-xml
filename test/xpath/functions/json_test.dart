@@ -710,7 +710,7 @@ void main() {
       test('JSON parser syntax errors and edge cases in json-to-xml', () {
         // BOM handling
         final resBom = fnJsonToXml(context, [seq('\uFEFF{"a": 1}')]);
-        check(resBom).isNotEmpty();
+        check(resBom).isNotEmpty;
 
         // Unexpected end of JSON
         check(() => fnJsonToXml(context, [seq('{"a": ')]))

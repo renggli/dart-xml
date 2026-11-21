@@ -13,7 +13,7 @@ void main() {
   final xml = XmlDocument.parse('<?xml version="1.0"?><r><a/></r>');
   test('linter', () {
     final issues = linter(parser);
-    check(issues).isEmpty();
+    check(issues).isEmpty;
   });
   group('whitespace', () {
     test('space', () {

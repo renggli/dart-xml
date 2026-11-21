@@ -82,15 +82,15 @@ void main() {
     test('standard', () {
       final context = XPathConfiguration.standard();
       check(context).identicalTo(standard);
-      check(context.variables).isEmpty();
-      check(context.functions).isNotEmpty();
+      check(context.variables).isEmpty;
+      check(context.functions).isNotEmpty;
       check(context.namespaceUri).equals(xpathFnNamespace);
       check(context.namespaceUris).equals(xpathNamespaceUris);
-      check(context.documents).isEmpty();
-      check(context.environment).isEmpty();
-      check(context.baseUri).isNull();
-      check(context.unparsedTextLoader).isNull();
-      check(context.onTraceCallback).isNull();
+      check(context.documents).isEmpty;
+      check(context.environment).isEmpty;
+      check(context.baseUri).isNull;
+      check(context.unparsedTextLoader).isNull;
+      check(context.onTraceCallback).isNull;
     });
     test('raw', () {
       final context = XPathConfiguration.raw(
@@ -147,7 +147,7 @@ void main() {
   group('context', () {
     test('default', () {
       final context = standard.context();
-      check(context.item).isA<XPathSequence>().isEmpty();
+      check(context.item).isA<XPathSequence>().isEmpty;
       check(context.configuration).identicalTo(standard);
     });
     test('context', () {

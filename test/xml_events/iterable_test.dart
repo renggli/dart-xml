@@ -10,7 +10,7 @@ import '../utils/examples.dart';
 
 void assertComplete(Iterator<XmlEvent> iterator) {
   for (var i = 0; i < 2; i++) {
-    check(iterator.moveNext()).isFalse();
+    check(iterator.moveNext()).isFalse;
   }
 }
 
@@ -22,7 +22,7 @@ void main() {
     });
     test('cdata', () {
       final iterator = parseEvents('<![CDATA[<nasty>]]>').iterator;
-      check(iterator.moveNext()).isTrue();
+      check(iterator.moveNext()).isTrue;
       final event = iterator.current as XmlCDATAEvent;
       assertComplete(iterator);
       check(event.nodeType).equals(XmlNodeType.CDATA);
@@ -33,7 +33,7 @@ void main() {
     });
     test('comment', () {
       final iterator = parseEvents('<!--for amusement only-->').iterator;
-      check(iterator.moveNext()).isTrue();
+      check(iterator.moveNext()).isTrue;
       final event = iterator.current as XmlCommentEvent;
       assertComplete(iterator);
       check(event.nodeType).equals(XmlNodeType.COMMENT);
@@ -44,11 +44,11 @@ void main() {
     });
     test('declaration', () {
       final iterator = parseEvents('<?xml?>').iterator;
-      check(iterator.moveNext()).isTrue();
+      check(iterator.moveNext()).isTrue;
       final event = iterator.current as XmlDeclarationEvent;
       assertComplete(iterator);
       check(event.nodeType).equals(XmlNodeType.DECLARATION);
-      check(event.attributes).isEmpty();
+      check(event.attributes).isEmpty;
       final other = XmlDeclarationEvent(event.attributes);
       check(event).equals(other);
       check(event.hashCode).equals(other.hashCode);
@@ -56,7 +56,7 @@ void main() {
     test('declaration (attributes)', () {
       final iterator = parseEvents('<?xml version="1.0" author=\'lfr\'?>')
           .iterator;
-      check(iterator.moveNext()).isTrue();
+      check(iterator.moveNext()).isTrue;
       final event = iterator.current as XmlDeclarationEvent;
       assertComplete(iterator);
       check(event.nodeType).equals(XmlNodeType.DECLARATION);
@@ -80,7 +80,7 @@ void main() {
         '[<!ENTITY copy "(c)">]\n'
         '>',
       ).iterator;
-      check(iterator.moveNext()).isTrue();
+      check(iterator.moveNext()).isTrue;
       final event = iterator.current as XmlDoctypeEvent;
       assertComplete(iterator);
       check(event.nodeType).equals(XmlNodeType.DOCUMENT_TYPE);
@@ -99,7 +99,7 @@ void main() {
     });
     test('end element', () {
       final iterator = parseEvents('</bar>').iterator;
-      check(iterator.moveNext()).isTrue();
+      check(iterator.moveNext()).isTrue;
       final event = iterator.current as XmlEndElementEvent;
       assertComplete(iterator);
       check(event.nodeType).equals(XmlNodeType.ELEMENT);
@@ -110,7 +110,7 @@ void main() {
     });
     test('processing', () {
       final iterator = parseEvents('<?pi test?>').iterator;
-      check(iterator.moveNext()).isTrue();
+      check(iterator.moveNext()).isTrue;
       final event = iterator.current as XmlProcessingEvent;
       assertComplete(iterator);
       check(event.nodeType).equals(XmlNodeType.PROCESSING);
@@ -122,13 +122,13 @@ void main() {
     });
     test('start element', () {
       final iterator = parseEvents('<foo>').iterator;
-      check(iterator.moveNext()).isTrue();
+      check(iterator.moveNext()).isTrue;
       final event = iterator.current as XmlStartElementEvent;
       assertComplete(iterator);
       check(event.nodeType).equals(XmlNodeType.ELEMENT);
       check(event.name).equals('foo');
-      check(event.attributes).isEmpty();
-      check(event.isSelfClosing).isFalse();
+      check(event.attributes).isEmpty;
+      check(event.isSelfClosing).isFalse;
       final other = XmlStartElementEvent(
         event.name,
         event.attributes,
@@ -139,7 +139,7 @@ void main() {
     });
     test('start element (attributes, self-closing)', () {
       final iterator = parseEvents('<foo a="1" b=\'2\'/>').iterator;
-      check(iterator.moveNext()).isTrue();
+      check(iterator.moveNext()).isTrue;
       final event = iterator.current as XmlStartElementEvent;
       assertComplete(iterator);
       check(event.nodeType).equals(XmlNodeType.ELEMENT);
@@ -153,23 +153,23 @@ void main() {
       check(event.attributes[1].value).equals('2');
       check(event.attributes[1].attributeType)
           .equals(XmlAttributeType.SINGLE_QUOTE);
-      check(event.isSelfClosing).isTrue();
+      check(event.isSelfClosing).isTrue;
       check(event.getAttribute('a')).equals('1');
       check(event.getAttribute('b')).equals('2');
-      check(event.getAttribute('c')).isNull();
-      check(event.hasAttribute('a')).isTrue();
-      check(event.hasAttribute('c')).isFalse();
+      check(event.getAttribute('c')).isNull;
+      check(event.hasAttribute('a')).isTrue;
+      check(event.hasAttribute('c')).isFalse;
       check(event.getAttributeNode('a')?.value).equals('1');
-      check(event.getAttributeNode('c')).isNull();
+      check(event.getAttributeNode('c')).isNull;
       check(event.getAttribute('*')).equals('1');
       check(event.getAttributeNode('*')?.value).equals('1');
       check(event.getAttributeNode('*', namespaceUri: '*')?.value).equals('1');
-      check(event.getAttributeNode('*', namespaceUri: 'none')).isNull();
+      check(event.getAttributeNode('*', namespaceUri: 'none')).isNull;
       check(event.getAttributeNode('a', namespaceUri: '*')?.value).equals('1');
-      check(event.getAttributeNode('a', namespaceUri: 'none')).isNull();
-      check(event.hasAttribute('*')).isTrue();
-      check(event.hasAttribute('a', namespaceUri: '*')).isTrue();
-      check(event.hasAttribute('a', namespaceUri: 'none')).isFalse();
+      check(event.getAttributeNode('a', namespaceUri: 'none')).isNull;
+      check(event.hasAttribute('*')).isTrue;
+      check(event.hasAttribute('a', namespaceUri: '*')).isTrue;
+      check(event.hasAttribute('a', namespaceUri: 'none')).isFalse;
       final other = XmlStartElementEvent(
         event.name,
         event.attributes
@@ -185,7 +185,7 @@ void main() {
     });
     test('text', () {
       final iterator = parseEvents('Hello World!').iterator;
-      check(iterator.moveNext()).isTrue();
+      check(iterator.moveNext()).isTrue;
       final event = iterator.current as XmlTextEvent;
       assertComplete(iterator);
       check(event.nodeType).equals(XmlNodeType.TEXT);
@@ -209,7 +209,7 @@ void main() {
             position: 6,
           ),
         );
-        check(iterator.moveNext()).isTrue();
+        check(iterator.moveNext()).isTrue;
         final event = iterator.current as XmlTextEvent;
         check(event.value).equals('hello');
         assertComplete(iterator);
@@ -223,7 +223,7 @@ void main() {
             position: 8,
           ),
         );
-        check(iterator.moveNext()).isTrue();
+        check(iterator.moveNext()).isTrue;
         final event = iterator.current as XmlTextEvent;
         check(event.value).equals('foo bar="abc');
         assertComplete(iterator);
@@ -237,7 +237,7 @@ void main() {
             position: 4,
           ),
         );
-        check(iterator.moveNext()).isTrue();
+        check(iterator.moveNext()).isTrue;
         final event = iterator.current as XmlTextEvent;
         check(event.value).equals('!-- comment');
         assertComplete(iterator);
@@ -272,7 +272,7 @@ void main() {
       });
       test('missing end tag', () {
         final iterator = parseEvents('<foo>', validateNesting: true).iterator;
-        check(iterator.moveNext()).isTrue();
+        check(iterator.moveNext()).isTrue;
         check(iterator.current).equals(XmlStartElementEvent('foo', [], false));
         check(iterator.moveNext)
             .throws<XmlTagException>()
@@ -284,7 +284,7 @@ void main() {
           '<foo></bar></foo>',
           validateNesting: true,
         ).iterator;
-        check(iterator.moveNext()).isTrue();
+        check(iterator.moveNext()).isTrue;
         check(iterator.current).equals(XmlStartElementEvent('foo', [], false));
         check(iterator.moveNext).throws<XmlTagException>().which(
           isXmlTagException(
@@ -294,7 +294,7 @@ void main() {
           ),
         );
         check(iterator.current).equals(XmlEndElementEvent('bar'));
-        check(iterator.moveNext()).isTrue();
+        check(iterator.moveNext()).isTrue;
         check(iterator.current).equals(XmlEndElementEvent('foo'));
         assertComplete(iterator);
       });
@@ -303,12 +303,12 @@ void main() {
   group('annotations', () {
     test('default', () {
       for (final event in parseEvents(shiporderXsd)) {
-        check(event.buffer).isNull();
-        check(event.start).isNull();
-        check(event.stop).isNull();
-        check(event.parent).isNull();
+        check(event.buffer).isNull;
+        check(event.start).isNull;
+        check(event.stop).isNull;
+        check(event.parent).isNull;
         // ignore: deprecated_member_use_from_same_package
-        check(event.parentEvent).isNull();
+        check(event.parentEvent).isNull;
       }
     });
     test('buffer', () {
@@ -320,7 +320,7 @@ void main() {
       for (final event in parseEvents(shiporderXsd, withLocation: true)) {
         check(event.start).isNotNull();
         check(event.stop).isNotNull();
-        check(event.start! <= event.stop!).isTrue();
+        check(event.start! <= event.stop!).isTrue;
         final outtake = shiporderXsd.substring(event.start!, event.stop);
         check(parseEvents(outtake)).deepEquals([event]);
       }
@@ -333,9 +333,9 @@ void main() {
           // ignore: deprecated_member_use_from_same_package
           check(event.parentEvent).equals(stack.last);
         } else {
-          check(event.parent).isNull();
+          check(event.parent).isNull;
           // ignore: deprecated_member_use_from_same_package
-          check(event.parentEvent).isNull();
+          check(event.parentEvent).isNull;
         }
         if (event is XmlStartElementEvent && !event.isSelfClosing) {
           stack.add(event);
@@ -343,7 +343,7 @@ void main() {
           stack.removeLast();
         }
       }
-      check(stack).isEmpty();
+      check(stack).isEmpty;
     });
   });
   group('examples', () {

@@ -14,7 +14,7 @@ void main() {
     });
     test('returns empty iterable when nothing matches', () {
       final results = document.xpath('/r/d');
-      check(results).isEmpty();
+      check(results).isEmpty;
     });
     test('supports custom configuration', () {
       final config = XPathConfiguration(variables: {'target': 'b'});

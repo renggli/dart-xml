@@ -142,7 +142,7 @@ void main() {
 
     test('descendant axis from document excludes declaration and doctype', () {
       final nodes = doc.xpath('//node()');
-      check(nodes.any((n) => n is XmlDeclaration || n is XmlDoctype)).isFalse();
+      check(nodes.any((n) => n is XmlDeclaration || n is XmlDoctype)).isFalse;
     });
 
     test('preceding-sibling and following-sibling on root element ignore non-xpath nodes', () {

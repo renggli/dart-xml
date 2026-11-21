@@ -18,11 +18,11 @@ void main() {
       check(dt.millisecond).equals(6);
       check(dt.microsecond).equals(7);
       check(dt.timezoneOffsetMinutes).equals(0);
-      check(dt.isUtc).isTrue();
+      check(dt.isUtc).isTrue;
       check(dt.toString()).equals('2021-01-02T03:04:05.006007Z');
 
       final d = dt.toDateTime();
-      check(d.isUtc).isTrue();
+      check(d.isUtc).isTrue;
       check(d.year).equals(2021);
     });
 
@@ -38,8 +38,8 @@ void main() {
       check(XPathDateTime.tryParse('2021-01-02T03:04:05+02:00')).isNotNull();
       check(XPathDateTime.tryParse('2021-01-02T03:04:05')).isNotNull();
       check(XPathDateTime.tryParse('2021-01-02T24:00:00')).isNotNull();
-      check(XPathDateTime.tryParse('2021-01-02')).isNull();
-      check(XPathDateTime.tryParse('invalid')).isNull();
+      check(XPathDateTime.tryParse('2021-01-02')).isNull;
+      check(XPathDateTime.tryParse('invalid')).isNull;
     });
 
     test('comparison, before, after, equality', () {
@@ -47,11 +47,11 @@ void main() {
       final dt2 = XPathDateTime.tryParse('2021-01-01T13:00:00Z')!;
       final dt1Equiv = XPathDateTime.tryParse('2021-01-01T14:00:00+02:00')!;
 
-      check(dt1.isBefore(dt2)).isTrue();
-      check(dt2.isAfter(dt1)).isTrue();
-      check(dt1.isAtSameMomentAs(dt1Equiv)).isTrue();
-      check(dt1 == dt1Equiv).isTrue();
-      check(dt1 == dt2).isFalse();
+      check(dt1.isBefore(dt2)).isTrue;
+      check(dt2.isAfter(dt1)).isTrue;
+      check(dt1.isAtSameMomentAs(dt1Equiv)).isTrue;
+      check(dt1 == dt1Equiv).isTrue;
+      check(dt1 == dt2).isFalse;
     });
 
     test('add, subtract, difference', () {
@@ -70,8 +70,7 @@ void main() {
           .isNotNull();
       check(XPathDateTime.tryParseDateTimeStamp('2021-01-02T03:04:05+05:00'))
           .isNotNull();
-      check(XPathDateTime.tryParseDateTimeStamp('2021-01-02T03:04:05'))
-          .isNull();
+      check(XPathDateTime.tryParseDateTimeStamp('2021-01-02T03:04:05')).isNull;
     });
   });
 
@@ -86,7 +85,7 @@ void main() {
 
       check(XPathDateTime.tryParseDate('2021-05-20')).isNotNull();
       check(XPathDateTime.tryParseDate('2021-05-20-05:00')).isNotNull();
-      check(XPathDateTime.tryParseDate('2021-02-30')).isNull();
+      check(XPathDateTime.tryParseDate('2021-02-30')).isNull;
     });
   });
 
@@ -101,7 +100,7 @@ void main() {
 
       check(XPathDateTime.tryParseTime('12:34:56')).isNotNull();
       check(XPathDateTime.tryParseTime('24:00:00')).isNotNull();
-      check(XPathDateTime.tryParseTime('24:01:00')).isNull();
+      check(XPathDateTime.tryParseTime('24:01:00')).isNull;
       final t24Z = XPathDateTime.tryParseTime('24:00:00Z')!;
       check(t24Z.timezoneOffsetMinutes).equals(0);
       final t24Offset = XPathDateTime.tryParseTime('24:00:00+02:00')!;
@@ -117,7 +116,7 @@ void main() {
       check(ym.month).equals(12);
       check(ym.toString()).equals('2021-12Z');
       check(XPathDateTime.tryParseYearMonth('2021-12')).isNotNull();
-      check(XPathDateTime.tryParseYearMonth('2021-13')).isNull();
+      check(XPathDateTime.tryParseYearMonth('2021-13')).isNull;
     });
 
     test('XPathDateTime year', () {
@@ -126,7 +125,7 @@ void main() {
       check(y.year).equals(2021);
       check(y.toString()).equals('2021Z');
       check(XPathDateTime.tryParseYear('2021')).isNotNull();
-      check(XPathDateTime.tryParseYear('20')).isNull();
+      check(XPathDateTime.tryParseYear('20')).isNull;
     });
 
     test('XPathDateTime monthDay', () {
@@ -136,7 +135,7 @@ void main() {
       check(md.day).equals(25);
       check(md.toString()).equals('--12-25Z');
       check(XPathDateTime.tryParseMonthDay('--12-25')).isNotNull();
-      check(XPathDateTime.tryParseMonthDay('--12-32')).isNull();
+      check(XPathDateTime.tryParseMonthDay('--12-32')).isNull;
     });
 
     test('XPathDateTime month', () {
@@ -145,7 +144,7 @@ void main() {
       check(m.month).equals(5);
       check(m.toString()).equals('--05Z');
       check(XPathDateTime.tryParseMonth('--05')).isNotNull();
-      check(XPathDateTime.tryParseMonth('--13')).isNull();
+      check(XPathDateTime.tryParseMonth('--13')).isNull;
     });
 
     test('XPathDateTime day', () {
@@ -154,7 +153,7 @@ void main() {
       check(d.day).equals(15);
       check(d.toString()).equals('---15Z');
       check(XPathDateTime.tryParseDay('---15')).isNotNull();
-      check(XPathDateTime.tryParseDay('---32')).isNull();
+      check(XPathDateTime.tryParseDay('---32')).isNull;
     });
 
     test('toLocal conversion and negative timezone offsets', () {
@@ -177,17 +176,17 @@ void main() {
       final dt1Clone = XPathDateTime.tryParse('2021-01-01T12:00:00Z')!;
       final dt2 = XPathDateTime.tryParse('2021-01-01T14:00:00+02:00')!;
       check(dt1.hashCode).equals(dt1Clone.hashCode);
-      check(dt1 == dt2).isTrue();
+      check(dt1 == dt2).isTrue;
     });
 
     test('calendar validations for days in months', () {
       check(XPathDateTime.tryParseDate('2021-04-30')).isNotNull();
-      check(XPathDateTime.tryParseDate('2021-04-31')).isNull();
+      check(XPathDateTime.tryParseDate('2021-04-31')).isNull;
       check(XPathDateTime.tryParseDate('2020-02-29')).isNotNull();
-      check(XPathDateTime.tryParseDate('2021-02-29')).isNull();
-      check(XPathDateTime.tryParseDate('2021-06-31')).isNull();
-      check(XPathDateTime.tryParseDate('2021-09-31')).isNull();
-      check(XPathDateTime.tryParseDate('2021-11-31')).isNull();
+      check(XPathDateTime.tryParseDate('2021-02-29')).isNull;
+      check(XPathDateTime.tryParseDate('2021-06-31')).isNull;
+      check(XPathDateTime.tryParseDate('2021-09-31')).isNull;
+      check(XPathDateTime.tryParseDate('2021-11-31')).isNull;
     });
 
     test('fromDateTime with xsTime, value getter, and negative year', () {
@@ -206,12 +205,12 @@ void main() {
         '2021-01-01T12:00:00Z',
         xsDateTimeStamp,
       )!;
-      check(dt == dtStamp).isTrue();
+      check(dt == dtStamp).isTrue;
       check(dt.compareTo(dtStamp)).equals(0);
 
       final date = XPathDateTime.tryParseDate('2021-01-01')!;
       final time = XPathDateTime.tryParseTime('12:00:00')!;
-      check(date == time).isFalse();
+      check(date == time).isFalse;
       check(() => date.compareTo(time))
           .throws<XPathEvaluationException>()
           .which(isXPathEvaluationException());

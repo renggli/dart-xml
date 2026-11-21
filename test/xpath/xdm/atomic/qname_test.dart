@@ -31,9 +31,9 @@ void main() {
 
       check(q1).equals(q2);
       check(q1.hashCode).equals(q2.hashCode);
-      check(q1 == q3).isFalse();
-      check(q1 == q4).isFalse();
-      check(q1 == Object()).isFalse();
+      check(q1 == q3).isFalse;
+      check(q1 == q4).isFalse;
+      check(q1 == Object()).isFalse;
     });
   });
 }

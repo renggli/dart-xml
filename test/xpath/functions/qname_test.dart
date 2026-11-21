@@ -104,7 +104,7 @@ void main() {
       final result = fnQName(context, [seq('uri'), seq('local')]);
       check(result).isXPathSequence([isA<XmlName>()]);
       final qname = result.single as XPathQName;
-      check(qname.value.prefix).isNull();
+      check(qname.value.prefix).isNull;
       check(qname.value.local).equals('local');
       check(qname.value.namespaceUri).equals('uri');
     });
@@ -113,7 +113,7 @@ void main() {
       final result = fnQName(context, [seq(''), seq('local')]);
       final qname = result.single as XPathQName;
       check(qname.value.namespaceUri).equals('');
-      check(qname == XPathQName(XmlName('local'))).isTrue();
+      check(qname == XPathQName(XmlName('local'))).isTrue;
     });
 
     test('throws FOCA0002 for invalid lexical QName', () {

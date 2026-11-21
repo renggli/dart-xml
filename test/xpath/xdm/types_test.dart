@@ -12,35 +12,35 @@ XPathFunctionItem get fnName1 =>
 void main() {
   group('XPathType hierarchy and subtypes', () {
     test('primitive type relations', () {
-      check(xsInteger.isSubtypeOf(xsDecimal)).isTrue();
-      check(xsDecimal.isSubtypeOf(xsNumeric)).isTrue();
-      check(xsInteger.isSubtypeOf(xsNumeric)).isTrue();
-      check(xsDouble.isSubtypeOf(xsNumeric)).isTrue();
-      check(xsFloat.isSubtypeOf(xsNumeric)).isTrue();
-      check(xsNumeric.isSubtypeOf(xsAnyAtomicType)).isTrue();
-      check(xsString.isSubtypeOf(xsAnyAtomicType)).isTrue();
-      check(xsAnyAtomicType.isSubtypeOf(xsItem)).isTrue();
-      check(xsElement.isSubtypeOf(xsNode)).isTrue();
-      check(xsAttribute.isSubtypeOf(xsNode)).isTrue();
-      check(xsNode.isSubtypeOf(xsItem)).isTrue();
-      check(xsFunction.isSubtypeOf(xsItem)).isTrue();
-      check(xsMap.isSubtypeOf(xsFunction)).isTrue();
-      check(xsArray.isSubtypeOf(xsFunction)).isTrue();
-      check(xsString.isSubtypeOf(xsInteger)).isFalse();
+      check(xsInteger.isSubtypeOf(xsDecimal)).isTrue;
+      check(xsDecimal.isSubtypeOf(xsNumeric)).isTrue;
+      check(xsInteger.isSubtypeOf(xsNumeric)).isTrue;
+      check(xsDouble.isSubtypeOf(xsNumeric)).isTrue;
+      check(xsFloat.isSubtypeOf(xsNumeric)).isTrue;
+      check(xsNumeric.isSubtypeOf(xsAnyAtomicType)).isTrue;
+      check(xsString.isSubtypeOf(xsAnyAtomicType)).isTrue;
+      check(xsAnyAtomicType.isSubtypeOf(xsItem)).isTrue;
+      check(xsElement.isSubtypeOf(xsNode)).isTrue;
+      check(xsAttribute.isSubtypeOf(xsNode)).isTrue;
+      check(xsNode.isSubtypeOf(xsItem)).isTrue;
+      check(xsFunction.isSubtypeOf(xsItem)).isTrue;
+      check(xsMap.isSubtypeOf(xsFunction)).isTrue;
+      check(xsArray.isSubtypeOf(xsFunction)).isTrue;
+      check(xsString.isSubtypeOf(xsInteger)).isFalse;
     });
 
     test('matchesItem and matchesSequence', () {
       final intItem = XPathInteger.fromInt(10);
-      check(xsInteger.matchesItem(intItem)).isTrue();
-      check(xsDecimal.matchesItem(intItem)).isTrue();
-      check(xsNumeric.matchesItem(intItem)).isTrue();
-      check(xsString.matchesItem(intItem)).isFalse();
+      check(xsInteger.matchesItem(intItem)).isTrue;
+      check(xsDecimal.matchesItem(intItem)).isTrue;
+      check(xsNumeric.matchesItem(intItem)).isTrue;
+      check(xsString.matchesItem(intItem)).isFalse;
 
       final seq = XPathSequence.single(intItem);
-      check(xsInteger.matchesSequence(seq)).isTrue();
-      check(xsInteger.matchesSequence(XPathSequence.empty)).isFalse();
+      check(xsInteger.matchesSequence(seq)).isTrue;
+      check(xsInteger.matchesSequence(XPathSequence.empty)).isFalse;
       check(xsInteger.matchesSequence(XPathSequence([intItem, intItem])))
-          .isFalse();
+          .isFalse;
     });
 
     test('toString returns name', () {
@@ -56,17 +56,17 @@ void main() {
         itemType: xsString,
         cardinality: XPathCardinality.zeroOrMore,
       );
-      check(type.isAtomic).isFalse();
-      check(type.matchesSequence(XPathSequence.empty)).isTrue();
+      check(type.isAtomic).isFalse;
+      check(type.matchesSequence(XPathSequence.empty)).isTrue;
       check(type.matchesSequence(XPathSequence([const XPathString('a')])))
-          .isTrue();
+          .isTrue;
       check(
         type.matchesSequence(
           XPathSequence([const XPathString('a'), const XPathString('b')]),
         ),
-      ).isTrue();
+      ).isTrue;
       check(type.matchesSequence(XPathSequence([XPathInteger.fromInt(1)])))
-          .isFalse();
+          .isFalse;
     });
 
     test('cardinality matching: zeroOrOne', () {
@@ -74,14 +74,14 @@ void main() {
         itemType: xsInteger,
         cardinality: XPathCardinality.zeroOrOne,
       );
-      check(type.matchesSequence(XPathSequence.empty)).isTrue();
+      check(type.matchesSequence(XPathSequence.empty)).isTrue;
       check(type.matchesSequence(XPathSequence([XPathInteger.fromInt(1)])))
-          .isTrue();
+          .isTrue;
       check(
         type.matchesSequence(
           XPathSequence([XPathInteger.fromInt(1), XPathInteger.fromInt(2)]),
         ),
-      ).isFalse();
+      ).isFalse;
     });
 
     test('cardinality matching: oneOrMore', () {
@@ -89,14 +89,14 @@ void main() {
         itemType: xsInteger,
         cardinality: XPathCardinality.oneOrMore,
       );
-      check(type.matchesSequence(XPathSequence.empty)).isFalse();
+      check(type.matchesSequence(XPathSequence.empty)).isFalse;
       check(type.matchesSequence(XPathSequence([XPathInteger.fromInt(1)])))
-          .isTrue();
+          .isTrue;
       check(
         type.matchesSequence(
           XPathSequence([XPathInteger.fromInt(1), XPathInteger.fromInt(2)]),
         ),
-      ).isTrue();
+      ).isTrue;
     });
 
     test('cardinality matching: exactlyOne', () {
@@ -104,14 +104,14 @@ void main() {
         itemType: xsInteger,
         cardinality: XPathCardinality.exactlyOne,
       );
-      check(type.matchesSequence(XPathSequence.empty)).isFalse();
+      check(type.matchesSequence(XPathSequence.empty)).isFalse;
       check(type.matchesSequence(XPathSequence([XPathInteger.fromInt(1)])))
-          .isTrue();
+          .isTrue;
       check(
         type.matchesSequence(
           XPathSequence([XPathInteger.fromInt(1), XPathInteger.fromInt(2)]),
         ),
-      ).isFalse();
+      ).isFalse;
     });
 
     test('toString formatting', () {
@@ -151,7 +151,7 @@ void main() {
       check(standardTypes['attribute()']).equals(xsAttribute);
       check(standardTypes['map(*)']).equals(xsMap);
       check(standardTypes['array(*)']).equals(xsArray);
-      check(standardTypes['non-existent-type']).isNull();
+      check(standardTypes['non-existent-type']).isNull;
     });
   });
 
@@ -171,34 +171,34 @@ void main() {
       const anyArray = XPathArrayType();
       const intArray = XPathArrayType(xsInteger);
       // typed array is subtype of array(*) (the constant)
-      check(intArray.isSubtypeOf(xsArray)).isTrue();
+      check(intArray.isSubtypeOf(xsArray)).isTrue;
       // typed array is subtype of anyArray
-      check(intArray.isSubtypeOf(anyArray)).isTrue();
+      check(intArray.isSubtypeOf(anyArray)).isTrue;
       // array(*) is subtype of function(*) and item()
-      check(xsArray.isSubtypeOf(xsFunction)).isTrue();
-      check(xsArray.isSubtypeOf(xsItem)).isTrue();
+      check(xsArray.isSubtypeOf(xsFunction)).isTrue;
+      check(xsArray.isSubtypeOf(xsItem)).isTrue;
       // anyArray is subtype of anyArray
-      check(anyArray.isSubtypeOf(anyArray)).isTrue();
+      check(anyArray.isSubtypeOf(anyArray)).isTrue;
       // anyArray is NOT subtype of typed array
-      check(anyArray.isSubtypeOf(intArray)).isFalse();
+      check(anyArray.isSubtypeOf(intArray)).isFalse;
       // intArray is NOT subtype of string array
-      check(intArray.isSubtypeOf(const XPathArrayType(xsString))).isFalse();
+      check(intArray.isSubtypeOf(const XPathArrayType(xsString))).isFalse;
     });
 
     test('matchesItem filters by member type', () {
       const arr = XPathArray([]);
       const anyArray = XPathArrayType();
-      check(anyArray.matchesItem(arr)).isTrue();
+      check(anyArray.matchesItem(arr)).isTrue;
 
       final intArr = XPathArray([
         XPathSequence.single(XPathInteger.fromInt(1)),
         XPathSequence.single(XPathInteger.fromInt(2)),
       ]);
       const intArray = XPathArrayType(xsInteger);
-      check(intArray.matchesItem(intArr)).isTrue();
+      check(intArray.matchesItem(intArr)).isTrue;
 
       const strArray = XPathArrayType(xsString);
-      check(strArray.matchesItem(intArr)).isFalse();
+      check(strArray.matchesItem(intArr)).isFalse;
     });
   });
 
@@ -217,17 +217,17 @@ void main() {
       const anyMap = XPathMapType();
       const intStrMap = XPathMapType(xsInteger, xsString);
       // typed map is subtype of map(*)
-      check(intStrMap.isSubtypeOf(xsMap)).isTrue();
-      check(intStrMap.isSubtypeOf(anyMap)).isTrue();
+      check(intStrMap.isSubtypeOf(xsMap)).isTrue;
+      check(intStrMap.isSubtypeOf(anyMap)).isTrue;
       // map(*) is subtype of function(*) and item()
-      check(xsMap.isSubtypeOf(xsFunction)).isTrue();
-      check(xsMap.isSubtypeOf(xsItem)).isTrue();
+      check(xsMap.isSubtypeOf(xsFunction)).isTrue;
+      check(xsMap.isSubtypeOf(xsItem)).isTrue;
       // anyMap is NOT subtype of typed map
-      check(anyMap.isSubtypeOf(intStrMap)).isFalse();
+      check(anyMap.isSubtypeOf(intStrMap)).isFalse;
       // map(xs:integer, xs:string) IS subtype of map(xs:decimal, xs:string)
       // (xs:integer is subtype of xs:decimal, xs:string is subtype of xs:string)
       check(intStrMap.isSubtypeOf(const XPathMapType(xsDecimal, xsString)))
-          .isTrue();
+          .isTrue;
     });
 
     test('isSubtypeOf function type (map-as-function)', () {
@@ -248,7 +248,7 @@ void main() {
             ),
           ),
         ),
-      ).isTrue();
+      ).isTrue;
       // map(xs:integer, xs:string) is NOT subtype of function(xs:string) as item()*
       // because xs:integer is NOT subtype of xs:string
       check(
@@ -262,7 +262,7 @@ void main() {
             ],
           ),
         ),
-      ).isFalse();
+      ).isFalse;
     });
   });
 
@@ -270,7 +270,7 @@ void main() {
     test('wildcard function', () {
       const t = XPathFunctionType();
       check(t.name).equals('function(*)');
-      check(t.isAny).isTrue();
+      check(t.isAny).isTrue;
     });
 
     test('typed function name', () {
@@ -301,12 +301,12 @@ void main() {
             ),
           ],
         ).isSubtypeOf(anyFn),
-      ).isTrue();
+      ).isTrue;
       // function(*) is subtype of function(*) (same)
-      check(anyFn.isSubtypeOf(anyFn)).isTrue();
+      check(anyFn.isSubtypeOf(anyFn)).isTrue;
       // function(*) is subtype of xsFunction and xsItem
-      check(anyFn.isSubtypeOf(xsFunction)).isTrue();
-      check(anyFn.isSubtypeOf(xsItem)).isTrue();
+      check(anyFn.isSubtypeOf(xsFunction)).isTrue;
+      check(anyFn.isSubtypeOf(xsItem)).isTrue;
     });
 
     test('isSubtypeOf contravariance and covariance', () {
@@ -336,10 +336,10 @@ void main() {
           cardinality: XPathCardinality.exactlyOne,
         ),
       );
-      check(fnNodeOptStr.isSubtypeOf(testElemStr)).isTrue();
+      check(fnNodeOptStr.isSubtypeOf(testElemStr)).isTrue;
       // Not the reverse: function(element()) as xs:string is NOT subtype of
       // function(node()?) as xs:string (node()? is NOT subtype of element())
-      check(testElemStr.isSubtypeOf(fnNodeOptStr)).isFalse();
+      check(testElemStr.isSubtypeOf(fnNodeOptStr)).isFalse;
     });
 
     test('matchesItem on typed function item', () {
@@ -357,9 +357,9 @@ void main() {
       );
       // Wildcard function(*) matches any function item.
       const anyFnType = XPathFunctionType();
-      check(anyFnType.matchesItem(fnName1)).isTrue();
+      check(anyFnType.matchesItem(fnName1)).isTrue;
       // Exact declared type matches.
-      check(fnType.matchesItem(fnName1)).isTrue();
+      check(fnType.matchesItem(fnName1)).isTrue;
       // Mismatched return type is not a match.
       const wrongReturnType = XPathFunctionType(
         parameterTypes: [
@@ -373,13 +373,13 @@ void main() {
           cardinality: XPathCardinality.exactlyOne,
         ),
       );
-      check(wrongReturnType.matchesItem(fnName1)).isFalse();
+      check(wrongReturnType.matchesItem(fnName1)).isFalse;
     });
 
     test('equality and hashCode on XPathFunctionType', () {
       const fn1 = XPathFunctionType();
       const fn2 = XPathFunctionType();
-      check(fn1 == fn2).isTrue();
+      check(fn1 == fn2).isTrue;
       check(fn1.hashCode).equals(fn2.hashCode);
     });
   });
@@ -399,21 +399,21 @@ void main() {
         cardinality: XPathCardinality.exactlyOne,
       );
 
-      check(xsEmptySequence.isSubtypeOf(optStr)).isTrue();
-      check(xsEmptySequence.isSubtypeOf(starStr)).isTrue();
-      check(xsEmptySequence.isSubtypeOf(oneStr)).isFalse();
-      check(xsEmptySequence.isSubtypeOf(xsItem)).isFalse();
-      check(xsEmptySequence.isSubtypeOf(xsEmptySequence)).isTrue();
+      check(xsEmptySequence.isSubtypeOf(optStr)).isTrue;
+      check(xsEmptySequence.isSubtypeOf(starStr)).isTrue;
+      check(xsEmptySequence.isSubtypeOf(oneStr)).isFalse;
+      check(xsEmptySequence.isSubtypeOf(xsItem)).isFalse;
+      check(xsEmptySequence.isSubtypeOf(xsEmptySequence)).isTrue;
     });
 
     test('matchesItem and matchesSequence', () {
-      check(xsEmptySequence.matchesItem(XPathInteger.fromInt(1))).isFalse();
-      check(xsEmptySequence.matchesSequence(XPathSequence.empty)).isTrue();
+      check(xsEmptySequence.matchesItem(XPathInteger.fromInt(1))).isFalse;
+      check(xsEmptySequence.matchesSequence(XPathSequence.empty)).isTrue;
       check(
         xsEmptySequence.matchesSequence(
           XPathSequence.single(XPathInteger.fromInt(1)),
         ),
-      ).isFalse();
+      ).isFalse;
     });
   });
 
@@ -430,18 +430,18 @@ void main() {
         XPathInteger.fromInt(1): XPathSequence.single(XPathInteger.fromInt(1)),
       });
 
-      check(intStrMapType.matchesItem(validMap)).isTrue();
-      check(intStrMapType.matchesItem(invalidKeyMap)).isFalse();
-      check(intStrMapType.matchesItem(invalidValMap)).isFalse();
-      check(intStrMapType.matchesItem(XPathInteger.fromInt(1))).isFalse();
+      check(intStrMapType.matchesItem(validMap)).isTrue;
+      check(intStrMapType.matchesItem(invalidKeyMap)).isFalse;
+      check(intStrMapType.matchesItem(invalidValMap)).isFalse;
+      check(intStrMapType.matchesItem(XPathInteger.fromInt(1))).isFalse;
     });
 
     test('equality and hashCode', () {
       const map1 = XPathMapType(xsInteger, xsString);
       const map2 = XPathMapType(xsInteger, xsString);
       const map3 = XPathMapType(xsInteger, xsInteger);
-      check(map1 == map2).isTrue();
-      check(map1 == map3).isFalse();
+      check(map1 == map2).isTrue;
+      check(map1 == map3).isFalse;
       check(map1.hashCode).equals(map2.hashCode);
     });
   });
@@ -452,10 +452,10 @@ void main() {
         itemType: xsInteger,
         cardinality: XPathCardinality.exactlyOne,
       );
-      check(seqType.isSubtypeOf(xsNumeric)).isTrue();
-      check(seqType.isSubtypeOf(xsString)).isFalse();
-      check(seqType.matchesItem(XPathInteger.fromInt(42))).isTrue();
-      check(seqType.matchesItem(const XPathString('abc'))).isFalse();
+      check(seqType.isSubtypeOf(xsNumeric)).isTrue;
+      check(seqType.isSubtypeOf(xsString)).isFalse;
+      check(seqType.matchesItem(XPathInteger.fromInt(42))).isTrue;
+      check(seqType.matchesItem(const XPathString('abc'))).isFalse;
       check(seqType.hashCode).isA<int>();
     });
 
@@ -477,14 +477,14 @@ void main() {
           cardinality: XPathCardinality.zeroOrOne,
         ),
       );
-      check(validFnType.matchesItem(mapItem)).isTrue();
+      check(validFnType.matchesItem(mapItem)).isTrue;
 
       // Return type does not accept empty sequence
       const invalidEmptyReturnFnType = XPathFunctionType(
         parameterTypes: [xsString],
         returnType: xsString,
       );
-      check(invalidEmptyReturnFnType.matchesItem(mapItem)).isFalse();
+      check(invalidEmptyReturnFnType.matchesItem(mapItem)).isFalse;
 
       // Invalid param type (non-atomic)
       const invalidParamFnType = XPathFunctionType(
@@ -494,7 +494,7 @@ void main() {
           cardinality: XPathCardinality.zeroOrOne,
         ),
       );
-      check(invalidParamFnType.matchesItem(mapItem)).isFalse();
+      check(invalidParamFnType.matchesItem(mapItem)).isFalse;
     });
 
     test('XPathFunctionType matching XPathArray', () {
@@ -503,19 +503,19 @@ void main() {
         parameterTypes: [xsInteger],
         returnType: xsString,
       );
-      check(validArrFnType.matchesItem(arrItem)).isTrue();
+      check(validArrFnType.matchesItem(arrItem)).isTrue;
 
       const invalidParamArrFnType = XPathFunctionType(
         parameterTypes: [xsString],
         returnType: xsString,
       );
-      check(invalidParamArrFnType.matchesItem(arrItem)).isFalse();
+      check(invalidParamArrFnType.matchesItem(arrItem)).isFalse;
 
       const invalidReturnArrFnType = XPathFunctionType(
         parameterTypes: [xsInteger],
         returnType: xsInteger,
       );
-      check(invalidReturnArrFnType.matchesItem(arrItem)).isFalse();
+      check(invalidReturnArrFnType.matchesItem(arrItem)).isFalse;
     });
 
     test('XPathFunctionType equality and hashCode with parameterTypes', () {
@@ -531,8 +531,8 @@ void main() {
         parameterTypes: [xsString],
         returnType: xsString,
       );
-      check(fn1 == fn2).isTrue();
-      check(fn1 == fn3).isFalse();
+      check(fn1 == fn2).isTrue;
+      check(fn1 == fn3).isFalse;
       check(fn1.hashCode).equals(fn2.hashCode);
     });
   });

@@ -11,7 +11,7 @@ void main() {
       check(node.type).equals(xsElement);
       check(node.node).identicalTo(el);
       check(node.stringValue).equals('hello');
-      check(node.effectiveBooleanValue).isTrue();
+      check(node.effectiveBooleanValue).isTrue;
       final atomized = node.atomize();
       check(atomized).isA<XPathUntypedAtomic>();
       check(atomized.stringValue).equals('hello');
@@ -70,8 +70,8 @@ void main() {
 
       check(n1).equals(n1Same);
       check(n1.hashCode).equals(n1Same.hashCode);
-      check(n1 == n2).isFalse();
-      check(n1 == Object()).isFalse();
+      check(n1 == n2).isFalse;
+      check(n1 == Object()).isFalse;
     });
   });
 }

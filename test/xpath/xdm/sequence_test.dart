@@ -10,41 +10,41 @@ void main() {
   group('XPathSequence', () {
     test('empty sequence constants and properties', () {
       const empty = XPathSequence.empty;
-      check(empty.isEmpty).isTrue();
-      check(empty.isNotEmpty).isFalse();
+      check(empty.isEmpty).isTrue;
+      check(empty.isNotEmpty).isFalse;
       check(empty.length).equals(0);
-      check(empty.singleOrNull).isNull();
-      check(empty.ebv).isFalse();
-      check(empty.effectiveBooleanValue).isFalse();
-      check(empty.hasCardinality(XPathCardinality.zeroOrMore)).isTrue();
-      check(empty.hasCardinality(XPathCardinality.zeroOrOne)).isTrue();
-      check(empty.hasCardinality(XPathCardinality.oneOrMore)).isFalse();
-      check(empty.hasCardinality(XPathCardinality.exactlyOne)).isFalse();
+      check(empty.singleOrNull).isNull;
+      check(empty.ebv).isFalse;
+      check(empty.effectiveBooleanValue).isFalse;
+      check(empty.hasCardinality(XPathCardinality.zeroOrMore)).isTrue;
+      check(empty.hasCardinality(XPathCardinality.zeroOrOne)).isTrue;
+      check(empty.hasCardinality(XPathCardinality.oneOrMore)).isFalse;
+      check(empty.hasCardinality(XPathCardinality.exactlyOne)).isFalse;
       check(empty.toString()).equals('()');
-      check(empty.nodes).isEmpty();
-      check(empty.atomize()).isEmpty();
+      check(empty.nodes).isEmpty;
+      check(empty.atomize()).isEmpty;
     });
 
     test('single sequence properties', () {
       const item = XPathString('test');
       const seq = XPathSequence.single(item);
-      check(seq.isEmpty).isFalse();
-      check(seq.isNotEmpty).isTrue();
+      check(seq.isEmpty).isFalse;
+      check(seq.isNotEmpty).isTrue;
       check(seq.length).equals(1);
       check(seq.singleOrNull).equals(item);
-      check(seq.ebv).isTrue();
-      check(seq.effectiveBooleanValue).isTrue();
-      check(seq.hasCardinality(XPathCardinality.zeroOrMore)).isTrue();
-      check(seq.hasCardinality(XPathCardinality.zeroOrOne)).isTrue();
-      check(seq.hasCardinality(XPathCardinality.oneOrMore)).isTrue();
-      check(seq.hasCardinality(XPathCardinality.exactlyOne)).isTrue();
+      check(seq.ebv).isTrue;
+      check(seq.effectiveBooleanValue).isTrue;
+      check(seq.hasCardinality(XPathCardinality.zeroOrMore)).isTrue;
+      check(seq.hasCardinality(XPathCardinality.zeroOrOne)).isTrue;
+      check(seq.hasCardinality(XPathCardinality.oneOrMore)).isTrue;
+      check(seq.hasCardinality(XPathCardinality.exactlyOne)).isTrue;
       check(seq.toString()).equals('(test)');
       check(seq.atomize()).deepEquals([item]);
     });
 
     test('singletons', () {
-      check(XPathSequence.trueSequence.ebv).isTrue();
-      check(XPathSequence.falseSequence.ebv).isFalse();
+      check(XPathSequence.trueSequence.ebv).isTrue;
+      check(XPathSequence.falseSequence.ebv).isFalse;
       check(XPathSequence.emptyMap.singleOrNull).equals(XPathMap.empty);
       check(XPathSequence.emptyArray.singleOrNull).equals(XPathArray.empty);
     });
@@ -60,7 +60,7 @@ void main() {
       ]);
       check(multi.length).equals(2);
       check(multi.toString()).equals('(a, b)');
-      check(multi.singleOrNull).isNull();
+      check(multi.singleOrNull).isNull;
     });
 
     test('from(items) flattens nested sequences and converts primitives', () {
@@ -106,8 +106,8 @@ void main() {
       check(r.length).equals(3);
       check(r.toList().map((i) => (i as XPathInteger).value.toInt()).toList())
           .deepEquals([1, 2, 3]);
-      check(r.isEmpty).isFalse();
-      check(r.isNotEmpty).isTrue();
+      check(r.isEmpty).isFalse;
+      check(r.isNotEmpty).isTrue;
 
       final rEmpty = XPathSequence.range(
         XPathInteger.fromInt(5),
@@ -120,7 +120,7 @@ void main() {
         XPathInteger.fromInt(5),
       );
       check(rSingle.singleOrNull).equals(XPathInteger.fromInt(5));
-      check(r.singleOrNull).isNull();
+      check(r.singleOrNull).isNull;
 
       check(
         () => XPathSequence.range(
@@ -143,7 +143,7 @@ void main() {
     test('ebv with node sequence and multi-item error', () {
       final node = XPathNode(XmlElement(XmlName('a')));
       final nodeSeq = XPathSequence([node, node]);
-      check(nodeSeq.ebv).isTrue();
+      check(nodeSeq.ebv).isTrue;
 
       final strSeq = XPathSequence([
         const XPathString('a'),
@@ -159,10 +159,10 @@ void main() {
         const XPathString('a'),
         const XPathString('b'),
       ]);
-      check(multi.hasCardinality(XPathCardinality.zeroOrMore)).isTrue();
-      check(multi.hasCardinality(XPathCardinality.oneOrMore)).isTrue();
-      check(multi.hasCardinality(XPathCardinality.zeroOrOne)).isFalse();
-      check(multi.hasCardinality(XPathCardinality.exactlyOne)).isFalse();
+      check(multi.hasCardinality(XPathCardinality.zeroOrMore)).isTrue;
+      check(multi.hasCardinality(XPathCardinality.oneOrMore)).isTrue;
+      check(multi.hasCardinality(XPathCardinality.zeroOrOne)).isFalse;
+      check(multi.hasCardinality(XPathCardinality.exactlyOne)).isFalse;
     });
 
     test('equality and hashCode', () {
@@ -182,9 +182,9 @@ void main() {
 
       check(s1).equals(s2);
       check(s1.hashCode).equals(s2.hashCode);
-      check(s1 == s3).isFalse();
-      check(s1 == s4).isFalse();
-      check(s1 == Object()).isFalse();
+      check(s1 == s3).isFalse;
+      check(s1 == s4).isFalse;
+      check(s1 == Object()).isFalse;
     });
 
     test('fromObject converts various types', () {
@@ -207,7 +207,7 @@ void main() {
     });
 
     test('toValue unwraps empty, single, and multiple items', () {
-      check(XPathSequence.empty.toValue()).isNull();
+      check(XPathSequence.empty.toValue()).isNull;
       check(const XPathSequence.single(XPathString('abc')).toValue())
           .equals('abc');
       check(
@@ -221,12 +221,12 @@ void main() {
         XPathInteger.fromInt(1),
         XPathInteger.fromInt(1),
       );
-      check(range.ebv).isTrue();
+      check(range.ebv).isTrue;
       final rangeZero = XPathSequence.range(
         XPathInteger.fromInt(0),
         XPathInteger.fromInt(0),
       );
-      check(rangeZero.ebv).isFalse();
+      check(rangeZero.ebv).isFalse;
     });
   });
 }

@@ -16,28 +16,28 @@ void main() {
     check(node.root).identicalTo(document);
     check(node.document).identicalTo(document);
     check(node.depth).equals(2);
-    check(node.attributes).isEmpty();
-    check(node.elementAttributes).isEmpty();
-    check(node.namespaces).isEmpty();
-    check(node.children).isEmpty();
+    check(node.attributes).isEmpty;
+    check(node.elementAttributes).isEmpty;
+    check(node.namespaces).isEmpty;
+    check(node.children).isEmpty;
     check(node.nodeType).equals(XmlNodeType.COMMENT);
     check(node.toString()).equals('<!--Am I or are the other crazy?-->');
   });
   test('empty', () {
     final document = XmlDocument.parse('<data><!----></data>');
     final node = document.rootElement.children.single;
-    check(node.value).isNotNull().isEmpty();
+    check(node.value).isNotNull().isEmpty;
     // ignore: deprecated_member_use_from_same_package
-    check(node.text).isNotNull().isEmpty();
+    check(node.text).isNotNull().isEmpty;
     check(node.parent).identicalTo(document.rootElement);
     check(node.parentElement).identicalTo(document.rootElement);
     check(node.root).identicalTo(document);
     check(node.document).identicalTo(document);
     check(node.depth).equals(2);
-    check(node.attributes).isEmpty();
-    check(node.elementAttributes).isEmpty();
-    check(node.namespaces).isEmpty();
-    check(node.children).isEmpty();
+    check(node.attributes).isEmpty;
+    check(node.elementAttributes).isEmpty;
+    check(node.namespaces).isEmpty;
+    check(node.children).isEmpty;
     check(node.nodeType).equals(XmlNodeType.COMMENT);
     check(node.toString()).equals('<!---->');
   });

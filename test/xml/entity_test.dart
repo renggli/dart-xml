@@ -228,10 +228,10 @@ void main() {
     const entityMapping = XmlNullEntityMapping();
     group('decode', () {
       test('basic', () {
-        check(entityMapping.decodeEntity('')).isNull();
-        check(entityMapping.decodeEntity('amp')).isNull();
-        check(entityMapping.decodeEntity('#X41')).isNull();
-        check(entityMapping.decodeEntity('#65')).isNull();
+        check(entityMapping.decodeEntity('')).isNull;
+        check(entityMapping.decodeEntity('amp')).isNull;
+        check(entityMapping.decodeEntity('#X41')).isNull;
+        check(entityMapping.decodeEntity('#65')).isNull;
       });
       test('entities', () {
         check(entityMapping.decode('&#X41;')).equals('&#X41;');
@@ -276,49 +276,49 @@ void main() {
     final parser = XmlCharacterDataParser('*', 1);
     test('parse without stopper', () {
       final result1 = parser.parse('');
-      check(result1 is Failure).isTrue();
+      check(result1 is Failure).isTrue;
       check(result1.position).equals(0);
 
       final result2 = parser.parse('a');
-      check(result2 is Success).isTrue();
+      check(result2 is Success).isTrue;
       check(result2.position).equals(1);
       check(result2.value).equals('a');
 
       final result3 = parser.parse('ab');
-      check(result3 is Success).isTrue();
+      check(result3 is Success).isTrue;
       check(result3.position).equals(2);
       check(result3.value).equals('ab');
     });
     test('parse with stopper', () {
       final result1 = parser.parse('*');
-      check(result1 is Failure).isTrue();
+      check(result1 is Failure).isTrue;
       check(result1.position).equals(0);
 
       final result2 = parser.parse('a*');
-      check(result2 is Success).isTrue();
+      check(result2 is Success).isTrue;
       check(result2.position).equals(1);
       check(result2.value).equals('a');
 
       final result3 = parser.parse('ab*');
-      check(result3 is Success).isTrue();
+      check(result3 is Success).isTrue;
       check(result3.position).equals(2);
       check(result3.value).equals('ab');
     });
     test('fast parse without stopper', () {
-      check(parser.accept('')).isFalse();
-      check(parser.accept('a')).isTrue();
-      check(parser.accept('ab')).isTrue();
+      check(parser.accept('')).isFalse;
+      check(parser.accept('a')).isTrue;
+      check(parser.accept('ab')).isTrue;
     });
     test('fast parse with stopper', () {
-      check(parser.accept('*')).isFalse();
-      check(parser.accept('a*')).isTrue();
-      check(parser.accept('ab*')).isTrue();
+      check(parser.accept('*')).isFalse;
+      check(parser.accept('a*')).isTrue;
+      check(parser.accept('ab*')).isTrue;
     });
     test('copy and equality', () {
-      check(parser.isEqualTo(parser)).isTrue();
-      check(parser.isEqualTo(parser.copy())).isTrue();
-      check(parser.isEqualTo(XmlCharacterDataParser('%', 1))).isFalse();
-      check(parser.isEqualTo(XmlCharacterDataParser('*', 2))).isFalse();
+      check(parser.isEqualTo(parser)).isTrue;
+      check(parser.isEqualTo(parser.copy())).isTrue;
+      check(parser.isEqualTo(XmlCharacterDataParser('%', 1))).isFalse;
+      check(parser.isEqualTo(XmlCharacterDataParser('*', 2))).isFalse;
     });
   });
 }

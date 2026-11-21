@@ -127,10 +127,10 @@ void main() {
     test('xs:date with timezone to xs:dateTime', () {
       // Date with Z timezone
       check(xml.xpathEvaluate("xs:dateTime(xs:date('1970-01-01Z'))"))
-          .isNotEmpty();
+          .isNotEmpty;
       // Date with timezone offset
       check(xml.xpathEvaluate("xs:dateTime(xs:date('2002-03-07-05:00'))"))
-          .isNotEmpty();
+          .isNotEmpty;
     });
 
     test('xs:time with timezone to xs:dateTime', () {

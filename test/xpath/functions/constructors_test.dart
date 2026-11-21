@@ -244,8 +244,8 @@ void main() {
       () => expectEval(
         'xs:hexBinary("FF00")',
         isXPathSequence([
-          (Subject<Object?> s) =>
-              s.has((o) => o.toString(), 'toString()').equals('[255, 0]'),
+          Condition.it<Object?>()
+            ..has('toString()', (o) => o.toString()).equals('[255, 0]'),
         ]),
       ),
     );
@@ -257,8 +257,8 @@ void main() {
       () => expectEval(
         'xs:base64Binary("AP8=")',
         isXPathSequence([
-          (Subject<Object?> s) =>
-              s.has((o) => o.toString(), 'toString()').equals('[0, 255]'),
+          Condition.it<Object?>()
+            ..has('toString()', (o) => o.toString()).equals('[0, 255]'),
         ]),
       ),
     );
@@ -279,8 +279,8 @@ void main() {
       expectEval(
         'xs:QName("foo:bar")',
         isXPathSequence([
-          (Subject<Object?> s) =>
-              s.has((o) => o.toString(), 'toString()').equals('foo:bar'),
+          Condition.it<Object?>()
+            ..has('toString()', (o) => o.toString()).equals('foo:bar'),
         ]),
       );
     });

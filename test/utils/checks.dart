@@ -14,25 +14,25 @@ bool hasAssertionsEnabled() {
   }
 }
 
-void throwsStateError(Subject<void Function()> it) => it.throws<StateError>();
-void throwsArgumentError(Subject<void Function()> it) =>
-    it.throws<ArgumentError>();
-void throwsUnsupportedError(Subject<void Function()> it) =>
-    it.throws<UnsupportedError>();
-void throwsRangeError(Subject<void Function()> it) => it.throws<RangeError>();
-void throwsConcurrentModificationError(Subject<void Function()> it) =>
-    it.throws<ConcurrentModificationError>();
+final throwsStateError = Condition.it<void Function()>()..throws<StateError>();
+final throwsArgumentError = Condition.it<void Function()>()
+  ..throws<ArgumentError>();
+final throwsUnsupportedError = Condition.it<void Function()>()
+  ..throws<UnsupportedError>();
+final throwsRangeError = Condition.it<void Function()>()..throws<RangeError>();
+final throwsConcurrentModificationError = Condition.it<void Function()>()
+  ..throws<ConcurrentModificationError>();
 
 /// Domain-specific checks on [XmlNode].
 extension XmlNodeChecks<T extends XmlNode> on Subject<T> {
-  Subject<String> get outerXml => has((node) => node.outerXml, 'outerXml');
-  Subject<XmlNodeType> get nodeType => has((node) => node.nodeType, 'nodeType');
-  Subject<XmlNode?> get parent => has((node) => node.parent, 'parent');
-  Subject<int> get depth => has((node) => node.depth, 'depth');
+  Subject<String> get outerXml => has('outerXml', (node) => node.outerXml);
+  Subject<XmlNodeType> get nodeType => has('nodeType', (node) => node.nodeType);
+  Subject<XmlNode?> get parent => has('parent', (node) => node.parent);
+  Subject<int> get depth => has('depth', (node) => node.depth);
   Subject<List<XmlNode>> get children =>
-      has((node) => node.children, 'children');
+      has('children', (node) => node.children);
   Subject<List<XmlAttribute>> get attributes =>
-      has((node) => node.attributes, 'attributes');
+      has('attributes', (node) => node.attributes);
 
   void isEqualNode(XmlNode other) {
     context.expect(() => ['is equal to node ${other.toXmlString()}'], (actual) {
@@ -57,13 +57,13 @@ extension XmlNodeChecks<T extends XmlNode> on Subject<T> {
   }
 
   Subject<Map<String, String?>> get allNamespaces => has(
+    'allNamespaces',
     (node) => [node, ...node.descendants]
         .whereType<XmlHasName>()
         .fold<Map<String, String?>>({}, (map, n) {
           map[n.qualifiedName] = n.namespaceUri;
           return map;
         }),
-    'allNamespaces',
   );
 
   void hasNamespaces(Map<String, String?> expected) =>
@@ -72,75 +72,77 @@ extension XmlNodeChecks<T extends XmlNode> on Subject<T> {
 
 /// Returns a [Condition] on [XmlNode] that checks string serialization or
 /// structural equality.
-Condition<XmlNode> isXmlNode<T extends XmlNode>(Object? expected) =>
-    (Subject<XmlNode> subject) {
-      final typed = subject.isA<T>();
-      switch (expected) {
-        case String():
-          typed.has((n) => n.outerXml, 'outerXml').equals(expected);
-        case XmlNode():
-          typed.isEqualNode(expected);
-        default:
-          throw ArgumentError.value(expected, 'expected', 'Invalid type');
-      }
-    };
+Condition<T> isXmlNode<T extends XmlNode>(Object? expected) {
+  final subject = Condition.it<T>();
+  switch (expected) {
+    case String():
+      subject.has('outerXml', (n) => n.outerXml).equals(expected);
+    case XmlNode():
+      subject.isEqualNode(expected);
+    default:
+      throw ArgumentError.value(expected, 'expected', 'Invalid type');
+  }
+  return subject;
+}
 
 /// Domain-specific checks on [XmlName].
 extension XmlNameChecks on Subject<XmlName> {
-  Subject<String> get qualified => has((name) => name.qualified, 'qualified');
-  Subject<String?> get prefix => has((name) => name.prefix, 'prefix');
-  Subject<String> get local => has((name) => name.local, 'local');
+  Subject<String> get qualified => has('qualified', (name) => name.qualified);
+  Subject<String?> get prefix => has('prefix', (name) => name.prefix);
+  Subject<String> get local => has('local', (name) => name.local);
   Subject<String?> get namespaceUri =>
-      has((name) => name.namespaceUri, 'namespaceUri');
+      has('namespaceUri', (name) => name.namespaceUri);
   Subject<String> get extendedQualified =>
-      has((name) => name.extendedQualified, 'extendedQualified');
-  Subject<String> get asString => has((name) => name.toString(), 'toString');
+      has('extendedQualified', (name) => name.extendedQualified);
+  Subject<String> get asString => has('toString', (name) => name.toString());
 }
 
 /// Domain-specific checks on [XmlParentException].
 extension XmlParentExceptionChecks on Subject<XmlParentException> {
-  Subject<String> get message => has((e) => e.message, 'message');
-  Subject<Object> get node => has((e) => e.node, 'node');
-  Subject<XmlNode?> get parent => has((e) => e.parent, 'parent');
+  Subject<String> get message => has('message', (e) => e.message);
+  Subject<Object> get node => has('node', (e) => e.node);
+  Subject<XmlNode?> get parent => has('parent', (e) => e.parent);
 }
 
 Condition<XmlParentException> isXmlParentException({
   Object? message,
   Object? node,
   Object? parent,
-}) => (Subject<XmlParentException> subject) {
+}) {
+  final subject = Condition.it<XmlParentException>();
   if (message != null) {
     if (message is String) {
       subject.message.equals(message);
     } else if (message is Condition<String>) {
-      message(subject.message);
+      subject.message.which(message);
     }
   } else {
-    subject.message.isNotEmpty();
+    subject.message.isNotEmpty;
   }
   if (node != null) {
     if (node is Condition<Object>) {
-      node(subject.node);
+      subject.node.which(node);
     } else {
       subject.node.equals(node);
     }
   }
   if (parent != null) {
     if (parent is Condition<XmlNode?>) {
-      parent(subject.parent);
+      subject.parent.which(parent);
     } else {
       subject.parent.equals(parent as XmlNode?);
     }
   }
-};
+  return subject;
+}
 
 /// Domain-specific checks on [XmlParserException].
 extension XmlParserExceptionChecks on Subject<XmlParserException> {
-  Subject<String> get message => has((e) => e.message, 'message');
-  Subject<String?> get buffer => has((e) => e.buffer, 'buffer');
-  Subject<int?> get position => has((e) => e.position, 'position');
-  Subject<int> get line => has((e) => e.line, 'line');
-  Subject<int> get column => has((e) => e.column, 'column');
+  Subject<String> get message => has('message', (e) => e.message);
+  Subject<String?> get buffer => has('buffer', (e) => e.buffer);
+  Subject<int?> get position => has('position', (e) => e.position);
+  Subject<int> get line => has('line', (e) => e.line);
+  Subject<int> get column => has('column', (e) => e.column);
 }
 
 Condition<XmlParserException> isXmlParserException({
@@ -149,51 +151,53 @@ Condition<XmlParserException> isXmlParserException({
   Object? position,
   Object? line,
   Object? column,
-}) => (Subject<XmlParserException> subject) {
+}) {
+  final subject = Condition.it<XmlParserException>();
   if (message != null) {
     if (message is String) {
       subject.message.contains(message);
     } else if (message is Condition<String>) {
-      message(subject.message);
+      subject.message.which(message);
     }
   } else {
-    subject.message.isNotEmpty();
+    subject.message.isNotEmpty;
   }
   if (buffer != null) {
     if (buffer is Condition<String?>) {
-      buffer(subject.buffer);
+      subject.buffer.which(buffer);
     } else {
       subject.buffer.equals(buffer as String?);
     }
   }
   if (position != null) {
     if (position is Condition<int?>) {
-      position(subject.position);
+      subject.position.which(position);
     } else {
       subject.position.equals(position as int?);
     }
   }
   if (line != null) {
     if (line is Condition<int>) {
-      line(subject.line);
+      subject.line.which(line);
     } else {
       subject.line.equals(line as int);
     }
   }
   if (column != null) {
     if (column is Condition<int>) {
-      column(subject.column);
+      subject.column.which(column);
     } else {
       subject.column.equals(column as int);
     }
   }
-};
+  return subject;
+}
 
 /// Domain-specific checks on [XmlNodeTypeException].
 extension XmlNodeTypeExceptionChecks on Subject<XmlNodeTypeException> {
-  Subject<String> get message => has((e) => e.message, 'message');
-  Subject<XmlNode> get node => has((e) => e.node, 'node');
-  Subject<Iterable<XmlNodeType>> get types => has((e) => e.types, 'types');
+  Subject<String> get message => has('message', (e) => e.message);
+  Subject<XmlNode> get node => has('node', (e) => e.node);
+  Subject<Iterable<XmlNodeType>> get types => has('types', (e) => e.types);
 }
 
 Condition<XmlNodeTypeException> isXmlNodeTypeException({
@@ -203,36 +207,38 @@ Condition<XmlNodeTypeException> isXmlNodeTypeException({
   Condition<XmlNode>? nodeCondition,
   Iterable<XmlNodeType>? types,
   Condition<Iterable<XmlNodeType>>? typesCondition,
-}) => (Subject<XmlNodeTypeException> subject) {
+}) {
+  final subject = Condition.it<XmlNodeTypeException>();
   if (message != null) {
     subject.message.equals(message);
   } else if (messageCondition != null) {
-    messageCondition(subject.message);
+    subject.message.which(messageCondition);
   } else {
-    subject.message.isNotEmpty();
+    subject.message.isNotEmpty;
   }
   if (node != null) {
     subject.node.equals(node);
   } else if (nodeCondition != null) {
-    nodeCondition(subject.node);
+    subject.node.which(nodeCondition);
   }
   if (types != null) {
     subject.types.deepEquals(types);
   } else if (typesCondition != null) {
-    typesCondition(subject.types);
+    subject.types.which(typesCondition);
   }
-};
+  return subject;
+}
 
 /// Domain-specific checks on [XmlTagException].
 extension XmlTagExceptionChecks on Subject<XmlTagException> {
-  Subject<String> get message => has((e) => e.message, 'message');
+  Subject<String> get message => has('message', (e) => e.message);
   Subject<String?> get expectedName =>
-      has((e) => e.expectedName, 'expectedName');
-  Subject<String?> get actualName => has((e) => e.actualName, 'actualName');
-  Subject<String?> get buffer => has((e) => e.buffer, 'buffer');
-  Subject<int?> get position => has((e) => e.position, 'position');
-  Subject<int> get line => has((e) => e.line, 'line');
-  Subject<int> get column => has((e) => e.column, 'column');
+      has('expectedName', (e) => e.expectedName);
+  Subject<String?> get actualName => has('actualName', (e) => e.actualName);
+  Subject<String?> get buffer => has('buffer', (e) => e.buffer);
+  Subject<int?> get position => has('position', (e) => e.position);
+  Subject<int> get line => has('line', (e) => e.line);
+  Subject<int> get column => has('column', (e) => e.column);
 }
 
 Condition<XmlTagException> isXmlTagException({
@@ -245,63 +251,65 @@ Condition<XmlTagException> isXmlTagException({
   Object? position,
   Object? line,
   Object? column,
-}) => (Subject<XmlTagException> subject) {
+}) {
+  final subject = Condition.it<XmlTagException>();
   if (message != null) {
     if (message is String) {
       subject.message.contains(message);
     } else if (message is Condition<String>) {
-      message(subject.message);
+      subject.message.which(message);
     }
   } else {
-    subject.message.isNotEmpty();
+    subject.message.isNotEmpty;
   }
   if (expectedName != null) {
     subject.expectedName.equals(expectedName);
   } else if (expectedNameCondition != null) {
-    expectedNameCondition(subject.expectedName);
+    subject.expectedName.which(expectedNameCondition);
   }
   if (actualName != null) {
     subject.actualName.equals(actualName);
   } else if (actualNameCondition != null) {
-    actualNameCondition(subject.actualName);
+    subject.actualName.which(actualNameCondition);
   }
   if (buffer != null) {
     if (buffer is Condition<String?>) {
-      buffer(subject.buffer);
+      subject.buffer.which(buffer);
     } else {
       subject.buffer.equals(buffer as String?);
     }
   }
   if (position != null) {
     if (position is Condition<int?>) {
-      position(subject.position);
+      subject.position.which(position);
     } else {
       subject.position.equals(position as int?);
     }
   }
   if (line != null) {
     if (line is Condition<int>) {
-      line(subject.line);
+      subject.line.which(line);
     } else {
       subject.line.equals(line as int);
     }
   }
   if (column != null) {
     if (column is Condition<int>) {
-      column(subject.column);
+      subject.column.which(column);
     } else {
       subject.column.equals(column as int);
     }
   }
-};
+  return subject;
+}
 
 /// Domain-specific checks on [XmlNamespaceException].
 extension XmlNamespaceExceptionChecks on Subject<XmlNamespaceException> {
-  Subject<String> get message => has((e) => e.message, 'message');
-  Subject<String?> get buffer => has((e) => e.buffer, 'buffer');
-  Subject<int?> get position => has((e) => e.position, 'position');
-  Subject<int> get line => has((e) => e.line, 'line');
-  Subject<int> get column => has((e) => e.column, 'column');
+  Subject<String> get message => has('message', (e) => e.message);
+  Subject<String?> get buffer => has('buffer', (e) => e.buffer);
+  Subject<int?> get position => has('position', (e) => e.position);
+  Subject<int> get line => has('line', (e) => e.line);
+  Subject<int> get column => has('column', (e) => e.column);
 }
 
 Condition<XmlNamespaceException> isXmlNamespaceException({
@@ -310,53 +318,55 @@ Condition<XmlNamespaceException> isXmlNamespaceException({
   Object? position,
   Object? line,
   Object? column,
-}) => (Subject<XmlNamespaceException> subject) {
+}) {
+  final subject = Condition.it<XmlNamespaceException>();
   if (message != null) {
     if (message is String) {
       subject.message.contains(message);
     } else if (message is Condition<String>) {
-      message(subject.message);
+      subject.message.which(message);
     }
   } else {
-    subject.message.isNotEmpty();
+    subject.message.isNotEmpty;
   }
   if (buffer != null) {
     if (buffer is Condition<String?>) {
-      buffer(subject.buffer);
+      subject.buffer.which(buffer);
     } else {
       subject.buffer.equals(buffer as String?);
     }
   }
   if (position != null) {
     if (position is Condition<int?>) {
-      position(subject.position);
+      subject.position.which(position);
     } else {
       subject.position.equals(position as int?);
     }
   }
   if (line != null) {
     if (line is Condition<int>) {
-      line(subject.line);
+      subject.line.which(line);
     } else {
       subject.line.equals(line as int);
     }
   }
   if (column != null) {
     if (column is Condition<int>) {
-      column(subject.column);
+      subject.column.which(column);
     } else {
       subject.column.equals(column as int);
     }
   }
-};
+  return subject;
+}
 
 /// Domain-specific checks on [XPathParserException].
 extension XPathParserExceptionChecks on Subject<XPathParserException> {
-  Subject<String> get message => has((e) => e.message, 'message');
-  Subject<String?> get buffer => has((e) => e.buffer, 'buffer');
-  Subject<int?> get position => has((e) => e.position, 'position');
-  Subject<int> get line => has((e) => e.line, 'line');
-  Subject<int> get column => has((e) => e.column, 'column');
+  Subject<String> get message => has('message', (e) => e.message);
+  Subject<String?> get buffer => has('buffer', (e) => e.buffer);
+  Subject<int?> get position => has('position', (e) => e.position);
+  Subject<int> get line => has('line', (e) => e.line);
+  Subject<int> get column => has('column', (e) => e.column);
 }
 
 Condition<XPathParserException> isXPathParserException({
@@ -365,70 +375,74 @@ Condition<XPathParserException> isXPathParserException({
   Object? position,
   Object? line,
   Object? column,
-}) => (Subject<XPathParserException> subject) {
+}) {
+  final subject = Condition.it<XPathParserException>();
   if (message != null) {
     if (message is String) {
       subject.message.contains(message);
     } else if (message is Condition<String>) {
-      message(subject.message);
+      subject.message.which(message);
     }
   } else {
-    subject.message.isNotEmpty();
+    subject.message.isNotEmpty;
   }
   if (buffer != null) {
     if (buffer is Condition<String?>) {
-      buffer(subject.buffer);
+      subject.buffer.which(buffer);
     } else {
       subject.buffer.equals(buffer as String?);
     }
   }
   if (position != null) {
     if (position is Condition<int?>) {
-      position(subject.position);
+      subject.position.which(position);
     } else {
       subject.position.equals(position as int?);
     }
   }
   if (line != null) {
     if (line is Condition<int>) {
-      line(subject.line);
+      subject.line.which(line);
     } else {
       subject.line.equals(line as int);
     }
   }
   if (column != null) {
     if (column is Condition<int>) {
-      column(subject.column);
+      subject.column.which(column);
     } else {
       subject.column.equals(column as int);
     }
   }
-};
+  return subject;
+}
 
 /// Domain-specific checks on [XPathEvaluationException].
 extension XPathEvaluationExceptionChecks on Subject<XPathEvaluationException> {
-  Subject<String> get message => has((e) => e.message, 'message');
+  Subject<String> get message => has('message', (e) => e.message);
   Subject<XPathErrorCode?> get errorCode =>
-      has((e) => e.errorCode, 'errorCode');
+      has('errorCode', (e) => e.errorCode);
 }
 
 Condition<XPathEvaluationException> isXPathEvaluationException({
   Object? message,
   XPathErrorCode? errorCode,
-}) => (Subject<XPathEvaluationException> subject) {
+}) {
+  final subject = Condition.it<XPathEvaluationException>();
   if (message != null) {
     if (message is String) {
       subject.message.contains(message);
     } else if (message is Condition<String>) {
-      message(subject.message);
+      subject.message.which(message);
     }
   } else {
-    subject.message.isNotEmpty();
+    subject.message.isNotEmpty;
   }
   if (errorCode != null) {
     subject.errorCode.equals(errorCode);
   }
-};
+  return subject;
+}
 
 Object? unwrapXPathItem(XPathItem item) => item.toValue();
 
@@ -439,7 +453,7 @@ class _IsEmpty {
   const new();
   void call(Subject<Object?> subject) {
     subject
-        .has((o) {
+        .has('isEmpty', (o) {
           if (o is XPathSequence) return o.isEmpty;
           if (o is Iterable) return o.isEmpty;
           if (o is Map) return o.isEmpty;
@@ -451,7 +465,7 @@ class _IsEmpty {
             'subject',
             'Unsupported type for isEmpty',
           );
-        }, 'isEmpty')
+        })
         .equals(true);
   }
 }
@@ -463,34 +477,33 @@ class _IsNaN {
   const new();
   void call(Subject<Object?> subject) {
     if (subject is Subject<num>) {
-      subject.isNaN();
+      subject.isNaN;
     } else if (subject is Subject<XPathDouble>) {
-      subject.has((d) => d.value.isNaN, 'isNaN').isTrue();
+      subject.has('isNaN', (d) => d.value.isNaN).isTrue;
     }
   }
 }
 
 /// Condition checking that the subject is an instance of [T].
-Condition<Object?> isA<T>() =>
-    (Subject<Object?> subject) => subject.isA<T>();
+Condition<Object?> isA<T>() => Condition.it<Object?>()..isA<T>();
 
 /// Domain-specific checks on [XPathSequence].
 Condition<XPathSequence> isXPathSequence(Object? expected) =>
-    (Subject<XPathSequence> subject) => subject.isXPathSequence(expected);
+    Condition.it<XPathSequence>()..isXPathSequence(expected);
 
 extension XPathSequenceChecks on Subject<XPathSequence> {
-  Subject<int> get length => has((s) => s.length, 'length');
-  void isEmpty() => has((s) => s.isEmpty, 'isEmpty').isTrue();
-  void isNotEmpty() => has((s) => s.isNotEmpty, 'isNotEmpty').isTrue();
-  Subject<List<XPathItem>> get items => has((s) => s.toList(), 'items');
+  Subject<int> get length => has('length', (s) => s.length);
+  void get isEmpty => has('isEmpty', (s) => s.isEmpty).isTrue;
+  void get isNotEmpty => has('isNotEmpty', (s) => s.isNotEmpty).isTrue;
+  Subject<List<XPathItem>> get items => has('items', (s) => s.toList());
   Subject<List<Object?>> get unwrapped =>
-      has((s) => s.map(unwrapXPathItem).toList(), 'unwrapped');
+      has('unwrapped', (s) => s.map(unwrapXPathItem).toList());
 
   void isXPathSequence(Object? expected) {
     if (expected == null || expected is _IsEmpty) {
-      isEmpty();
+      isEmpty;
     } else if (expected is Condition<XPathSequence>) {
-      expected(this);
+      which(expected);
     } else if (expected is Iterable) {
       final expectedList = expected.toList();
       context.expect(() => ['is XPathSequence with items: $expectedList'], (
@@ -525,13 +538,13 @@ extension XPathSequenceChecks on Subject<XPathSequence> {
               ],
             );
           }
-          if (exp is void Function(Subject<Object?>)) {
+          if (exp is Condition<Object?>) {
             try {
-              check(act).which(exp);
+              check<Object?>(act).which(exp);
               continue;
             } on TestFailure {
               try {
-                check(raw).which(exp);
+                check<Object?>(raw).which(exp);
                 continue;
               } on TestFailure catch (e) {
                 return Rejection(

@@ -61,12 +61,12 @@ void main() {
       final exception = XmlParserException('Expected foo');
       check(exception)
         ..message.equals('Expected foo')
-        ..buffer.isNull()
-        ..position.isNull()
+        ..buffer.isNull
+        ..position.isNull
         ..line.equals(0)
         ..column.equals(0);
-      check(exception.source).isNull();
-      check(exception.offset).isNull();
+      check(exception.source).isNull;
+      check(exception.offset).isNull;
       check(exception.toString()).equals('XmlParserException: Expected foo');
     });
   });
@@ -122,7 +122,7 @@ void main() {
       );
       check(exception)
         ..message.equals('Unexpected closing tag </bar>')
-        ..expectedName.isNull()
+        ..expectedName.isNull
         ..actualName.equals('bar')
         ..buffer.equals('</bar>')
         ..position.equals(0)
@@ -138,7 +138,7 @@ void main() {
       check(exception)
         ..message.equals('Missing closing tag </foo>')
         ..expectedName.equals('foo')
-        ..actualName.isNull()
+        ..actualName.isNull
         ..buffer.equals('<foo>')
         ..position.equals(5)
         ..line.equals(1)
@@ -206,8 +206,8 @@ void main() {
     });
     test('without location', () {
       final exception = XmlNamespaceException('Prefix error');
-      check(exception.source).isNull();
-      check(exception.offset).isNull();
+      check(exception.source).isNull;
+      check(exception.offset).isNull;
       check(exception.toString()).equals('XmlNamespaceException: Prefix error');
     });
   });

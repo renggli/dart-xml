@@ -13,7 +13,7 @@ void main() {
         check(
           because: 'Function name "${definition.name}" is not unique',
           names.add(definition.name),
-        ).isTrue();
+        ).isTrue;
       }
     });
     test('functions contains all functions', () {

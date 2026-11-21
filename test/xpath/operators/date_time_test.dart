@@ -34,10 +34,10 @@ void main() {
           .equals(const XPathDuration.dayTime(86400000000));
     });
     test('empty left', () {
-      check(opSubtractDateTimes(XPathSequence.empty, seq(dt1))).isEmpty();
+      check(opSubtractDateTimes(XPathSequence.empty, seq(dt1))).isEmpty;
     });
     test('empty right', () {
-      check(opSubtractDateTimes(seq(dt1), XPathSequence.empty)).isEmpty();
+      check(opSubtractDateTimes(seq(dt1), XPathSequence.empty)).isEmpty;
     });
   });
 
@@ -46,10 +46,10 @@ void main() {
       check(opAddDurationToDateTime(seq(dt1), seq(dtd1)).first).equals(dt2);
     });
     test('empty sequence left', () {
-      check(opAddDurationToDateTime(XPathSequence.empty, seq(dtd1))).isEmpty();
+      check(opAddDurationToDateTime(XPathSequence.empty, seq(dtd1))).isEmpty;
     });
     test('empty sequence right', () {
-      check(opAddDurationToDateTime(seq(dt1), XPathSequence.empty)).isEmpty();
+      check(opAddDurationToDateTime(seq(dt1), XPathSequence.empty)).isEmpty;
     });
   });
 
@@ -60,11 +60,11 @@ void main() {
     });
     test('empty sequence left', () {
       check(opSubtractDurationFromDateTime(XPathSequence.empty, seq(dtd1)))
-          .isEmpty();
+          .isEmpty;
     });
     test('empty sequence right', () {
       check(opSubtractDurationFromDateTime(seq(dt1), XPathSequence.empty))
-          .isEmpty();
+          .isEmpty;
     });
   });
 

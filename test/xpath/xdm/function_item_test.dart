@@ -19,7 +19,7 @@ void main() {
       );
       check(f.name).equals(XmlName('my:zero'));
       check(f.arity).equals(0);
-      check(f.isVariadic).isFalse();
+      check(f.isVariadic).isFalse;
       check(f.type).equals(xsFunction);
       check(f.toString()).equals('my:zero#0');
       check(f(context, [])).isXPathSequence([1]);
@@ -32,7 +32,7 @@ void main() {
       final f = XPathFunctionItem.fn1(XmlName('my:one'), (ctx, a1) => a1);
       check(f.name).equals(XmlName('my:one'));
       check(f.arity).equals(1);
-      check(f.isVariadic).isFalse();
+      check(f.isVariadic).isFalse;
       check(f.toString()).equals('my:one#1');
       check(f(context, [const XPathSequence.single(XPathString('hello'))]))
           .isXPathSequence(['hello']);
@@ -51,7 +51,7 @@ void main() {
       );
       check(f.name).equals(XmlName('my:two'));
       check(f.arity).equals(2);
-      check(f.isVariadic).isFalse();
+      check(f.isVariadic).isFalse;
       check(f.toString()).equals('my:two#2');
       check(
         f(context, [
@@ -74,7 +74,7 @@ void main() {
       );
       check(f.name).equals(XmlName('my:three'));
       check(f.arity).equals(3);
-      check(f.isVariadic).isFalse();
+      check(f.isVariadic).isFalse;
       check(f.toString()).equals('my:three#3');
       check(
         f(context, [
@@ -96,7 +96,7 @@ void main() {
       );
       check(f.name).equals(XmlName('my:four'));
       check(f.arity).equals(4);
-      check(f.isVariadic).isFalse();
+      check(f.isVariadic).isFalse;
       check(f.toString()).equals('my:four#4');
       check(
         f(context, [
@@ -128,7 +128,7 @@ void main() {
       );
       check(f.name).equals(XmlName('my:concat'));
       check(f.arity).equals(2);
-      check(f.isVariadic).isTrue();
+      check(f.isVariadic).isTrue;
       check(f.toString()).equals('my:concat#2');
       check(
         f(context, [
@@ -155,11 +155,11 @@ void main() {
       });
       check(f.name).equals(XmlName('my:overloaded'));
       check(f.arity).equals(0);
-      check(f.isVariadic).isFalse();
+      check(f.isVariadic).isFalse;
       if (f is XPathOverloadedFunction) {
         check(f.getForArity(0)).isNotNull();
         check(f.getForArity(1)).isNotNull();
-        check(f.getForArity(2)).isNull();
+        check(f.getForArity(2)).isNull;
       }
       check(f(context, [])).isXPathSequence(['zero']);
       check(f(context, [XPathSequence.single(XPathInteger.fromInt(1))]))
@@ -179,7 +179,7 @@ void main() {
       );
       check(f.toString()).equals('(anonymous)#0');
       check(f.toValue()).identicalTo(f);
-      check(f.returnType).isNull();
+      check(f.returnType).isNull;
       check(f.atomize)
           .throws<XPathEvaluationException>()
           .which(isXPathEvaluationException());
@@ -212,7 +212,7 @@ void main() {
 
     test('default returnType on base XPathFunctionItem', () {
       final custom = _CustomFunctionItem();
-      check(custom.returnType).isNull();
+      check(custom.returnType).isNull;
     });
   });
 }

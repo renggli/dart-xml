@@ -177,16 +177,16 @@ void main() {
 
   group('empty input returns empty', () {
     test('opAddDurations', () {
-      check(opAddDurations(XPathSequence.empty, seq(d1))).isEmpty();
+      check(opAddDurations(XPathSequence.empty, seq(d1))).isEmpty;
     });
     test('opSubtractDurations', () {
-      check(opSubtractDurations(XPathSequence.empty, seq(d1))).isEmpty();
+      check(opSubtractDurations(XPathSequence.empty, seq(d1))).isEmpty;
     });
     test('opMultiplyDuration', () {
-      check(opMultiplyDuration(XPathSequence.empty, seq(1))).isEmpty();
+      check(opMultiplyDuration(XPathSequence.empty, seq(1))).isEmpty;
     });
     test('opDivideDuration', () {
-      check(opDivideDuration(XPathSequence.empty, seq(1))).isEmpty();
+      check(opDivideDuration(XPathSequence.empty, seq(1))).isEmpty;
     });
   });
 }

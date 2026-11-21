@@ -8,16 +8,16 @@ void main() {
   test('basic', () {
     final node = XmlDocumentFragment.parse('<!--Am I a joke to you?-->No');
     assertFragmentInvariants(node);
-    check(node.parent).isNull();
-    check(node.parentElement).isNull();
+    check(node.parent).isNull;
+    check(node.parentElement).isNull;
     check(node.root).equals(node);
-    check(node.document).isNull();
+    check(node.document).isNull;
     check(node.depth).equals(0);
-    check(node.attributes).isEmpty();
-    check(node.elementAttributes).isEmpty();
-    check(node.namespaces).isEmpty();
+    check(node.attributes).isEmpty;
+    check(node.elementAttributes).isEmpty;
+    check(node.namespaces).isEmpty;
     check(node.children).length.equals(2);
-    check(node.value).isNull();
+    check(node.value).isNull;
     // ignore: deprecated_member_use_from_same_package
     check(node.text).equals('No');
     check(node.nodeType).equals(XmlNodeType.DOCUMENT_FRAGMENT);
@@ -26,16 +26,16 @@ void main() {
   test('empty', () {
     final node = XmlDocumentFragment();
     assertFragmentInvariants(node);
-    check(node.parent).isNull();
-    check(node.parentElement).isNull();
+    check(node.parent).isNull;
+    check(node.parentElement).isNull;
     check(node.root).equals(node);
-    check(node.document).isNull();
+    check(node.document).isNull;
     check(node.depth).equals(0);
-    check(node.attributes).isEmpty();
-    check(node.elementAttributes).isEmpty();
-    check(node.namespaces).isEmpty();
-    check(node.children).isEmpty();
-    check(node.value).isNull();
+    check(node.attributes).isEmpty;
+    check(node.elementAttributes).isEmpty;
+    check(node.namespaces).isEmpty;
+    check(node.children).isEmpty;
+    check(node.value).isNull;
     // ignore: deprecated_member_use_from_same_package
     check(node.text).equals('');
     check(node.nodeType).equals(XmlNodeType.DOCUMENT_FRAGMENT);
@@ -54,7 +54,7 @@ void main() {
     check(fragment.children).length.equals(2);
     final element = XmlElement(XmlName('root'));
     element.children.add(fragment);
-    check(fragment.children).isEmpty();
+    check(fragment.children).isEmpty;
     check(element.children).length.equals(2);
   });
 }

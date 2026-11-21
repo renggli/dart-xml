@@ -84,7 +84,7 @@ void main() {
       );
       element.normalize(normalizeAllNewline: true);
       check(element.children.map((child) => child.innerText))
-          .every((it) => it.equals('\n'));
+          .every(Condition.it()..equals('\n'));
     });
     test('selectively normalize newlines', () {
       final element = XmlElement.tag(
@@ -461,7 +461,7 @@ void main() {
               writer.testNormalizeAttributes(element.attributes),
               element.attributes,
             ),
-          ).isTrue();
+          ).isTrue;
         },
       );
       test('sort reverse', () {

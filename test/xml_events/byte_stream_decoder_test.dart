@@ -125,7 +125,7 @@ void main() {
       } on FormatException {
         failed = true;
       }
-      check(failed).isTrue();
+      check(failed).isTrue;
     });
 
     test('declaration decoding is independent of chunk boundaries', () async {

@@ -65,7 +65,7 @@ void main() {
 
     test('returns null for out of bounds year', () {
       check(XPathDateTime.tryParseDate('-25252734927766555-06-07+02:00'))
-          .isNull();
+          .isNull;
     });
   });
 
@@ -376,7 +376,7 @@ void main() {
   group('fn:parse-ietf-date', () {
     test('returns empty for empty sequence', () {
       final result = fnParseIetfDate(context, [XPathSequence.empty]);
-      check(result).isEmpty();
+      check(result).isEmpty;
     });
 
     test('parses RFC 2822 format', () {

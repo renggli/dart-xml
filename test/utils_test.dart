@@ -31,7 +31,7 @@ void main() {
   group('end-of-line', () {
     test('no carriage return returns identical string', () {
       const input = 'hello\nworld';
-      check(identical(normalizeEndOfLine(input), input)).isTrue();
+      check(identical(normalizeEndOfLine(input), input)).isTrue;
       check(normalizeEndOfLine('')).equals('');
     });
     test('normalizes CRLF and standalone CR', () {
@@ -45,7 +45,7 @@ void main() {
   group('parser', () {
     test('linter', () {
       final parser = const XmlEventParser(XmlNullEntityMapping()).build();
-      check(linter(parser)).isEmpty();
+      check(linter(parser)).isEmpty;
     });
   });
 }

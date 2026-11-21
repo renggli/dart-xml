@@ -604,7 +604,7 @@ void main() {
       final idB = fnGenerateId(context, [seq(b)]).first.stringValue;
       check(idA).startsWith('autoId');
       check(idB).startsWith('autoId');
-      check(idA).not((it) => it.equals(idB));
+      check(idA).not(Condition.it()..equals(idB));
     });
 
     test('0-argument uses context node', () {

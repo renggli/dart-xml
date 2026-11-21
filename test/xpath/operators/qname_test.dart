@@ -7,7 +7,7 @@ import 'package:xml/xpath.dart';
 void main() {
   group('opQNameEqual', () {
     test('empty sequences', () {
-      check(opQNameEqual(XPathSequence.empty, XPathSequence.empty)).isEmpty();
+      check(opQNameEqual(XPathSequence.empty, XPathSequence.empty)).isEmpty;
     });
     test('equal QNames', () {
       check(

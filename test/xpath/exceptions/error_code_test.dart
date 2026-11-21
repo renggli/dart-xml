@@ -32,7 +32,7 @@ void main() {
         'http://custom',
       );
       check(custom.qname.value.local).equals('CUSTOM');
-      check(custom.qname.value.prefix).isNull();
+      check(custom.qname.value.prefix).isNull;
       check(custom.qname.value.namespaceUri).equals('http://custom');
     });
 
@@ -42,8 +42,8 @@ void main() {
       const c3 = XPathErrorCode('OTHER', 'Msg 1', 'http://uri');
       check(c1).equals(c2);
       check(c1.hashCode).equals(c2.hashCode);
-      check(c1 == c3).isFalse();
-      check(c1 == Object()).isFalse();
+      check(c1 == c3).isFalse;
+      check(c1 == Object()).isFalse;
       check(c1.toString()).contains('XPathErrorCode(TEST: Msg 1)');
     });
   });

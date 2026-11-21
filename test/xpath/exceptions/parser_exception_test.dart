@@ -7,8 +7,8 @@ void main() {
     test('message only', () {
       final exception = XPathParserException('message');
       check(exception.message).equals('message');
-      check(exception.buffer).isNull();
-      check(exception.position).isNull();
+      check(exception.buffer).isNull;
+      check(exception.position).isNull;
       check(exception.toString()).equals('XPathParserException: message');
     });
     test('with buffer and position', () {

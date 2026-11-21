@@ -7,7 +7,7 @@ void main() {
     test('without details', () {
       final exception = XPathEvaluationException(XPathErrorCode.FOAR0001);
       check(exception.errorCode).equals(XPathErrorCode.FOAR0001);
-      check(exception.details).isNull();
+      check(exception.details).isNull;
       check(exception.message).equals('Division by zero [err:FOAR0001]');
       check(exception.toString())
           .equals('XPathEvaluationException: Division by zero [err:FOAR0001]');

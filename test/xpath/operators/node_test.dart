@@ -73,7 +73,7 @@ void main() {
       check(opNodeIs(nSeq(aNode), nSeq(bNode))).isXPathSequence([false]);
     });
     test('empty sequence returns empty', () {
-      check(opNodeIs(XPathSequence.empty, nSeq(aNode))).isEmpty();
+      check(opNodeIs(XPathSequence.empty, nSeq(aNode))).isEmpty;
     });
     test('integration is', () {
       expectEvaluate(doc, 'r/a is r/a', [true]);
@@ -109,7 +109,7 @@ void main() {
       check(opNodePrecedes(nSeq(bNode), nSeq(aNode))).isXPathSequence([false]);
     });
     test('empty sequence returns empty', () {
-      check(opNodePrecedes(XPathSequence.empty, nSeq(aNode))).isEmpty();
+      check(opNodePrecedes(XPathSequence.empty, nSeq(aNode))).isEmpty;
     });
     test('integration <<', () {
       expectEvaluate(doc, 'r/a << r/b', [true]);
@@ -133,7 +133,7 @@ void main() {
       check(opNodeFollows(nSeq(aNode), nSeq(bNode))).isXPathSequence([false]);
     });
     test('empty sequence returns empty', () {
-      check(opNodeFollows(XPathSequence.empty, nSeq(aNode))).isEmpty();
+      check(opNodeFollows(XPathSequence.empty, nSeq(aNode))).isEmpty;
     });
     test('integration >>', () {
       expectEvaluate(doc, 'r/b >> r/a', [true]);
@@ -166,7 +166,7 @@ void main() {
           (opNodeFollows(nSeq(aNode), nSeq(cNode)).single as XPathBoolean)
               .value;
 
-      check(precedesResult).not((it) => it.equals(followsResult));
+      check(precedesResult).not(Condition.it()..equals(followsResult));
 
       check(
         (opNodePrecedes(nSeq(cNode), nSeq(aNode)).single as XPathBoolean).value,
@@ -183,8 +183,8 @@ void main() {
       ).map((item) => (item as XPathNode).node).toList();
 
       check(unionResult).length.equals(4);
-      check(unionResult.indexOf(aNode) < unionResult.indexOf(bNode)).isTrue();
-      check(unionResult.indexOf(cNode) < unionResult.indexOf(dNode)).isTrue();
+      check(unionResult.indexOf(aNode) < unionResult.indexOf(bNode)).isTrue;
+      check(unionResult.indexOf(cNode) < unionResult.indexOf(dNode)).isTrue;
 
       check(opIntersect(nSeqAll([aNode, cNode]), nSeqAll([cNode, dNode])))
           .isXPathSequence([cNode]);

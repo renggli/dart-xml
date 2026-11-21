@@ -27,7 +27,7 @@ void main() {
         final actualStep = path.steps.single as StepExpression;
         check(actualStep.axis.runtimeType).equals(newAxis.runtimeType);
         check(actualStep.nodeTest).equals(const QualifiedNameTest('x'));
-        check(actualStep.predicates).isEmpty();
+        check(actualStep.predicates).isEmpty;
       }
       {
         // Incompatible initial step.
@@ -93,7 +93,7 @@ void main() {
       check(
         PathExpression(const [StepExpression(AncestorOrSelfAxis())])
             .isOrderPreserved,
-      ).isTrue();
+      ).isTrue;
       check(
         PathExpression(const [
           StepExpression(AncestorOrSelfAxis()),
@@ -101,13 +101,13 @@ void main() {
           StepExpression(SelfAxis()),
           StepExpression(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
         ]).isOrderPreserved,
-      ).isTrue();
+      ).isTrue;
       check(
         PathExpression(const [
           StepExpression(AncestorOrSelfAxis()),
           StepExpression(DescendantAxis()),
         ]).isOrderPreserved,
-      ).isFalse();
+      ).isFalse;
     });
     test('(selfStep | childStep)+ (descendantStep | descendantOrSelfStep)? (selfStep | attributeStep)*', () {
       check(
@@ -120,7 +120,7 @@ void main() {
           StepExpression(SelfAxis()),
           StepExpression(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
         ]).isOrderPreserved,
-      ).isTrue();
+      ).isTrue;
       check(
         PathExpression(const [
           StepExpression(ChildAxis()),
@@ -129,7 +129,7 @@ void main() {
           StepExpression(SelfAxis()),
           StepExpression(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
         ]).isOrderPreserved,
-      ).isTrue();
+      ).isTrue;
       check(
         PathExpression(const [
           StepExpression(ChildAxis()),
@@ -140,7 +140,7 @@ void main() {
           StepExpression(SelfAxis()),
           StepExpression(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
         ]).isOrderPreserved,
-      ).isTrue();
+      ).isTrue;
       check(
         PathExpression(const [
           StepExpression(ChildAxis()),
@@ -151,7 +151,7 @@ void main() {
           StepExpression(SelfAxis()),
           StepExpression(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
         ]).isOrderPreserved,
-      ).isFalse();
+      ).isFalse;
     });
   });
 
@@ -167,7 +167,7 @@ void main() {
           const LiteralExpression(XPathSequence.single(XPathString('text'))),
           const StepExpression(ChildAxis()),
         ]);
-        check(path.isOrderPreserved).isFalse();
+        check(path.isOrderPreserved).isFalse;
         check(() => path(context)).throws<XPathEvaluationException>().which(
           isXPathEvaluationException(
             message: 'Path operator / requires sequence of nodes, but got text [err:XPTY0019]',
@@ -182,7 +182,7 @@ void main() {
           const LiteralExpression(XPathSequence.single(XPathString('text'))),
           const StepExpression(ChildAxis()),
         ], isOrderPreserved: true);
-        check(path.isOrderPreserved).isTrue();
+        check(path.isOrderPreserved).isTrue;
         check(() => path(context)).throws<XPathEvaluationException>().which(
           isXPathEvaluationException(
             message: 'Path operator / requires sequence of nodes, but got text [err:XPTY0019]',
@@ -232,7 +232,7 @@ void main() {
         const StepExpression(AncestorAxis()),
         LiteralExpression(XPathSequence.single(XPathInteger.fromInt(1))),
       ]);
-      check(path.isOrderPreserved).isFalse();
+      check(path.isOrderPreserved).isFalse;
       final evalContext = XPathConfiguration().context(
         xml.rootElement.children.first,
       );
@@ -246,7 +246,7 @@ void main() {
         const StepExpression(AncestorAxis()),
         const StepExpression(ChildAxis()),
       ]);
-      check(path.isOrderPreserved).isFalse();
+      check(path.isOrderPreserved).isFalse;
       // Evaluate starting at a 'b' node
       final evalContext = XPathConfiguration().context(
         xml.findAllElements('b').first,
@@ -268,7 +268,7 @@ void main() {
         ),
         const StepExpression(SelfAxis()),
       ]);
-      check(path.isOrderPreserved).isFalse();
+      check(path.isOrderPreserved).isFalse;
       final result = path(context);
       // Expected to find 55 elements from xml1 + 2 elements from xml2 = 57
       check(result).length.equals(57);
@@ -278,7 +278,7 @@ void main() {
   group('order preservation with RootNodeExpression', () {
     test('RootNodeExpression alone', () {
       check(PathExpression(const [RootNodeExpression()]).isOrderPreserved)
-          .isTrue();
+          .isTrue;
     });
 
     test('RootNodeExpression followed by any single step', () {
@@ -287,25 +287,25 @@ void main() {
           RootNodeExpression(),
           StepExpression(ChildAxis()),
         ]).isOrderPreserved,
-      ).isTrue();
+      ).isTrue;
       check(
         PathExpression(const [
           RootNodeExpression(),
           StepExpression(DescendantAxis()),
         ]).isOrderPreserved,
-      ).isTrue();
+      ).isTrue;
       check(
         PathExpression(const [
           RootNodeExpression(),
           StepExpression(DescendantOrSelfAxis()),
         ]).isOrderPreserved,
-      ).isTrue();
+      ).isTrue;
       check(
         PathExpression(const [
           RootNodeExpression(),
           StepExpression(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
         ]).isOrderPreserved,
-      ).isTrue();
+      ).isTrue;
     });
 
     test('RootNodeExpression (childStep)+', () {
@@ -316,7 +316,7 @@ void main() {
           StepExpression(ChildAxis()),
           StepExpression(ChildAxis()),
         ]).isOrderPreserved,
-      ).isTrue();
+      ).isTrue;
     });
 
     test('RootNodeExpression (childStep)* (descendantStep)? (selfStep | attributeStep)*', () {
@@ -326,7 +326,7 @@ void main() {
           StepExpression(ChildAxis()),
           StepExpression(DescendantAxis()),
         ]).isOrderPreserved,
-      ).isTrue();
+      ).isTrue;
       check(
         PathExpression(const [
           RootNodeExpression(),
@@ -334,7 +334,7 @@ void main() {
           StepExpression(DescendantAxis()),
           StepExpression(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
         ]).isOrderPreserved,
-      ).isTrue();
+      ).isTrue;
       check(
         PathExpression(const [
           RootNodeExpression(),
@@ -342,7 +342,7 @@ void main() {
           StepExpression(SelfAxis()),
           StepExpression(AttributeAxis(), nodeTest: QualifiedNameTest('id')),
         ]).isOrderPreserved,
-      ).isTrue();
+      ).isTrue;
     });
 
     test('RootNodeExpression followed by non-order-preserving steps', () {
@@ -352,55 +352,55 @@ void main() {
           StepExpression(ChildAxis()),
           StepExpression(ParentAxis()),
         ]).isOrderPreserved,
-      ).isFalse();
+      ).isFalse;
       check(
         PathExpression(const [
           RootNodeExpression(),
           StepExpression(ChildAxis()),
           StepExpression(AncestorAxis()),
         ]).isOrderPreserved,
-      ).isFalse();
+      ).isFalse;
       check(
         PathExpression(const [
           RootNodeExpression(),
           StepExpression(ChildAxis()),
           StepExpression(PrecedingAxis()),
         ]).isOrderPreserved,
-      ).isFalse();
+      ).isFalse;
       check(
         PathExpression(const [
           RootNodeExpression(),
           StepExpression(ChildAxis()),
           StepExpression(FollowingAxis()),
         ]).isOrderPreserved,
-      ).isFalse();
+      ).isFalse;
       check(
         PathExpression(const [
           RootNodeExpression(),
           StepExpression(ChildAxis()),
           StepExpression(PrecedingSiblingAxis()),
         ]).isOrderPreserved,
-      ).isFalse();
+      ).isFalse;
       check(
         PathExpression(const [
           RootNodeExpression(),
           StepExpression(ChildAxis()),
           StepExpression(FollowingSiblingAxis()),
         ]).isOrderPreserved,
-      ).isFalse();
+      ).isFalse;
       check(
         PathExpression(const [
           RootNodeExpression(),
           StepExpression(DescendantAxis()),
           StepExpression(ChildAxis()),
         ]).isOrderPreserved,
-      ).isFalse();
+      ).isFalse;
       check(
         PathExpression([
           const RootNodeExpression(),
           LiteralExpression(XPathSequence.single(XPathInteger.fromInt(1))),
         ]).isOrderPreserved,
-      ).isFalse();
+      ).isFalse;
     });
   });
 
@@ -408,72 +408,71 @@ void main() {
     test('common absolute queries are order-preserved', () {
       check(
         (parseExpression('/root/item/name') as PathExpression).isOrderPreserved,
-      ).isTrue();
+      ).isTrue;
       check((parseExpression('/root/item') as PathExpression).isOrderPreserved)
-          .isTrue();
+          .isTrue;
       check((parseExpression('/root') as PathExpression).isOrderPreserved)
-          .isTrue();
+          .isTrue;
       check((parseExpression('/root/@id') as PathExpression).isOrderPreserved)
-          .isTrue();
+          .isTrue;
       check(
         (parseExpression('/root/item/@id') as PathExpression).isOrderPreserved,
-      ).isTrue();
+      ).isTrue;
       check((parseExpression('//item') as PathExpression).isOrderPreserved)
-          .isTrue();
-      check((parseExpression('//*') as PathExpression).isOrderPreserved)
-          .isTrue();
+          .isTrue;
+      check((parseExpression('//*') as PathExpression).isOrderPreserved).isTrue;
       check((parseExpression('/root//item') as PathExpression).isOrderPreserved)
-          .isTrue();
+          .isTrue;
       check((parseExpression('//item/@id') as PathExpression).isOrderPreserved)
-          .isTrue();
+          .isTrue;
       check((parseExpression('//item/.') as PathExpression).isOrderPreserved)
-          .isTrue();
+          .isTrue;
       check(
         (parseExpression(
           '/root/item[1]/name',
         ) as PathExpression).isOrderPreserved,
-      ).isTrue();
+      ).isTrue;
     });
 
     test('absolute queries with reverse or non-preserving axes are not order-preserved', () {
       check(
         (parseExpression('/root/item/..') as PathExpression).isOrderPreserved,
-      ).isFalse();
+      ).isFalse;
       check(
         (parseExpression(
           '/root/item/ancestor::*',
         ) as PathExpression).isOrderPreserved,
-      ).isFalse();
+      ).isFalse;
       check(
         (parseExpression(
           '/root/item/preceding::*',
         ) as PathExpression).isOrderPreserved,
-      ).isFalse();
+      ).isFalse;
       check(
         (parseExpression(
           '/root/item/following::*',
         ) as PathExpression).isOrderPreserved,
-      ).isFalse();
+      ).isFalse;
       check(
         (parseExpression(
           '/root/item/preceding-sibling::*',
         ) as PathExpression).isOrderPreserved,
-      ).isFalse();
+      ).isFalse;
       check(
         (parseExpression(
           '/root/item/following-sibling::*',
         ) as PathExpression).isOrderPreserved,
-      ).isFalse();
+      ).isFalse;
       check(
         (parseExpression('//root//item') as PathExpression).isOrderPreserved,
-      ).isFalse();
+      ).isFalse;
       check((parseExpression('//item/*') as PathExpression).isOrderPreserved)
-          .isFalse();
+          .isFalse;
       check(
         (parseExpression(
           '//item/child::name',
         ) as PathExpression).isOrderPreserved,
-      ).isFalse();
+      ).isFalse;
     });
   });
 
@@ -577,7 +576,7 @@ void main() {
               'Node at index $i (${list[i]}) must precede node at index '
               '${i + 1} (${list[i + 1]}), but compareDocumentPosition returned $pos',
           pos.isFollowing,
-        ).isTrue();
+        ).isTrue;
       }
     }
 

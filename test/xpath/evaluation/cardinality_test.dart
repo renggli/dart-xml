@@ -16,64 +16,64 @@ void main() {
       test('exactlyOne is subtype of every cardinality', () {
         check(
           XPathCardinality.exactlyOne.isSubtypeOf(XPathCardinality.exactlyOne),
-        ).isTrue();
+        ).isTrue;
         check(
           XPathCardinality.exactlyOne.isSubtypeOf(XPathCardinality.zeroOrOne),
-        ).isTrue();
+        ).isTrue;
         check(
           XPathCardinality.exactlyOne.isSubtypeOf(XPathCardinality.oneOrMore),
-        ).isTrue();
+        ).isTrue;
         check(
           XPathCardinality.exactlyOne.isSubtypeOf(XPathCardinality.zeroOrMore),
-        ).isTrue();
+        ).isTrue;
       });
 
       // zeroOrOne (?) is subtype of ? and * only.
       test('zeroOrOne subtype relations', () {
         check(
           XPathCardinality.zeroOrOne.isSubtypeOf(XPathCardinality.exactlyOne),
-        ).isFalse();
+        ).isFalse;
         check(
           XPathCardinality.zeroOrOne.isSubtypeOf(XPathCardinality.zeroOrOne),
-        ).isTrue();
+        ).isTrue;
         check(
           XPathCardinality.zeroOrOne.isSubtypeOf(XPathCardinality.oneOrMore),
-        ).isFalse();
+        ).isFalse;
         check(
           XPathCardinality.zeroOrOne.isSubtypeOf(XPathCardinality.zeroOrMore),
-        ).isTrue();
+        ).isTrue;
       });
 
       // oneOrMore (+) is subtype of + and * only.
       test('oneOrMore subtype relations', () {
         check(
           XPathCardinality.oneOrMore.isSubtypeOf(XPathCardinality.exactlyOne),
-        ).isFalse();
+        ).isFalse;
         check(
           XPathCardinality.oneOrMore.isSubtypeOf(XPathCardinality.zeroOrOne),
-        ).isFalse();
+        ).isFalse;
         check(
           XPathCardinality.oneOrMore.isSubtypeOf(XPathCardinality.oneOrMore),
-        ).isTrue();
+        ).isTrue;
         check(
           XPathCardinality.oneOrMore.isSubtypeOf(XPathCardinality.zeroOrMore),
-        ).isTrue();
+        ).isTrue;
       });
 
       // zeroOrMore (*) is the most general: only subtype of itself.
       test('zeroOrMore is only subtype of itself', () {
         check(
           XPathCardinality.zeroOrMore.isSubtypeOf(XPathCardinality.exactlyOne),
-        ).isFalse();
+        ).isFalse;
         check(
           XPathCardinality.zeroOrMore.isSubtypeOf(XPathCardinality.zeroOrOne),
-        ).isFalse();
+        ).isFalse;
         check(
           XPathCardinality.zeroOrMore.isSubtypeOf(XPathCardinality.oneOrMore),
-        ).isFalse();
+        ).isFalse;
         check(
           XPathCardinality.zeroOrMore.isSubtypeOf(XPathCardinality.zeroOrMore),
-        ).isTrue();
+        ).isTrue;
       });
     });
   });

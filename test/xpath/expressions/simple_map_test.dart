@@ -21,11 +21,11 @@ void main() {
     });
     test('() ! 1', () {
       final context = XPathConfiguration().context(XPathSequence.empty);
-      check(context.evaluate('() ! 1')).isEmpty();
+      check(context.evaluate('() ! 1')).isEmpty;
     });
     test('1 ! ()', () {
       final context = XPathConfiguration().context(XPathSequence.empty);
-      check(context.evaluate('1 ! ()')).isEmpty();
+      check(context.evaluate('1 ! ()')).isEmpty;
     });
     test('(1, 2) ! (., .)', () {
       final context = XPathConfiguration().context(XPathSequence.empty);

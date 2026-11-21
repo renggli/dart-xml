@@ -29,7 +29,7 @@ void main() {
 
       check(b1).equals(b2);
       check(b1.hashCode).equals(b2.hashCode);
-      check(b1 == b3).isFalse();
+      check(b1 == b3).isFalse;
       check(b1.compareTo(b2)).equals(0);
       check(b1.compareTo(b3)).isLessThan(0);
       check(b3.compareTo(b1)).isGreaterThan(0);
@@ -65,7 +65,7 @@ void main() {
       final h3 = XPathBinary.fromHex('01');
 
       check(h1).equals(h2);
-      check(h1 == h3).isFalse();
+      check(h1 == h3).isFalse;
       check(h1.compareTo(h2)).equals(0);
       check(h1.compareTo(h3)).isLessThan(0);
       check(h3.compareTo(h1)).isGreaterThan(0);
