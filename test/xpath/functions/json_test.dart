@@ -1216,7 +1216,7 @@ void main() {
 
         // Unescaped string characters in xml-to-json: ", \, /, \b, \f, \n, \r, \t, control < 0x20
         final docRawChars = XmlDocument.parse('''
-          <string xmlns="http://www.w3.org/2005/xpath-functions">"quote" /slash/ \\backslash\\ \b \f \n \r \t \x01 \x85</string>
+          <string xmlns="http://www.w3.org/2005/xpath-functions">"quote" /slash/ \\backslash\\ \b \f \n &#xD; \t \x01 \x85</string>
         ''');
         final resRaw = fnXmlToJson(context, [
           seq(docRawChars),

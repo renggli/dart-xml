@@ -1,5 +1,6 @@
 import '../../xml/entities/entity_mapping.dart';
 import '../../xml/enums/node_type.dart';
+import '../../xml/utils/end_of_line.dart';
 import '../event.dart';
 import '../visitor.dart';
 
@@ -35,7 +36,7 @@ class XmlRawTextEvent extends XmlEvent implements XmlTextEvent {
   final XmlEntityMapping entityMapping;
 
   @override
-  late final String value = entityMapping.decode(raw);
+  late final String value = entityMapping.decode(normalizeEndOfLine(raw));
 
   @override
   String get text => value;

@@ -1,6 +1,7 @@
 import 'package:checks/checks.dart';
 import 'package:test/scaffolding.dart';
 import 'package:xml/xml.dart';
+import 'package:xml/xml_events.dart';
 
 import 'utils/assertions.dart';
 import 'utils/checks.dart';
@@ -729,6 +730,46 @@ void main() {
               isXmlParserException(message: '"?>" expected', position: 12),
             );
       });
+    });
+  });
+  group('end-of-line normalization', () {
+    test('text', () {
+      final doc = XmlDocument.parse('<root>a\r\nb\rc\nd\r\n&#xD;&#13;</root>');
+      check(doc.rootElement.innerText).equals('a\nb\nc\nd\n\r\r');
+    });
+    test('attributes', () {
+      final doc = XmlDocument.parse(
+        '<root a="1\r\n2\r3&#xD;" b=\'4\r\n5\r6&#13;\'/>',
+      );
+      check(doc.rootElement.getAttribute('a')).equals('1\n2\n3\r');
+      check(doc.rootElement.getAttribute('b')).equals('4\n5\n6\r');
+    });
+    test('comment, cdata, processing, doctype', () {
+      final doc = XmlDocument.parse(
+        '<!DOCTYPE root [\r\n<!ELEMENT root (#PCDATA)>\r]>\r\n'
+        '<root><!--c1\r\nc2\rc3--><![CDATA[d1\r\nd2\rd3]]><?pi p1\r\np2\rp3?></root>',
+      );
+      check(doc.doctypeElement?.internalSubset)
+          .equals('\n<!ELEMENT root (#PCDATA)>\n');
+      final children = doc.rootElement.children;
+      check((children[0] as XmlComment).value).equals('c1\nc2\nc3');
+      check((children[1] as XmlCDATA).value).equals('d1\nd2\nd3');
+      check((children[2] as XmlProcessing).value).equals('p1\np2\np3');
+    });
+    test('preserves source offsets and positions', () {
+      const input = '<root>\r\n  <child>a\r\nb</child>\r\n</root>';
+      final events = parseEvents(input, withLocation: true).toList();
+      check(events[0].start).equals(0);
+      check(events[0].stop).equals(6);
+      check(events[1].start).equals(6);
+      check(events[1].stop).equals(10);
+      check(events[2].start).equals(10);
+      check(events[2].stop).equals(17);
+      check((events[3] as XmlTextEvent).value).equals('a\nb');
+      check(events[3].start).equals(17);
+      check(events[3].stop).equals(21);
+      check(events[4].start).equals(21);
+      check(events[4].stop).equals(29);
     });
   });
 }

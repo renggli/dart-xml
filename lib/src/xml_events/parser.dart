@@ -5,6 +5,7 @@ import '../xml/entities/entity_mapping.dart';
 import '../xml/enums/attribute_type.dart';
 import '../xml/utils/cache.dart';
 import '../xml/utils/character_data_parser.dart';
+import '../xml/utils/end_of_line.dart';
 import '../xml/utils/name_parser.dart' as name_parser;
 import '../xml/utils/token.dart';
 import 'event.dart';
@@ -89,17 +90,25 @@ class XmlEventParser {
     ref0(attributeValueNoQuote),
   ].toChoiceParser();
 
-  Parser<(String, XmlAttributeType)> attributeValueDoubleQuote() => seq3(
-    XmlToken.doubleQuote.toParser(),
-    XmlCharacterDataParser(XmlToken.doubleQuote, 0),
-    XmlToken.doubleQuote.toParser(),
-  ).map3((_, value, _) => (value, XmlAttributeType.DOUBLE_QUOTE));
+  Parser<(String, XmlAttributeType)> attributeValueDoubleQuote() =>
+      seq3(
+        XmlToken.doubleQuote.toParser(),
+        XmlCharacterDataParser(XmlToken.doubleQuote, 0),
+        XmlToken.doubleQuote.toParser(),
+      ).map3(
+        (_, value, _) =>
+            (normalizeEndOfLine(value), XmlAttributeType.DOUBLE_QUOTE),
+      );
 
-  Parser<(String, XmlAttributeType)> attributeValueSingleQuote() => seq3(
-    XmlToken.singleQuote.toParser(),
-    XmlCharacterDataParser(XmlToken.singleQuote, 0),
-    XmlToken.singleQuote.toParser(),
-  ).map3((_, value, _) => (value, XmlAttributeType.SINGLE_QUOTE));
+  Parser<(String, XmlAttributeType)> attributeValueSingleQuote() =>
+      seq3(
+        XmlToken.singleQuote.toParser(),
+        XmlCharacterDataParser(XmlToken.singleQuote, 0),
+        XmlToken.singleQuote.toParser(),
+      ).map3(
+        (_, value, _) =>
+            (normalizeEndOfLine(value), XmlAttributeType.SINGLE_QUOTE),
+      );
 
   Parser<(String, XmlAttributeType)> attributeValueNoQuote() =>
       ref0(nameToken).map((value) => (value, XmlAttributeType.DOUBLE_QUOTE));
@@ -117,7 +126,7 @@ class XmlEventParser {
         .starLazy(XmlToken.closeComment.toParser())
         .flatten(message: '"${XmlToken.closeComment}" expected'),
     XmlToken.closeComment.toParser(),
-  ).map3((_, text, _) => XmlCommentEvent(text));
+  ).map3((_, text, _) => XmlCommentEvent(normalizeEndOfLine(text)));
 
   Parser<XmlCDATAEvent> cdata() => seq3(
     XmlToken.openCDATA.toParser(),
@@ -125,7 +134,7 @@ class XmlEventParser {
         .starLazy(XmlToken.closeCDATA.toParser())
         .flatten(message: '"${XmlToken.closeCDATA}" expected'),
     XmlToken.closeCDATA.toParser(),
-  ).map3((_, text, _) => XmlCDATAEvent(text));
+  ).map3((_, text, _) => XmlCDATAEvent(normalizeEndOfLine(text)));
 
   Parser<XmlDeclarationEvent> declaration() => seq4(
     XmlToken.openDeclaration.toParser(),
@@ -142,7 +151,7 @@ class XmlEventParser {
       any()
           .starLazy(XmlToken.closeProcessing.toParser())
           .flatten(message: '"${XmlToken.closeProcessing}" expected'),
-    ).map2((_, text) => text).optionalWith(''),
+    ).map2((_, text) => normalizeEndOfLine(text)).optionalWith(''),
     XmlToken.closeProcessing.toParser(),
   ).map4((_, target, text, _) => XmlProcessingEvent(target, text));
 
@@ -206,7 +215,7 @@ class XmlEventParser {
         .starLazy(XmlToken.closeDoctypeIntSubset.toParser())
         .flatten(message: '"${XmlToken.closeDoctypeIntSubset}" expected'),
     XmlToken.closeDoctypeIntSubset.toParser(),
-  ).map3((_, contents, _) => contents);
+  ).map3((_, contents, _) => normalizeEndOfLine(contents));
 
   Parser doctypeElementDecl() => seq3(
     XmlToken.doctypeElementDecl.toParser(),

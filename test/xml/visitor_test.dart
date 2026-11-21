@@ -128,8 +128,8 @@ void main() {
   group('writer', () {
     final document = XmlDocument.parse(
       '<body>\n'
-      '  <a>\tWhat\r the  heck?\n</a>\n'
-      '  <b>\tWhat\r the  heck?\n</b>\n'
+      '  <a>\tWhat&#xD; the  heck?\n</a>\n'
+      '  <b>\tWhat&#xD; the  heck?\n</b>\n'
       '</body>',
     );
     test('default', () {
