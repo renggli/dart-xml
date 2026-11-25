@@ -14,7 +14,7 @@ abstract class XmlEntityMapping {
     // Otherwise traverse the input and decode all entities.
     final buffer = StringBuffer(input.substring(0, start));
     while (true) {
-      final index = input.indexOf(XmlToken.entityEnd, start + 1);
+      final index = _indexOfEntityEnd(input, start + 1);
       if (start + 1 < index) {
         final entity = input.substring(start + 1, index);
         final value = decodeEntity(entity);
@@ -58,3 +58,22 @@ abstract class XmlEntityMapping {
   String encodeAttributeValueWithQuotes(String input, XmlAttributeType type) =>
       '${type.token}${encodeAttributeValue(input, type)}${type.token}';
 }
+
+/// Returns the index of the [XmlToken.entityEnd] terminating an entity body
+/// that begins at [start], or `-1` if the end of the [input] or another
+/// [XmlToken.entityStart] comes first.
+///
+/// Stopping at the next [XmlToken.entityStart] keeps decoding linear for
+/// inputs with many unterminated entities (e.g. `'&' * 100000`), instead of
+/// scanning to the end of the input for every one of them.
+int _indexOfEntityEnd(String input, int start) {
+  for (var index = start; index < input.length; index++) {
+    final char = input.codeUnitAt(index);
+    if (char == _entityEnd) return index;
+    if (char == _entityStart) return -1;
+  }
+  return -1;
+}
+
+const _entityStart = 0x26; // XmlToken.entityStart
+const _entityEnd = 0x3B; // XmlToken.entityEnd
