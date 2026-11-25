@@ -7,6 +7,7 @@ import '../xml/utils/cache.dart';
 import '../xml/utils/character_data_parser.dart';
 import '../xml/utils/end_of_line.dart';
 import '../xml/utils/name_parser.dart' as name_parser;
+import '../xml/utils/name_token_parser.dart';
 import '../xml/utils/token.dart';
 import 'event.dart';
 import 'events/cdata.dart';
@@ -281,15 +282,7 @@ class XmlEventParser {
 
   Parser<String> nonColonizedChar() => name_parser.nonColonizedChar;
 
-  Parser<String> nameToken() => seq2(
-    ref0(nameStartChar),
-    ref0(nameChar).star(),
-  ).flatten(message: 'name expected');
-
-  Parser<String> nameStartChar() =>
-      pattern(XmlToken.nameStartChars, unicode: true);
-
-  Parser<String> nameChar() => pattern(XmlToken.nameChars, unicode: true);
+  Parser<String> nameToken() => XmlNameTokenParser('name expected');
 }
 
 final XmlCache<XmlEntityMapping, Parser<XmlEvent>> eventParserCache = XmlCache(
