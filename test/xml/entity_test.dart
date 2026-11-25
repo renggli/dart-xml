@@ -52,6 +52,38 @@ void testDefaultMapping(XmlEntityMapping entityMapping) {
     });
     test('empty', () {
       check(entityMapping.decode('&;')).equals('&;');
+      check(entityMapping.decode('&&;')).equals('&&;');
+      check(entityMapping.decode('&#;')).equals('&#;');
+      check(entityMapping.decode('&#x;')).equals('&#x;');
+    });
+    test('unterminated', () {
+      check(entityMapping.decode('a&')).equals('a&');
+      check(entityMapping.decode('&#65')).equals('&#65');
+      check(entityMapping.decode('&a&b&c')).equals('&a&b&c');
+      check(entityMapping.decode('&amp&amp;')).equals('&amp&');
+      check(entityMapping.decode('&lt&gt;')).equals('&lt>');
+      check(entityMapping.decode('&#65&#66;')).equals('&#65B');
+    });
+    test('unknown', () {
+      check(entityMapping.decode('&foo;')).equals('&foo;');
+      check(entityMapping.decode('&abc def;')).equals('&abc def;');
+      check(entityMapping.decode('&#xZZ;')).equals('&#xZZ;');
+    });
+    test('overflow', () {
+      check(entityMapping.decode('&#99999999999999999999;'))
+          .equals('&#99999999999999999999;');
+      check(entityMapping.decode('&#xFFFFFFFFFFFFFFFF;'))
+          .equals('&#xFFFFFFFFFFFFFFFF;');
+      check(entityMapping.decode('&#4294967361;')).equals('&#4294967361;');
+      check(entityMapping.decode('&#x100000041;')).equals('&#x100000041;');
+    });
+    test('many unterminated', () {
+      // Used to take quadratic time, scanning for `;` from every `&`.
+      final ampersands = '&' * 100000;
+      check(entityMapping.decode(ampersands)).equals(ampersands);
+      final letters = '&a' * 50000;
+      check(entityMapping.decode(letters)).equals(letters);
+      check(entityMapping.decode('$ampersands&amp;')).equals('$ampersands&');
     });
     test('none', () {
       check(entityMapping.decode('')).equals('');
@@ -197,6 +229,9 @@ void main() {
     test('special', () {
       check(entityMapping.decode('&bigstar;')).equals('★');
       check(entityMapping.decode('&block;')).equals('█');
+    });
+    test('unterminated', () {
+      check(entityMapping.decode('&nbsp&nbsp;')).equals('&nbsp ');
     });
   });
   group('custom', () {
