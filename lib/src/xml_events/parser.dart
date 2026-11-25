@@ -3,6 +3,7 @@ import 'package:petitparser/petitparser.dart';
 import '../xml/dtd/external_id.dart';
 import '../xml/entities/entity_mapping.dart';
 import '../xml/enums/attribute_type.dart';
+import '../xml/utils/attribute_value.dart';
 import '../xml/utils/cache.dart';
 import '../xml/utils/character_data_parser.dart';
 import '../xml/utils/end_of_line.dart';
@@ -96,8 +97,10 @@ class XmlEventParser {
         XmlCharacterDataParser(XmlToken.doubleQuote, 0),
         XmlToken.doubleQuote.toParser(),
       ).map3(
-        (_, value, _) =>
-            (normalizeEndOfLine(value), XmlAttributeType.DOUBLE_QUOTE),
+        (_, value, _) => (
+          normalizeAttributeValue(normalizeEndOfLine(value)),
+          XmlAttributeType.DOUBLE_QUOTE,
+        ),
       );
 
   Parser<(String, XmlAttributeType)> attributeValueSingleQuote() =>
@@ -106,8 +109,10 @@ class XmlEventParser {
         XmlCharacterDataParser(XmlToken.singleQuote, 0),
         XmlToken.singleQuote.toParser(),
       ).map3(
-        (_, value, _) =>
-            (normalizeEndOfLine(value), XmlAttributeType.SINGLE_QUOTE),
+        (_, value, _) => (
+          normalizeAttributeValue(normalizeEndOfLine(value)),
+          XmlAttributeType.SINGLE_QUOTE,
+        ),
       );
 
   Parser<(String, XmlAttributeType)> attributeValueNoQuote() =>
