@@ -741,8 +741,8 @@ void main() {
       final doc = XmlDocument.parse(
         '<root a="1\r\n2\r3&#xD;" b=\'4\r\n5\r6&#13;\'/>',
       );
-      check(doc.rootElement.getAttribute('a')).equals('1\n2\n3\r');
-      check(doc.rootElement.getAttribute('b')).equals('4\n5\n6\r');
+      check(doc.rootElement.getAttribute('a')).equals('1 2 3\r');
+      check(doc.rootElement.getAttribute('b')).equals('4 5 6\r');
     });
     test('comment, cdata, processing, doctype', () {
       final doc = XmlDocument.parse(
@@ -770,6 +770,47 @@ void main() {
       check(events[3].stop).equals(21);
       check(events[4].start).equals(21);
       check(events[4].stop).equals(29);
+    });
+  });
+  group('attribute-value normalization', () {
+    test('whitespace characters', () {
+      final doc = XmlDocument.parse('<r a="x\ty\nz" b=\'x\ty\nz\'/>');
+      check(doc.rootElement.getAttribute('a')).equals('x y z');
+      check(doc.rootElement.getAttribute('b')).equals('x y z');
+    });
+    test('end-of-line sequences', () {
+      final doc = XmlDocument.parse('<r a="1\r\n2\r3\n\r4" b=\'1\r\n2\'/>');
+      check(doc.rootElement.getAttribute('a')).equals('1 2 3  4');
+      check(doc.rootElement.getAttribute('b')).equals('1 2');
+    });
+    test('spaces', () {
+      final doc = XmlDocument.parse('<r a="  x  y  " b=\'  x  y  \'/>');
+      check(doc.rootElement.getAttribute('a')).equals('  x  y  ');
+      check(doc.rootElement.getAttribute('b')).equals('  x  y  ');
+    });
+    test('character references', () {
+      final doc = XmlDocument.parse(
+        '<r a="x&#9;y&#10;z&#13;" b=\'x&#x9;y&#xA;z&#xD;\'/>',
+      );
+      check(doc.rootElement.getAttribute('a')).equals('x\ty\nz\r');
+      check(doc.rootElement.getAttribute('b')).equals('x\ty\nz\r');
+    });
+    test('events', () {
+      final events = parseEvents('<r a="x\ty\r\nz" b=\'x&#9;y&#xA;z\'/>');
+      final attributes = (events.single as XmlStartElementEvent).attributes;
+      check(attributes[0].value).equals('x y z');
+      check(attributes[1].value).equals('x\ty\nz');
+    });
+    test('round-trip', () {
+      const value = '\tx\r\ny\nz\r ';
+      for (final type in XmlAttributeType.values) {
+        final element = XmlElement.tag(
+          'r',
+          attributes: [XmlAttribute(XmlName('a'), value, type)],
+        );
+        final doc = XmlDocument.parse(element.toXmlString());
+        check(doc.rootElement.getAttribute('a')).equals(value);
+      }
     });
   });
 }

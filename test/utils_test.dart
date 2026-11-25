@@ -2,6 +2,7 @@ import 'package:checks/checks.dart';
 import 'package:petitparser/reflection.dart';
 import 'package:test/scaffolding.dart';
 import 'package:xml/src/xml/entities/null_mapping.dart';
+import 'package:xml/src/xml/utils/attribute_value.dart';
 import 'package:xml/src/xml/utils/cache.dart';
 import 'package:xml/src/xml/utils/end_of_line.dart';
 import 'package:xml/src/xml_events/parser.dart';
@@ -40,6 +41,22 @@ void main() {
       check(normalizeEndOfLine('\r\r\n')).equals('\n\n');
       check(normalizeEndOfLine('a\r\nb\rc\nd\r')).equals('a\nb\nc\nd\n');
       check(normalizeEndOfLine('a\n\r')).equals('a\n\n');
+    });
+  });
+  group('attribute value', () {
+    test('no whitespace returns identical string', () {
+      const input = 'hello world';
+      check(identical(normalizeAttributeValue(input), input)).isTrue;
+      check(normalizeAttributeValue('')).equals('');
+    });
+    test('normalizes tab, newline and carriage return', () {
+      check(normalizeAttributeValue('\t')).equals(' ');
+      check(normalizeAttributeValue('\n')).equals(' ');
+      check(normalizeAttributeValue('\r')).equals(' ');
+      check(normalizeAttributeValue('\t\n\r')).equals('   ');
+      check(normalizeAttributeValue('a\tb\nc\rd')).equals('a b c d');
+      check(normalizeAttributeValue('\ta b\n')).equals(' a b ');
+      check(normalizeAttributeValue('&#9;&#10;')).equals('&#9;&#10;');
     });
   });
   group('parser', () {
