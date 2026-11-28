@@ -49,8 +49,14 @@ class XmlPrecedingIterator implements Iterator<XmlNode> {
         _todo.clear();
         return false;
       }
-      _todo.addAll(_current!.children.reversed);
-      _todo.addAll(_current!.attributes.reversed);
+      final children = _current!.children;
+      for (var i = children.length - 1; i >= 0; i--) {
+        _todo.add(children[i]);
+      }
+      final attributes = _current!.attributes;
+      for (var i = attributes.length - 1; i >= 0; i--) {
+        _todo.add(attributes[i]);
+      }
       return true;
     }
   }
